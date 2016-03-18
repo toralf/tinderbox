@@ -1,5 +1,5 @@
 # tinderbox
-detect build issues of and conflicts between Gentoo packages
+Gentoo Linux build bot
 
 
 shell scripts
