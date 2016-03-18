@@ -25,9 +25,11 @@ and create a directory to hold the chroot images (*images2* in the example below
 
 ## typical calls
 Setup a new image:
+
     $> echo "sudo ~/tb/bin/tbs.sh -A -m unstable -i ~/images2 -p default/linux/amd64/13.0/desktop/kde" | at now
 
 Start all not-running images:
+
     $> ~/tb/bin/start_img.sh
 
 
