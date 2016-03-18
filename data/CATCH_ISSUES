@@ -1,0 +1,114 @@
+^environment: line .* Segmentation fault
+ACCESS VIOLATION SUMMARY
+Ambiguous occurrence
+Can't read
+CMake will not be able to correctly generate this project.
+class file .* not found
+has incomplete type
+undefined reference
+undefined symbol:
+exited with code: 1.
+Fetch instructions for
+I can't find the format file
+is invalid
+ld: cannot find
+multiple definition of
+must be installed to use
+Non type-variable argument
+too few arguments to function
+Error 137
+Line indented less than expected
+Parse error
+object has no attribute
+does not exist
+.*.texinfo:.*: unknown command
+reference to Parameter is ambiguous
+Segmentation fault
+Unknown M68KMAKE directive
+Could not find Objective-C runtime
+USE Flag .* not in IUSE
+was not declared in this scope
+You need package
+ninja: build stopped:
+: undefined method
+Please specify at least one package name on the command line.
+make inconsistent assumptions over
+ERROR: you will need
+file was not found
+Could not find a package configuration file provided by
+CMake Error at
+Configuring incomplete, errors occurred
+Unknown CMake command
+include called with wrong number of arguments
+error: expected expression before
+No rule to make target
+ld returned 1 exit status
+LoadError
+cannot find symbol
+incompatible types
+bad class file:
+Compile failed; see the compiler error
+Failed Patch:
+can't get .* relocation type
+fatal:
+Not in scope:
+The Motif libraries are not installed.
+No instance for (
+setup: At least the following dependencies are missing:
+texi2info failed
+error in setup command
+Could not find Objective-C
+Requires at least PyQ.*
+You have to install development tools first.
+is not a function name
+mkdir: cannot create directory
+required by '.*', not found
+.*command not found
+Unable to find program
+required internal CMake variable not set
+javac: invalid source release
+Unknown channel
+bad option
+Assertion .* failed
+Aborted
+Failed to find
+dereferencing pointer to
+Error getting
+CMake Error at
+cmake failed
+ImportError:
+Error on line
+chown: invalid user
+is not on the classpath.
+Failed Running automake
+error while loading shared libraries
+PYTHON needs to be set for
+Add .* to DEPEND
+Cannot find \$EPATCH_SOURCE!
+Failed Running autoconf
+mv: cannot stat
+No CommonLisp implementation found
+Could not link test program to Python
+cannot find package
+Failed Running aclocal
+is banned in EAPI=
+make: .*: Command not found
+make:.* Stop.
+error adding symbols:
+missing separator
+Make check failed. See above for details.
+fatal error:.*No such file or directory
+compilation terminated.
+pdflatex failed
+An exception has occurred in the compiler
+error in .* command
+Can't locate Locale/Messages.pm in @INC
+Error 127
+Ebuild author forgot an entry
+error:
+No package .* found
+Error:
+ERROR:
+Error
+error
+ERROR

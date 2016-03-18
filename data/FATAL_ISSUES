@@ -1,0 +1,4 @@
+Exiting on signal
+No space left on device
+^out of memory
+undefined reference to .*std::__cxx11

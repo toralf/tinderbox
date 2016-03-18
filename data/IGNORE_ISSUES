@@ -1,0 +1,92 @@
+Active version of CPython 3 is not supported by
+A file is not listed in the Manifest:
+All ebuilds that could satisfy ".*" have been masked.
+/boot/grub does not exist, please make sure you have /boot mounted
+Cannot build with randomized sbrk. Your options:
+cc1: error: incompatible gcc/plugin versions
+checking for kernel include tree... configure: error: no suitable configured kernel include tree found
+C compiler cannot create executables
+configure: error: You have to enable at least one snapshot type (remove some --disable-xxx parameter)
+Currently no working fortran compiler is available
+Did not find any valid mkl license.
+Digest verification failed:
+Download error on
+Emacs .* is not supported.
+emerge: there are no ebuilds.*to satisfy
+Error: circular dependencies:
+error: expected .* before ‘__printflike’
+ERROR: .* failed (pretend phase):
+Error: kernel is more recent than KVM modules delivered with this release.
+Error: The above package list contains packages which cannot be
+error This file requires compiler and library support for the ISO C++ 2011 standard
+error "You must build your code with position independent code if Qt
+Fetch failed for
+Fetch instructions for
+IMPORTANT: some Java tools are not available on some VMs on some architectures
+include called with wrong number of arguments.
+Incorrect kernel configuration options
+/installed_by_webapp_eclass
+Kernel configuration is invalid.
+Kernel not configured
+kernel too new
+KVM now needs CONFIG_KVM built into your kernel, even
+Linux >= .* and <= .* required for userspace modules
+Linux .* is the latest supported version.
+MINITUBE_GOOGLE_API_KEY env variable not defined!
+Missing or conflicting USE flags
+mmap: Operation not permitted
+Multiple package instances within a single package slot have been pulled
+NameError: global name 'normal_script_header' is not defined
+no CONFIG_.* support detected
+No packages selected for removal by unmerge
+No supported implementations match python_gen_usedep patterns:
+No supported Python implementation in PYTHON_SINGLE_TARGET/PYTHON_TARGETS.
+One of the following USE flags is needed:
+OpenCL ICD not set to a supported value
+OpenSSL is built without full ECC support, including curves P256 and P224
+\$ORACLE_HOME is not set!
+ORACLE_HOME variable is not set
+ould not find license file
+PANIC: .* (runtime code generation failed, restricted kernel)
+Please insert+mount the .* cdrom now
+Please install currently selected gcc version with USE=fortran
+Please re-emerge .* with USE=.*
+Please set one audio engine type
+Please use hardened sources
+PostgreSQL slot must be set to one of:
+Problem resolving dependencies for
+rdoc: command not found
+requires kernel version
+(runtime code generation failed, restricted kernel?)
+Sanity check to keep you from breaking your system:
+Select exactly one database type out of these:
+Setting the offensive use flag is required for this package
+something is screwed with your system
+Sorry, but gcc 4.9 or higher is unsupported
+Sorry, but you have to patch kernel sources with the following patch:
+The active compiler needs to be
+The following .* changes are necessary to proceed:
+The following .* constraints are unsatisfied:
+The HyperSpec cannot be redistributed
+The javac executable was not found in the Java path
+The Ninja generator does not support Fortran yet.
+There is insufficient memory for the Java Runtime Environment to continue.
+This can be caused by a system policy like PAX.
+This ebuild will need the cdrom for
+This package needs .* support in your CPU
+This probably means that this ebuild's files must be downloaded
+undefined reference to .list_cons.
+Use of my $_ is experimental at
+Use sys-devel/crossdev to build a .* toolchain
+Using PAX patches is not supported. You will be asked to
+/usr/bin/moar: error while loading shared libraries: libmoar.so: cannot enable executable stack as shared object requires: Permission denied
+WARNING! I don't seem to be running in the Docker container.
+WARNING: Symbol version dump ./Module.symvers
+won't compile with this kernel version
+You have to install development tools first.
+You \*must\* enable all of the following USE flags in
+You must enable at least one audio output
+You MUST re-emerge .* with
+You need one of the following mpi implementations: openmpi or mpich2
+Your kernel version .* is not supported.
+Your kernel version is not yet tested with this version of

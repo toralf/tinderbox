@@ -1,0 +1,103 @@
+# package.mask/common
+#
+
+# the tinderbox image does rely on ssmtp
+#
+mail-mta/courier
+mail-mta/esmtp
+mail-mta/exim
+mail-mta/mini-qmail
+mail-mta/msmtp
+mail-mta/netqmail
+mail-mta/nullmailer
+mail-mta/opensmtpd
+mail-mta/postfix
+mail-mta/qmail-ldap
+mail-mta/qpsmtpd
+mail-mta/sendmail
+
+# https://bugs.gentoo.org/show_bug.cgi?id=563880
+#
+=app-admin/sagan-0.2.3
+
+# various vim issue(s) at 1st run of vim
+#
+app-vim/c-support
+app-vim/ctx
+app-vim/curcmdmode
+app-vim/notes
+
+#	jpeg-turbo is preferred: https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
+#
+media-libs/jpeg
+
+#	ffmpeg is our choice
+#
+media-video/libav
+
+# hangs during emerge
+#
+app-editors/xemacs
+games-board/gnuchess-book
+
+# just a mess
+#
+dev-util/pkgconfig-openbsd
+
+# broken : https://bugs.gentoo.org/show_bug.cgi?id=536124
+#
+<=dev-lang/gnat-gcc-4.5.4
+
+# ongoing @world/@preserved-rebuild mess
+#
+#dev-python/pyzmq
+#dev-perl/ZMQ-LibZMQ2
+#dev-perl/ZMQ-LibZMQ3
+#net-libs/zeromq
+
+# oom
+#
+dev-scheme/racket
+
+# can't be build w/ recent kernels
+#
+net-fs/openafs
+net-fs/openafs-kernel
+
+# turns /etc/resolv.conf into an unworking symlink to /run
+#
+net-dns/resolvconf-symlink
+
+# too fat for 16 GB RAM
+#
+dev-java/icedtea
+mail-client/thunderbird
+
+# too long build time (too fat too ?)
+#
+app-office/libreoffice
+app-office/openoffice
+
+# https://bugs.gentoo.org/show_bug.cgi?id=540644
+#
+=dev-libs/DirectFB-1.7.6
+
+# icedtea-6 : https://bugs.gentoo.org/show_bug.cgi?id=568616
+#
+<dev-java/icedtea-bin-7.2.6.3
+<dev-java/icedtea-7.2.6.3
+<virtual/jre-1.7
+<virtual/jdk-1.7
+
+# https://bugs.gentoo.org/show_bug.cgi?id=569186
+#
+=app-text/rpl-1.5.5
+
+# can't be compiled at a hardened kernel
+# https://bugs.gentoo.org/show_bug.cgi?id=572188
+#
+dev-lang/julia
+
+#
+#
+#>=dev-libs/openssl-1.0.2g

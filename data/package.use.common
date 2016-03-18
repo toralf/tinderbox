@@ -1,0 +1,11 @@
+# package.use/common
+#
+
+dev-util/cmake      -qt4 -qt5
+dev-vcs/git         -gnome-keyring
+mail-mta/ssmtp      ssl
+media-libs/mesa     -vaapi
+net-analyzer/zabbix -mysql -oracle -postgres sqlite
+sys-auth/pambase    -gnome-keyring
+
+
