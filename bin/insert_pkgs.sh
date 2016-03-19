@@ -5,7 +5,11 @@
 # spread freshly changed ebuilds around those images
 #
 
-# get package list filenames of those images symlinked to $HOME and having no special tasks to do
+mailto="tinderbox@zwiebeltoralf.de"
+
+# get package list filenames of all chroot images which
+#   1. are symlinked to ~ of the tinderbox user and
+#   2. don't have any special entries in the package file
 #
 pksList=()
 for i in ~/amd64-*
@@ -34,6 +38,10 @@ if [[ ${#pksList[@]} = 0 ]]; then
   exit
 fi
 
+# this host repo is synced every 4 hours, add 2 hours to give upstream a chance to mirror out all files
+# put that package "on top" of the package list (== at the bottom of the file) of arbitrarily choosen images
+# we strip away the version b/c we do just want to test the latest visible package if not already done
+#
 # to strip the package version we can use dirname here instead qatom
 # b/c the output of 'git diff' looks like this:
 #
@@ -42,13 +50,15 @@ fi
 # A       www-apps/kibana-bin/kibana-bin-4.4.0.ebuild
 #
 
-# the host repo is synced every 4 hours, wait 2 more hours to mirror out all files
-#
+log=/tmp/$(basename $0).log
+
 (cd /usr/portage/; git diff --name-status "@{ 6 hour ago }".."@{ 2 hour ago }") | grep -v '^D' | grep -e '\.ebuild$' -e '\.patch$' |\
-awk ' { print $2 } ' | xargs dirname 2>/dev/null | sort --unique --random-sort |\
+awk ' { print $2 } ' | xargs dirname 2>/dev/null | sort --unique | tee $log | sort --random-sort |\
 while read p
 do
-  # put it at 2 arbitrily choosen images "on top" of the package list == at the bottom of the file
-  #
   echo $p >> ${pksList[$RANDOM % ${#pksList[@]}]}
 done
+
+if [[ $1 = "-m" ]]; then
+  cat $log | mail -s "info: $(wc -l <$log) ebuilds poped" $mailto
+fi
