@@ -152,12 +152,12 @@ function GotAnIssue()  {
   grep -q 'AssertionError: ebuild not found for' $bak
   if [[ $? -eq 0 ]]; then
     echo $task >> $pks
-    Mail "INFO: auto-resumed b/c of a repo sync race" $bak
+    Mail "info: auto-resumed b/c of a repo sync race" $bak
     return
   fi
 
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
-    Mail "INFO: $task failed" $bak
+    Mail "info: $task failed" $bak
   fi
 
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
