@@ -63,7 +63,7 @@ function GetNextTask() {
       let diff=$(date +%s)-$(date +%s -r /tmp/timestamp.system)
       if [[ $diff -gt 86400 ]]; then
         task="@system"
-        return
+        return 0
       fi
     fi
   fi
@@ -87,10 +87,10 @@ function GetNextTask() {
       fi
 
     elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
-      return  # a complete command line
+      return 0  # a complete command line
 
     elif [[ "$(echo $task | cut -c1)" = '@' ]]; then
-      return  # a package set
+      return 0  # a package set
 
     elif [[ "$(echo $task | cut -c1)" = '#' ]]; then
       continue  # just skip a comment line
@@ -126,9 +126,9 @@ function GetNextTask() {
         fi
       fi
 
-      # emerge $task
+      # emerge $task now
       #
-      return
+      return 0
     fi
   done
 }
