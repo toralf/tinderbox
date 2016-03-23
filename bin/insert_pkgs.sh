@@ -52,7 +52,7 @@ fi
 
 log=/tmp/$(basename $0).log
 
-(cd /usr/portage/; git diff --name-status "@{ 6 hour ago }".."@{ 2 hour ago }") | grep -v '^D' | grep -e '\.ebuild$' -e '\.patch$' |\
+(cd /usr/portage/; git diff --name-status "@{ 6 hour ago }".."@{ 2 hour ago }") | grep -v '^D' | grep -e '\.ebuild$' |\
 awk ' { print $2 } ' | xargs dirname 2>/dev/null | sort --unique | tee $log | sort --random-sort |\
 while read p
 do
