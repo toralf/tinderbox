@@ -31,7 +31,7 @@ app-vim/notes
 #
 media-libs/jpeg
 
-#	ffmpeg is our choice
+#	ffmpeg is set in Gentoo
 #
 media-video/libav
 
@@ -48,13 +48,6 @@ dev-util/pkgconfig-openbsd
 #
 <=dev-lang/gnat-gcc-4.5.4
 
-# ongoing @world/@preserved-rebuild mess
-#
-#dev-python/pyzmq
-#dev-perl/ZMQ-LibZMQ2
-#dev-perl/ZMQ-LibZMQ3
-#net-libs/zeromq
-
 # oom
 #
 dev-scheme/racket
@@ -68,7 +61,7 @@ net-fs/openafs-kernel
 #
 net-dns/resolvconf-symlink
 
-# too fat for 16 GB RAM
+# too fat
 #
 dev-java/icedtea
 mail-client/thunderbird
@@ -98,6 +91,6 @@ app-office/openoffice
 #
 dev-lang/julia
 
+# https://bugs.gentoo.org/show_bug.cgi?id=578524
 #
-#
-#>=dev-libs/openssl-1.0.2g
+=sys-apps/sandbox-2.11
