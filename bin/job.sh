@@ -14,8 +14,6 @@
 function stresc() {
   # https://bugs.gentoo.org/show_bug.cgi?id=564998#c6
   #
-  #perl -ne 's/\e\[?.*?[\@-~]//g; print'
-
   perl -MTerm::ANSIColor=colorstrip -nle 'print colorstrip($_)'
 }
 
@@ -458,7 +456,7 @@ function SwitchGCC() {
       rm -rf /var/cache/revdep-rebuild/*
       revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &> $log
       if [[ $? -eq 0 ]]; then
-        Mail "$subject rebuild made succesfully" $log
+        Mail "$subject rebuild done" $log
       else
         GotAnIssue
         Finish "FAILED: $subject rebuild failed"   # bail out here to allow a resume
@@ -615,6 +613,7 @@ old=$(cat $tsfile 2>/dev/null)              # timestamp of the package repositor
 pks=/tmp/packages                           # the package list file, pre-filled at setup
 
 # eg.; PORTAGE_ELOG_MAILFROM="amd64-gnome-unstable_20150913-104240 <tinderbox@zwiebeltoralf.de>"
+#
 name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
 
 export GCC_COLORS=""                        # suppress colour output of gcc-4.9 and above
@@ -703,23 +702,24 @@ do
 
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       touch /tmp/timestamp.system
-      /usr/bin/pfl >/dev/null     # don't do this only in Finish() b/c packages might be removed over the weeks
+      /usr/bin/pfl >/dev/null     # don't do this only in Finish() b/c packages might be removed in the mean while
 
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       touch /tmp/timestamp.preserved-rebuild
     fi
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
-    $(echo "$task" | cut -c2-) &> $log
-
+    cmd=$(echo "$task" | cut -c2-)
+    $cmd &> $log
     if [[ $? -ne 0 ]]; then
+      #  if $cmd isn't an emerge operation then we will bail out if $curr is empty
+      #
       GotAnIssue
     fi
     PostEmerge
 
   else
     emerge --update $task &> $log
-
     if [[ $? -ne 0 ]]; then
       GotAnIssue
     fi
