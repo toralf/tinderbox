@@ -90,6 +90,7 @@ flags="
   vorbis vpx wav webkit webstart widgets wma wxwidgets x264 x265 xa
   xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc xz
   zenmap zip
+  libressl
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
@@ -203,6 +204,7 @@ if [[ ! -f $f ]]; then
   wget --quiet $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 6
 fi
 gpg --verify $f.DIGESTS.asc || exit 7
+
 
 cd $imagedir  || exit 8
 mkdir $mnt
@@ -348,97 +350,35 @@ EOF
 echo "app-editors/nano" >> var/lib/portage/world
 
 # fill the package list file
+#
+touch tmp/packages
+chown tinderbox.tinderbox tmp/packages
+
 # the first @system might fail due to the perl 5.20 -> 5.22 issue (help2man)
 #
-cat << EOF > tmp/packages
+cat << EOF >> tmp/packages
 $(qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort)
+EOF
+
+# systemd is still hackery
+#
+if [[ "$systemd" = "y" ]]; then
+  echo "sys-apps/util-linux -udev -systemd" > /etc/portage/package.use/util-linux
+  sed -i -e 's/.consolekit/ /' -e 's/use="/use="-consolekit/' /etc/portage/make.conf
+  cat << EOF >> tmp/packages
+@world
+%emerge --deselect sys-apps/eudev
+%rm -f /etc/portage/package.use/util-linux
+EOF
+fi
+
+cat << EOF >> tmp/packages
 @world
 $kernel
 @system
 EOF
 
-chown tinderbox.tinderbox tmp/packages
-
-# sharutils provides "uudecode", gentoolkit has "equery", portage-utils has "qlop"
-#
-#----------------------------------------
-cat << EOF > tmp/setup.sh
-
-$( [[ "$usehostrepo" = "no" ]] && echo 'emerge --sync || exit 1' )
-
-eselect profile set $profile            || exit 1
-
-echo "en_US ISO-8859-1
-en_US.UTF-8 UTF-8
-de_DE ISO-8859-1
-de_DE@euro ISO-8859-15
-de_DE.UTF-8@euro UTF-8
-" >> /etc/locale.gen
-locale-gen                              || exit 1
-eselect locale set en_US.utf8
-. /etc/profile
-
-echo "Europe/Berlin" > /etc/timezone
-emerge --config sys-libs/timezone-data  || exit 2
-emerge --noreplace net-misc/netifrc     || exit 2
-
-# !<glibc-2.22 block
-#
-qlist -Iv sys-libs/glibc | egrep -q '2\.21' && echo ">=dev-libs/elfutils-0.165" > /etc/portage/package.mask/elfutils
-emerge sys-apps/elfix || exit 3
-migrate-pax -m        || exit 3
-
-eselect news read >/dev/null
-
-if [[ "$systemd" = "y" ]]; then
-  echo "sys-apps/util-linux -udev -systemd" > /etc/portage/package.use/util-linux
-  sed -i -e 's/.consolekit/ /' -e 's/USE="/USE="-consolekit/' /etc/portage/make.conf
-  emerge -v --deep --newuse @world  || exit 4
-  emerge --deselect sys-apps/eudev  || exit 4
-fi
-
-emerge mail-mta/ssmtp mail-client/mailx || exit 5
-echo "
-root=tinderbox@zwiebeltoralf.de
-MinUserId=9999
-mailhub=zwiebeltoralf.de:465
-rewriteDomain=your-server.de
-hostname=www325.your-server.de
-UseTLS=YES
-Debug=NO
-" > /etc/ssmtp/ssmtp.conf               || exit 5
-
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-text/wgetpaste app-portage/eix || exit 6
-
-emerge @preserved-rebuild || exit 7
-
-eselect news read >/dev/null
-
-if [[ "$systemd" = "y" ]]; then
-  rm -f /etc/portage/package.use/util-linux
-fi
-
-# the very first @world upgrade should at least start
-#
-emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log
-if [[ \$? -ne 0 ]]; then
-  grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep "^>=" > /etc/portage/package.use/world
-  if [[ \$? -eq 0 ]]; then
-    echo
-    echo "changed USE flags :"
-    cat /etc/portage/package.use/world
-    echo
-    emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log || exit 8
-  else
-    exit 8
-  fi
-fi
-
-exit 0
-EOF
-#----------------------------------------
-
-# temp tweaks
+# tweaks requested by devs
 #
 
 # keyword ffmpeg-3: https://bugs.gentoo.org/show_bug.cgi?id=574788
@@ -453,6 +393,101 @@ sed -i -e "$i a\media-video/ffmpeg" tmp/packages  || exit 11
 mkdir tmp/xdg
 chmod 700 tmp/xdg
 chown tinderbox:tinderbox tmp/xdg
+
+# request from Soap via IRC
+#
+cat << EOF > etc/portage/package.unmask/boost
+~dev-libs/boost-1.60.0
+~dev-util/boost-build-1.60.0
+EOF
+
+cat << EOF > etc/portage/package.unmask/boost
+~dev-libs/boost-1.60.0
+~dev-util/boost-build-1.60.0
+EOF
+
+
+# now setup the initial chroot image
+#
+#----------------------------------------
+cat << EOF > tmp/setup.sh
+
+if [[ "$usehostrepo" = "no" ]]; then
+  emerge --sync || exit 1
+fi
+
+# first setup as a non-systemd, switch later if needed
+#
+if [[ "$systemd" = "y" ]]; then
+  eselect profile set $(dirname $profile) || exit 2
+else
+  eselect profile set $profile            || exit 3
+fi
+
+echo "en_US ISO-8859-1
+en_US.UTF-8 UTF-8
+de_DE ISO-8859-1
+de_DE@euro ISO-8859-15
+de_DE.UTF-8@euro UTF-8
+" >> /etc/locale.gen
+locale-gen
+eselect locale set en_US.utf8
+. /etc/profile
+
+echo "Europe/Berlin" > /etc/timezone
+emerge --config sys-libs/timezone-data
+emerge --noreplace net-misc/netifrc
+
+# !<glibc-2.22 block
+#
+qlist -Iv sys-libs/glibc | egrep -q '2\.21' && echo ">=dev-libs/elfutils-0.165" > /etc/portage/package.mask/elfutils
+emerge sys-apps/elfix || exit 4
+migrate-pax -m        || exit 5
+
+eselect news read >/dev/null
+
+emerge mail-mta/ssmtp mail-client/mailx || exit 6
+echo "
+root=tinderbox@zwiebeltoralf.de
+MinUserId=9999
+mailhub=zwiebeltoralf.de:465
+rewriteDomain=your-server.de
+hostname=www325.your-server.de
+UseTLS=YES
+Debug=NO
+" > /etc/ssmtp/ssmtp.conf || exit 7
+
+# sharutils provides "uudecode", gentoolkit has "equery", portage-utils has "qlop"
+#
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-text/wgetpaste app-portage/eix || exit 8
+
+emerge @preserved-rebuild || exit 9
+
+# just a dry-test, the very first @world upgrade should at least start
+#
+emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log
+if [[ \$? -ne 0 ]]; then
+  # try to solve automatically needed USE flag changes of the very first @world upgrade
+  #
+  grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep "^>=" > /etc/portage/package.use/world
+  if [[ \$? -eq 0 ]]; then
+    echo
+    echo "changed USE flags :"
+    cat /etc/portage/package.use/world
+    echo
+    emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log || exit 10
+  else
+    exit 11
+  fi
+fi
+
+if [[ "$systemd" = "y" ]]; then
+  eselect profile set $profile || exit 12
+fi
+
+exit 0
+EOF
+#----------------------------------------
 
 cd - 1>/dev/null
 
@@ -490,3 +525,5 @@ if [[ "$autostart" = "y" ]]; then
   echo " starting the image: $mnt"
   su - tinderbox -c "$(dirname $0)/start_img.sh $mnt"
 fi
+
+exit 0
