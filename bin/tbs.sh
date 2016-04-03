@@ -1,16 +1,16 @@
 #!/bin/sh
 #
-# set -x
+#set -x
 
 # setup a new tinderbox chroot image
 #
 
-# typical calls:
+# typical call:
 #
-# $> sudo ~/tb/bin/tbs.sh -A -p hardened/linux/amd64 -m unstable -f /dev/null | at now
+# $> echo "sudo ~/tb/bin/tbs.sh -A -m stable -i /home/tinderbox/images1 -p default/linux/amd64/13.0/desktop/plasma" | at now
 
 
-# due to sudo we need to define the path to $HOME
+# due to using sudo we need to define the path to $HOME
 #
 tbhome=/home/tinderbox
 
@@ -20,25 +20,25 @@ tbhome=/home/tinderbox
 # functions
 #
 
-# return a randomized USE flag set
+# return a (r)andomized (U)SE (f)lag (s)ubset from input set $flags
 #
 # mask  a flag with a likelihood of 1/n
-# set   a flag with a likelihood of 1/p == 5/n
-# empty elsewhere
+# set   a flag with a likelihood of 1/p
+# empty else
 #
 function rufs()  {
-  typeset n=40
-  let p=n/5
+  n=30
+  let "p = n / 6"
 
-  for flag in $(echo $flags)
+  for f in $(echo $flags)
   do
     let "r = $RANDOM % $n"
 
     if [[ $r -eq 0 ]]; then
-      echo -n " -$flag"     # mask it
+      echo -n " -$f"
 
     elif [[ $r -le $p ]]; then
-      echo -n " $flag"      # set it
+      echo -n " $f"
     fi
   done
 }
@@ -47,7 +47,7 @@ function rufs()  {
 #
 # vars
 #
-name="amd64"         # append later profile, mask and timestamp
+name="amd64"         # fixed prefix, append later <profile>, <mask> and <timestamp>
 
 e=(
   "default/linux/amd64/13.0"                \
@@ -67,30 +67,27 @@ e=(
 mask=${e[$RANDOM % ${#e[@]}]}
 
 flags="
-  aes-ni alisp alsa apache apache2 avcodec avformat avx avx2 btrfs
-  bzip2 cairo cdb cdda cddb cgi cgoups clang compat consolekit
-  corefonts csc cups curl custom-cflags custom-optimization dbus
-  dec_av2 designer dnssec dot drmkms dvb dvd ecc egl eglfs evdev
-  extraengine ffmpeg fontconfig fortran fpm freetds ftp gd gif git
-  gles2 gnomecanvas gnome-keyring gnuplot gnutls gpg graphtft
-  gstreamer gtk gtk3 gtkstyle gudev gui haptic havege hdf5 help hpn
-  icu imap imlib inifile introspection ipv6 isag ithreads jadetex
-  javafx javascript javaxml jpeg kerberos kvm lapack ldap libkms
-  libvirtd llvm logrotate mbox mdnsresponder-compat melt mikmod
-  minizip mng mod modplug mssql multimedia multitarget mysql mysqli
-  nscd nss obj objc odbc offensive ogg ois opencv openexr opengl
-  openmpi openssl pcre16 pdo php pkcs11 plasma png policykit
-  postgres postproc postscript pulseaudio pwquality pyqt4 python
-  qemu qml qt3support qt4 qt5 rendering scripts scrypt sddm sdl
-  semantic-desktop server smartcard sockets source spice sql sqlite
+  aes-ni alisp alsa apache apache2 avcodec avformat avx avx2 btrfs bzip2
+  cairo cdb cdda cddb cgi cgoups clang compat consolekit corefonts csc
+  cups curl custom-cflags custom-optimization dbus dec_av2 designer
+  dnssec dot drmkms dvb dvd ecc egl eglfs evdev extraengine ffmpeg
+  fontconfig fortran fpm freetds ftp gd gif git gles2 gnomecanvas
+  gnome-keyring gnuplot gnutls gpg graphtft gstreamer gtk gtk3 gtkstyle
+  gudev gui haptic havege hdf5 help hpn icu imap imlib inifile
+  introspection ipv6 isag ithreads jadetex javafx javascript javaxml
+  jpeg kerberos kvm lapack ldap libkms libressl libvirtd llvm logrotate
+  mbox mdnsresponder-compat melt mikmod minizip mng mod modplug mssql
+  multimedia multitarget mysql mysqli nscd nss obj objc odbc offensive
+  ogg ois opencv openexr opengl openmpi openssl pcre16 pdo php pkcs11
+  plasma png policykit postgres postproc postscript pulseaudio pwquality
+  pyqt4 python qemu qml qt3support qt4 qt5 rendering scripts scrypt sddm
+  sdl semantic-desktop server smartcard sockets source spice sql sqlite
   sqlite3 sse4 sse4_1 sse4_2 ssh-askpass ssl ssse3 svg swscale
   system-cairo system-icu system-jpeg system-libvpx system-llvm
-  system-sqlite szip tcl theora thinkpad threads tk tls tools
-  truetype ufed uml usb usbredir uxa v4l v4l2 vaapi vdpau video
-  vorbis vpx wav webkit webstart widgets wma wxwidgets x264 x265 xa
-  xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc xz
-  zenmap zip
-  libressl
+  system-sqlite szip tcl theora thinkpad threads tk tls tools truetype
+  ufed uml usb usbredir uxa v4l v4l2 vaapi vdpau video vorbis vpx wav
+  webkit webstart widgets wma wxwidgets x264 x265 xa xinetd xkb xml
+  xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap zip
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
@@ -99,7 +96,7 @@ flags=$(rufs)
 Start="n"           # start the chroot image if setup was successfully ?
 usehostrepo="yes"   # bind-mount /usr/portage from host or use own repo ?
 
-let i="$RANDOM % 2 + 1"
+let "i = $RANDOM % 2 + 1"
 imagedir="$tbhome/images${i}"         # images[12]
 
 #############################################################################
@@ -393,19 +390,6 @@ sed -i -e "$i a\media-video/ffmpeg" tmp/packages  || exit 11
 mkdir tmp/xdg
 chmod 700 tmp/xdg
 chown tinderbox:tinderbox tmp/xdg
-
-# request from Soap via IRC
-#
-cat << EOF > etc/portage/package.unmask/boost
-~dev-libs/boost-1.60.0
-~dev-util/boost-build-1.60.0
-EOF
-
-cat << EOF > etc/portage/package.unmask/boost
-~dev-libs/boost-1.60.0
-~dev-util/boost-build-1.60.0
-EOF
-
 
 # now setup the initial chroot image
 #
