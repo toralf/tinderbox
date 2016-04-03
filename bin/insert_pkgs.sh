@@ -38,7 +38,7 @@ if [[ ${#pksList[@]} = 0 ]]; then
   exit
 fi
 
-# this host repo is synced every 4 hours, add 2 hours to give upstream a chance to mirror out all files
+# this host repo is synced every 3 hours, add 1 hour too to give upstream a chance to mirror out ./files
 # put that package "on top" of the package list (== at the bottom of the file) of arbitrarily choosen images
 # we strip away the version b/c we do just want to test the latest visible package if not already done
 #
@@ -52,7 +52,7 @@ fi
 
 log=/tmp/$(basename $0).log
 
-(cd /usr/portage/; git diff --name-status "@{ 6 hour ago }".."@{ 2 hour ago }") | grep -v '^D' | grep -e '\.ebuild$' |\
+(cd /usr/portage/; git diff --name-status "@{ 4 hour ago }".."@{ 1 hour ago }") | grep -v '^D' | grep -e '\.ebuild$' |\
 awk ' { print $2 } ' | xargs dirname 2>/dev/null | sort --unique | tee $log | sort --random-sort |\
 while read p
 do
