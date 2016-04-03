@@ -574,6 +574,13 @@ function PostEmerge() {
     echo "%python-updater" >> $pks
   fi
 
+  # PAX
+  #
+  grep -q 'Please run "revdep-pax" after installation.' $tmp
+  if [[ $? -eq 0 ]]; then
+    echo "%revdep-pax" >> $pks
+  fi
+
   rm -f $tmp
 }
 
