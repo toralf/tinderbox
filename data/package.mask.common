@@ -1,21 +1,6 @@
 # package.mask/common
 #
 
-# the tinderbox image does rely on ssmtp
-#
-mail-mta/courier
-mail-mta/esmtp
-mail-mta/exim
-mail-mta/mini-qmail
-mail-mta/msmtp
-mail-mta/netqmail
-mail-mta/nullmailer
-mail-mta/opensmtpd
-mail-mta/postfix
-mail-mta/qmail-ldap
-mail-mta/qpsmtpd
-mail-mta/sendmail
-
 # https://bugs.gentoo.org/show_bug.cgi?id=563880
 #
 =app-admin/sagan-0.2.3
@@ -27,11 +12,11 @@ app-vim/ctx
 app-vim/curcmdmode
 app-vim/notes
 
-#	jpeg-turbo is preferred: https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
+#	https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
 #
 media-libs/jpeg
 
-#	ffmpeg is set in Gentoo
+#	ffmpeg is prefered
 #
 media-video/libav
 
@@ -44,7 +29,7 @@ games-board/gnuchess-book
 #
 dev-util/pkgconfig-openbsd
 
-# broken : https://bugs.gentoo.org/show_bug.cgi?id=536124
+# https://bugs.gentoo.org/show_bug.cgi?id=536124
 #
 <=dev-lang/gnat-gcc-4.5.4
 
@@ -57,7 +42,7 @@ dev-scheme/racket
 net-fs/openafs
 net-fs/openafs-kernel
 
-# turns /etc/resolv.conf into an unworking symlink to /run
+# turns /etc/resolv.conf into an unworking symlink pointing to /run
 #
 net-dns/resolvconf-symlink
 
@@ -75,22 +60,10 @@ app-office/openoffice
 #
 =dev-libs/DirectFB-1.7.6
 
-# icedtea-6 : https://bugs.gentoo.org/show_bug.cgi?id=568616
-#
-<dev-java/icedtea-bin-7.2.6.3
-<dev-java/icedtea-7.2.6.3
-<virtual/jre-1.7
-<virtual/jdk-1.7
-
 # https://bugs.gentoo.org/show_bug.cgi?id=569186
 #
 =app-text/rpl-1.5.5
 
-# can't be compiled at a hardened kernel
 # https://bugs.gentoo.org/show_bug.cgi?id=572188
 #
 dev-lang/julia
-
-# https://bugs.gentoo.org/show_bug.cgi?id=578524
-#
-=sys-apps/sandbox-2.11
