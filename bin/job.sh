@@ -194,7 +194,7 @@ function GotAnIssue()  {
     grep -q "Can't locate Locale/Messages.pm in @INC" $bak
     rc=$?
     if [[ "$curr" = "sys-apps/help2man" || "$curr" = "dev-scheme/guile" || $rc -eq 0 ]]; then
-      Mail "perl upgrade issue" $bak
+      Mail "info: perl upgrade issue" $bak
       echo -e "$task\n%perl-cleaner --all" >> $pks
       return
     fi
@@ -443,7 +443,7 @@ function SwitchGCC() {
     vernew=$(gcc -v 2>&1 | tail -n 1 | cut -f1-3 -d' ')
 
     subject="$FUNCNAME from $verold to $vernew"
-    Mail "$subject" $log
+    Mail "info: $subject" $log
 
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
@@ -456,7 +456,7 @@ function SwitchGCC() {
       rm -rf /var/cache/revdep-rebuild/*
       revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &> $log
       if [[ $? -eq 0 ]]; then
-        Mail "$subject rebuild done" $log
+        Mail "info: $subject rebuild done" $log
       else
         GotAnIssue
         Finish "FAILED: $subject rebuild failed"   # bail out here to allow a resume
