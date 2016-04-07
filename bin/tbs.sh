@@ -73,7 +73,7 @@ flags="
   dnssec dot drmkms dvb dvd ecc egl eglfs evdev extraengine ffmpeg
   fontconfig fortran fpm freetds ftp gd gif git gles2 gnomecanvas
   gnome-keyring gnuplot gnutls gpg graphtft gstreamer gtk gtk3 gtkstyle
-  gudev gui haptic havege hdf5 help hpn icu imap imlib inifile
+  gudev gui haptic havege hdf5 help icu imap imlib inifile
   introspection ipv6 isag ithreads jadetex javafx javascript javaxml
   jpeg kerberos kvm lapack ldap libkms libressl libvirtd llvm logrotate
   mbox mdnsresponder-compat melt mikmod minizip mng mod modplug mssql
@@ -378,13 +378,6 @@ EOF
 # tweaks requested by devs
 #
 
-# keyword ffmpeg-3: https://bugs.gentoo.org/show_bug.cgi?id=574788
-#
-echo "~media-video/ffmpeg-3.0" > etc/portage/package.accept_keywords/ffmpeg
-echo "~media-video/ffmpeg-3.0" > etc/portage/package.unmask/ffmpeg
-i=$(expr $(wc -l < tmp/packages) - 3)             || exit 11
-sed -i -e "$i a\media-video/ffmpeg" tmp/packages  || exit 11
-
 # look for XDG_CACHE_HOME= in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
 mkdir tmp/xdg
@@ -445,8 +438,6 @@ Debug=NO
 #
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-text/wgetpaste app-portage/eix || exit 8
 
-emerge @preserved-rebuild || exit 9
-
 # just a dry-test, the very first @world upgrade should at least start
 #
 emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log
@@ -459,17 +450,18 @@ if [[ \$? -ne 0 ]]; then
     echo "changed USE flags :"
     cat /etc/portage/package.use/world
     echo
-    emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log || exit 10
+    emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log || exit 9
   else
-    exit 11
+    exit 10
   fi
 fi
 
 if [[ "$systemd" = "y" ]]; then
-  eselect profile set $profile || exit 12
+  eselect profile set $profile || exit 11
 fi
 
 exit 0
+
 EOF
 #----------------------------------------
 
@@ -495,7 +487,7 @@ if [[ $rc -ne 0 ]]; then
   exit $rc
 fi
 
-# symlink to $HOME if the setup was successful
+# create symlink to $HOME if the setup was successful
 #
 p=$(basename $(pwd))
 cd $tbhome
