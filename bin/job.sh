@@ -190,7 +190,7 @@ function GotAnIssue()  {
 
   # broken since years: https://bugs.gentoo.org/show_bug.cgi?id=463976
   #
-  if [[ "$task" = "@system" ]]; then
+  if [[ "$task" = "@system" || "$task" = "@world" ]]; then
     grep -q "Can't locate Locale/Messages.pm in @INC" $bak
     rc=$?
     if [[ "$curr" = "sys-apps/help2man" || "$curr" = "dev-scheme/guile" || $rc -eq 0 ]]; then
