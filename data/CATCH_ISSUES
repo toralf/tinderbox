@@ -107,6 +107,7 @@ Error 127
 Ebuild author forgot an entry
 error:
 No package .* found
+Invalid use of .*.eclass
 Error:
 ERROR:
 Error
