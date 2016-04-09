@@ -55,7 +55,6 @@ e=(
   "default/linux/amd64/13.0/desktop/gnome"  \
   "default/linux/amd64/13.0/desktop/kde"    \
   "default/linux/amd64/13.0/desktop/plasma" \
-  "default/linux/amd64/13.0/selinux"        \
   "hardened/linux/amd64"                    \
 )
 profile=${e[$RANDOM % ${#e[@]}]}
