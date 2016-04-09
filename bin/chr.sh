@@ -2,9 +2,8 @@
 #
 #set -x
 
-# chroot wrapper, surround the chroot call irself with mounts of FS from the host
+# chroot wrapper, bind mount file systems of the host to their image counter parts
 #
-
 # typical call:
 #
 # $> sudo ~/tb/bin/chr.sh amd64-plasma-unstable_20150811-144142 [ "eix-update -q" ]
