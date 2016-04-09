@@ -411,7 +411,7 @@ function SwitchJDK()  {
 #
 function BuildKernel()  {
   if [[ ! -e /usr/src/linux ]]; then
-    exit 0
+    return
   fi
 
   (
@@ -443,7 +443,6 @@ function SwitchGCC() {
     vernew=$(gcc -v 2>&1 | tail -n 1 | cut -f1-3 -d' ')
 
     subject="$FUNCNAME from $verold to $vernew"
-    Mail "info: $subject" $log
 
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
@@ -461,6 +460,8 @@ function SwitchGCC() {
         GotAnIssue
         Finish "FAILED: $subject rebuild failed"   # bail out here to allow a resume
       fi
+    else
+      Mail "info: $subject" $log
     fi
   fi
 }
