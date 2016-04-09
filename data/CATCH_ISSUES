@@ -108,6 +108,8 @@ Ebuild author forgot an entry
 error:
 No package .* found
 Invalid use of .*.eclass
+Unable to set SELinux security labels
+patch .* failed with
 Error:
 ERROR:
 Error
