@@ -512,22 +512,11 @@ function PostEmerge() {
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
-  # should land in nohup.out
+  # errors goes to nohup.out
   #
   etc-update --automode -5 2>&1 1>/dev/null
   env-update 2>&1 1>/dev/null
-
   . /etc/profile
-
-  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tmp
-  if [[ $? -eq 0 ]]; then
-    SwitchGCC
-  fi
-
-  grep -q ">>> Installing .* sys-kernel/" $tmp
-  if [[ $? -eq 0 ]]; then
-    BuildNewKernel
-  fi
 
   #
   # add cleanup/post-update actions in reverse order to the package list
@@ -580,6 +569,16 @@ function PostEmerge() {
   grep -q 'Please run "revdep-pax" after installation.' $tmp
   if [[ $? -eq 0 ]]; then
     echo "%revdep-pax" >> $pks
+  fi
+
+  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tmp
+  if [[ $? -eq 0 ]]; then
+    SwitchGCC
+  fi
+
+  grep -q ">>> Installing .* sys-kernel/" $tmp
+  if [[ $? -eq 0 ]]; then
+    BuildNewKernel
   fi
 
   rm -f $tmp
