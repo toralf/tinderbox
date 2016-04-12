@@ -56,6 +56,11 @@ e=(
   "default/linux/amd64/13.0/desktop/kde"    \
   "default/linux/amd64/13.0/desktop/plasma" \
   "hardened/linux/amd64"                    \
+  "default/linux/amd64/13.0/systemd"                \
+  "default/linux/amd64/13.0/desktop/systemd"        \
+  "default/linux/amd64/13.0/desktop/gnome/systemd"  \
+  "default/linux/amd64/13.0/desktop/kde/systemd"    \
+  "default/linux/amd64/13.0/desktop/plasma/systemd" \
 )
 profile=${e[$RANDOM % ${#e[@]}]}
 
@@ -162,37 +167,37 @@ if [[ $? -ne 0 ]]; then
   exit 4
 fi
 
-# $name is the directory name (will be symlinked into $HOME later)
-# stage3 holds the full stage3 file name grep'ed from $latest
-#
 systemd="n"
+if [[ "$(basename $profile)" = "systemd" ]]; then
+  systemd="y"
+fi
+
+# $name holds the (directory) name of the chroot image (and will be symlinked into $HOME later)
+# stage3 holds the full stage3 file name as found in file $latest
+#
 if [[ "$profile" = "hardened/linux/amd64" ]]; then
   name="$name-hardened"
   stage3=$(grep "^201...../hardened/stage3-amd64-hardened-201......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   kernel="sys-kernel/hardened-sources"
 else
-  pname=$(basename $profile)
-  if [[ "$pname" = "systemd" ]]; then
-    systemd="y"
-    # get meaningful basename for "<foo>/systemd"
+  if [[ "$systemd" = "y" ]]; then
+    # use <foo> of ".../<foo>/systemd" too
     #
     pname="$(basename $(dirname $profile))-systemd"
+  else
+    pname=$(basename $profile)
   fi
   name="$name-$pname"
   stage3=$(grep "^201...../stage3-amd64-201......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   kernel="sys-kernel/gentoo-sources"
 fi
 
+# now complete it with keyword and time stamp
+#
 name="$name-${mask}_$(date +%Y%m%d-%H%M%S)"
 echo " name: $name"
 
-export mnt="$name"
-if [[ -d "$mnt" ]]; then
-  echo " \$mnt=$mnt does already exist !"
-  exit 5
-fi
-
-# download ISO stage3 image if not yet done
+# download stage3 if not already done
 #
 b=$(basename $stage3)
 f=/var/tmp/distfiles/$b
@@ -201,14 +206,12 @@ if [[ ! -f $f ]]; then
 fi
 gpg --verify $f.DIGESTS.asc || exit 7
 
-
 cd $imagedir  || exit 8
-mkdir $mnt
-cd $mnt       || exit 9
+mkdir $mnt    || exit 9
+cd $mnt
 tar xjpf $f   || exit 10
 
-# keep the sync method "rsync" in the chroot images, b/c "git" pulls in too much deps at this stage (especially gitk ...)
-#
+# we use "rsync" within chroot images, "git" would pull in too much deps (gitk etc.)
 # https://wiki.gentoo.org/wiki/Overlay/Local_overlay
 #
 mkdir -p                  usr/local/portage/{metadata,profiles}
@@ -243,7 +246,7 @@ masters   = gentoo
 auto-sync = no
 EOF
 
-# compile make.conf
+# change make.conf
 #
 m=etc/portage/make.conf
 chmod a+w $m
@@ -278,11 +281,11 @@ ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 MAKEOPTS="-j1"
 
-# --deep is needed in our tinderbox images due to https://bugs.gentoo.org/show_bug.cgi?id=563482
+# --deep is needed due to https://bugs.gentoo.org/show_bug.cgi?id=563482
 #
 EMERGE_DEFAULT_OPTS="--deep --verbose-conflicts --color=n --nospinner --tree --quiet-build --accept-properties=-interactive --accept-restrict=-fetch"
 
-# no "fail-clean", it would delete files before we'd catch them
+# no "fail-clean", it would delete files before we can catch them
 #
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox"
 
@@ -383,7 +386,7 @@ mkdir tmp/xdg
 chmod 700 tmp/xdg
 chown tinderbox:tinderbox tmp/xdg
 
-# now setup the initial chroot image
+# now setup the chroot image
 #
 #----------------------------------------
 cat << EOF > tmp/setup.sh
@@ -392,7 +395,7 @@ if [[ "$usehostrepo" = "no" ]]; then
   emerge --sync || exit 1
 fi
 
-# first setup as a non-systemd, switch later if needed
+# switch later to systemd if needed
 #
 if [[ "$systemd" = "y" ]]; then
   eselect profile set $(dirname $profile) || exit 2
