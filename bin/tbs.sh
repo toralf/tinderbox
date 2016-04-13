@@ -207,8 +207,8 @@ fi
 gpg --verify $f.DIGESTS.asc || exit 7
 
 cd $imagedir  || exit 8
-mkdir $mnt    || exit 9
-cd $mnt
+mkdir $name   || exit 9
+cd $name
 tar xjpf $f   || exit 10
 
 # we use "rsync" within chroot images, "git" would pull in too much deps (gitk etc.)
@@ -359,28 +359,22 @@ cat << EOF >> tmp/packages
 $(qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort)
 EOF
 
-# systemd is still hackery
-#
-if [[ "$systemd" = "y" ]]; then
-  echo "sys-apps/util-linux -udev -systemd" > /etc/portage/package.use/util-linux
-  sed -i -e 's/.consolekit/ /' -e 's/use="/use="-consolekit/' /etc/portage/make.conf
-  cat << EOF >> tmp/packages
-@world
-%emerge --deselect sys-apps/eudev
-%rm -f /etc/portage/package.use/util-linux
-EOF
-fi
-
 cat << EOF >> tmp/packages
 @world
 $kernel
 @system
 EOF
 
+# systemd is still too hackery to fully automate it here
+#
+if [[ "$systemd" = "y" ]]; then
+  echo "STOP switch to systemd now manually" >> tmp/packages
+fi
+
 # tweaks requested by devs
 #
 
-# look for XDG_CACHE_HOME= in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
+# we do set XDG_CACHE_HOME= in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
 mkdir tmp/xdg
 chmod 700 tmp/xdg
@@ -395,7 +389,7 @@ if [[ "$usehostrepo" = "no" ]]; then
   emerge --sync || exit 1
 fi
 
-# switch later to systemd if needed
+# build a non-systemd first
 #
 if [[ "$systemd" = "y" ]]; then
   eselect profile set $(dirname $profile) || exit 2
@@ -417,9 +411,6 @@ echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
 
-# !<glibc-2.22 block
-#
-qlist -Iv sys-libs/glibc | egrep -q '2\.21' && echo ">=dev-libs/elfutils-0.165" > /etc/portage/package.mask/elfutils
 emerge sys-apps/elfix || exit 4
 migrate-pax -m        || exit 5
 
@@ -444,7 +435,7 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/por
 #
 emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
-  # try to solve automatically needed USE flag changes of the very first @world upgrade
+  # try to automatically add needed USE flag changes to let the very first @world upgrade succeed
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep "^>=" > /etc/portage/package.use/world
   if [[ \$? -eq 0 ]]; then
@@ -458,10 +449,6 @@ if [[ \$? -ne 0 ]]; then
   fi
 fi
 
-if [[ "$systemd" = "y" ]]; then
-  eselect profile set $profile || exit 11
-fi
-
 exit 0
 
 EOF
@@ -469,20 +456,20 @@ EOF
 
 cd - 1>/dev/null
 
-$(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh'
+$(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh'
 rc=$?
 
 if [[ $rc -ne 0 ]]; then
   echo
   echo "-------------------------------------"
 
-  if [[ -f $mnt/tmp/world.log ]]; then
+  if [[ -f $name/tmp/world.log ]]; then
     echo
-    cat $mnt/tmp/world.log
+    cat $name/tmp/world.log
   fi
 
   echo
-  echo " setup NOT successful (rc=$rc) @ $mnt"
+  echo " setup NOT successful (rc=$rc) @ $name"
   echo
   echo "-------------------------------------"
 
@@ -493,15 +480,15 @@ fi
 #
 p=$(basename $(pwd))
 cd $tbhome
-ln -s $p/$mnt || exit 11
+ln -s $p/$name || exit 11
 
 echo
-echo " setup done: $mnt"
+echo " setup done: $name"
 echo
 
 if [[ "$autostart" = "y" ]]; then
-  echo " starting the image: $mnt"
-  su - tinderbox -c "$(dirname $0)/start_img.sh $mnt"
+  echo " starting the image: $name"
+  su - tinderbox -c "$(dirname $0)/start_img.sh $name"
 fi
 
 exit 0
