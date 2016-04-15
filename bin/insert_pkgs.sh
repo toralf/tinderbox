@@ -2,16 +2,19 @@
 #
 # set -x
 
-# spread freshly changed ebuilds around those images
+# pick up latest ebuilds and put them on top of randomly choosen package lists
 #
 
 mailto="tinderbox@zwiebeltoralf.de"
 
-# get package list filenames of all chroot images which
-#   1. are symlinked to ~ of the tinderbox user and
-#   2. don't have any special entries in the package file
+# put all package list (f)ilenames of all chroot (i)mages into an (a)rray
+# where the image
+#   1. is symlinked to ~
+#   2. is running
+#   3. has a non-empty package list
+#   4. don't have any special entries in its package file
 #
-pksList=()
+a=()
 for i in ~/amd64-*
 do
   if [[ ! -e $i/tmp/LOCK ]]; then
@@ -19,7 +22,6 @@ do
   fi
 
   f=$i/tmp/packages
-
   if [[ ! -s $f ]]; then
     continue
   fi
@@ -29,36 +31,31 @@ do
     continue
   fi
 
-  pksList=( ${dirU[@]} $f )
+  a=( ${a[@]} $f )
 done
 
-# empty array ?
+# nothing found ?
 #
-if [[ ${#pksList[@]} = 0 ]]; then
+if [[ ${#a[@]} = 0 ]]; then
   exit
 fi
 
-# this host repo is synced every 3 hours, add 1 hour too to give upstream a chance to mirror out ./files
-# put that package "on top" of the package list (== at the bottom of the file) of arbitrarily choosen images
-# we strip away the version b/c we do just want to test the latest visible package if not already done
-#
+# the host repo is synced every 3 hours, add an a hour more
+# to give the ./files directory a chance to be mirrored out
+# we strip away the package version b/c we do just want to test
+# the latest visible package
+
 # to strip the package version we can use dirname here instead qatom
-# b/c the output of 'git diff' looks like this:
+# b/c the output of 'git diff' looks like:
 #
 # A       www-apache/passenger/passenger-5.0.24.ebuild
 # M       www-apps/kibana-bin/kibana-bin-4.1.4.ebuild
 # A       www-apps/kibana-bin/kibana-bin-4.4.0.ebuild
-#
 
-log=/tmp/$(basename $0).log
-
-(cd /usr/portage/; git diff --name-status "@{ 4 hour ago }".."@{ 1 hour ago }") | grep -v '^D' | grep -e '\.ebuild$' |\
-awk ' { print $2 } ' | xargs dirname 2>/dev/null | sort --unique | tee $log | sort --random-sort |\
+(cd /usr/portage/; git diff --name-status "@{ 4 hour ago }".."@{ 1 hour ago }") |\
+grep -v '^D' | grep '\.ebuild$' | awk ' { print $2 } ' |\
+xargs dirname 2>/dev/null | sort --unique --random-sort |\
 while read p
 do
-  echo $p >> ${pksList[$RANDOM % ${#pksList[@]}]}
+  echo $p >> ${a[$RANDOM % ${#a[@]}]}
 done
-
-if [[ $1 = "-m" ]]; then
-  cat $log | mail -s "info: $(wc -l <$log) ebuilds poped" $mailto
-fi
