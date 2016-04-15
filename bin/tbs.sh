@@ -353,7 +353,7 @@ echo "app-editors/nano" >> var/lib/portage/world
 touch tmp/packages
 chown tinderbox.tinderbox tmp/packages
 
-# the first @system might fail due to the perl 5.20 -> 5.22 issue (help2man)
+# the first @system upgrade might fail due to known perl 5.20 -> 5.22 portage upgrade issues (sys-apps/help2man fails)
 #
 cat << EOF >> tmp/packages
 $(qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort)
@@ -411,6 +411,9 @@ echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
 
+# !<glibc-2.22 block
+#
+qlist -Iv sys-libs/glibc | egrep -q '2\.21' && echo ">=dev-libs/elfutils-0.165" > /etc/portage/package.mask/elfutils
 emerge sys-apps/elfix || exit 4
 migrate-pax -m        || exit 5
 
