@@ -407,7 +407,7 @@ function SwitchJDK()  {
 }
 
 
-# compiled sources needed by few dedicated packages
+# compiled sources needed by few packages
 #
 function BuildKernel()  {
   if [[ ! -e /usr/src/linux ]]; then
@@ -447,30 +447,26 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
 
-    # schedule rebuilding all *.o files of the (existing) kernel
+    # schedule rebuilding of object files against new gcc libs
     #
     echo "%BuildKernel" >> $pks
 
     if [[ "$majold" = "4" && "$majnew" = "5" ]]; then
       rm -rf /var/cache/revdep-rebuild/*
       revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &> $log
-      if [[ $? -eq 0 ]]; then
-        Mail "info: $subject rebuild done" $log
-      else
+      if [[ $? -ne 0 ]]; then
         GotAnIssue
         Finish "FAILED: $subject rebuild failed"   # bail out here to allow a resume
       fi
-    else
-      Mail "info: $subject" $log
     fi
   fi
 }
 
 
-# eselect the latest emerged kernel and build vmlinuz if not yet done
+# eselect the latest kernel and build vmlinuz if not yet done
 #
 function BuildNewKernel() {
-  if [[ ! -L /usr/src/linux ]]; then
+  if [[ ! -e /usr/src/linux ]]; then
     return # no sources emerged at this point
   fi
 
