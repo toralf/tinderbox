@@ -2,10 +2,11 @@
 #
 # set -x
 
-# this is the tinderbox script - it runs within the chroot image
+# this is the tinderbox script - it runs within the chroot image for few weeks
 #
 
-# this barrier prevents us to run a broken copy of ourself - see end of file for this
+# barrier start
+# this prevents us to run a broken copy of ourself - see end of file too
 #
 (
 
@@ -48,7 +49,7 @@ function Finish()  {
 }
 
 # set $task to the last line of the package list file $pks
-# return "1" if the package list is empty, "" otherwise
+# return 1 if the package list is empty, 0 otherwise
 #
 function GetNextTask() {
   # update @system once a day iff no special task is scheduled
@@ -273,6 +274,9 @@ function GotAnIssue()  {
   done
   chmod a+r $issuedir/files/*
 
+  # create an email body containing convenient links + info
+  # ready for being picked up by copy+paste
+  #
   cat << EOF >> $issuedir/emerge-info.txt
   -----------------------------------------------------------------
 
@@ -301,6 +305,8 @@ emerge --info >> $issuedir/emerge-info.txt
     touch $issuedir/cc
   fi
 
+  # try to find a descriptive title and the last meaningful lines of the issue
+  #
   touch $issuedir/title
 
   if [[ -n "$(grep -m1 ' Detected file collision(s):' $bak)" ]]; then
@@ -326,7 +332,8 @@ emerge --info >> $issuedir/emerge-info.txt
       fi
     done
 
-    # if we didn't catched a known issue (class) then just take the last (hopefully meaningful) lines
+    # if we didn't catched a known issue (class)
+    # then just take the last (hopefully meaningful) lines
     #
     if [[ ! -s $issuedir/issue ]]; then
       (
@@ -389,7 +396,7 @@ EOF
 }
 
 
-# switch java, usually once a day when @system/@world is updated too
+# switch java, usually once a day, triggered during a @system/@world update
 #
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
@@ -407,7 +414,7 @@ function SwitchJDK()  {
 }
 
 
-# compiled sources needed by few packages
+# compiled kernel sources are needed by few packages
 #
 function BuildKernel()  {
   if [[ ! -e /usr/src/linux ]]; then
@@ -431,7 +438,7 @@ function BuildKernel()  {
 }
 
 
-# switch to a newly installed gcc, see: https://wiki.gentoo.org/wiki/Upgrading_GCC
+# switch to the freshly installed gcc, see: https://wiki.gentoo.org/wiki/Upgrading_GCC
 #
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep -e 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
@@ -463,7 +470,7 @@ function SwitchGCC() {
 }
 
 
-# eselect the latest kernel and build vmlinuz if not yet done
+# eselect the latest kernel and build it if not yet done
 #
 function BuildNewKernel() {
   if [[ ! -e /usr/src/linux ]]; then
@@ -485,8 +492,9 @@ function BuildNewKernel() {
 }
 
 
-# we do not run an emerge operation here but we'll schedule tasks (perl, python, haskell) if needed
-# and we'll switch a GCC, build the kernel
+# we do not run an emerge operation here
+# but we'll schedule tasks (perl, python, haskell updater) if needed
+# and we'll switch a GCC, build the kernel and so on
 #
 function PostEmerge() {
   typeset tmp
@@ -508,7 +516,7 @@ function PostEmerge() {
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
-  # errors goes to nohup.out
+  # these errors go to nohup.out
   #
   etc-update --automode -5 2>&1 1>/dev/null
   env-update 2>&1 1>/dev/null
@@ -567,11 +575,15 @@ function PostEmerge() {
     echo "%revdep-pax" >> $pks
   fi
 
+  # gcc
+  #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tmp
   if [[ $? -eq 0 ]]; then
     SwitchGCC
   fi
 
+  # linux sources
+  #
   grep -q ">>> Installing .* sys-kernel/" $tmp
   if [[ $? -eq 0 ]]; then
     BuildNewKernel
@@ -665,7 +677,10 @@ do
     break
   fi
 
-  # distinguish between a @set and a %command/common package
+  # fire up emerge, handle 2 special prefixes:
+  # @ = a package setup
+  # % = a command line
+  #   = a common package
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
 
@@ -731,10 +746,12 @@ do
 
 done
 
-n=$(qlist --installed --nocolor |wc -l)
+# just count the amount of installed packages
+#
+n=$(qlist --installed --nocolor | wc -l)
 date > $log
 Finish "$n packages emerged"
 
-# barrier (see start of this file)
+# barrier end (see start of this file too)
 #
 )
