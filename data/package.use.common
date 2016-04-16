@@ -1,6 +1,7 @@
 # package.use/common
 #
 
+app-crypt/pinentry  -gnome-keyring
 dev-util/cmake      -qt4 -qt5
 dev-vcs/git         -gnome-keyring
 gnome-base/librsvg  -tools
