@@ -43,6 +43,7 @@ function Mail() {
 #
 function Finish()  {
   /usr/bin/pfl >/dev/null
+  eix-update -q
   Mail "FINISHED: $*" $log
 
   exit 0
@@ -52,24 +53,28 @@ function Finish()  {
 # return 1 if the package list is empty, 0 otherwise
 #
 function GetNextTask() {
-  # update @system once a day iff no special task is scheduled
+  # update @system immediately after setup and later once a day
+  # if no special task is scheduled
+  # (@world upgrade has no chance due to the amount of packages)
   #
-  grep -q -e "STOP" -e "INFO" -e "%" -e "@" $pks
+  if [[ ! -f /tmp/timestamp.system ]]; then
+    touch /tmp/timestamp.system     # fresh image
+    task="@system"
+    return 0
+  fi
+
+  grep -q -e "^STOP" -e "^INFO" -e "^%" -e "^@" $pks
   if [[ $? -ne 0 ]]; then
-    if [[ ! -f /tmp/timestamp.system ]]; then
-      touch /tmp/timestamp.system     # start the timer
-    else
-      let diff=$(date +%s)-$(date +%s -r /tmp/timestamp.system)
-      if [[ $diff -gt 86400 ]]; then
-        task="@system"
-        return 0
-      fi
+    let diff=$(date +%s)-$(date +%s -r /tmp/timestamp.system)
+    if [[ $diff -gt 86400 ]]; then
+      task="@system"
+      return 0
     fi
   fi
 
   while :;
   do
-    # splice last line from package list into $task
+    # splice last line from package list and put it into $task
     #
     task=$(tail -n 1 $pks)
     sed -i -e '$d' $pks

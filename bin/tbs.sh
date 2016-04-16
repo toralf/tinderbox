@@ -348,27 +348,12 @@ EOF
 #
 echo "app-editors/nano" >> var/lib/portage/world
 
-# fill the package list file
+# run over all packages of the portage tree in a randomized order
 #
-touch tmp/packages
+qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > tmp/packages
 chown tinderbox.tinderbox tmp/packages
-
-# the first @system upgrade might fail due to known perl 5.20 -> 5.22 portage upgrade issues (sys-apps/help2man fails)
-#
-cat << EOF >> tmp/packages
-$(qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort)
-EOF
-
-cat << EOF >> tmp/packages
-@world
-$kernel
-@system
-EOF
-
-# systemd is still too hackery to fully automate it here
-#
 if [[ "$systemd" = "y" ]]; then
-  echo "STOP switch to systemd now manually" >> tmp/packages
+  echo "STOP switch to systemd now manually !" >> tmp/packages
 fi
 
 # tweaks requested by devs
@@ -380,7 +365,7 @@ mkdir tmp/xdg
 chmod 700 tmp/xdg
 chown tinderbox:tinderbox tmp/xdg
 
-# now setup the chroot image
+# now setup and install the chroot image
 #
 #----------------------------------------
 cat << EOF > tmp/setup.sh
@@ -389,7 +374,7 @@ if [[ "$usehostrepo" = "no" ]]; then
   emerge --sync || exit 1
 fi
 
-# build a non-systemd first
+# we can't yet build a systemd image reliable
 #
 if [[ "$systemd" = "y" ]]; then
   eselect profile set $(dirname $profile) || exit 2
