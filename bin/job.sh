@@ -382,7 +382,7 @@ emerge --info >> $issuedir/emerge-info.txt
   # so much fallout from the glibc-2.23 breakage - worth to automate it
   #
   block=""
-  grep -q -e "minor'" -e "major'" -e "makedev'" $issuedir/title
+  grep -q -e " .minor." -e " .major." -e ". makedev." $issuedir/title
   if [[ $? -eq 0 ]]; then
     block="-b 575232"
     mv $issuedir/issue $issuedir/issue.tmp
