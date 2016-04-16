@@ -374,12 +374,27 @@ emerge --info >> $issuedir/emerge-info.txt
   #
   currShort=$(qatom $curr | cut -f1-2 -d' ' | tr ' ' '/')
 
+  # so much fallout from the glibc-2.23 breakage - worth to automate it
+  #
+  block=""
+  grep -q -e "minor'" -e "major'" -e "makedev'" $issuedir/title
+  if [[ $? -eq 0 ]]; then
+    block="-b 575232"
+    mv $issuedir/issue $issuedir/issue.tmp
+    echo -e "This bug report feeds bug #575232 (sys-libs/glibc-2.23.r1 breakage).\n\n" > $issuedir/issue
+    cat $issuedir/issue.tmp >> $issuedir/issue
+    rm $issuedir/issue.tmp
+  fi
+
+  # now create the email body for us
+  # containing convenient info, prepared bugz calls and html links
+  #
   cp $issuedir/issue $issuedir/body
   cat << EOF >> $issuedir/body
 
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
-https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$currShort&short_desc_type=allwordssubstr
+https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$currShort&short_desc_type=allwordssubstr $block
 
 ~/tb/bin/bgo.sh -d ~/$name/$issuedir
 
