@@ -357,7 +357,7 @@ emerge --info >> $issuedir/emerge-info.txt
   # handle sandbox issues in a special way
   #
   if [[ -f $sandb ]]; then
-    cp $sandb $issuedir/issue
+    head -n 30 $sandb > $issuedir/issue
     sed -i -e "s/.* ACCESS VIOLATION SUMMARY .*/ sandbox issue/" $issuedir/title
   fi
 
