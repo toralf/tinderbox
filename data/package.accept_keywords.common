@@ -1,3 +1,11 @@
 # package.accept_keywords/common
 #
 
+# https://bugs.gentoo.org/show_bug.cgi?id=580302
+# https://bugs.gentoo.org/show_bug.cgi?id=579918
+#
+~dev-libs/glib-2.48
+
+# https://bugs.gentoo.org/show_bug.cgi?id=580316
+#
+dev-lang/mono ~amd64
