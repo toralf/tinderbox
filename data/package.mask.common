@@ -71,4 +71,4 @@ dev-lang/julia
 # https://bugs.gentoo.org/show_bug.cgi?id=575232
 # continue to catch glibc-2.23 minor/major/makedev build issues
 #
->=sys-libs/glibc-2.23-r2
+#>=sys-libs/glibc-2.23-r2
