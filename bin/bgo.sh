@@ -12,16 +12,17 @@
 # ./bgo.sh amd64-gnome-unstable_20150731-133239/tmp/issues/20150809-061731_dev-java_ant-ivy-2.3.0
 #
 
-blocklist=""
+block=""
 comment=""
 dir=""
 id=""
 
-while getopts a:b:d: opt
+while getopts a:b:c:d: opt
 do
   case $opt in
     a)  id="$OPTARG";;          # attach onto this bug id
-    b)  blocklist="$OPTARG";;   # either a bug id or an alias like "ninja-porting"
+    b)  block="$OPTARG";;   # either a bug id or an alias like "ninja-porting"
+    c)  comment="$OPTARG\n\n";;
     d)  dir="$OPTARG";;         # directory containing all data
     *)  echo " not implemented !"
         exit 1;;
@@ -34,14 +35,16 @@ fi
 cd $dir || exit 2
 
 if [[ -f ./.reported ]]; then
-  echo; echo "already reported !"; echo
+  echo
+  echo "already reported !"
+  echo
   exit 3
 fi
 
 if [[ -n "$id" ]]; then
   # attach onto an existing bug
   #
-  bugz attach --content-type "text/plain" --description "$(cat ./issue)" $id emerge-info.txt 1> bugz.out 2> bugz.err
+  bugz attach --content-type "text/plain" --description "$(echo $comment)$(cat ./issue)" $id emerge-info.txt 1> bugz.out 2> bugz.err
   rc=$?
 
 else
@@ -67,19 +70,14 @@ else
   rc=$?
 
   id=$(grep ' * Bug .* submitted' bugz.out | sed 's/[^0-9]//g')
+  if [[ -z "$id" ]]; then
+    echo
+    echo "empty bug id"
+    echo
+    tail -v bugz.*
+    exit 4
+  fi
 fi
-
-if [[ -z "$id" ]]; then
-  echo
-  echo "empty bug id"
-  echo
-  tail -v bugz.*
-  exit 4
-fi
-
-# avoid duplicate reports
-#
-touch ./.reported
 
 echo
 echo "https://bugs.gentoo.org/show_bug.cgi?id=$id"
@@ -93,8 +91,8 @@ if [[ $rc -ne 0 || -s bugz.err ]]; then
   exit $rc
 fi
 
-if [[ -n "$blocklist" ]]; then
-  bugz modify --add-blocked "$blocklist" $id 1>/dev/null
+if [[ -n "$block" ]]; then
+  bugz modify --add-blocked "$block" $id 1>/dev/null
 fi
 
 # attach files
@@ -105,5 +103,9 @@ do
   echo "  $f"
   bugz attach --content-type "$ct" --description "" $id $f 1>>bugz.out 2>>bugz.err
 done
+
+# avoid duplicate reports
+#
+touch ./.reported
 
 echo
