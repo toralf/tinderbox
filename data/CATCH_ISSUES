@@ -20,7 +20,6 @@ Error 137
 Line indented less than expected
 Parse error
 object has no attribute
-does not exist
 .*.texinfo:.*: unknown command
 reference to Parameter is ambiguous
 Segmentation fault
@@ -106,6 +105,7 @@ Can't locate Locale/Messages.pm in @INC
 Error 127
 Ebuild author forgot an entry
 error:
+does not exist
 No package .* found
 Invalid use of .*.eclass
 Unable to set SELinux security labels
