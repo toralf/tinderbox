@@ -52,6 +52,7 @@ Please insert+mount the .* cdrom now
 Please install currently selected gcc version with USE=fortran
 Please re-emerge .* with USE=.*
 Please set one audio engine type
+Please switch your active compiler to gcc with USE=objc, or clang
 Please use hardened sources
 PostgreSQL slot must be set to one of:
 Problem resolving dependencies for
