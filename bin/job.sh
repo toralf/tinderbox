@@ -68,6 +68,7 @@ function GetNextTask() {
     let diff=$(date +%s)-$(date +%s -r /tmp/timestamp.system)
     if [[ $diff -gt 86400 ]]; then
       task="@system"
+      echo "@world" >> $pks # schedule this too
       return 0
     fi
   fi
@@ -160,8 +161,17 @@ function GotAnIssue()  {
     return
   fi
 
-  if [[ "$(echo $task | cut -c1)" = '@' ]]; then
+  # @world will almost fail after a certain amount of packages
+  #
+  if [[ "$task" = "@system" ]]; then
     Mail "info: $task failed" $bak
+  fi
+
+  # --unmerge fails if we scheduled it on all images ignoring the real installation status
+  #
+  echo "$task" | grep -q -e 'emerge -C ' -e 'emerge --unmerge '
+  if [[ $? -eq 0 ]]; then
+    return
   fi
 
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
@@ -169,14 +179,7 @@ function GotAnIssue()  {
     return
   fi
 
-  if [[ -n "$(echo $task | grep 'emerge -C ')" ]]; then
-    return
-  fi
-
-  # we do expect now that a single package failed during emerge
-  #
-
-  # $curr holds the actually failed package name + version + category
+  # $curr holds the failed category + package name + package version
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
     curr=$(grep -m1 -A 2 '* The following package has failed' $bak | grep '*  (' | cut -f2 -d'(' | cut -f1 -d':')
@@ -194,13 +197,21 @@ function GotAnIssue()  {
     Finish "ERROR: \$curr is empty: task=$task"
   fi
 
+  # add all successfully emerged dependencies of the $curr to world (== $curr was not the first package)
+  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
+  #
+  tail -n 10 /var/log/emerge.log | tac | grep -m 1 ':  === (' | grep -q ':  === (1 of .*) '
+  if [[ $? -ne 0 ]]; then
+    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace
+  fi
+
   # broken since years: https://bugs.gentoo.org/show_bug.cgi?id=463976
   #
   if [[ "$task" = "@system" || "$task" = "@world" ]]; then
     grep -q "Can't locate Locale/Messages.pm in @INC" $bak
     rc=$?
     if [[ "$curr" = "sys-apps/help2man" || "$curr" = "dev-scheme/guile" || $rc -eq 0 ]]; then
-      Mail "info: perl upgrade issue" $bak
+      Mail "info: auto-repair perl upgrade issue" $bak
       echo -e "$task\n%perl-cleaner --all" >> $pks
       return
     fi
@@ -210,7 +221,7 @@ function GotAnIssue()  {
   #
   line="=$(echo $curr | awk ' { printf("%-50s ", $1) } ')# $(date) $name"
 
-  # mask this package version if not yet done
+  # mask this package version if not already done
   #
   grep -q "=$curr " /etc/portage/package.mask/self
   if [[ $? -ne 0 ]]; then
@@ -546,7 +557,8 @@ function PostEmerge() {
   # add cleanup/post-update actions in reverse order to the package list
   #
 
-  # libs
+  # no more than 4x @preserved-rebuild per day
+  # a systematic failure would otherwise waste CPU cycles here
   #
   grep -q "@preserved-rebuild" $tmp
   if [[ $? -eq 0 ]]; then
@@ -554,7 +566,7 @@ function PostEmerge() {
       echo "@preserved-rebuild" >> $pks
     else
       let diff=$(date +%s)-$(date +%s -r /tmp/timestamp.preserved-rebuild)
-      if [[ $diff -gt 21200 ]]; then # a 1/4 day
+      if [[ $diff -gt 21200 ]]; then
         echo "@preserved-rebuild" >> $pks
       fi
     fi
@@ -705,7 +717,7 @@ do
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
 
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
-      opts="--update --newuse --changed-use --with-bdeps=y"
+      opts="--deep --update --newuse --changed-use --with-bdeps=y"
       SwitchJDK
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=30"

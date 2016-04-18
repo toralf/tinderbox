@@ -265,9 +265,7 @@ $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 "
 
 CPU_FLAGS_X86="aes avx mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3"
-
 PAX_MARKINGS="XT"
-
 $( [[ "$mask" = "unstable" ]] && echo 'ACCEPT_KEYWORDS=~amd64' )
 
 #CMAKE_MAKEFILE_GENERATOR="ninja"
@@ -281,11 +279,9 @@ ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 MAKEOPTS="-j1"
 
-# --deep is needed due to https://bugs.gentoo.org/show_bug.cgi?id=563482
-#
-EMERGE_DEFAULT_OPTS="--deep --verbose-conflicts --color=n --nospinner --tree --quiet-build --accept-properties=-interactive --accept-restrict=-fetch"
+EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build --accept-properties=-interactive --accept-restrict=-fetch"
 
-# no "fail-clean", it would delete files before we can catch them
+# no "fail-clean", it would delete files before we could pick up them
 #
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox"
 
@@ -374,7 +370,8 @@ if [[ "$usehostrepo" = "no" ]]; then
   emerge --sync || exit 1
 fi
 
-# we can't yet build a systemd image reliable
+# we can't yet build a systemd image automatically and reliable
+# therefore setup as a non-systemd and switch later manually
 #
 if [[ "$systemd" = "y" ]]; then
   eselect profile set $(dirname $profile) || exit 2
@@ -421,9 +418,9 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/por
 
 # just a dry-test, the very first @world upgrade should at least start
 #
-emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log
+emerge --deep --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
-  # try to automatically add needed USE flag changes to let the very first @world upgrade succeed
+  # try to automatically change USE flag so that the very first @world upgrade will succeed
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep "^>=" > /etc/portage/package.use/world
   if [[ \$? -eq 0 ]]; then
@@ -431,7 +428,7 @@ if [[ \$? -ne 0 ]]; then
     echo "changed USE flags :"
     cat /etc/portage/package.use/world
     echo
-    emerge --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log || exit 9
+    emerge --deep --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log || exit 9
   else
     exit 10
   fi
