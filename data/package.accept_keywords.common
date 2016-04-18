@@ -4,7 +4,8 @@
 # https://bugs.gentoo.org/show_bug.cgi?id=580302
 # https://bugs.gentoo.org/show_bug.cgi?id=579918
 #
-~dev-libs/glib-2.48
+~dev-libs/glib-2.48.0
+~dev-util/gdbus-codegen-2.48.0
 
 # https://bugs.gentoo.org/show_bug.cgi?id=580316
 #
