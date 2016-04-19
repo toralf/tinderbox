@@ -283,19 +283,23 @@ emerge --info >> $issuedir/emerge-info.txt
   #
   currShort=$(qatom $curr | cut -f1-2 -d' ' | tr ' ' '/')
 
-  # so much fallout from the glibc-2.23 breakage - worth to automate it
+  # guess from the title if there's a blocker to feed too
   #
   block=""
-  grep -q -e "minor" -e "major" -e "makedev" $issuedir/title
-  if [[ $? -eq 0 ]]; then
+  if [[ -n "$(grep -e 'minor' -e 'major' -e 'makedev' $issuedir/title)" ]]; then
     block="-b 575232"
     mv $issuedir/issue $issuedir/issue.tmp
     echo -e "This bug report feeds bug #575232 (sys-libs/glibc-2.23.r1 breakage).\n\n" > $issuedir/issue
     cat $issuedir/issue.tmp >> $issuedir/issue
     rm $issuedir/issue.tmp
+
+  elif [[ -n "$(grep -e 'mcs Not found' $issuedir/title)" ]]; then
+    # mono-4 issues
+    #
+    block="-b 580316"
   fi
 
-  # the body contains convenient info, prepared bugz calls and html links
+  # the email body with info, a search link and a bgo.sh command line ready for copy+paste
   #
   cp $issuedir/issue $issuedir/body
   cat << EOF >> $issuedir/body
