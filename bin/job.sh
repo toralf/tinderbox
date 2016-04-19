@@ -129,93 +129,19 @@ function GetNextTask() {
 }
 
 
-# check an issue, prepare files for bgo.sh
+# the email is send to us and contains convenient information to decide
+# whether the issue is worth to be reported to b.g.o. or not
 #
-function GotAnIssue()  {
-  # prefix our log backup file with an "_" to distinguish it from portage's log files
-  #
-  typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
-  stresc < $log > $bak
-
-  fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
-  if [[ $? -eq 0 ]]; then
-    Finish "FATAL $fatal"
-  fi
-
-  # @system should be update-able, @world however is expected to fail
-  #
-  if [[ "$task" = "@system" ]]; then
-    Mail "info: $task failed" $bak
-  fi
-
-  grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
-  if [[ $? -eq 0 ]]; then
-    return
-  fi
-
-  # $curr holds the failed <category / package name - package version>
-  #
-  line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
-  echo "$line" | grep -q ':  === ('
-  if [[ $? -ne 0 ]]; then
-    Mail "TODO: emerge did not even start" $bak
-    return
-  fi
-  curr=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
-
-  if [[ -z "$curr" ]]; then
-    Finish "ERROR: \$curr must not be empty: task=$task"
-  fi
-
-  # keep all successfully emerged dependencies of $curr in world file
-  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
-  #
-  tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' | grep -q ':  === (1 of .*) '
-  if [[ $? -ne 0 ]]; then
-    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
-  fi
-
-  # broken Perl upgrade: https://bugs.gentoo.org/show_bug.cgi?id=463976
-  #
-  if [[ "$task" = "@system" || "$task" = "@world" ]]; then
-    grep -q "Can't locate Locale/Messages.pm in @INC" $bak
-    rc=$?
-    if [[ "$curr" = "sys-apps/help2man" || "$curr" = "dev-scheme/guile" || $rc -eq 0 ]]; then
-      Mail "info: auto-repair perl upgrade issue" $bak
-      echo -e "$task\n%perl-cleaner --all" >> $pks
-      return
-    fi
-  fi
-
-  # append a trailing space eg.: to distinguish between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
-  #
-  line="=$(echo $curr | awk ' { printf("%-50s ", $1) } ')# $(date) $name"
-
-  # mask this package version for this image, prefer to continue with a lower version
-  # TODO: do not report bugs for older versions
-  #
-  grep -q "=$curr " /etc/portage/package.mask/self
-  if [[ $? -ne 0 ]]; then
-    echo "$line" >> /etc/portage/package.mask/self
-  fi
-
-  # skip, if this package *version* failed already before (regardless of the issue)
-  #
-  grep -q "=$curr " /tmp/tb/data/ALREADY_CATCHED
-  if [[ $? -eq 0 ]]; then
-    return
-  fi
-  echo "$line" >> /tmp/tb/data/ALREADY_CATCHED
-
-  # ---------------------------
-  # prepare the issue mail
-  # ---------------------------
+function CompileIssueMail() {
+  echo "task=$task name=$name curr=$curr"
 
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $curr | tr '/' '_')
   mkdir -p $issuedir/files
 
   ehist=/var/tmp/portage/emerge-history.txt
-  (echo "# This file contains the emerge history"; echo "#"; qlop --nocolor --gauge --human --list --unlist) > $ehist
+  echo "# This file contains the emerge history"  >   $ehist
+  echo "#"                                        >>  $ehist
+  qlop --nocolor --gauge --human --list --unlist  >>  $ehist
 
   # the log file name of the actually failed package
   #
@@ -227,7 +153,7 @@ function GotAnIssue()  {
     fi
   fi
 
-  # collect build log files
+  # collect build logs
   #
   cflog=$(grep -m1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
   apout=$(grep -m1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"           | cut -f5 -d' ')
@@ -238,6 +164,7 @@ function GotAnIssue()  {
   envir=$(grep -m1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
   salso=$(grep -m1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
 
+  # strip away color escape sequences
   # the echo command expands "foo/bar-*.log" terms
   #
   for f in $(echo $ehist $currlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso)
@@ -370,8 +297,7 @@ emerge --info >> $issuedir/emerge-info.txt
     rm $issuedir/issue.tmp
   fi
 
-  # now create the email body for us
-  # containing convenient info, prepared bugz calls and html links
+  # the body contains convenient info, prepared bugz calls and html links
   #
   cp $issuedir/issue $issuedir/body
   cat << EOF >> $issuedir/body
@@ -385,7 +311,7 @@ https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_d
 
 EOF
 
-  # send to us $bak too, at bugz we do only attach the package specific log file
+  # send to us $bak too, however at b.g.o we do only attach the package specific log file
   #
   for f in $issuedir/emerge-info.txt $issuedir/files/* $bak
   do
@@ -393,6 +319,88 @@ EOF
   done
 
   Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
+}
+
+
+# check an issue, prepare files for bgo.sh
+#
+function GotAnIssue()  {
+  # prefix our log backup file with an "_" to distinguish it from portage's log files
+  #
+  typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
+  stresc < $log > $bak
+
+  fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
+  if [[ $? -eq 0 ]]; then
+    Finish "FATAL $fatal"
+  fi
+
+  # @system should be update-able, @world however is expected to fail
+  #
+  if [[ "$task" = "@system" ]]; then
+    Mail "info: $task failed" $bak
+  fi
+
+  grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
+  if [[ $? -eq 0 ]]; then
+    return
+  fi
+
+  # $curr holds the failed <category / package name - package version>
+  #
+  line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
+  echo "$line" | grep -q ':  === ('
+  if [[ $? -ne 0 ]]; then
+    Mail "TODO: emerge did not even start" $bak
+    return
+  fi
+  curr=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
+
+  if [[ -z "$curr" ]]; then
+    Finish "ERROR: \$curr must not be empty: task=$task"
+  fi
+
+  # keep all successfully emerged dependencies of $curr in world file
+  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
+  #
+  tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' | grep -q ':  === (1 of .*) '
+  if [[ $? -ne 0 ]]; then
+    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
+  fi
+
+  # broken Perl upgrade: https://bugs.gentoo.org/show_bug.cgi?id=463976
+  #
+  if [[ "$task" = "@system" || "$task" = "@world" ]]; then
+    grep -q "Can't locate Locale/Messages.pm in @INC" $bak
+    rc=$?
+    if [[ "$curr" = "sys-apps/help2man" || "$curr" = "dev-scheme/guile" || $rc -eq 0 ]]; then
+      Mail "info: auto-repair perl upgrade issue" $bak
+      echo -e "$task\n%perl-cleaner --all" >> $pks
+      return
+    fi
+  fi
+
+  # append a trailing space eg.: to distinguish between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
+  #
+  line="=$(echo $curr | awk ' { printf("%-50s ", $1) } ')# $(date) $name"
+
+  # mask this package version for this image, prefer to continue with a lower version
+  # TODO: do not report bugs for older versions
+  #
+  grep -q "=$curr " /etc/portage/package.mask/self
+  if [[ $? -ne 0 ]]; then
+    echo "$line" >> /etc/portage/package.mask/self
+  fi
+
+  # skip, if this package *version* failed already before (regardless of the issue)
+  #
+  grep -q "=$curr " /tmp/tb/data/ALREADY_CATCHED
+  if [[ $? -eq 0 ]]; then
+    return
+  fi
+  echo "$line" >> /tmp/tb/data/ALREADY_CATCHED
+
+  CompileIssueMail
 }
 
 
