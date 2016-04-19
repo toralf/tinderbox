@@ -65,9 +65,9 @@ function GetNextTask() {
   grep -q -e "^STOP" -e "^INFO" -e "^%" -e "^@" $pks
   if [[ $? -ne 0 ]]; then
     let diff=$(date +%s)-$(date +%s -r /tmp/timestamp.system)
-    if [[ $diff -gt 86400 ]]; then
+    let "r = 86400 + $RANDOM % 7200"
+    if [[ $diff -gt $r ]]; then
       task="@system"
-      echo "@world" >> $pks # give it a chance
       return 0
     fi
   fi
@@ -129,12 +129,10 @@ function GetNextTask() {
 }
 
 
-# the email is send to us and contains convenient information to decide
+# the email to us contains convenient information to decide
 # whether the issue is worth to be reported to b.g.o. or not
 #
 function CompileIssueMail() {
-  echo "task=$task name=$name curr=$curr"
-
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $curr | tr '/' '_')
   mkdir -p $issuedir/files
 
@@ -385,7 +383,6 @@ function GotAnIssue()  {
   line="=$(echo $curr | awk ' { printf("%-50s ", $1) } ')# $(date) $name"
 
   # mask this package version for this image, prefer to continue with a lower version
-  # TODO: do not report bugs for older versions
   #
   grep -q "=$curr " /etc/portage/package.mask/self
   if [[ $? -ne 0 ]]; then
@@ -724,6 +721,9 @@ do
         fi
       done
     else
+      if [[ "$task" = "@system" ]]; then
+        echo "@world" >> $pks # if @system succeeded then try @world
+      fi
       PostEmerge
     fi
 
