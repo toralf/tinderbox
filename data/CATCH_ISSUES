@@ -1,6 +1,5 @@
 ^environment: line .* Segmentation fault
 ACCESS VIOLATION SUMMARY
-Ambiguous occurrence
 Can't read
 CMake will not be able to correctly generate this project.
 class file .* not found
@@ -8,7 +7,6 @@ has incomplete type
 undefined reference
 undefined symbol:
 exited with code: 1.
-Fetch instructions for
 I can't find the format file
 is invalid
 ld: cannot find

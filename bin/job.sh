@@ -43,7 +43,6 @@ function Mail() {
 #
 function Finish()  {
   /usr/bin/pfl >/dev/null
-  eix-update -q
   Mail "FINISHED: $*" $log
 
   exit 0
@@ -53,22 +52,22 @@ function Finish()  {
 # return 1 if the package list is empty, 0 otherwise
 #
 function GetNextTask() {
-  # update @system immediately after setup and later once a day
-  # if no special task is scheduled
-  # (@world upgrade has no chance due to the amount of packages)
+  # update @system immediately after setup
   #
   if [[ ! -f /tmp/timestamp.system ]]; then
-    touch /tmp/timestamp.system     # fresh image
+    touch /tmp/timestamp.system
     task="@system"
     return 0
   fi
 
+  # update @system once a day if no special task is scheduled
+  #
   grep -q -e "^STOP" -e "^INFO" -e "^%" -e "^@" $pks
   if [[ $? -ne 0 ]]; then
     let diff=$(date +%s)-$(date +%s -r /tmp/timestamp.system)
     if [[ $diff -gt 86400 ]]; then
       task="@system"
-      echo "@world" >> $pks # schedule this too
+      echo "@world" >> $pks # give it a chance
       return 0
     fi
   fi
@@ -80,13 +79,13 @@ function GetNextTask() {
     task=$(tail -n 1 $pks)
     sed -i -e '$d' $pks
 
-    if [[ -n "$(echo $task | grep -m1 '^INFO')" ]]; then
+    if [[ -n "$(echo $task | grep '^INFO')" ]]; then
       Mail "$task"
 
-    elif [[ -n "$(echo $task | grep -m1 '^STOP')" ]]; then
+    elif [[ -n "$(echo $task | grep '^STOP')" ]]; then
       Finish "$task"
 
-    elif  [[ -z "$task" ]]; then # just an empty line is allowed
+    elif  [[ -z "$task" ]]; then # an empty line happens sometimes
       if [[ ! -s $pks ]]; then
         return 1  # package list is empty, we reached end of lifetime of this image
       fi
@@ -97,25 +96,19 @@ function GetNextTask() {
     elif [[ "$(echo $task | cut -c1)" = '@' ]]; then
       return 0  # a package set
 
-    elif [[ "$(echo $task | cut -c1)" = '#' ]]; then
-      continue  # just skip a comment line
-
     else
-      # a common package maybe prefix with an "="
-      #
-
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
-      # if portageq returns an empty string then $task can't be emerged at all
+      # no result set: $task can't be emerged at all
       #
       if [[ -z "$(portageq $task 2>/dev/null)" ]]; then
         continue
       fi
 
-      # pre-check if there is a possible visible upgrade b/c calculating deps is expensive due to --deep
+      # we are not interested in downgrading an installed $task
       #
       typeset installed=$(qlist -ICv $task | tail -n 1)
       if [[ -n "$installed" ]]; then
@@ -125,13 +118,10 @@ function GetNextTask() {
           if [[ $? -ne 0 ]]; then
             continue  # "installed" package version is NOT lower then "best_visible" package version
           fi
-        else
-          Mail "masked or removed : $task $installed"
-          continue
         fi
       fi
 
-      # emerge $task now
+      # emerge $task
       #
       return 0
     fi
@@ -152,26 +142,10 @@ function GotAnIssue()  {
     Finish "FATAL $fatal"
   fi
 
-  # happens, if the (host) repository was updated during the emerge
-  #
-  grep -q 'AssertionError: ebuild not found for' $bak
-  if [[ $? -eq 0 ]]; then
-    echo $task >> $pks
-    Mail "info: auto-resumed b/c of a repo sync race" $bak
-    return
-  fi
-
-  # @world will almost fail after a certain amount of packages
+  # @system should be update-able, @world however is expected to fail
   #
   if [[ "$task" = "@system" ]]; then
     Mail "info: $task failed" $bak
-  fi
-
-  # --unmerge fails if we scheduled it on all images ignoring the real installation status
-  #
-  echo "$task" | grep -q -e 'emerge -C ' -e 'emerge --unmerge '
-  if [[ $? -eq 0 ]]; then
-    return
   fi
 
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
@@ -179,33 +153,29 @@ function GotAnIssue()  {
     return
   fi
 
-  # $curr holds the failed category + package name + package version
+  # $curr holds the failed <category / package name - package version>
   #
-  if [[ "$(echo $task | cut -c1)" = '@' ]]; then
-    curr=$(grep -m1 -A 2 '* The following package has failed' $bak | grep '*  (' | cut -f2 -d'(' | cut -f1 -d':')
-    if [[ -z "$curr" ]]; then
-      curr=$(grep -m1 ' * ERROR: .* failed (.* phase):' $bak | cut -f4 -d' ' | cut -f1 -d':')
-      if [[ -z "$curr" ]]; then
-        curr=$(grep -m1 ' * Package:    .*/.*-.*' $bak | cut -f2 -d':' | xargs)
-      fi
-    fi
-  else
-    curr=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 ':  === (' | cut -f3 -d'(' | cut -f1 -d':')
+  line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
+  echo "$line" | grep -q ':  === ('
+  if [[ $? -ne 0 ]]; then
+    Mail "TODO: emerge did not even start" $bak
+    return
   fi
+  curr=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
 
   if [[ -z "$curr" ]]; then
-    Finish "ERROR: \$curr is empty: task=$task"
+    Finish "ERROR: \$curr must not be empty: task=$task"
   fi
 
-  # add all successfully emerged dependencies of the $curr to world (== $curr was not the first package)
+  # keep all successfully emerged dependencies of $curr in world file
   # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
   #
-  tail -n 10 /var/log/emerge.log | tac | grep -m 1 ':  === (' | grep -q ':  === (1 of .*) '
+  tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' | grep -q ':  === (1 of .*) '
   if [[ $? -ne 0 ]]; then
-    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace 2>/dev/null
+    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
   fi
 
-  # broken since years: https://bugs.gentoo.org/show_bug.cgi?id=463976
+  # broken Perl upgrade: https://bugs.gentoo.org/show_bug.cgi?id=463976
   #
   if [[ "$task" = "@system" || "$task" = "@world" ]]; then
     grep -q "Can't locate Locale/Messages.pm in @INC" $bak
@@ -217,30 +187,28 @@ function GotAnIssue()  {
     fi
   fi
 
-  # append a trailing space to distinguish eg. between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
+  # append a trailing space eg.: to distinguish between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
   #
   line="=$(echo $curr | awk ' { printf("%-50s ", $1) } ')# $(date) $name"
 
-  # mask this package version if not already done
+  # mask this package version for this image, prefer to continue with a lower version
+  # TODO: do not report bugs for older versions
   #
   grep -q "=$curr " /etc/portage/package.mask/self
   if [[ $? -ne 0 ]]; then
     echo "$line" >> /etc/portage/package.mask/self
   fi
 
-  # skip, if this package *version* failed already before (even caused by a different issue)
+  # skip, if this package *version* failed already before (regardless of the issue)
   #
   grep -q "=$curr " /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -eq 0 ]]; then
     return
   fi
-
-  # one issue for a single package version is enough
-  #
   echo "$line" >> /tmp/tb/data/ALREADY_CATCHED
 
   # ---------------------------
-  # mail the issue to $mailto
+  # prepare the issue mail
   # ---------------------------
 
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $curr | tr '/' '_')
@@ -408,6 +376,7 @@ emerge --info >> $issuedir/emerge-info.txt
   cp $issuedir/issue $issuedir/body
   cat << EOF >> $issuedir/body
 
+versions: $(ls /usr/portage/$currShort/*.ebuild | xargs qatom | cut -f3- -d' ' | sed 's/ *$//g' | tr " " "-" | sort --numeric | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
 https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$currShort&short_desc_type=allwordssubstr
