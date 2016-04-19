@@ -202,7 +202,7 @@ function GotAnIssue()  {
   #
   tail -n 10 /var/log/emerge.log | tac | grep -m 1 ':  === (' | grep -q ':  === (1 of .*) '
   if [[ $? -ne 0 ]]; then
-    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace
+    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace 2>/dev/null
   fi
 
   # broken since years: https://bugs.gentoo.org/show_bug.cgi?id=463976
