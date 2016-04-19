@@ -414,21 +414,22 @@ Debug=NO
 
 # sharutils provides "uudecode", gentoolkit has "equery", portage-utils has "qlop"
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-text/wgetpaste app-portage/eix || exit 8
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils || exit 8
 
-# just a dry-test, the very first @world upgrade should at least start
+# try to automatically change USE flag so that the very first @world upgrade will succeed
 #
-emerge --deep --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log
+emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
-  # try to automatically change USE flag so that the very first @world upgrade will succeed
-  #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep "^>=" > /etc/portage/package.use/world
   if [[ \$? -eq 0 ]]; then
     echo
     echo "changed USE flags :"
     cat /etc/portage/package.use/world
     echo
-    emerge --deep --update --newuse --changed-use --with-bdeps=y @world -p &> /tmp/world.log || exit 9
+    emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
+    if [[ \$? -eq 0 ]]; then
+      exit 9
+    fi
   else
     exit 10
   fi
