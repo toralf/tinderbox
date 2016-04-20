@@ -293,10 +293,8 @@ emerge --info >> $issuedir/emerge-info.txt
     cat $issuedir/issue.tmp >> $issuedir/issue
     rm $issuedir/issue.tmp
 
-  elif [[ -n "$(grep -e 'mcs Not found' $issuedir/title)" ]]; then
-    # mono-4 issues
-    #
-    block="-b 580316"
+  elif [[ -n "$(grep -e -e 'mcs Not found' -e 'gmcs' $issuedir/title)" ]]; then
+    block="-b 580316"    # mono-4 issues
   fi
 
   # the email body with info, a search link and a bgo.sh command line ready for copy+paste
@@ -343,6 +341,9 @@ function GotAnIssue()  {
     Mail "info: $task failed" $bak
   fi
 
+  # no hard build failures, rather missing or wrong USE flags, license, fetch restrictions and so on
+  # we do not mask those package here b/c we might fix such an issue during lifetime of an image
+  #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
     return
