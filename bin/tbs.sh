@@ -73,25 +73,26 @@ mask=${e[$RANDOM % ${#e[@]}]}
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat avx avx2 btrfs bzip2
   cairo cdb cdda cddb cgi cgoups clang compat consolekit corefonts csc
-  cups curl custom-cflags custom-optimization dbus dec_av2 designer
-  dnssec dot drmkms dvb dvd ecc egl eglfs evdev extraengine ffmpeg
-  fontconfig fortran fpm freetds ftp gd gif git gles2 gnomecanvas
+  cups curl custom-cflags custom-optimization dbus dec_av2 declarative
+  designer dnssec dot drmkms dvb dvd ecc egl eglfs evdev extraengine
+  ffmpeg fontconfig fortran fpm freetds ftp gd gif git gles2 gnomecanvas
   gnome-keyring gnuplot gnutls gpg graphtft gstreamer gtk gtk3 gtkstyle
-  gudev gui haptic havege hdf5 help icu imap imlib inifile
-  introspection ipv6 isag ithreads jadetex javafx javascript javaxml
-  jpeg kerberos kvm lapack ldap libkms libressl libvirtd llvm logrotate
-  mbox mdnsresponder-compat melt mikmod minizip mng mod modplug mssql
+  gudev gui haptic havege hdf5 help icu imap imlib inifile introspection
+  ipv6 isag ithreads jadetex javafx javascript javaxml jpeg kerberos kvm
+  lapack ldap libkms libressl libvirtd llvm logrotate mbox
+  mdnsresponder-compat melt mikmod minizip mng mod modplug mssql
   multimedia multitarget mysql mysqli nscd nss obj objc odbc offensive
   ogg ois opencv openexr opengl openmpi openssl pcre16 pdo php pkcs11
-  plasma png policykit postgres postproc postscript pulseaudio pwquality
-  pyqt4 python qemu qml qt3support qt4 qt5 rendering scripts scrypt sddm
-  sdl semantic-desktop server smartcard sockets source spice sql sqlite
-  sqlite3 sse4 sse4_1 sse4_2 ssh-askpass ssl ssse3 svg swscale
-  system-cairo system-icu system-jpeg system-libvpx system-llvm
-  system-sqlite szip tcl theora thinkpad threads tk tls tools truetype
-  ufed uml usb usbredir uxa v4l v4l2 vaapi vdpau video vorbis vpx wav
-  webkit webstart widgets wma wxwidgets x264 x265 xa xinetd xkb xml
-  xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap zip
+  plasma png policykit postgres postproc postscript printsupport
+  pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
+  rendering scripts scrypt sddm sdl semantic-desktop server smartcard
+  sockets source spice sql sqlite sqlite3 sse4 sse4_1 sse4_2 ssh-askpass
+  ssl ssse3 svg swscale system-cairo system-icu system-jpeg
+  system-libvpx system-llvm system-sqlite szip tcl theora thinkpad
+  threads tk tls tools truetype ufed uml usb usbredir uxa v4l v4l2 vaapi
+  vdpau video vorbis vpx wav webkit webstart widgets wma wxwidgets x264
+  x265 xa xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc xz
+  zenmap zip
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
@@ -259,14 +260,14 @@ sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native /'    \
 cat << EOF >> $m
 USE="
   mmx sse sse2
-  pax_kernel -cdinstall -oci8 -bindist
+  pax_kernel xtpax -cdinstall -oci8 -bindist
 
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 "
 
+$( [[ "$mask" = "unstable" ]] && echo 'ACCEPT_KEYWORDS=~amd64' )
 CPU_FLAGS_X86="aes avx mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3"
 PAX_MARKINGS="XT"
-$( [[ "$mask" = "unstable" ]] && echo 'ACCEPT_KEYWORDS=~amd64' )
 
 #CMAKE_MAKEFILE_GENERATOR="ninja"
 #RUBY_TARGETS="ruby23"
@@ -299,7 +300,7 @@ EOF
 echo "$mask"        > tmp/MASK
 echo "$usehostrepo" > tmp/USEHOSTREPO
 
-# create portage dirs (mostly mount points)
+# create portage dirs and symlinks to ../../../tmp/tb/data/
 #
 mkdir usr/portage
 mkdir var/tmp/{distfiles,portage}
@@ -354,6 +355,8 @@ fi
 
 # tweaks requested by devs
 #
+echo "dev-python/oslo-i18n" >> tmp/packages   # https://bugs.gentoo.org/show_bug.cgi?id=580562
+echo "dev-ruby/facter"      >> tmp/packages   # https://bugs.gentoo.org/show_bug.cgi?id=580568
 
 # we do set XDG_CACHE_HOME= in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
