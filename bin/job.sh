@@ -293,7 +293,7 @@ emerge --info >> $issuedir/emerge-info.txt
     cat $issuedir/issue.tmp >> $issuedir/issue
     rm $issuedir/issue.tmp
 
-  elif [[ -n "$(grep -e -e 'mcs Not found' -e 'gmcs' $issuedir/title)" ]]; then
+  elif [[ -n "$(grep -e 'mcs Not found' -e 'gmcs' $issuedir/title)" ]]; then
     block="-b 580316"    # mono-4 issues
   fi
 
