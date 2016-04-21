@@ -345,26 +345,34 @@ EOF
 #
 echo "app-editors/nano" >> var/lib/portage/world
 
+pks=tmp/packages
+touch $pks
+chown tinderbox.tinderbox $pks
+
 # run over all packages of the portage tree in a randomized order
 #
-qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > tmp/packages
-chown tinderbox.tinderbox tmp/packages
-if [[ "$systemd" = "y" ]]; then
-  echo "STOP switch to systemd now manually !" >> tmp/packages
-fi
+qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
+# few packages needs a configured kernel or event the compiled modules
+#
+echo "sys-kernel/gentoo-sources"  >> $pks
 
 # tweaks requested by devs
 #
-echo "dev-python/oslo-i18n" >> tmp/packages   # https://bugs.gentoo.org/show_bug.cgi?id=580562
-echo "dev-ruby/facter"      >> tmp/packages   # https://bugs.gentoo.org/show_bug.cgi?id=580568
-
+echo "dev-python/oslo-i18n" >> $pks   # https://bugs.gentoo.org/show_bug.cgi?id=580562
+echo "dev-ruby/facter"      >> $pks   # https://bugs.gentoo.org/show_bug.cgi?id=580568
 # we do set XDG_CACHE_HOME= in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
 mkdir tmp/xdg
 chmod 700 tmp/xdg
 chown tinderbox:tinderbox tmp/xdg
 
-# now setup and install the chroot image
+# automatically setup won't work till now
+#
+if [[ "$systemd" = "y" ]]; then
+  echo "STOP switch to systemd now manually !" >> $pks
+fi
+
+# basic package installation of the chroot image
 #
 #----------------------------------------
 cat << EOF > tmp/setup.sh
