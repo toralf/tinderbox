@@ -10,20 +10,30 @@ copy=/tmp/runme.sh
 
 for mnt in ${@:-~/amd64-*}
 do
-  # an image
-  #   - must not be locked
-  #   - must have entries in its package list
+  # the image partition is not mounted
   #
-  if [[ ! -f $mnt/tmp/LOCK ]]; then
-    pks=$mnt/tmp/packages
-    if [[ ! -s $pks ]]; then
-      echo " package list is empty for: $mnt"
-      continue
-    fi
-
-    nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
-    sleep 1
+  if [[ -L $mnt && ! -e $mnt ]]; then
+    echo "broken symlink: $mnt"
+    continue
   fi
+
+  # image must not be locked
+  #
+  if [[ -f $mnt/tmp/LOCK ]]; then
+    continue
+  fi
+
+  # non-empty package list required
+  #
+  pks=$mnt/tmp/packages
+  if [[ -f $pks && ! -s $pks ]]; then
+    echo " package list is empty for: $mnt"
+    continue
+  fi
+
+  nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
+
+  sleep 1
 done
 
 # otherwise the prompt isn't shown due to 'nohup ... &'
