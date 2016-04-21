@@ -10,12 +10,13 @@
 #
 (
 
-# strip colour ESC sequences
+# strip away escape sequences
 #
 function stresc() {
-  # https://bugs.gentoo.org/show_bug.cgi?id=564998#c6
+  # remove colour ESC sequences, ^[[K and carriage return
+  # do not use perl -ne 's/\e\[?.*?[\@-~]//g; print' due to : https://bugs.gentoo.org/show_bug.cgi?id=564998#c6
   #
-  perl -MTerm::ANSIColor=colorstrip -nle 'print colorstrip($_)'
+  perl -MTerm::ANSIColor=colorstrip -nle '$_ = colorstrip($_); s/\e\[K//g; s/\r/\n/g; print'
 }
 
 # send out an email with $1 as the subject and $2 - if given - as the body
@@ -289,7 +290,7 @@ emerge --info >> $issuedir/emerge-info.txt
   if [[ -n "$(grep -e 'minor' -e 'major' -e 'makedev' $issuedir/title)" ]]; then
     block="-b 575232"
     mv $issuedir/issue $issuedir/issue.tmp
-    echo -e "This bug report feeds bug #575232 (sys-libs/glibc-2.23.r1 breakage).\n\n" > $issuedir/issue
+    echo -e "This bug report feeds bug #575232 (sys-libs/glibc-2.23-r1 breakage).\n\n" > $issuedir/issue
     cat $issuedir/issue.tmp >> $issuedir/issue
     rm $issuedir/issue.tmp
 
