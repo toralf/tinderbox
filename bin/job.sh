@@ -134,9 +134,6 @@ function GetNextTask() {
 # whether the issue is worth to be reported to b.g.o. or not
 #
 function CompileIssueMail() {
-  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $curr | tr '/' '_')
-  mkdir -p $issuedir/files
-
   ehist=/var/tmp/portage/emerge-history.txt
   echo "# This file contains the emerge history"  >   $ehist
   echo "#"                                        >>  $ehist
@@ -318,8 +315,6 @@ EOF
   do
     uuencode $f $(basename $f) >> $issuedir/body
   done
-
-  Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
 }
 
 
@@ -395,15 +390,20 @@ function GotAnIssue()  {
     echo "$line" >> /etc/portage/package.mask/self
   fi
 
-  # skip, if this package *version* failed already before (regardless of the issue)
+  # now compile all needed data files into $issuedir
+  #
+  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $curr | tr '/' '_')
+  mkdir -p $issuedir/files
+  CompileIssueMail
+
+  # skip, if this package *version* was reported before (regardless of the issue)
   #
   grep -q "=$curr " /tmp/tb/data/ALREADY_CATCHED
-  if [[ $? -eq 0 ]]; then
-    return
+  if [[ $? -ne 0 ]]; then
+    Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
+  else
+    echo "$line" >> /tmp/tb/data/ALREADY_CATCHED
   fi
-  echo "$line" >> /tmp/tb/data/ALREADY_CATCHED
-
-  CompileIssueMail
 }
 
 
