@@ -7,8 +7,8 @@
 
 mailto="tinderbox@zwiebeltoralf.de"
 
-# put all package list (f)ilenames of all chroot (i)mages into an (a)rray
-# where the image
+# put all package list filenames of all chroot images into an array
+# if the image ...
 #   1. is symlinked to ~
 #   2. is running
 #   3. has a non-empty package list
