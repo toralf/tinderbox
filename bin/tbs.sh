@@ -356,11 +356,17 @@ qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $
 #
 echo "sys-kernel/gentoo-sources"  >> $pks
 
+# build failures w/o a known root cause till now therefore put those packages at the top
+# to to see if other packages harms them or not
+#
+echo "INFO https://bugs.gentoo.org/show_bug.cgi?id=580562"  >> $pks
+echo "dev-python/oslo-i18n"                                 >> $pks
+echo "INFO https://bugs.gentoo.org/show_bug.cgi?id=580568"  >> $pks
+echo "dev-ruby/facter"                                      >> $pks
+
 # tweaks requested by devs
 #
-echo "dev-python/oslo-i18n" >> $pks   # https://bugs.gentoo.org/show_bug.cgi?id=580562
-echo "dev-ruby/facter"      >> $pks   # https://bugs.gentoo.org/show_bug.cgi?id=580568
-# we do set XDG_CACHE_HOME= in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
+# set XDG_CACHE_HOME=/tmp/xdg in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
 mkdir tmp/xdg
 chmod 700 tmp/xdg
