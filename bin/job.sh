@@ -293,6 +293,9 @@ emerge --info >> $issuedir/emerge-info.txt
 
   elif [[ -n "$(grep -e 'mcs Not found' -e 'gmcs' $issuedir/title)" ]]; then
     block="-b 580316"    # mono-4 issues
+
+  elif [[ -n "$(grep -e 'undefined reference to ' $issuedir/title)" ]]; then
+    block="-b 536984"   # GCC-5
   fi
 
   # the email body with info, a search link and a bgo.sh command line ready for copy+paste
@@ -401,7 +404,6 @@ function GotAnIssue()  {
   grep -q "=$curr " /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
-  else
     echo "$line" >> /tmp/tb/data/ALREADY_CATCHED
   fi
 }
