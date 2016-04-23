@@ -4,7 +4,7 @@ Can't read
 CMake will not be able to correctly generate this project.
 class file .* not found
 has incomplete type
-undefined reference
+: undefined reference to
 undefined symbol:
 exited with code: 1.
 I can't find the format file
@@ -60,7 +60,6 @@ You have to install development tools first.
 is not a function name
 mkdir: cannot create directory
 required by '.*', not found
-.*command not found
 Unable to find program
 required internal CMake variable not set
 javac: invalid source release
@@ -95,12 +94,10 @@ error adding symbols:
 missing separator
 Make check failed. See above for details.
 fatal error:.*No such file or directory
-compilation terminated.
 pdflatex failed
 An exception has occurred in the compiler
 error in .* command
 Can't locate Locale/Messages.pm in @INC
-Error 127
 Ebuild author forgot an entry
 error:
 does not exist
@@ -108,6 +105,11 @@ No package .* found
 Invalid use of .*.eclass
 Unable to set SELinux security labels
 patch .* failed with
+you need to fix the relative paths in patch
+csc: invalid option
+recipe for target .* failed
+.*command not found
+EPYTHON unset
 Error:
 ERROR:
 Error

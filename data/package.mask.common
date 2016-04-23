@@ -12,7 +12,7 @@ app-vim/ctx
 app-vim/curcmdmode
 app-vim/notes
 
-#	https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
+#	libjpeg-turbo is preferred now: https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
 #
 media-libs/jpeg
 
@@ -46,14 +46,8 @@ net-fs/openafs-kernel
 #
 net-dns/resolvconf-symlink
 
-# too fat
+# LO rules
 #
-dev-java/icedtea
-mail-client/thunderbird
-
-# too long build time (too fat too ?)
-#
-app-office/libreoffice
 app-office/openoffice
 
 # https://bugs.gentoo.org/show_bug.cgi?id=540644
@@ -67,8 +61,3 @@ app-office/openoffice
 # https://bugs.gentoo.org/show_bug.cgi?id=572188
 #
 dev-lang/julia
-
-# https://bugs.gentoo.org/show_bug.cgi?id=575232
-# continue to catch glibc-2.23 minor/major/makedev build issues
-#
-#>=sys-libs/glibc-2.23-r2
