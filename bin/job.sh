@@ -290,7 +290,7 @@ emerge --info >> $issuedir/emerge-info.txt
   cp $issuedir/issue $issuedir/body
   cat << EOF >> $issuedir/body
 
-versions: $(ls /usr/portage/$currShort/*.ebuild | xargs qatom | cut -f3- -d' ' | sed 's/ *$//g' | tr " " "-" | sort --numeric | xargs)
+versions: $(eshowkw -a amd64 $currShort | grep -A 100 '^-' | grep -v '^-' | awk ' { print $1 } ' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
 https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$currShort&short_desc_type=allwordssubstr

@@ -20,7 +20,7 @@ tbhome=/home/tinderbox
 # functions
 #
 
-# return a (r)andomized (U)SE (f)lag (s)ubset from input set $flags
+# return a (r)andomized (U)SE (f)lag (s)ubset from the set $flags
 #
 # mask  a flag with a likelihood of 1/n
 # set   a flag with a likelihood of 1/p
@@ -429,7 +429,7 @@ UseTLS=YES
 Debug=NO
 " > /etc/ssmtp/ssmtp.conf || exit 7
 
-# sharutils provides "uudecode", gentoolkit has "equery", portage-utils has "qlop"
+# sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop"
 #
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils || exit 8
 
