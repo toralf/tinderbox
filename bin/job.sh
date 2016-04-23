@@ -149,7 +149,7 @@ function CompileIssueMail() {
     fi
   fi
 
-  # collect build logs
+  # misc build log files
   #
   cflog=$(grep -m1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
   apout=$(grep -m1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"           | cut -f5 -d' ')
@@ -225,60 +225,47 @@ emerge --info >> $issuedir/emerge-info.txt
     echo "file collision with $s" >> $issuedir/title
     grep -m 1 -A 15 ' Detected file collision(s):' $bak > $issuedir/issue
 
+  elif [[ -f $sandb ]]; then
+    # handle sandbox issues in a special way
+    #
+    head -n 30 $sandb > $issuedir/issue
+    sed -i -e "s/.* ACCESS VIOLATION SUMMARY .*/ sandbox issue/" $issuedir/title
+
   else
-    # we do loop over all patterns exactly in the written order
-    # therefore do not use something like "grep -f CATCH_ISSUES" here !
+    # we have do loop over all patterns exactly in their given order
+    # therefore don't use something like "grep -f CATCH_ISSUES" here !
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
     do
-      grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue
-      if [[ $? -eq 0 ]]; then
+      grep -m 1 -B 2 -A 3 "$c" $bak | tail -c 1200 > $issuedir/issue
+      if [[ -s $issuedir/issue ]]; then
         grep -m 1 "$c" $issuedir/issue >> $issuedir/title
         break
       fi
     done
-
-    # if we didn't catched a known issue (class)
-    # then just take the last (hopefully meaningful) lines
-    #
-    if [[ ! -s $issuedir/issue ]]; then
-      (
-        maxLines=65
-        maxChars=7000
-        if [[ $(tail -n $maxLines $currlog | wc -c) -gt $maxChars ]]; then
-          tail -c $maxChars $currlog
-        else
-          tail -n $maxLines $currlog
-        fi
-      ) > $issuedir/issue
-    fi
   fi
 
-  len=$(wc -c < $issuedir/title)
-  max=210
-  if [[ $len -gt $max ]]; then
-    truncate -s $max $issuedir/title
-  fi
-
-  # handle sandbox issues in a special way
-  #
-  if [[ -f $sandb ]]; then
-    head -n 30 $sandb > $issuedir/issue
-    sed -i -e "s/.* ACCESS VIOLATION SUMMARY .*/ sandbox issue/" $issuedir/title
+  if [[ ! -s $issuedir/issue ]]; then
+    Mail "info: $curr: nothing found in data/CATCH_ISSUES" $bak
   fi
 
   # shrink looong path names in title
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
+  # limit the max.length of the title
+  #
+  len=$(wc -c < $issuedir/title)
+  max=210
+  if [[ $len -gt $max ]]; then
+    truncate -s $max $issuedir/title
+  fi
+
   echo "$curr : $(cat $issuedir/title)" > $issuedir/title
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
 
-  # FWIW: uuencode is not mime-compliant and although thunderbird is able to display such attachments
-  # it cannot forward such a composed email: https://bugzilla.mozilla.org/show_bug.cgi?id=1178073
-  #
   currShort=$(qatom $curr | cut -f1-2 -d' ' | tr ' ' '/')
 
   # guess from the title if there's a blocker to feed too
@@ -312,7 +299,8 @@ https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_d
 
 EOF
 
-  # send to us $bak too, however at b.g.o we do only attach the package specific log file
+  # FWIW: uuencode is not mime-compliant and although thunderbird is able to display such attachments
+  # it cannot forward such a composed email: https://bugzilla.mozilla.org/show_bug.cgi?id=1178073
   #
   for f in $issuedir/emerge-info.txt $issuedir/files/* $bak
   do
