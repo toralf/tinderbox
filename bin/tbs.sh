@@ -413,9 +413,6 @@ echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
 
-# !<glibc-2.22 block
-#
-qlist -Iv sys-libs/glibc | egrep -q '2\.21' && echo ">=dev-libs/elfutils-0.165" > /etc/portage/package.mask/elfutils
 emerge sys-apps/elfix || exit 4
 migrate-pax -m        || exit 5
 
