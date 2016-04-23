@@ -4,6 +4,11 @@
 
 # start a tinderbox chroot image
 #
+iam="$(whoami)"
+if [[ ! "$iam" = "tinderbox" ]]; then
+  echo " wrong user '$iam' !"
+  exit 1
+fi
 
 orig=/tmp/tb/bin/runme.sh
 copy=/tmp/runme.sh
@@ -32,8 +37,6 @@ do
   fi
 
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
-
-  sleep 1
 done
 
 # otherwise the prompt isn't shown due to 'nohup ... &'
