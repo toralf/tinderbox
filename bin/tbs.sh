@@ -349,20 +349,23 @@ pks=tmp/packages
 touch $pks
 chown tinderbox.tinderbox $pks
 
-# run over all packages of the portage tree in a randomized order
+# test all packages of the portage tree in a randomized order
 #
 qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
-# few packages needs a configured kernel or event the compiled modules
-#
-echo "sys-kernel/gentoo-sources"  >> $pks
 
-# build failures w/o a known root cause till now therefore put those packages at the top
-# to to see if other packages harms them or not
+# build failures w/o a known root cause till now
+# therefore put those packages at the top to check them independent from others
 #
 echo "INFO https://bugs.gentoo.org/show_bug.cgi?id=580562"  >> $pks
 echo "dev-python/oslo-i18n"                                 >> $pks
 echo "INFO https://bugs.gentoo.org/show_bug.cgi?id=580568"  >> $pks
 echo "dev-ruby/facter"                                      >> $pks
+
+# few packages needs a configured/compiled kernel
+# the INFO line prevents insert_pkgs.sh from feeding this package list too early
+#
+echo "INFO image setup phase done"  >> $pks
+echo "sys-kernel/gentoo-sources"    >> $pks
 
 # tweaks requested by devs
 #
