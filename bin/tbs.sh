@@ -356,13 +356,11 @@ qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $
 # build failures w/o a known root cause till now
 # therefore put those packages at the top to check them independent from others
 #
-echo "INFO https://bugs.gentoo.org/show_bug.cgi?id=580562"  >> $pks
-echo "dev-python/oslo-i18n"                                 >> $pks
-echo "INFO https://bugs.gentoo.org/show_bug.cgi?id=580568"  >> $pks
-echo "dev-ruby/facter"                                      >> $pks
+# echo "INFO https://bugs.gentoo.org/show_bug.cgi?id=42"  >> $pks
+# echo "foo/bar"                                          >> $pks
 
-# few packages needs a configured/compiled kernel
-# the INFO line prevents insert_pkgs.sh from feeding this package list too early
+# few packages needs a configured/compiled kernel, as a side effect
+# the INFO line prevents insert_pkgs.sh from feeding this image too early
 #
 echo "INFO image setup phase done"  >> $pks
 echo "sys-kernel/gentoo-sources"    >> $pks
@@ -429,11 +427,12 @@ UseTLS=YES
 Debug=NO
 " > /etc/ssmtp/ssmtp.conf || exit 7
 
+# we'll just install here mandatory packages, therefore not even "eix"
 # sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop"
 #
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils || exit 8
 
-# try to automatically change USE flag so that the very first @world upgrade will succeed
+# try to automatically tweak USE flag in that manner that at least the very first @world upgrade might succeed
 #
 emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
@@ -444,7 +443,7 @@ if [[ \$? -ne 0 ]]; then
     cat /etc/portage/package.use/world
     echo
     emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
-    if [[ \$? -eq 0 ]]; then
+    if [[ \$? -ne 0 ]]; then
       exit 9
     fi
   else
