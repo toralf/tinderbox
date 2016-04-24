@@ -322,14 +322,21 @@ function GotAnIssue()  {
     Finish "FATAL $fatal"
   fi
 
-  # @system should be update-able, @world however is expected to fail
+  grep -q 'AssertionError: ebuild not found for' $bak
+  if [[ $? -eq 0 ]]; then
+    echo "$task" >> $pks    # repeat it
+    Mail "info: race of repository sync and local emerge operation" $bak  # mail to us to check that we're not in a loop
+    return
+  fi
+
+  # @system should work (@world however is expected to fail)
   #
   if [[ "$task" = "@system" ]]; then
     Mail "info: $task failed" $bak
   fi
 
   # no hard build failures, rather missing or wrong USE flags, license, fetch restrictions and so on
-  # we do not mask those package here b/c we might fix such an issue during lifetime of an image
+  # we do not mask those package here b/c such issues might be fixed in the lifetime of an image
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
@@ -463,6 +470,7 @@ function SwitchGCC() {
       rm -rf /var/cache/revdep-rebuild/*
       revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &> $log
       if [[ $? -ne 0 ]]; then
+        echo '%revdep-rebuild --library libstdc++.so.6 -- --exclude gcc' >> $pks
         GotAnIssue
         Finish "FAILED: $subject rebuild failed"   # bail out here to allow a resume
       fi
