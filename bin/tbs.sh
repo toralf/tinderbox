@@ -354,16 +354,15 @@ chown tinderbox.tinderbox $pks
 qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
 
 # build failures w/o a known root cause till now
-# therefore put those packages at the top to check them independent from others
+# therefore put those packages at the top of $pks to test them before all other packages
 #
 # echo "INFO https://bugs.gentoo.org/show_bug.cgi?id=42"  >> $pks
 # echo "foo/bar"                                          >> $pks
 
-# few packages needs a configured/compiled kernel, as a side effect
-# the INFO line prevents insert_pkgs.sh from feeding this image too early
+# the INFO line prevents insert_pkgs.sh to feed this image before the setup is finished
 #
 echo "INFO image setup phase done"  >> $pks
-echo "sys-kernel/gentoo-sources"    >> $pks
+echo "$kernel"                      >> $pks
 
 # tweaks requested by devs
 #

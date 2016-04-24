@@ -462,7 +462,7 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
 
-    # schedule rebuilding of object files against new gcc libs
+    # schedule compiling of kernel object files against new gcc libs
     #
     echo "%BuildKernel" >> $pks
 
@@ -502,8 +502,8 @@ function BuildNewKernel() {
 
 
 # we do not run an emerge operation here
-# but we'll schedule tasks (perl, python, haskell updater) if needed
-# and we'll switch a GCC, build the kernel and so on
+# but we'll schedule perl/python/haskell - updater if needed
+# and we'll switch to a new GCC, build the kernel and so on
 #
 function PostEmerge() {
   typeset tmp
@@ -594,16 +594,20 @@ function PostEmerge() {
 
   # linux sources
   #
-  grep -q ">>> Installing .* sys-kernel/" $tmp
-  if [[ $? -eq 0 ]]; then
+  if [[ -e /usr/src/linux && ! -f /usr/src/linux/.config ]]; then
     BuildNewKernel
+  else
+    grep -q ">>> Installing .* sys-kernel/" $tmp
+    if [[ $? -eq 0 ]]; then
+      BuildNewKernel
+    fi
   fi
 
   rm -f $tmp
 }
 
 
-# test hook, eg. to catch a package which installs in root / or left files over in /tmp
+# test hook, eg. to catch a package which wrongly installs directly in / or left files over in /tmp
 #
 function check() {
   exe=/tmp/tb/bin/PRE-CHECK.sh
