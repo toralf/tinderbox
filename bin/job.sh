@@ -228,8 +228,8 @@ emerge --info >> $issuedir/emerge-info.txt
   elif [[ -f $sandb ]]; then
     # handle sandbox issues in a special way
     #
-    head -n 30 $sandb > $issuedir/issue
-    sed -i -e "s/.* ACCESS VIOLATION SUMMARY .*/ sandbox issue/" $issuedir/title
+    head -n 20 $sandb > $issuedir/issue
+    echo "sandbox issue" > $issuedir/title
 
   else
     # we have do loop over all patterns exactly in their given order
