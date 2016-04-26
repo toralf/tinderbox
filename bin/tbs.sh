@@ -350,19 +350,10 @@ touch $pks
 chown tinderbox.tinderbox $pks
 
 # test all packages of the portage tree in a randomized order
-#
-qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
-
-# build failures w/o a known root cause till now
-# therefore put those packages at the top of $pks to test them before all other packages
-#
-# echo "INFO https://bugs.gentoo.org/show_bug.cgi?id=42"  >> $pks
-# echo "foo/bar"                                          >> $pks
-
 # the INFO line prevents insert_pkgs.sh to feed this image before the setup is finished
 #
-echo "INFO image setup phase done"  >> $pks
-echo "$kernel"                      >> $pks
+qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
+echo "INFO start working on the package list" >> $pks
 
 # tweaks requested by devs
 #
@@ -411,7 +402,7 @@ emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
 
 emerge sys-apps/elfix || exit 4
-migrate-pax -m        || exit 5
+migrate-pax -m
 
 eselect news read >/dev/null
 
@@ -426,10 +417,9 @@ UseTLS=YES
 Debug=NO
 " > /etc/ssmtp/ssmtp.conf || exit 7
 
-# we'll just install here mandatory packages, therefore not even "eix"
 # sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop"
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils || exit 8
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils $kernel || exit 8
 
 # try to automatically tweak USE flag in that manner that at least the very first @world upgrade might succeed
 #
