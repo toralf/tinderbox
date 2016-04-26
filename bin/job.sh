@@ -281,8 +281,6 @@ emerge --info >> $issuedir/emerge-info.txt
   elif [[ -n "$(grep -e 'mcs Not found' -e 'gmcs' $issuedir/title)" ]]; then
     block="-b 580316"    # mono-4 issues
 
-  elif [[ -n "$(grep -e 'undefined reference to ' $issuedir/title)" ]]; then
-    block="-b 536984"   # GCC-5
   fi
 
   # the email body with info, a search link and a bgo.sh command line ready for copy+paste
@@ -592,17 +590,6 @@ function PostEmerge() {
     SwitchGCC
   fi
 
-  # linux sources
-  #
-  if [[ -e /usr/src/linux && ! -f /usr/src/linux/.config ]]; then
-    BuildNewKernel
-  else
-    grep -q ">>> Installing .* sys-kernel/" $tmp
-    if [[ $? -eq 0 ]]; then
-      BuildNewKernel
-    fi
-  fi
-
   rm -f $tmp
 }
 
@@ -684,6 +671,12 @@ do
       layman -S &>/dev/null
     fi
     old="$now"
+  fi
+
+  # a configured + compiled kernel is mandatory for some packages
+  #
+  if [[ -e /usr/src/linux && ! -f /usr/src/linux/.config ]]; then
+    BuildNewKernel
   fi
 
   GetNextTask
