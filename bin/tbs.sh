@@ -56,11 +56,6 @@ e=(
   "default/linux/amd64/13.0/desktop/kde"    \
   "default/linux/amd64/13.0/desktop/plasma" \
   "hardened/linux/amd64"                    \
-  "default/linux/amd64/13.0/systemd"                \
-  "default/linux/amd64/13.0/desktop/systemd"        \
-  "default/linux/amd64/13.0/desktop/gnome/systemd"  \
-  "default/linux/amd64/13.0/desktop/kde/systemd"    \
-  "default/linux/amd64/13.0/desktop/plasma/systemd" \
 )
 profile=${e[$RANDOM % ${#e[@]}]}
 
@@ -168,11 +163,6 @@ if [[ $? -ne 0 ]]; then
   exit 4
 fi
 
-systemd="n"
-if [[ "$(basename $profile)" = "systemd" ]]; then
-  systemd="y"
-fi
-
 # $name holds the (directory) name of the chroot image (and will be symlinked into $HOME later)
 # stage3 holds the full stage3 file name as found in file $latest
 #
@@ -181,14 +171,7 @@ if [[ "$profile" = "hardened/linux/amd64" ]]; then
   stage3=$(grep "^201...../hardened/stage3-amd64-hardened-201......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   kernel="sys-kernel/hardened-sources"
 else
-  if [[ "$systemd" = "y" ]]; then
-    # use <foo> of ".../<foo>/systemd" too
-    #
-    pname="$(basename $(dirname $profile))-systemd"
-  else
-    pname=$(basename $profile)
-  fi
-  name="$name-$pname"
+  name="$name-$(basename $profile)"
   stage3=$(grep "^201...../stage3-amd64-201......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   kernel="sys-kernel/gentoo-sources"
 fi
@@ -363,12 +346,6 @@ mkdir tmp/xdg
 chmod 700 tmp/xdg
 chown tinderbox:tinderbox tmp/xdg
 
-# automatically setup won't work till now
-#
-if [[ "$systemd" = "y" ]]; then
-  echo "STOP switch to systemd now manually !" >> $pks
-fi
-
 # basic package installation of the chroot image
 #
 #----------------------------------------
@@ -378,14 +355,7 @@ if [[ "$usehostrepo" = "no" ]]; then
   emerge --sync || exit 1
 fi
 
-# we can't yet build a systemd image automatically and reliable
-# therefore setup as a non-systemd and switch later manually
-#
-if [[ "$systemd" = "y" ]]; then
-  eselect profile set $(dirname $profile) || exit 2
-else
-  eselect profile set $profile            || exit 3
-fi
+eselect profile set $profile            || exit 3
 
 echo "en_US ISO-8859-1
 en_US.UTF-8 UTF-8
