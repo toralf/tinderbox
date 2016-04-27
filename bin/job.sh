@@ -291,6 +291,7 @@ emerge --info >> $issuedir/emerge-info.txt
 versions: $(eshowkw -a amd64 $currShort | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
+
 https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$currShort&short_desc_type=allwordssubstr
 
 ~/tb/bin/bgo.sh -d ~/$name/$issuedir $block
@@ -315,21 +316,34 @@ function GotAnIssue()  {
   typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
+  # keep all successfully emerged dependencies of $curr in world file
+  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
+  #
+  tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' | grep -q ':  === (1 of .*) '
+  if [[ $? -ne 0 ]]; then
+    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
+  fi
+
+  # mostly OOM
+  #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ $? -eq 0 ]]; then
     Finish "FATAL $fatal"
   fi
 
+  # the host repository is synced every 3 hours, that interferes sometimes with a longer emerge operation
+  # final solution is a local repo, but no way as long as we just have 16 GB RAM at all
+  #
   grep -q 'AssertionError: ebuild not found for' $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $pks    # repeat it
-    Mail "info: race of repository sync and local emerge operation" $bak  # mail to us to check that we're not in a loop
+    echo "$task" >> $pks    # try it again
+    Mail "info: race of repository sync and local emerge" $bak  # mail to us to check that we're not in a loop
     return
   fi
 
-  # @system should work (@world however is expected to fail)
+  # @system should work, @world is often expected to fail
   #
-  if [[ "$task" = "@system" ]]; then
+  if [[ "$task" = "@system" || "$task" = "@world" ]]; then
     Mail "info: $task failed" $bak
   fi
 
@@ -346,21 +360,13 @@ function GotAnIssue()  {
   line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
   echo "$line" | grep -q ':  === ('
   if [[ $? -ne 0 ]]; then
-    Mail "TODO: emerge did not even start" $bak
+    Mail "TODO: emerge did not really start" $bak
     return
   fi
   curr=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
 
   if [[ -z "$curr" ]]; then
     Finish "ERROR: \$curr must not be empty: task=$task"
-  fi
-
-  # keep all successfully emerged dependencies of $curr in world file
-  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
-  #
-  tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' | grep -q ':  === (1 of .*) '
-  if [[ $? -ne 0 ]]; then
-    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
   fi
 
   # broken Perl upgrade: https://bugs.gentoo.org/show_bug.cgi?id=463976
@@ -424,6 +430,7 @@ function SwitchJDK()  {
 #
 function BuildKernel()  {
   if [[ ! -e /usr/src/linux ]]; then
+    Mail "warn: shouldn't reach this line" $log
     return
   fi
 
@@ -479,7 +486,7 @@ function SwitchGCC() {
 
 # eselect the latest kernel and build it if not yet done
 #
-function BuildNewKernel() {
+function SelectNewKernel() {
   if [[ ! -e /usr/src/linux ]]; then
     return # no sources emerged at this point
   fi
@@ -676,7 +683,7 @@ do
   # a configured + compiled kernel is mandatory for some packages
   #
   if [[ -e /usr/src/linux && ! -f /usr/src/linux/.config ]]; then
-    BuildNewKernel
+    BuildKernel
   fi
 
   GetNextTask
