@@ -21,7 +21,7 @@ while getopts a:b:c:d: opt
 do
   case $opt in
     a)  id="$OPTARG";;          # attach onto this bug id
-    b)  block="$OPTARG";;   # either a bug id or an alias like "ninja-porting"
+    b)  block="$OPTARG";;       # either a bug id or an alias like "ninja-porting"
     c)  comment="$OPTARG\n\n";;
     d)  dir="$OPTARG";;         # directory containing all data
     *)  echo " not implemented !"
@@ -44,7 +44,7 @@ fi
 if [[ -n "$id" ]]; then
   # attach onto an existing bug
   #
-  bugz attach --content-type "text/plain" --description "$(echo $comment)$(cat ./issue)" $id emerge-info.txt 1> bugz.out 2> bugz.err
+  bugz attach --content-type "text/plain" --description "$(echo -e $comment)$(cat ./issue)" $id emerge-info.txt 1> bugz.out 2> bugz.err
   rc=$?
 
 else
