@@ -307,7 +307,7 @@ EOF
 }
 
 
-# check an issue, prepare files for bgo.sh
+# qualify the issue
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -315,7 +315,7 @@ function GotAnIssue()  {
   typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
-  # keep all successfully emerged dependencies of $task in world file
+  # put all successfully emerged dependencies of $task into the world file
   # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally from now on
   #
   failed=""
@@ -323,7 +323,7 @@ function GotAnIssue()  {
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
     failed=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
-    echo "line" | grep -q ':  === (1 of .*) '
+    echo "line" | grep -q ':  === (1 of '
     if [[ $? -ne 0 ]]; then
       emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
     fi
@@ -352,8 +352,8 @@ function GotAnIssue()  {
     Mail "info: $task failed" $bak
   fi
 
-  # no hard build failures, rather missing or wrong USE flags, license, fetch restrictions and so on
-  # we do not mask those package here b/c such issues might be fixed in the lifetime of an image
+  # mostly no hard build failures, rather missing or wrong USE flags, license, fetch restrictions and so on
+  # we do not mask those package here b/c such issues might be fixed during the lifetime of the image
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
@@ -376,7 +376,7 @@ function GotAnIssue()  {
     fi
   fi
 
-  # append a trailing space eg.: to distinguish between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
+  # append a trailing space to distinguish eg.: between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
   #
   line="=$(echo $failed | awk ' { printf("%-50s ", $1) } ')# $(date) $name"
 
