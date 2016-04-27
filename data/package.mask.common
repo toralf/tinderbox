@@ -1,11 +1,7 @@
 # package.mask/common
 #
 
-# https://bugs.gentoo.org/show_bug.cgi?id=563880
-#
-=app-admin/sagan-0.2.3
-
-# various vim issue(s) at 1st run of vim
+# various issue(s) at the very 1st start of vim
 #
 app-vim/c-support
 app-vim/ctx
@@ -16,7 +12,7 @@ app-vim/notes
 #
 media-libs/jpeg
 
-#	ffmpeg is prefered
+#	media-video/ffmpeg is prefered
 #
 media-video/libav
 
@@ -39,8 +35,7 @@ dev-scheme/racket
 
 # can't be build w/ recent kernels
 #
-net-fs/openafs
-net-fs/openafs-kernel
+net-fs/openafs*
 
 # turns /etc/resolv.conf into an unworking symlink pointing to /run
 #
@@ -50,14 +45,10 @@ net-dns/resolvconf-symlink
 #
 app-office/openoffice
 
-# https://bugs.gentoo.org/show_bug.cgi?id=540644
-#
-=dev-libs/DirectFB-1.7.6
-
-# https://bugs.gentoo.org/show_bug.cgi?id=569186
-#
-=app-text/rpl-1.5.5
-
-# https://bugs.gentoo.org/show_bug.cgi?id=572188
+# jit/hardened issue: https://bugs.gentoo.org/show_bug.cgi?id=572188
 #
 dev-lang/julia
+
+# Checking for at least 35 GiB disk space at "
+#
+sci-mathematics/isabelle

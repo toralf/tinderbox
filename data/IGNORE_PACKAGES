@@ -6,11 +6,7 @@ dev-db/mysql-connector-c
 dev-embedded/
 dev-java/freehep
 dev-lisp/
-games-emulation/sdlmess
-games-fps/
-games-rpg/
 net-analyzer/openvas
-net-fs/openafs-kernel
 raspberrypi
 sci-libs/acml
 sec-policy/

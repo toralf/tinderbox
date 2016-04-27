@@ -8,7 +8,6 @@ has incomplete type
 undefined symbol:
 exited with code: 1.
 I can't find the format file
-is invalid
 ld: cannot find
 multiple definition of
 must be installed to use
@@ -99,6 +98,7 @@ An exception has occurred in the compiler
 error in .* command
 Can't locate Locale/Messages.pm in @INC
 Ebuild author forgot an entry
+configure: error:
 error:
 does not exist
 No package .* found
@@ -107,9 +107,12 @@ Unable to set SELinux security labels
 patch .* failed with
 you need to fix the relative paths in patch
 csc: invalid option
+make.*: No such file or directory.  Stop.
 recipe for target .* failed
 .*command not found
 EPYTHON unset
+POD document had syntax errors
+No supported Python implementation
 Error:
 ERROR:
 Error
