@@ -94,7 +94,6 @@ flags="
 flags=$(rufs)
 
 Start="n"           # start the chroot image if setup was successfully ?
-usehostrepo="yes"   # bind-mount /usr/portage from host or use own repo ?
 
 let "i = $RANDOM % 2 + 1"
 imagedir="$tbhome/images${i}"         # images[12]
@@ -110,7 +109,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-while getopts Af:i:m:p:r: opt
+while getopts Af:i:m:p: opt
 do
   case $opt in
     A)  autostart="y"
@@ -127,8 +126,6 @@ do
         ;;
     p)  profile="$OPTARG"
         ;;
-    r)  usehostrepo="$OPTARG"
-        ;;
     *)  echo " '$opt' not implemented"
         exit 2
         ;;
@@ -142,11 +139,6 @@ fi
 
 if [[ ! -d /usr/portage/profiles/$profile ]]; then
   echo " profile unknown: $profile"
-  exit 3
-fi
-
-if [[ "$usehostrepo" != "yes" && "$usehostrepo" != "no" ]]; then
-  echo " wrong value for usehostrepo: $usehostrepo"
   exit 3
 fi
 
@@ -285,7 +277,6 @@ EOF
 #----------------------------------------
 
 echo "$mask"        > tmp/MASK
-echo "$usehostrepo" > tmp/USEHOSTREPO
 
 # create portage dirs and symlinks to ../../../tmp/tb/data/
 #
@@ -354,10 +345,6 @@ chown tinderbox:tinderbox tmp/xdg
 #
 #----------------------------------------
 cat << EOF > tmp/setup.sh
-
-if [[ "$usehostrepo" = "no" ]]; then
-  emerge --sync || exit 1
-fi
 
 eselect profile set $profile            || exit 3
 

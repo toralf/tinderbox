@@ -13,21 +13,15 @@
 tbhome=/home/tinderbox
 
 function mountall() {
-  mount -o bind       $tbhome/tb            $mnt/tmp/tb               &&\
+  mount -o bind       $tbhome/tb            $mnt/tmp/tb             &&\
+  mount -o bind,ro    /usr/portage          $mnt/usr/portage        &&\
+  mount -o bind       /var/tmp/distfiles    $mnt/var/tmp/distfiles  &&\
+  mount -t tmpfs      tmpfs -o size=9G      $mnt/var/tmp/portage    &&\
 
-  if [[ "$usehostrepo" = "yes" ]]; then
-    mount -o bind,ro /usr/portage           $mnt/usr/portage
-  else
-    echo " host repo is set to '$usehostrepo' !"
-  fi                                                                  &&\
-
-  mount -o bind       /var/tmp/distfiles    $mnt/var/tmp/distfiles    &&\
-  mount -t tmpfs      tmpfs -o size=9G      $mnt/var/tmp/portage      &&\
-
-  mount -t proc       none                  $mnt/proc                 &&\
-  mount --rbind       /sys                  $mnt/sys                  &&\
-  mount --make-rslave $mnt/sys                                        &&\
-  mount --rbind       /dev                  $mnt/dev                  &&\
+  mount -t proc       none                  $mnt/proc               &&\
+  mount --rbind       /sys                  $mnt/sys                &&\
+  mount --make-rslave $mnt/sys                                      &&\
+  mount --rbind       /dev                  $mnt/dev                &&\
   mount --make-rslave $mnt/dev
 
   return $?
@@ -38,10 +32,8 @@ function umountall()  {
   umount -l $mnt/dev{/shm,/pts,}
   umount -l $mnt/{sys,proc}
   umount    $mnt/var/tmp/{portage,distfiles}
-  if [[ "$usehostrepo" = "yes" ]]; then
-    umount $mnt/usr/portage
-  fi
-  umount $mnt/tmp/tb
+  umount    $mnt/usr/portage
+  umount    $mnt/tmp/tb
 }
 
 
@@ -85,7 +77,8 @@ touch $lock || exit 2
 #
 grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
 
-usehostrepo=$(cat $mnt/tmp/USEHOSTREPO)
+# ok, mount now the directories from the host
+#
 mountall || exit 4
 
 # sometimes resolv.conf is symlinked to var/run: bug https://bugs.gentoo.org/show_bug.cgi?id=555694
