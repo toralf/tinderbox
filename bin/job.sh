@@ -130,7 +130,7 @@ function GetNextTask() {
 }
 
 
-# the email to us contains convenient information to decide
+# email to us convenient information to help us to decide
 # whether the issue is worth to be reported to b.g.o. or not
 #
 function CompileIssueMail() {
@@ -139,13 +139,13 @@ function CompileIssueMail() {
   echo "#"                                        >>  $ehist
   qlop --nocolor --gauge --human --list --unlist  >>  $ehist
 
-  # the log file name of the actually failed package
+  # the log file name of the failed package
   #
-  currlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
-  if [[ -z "$currlog" ]]; then
-    currlog=$(grep -m1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
-    if [[ -z "$currlog" ]]; then
-      currlog=$(ls -1t /var/log/portage/$(echo "$curr" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+  failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
+  if [[ -z "$failedlog" ]]; then
+    failedlog=$(grep -m1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
+    if [[ -z "$failedlog" ]]; then
+      failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
     fi
   fi
 
@@ -163,7 +163,7 @@ function CompileIssueMail() {
   # strip away color escape sequences
   # the echo command expands "foo/bar-*.log" terms
   #
-  for f in $(echo $ehist $currlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso)
+  for f in $(echo $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso)
   do
     if [[ -f $f ]]; then
       stresc < $f > $issuedir/files/$(basename $f)
@@ -199,7 +199,7 @@ emerge --info >> $issuedir/emerge-info.txt
 
   # get assignee and cc, GLEP 67 rules currently
   #
-  m=$(equery --no-color meta -m $curr 2>/dev/null | grep '@' | xargs)
+  m=$(equery --no-color meta -m $failed 2>/dev/null | grep '@' | xargs)
   if [[ -z "$m" ]]; then
     m="maintainer-needed@gentoo.org"
   fi
@@ -247,7 +247,7 @@ emerge --info >> $issuedir/emerge-info.txt
   fi
 
   if [[ ! -s $issuedir/issue ]]; then
-    Mail "info: $curr: nothing found in data/CATCH_ISSUES" $bak
+    Mail "info: $failed: nothing found in data/CATCH_ISSUES" $bak
   fi
 
   # shrink looong path names in title
@@ -262,11 +262,9 @@ emerge --info >> $issuedir/emerge-info.txt
     truncate -s $max $issuedir/title
   fi
 
-  echo "$curr : $(cat $issuedir/title)" > $issuedir/title
+  echo "$failed : $(cat $issuedir/title)" > $issuedir/title
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
-
-  currShort=$(qatom $curr | cut -f1-2 -d' ' | tr ' ' '/')
 
   # guess from the title if there's a blocker to feed too
   #
@@ -285,14 +283,15 @@ emerge --info >> $issuedir/emerge-info.txt
 
   # the email body with info, a search link and a bgo.sh command line ready for copy+paste
   #
+  failedShort=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   cp $issuedir/issue $issuedir/body
   cat << EOF >> $issuedir/body
 
-versions: $(eshowkw -a amd64 $currShort | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
+versions: $(eshowkw -a amd64 $failedShort | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
 
-https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$currShort&short_desc_type=allwordssubstr
+https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$failedShort&short_desc_type=allwordssubstr
 
 ~/tb/bin/bgo.sh -d ~/$name/$issuedir $block
 
@@ -316,19 +315,25 @@ function GotAnIssue()  {
   typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
-  # keep all successfully emerged dependencies of $curr in world file
-  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
+  # keep all successfully emerged dependencies of $task in world file
+  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally from now on
   #
-  tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' | grep -q ':  === (1 of .*) '
-  if [[ $? -ne 0 ]]; then
-    emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
+  failed=""
+  line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
+  echo "$line" | grep -q ':  === ('
+  if [[ $? -eq 0 ]]; then
+    failed=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
+    echo "line" | grep -q ':  === (1 of .*) '
+    if [[ $? -ne 0 ]]; then
+      emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
+    fi
   fi
 
   # mostly OOM
   #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
-  if [[ $? -eq 0 ]]; then
-    Finish "FATAL $fatal"
+  if [[ -n "$fatal" ]]; then
+    Finish "FATAL: $fatal"
   fi
 
   # the host repository is synced every 3 hours, that interferes sometimes with a longer emerge operation
@@ -355,18 +360,8 @@ function GotAnIssue()  {
     return
   fi
 
-  # $curr holds the failed <category / package name - package version>
-  #
-  line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
-  echo "$line" | grep -q ':  === ('
-  if [[ $? -ne 0 ]]; then
-    Mail "TODO: emerge did not really start" $bak
-    return
-  fi
-  curr=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
-
-  if [[ -z "$curr" ]]; then
-    Finish "ERROR: \$curr must not be empty: task=$task"
+  if [[ -z "$failed" ]]; then
+    Finish "ERROR: \$failed must not be empty: task=$task"
   fi
 
   # broken Perl upgrade: https://bugs.gentoo.org/show_bug.cgi?id=463976
@@ -374,7 +369,7 @@ function GotAnIssue()  {
   if [[ "$task" = "@system" || "$task" = "@world" ]]; then
     grep -q "Can't locate Locale/Messages.pm in @INC" $bak
     rc=$?
-    if [[ "$curr" = "sys-apps/help2man" || "$curr" = "dev-scheme/guile" || $rc -eq 0 ]]; then
+    if [[ "$failed" = "sys-apps/help2man" || "$failed" = "dev-scheme/guile" || $rc -eq 0 ]]; then
       Mail "info: auto-repair perl upgrade issue" $bak
       echo -e "$task\n%perl-cleaner --all" >> $pks
       return
@@ -383,24 +378,24 @@ function GotAnIssue()  {
 
   # append a trailing space eg.: to distinguish between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
   #
-  line="=$(echo $curr | awk ' { printf("%-50s ", $1) } ')# $(date) $name"
+  line="=$(echo $failed | awk ' { printf("%-50s ", $1) } ')# $(date) $name"
 
   # mask this package version for this image, prefer to continue with a lower version
   #
-  grep -q "=$curr " /etc/portage/package.mask/self
+  grep -q "=$failed " /etc/portage/package.mask/self
   if [[ $? -ne 0 ]]; then
     echo "$line" >> /etc/portage/package.mask/self
   fi
 
   # now compile all needed data files into $issuedir
   #
-  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $curr | tr '/' '_')
+  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
   CompileIssueMail
 
   # skip, if this package *version* was reported before (regardless of the issue)
   #
-  grep -q "=$curr " /tmp/tb/data/ALREADY_CATCHED
+  grep -q "=$failed " /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
     echo "$line" >> /tmp/tb/data/ALREADY_CATCHED
@@ -747,7 +742,7 @@ do
     cmd=$(echo "$task" | cut -c2-)
     $cmd &> $log
     if [[ $? -ne 0 ]]; then
-      #  if $cmd isn't an emerge operation then we will bail out if $curr is empty
+      #  if $cmd isn't an emerge operation then we will bail out if $failed is empty
       #
       GotAnIssue
     fi
