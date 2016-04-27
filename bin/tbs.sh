@@ -115,7 +115,11 @@ do
   case $opt in
     A)  autostart="y"
         ;;
-    f)  flags="$OPTARG"
+    f)  if [[ -f "$OPTARG" ]] ; then
+          flags="$(cat $OPTARG)"
+        else
+          flags="$OPTARG"
+        fi
         ;;
     i)  imagedir="$OPTARG"
         ;;
@@ -132,7 +136,7 @@ do
 done
 
 if [[ ! "$mask" = "stable" && ! "$mask" = "unstable" ]]; then
-  echo " wrong value for mask : $mask"
+  echo " wrong value for mask: $mask"
   exit 3
 fi
 
@@ -142,12 +146,12 @@ if [[ ! -d /usr/portage/profiles/$profile ]]; then
 fi
 
 if [[ "$usehostrepo" != "yes" && "$usehostrepo" != "no" ]]; then
-  echo " wrong value for usehostrepo : $usehostrepo"
+  echo " wrong value for usehostrepo: $usehostrepo"
   exit 3
 fi
 
 if [[ ! -d $imagedir ]]; then
-  echo " imagedir does not exist : $imagedir"
+  echo " imagedir does not exist: $imagedir"
   exit 3
 fi
 
