@@ -2,13 +2,13 @@
 The goal is to detect build issues of and conflicts between Gentoo packages.
 
 ## used scripts
-The setup of an image is made by *tbs.sh*. The helper script *chr.sh* is used to bind-mount host directories and files onto their chroot mount point counterparts. The wrapper *runme.sh* calls the tinderbox script *job.sh*  to support a  smooth upgrade of the tinderbox script itself. Bugs are filed with *bgo.sh*. Install artefacts are detected by *PRE-CHECK.sh* script. Latest ebuilds are put on top of arbitrarily choosen package lists by *insert_pkgs.sh*.
+The setup of an image is made by *tbs.sh*. The script *chr.sh* is used to bind-mount host directories onto their chroot mount point counterparts. The wrapper *runme.sh* supports a smooth upgrade of the tinderbox script *job.sh* itself. Bugs are filed with *bgo.sh*. Install artefacts are detected by *PRE-CHECK.sh* script. Latest ebuilds are put on top of arbitrarily choosen package lists by *insert_pkgs.sh*.
 
 ## data files
-There are common portage files shared to all images: */etc/portage/package.{accept_keywords,env,mask,unmask,use}.common*, pattern files to help to *CATCH_ISSUES* and to *IGNORE_ISSUES*, the file *ALREADY_CATCHED* helps to avoid filing a bug more than once and a pattern file to *IGNORE_PACKAGES* packages from being emerged explicitely.
+There are files shared to all images: the portage files *package.{accept_keywords,env,mask,unmask,use}.common*, pattern files to *CATCH_ISSUES* and to *IGNORE_ISSUES*, *ALREADY_CATCHED* helps to avoid filing more than one bug for the same package *IGNORE_PACKAGES* prevents its entries from being emerged explicitely.
 
 ## installation
-Copy both the *bin* and the *data* directory into the directory: */home/tinderbox/tb* and create a directory to hold the chroot images (i.e. *images2*).
+Copy *bin* and *data* into */home/tinderbox/tb*, create a directory to hold the chroot images (i.e. *images2*) and start your own tinderbox.
 
 ## typical calls
 Setup a new image:
