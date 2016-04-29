@@ -332,9 +332,9 @@ function GotAnIssue()  {
     #
     prefix="$(echo $task | cut -c1)"
     if [[ "$prefix" = "@" || "$prefix" = "%" ]]; then
-      Mail "info: $task failed" $bak        # @world is often expected to fail, @system not
+      Mail "info: $task failed" $bak        # @world is expected to fail, but @system should be upgradeable
     else
-      failed=$task
+      failed=$(portageq best_visible / $task)
     fi
   fi
 
@@ -384,15 +384,11 @@ function GotAnIssue()  {
     fi
   fi
 
-  # append a trailing space to distinguish eg.: between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
-  #
-  line="=$(echo $failed | awk ' { printf("%-50s ", $1) } ')# $(date) $name"
-
   # mask this package version for this image, prefer to continue with a lower version
   #
   grep -q "=$failed " /etc/portage/package.mask/self
   if [[ $? -ne 0 ]]; then
-    echo "$line" >> /etc/portage/package.mask/self
+    echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
   # now compile all needed data files into $issuedir
@@ -406,7 +402,9 @@ function GotAnIssue()  {
   grep -q "=$failed " /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
-    echo "$line" >> /tmp/tb/data/ALREADY_CATCHED
+    # append a trailing space to distinguish eg.: between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
+    #
+    echo "=$(echo $failed | awk ' { printf("%-50s ", $1) } ')# $(date) $name" >> /tmp/tb/data/ALREADY_CATCHED
   fi
 }
 
