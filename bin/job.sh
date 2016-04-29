@@ -315,10 +315,11 @@ function GotAnIssue()  {
   typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
+  failed=""
+
   # put all successfully emerged dependencies of $task into the world file
   # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally from now on
   #
-  failed=""
   line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
@@ -328,13 +329,17 @@ function GotAnIssue()  {
       emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
     fi
   else
-    # emerge failed before it really started
+    # alternatives :
+    #[20:43] <_AxS_> toralf:   grep -l "If you need support, post the output of" /var/tmp/portage/*/*/temp/build.log   <-- that should work in all but maybe fetch failures.
+    #[20:38] <kensington> something like itfailed() { echo "${PF} - $(date)" >> failed.log }  register_die_hook itfailed in /etc/portage/bashrc
+    #
+    failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
+
+    # emerge did not really started
     #
     prefix="$(echo $task | cut -c1)"
     if [[ "$prefix" = "@" || "$prefix" = "%" ]]; then
       Mail "info: $task failed" $bak        # @world is expected to fail, but @system should be upgradeable
-    else
-      failed=$(portageq best_visible / $task)
     fi
   fi
 
