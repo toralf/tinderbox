@@ -327,6 +327,15 @@ function GotAnIssue()  {
     if [[ $? -ne 0 ]]; then
       emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
     fi
+  else
+    # emerge failed before it really started
+    #
+    prefix="$(echo $task | cut -c1)"
+    if [[ "$prefix" = "@" || "$prefix" = "%" ]]; then
+      Mail "info: $task failed" $bak        # @world is often expected to fail, @system not
+    else
+      failed=$task
+    fi
   fi
 
   # mostly OOM
@@ -346,12 +355,6 @@ function GotAnIssue()  {
     return
   fi
 
-  # @system should work, @world is often expected to fail
-  #
-  if [[ "$task" = "@system" || "$task" = "@world" ]]; then
-    Mail "info: $task failed" $bak
-  fi
-
   # mostly no hard build failures, rather missing or wrong USE flags, license, fetch restrictions and so on
   # we do not mask those package here b/c such issues might be fixed during the lifetime of the image
   #
@@ -360,8 +363,13 @@ function GotAnIssue()  {
     return
   fi
 
+  #
+  # === after this line $failed must not be emtpy
+  #
+
   if [[ -z "$failed" ]]; then
-    Finish "ERROR: \$failed must not be empty: task=$task"
+    Mail "warn: \$failed is empty -> issue handling is not implemented for: task=$task"
+    return
   fi
 
   # broken Perl upgrade: https://bugs.gentoo.org/show_bug.cgi?id=463976
