@@ -130,8 +130,7 @@ function GetNextTask() {
 }
 
 
-# email to us convenient information to help us to decide
-# whether the issue is worth to be reported to b.g.o. or not
+# compile convenient information together
 #
 function CompileIssueMail() {
   ehist=/var/tmp/portage/emerge-history.txt
@@ -283,15 +282,16 @@ emerge --info >> $issuedir/emerge-info.txt
 
   # the email body with info, a search link and a bgo.sh command line ready for copy+paste
   #
-  failedShort=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   cp $issuedir/issue $issuedir/body
   cat << EOF >> $issuedir/body
 
-versions: $(eshowkw -a amd64 $failedShort | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
+
+versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
 
-https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$failedShort&short_desc_type=allwordssubstr
+https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$short&short_desc_type=allwordssubstr
 
 ~/tb/bin/bgo.sh -d ~/$name/$issuedir $block
 
@@ -307,7 +307,7 @@ EOF
 }
 
 
-# qualify the issue
+# process the issue
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -351,7 +351,7 @@ function GotAnIssue()  {
   fi
 
   # the host repository is synced every 3 hours, that interferes sometimes with a longer emerge operation
-  # final solution is a local repo, but no way as long as we just have 16 GB RAM at all
+  # the final solution is a local repo, but no way as long as we just have 16 GB RAM at all
   #
   grep -q 'AssertionError: ebuild not found for' $bak
   if [[ $? -eq 0 ]]; then
@@ -367,10 +367,6 @@ function GotAnIssue()  {
   if [[ $? -eq 0 ]]; then
     return
   fi
-
-  #
-  # === after this line $failed must not be emtpy
-  #
 
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty -> issue handling is not implemented for: task=$task"
@@ -402,18 +398,23 @@ function GotAnIssue()  {
   mkdir -p $issuedir/files
   CompileIssueMail
 
-  # don't report the same thing twice to us
+  # don't mail the same issue twice to us
   #
-  grep -q "^$failed " /tmp/tb/data/ALREADY_CATCHED
-#   grep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
+  grep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
-    Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
+    # for a smooth migration we grep here again just for the package name w/o the issue
+    # till ALREADY_CATCHED is almost filled up with entires in the new format
+    #
+    grep -q "^$failed " /tmp/tb/data/ALREADY_CATCHED
+    if [[ $? -ne 0 ]]; then
+      Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
+    fi
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
   fi
 }
 
 
-# switch java, usually once a day, triggered during a @system/@world update
+# shuffle around java, usually once a day, triggered by a @system/@world update
 #
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
