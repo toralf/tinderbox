@@ -407,9 +407,9 @@ function GotAnIssue()  {
   grep -q "=$failed " /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
-    # append a trailing space to distinguish eg.: between "webkit-gtk-2.4.9" and "webkit-gtk-2.4.9-r200"
+    # append a trailing space to the version to distinguish eg. "webkit-gtk-2.4.9" from "webkit-gtk-2.4.9-r200"
     #
-    echo "=$(echo $failed | awk ' { printf("%-50s ", $1) } ')# $(date) $name" >> /tmp/tb/data/ALREADY_CATCHED
+    echo $failed $name | awk '{ printf("=%-50s # %s %-30s #\n", $1, strftime("%Y-%m-%d %H:%M:%S"), $2) }' >> /tmp/tb/data/ALREADY_CATCHED
   fi
 }
 
