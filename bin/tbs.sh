@@ -53,7 +53,6 @@ e=(
   "default/linux/amd64/13.0"                \
   "default/linux/amd64/13.0/desktop"        \
   "default/linux/amd64/13.0/desktop/gnome"  \
-  "default/linux/amd64/13.0/desktop/kde"    \
   "default/linux/amd64/13.0/desktop/plasma" \
   "hardened/linux/amd64"                    \
 )
@@ -82,12 +81,12 @@ flags="
   pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
   rendering scripts scrypt sddm sdl semantic-desktop server smartcard
   sockets source spice sql sqlite sqlite3 sse4 sse4_1 sse4_2 ssh-askpass
-  ssl ssse3 svg swscale system-cairo system-icu system-jpeg
-  system-libvpx system-llvm system-sqlite szip tcl theora thinkpad
-  threads tk tls tools truetype ufed uml usb usbredir uxa v4l v4l2 vaapi
-  vdpau video vorbis vpx wav webkit webstart widgets wma wxwidgets x264
-  x265 xa xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc xz
-  zenmap zip
+  ssl ssse3 svg swscale system-cairo system-ffmpeg system-harfbuzz
+  system-icu system-jpeg system-libevent system-libs system-libvpx
+  system-llvm system-sqlite szip tcl theora thinkpad threads tk tls
+  tools truetype ufed uml usb usbredir uxa v4l v4l2 vaapi vdpau video
+  vorbis vpx wav webkit webstart widgets wma wxwidgets x264 x265 xa
+  xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap zip
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
