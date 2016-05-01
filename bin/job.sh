@@ -238,9 +238,9 @@ emerge --info >> $issuedir/emerge-info.txt
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
     do
-      grep -m 1 -B 2 -A 3 "$c" $bak | tail -c 1200 > $issuedir/issue
+      grep -m 1 -B 1 -A 3 "$c" $bak | head -c 1200 > $issuedir/issue
       if [[ -s $issuedir/issue ]]; then
-        grep -m 1 "$c" $issuedir/issue >> $issuedir/title
+        grep -m 1 "$c" $bak >> $issuedir/title
         break
       fi
     done
