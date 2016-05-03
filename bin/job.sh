@@ -57,6 +57,7 @@ function GetNextTask() {
   #
   if [[ ! -f /tmp/timestamp.system ]]; then
     touch /tmp/timestamp.system
+    chmod a+rw tmp/timestamp.system
     task="@system"
     return 0
   fi
@@ -242,7 +243,7 @@ emerge --info >> $issuedir/emerge-info.txt
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
     do
-      grep -m 1 -B 1 -A 3 "$c" $bak | cut -c1-400 > $issuedir/issue
+      grep -m 1 -B 2 -A 3 "$c" $bak | cut -c1-400 > $issuedir/issue
       if [[ -s $issuedir/issue ]]; then
         grep -m 1 "$c" $issuedir/issue >> $issuedir/title
         break
