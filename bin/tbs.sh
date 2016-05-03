@@ -74,7 +74,7 @@ flags="
   gudev gui haptic havege hdf5 help icu imap imlib inifile introspection
   ipv6 isag ithreads jadetex javafx javascript javaxml jpeg kerberos kvm
   lapack ldap libkms libressl libvirtd llvm logrotate mbox
-  mdnsresponder-compat melt mikmod minizip mng mod modplug mssql
+  mdnsresponder-compat melt mikmod minimal minizip mng mod modplug mssql
   multimedia multitarget mysql mysqli nscd nss obj objc odbc offensive
   ogg ois opencv openexr opengl openmpi openssl pcre16 pdo php pkcs11
   plasma png policykit postgres postproc postscript printsupport
