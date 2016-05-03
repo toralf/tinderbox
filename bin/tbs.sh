@@ -73,7 +73,7 @@ flags="
   gnome-keyring gnuplot gnutls gpg graphtft gstreamer gtk gtk3 gtkstyle
   gudev gui haptic havege hdf5 help icu imap imlib inifile introspection
   ipv6 isag ithreads jadetex javafx javascript javaxml jpeg kerberos kvm
-  lapack ldap libkms libressl libvirtd llvm logrotate mbox
+  lapack ldap libkms libvirtd llvm logrotate mbox
   mdnsresponder-compat melt mikmod minimal minizip mng mod modplug mssql
   multimedia multitarget mysql mysqli nscd nss obj objc odbc offensive
   ogg ois opencv openexr opengl openmpi openssl pcre16 pdo php pkcs11
@@ -432,7 +432,7 @@ cd $tbhome
 ln -s $p/$name || exit 11
 
 echo
-echo " setup done: $name"
+echo " setup  OK : $name"
 echo
 
 if [[ "$autostart" = "y" ]]; then
