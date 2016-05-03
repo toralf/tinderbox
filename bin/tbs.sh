@@ -164,11 +164,9 @@ fi
 if [[ "$profile" = "hardened/linux/amd64" ]]; then
   name="$name-hardened"
   stage3=$(grep "^201...../hardened/stage3-amd64-hardened-201......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
-  kernel="sys-kernel/hardened-sources"
 else
   name="$name-$(basename $profile)"
   stage3=$(grep "^201...../stage3-amd64-201......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
-  kernel="sys-kernel/gentoo-sources"
 fi
 
 # now complete it with keyword and time stamp
@@ -282,7 +280,7 @@ echo "$mask"        > tmp/MASK
 mkdir usr/portage
 mkdir var/tmp/{distfiles,portage}
 
-for d in package.{accept_keywords,env,mask,unmask,use} env patches
+for d in package.{accept_keywords,env,mask,unmask,use} env patches profile
 do
   mkdir     etc/portage/$d 2>/dev/null
   chmod 777 etc/portage/$d
@@ -293,7 +291,7 @@ do
   (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
   touch etc/portage/$d/zzz                                          # honeypot for autounmask
 done
-touch       etc/portage/package.mask/self             # hold failed packages here to avoid a 2nd attempt
+touch       etc/portage/package.mask/self             # avoid a 2nd attempt at this image for failed packages
 chmod a+rw  etc/portage/package.mask/self
 
 cat << EOF > etc/portage/env/test
@@ -379,7 +377,7 @@ Debug=NO
 
 # sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop"
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils $kernel || exit 8
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils sys-kernel/hardened-sources || exit 8
 
 # try to automatically tweak USE flag in that manner that at least the very first @world upgrade might succeed
 #
