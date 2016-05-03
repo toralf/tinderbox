@@ -57,7 +57,7 @@ function GetNextTask() {
   #
   if [[ ! -f /tmp/timestamp.system ]]; then
     touch /tmp/timestamp.system
-    chmod a+rw tmp/timestamp.system
+    chmod a+rw /tmp/timestamp.system
     task="@system"
     return 0
   fi
