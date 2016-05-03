@@ -221,39 +221,41 @@ emerge --info >> $issuedir/emerge-info.txt
     all=$( (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',')
     echo "$all" > $issuedir/cc
 
-    echo "file collision with $s" >> $issuedir/title
     grep -m 1 -A 15 ' Detected file collision(s):' $bak > $issuedir/issue
+    echo "file collision with $s"                       > $issuedir/title
 
   elif [[ -f $sandb ]]; then
     # handle sandbox issues in a special way
     #
-    head -n 20 $sandb > $issuedir/issue
-    echo "sandbox issue" > $issuedir/title
+    head -n 20 $sandb     > $issuedir/issue
+    echo "sandbox issue"  > $issuedir/title
 
   else
-    # we have do loop over all patterns exactly in their given order
-    # therefore don't use something like "grep -f CATCH_ISSUES" here !
+    # we have do catch for the actual error
+    # therefore we loop over all patterns exactly in their given order
+    # therefore we can't use something like "grep -f CATCH_ISSUES" here
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
     do
-      grep -m 1 -B 1 -A 3 "$c" $bak | head -c 1200 > $issuedir/issue
+      grep -m 1 -B 1 -A 3 "$c" $bak | cut -c1-400 > $issuedir/issue
       if [[ -s $issuedir/issue ]]; then
-        grep -m 1 "$c" $bak >> $issuedir/title
+        grep -m 1 "$c" $issuedir/issue >> $issuedir/title
         break
       fi
     done
   fi
 
-  if [[ ! -s $issuedir/issue ]]; then
-    Mail "info: $failed: nothing found in data/CATCH_ISSUES" $bak
+  if [[ ! -s $issuedir/issue || ! -s $issuedir/title ]]; then
+    Mail "info: $failed: either no issue catched or title is empty" $bak
+    return
   fi
 
   # shrink looong path names in title
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
-  # limit the max.length of the title
+  # limit the length of the title
   #
   len=$(wc -c < $issuedir/title)
   max=210
@@ -402,8 +404,8 @@ function GotAnIssue()  {
   #
   grep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
-    # for a smooth migration we grep here again just for the package name w/o the issue
-    # till ALREADY_CATCHED is almost filled up with entires in the new format
+    # for a smooth migration we grep here for the package name+version only
+    # till ALREADY_CATCHED is almost filled up with entries of the new format
     #
     grep -q "^$failed " /tmp/tb/data/ALREADY_CATCHED
     if [[ $? -ne 0 ]]; then
