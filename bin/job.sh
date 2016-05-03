@@ -43,7 +43,7 @@ function Mail() {
 # clean up and exit
 #
 function Finish()  {
-  /usr/bin/pfl >/dev/null
+  /usr/bin/pfl &>/dev/null
   Mail "FINISHED: $*" $log
 
   exit 0
@@ -750,7 +750,7 @@ do
 
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       touch /tmp/timestamp.system
-      /usr/bin/pfl >/dev/null     # don't do this only in Finish() b/c packages might be removed in the mean while
+      /usr/bin/pfl &>/dev/null     # don't do this only in Finish() b/c packages might be removed in the mean while
 
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       touch /tmp/timestamp.preserved-rebuild
