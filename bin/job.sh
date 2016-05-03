@@ -103,26 +103,30 @@ function GetNextTask() {
         continue
       fi
 
-      # no result set: $task can't be emerged at all
+      # no result set: $task can't be emerged at all or is malformed
       #
       if [[ -z "$(portageq $task 2>/dev/null)" ]]; then
         continue
       fi
 
-      # we are not interested in downgrading an installed $task
+      # empty eg. if all unstable package versions are hard masked
       #
-      typeset installed=$(qlist -ICv $task | tail -n 1)
+      typeset best_visible=$(portageq best_visible / $task)
+      if [[ -z "$best_visible" ]]; then
+        continue
+      fi
+
+      # if $task is already installed then don't downgrade it
+      #
+      typeset installed=$(qlist -Iv $task | tail -n 1)  # use tail to handle slots
       if [[ -n "$installed" ]]; then
-        typeset best_visible=$(portageq best_visible / $task)
-        if [[ -n "$best_visible" ]]; then
-          qatom --compare $installed $best_visible | grep -q '<'
-          if [[ $? -ne 0 ]]; then
-            continue  # "installed" package version is NOT lower then "best_visible" package version
-          fi
+        qatom --compare $installed $best_visible | grep -q '>'
+        if [[ $? -eq 0 ]]; then
+          continue
         fi
       fi
 
-      # emerge $task
+      # ok, try to emerge $task
       #
       return 0
     fi
