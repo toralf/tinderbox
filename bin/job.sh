@@ -643,11 +643,11 @@ tsfile=/usr/portage/metadata/timestamp.chk
 old=$(cat $tsfile 2>/dev/null)              # timestamp of the package repository
 pks=/tmp/packages                           # the package list file, pre-filled at setup
 
-# eg.; PORTAGE_ELOG_MAILFROM="amd64-gnome-unstable_20150913-104240 <tinderbox@zwiebeltoralf.de>"
+# eg.: PORTAGE_ELOG_MAILFROM="amd64-gnome-unstable_20150913-104240 <tinderbox@zwiebeltoralf.de>"
 #
 name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
 
-export GCC_COLORS=""                        # suppress colour output of gcc-4.9 and above
+export GCC_COLORS="never"                   # suppress colour output of gcc-4.9 and above
 export XDG_CACHE_HOME=/tmp/xdg              # https://bugs.gentoo.org/show_bug.cgi?id=567192
 
 # sometimes an update was made outside of this script
