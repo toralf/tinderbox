@@ -329,6 +329,7 @@ chown tinderbox.tinderbox $pks
 #
 qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
 echo "INFO start working on the package list" >> $pks
+echo "%BuildKernel"                           >> $pks
 
 # tweaks requested by devs
 #

@@ -439,14 +439,9 @@ function SwitchJDK()  {
 }
 
 
-# compiled kernel sources are needed by few packages
+# *compiled* kernel modules are needed by some packages
 #
 function BuildKernel()  {
-  if [[ ! -e /usr/src/linux ]]; then
-    Mail "warn: shouldn't reach this line" $log
-    return
-  fi
-
   (
     cd /usr/src/linux     &&\
     make clean            &&\
@@ -691,12 +686,6 @@ do
       layman -S &>/dev/null
     fi
     old="$now"
-  fi
-
-  # a configured + compiled kernel is mandatory for some packages
-  #
-  if [[ -e /usr/src/linux && ! -f /usr/src/linux/.config ]]; then
-    BuildKernel
   fi
 
   GetNextTask
