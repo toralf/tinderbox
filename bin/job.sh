@@ -367,8 +367,8 @@ function GotAnIssue()  {
     return
   fi
 
-  # mostly no hard build failures, rather missing or wrong USE flags, license, fetch restrictions and so on
-  # we do not mask those package here b/c such issues might be fixed during the lifetime of the image
+  # missing or wrong USE flags, license, fetch restrictions but denied RWX mmap from grsecuirty too
+  # we do not mask those package b/c the root cause might be fixed/circumvent during the lifetime of the image
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
@@ -403,7 +403,7 @@ function GotAnIssue()  {
   mkdir -p $issuedir/files
   CompileIssueMail
 
-  # don't mail the same issue twice to us
+  # don't mail the same issue again to us
   #
   grep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
@@ -419,7 +419,7 @@ function GotAnIssue()  {
 }
 
 
-# shuffle around java, usually once a day, triggered by a @system/@world update
+# switch used jdk, usually once a day, triggered by a @system/@world update
 #
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
@@ -457,7 +457,7 @@ function BuildKernel()  {
 }
 
 
-# switch to the freshly installed gcc, see: https://wiki.gentoo.org/wiki/Upgrading_GCC
+# switch to a freshly installed GCC, see: https://wiki.gentoo.org/wiki/Upgrading_GCC
 #
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep -e 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
@@ -596,11 +596,18 @@ function PostEmerge() {
     echo "%revdep-pax" >> $pks
   fi
 
-  # gcc
+  # GCC
   #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tmp
   if [[ $? -eq 0 ]]; then
     SwitchGCC
+  fi
+
+  # new kernel
+  #
+  grep -q ">>> Installing .* sys-kernel/.*-sources" $tmp
+  if [[ $? -eq 0 ]]; then
+    SelectNewKernel
   fi
 
   rm -f $tmp
