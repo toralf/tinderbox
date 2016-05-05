@@ -376,9 +376,9 @@ UseTLS=YES
 Debug=NO
 " > /etc/ssmtp/ssmtp.conf || exit 7
 
-# sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop"
+# sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop", eix is useful to inspect issue
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils sys-kernel/hardened-sources || exit 8
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils sys-kernel/hardened-sources app-portage/eix || exit 8
 
 # try to automatically tweak USE flag in that manner that at least the very first @world upgrade might succeed
 #
