@@ -68,7 +68,7 @@ flags="
   aes-ni alisp alsa apache apache2 avcodec avformat avx avx2 btrfs bzip2
   cairo cdb cdda cddb cgi cgoups clang compat consolekit corefonts csc
   cups curl custom-cflags custom-optimization dbus dec_av2 declarative
-  designer dnssec dot drmkms dvb dvd ecc egl eglfs evdev extraengine
+  designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev extraengine
   ffmpeg fontconfig fortran fpm freetds ftp gd gif git gles2 gnomecanvas
   gnome-keyring gnuplot gnutls gpg graphtft gstreamer gtk gtk3 gtkstyle
   gudev gui haptic havege hdf5 help icu imap imlib inifile introspection
