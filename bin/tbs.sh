@@ -55,6 +55,10 @@ e=(
   "default/linux/amd64/13.0/desktop/gnome"  \
   "default/linux/amd64/13.0/desktop/plasma" \
   "hardened/linux/amd64"                    \
+  "default/linux/amd64/13.0/desktop/systemd"        \
+  "default/linux/amd64/13.0/desktop/gnome/systemd"  \
+  "default/linux/amd64/13.0/desktop/plasma/systemd" \
+  "default/linux/amd64/13.0/systemd"                \
 )
 profile=${e[$RANDOM % ${#e[@]}]}
 
@@ -146,6 +150,11 @@ if [[ ! -d $imagedir ]]; then
   exit 3
 fi
 
+systemd="n"
+if [[ "$(basename $profile)" = "systemd" ]]; then
+  systemd="y"
+fi
+
 # get the current stage3 file name
 #
 wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
@@ -158,15 +167,20 @@ if [[ $? -ne 0 ]]; then
   exit 4
 fi
 
-# $name holds the (directory) name of the chroot image (and will be symlinked into $HOME later)
-# stage3 holds the full stage3 file name as found in file $latest
+# $name holds the (directory) name of the chroot image (and will be symlinked into $HOME)
+# stage3 holds the full stage3 file name as used in $latest
 #
 if [[ "$profile" = "hardened/linux/amd64" ]]; then
   name="$name-hardened"
-  stage3=$(grep "^201...../hardened/stage3-amd64-hardened-201......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+  stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+
+elif [[ "$systemd"  = "y" ]]; then
+  name="$name-$(basename $(dirname $profile))-systemd"
+  stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+
 else
   name="$name-$(basename $profile)"
-  stage3=$(grep "^201...../stage3-amd64-201......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+  stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 fi
 
 # now complete it with keyword and time stamp
@@ -181,6 +195,9 @@ f=/var/tmp/distfiles/$b
 if [[ ! -f $f ]]; then
   wget --quiet $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 6
 fi
+
+# do always verify it
+#
 gpg --verify $f.DIGESTS.asc || exit 7
 
 cd $imagedir  || exit 8
@@ -188,7 +205,6 @@ mkdir $name   || exit 9
 cd $name
 tar xjpf $f   || exit 10
 
-# we use "rsync" within chroot images, "git" would pull in too much deps (gitk etc.)
 # https://wiki.gentoo.org/wiki/Overlay/Local_overlay
 #
 mkdir -p                  usr/local/portage/{metadata,profiles}
@@ -208,12 +224,14 @@ priority = 1
 priority = 2
 EOF
 
+# we'd stay at the "rsync" method for now, "git" pulls in too much deps (gitk etc.)
+#
 cat << EOF > etc/portage/repos.conf/gentoo.conf
 [gentoo]
 location  = /usr/portage
 auto-sync = no
-sync-type = rsync
-sync-uri  = rsync://rsync.de.gentoo.org/gentoo-portage/
+#sync-type = rsync
+#sync-uri  = rsync://rsync.de.gentoo.org/gentoo-portage/
 EOF
 
 cat << EOF > etc/portage/repos.conf/local.conf
@@ -223,7 +241,7 @@ masters   = gentoo
 auto-sync = no
 EOF
 
-# change make.conf
+# compile make.conf
 #
 m=etc/portage/make.conf
 chmod a+w $m
@@ -235,28 +253,26 @@ sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native /'    \
 #----------------------------------------
 cat << EOF >> $m
 USE="
-  mmx sse sse2
-  pax_kernel xtpax -cdinstall -oci8 -bindist
+  mmx sse sse2 pax_kernel xtpax -cdinstall -oci8 -bindist
 
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 "
 
-$( [[ "$mask" = "unstable" ]] && echo 'ACCEPT_KEYWORDS=~amd64' )
+ACCEPT_KEYWORDS="amd64 $( [[ "$mask" = "unstable" ]] && echo -n '~amd64' )"
 CPU_FLAGS_X86="aes avx mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3"
 PAX_MARKINGS="XT"
-
-#CMAKE_MAKEFILE_GENERATOR="ninja"
-#RUBY_TARGETS="ruby23"
-#PYTHON_TARGETS="python2_7 python3_4 python3_5"
 
 LINGUAS="en en_GB"
 VIDEO_CARDS="intel i965"
 SSL_BITS=4096
+
 ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 MAKEOPTS="-j1"
 
-EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build --accept-properties=-interactive --accept-restrict=-fetch"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build"
+ACCEPT_PROPERTIES="-interactive"
+ACCEPT_RESTRICT="-fetch"
 
 # no "fail-clean", it would delete files before we could pick up them
 #
@@ -273,9 +289,7 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 EOF
 #----------------------------------------
 
-echo "$mask"        > tmp/MASK
-
-# create portage dirs and symlinks to ../../../tmp/tb/data/
+# create portage dirs and symlinks their files to ../../../tmp/tb/data/
 #
 mkdir usr/portage
 mkdir var/tmp/{distfiles,portage}
@@ -286,13 +300,15 @@ do
   chmod 777 etc/portage/$d
 done
 
+mkdir tmp/tb  # chr.sh will bind-mount here the host directory
+
 for d in package.{accept_keywords,env,mask,unmask,use}
 do
   (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
   touch etc/portage/$d/zzz                                          # honeypot for autounmask
 done
-touch       etc/portage/package.mask/self             # avoid a 2nd attempt at this image for failed packages
-chmod a+rw  etc/portage/package.mask/self
+touch       etc/portage/package.mask/self     # avoid a 2nd attempt at this image for failed packages
+chmod a+rw  etc/portage/package.mask/self     # allow tinderbox user to delete entries
 
 cat << EOF > etc/portage/env/test
 FEATURES="test test-fail-continue"
@@ -306,8 +322,6 @@ EOF
 
 cp -L /etc/hosts /etc/resolv.conf etc/
 
-mkdir       tmp/tb
-
 cat << EOF > root/.vimrc
 set softtabstop=2
 set shiftwidth=2
@@ -316,16 +330,18 @@ set tabstop=2
 :let g:session_autosave = 'no'
 EOF
 
-# keep nano even if another editor is emerged too
+# avoid nano from being depcleaned if another editor is emerged too
 #
 echo "app-editors/nano" >> var/lib/portage/world
+
+echo "$mask" > tmp/MASK
 
 pks=tmp/packages
 touch $pks
 chown tinderbox.tinderbox $pks
 
-# test all packages of the portage tree in a randomized order
-# the INFO line prevents insert_pkgs.sh to feed this image before the setup is finished
+# fill the package list
+# the INFO line prevents insert_pkgs.sh to feed this image package list before the setup is finished eventually
 #
 qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
 echo "INFO start working on the package list" >> $pks
@@ -339,7 +355,7 @@ mkdir tmp/xdg
 chmod 700 tmp/xdg
 chown tinderbox:tinderbox tmp/xdg
 
-# basic package installation of the chroot image
+# basic package installation of the chroot image before we can start job.sh
 #
 #----------------------------------------
 cat << EOF > tmp/setup.sh
@@ -404,6 +420,8 @@ exit 0
 EOF
 #----------------------------------------
 
+# installation of mandatory packages should take less than 1/2 hour
+#
 cd - 1>/dev/null
 
 $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh'
@@ -413,9 +431,9 @@ if [[ $rc -ne 0 ]]; then
   echo
   echo "-------------------------------------"
 
-  if [[ -f $name/tmp/world.log ]]; then
+  if [[ -f images?/$name/tmp/world.log ]]; then
     echo
-    cat $name/tmp/world.log
+    cat images?/$name/tmp/world.log
   fi
 
   echo
@@ -426,10 +444,9 @@ if [[ $rc -ne 0 ]]; then
   exit $rc
 fi
 
-# create symlink to $HOME if the setup was successful
+# create symlink to $HOME iff the setup was successful
 #
 p=$(basename $(pwd))
-cd $tbhome
 ln -s $p/$name || exit 11
 
 echo
@@ -437,7 +454,7 @@ echo " setup  OK : $name"
 echo
 
 if [[ "$autostart" = "y" ]]; then
-  echo " starting the image: $name"
+  echo " autostart the image: $name"
   su - tinderbox -c "$(dirname $0)/start_img.sh $name"
 fi
 
