@@ -10,7 +10,7 @@ rc=0
 
 # misplaced/left files
 #
-for i in /%{__unitdir} /installed_by_webapp_eclass /tmp/nb-scan-cach /tmp/build.*.tmp.c*
+for i in /tmp/conftest*
 do
   if [[ -e $i ]]; then
     found=$(dirname $i)/.$(basename $i).found
