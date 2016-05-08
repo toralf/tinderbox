@@ -19,7 +19,8 @@ function stresc() {
   perl -MTerm::ANSIColor=colorstrip -nle '$_ = colorstrip($_); s/\e\[K//g; s/\r/\n/g; print'
 }
 
-# send out an email with $1 as the subject and $2 - if given - as the body
+
+# send out an email with $1 as the subject and - if given - $2 as the body
 #
 function Mail() {
   typeset subject=$(echo "$1" | cut -c1-200)
@@ -31,23 +32,17 @@ function Mail() {
       date
     fi
   ) | mail -s "$subject    @ $name" $mailto &> /tmp/mail.log
-  rc=$?
-
-  if [[ $rc -ne 0 || -s /tmp/mail.log ]]; then
-    # this should land in nohup.out too usually
-    #
-    echo " rc=$rc , $(cat /tmp/mail.log) , happened in $name at $(date) for subject '$subject'"
-  fi
 }
+
 
 # clean up and exit
 #
 function Finish()  {
-  /usr/bin/pfl &>/dev/null
   Mail "FINISHED: $*" $log
 
   exit 0
 }
+
 
 # set $task to the last line of the package list file $pks
 # return 1 if the package list is empty, 0 otherwise
@@ -62,14 +57,18 @@ function GetNextTask() {
     return 0
   fi
 
-  # update @system once a day if no special task is scheduled
+  # once a day:
+  #   update @system if no special task is scheduled
+  #   switch java
+  #   update pfl
   #
   grep -q -e "^STOP" -e "^INFO" -e "^%" -e "^@" $pks
   if [[ $? -ne 0 ]]; then
-    let diff=$(date +%s)-$(date +%s -r /tmp/timestamp.system)
-    let "r = 86400 + $RANDOM % 7200"
-    if [[ $diff -gt $r ]]; then
+    let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.system)"
+    if [[ $diff -gt 86400 ]]; then
       task="@system"
+      SwitchJDK
+      /usr/bin/pfl &>/dev/null
       return 0
     fi
   fi
@@ -87,10 +86,11 @@ function GetNextTask() {
     elif [[ -n "$(echo $task | grep '^STOP')" ]]; then
       Finish "$task"
 
-    elif  [[ -z "$task" ]]; then # an empty line happens sometimes
-      if [[ ! -s $pks ]]; then
-        return 1  # package list is empty, we reached end of lifetime of this image
+    elif  [[ -z "$task" ]]; then   # an empty line is allowed
+      if [[ -s $pks ]]; then
+        continue  # package list is not empty
       fi
+      return 1  # we reached end of lifetime of this image
 
     elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
       return 0  # a complete command line
@@ -104,7 +104,7 @@ function GetNextTask() {
         continue
       fi
 
-      # no result set: $task can't be emerged at all or is malformed
+      # no result set: $task can't be emerged or is a malformed string
       #
       if [[ -z "$(portageq $task 2>/dev/null)" ]]; then
         continue
@@ -119,7 +119,7 @@ function GetNextTask() {
 
       # if $task is already installed then don't downgrade it
       #
-      typeset installed=$(qlist -Iv $task | tail -n 1)  # use tail to handle slots
+      typeset installed=$(qlist --installed --verbose $task | tail -n 1)  # use tail to catch the highest slot only
       if [[ -n "$installed" ]]; then
         qatom --compare $installed $best_visible | grep -q '>'
         if [[ $? -eq 0 ]]; then
@@ -300,7 +300,7 @@ cc:       $(cat $issuedir/cc)
 
 https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$short&short_desc_type=allwordssubstr
 
-~/tb/bin/bgo.sh -d ~/$name/$issuedir $block
+~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block
 
 EOF
 
@@ -325,7 +325,7 @@ function GotAnIssue()  {
   failed=""
 
   # put all successfully emerged dependencies of $task into the world file
-  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally from now on
+  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
   #
   line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
   echo "$line" | grep -q ':  === ('
@@ -357,7 +357,7 @@ function GotAnIssue()  {
     Finish "FATAL: $fatal"
   fi
 
-  # the host repository is synced every 3 hours, that interferes sometimes with a longer emerge operation
+  # the host repository is synced every 3 hours, that might interfere with a longer emerge operation
   # the final solution is a local repo, but no way as long as we just have 16 GB RAM at all
   #
   grep -q 'AssertionError: ebuild not found for' $bak
@@ -367,7 +367,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # missing or wrong USE flags, license, fetch restrictions but denied RWX mmap from grsecuirty too
+  # missing or wrong USE flags, license, fetch restrictions et al
   # we do not mask those package b/c the root cause might be fixed/circumvent during the lifetime of the image
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
@@ -375,6 +375,7 @@ function GotAnIssue()  {
     return
   fi
 
+  # happens for typos in "%..." entries of $pks
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty -> issue handling is not implemented for: task=$task"
     return
@@ -490,7 +491,7 @@ function SwitchGCC() {
 }
 
 
-# eselect the latest kernel and build it if not yet done
+# eselect the latest kernel and build necessary
 #
 function SelectNewKernel() {
   if [[ ! -e /usr/src/linux ]]; then
@@ -514,7 +515,7 @@ function SelectNewKernel() {
 
 # we do not run an emerge operation here
 # but we'll schedule perl/python/haskell - updater if needed
-# and we'll switch to a new GCC, build the kernel and so on
+# and we'll switch to a new GCC, kernel and so on
 #
 function PostEmerge() {
   typeset tmp
@@ -536,7 +537,7 @@ function PostEmerge() {
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
-  # these errors go to nohup.out
+  # errors go to nohup.out
   #
   etc-update --automode -5 2>&1 1>/dev/null
   env-update 2>&1 1>/dev/null
@@ -554,9 +555,11 @@ function PostEmerge() {
     if [[ ! -f /tmp/timestamp.preserved-rebuild ]]; then
       echo "@preserved-rebuild" >> $pks
     else
-      let diff=$(date +%s)-$(date +%s -r /tmp/timestamp.preserved-rebuild)
+      let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild)"
       if [[ $diff -gt 21200 ]]; then
         echo "@preserved-rebuild" >> $pks
+      else
+        Mail "warn: @preserved-rebuild called too often" $tmp
       fi
     fi
   fi
@@ -623,6 +626,7 @@ function check() {
     $exe &> $log
     rc=$?
 
+    echo >> $log
     equery meta -m $task 1>> $log 2>/dev/null  # failes for @... and %... tasks usually
 
     # -1 == 255:-2 == 254, ...
@@ -698,18 +702,16 @@ do
     break
   fi
 
-  # fire up emerge, handle 2 special prefixes:
-  # @ = a package setup
-  # % = a command line
-  #   = a common package
+  # fire up emerge, handle prefix @ in a special way
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
 
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       opts="--deep --update --newuse --changed-use --with-bdeps=y"
-      SwitchJDK
+
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=30"
+
     else
       opts="--update"
     fi
@@ -736,32 +738,26 @@ do
         fi
       done
     else
+      # if @system succeeded then try @world - but *after* the post-emerge actions
+      #
       if [[ "$task" = "@system" ]]; then
-        echo "@world" >> $pks # if @system succeeded then try @world
+        echo "@world" >> $pks
       fi
       PostEmerge
     fi
 
-    if [[ "$task" = "@world" || "$task" = "@system" ]]; then
-      touch /tmp/timestamp.system
-      /usr/bin/pfl &>/dev/null     # don't do this only in Finish() b/c packages might be removed in the mean while
-
-    elif [[ "$task" = "@preserved-rebuild" ]]; then
-      touch /tmp/timestamp.preserved-rebuild
-    fi
-
-  elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
-    cmd=$(echo "$task" | cut -c2-)
-    $cmd &> $log
-    if [[ $? -ne 0 ]]; then
-      #  if $cmd isn't an emerge operation then we will bail out if $failed is empty
-      #
-      GotAnIssue
-    fi
-    PostEmerge
+    touch /tmp/timestamp.$(echo "$task" | cut -c2-) # strip @ away
 
   else
-    emerge --update $task &> $log
+    # % prefixes a complete command line
+    #
+    if [[ "$(echo $task | cut -c1)" = '%' ]]; then
+      cmd=$(echo "$task" | cut -c2-)
+    else
+      cmd="emerge --update $task"
+    fi
+
+    $cmd &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
     fi
@@ -770,9 +766,8 @@ do
 
 done
 
-# just count the amount of installed packages
-#
-n=$(qlist --installed --nocolor | wc -l)
+/usr/bin/pfl &>/dev/null
+n=$(qlist --installed | wc -l)
 date > $log
 Finish "$n packages emerged"
 
