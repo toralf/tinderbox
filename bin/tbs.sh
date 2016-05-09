@@ -433,9 +433,9 @@ if [[ $rc -ne 0 ]]; then
   echo
   echo "-------------------------------------"
 
-  if [[ -f images?/$name/tmp/world.log ]]; then
+  if [[ -f $imagedir/$name/tmp/world.log ]]; then
     echo
-    cat images?/$name/tmp/world.log
+    cat $imagedir/$name/tmp/world.log
   fi
 
   echo
@@ -448,7 +448,7 @@ fi
 
 # create symlink to $HOME iff the setup was successful
 #
-cd ~
+cd $tbhome
 ln -s $imagedir/$name || exit 11
 
 echo
