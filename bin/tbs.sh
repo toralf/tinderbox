@@ -433,9 +433,9 @@ if [[ $rc -ne 0 ]]; then
   echo
   echo "-------------------------------------"
 
-  if [[ -f $imagedir/$name/tmp/world.log ]]; then
+  if [[ -f $name/tmp/world.log ]]; then
     echo
-    cat $imagedir/$name/tmp/world.log
+    cat $name/tmp/world.log
   fi
 
   echo
