@@ -8,7 +8,7 @@ app-vim/ctx
 app-vim/curcmdmode
 app-vim/notes
 
-#	libjpeg-turbo is preferred now: https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
+#	libjpeg-turbo is preferred: https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
 #
 media-libs/jpeg
 
@@ -16,10 +16,9 @@ media-libs/jpeg
 #
 media-video/libav
 
-# hangs during emerge
+# hangs during emerge: https://bugs.gentoo.org/show_bug.cgi?id=540818
 #
 app-editors/xemacs
-games-board/gnuchess-book
 
 # just a mess
 #
@@ -27,11 +26,7 @@ dev-util/pkgconfig-openbsd
 
 # https://bugs.gentoo.org/show_bug.cgi?id=536124
 #
-<=dev-lang/gnat-gcc-4.5.4
-
-# oom
-#
-dev-scheme/racket
+<dev-lang/gnat-gcc-4.5.4
 
 # can't be build w/ recent kernels
 #
@@ -45,10 +40,6 @@ net-dns/resolvconf-symlink
 #
 app-office/openoffice
 
-# jit/hardened issue: https://bugs.gentoo.org/show_bug.cgi?id=572188
-#
-dev-lang/julia
-
-# Checking for at least 35 GiB disk space at "
+# "Checking for at least 35 GiB disk space at "
 #
 sci-mathematics/isabelle
