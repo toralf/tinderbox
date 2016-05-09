@@ -1,4 +1,9 @@
-^environment: line .* Segmentation fault
+This ebuild will need the cdrom
+This ebuild will need the INSTALL_CD
+This package will need access to .* cds.
+These fortunes have offensive content. Enable offensive USE Flag
+This plugin requires the X frontend of gkrellm.
+/bin/sh: bad interpreter: Permission denied
 ACCESS VIOLATION SUMMARY
 Can't read
 CMake will not be able to correctly generate this project.
@@ -8,6 +13,7 @@ has incomplete type
 undefined symbol:
 exited with code: 1.
 I can't find the format file
+; recompile with -fPIC
 ld: cannot find
 multiple definition of
 must be installed to use
@@ -38,6 +44,7 @@ Unknown CMake command
 include called with wrong number of arguments
 error: expected expression before
 No rule to make target
+final link failed: Nonrepresentable section on output
 ld returned 1 exit status
 LoadError
 cannot find symbol
@@ -46,7 +53,6 @@ bad class file:
 Compile failed; see the compiler error
 Failed Patch:
 can't get .* relocation type
-fatal:
 Not in scope:
 The Motif libraries are not installed.
 No instance for (
@@ -92,14 +98,15 @@ make:.* Stop.
 error adding symbols:
 missing separator
 Make check failed. See above for details.
-fatal error:.*No such file or directory
+fatal error: .*: No such file or directory
 pdflatex failed
 An exception has occurred in the compiler
 error in .* command
 Can't locate Locale/Messages.pm in @INC
 Ebuild author forgot an entry
-configure: error:
 error:
+.*command not found
+sgmlspl: command not found
 does not exist
 No package .* found
 Invalid use of .*.eclass
@@ -108,11 +115,21 @@ patch .* failed with
 you need to fix the relative paths in patch
 csc: invalid option
 make.*: No such file or directory.  Stop.
+Unknown module(s) in QT
+LaTeX Error:
+Error producing PDF from TeX source
+Error .*GCING.* in
+Warning as Error:
+pdfetex exited with bad status
+SyntaxError: invalid syntax
 recipe for target .* failed
-.*command not found
 EPYTHON unset
 POD document had syntax errors
 No supported Python implementation
+must be called in src_prepare()!
+mingw is needed
+One of the following USE flags is needed:
+python_pkg_setup() not called
 Error:
 ERROR:
 Error
