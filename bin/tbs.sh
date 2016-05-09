@@ -73,7 +73,7 @@ flags="
   cairo cdb cdda cddb cgi cgoups clang compat consolekit corefonts csc
   cups curl custom-cflags custom-optimization dbus dec_av2 declarative
   designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev extraengine
-  ffmpeg fontconfig fortran fpm freetds ftp gd gif git gles2 gnomecanvas
+  ffmpeg fontconfig fortran fpm freetds ftp gcj gd gif git gles2 gnomecanvas
   gnome-keyring gnuplot gnutls gpg graphtft gstreamer gtk gtk3 gtkstyle
   gudev gui haptic havege hdf5 help icu imap imlib inifile introspection
   ipv6 isag ithreads jadetex javafx javascript javaxml jpeg kerberos kvm
@@ -270,7 +270,9 @@ ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 MAKEOPTS="-j1"
 
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build"
+# no "--verbose", it would blow up "emerge --info" > 16KB
+#
+EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
