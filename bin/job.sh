@@ -6,7 +6,7 @@
 #
 
 # barrier start
-# this prevents us to run a broken copy of ourself - see end of file too
+# this prevents the start of a broken copy of ourself - see end of file too
 #
 (
 
@@ -31,7 +31,7 @@ function Mail() {
     else
       date
     fi
-  ) | mail -s "$subject    @ $name" $mailto &> /tmp/mail.log
+  ) | mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
 }
 
 
@@ -44,41 +44,38 @@ function Finish()  {
 }
 
 
-# set $task to the last line of the package list file $pks
+# move last line of the package list $pks into $task
 # return 1 if the package list is empty, 0 otherwise
 #
 function GetNextTask() {
-  # update @system immediately after setup
+  # update @system immediately after setup of an image
   #
   if [[ ! -f /tmp/timestamp.system ]]; then
     touch /tmp/timestamp.system
-    chmod a+rw /tmp/timestamp.system
     task="@system"
     return 0
   fi
 
-  # once a day:
-  #   update @system if no special task is scheduled
+  # 24 hours after the last @system or @world upgrade:
   #   switch java
   #   update pfl
+  #   update @system again if no special task is scheduled
   #
-  grep -q -e "^STOP" -e "^INFO" -e "^%" -e "^@" $pks
-  if [[ $? -ne 0 ]]; then
-    let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.system)"
-    if [[ $diff -gt 86400 ]]; then
+  let "diff = $(date +%s) - $(date +%s -r $(ls -t /tmp/timestamp.[sw]* | head -n1))"
+  if [[ $diff -gt 86400 ]]; then
+    SwitchJDK
+    /usr/bin/pfl &>/dev/null
+    grep -q -e "^STOP " -e "^INFO " -e "^%" -e "^@" $pks
+    if [[ $? -ne 0 ]]; then
       task="@system"
-      SwitchJDK
-      /usr/bin/pfl &>/dev/null
       return 0
     fi
   fi
 
   while :;
   do
-    # splice last line from package list and put it into $task
-    #
     task=$(tail -n 1 $pks)
-    sed -i -e '$d' $pks
+    sed -i -e '$d' $pks     # deletes the last line of a file
 
     if [[ -n "$(echo $task | grep '^INFO')" ]]; then
       Mail "$task"
@@ -375,9 +372,8 @@ function GotAnIssue()  {
     return
   fi
 
-  # happens for typos in "%..." entries of $pks
   if [[ -z "$failed" ]]; then
-    Mail "warn: \$failed is empty -> issue handling is not implemented for: task=$task"
+    Mail "warn: \$failed is empty -> issue handling is not implemented for: $task"
     return
   fi
 
@@ -544,11 +540,10 @@ function PostEmerge() {
   . /etc/profile
 
   #
-  # add cleanup/post-update actions in reverse order to the package list
+  # add cleanup/post-update actions in their reverse order
   #
 
-  # no more than 4x @preserved-rebuild per day
-  # a systematic failure would otherwise waste CPU cycles here
+  # a rebuild-flip-flop waste CPU cycles
   #
   grep -q "@preserved-rebuild" $tmp
   if [[ $? -eq 0 ]]; then
@@ -559,7 +554,7 @@ function PostEmerge() {
       if [[ $diff -gt 21200 ]]; then
         echo "@preserved-rebuild" >> $pks
       else
-        Mail "warn: @preserved-rebuild called too often" $tmp
+        Mail "warn: 2 @preserved-rebuild within $diff sec" $tmp
       fi
     fi
   fi
