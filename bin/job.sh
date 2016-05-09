@@ -402,7 +402,7 @@ function GotAnIssue()  {
 
   # don't mail the same issue again to us
   #
-  grep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
+  fgrep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     # for a smooth migration we grep here for the package name+version only
     # till ALREADY_CATCHED is almost filled up with entries of the new format
