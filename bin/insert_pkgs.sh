@@ -42,6 +42,9 @@ fi
 
 # the host repo is synced every 3 hours, add an a hour more
 # to give the ./files directory a chance to be mirrored out
+# with a 6 hours intervall we effectively put an ebuild onto
+# 2 (often different) work queues
+
 # we strip away the package version b/c we do just want to test
 # the latest visible package
 
@@ -52,7 +55,7 @@ fi
 # M       www-apps/kibana-bin/kibana-bin-4.1.4.ebuild
 # A       www-apps/kibana-bin/kibana-bin-4.4.0.ebuild
 
-(cd /usr/portage/; git diff --name-status "@{ 4 hour ago }".."@{ 1 hour ago }") |\
+(cd /usr/portage/; git diff --name-status "@{ 7 hour ago }".."@{ 1 hour ago }") |\
 grep -v '^D' | grep '\.ebuild$' | awk ' { print $2 } ' |\
 xargs dirname 2>/dev/null | sort --unique --random-sort |\
 while read p
