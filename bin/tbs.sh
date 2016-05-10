@@ -449,7 +449,7 @@ fi
 # create symlink to $HOME iff the setup was successful
 #
 cd $tbhome
-ln -s $imagedir/$name || exit 11
+ln -s $(basename $imagedir)/$name || exit 11
 
 echo
 echo " setup  OK : $name"
