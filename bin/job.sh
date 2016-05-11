@@ -543,20 +543,11 @@ function PostEmerge() {
   # add cleanup/post-update actions in their reverse order
   #
 
-  # a rebuild-flip-flop waste CPU cycles
+  # rebuild libs
   #
   grep -q "@preserved-rebuild" $tmp
   if [[ $? -eq 0 ]]; then
-    if [[ ! -f /tmp/timestamp.preserved-rebuild ]]; then
-      echo "@preserved-rebuild" >> $pks
-    else
-      let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild)"
-      if [[ $diff -gt 21200 ]]; then
-        echo "@preserved-rebuild" >> $pks
-      else
-        Mail "warn: 2 @preserved-rebuild within $diff sec" $tmp
-      fi
-    fi
+    echo "@preserved-rebuild" >> $pks
   fi
 
   # haskell
