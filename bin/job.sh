@@ -341,9 +341,20 @@ function GotAnIssue()  {
 
     # emerge did not really started
     #
-    prefix="$(echo $task | cut -c1)"
-    if [[ "$prefix" = "@" || "$prefix" = "%" ]]; then
-      Mail "info: $task failed" $bak        # @world is expected to fail, but @system should be upgradeable
+    if [[ "$task" = "@preserved-rebuild" ]]; then
+      # don't spam the inbox
+      #
+      let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild 2>/dev/null)"
+      if [[ $diff -gt 14400 ]]; then
+        Mail "warn: $task failed" $bak
+        touch /tmp/timestamp.preserved-rebuild
+      fi
+
+    elif [[ "$task" = "world" ]]; then
+      Mail "info: $task failed" $bak
+
+    elif [[ "$task" = "system" || "$(echo $task | cut -c1)" = "%" ]]; then
+      Mail "warn: $task failed" $bak
     fi
   fi
 
@@ -732,7 +743,9 @@ do
       PostEmerge
     fi
 
-    touch /tmp/timestamp.$(echo "$task" | cut -c2-) # strip @ away
+    if [[ "$task" = "@system" ]] ;then
+      touch /tmp/timestamp.system
+    fi
 
   else
     # % prefixes a complete command line
