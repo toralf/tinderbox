@@ -659,11 +659,6 @@ name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | 
 export GCC_COLORS="never"                   # suppress colour output of gcc-4.9 and above
 export XDG_CACHE_HOME=/tmp/xdg              # https://bugs.gentoo.org/show_bug.cgi?id=567192
 
-# sometimes an update was made outside of this script
-# (eg. during setup of a systemd base dimage)
-#
-SwitchGCC
-
 while :;
 do
   # run this before we clean the /var/tmp/portage directory
@@ -685,9 +680,9 @@ do
 
   # after a sync of the host repository "read" news and update layman
   #
-  now=$(cat $tsfile 2>/dev/null)
+  now=$(cat $tsfile)
   if [[ -z "$now" ]]; then
-    Finish "$tsfile not found or empty"
+    Finish "could not get timestamp from $tsfile"
   fi
   if [[ ! "$old" = "$now" ]]; then
     eselect news read >/dev/null
