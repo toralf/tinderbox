@@ -1,5 +1,5 @@
 # tinderbox
-The goal is to detect build issues of and conflicts between Gentoo packages.
+The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
 ## used scripts
 The setup of an image is made by *tbs.sh*. The script *chr.sh* is used to bind-mount host directories onto their chroot mount point counterparts. The wrapper *runme.sh* supports a smooth upgrade of the tinderbox script *job.sh* itself. Bugs are filed with *bgo.sh*. Install artefacts are detected by *PRE-CHECK.sh* script. Latest ebuilds are put on top of arbitrarily choosen package lists by *insert_pkgs.sh*.
