@@ -61,7 +61,7 @@ function GetNextTask() {
   #   update pfl
   #   update @system again if no special task is scheduled
   #
-  let "diff = $(date +%s) - $(date +%s -r $(ls -t /tmp/timestamp.[sw]* | head -n1))"
+  let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.system)"
   if [[ $diff -gt 86400 ]]; then
     SwitchJDK
     /usr/bin/pfl &>/dev/null
@@ -344,7 +344,10 @@ function GotAnIssue()  {
     if [[ "$task" = "@preserved-rebuild" ]]; then
       # don't spam the inbox
       #
-      let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild 2>/dev/null)"
+      diff=1000000
+      if [[ -f /tmp/timestamp.preserved-rebuild ]]; then
+        let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild)"
+      fi
       if [[ $diff -gt 14400 ]]; then
         Mail "warn: $task failed" $bak
         touch /tmp/timestamp.preserved-rebuild
