@@ -543,6 +543,13 @@ function PostEmerge() {
   # add cleanup/post-update actions in their reverse order
   #
 
+  # new kernel
+  #
+  grep -q ">>> Installing .* sys-kernel/.*-sources" $tmp
+  if [[ $? -eq 0 ]]; then
+    SelectNewKernel
+  fi
+
   # rebuild libs
   #
   grep -q "@preserved-rebuild" $tmp
@@ -578,13 +585,6 @@ function PostEmerge() {
     echo "%python-updater" >> $pks
   fi
 
-  # PAX
-  #
-  grep -q 'Please run "revdep-pax" after installation.' $tmp
-  if [[ $? -eq 0 ]]; then
-    echo "%revdep-pax" >> $pks
-  fi
-
   # GCC
   #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tmp
@@ -592,11 +592,11 @@ function PostEmerge() {
     SwitchGCC
   fi
 
-  # new kernel
+  # PAX
   #
-  grep -q ">>> Installing .* sys-kernel/.*-sources" $tmp
+  grep -q 'Please run "revdep-pax" after installation.' $tmp
   if [[ $? -eq 0 ]]; then
-    SelectNewKernel
+    echo "%revdep-pax" >> $pks
   fi
 
   rm -f $tmp
