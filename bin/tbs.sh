@@ -348,6 +348,7 @@ chown tinderbox.tinderbox $pks
 qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
 echo "INFO start working on the package list" >> $pks
 echo "%BuildKernel"                           >> $pks
+echo "sys-kernel/hardened-sources"            >> $pks
 
 # tweaks requested by devs
 #
@@ -396,7 +397,7 @@ Debug=NO
 
 # sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop", eix is useful to inspect issues
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils sys-kernel/hardened-sources app-portage/eix || exit 8
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 8
 
 # at least the very first @world upgrade must not fail
 #
