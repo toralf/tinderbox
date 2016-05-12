@@ -377,7 +377,7 @@ function GotAnIssue()  {
     fi
 
   elif [[ "$(echo $task | cut -c1)" = "%" ]]; then
-    grep -q -e "Couldn't find '.*' to unmerge." $bak # ignore unmerge errors
+    echo "$task" | grep -q "^%emerge -C"
     if [[ $? -eq 0 ]]; then
       return
     fi
