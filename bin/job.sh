@@ -319,15 +319,17 @@ function GotAnIssue()  {
   typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
-  failed=""
-
-  # put all successfully emerged dependencies of $task into the world file
-  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
+  # guess the actually failed package
   #
+  failed=""
   line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
     failed=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
+
+    # put all already successfully emerged dependencies of $task into the world file
+    # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
+    #
     echo "line" | grep -q ':  === (1 of '
     if [[ $? -ne 0 ]]; then
       emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
@@ -338,27 +340,6 @@ function GotAnIssue()  {
     #[20:38] <kensington> something like itfailed() { echo "${PF} - $(date)" >> failed.log }  register_die_hook itfailed in /etc/portage/bashrc
     #
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
-
-    # emerge did not really started
-    #
-    if [[ "$task" = "@preserved-rebuild" ]]; then
-      # don't spam the inbox
-      #
-      diff=1000000
-      if [[ -f /tmp/timestamp.preserved-rebuild ]]; then
-        let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild)"
-      fi
-      if [[ $diff -gt 14400 ]]; then
-        Mail "warn: $task failed" $bak
-        touch /tmp/timestamp.preserved-rebuild
-      fi
-
-    elif [[ "$task" = "world" ]]; then
-      Mail "info: $task failed" $bak
-
-    elif [[ "$task" = "system" || "$(echo $task | cut -c1)" = "%" ]]; then
-      Mail "warn: $task failed" $bak
-    fi
   fi
 
   # mostly OOM
@@ -378,6 +359,31 @@ function GotAnIssue()  {
     return
   fi
 
+  # inform us about @sets and %commands failures
+  #
+  if [[ "$task" = "@system" || "$task" = "@world" ]]; then
+    Mail "info: $task failed" $bak
+
+  elif [[ "$task" = "@preserved-rebuild" ]]; then
+    # don't spam the inbox too often
+    #
+    diff=1000000
+    if [[ -f /tmp/timestamp.preserved-rebuild ]]; then
+      let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild)"
+    fi
+    if [[ $diff -gt 14400 ]]; then
+      Mail "warn: $task failed" $bak
+      touch /tmp/timestamp.preserved-rebuild
+    fi
+
+  elif [[ "$(echo $task | cut -c1)" = "%" ]]; then
+    grep -q -e "Couldn't find '.*' to unmerge." $bak # ignore unmerge errors
+    if [[ $? -eq 0 ]]; then
+      return
+    fi
+    Mail "info: $task failed" $bak
+  fi
+
   # missing or wrong USE flags, license, fetch restrictions et al
   # we do not mask those package b/c the root cause might be fixed/circumvent during the lifetime of the image
   #
@@ -386,6 +392,8 @@ function GotAnIssue()  {
     return
   fi
 
+  # after this point we expect that a single package failed
+  #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty -> issue handling is not implemented for: $task"
     return
