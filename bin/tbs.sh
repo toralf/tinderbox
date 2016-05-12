@@ -358,8 +358,9 @@ mkdir tmp/xdg
 chmod 700 tmp/xdg
 chown tinderbox:tinderbox tmp/xdg
 
-# basic package installation of the chroot image before we can start job.sh
+# install basic packages and those needed by job.sh, configure portage and SMTP
 #
+
 #----------------------------------------
 cat << EOF > tmp/setup.sh
 
