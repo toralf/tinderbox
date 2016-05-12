@@ -6,20 +6,27 @@
 # to check for artefacts from the previous emerge step
 #
 
-rc=0
-
 # misplaced/left files
 #
-for i in /tmp/conftest*
-do
-  if [[ -e $i ]]; then
-    found=$(dirname $i)/.$(basename $i).found
-    if [[ ! -f $found ]]; then
-      ls -ld $i
-      touch $found
-      rc=2
+function checkTmp() {
+  for f in
+  do
+    if [[ -e $f ]]; then
+      found=$(dirname $f)/.$(basename $f).found
+      if [[ ! -f $found ]]; then
+        ls -ld $f
+        touch $found  # don't report this again
+        rc=1
+      fi
     fi
-  fi
-done
+  done
+}
+
+
+# main
+#
+
+rc=0
+# checkTmp
 
 exit $rc
