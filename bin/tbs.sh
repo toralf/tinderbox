@@ -394,28 +394,13 @@ UseTLS=YES
 Debug=NO
 " > /etc/ssmtp/ssmtp.conf || exit 7
 
-# sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop", eix is useful to inspect issue
+# sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop", eix is useful to inspect issues
 #
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils sys-kernel/hardened-sources app-portage/eix || exit 8
 
-# try to automatically tweak USE flag in that manner that at least the very first @world upgrade might succeed
+# at least the very first @world upgrade must not fail
 #
-emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
-if [[ \$? -ne 0 ]]; then
-  grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep "^>=" > /etc/portage/package.use/world
-  if [[ \$? -eq 0 ]]; then
-    echo
-    echo "changed USE flags :"
-    cat /etc/portage/package.use/world
-    echo
-    emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
-    if [[ \$? -ne 0 ]]; then
-      exit 9
-    fi
-  else
-    exit 10
-  fi
-fi
+emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 9
 
 exit 0
 
