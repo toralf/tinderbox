@@ -13,7 +13,7 @@
 #
 
 block=""
-comment=""
+comment="same at a tinderbox image"
 dir=""
 id=""
 
@@ -44,7 +44,7 @@ fi
 if [[ -n "$id" ]]; then
   # attach onto an existing bug
   #
-  bugz attach --content-type "text/plain" --description "$(echo -e $comment)$(cat ./issue)" $id emerge-info.txt 1> bugz.out 2> bugz.err
+  bugz attach --content-type "text/plain" --description "$comment" $id emerge-info.txt 1> bugz.out 2> bugz.err
   rc=$?
 
 else
