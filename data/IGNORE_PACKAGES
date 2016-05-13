@@ -2,7 +2,6 @@ app-emulation/vice
 app-emulation/virtualbox
 app-emulation/virtualbox-modules
 app-eselect/
-app-editors/jext
 dev-db/mysql-connector-c
 dev-embedded/
 dev-java/freehep
