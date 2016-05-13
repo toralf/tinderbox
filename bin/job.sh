@@ -195,6 +195,7 @@ function CompileIssueMail() {
   make.conf: USE="$(source /etc/portage/make.conf; echo $USE)"
 
   -----------------------------------------------------------------
+  
 EOF
 emerge --info >> $issuedir/emerge-info.txt
 
