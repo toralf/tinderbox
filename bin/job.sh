@@ -195,7 +195,7 @@ function CompileIssueMail() {
   make.conf: USE="$(source /etc/portage/make.conf; echo $USE)"
 
   -----------------------------------------------------------------
-  
+
 EOF
 emerge --info >> $issuedir/emerge-info.txt
 
@@ -714,7 +714,7 @@ do
       opts="--deep --update --newuse --changed-use --with-bdeps=y"
 
     elif [[ "$task" = "@preserved-rebuild" ]]; then
-      opts="--backtrack=30"
+      opts="--backtrack=60"
 
     else
       opts="--update"
@@ -724,7 +724,7 @@ do
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       PostEmerge
-      # re-try as much as possible
+      # resume as much as possible
       #
       while :;
       do
@@ -741,11 +741,12 @@ do
           PostEmerge
         fi
       done
+
     else
-      # if @system succeeded then try @world - but *after* the post-emerge actions
-      #
       if [[ "$task" = "@system" ]]; then
-        echo "@world" >> $pks
+        echo "@world" >> $pks       # if @system was successful then try @world too (*after* all post-emerge actions)
+      elif [[ "$task" = "@world" ]] ;then
+        touch /tmp/timestamp.world  # keep timestamp of the last successful @world update
       fi
       PostEmerge
     fi
