@@ -249,6 +249,7 @@ chmod a+w $m
 sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native /'    \
         -e 's/^USE=/#USE=/'                         \
         -e 's/^PORTDIR=/#PORTDIR=/'                 \
+        -e 's/^PKGDIR=/#PKGDIR=/'                   \
         -e 's#^DISTDIR=.*#DISTDIR="/var/tmp/distfiles"#' $m
 
 #----------------------------------------
