@@ -20,18 +20,10 @@ function stresc() {
 }
 
 
-# send out an email with $1 as the subject and - if given - $2 as the body
+# send out an email with $1 as the subject(length-limited) and $2 as the body
 #
 function Mail() {
-  typeset subject=$(echo "$1" | cut -c1-200)
-
-  (
-    if [[ -s $2 ]]; then
-      stresc < $2
-    else
-      date
-    fi
-  ) | mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
+  stresc < ${2:-$(date)} | mail -s "$(echo "$1" | cut -c1-200)    @ $name" $mailto &>> /tmp/mail.log &
 }
 
 
