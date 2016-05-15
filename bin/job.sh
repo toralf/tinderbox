@@ -48,15 +48,10 @@ function GetNextTask() {
     return 0
   fi
 
-  # 24 hours after the last @system or @world upgrade:
-  #   switch java
-  #   update pfl
-  #   update @system again if no special task is scheduled
+  #   update @system once a day, if nothing special is scheduled
   #
   let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.system)"
   if [[ $diff -gt 86400 ]]; then
-    SwitchJDK
-    /usr/bin/pfl &>/dev/null
     grep -q -e "^STOP " -e "^INFO " -e "^%" -e "^@" $pks
     if [[ $? -ne 0 ]]; then
       task="@system"
@@ -736,13 +731,19 @@ do
 
     else
       if [[ "$task" = "@system" ]]; then
-        echo "@world" >> $pks       # if @system was successful then try @world too (*after* all post-emerge actions)
+        # do few more daily tasks and try @world BUT only *after* all post-emerge actions
+        #
+        SwitchJDK
+        /usr/bin/pfl &>/dev/null
+        echo "@world" >> $pks
       elif [[ "$task" = "@world" ]] ;then
         touch /tmp/timestamp.world  # keep timestamp of the last successful @world update
       fi
       PostEmerge
     fi
 
+    # one attempt per day, regardless whether successful or not
+    #
     if [[ "$task" = "@system" ]] ;then
       touch /tmp/timestamp.system
     fi
