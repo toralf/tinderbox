@@ -654,60 +654,10 @@ function check() {
 }
 
 
-#############################################################################
+# emerge $task here
 #
-#       main
-#
-mailto="tinderbox@zwiebeltoralf.de"
-
-log=/tmp/task.log                           # holds always output of "emerge ... "
-tsfile=/usr/portage/metadata/timestamp.chk
-old=$(cat $tsfile 2>/dev/null)              # timestamp of the package repository
-pks=/tmp/packages                           # the package list file, pre-filled at setup
-
-# eg.: PORTAGE_ELOG_MAILFROM="amd64-gnome-unstable_20150913-104240 <tinderbox@zwiebeltoralf.de>"
-#
-name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
-
-export GCC_COLORS="never"                   # suppress colour output of gcc-4.9 and above
-export XDG_CACHE_HOME=/tmp/xdg              # https://bugs.gentoo.org/show_bug.cgi?id=567192
-
-while :;
-do
-  # run this before we clean the /var/tmp/portage directory
-  #
-  check
-
-  # pick up after ourself now, we can't use FEATURES=fail-clean
-  # b/c that would delete files before we could pick them up for a bug report
-  #
-  rm -rf /var/tmp/portage/*
-  truncate -s 0 $log
-
-  # start an updated instance of ourself if we do differ from origin
-  #
-  diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
-  if [[ $? -ne 0 ]]; then
-    exit 125
-  fi
-
-  # after a sync of the host repository "read" news and update layman
-  #
-  now=$(cat $tsfile)
-  if [[ -z "$now" ]]; then
-    Finish "could not get timestamp from $tsfile"
-  fi
-  if [[ ! "$old" = "$now" ]]; then
-    eselect news read >/dev/null
-    if [[ -x /usr/bin/layman ]]; then
-      layman -S &>/dev/null
-    fi
-    old="$now"
-  fi
-
-  GetNextTask
-
-  # fire up emerge, handle prefix @ in a special way
+function EmergeTask() {
+  # handle prefix @ in a special way
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
 
@@ -777,6 +727,63 @@ do
     fi
     PostEmerge
   fi
+}
+
+
+#############################################################################
+#
+#       main
+#
+mailto="tinderbox@zwiebeltoralf.de"
+
+log=/tmp/task.log                           # holds always output of "emerge ... "
+tsfile=/usr/portage/metadata/timestamp.chk
+old=$(cat $tsfile 2>/dev/null)              # timestamp of the package repository
+pks=/tmp/packages                           # the package list file, pre-filled at setup
+
+# eg.: PORTAGE_ELOG_MAILFROM="amd64-gnome-unstable_20150913-104240 <tinderbox@zwiebeltoralf.de>"
+#
+name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
+
+export GCC_COLORS="never"                   # suppress colour output of gcc-4.9 and above
+export XDG_CACHE_HOME=/tmp/xdg              # https://bugs.gentoo.org/show_bug.cgi?id=567192
+
+while :;
+do
+  # run this before we clean the /var/tmp/portage directory
+  #
+  check
+
+  # pick up after ourself now, we can't use FEATURES=fail-clean
+  # b/c that would delete files before we could pick them up for a bug report
+  #
+  rm -rf /var/tmp/portage/*
+  truncate -s 0 $log
+
+  # start an updated instance of ourself if we do differ from origin
+  #
+  diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
+  if [[ $? -ne 0 ]]; then
+    exit 125
+  fi
+
+  # after a sync of the host repository "read" news and update layman
+  #
+  now=$(cat $tsfile)
+  if [[ -z "$now" ]]; then
+    Finish "could not get timestamp from $tsfile"
+  fi
+  if [[ ! "$old" = "$now" ]]; then
+    eselect news read >/dev/null
+    if [[ -x /usr/bin/layman ]]; then
+      layman -S &>/dev/null
+    fi
+    old="$now"
+  fi
+
+  GetNextTask
+
+  EmergeTask
 
 done
 
