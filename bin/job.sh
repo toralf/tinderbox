@@ -38,7 +38,7 @@ function Finish()  {
 
 
 # move last line of the package list $pks into $task
-# return 1 if the package list is empty, 0 otherwise
+# or exit from here
 #
 function GetNextTask() {
   if [[ -f /tmp/STOP  ]]; then
@@ -50,7 +50,7 @@ function GetNextTask() {
   if [[ ! -f /tmp/timestamp.system ]]; then
     touch /tmp/timestamp.system
     task="@system"
-    return 0
+    return
   fi
 
   #   update @system once a day, if nothing special is scheduled
@@ -60,7 +60,7 @@ function GetNextTask() {
     grep -q -e "^STOP " -e "^INFO " -e "^%" -e "^@" $pks
     if [[ $? -ne 0 ]]; then
       task="@system"
-      return 0
+      return
     fi
   fi
 
@@ -79,13 +79,19 @@ function GetNextTask() {
       if [[ -s $pks ]]; then
         continue  # package list is not empty
       fi
-      return 1  # we reached end of lifetime of this image
+
+      # we reached end of lifetime of this image
+      #
+      /usr/bin/pfl &>/dev/null
+      n=$(qlist --installed | wc -l)
+      date > $log
+      Finish "$n packages emerged"
 
     elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
-      return 0  # a complete command line
+      return  # a complete command line
 
     elif [[ "$(echo $task | cut -c1)" = '@' ]]; then
-      return 0  # a package set
+      return  # a package set
 
     else
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
@@ -118,7 +124,7 @@ function GetNextTask() {
 
       # ok, try to emerge $task
       #
-      return 0
+      return
     fi
   done
 }
@@ -700,9 +706,6 @@ do
   fi
 
   GetNextTask
-  if [[ $? -ne 0 ]]; then
-    break
-  fi
 
   # fire up emerge, handle prefix @ in a special way
   #
@@ -777,10 +780,7 @@ do
 
 done
 
-/usr/bin/pfl &>/dev/null
-n=$(qlist --installed | wc -l)
-date > $log
-Finish "$n packages emerged"
+Finish "we should never reach this line"
 
 # barrier end (see start of this file too)
 #
