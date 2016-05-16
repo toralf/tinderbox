@@ -22,7 +22,7 @@ do
   case $opt in
     a)  id="$OPTARG";;          # attach onto this bug id
     b)  block="$OPTARG";;       # either a bug id or an alias like "ninja-porting"
-    c)  comment="$OPTARG\n\n";;
+    c)  comment="$OPTARG";;     # used if we attach onto an existing bug
     d)  dir="$OPTARG";;         # directory containing all data
     *)  echo " not implemented !"
         exit 1;;
