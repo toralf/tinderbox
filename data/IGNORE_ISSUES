@@ -16,7 +16,7 @@ MINITUBE_GOOGLE_API_KEY env variable not defined!
 Multiple package instances within a single package slot have been pulled
 no suitable configured kernel include tree found
 Please buy & download
-Please, run 'haskell-updater' to fix broken packages
+Please, run 'haskell-updater'
 Please switch your active compiler to gcc with
 some Java tools are not available on some VMs on some architectures
 The following .* changes are necessary to proceed:

@@ -569,7 +569,7 @@ function PostEmerge() {
 
   # haskell
   #
-  grep -q -e "run 'haskell-updater'" -e ">>> Installing .* dev-lang/ghc-[1-9]" -e "ghc-pkg check: 'checking for other broken packages:'" $tmp
+  grep -q -e "Please, run 'haskell-updater'" -e ">>> Installing .* dev-lang/ghc-[1-9]" -e "ghc-pkg check: 'checking for other broken packages:'" $tmp
   if [[ $? -eq 0 ]]; then
     echo "$task"            >> $pks
     echo "%haskell-updater" >> $pks
