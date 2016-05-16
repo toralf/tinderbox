@@ -270,6 +270,9 @@ emerge --info >> $issuedir/emerge-info.txt
   elif [[ -n "$(grep -e 'mcs Not found' -e 'gmcs' $issuedir/title)" ]]; then
     block="-b 580316"    # mono-4 issues
 
+  elif [[ -n "$(grep -e '/tmp/xdg/' $issuedir/title)" ]]; then
+    block="-b 567192"    # export XDG_CACHE_HOME=/tmp/xdg issues
+
   fi
 
   # the email body with info, a search link and a bgo.sh command line ready for copy+paste
