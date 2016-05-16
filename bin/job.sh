@@ -41,10 +41,6 @@ function Finish()  {
 # or exit from here
 #
 function GetNextTask() {
-  if [[ -f /tmp/STOP  ]]; then
-    Finish "stopped"
-  fi
-
   # update @system immediately after setup of an image
   #
   if [[ ! -f /tmp/timestamp.system ]]; then
@@ -782,6 +778,10 @@ do
   fi
 
   GetNextTask
+
+  if [[ -f /tmp/STOP  ]]; then
+    Finish "stopped"
+  fi
 
   EmergeTask
 
