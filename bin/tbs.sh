@@ -264,7 +264,6 @@ ACCEPT_KEYWORDS="amd64 $( [[ "$mask" = "unstable" ]] && echo -n '~amd64' )"
 CPU_FLAGS_X86="aes avx mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3"
 PAX_MARKINGS="XT"
 
-LINGUAS="en en_GB"
 VIDEO_CARDS="intel i965"
 SSL_BITS=4096
 
