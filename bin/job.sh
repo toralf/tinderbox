@@ -572,6 +572,9 @@ function PostEmerge() {
   #
   grep -q "@preserved-rebuild" $tmp
   if [[ $? -eq 0 ]]; then
+    if [[ "$task" = "@preserved-rebuild" ]]; then
+      Finish "error: endless-loop : $task"
+    fi
     echo "@preserved-rebuild" >> $pks
   fi
 
