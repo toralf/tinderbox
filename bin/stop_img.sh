@@ -10,12 +10,10 @@ do
   # chroot image must be running
   #
   if [[ -f $mnt/tmp/LOCK ]]; then
-    # append a "STOP" line onto the package list file if there isn't already such a line
+    # do not append a "STOP" line onto the package list file
+    # that line is never reached if @preserved-rebuild or friends are in an endless loop
     #
-    pks=$mnt/tmp/packages
-    if [[ -s $pks ]]; then
-      tail -n 1 $pks | grep -q "STOP" || echo "STOP" >> $pks
-    fi
+    touch $mnt/tmp/STOP
   fi
 done
 

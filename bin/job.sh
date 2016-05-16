@@ -31,6 +31,7 @@ function Mail() {
 #
 function Finish()  {
   Mail "FINISHED: $*" $log
+  rm -f /tmp/STOP
 
   exit 0
 }
@@ -40,6 +41,10 @@ function Finish()  {
 # return 1 if the package list is empty, 0 otherwise
 #
 function GetNextTask() {
+  if [[ -f /tmp/STOP  ]]; then
+    Finish "stopped"
+  fi
+
   # update @system immediately after setup of an image
   #
   if [[ ! -f /tmp/timestamp.system ]]; then
