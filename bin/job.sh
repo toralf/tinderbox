@@ -280,6 +280,9 @@ emerge --info >> $issuedir/emerge-info.txt
   elif [[ -n "$(grep -e '/tmp/xdg/' $issuedir/title)" ]]; then
     block="-b 567192"    # export XDG_CACHE_HOME=/tmp/xdg issues
 
+  elif [[ -n "$(grep -e 'gnutls_' $issuedir/title)" ]]; then
+    block="-b 546124"    # gnutls-3.4
+
   fi
 
   # the email body with info, a search link and a bgo.sh command line ready for copy+paste
@@ -754,7 +757,7 @@ do
   # b/c that would delete files before we could pick them up for a bug report
   #
   rm -rf /var/tmp/portage/*
-  truncate -s 0 $log
+  date > $log
 
   # start an updated instance of ourself if we do differ from origin
   #
