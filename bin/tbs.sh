@@ -84,7 +84,7 @@ flags="
   plasma png policykit postgres postproc postscript printsupport
   pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
   rendering scripts scrypt sddm sdl semantic-desktop server smartcard
-  sockets source spice sql sqlite sqlite3 sse4 sse4_1 sse4_2 ssh-askpass
+  sockets source spice sql sqlite sqlite3 sse4 sse4_1 sse4_2 ssh ssh-askpass
   ssl ssse3 svg swscale system-cairo system-ffmpeg system-harfbuzz
   system-icu system-jpeg system-libevent system-libs system-libvpx
   system-llvm system-sqlite szip tcl theora thinkpad threads tk tls
