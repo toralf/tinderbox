@@ -283,6 +283,9 @@ emerge --info >> $issuedir/emerge-info.txt
   elif [[ -n "$(grep -e 'gnutls_' $issuedir/title)" ]]; then
     block="-b 546124"    # gnutls-3.4
 
+  elif [[ -n "$(grep -e 'undefined reference to ' $issuedir/title)" ]]; then
+    block="-b 536984"    # GCC-5 porting
+
   fi
 
   # the email body with info, a search link and a bgo.sh command line ready for copy+paste
