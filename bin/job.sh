@@ -326,7 +326,7 @@ function GotAnIssue()  {
   # guess the actually failed package
   #
   failed=""
-  line=$(tail -n 10 /var/log/emerge.log | tac | grep -m 1 -e ':  === (' -e ': Started emerge on:')
+  line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
     failed=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
