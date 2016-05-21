@@ -334,7 +334,7 @@ function GotAnIssue()  {
     # put all already successfully emerged dependencies of $task into the world file
     # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
     #
-    echo "line" | grep -q ':  === (1 of '
+    echo "$line" | grep -q ':  === (1 of '
     if [[ $? -ne 0 ]]; then
       emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
     fi
