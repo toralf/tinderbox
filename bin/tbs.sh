@@ -265,6 +265,8 @@ ACCEPT_KEYWORDS="amd64 $( [[ "$mask" = "unstable" ]] && echo -n '~amd64' )"
 CPU_FLAGS_X86="aes avx mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3"
 PAX_MARKINGS="XT"
 
+# this is a contribute to my private notebook
+#
 VIDEO_CARDS="intel i965"
 SSL_BITS=4096
 
@@ -272,13 +274,13 @@ ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 MAKEOPTS="-j1"
 
-# no "--verbose", it would blow up "emerge --info" > 16KB
+# no "--verbose", it would blow up the size of "emerge --info" over 16KB
 #
 EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
-# no "fail-clean", it would delete files before we could pick up them
+# no "fail-clean", portage would delete files otherwise before we could pick up them for a bug report
 #
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox"
 
@@ -293,7 +295,7 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 EOF
 #----------------------------------------
 
-# create portage dirs and symlinks their files to ../../../tmp/tb/data/
+# create portage directories and symlinks to tb/data/*
 #
 mkdir usr/portage
 mkdir var/tmp/{distfiles,portage}
