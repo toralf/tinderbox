@@ -72,25 +72,26 @@ flags="
   aes-ni alisp alsa apache apache2 avcodec avformat avx avx2 btrfs bzip2
   cairo cdb cdda cddb cgi cgoups clang compat consolekit corefonts csc
   cups curl custom-cflags custom-optimization dbus dec_av2 declarative
-  designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev extraengine
-  ffmpeg fontconfig fortran fpm freetds ftp gcj gd gif git gles2 gnomecanvas
-  gnome-keyring gnuplot gnutls gpg graphtft gstreamer gtk gtk3 gtkstyle
-  gudev gui haptic havege hdf5 help icu imap imlib inifile introspection
-  ipv6 isag ithreads jadetex javafx javascript javaxml jpeg kerberos kvm
-  lapack ldap libkms libvirtd llvm logrotate mbox
-  mdnsresponder-compat melt mikmod minimal minizip mng mod modplug mssql
-  multimedia multitarget mysql mysqli nscd nss obj objc odbc offensive
-  ogg ois opencv openexr opengl openmpi openssl pcre16 pdo php pkcs11
-  plasma png policykit postgres postproc postscript printsupport
+  designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev
+  extraengine ffmpeg fontconfig fortran fpm freetds ftp gcj gd gif git
+  gles2 gnomecanvas gnome-keyring gnuplot gnutls gpg graphtft gstreamer
+  gtk gtk3 gtkstyle gudev gui haptic havege hdf5 help icu imap imlib
+  inifile introspection ipv6 isag ithreads jadetex javafx javascript
+  javaxml jpeg kerberos kvm lapack ldap libkms libvirtd llvm logrotate
+  mbox mdnsresponder-compat melt mikmod minimal minizip mng mod modplug
+  mssql multimedia multitarget mysql mysqli nscd nss obj objc odbc
+  offensive ogg ois opencv openexr opengl openmpi openssl pcre16 pdo php
+  pkcs11 plasma png policykit postgres postproc postscript printsupport
   pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
   rendering scripts scrypt sddm sdl semantic-desktop server smartcard
-  sockets source spice sql sqlite sqlite3 sse4 sse4_1 sse4_2 ssh ssh-askpass
-  ssl ssse3 svg swscale system-cairo system-ffmpeg system-harfbuzz
-  system-icu system-jpeg system-libevent system-libs system-libvpx
-  system-llvm system-sqlite szip tcl theora thinkpad threads tk tls
-  tools truetype ufed uml usb usbredir uxa v4l v4l2 vaapi vdpau video
-  vorbis vpx wav webkit webstart widgets wma wxwidgets x264 x265 xa
-  xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap zip
+  sockets source spice sql sqlite sqlite3 sse4 sse4_1 sse4_2 ssh
+  ssh-askpass ssl ssse3 svg swscale system-cairo system-ffmpeg
+  system-harfbuzz system-icu system-jpeg system-libevent system-libs
+  system-libvpx system-llvm system-sqlite szip tcl theora thinkpad
+  threads tk tls tools truetype ufed uml usb usbredir uxa v4l v4l2 vaapi
+  vdpau video vorbis vpx wav webkit webstart widgets wma wxwidgets X
+  x264 x265 xa xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc
+  xz zenmap zip
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
