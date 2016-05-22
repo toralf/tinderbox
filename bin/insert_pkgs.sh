@@ -26,7 +26,7 @@ do
     continue
   fi
 
-  grep -q -e "STOP" -e "INFO" -e "%" -e "@" $f
+  grep -q -E "^(STOP|INFO|%|@)" $f
   if [[ $? -eq 0 ]]; then
     continue
   fi

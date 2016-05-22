@@ -8,7 +8,7 @@ mailto="tinderbox@zwiebeltoralf.de"
 #
 let max=${1:-8*3600}
 
-pgrep -a emerge | grep -v -e '@' -e '--resume' |\
+pgrep -a emerge | grep -v -E '@|--resume' |\
 while read line
 do
   pid=$(echo "$line" | cut -f1 -d" ")

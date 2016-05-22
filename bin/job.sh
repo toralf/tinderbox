@@ -53,7 +53,7 @@ function GetNextTask() {
   #
   let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.system)"
   if [[ $diff -gt 86400 ]]; then
-    grep -q -e "^STOP " -e "^INFO " -e "^%" -e "^@" $pks
+    grep -q -E "^(STOP|INFO|%|@)" $pks
     if [[ $? -ne 0 ]]; then
       task="@system"
       return
@@ -267,23 +267,23 @@ emerge --info >> $issuedir/emerge-info.txt
   # guess from the title if there's a blocker to feed too
   #
   block=""
-  if [[ -n "$(grep -e 'minor' -e 'major' -e 'makedev' $issuedir/title)" ]]; then
+  if [[ -n "$(grep -E 'minor|major|makedev' $issuedir/title)" ]]; then
     block="-b 575232"
     mv $issuedir/issue $issuedir/issue.tmp
     echo -e "This bug report feeds bug #575232 (sys-libs/glibc-2.23-r1 breakage).\n\n" > $issuedir/issue
     cat $issuedir/issue.tmp >> $issuedir/issue
     rm $issuedir/issue.tmp
 
-  elif [[ -n "$(grep -e 'mcs Not found' -e 'gmcs' $issuedir/title)" ]]; then
+  elif [[ -n "$(grep -E 'mcs Not found|gmcs' $issuedir/title)" ]]; then
     block="-b 580316"    # mono-4 issues
 
-  elif [[ -n "$(grep -e '/tmp/xdg/' $issuedir/title)" ]]; then
+  elif [[ -n "$(grep '/tmp/xdg/' $issuedir/title)" ]]; then
     block="-b 567192"    # export XDG_CACHE_HOME=/tmp/xdg issues
 
-  elif [[ -n "$(grep -e 'gnutls_' $issuedir/title)" ]]; then
+  elif [[ -n "$(grep 'gnutls_' $issuedir/title)" ]]; then
     block="-b 546124"    # gnutls-3.4
 
-  elif [[ -n "$(grep -e 'undefined reference to ' $issuedir/title)" ]]; then
+  elif [[ -n "$(grep 'undefined reference to ' $issuedir/title)" ]]; then
     block="-b 536984"    # GCC-5 porting
 
   fi
@@ -447,7 +447,7 @@ function GotAnIssue()  {
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
   if [[ -n "$old" ]]; then
-    new=$(eselect java-vm list 2>/dev/null | grep -e 'oracle-jdk-1.8' -e 'icedtea-7' -e 'icedtea-bin-7' | grep -v 'system-vm' | awk ' { print $2 } ' | sort --random-sort | head -n 1)
+    new=$(eselect java-vm list 2>/dev/null | grep -E 'oracle-jdk-[[:digit:]]|icedtea[-bin]*-[[:digit:]]' | grep -v 'system-vm' | awk ' { print $2 } ' | sort --random-sort | head -n 1)
     if [[ -n "$new" ]]; then
       if [[ "$new" != "$old" ]]; then
         eselect java-vm set system $new &> $log
@@ -483,7 +483,7 @@ function BuildKernel()  {
 # switch to a freshly installed GCC, see: https://wiki.gentoo.org/wiki/Upgrading_GCC
 #
 function SwitchGCC() {
-  latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep -e 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
+  latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
   gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
   if [[ $? -ne 0 ]]; then
     verold=$(gcc -v 2>&1 | tail -n 1 | cut -f1-3 -d' ')
