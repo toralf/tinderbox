@@ -435,6 +435,8 @@ if [[ $rc -ne 0 ]]; then
   echo
   echo " setup NOT successful (rc=$rc) @ $d"
   echo
+  echo " fix and test it with: emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend"
+  echo
   echo "-------------------------------------"
 
   exit $rc
