@@ -784,11 +784,10 @@ do
   fi
 
   GetNextTask
-
   if [[ -f /tmp/STOP  ]]; then
+    echo "$task" >> $pks  # push it back on top of the list
     Finish "stopped"
   fi
-
   EmergeTask
 
 done
