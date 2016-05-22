@@ -496,9 +496,11 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
 
-    # schedule compiling of kernel object files against new gcc libs
+    # schedule re-compiling of kernel object files against new gcc libs
     #
-    echo "%BuildKernel" >> $pks
+    if [[ -e /usr/src/linux ]]; then
+      echo "%BuildKernel" >> $pks
+    fi
 
     if [[ "$majold" = "4" && "$majnew" = "5" ]]; then
       rm -rf /var/cache/revdep-rebuild/*
