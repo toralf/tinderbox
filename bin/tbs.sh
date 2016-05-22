@@ -419,17 +419,21 @@ cd - 1>/dev/null
 $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh'
 rc=$?
 
+cd $tbhome
+d=$(basename $imagedir)/$name
+
 if [[ $rc -ne 0 ]]; then
   echo
   echo "-------------------------------------"
 
-  if [[ -f $name/tmp/world.log ]]; then
+
+  if [[ -f $d/tmp/world.log ]]; then
     echo
-    cat $name/tmp/world.log
+    cat $d/tmp/world.log
   fi
 
   echo
-  echo " setup NOT successful (rc=$rc) @ $name"
+  echo " setup NOT successful (rc=$rc) @ $d"
   echo
   echo "-------------------------------------"
 
@@ -438,11 +442,10 @@ fi
 
 # create symlink to $HOME iff the setup was successful
 #
-cd $tbhome
-ln -s $(basename $imagedir)/$name || exit 11
+ln -s $d || exit 11
 
 echo
-echo " setup  OK : $name"
+echo " setup  OK : $d"
 echo
 
 if [[ "$autostart" = "y" ]]; then
