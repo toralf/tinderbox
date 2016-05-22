@@ -1,15 +1,17 @@
 # package.use/common
 #
-app-crypt/pinentry        -gnome-keyring
+
+# mandatory to deliver SMTP emails more securely
+#
+mail-mta/ssmtp            ssl
+
+# known to block @system or @world upgrade after setup
+#
 dev-java/icedtea-bin      -cups -gtk
 dev-util/cmake            -qt4 -qt5
 dev-vcs/git               -gnome-keyring
-gnome-base/librsvg        -tools
-mail-mta/ssmtp            ssl
-media-libs/libjpeg-turbo  -java
 net-libs/libproxy         -webkit
 media-libs/mesa           -vaapi
-net-analyzer/zabbix       -mysql -oracle -postgres sqlite
 sys-auth/pambase          -gnome-keyring
 
 
