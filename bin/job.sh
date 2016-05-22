@@ -698,6 +698,8 @@ function EmergeTask() {
       done
 
     else
+      # successful
+      #
       if [[ "$task" = "@system" ]]; then
         # do few more daily tasks and try @world BUT only *after* all post-emerge actions
         #
@@ -706,6 +708,7 @@ function EmergeTask() {
         echo "@world" >> $pks
       elif [[ "$task" = "@world" ]] ;then
         touch /tmp/timestamp.world  # keep timestamp of the last successful @world update
+        echo "%emerge --depclean" >> $pks
       fi
       PostEmerge
     fi
