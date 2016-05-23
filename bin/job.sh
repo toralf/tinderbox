@@ -267,28 +267,16 @@ emerge --info >> $issuedir/emerge-info.txt
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
 
-  # guess from the title if there's a blocker to feed too
+  # guess from the title if there's a bug tracker for this
+  # the BLOCKER file must follow this syntax:
   #
-  block=""
-  if [[ -n "$(grep -E 'minor|major|makedev' $issuedir/title)" ]]; then
-    block="-b 575232"
-    mv $issuedir/issue $issuedir/issue.tmp
-    echo -e "This bug report feeds bug #575232 (sys-libs/glibc-2.23-r1 breakage).\n\n" > $issuedir/issue
-    cat $issuedir/issue.tmp >> $issuedir/issue
-    rm $issuedir/issue.tmp
-
-  elif [[ -n "$(grep -E 'mcs Not found|gmcs' $issuedir/title)" ]]; then
-    block="-b 580316"    # mono-4 issues
-
-  elif [[ -n "$(grep '/tmp/xdg/' $issuedir/title)" ]]; then
-    block="-b 567192"    # export XDG_CACHE_HOME=/tmp/xdg issues
-
-  elif [[ -n "$(grep 'gnutls_' $issuedir/title)" ]]; then
-    block="-b 546124"    # gnutls-3.4
-
-  elif [[ -n "$(grep 'undefined reference to ' $issuedir/title)" ]]; then
-    block="-b 536984"    # GCC-5 porting
-
+  #   # comment
+  #   bug id
+  #   pattern
+  #
+  block="$(grep -B 1 -E -f /tmp/tb/data/BLOCKER $issuedir/title | head -n 1)"
+  if [[ -n "$block" ]]; then
+    block="-b $block"
   fi
 
   # the email body with info, a search link and a bgo.sh command line ready for copy+paste
