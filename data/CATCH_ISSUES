@@ -107,6 +107,7 @@ Ebuild author forgot an entry
 error:
 .*command not found
 sgmlspl: command not found
+mmap: wanted .* bytes at .*, actually mapped at .*
 does not exist
 No package .* found
 Invalid use of .*.eclass
@@ -122,6 +123,8 @@ Error .*GCING.* in
 Warning as Error:
 pdfetex exited with bad status
 SyntaxError: invalid syntax
+AppArmor parser error for
+/usr/bin/install: will not overwrite just-created
 recipe for target .* failed
 EPYTHON unset
 POD document had syntax errors
@@ -131,6 +134,7 @@ mingw is needed
 One of the following USE flags is needed:
 python_pkg_setup() not called
 Ambiguous occurrence
+Missing USE flags in
 Error:
 ERROR:
 Failed to copy extended attributes. In order to avoid this error,
