@@ -342,16 +342,13 @@ echo "app-editors/nano" >> var/lib/portage/world
 
 echo "$mask" > tmp/MASK
 
+# the INFO line prevents insert_pkgs.sh to feed this package list before @world was updated
+#
 pks=tmp/packages
 touch $pks
 chown tinderbox.tinderbox $pks
-
-# fill the package list
-# the INFO line prevents insert_pkgs.sh to feed this image package list before the setup is finished eventually
-#
 qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
 echo "INFO start working on the package list" >> $pks
-echo "sys-kernel/hardened-sources"            >> $pks
 
 # tweaks requested by devs
 #
