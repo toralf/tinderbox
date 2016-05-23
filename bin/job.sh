@@ -130,9 +130,12 @@ function GetNextTask() {
 #
 function CompileIssueMail() {
   ehist=/var/tmp/portage/emerge-history.txt
-  echo "# This file contains the emerge history"  >   $ehist
-  echo "#"                                        >>  $ehist
-  qlop --nocolor --gauge --human --list --unlist  >>  $ehist
+  cmd="qlop --nocolor --gauge --human --list --unlist"
+
+  echo "# This file contains the emerge history got with:" > $ehist
+  echo "# $cmd" >> $ehist
+  echo "#"      >> $ehist
+  $cmd          >> $ehist
 
   # the log file name of the failed package
   #
