@@ -141,7 +141,7 @@ function CompileIssueMail() {
   #
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
   if [[ -z "$failedlog" ]]; then
-    failedlog=$(grep -m1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
+    failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
     if [[ -z "$failedlog" ]]; then
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
     fi
@@ -149,14 +149,14 @@ function CompileIssueMail() {
 
   # misc build log files
   #
-  cflog=$(grep -m1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
-  apout=$(grep -m1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"           | cut -f5 -d' ')
-  cmlog=$(grep -m1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"    | cut -f2 -d'"')
-  cmerr=$(grep -m1      'CMake Error: Parse error in cache file'                    $bak | sed  "s/txt./txt/"     | cut -f8 -d' ')
-  sandb=$(grep -m1 -A 1 'ACCESS VIOLATION SUMMARY'                                  $bak | grep "sandbox.*\.log"  | cut -f2 -d'"')
-  oracl=$(grep -m1 -A 1 '# An error report file with more information is saved as:' $bak | grep "\.log"           | cut -f2 -d' ')
-  envir=$(grep -m1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
-  salso=$(grep -m1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
+  cflog=$(grep -m 1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
+  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"           | cut -f5 -d' ')
+  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"    | cut -f2 -d'"')
+  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $bak | sed  "s/txt./txt/"     | cut -f8 -d' ')
+  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY'                                  $bak | grep "sandbox.*\.log"  | cut -f2 -d'"')
+  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $bak | grep "\.log"           | cut -f2 -d' ')
+  envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
+  salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
 
   # strip away color escape sequences
   # the echo command expands "foo/bar-*.log" terms
@@ -196,18 +196,21 @@ function CompileIssueMail() {
 EOF
 emerge --info >> $issuedir/emerge-info.txt
 
-  # get assignee and cc, GLEP 67 rules currently
+  # get assignee and cc, GLEP 67 rules
   #
-  m=$(equery --no-color meta -m $failed 2>/dev/null | grep '@' | xargs)
+  m=$(equery meta -m $failed | grep '@' | xargs)
   if [[ -z "$m" ]]; then
     m="maintainer-needed@gentoo.org"
   fi
-  echo "$m" | cut -f1 -d ' ' > $issuedir/assignee
 
+  # if we found more than 1 maintainer, then put the 1st into assignee and the other(s) into cc
+  #
   echo "$m" | grep -q ' '
   if [[ $? -eq 0 ]]; then
+    echo "$m" | cut -f1  -d ' ' > $issuedir/assignee
     echo "$m" | cut -f2- -d ' ' | tr ' ' ',' > $issuedir/cc
   else
+    echo "$m" > $issuedir/assignee
     touch $issuedir/cc
   fi
 
@@ -215,12 +218,14 @@ emerge --info >> $issuedir/emerge-info.txt
   #
   touch $issuedir/title
 
-  if [[ -n "$(grep -m1 ' Detected file collision(s):' $bak)" ]]; then
-    s=$(grep -m1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
-    cc=$(equery --no-color meta -m $s 2>/dev/null | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
-    all=$( (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',')
-    echo "$all" > $issuedir/cc
-
+  if [[ -n "$(grep -m 1 ' Detected file collision(s):' $bak)" ]]; then
+    # inform the maintainers of the already installed package too
+    # sort -u guarantees, that $issuedir/cc is completely read in before it will be overwritten
+    #
+    s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
+    cc=$(equery meta -m $s | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
+    (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',' > $issuedir/cc
+    
     grep -m 1 -A 15 ' Detected file collision(s):' $bak > $issuedir/issue
     echo "file collision with $s"                       > $issuedir/title
 
@@ -390,7 +395,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # after this point we expect that a single package failed
+  # after this point we expect that we catched the failed package (== $failed is not empty)
   #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty -> issue handling is not implemented for: $task"
