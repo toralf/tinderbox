@@ -642,9 +642,6 @@ function check() {
     $exe &> $log
     rc=$?
 
-    echo >> $log
-    equery meta -m $task 1>> $log 2>/dev/null  # failes for @... and %... tasks usually
-
     # -1 == 255:-2 == 254, ...
     #
     if [[ $rc -gt 127 ]]; then
