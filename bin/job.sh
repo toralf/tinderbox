@@ -273,13 +273,16 @@ emerge --info >> $issuedir/emerge-info.txt
   #   # comment
   #   bug id
   #   pattern
-  #
-  block="$(grep -B 1 -E -f /tmp/tb/data/BLOCKER $issuedir/title | head -n 1)"
-  if [[ -n "$block" ]]; then
-    block="-b $block"
-  fi
+  #   ...
+  block=$(
+    grep -v -e '^#' -e '^[1-9]*' /tmp/tb/data/BLOCKER |\
+    while read line
+    do
+      grep -m 1 -B 1 -e "$line" $issuedir/title | head -n 1 && break
+    done
+  )
 
-  # the email body with info, a search link and a bgo.sh command line ready for copy+paste
+  # fill the email body with log file info, a search link and a bgo.sh command line ready for copy+paste
   #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   cp $issuedir/issue $issuedir/body
