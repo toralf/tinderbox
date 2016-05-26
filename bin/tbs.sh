@@ -272,9 +272,12 @@ SSL_BITS=4096
 
 ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
+
+# no parallel make, we do prefer to run more images in parallel
+#
 MAKEOPTS="-j1"
 
-# no "--verbose", it would blow up the size of "emerge --info" over 16KB
+# no "--verbose", it would blow up the size of "emerge --info" over 16KB, which kills b.g.o input window
 #
 EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build"
 ACCEPT_PROPERTIES="-interactive"
@@ -295,7 +298,7 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 EOF
 #----------------------------------------
 
-# create portage directories and symlinks to tb/data/*
+# create portage directories and symlink them to tb/data/*
 #
 mkdir usr/portage
 mkdir var/tmp/{distfiles,portage}
@@ -439,7 +442,7 @@ if [[ $rc -ne 0 ]]; then
   exit $rc
 fi
 
-# create symlink to $HOME iff the setup was successful
+# create symlink to $HOME *iff* the setup was successful
 #
 ln -s $d || exit 11
 
