@@ -770,25 +770,13 @@ do
     exit 125
   fi
 
-  # after a sync of the host repository "read" news and update layman
-  #
-  now=$(cat $tsfile)
-  if [[ -z "$now" ]]; then
-    Finish "could not get timestamp from $tsfile"
-  fi
-  if [[ ! "$old" = "$now" ]]; then
-    eselect news read >/dev/null
-    if [[ -x /usr/bin/layman ]]; then
-      layman -S &>/dev/null
-    fi
-    old="$now"
-  fi
-
   GetNextTask
+  
   if [[ -f /tmp/STOP  ]]; then
     echo "$task" >> $pks  # push it back on top of the list
     Finish "stopped"
   fi
+  
   EmergeTask
 
 done
