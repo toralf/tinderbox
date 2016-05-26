@@ -282,7 +282,7 @@ ACCEPT_RESTRICT="-fetch"
 
 # no "fail-clean", portage would delete files otherwise before we could pick up them for a bug report
 #
-FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox"
+FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
 
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa warn error"
