@@ -20,24 +20,24 @@ tbhome=/home/tinderbox
 # functions
 #
 
-# return a (r)andomized (U)SE (f)lag (s)ubset from the set $flags
+# return a (r)andomized (U)SE (f)lag (s)ubset from the set stored in $flags
 #
-# mask  a flag with a likelihood of 1/n
-# set   a flag with a likelihood of 1/p
-# empty else
+# mask   a flag with a likelihood of 1/m
+# or set a flag with a likelihood of 1/s
+# else let it be unset
 #
 function rufs()  {
-  n=30
-  let "p = n / 6"
+  m=30
+  s=5
 
   for f in $(echo $flags)
   do
-    let "r = $RANDOM % $n"
+    let "r = $RANDOM % $m"
 
     if [[ $r -eq 0 ]]; then
       echo -n " -$f"
 
-    elif [[ $r -le $p ]]; then
+    elif [[ $r -le $s ]]; then
       echo -n " $f"
     fi
   done
@@ -89,8 +89,8 @@ flags="
   system-harfbuzz system-icu system-jpeg system-libevent system-libs
   system-libvpx system-llvm system-sqlite szip tcl tcpd theora thinkpad
   threads tk tls tools truetype ufed uml usb usbredir uxa v4l v4l2 vaapi
-  vdpau video vorbis vpx wav webkit webstart widgets wma wxwidgets X
-  x264 x265 xa xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc
+  vdpau video vorbis vpx wav wayland webkit webstart widgets wma wxwidgets X
+  x264 x265 xa xcb xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc
   xz zenmap ziffy zip
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
