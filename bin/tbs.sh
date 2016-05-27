@@ -88,7 +88,7 @@ flags="
   ssh-askpass ssl ssse3 svg swscale system-cairo system-ffmpeg
   system-harfbuzz system-icu system-jpeg system-libevent system-libs
   system-libvpx system-llvm system-sqlite szip tcl tcpd theora thinkpad
-  threads tk tls tools truetype ufed uml usb usbredir uxa v4l v4l2 vaapi
+  threads tk tls tools tracepath traceroute truetype ufed uml usb usbredir uxa v4l v4l2 vaapi
   vdpau video vorbis vpx wav wayland webkit webstart widgets wma wxwidgets X
   x264 x265 xa xcb xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc
   xz zenmap ziffy zip
