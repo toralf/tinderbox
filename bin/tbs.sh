@@ -75,7 +75,7 @@ flags="
   designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev
   extraengine ffmpeg fontconfig fortran fpm freetds ftp gcj gd gif git
   gles2 gnomecanvas gnome-keyring gnuplot gnutls gpg graphtft gstreamer
-  gtk gtk3 gtkstyle gudev gui haptic havege hdf5 help icu imap imlib
+  gtk gtk2 gtk3 gtkstyle gudev gui haptic havege hdf5 help icu imap imlib
   inifile introspection ipv6 isag ithreads jadetex javafx javascript
   javaxml jpeg kerberos kvm lapack ldap libkms libvirtd llvm logrotate
   mbox mdnsresponder-compat melt mikmod minimal minizip mng mod modplug
