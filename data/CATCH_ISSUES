@@ -104,6 +104,7 @@ An exception has occurred in the compiler
 error in .* command
 Can't locate Locale/Messages.pm in @INC
 Ebuild author forgot an entry
+error: .* is not a member
 error:
 .*command not found
 sgmlspl: command not found
@@ -135,6 +136,9 @@ One of the following USE flags is needed:
 python_pkg_setup() not called
 Ambiguous occurrence
 Missing USE flags in
+please either set LINGUAS or do not use nls
+you must set LINGUAS in
+Compilation failed in require at
 Error:
 ERROR:
 Failed to copy extended attributes. In order to avoid this error,
