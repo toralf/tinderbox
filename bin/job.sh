@@ -268,7 +268,6 @@ emerge --info >> $issuedir/emerge-info.txt
     truncate -s $max $issuedir/title
   fi
 
-  echo "$failed : $(cat $issuedir/title)" > $issuedir/title
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
 
@@ -419,24 +418,16 @@ function GotAnIssue()  {
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
-  # now compile all needed data files into $issuedir
+  # compile all needed data files into $issuedir evenn if the package is in ALREADY_CATCHED
+  # but don't mail the same issue again to us
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
   CompileIssueMail
-
-  # don't mail the same issue again to us
-  #
   fgrep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
-    # for a smooth migration we grep here for the package name+version only
-    # till ALREADY_CATCHED is almost filled up with entries of the new format
-    #
-    grep -q "^$failed " /tmp/tb/data/ALREADY_CATCHED
-    if [[ $? -ne 0 ]]; then
-      Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
-    fi
-    cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
+    Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
+   cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
   fi
 }
 
