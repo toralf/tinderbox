@@ -90,7 +90,7 @@ flags="
   system-libvpx system-llvm system-sqlite szip tcl tcpd theora thinkpad
   threads tk tls tools tracepath traceroute truetype ufed uml usb usbredir uxa v4l v4l2 vaapi
   vdpau video vorbis vpx wav wayland webkit webstart widgets wma wxwidgets X
-  x264 x265 xa xcb xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc
+  x264 x265 xa xcb xinerama xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc
   xz zenmap ziffy zip
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
