@@ -74,22 +74,22 @@ flags="
   cups curl custom-cflags custom-optimization dbus debug dec_av2 declarative
   designer dnssec doc dot drmkms dvb dvd ecc egl eglfs emacs evdev
   extraengine ffmpeg fontconfig fortran fpm freetds ftp gcj gd gif git
-  gles2 gnomecanvas gnome-keyring gnuplot gnutls gpg graphtft gstreamer
+  gles gles2 gnomecanvas gnome-keyring gnuplot gnutls gpg graphtft gstreamer
   gtk gtk2 gtk3 gtkstyle gudev gui haptic havege hdf5 help ibus icu imap imlib
   inifile introspection ipv6 isag ithreads jadetex javafx javascript
   javaxml jpeg kerberos kvm lapack ldap libinput libkms libvirtd llvm logrotate
-  mbox mdnsresponder-compat melt mikmod minimal minizip mng mod modplug
-  mssql multimedia multitarget mysql mysqli ncurses nscd nss obj objc odbc
+  mbox mdnsresponder-compat mad melt midi mikmod minimal minizip mng mod modplug
+  mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql multimedia multitarget mysql mysqli ncurses nscd nss obj objc odbc
   offensive ogg ois opencv openexr opengl openmpi openssl pcre16 pdo php
   pkcs11 plasma png policykit postgres postproc postscript printsupport
   pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
-  rendering scripts scrypt sddm sdl semantic-desktop server smartcard
+  rendering scripts scrypt sddm sdl semantic-desktop server smartcard smpeg snmp
   sockets source spice sql sqlite sqlite3 sse4 sse4_1 sse4_2 ssh
   ssh-askpass ssl ssse3 svg swscale system-cairo system-ffmpeg
   system-harfbuzz system-icu system-jpeg system-libevent system-libs
   system-libvpx system-llvm system-sqlite szip tcl tcpd theora thinkpad
-  threads tk tls tools tracepath traceroute truetype ufed uml usb usbredir uxa v4l v4l2 vaapi
-  vala vdpau video vlc vorbis vpx wav wayland webkit webstart widgets wma wxwidgets X
+  threads tk tls tools tracepath traceroute truetype ufed uml usb usbredir utils uxa v4l v4l2 vaapi
+  vala vdpau video vim vlc vorbis vpx wav wayland webgl webkit webstart widgets wma wxwidgets X
   x264 x265 xa xcb xinerama xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb xvmc
   xz zenmap ziffy zip
 "
