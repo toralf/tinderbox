@@ -79,7 +79,7 @@ flags="
   inifile introspection ipv6 isag ithreads jadetex javafx javascript
   javaxml jpeg kerberos kvm lapack ldap libinput libkms libvirtd llvm logrotate
   mbox mdnsresponder-compat melt mikmod minimal minizip mng mod modplug
-  mssql multimedia multitarget mysql mysqli nscd nss obj objc odbc
+  mssql multimedia multitarget mysql mysqli ncurses nscd nss obj objc odbc
   offensive ogg ois opencv openexr opengl openmpi openssl pcre16 pdo php
   pkcs11 plasma png policykit postgres postproc postscript printsupport
   pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
