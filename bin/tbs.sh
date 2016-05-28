@@ -72,12 +72,12 @@ flags="
   aes-ni alisp alsa apache apache2 avcodec avformat avx avx2 btrfs bugzilla bzip2
   cairo cdb cdda cddb cgi cgoups clang compat consolekit corefonts csc
   cups curl custom-cflags custom-optimization dbus debug dec_av2 declarative
-  designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev
+  designer dnssec doc dot drmkms dvb dvd ecc egl eglfs emacs evdev
   extraengine ffmpeg fontconfig fortran fpm freetds ftp gcj gd gif git
   gles2 gnomecanvas gnome-keyring gnuplot gnutls gpg graphtft gstreamer
-  gtk gtk2 gtk3 gtkstyle gudev gui haptic havege hdf5 help icu imap imlib
+  gtk gtk2 gtk3 gtkstyle gudev gui haptic havege hdf5 help ibus icu imap imlib
   inifile introspection ipv6 isag ithreads jadetex javafx javascript
-  javaxml jpeg kerberos kvm lapack ldap libkms libvirtd llvm logrotate
+  javaxml jpeg kerberos kvm lapack ldap libinput libkms libvirtd llvm logrotate
   mbox mdnsresponder-compat melt mikmod minimal minizip mng mod modplug
   mssql multimedia multitarget mysql mysqli nscd nss obj objc odbc
   offensive ogg ois opencv openexr opengl openmpi openssl pcre16 pdo php
