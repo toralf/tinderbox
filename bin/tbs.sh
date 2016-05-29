@@ -237,14 +237,12 @@ EOF
 
   echo "$mask" > tmp/MASK
 
-  # the INFO line prevents insert_pkgs.sh to feed this package list before @world was updated
+  # fill the package list
   #
   pks=tmp/packages
-  touch $pks
-  chown tinderbox.tinderbox $pks
   qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
-  echo "INFO start working on the package list" >> $pks
   echo "@system" >> $pks
+  chown tinderbox.tinderbox $pks
 
   # tweaks requested by devs
   #
