@@ -98,6 +98,160 @@ function InstallStage3()  {
 
 
 function CompilePortageFiles()  {
+  # https://wiki.gentoo.org/wiki/Overlay/Local_overlay
+  #
+  mkdir -p                  usr/local/portage/{metadata,profiles}
+  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
+  echo 'local' >            usr/local/portage/profiles/repo_name
+  chown -R portage:portage  usr/local/portage/
+
+  mkdir -p     etc/portage/repos.conf/
+  cat << EOF > etc/portage/repos.conf/default.conf
+[DEFAULT]
+main-repo = gentoo
+
+[gentoo]
+priority = 1
+
+[local]
+priority = 2
+EOF
+
+  # we'd stay at the "rsync" method for now, "git" pulls in too much deps (gitk etc.)
+  #
+  cat << EOF > etc/portage/repos.conf/gentoo.conf
+[gentoo]
+location  = /usr/portage
+auto-sync = no
+#sync-type = rsync
+#sync-uri  = rsync://rsync.de.gentoo.org/gentoo-portage/
+EOF
+
+  cat << EOF > etc/portage/repos.conf/local.conf
+[local]
+location  = /usr/local/portage
+masters   = gentoo
+auto-sync = no
+EOF
+
+  # compile make.conf
+  #
+  m=etc/portage/make.conf
+  chmod a+w $m
+
+  sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native /'    \
+          -e 's/^USE=/#USE=/'                         \
+          -e 's/^PORTDIR=/#PORTDIR=/'                 \
+          -e 's/^PKGDIR=/#PKGDIR=/'                   \
+          -e 's#^DISTDIR=.*#DISTDIR="/var/tmp/distfiles"#' $m
+
+  #----------------------------------------
+  cat << EOF >> $m
+USE="
+  mmx sse sse2 pax_kernel xtpax -cdinstall -oci8 -bindist
+
+$(echo $flags | xargs -s 78 | sed 's/^/  /g')
+"
+
+ACCEPT_KEYWORDS="amd64 $( [[ "$mask" = "unstable" ]] && echo -n '~amd64' )"
+CPU_FLAGS_X86="aes avx mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3"
+PAX_MARKINGS="XT"
+
+# this is a contribute to my private notebook
+#
+VIDEO_CARDS="intel i965"
+SSL_BITS=4096
+
+ACCEPT_LICENSE="*"
+CLEAN_DELAY=0
+
+# no parallel make, we do prefer to run more images in parallel
+#
+MAKEOPTS="-j1"
+
+# no "--verbose", it would blow up the size of "emerge --info" over 16KB, which kills b.g.o input window
+#
+EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build"
+ACCEPT_PROPERTIES="-interactive"
+ACCEPT_RESTRICT="-fetch"
+
+# no "fail-clean", portage would delete files otherwise before we could pick up them for a bug report
+#
+FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
+
+PORT_LOGDIR="/var/log/portage"
+PORTAGE_ELOG_CLASSES="qa warn error"
+PORTAGE_ELOG_SYSTEM="save"
+PORTAGE_ELOG_MAILURI="root@localhost"
+PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
+
+GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gor.bytemark.co.uk/gentoo/ rsync://ftp.snt.utwente.nl/gentoo"
+
+EOF
+  #----------------------------------------
+
+  # create portage directories and symlink them to tb/data/*
+  #
+  mkdir usr/portage
+  mkdir var/tmp/{distfiles,portage}
+
+  for d in package.{accept_keywords,env,mask,unmask,use} env patches profile
+  do
+    mkdir     etc/portage/$d 2>/dev/null
+    chmod 777 etc/portage/$d
+  done
+
+  mkdir tmp/tb  # chr.sh will bind-mount here the host directory
+
+  for d in package.{accept_keywords,env,mask,unmask,use}
+  do
+    (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
+    touch etc/portage/$d/zzz                                          # honeypot for autounmask
+  done
+  touch       etc/portage/package.mask/self     # avoid a 2nd attempt at this image for failed packages
+  chmod a+rw  etc/portage/package.mask/self     # allow tinderbox user to delete entries
+
+  cat << EOF > etc/portage/env/test
+FEATURES="test test-fail-continue"
+EOF
+
+  cat << EOF > etc/portage/env/splitdebug
+CFLAGS="\$CFLAGS -g -ggdb"
+CXXFLAGS="\$CFLAGS"
+FEATURES="splitdebug"
+EOF
+
+  cp -L /etc/hosts /etc/resolv.conf etc/
+
+  cat << EOF > root/.vimrc
+set softtabstop=2
+set shiftwidth=2
+set tabstop=2
+
+:let g:session_autosave = 'no'
+EOF
+
+  # avoid nano from being depcleaned if another editor is emerged too
+  #
+  echo "app-editors/nano" >> var/lib/portage/world
+
+  echo "$mask" > tmp/MASK
+
+  # the INFO line prevents insert_pkgs.sh to feed this package list before @world was updated
+  #
+  pks=tmp/packages
+  touch $pks
+  chown tinderbox.tinderbox $pks
+  qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
+  echo "INFO start working on the package list" >> $pks
+
+  # tweaks requested by devs
+  #
+  # set XDG_CACHE_HOME=/tmp/xdg in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
+  #
+  mkdir tmp/xdg
+  chmod 700 tmp/xdg
+  chown tinderbox:tinderbox tmp/xdg
 }
 
 
@@ -220,161 +374,7 @@ if [[ "$(basename $profile)" = "systemd" ]]; then
 fi
 
 InstallStage3
-
-# https://wiki.gentoo.org/wiki/Overlay/Local_overlay
-#
-mkdir -p                  usr/local/portage/{metadata,profiles}
-echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
-echo 'local' >            usr/local/portage/profiles/repo_name
-chown -R portage:portage  usr/local/portage/
-
-mkdir -p     etc/portage/repos.conf/
-cat << EOF > etc/portage/repos.conf/default.conf
-[DEFAULT]
-main-repo = gentoo
-
-[gentoo]
-priority = 1
-
-[local]
-priority = 2
-EOF
-
-# we'd stay at the "rsync" method for now, "git" pulls in too much deps (gitk etc.)
-#
-cat << EOF > etc/portage/repos.conf/gentoo.conf
-[gentoo]
-location  = /usr/portage
-auto-sync = no
-#sync-type = rsync
-#sync-uri  = rsync://rsync.de.gentoo.org/gentoo-portage/
-EOF
-
-cat << EOF > etc/portage/repos.conf/local.conf
-[local]
-location  = /usr/local/portage
-masters   = gentoo
-auto-sync = no
-EOF
-
-# compile make.conf
-#
-m=etc/portage/make.conf
-chmod a+w $m
-
-sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native /'    \
-        -e 's/^USE=/#USE=/'                         \
-        -e 's/^PORTDIR=/#PORTDIR=/'                 \
-        -e 's/^PKGDIR=/#PKGDIR=/'                   \
-        -e 's#^DISTDIR=.*#DISTDIR="/var/tmp/distfiles"#' $m
-
-#----------------------------------------
-cat << EOF >> $m
-USE="
-  mmx sse sse2 pax_kernel xtpax -cdinstall -oci8 -bindist
-
-$(echo $flags | xargs -s 78 | sed 's/^/  /g')
-"
-
-ACCEPT_KEYWORDS="amd64 $( [[ "$mask" = "unstable" ]] && echo -n '~amd64' )"
-CPU_FLAGS_X86="aes avx mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3"
-PAX_MARKINGS="XT"
-
-# this is a contribute to my private notebook
-#
-VIDEO_CARDS="intel i965"
-SSL_BITS=4096
-
-ACCEPT_LICENSE="*"
-CLEAN_DELAY=0
-
-# no parallel make, we do prefer to run more images in parallel
-#
-MAKEOPTS="-j1"
-
-# no "--verbose", it would blow up the size of "emerge --info" over 16KB, which kills b.g.o input window
-#
-EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build"
-ACCEPT_PROPERTIES="-interactive"
-ACCEPT_RESTRICT="-fetch"
-
-# no "fail-clean", portage would delete files otherwise before we could pick up them for a bug report
-#
-FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
-
-PORT_LOGDIR="/var/log/portage"
-PORTAGE_ELOG_CLASSES="qa warn error"
-PORTAGE_ELOG_SYSTEM="save"
-PORTAGE_ELOG_MAILURI="root@localhost"
-PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
-
-GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gor.bytemark.co.uk/gentoo/ rsync://ftp.snt.utwente.nl/gentoo"
-
-EOF
-#----------------------------------------
-
-# create portage directories and symlink them to tb/data/*
-#
-mkdir usr/portage
-mkdir var/tmp/{distfiles,portage}
-
-for d in package.{accept_keywords,env,mask,unmask,use} env patches profile
-do
-  mkdir     etc/portage/$d 2>/dev/null
-  chmod 777 etc/portage/$d
-done
-
-mkdir tmp/tb  # chr.sh will bind-mount here the host directory
-
-for d in package.{accept_keywords,env,mask,unmask,use}
-do
-  (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
-  touch etc/portage/$d/zzz                                          # honeypot for autounmask
-done
-touch       etc/portage/package.mask/self     # avoid a 2nd attempt at this image for failed packages
-chmod a+rw  etc/portage/package.mask/self     # allow tinderbox user to delete entries
-
-cat << EOF > etc/portage/env/test
-FEATURES="test test-fail-continue"
-EOF
-
-cat << EOF > etc/portage/env/splitdebug
-CFLAGS="\$CFLAGS -g -ggdb"
-CXXFLAGS="\$CFLAGS"
-FEATURES="splitdebug"
-EOF
-
-cp -L /etc/hosts /etc/resolv.conf etc/
-
-cat << EOF > root/.vimrc
-set softtabstop=2
-set shiftwidth=2
-set tabstop=2
-
-:let g:session_autosave = 'no'
-EOF
-
-# avoid nano from being depcleaned if another editor is emerged too
-#
-echo "app-editors/nano" >> var/lib/portage/world
-
-echo "$mask" > tmp/MASK
-
-# the INFO line prevents insert_pkgs.sh to feed this package list before @world was updated
-#
-pks=tmp/packages
-touch $pks
-chown tinderbox.tinderbox $pks
-qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
-echo "INFO start working on the package list" >> $pks
-
-# tweaks requested by devs
-#
-# set XDG_CACHE_HOME=/tmp/xdg in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
-#
-mkdir tmp/xdg
-chmod 700 tmp/xdg
-chown tinderbox:tinderbox tmp/xdg
+CompilePortageFiles
 
 # install basic packages and those needed by job.sh, configure portage and SMTP
 #
