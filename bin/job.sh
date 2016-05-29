@@ -179,10 +179,16 @@ function CollectIssueFiles() {
   # create an email body containing convenient links + info
   # ready for being picked up by copy+paste
   #
+  mask="stable"
+  grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
+  if [[ $? -eq 0 ]]; then
+    mask="unstable"
+  fi
+  
   cat << EOF >> $issuedir/emerge-info.txt
   -----------------------------------------------------------------
 
-  This is an $(cat /tmp/MASK) amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
+  This is an $mask amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
 
   -----------------------------------------------------------------
 

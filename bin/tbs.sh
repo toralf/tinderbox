@@ -235,8 +235,6 @@ EOF
   #
   echo "app-editors/nano" >> var/lib/portage/world
 
-  echo "$mask" > tmp/MASK
-
   # fill the package list
   #
   pks=tmp/packages
