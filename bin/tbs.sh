@@ -282,6 +282,7 @@ emerge sys-apps/elfix || exit 2
 migrate-pax -m
 
 emerge mail-mta/ssmtp mail-client/mailx || exit 3
+
 echo "
 root=tinderbox@zwiebeltoralf.de
 MinUserId=9999
@@ -293,11 +294,11 @@ Debug=NO
 
 # sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop", eix is useful to inspect issues
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 4
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 5
 
 # at least the very first @world upgrade must not fail
 #
-emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 5
+emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 7
 
 exit 0
 
@@ -308,28 +309,25 @@ EOF
   #
   cd - 1>/dev/null
 
-  $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh'
+  $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
-
+  
   cd $tbhome
   d=$(basename $imagedir)/$name
+  
+  grep -q "@preserved-rebuild" $d/tmp/setup.log
+  if [[ $? -eq 0 ]]; then
+    echo "@preserved-rebuild" >> $d/tmp/packages
+  fi
 
   if [[ $rc -ne 0 ]]; then
     echo
-    echo "-------------------------------------"
-
-
-    if [[ -f $d/tmp/world.log ]]; then
-      echo
-      cat $d/tmp/world.log
-    fi
-
-    echo
     echo " setup NOT successful (rc=$rc) @ $d"
     echo
-    echo " fix it and test: emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend"
+    echo " check: $d/tmp/setup.log"
+    echo "           $d/tmp/world.log"
     echo
-    echo "-------------------------------------"
+    echo " test: emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend"
 
     exit $rc
   fi
