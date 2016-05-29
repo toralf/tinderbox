@@ -12,5 +12,5 @@ dev-lang/python           threads
 dev-util/cmake            -qt4 -qt5
 media-libs/mesa           -vaapi
 net-libs/libproxy         -webkit
-
+sys-auth/pambase          -gnome-keyring
 
