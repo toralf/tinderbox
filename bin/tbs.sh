@@ -244,6 +244,7 @@ EOF
   chown tinderbox.tinderbox $pks
   qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
   echo "INFO start working on the package list" >> $pks
+  echo "@system" >> $pks
 
   # tweaks requested by devs
   #
@@ -325,9 +326,9 @@ EOF
     echo " setup NOT successful (rc=$rc) @ $d"
     echo
     echo " check: $d/tmp/setup.log"
-    echo "           $d/tmp/world.log"
+    echo "        $d/tmp/world.log"
     echo
-    echo " test: emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend"
+    echo " test:  emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend"
 
     exit $rc
   fi
@@ -372,11 +373,11 @@ flags="
   bugzilla bzip2 cairo cdb cdda cddb cgi cgoups clang compat consolekit
   corefonts csc cups curl custom-cflags custom-optimization dane dbus debug
   dec_av2 declarative designer dnssec doc dot drmkms dvb dvd ecc egl
-  eglfs emacs evdev extraengine ffmpeg fontconfig fortran fpm freetds
+  eglfs emacs evdev extra extraengine ffmpeg fontconfig fortran fpm freetds
   ftp gcj gd gif git gles gles2 gnomecanvas gnome-keyring gnuplot gnutls
   gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui gzip haptic
   havege hdf5 help ibus icu imap imlib inifile introspection ipv6 isag
-  ithreads jadetex javafx javascript javaxml jpeg kerberos kvm lapack
+  ithreads jadetex javafx javascript javaxml jpeg kerberos kvm lapack latex
   ldap libinput libkms libvirtd llvm logrotate lzma mad mbox
   mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
   mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia multitarget mysql
@@ -391,7 +392,7 @@ flags="
   system-sqlite szip tcl tcpd theora thinkpad threads tk tls tools
   tracepath traceroute truetype ufed uml usb usbredir utils uxa v4l v4l2
   vaapi vala vdpau video vim vlc vorbis vpx wav wayland webgl webkit
-  webstart widgets wma wxwidgets X x264 x265 xa xcb xinerama xinetd xkb
+  webstart widgets wma wxwidgets X x264 x265 xa xcb xetex xinerama xinetd xkb
   xml xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'

@@ -41,25 +41,22 @@ function Finish()  {
 # or exit from here
 #
 function GetNextTask() {
-  # update @system immediately after setup of an image
+  #   update @system once a day, if nothing special is scheduled
   #
   if [[ ! -f /tmp/timestamp.system ]]; then
     touch /tmp/timestamp.system
-    task="@system"
-    return
-  fi
 
-  #   update @system once a day, if nothing special is scheduled
-  #
-  let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.system)"
-  if [[ $diff -gt 86400 ]]; then
-    grep -q -E "^(STOP|INFO|%|@)" $pks
-    if [[ $? -ne 0 ]]; then
-      task="@system"
-      return
+  else
+    let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.system)"
+    if [[ $diff -gt 86400 ]]; then
+      grep -q -E "^(STOP|INFO|%|@)" $pks
+      if [[ $? -ne 0 ]]; then
+        task="@system"
+        return
+      fi
     fi
   fi
-
+  
   while :;
   do
     task=$(tail -n 1 $pks)
