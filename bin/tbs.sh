@@ -45,6 +45,55 @@ function rufs()  {
 
 
 function InstallStage3()  {
+  # get the current stage3 file name
+  #
+  wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
+  wgetpath=/releases/amd64/autobuilds
+  latest=latest-stage3.txt
+
+  wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
+  if [[ $? -ne 0 ]]; then
+    echo " wget failed: $latest"
+    exit 4
+  fi
+
+  # $name holds the (directory) name of the chroot image (and will be symlinked into $HOME)
+  # stage3 holds the full stage3 file name as used in $latest
+  #
+  if [[ "$profile" = "hardened/linux/amd64" ]]; then
+    name="$name-hardened"
+    stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+
+  elif [[ "$systemd"  = "y" ]]; then
+    name="$name-$(basename $(dirname $profile))-systemd"
+    stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+
+  else
+    name="$name-$(basename $profile)"
+    stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+  fi
+
+  # now complete it with keyword and time stamp
+  #
+  name="$name-${mask}_$(date +%Y%m%d-%H%M%S)"
+  echo " name: $name"
+
+  # download stage3 if not already done
+  #
+  b=$(basename $stage3)
+  f=/var/tmp/distfiles/$b
+  if [[ ! -f $f ]]; then
+    wget --quiet $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 6
+  fi
+
+  # do always verify it
+  #
+  gpg --verify $f.DIGESTS.asc || exit 7
+
+  cd $imagedir  || exit 8
+  mkdir $name   || exit 9
+  cd $name
+  tar xjpf $f   || exit 10
 }
 
 
@@ -170,55 +219,7 @@ if [[ "$(basename $profile)" = "systemd" ]]; then
   systemd="y"
 fi
 
-# get the current stage3 file name
-#
-wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
-wgetpath=/releases/amd64/autobuilds
-latest=latest-stage3.txt
-
-wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
-if [[ $? -ne 0 ]]; then
-  echo " wget failed: $latest"
-  exit 4
-fi
-
-# $name holds the (directory) name of the chroot image (and will be symlinked into $HOME)
-# stage3 holds the full stage3 file name as used in $latest
-#
-if [[ "$profile" = "hardened/linux/amd64" ]]; then
-  name="$name-hardened"
-  stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
-
-elif [[ "$systemd"  = "y" ]]; then
-  name="$name-$(basename $(dirname $profile))-systemd"
-  stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
-
-else
-  name="$name-$(basename $profile)"
-  stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
-fi
-
-# now complete it with keyword and time stamp
-#
-name="$name-${mask}_$(date +%Y%m%d-%H%M%S)"
-echo " name: $name"
-
-# download stage3 if not already done
-#
-b=$(basename $stage3)
-f=/var/tmp/distfiles/$b
-if [[ ! -f $f ]]; then
-  wget --quiet $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 6
-fi
-
-# do always verify it
-#
-gpg --verify $f.DIGESTS.asc || exit 7
-
-cd $imagedir  || exit 8
-mkdir $name   || exit 9
-cd $name
-tar xjpf $f   || exit 10
+InstallStage3
 
 # https://wiki.gentoo.org/wiki/Overlay/Local_overlay
 #
