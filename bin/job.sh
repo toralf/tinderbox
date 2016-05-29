@@ -404,32 +404,34 @@ function GotAnIssue()  {
     return
   fi
 
+  # compile build/log files into $issuedir
+  #
+  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
+  mkdir -p $issuedir/files
+  CompileIssueMail
+  
   # broken Perl upgrade: https://bugs.gentoo.org/show_bug.cgi?id=463976
   #
   grep -q "Can't locate Locale/Messages.pm in @INC" $bak
   if [[ $? -eq 0 ]]; then
-    Mail "info: auto-repair perl upgrade issue" $bak
+    Mail "info: handle perl upgrade issue" $issuedir/body
     echo -e "$task\n%perl-cleaner --all" >> $pks
     return
   fi
 
-  # mask this package version for this image, prefer to continue with a lower version
+  # mask this package version at this image
   #
   grep -q "=$failed " /etc/portage/package.mask/self
   if [[ $? -ne 0 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
-  # compile all needed data files into $issuedir evenn if the package is in ALREADY_CATCHED
-  # but don't mail the same issue again to us
+  # don't mail the same issue again to us
   #
-  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
-  mkdir -p $issuedir/files
-  CompileIssueMail
   fgrep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
-   cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
+    cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
   fi
 }
 
