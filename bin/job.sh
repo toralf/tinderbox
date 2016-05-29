@@ -407,8 +407,7 @@ function GotAnIssue()  {
   # broken Perl upgrade: https://bugs.gentoo.org/show_bug.cgi?id=463976
   #
   grep -q "Can't locate Locale/Messages.pm in @INC" $bak
-  rc=$?
-  if [[ "$failed" = "sys-apps/help2man" || "$failed" = "dev-scheme/guile" || $rc -eq 0 ]]; then
+  if [[ $? -eq 0 ]]; then
     Mail "info: auto-repair perl upgrade issue" $bak
     echo -e "$task\n%perl-cleaner --all" >> $pks
     return
