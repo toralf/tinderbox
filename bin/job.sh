@@ -128,7 +128,7 @@ function GetNextTask() {
 
 # compile convenient information together
 #
-function CompileIssueMail() {
+function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
   cmd="qlop --nocolor --gauge --human --list --unlist"
 
@@ -408,7 +408,7 @@ function GotAnIssue()  {
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
-  CompileIssueMail
+  CollectIssueFiles
   
   # broken Perl upgrade: https://bugs.gentoo.org/show_bug.cgi?id=463976
   #
