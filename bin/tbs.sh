@@ -43,6 +43,19 @@ function rufs()  {
   done
 }
 
+
+function InstallStage3()  {
+}
+
+
+function CompilePortageFiles()  {
+}
+
+
+function InstallMandatoryPackages() {
+}
+
+
 #############################################################################
 #
 # vars
@@ -101,6 +114,7 @@ Start="n"           # start the chroot image if setup was successfully ?
 
 let "i = $RANDOM % 2 + 1"
 imagedir="$tbhome/images${i}"         # images[12]
+
 
 #############################################################################
 #
