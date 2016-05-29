@@ -256,6 +256,91 @@ EOF
 
 
 function InstallMandatoryPackages() {
+  # install basic packages and those needed by job.sh, configure portage and SMTP
+  #
+
+  #----------------------------------------
+  cat << EOF > tmp/setup.sh
+
+eselect profile set $profile || exit 1
+
+echo "en_US ISO-8859-1
+en_US.UTF-8 UTF-8
+de_DE ISO-8859-1
+de_DE@euro ISO-8859-15
+de_DE.UTF-8@euro UTF-8
+" >> /etc/locale.gen
+locale-gen
+eselect locale set en_US.utf8
+. /etc/profile
+
+echo "Europe/Berlin" > /etc/timezone
+emerge --config sys-libs/timezone-data
+emerge --noreplace net-misc/netifrc
+
+emerge sys-apps/elfix || exit 2
+migrate-pax -m
+
+emerge mail-mta/ssmtp mail-client/mailx || exit 3
+echo "
+root=tinderbox@zwiebeltoralf.de
+MinUserId=9999
+mailhub=mail.zwiebeltoralf.de:465
+rewriteDomain=your-server.de
+UseTLS=YES
+Debug=NO
+" > /etc/ssmtp/ssmtp.conf
+
+# sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop", eix is useful to inspect issues
+#
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 4
+
+# at least the very first @world upgrade must not fail
+#
+emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 5
+
+exit 0
+
+EOF
+  #----------------------------------------
+
+  # installation of mandatory packages should take less than 1/2 hour
+  #
+  cd - 1>/dev/null
+
+  $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh'
+  rc=$?
+
+  cd $tbhome
+  d=$(basename $imagedir)/$name
+
+  if [[ $rc -ne 0 ]]; then
+    echo
+    echo "-------------------------------------"
+
+
+    if [[ -f $d/tmp/world.log ]]; then
+      echo
+      cat $d/tmp/world.log
+    fi
+
+    echo
+    echo " setup NOT successful (rc=$rc) @ $d"
+    echo
+    echo " fix it and test: emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend"
+    echo
+    echo "-------------------------------------"
+
+    exit $rc
+  fi
+
+  # create symlink to $HOME *iff* the setup was successful
+  #
+  ln -s $d || exit 11
+
+  echo
+  echo " setup  OK : $d"
+  echo
 }
 
 
@@ -375,92 +460,7 @@ fi
 
 InstallStage3
 CompilePortageFiles
-
-# install basic packages and those needed by job.sh, configure portage and SMTP
-#
-
-#----------------------------------------
-cat << EOF > tmp/setup.sh
-
-eselect profile set $profile || exit 1
-
-echo "en_US ISO-8859-1
-en_US.UTF-8 UTF-8
-de_DE ISO-8859-1
-de_DE@euro ISO-8859-15
-de_DE.UTF-8@euro UTF-8
-" >> /etc/locale.gen
-locale-gen
-eselect locale set en_US.utf8
-. /etc/profile
-
-echo "Europe/Berlin" > /etc/timezone
-emerge --config sys-libs/timezone-data
-emerge --noreplace net-misc/netifrc
-
-emerge sys-apps/elfix || exit 2
-migrate-pax -m
-
-emerge mail-mta/ssmtp mail-client/mailx || exit 3
-echo "
-root=tinderbox@zwiebeltoralf.de
-MinUserId=9999
-mailhub=mail.zwiebeltoralf.de:465
-rewriteDomain=your-server.de
-UseTLS=YES
-Debug=NO
-" > /etc/ssmtp/ssmtp.conf
-
-# sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop", eix is useful to inspect issues
-#
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 4
-
-# at least the very first @world upgrade must not fail
-#
-emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 5
-
-exit 0
-
-EOF
-#----------------------------------------
-
-# installation of mandatory packages should take less than 1/2 hour
-#
-cd - 1>/dev/null
-
-$(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh'
-rc=$?
-
-cd $tbhome
-d=$(basename $imagedir)/$name
-
-if [[ $rc -ne 0 ]]; then
-  echo
-  echo "-------------------------------------"
-
-
-  if [[ -f $d/tmp/world.log ]]; then
-    echo
-    cat $d/tmp/world.log
-  fi
-
-  echo
-  echo " setup NOT successful (rc=$rc) @ $d"
-  echo
-  echo " fix it and test: emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend"
-  echo
-  echo "-------------------------------------"
-
-  exit $rc
-fi
-
-# create symlink to $HOME *iff* the setup was successful
-#
-ln -s $d || exit 11
-
-echo
-echo " setup  OK : $d"
-echo
+InstallMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
   echo " autostart the image: $name"
