@@ -271,7 +271,7 @@ emerge --info >> $issuedir/emerge-info.txt
   # prefix title with the package name, put a space before ':' to distinguish
   # eg. between net-libs/webkit-gtk-2.4.10 and net-libs/webkit-gtk-2.4.10-r200
   #
-  echo "$failed : $(cat $issuedir/title)" > $issuedir/title
+  sed -i -e "s/^/$failed : /" $issuedir/title
 
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
