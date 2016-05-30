@@ -219,7 +219,7 @@ emerge --info >> $issuedir/emerge-info.txt
 
   # try to find a descriptive title and the last meaningful lines of the issue
   #
-  touch $issuedir/title
+  touch $issuedir/{issue,title}
 
   if [[ -n "$(grep -m 1 ' Detected file collision(s):' $bak)" ]]; then
     # inform the maintainers of the already installed package too
@@ -254,11 +254,11 @@ emerge --info >> $issuedir/emerge-info.txt
     done
     
     if [[ ! -s $issuedir/issue ]]; then
-      Mail "warn: $failed: no issue catched" $bak
+      Mail "warn: $failed : no issue catched" $bak
       return
 
     elif [[ ! -s $issuedir/title ]]; then
-      Mail "error: $failed: title is empty" $bak
+      Mail "error: $failed : title is empty" $bak
       return
     fi
   fi
@@ -269,8 +269,8 @@ emerge --info >> $issuedir/emerge-info.txt
 
   # prefix title with the package version
   #
-  sed -i -e "s/^/$failed : /" $issuedir/title
-
+  sed -i -e "s#^#$failed : #" $issuedir/title
+  
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
 
