@@ -254,11 +254,16 @@ emerge --info >> $issuedir/emerge-info.txt
     done
   fi
 
-  if [[ ! -s $issuedir/issue || ! -s $issuedir/title ]]; then
-    Mail "info: $failed: either no issue catched or title is empty" $bak
+  if [[ ! -s $issuedir/issue ]]; then
+    Mail "warn: $failed: no issue catched" $bak
     return
   fi
 
+  if [[ ! -s $issuedir/title ]]; then
+    Mail "warn: $failed: title is empty" $bak
+    return
+  fi
+  
   # shrink looong path names in title
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
@@ -270,6 +275,10 @@ emerge --info >> $issuedir/emerge-info.txt
   if [[ $len -gt $max ]]; then
     truncate -s $max $issuedir/title
   fi
+  
+  # prefix title with the package name, put space before ':'
+  #
+  echo "$failed : $(cat $issuedir/title)" > $issuedir/title
 
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
