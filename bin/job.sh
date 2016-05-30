@@ -268,15 +268,8 @@ emerge --info >> $issuedir/emerge-info.txt
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
-  # limit the length of the title
-  #
-  len=$(wc -c < $issuedir/title)
-  max=210
-  if [[ $len -gt $max ]]; then
-    truncate -s $max $issuedir/title
-  fi
-  
-  # prefix title with the package name, put space before ':'
+  # prefix title with the package name, put a space before ':' to distinguish
+  # eg. between net-libs/webkit-gtk-2.4.10 and net-libs/webkit-gtk-2.4.10-r200
   #
   echo "$failed : $(cat $issuedir/title)" > $issuedir/title
 
