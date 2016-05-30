@@ -240,6 +240,7 @@ EOF
   pks=tmp/packages
   qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
   echo "@system" >> $pks
+  echo "INFO mail test" >> $pks
   chown tinderbox.tinderbox $pks
 
   # tweaks requested by devs
