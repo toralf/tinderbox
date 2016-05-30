@@ -285,10 +285,11 @@ echo "
 root=tinderbox@zwiebeltoralf.de
 MinUserId=9999
 mailhub=mail.zwiebeltoralf.de:465
+#AuthUser=
+#AuthPass=
 rewriteDomain=your-server.de
 hostname=www325.your-server.de
 UseTLS=YES
-Debug=NO
 " > /etc/ssmtp/ssmtp.conf
 
 # sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop", eix is useful to inspect issues
