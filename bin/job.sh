@@ -263,13 +263,11 @@ emerge --info >> $issuedir/emerge-info.txt
     fi
   fi
 
-  
-  # shrink looong path names in title
+  # condense a looong path name
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
-  # prefix title with the package name, put a space before ':' to distinguish
-  # eg. between net-libs/webkit-gtk-2.4.10 and net-libs/webkit-gtk-2.4.10-r200
+  # prefix title with the package version
   #
   sed -i -e "s/^/$failed : /" $issuedir/title
 
