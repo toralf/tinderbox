@@ -252,17 +252,17 @@ emerge --info >> $issuedir/emerge-info.txt
         break
       fi
     done
+    
+    if [[ ! -s $issuedir/issue ]]; then
+      Mail "warn: $failed: no issue catched" $bak
+      return
+
+    elif [[ ! -s $issuedir/title ]]; then
+      Mail "error: $failed: title is empty" $bak
+      return
+    fi
   fi
 
-  if [[ ! -s $issuedir/issue ]]; then
-    Mail "warn: $failed: no issue catched" $bak
-    return
-  fi
-
-  if [[ ! -s $issuedir/title ]]; then
-    Mail "warn: $failed: title is empty" $bak
-    return
-  fi
   
   # shrink looong path names in title
   #
