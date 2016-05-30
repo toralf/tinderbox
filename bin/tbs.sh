@@ -233,7 +233,7 @@ EOF
 
   # avoid nano from being depcleaned if another editor is emerged too
   #
-  echo "app-editors/nano" >> var/lib/portage/world
+  emerge --no-replace app-editors/nano
 
   # fill the package list
   #
