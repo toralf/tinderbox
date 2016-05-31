@@ -285,10 +285,8 @@ echo "
 root=tinderbox@zwiebeltoralf.de
 MinUserId=9999
 mailhub=mail.zwiebeltoralf.de:465
-#AuthUser=
-#AuthPass=
-rewriteDomain=your-server.de
-hostname=www325.your-server.de
+rewriteDomain=zwiebeltoralf.de
+hostname=ms-magpie.zwiebeltoralf.de
 UseTLS=YES
 " > /etc/ssmtp/ssmtp.conf
 
@@ -319,6 +317,8 @@ EOF
   if [[ $? -eq 0 ]]; then
     echo "@preserved-rebuild" >> $d/tmp/packages
   fi
+  
+  grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
 
   if [[ $rc -ne 0 ]]; then
     echo
