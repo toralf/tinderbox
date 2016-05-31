@@ -698,7 +698,6 @@ function EmergeTask() {
         # do few more daily tasks and try @world BUT only *after* all post-emerge actions
         #
         SwitchJDK
-        /usr/bin/pfl &>/dev/null
         echo "@world" >> $pks
       elif [[ "$task" = "@world" ]] ;then
         touch /tmp/timestamp.world  # keep timestamp of the last successful @world update
@@ -707,12 +706,13 @@ function EmergeTask() {
       PostEmerge
     fi
 
-    # one attempt per day, regardless whether successful or not
+    # next update in 24 hours
     #
     if [[ "$task" = "@system" ]] ;then
       touch /tmp/timestamp.system
     fi
-
+    /usr/bin/pfl &>/dev/null
+    
   else
     # % prefixes a complete command line
     #
