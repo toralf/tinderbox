@@ -285,7 +285,7 @@ emerge --noreplace net-misc/netifrc
 
 # avoid nano from being depcleaned if another editor is emerged too
 #
-emerge --no-replace app-editors/nano
+emerge --noreplace app-editors/nano
 
 emerge sys-apps/elfix || exit 2
 migrate-pax -m
