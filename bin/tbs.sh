@@ -242,10 +242,6 @@ set tabstop=2
 :let g:session_autosave = 'no'
 EOF
 
-  # avoid nano from being depcleaned if another editor is emerged too
-  #
-  emerge --no-replace app-editors/nano
-
   # fill the package list
   #
   pks=tmp/packages
@@ -286,6 +282,10 @@ eselect locale set en_US.utf8
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
+
+# avoid nano from being depcleaned if another editor is emerged too
+#
+emerge --no-replace app-editors/nano
 
 emerge sys-apps/elfix || exit 2
 migrate-pax -m
@@ -335,10 +335,10 @@ EOF
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
     echo
-    echo " check: $d/tmp/setup.log"
-    echo "        $d/tmp/world.log"
+    echo " check:   $d/tmp/setup.log"
+    echo "          $d/tmp/world.log"
     echo
-    echo " test:  emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend"
+    echo " test:  sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
 
     exit $rc
   fi
