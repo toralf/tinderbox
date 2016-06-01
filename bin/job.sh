@@ -267,7 +267,7 @@ emerge --info >> $issuedir/emerge-info.txt
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
-  # prefix title with the package version
+  # prefix title with the $failed package
   #
   sed -i -e "s#^#$failed : #" $issuedir/title
   
@@ -579,10 +579,10 @@ function PostEmerge() {
   #
   grep -q "@preserved-rebuild" $tmp
   if [[ $? -eq 0 ]]; then
+    echo "@preserved-rebuild" >> $pks
     if [[ "$task" = "@preserved-rebuild" ]]; then
       Finish "ERROR: endless-loop : $task"
     fi
-    echo "@preserved-rebuild" >> $pks
   fi
 
   # haskell
