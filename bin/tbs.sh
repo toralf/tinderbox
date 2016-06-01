@@ -57,14 +57,22 @@ function InstallStage3()  {
     exit 4
   fi
 
-  # $name holds the (directory) name of the chroot image (and will be symlinked into $HOME)
-  # stage3 holds the full stage3 file name as used in $latest
+  # $name holds the directory name of the chroot image
+  # $stage3 holds the full stage3 file name as found in $latest
   #
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
     name="$name-hardened"
     stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
-  elif [[ "$systemd"  = "y" ]]; then
+  elif [[ "$profile" = "hardened/linux/amd64/no-multilib" ]]; then
+    name="$name-hardened-no-multilib"
+    stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+  
+  elif [[ "$profile" = "default/linux/amd64/13.0/no-multilib" ]]; then
+    name="$name-13.0-no-multilib"
+    stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+  
+  elif [[ "$(basename $profile)" = "systemd" ]]; then
     name="$name-$(basename $(dirname $profile))-systemd"
     stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
@@ -346,26 +354,7 @@ EOF
 #
 # vars
 #
-name="amd64"         # fixed prefix, append later <profile>, <mask> and <timestamp>
-
-e=(
-  "default/linux/amd64/13.0"                \
-  "default/linux/amd64/13.0/desktop"        \
-  "default/linux/amd64/13.0/desktop/gnome"  \
-  "default/linux/amd64/13.0/desktop/plasma" \
-  "hardened/linux/amd64"                    \
-  "default/linux/amd64/13.0/desktop/systemd"        \
-  "default/linux/amd64/13.0/desktop/gnome/systemd"  \
-  "default/linux/amd64/13.0/desktop/plasma/systemd" \
-  "default/linux/amd64/13.0/systemd"                \
-)
-profile=${e[$RANDOM % ${#e[@]}]}
-
-e=(
-  "stable"    \
-  "unstable"  \
-)
-mask=${e[$RANDOM % ${#e[@]}]}
+name="amd64"  # fixed prefix, append later <profile>, <mask> and <timestamp>
 
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat avx avx2 btrfs
@@ -451,11 +440,6 @@ fi
 if [[ ! -d $imagedir ]]; then
   echo " imagedir does not exist: $imagedir"
   exit 3
-fi
-
-systemd="n"
-if [[ "$(basename $profile)" = "systemd" ]]; then
-  systemd="y"
 fi
 
 InstallStage3
