@@ -156,7 +156,7 @@ EOF
   #----------------------------------------
   cat << EOF >> $m
 USE="
-  mmx sse sse2 pax_kernel xtpax -cdinstall -oci8 -bindist
+  sse2 pax_kernel xtpax -cdinstall -oci8 -bindist
 
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 "
@@ -167,7 +167,10 @@ PAX_MARKINGS="XT"
 
 # this is a contribute to my private notebook
 #
+ALSA_CARDS="hda-intel"
+INPUT_DEVICES="evdev synaptics"
 VIDEO_CARDS="intel i965"
+
 SSL_BITS=4096
 
 ACCEPT_LICENSE="*"
