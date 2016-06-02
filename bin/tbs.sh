@@ -288,8 +288,10 @@ emerge --noreplace net-misc/netifrc
 emerge --noreplace app-editors/nano
 
 emerge sys-apps/elfix || exit 2
-migrate-pax -m
+migrate-pax -m        || exit 2
 
+# our MTA to get mails out to us
+#
 emerge mail-mta/ssmtp mail-client/mailx || exit 3
 
 echo "
@@ -301,13 +303,20 @@ hostname=ms-magpie.zwiebeltoralf.de
 UseTLS=YES
 " > /etc/ssmtp/ssmtp.conf
 
-# sharutils provides "uudecode", gentoolkit has "equery" and "eshowkw", portage-utils has "qlop", eix is useful to inspect issues
+# mandatory tools:
+#   app-arch/sharutils:         uudecode
+#   app-portage/gentoolkit:     equery eshowkw revdep-rebuild
+#   app-portage/pfl:            pfl
+#   app-portage/portage-utils:  qlop
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 5
+# useful tool(s):
+#   app-portage/eix:
+#
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 3
 
 # at least the very first @world upgrade must not fail
 #
-emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 7
+emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 11
 
 exit 0
 
