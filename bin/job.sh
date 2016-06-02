@@ -401,17 +401,6 @@ function GotAnIssue()  {
   mkdir -p $issuedir/files
   CollectIssueFiles
   
-  # broken Perl upgrade:
-  #   https://bugs.gentoo.org/show_bug.cgi?id=463976
-  #   https://bugs.gentoo.org/show_bug.cgi?id=41124
-  #
-  grep -q -e "Can't locate Locale/Messages.pm in @INC" -e 'XML::Parser perl module is required for' $bak
-  if [[ $? -eq 0 ]]; then
-    Mail "info: handle perl upgrade issue" $issuedir/body
-    echo -e "$task\n%perl-cleaner --all" >> $pks
-    return
-  fi
-
   # mask this package version at this image
   #
   grep -q "=$failed " /etc/portage/package.mask/self
