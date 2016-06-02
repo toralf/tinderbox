@@ -369,25 +369,13 @@ function GotAnIssue()  {
 
   # inform us about @sets and %commands failures
   #
-  if [[ "$task" = "@system" || "$task" = "@world" ]]; then
+  if [[  "$(echo $task | cut -c1)" = '@' ]]; then
     Mail "info: $task failed" $bak
-
-  elif [[ "$task" = "@preserved-rebuild" ]]; then
-    # don't spam the inbox too often
-    #
-    diff=1000000
-    if [[ -f /tmp/timestamp.preserved-rebuild ]]; then
-      let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild)"
-    fi
-    if [[ $diff -gt 14400 ]]; then
-      Mail "warn: $task failed" $bak
-      touch /tmp/timestamp.preserved-rebuild
-    fi
 
   elif [[ "$(echo $task | cut -c1)" = "%" ]]; then
     echo "$task" | grep -q "^%emerge -C"
     if [[ $? -eq 0 ]]; then
-      return
+      return  # we don't care about failed unmerge
     fi
     Mail "info: $task failed" $bak
   fi
@@ -582,9 +570,6 @@ function PostEmerge() {
   grep -q "@preserved-rebuild" $tmp
   if [[ $? -eq 0 ]]; then
     echo "@preserved-rebuild" >> $pks
-    if [[ "$task" = "@preserved-rebuild" ]]; then
-      Finish "ERROR: endless-loop : $task"
-    fi
   fi
 
   # haskell
