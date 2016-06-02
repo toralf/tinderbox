@@ -247,7 +247,6 @@ EOF
   pks=tmp/packages
   qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
   echo "@system" >> $pks
-  echo "INFO mail test" >> $pks
   chown tinderbox.tinderbox $pks
 
   # tweaks requested by devs
@@ -459,8 +458,8 @@ CompilePortageFiles
 InstallMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
-  echo " autostart the image: $name"
   su - tinderbox -c "$(dirname $0)/start_img.sh $name"
+  echo "INFO autostart done" >> $d/tmp/packages
 fi
 
 exit 0
