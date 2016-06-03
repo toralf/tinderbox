@@ -245,7 +245,8 @@ EOF
   # fill the package list
   #
   pks=tmp/packages
-  qsearch --all --nocolor --name-only --quiet 2>/dev/null | sort --random-sort > $pks
+  qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
+  echo "sys-kernel/hardened-sources" >> $pks
   echo "@system" >> $pks
   chown tinderbox.tinderbox $pks
 
