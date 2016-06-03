@@ -391,7 +391,7 @@ function GotAnIssue()  {
   # after this point we expect that we catched the failed package (== $failed is not empty)
   #
   if [[ -z "$failed" ]]; then
-    Mail "warn: \$failed is empty -> issue handling is not implemented for: $task"
+    Mail "warn: \$failed is empty -> issue handling is not implemented for: $task" $bak
     return
   fi
 
@@ -418,7 +418,7 @@ function GotAnIssue()  {
 }
 
 
-# switch used jdk, usually once a day, triggered by a @system/@world update
+# switch the system java
 #
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
