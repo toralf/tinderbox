@@ -640,6 +640,7 @@ function EmergeTask() {
 
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=60"
+      date >> /tmp/timestamp.preserved-rebuild
 
     else
       opts="--update"
