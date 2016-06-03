@@ -22,5 +22,5 @@ Start all not-running images:
 
 
 ## more info
-Have a look at https://www.zwiebeltoralf.de/tinderbox too.
+Have a look at https://www.zwiebeltoralf.de/tinderbox.html too.
 
