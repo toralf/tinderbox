@@ -4,7 +4,9 @@ app-emulation/virtualbox-modules
 app-eselect/
 dev-db/mysql-connector-c
 dev-embedded/
+dev-java/bsf
 dev-java/freehep
+dev-java/jython
 dev-ruby/
 net-analyzer/openvas
 raspberrypi

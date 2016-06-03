@@ -105,7 +105,6 @@ error in .* command
 Can't locate Locale/Messages.pm in @INC
 Ebuild author forgot an entry
 error: .* is not a member
-error:
 .*command not found
 sgmlspl: command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
@@ -126,6 +125,8 @@ pdfetex exited with bad status
 SyntaxError: invalid syntax
 AppArmor parser error for
 /usr/bin/install: will not overwrite just-created
+gettext infrastructure mismatch
+missing binary operator before token
 recipe for target .* failed
 EPYTHON unset
 POD document had syntax errors
@@ -139,6 +140,12 @@ Missing USE flags in
 please either set LINGUAS or do not use nls
 you must set LINGUAS in
 Compilation failed in require at
+is banned in EAPI
+Failed Running libtoolize
+These fortunes have offensive content. Enable offensive USE Flag
+Select exactly one database type out of these: mysql oracle postgres sqlite
+failed with exit status
+error:
 Error:
 ERROR:
 Failed to copy extended attributes. In order to avoid this error,
