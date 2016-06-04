@@ -490,14 +490,14 @@ function SwitchGCC() {
 }
 
 
-# eselect the latest kernel and build necessary
+# eselect the latest *emerged* kernel and build it if necessary
 #
 function SelectNewKernel() {
   if [[ ! -e /usr/src/linux ]]; then
     return # no sources emerged at this point
   fi
 
-  last=$(ls -1d /usr/src/linux-* | tail -n 1 | cut -f4 -d'/')
+  last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/')
   link=$(eselect kernel show | tail -n 1 | sed -e 's/ //g' | cut -f4 -d'/')
   if [[ "$last" != "$link" ]]; then
     eselect kernel set $last &> $log
