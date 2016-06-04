@@ -460,7 +460,6 @@ InstallMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
   su - tinderbox -c "$(dirname $0)/start_img.sh $name"
-  echo "INFO autostart done" >> $d/tmp/packages
 fi
 
 exit 0
