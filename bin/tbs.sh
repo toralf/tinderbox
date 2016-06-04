@@ -312,7 +312,7 @@ UseTLS=YES
 # useful tool(s):
 #   app-portage/eix:
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 3
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 4
 
 # at least the very first @world upgrade must not fail
 #
@@ -344,11 +344,13 @@ EOF
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
     echo
-    echo " check:   $d/tmp/setup.log"
-    echo "          $d/tmp/world.log"
+    if  [[ $rc -lt 11 ]]; then
+      cat $d/tmp/setup.log
+    else
+      echo " check: $d/tmp/world.log"
+      echo " test:  sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
+    fi
     echo
-    echo " test:  sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
-
     exit $rc
   fi
 
