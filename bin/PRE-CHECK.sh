@@ -9,7 +9,7 @@
 # misplaced/left files
 #
 function checkTmp() {
-  for f in
+  for f in /nonexistent /backend /usrlib64 /vz /no
   do
     if [[ -e $f ]]; then
       found=$(dirname $f)/.$(basename $f).found
@@ -27,6 +27,6 @@ function checkTmp() {
 #
 
 rc=0
-# checkTmp
+checkTmp
 
 exit $rc
