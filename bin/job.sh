@@ -471,7 +471,7 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
 
-    # schedule re-compile of kernel object files against newer gcc libs
+    # schedule re-compile of kernel object files against newer GCC libs
     #
     if [[ -e /usr/src/linux ]]; then
       (cd cd /usr/src/linux; make clean)
@@ -482,9 +482,8 @@ function SwitchGCC() {
       rm -rf /var/cache/revdep-rebuild/*
       revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &> $log
       if [[ $? -ne 0 ]]; then
-        echo '%revdep-rebuild --library libstdc++.so.6 -- --exclude gcc' >> $pks
         GotAnIssue
-        Finish "FAILED: $subject rebuild failed"   # bail out here to allow a resume
+        Finish "FAILED: $subject rebuild failed"   # bail out here, a failed GCC upgrade causes all types of hassle
       fi
     fi
   fi
