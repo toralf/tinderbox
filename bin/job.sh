@@ -441,7 +441,6 @@ function SwitchJDK()  {
 function BuildKernel()  {
   (
     cd /usr/src/linux     &&\
-    make clean            &&\
     make defconfig        &&\
     make modules_prepare  &&\
     make                  &&\
@@ -472,9 +471,10 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
 
-    # schedule re-compiling of kernel object files against new gcc libs
+    # schedule re-compile of kernel object files against newer gcc libs
     #
     if [[ -e /usr/src/linux ]]; then
+      (cd cd /usr/src/linux; make clean)
       echo "%BuildKernel" >> $pks
     fi
 
