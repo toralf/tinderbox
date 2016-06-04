@@ -23,7 +23,7 @@ function stresc() {
 # send out an email with $1 as the subject(length-limited) and $2 as the body
 #
 function Mail() {
-  ( [[ -e $2 ]] && cat $2 || date ) | stresc | mail -s "$(echo "$1" | cut -c1-200)    @ $name" $mailto &>> /tmp/mail.log &
+  ( [[ -e $2 ]] && cat $2 || date ) | stresc | mail -s "$(echo \"$1\" | cut -c1-200)    @ $name" $mailto &>> /tmp/mail.log
 }
 
 
