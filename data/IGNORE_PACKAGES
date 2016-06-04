@@ -19,3 +19,4 @@ sys-kernel/
 virtual/
 www-client/chromium
 www-client/google-chrome
+x11-drivers/nvidia-drivers
