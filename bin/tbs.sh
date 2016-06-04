@@ -303,16 +303,16 @@ hostname=ms-magpie.zwiebeltoralf.de
 UseTLS=YES
 " > /etc/ssmtp/ssmtp.conf
 
-# mandatory tools:
+
+# install mandatory tools:
 #   app-arch/sharutils:         uudecode
 #   app-portage/gentoolkit:     equery eshowkw revdep-rebuild
 #   app-portage/pfl:            pfl
 #   app-portage/portage-utils:  qlop
 #
-# useful tool(s):
-#   app-portage/eix:
-#
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils app-portage/eix || exit 4
+echo ">=sys-libs/ncurses-6.0" > /etc/portage/package.mask/ncurses
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils || exit 4
+rm /etc/portage/package.mask/ncurses
 
 # at least the very first @world upgrade must not fail
 #
@@ -338,6 +338,8 @@ EOF
     echo "@preserved-rebuild" >> $d/tmp/packages
   fi
   
+  # authentication avoids an 10 sec tarpitting delay by the ISP
+  #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
 
   if [[ $rc -ne 0 ]]; then
@@ -347,8 +349,9 @@ EOF
     if  [[ $rc -lt 11 ]]; then
       cat $d/tmp/setup.log
     else
-      echo " check: $d/tmp/world.log"
-      echo " test:  sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
+      echo " do:      view $d/tmp/world.log"
+      echo " test:    sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
+      echo " run:     ln -s $d"
     fi
     echo
     exit $rc
