@@ -271,6 +271,10 @@ emerge --info >> $issuedir/emerge-info.txt
   #
   sed -i -e "s#^#$failed : #" $issuedir/title
   
+  # b.g.o limits "Summary" to 255 chars
+  #
+  truncate -s 255 $issuedir/title
+  
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
 
