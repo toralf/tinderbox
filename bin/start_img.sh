@@ -25,12 +25,14 @@ do
   # image must not be locked
   #
   if [[ -f $mnt/tmp/LOCK ]]; then
+    echo " found LOCK: $mnt"
     continue
   fi
   
   # image must not be stopping
   #
   if [[ -f $mnt/tmp/STOP ]]; then
+    echo " found STOP: $mnt"
     continue
   fi
 
@@ -38,7 +40,7 @@ do
   #
   pks=$mnt/tmp/packages
   if [[ -f $pks && ! -s $pks ]]; then
-    echo " package list is empty for: $mnt"
+    echo " package list is empty: $mnt"
     continue
   fi
 
