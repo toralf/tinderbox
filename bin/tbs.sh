@@ -246,7 +246,7 @@ EOF
   #
   pks=tmp/packages
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
-  echo "@system" >> $pks
+  echo "@world" >> $pks
   echo "%BuildKernel" >> $pks   # build kernel before @system b/c that inherits @world which might dependend on a configured kernel 
   chown tinderbox.tinderbox $pks
 
