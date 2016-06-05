@@ -615,6 +615,11 @@ function PostEmerge() {
     echo "%revdep-pax" >> $pks
   fi
 
+  grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $tmp
+  if [[ $? -eq 0 ]]; then
+    locale-gen
+  fi
+
   rm -f $tmp
 }
 
