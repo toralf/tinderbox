@@ -414,6 +414,20 @@ function GotAnIssue()  {
   mkdir -p $issuedir/files
   CollectIssueFiles
   
+  # tweaks for known breakage
+  #
+  grep -q "Segmentation fault .* /usr/bin/makeinfo" $bak
+  if [[ $? -eq 0  ]]; then
+    Mail "handle known error of makeinfo" $log
+    echo "$task" >> $pks
+    emerge -1 sys-apps/texinfo &> $log
+    if [[ $? -ne 0 ]]; then
+      Finish "error occured :-("
+    fi
+    return
+  fi
+  
+
   # mask this package version at this image
   #
   grep -q "=$failed " /etc/portage/package.mask/self
@@ -496,6 +510,7 @@ function SwitchGCC() {
       revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &> $log
       if [[ $? -ne 0 ]]; then
         GotAnIssue
+        echo "%revdep-rebuild --library libstdc++.so.6 -- --exclude gcc" >> $pks
         Finish "FAILED: $subject rebuild failed"   # bail out here, a failed GCC upgrade causes all types of hassle
       fi
     fi
@@ -555,8 +570,13 @@ function PostEmerge() {
   env-update 2>&1 1>/dev/null
   . /etc/profile
 
+  grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $tmp
+  if [[ $? -eq 0 ]]; then
+    locale-gen
+  fi
+
   #
-  # add cleanup/post-update actions in their reverse order
+  # add cleanup/post-update actions in their opposite order
   #
 
   # new kernel
@@ -601,13 +621,6 @@ function PostEmerge() {
     echo "%python-updater" >> $pks
   fi
 
-  # GCC
-  #
-  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tmp
-  if [[ $? -eq 0 ]]; then
-    SwitchGCC
-  fi
-
   # PAX
   #
   grep -q 'Please run "revdep-pax" after installation.' $tmp
@@ -615,9 +628,11 @@ function PostEmerge() {
     echo "%revdep-pax" >> $pks
   fi
 
-  grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $tmp
+  # GCC
+  #
+  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tmp
   if [[ $? -eq 0 ]]; then
-    locale-gen
+    echo "%SwitchGCC" >> $pks
   fi
 
   rm -f $tmp
@@ -657,7 +672,7 @@ function EmergeTask() {
 
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=60"
-      date >> /tmp/timestamp.preserved-rebuild
+      date >> /tmp/timestamp.preserved-rebuild # use `date` here to help to detect a circle
 
     else
       opts="--update"
