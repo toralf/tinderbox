@@ -308,17 +308,16 @@ assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
 
 
-https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr
-https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$short&short_desc_type=allwordssubstr
-
 ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block
 
 
-RESOLVED bugs:
-$(bugz --columns 220 -q search -s RESOLVED  $short 2>&1 | grep -v -e "Please stabilize" -e "Stabilization request" | tail -n 20)
-
 OPEN bugs:
-$(bugz --columns 220 -q search              $short 2>&1 | grep -v -e "Please stabilize" -e "Stabilization request" | tail -n 20)
+https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$short&short_desc_type=allwordssubstr
+$(bugz --columns 400 -q search              $short 2>&1 | grep -v -e "Please stabilize" -e "Stabilization request" | tail -n 20)
+
+RESOLVED bugs:
+https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr
+$(bugz --columns 400 -q search -s RESOLVED  $short 2>&1 | grep -v -e "Please stabilize" -e "Stabilization request" | tail -n 20)
 
 
 EOF
