@@ -247,7 +247,7 @@ EOF
   pks=tmp/packages
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
   echo "@system" >> $pks
-  echo "sys-kernel/hardened-sources" >> $pks
+  echo "%BuildKernel" >> $pks   # build kernel before @system b/c that inherits @world which might dependend on a configured kernel 
   chown tinderbox.tinderbox $pks
 
   # tweaks requested by devs
@@ -313,6 +313,10 @@ UseTLS=YES
 echo ">=sys-libs/ncurses-6.0" > /etc/portage/package.mask/ncurses
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 4
 rm /etc/portage/package.mask/ncurses
+
+# we have "sys-kernel/" in IGNORE_PACKAGES therefore emerge it here
+#
+emerge sys-kernel/hardened-sources || exit 5
 
 # at least the very first @world upgrade must not fail
 #
