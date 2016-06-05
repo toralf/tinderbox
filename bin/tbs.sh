@@ -246,8 +246,8 @@ EOF
   #
   pks=tmp/packages
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
-  echo "sys-kernel/hardened-sources" >> $pks
   echo "@system" >> $pks
+  echo "sys-kernel/hardened-sources" >> $pks
   chown tinderbox.tinderbox $pks
 
   # tweaks requested by devs
