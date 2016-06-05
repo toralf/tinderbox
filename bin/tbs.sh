@@ -311,7 +311,7 @@ UseTLS=YES
 #   app-portage/portage-utils:  qlop
 #
 echo ">=sys-libs/ncurses-6.0" > /etc/portage/package.mask/ncurses
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils || exit 4
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 4
 rm /etc/portage/package.mask/ncurses
 
 # at least the very first @world upgrade must not fail
@@ -341,6 +341,10 @@ EOF
   # authentication avoids an 10 sec tarpitting delay by the ISP
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
+  
+  # help from pybugz
+  #
+  cp /home/tinderbox/.bugzrc $d/root
 
   if [[ $rc -ne 0 ]]; then
     echo
@@ -349,9 +353,12 @@ EOF
     if  [[ $rc -lt 11 ]]; then
       cat $d/tmp/setup.log
     else
-      echo " do:      view $d/tmp/world.log"
-      echo " test:    sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
-      echo " run:     ln -s $d"
+      echo " helpers :"
+      echo "    view $d/tmp/world.log"
+      echo "    sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
+      echo "    vi $d/etc/portage/make.conf"
+      echo "    ln -s $d"
+      echo "    sta $name"
     fi
     echo
     exit $rc
