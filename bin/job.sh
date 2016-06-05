@@ -311,10 +311,10 @@ https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_d
 
 
 RESOLVED bugs:
-$(bugz --columns 220 -q search -s RESOLVED  $short | grep -v -e "Please stabilize" -e "Stabilization request" | sort --numeric | tac | head -n 20)
+$(bugz --columns 220 -q search -s RESOLVED  $short 2>&1 | grep -v -e "Please stabilize" -e "Stabilization request" | tail -n 20)
 
 OPEN bugs:
-$(bugz --columns 220 -q search              $short | grep -v -e "Please stabilize" -e "Stabilization request" | sort --numeric | tac | head -n 20)
+$(bugz --columns 220 -q search              $short 2>&1 | grep -v -e "Please stabilize" -e "Stabilization request" | tail -n 20)
 
 
 EOF
