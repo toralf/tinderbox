@@ -286,7 +286,7 @@ emerge --info >> $issuedir/emerge-info.txt
   #   pattern
   #   ...
   block=$(
-    grep -v -e '^#' -e '^[1-9]*' /tmp/tb/data/BLOCKER |\
+    grep -v -e '^#' -e '^[1-9].*' /tmp/tb/data/BLOCKER |\
     while read line
     do
       grep -q -E "$line" $issuedir/title
