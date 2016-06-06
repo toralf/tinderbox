@@ -414,21 +414,7 @@ function GotAnIssue()  {
   mkdir -p $issuedir/files
   CollectIssueFiles
   
-  # tweaks for known breakage
-  #
-  grep -q "Segmentation fault .* /usr/bin/makeinfo" $bak
-  if [[ $? -eq 0  ]]; then
-    Mail "handle known error of makeinfo" $log
-    echo "$task" >> $pks
-    emerge -1 sys-apps/texinfo &> $log
-    if [[ $? -ne 0 ]]; then
-      Finish "error occured :-("
-    fi
-    return
-  fi
-  
-
-  # mask this package version at this image
+  # mask this particular package version at this image
   #
   grep -q "=$failed " /etc/portage/package.mask/self
   if [[ $? -ne 0 ]]; then
@@ -566,13 +552,13 @@ function PostEmerge() {
 
   # errors go to nohup.out
   #
-  etc-update --automode -5 2>&1 1>/dev/null
-  env-update 2>&1 1>/dev/null
+  etc-update --automode -5 &>/dev/null
+  env-update &>/dev/null
   . /etc/profile
 
   grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $tmp
   if [[ $? -eq 0 ]]; then
-    locale-gen
+    locale-gen &>/dev/null
   fi
 
   #
@@ -672,7 +658,7 @@ function EmergeTask() {
 
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=60"
-      date >> /tmp/timestamp.preserved-rebuild # use `date` here to help to detect a circle
+      date >> /tmp/timestamp.preserved-rebuild # date helps to detect a loop
 
     else
       opts="--update"
@@ -680,6 +666,20 @@ function EmergeTask() {
 
     emerge $opts $task &> $log
     if [[ $? -ne 0 ]]; then
+      # quirk for a known breakage: https://bugs.gentoo.org/show_bug.cgi?id=585094
+      #
+      grep -q -e "Segmentation fault .* /usr/bin/makeinfo" -e "/bin/sh: line 1: .* Aborted .* /usr/bin/makeinfo " $log
+      if [[ $? -eq 0  ]]; then
+        Mail "handle known error of makeinfo" $log
+        PostEmerge
+        echo "$task" >> $pks
+        emerge -1O sys-apps/texinfo &>> $log
+        if [[ $? -ne 0 ]]; then
+          Finish "quirk failed"
+        fi
+        return
+      fi
+
       GotAnIssue
       PostEmerge
       # resume as much as possible
