@@ -302,14 +302,13 @@ emerge --info >> $issuedir/emerge-info.txt
   cp $issuedir/issue $issuedir/body
   cat << EOF >> $issuedir/body
 
+--
 
 versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
 
-
 ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block
-
 
 OPEN bugs:
 https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$short&short_desc_type=allwordssubstr
@@ -318,7 +317,6 @@ $(bugz --columns 400 -q search              $short 2>&1 | grep -v -e "Please sta
 RESOLVED bugs:
 https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr
 $(bugz --columns 400 -q search -s RESOLVED  $short 2>&1 | grep -v -e "Please stabilize" -e "Stabilization request" | tail -n 20)
-
 
 EOF
 
@@ -640,16 +638,20 @@ function check() {
       Finish "$exe returned $rc"
 
     elif [[ $rc -gt 0 ]]; then
+      echo                                  >> $log
+      echo "seen at tinderbox image $name"  >> $log
+      echo                                  >> $log
+      emerge --info $task                   >> $log
       Mail "$exe : rc=$rc, task=$task" $log
     fi
   fi
 }
 
 
-# emerge $task here
+# $task might be @system, @world, a command line like %emerge -C ... or just a common package
 #
 function EmergeTask() {
-  # handle prefix @ in a special way
+  # handle prefix @
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
 
@@ -666,20 +668,6 @@ function EmergeTask() {
 
     emerge $opts $task &> $log
     if [[ $? -ne 0 ]]; then
-      # quirk for a known breakage: https://bugs.gentoo.org/show_bug.cgi?id=585094
-      #
-      grep -q -e "Segmentation fault .* /usr/bin/makeinfo" -e "/bin/sh: line 1: .* Aborted .* /usr/bin/makeinfo " $log
-      if [[ $? -eq 0  ]]; then
-        Mail "handle known error of makeinfo" $log
-        PostEmerge
-        echo "$task" >> $pks
-        emerge -1O sys-apps/texinfo &>> $log
-        if [[ $? -ne 0 ]]; then
-          Finish "quirk failed"
-        fi
-        return
-      fi
-
       GotAnIssue
       PostEmerge
       # resume as much as possible
@@ -723,7 +711,7 @@ function EmergeTask() {
     /usr/bin/pfl &>/dev/null
     
   else
-    # % prefixes a complete command line
+    # % prefixes a command line
     #
     if [[ "$(echo $task | cut -c1)" = '%' ]]; then
       cmd=$(echo "$task" | cut -c2-)
