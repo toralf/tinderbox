@@ -84,8 +84,10 @@ function InstallStage3()  {
   # now complete it with keyword and time stamp
   #
   name="$name-${mask}_$(date +%Y%m%d-%H%M%S)"
-  echo " name: $name"
-
+  
+  echo " image: $name"
+  echo
+  
   # download stage3 if not already done
   #
   b=$(basename $stage3)
@@ -357,10 +359,11 @@ EOF
     if  [[ $rc -lt 11 ]]; then
       cat $d/tmp/setup.log
     else
-      echo " helpers :"
+      echo " do:"
+      echo
       echo "    view $d/tmp/world.log"
-      echo "    sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
       echo "    vi $d/etc/portage/make.conf"
+      echo "    sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
       echo "    ln -s $d"
       echo "    sta $name"
     fi
