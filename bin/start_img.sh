@@ -22,6 +22,13 @@ do
     continue
   fi
 
+  # $mnt must be a (chrootable) directory
+  #
+  if [[ ! -d $mnt ]]; then
+    echo "not a valid dir: $mnt"
+    continue
+  fi
+  
   # image must not be locked
   #
   if [[ -f $mnt/tmp/LOCK ]]; then
