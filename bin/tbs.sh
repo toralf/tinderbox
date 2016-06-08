@@ -247,9 +247,12 @@ EOF
   # fill the package list
   #
   pks=tmp/packages
+  
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
-  echo "@world" >> $pks
-  echo "%BuildKernel" >> $pks   # build kernel before @system b/c that inherits @world which might dependend on a configured kernel 
+  echo "@world"         >> $pks
+  echo "%BuildKernel"   >> $pks   # build kernel before @system b/c that inherits @world which might dependend on a configured kernel
+  echo "sys-devel/gcc"  >> $pks   # too much hassle later
+  
   chown tinderbox.tinderbox $pks
 
   # tweaks requested by devs
