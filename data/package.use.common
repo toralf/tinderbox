@@ -7,10 +7,9 @@ mail-mta/ssmtp            ssl
 
 # known to block @system or @world upgrade after setup
 #
-dev-java/icedtea-bin      -cups -gtk
 dev-lang/python           threads
 dev-util/cmake            -qt4 -qt5
+gnome-base/librsvg        -tools
 media-libs/mesa           -vaapi
-net-libs/libproxy         -webkit
 sys-auth/pambase          -gnome-keyring
-
+sys-libs/ncurses          -gpm
