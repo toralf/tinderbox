@@ -39,6 +39,7 @@ net-dns/resolvconf-symlink
 # LO rules
 #
 app-office/openoffice
+app-office/openoffice-bin
 
 # "Checking for at least 35 GiB disk space at "
 #
