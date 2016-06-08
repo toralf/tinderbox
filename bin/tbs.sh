@@ -243,9 +243,9 @@ set tabstop=2
 
 :let g:session_autosave = 'no'
 EOF
+}
 
-  # fill the package list
-  #
+function FillPackageList()  {
   pks=tmp/packages
   
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
@@ -478,6 +478,7 @@ fi
 
 InstallStage3
 CompilePortageFiles
+FillPackageList
 InstallMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
