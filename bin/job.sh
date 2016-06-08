@@ -303,7 +303,6 @@ emerge --info >> $issuedir/emerge-info.txt
   cat << EOF >> $issuedir/body
 
 --
-
 versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
@@ -629,21 +628,27 @@ function check() {
   exe=/tmp/tb/bin/PRE-CHECK.sh
 
   if [[ -x $exe ]]; then
-    $exe &> $log
+    out=/tmp/check.log
+    
+    $exe &> $out
     rc=$?
-
+    
     # -1 == 255:-2 == 254, ...
     #
     if [[ $rc -gt 127 ]]; then
       Finish "$exe returned $rc"
 
     elif [[ $rc -gt 0 ]]; then
-      echo                                  >> $log
-      echo "seen at tinderbox image $name"  >> $log
-      echo                                  >> $log
-      emerge --info $task                   >> $log
-      Mail "$exe : rc=$rc, task=$task" $log
+      echo                                  >> $out
+      echo "seen at tinderbox image $name"  >> $out
+      echo                                  >> $out
+      emerge --info $task                   >> $out
+      echo                                  >> $out
+      cat $log                              >> $out
+      Mail "$exe : rc=$rc, task=$task" $out
     fi
+    
+    rm $out
   fi
 }
 
