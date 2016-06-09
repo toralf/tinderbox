@@ -295,6 +295,9 @@ emerge --info >> $issuedir/emerge-info.txt
       fi
     done
   )
+  if [[ -n "$block" ]]; then
+    block="-b $block"
+  fi
 
   # fill the email body with log file info, a search link and a bgo.sh command line ready for copy+paste
   #
