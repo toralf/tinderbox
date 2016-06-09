@@ -291,13 +291,11 @@ emerge --info >> $issuedir/emerge-info.txt
     do
       grep -q -E "$line" $issuedir/title
       if [[ $? -eq 0 ]]; then
+        echo -n "-b "
         grep -m 1 -B 1 "$line" /tmp/tb/data/BLOCKER | head -n 1 && break
       fi
     done
   )
-  if [[ -n "$block" ]]; then
-    block="-b $block"
-  fi
 
   # fill the email body with log file info, a search link and a bgo.sh command line ready for copy+paste
   #
