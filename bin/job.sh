@@ -37,11 +37,10 @@ function Finish()  {
 }
 
 
-# move last line of the package list $pks into $task
-# or exit from here
+# splice last line of the package list $pks into $task
 #
 function GetNextTask() {
-  #   update @system once a day, if nothing special is scheduled
+  #   update @system once a day, if no special tasks is scheduled
   #
   if [[ ! -f /tmp/timestamp.system ]]; then
     touch /tmp/timestamp.system
@@ -60,7 +59,7 @@ function GetNextTask() {
   while :;
   do
     task=$(tail -n 1 $pks)
-    sed -i -e '$d' $pks     # deletes the last line of a file
+    sed -i -e '$d' $pks
 
     if [[ -n "$(echo $task | grep '^INFO')" ]]; then
       Mail "$task"
@@ -68,9 +67,9 @@ function GetNextTask() {
     elif [[ -n "$(echo $task | grep '^STOP')" ]]; then
       Finish "$task"
 
-    elif  [[ -z "$task" ]]; then   # an empty line is allowed
+    elif  [[ -z "$task" ]]; then
       if [[ -s $pks ]]; then
-        continue  # package list is not empty
+        continue  # package list is not empty, just an empty line occured
       fi
 
       # we reached end of lifetime of this image
@@ -292,12 +291,13 @@ emerge --info >> $issuedir/emerge-info.txt
       grep -q -E "$line" $issuedir/title
       if [[ $? -eq 0 ]]; then
         echo -n "-b "
-        grep -m 1 -B 1 "$line" /tmp/tb/data/BLOCKER | head -n 1 && break
+        grep -m 1 -B 1 "$line" /tmp/tb/data/BLOCKER | head -n 1
+        break
       fi
     done
   )
 
-  # fill the email body with log file info, a search link and a bgo.sh command line ready for copy+paste
+  # fill the email body with the issue, package info, bugzilla helper data and a bgo.sh command line ready for copy+paste
   #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   cp $issuedir/issue $issuedir/body
@@ -320,8 +320,9 @@ $(bugz --columns 400 -q search -s RESOLVED  $short 2>&1 | grep -v -e "Please sta
 
 EOF
 
-  # FWIW: uuencode is not mime-compliant and although thunderbird is able to display such attachments
-  # it cannot forward such a composed email: https://bugzilla.mozilla.org/show_bug.cgi?id=1178073
+  # funfact: uuencode is not mime-compliant and although thunderbird is able
+  # to display an email composed with such attachments
+  # it cannot forward it: https://bugzilla.mozilla.org/show_bug.cgi?id=1178073
   #
   for f in $issuedir/emerge-info.txt $issuedir/files/* $bak
   do
@@ -330,7 +331,7 @@ EOF
 }
 
 
-# process the issue
+# eventually decide, whether the issue will be reported to us or not
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -623,7 +624,7 @@ function PostEmerge() {
 }
 
 
-# test hook, eg. to catch a package which wrongly installs directly in / or left files over in /tmp
+# test hook, eg. to catch package/s which wrongly installs in / or left files in /tmp
 #
 function check() {
   exe=/tmp/tb/bin/PRE-CHECK.sh
@@ -695,25 +696,29 @@ function EmergeTask() {
       done
 
     else
-      # successful
+      # successful emerged the @<set>
       #
       if [[ "$task" = "@system" ]]; then
         # do few more daily tasks and try @world BUT only *after* all post-emerge actions
         #
         SwitchJDK
         echo "@world" >> $pks
+      
       elif [[ "$task" = "@world" ]] ;then
-        touch /tmp/timestamp.world  # keep timestamp of the last successful @world update
+        date >> /tmp/timestamp.world
         echo "%emerge --depclean" >> $pks
       fi
       PostEmerge
     fi
 
-    # next update in 24 hours
+    # next attempt in 24 hours
     #
     if [[ "$task" = "@system" ]] ;then
-      touch /tmp/timestamp.system
+      date >> /tmp/timestamp.system
     fi
+    
+    # this is run now before the depclean happens
+    #
     /usr/bin/pfl &>/dev/null
     
   else
@@ -758,13 +763,12 @@ do
   #
   check
 
-  # pick up after ourself now, we can't use FEATURES=fail-clean
-  # b/c that would delete files before we could pick them up for a bug report
+  # pick up after ourself now (we can't use FEATURES=fail-clean)
   #
   rm -rf /var/tmp/portage/*
   date > $log
 
-  # start an updated instance of ourself if we do differ from origin
+  # start an updated instance of ourself if we do differ from it
   #
   diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
   if [[ $? -ne 0 ]]; then
@@ -782,7 +786,7 @@ do
 
 done
 
-Finish "we should never reach this line"
+Finish "Bummer! We should never reach this line !"
 
 # barrier end (see start of this file too)
 #
