@@ -91,22 +91,19 @@ function GetNextTask() {
         continue
       fi
 
-      # no result set: $task can't be emerged or is a malformed string
+      # empty, if ...
+      #   ... all unstable package versions are hard masked
+      #   ... $task is ambiguous
+      #   ... $task contains a malformed string
       #
-      if [[ -z "$(portageq $task 2>/dev/null)" ]]; then
-        continue
-      fi
-
-      # empty eg. if all unstable package versions are hard masked
-      #
-      typeset best_visible=$(portageq best_visible / $task)
-      if [[ -z "$best_visible" ]]; then
+      best_visible=$(portageq best_visible / $task 2>/dev/null)
+      if [[ $? -ne 0 || -z "$best_visible" ]]; then
         continue
       fi
 
       # if $task is already installed then don't downgrade it
       #
-      typeset installed=$(qlist --installed --verbose $task | tail -n 1)  # use tail to catch the highest slot only
+      installed=$(qlist --installed --verbose $task | tail -n 1)  # use tail to catch the highest slot only
       if [[ -n "$installed" ]]; then
         qatom --compare $installed $best_visible | grep -q '>'
         if [[ $? -eq 0 ]]; then
