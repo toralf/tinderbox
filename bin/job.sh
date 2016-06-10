@@ -65,7 +65,7 @@ function GetNextTask() {
       Mail "$task"
 
     elif [[ -n "$(echo $task | grep '^STOP')" ]]; then
-      Finish "$task"
+      Finish "$task line reached"
 
     elif  [[ -z "$task" ]]; then
       if [[ -s $pks ]]; then
@@ -677,6 +677,11 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       PostEmerge
+
+      if [[ "$task" = "@preserved-rebuild" ]]; then
+        Finish "@preserved-rebuild failed"
+      fi
+      
       # resume as much as possible
       #
       while :;
@@ -779,7 +784,7 @@ do
   
   if [[ -f /tmp/STOP  ]]; then
     echo "$task" >> $pks  # push it back on top of the list
-    Finish "stopped"
+    Finish "got stop signal"
   fi
   
   EmergeTask
