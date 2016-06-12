@@ -13,3 +13,4 @@ gnome-base/librsvg        -tools
 media-libs/mesa           -vaapi
 sys-auth/pambase          -gnome-keyring
 sys-libs/ncurses          -gpm
+

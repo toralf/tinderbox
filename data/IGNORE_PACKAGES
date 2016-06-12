@@ -7,10 +7,8 @@ dev-db/mysql-connector-c
 dev-embedded/
 dev-java/bsf
 dev-java/freehep
-dev-java/jython
 dev-ruby/
 net-analyzer/openvas
-raspberrypi
 sci-libs/acml
 sec-policy/
 sys-cluster/
@@ -18,6 +16,4 @@ sys-fs/loop-aes
 sys-fs/vhba
 sys-kernel/
 virtual/
-www-client/chromium
-www-client/google-chrome
 x11-drivers/nvidia-drivers

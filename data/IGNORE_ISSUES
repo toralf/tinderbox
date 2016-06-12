@@ -6,6 +6,7 @@ Error: circular dependencies:
 Error: The above package list contains packages which cannot be
 Fetch failed for
 Fetch instructions for
+gcc-5 is not yet supported
 Incorrect kernel configuration options
 kernel too new
 License file not found!
@@ -18,8 +19,10 @@ no suitable configured kernel include tree found
 Please buy & download
 Please, run 'haskell-updater'
 Please switch your active compiler to gcc with
+Please use GCC-4.9 for now.
 some Java tools are not available on some VMs on some architectures
 The following .* changes are necessary to proceed:
 The following REQUIRED_USE flag constraints are unsatisfied:
+Unable to determine valid vm
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
