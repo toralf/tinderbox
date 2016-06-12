@@ -269,8 +269,10 @@ emerge --info >> $issuedir/emerge-info.txt
   
   # b.g.o limits "Summary" to 255 chars
   #
-  truncate -s 255 $issuedir/title
-  
+  if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
+    truncate -s 255 $issuedir/title
+  fi
+
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
 
