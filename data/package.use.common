@@ -14,3 +14,6 @@ media-libs/mesa           -vaapi
 sys-auth/pambase          -gnome-keyring
 sys-libs/ncurses          -gpm
 
+# hangs during emerge otherwise: https://bugs.gentoo.org/show_bug.cgi?id=540818 https://bugs.gentoo.org/show_bug.cgi?id=75028
+#
+app-editors/xemacs        -nopie

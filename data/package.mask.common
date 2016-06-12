@@ -16,10 +16,6 @@ media-libs/jpeg
 #
 media-video/libav
 
-# hangs during emerge: https://bugs.gentoo.org/show_bug.cgi?id=540818
-#
-app-editors/xemacs
-
 # just a mess
 #
 dev-util/pkgconfig-openbsd
@@ -32,7 +28,7 @@ dev-util/pkgconfig-openbsd
 #
 net-fs/openafs*
 
-# turns /etc/resolv.conf into an unworking symlink pointing to /run
+# replace /etc/resolv.conf by an unworking symlink in /run
 #
 net-dns/resolvconf-symlink
 
