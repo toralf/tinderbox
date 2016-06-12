@@ -173,7 +173,6 @@ PAX_MARKINGS="XT"
 #
 ALSA_CARDS="hda-intel"
 INPUT_DEVICES="evdev synaptics"
-VIDEO_CARDS="intel i965"
 
 SSL_BITS=4096
 
@@ -395,29 +394,30 @@ name="amd64"  # fixed prefix, append later <profile>, <mask> and <timestamp>
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat avx avx2 btrfs
   bugzilla bzip2 cairo cdb cdda cddb cgi cgoups clang compat consolekit
-  corefonts csc cups curl custom-cflags custom-optimization dane dbus debug
-  dec_av2 declarative designer dnssec doc dot drmkms dvb dvd ecc egl
-  eglfs emacs evdev extra extraengine ffmpeg fontconfig fortran fpm freetds
-  ftp gcj gd gif git gles gles2 gnomecanvas gnome-keyring gnuplot gnutls
-  gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui gzip haptic
-  havege hdf5 help ibus icu imap imlib inifile introspection ipv6 isag
-  ithreads jadetex javafx javascript javaxml jpeg kerberos kvm lapack latex
-  ldap libinput libkms libvirtd llvm logrotate lzma mad mbox
-  mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
-  mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia multitarget mysql
-  mysqli ncurses networking nls nscd nss obj objc odbc offensive ogg ois opencv openexr
-  opengl openmpi openssl pam pcre16 pdo php pkcs11 plasma png policykit
-  postgres postproc postscript printsupport pulseaudio pwquality pyqt4
-  python qemu qml qt3support qt4 qt5 rdoc rendering scripts scrypt sddm
-  sdl semantic-desktop server smartcard smpeg snmp sockets source spice
-  sql sqlite sqlite3 sse4 sse4_1 sse4_2 ssh ssh-askpass ssl ssse3 svg
-  swscale system-cairo system-ffmpeg system-harfbuzz system-icu
-  system-jpeg system-libevent system-libs system-libvpx system-llvm
-  system-sqlite szip tcl tcpd theora thinkpad threads tk tls tools
-  tracepath traceroute truetype ufed uml usb usbredir utils uxa v4l v4l2
-  vaapi vala vdpau video vim vlc vorbis vpx wav wayland webgl webkit
-  webstart widgets wma wxwidgets X x264 x265 xa xcb xetex xinerama xinetd xkb
-  xml xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
+  corefonts csc cups curl custom-cflags custom-optimization dane dbus
+  debug dec_av2 declarative designer dnssec doc dot drmkms dvb dvd ecc
+  egl eglfs emacs evdev extra extraengine ffmpeg fontconfig fortran fpm
+  freetds ftp gcj gd gif git gles gles2 gnomecanvas gnome-keyring
+  gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui
+  gzip haptic havege hdf5 help ibus icu imap imlib inifile introspection
+  ipv6 isag ithreads jadetex javafx javascript javaxml jpeg kerberos kvm
+  lapack latex ldap libinput libkms libvirtd llvm logrotate lzma mad
+  mbox mdnsresponder-compat melt midi mikmod minimal minizip mng mod
+  modplug mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia
+  multitarget mysql mysqli ncurses networking nls nscd nss obj objc odbc
+  offensive ogg ois opencv openexr opengl openmpi openssl pam pcre16 pdo
+  php pkcs11 plasma png policykit postgres postproc postscript
+  printsupport pulseaudio pwquality pyqt4 python qemu qml qt3support qt4
+  qt5 rdoc rendering scripts scrypt sddm sdl semantic-desktop server
+  smartcard smpeg snmp sockets source spice sql sqlite sqlite3 sse4
+  sse4_1 sse4_2 ssh ssh-askpass ssl ssse3 svg swscale system-cairo
+  system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
+  system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
+  theora thinkpad threads tk tls tools tracepath traceroute truetype
+  ufed uml usb usbredir utils uxa v4l v4l2 vaapi vala vdpau video vim
+  vlc vorbis vpx wav wayland webgl webkit webstart widgets wma wxwidgets
+  X x264 x265 xa xcb xetex xinerama xinetd xkb xml xmlreader xmp
+  xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
