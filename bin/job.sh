@@ -101,11 +101,11 @@ function GetNextTask() {
         continue
       fi
 
-      # if $task is already installed then don't downgrade it
+      # if $task is either already installed or shouldn't be downgraded
       #
-      installed=$(qlist --installed --verbose $task | tail -n 1)  # use tail to catch the highest slot only
+      installed=$(qlist --installed --verbose $task | tail -n 1)  # use tail to catch the highest slot
       if [[ -n "$installed" ]]; then
-        qatom --compare $installed $best_visible | grep -q '>'
+        qatom --compare $installed $best_visible | grep -q -e '==' -e '>'
         if [[ $? -eq 0 ]]; then
           continue
         fi
