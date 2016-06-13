@@ -91,7 +91,7 @@ function GetNextTask() {
         continue
       fi
 
-      # empty, if ...
+      # best_visible is empty, if ...
       #   ... all unstable package versions are hard masked
       #   ... $task is ambiguous
       #   ... $task contains a malformed string
@@ -101,7 +101,7 @@ function GetNextTask() {
         continue
       fi
 
-      # if $task is either already installed or shouldn't be downgraded
+      # skip if $task is already installed or would be downgraded
       #
       installed=$(qlist --installed --verbose $task | tail -n 1)  # use tail to catch the highest slot
       if [[ -n "$installed" ]]; then
@@ -111,7 +111,7 @@ function GetNextTask() {
         fi
       fi
 
-      # ok, try to emerge $task
+      # well, we got a new candidate
       #
       return
     fi
@@ -678,7 +678,7 @@ function EmergeTask() {
       PostEmerge
 
       if [[ "$task" = "@preserved-rebuild" ]]; then
-        Finish "@preserved-rebuild failed"
+        Finish "warn: @preserved-rebuild failed"
       fi
       
       # resume as much as possible
@@ -711,7 +711,12 @@ function EmergeTask() {
       elif [[ "$task" = "@world" ]] ;then
         date >> /tmp/timestamp.world
         echo "%emerge --depclean" >> $pks
+        
+      elif [[ "$task" = "@preserved-rebuild" ]]; then
+        grep -q 'Nothing to merge; quitting.' $log
+         Finish "warn: @preserved-rebuild did not started"
       fi
+      
       PostEmerge
     fi
 
