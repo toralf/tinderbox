@@ -400,7 +400,7 @@ flags="
   freetds ftp gcj gd gif git gles gles2 gnomecanvas gnome-keyring
   gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui
   gzip haptic havege hdf5 help ibus icu imap imlib inifile introspection
-  ipv6 isag ithreads jadetex javafx javascript javaxml jpeg kerberos kvm
+  ipv6 isag ithreads jadetex javascript javaxml jpeg kerberos kvm
   lapack latex ldap libinput libkms libvirtd llvm logrotate lzma mad
   mbox mdnsresponder-compat melt midi mikmod minimal minizip mng mod
   modplug mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia
