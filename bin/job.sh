@@ -94,21 +94,15 @@ function GetNextTask() {
         continue
       fi
 
-      # best_visible is empty, if ...
-      #   ... all unstable package versions are hard masked
-      #   ... $task is ambiguous
-      #   ... $task contains a malformed string
+      # skip if $task is either already installed or would be downgraded
       #
       best_visible=$(portageq best_visible / $task 2>/dev/null)
       if [[ $? -ne 0 || -z "$best_visible" ]]; then
         continue
       fi
-
-      # skip if $task is already installed or would be downgraded
-      #
-      installed=$(qlist --installed --verbose --exact $task | tail -n 1)  # use tail to catch the highest slot
+      installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
-        qatom --compare $installed $best_visible | grep -q -e '==' -e '>'
+        qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '
         if [[ $? -eq 0 ]]; then
           continue
         fi
