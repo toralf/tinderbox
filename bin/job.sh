@@ -37,10 +37,10 @@ function Finish()  {
 }
 
 
-# splice last line of the package list $pks into $task
+# fill $task with a reasonable value
 #
 function GetNextTask() {
-  #   update @system once a day, if no special tasks is scheduled
+  #   update @system once a day, if no special task is scheduled
   #
   if [[ ! -f /tmp/timestamp.system ]]; then
     touch /tmp/timestamp.system
@@ -56,6 +56,9 @@ function GetNextTask() {
     fi
   fi
   
+  # splice last line of the package list $pks into $task
+  # make few basic checks before
+  #
   while :;
   do
     task=$(tail -n 1 $pks)
@@ -103,7 +106,7 @@ function GetNextTask() {
 
       # skip if $task is already installed or would be downgraded
       #
-      installed=$(qlist --installed --verbose $task | tail -n 1)  # use tail to catch the highest slot
+      installed=$(qlist --installed --verbose --exact $task | tail -n 1)  # use tail to catch the highest slot
       if [[ -n "$installed" ]]; then
         qatom --compare $installed $best_visible | grep -q -e '==' -e '>'
         if [[ $? -eq 0 ]]; then
@@ -696,7 +699,7 @@ function EmergeTask() {
       done
 
     else
-      # successful emerged the @<set>
+      # emerge return code was zero
       #
       if [[ "$task" = "@system" ]]; then
         # do few more daily tasks and try @world BUT only *after* all post-emerge actions
