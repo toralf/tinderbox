@@ -378,19 +378,6 @@ function GotAnIssue()  {
     return
   fi
 
-  # inform us about @sets and %commands failures
-  #
-  if [[  "$(echo $task | cut -c1)" = '@' ]]; then
-    Mail "info: $task failed" $bak
-
-  elif [[ "$(echo $task | cut -c1)" = "%" ]]; then
-    echo "$task" | grep -q "^%emerge -C"
-    if [[ $? -eq 0 ]]; then
-      return  # we don't care about failed unmerge
-    fi
-    Mail "info: $task failed" $bak
-  fi
-
   # missing or wrong USE flags, license, fetch restrictions et al
   # we do not mask those package b/c the root cause might be fixed/circumvent during the lifetime of the image
   #
@@ -466,7 +453,7 @@ function BuildKernel()  {
 }
 
 
-# switch to a freshly installed GCC, see: https://wiki.gentoo.org/wiki/Upgrading_GCC
+# switch to latest GCC, see: https://wiki.gentoo.org/wiki/Upgrading_GCC
 #
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
@@ -482,20 +469,26 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
 
-    # schedule re-compile of kernel object files against newer GCC libs
+    # re-build affected software against new GCC libs
     #
-    if [[ -e /usr/src/linux ]]; then
-      (cd cd /usr/src/linux; make clean)
-      echo "%BuildKernel" >> $pks
-    fi
+    if [[ "$majold" != "$majnew" ]]; then
+      # schedule kernel build
+      #
+      if [[ -e /usr/src/linux ]]; then
+        (cd /usr/src/linux && make clean 2>>$log)
+        echo "%BuildKernel" >> $pks
+      fi
 
-    if [[ "$majold" = "4" && "$majnew" = "5" ]]; then
-      rm -rf /var/cache/revdep-rebuild/*
-      revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &> $log
-      if [[ $? -ne 0 ]]; then
-        GotAnIssue
-        echo "%revdep-rebuild --library libstdc++.so.6 -- --exclude gcc" >> $pks
-        Finish "FAILED: $subject rebuild failed"   # bail out here, a failed GCC upgrade causes all types of hassle
+      # affected libs
+      #
+      if [[ "$majold" = "4" && "$majnew" = "5" ]]; then
+        rm -rf /var/cache/revdep-rebuild/*
+        revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &>> $log
+        if [[ $? -ne 0 ]]; then      # bail out, a failed GCC upgrade causes all types of hassle
+          GotAnIssue
+          echo "%revdep-rebuild --library libstdc++.so.6 -- --exclude gcc" >> $pks
+          Finish "FAILED: $subject rebuild failed"
+        fi
       fi
     fi
   fi
@@ -677,7 +670,10 @@ function EmergeTask() {
       GotAnIssue
       PostEmerge
 
-      if [[ "$task" = "@preserved-rebuild" ]]; then
+      if [[ "$task" = "@world" || "$task" = "@system" ]]; then
+        Mail "warn: $task failed" $log
+      
+      elif [[ "$task" = "@preserved-rebuild" ]]; then
         Finish "warn: @preserved-rebuild failed"
       fi
       
