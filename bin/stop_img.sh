@@ -2,18 +2,24 @@
 #
 #set -x
 
-# send stop info to tinderbox chroot image
+# stop a tinderbox chroot image
 #
+
+# be verbose for dedicated image/s
+#
+verbose=0
+if [[ $# -gt 0 ]]; then
+  verbose=1
+fi
 
 for mnt in ${@:-~/amd64-*}
 do
   # chroot image must be running
   #
   if [[ -f $mnt/tmp/LOCK ]]; then
-    # do not append a "STOP" line onto the package list file
-    # that line is never reached if @preserved-rebuild or friends are in an endless loop
-    #
     touch $mnt/tmp/STOP
+  else
+    [[ $verbose -eq 1 ]] && echo " dit NOT found LOCK: $mnt"
   fi
 done
 

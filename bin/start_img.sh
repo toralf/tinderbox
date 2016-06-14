@@ -13,33 +13,40 @@ fi
 orig=/tmp/tb/bin/runme.sh
 copy=/tmp/runme.sh
 
+# be verbose for dedicated image/s
+#
+verbose=0
+if [[ $# -gt 0 ]]; then
+  verbose=1
+fi
+
 for mnt in ${@:-~/amd64-*}
 do
   # $mnt must not be a broken symlink
   #
   if [[ -L $mnt && ! -e $mnt ]]; then
-    echo "broken symlink: $mnt"
+    [[ $verbose -eq 1 ]] && echo "broken symlink: $mnt"
     continue
   fi
 
   # $mnt must be a (chrootable) directory
   #
   if [[ ! -d $mnt ]]; then
-    echo "not a valid dir: $mnt"
+    [[ $verbose -eq 1 ]] && echo "not a valid dir: $mnt"
     continue
   fi
   
   # image must not be locked
   #
   if [[ -f $mnt/tmp/LOCK ]]; then
-    echo " found LOCK: $mnt"
+    [[ $verbose -eq 1 ]] && echo " found LOCK: $mnt"
     continue
   fi
   
   # image must not be stopping
   #
   if [[ -f $mnt/tmp/STOP ]]; then
-    echo " found STOP: $mnt"
+    [[ $verbose -eq 1 ]] && echo " found STOP: $mnt"
     continue
   fi
 
@@ -47,7 +54,7 @@ do
   #
   pks=$mnt/tmp/packages
   if [[ -f $pks && ! -s $pks ]]; then
-    echo " package list is empty: $mnt"
+    [[ $verbose -eq 1 ]] && echo " package list is empty: $mnt"
     continue
   fi
 
