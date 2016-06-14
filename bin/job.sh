@@ -664,18 +664,17 @@ function EmergeTask() {
 
     emerge $opts $task &> $log
     if [[ $? -ne 0 ]]; then
+      # @set failed - resume as often as possible
+      #
+      Mail "warn: $task failed" $log
       GotAnIssue
       PostEmerge
-
-      if [[ "$task" = "@world" || "$task" = "@system" ]]; then
-        Mail "warn: $task failed" $log
       
-      elif [[ "$task" = "@preserved-rebuild" ]]; then
-        Finish "warn: @preserved-rebuild failed"
+      if [[ "$task" = "@preserved-rebuild" ]]; then
+        grep -q 'The following mask changes are necessary to proceed:' $log
+        Finish "error: $task stucks"
       fi
       
-      # resume as much as possible
-      #
       while :;
       do
         emerge --resume --skipfirst &> $log
@@ -721,12 +720,12 @@ function EmergeTask() {
       date >> /tmp/timestamp.system
     fi
     
-    # this is run now before the depclean happens
+    # run it before any depclean could happen
     #
     /usr/bin/pfl &>/dev/null
     
   else
-    # % prefixes a command line
+    # the "%" prefixes a command line
     #
     if [[ "$(echo $task | cut -c1)" = '%' ]]; then
       cmd=$(echo "$task" | cut -c2-)
@@ -760,6 +759,10 @@ name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | 
 
 export GCC_COLORS="never"                   # suppress colour output of gcc-4.9 and above
 export XDG_CACHE_HOME=/tmp/xdg              # https://bugs.gentoo.org/show_bug.cgi?id=567192
+
+# start with a clean basis
+#
+echo "%emerge --depclean" >> $pks
 
 while :;
 do
