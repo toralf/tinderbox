@@ -406,7 +406,7 @@ name="amd64"  # fixed prefix, append later <profile>, <mask> and <timestamp>
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat btrfs
   bugzilla bzip2 cairo cdb cdda cddb cgi cgoups clang compat consolekit
-  corefonts csc cups curl custom-cflags custom-optimization dane dbus
+  corefonts csc cups curl custom-cflags custom-optimization dbus
   dec_av2 declarative designer dnssec dot drmkms dvb dvd ecc
   egl eglfs emacs evdev extra extraengine ffmpeg fontconfig fortran fpm
   freetds ftp gcj gd gif git gles gles2 gnomecanvas gnome-keyring
