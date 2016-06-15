@@ -727,7 +727,7 @@ function EmergeTask() {
       elif [[ "$task" = "@preserved-rebuild" ]]; then
         grep -q 'Nothing to merge; quitting.' $log
         if [[ $? -eq 0 ]]; then
-          Warn "warn: $task did not started" $log
+          Mail "warn: $task did not started" $log
         fi
       
       fi
