@@ -153,9 +153,14 @@ dblatex or fop must be installed to use
 No Python implementation set
 install: cannot stat .*: No such file or directory
 could not be found, but is required.
+The .* distribution was not found and is required by
+The library 'System.Xml.dll' could not be found.
+Fetched file: .* VERIFY FAILED!
+Reason: Failed on .* verification
 recipe for target .* failed
 error:
 Error:
+ERROR :
 ERROR:
 Failed to copy extended attributes. In order to avoid this error,
 Error
