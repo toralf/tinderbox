@@ -406,7 +406,7 @@ flags="
   aes-ni alisp alsa apache apache2 avcodec avformat btrfs
   bugzilla bzip2 cairo cdb cdda cddb cgi cgoups clang compat consolekit
   corefonts csc cups curl custom-cflags custom-optimization dane dbus
-  dec_av2 declarative designer dnssec doc dot drmkms dvb dvd ecc
+  dec_av2 declarative designer dnssec dot drmkms dvb dvd ecc
   egl eglfs emacs evdev extra extraengine ffmpeg fontconfig fortran fpm
   freetds ftp gcj gd gif git gles gles2 gnomecanvas gnome-keyring
   gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui
