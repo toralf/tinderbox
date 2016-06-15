@@ -698,7 +698,8 @@ function EmergeTask() {
         return
       fi
       
-      # @set failed - resume as often as possible
+      # @set failed - resume as often as possible to update as much as possible
+      # if we don't do this, next time we might run against the same wall as before
       #
       while :;
       do
@@ -731,7 +732,7 @@ function EmergeTask() {
         SwitchJDK
         echo "@world" >> $pks
       
-      elif [[ "$task" = "@world" ]] ;then
+      elif [[ "$task" = "@world" ]]; then
         date >> /tmp/timestamp.world
         echo "%emerge --depclean" >> $pks
         
