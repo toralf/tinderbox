@@ -160,13 +160,13 @@ EOF
   #----------------------------------------
   cat << EOF >> $m
 USE="
-  sse2 pax_kernel xtpax -cdinstall -oci8 -bindist
+  pax_kernel xtpax -cdinstall -oci8 -bindist
 
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 "
 
 ACCEPT_KEYWORDS="amd64 $( [[ "$mask" = "unstable" ]] && echo -n '~amd64' )"
-CPU_FLAGS_X86="aes avx mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3"
+$(/usr/bin/cpuinfo2cpuflags-x86)
 PAX_MARKINGS="XT"
 
 # this is a contribute to my private notebook
@@ -202,6 +202,7 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gor.bytemark.co.uk/gentoo/ rsync://ftp.snt.utwente.nl/gentoo"
 
 EOF
+  
   #----------------------------------------
 
   # create portage directories and symlink them to tb/data/*
@@ -402,7 +403,7 @@ EOF
 name="amd64"  # fixed prefix, append later <profile>, <mask> and <timestamp>
 
 flags="
-  aes-ni alisp alsa apache apache2 avcodec avformat avx avx2 btrfs
+  aes-ni alisp alsa apache apache2 avcodec avformat btrfs
   bugzilla bzip2 cairo cdb cdda cddb cgi cgoups clang compat consolekit
   corefonts csc cups curl custom-cflags custom-optimization dane dbus
   debug dec_av2 declarative designer dnssec doc dot drmkms dvb dvd ecc
@@ -419,8 +420,8 @@ flags="
   php pkcs11 plasma png policykit postgres postproc postscript
   printsupport pulseaudio pwquality pyqt4 python qemu qml qt3support qt4
   qt5 rdoc rendering scripts scrypt sddm sdl semantic-desktop server
-  smartcard smpeg snmp sockets source spice sql sqlite sqlite3 sse4
-  sse4_1 sse4_2 ssh ssh-askpass ssl sslv2 sslv3 ssse3 svg swscale system-cairo
+  smartcard smpeg snmp sockets source spice sql sqlite sqlite3
+  ssh ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo
   system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
   system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
   theora thinkpad threads tk tls tools tracepath traceroute truetype
