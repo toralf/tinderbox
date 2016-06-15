@@ -370,7 +370,6 @@ function GotAnIssue()  {
   #
   grep -q 'AssertionError: ebuild not found for' $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $pks    # try it again
     Mail "info: race of repository sync and local emerge" $bak  # mail to us to check that we're not in a loop
     return
   fi
@@ -577,7 +576,6 @@ function PostEmerge() {
   #
   grep -q -e "Please, run 'haskell-updater'" -e ">>> Installing .* dev-lang/ghc-[1-9]" -e "ghc-pkg check: 'checking for other broken packages:'" $tmp
   if [[ $? -eq 0 ]]; then
-    echo "$task"            >> $pks
     echo "%haskell-updater" >> $pks
   fi
 
