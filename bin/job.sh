@@ -808,14 +808,12 @@ do
   if [[ $? -ne 0 ]]; then
     exit 125
   fi
-
-  GetNextTask
   
   if [[ -f /tmp/STOP  ]]; then
-    echo "$task" >> $pks  # push it back on top of the list
     Finish "got stop signal"
   fi
   
+  GetNextTask
   EmergeTask
 
 done
