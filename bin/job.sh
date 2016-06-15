@@ -706,8 +706,14 @@ function EmergeTask() {
       done
 
     else
-      # emerge return code was zero
+      # at least the return code was zero
       #
+      
+      grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $log
+      if [[ $? -eq 0 ]]; then
+        Mail "warn: $task skipped package/s" $log
+      fi
+      
       if [[ "$task" = "@system" ]]; then
         # do few more daily tasks and try @world BUT only *after* all post-emerge actions
         #
@@ -721,8 +727,9 @@ function EmergeTask() {
       elif [[ "$task" = "@preserved-rebuild" ]]; then
         grep -q 'Nothing to merge; quitting.' $log
         if [[ $? -eq 0 ]]; then
-          Finish "warn: @preserved-rebuild did not started"
+          Warn "warn: $task did not started" $log
         fi
+      
       fi
       
       PostEmerge
