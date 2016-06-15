@@ -687,6 +687,14 @@ function EmergeTask() {
         Mail "warn: $task failed" $log
       fi
       
+      # perl upgrade issue - don't continue
+      #
+      grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $log
+      if [[ $? -eq 0 ]]; then
+        Mail "warn: $task failed due to a Perl upgrade issue" $log
+        return
+      fi
+      
       # @set failed - resume as often as possible
       #
       while :;
