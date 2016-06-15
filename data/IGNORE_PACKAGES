@@ -5,9 +5,12 @@ app-emulation/virtualbox-modules
 app-eselect/
 dev-db/mysql-connector-c
 dev-embedded/
+dev-java/batik
 dev-java/bsf
 dev-java/freehep
+dev-java/freemarker
 dev-ruby/
+java-virtuals/
 net-analyzer/openvas
 sci-libs/acml
 sec-policy/
