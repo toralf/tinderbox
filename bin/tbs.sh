@@ -332,6 +332,7 @@ if [[ \$? -ne 0 ]]; then
   # try to auto-fix the setup
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
+  chown tinderbox.tinderbox /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
     emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 11
   else
