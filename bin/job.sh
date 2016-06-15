@@ -382,7 +382,13 @@ function GotAnIssue()  {
   if [[ $? -eq 0 ]]; then
     return
   fi
-
+  
+  grep -q 'Always study the list of packages to be cleaned for any obvious' $bak
+  if [[ $? -eq 0 ]]; then
+    Mail "warn: depclean failed" $bak
+    return
+  fi
+  
   # after this point we expect that we catched the failed package (== $failed is not empty)
   #
   if [[ -z "$failed" ]]; then
@@ -664,9 +670,9 @@ function EmergeTask() {
 
     emerge $opts $task &> $log
     if [[ $? -ne 0 ]]; then
-      # @set failed - resume as often as possible
+      # @something failed
       #
-      Mail "warn: $task failed" $log
+            
       GotAnIssue
       PostEmerge
       
@@ -675,6 +681,14 @@ function EmergeTask() {
         Finish "error: $task stucks"
       fi
       
+      # don't complain again if just a single package failed
+      #
+      if [[ -z "$failed" ]]; then
+        Mail "warn: $task failed" $log
+      fi
+      
+      # @set failed - resume as often as possible
+      #
       while :;
       do
         emerge --resume --skipfirst &> $log
