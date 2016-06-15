@@ -554,16 +554,16 @@ function PostEmerge() {
     locale-gen &>/dev/null
   fi
 
-  #
-  # add cleanup/post-update actions in their opposite order
-  #
-
   # new kernel
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $tmp
   if [[ $? -eq 0 ]]; then
     SelectNewKernel
   fi
+
+  #
+  # add cleanup/post-update actions in their opposite order to the package list
+  #
 
   # rebuild libs
   #
