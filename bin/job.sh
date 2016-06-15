@@ -565,27 +565,28 @@ function PostEmerge() {
   # add cleanup/post-update actions in their opposite order to the package list
   #
 
-  # rebuild libs
+  # rebuild remaining libs
   #
   grep -q "@preserved-rebuild" $tmp
   if [[ $? -eq 0 ]]; then
     echo "@preserved-rebuild" >> $pks
   fi
 
-  # haskell
+  # Haskell
   #
   grep -q -e "Please, run 'haskell-updater'" -e ">>> Installing .* dev-lang/ghc-[1-9]" -e "ghc-pkg check: 'checking for other broken packages:'" $tmp
   if [[ $? -eq 0 ]]; then
     echo "%haskell-updater" >> $pks
   fi
 
-  # perl
+  # Perl
   #
   grep -q 'Use: perl-cleaner' $tmp
   if [[ $? -eq 0 ]]; then
     echo "%perl-cleaner --force --libperl"  >> $pks
     echo "%perl-cleaner --modules"          >> $pks
   else
+    # Perl upgrade issue, usually during setup, repeat @<set> after Perl was cleaned
     # https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
     #
     grep -q '>>> Installing .* dev-lang/perl-[1-9]' $tmp
@@ -597,7 +598,7 @@ function PostEmerge() {
     fi
   fi
 
-  # python
+  # Python
   #
   grep -q '>>> Installing .* dev-lang/python-[1-9]' $tmp
   if [[ $? -eq 0 ]]; then
