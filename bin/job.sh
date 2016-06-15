@@ -579,15 +579,20 @@ function PostEmerge() {
     echo "%haskell-updater" >> $pks
   fi
 
-  # perl: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
+  # perl
   #
   grep -q 'Use: perl-cleaner' $tmp
   if [[ $? -eq 0 ]]; then
     echo "%perl-cleaner --force --libperl"  >> $pks
     echo "%perl-cleaner --modules"          >> $pks
   else
+    # https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
+    #
     grep -q '>>> Installing .* dev-lang/perl-[1-9]' $tmp
     if [[ $? -eq 0 ]]; then
+      if [[ "$task" = "@world" || "$task" = "@system" ]]; then
+        echo "$task" >> $pks
+      fi
       echo "%perl-cleaner --all" >> $pks
     fi
   fi
