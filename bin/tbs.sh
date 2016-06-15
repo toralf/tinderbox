@@ -223,8 +223,11 @@ EOF
     (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
     touch etc/portage/$d/zzz                                          # honeypot for autounmask
   done
-  touch       etc/portage/package.mask/self     # avoid a 2nd attempt at this image for failed packages
-  chmod a+rw  etc/portage/package.mask/self     # allow tinderbox user to delete entries
+  touch       etc/portage/package.mask/self     # mask a failed package at this image
+  chmod a+rw  etc/portage/package.mask/self     # allow tinderbox user too
+
+  touch       etc/portage/package.use/setup     # needed package specific USE flags catched in setup.sh
+  chmod a+rw  etc/portage/package.use/setup
 
   cat << EOF > etc/portage/env/test
 FEATURES="test test-fail-continue"
@@ -332,7 +335,6 @@ if [[ \$? -ne 0 ]]; then
   # try to auto-fix the setup
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
-  chown tinderbox.tinderbox /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
     emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 11
   else
