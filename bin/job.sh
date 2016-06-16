@@ -530,14 +530,12 @@ function SelectNewKernel() {
   fi
 
   if [[ ! -f /usr/src/linux/.config ]]; then
-    BuildKernel
+    echo "%BuildKernel" >> $pks
   fi
 }
 
 
-# we do not run an emerge operation here
-# but we'll schedule perl/python/haskell - updater if needed
-# and we'll switch to a new GCC, kernel and so on
+# we do not run any emerge operation here
 #
 function PostEmerge() {
   # empty log ?!
