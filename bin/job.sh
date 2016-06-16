@@ -540,19 +540,11 @@ function SelectNewKernel() {
 # and we'll switch to a new GCC, kernel and so on
 #
 function PostEmerge() {
-  typeset tmp
-
   # empty log ?!
   #
   if [[ ! -s $log ]]; then
     return
   fi
-
-  tmp=/tmp/$FUNCNAME.log
-
-  # $log will be overwritten by every call of emerge
-  #
-  cp $log $tmp
 
   # do not update these config files
   #
@@ -565,14 +557,14 @@ function PostEmerge() {
   env-update &>/dev/null
   . /etc/profile
 
-  grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $tmp
+  grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $log
   if [[ $? -eq 0 ]]; then
     locale-gen &>/dev/null
   fi
 
   # new kernel
   #
-  grep -q ">>> Installing .* sys-kernel/.*-sources" $tmp
+  grep -q ">>> Installing .* sys-kernel/.*-sources" $log
   if [[ $? -eq 0 ]]; then
     SelectNewKernel
   fi
@@ -583,21 +575,21 @@ function PostEmerge() {
 
   # rebuild remaining libs
   #
-  grep -q "@preserved-rebuild" $tmp
+  grep -q "@preserved-rebuild" $log
   if [[ $? -eq 0 ]]; then
     echo "@preserved-rebuild" >> $pks
   fi
 
   # Haskell
   #
-  grep -q -e "Please, run 'haskell-updater'" -e ">>> Installing .* dev-lang/ghc-[1-9]" -e "ghc-pkg check: 'checking for other broken packages:'" $tmp
+  grep -q -e "Please, run 'haskell-updater'" -e ">>> Installing .* dev-lang/ghc-[1-9]" -e "ghc-pkg check: 'checking for other broken packages:'" $log
   if [[ $? -eq 0 ]]; then
     echo "%haskell-updater" >> $pks
   fi
 
   # Perl
   #
-  grep -q 'Use: perl-cleaner' $tmp
+  grep -q 'Use: perl-cleaner' $log
   if [[ $? -eq 0 ]]; then
     echo "%perl-cleaner --force --libperl"  >> $pks
     echo "%perl-cleaner --modules"          >> $pks
@@ -605,26 +597,24 @@ function PostEmerge() {
 
   # Python
   #
-  grep -q '>>> Installing .* dev-lang/python-[1-9]' $tmp
+  grep -q '>>> Installing .* dev-lang/python-[1-9]' $log
   if [[ $? -eq 0 ]]; then
     echo "%python-updater" >> $pks
   fi
 
   # PAX
   #
-  grep -q 'Please run "revdep-pax" after installation.' $tmp
+  grep -q 'Please run "revdep-pax" after installation.' $log
   if [[ $? -eq 0 ]]; then
     echo "%revdep-pax" >> $pks
   fi
 
   # GCC
   #
-  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tmp
+  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $log
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $pks
   fi
-
-  rm -f $tmp
 }
 
 
