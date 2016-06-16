@@ -796,10 +796,6 @@ name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | 
 export GCC_COLORS="never"                   # suppress colour output of gcc-4.9 and above
 export XDG_CACHE_HOME=/tmp/xdg              # https://bugs.gentoo.org/show_bug.cgi?id=567192
 
-# start with a clean basis
-#
-echo "%emerge --depclean" >> $pks
-
 while :;
 do
   # run this before we clean the /var/tmp/portage directory
