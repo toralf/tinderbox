@@ -354,6 +354,8 @@ EOF
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
   
+  # strip of the $tbhome
+  #
   cd $tbhome
   d=$(basename $imagedir)/$name
   
@@ -361,7 +363,7 @@ EOF
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
   
-  # help from pybugz
+  # bugz is used in job.sh to create the email
   #
   cp /home/tinderbox/.bugzrc $d/root
 
