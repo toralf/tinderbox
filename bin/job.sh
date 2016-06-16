@@ -577,6 +577,9 @@ function PostEmerge() {
   #
   grep -q "@preserved-rebuild" $log
   if [[ $? -eq 0 ]]; then
+    if [[ "$task" = "@preserved-rebuild" ]]; then
+      Finish "error: $task repeated !"
+    fi
     echo "@preserved-rebuild" >> $pks
   fi
 
