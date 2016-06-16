@@ -585,7 +585,7 @@ function PostEmerge() {
 
   # Haskell
   #
-  grep -q -e "Please, run 'haskell-updater'" -e ">>> Installing .* dev-lang/ghc-[1-9]" -e "ghc-pkg check: 'checking for other broken packages:'" $log
+  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $log
   if [[ $? -eq 0 ]]; then
     echo "%haskell-updater" >> $pks
   fi
@@ -600,7 +600,7 @@ function PostEmerge() {
 
   # Python
   #
-  grep -q '>>> Installing .* dev-lang/python-[1-9]' $log
+  grep -q "'python-updater [options]' to rebuild Python modules." $log
   if [[ $? -eq 0 ]]; then
     echo "%python-updater" >> $pks
   fi
