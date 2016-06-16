@@ -490,9 +490,9 @@ function SwitchGCC() {
     # re-build affected software against new GCC libs
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # schedule kernel build
+      # schedule kernel rebuild
       #
-      if [[ -e /usr/src/linux ]]; then
+      if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean 2>>$log)
         echo "%BuildKernel" >> $pks
       fi
