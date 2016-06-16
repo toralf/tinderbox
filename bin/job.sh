@@ -490,7 +490,7 @@ function SwitchGCC() {
     # re-build affected software against new GCC libs
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # schedule kernel rebuild
+      # schedule kernel rebuild if it was build before
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean 2>>$log)

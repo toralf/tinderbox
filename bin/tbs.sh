@@ -251,13 +251,14 @@ set tabstop=2
 EOF
 }
 
+
 function FillPackageList()  {
   pks=tmp/packages
   
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
   echo "@world"         >> $pks
-  echo "%BuildKernel"   >> $pks   # build kernel before @system b/c that inherits @world which might dependend on a configured kernel
-  echo "sys-devel/gcc"  >> $pks   # too much hassle later
+  echo "%BuildKernel"   >> $pks   # only a major GCC upgrade rebuilds an already built kernel
+  echo "sys-devel/gcc"  >> $pks   # too much hassle if we upgrade it later
   
   chown tinderbox.tinderbox $pks
 
