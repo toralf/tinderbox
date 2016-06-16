@@ -328,6 +328,8 @@ EOF
 
 
 # eventually decide, whether the issue will be reported to us or not
+# return :  1 if we run into an Perl upgrade issue
+#           0 otherwise
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -370,7 +372,7 @@ function GotAnIssue()  {
   #
   grep -q 'AssertionError: ebuild not found for' $bak
   if [[ $? -eq 0 ]]; then
-    Mail "info: race of repository sync and local emerge" $bak  # mail to us to check that we're not in a loop
+    Mail "notice: race of repository sync and local emerge" $bak  # mail to us to check that we're not in a loop
     return
   fi
 
@@ -384,7 +386,7 @@ function GotAnIssue()  {
   
   grep -q 'Always study the list of packages to be cleaned for any obvious' $bak
   if [[ $? -eq 0 ]]; then
-    Mail "warn: depclean failed" $bak
+    Mail "notice: depclean failed" $bak
     return
   fi
   
@@ -401,6 +403,15 @@ function GotAnIssue()  {
   mkdir -p $issuedir/files
   CollectIssueFiles
   
+  # Perl upgrade issue, usually during setup, repeat @<set> after Perl was cleaned
+  # https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
+  #
+  grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $bak
+  if [[ $? -eq 0 ]]; then
+    Mail "notice: Perl upgrade issue in $task" $bak
+    return 1
+  fi
+    
   # mask this particular package version at this image
   #
   grep -q "=$failed " /etc/portage/package.mask/self
@@ -585,17 +596,6 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     echo "%perl-cleaner --force --libperl"  >> $pks
     echo "%perl-cleaner --modules"          >> $pks
-  else
-    # Perl upgrade issue, usually during setup, repeat @<set> after Perl was cleaned
-    # https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
-    #
-    grep -q '>>> Installing .* dev-lang/perl-[1-9]' $tmp
-    if [[ $? -eq 0 ]]; then
-      if [[ "$task" = "@world" || "$task" = "@system" ]]; then
-        echo "$task" >> $pks
-      fi
-      echo "%perl-cleaner --all" >> $pks
-    fi
   fi
 
   # Python
@@ -654,7 +654,7 @@ function check() {
 }
 
 
-# $task might be @system, @world, a command line like %emerge -C ... or just a common package
+# $task might be @set, a command line like %emerge -C ... or a single package
 #
 function EmergeTask() {
   # handle prefix @
@@ -678,29 +678,31 @@ function EmergeTask() {
       #
             
       GotAnIssue
+      rc=$?
       PostEmerge
+      if [[ $rc -eq 1 ]]; then
+        # if an Perl upgrade issue appeared then we don't need to put $task onto $pks
+        # b/c due to the return we don't touch the timestamp file
+        # and therefore $task will be repeated nevertheless
+        #
+        echo "%perl-cleaner --all" >> $pks
+        return
+      fi
       
       if [[ "$task" = "@preserved-rebuild" ]]; then
         grep -q 'The following mask changes are necessary to proceed:' $log
         Finish "error: $task stucks"
       fi
       
-      # don't complain again if just a single package failed
+      # don't complain here too if a single package failed
       #
       if [[ -z "$failed" ]]; then
         Mail "warn: $task failed" $log
       fi
       
-      # perl upgrade issue - don't continue
-      #
-      grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $log
-      if [[ $? -eq 0 ]]; then
-        Mail "warn: $task failed due to a Perl upgrade issue" $log
-        return
-      fi
-      
       # @set failed - resume as often as possible to update as much as possible
-      # if we don't do this, next time we might run against the same wall as before
+      # if we wouldn't do this, then we might stuck at the same package as before
+      # and would never jump over
       #
       while :;
       do
