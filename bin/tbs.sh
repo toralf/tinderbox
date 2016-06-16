@@ -357,11 +357,6 @@ EOF
   cd $tbhome
   d=$(basename $imagedir)/$name
   
-  grep -q "@preserved-rebuild" $d/tmp/setup.log
-  if [[ $? -eq 0 ]]; then
-    echo "@preserved-rebuild" >> $d/tmp/packages
-  fi
-  
   # authentication avoids an 10 sec tarpitting delay by the ISP
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
