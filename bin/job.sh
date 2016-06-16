@@ -89,17 +89,22 @@ function GetNextTask() {
       return  # a package set
 
     else
+      # ignore packages contains patterns !
+      #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
-      # skip if $task is either already installed or would be downgraded
+      # skip if package is an invalid atom or mask
       #
       best_visible=$(portageq best_visible / $task 2>/dev/null)
       if [[ $? -ne 0 || -z "$best_visible" ]]; then
         continue
       fi
+      
+      # skip if installed $task is up to date or would be downgraded
+      #
       installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
         qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '
