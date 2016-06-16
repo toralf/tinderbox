@@ -106,7 +106,6 @@ Can't locate Locale/Messages.pm in @INC
 Ebuild author forgot an entry
 error: .* is not a member
 .*command not found
-sgmlspl: command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
 does not exist
 No package .* found
@@ -144,7 +143,6 @@ is banned in EAPI
 Failed Running libtoolize
 These fortunes have offensive content. Enable offensive USE Flag
 Select exactly one database type out of these: mysql oracle postgres sqlite
-failed with exit status
 make .* Error
 The source directory .* doesn.t exist
 Document .* does not validate
