@@ -687,11 +687,6 @@ function EmergeTask() {
         return
       fi
       
-      if [[ "$task" = "@preserved-rebuild" ]]; then
-        grep -q 'The following mask changes are necessary to proceed:' $log
-        Finish "error: $task stucks"
-      fi
-      
       # don't complain here too if a single package failed
       #
       if [[ -z "$failed" ]]; then
