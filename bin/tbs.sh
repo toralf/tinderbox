@@ -155,6 +155,7 @@ EOF
           -e '/^USE=/d'                             \
           -e '/^PORTDIR=/d'                         \
           -e '/^PKGDIR=/d'                          \
+          -e '/^#/d'                                \
           -e 's#^DISTDIR=.*#DISTDIR="/var/tmp/distfiles"#' $m
 
   #----------------------------------------
@@ -297,12 +298,12 @@ emerge --noreplace net-misc/netifrc
 #
 emerge --noreplace app-editors/nano
 
-emerge sys-apps/elfix || exit 2
-migrate-pax -m        || exit 2
+emerge --verbose sys-apps/elfix || exit 2
+migrate-pax -m
 
-# our MTA to get mails out to us
+# our preferred simple mailer
 #
-emerge mail-mta/ssmtp mail-client/mailx || exit 3
+emerge --verbose mail-mta/ssmtp mail-client/mailx || exit 3
 
 echo "
 root=tinderbox@zwiebeltoralf.de
@@ -314,29 +315,32 @@ UseTLS=YES
 " > /etc/ssmtp/ssmtp.conf
 
 
-# install mandatory tools:
-#   app-arch/sharutils:         uudecode
-#   app-portage/gentoolkit:     equery eshowkw revdep-rebuild
-#   app-portage/pfl:            pfl
-#   app-portage/portage-utils:  qlop
+# install mandatory tools
+#   <package>                   <command/s>
+#
+#   app-arch/sharutils          uudecode
+#   app-portage/gentoolkit      equery eshowkw revdep-rebuild
+#   app-portage/pfl             pfl
+#   app-portage/portage-utils   qlop
+#   www-client/pybugz           bugz
 #
 echo ">=sys-libs/ncurses-6.0" > /etc/portage/package.mask/ncurses
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 4
+emerge --verbose app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 4
 rm /etc/portage/package.mask/ncurses
 
-# we have "sys-kernel/" in IGNORE_PACKAGES therefore emerge it here
+# we have "sys-kernel/" in IGNORE_PACKAGES therefore emerge sources explicitely
 #
-emerge sys-kernel/hardened-sources || exit 5
+emerge --verbose sys-kernel/hardened-sources || exit 5
 
 # at least the very first @world upgrade must not fail
 #
-emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
+emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
   # try to auto-fix the setup
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 11
+    emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 11
   else
     exit 12
   fi
