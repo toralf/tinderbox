@@ -256,7 +256,7 @@ emerge --info >> $issuedir/emerge-info.txt
       return
 
     elif [[ ! -s $issuedir/title ]]; then
-      Mail "error: $failed : title is empty" $bak
+      Mail "warn: $failed : title is empty" $bak
       return
     fi
   fi
@@ -563,17 +563,23 @@ function PostEmerge() {
   fi
 
   #
-  # add cleanup/post-update actions in their opposite order to the package list
+  # add actions in their opposite order to the package list
   #
 
-  # rebuild remaining libs
+  # remaining libs
   #
   grep -q "@preserved-rebuild" $log
   if [[ $? -eq 0 ]]; then
     if [[ "$task" = "@preserved-rebuild" ]]; then
-      Finish "error: $task repeated !"
+      Mail "notice: $task would repeat itself" $log
+    else
+      # any other special task rules
+      #
+      grep -q -E "^(STOP|INFO|%|@)" $pks
+      if [[ $? -ne 0 ]]; then
+        echo "@preserved-rebuild" >> $pks
+      fi
     fi
-    echo "@preserved-rebuild" >> $pks
   fi
 
   # Haskell
@@ -672,21 +678,20 @@ function EmergeTask() {
       rc=$?
       PostEmerge
       if [[ $rc -eq 1 ]]; then
-        # if an Perl upgrade issue appeared then we don't need to put $task onto $pks
-        # b/c due to the return we don't touch the timestamp file
-        # and therefore $task will be repeated nevertheless
+        # if an Perl upgrade issue appeared then repeat $task after the fix
         #
-        echo "%perl-cleaner --all" >> $pks
+        echo "$task"                >> $pks
+        echo "%perl-cleaner --all"  >> $pks
         return
       fi
       
-      # don't complain here too if a single package failed
+      # don't complain here again for a single package failure
       #
       if [[ -z "$failed" ]]; then
-        Mail "warn: $task failed" $log
+        Mail "notice: $task failed" $log
       fi
       
-      # @set failed - resume as often as possible to update as much as possible
+      # @set failed - ok, then update as much as possible of the remaining
       # if we wouldn't do this, then we might stuck at the same package as before
       # and would never jump over
       #
@@ -712,12 +717,10 @@ function EmergeTask() {
       
       grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $log
       if [[ $? -eq 0 ]]; then
-        Mail "warn: $task skipped package/s" $log
+        Mail "notice: $task skipped package/s" $log
       fi
       
       if [[ "$task" = "@system" ]]; then
-        # do few more daily tasks and try @world BUT only *after* all post-emerge actions
-        #
         SwitchJDK
         echo "@world" >> $pks
       
@@ -725,12 +728,6 @@ function EmergeTask() {
         date >> /tmp/timestamp.world
         echo "%emerge --depclean" >> $pks
         
-      elif [[ "$task" = "@preserved-rebuild" ]]; then
-        grep -q 'Nothing to merge; quitting.' $log
-        if [[ $? -eq 0 ]]; then
-          Mail "warn: $task did not started" $log
-        fi
-      
       fi
       
       PostEmerge
