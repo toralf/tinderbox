@@ -301,18 +301,14 @@ cc:       $(cat $issuedir/cc)
 
 ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block
 
-OPEN bugs: https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$short&short_desc_type=allwordssubstr
-$(bugz --columns 400 -q search              $short 2>&1 | grep -v -e "Please stabilize" -e "Stabilization request" | tail -n 20 | tac)
+OPEN:     https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$short&short_desc_type=allwordssubstr
+$(bugz --columns 400 -q search --show-status  $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
 
-RESOLVED bugs: https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr
-$(bugz --columns 400 -q search -s RESOLVED  $short 2>&1 | grep -v -e "Please stabilize" -e "Stabilization request" | tail -n 20 | tac)
+RESOLVED: https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr
+$(bugz --columns 400 -q search -s RESOLVED    $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
 
 EOF
 
-  # funfact: uuencode is not mime-compliant and although thunderbird is able
-  # to display an email composed with such attachments
-  # it cannot forward it: https://bugzilla.mozilla.org/show_bug.cgi?id=1178073
-  #
   for f in $issuedir/emerge-info.txt $issuedir/files/* $bak
   do
     uuencode $f $(basename $f) >> $issuedir/body
