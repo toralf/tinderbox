@@ -658,10 +658,15 @@ function EmergeTask() {
   # handle prefix @
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
-
+    
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       opts="--deep --update --newuse --changed-use --with-bdeps=y"
-
+      # exclude ATOMS which are known to produce blockers
+      #
+      if [[ "$task" = "@world" ]]; then
+        opts="$opts --exclude dev-java/* --exclude dev-ruby/* --exclude dev-lang/ruby"
+      fi
+    
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=60"
       date >> /tmp/timestamp.preserved-rebuild # date helps to detect a loop
