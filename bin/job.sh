@@ -68,18 +68,17 @@ function GetNextTask() {
       Mail "$task"
 
     elif [[ -n "$(echo $task | grep '^STOP')" ]]; then
-      Finish "$task line reached"
+      Finish "$task"
 
     elif  [[ -z "$task" ]]; then
       if [[ -s $pks ]]; then
-        continue  # package list is not empty, just an empty line occured
+        continue  # package list is not empty, just this line
       fi
 
       # we reached end of lifetime of this image
       #
       /usr/bin/pfl &>/dev/null
       n=$(qlist --installed | wc -l)
-      date > $log
       Finish "$n packages emerged"
 
     elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
@@ -89,14 +88,14 @@ function GetNextTask() {
       return  # a package set
 
     else
-      # ignore packages contains patterns !
+      # ignore $task ?
       #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
-      # skip if package is an invalid atom or mask
+      # skip if $task is masked or an invalid string
       #
       best_visible=$(portageq best_visible / $task 2>/dev/null)
       if [[ $? -ne 0 || -z "$best_visible" ]]; then
@@ -113,7 +112,7 @@ function GetNextTask() {
         fi
       fi
 
-      # well, we got a new candidate
+      # well, emerge $task now
       #
       return
     fi
@@ -121,7 +120,7 @@ function GetNextTask() {
 }
 
 
-# compile convenient information together
+# compile convenient information
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
@@ -132,7 +131,7 @@ function CollectIssueFiles() {
   echo "#"      >> $ehist
   $cmd          >> $ehist
 
-  # the log file name of the failed package
+  # the package specifc log file
   #
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
   if [[ -z "$failedlog" ]]; then
@@ -142,7 +141,7 @@ function CollectIssueFiles() {
     fi
   fi
 
-  # misc build log files
+  # misc build logs
   #
   cflog=$(grep -m 1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
   apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"           | cut -f5 -d' ')
@@ -237,9 +236,9 @@ emerge --info >> $issuedir/emerge-info.txt
     echo "sandbox issue"  > $issuedir/title
 
   else
-    # we have do catch for the actual error
-    # therefore we loop over all patterns exactly in their given order
-    # therefore we can't use something like "grep -f CATCH_ISSUES" here
+    # we have do catch the actual error message
+    # therefore we loop over all patterns exactly in their given order -
+    # therefore we can't use something like "grep -f CATCH_ISSUES"
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
@@ -250,18 +249,9 @@ emerge --info >> $issuedir/emerge-info.txt
         break
       fi
     done
-    
-    if [[ ! -s $issuedir/issue ]]; then
-      Mail "warn: $failed : no issue catched" $bak
-      return
-
-    elif [[ ! -s $issuedir/title ]]; then
-      Mail "warn: $failed : title is empty" $bak
-      return
-    fi
   fi
 
-  # condense a looong path name
+  # shrink a looong path name
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
@@ -298,7 +288,7 @@ emerge --info >> $issuedir/emerge-info.txt
     done
   )
 
-  # fill the email body with the issue, package info, bugzilla helper data and a bgo.sh command line ready for copy+paste
+  # pput the issue into the email body together with package info, bugzilla helper data and a bgo.sh command line ready for copy+paste
   #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   cp $issuedir/issue $issuedir/body
