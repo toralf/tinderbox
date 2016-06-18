@@ -413,7 +413,7 @@ flags="
   corefonts csc cups curl custom-cflags custom-optimization dbus
   dec_av2 declarative designer dnssec dot drmkms dvb dvd ecc
   egl eglfs emacs evdev exif extra extraengine ffmpeg fontconfig fortran fpm
-  freetds ftp gcj gd gif git gles gles2 gnomecanvas gnome-keyring
+  freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring
   gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui
   gzip haptic havege hdf5 help ibus icu imap imlib inifile introspection
   ipv6 isag ithreads jadetex javascript javaxml jpeg kerberos kvm
