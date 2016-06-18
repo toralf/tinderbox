@@ -668,7 +668,6 @@ function EmergeTask() {
       fi
     
     elif [[ "$task" = "@preserved-rebuild" ]]; then
-      opts="--backtrack=60"
       date >> /tmp/timestamp.preserved-rebuild # date helps to detect a loop
 
     else
