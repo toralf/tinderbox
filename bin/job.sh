@@ -643,12 +643,13 @@ function EmergeTask() {
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
     
+    excl=''
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       opts="--deep --update --newuse --changed-use --with-bdeps=y"
       # exclude ATOMS which are known to produce blockers
       #
       if [[ "$task" = "@world" ]]; then
-        opts="$opts --exclude dev-java/* --exclude dev-ruby/* --exclude dev-lang/ruby"
+        excl='--exclude dev-java/* --exclude dev-ruby/* --exclude dev-lang/ruby'
       fi
     
     elif [[ "$task" = "@preserved-rebuild" ]]; then
@@ -658,7 +659,7 @@ function EmergeTask() {
       opts="--update"
     fi
 
-    emerge $opts $task &> $log
+    emerge $opts $task $excl &> $log
     if [[ $? -ne 0 ]]; then
       # @something failed
       #
