@@ -9,13 +9,13 @@
 # misplaced/left files
 #
 function checkTmp() {
-  for f in /backend /no
+  for f in /backend /tmp/xdg/*
   do
     if [[ -e $f ]]; then
       found=$(dirname $f)/.$(basename $f).found
       if [[ ! -f $found ]]; then
         ls -ld $f
-        touch $found  # don't report this again
+        touch $found  # don't report this finding again
         rc=1
       fi
     fi
