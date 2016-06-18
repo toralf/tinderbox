@@ -640,9 +640,10 @@ function check() {
       echo                                  >> $out
       echo "seen at tinderbox image $name"  >> $out
       echo                                  >> $out
+      tail -n 30 $log                       >> $out
+      echo                                  >> $out
       emerge --info $task                   >> $out
       echo                                  >> $out
-      cat $log                              >> $out
       Mail "$exe : rc=$rc, task=$task" $out
     fi
     
