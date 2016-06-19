@@ -131,16 +131,6 @@ function CollectIssueFiles() {
   echo "#"      >> $ehist
   $cmd          >> $ehist
 
-  # the package specifc log file
-  #
-  failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
-  if [[ -z "$failedlog" ]]; then
-    failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
-    if [[ -z "$failedlog" ]]; then
-      failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
-    fi
-  fi
-
   # misc build logs
   #
   cflog=$(grep -m 1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
@@ -326,29 +316,18 @@ function GotAnIssue()  {
   typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
-  # guess the actually failed package
+  # put all already successfully emerged dependencies of $task into the world file
+  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
   #
-  failed=""
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
-    failed=$(echo "$line" | cut -f3 -d'(' | cut -f1 -d':')
-
-    # put all already successfully emerged dependencies of $task into the world file
-    # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
-    #
     echo "$line" | grep -q ':  === (1 of '
     if [[ $? -ne 0 ]]; then
       emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
     fi
-  else
-    # alternatives :
-    #[20:43] <_AxS_> toralf:   grep -l "If you need support, post the output of" /var/tmp/portage/*/*/temp/build.log   <-- that should work in all but maybe fetch failures.
-    #[20:38] <kensington> something like itfailed() { echo "${PF} - $(date)" >> failed.log }  register_die_hook itfailed in /etc/portage/bashrc
-    #
-    failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
   fi
-
+  
   # mostly OOM
   #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
@@ -377,6 +356,27 @@ function GotAnIssue()  {
   if [[ $? -eq 0 ]]; then
     Mail "notice: depclean failed" $bak
     return
+  fi
+  
+  # the package specific log file
+  #
+  failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
+  if [[ -z "$failedlog" ]]; then
+    failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
+  fi
+
+  # $failed contains package name + version + revision
+  #
+  if [[ -n "$failedlog" ]]; then
+    failed=$(basename $failedlog | cut -f1-2 -d':' | tr ':' '/')
+  else
+    # guess the actually failed package
+    #
+    # alternatives :
+    #[20:43] <_AxS_> toralf:   grep -l "If you need support, post the output of" /var/tmp/portage/*/*/temp/build.log   <-- that should work in all but maybe fetch failures.
+    #[20:38] <kensington> something like itfailed() { echo "${PF} - $(date)" >> failed.log }  register_die_hook itfailed in /etc/portage/bashrc
+    #
+    failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
   fi
   
   # after this point we expect that we catched the failed package (== $failed is not empty)
@@ -767,7 +767,27 @@ pks=/tmp/packages                           # the package list file, pre-filled 
 name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
 
 export GCC_COLORS="never"                   # suppress colour output of gcc-4.9 and above
-export XDG_CACHE_HOME=/tmp/xdg              # https://bugs.gentoo.org/show_bug.cgi?id=567192
+export XDG_CACHE_HOME=/root/xdg             # https://bugs.gentoo.org/show_bug.cgi?id=567192
+
+# catch XDG directory uses
+# got from [20:25] <mgorny> toralf: also, my make.conf: http://dpaste.com/3CM0WK8 ;-)
+#
+export XDG_DESKTOP_DIR="/root/xdg/Desktop"
+export XDG_DOCUMENTS_DIR="/root/xdg/Documents"
+export XDG_DOWNLOAD_DIR="/root/xdg/Downloads"
+export XDG_MUSIC_DIR="/root/xdg/Music"
+export XDG_PICTURES_DIR="/root/xdg/Pictures"
+export XDG_PUBLICSHARE_DIR="/root/xdg/Public"
+export XDG_TEMPLATES_DIR="/root/xdg/Templates"
+export XDG_VIDEOS_DIR="/root/xdg/Videos"
+
+export XDG_RUNTIME_DIR="/root/xdg/run"
+export XDG_CONFIG_HOME="/root/xdg/config"
+export XDG_CACHE_HOME="/root/xdg/cache"
+export XDG_DATA_HOME="/root/xdg/share"
+
+export XDG_DATA_DIRS="/root/xdg/share-read"
+export XDG_CONFIG_DIRS="/root/xdg/config-read"
 
 while :;
 do
