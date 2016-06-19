@@ -52,7 +52,7 @@ else
   #
   bugz post \
     --product "Gentoo Linux"          \
-    --component "Applications"        \
+    --component "Current packages"    \
     --version "unspecified"           \
     --title "$(cat ./title)"          \
     --op-sys "Linux"                  \
