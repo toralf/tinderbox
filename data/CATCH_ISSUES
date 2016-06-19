@@ -1,5 +1,4 @@
-This ebuild will need the cdrom
-This ebuild will need the INSTALL_CD
+This ebuild will need the
 This package will need access to .* cds.
 These fortunes have offensive content. Enable offensive USE Flag
 This plugin requires the X frontend of gkrellm.
@@ -136,12 +135,9 @@ One of the following USE flags is needed:
 python_pkg_setup() not called
 Ambiguous occurrence
 Missing USE flags in
-please either set LINGUAS or do not use nls
-you must set LINGUAS in
 Compilation failed in require at
 is banned in EAPI
 Failed Running libtoolize
-These fortunes have offensive content. Enable offensive USE Flag
 Select exactly one database type out of these: mysql oracle postgres sqlite
 make .* Error
 The source directory .* doesn.t exist
@@ -155,12 +151,21 @@ The .* distribution was not found and is required by
 The library 'System.Xml.dll' could not be found.
 Fetched file: .* VERIFY FAILED!
 Reason: Failed on .* verification
+mktextfm:.*failed to make
+Failed Running autopoint
+tar: This does not look like a tar archive
+/bin/sh: .* No such file or directory
+requires support for 32-bit executables.
+Failed setting classpath from Ant task
+error: conflicting types
+Option .* requires an argument
+Couldn't download .* Aborting.
+sed: can't read .*: No such file or directory
 recipe for target .* failed
 error:
 Error:
 ERROR :
 ERROR:
-Failed to copy extended attributes. In order to avoid this error,
 Error
 error
 ERROR
