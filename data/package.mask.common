@@ -20,9 +20,9 @@ media-video/libav
 #
 dev-util/pkgconfig-openbsd
 
-# https://bugs.gentoo.org/show_bug.cgi?id=536124
+# 4.4 is broken: https://bugs.gentoo.org/show_bug.cgi?id=536124
 #
-<dev-lang/gnat-gcc-4.5.4
+~dev-lang/gnat-gcc-4.4.7
 
 # can't be build w/ recent kernels
 #
@@ -34,9 +34,13 @@ net-dns/resolvconf-symlink
 
 # LO rules
 #
-app-office/openoffice
 app-office/openoffice-bin
 
 # "Checking for at least 35 GiB disk space at "
 #
 sci-mathematics/isabelle
+
+
+# XDG* issue: https://bugs.gentoo.org/show_bug.cgi?id=577704
+#
+dev-python/rnc2rng
