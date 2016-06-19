@@ -9,7 +9,7 @@
 # misplaced/left files
 #
 function checkTmp() {
-  for f in /backend /tmp/xdg/*
+  for f in
   do
     if [[ -e $f ]]; then
       found=$(dirname $f)/.$(basename $f).found
@@ -27,6 +27,6 @@ function checkTmp() {
 #
 
 rc=0
-checkTmp
+# checkTmp
 
 exit $rc

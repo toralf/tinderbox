@@ -4,12 +4,12 @@ minor|major|makedev
 # mono-4 issues
 580316
 mcs Not found|gmcs
-# export XDG_CACHE_HOME=/tmp/xdg issues
-567192
-/tmp/xdg/
 # gnutls-3.4
 546124
 gnutls_
 # GCC-5 porting
 536984
 undefined reference to
+# XDG env
+567192
+sandbox issue (XDG_xxx_DIR related)

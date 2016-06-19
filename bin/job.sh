@@ -220,14 +220,27 @@ emerge --info >> $issuedir/emerge-info.txt
     echo "file collision with $s"                       > $issuedir/title
 
   elif [[ -f $sandb ]]; then
-    # handle sandbox issues in a special way
+    # handle XDG sandbox issues in a special way
     #
-    head -n 20 $sandb     > $issuedir/issue
-    echo "sandbox issue"  > $issuedir/title
+    p="$(grep -m1 ^A: $sandb)"
+    echo "$p" | grep -q "^/root/"
+    if [[ $? -eq 0 ]]; then
+      cat <<EOF > $issuedir/issue
+This issue is forced at the tinderbox by making:
 
+$(grep '^export XDG_' /tmp/job.sh)
+
+pls see bug #567192 too
+
+EOF
+      echo "sandbox issue (XDG_xxx_DIR related)" > $issuedir/title
+    else
+      echo "sandbox issue $p" > $issuedir/title
+    fi
+    head -n 20 $sandb >> $issuedir/issue
+    
   else
-    # we have do catch the actual error message
-    # therefore we loop over all patterns exactly in their given order -
+    # to catch the real culprit we loop over all patterns exactly in their written order
     # therefore we can't use something like "grep -f CATCH_ISSUES"
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
@@ -770,22 +783,22 @@ name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | 
 #
 # https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
-export XDG_DESKTOP_DIR="/root/xdg/Desktop"
-export XDG_DOCUMENTS_DIR="/root/xdg/Documents"
-export XDG_DOWNLOAD_DIR="/root/xdg/Downloads"
-export XDG_MUSIC_DIR="/root/xdg/Music"
-export XDG_PICTURES_DIR="/root/xdg/Pictures"
-export XDG_PUBLICSHARE_DIR="/root/xdg/Public"
-export XDG_TEMPLATES_DIR="/root/xdg/Templates"
-export XDG_VIDEOS_DIR="/root/xdg/Videos"
+export XDG_DESKTOP_DIR="/root/Desktop"
+export XDG_DOCUMENTS_DIR="/root/Documents"
+export XDG_DOWNLOAD_DIR="/root/Downloads"
+export XDG_MUSIC_DIR="/root/Music"
+export XDG_PICTURES_DIR="/root/Pictures"
+export XDG_PUBLICSHARE_DIR="/root/Public"
+export XDG_TEMPLATES_DIR="/root/Templates"
+export XDG_VIDEOS_DIR="/root/Videos"
 
-export XDG_RUNTIME_DIR="/root/xdg/run"
-export XDG_CONFIG_HOME="/root/xdg/config"
-export XDG_CACHE_HOME="/root/xdg/cache"
-export XDG_DATA_HOME="/root/xdg/share"
+export XDG_RUNTIME_DIR="/root/run"
+export XDG_CONFIG_HOME="/root/config"
+export XDG_CACHE_HOME="/root/cache"
+export XDG_DATA_HOME="/root/share"
 
-export XDG_DATA_DIRS="/root/xdg/share-read"
-export XDG_CONFIG_DIRS="/root/xdg/config-read"
+export XDG_DATA_DIRS="/root/share-read"
+export XDG_CONFIG_DIRS="/root/config-read"
 
 
 while :;
@@ -803,7 +816,7 @@ do
   rm -rf /var/tmp/portage/*
   
   date > $log
-  if [[ -f /tmp/STOP  ]]; then
+  if [[ -f /tmp/STOP ]]; then
     Finish "got stop signal"
   fi
   
