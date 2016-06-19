@@ -756,21 +756,19 @@ function EmergeTask() {
 #       main
 #
 mailto="tinderbox@zwiebeltoralf.de"
+log=/tmp/task.log                   # holds always output of "emerge ... "
+pks=/tmp/packages                   # the package list file, pre-filled at setup
 
-log=/tmp/task.log                           # holds always output of "emerge ... "
-tsfile=/usr/portage/metadata/timestamp.chk
-old=$(cat $tsfile 2>/dev/null)              # timestamp of the package repository
-pks=/tmp/packages                           # the package list file, pre-filled at setup
+export GCC_COLORS="never"           # suppress colour output of gcc-4.9 and above
 
-# eg.: PORTAGE_ELOG_MAILFROM="amd64-gnome-unstable_20150913-104240 <tinderbox@zwiebeltoralf.de>"
+# eg.: amd64-gnome-unstable_20150913-104240
 #
 name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
 
-export GCC_COLORS="never"                   # suppress colour output of gcc-4.9 and above
-export XDG_CACHE_HOME=/root/xdg             # https://bugs.gentoo.org/show_bug.cgi?id=567192
-
 # catch XDG directory uses
 # got from [20:25] <mgorny> toralf: also, my make.conf: http://dpaste.com/3CM0WK8 ;-)
+#
+# https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
 export XDG_DESKTOP_DIR="/root/xdg/Desktop"
 export XDG_DOCUMENTS_DIR="/root/xdg/Documents"
@@ -789,17 +787,9 @@ export XDG_DATA_HOME="/root/xdg/share"
 export XDG_DATA_DIRS="/root/xdg/share-read"
 export XDG_CONFIG_DIRS="/root/xdg/config-read"
 
+
 while :;
 do
-  # run this before we clean the /var/tmp/portage directory
-  #
-  check
-
-  # pick up after ourself now (we can't use FEATURES=fail-clean)
-  #
-  rm -rf /var/tmp/portage/*
-  date > $log
-
   # start an updated instance of ourself if we do differ from it
   #
   diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
@@ -807,6 +797,12 @@ do
     exit 125
   fi
   
+  # check for artefacts before we pick up after ourself
+  #
+  check
+  rm -rf /var/tmp/portage/*
+  
+  date > $log
   if [[ -f /tmp/STOP  ]]; then
     Finish "got stop signal"
   fi
