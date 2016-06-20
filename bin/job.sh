@@ -570,9 +570,9 @@ function PostEmerge() {
     if [[ "$task" = "@preserved-rebuild" ]]; then
       Mail "notice: $task would repeat itself" $log
     else
-      # any other special task rules
+      # other sets rules, but eg. "%emerge --depclean" is always expected
       #
-      grep -q -E "^(STOP|INFO|%|@)" $pks
+      grep -q -E "^(STOP|INFO|@)" $pks
       if [[ $? -ne 0 ]]; then
         echo "@preserved-rebuild" >> $pks
       fi
@@ -666,7 +666,7 @@ function EmergeTask() {
       fi
     
     elif [[ "$task" = "@preserved-rebuild" ]]; then
-      date >> /tmp/timestamp.preserved-rebuild # date helps to detect a loop
+      date >> /tmp/timestamp.preserved-rebuild
 
     else
       opts="--update"
@@ -681,22 +681,21 @@ function EmergeTask() {
       rc=$?
       PostEmerge
       if [[ $rc -eq 1 ]]; then
-        # if an Perl upgrade issue appeared then repeat $task after the fix
+        # if an Perl upgrade issue happened then repeat $task after Perl
         #
         echo "$task"                >> $pks
         echo "%perl-cleaner --all"  >> $pks
         return
       fi
       
-      # don't complain here again for a single package failure
+      # only complain here if not a single package failure was already reported
       #
       if [[ -z "$failed" ]]; then
         Mail "notice: $task failed" $log
       fi
       
-      # @set failed - ok, then update as much as possible of the remaining
-      # if we wouldn't do this, then we might stuck at the same package as before
-      # and would never jump over
+      # if @set failed try to update as much as possible of the remaining packages
+      # otherwise next time we'd stuck at the same package as before
       #
       while :;
       do
@@ -742,7 +741,7 @@ function EmergeTask() {
       date >> /tmp/timestamp.system
     fi
     
-    # run it before any depclean could happen
+    # report before a depclean is made
     #
     /usr/bin/pfl &>/dev/null
     
