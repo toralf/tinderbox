@@ -223,7 +223,7 @@ emerge --info >> $issuedir/emerge-info.txt
     # handle XDG sandbox issues in a special way
     #
     p="$(grep -m1 ^A: $sandb)"
-    echo "$p" | grep -q "^/root/"
+    echo "$p" | grep -q "A: /root/"
     if [[ $? -eq 0 ]]; then
       cat <<EOF > $issuedir/issue
 This issue is forced at the tinderbox by making:
