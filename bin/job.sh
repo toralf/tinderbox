@@ -651,13 +651,13 @@ function EmergeTask() {
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
     
-    excl=''
+    excl=""
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       opts="--deep --update --newuse --changed-use --with-bdeps=y"
       # exclude ATOMS which are known to produce blockers
       #
       if [[ "$task" = "@world" ]]; then
-        excl='--exclude dev-java/* --exclude dev-ruby/* --exclude dev-lang/ruby'
+        excl="$(cat /tmp/tb/data/EXCLUDE_PACKAGES | sed 's/^/--exclude /g')"
       fi
     
     elif [[ "$task" = "@preserved-rebuild" ]]; then
