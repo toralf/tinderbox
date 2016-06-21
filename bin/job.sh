@@ -651,9 +651,10 @@ function EmergeTask() {
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
     
+    opts="--backtrack=30"
     excl=""
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
-      opts="--deep --update --newuse --changed-use --with-bdeps=y"
+      opts="$ops --deep --update --newuse --changed-use --with-bdeps=y"
       # exclude ATOMS which are known to produce blockers
       #
       if [[ "$task" = "@world" ]]; then
