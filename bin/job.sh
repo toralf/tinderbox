@@ -570,12 +570,7 @@ function PostEmerge() {
     if [[ "$task" = "@preserved-rebuild" ]]; then
       Mail "notice: $task would repeat itself" $log
     else
-      # other sets rules, but eg. "%emerge --depclean" is always expected
-      #
-      grep -q -E "^(STOP|INFO|@)" $pks
-      if [[ $? -ne 0 ]]; then
-        echo "@preserved-rebuild" >> $pks
-      fi
+      echo "@preserved-rebuild" >> $pks
     fi
   fi
 
