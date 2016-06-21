@@ -304,10 +304,10 @@ cc:       $(cat $issuedir/cc)
 
 ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block
 
-OPEN:     https://bugs.gentoo.org/buglist.cgi?query_format=advanced&resolution=---&short_desc=$short&short_desc_type=allwordssubstr
+OPEN:     https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr&resolution=---
 $(bugz --columns 400 -q search --show-status  $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
 
-RESOLVED: https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr
+RESOLVED: https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr&bug_status=RESOLVED
 $(bugz --columns 400 -q search -s RESOLVED    $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
 
 EOF
@@ -328,7 +328,7 @@ function GotAnIssue()  {
   #
   typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
-
+    
   # put all already successfully emerged dependencies of $task into the world file
   # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
   #
@@ -662,11 +662,11 @@ function EmergeTask() {
     
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       date >> /tmp/timestamp.preserved-rebuild
-
+    
     else
       opts="--update"
     fi
-
+    
     emerge $opts $task $excl &> $log
     if [[ $? -ne 0 ]]; then
       # @something failed
