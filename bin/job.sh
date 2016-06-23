@@ -376,6 +376,9 @@ function GotAnIssue()  {
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
   if [[ -z "$failedlog" ]]; then
     failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
+    if [[ -z "$failedlog" ]]; then
+      failedlog=$(grep -m 1 "^>>>  '" $bak | cut -f2 -d"'")
+    fi
   fi
 
   # $failed contains package name + version + revision
@@ -390,6 +393,10 @@ function GotAnIssue()  {
     #[20:38] <kensington> something like itfailed() { echo "${PF} - $(date)" >> failed.log }  register_die_hook itfailed in /etc/portage/bashrc
     #
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
+    if [[ -z "$failedlog" ]]; then
+      failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+    fi
+    Mail "warn: guessed for task $task the log $failedlog" $bak
   fi
   
   # after this point we expect that we catched the failed package (== $failed is not empty)
