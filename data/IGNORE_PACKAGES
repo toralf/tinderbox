@@ -11,4 +11,5 @@ sys-fs/loop-aes
 sys-fs/vhba
 sys-kernel/
 virtual/
+www-apache/mod_
 x11-drivers/nvidia-drivers
