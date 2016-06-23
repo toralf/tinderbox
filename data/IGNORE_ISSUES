@@ -19,7 +19,9 @@ Linux >= .* and <= .* required for userspace modules
 Linux .* is the latest supported version.
 MINITUBE_GOOGLE_API_KEY env variable not defined!
 Multiple package instances within a single package slot have been pulled
+needs multilib profile on amd64
 no suitable configured kernel include tree found
+No supported Python implementation in PYTHON_SINGLE_TARGET/PYTHON_TARGETS.
 Please buy & download
 Please, run 'haskell-updater'
 Please switch your active compiler to gcc with

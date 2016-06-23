@@ -159,8 +159,11 @@ requires support for 32-bit executables.
 Failed setting classpath from Ant task
 error: conflicting types
 Option .* requires an argument
+Fetch failed for 
 Couldn't download .* Aborting.
 sed: can't read .*: No such file or directory
+parser error : .* not defined
+error: unrecognized command line option
 recipe for target .* failed
 error:
 Error:
