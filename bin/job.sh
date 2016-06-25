@@ -216,8 +216,8 @@ emerge --info >> $issuedir/emerge-info.txt
     cc=$(equery meta -m $s | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
     (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',' > $issuedir/cc
     
-    grep -m 1 -A 15 ' Detected file collision(s):' $bak > $issuedir/issue
-    echo "file collision with $s"                       > $issuedir/title
+    grep -m 1 -A 20 ' Detected file collision(s):' $bak | grep -B 15 'Package .* NOT merged due to file collisions. If' > $issuedir/issue
+    echo "file collision with $s" > $issuedir/title
 
   elif [[ -f $sandb ]]; then
     # handle XDG sandbox issues in a special way
