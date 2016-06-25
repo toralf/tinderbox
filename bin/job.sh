@@ -396,7 +396,6 @@ function GotAnIssue()  {
     if [[ -z "$failedlog" ]]; then
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
     fi
-    Mail "warn: guessed for task $task the log $failedlog" $bak
   fi
   
   # after this point we expect that we catched the failed package (== $failed is not empty)
