@@ -425,7 +425,7 @@ flags="
   php pkcs11 plasma png policykit postgres postproc postscript
   printsupport pulseaudio pwquality pyqt4 python qemu qml qt3support qt4
   qt5 rdoc rendering scripts scrypt sddm sdl semantic-desktop server
-  smartcard smpeg snmp sockets source spice sql sqlite sqlite3
+  smartcard smpeg snmp sockets source sourceview spice sql sqlite sqlite3
   ssh ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo
   system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
   system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
