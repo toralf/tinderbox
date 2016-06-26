@@ -41,7 +41,9 @@ CMake Error at
 Configuring incomplete, errors occurred
 Unknown CMake command
 include called with wrong number of arguments
-error: expected
+Fetched file: .* VERIFY FAILED!
+error: 
+stack smashing detected
 No rule to make target
 final link failed: Nonrepresentable section on output
 ld returned 1 exit status
@@ -97,15 +99,14 @@ make:.* Stop.
 error adding symbols:
 missing separator
 Make check failed. See above for details.
-fatal error: .*: No such file or directory
 pdflatex failed
 An exception has occurred in the compiler
 error in .* command
 Can't locate Locale/Messages.pm in @INC
 Ebuild author forgot an entry
-error: .* is not a member
 .*command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
+pushd.*No such file or directory
 does not exist
 No package .* found
 Invalid use of .*.eclass
@@ -149,15 +150,12 @@ install: cannot stat .*: No such file or directory
 could not be found, but is required.
 The .* distribution was not found and is required by
 The library 'System.Xml.dll' could not be found.
-Fetched file: .* VERIFY FAILED!
-Reason: Failed on .* verification
 mktextfm:.*failed to make
 Failed Running autopoint
 tar: This does not look like a tar archive
 /bin/sh: .* No such file or directory
 requires support for 32-bit executables.
 Failed setting classpath from Ant task
-error: conflicting types
 Option .* requires an argument
 Fetch failed for 
 Couldn't download .* Aborting.
@@ -165,7 +163,6 @@ sed: can't read .*: No such file or directory
 parser error : .* not defined
 error: unrecognized command line option
 recipe for target .* failed
-error:
 Error:
 ERROR :
 ERROR:

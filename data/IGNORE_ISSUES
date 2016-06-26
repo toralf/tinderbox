@@ -11,6 +11,7 @@ Error: circular dependencies:
 Error: The above package list contains packages which cannot be
 Fetch instructions for
 gcc-5 is not yet supported
+gcc version .* found, expected gcc
 Incorrect kernel configuration options
 kernel too new
 License file not found!
@@ -27,6 +28,7 @@ Please, run 'haskell-updater'
 Please switch your active compiler to gcc with
 Please use GCC-4.9 for now.
 some Java tools are not available on some VMs on some architectures
+Sorry, but you have to patch kernel sources with the following patch
 The following .* changes are necessary to proceed:
 The following REQUIRED_USE flag constraints are unsatisfied:
 The HyperSpec cannot be redistributed.
