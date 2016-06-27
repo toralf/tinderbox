@@ -304,7 +304,7 @@ migrate-pax -m
 
 # our preferred simple mailer
 #
-emerge --verbose mail-mta/ssmtp mail-client/mailx || exit 3
+emerge --verbose mail-mta/ssmtp || exit 3
 
 echo "
 root=tinderbox@zwiebeltoralf.de
@@ -315,6 +315,9 @@ hostname=ms-magpie.zwiebeltoralf.de
 UseTLS=YES
 " > /etc/ssmtp/ssmtp.conf
 
+# our preferred MTA
+#
+emerge --verbose mail-client/mailx || exit 4
 
 # install mandatory tools
 #   <package>                   <command/s>
@@ -326,12 +329,12 @@ UseTLS=YES
 #   www-client/pybugz           bugz
 #
 echo ">=sys-libs/ncurses-6.0" > /etc/portage/package.mask/ncurses
-emerge --verbose app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 4
+emerge --verbose app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 5
 rm /etc/portage/package.mask/ncurses
 
 # we have "sys-kernel/" in IGNORE_PACKAGES therefore emerge sources explicitely
 #
-emerge --verbose sys-kernel/hardened-sources || exit 5
+emerge --verbose sys-kernel/hardened-sources || exit 6
 
 # at least the very first @world upgrade must not fail
 #
