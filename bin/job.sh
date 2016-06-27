@@ -574,10 +574,9 @@ function PostEmerge() {
   grep -q "@preserved-rebuild" $log
   if [[ $? -eq 0 ]]; then
     if [[ "$task" = "@preserved-rebuild" ]]; then
-      Mail "notice: $task would repeat itself" $log
-    else
-      echo "@preserved-rebuild" >> $pks
+      Mail "notice: $task repeated" $log
     fi
+    echo "@preserved-rebuild" >> $pks
   fi
 
   # Haskell
