@@ -56,7 +56,7 @@ function GetNextTask() {
       fi
     fi
   fi
-  
+
   # splice last line of the package list $pks into $task
   # make few basic checks before
   #
@@ -102,7 +102,7 @@ function GetNextTask() {
       if [[ $? -ne 0 || -z "$best_visible" ]]; then
         continue
       fi
-      
+
       # skip if installed $task is up to date or would be downgraded
       #
       installed=$(portageq best_version / $task)
@@ -172,7 +172,7 @@ function CollectIssueFiles() {
   if [[ $? -eq 0 ]]; then
     mask="unstable"
   fi
-  
+
   cat << EOF >> $issuedir/emerge-info.txt
   -----------------------------------------------------------------
 
@@ -216,7 +216,7 @@ emerge --info >> $issuedir/emerge-info.txt
     s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
     cc=$(equery meta -m $s | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
     (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',' > $issuedir/cc
-    
+
     grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' > $issuedir/issue
     echo "file collision with $s" > $issuedir/title
 
@@ -239,7 +239,7 @@ EOF
       echo "sandbox issue $p" > $issuedir/title
     fi
     head -n 20 $sandb >> $issuedir/issue
-    
+
   else
     # to catch the real culprit we loop over all patterns exactly in their written order
     # therefore we can't use something like "grep -f CATCH_ISSUES"
@@ -262,7 +262,7 @@ EOF
   # prefix title with the $failed package
   #
   sed -i -e "s#^#$failed : #" $issuedir/title
-  
+
   # b.g.o limits "Summary" to 255 chars
   #
   if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
@@ -292,10 +292,11 @@ EOF
     done
   )
 
-  # pput the issue into the email body together with package info, bugzilla helper data and a bgo.sh command line ready for copy+paste
+  # put the issue into the email body together with package version and maintainer, bugzilla search results and a bgo.sh command line ready for copy+paste
   #
-  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   cp $issuedir/issue $issuedir/body
+
+  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   cat << EOF >> $issuedir/body
 
 --
@@ -329,7 +330,7 @@ function GotAnIssue()  {
   #
   typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
-    
+
   # put all already successfully emerged dependencies of $task into the world file
   # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
   #
@@ -341,7 +342,7 @@ function GotAnIssue()  {
       emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
     fi
   fi
-  
+
   # mostly OOM
   #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
@@ -365,13 +366,13 @@ function GotAnIssue()  {
   if [[ $? -eq 0 ]]; then
     return
   fi
-  
+
   grep -q 'Always study the list of packages to be cleaned for any obvious' $bak
   if [[ $? -eq 0 ]]; then
     Mail "notice: depclean failed" $bak
     return
   fi
-  
+
   # the package specific log file
   #
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
@@ -398,7 +399,7 @@ function GotAnIssue()  {
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
     fi
   fi
-  
+
   # after this point we expect that we catched the failed package (== $failed is not empty)
   #
   if [[ -z "$failed" ]]; then
@@ -411,7 +412,7 @@ function GotAnIssue()  {
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
   CollectIssueFiles
-  
+
   # Perl upgrade issue, usually during setup, repeat @<set> after Perl was cleaned
   # https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
   #
@@ -420,7 +421,7 @@ function GotAnIssue()  {
     Mail "notice: Perl upgrade issue in $task" $bak
     return 1
   fi
-    
+
   # mask this particular package version at this image
   #
   grep -q "=$failed " /etc/portage/package.mask/self
@@ -625,10 +626,10 @@ function check() {
 
   if [[ -x $exe ]]; then
     out=/tmp/check.log
-    
+
     $exe &> $out
     rc=$?
-    
+
     # -1 == 255:-2 == 254, ...
     #
     if [[ $rc -gt 127 ]]; then
@@ -644,7 +645,7 @@ function check() {
       echo                                  >> $out
       Mail "$exe : rc=$rc, task=$task" $out
     fi
-    
+
     rm $out
   fi
 }
@@ -656,9 +657,9 @@ function EmergeTask() {
   # handle prefix @
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
-    
+
     excl=""
-    
+
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       opts="--backtrack=30 --deep --update --newuse --changed-use --with-bdeps=y"
       # exclude ATOMS which are known to produce blockers
@@ -668,20 +669,20 @@ function EmergeTask() {
           excl="$(sed 's/ //g' /tmp/tb/data/EXCLUDE_PACKAGES | grep -v '^$' | sed -e 's/^/--exclude /g' | xargs)"
         fi
       fi
-    
+
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=30"
       date >> /tmp/timestamp.preserved-rebuild
-    
+
     else
       opts="--update"
     fi
-    
+
     emerge $opts $task $excl &> $log
     if [[ $? -ne 0 ]]; then
       # @something failed
       #
-            
+
       GotAnIssue
       rc=$?
       PostEmerge
@@ -692,13 +693,13 @@ function EmergeTask() {
         echo "%perl-cleaner --all"  >> $pks
         return
       fi
-      
+
       # only complain here if not a single package failure was already reported
       #
       if [[ -z "$failed" ]]; then
         Mail "notice: $task failed" $log
       fi
-      
+
       # if @set failed try to update as much as possible of the remaining packages
       # otherwise next time we'd stuck at the same package as before
       #
@@ -721,21 +722,21 @@ function EmergeTask() {
     else
       # at least the return code was zero
       #
-      
+
       grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $log
       if [[ $? -eq 0 ]]; then
         Mail "notice: $task skipped package/s" $log
       fi
-      
+
       if [[ "$task" = "@system" ]]; then
         echo "@world" >> $pks
-      
+
       elif [[ "$task" = "@world" ]]; then
         date >> /tmp/timestamp.world
         echo "%emerge --depclean" >> $pks
-        
+
       fi
-      
+
       PostEmerge
     fi
 
@@ -744,11 +745,11 @@ function EmergeTask() {
     if [[ "$task" = "@system" ]] ;then
       date >> /tmp/timestamp.system
     fi
-    
+
     # report before a depclean is made
     #
     /usr/bin/pfl &>/dev/null
-    
+
   else
     # the "%" prefixes a command line
     #
@@ -812,17 +813,17 @@ do
   if [[ $? -ne 0 ]]; then
     exit 125
   fi
-  
+
   # check for artefacts before we pick up after ourself
   #
   check
   rm -rf /var/tmp/portage/*
-  
+
   date > $log
   if [[ -f /tmp/STOP ]]; then
     Finish "got stop signal"
   fi
-  
+
   GetNextTask
   EmergeTask
 
