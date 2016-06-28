@@ -37,7 +37,7 @@ function Finish()  {
 }
 
 
-# fill $task with a reasonable value
+# put next work item into $task
 #
 function GetNextTask() {
   #   update @system once a day, if no special task is scheduled
@@ -51,6 +51,7 @@ function GetNextTask() {
       grep -q -E "^(STOP|INFO|%|@)" $pks
       if [[ $? -ne 0 ]]; then
         task="@system"
+        SwitchJDK
         return
       fi
     fi
@@ -727,7 +728,6 @@ function EmergeTask() {
       fi
       
       if [[ "$task" = "@system" ]]; then
-        SwitchJDK
         echo "@world" >> $pks
       
       elif [[ "$task" = "@world" ]]; then
