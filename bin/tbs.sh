@@ -67,11 +67,11 @@ function InstallStage3()  {
   elif [[ "$profile" = "hardened/linux/amd64/no-multilib" ]]; then
     name="$name-hardened-no-multilib"
     stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
-  
+
   elif [[ "$profile" = "default/linux/amd64/13.0/no-multilib" ]]; then
     name="$name-13.0-no-multilib"
     stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
-  
+
   elif [[ "$(basename $profile)" = "systemd" ]]; then
     name="$name-$(basename $(dirname $profile))-systemd"
     stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
@@ -84,10 +84,10 @@ function InstallStage3()  {
   # now complete it with keyword and time stamp
   #
   name="$name-${mask}_$(date +%Y%m%d-%H%M%S)"
-  
+
   echo " image: $name"
   echo
-  
+
   # download stage3 if not already done
   #
   b=$(basename $stage3)
@@ -203,7 +203,7 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gor.bytemark.co.uk/gentoo/ rsync://ftp.snt.utwente.nl/gentoo"
 
 EOF
-  
+
   #----------------------------------------
 
   # create portage directories and symlink them to tb/data/*
@@ -254,12 +254,12 @@ EOF
 
 function FillPackageList()  {
   pks=tmp/packages
-  
+
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
   echo "@world"         >> $pks
   echo "%BuildKernel"   >> $pks   # only a major GCC upgrade rebuilds an already built kernel
   echo "sys-devel/gcc"  >> $pks   # too much hassle if we upgrade it later
-  
+
   chown tinderbox.tinderbox $pks
 
   # tweaks requested by devs
@@ -361,16 +361,16 @@ EOF
 
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
-  
+
   # strip of the $tbhome
   #
   cd $tbhome
   d=$(basename $imagedir)/$name
-  
+
   # authentication avoids an 10 sec tarpitting delay by the ISP
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
-  
+
   # bugz is used in job.sh to create the email
   #
   cp /home/tinderbox/.bugzrc $d/root
@@ -411,32 +411,32 @@ EOF
 name="amd64"  # fixed prefix, append later <profile>, <mask> and <timestamp>
 
 flags="
-  aes-ni alisp alsa apache apache2 avcodec avformat btrfs
-  bugzilla bzip2 cairo cdb cdda cddb cgi cgoups clang compat consolekit
-  corefonts csc cups curl custom-cflags custom-optimization dbus
-  dec_av2 declarative designer dnssec dot drmkms dvb dvd ecc
-  egl eglfs emacs evdev exif extra extraengine ffmpeg fontconfig fortran fpm
-  freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring
-  gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui
-  gzip haptic havege hdf5 help ibus icu imap imlib inifile introspection
-  ipv6 isag ithreads jadetex javascript javaxml jpeg kerberos kvm
-  lapack latex ldap libinput libkms libvirtd llvm logrotate lzma mad
-  mbox mdnsresponder-compat melt midi mikmod minimal minizip mng mod
-  modplug mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia
-  multitarget mysql mysqli ncurses networking nls nscd nss obj objc odbc
-  offensive ogg ois opencv openexr opengl openmpi openssl pam pcre16 pdo
-  php pkcs11 plasma png policykit postgres postproc postscript
-  printsupport pulseaudio pwquality pyqt4 python qemu qml qt3support qt4
-  qt5 rdoc rendering scripts scrypt sddm sdl semantic-desktop server
-  smartcard smpeg snmp sockets source sourceview spice sql sqlite sqlite3
-  ssh ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo
-  system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
-  system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
-  theora thinkpad threads tk tls tools tracepath traceroute truetype
-  ufed uml usb usbredir utils uxa v4l v4l2 vaapi vala vdpau video vim
-  vlc vorbis vpx wav wayland webgl webkit webstart widgets wma wxwidgets
-  X x264 x265 xa xcb xetex xinerama xinetd xkb xml xmlreader xmp
-  xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
+  aes-ni alisp alsa apache apache2 avcodec avformat btrfs bugzilla bzip2
+  cairo cdb cdda cddb cgi cgoups clang compat consolekit corefonts csc
+  cups curl custom-cflags custom-optimization dbus dec_av2 declarative
+  designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev exif
+  extra extraengine ffmpeg fluidsynth fontconfig fortran fpm freetds ftp
+  gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring gnuplot
+  gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui gzip
+  haptic havege hdf5 help ibus icu imap imlib inifile introspection ipv6
+  isag ithreads jadetex javascript javaxml jpeg kerberos kvm lapack
+  latex ldap libinput libkms libvirtd llvm logrotate lzma mad mbox
+  mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
+  mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia multitarget
+  mysql mysqli ncurses networking nls nscd nss obj objc odbc offensive
+  ogg ois opencv openexr opengl openmpi openssl pam pcre16 pdo php
+  pkcs11 plasma png policykit postgres postproc postscript printsupport
+  pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
+  rendering scripts scrypt sddm sdl semantic-desktop server smartcard
+  smpeg snmp sockets source sourceview spice sql sqlite sqlite3 ssh
+  ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo system-ffmpeg
+  system-harfbuzz system-icu system-jpeg system-libevent system-libs
+  system-libvpx system-llvm system-sqlite szip tcl tcpd theora thinkpad
+  threads timidity tk tls tools tracepath traceroute truetype ufed uml
+  usb usbredir utils uxa v4l v4l2 vaapi vala vdpau video vim vlc vorbis
+  vpx wav wayland webgl webkit webstart widgets wma wxwidgets X x264
+  x265 xa xcb xetex xinerama xinetd xkb xml xmlreader xmp xscreensaver
+  xslt xvfb xvmc xz zenmap ziffy zip zlib
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
