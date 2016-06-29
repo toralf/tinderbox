@@ -180,7 +180,7 @@ SSL_BITS=4096
 ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 
-# no parallel make, we do prefer to run more images in parallel
+# no parallel make, we do prefer instead to run more images at the same time
 #
 MAKEOPTS="-j1"
 
