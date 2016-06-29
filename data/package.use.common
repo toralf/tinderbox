@@ -1,7 +1,7 @@
 # package.use/common
 #
 
-# mandatory to deliver SMTP emails more securely
+# mandatory to deliver SMTP emails securely
 #
 mail-mta/ssmtp            ssl
 
@@ -17,3 +17,8 @@ sys-libs/ncurses          -gpm
 # hangs during emerge otherwise: https://bugs.gentoo.org/show_bug.cgi?id=540818 https://bugs.gentoo.org/show_bug.cgi?id=75028
 #
 app-editors/xemacs        -nopie
+
+# too much hassle with gnutls and et al otherwise
+#
+app-editors/emacs             -ssl -gtk3 -X
+dev-util/desktop-file-utils   -emacs
