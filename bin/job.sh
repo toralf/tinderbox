@@ -576,13 +576,10 @@ function PostEmerge() {
     SelectNewKernel
   fi
 
-  #
-  # add actions in their opposite order to the package list
+  # schedule actions in their opposite order to the package list
   #
 
-  # remaining libs
-  #
-  grep -q "@preserved-rebuild" $log
+  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
   if [[ $? -eq 0 ]]; then
     if [[ "$task" = "@preserved-rebuild" ]]; then
       Mail "notice: $task repeated" $log
@@ -590,37 +587,27 @@ function PostEmerge() {
     echo "@preserved-rebuild" >> $pks
   fi
 
-  # Haskell
-  #
   grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $log
   if [[ $? -eq 0 ]]; then
     echo "%haskell-updater" >> $pks
   fi
 
-  # Perl
-  #
   grep -q 'Use: perl-cleaner' $log
   if [[ $? -eq 0 ]]; then
     echo "%perl-cleaner --force --libperl"  >> $pks
     echo "%perl-cleaner --modules"          >> $pks
   fi
 
-  # Python
-  #
   grep -q "'python-updater [options]' to rebuild Python modules." $log
   if [[ $? -eq 0 ]]; then
     echo "%python-updater" >> $pks
   fi
 
-  # PAX
-  #
   grep -q 'Please run "revdep-pax" after installation.' $log
   if [[ $? -eq 0 ]]; then
     echo "%revdep-pax" >> $pks
   fi
 
-  # GCC
-  #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $log
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $pks
