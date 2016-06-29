@@ -4,6 +4,7 @@
 
 sed -i -e 's/ [+-]*openssl/[ ]*/g' -e 's/ [+-]*libressl[ ]*/ /' /etc/portage/make.conf
 sed -i -e 's/USE="/USE="-openssl libressl/'                     /etc/portage/make.conf
+echo '"CURL_SSL="-openssl libressl"'                         >> /etc/portage/make.conf
 
 mkdir -p /etc/portage/profile
 echo "-libressl"          >> /etc/portage/profile/use.stable.mask
