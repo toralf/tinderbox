@@ -311,7 +311,7 @@ EOF
 
 # first search for $title, if empty return opened and RESOLVED bugs matching $short
 #
-result=$(bugz --columns 400 -q search --show-status "$issuedir/title" 2>&1 | tee -a $issuedir/body)
+result=$(bugz --columns 400 -q search -s OPEN,RESOLVED --show-status "$issuedir/title" 2>&1 | tee -a $issuedir/body)
 if [[ -z "$result" ]]; then
   cat << EOF >> $issuedir/body
 
