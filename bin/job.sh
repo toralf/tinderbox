@@ -442,8 +442,14 @@ function GotAnIssue()  {
   #
   fgrep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
-    Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
+
+    grep -q '^  RESOLVED: ' $issuedir/body
+    if [[ $? -eq 0 ]]; then
+      # this means that EXACT search for $title was empty, therefore probably unreported yet
+      #
+      Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
+    fi
   fi
 }
 
