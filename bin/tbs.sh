@@ -432,7 +432,7 @@ flags="
   ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo system-ffmpeg
   system-harfbuzz system-icu system-jpeg system-libevent system-libs
   system-libvpx system-llvm system-sqlite szip tcl tcpd theora thinkpad
-  threads timidity tk tls tools tracepath traceroute truetype ufed uml
+  threads timidity tk tls tools tracepath traceroute truetype udisks ufed uml
   usb usbredir utils uxa v4l v4l2 vaapi vala vdpau video vim vlc vorbis
   vpx wav wayland webgl webkit webstart widgets wma wxwidgets X x264
   x265 xa xcb xetex xinerama xinetd xkb xml xmlreader xmp xscreensaver
