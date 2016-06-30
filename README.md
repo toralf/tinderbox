@@ -6,7 +6,7 @@ The setup of an image is made by *tbs.sh*. An image is started with *start_img.s
 The ehlper script *chr.sh* is used to bind-mount host directories onto their chroot mount point counterparts. The wrapper *runme.sh* supports a smooth upgrade of the tinderbox script *job.sh* itself.
 
 ## data files
-The data files shared to all images. There're portage files *package.{accept_keywords,env,mask,unmask,use}.common* and files to *CATCH_ISSUES* or to *IGNORE_ISSUES*. *ALREADY_CATCHED* helps to avoid filing more than one bug for the same package. *IGNORE_PACKAGES* contains atoms which should not be emerged explicitely. *EXCLUDE_PACKAGES* contains all atoms which should be excluded from a @world update. If an error occurred which is listed in *FATAL_ISSUES* then the tinderbox script stops.
+The data files shared to all images. There're portage files *package.{accept_keywords,env,mask,unmask,use}.common* and files to *CATCH_ISSUES* or to *IGNORE_ISSUES*. *ALREADY_CATCHED* helps to avoid filing more than one bug for the same package. *IGNORE_PACKAGES* contains atoms which should not be emerged explicitely. If an error listed in *FATAL_ISSUES* would occurr then the tinderbox script stops.
 
 ## installation
 Copy both *bin* and *data* into */home/tinderbox/tb*, create a (big) directory to hold the chroot images, maybe adapt the shell variable *$tbhome* and start your own tinderbox.

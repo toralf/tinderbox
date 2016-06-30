@@ -655,17 +655,8 @@ function EmergeTask() {
   #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
 
-    excl=""
-
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       opts="--backtrack=30 --deep --update --newuse --changed-use --with-bdeps=y"
-      # exclude ATOMS which are known to produce blockers
-      #
-      if [[ "$task" = "@world" ]]; then
-        if [[ -s /tmp/tb/data/EXCLUDE_PACKAGES ]]; then
-          excl="$(sed 's/ //g' /tmp/tb/data/EXCLUDE_PACKAGES | grep -v '^$' | sed -e 's/^/--exclude /g' | xargs)"
-        fi
-      fi
 
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=30"
@@ -675,7 +666,7 @@ function EmergeTask() {
       opts="--update"
     fi
 
-    emerge $opts $task $excl &> $log
+    emerge $opts $task &> $log
     if [[ $? -ne 0 ]]; then
       # @something failed
       #
