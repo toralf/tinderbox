@@ -41,7 +41,9 @@ CMake Error at
 Configuring incomplete, errors occurred
 Unknown CMake command
 include called with wrong number of arguments
+Couldn't download .* Aborting.
 Fetched file: .* VERIFY FAILED!
+Fetch failed for
 error: 
 stack smashing detected
 No rule to make target
@@ -157,11 +159,9 @@ tar: This does not look like a tar archive
 requires support for 32-bit executables.
 Failed setting classpath from Ant task
 Option .* requires an argument
-Fetch failed for 
-Couldn't download .* Aborting.
 sed: can't read .*: No such file or directory
 parser error : .* not defined
-error: unrecognized command line option
+make: invalid option 
 recipe for target .* failed
 Error:
 ERROR :

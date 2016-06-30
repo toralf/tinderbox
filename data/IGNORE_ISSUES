@@ -12,6 +12,7 @@ Error: The above package list contains packages which cannot be
 Fetch instructions for
 gcc-5 is not yet supported
 gcc version .* found, expected gcc
+hardened sed failed
 Incorrect kernel configuration options
 kernel too new
 License file not found!
