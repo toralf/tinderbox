@@ -523,16 +523,14 @@ function SwitchGCC() {
 }
 
 
-# eselect the latest *emerged* kernel and build it if necessary
+# eselect the latest *emerged* kernel and schedule a build if necessary
 #
 function SelectNewKernel() {
   last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/')
   link=$(eselect kernel show | tail -n 1 | sed -e 's/ //g' | cut -f4 -d'/')
+
   if [[ "$last" != "$link" ]]; then
     eselect kernel set $last &>> $log
-    if [[ $? -ne 0 ]]; then
-      Finish "cannot eselect kernel: last=$last link=$link"
-    fi
     if [[ ! -f /usr/src/linux/.config ]]; then
       echo "%BuildKernel" >> $pks
     fi
@@ -565,14 +563,14 @@ function PostEmerge() {
     locale-gen &>/dev/null
   fi
 
-  # new kernel
+  # new kernel sources
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $log
   if [[ $? -eq 0 ]]; then
     SelectNewKernel
   fi
 
-  # schedule actions in their opposite order to the package list
+  # schedule actions by appending them in their opposite order onto the package list
   #
 
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
@@ -637,7 +635,7 @@ function check() {
 }
 
 
-# $task might be @set, a command line like %emerge -C ... or a single package
+# $task might be @set, a command line like "%emerge -C ..." or a single package
 #
 function EmergeTask() {
   # handle prefix @
@@ -700,14 +698,8 @@ function EmergeTask() {
       done
 
     else
-      # at least the return code was zero
+      # the return code was zero
       #
-
-      grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $log
-      if [[ $? -eq 0 ]]; then
-        Mail "notice: $task skipped package/s" $log
-      fi
-
       if [[ "$task" = "@system" ]]; then
         echo "@world" >> $pks
 
@@ -726,12 +718,12 @@ function EmergeTask() {
       date >> /tmp/timestamp.system
     fi
 
-    # report before a depclean is made
+    # report before depclean could happen
     #
     /usr/bin/pfl &>/dev/null
 
   else
-    # the "%" prefixes a command line
+    # "%" prefixes a command line
     #
     if [[ "$(echo $task | cut -c1)" = '%' ]]; then
       cmd=$(echo "$task" | cut -c2-)
