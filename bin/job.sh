@@ -538,22 +538,15 @@ function SelectNewKernel() {
 }
 
 
-# we do not run any emerge operation here
+# we do just *schedule* emerge operation here
+# by appending them in their opposite order onto the package list
 #
 function PostEmerge() {
-  # empty log ?!
-  #
-  if [[ ! -s $log ]]; then
-    return
-  fi
-
-  # do not update these config files
+  # never update these configs
   #
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
-  # errors go to nohup.out
-  #
   etc-update --automode -5 &>/dev/null
   env-update &>/dev/null
   . /etc/profile
@@ -563,15 +556,12 @@ function PostEmerge() {
     locale-gen &>/dev/null
   fi
 
-  # new kernel sources
+  # new kernel sources needs to be eselected and build
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $log
   if [[ $? -eq 0 ]]; then
     SelectNewKernel
   fi
-
-  # schedule actions by appending them in their opposite order onto the package list
-  #
 
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
   if [[ $? -eq 0 ]]; then
