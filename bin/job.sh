@@ -23,7 +23,8 @@ function stresc() {
 # send out an email with $1 as the subject(length-limited) and $2 as the body
 #
 function Mail() {
-  ( [[ -e $2 ]] && stresc $2 || date ) | mail -s "$(echo "$1" | cut -c1-200)    @ $name" $mailto &>> /tmp/mail.log
+  subject=$(echo "$1" | cut -c1-200)
+  ( [[ -e $2 ]] && stresc < $2 || date ) | mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
 }
 
 
@@ -337,7 +338,7 @@ fi
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
   #
-  typeset bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
+  bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
   # put all already successfully emerged dependencies of $task into the world file
@@ -409,10 +410,10 @@ function GotAnIssue()  {
     fi
   fi
 
-  # after this point we expect that we catched the failed package (== $failed is not empty)
+  # after this point we expect that we catched an issue with a single package
   #
   if [[ -z "$failed" ]]; then
-    Mail "warn: \$failed is empty -> issue handling is not implemented for: $task" $bak
+    Mail "warn: \$failed is empty for task: $task" $bak
     return
   fi
 
