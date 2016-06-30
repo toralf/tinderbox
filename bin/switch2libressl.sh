@@ -2,8 +2,11 @@
 #
 # set -x
 
-sed -i -e 's/ [+-]*openssl/[ ]*/g' -e 's/ [+-]*libressl[ ]*/ /'       /etc/portage/make.conf
-sed -i -e 's/USE="/CURL_SSL="libressl"\nUSE="-openssl libressl \n  /' /etc/portage/make.conf
+sed -i  -e 's/ [+-]*openssl/[ ]*/g'   \
+        -e 's/ [+-]*libressl[ ]*/ /'  \
+        -e 's/ [+-]*gnutls[ ]*/ /'    \
+        -e 's/USE="/CURL_SSL="libressl"\nUSE="-openssl -gnutls libressl \n  /' \
+        /etc/portage/make.conf
 
 mkdir -p /etc/portage/profile
 echo "-libressl"          > /etc/portage/profile/use.stable.mask
