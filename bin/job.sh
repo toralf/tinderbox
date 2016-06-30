@@ -332,8 +332,6 @@ fi
 
 
 # eventually decide, whether the issue will be reported to us or not
-# return :  1 if we run into an Perl upgrade issue
-#           0 otherwise
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -423,15 +421,6 @@ function GotAnIssue()  {
   mkdir -p $issuedir/files
   CollectIssueFiles
 
-  # Perl upgrade issue, usually during setup, repeat @<set> after Perl was cleaned
-  # https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
-  #
-  grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $bak
-  if [[ $? -eq 0 ]]; then
-    Mail "notice: Perl upgrade issue in $task" $bak
-    return 1
-  fi
-
   # mask this particular package version at this image
   #
   grep -q "=$failed " /etc/portage/package.mask/self
@@ -447,7 +436,7 @@ function GotAnIssue()  {
 
     grep -q '^  RESOLVED: ' $issuedir/body
     if [[ $? -eq 0 ]]; then
-      # this means that EXACT search for $title was empty, therefore probably unreported yet
+      # if we found this pattern then there was no EXACT search result, therefore probably unreported yet
       #
       Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
     fi
@@ -671,25 +660,28 @@ function EmergeTask() {
       # @something failed
       #
 
-      GotAnIssue
-      rc=$?
-      PostEmerge
-      if [[ $rc -eq 1 ]]; then
-        # if an Perl upgrade issue happened then repeat $task after Perl
-        #
+      # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
+      #
+      grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $log
+      if [[ $? -eq 0 ]]; then
+        Mail "notice: Perl upgrade issue in $task" $log
+        PostEmerge
+
         echo "$task"                >> $pks
         echo "%perl-cleaner --all"  >> $pks
         return
       fi
 
-      # only complain here if not a single package failure was already reported
+      GotAnIssue
+      PostEmerge
+
+      # do not complain twice in case of a single package failure
       #
       if [[ -z "$failed" ]]; then
         Mail "notice: $task failed" $log
       fi
 
-      # if @set failed try to update as much as possible of the remaining packages
-      # otherwise next time we'd stuck at the same package as before
+      # try to update as much as possible of the remaining packages
       #
       while :;
       do
