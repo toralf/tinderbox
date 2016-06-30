@@ -307,7 +307,7 @@ cc:       $(cat $issuedir/cc)
 
 ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block
 
-EXACT:
+  EXACT:
 EOF
 
 # first search for $title, if empty return opened and RESOLVED bugs matching $short
@@ -317,10 +317,10 @@ if [[ -z "$result" ]]; then
   cat << EOF >> $issuedir/body
 
   OPEN:     https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr&resolution=---
-  $(bugz --columns 400 -q search --show-status  $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
+$(bugz --columns 400 -q search --show-status  $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
 
   RESOLVED: https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr&bug_status=RESOLVED
-  $(bugz --columns 400 -q search -s RESOLVED    $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
+$(bugz --columns 400 -q search -s RESOLVED    $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
 EOF
 fi
 
