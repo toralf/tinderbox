@@ -598,12 +598,6 @@ function PostEmerge() {
     echo "%haskell-updater" >> $pks
   fi
 
-  grep -q 'Use: perl-cleaner' $log
-  if [[ $? -eq 0 ]]; then
-    echo "%perl-cleaner --force --libperl"  >> $pks
-    echo "%perl-cleaner --modules"          >> $pks
-  fi
-
   grep -q "'python-updater [options]' to rebuild Python modules." $log
   if [[ $? -eq 0 ]]; then
     echo "%python-updater" >> $pks
