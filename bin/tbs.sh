@@ -239,7 +239,7 @@ EOF
   #
   echo $profile | grep -q "hardened"
   if [[ $? -eq 0 ]]; then
-    echo "app-editors/xemacs" >> etc/portage/package.mask/xemacs
+    echo -e "app-editors/xemacs\napp-xemacs/*" > etc/portage/package.mask/xemacs
   fi
 
   # see data/package.env.common
@@ -439,7 +439,7 @@ flags="
   mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
   mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia multitarget
   mysql mysqli ncurses networking nls nscd nss obj objc odbc offensive
-  ogg ois opencv openexr opengl openmpi openssl osc pam pcre16 pdo php
+  ogg ois opencv openexr opengl openmpi openssl opus osc pam pcre16 pdo php
   pkcs11 plasma png policykit postgres postproc postscript printsupport
   pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
   rendering scripts scrypt sddm sdl semantic-desktop server smartcard
