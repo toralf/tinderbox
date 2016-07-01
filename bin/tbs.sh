@@ -44,6 +44,8 @@ function rufs()  {
 }
 
 
+#
+#
 function InstallStage3()  {
   # get the current stage3 file name
   #
@@ -107,6 +109,8 @@ function InstallStage3()  {
 }
 
 
+#
+#
 function CompilePortageFiles()  {
   # https://wiki.gentoo.org/wiki/Overlay/Local_overlay
   #
@@ -248,6 +252,8 @@ EOF
 }
 
 
+#
+#
 function CompileMiscFiles()  {
   cp -L /etc/hosts /etc/resolv.conf etc/
 
@@ -281,6 +287,8 @@ function FillPackageList()  {
 }
 
 
+#
+#
 function InstallMandatoryPackages() {
   # install basic packages and those needed by job.sh, configure portage and SMTP
   #
