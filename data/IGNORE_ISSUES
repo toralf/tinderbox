@@ -19,6 +19,7 @@ License file not found!
 license setup failed
 Linux >= .* and <= .* required for userspace modules
 Linux .* is the latest supported version.
+mingw is needed
 MINITUBE_GOOGLE_API_KEY env variable not defined!
 Multiple package instances within a single package slot have been pulled
 needs multilib profile on amd64

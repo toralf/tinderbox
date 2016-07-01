@@ -44,7 +44,7 @@ include called with wrong number of arguments
 Couldn't download .* Aborting.
 Fetched file: .* VERIFY FAILED!
 Fetch failed for
-error: 
+error:
 stack smashing detected
 No rule to make target
 final link failed: Nonrepresentable section on output
@@ -133,7 +133,6 @@ EPYTHON unset
 POD document had syntax errors
 No supported Python implementation
 must be called in src_prepare()!
-mingw is needed
 One of the following USE flags is needed:
 python_pkg_setup() not called
 Ambiguous occurrence
@@ -161,7 +160,8 @@ Failed setting classpath from Ant task
 Option .* requires an argument
 sed: can't read .*: No such file or directory
 parser error : .* not defined
-make: invalid option 
+make: invalid option
+Uncaught error in
 recipe for target .* failed
 Error:
 ERROR :
