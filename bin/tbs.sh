@@ -224,6 +224,7 @@ EOF
     (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
     touch etc/portage/$d/zzz                                          # honeypot for autounmask
   done
+
   touch       etc/portage/package.mask/self     # mask a failed package at this image
   chmod a+rw  etc/portage/package.mask/self     # allow tinderbox user too
 
@@ -237,16 +238,17 @@ EOF
     echo "app-editors/xemacs" >> etc/portage/package.mask/xemacs
   fi
 
-  cat << EOF > etc/portage/env/test
-FEATURES="test test-fail-continue"
-EOF
+  echo 'FEATURES="test test-fail-continue"' > etc/portage/env/test
 
   cat << EOF > etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"
 CXXFLAGS="\$CFLAGS"
 FEATURES="splitdebug"
 EOF
+}
 
+
+function CompileMiscFiles()  {
   cp -L /etc/hosts /etc/resolv.conf etc/
 
   cat << EOF > root/.vimrc
@@ -506,6 +508,7 @@ fi
 
 InstallStage3
 CompilePortageFiles
+CompileMiscFiles
 FillPackageList
 InstallMandatoryPackages
 
