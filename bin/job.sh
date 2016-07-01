@@ -260,19 +260,6 @@ EOF
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
-  # prefix title with the $failed package
-  #
-  sed -i -e "s#^#$failed : #" $issuedir/title
-
-  # b.g.o limits "Summary" to 255 chars
-  #
-  if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
-    truncate -s 255 $issuedir/title
-  fi
-
-  chmod    777  $issuedir/{,files}
-  chmod -R a+rw $issuedir/
-
   # guess from the title if there's a bug tracker for this
   # the BLOCKER file must follow this syntax:
   #
@@ -310,9 +297,10 @@ cc:       $(cat $issuedir/cc)
   EXACT:
 EOF
 
-# first search for $title, if empty return opened and RESOLVED bugs matching $short
+# first search for same issue for $short, if that search is empty
+# then return latest open and resolved bugs matching $short
 #
-result=$(bugz --columns 400 -q search -s OPEN,RESOLVED --show-status "$(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
+result=$(bugz --columns 400 -q search -s OPEN,RESOLVED --show-status "${short}.* : $(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
 if [[ -z "$result" ]]; then
   cat << EOF >> $issuedir/body
 
@@ -328,6 +316,19 @@ fi
   do
     uuencode $f $(basename $f) >> $issuedir/body
   done
+
+  # prefix title with package name + version
+  #
+  sed -i -e "s#^#$failed : #" $issuedir/title
+
+  # b.g.o limits "Summary" to 255 chars
+  #
+  if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
+    truncate -s 255 $issuedir/title
+  fi
+
+  chmod    777  $issuedir/{,files}
+  chmod -R a+rw $issuedir/
 }
 
 
