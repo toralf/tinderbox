@@ -210,7 +210,7 @@ EOF
 
   #----------------------------------------
 
-  # create portage directories and symlink them to tb/data/*
+  # create and symlink portage directories
   #
   mkdir usr/portage
   mkdir var/tmp/{distfiles,portage}
@@ -229,19 +229,21 @@ EOF
     touch etc/portage/$d/zzz                                          # honeypot for autounmask
   done
 
-  touch       etc/portage/package.mask/self     # mask a failed package at this image
-  chmod a+rw  etc/portage/package.mask/self     # allow tinderbox user too
+  touch       etc/portage/package.mask/self     # hold all failed package at this image
+  chmod a+rw  etc/portage/package.mask/self
 
-  touch       etc/portage/package.use/setup     # needed package specific USE flags catched in setup.sh
+  touch       etc/portage/package.use/setup     # mandatory package specific USE flags catched by setup.sh
   chmod a+rw  etc/portage/package.use/setup
 
-  # xemacs at hardened hangs: https://bugs.gentoo.org/show_bug.cgi?id=540818
+  # compiling xemacs at hardened hangs: https://bugs.gentoo.org/show_bug.cgi?id=540818
   #
   echo $profile | grep -q "hardened"
   if [[ $? -eq 0 ]]; then
     echo "app-editors/xemacs" >> etc/portage/package.mask/xemacs
   fi
 
+  # see data/package.env.common
+  #
   echo 'FEATURES="test test-fail-continue"' > etc/portage/env/test
 
   cat << EOF > etc/portage/env/splitdebug
@@ -267,23 +269,18 @@ EOF
 }
 
 
+#
+#
 function FillPackageList()  {
   pks=tmp/packages
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
-  echo "@world"         >> $pks
-  echo "%BuildKernel"   >> $pks   # only a major GCC upgrade rebuilds an already built kernel
+
+  echo "@world"         >> $pks   # do it after GCC upgrade
+  echo "%BuildKernel"   >> $pks   # "
   echo "sys-devel/gcc"  >> $pks   # too much hassle if we upgrade it later
 
   chown tinderbox.tinderbox $pks
-
-  # tweaks requested by devs
-  #
-  # set XDG_CACHE_HOME=/tmp/xdg in job.sh: https://bugs.gentoo.org/show_bug.cgi?id=567192
-  #
-  mkdir tmp/xdg
-  chmod 700 tmp/xdg
-  chown tinderbox:tinderbox tmp/xdg
 }
 
 
@@ -349,7 +346,7 @@ echo ">=sys-libs/ncurses-6.0" > /etc/portage/package.mask/ncurses
 emerge --verbose app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 5
 rm /etc/portage/package.mask/ncurses
 
-# we have "sys-kernel/" in IGNORE_PACKAGES therefore emerge sources explicitely
+# we have "sys-kernel/" in IGNORE_PACKAGES therefore we've to emerge kernel sources here
 #
 emerge --verbose sys-kernel/hardened-sources || exit 6
 
@@ -357,7 +354,7 @@ emerge --verbose sys-kernel/hardened-sources || exit 6
 #
 emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
-  # try to auto-fix the setup
+  # try to auto-fix the setup by fixing the USE flags set
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
@@ -372,16 +369,17 @@ exit 0
 EOF
   #----------------------------------------
 
-  # installation of mandatory packages should take less than 1/2 hour
+  # installation takes about 1/2 hour
   #
   cd - 1>/dev/null
 
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
 
-  # strip of the $tbhome
-  #
   cd $tbhome
+
+  # strip of $tbhome
+  #
   d=$(basename $imagedir)/$name
 
   # authentication avoids an 10 sec tarpitting delay by the ISP
@@ -425,7 +423,7 @@ EOF
 #
 # vars
 #
-name="amd64"  # fixed prefix, append later <profile>, <mask> and <timestamp>
+name="amd64"  # start with a fixed prefix, append later <profile>, <mask> and <timestamp>
 
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat btrfs bugzilla bzip2
@@ -457,13 +455,12 @@ flags="
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
+
+autostart=""      # start the chroot image after setup ?
 flags=$(rufs)
-
-Start="n"           # autostart the chroot image (if setup was successful)
-
-let "i = $RANDOM % 2 + 1"
-imagedir="$tbhome/images${i}"         # images[12]
-
+imagedir=""       # possibility to have different file systems
+mask=""
+profile=""
 
 #############################################################################
 #
@@ -482,9 +479,9 @@ do
     A)  autostart="y"
         ;;
     f)  if [[ -f "$OPTARG" ]] ; then
-          flags="$(cat $OPTARG)"
+          flags="$(cat $OPTARG)"  # read from file
         else
-          flags="$OPTARG"
+          flags="$OPTARG"         # read from command line
         fi
         ;;
     i)  imagedir="$OPTARG"
@@ -499,7 +496,7 @@ do
   esac
 done
 
-if [[ ! "$mask" = "stable" && ! "$mask" = "unstable" ]]; then
+if [[ "$mask" != "stable" && "$mask" != "unstable" ]]; then
   echo " wrong value for mask: $mask"
   exit 3
 fi
