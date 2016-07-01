@@ -297,20 +297,21 @@ cc:       $(cat $issuedir/cc)
   EXACT:
 EOF
 
-# first search for same issue for $short, if that search is empty
-# then return latest open and resolved bugs matching $short
-#
-result=$(bugz --columns 400 -q search -s OPEN,RESOLVED --show-status "${short}.* : $(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
-if [[ -z "$result" ]]; then
-  cat << EOF >> $issuedir/body
+  # first search for the same issue for package name only, if that search is empty
+  # then return all kind of bugs (latest only) of open and resolved bugs of $short
+  #
+  result=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "${short}.* : $(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
 
-  OPEN:     https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr&resolution=---
-$(bugz --columns 400 -q search --show-status  $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
+  if [[ -z "$result" ]]; then
+    h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr"
+    g="Please stabilize|Stabilization request|Version Bump|Please keyword"
 
-  RESOLVED: https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr&bug_status=RESOLVED
-$(bugz --columns 400 -q search -s RESOLVED    $short 2>&1 | grep -v -i -E "Please stabilize|Stabilization request|Version Bump|Please keyword" | tail -n 20 | tac)
-EOF
-fi
+    echo "  OPEN:     $h&resolution=---"      >> $issuedir/body
+    bugz --columns 400 -q search --show-status      $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
+
+    echo "  RESOLVED: $h&bug_status=RESOLVED" >> $issuedir/body
+    bugz --columns 400 -q search --status RESOLVED  $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
+  fi
 
   for f in $issuedir/emerge-info.txt $issuedir/files/* $bak
   do
