@@ -230,6 +230,13 @@ EOF
   touch       etc/portage/package.use/setup     # needed package specific USE flags catched in setup.sh
   chmod a+rw  etc/portage/package.use/setup
 
+  # xemacs at hardened hangs: https://bugs.gentoo.org/show_bug.cgi?id=540818
+  #
+  echo $profile | grep -q "hardened"
+  if [[ $? -eq 0 ]]; then
+    echo "app-editors/xemacs" >> etc/portage/package.mask/xemacs
+  fi
+
   cat << EOF > etc/portage/env/test
 FEATURES="test test-fail-continue"
 EOF
