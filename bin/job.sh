@@ -250,7 +250,7 @@ EOF
     do
       grep -m 1 -B 2 -A 3 "$c" $bak | cut -c1-400 > $issuedir/issue
       if [[ -s $issuedir/issue ]]; then
-        grep -m 1 "$c" $issuedir/issue >> $issuedir/title
+        grep -m 1 "$c" $issuedir/issue > $issuedir/title
         break
       fi
     done
@@ -259,6 +259,10 @@ EOF
   # shrink a looong path name
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
+
+  # kick off hex addresses et al to make EXACT bugz search more successful
+  #
+  sed -i -e 's/(\.text.*)/<snip>/g' -e 's/0x[0-9a-f]*/<snip>/g' $issuedir/title
 
   # guess from the title if there's a bug tracker for this
   # the BLOCKER file must follow this syntax:
@@ -280,7 +284,10 @@ EOF
     done
   )
 
-  # put the issue into the email body together with package version and maintainer, bugzilla search results and a bgo.sh command line ready for copy+paste
+  # the mail to us contains:
+  #   the issue, package version and maintainer
+  #   bugzilla search result/s
+  #   a bgo.sh command line ready for copy+paste
   #
   cp $issuedir/issue $issuedir/body
 
@@ -300,15 +307,17 @@ EOF
   # first search for the same issue for package name only, if that search is empty
   # then return all kind of bugs (latest only) of open and resolved bugs of $short
   #
-  result=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "${short}.* : $(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
+  exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" " : $(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
 
-  if [[ -z "$result" ]]; then
+  if [[ -z "$exact" ]]; then
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr"
     g="Please stabilize|Stabilization request|Version Bump|Please keyword"
 
+    echo "" >> $issuedir/body
     echo "  OPEN:     $h&resolution=---"      >> $issuedir/body
     bugz --columns 400 -q search --show-status      $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
 
+    echo "" >> $issuedir/body
     echo "  RESOLVED: $h&bug_status=RESOLVED" >> $issuedir/body
     bugz --columns 400 -q search --status RESOLVED  $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
   fi
@@ -435,11 +444,7 @@ function GotAnIssue()  {
   fgrep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-
-    grep -q '^  RESOLVED: ' $issuedir/body
-    if [[ $? -eq 0 ]]; then
-      # if we found this pattern then there was no EXACT search result, therefore probably unreported yet
-      #
+    if [[ -z "$exact" ]]; then
       Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
     fi
   fi
