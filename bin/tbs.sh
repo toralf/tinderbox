@@ -244,13 +244,13 @@ EOF
 
   # see data/package.env.common
   #
-  echo 'FEATURES="test test-fail-continue"' > etc/portage/env/test
-
   cat << EOF > etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"
 CXXFLAGS="\$CFLAGS"
 FEATURES="splitdebug"
 EOF
+  echo 'FEATURES="test test-fail-continue"' > etc/portage/env/test
+  echo 'FEATURES="-sandbox"'                > etc/portage/env/nosandbox
 }
 
 
