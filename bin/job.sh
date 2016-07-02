@@ -313,15 +313,15 @@ EOF
   exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" " : $(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
 
   if [[ -z "$exact" ]]; then
-    h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc=$short&short_desc_type=allwordssubstr"
+    h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
     g="Please stabilize|Stabilization request|Version Bump|Please keyword"
 
     echo "" >> $issuedir/body
-    echo "  OPEN:     $h&resolution=---"      >> $issuedir/body
+    echo "  OPEN:     $h&resolution=---&short_desc=$short"      >> $issuedir/body
     bugz --columns 400 -q search --show-status      $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
 
     echo "" >> $issuedir/body
-    echo "  RESOLVED: $h&bug_status=RESOLVED" >> $issuedir/body
+    echo "  RESOLVED: $h&bug_status=RESOLVED&short_desc=$short" >> $issuedir/body
     bugz --columns 400 -q search --status RESOLVED  $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
   fi
 
@@ -438,8 +438,7 @@ function GotAnIssue()  {
   CollectIssueFiles
 
   if [[ $is_sandbox_issue -eq 1 ]]; then
-    # build this specific package version w/o sandbox from now on at this image
-    # and re-try it immediately
+    # build this specific package version w/o sandboxing from now on
     #
     echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
     echo "$short" >> $pks
