@@ -445,10 +445,11 @@ function GotAnIssue()  {
     echo "$short" >> $pks
   else
     # mask this particular package version at this image
+    # append a trailing space to detect revisions bumps
     #
     grep -q "=$failed " /etc/portage/package.mask/self
     if [[ $? -ne 0 ]]; then
-      echo "=$failed" >> /etc/portage/package.mask/self
+      echo "=$failed " >> /etc/portage/package.mask/self
     fi
   fi
 
