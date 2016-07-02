@@ -767,7 +767,7 @@ mailto="tinderbox@zwiebeltoralf.de"
 log=/tmp/task.log                   # holds always output of "emerge ... "
 pks=/tmp/packages                   # the package list file, pre-filled at setup
 
-export GCC_COLORS="never"           # suppress colour output of gcc-4.9 and above
+export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 
 # eg.: amd64-gnome-unstable_20150913-104240
 #
