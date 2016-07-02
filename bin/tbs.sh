@@ -249,8 +249,10 @@ CFLAGS="\$CFLAGS -g -ggdb"
 CXXFLAGS="\$CFLAGS"
 FEATURES="splitdebug"
 EOF
-  echo 'FEATURES="test test-fail-continue"' > etc/portage/env/test
-  echo 'FEATURES="-sandbox"'                > etc/portage/env/nosandbox
+  echo 'FEATURES="test"'                  > etc/portage/env/test
+  echo 'FEATURES="-sandbox -usersandbox"' > etc/portage/env/nosandbox
+
+  chmod a+rw etc/portage/env/*
 }
 
 
