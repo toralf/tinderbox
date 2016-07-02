@@ -263,8 +263,6 @@ function CompileMiscFiles()  {
 set softtabstop=2
 set shiftwidth=2
 set tabstop=2
-
-:let g:session_autosave = 'no'
 EOF
 }
 
