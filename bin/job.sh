@@ -222,11 +222,13 @@ emerge --info >> $issuedir/emerge-info.txt
     echo "file collision with $s" > $issuedir/title
 
   elif [[ -f $sandb ]]; then
-    # handle XDG sandbox issues in a special way
-    #
+    is_sandbox_issue=1
+
     p="$(grep -m1 ^A: $sandb)"
     echo "$p" | grep -q "A: /root/"
     if [[ $? -eq 0 ]]; then
+      # handle XDG sandbox issues in a special way
+      #
       cat <<EOF > $issuedir/issue
 This issue is forced at the tinderbox by making:
 
@@ -237,6 +239,8 @@ pls see bug #567192 too
 EOF
       echo "sandbox issue (XDG_xxx_DIR related)" > $issuedir/title
     else
+      # other sandbox issues
+      #
       echo "sandbox issue $p" > $issuedir/title
     fi
     head -n 20 $sandb >> $issuedir/issue
@@ -291,7 +295,6 @@ EOF
   #
   cp $issuedir/issue $issuedir/body
 
-  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   cat << EOF >> $issuedir/body
 
 --
@@ -425,18 +428,28 @@ function GotAnIssue()  {
     Mail "warn: \$failed is empty for task: $task" $bak
     return
   fi
+  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
 
   # compile build/log files into $issuedir
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
+  is_sandbox_issue=0
   CollectIssueFiles
 
-  # mask this particular package version at this image
-  #
-  grep -q "=$failed " /etc/portage/package.mask/self
-  if [[ $? -ne 0 ]]; then
-    echo "=$failed" >> /etc/portage/package.mask/self
+  if [[ $is_sandbox_issue -eq 1 ]]; then
+    # build this specific package version w/o sandbox from now on at this image
+    # and re-try it immediately
+    #
+    echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
+    echo "$short" >> $pks
+  else
+    # mask this particular package version at this image
+    #
+    grep -q "=$failed " /etc/portage/package.mask/self
+    if [[ $? -ne 0 ]]; then
+      echo "=$failed" >> /etc/portage/package.mask/self
+    fi
   fi
 
   # don't mail the same issue again to us
