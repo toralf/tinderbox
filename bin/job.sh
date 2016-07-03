@@ -576,24 +576,27 @@ function PostEmerge() {
     locale-gen &>/dev/null
   fi
 
-  # new kernel sources needs to be eselected and build
+  # eselect new kernel sources and schedule its build
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $log
   if [[ $? -eq 0 ]]; then
     SelectNewKernel
   fi
 
+  # there's one known case where @preserved-rebuild is repeated by itself
+  # handle all other cases here
+  #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
   if [[ $? -eq 0 ]]; then
     if [[ "$task" = "@preserved-rebuild" ]]; then
-      grep -q 'used by /usr/lib64/python3.4/site-packages/pax.cpython-34.so' $log # expected
+      grep -q 'used by /usr/lib64/python3.4/site-packages/pax.cpython-34.so' $log
       if [[ $? -ne 0 ]]; then
-        Mail "notice: $task repeated" $log
+        Finish "$task repeat unexpected"
       fi
     else
       let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild)"
-      if [[ $diff -lt 3600 ]]; then
-        Mail "notice: $task again after $diff sec" $log
+      if [[ $diff -lt 900 ]]; then
+        Finish "2x @preserved-rebuild within $diff sec"
       fi
     fi
     echo "@preserved-rebuild" >> $pks
@@ -691,10 +694,12 @@ function EmergeTask() {
       GotAnIssue
       PostEmerge
 
-      # do not complain twice in case of a single package failure
-      #
-      if [[ -z "$failed" ]]; then
-        Mail "notice: $task failed" $log
+      if [[ "$task" = "@system" ]]; then
+        # do not complain twice in case of a single package failure
+        #
+        if [[ -z "$failed" ]]; then
+          Mail "notice: $task failed" $log
+        fi
       fi
 
       # try to update as much as possible of the remaining packages
