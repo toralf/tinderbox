@@ -796,8 +796,10 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-export XDG_DATA_DIRS="/root/share-read"
-export XDG_CONFIG_DIRS="/root/config-read"
+# [21:56] <mgorny> toralf: if you're still using my config, i suggest you comment out XDG_CONFIG_DIRS and XDG_DATA_DIRS. they cause a massive breakage, and it seems we may actually want to respect whatever's in env.d for them
+#
+# export XDG_DATA_DIRS="/root/share-read"
+# export XDG_CONFIG_DIRS="/root/config-read"
 
 
 while :;
