@@ -22,13 +22,13 @@ tbhome=/home/tinderbox
 
 # return a (r)andomized (U)SE (f)lag (s)ubset from the set stored in $flags
 #
-# mask   a flag with a likelihood of 1/m
-# or set a flag with a likelihood of 1/s
+# (m)ask   a flag with a likelihood of 1/m
+# or (s)et a flag with a likelihood of 1/s
 # else let it be unset
 #
 function rufs()  {
-  m=30
-  s=5
+  m=25
+  s=4
 
   for f in $(echo $flags)
   do
@@ -46,7 +46,7 @@ function rufs()  {
 
 #
 #
-function InstallStage3()  {
+function UnpackStage3()  {
   # get the current stage3 file name
   #
   wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
@@ -59,7 +59,6 @@ function InstallStage3()  {
     exit 4
   fi
 
-  # $name holds the directory name of the chroot image
   # $stage3 holds the full stage3 file name as found in $latest
   #
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
@@ -162,7 +161,6 @@ EOF
           -e '/^#/d'                                \
           -e 's#^DISTDIR=.*#DISTDIR="/var/tmp/distfiles"#' $m
 
-  #----------------------------------------
   cat << EOF >> $m
 USE="
   pax_kernel xtpax -cdinstall -oci8 -bindist
@@ -208,7 +206,7 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 
 EOF
 
-  #----------------------------------------
+  mkdir tmp/tb  # chr.sh will bind-mount here the tinderbox sources
 
   # create and symlink portage directories
   #
@@ -221,12 +219,9 @@ EOF
     chmod 777 etc/portage/$d
   done
 
-  mkdir tmp/tb  # chr.sh will bind-mount here the host directory
-
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
     (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
-    touch etc/portage/$d/zzz                                          # honeypot for autounmask
   done
 
   touch       etc/portage/package.mask/self     # hold all failed package at this image
@@ -241,17 +236,16 @@ EOF
     fi
   fi
 
-  touch       etc/portage/package.use/setup     # mandatory package specific USE flags catched by setup.sh
-  chmod a+rw  etc/portage/package.use/setup
+  touch       etc/portage/package.use/setup     # USE flags added by setup.sh
 
-  # compiling xemacs at hardened hangs: https://bugs.gentoo.org/show_bug.cgi?id=540818
+  # emerge hangs at hardened: https://bugs.gentoo.org/show_bug.cgi?id=540818
   #
   echo $profile | grep -q "hardened"
   if [[ $? -eq 0 ]]; then
     echo -e "app-editors/xemacs\napp-xemacs/*" > etc/portage/package.mask/xemacs
   fi
 
-  # see data/package.env.common
+  # data/package.env.common contains the counterpart
   #
   cat << EOF > etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"
@@ -260,10 +254,6 @@ FEATURES="splitdebug"
 EOF
   echo 'FEATURES="test"'                  > etc/portage/env/test
   echo 'FEATURES="-sandbox -usersandbox"' > etc/portage/env/nosandbox
-
-  # allow to change those files outside of the chroot image too
-  #
-  chmod a+rw etc/portage/package.*/*
 }
 
 
@@ -295,13 +285,9 @@ function FillPackageList()  {
 }
 
 
+# finalize installation of a Gentoo Linux + install packages used in job.sh
 #
-#
-function InstallMandatoryPackages() {
-  # install basic packages and those needed by job.sh, configure portage and SMTP
-  #
-
-  #----------------------------------------
+function EmergeMandatoryPackages() {
   cat << EOF > tmp/setup.sh
 
 eselect profile set $profile || exit 1
@@ -378,7 +364,6 @@ fi
 exit 0
 
 EOF
-  #----------------------------------------
 
   # installation takes about 1/2 hour
   #
@@ -397,7 +382,7 @@ EOF
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
 
-  # bugz is used in job.sh to create the email
+  # bugz is used in job.sh to check for existing bugs
   #
   cp /home/tinderbox/.bugzrc $d/root
 
@@ -434,8 +419,9 @@ EOF
 #
 # vars
 #
-name="amd64"  # start with a fixed prefix, append later <profile>, <mask> and <timestamp>
 
+# use the following set as an input to create an randomized subset from it
+#
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat btrfs bugzilla bzip2
   cairo cdb cdda cddb cgi cgoups clang compat consolekit corefonts csc
@@ -450,26 +436,26 @@ flags="
   mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
   mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia multitarget
   mysql mysqli ncurses networking nls nscd nss obj objc odbc offensive
-  ogg ois opencv openexr opengl openmpi openssl opus osc pam pcre16 pdo php
-  pkcs11 plasma png policykit postgres postproc postscript printsupport
-  pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
-  rendering scripts scrypt sddm sdl semantic-desktop server smartcard
-  smpeg snmp sockets source sourceview spice sql sqlite sqlite3 ssh
-  ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo system-ffmpeg
-  system-harfbuzz system-icu system-jpeg system-libevent system-libs
-  system-libvpx system-llvm system-sqlite szip tcl tcpd theora thinkpad
-  threads timidity tk tls tools tracepath traceroute truetype udisks ufed uml
-  usb usbredir utils uxa v4l v4l2 vaapi vala vdpau video vim vlc vorbis
-  vpx wav wayland webgl webkit webstart widgets wma wxwidgets X x264
-  x265 xa xcb xetex xinerama xinetd xkb xml xmlreader xmp xscreensaver
-  xslt xvfb xvmc xz zenmap ziffy zip zlib
+  ogg ois opencv openexr opengl openmpi openssl opus osc pam pcre16 pdo
+  php pkcs11 plasma png policykit postgres postproc postscript
+  printsupport pulseaudio pwquality pyqt4 python qemu qml qt3support qt4
+  qt5 rdoc rendering scripts scrypt sddm sdl semantic-desktop server
+  smartcard smpeg snmp sockets source sourceview spice sql sqlite
+  sqlite3 ssh ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo
+  system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
+  system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
+  theora thinkpad threads timidity tk tls tools tracepath traceroute
+  truetype udisks ufed uml usb usbredir utils uxa v4l v4l2 vaapi vala
+  vdpau video vim vlc vorbis vpx wav wayland webgl webkit webstart
+  widgets wma wxwidgets X x264 x265 xa xcb xetex xinerama xinetd xkb xml
+  xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
 
 autostart=""      # start the chroot image after setup ?
 flags=$(rufs)
-imagedir=""       # possibility to have different file systems
+imagedir=""       # enables us to test different file systems too
 mask=""
 profile=""
 
@@ -522,11 +508,16 @@ if [[ ! -d $imagedir ]]; then
   exit 3
 fi
 
-InstallStage3
+# $name holds the directory name of the chroot image
+# start with a fixed prefix, append later <profile>, <mask> and <timestamp>
+#
+name="amd64"
+
+UnpackStage3
 CompilePortageFiles
 CompileMiscFiles
 FillPackageList
-InstallMandatoryPackages
+EmergeMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
   su - tinderbox -c "$(dirname $0)/start_img.sh $name"
