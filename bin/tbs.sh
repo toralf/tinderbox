@@ -232,6 +232,15 @@ EOF
   touch       etc/portage/package.mask/self     # hold all failed package at this image
   chmod a+rw  etc/portage/package.mask/self
 
+  if [[ "$mask" = "unstable" ]]; then
+    # unmask ffmpeg 3 at every second unstable image
+    #
+    let "r = $RANDOM %2"
+    if [[ $r -eq 0 ]]; then
+      echo "media-video/ffmpeg" >> etc/portage/package.unmask/ffmpeg
+    fi
+  fi
+
   touch       etc/portage/package.use/setup     # mandatory package specific USE flags catched by setup.sh
   chmod a+rw  etc/portage/package.use/setup
 
@@ -252,7 +261,9 @@ EOF
   echo 'FEATURES="test"'                  > etc/portage/env/test
   echo 'FEATURES="-sandbox -usersandbox"' > etc/portage/env/nosandbox
 
-  chmod a+rw etc/portage/env/*
+  # allow to change those files outside of the chroot image too
+  #
+  chmod a+rw etc/portage/package.*/*
 }
 
 
