@@ -266,7 +266,7 @@ EOF
 
   # kick off hex addresses et al to make EXACT bugz search more successful
   #
-  sed -i -e 's/(\.text.*)/<snip>/g' -e 's/0x[0-9a-f]*/<snip>/g' $issuedir/title
+  sed -i -e 's/(\.text.*):/<snip>/g' -e 's/0x[0-9a-f]*/<snip>/g' $issuedir/title
 
   # guess from the title if there's a bug tracker for this
   # the BLOCKER file must follow this syntax:
