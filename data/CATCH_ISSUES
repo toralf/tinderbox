@@ -58,7 +58,7 @@ Failed Patch:
 can't get .* relocation type
 Not in scope:
 The Motif libraries are not installed.
-No instance for (
+No instance for \(
 setup: At least the following dependencies are missing:
 texi2info failed
 error in setup command
@@ -109,7 +109,6 @@ Ebuild author forgot an entry
 .*command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
 pushd.*No such file or directory
-does not exist
 No package .* found
 Invalid use of .*.eclass
 Unable to set SELinux security labels
@@ -117,7 +116,7 @@ patch .* failed with
 you need to fix the relative paths in patch
 csc: invalid option
 make.*: No such file or directory.  Stop.
-Unknown module(s) in QT
+Unknown module\(s\) in QT
 LaTeX Error:
 Error producing PDF from TeX source
 Error .*GCING.* in
@@ -132,9 +131,9 @@ are incompatible when linking
 EPYTHON unset
 POD document had syntax errors
 No supported Python implementation
-must be called in src_prepare()!
+must be called in src_prepare
 One of the following USE flags is needed:
-python_pkg_setup() not called
+python_pkg_setup\(\) not called
 Ambiguous occurrence
 Missing USE flags in
 Compilation failed in require at
@@ -163,6 +162,8 @@ parser error : .* not defined
 make: invalid option
 Uncaught error in
 recipe for target .* failed
+does not exist
+\[ERROR\]
 Error:
 ERROR :
 ERROR:
