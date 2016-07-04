@@ -43,11 +43,13 @@ function Finish()  {
 function GetNextTask() {
   #   update @system once a day, if no special task is scheduled
   #
-  if [[ ! -f /tmp/timestamp.system ]]; then
-    touch /tmp/timestamp.system
+  ts=/tmp/timestamp.system
+
+  if [[ ! -f $ts ]]; then
+    touch $ts
 
   else
-    let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.system)"
+    let "diff = $(date +%s) - $(date +%s -r $ts)"
     if [[ $diff -gt 86400 ]]; then
       grep -q -E "^(STOP|INFO|%|@)" $pks
       if [[ $? -ne 0 ]]; then
@@ -307,10 +309,10 @@ cc:       $(cat $issuedir/cc)
   EXACT:
 EOF
 
-  # first search for the same issue for package name only, if that search is empty
-  # then return all kind of bugs (latest only) of open and resolved bugs of $short
+  # first search for the same issue, if that search result is empty
+  # then return the latest n open and resolved bugs of $short respectively
   #
-  exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" " : $(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
+  exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
 
   if [[ -z "$exact" ]]; then
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
@@ -594,9 +596,12 @@ function PostEmerge() {
         Finish "$task repeat unexpected"
       fi
     else
-      let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.preserved-rebuild)"
-      if [[ $diff -lt 900 ]]; then
-        Finish "2x @preserved-rebuild within $diff sec"
+      tp=/tmp/timestamp.preserved-rebuild
+      if [[ -f $tp ]]; then
+        let "diff = $(date +%s) - $(date +%s -r $tp)"
+        if [[ $diff -lt 900 ]]; then
+          Finish "2x @preserved-rebuild within $diff sec"
+        fi
       fi
     fi
     echo "@preserved-rebuild" >> $pks
