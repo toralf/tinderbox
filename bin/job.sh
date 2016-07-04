@@ -441,7 +441,7 @@ function GotAnIssue()  {
     # build this specific package version w/o sandboxing from now on
     #
     echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
-    echo "$short" >> $pks
+    echo "$task" >> $pks
   else
     # mask this particular package version at this image
     # append a trailing space to detect revisions bumps
