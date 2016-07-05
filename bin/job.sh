@@ -306,7 +306,6 @@ cc:       $(cat $issuedir/cc)
 
 ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block
 
-  EXACT:
 EOF
 
   # first search for the same issue, if that search result is empty
@@ -318,7 +317,6 @@ EOF
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
     g="Please stabilize|Stabilization request|Version Bump|Please keyword"
 
-    echo "" >> $issuedir/body
     echo "  OPEN:     $h&resolution=---&short_desc=$short"      >> $issuedir/body
     bugz --columns 400 -q search --show-status      $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
 
