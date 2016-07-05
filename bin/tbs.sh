@@ -347,21 +347,22 @@ rm /etc/portage/package.mask/ncurses
 #
 emerge --verbose sys-kernel/hardened-sources || exit 6
 
-# at least the very first @world upgrade must not fail
+# at least gcc and the very first @world must not fail
 #
+rc=0
 emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
   # try to auto-fix the setup by fixing the USE flags set
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 11
+    emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || rc=11
   else
-    exit 12
+    rc=12
   fi
 fi
-
-exit 0
+emerge --update sys-devel/gcc --pretend || rc=13
+exit $rc
 
 EOF
 
