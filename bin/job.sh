@@ -315,7 +315,7 @@ EOF
 
   if [[ -z "$exact" ]]; then
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
-    g="Please stabilize|Stabilization request|Version Bump|Please keyword"
+    g="stabilize|Bump| keyword| bump"
 
     echo "  OPEN:     $h&resolution=---&short_desc=$short"      >> $issuedir/body
     bugz --columns 400 -q search --show-status      $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
