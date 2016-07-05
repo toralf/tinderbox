@@ -476,9 +476,15 @@ do
     A)  autostart="y"
         ;;
     f)  if [[ -f "$OPTARG" ]] ; then
-          flags="$(cat $OPTARG)"  # read from file
+          # USE flags are either specified in make.conf or directly in the file
+          #
+          if [[ "$(basename $OPTARG)" = "make.conf" ]]; then
+            flags="$(source $OPTARG; echo $USE)"
+          else
+            flags="$(cat $OPTARG)"
+          fi
         else
-          flags="$OPTARG"         # read from command line
+          flags="$OPTARG"         # get the USE flags from command line
         fi
         ;;
     i)  imagedir="$OPTARG"
