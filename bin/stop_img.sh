@@ -17,9 +17,13 @@ do
   # chroot image must be running
   #
   if [[ -f $mnt/tmp/LOCK ]]; then
-    touch $mnt/tmp/STOP
+    if [[ -f $mnt/tmp/STOP ]]; then
+      echo " STOP marker already set: $mnt"
+    else
+      touch $mnt/tmp/STOP
+    fi
   else
-    [[ $verbose -eq 1 ]] && echo " dit NOT found LOCK: $mnt"
+    [[ $verbose -eq 1 ]] && echo " did NOT found LOCK: $mnt"
   fi
 done
 
