@@ -5,16 +5,5 @@
 #
 mail-mta/ssmtp            ssl
 
-# circular dependencies block @system or @world upgrade after image setup
+# blocks nearly every attempt to upgrade @world after a setup
 #
-app-editors/emacs             -ssl -gtk3 -X
-app-text/xmlto                -latex
-dev-java/icedtea-bin          -cups -gtk
-dev-lang/python               threads
-dev-util/cmake                -qt4 -qt5
-dev-util/desktop-file-utils   -emacs
-media-libs/libjpeg-turbo      -java
-gnome-base/librsvg            -tools
-media-libs/mesa               -vaapi
-sys-auth/pambase              -gnome-keyring
-sys-libs/ncurses              -gpm
