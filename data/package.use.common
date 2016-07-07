@@ -4,6 +4,3 @@
 # mandatory to deliver SMTP emails securely
 #
 mail-mta/ssmtp            ssl
-
-# blocks nearly every attempt to upgrade @world after a setup
-#
