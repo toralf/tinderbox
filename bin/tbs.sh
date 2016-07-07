@@ -362,7 +362,7 @@ if [[ \$? -ne 0 ]]; then
   fi
 fi
 emerge --update sys-devel/gcc --pretend || rc=13
-exit $rc
+exit \$rc
 
 EOF
 
