@@ -277,9 +277,10 @@ function FillPackageList()  {
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
 
+  echo "sys-devel/gcc"  >> $pks   # ncurses-6 might prevent the 1st attempt
   echo "@world"         >> $pks   # do it after GCC upgrade
   echo "%BuildKernel"   >> $pks   # "
-  echo "sys-devel/gcc"  >> $pks   # too much hassle if we upgrade it later
+  echo "sys-devel/gcc"  >> $pks   # much more hassle if we upgrade later
 
   chown tinderbox.tinderbox $pks
 }
@@ -347,22 +348,20 @@ rm /etc/portage/package.mask/ncurses
 #
 emerge --verbose sys-kernel/hardened-sources || exit 6
 
-# at least gcc and the very first @world must not fail
+# at least the very first @world must not fail
 #
-rc=0
 emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
   # try to auto-fix the setup by fixing the USE flags set
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || rc=11
+    emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 11
   else
-    rc=12
+    exit 12
   fi
 fi
-emerge --update sys-devel/gcc --pretend || rc=13
-exit \$rc
+exit 0
 
 EOF
 
