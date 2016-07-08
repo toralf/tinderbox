@@ -124,7 +124,7 @@ function GetNextTask() {
 }
 
 
-# compile convenient information
+# collect convenient information
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
@@ -430,7 +430,7 @@ function GotAnIssue()  {
   fi
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
 
-  # compile build/log files into $issuedir
+  # collect build + log files into $issuedir
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
@@ -444,7 +444,7 @@ function GotAnIssue()  {
     echo "$task" >> $pks
   else
     # mask this particular package version at this image
-    # append a trailing space to detect revisions bumps
+    # append a trailing space to distinguish different revisions
     #
     grep -q "=$failed " /etc/portage/package.mask/self
     if [[ $? -ne 0 ]]; then
@@ -452,7 +452,7 @@ function GotAnIssue()  {
     fi
   fi
 
-  # don't mail the same issue again to us
+  # don't send an mail for the same issue twice
   #
   fgrep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then

@@ -278,9 +278,9 @@ function FillPackageList()  {
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
 
   echo "sys-devel/gcc"  >> $pks   # ncurses-6 might prevent the 1st attempt
-  echo "@world"         >> $pks   # do it after GCC upgrade
-  echo "%BuildKernel"   >> $pks   # "
-  echo "sys-devel/gcc"  >> $pks   # much more hassle if we upgrade later
+  echo "@world"         >> $pks
+  echo "%BuildKernel"   >> $pks
+  echo "sys-devel/gcc"  >> $pks   # try to upgrade as early as possible
 
   chown tinderbox.tinderbox $pks
 }
