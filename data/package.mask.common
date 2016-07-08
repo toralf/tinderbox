@@ -1,14 +1,14 @@
 # package.mask/common
 #
 
-# various issue(s) at the very 1st start of vim
+# various issue(s) otherwise at the 1st start of vim within an image
 #
 app-vim/c-support
 app-vim/ctx
 app-vim/curcmdmode
 app-vim/notes
 
-#	libjpeg-turbo is preferred: https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
+#	media-libs/libjpeg-turbo is preferred: https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
 #
 media-libs/jpeg
 
@@ -28,19 +28,10 @@ dev-util/pkgconfig-openbsd
 #
 net-fs/openafs*
 
-# replace /etc/resolv.conf by an unworking symlink in /run
+# replace /etc/resolv.conf by an - for us not working - symlink in /run
 #
 net-dns/resolvconf-symlink
 
-# LO rules
+# Oracle sucks
 #
 app-office/openoffice-bin
-
-# "Checking for at least 35 GiB disk space at "
-#
-sci-mathematics/isabelle
-
-
-# XDG* issue: https://bugs.gentoo.org/show_bug.cgi?id=577704
-#
-dev-python/rnc2rng
