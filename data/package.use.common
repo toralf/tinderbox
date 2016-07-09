@@ -1,6 +1,10 @@
 # package.use/common
 #
 
-# mandatory to deliver SMTP emails securely
+# deliver SMTP emails w/ authentication and secure to us
 #
-mail-mta/ssmtp            ssl
+mail-mta/ssmtp    ssl
+
+# otherwise it gives: HTTPS support not compiled in.
+#
+net-misc/wget     ssl
