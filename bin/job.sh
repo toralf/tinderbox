@@ -454,7 +454,7 @@ function GotAnIssue()  {
 
   # don't send an mail for the same issue twice
   #
-  fgrep -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
+  grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
     if [[ -z "$exact" ]]; then
