@@ -236,7 +236,8 @@ EOF
     fi
   fi
 
-  touch       etc/portage/package.use/setup     # USE flags added by setup.sh
+  touch      etc/portage/package.use/setup     # USE flags added by setup.sh
+  chmod a+rw etc/portage/package.use/setup
 
   # emerge hangs at hardened: https://bugs.gentoo.org/show_bug.cgi?id=540818
   #
