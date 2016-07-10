@@ -8,3 +8,7 @@ mail-mta/ssmtp    ssl
 # otherwise it gives: HTTPS support not compiled in.
 #
 net-misc/wget     ssl
+
+# emacs constantly makes trouble
+#
+app-editors/emacs -dbus -svg -ssl -gtk -gtk3
