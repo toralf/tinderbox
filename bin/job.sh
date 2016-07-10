@@ -624,6 +624,12 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $pks
   fi
+
+  del=$(grep '^\- .*/.* (masked by: package.mask)$' $log | cut -f2 -d ' ' | cut -f1 -d ':' | sed 's/^/=/g' | xargs)
+  if [[ -n "$del" ]]; then
+    echo "%emerge --depclean"     >> $pks
+    echo "%emerge --unmerge $del" >> $pks
+  fi
 }
 
 
