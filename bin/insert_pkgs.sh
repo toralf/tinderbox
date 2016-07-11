@@ -1,14 +1,13 @@
 #!/bin/sh
 #
-# set -x
+#set -x
 
-# pick up latest ebuilds and put them on top of randomly choosen package lists
+# pick up latest ebuilds and put them on top of the package lists
 #
 
 mailto="tinderbox@zwiebeltoralf.de"
 
-# put all package list filenames of all chroot images into an array
-# if the image ...
+# put all package list filenames into an array if the image ...
 #   1. is symlinked to ~
 #   2. is running
 #   3. has a non-empty package list
@@ -40,25 +39,24 @@ if [[ ${#a[@]} = 0 ]]; then
   exit
 fi
 
-# the host repo is synced every 3 hours, add an a hour more
-# to give the ./files directory a chance to be mirrored out
-# with a 6 hours intervall we effectively put an ebuild onto
-# 2 (often different) work queues
-
-# we strip away the package version b/c we do just want to test
-# the latest visible package
-
-# to strip the package version we can use dirname here instead qatom
-# b/c the output of 'git diff' looks like:
+# the host repo is synced every 3 hours, add 1 hour too for mirroring
+# strip away the package version do test the latest visible package
+# dirname works here b/c the output of 'git diff' looks like:
 #
 # A       www-apache/passenger/passenger-5.0.24.ebuild
 # M       www-apps/kibana-bin/kibana-bin-4.1.4.ebuild
 # A       www-apps/kibana-bin/kibana-bin-4.4.0.ebuild
 
-(cd /usr/portage/; git diff --name-status "@{ 7 hour ago }".."@{ 1 hour ago }") |\
+tmp=$(mktemp /tmp/pksXXXXXX)
+
+(cd /usr/portage/; git diff --name-status "@{ 4 hour ago }".."@{ 1 hour ago }") |\
 grep -v '^D' | grep '\.ebuild$' | awk ' { print $2 } ' |\
-xargs dirname 2>/dev/null | sort --unique --random-sort |\
-while read p
-do
-  echo $p >> ${a[$RANDOM % ${#a[@]}]}
-done
+xargs dirname 2>/dev/null | sort --unique > $tmp
+if [[ -s $tmp ]]; then
+  for pks in ${a[@]}
+  do
+    sort --random-sort < $tmp >> $pks
+  done
+fi
+
+rm $tmp
