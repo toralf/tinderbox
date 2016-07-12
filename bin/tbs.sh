@@ -172,8 +172,6 @@ ACCEPT_KEYWORDS="amd64 $( [[ "$mask" = "unstable" ]] && echo -n '~amd64' )"
 $(/usr/bin/cpuinfo2cpuflags-x86)
 PAX_MARKINGS="XT"
 
-# this is a contribute to my private notebook
-#
 ALSA_CARDS="hda-intel"
 INPUT_DEVICES="evdev synaptics"
 L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
@@ -183,17 +181,17 @@ SSL_BITS=4096
 ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 
-# no parallel make, we do prefer instead to run more images at the same time
+# parallel make issues aren't reliable reproducible
 #
 MAKEOPTS="-j1"
 
-# no "--verbose", it would blow up the size of "emerge --info" over 16KB, which kills b.g.o input window
+# no "--verbose", it blows up the size of "emerge --info" over 16KB, a limit of b.g.o
 #
 EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
-# no "fail-clean", portage would delete files otherwise before we could pick up them for a bug report
+# no "fail-clean", portage would delete otherwise those files before they could be picked up for a bug report
 #
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
 
@@ -207,7 +205,7 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 
 EOF
 
-  mkdir tmp/tb  # chr.sh will bind-mount here the tinderbox sources
+  mkdir tmp/tb  # chr.sh will bind-mount here the tinderbox sources from the host
 
   # create and symlink portage directories
   #
