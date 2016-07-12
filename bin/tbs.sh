@@ -176,6 +176,7 @@ PAX_MARKINGS="XT"
 #
 ALSA_CARDS="hda-intel"
 INPUT_DEVICES="evdev synaptics"
+L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
 
 SSL_BITS=4096
 
@@ -278,7 +279,11 @@ function FillPackageList()  {
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
 
-  echo "sys-devel/gcc"  >> $pks   # ncurses-6 might prevent the 1st attempt
+  # this line prevents insert_pkgs.sh from touching the package list
+  #
+  echo "INFO start with the package list" >> $pks
+
+  echo "sys-devel/gcc"  >> $pks   # 1st attempt might fail due to blocker
   echo "@world"         >> $pks
   echo "%BuildKernel"   >> $pks
   echo "sys-devel/gcc"  >> $pks   # try to upgrade as early as possible
@@ -341,7 +346,7 @@ emerge --verbose mail-client/mailx || exit 4
 #   app-portage/portage-utils   qlop
 #   www-client/pybugz           bugz
 #
-echo ">=sys-libs/ncurses-6.0" > /etc/portage/package.mask/ncurses
+echo "=sys-libs/ncurses-6.0-r1" > /etc/portage/package.mask/ncurses
 emerge --verbose app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 5
 rm /etc/portage/package.mask/ncurses
 
@@ -425,7 +430,7 @@ EOF
 #
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat btrfs bugzilla bzip2
-  cairo cdb cdda cddb cgi cgoups clang compat consolekit corefonts csc
+  cairo cdb cdda cddb cgi cgoups clang compat consolekit contrib corefonts csc
   cups curl custom-cflags custom-optimization dbus dec_av2 declarative
   designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev exif
   extra extraengine ffmpeg fluidsynth fontconfig fortran fpm freetds ftp
