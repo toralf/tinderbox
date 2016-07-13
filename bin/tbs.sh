@@ -172,14 +172,13 @@ ACCEPT_KEYWORDS="amd64 $( [[ "$mask" = "unstable" ]] && echo -n '~amd64' )"
 $(/usr/bin/cpuinfo2cpuflags-x86)
 PAX_MARKINGS="XT"
 
-ALSA_CARDS="hda-intel"
-INPUT_DEVICES="evdev synaptics"
 L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
 
 SSL_BITS=4096
 
+# we don't use it we just test it
+#
 ACCEPT_LICENSE="*"
-CLEAN_DELAY=0
 
 # parallel make issues aren't reliable reproducible
 #
@@ -190,6 +189,7 @@ MAKEOPTS="-j1"
 EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
+CLEAN_DELAY=0
 
 # no "fail-clean", portage would delete otherwise those files before they could be picked up for a bug report
 #
