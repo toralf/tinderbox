@@ -61,7 +61,6 @@ function GetNextTask() {
   fi
 
   # splice last line of the package list $pks into $task
-  # make few basic checks before
   #
   while :;
   do
@@ -76,10 +75,10 @@ function GetNextTask() {
 
     elif  [[ -z "$task" ]]; then
       if [[ -s $pks ]]; then
-        continue  # package list is not empty, just this line
+        continue  # package list is not empty, just this line was it
       fi
 
-      # we reached end of lifetime of this image
+      # we reached the end of lifetime
       #
       /usr/bin/pfl &>/dev/null
       n=$(qlist --installed | wc -l)
@@ -563,7 +562,7 @@ function SelectNewKernel() {
 # by appending them in their opposite order onto the package list
 #
 function PostEmerge() {
-  # never update these configs
+  # we must not update these config files
   #
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
@@ -577,19 +576,16 @@ function PostEmerge() {
     locale-gen &>/dev/null
   fi
 
-  # eselect new kernel sources and schedule its build
-  #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $log
   if [[ $? -eq 0 ]]; then
     SelectNewKernel
   fi
 
-  # there's one known case where @preserved-rebuild is repeated by itself
-  # handle all other cases here
-  #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
   if [[ $? -eq 0 ]]; then
     if [[ "$task" = "@preserved-rebuild" ]]; then
+      # this one happens often if @preserved-rebuild is repeated
+      #
       grep -q 'used by /usr/lib64/python3.4/site-packages/pax.cpython-34.so' $log
       if [[ $? -ne 0 ]]; then
         Mail "$task repeated unexpected" $log
