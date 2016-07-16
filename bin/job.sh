@@ -512,8 +512,6 @@ function SwitchGCC() {
     . /etc/profile
     vernew=$(gcc -v 2>&1 | tail -n 1 | cut -f1-3 -d' ')
 
-    subject="$FUNCNAME from $verold to $vernew"
-
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
 
@@ -535,7 +533,7 @@ function SwitchGCC() {
         if [[ $? -ne 0 ]]; then      # bail out, a failed GCC upgrade causes all types of hassle
           GotAnIssue
           echo "%revdep-rebuild --library libstdc++.so.6 -- --exclude gcc" >> $pks
-          Finish "FAILED: $subject rebuild failed"
+          Finish "FAILED: $FUNCNAME from $verold to $vernew rebuild failed"
         fi
       fi
     fi
@@ -591,7 +589,7 @@ function PostEmerge() {
     if [[ "$task" = "@preserved-rebuild" ]]; then
       grep -q 'used by /usr/lib64/python3.4/site-packages/pax.cpython-34.so' $log
       if [[ $? -ne 0 ]]; then
-        Finish "$task repeat unexpected"
+        Mail "$task repeated unexpected" $log
       fi
     else
       tp=/tmp/timestamp.preserved-rebuild
