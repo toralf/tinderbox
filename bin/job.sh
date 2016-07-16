@@ -183,7 +183,11 @@ function CollectIssueFiles() {
 
   -----------------------------------------------------------------
 
-  make.conf: USE="$(source /etc/portage/make.conf; echo $USE)"
+  make.conf:
+USE="$(source /etc/portage/make.conf; echo $USE)"
+
+  package specific USE flags :
+$(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':')
 
   -----------------------------------------------------------------
 
