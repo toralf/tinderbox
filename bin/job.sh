@@ -348,17 +348,10 @@ EOF
 }
 
 
-# eventually decide, whether the issue will be reported to us or not
+# put all already successfully emerged dependencies of $task into the world file
+# otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
 #
-function GotAnIssue()  {
-  # prefix our log backup file with an "_" to distinguish it from portage's log files
-  #
-  bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
-  stresc < $log > $bak
-
-  # put all already successfully emerged dependencies of $task into the world file
-  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
-  #
+function UpdateWorldFile()  {
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
@@ -367,6 +360,19 @@ function GotAnIssue()  {
       emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
     fi
   fi
+}
+
+
+# eventually decide, whether the issue will be reported to us or not
+# but do always collect all useful information
+#
+function GotAnIssue()  {
+  # prefix our log backup file with an "_" to distinguish it from portage's log files
+  #
+  bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
+  stresc < $log > $bak
+
+  UpdateWorldFile
 
   # mostly OOM
   #
@@ -694,6 +700,8 @@ function EmergeTask() {
 
         echo "$task"                >> $pks
         echo "%perl-cleaner --all"  >> $pks
+
+        UpdateWorldFile
         return
       fi
 
