@@ -6,6 +6,7 @@ dev-embedded/
 dev-java/
 java-virtuals/
 net-analyzer/openvas
+perl-core/podlators
 sec-policy/
 sys-cluster/
 sys-fs/loop-aes
@@ -14,3 +15,4 @@ sys-kernel/
 virtual/
 www-apache/mod_
 x11-drivers/nvidia-drivers
+x11-plugins/gkrell
