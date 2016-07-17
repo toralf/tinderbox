@@ -185,13 +185,16 @@ function CollectIssueFiles() {
   make.conf:
 USE="$(source /etc/portage/make.conf; echo $USE)"
 
-  package specific USE flags :
+  package specific USE flags:
 $(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':')
 
   -----------------------------------------------------------------
 
 EOF
-emerge --info >> $issuedir/emerge-info.txt
+
+  # especially --verbose would blow up it over 16 KB
+  #
+  emerge --info --ignore-default-opts >> $issuedir/emerge-info.txt
 
   # get assignee and cc, GLEP 67 rules
   #

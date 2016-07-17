@@ -128,6 +128,7 @@ priority = 1
 
 [local]
 priority = 2
+
 EOF
 
   # we'd stay at the "rsync" method for now, "git" pulls in too much deps (gitk etc.)
@@ -138,6 +139,7 @@ location  = /usr/portage
 auto-sync = no
 #sync-type = rsync
 #sync-uri  = rsync://rsync.de.gentoo.org/gentoo-portage/
+
 EOF
 
   cat << EOF > etc/portage/repos.conf/local.conf
@@ -145,6 +147,7 @@ EOF
 location  = /usr/local/portage
 masters   = gentoo
 auto-sync = no
+
 EOF
 
   # compile make.conf
@@ -176,7 +179,7 @@ L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -
 
 SSL_BITS=4096
 
-# we don't use it we just test it
+# we don't use the software here we just compile-test it
 #
 ACCEPT_LICENSE="*"
 
@@ -184,9 +187,7 @@ ACCEPT_LICENSE="*"
 #
 MAKEOPTS="-j1"
 
-# no "--verbose", it blows up the size of "emerge --info" over 16KB, a limit of b.g.o
-#
-EMERGE_DEFAULT_OPTS="--verbose-conflicts --color=n --nospinner --tree --quiet-build"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
@@ -251,6 +252,7 @@ EOF
 CFLAGS="\$CFLAGS -g -ggdb"
 CXXFLAGS="\$CFLAGS"
 FEATURES="splitdebug"
+
 EOF
   echo 'FEATURES="test"'                  > etc/portage/env/test
   echo 'FEATURES="-sandbox -usersandbox"' > etc/portage/env/nosandbox
@@ -266,6 +268,7 @@ function CompileMiscFiles()  {
 set softtabstop=2
 set shiftwidth=2
 set tabstop=2
+
 EOF
 }
 
@@ -293,6 +296,8 @@ function FillPackageList()  {
 # finalize installation of a Gentoo Linux + install packages used in job.sh
 #
 function EmergeMandatoryPackages() {
+  wucmd="emerge --deep --update --changed-use --with-bdeps=y @world --pretend"
+
   cat << EOF > tmp/setup.sh
 
 eselect profile set $profile || exit 1
@@ -315,12 +320,12 @@ emerge --noreplace net-misc/netifrc
 #
 emerge --noreplace app-editors/nano
 
-emerge --verbose sys-apps/elfix || exit 2
+emerge sys-apps/elfix || exit 2
 migrate-pax -m
 
 # our preferred simple mailer
 #
-emerge --verbose mail-mta/ssmtp || exit 3
+emerge mail-mta/ssmtp || exit 3
 
 echo "
 root=tinderbox@zwiebeltoralf.de
@@ -333,7 +338,7 @@ UseTLS=YES
 
 # our preferred MTA
 #
-emerge --verbose mail-client/mailx || exit 4
+emerge mail-client/mailx || exit 4
 
 # install mandatory tools
 #   <package>                   <command/s>
@@ -345,22 +350,22 @@ emerge --verbose mail-client/mailx || exit 4
 #   www-client/pybugz           bugz
 #
 echo "=sys-libs/ncurses-6.0-r1" > /etc/portage/package.mask/ncurses
-emerge --verbose app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 5
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 5
 rm /etc/portage/package.mask/ncurses
 
 # we have "sys-kernel/" in IGNORE_PACKAGES therefore we've to emerge kernel sources here
 #
-emerge --verbose sys-kernel/hardened-sources || exit 6
+emerge sys-kernel/hardened-sources || exit 6
 
 # at least the very first @world must not fail
 #
-emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log
+$wucmd &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
   # try to auto-fix the setup by fixing the USE flags set
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    emerge --verbose --deep --update --newuse --changed-use --with-bdeps=y @world --pretend &> /tmp/world.log || exit 11
+    $wucmd &> /tmp/world.log || exit 11
   else
     exit 12
   fi
@@ -401,7 +406,7 @@ EOF
       echo
       echo "    view $d/tmp/world.log"
       echo "    vi $d/etc/portage/make.conf"
-      echo "    sc $d \"emerge --deep --update --newuse --changed-use --with-bdeps=y @world --pretend\""
+      echo "    sc $d '$wucmd'"
       echo "    ln -s $d"
       echo "    sta $name"
     fi
