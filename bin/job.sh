@@ -679,7 +679,7 @@ function EmergeTask() {
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
 
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
-      opts="--backtrack=30 --deep --update --newuse --changed-use --with-bdeps=y"
+      opts="--deep --update --changed-use --with-bdeps=y"
 
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=30"
