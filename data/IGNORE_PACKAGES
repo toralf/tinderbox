@@ -6,7 +6,7 @@ dev-embedded/
 dev-java/
 java-virtuals/
 net-analyzer/openvas
-perl-core/podlators
+perl-core/
 sec-policy/
 sys-cluster/
 sys-fs/loop-aes
