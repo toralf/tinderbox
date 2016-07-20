@@ -192,9 +192,9 @@ $(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':')
 
 EOF
 
-  # especially --verbose would blow up it over 16 KB
+  # --verbose would blow up it over 16 KB
   #
-  emerge --info --ignore-default-opts >> $issuedir/emerge-info.txt
+  emerge --info --verbose=n >> $issuedir/emerge-info.txt
 
   # get assignee and cc, GLEP 67 rules
   #
@@ -272,9 +272,9 @@ EOF
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
-  # kick off hex addresses et al to make EXACT bugz search more successful
+  # kick off hex addresses et al to improve bugz search result
   #
-  sed -i -e 's/0x[0-9a-f]*/<snip>/g' $issuedir/title
+  sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
 
   # guess from the title if there's a bug tracker for this
   # the BLOCKER file must follow this syntax:
@@ -360,7 +360,7 @@ function UpdateWorldFile()  {
   if [[ $? -eq 0 ]]; then
     echo "$line" | grep -q ':  === (1 of '
     if [[ $? -ne 0 ]]; then
-      emerge --depclean --pretend 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
+      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
     fi
   fi
 }
@@ -633,8 +633,8 @@ function PostEmerge() {
 
   del=$(grep '^\- .*/.* (masked by: package.mask)$' $log | cut -f2 -d ' ' | cut -f1 -d ':' | sed 's/^/=/g' | xargs)
   if [[ -n "$del" ]]; then
-    echo "%emerge --depclean"     >> $pks
-    echo "%emerge --unmerge $del" >> $pks
+    echo "%emerge --depclean --verbose=n" >> $pks
+    echo "%emerge --unmerge $del"         >> $pks
   fi
 }
 
@@ -745,7 +745,7 @@ function EmergeTask() {
 
       elif [[ "$task" = "@world" ]]; then
         date >> /tmp/timestamp.world
-        echo "%emerge --depclean" >> $pks
+        echo "%emerge --depclean --verbose=n" >> $pks
 
       fi
 
