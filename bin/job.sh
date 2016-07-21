@@ -20,7 +20,7 @@ function stresc() {
 }
 
 
-# send out an email with $1 as the subject(length-limited) and $2 as the body
+# send out an email with $1 as the subject and $2 as the body
 #
 function Mail() {
   subject=$(echo "$1" | cut -c1-200)
@@ -38,7 +38,7 @@ function Finish()  {
 }
 
 
-# put next work item into $task
+# store next work item in $task
 #
 function GetNextTask() {
   #   update @system once a day, if no special task is scheduled
@@ -75,10 +75,10 @@ function GetNextTask() {
 
     elif  [[ -z "$task" ]]; then
       if [[ -s $pks ]]; then
-        continue  # package list is not empty, just this line was it
+        continue  # package list itself isn't empty, just this line
       fi
 
-      # we reached the end of lifetime
+      # we reached the end of the lifetime
       #
       /usr/bin/pfl &>/dev/null
       n=$(qlist --installed | wc -l)
@@ -91,7 +91,7 @@ function GetNextTask() {
       return  # a package set
 
     else
-      # ignore $task ?
+      # a package
       #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
@@ -145,8 +145,7 @@ function CollectIssueFiles() {
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
 
-  # strip away color escape sequences
-  # the echo command expands "foo/bar-*.log" terms
+  # strip away color escape sequences, echo does expand "foo/bar-*.log" terms
   #
   for f in $(echo $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso)
   do
@@ -155,7 +154,7 @@ function CollectIssueFiles() {
     fi
   done
 
-  # compress files bigger than 1 MB
+  # compress files bigger than 1 MiByte
   #
   for f in $issuedir/files/*
   do
@@ -203,7 +202,7 @@ EOF
     m="maintainer-needed@gentoo.org"
   fi
 
-  # if we found more than 1 maintainer, then put the 1st into assignee and the other(s) into cc
+  # if we found more than 1 maintainer, then store the 1st in assignee and all other(s) int cc
   #
   echo "$m" | grep -q ' '
   if [[ $? -eq 0 ]]; then
@@ -276,7 +275,7 @@ EOF
   #
   sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
 
-  # guess from the title if there's a bug tracker for this
+  # guess from the title if there's a bug tracker for this issue
   # the BLOCKER file must follow this syntax:
   #
   #   # comment
@@ -296,7 +295,7 @@ EOF
     done
   )
 
-  # the mail to us contains:
+  # the mail contains:
   #   the issue, package version and maintainer
   #   bugzilla search result/s
   #   a bgo.sh command line ready for copy+paste
@@ -340,7 +339,7 @@ EOF
   #
   sed -i -e "s#^#$failed : #" $issuedir/title
 
-  # b.g.o limits "Summary" to 255 chars
+  # b.g.o. limits "Summary" to 255 chars
   #
   if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
     truncate -s 255 $issuedir/title
@@ -351,8 +350,8 @@ EOF
 }
 
 
-# put all already successfully emerged dependencies of $task into the world file
-# otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally
+# put all successfully emerged dependencies of $task into the world file
+# otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally for everry emerge
 #
 function UpdateWorldFile()  {
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
@@ -366,8 +365,7 @@ function UpdateWorldFile()  {
 }
 
 
-# eventually decide, whether the issue will be reported to us or not
-# but do always collect all useful information
+# collect all useful information together
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -568,7 +566,7 @@ function SelectNewKernel() {
 
 
 # we do just *schedule* emerge operation here
-# by appending them in their opposite order onto the package list
+# by appending them in their opposite order to the package list
 #
 function PostEmerge() {
   # we must not update these config files
@@ -645,7 +643,7 @@ function PostEmerge() {
 }
 
 
-# test hook, eg. to catch package/s which wrongly installs in / or left files in /tmp
+# test hook, eg. to catch package/s which left install artefacts
 #
 function check() {
   exe=/tmp/tb/bin/PRE-CHECK.sh
@@ -697,7 +695,7 @@ function EmergeTask() {
 
     emerge $opts $task &> $log
     if [[ $? -ne 0 ]]; then
-      # @something failed
+      # @... failed
       #
 
       # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
@@ -718,14 +716,14 @@ function EmergeTask() {
       PostEmerge
 
       if [[ "$task" = "@system" ]]; then
-        # do not complain twice in case of a single package failure
+        # do not complain twice in case of a package failure
         #
         if [[ -z "$failed" ]]; then
           Mail "notice: $task failed" $log
         fi
       fi
 
-      # try to update as much as possible of the remaining packages
+      # try to update as much as possible of the remaining emerge list
       #
       while :;
       do
@@ -744,7 +742,7 @@ function EmergeTask() {
       done
 
     else
-      # the return code was zero
+      # the return code of emerge was zero
       #
       if [[ "$task" = "@system" ]]; then
         echo "@world" >> $pks
@@ -754,7 +752,6 @@ function EmergeTask() {
         echo "%emerge --depclean --verbose=n" >> $pks
 
       fi
-
       PostEmerge
     fi
 
@@ -769,7 +766,7 @@ function EmergeTask() {
     /usr/bin/pfl &>/dev/null
 
   else
-    # "%" prefixes a command line
+    # either a command line prefixed with "%" or an ATOM
     #
     if [[ "$(echo $task | cut -c1)" = '%' ]]; then
       cmd=$(echo "$task" | cut -c2-)
@@ -792,7 +789,7 @@ function EmergeTask() {
 #
 mailto="tinderbox@zwiebeltoralf.de"
 log=/tmp/task.log                   # holds always output of "emerge ... "
-pks=/tmp/packages                   # the package list file, pre-filled at setup
+pks=/tmp/packages                   # the pre-filled package list file
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 
@@ -834,7 +831,7 @@ do
     exit 125
   fi
 
-  # check for artefacts before we pick up after ourself
+  # check before we pick up after ourself
   #
   check
   rm -rf /var/tmp/portage/*
