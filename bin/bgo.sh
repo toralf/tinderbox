@@ -46,6 +46,7 @@ if [[ -n "$id" ]]; then
   #
   bugz attach --content-type "text/plain" --description "$comment" $id emerge-info.txt 1> bugz.out 2> bugz.err
   rc=$?
+  bugz modify -s CONFIRMED $id
 
 else
   # create a new bug
