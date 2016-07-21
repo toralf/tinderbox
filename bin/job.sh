@@ -631,10 +631,16 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $pks
   fi
 
-  del=$(grep '^\- .*/.* (masked by: package.mask)$' $log | cut -f2 -d ' ' | cut -f1 -d ':' | sed 's/^/=/g' | xargs)
+  del=$(grep '^\- .*/.* (masked by: package.mask)$' $log | cut -f2 -d ' ' | cut -f1 -d ':' | sed 's/^/=/g')
   if [[ -n "$del" ]]; then
     echo "%emerge --depclean --verbose=n" >> $pks
-    echo "%emerge --unmerge $del"         >> $pks
+    for p in $del
+    do
+      equery --quiet depends --indirect $p 1>/dev/null
+      if [[ $? -eq 1 ]]; then
+        echo "%emerge --unmerge $p" >> $pks
+      fi
+    done
   fi
 }
 
