@@ -162,12 +162,15 @@ sed: can't read .*: No such file or directory
 parser error : .* not defined
 make: invalid option
 Uncaught error in
+^Error:
 recipe for target .* failed
 does not exist
 \\[ERROR\\]
 convert: no
 syntax error
+record .* undefined
 make.* Error
+setup.py:.*: UserWarning: .* must be installed to build
 Error:
 ERROR :
 ERROR:
