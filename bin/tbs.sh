@@ -424,23 +424,24 @@ EOF
 }
 
 
+
 #############################################################################
 #
-# vars
+# main
 #
 
 # use the following set as an input to create an randomized subset from it
 #
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat btrfs bugzilla bzip2
-  cairo cdb cdda cddb cgi cgoups clang compat consolekit contrib corefonts csc
-  cups curl custom-cflags custom-optimization dbus dec_av2 declarative
-  designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev exif
-  extra extraengine ffmpeg fluidsynth fontconfig fortran fpm freetds ftp
-  gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring gnuplot
-  gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui gzip
-  haptic havege hdf5 help ibus icu imap imlib inifile introspection ipv6
-  isag ithreads jadetex javascript javaxml jpeg kerberos kvm lapack
+  cairo cdb cdda cddb cgi cgoups clang compat consolekit contrib
+  corefonts csc cups curl custom-cflags custom-optimization dbus dec_av2
+  declarative designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs
+  evdev exif extra extraengine ffmpeg fluidsynth fontconfig fortran fpm
+  freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring
+  gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui
+  gzip haptic havege hdf5 help ibus icu imap imlib inifile introspection
+  ipv6 isag ithreads jadetex javascript javaxml jpeg kerberos kvm lapack
   latex ldap libinput libkms libvirtd llvm logrotate lzma mad mbox
   mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
   mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia multitarget
@@ -462,17 +463,11 @@ flags="
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
 
-autostart=""      # start the chroot image after setup ?
+autostart="n"     # start the chroot image after setup ?
 flags=$(rufs)
-imagedir=""       # enables us to test different file systems too
+imagedir=""       # test different underlying file systems
 mask=""
 profile=""
-
-#############################################################################
-#
-# main
-#
-cd $tbhome
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
@@ -527,6 +522,8 @@ fi
 # start with a fixed prefix, append later <profile>, <mask> and <timestamp>
 #
 name="amd64"
+
+cd $tbhome
 
 UnpackStage3
 CompilePortageFiles
