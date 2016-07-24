@@ -20,10 +20,6 @@ media-video/libav
 #
 dev-util/pkgconfig-openbsd
 
-# 4.4 is broken: https://bugs.gentoo.org/show_bug.cgi?id=536124
-#
-~dev-lang/gnat-gcc-4.4.7
-
 # can't be build w/ recent kernels
 #
 net-fs/openafs*
@@ -35,3 +31,7 @@ net-dns/resolvconf-symlink
 # Oracle sucks
 #
 app-office/openoffice-bin
+
+# breaks gcc: images2/amd64-hardened-no-multilib-unstable_20160718-203355
+#
+dev-lang/gnat-gcc
