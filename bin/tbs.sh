@@ -280,14 +280,16 @@ function FillPackageList()  {
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
 
-  # this line prevents insert_pkgs.sh from touching the package list
+  # try to upgrade GCC as early as possible
+  # INFO prevents insert_pkgs.sh from touching the package list too early
   #
-  echo "INFO start with the package list" >> $pks
-
-  echo "sys-devel/gcc"  >> $pks   # 1st attempt might fail due to blocker
-  echo "@world"         >> $pks
-  echo "%BuildKernel"   >> $pks
-  echo "sys-devel/gcc"  >> $pks   # try to upgrade as early as possible
+  cat << EOF >> $pks
+INFO start with the package list
+@world
+%BuildKernel
+%rm /etc/portage/package.mask/ncurses
+sys-devel/gcc
+EOF
 
   chown tinderbox.tinderbox $pks
 }
@@ -351,7 +353,6 @@ emerge mail-client/mailx || exit 4
 #
 echo "=sys-libs/ncurses-6.0-r1" > /etc/portage/package.mask/ncurses
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 5
-rm /etc/portage/package.mask/ncurses
 
 # we have "sys-kernel/" in IGNORE_PACKAGES therefore we've to emerge kernel sources here
 #
