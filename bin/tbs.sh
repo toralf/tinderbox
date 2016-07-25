@@ -27,8 +27,8 @@ tbhome=/home/tinderbox
 # else let it be unset
 #
 function rufs()  {
-  m=25
-  s=4
+  m=40
+  s=8
 
   for f in $(echo $flags)
   do
