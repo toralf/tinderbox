@@ -13,7 +13,7 @@ fi
 orig=/tmp/tb/bin/runme.sh
 copy=/tmp/runme.sh
 
-# be verbose for dedicated image/s
+# be verbose if image names are given
 #
 verbose=0
 if [[ $# -gt 0 ]]; then
