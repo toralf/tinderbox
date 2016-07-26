@@ -25,14 +25,14 @@ do
   # $mnt must not be a broken symlink
   #
   if [[ -L $mnt && ! -e $mnt ]]; then
-    [[ $verbose -eq 1 ]] && echo "broken symlink: $mnt"
+    echo "broken symlink: $mnt"
     continue
   fi
 
-  # $mnt must be a (chrootable) directory
+  # $mnt must be a directory
   #
   if [[ ! -d $mnt ]]; then
-    [[ $verbose -eq 1 ]] && echo "not a valid dir: $mnt"
+    echo "not a valid dir: $mnt"
     continue
   fi
   
@@ -66,3 +66,4 @@ done
 # otherwise the prompt isn't visible (due to 'nohup ... &'  ?)
 #
 sleep 1
+
