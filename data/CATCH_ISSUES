@@ -171,6 +171,8 @@ syntax error
 record .* undefined
 make.* Error
 setup.py:.*: UserWarning: .* must be installed to build
+no configure script found
+Function .* not defined
 Error:
 ERROR :
 ERROR:
