@@ -360,6 +360,7 @@ emerge sys-kernel/hardened-sources || exit 6
 
 # at least the very first @world must not fail
 #
+sed -i -e 's/^/#/g' /etc/portage/package.mask/ncurses
 $wucmd &> /tmp/world.log
 if [[ \$? -ne 0 ]]; then
   # try to auto-fix the setup by fixing the USE flags set
@@ -371,6 +372,8 @@ if [[ \$? -ne 0 ]]; then
     exit 12
   fi
 fi
+sed -i -e 's/#//g' /etc/portage/package.mask/ncurses
+
 exit 0
 
 EOF
