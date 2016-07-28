@@ -601,8 +601,8 @@ function PostEmerge() {
       tp=/tmp/timestamp.preserved-rebuild
       if [[ -f $tp ]]; then
         let "diff = $(date +%s) - $(date +%s -r $tp)"
-        if [[ $diff -lt 900 ]]; then
-          Finish "2x @preserved-rebuild within $diff sec"
+        if [[ $diff -lt 3600 ]]; then
+          Mail "repeated @preserved-rebuild within $diff sec" $log
         fi
       fi
     fi
