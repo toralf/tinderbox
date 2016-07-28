@@ -20,6 +20,15 @@ if [[ $# -gt 0 ]]; then
   verbose=1
 fi
 
+# delay the start of individual images after boot up
+# to lower the iowait states impact
+#
+sleep=0
+uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
+if [[ $? -eq 0 ]]; then
+  sleep=300
+fi
+
 for mnt in ${@:-~/amd64-*}
 do
   # $mnt must not be a broken symlink
@@ -61,6 +70,8 @@ do
   # ok, start it
   #
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
+
+  sleep $sleep
 done
 
 # otherwise the prompt isn't visible (due to 'nohup ... &'  ?)
