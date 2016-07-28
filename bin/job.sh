@@ -590,21 +590,11 @@ function PostEmerge() {
 
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
   if [[ $? -eq 0 ]]; then
-    if [[ "$task" = "@preserved-rebuild" ]]; then
-      # this one happens often if @preserved-rebuild is repeated
-      #
-      grep -q 'used by /usr/lib64/python3.4/site-packages/pax.cpython-34.so' $log
-      if [[ $? -ne 0 ]]; then
-        Mail "$task repeated unexpected" $log
-      fi
-    else
-      tp=/tmp/timestamp.preserved-rebuild
-      if [[ -f $tp ]]; then
-        let "diff = $(date +%s) - $(date +%s -r $tp)"
-        if [[ $diff -lt 3600 ]]; then
-          Mail "repeated @preserved-rebuild within $diff sec" $log
-        fi
-      fi
+    # bail out if it happens too often
+    #
+    n=$(tac /var/log/emerge.log | grep -F -m 20 '*** emerge' | grep -c "emerge .* @preserved-rebuild")
+    if [[ $n -gt 4 ]]; then
+      Finish "${n}x @preserved-rebuild within last 20 emerge jobs"
     fi
     echo "@preserved-rebuild" >> $pks
   fi
