@@ -158,6 +158,7 @@ EOF
   # replace CFLAGS and DISTDIR, remove PORTDIR and PKGDIR entirely, USE
   #
   sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native /'  \
+          -e '/^CPU_FLAGS_X86=/d'                   \
           -e '/^USE=/d'                             \
           -e '/^PORTDIR=/d'                         \
           -e '/^PKGDIR=/d'                          \
@@ -179,7 +180,7 @@ L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -
 
 SSL_BITS=4096
 
-# we don't use the software here we just compile-test it
+# just compile-tests
 #
 ACCEPT_LICENSE="*"
 
@@ -192,7 +193,7 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
 
-# no "fail-clean", portage would delete otherwise those files before they could be picked up for a bug report
+# no "fail-clean", files would be cleaned before being picked up
 #
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
 
@@ -208,7 +209,7 @@ EOF
 
   mkdir tmp/tb  # chr.sh will bind-mount here the tinderbox sources from the host
 
-  # create and symlink portage directories
+  # create portage directories and symlink them
   #
   mkdir usr/portage
   mkdir var/tmp/{distfiles,portage}
@@ -228,7 +229,7 @@ EOF
   chmod a+rw  etc/portage/package.mask/self
 
   if [[ "$mask" = "unstable" ]]; then
-    # unmask ffmpeg 3 at every second unstable image
+    # unmask ffmpeg (v3) at every 2nd unstable image
     #
     let "r = $RANDOM %2"
     if [[ $r -eq 0 ]]; then
@@ -236,10 +237,10 @@ EOF
     fi
   fi
 
-  touch      etc/portage/package.use/setup     # USE flags added by setup.sh
+  touch      etc/portage/package.use/setup     # USE flags added by setup.sh or us
   chmod a+rw etc/portage/package.use/setup
 
-  # emerge hangs at hardened: https://bugs.gentoo.org/show_bug.cgi?id=540818
+  # emerging xemacs hangs at hardened: https://bugs.gentoo.org/show_bug.cgi?id=540818
   #
   echo $profile | grep -q "hardened"
   if [[ $? -eq 0 ]]; then
@@ -254,6 +255,7 @@ CXXFLAGS="\$CFLAGS"
 FEATURES="splitdebug"
 
 EOF
+
   echo 'FEATURES="test"'                  > etc/portage/env/test
   echo 'FEATURES="-sandbox -usersandbox"' > etc/portage/env/nosandbox
 }
@@ -524,7 +526,7 @@ if [[ ! -d $imagedir ]]; then
 fi
 
 # $name holds the directory name of the chroot image
-# start with a fixed prefix, append later <profile>, <mask> and <timestamp>
+# we do append later <profile>, <mask> and <timestamp>
 #
 name="amd64"
 
