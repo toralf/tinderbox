@@ -189,8 +189,10 @@ $(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':')
 
   -----------------------------------------------------------------
 
-$(eselect java-vm list 2>/dev/null && echo)
-$(eselect ruby    list 2>/dev/null && echo)
+$(gcc-config -l        2>&1         && echo)
+$(eselect java-vm list 2>/dev/null  && echo)
+$(eselect python  list 2>&1         && echo)
+$(eselect ruby    list 2>/dev/null  && echo)
   -----------------------------------------------------------------
 
 EOF
