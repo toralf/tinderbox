@@ -362,19 +362,20 @@ emerge sys-kernel/hardened-sources || exit 6
 #
 sed -i -e 's/^/#/g' /etc/portage/package.mask/ncurses
 $wucmd &> /tmp/world.log
-if [[ \$? -ne 0 ]]; then
+rc=$?
+if [[ \$rc -ne 0 ]]; then
   # try to auto-fix the setup by fixing the USE flags set
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $wucmd &> /tmp/world.log || exit 11
+    $wucmd &> /tmp/world.log || rc=11
   else
-    exit 12
+    rc=12
   fi
 fi
 sed -i -e 's/#//g' /etc/portage/package.mask/ncurses
 
-exit 0
+exit \$rc
 
 EOF
 
