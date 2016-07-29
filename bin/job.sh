@@ -189,6 +189,10 @@ $(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':')
 
   -----------------------------------------------------------------
 
+$(eselect java-vm list 2>/dev/null && echo)
+$(eselect ruby    list 2>/dev/null && echo)
+  -----------------------------------------------------------------
+
 EOF
 
   # --verbose would blow up it over 16 KB
