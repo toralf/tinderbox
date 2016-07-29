@@ -199,7 +199,7 @@ EOF
 
   # --verbose would blow up it over 16 KB
   #
-  emerge --info --verbose=n >> $issuedir/emerge-info.txt
+  emerge --info --verbose=n $failed >> $issuedir/emerge-info.txt
 
   # get assignee and cc, GLEP 67 rules
   #
