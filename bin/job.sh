@@ -193,13 +193,14 @@ $(gcc-config -l        2>&1         && echo)
 $(eselect java-vm list 2>/dev/null  && echo)
 $(eselect python  list 2>&1         && echo)
 $(eselect ruby    list 2>/dev/null  && echo)
+
   -----------------------------------------------------------------
 
 EOF
 
   # --verbose would blow up it over 16 KB
   #
-  emerge --info --verbose=n $failed >> $issuedir/emerge-info.txt
+  emerge --info --verbose=n $short >> $issuedir/emerge-info.txt
 
   # get assignee and cc, GLEP 67 rules
   #
@@ -444,7 +445,12 @@ function GotAnIssue()  {
     Mail "warn: \$failed is empty for task: $task" $bak
     return
   fi
+
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+  if [[ -z "$short" ]]; then
+    Mail "warn: \$short is empty for failed: $failed" $bak
+    return
+  fi
 
   # collect build + log files into $issuedir
   #
@@ -696,6 +702,12 @@ function EmergeTask() {
 
       # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
       #
+      #TODO:
+# [22:22] <kentnl> toralf: as an idea, if you ever stumble into problems with dependency conflicts ( esp: perl ones ), tar up  /var/db/pkg, /var/lib/portage and /etc/portage and stash it somewhere, and with a bit of luck we'll work out how to share them somewhere and use them as "how to avoid broken portage" test cases.
+# [22:23] <kentnl> because obviously, we need a way for people who are modifying packages to avoid those problems to say "does this change actually fix this problem" , but usually the people doing the fixes don't have the horrible broken trees :/
+# [22:24] * kentnl still has to work out how we actually use this data as well as how we get them to devs , but that will be easier I hope once we have a few test images
+# [22:26] <toralf> kentnl: ok, will do
+
       grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $log
       if [[ $? -eq 0 ]]; then
         Mail "notice: Perl upgrade issue in $task" $log
