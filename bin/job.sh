@@ -320,12 +320,13 @@ cc:       $(cat $issuedir/cc)
 
 EOF
 
-  # first search for the same issue, if that search result is empty
-  # then return the latest n open and resolved bugs of $short respectively
+  # search for the same issue else return the latest N open and resolved bugs respectively
   #
-  exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body)
+  exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body | cut -f1 -d ' ')
 
-  if [[ -z "$exact" ]]; then
+  if [[ -n "$exact" ]]; then
+    echo -e "\nhttps://bugs.gentoo.org/show_bug.cgi?id=$exact\n" >> $issuedir/body
+  else
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
     g="stabilize|Bump| keyword| bump"
 
@@ -478,9 +479,7 @@ function GotAnIssue()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    if [[ -z "$exact" ]]; then
-      Mail "ISSUE: $(cat $issuedir/title)" $issuedir/body
-    fi
+    Mail "ISSUE:$exact $(cat $issuedir/title)" $issuedir/body
   fi
 }
 
