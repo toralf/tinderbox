@@ -2,6 +2,13 @@
 #
 # set -x
 
+# heuristic test that we are within a chroot image
+#
+if [[ ! -e /tmp/packages || ! -e /tmp/setup.sh || ! -e /tmp/setup.log ]]; then
+  echo "we're not within a tinderbox image"
+  exit 1
+fi
+
 sed -i  -e 's/ [+-]*openssl/[ ]*/g'   \
         -e 's/ [+-]*libressl[ ]*/ /'  \
         -e 's/ [+-]*gnutls[ ]*/ /'    \
