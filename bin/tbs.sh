@@ -247,6 +247,10 @@ EOF
     echo -e "app-editors/xemacs\napp-xemacs/*" > etc/portage/package.mask/xemacs
   fi
 
+  # ncurses often blocks GCC upgrade
+  #
+  echo "=sys-libs/ncurses-6.0-r1" > etc/portage/package.mask/ncurses
+
   # data/package.env.common contains the counterpart
   #
   cat << EOF > etc/portage/env/splitdebug
@@ -353,7 +357,6 @@ emerge mail-client/mailx || exit 4
 #   app-portage/portage-utils   qlop
 #   www-client/pybugz           bugz
 #
-echo "=sys-libs/ncurses-6.0-r1" > /etc/portage/package.mask/ncurses
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 5
 
 # we have "sys-kernel/" in IGNORE_PACKAGES therefore we've to emerge kernel sources here
@@ -361,6 +364,7 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/por
 emerge sys-kernel/hardened-sources || exit 6
 
 # at least the very first @world must not fail
+# at that point GCC should be upgraded, therefore dry-test here without masked ncurses
 #
 sed -i -e 's/^/#/g' /etc/portage/package.mask/ncurses
 $wucmd &> /tmp/world.log
