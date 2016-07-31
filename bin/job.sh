@@ -184,16 +184,16 @@ function CollectIssueFiles() {
   make.conf:
 USE="$(source /etc/portage/make.conf; echo $USE)"
 
-  package specific USE flags:
+  package.use flags:
 $(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':')
 
   -----------------------------------------------------------------
 
+gcc-config -l:
 $(gcc-config -l        2>&1         && echo)
 $(eselect java-vm list 2>/dev/null  && echo)
 $(eselect python  list 2>&1         && echo)
 $(eselect ruby    list 2>/dev/null  && echo)
-
   -----------------------------------------------------------------
 
 EOF
