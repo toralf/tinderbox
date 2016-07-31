@@ -7,6 +7,7 @@ ACCESS VIOLATION SUMMARY
 Can't read
 CMake will not be able to correctly generate this project.
 class file .* not found
+error: redefinition of
 has incomplete type
 : undefined reference to
 undefined symbol:
