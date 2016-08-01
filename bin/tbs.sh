@@ -451,7 +451,7 @@ flags="
   evdev exif extra extraengine ffmpeg fluidsynth fontconfig fortran fpm
   freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring
   gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui
-  gzip haptic havege hdf5 help ibus icu imap imlib inifile introspection
+  gzip haptic havege hdf5 help ibus icu imap imlib infinality inifile introspection
   ipv6 isag ithreads jadetex javascript javaxml jpeg kerberos kvm lapack
   latex ldap libinput libkms libvirtd llvm logrotate lzma mad mbox
   mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
