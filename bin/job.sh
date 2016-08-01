@@ -38,16 +38,14 @@ function Finish()  {
 }
 
 
-# store next work item in $task
+# for a package do evaluate here if it is worth to call emerge
 #
 function GetNextTask() {
   #   update @system once a day, if no special task is scheduled
   #
   ts=/tmp/timestamp.system
-
   if [[ ! -f $ts ]]; then
     touch $ts
-
   else
     let "diff = $(date +%s) - $(date +%s -r $ts)"
     if [[ $diff -gt 86400 ]]; then
@@ -115,7 +113,7 @@ function GetNextTask() {
         fi
       fi
 
-      # well, emerge $task now
+      # well, call emerge on $task
       #
       return
     fi
@@ -145,7 +143,7 @@ function CollectIssueFiles() {
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
 
-  # strip away color escape sequences, echo does expand "foo/bar-*.log" terms
+  # strip away escape sequences, echo is used to expand those variables containing place holders
   #
   for f in $(echo $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso)
   do
@@ -165,8 +163,7 @@ function CollectIssueFiles() {
   done
   chmod a+r $issuedir/files/*
 
-  # create an email body containing convenient links + info
-  # ready for being picked up by copy+paste
+  # create an email containing convenient links + info ready for being picked up by copy+paste
   #
   mask="stable"
   grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
@@ -198,18 +195,18 @@ $(eselect ruby    list 2>/dev/null  && echo)
 
 EOF
 
-  # --verbose would blow up it over 16 KB
+  # avoid --verbose here, it would blow up its output above the 16 KB limit of b.g.o.
   #
   emerge --info --verbose=n $short >> $issuedir/emerge-info.txt
 
-  # get assignee and cc, GLEP 67 rules
+  # get bug report assignee and cc, GLEP 67 rules
   #
   m=$(equery meta -m $failed | grep '@' | xargs)
   if [[ -z "$m" ]]; then
     m="maintainer-needed@gentoo.org"
   fi
 
-  # if we found more than 1 maintainer, then store the 1st in assignee and all other(s) int cc
+  # if we found more than 1 maintainer, then take the 1st as the assignee
   #
   echo "$m" | grep -q ' '
   if [[ $? -eq 0 ]]; then
@@ -220,7 +217,7 @@ EOF
     touch $issuedir/cc
   fi
 
-  # try to find a descriptive title and the last meaningful lines of the issue
+  # try to find a descriptive title and the most meaningful lines of the issue
   #
   touch $issuedir/{issue,title}
 
@@ -260,8 +257,8 @@ EOF
     head -n 20 $sandb >> $issuedir/issue
 
   else
-    # to catch the real culprit we loop over all patterns exactly in their written order
-    # therefore we can't use something like "grep -f CATCH_ISSUES"
+    # to catch the real culprit we've loop over all patterns exactly in their written order
+    # therefore we can't use "grep -f CATCH_ISSUES"
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
@@ -302,10 +299,10 @@ EOF
     done
   )
 
-  # the mail contains:
-  #   the issue, package version and maintainer
-  #   bugzilla search result/s
-  #   a bgo.sh command line ready for copy+paste
+  # the email contains:
+  # - the issue, package version and maintainer
+  # - a bgo.sh command line ready for copy+paste
+  # - bugzilla search result/s
   #
   cp $issuedir/issue $issuedir/body
 
@@ -338,12 +335,14 @@ EOF
     bugz --columns 400 -q search --status RESOLVED  $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
   fi
 
+  # attach now collected files
+  #
   for f in $issuedir/emerge-info.txt $issuedir/files/* $bak
   do
     uuencode $f $(basename $f) >> $issuedir/body
   done
 
-  # prefix title with package name + version
+  # prefix the Subject with package name + version
   #
   sed -i -e "s#^#$failed : #" $issuedir/title
 
@@ -359,7 +358,7 @@ EOF
 
 
 # put all successfully emerged dependencies of $task into the world file
-# otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally for everry emerge
+# otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) everytime
 #
 function PutDepsIntoWorld()  {
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
@@ -689,10 +688,9 @@ function check() {
 # [22:26] <toralf> kentnl: ok, will do
 #
 function EmergeTask() {
-  # handle prefix @
-  #
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
-
+    # emerge a package set
+    #
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       opts="--deep --update --changed-use --with-bdeps=y"
     elif [[ "$task" = "@preserved-rebuild" ]]; then
@@ -723,7 +721,7 @@ function EmergeTask() {
     /usr/bin/pfl &>/dev/null
 
   else
-    # either a command line prefixed with "%" or an ATOM
+    # run a command line (prefixed with "%") or emerge the given package
     #
     if [[ "$(echo $task | cut -c1)" = '%' ]]; then
       cmd=$(echo "$task" | cut -c2-)
@@ -754,9 +752,7 @@ export GCC_COLORS=""                # suppress colour output of gcc-4.9 and abov
 #
 name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
 
-# catch XDG directory uses
 # got from [20:25] <mgorny> toralf: also, my make.conf: http://dpaste.com/3CM0WK8 ;-)
-#
 # https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
 export XDG_DESKTOP_DIR="/root/Desktop"
