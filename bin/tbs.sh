@@ -500,6 +500,7 @@ do
           fi
         else
           flags="$OPTARG"         # get the USE flags from command line
+          echo -e "\nWARN: USE flags read from command line b/c not a file !\n"
         fi
         ;;
     i)  imagedir="$OPTARG"
