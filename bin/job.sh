@@ -751,10 +751,7 @@ function EmergeTask() {
     else
       # the return code of emerge was zero
       #
-      if [[ "$task" = "@system" ]]; then
-        echo "@world" >> $pks
-
-      elif [[ "$task" = "@world" ]]; then
+      if [[ "$task" = "@world" ]]; then
         date >> /tmp/timestamp.world
         echo "%emerge --depclean --verbose=n" >> $pks
 
@@ -762,10 +759,13 @@ function EmergeTask() {
       PostEmerge
     fi
 
-    # next attempt in 24 hours
-    #
-    if [[ "$task" = "@system" ]] ;then
+    if [[ "$task" = "@system" ]]; then
+      # touch that file to have the next attempt in 24 hours
+      #
       date >> /tmp/timestamp.system
+      # even if @system failed, try @world
+      #
+      echo "@world" >> $pks
     fi
 
     # report before depclean could happen
