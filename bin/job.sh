@@ -460,6 +460,13 @@ function GotAnIssue()  {
   is_sandbox_issue=0
   CollectIssueFiles
 
+  # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
+  #
+  grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $bak
+  if [[ $? -eq 0 ]]; then
+    Finish "notice: Perl upgrade issue in $task"
+  fi
+
   if [[ $is_sandbox_issue -eq 1 ]]; then
     # build this specific package version w/o sandboxing from now on
     #
@@ -688,50 +695,31 @@ function EmergeTask() {
 
     if [[ "$task" = "@world" || "$task" = "@system" ]]; then
       opts="--deep --update --changed-use --with-bdeps=y"
-
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=30"
       date >> /tmp/timestamp.preserved-rebuild
-
     else
       opts="--update"
     fi
 
     emerge $opts $task &> $log
     if [[ $? -ne 0 ]]; then
-      # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
-      #
-      grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $log
-      if [[ $? -eq 0 ]]; then
-        Mail "notice: Perl upgrade issue in $task" $log
-        PostEmerge
-        echo "$task"                >> $pks
-        echo "%perl-cleaner --all"  >> $pks
-        PutDepsIntoWorld
-
-        return
-      fi
-
       GotAnIssue
-      PostEmerge
-
       if [[ "$task" = "@system" && -z "$failed" ]]; then
-        Mail "notice: $task failed" $log
+        Mail "notice: $task itself failed" $log
       fi
-
     else
       if [[ "$task" = "@world" ]]; then
         date >> /tmp/timestamp.world
         echo "%emerge --depclean" >> $pks
       fi
-      PostEmerge
     fi
 
+    PostEmerge
     if [[ "$task" = "@system" ]]; then
       date >> /tmp/timestamp.system
       echo "@world" >> $pks
     fi
-
     /usr/bin/pfl &>/dev/null
 
   else
