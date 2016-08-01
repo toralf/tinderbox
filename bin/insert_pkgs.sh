@@ -2,46 +2,50 @@
 #
 #set -x
 
-# pick up latest ebuilds and put them on top of the package lists
+# pick up latest ebuilds and put them on top of individual package lists
 #
 
 mailto="tinderbox@zwiebeltoralf.de"
 
-# put all package list filenames into an array if the image ...
+# collect all package list filenames if the image ...
 #   1. is symlinked to ~
 #   2. is running
 #   3. has a non-empty package list
 #   4. don't have any special entries in its package file
 #
-a=()
+avail_pks=""
 for i in ~/amd64-*
 do
   if [[ ! -e $i/tmp/LOCK ]]; then
     continue
   fi
 
-  f=$i/tmp/packages
-  if [[ ! -s $f ]]; then
+  if [[ -e $i/tmp/STOP ]]; then
     continue
   fi
 
-  grep -q -E "^(STOP|INFO|%|@)" $f
+  pks=$i/tmp/packages
+  if [[ ! -s $pks ]]; then
+    continue
+  fi
+
+  grep -q -E "^(STOP|INFO|%|@)" $pks
   if [[ $? -eq 0 ]]; then
     continue
   fi
 
-  a=( ${a[@]} $f )
+  avail_pks="$avail_pks $pks"
 done
 
 # nothing found ?
 #
-if [[ ${#a[@]} = 0 ]]; then
+if [[ -z "$avail_pks" ]]; then
   exit
 fi
 
-# the host repo is synced every 3 hours, add 1 hour too for mirroring
-# strip away the package version do test the latest visible package
-# dirname works here b/c the output of 'git diff' looks like:
+# - the host repo is synced every 3 hours, add 1 hour too for mirroring
+# - strip away the package version do test the latest visible package
+# - dirname works here b/c the output of 'git diff' looks like:
 #
 # A       www-apache/passenger/passenger-5.0.24.ebuild
 # M       www-apps/kibana-bin/kibana-bin-4.1.4.ebuild
@@ -50,10 +54,16 @@ fi
 tmp=$(mktemp /tmp/pksXXXXXX)
 
 (cd /usr/portage/; git diff --name-status "@{ 4 hour ago }".."@{ 1 hour ago }") |\
-grep -v '^D' | grep '\.ebuild$' | awk ' { print $2 } ' |\
-xargs dirname 2>/dev/null | sort --unique > $tmp
+grep -v '^D'              |\
+grep '\.ebuild$'          |\
+awk ' { print $2 } '      |\
+xargs dirname 2>/dev/null |\
+sort --unique > $tmp
+
+# shuffle the new ebuilds around for each image
+#
 if [[ -s $tmp ]]; then
-  for pks in ${a[@]}
+  for pks in $avail_pks
   do
     sort --random-sort < $tmp >> $pks
   done
