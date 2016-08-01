@@ -11,11 +11,11 @@ Copy both *bin* and *data* into */home/tinderbox/tb*, create a (big) directory t
 ## typical calls
 Setup a new image:
 
-    $> echo "sudo ~/tb/bin/tbs.sh -A -m unstable -i ~/images2 -p default/linux/amd64/13.0/desktop/kde" | at now
+    $> ./tbs.sh -A -m unstable -i ~/images2 -p default/linux/amd64/13.0/desktop
 
-Start all not-running images:
+Start it:
 
-    $> ~/tb/bin/start_img.sh
+    $> ./start_img.sh [ <name> ]
 
 
 ## more info
