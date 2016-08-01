@@ -615,11 +615,6 @@ function PostEmerge() {
     echo "%haskell-updater" >> $pks
   fi
 
-  grep -q "'python-updater [options]' to rebuild Python modules." $log
-  if [[ $? -eq 0 ]]; then
-    echo "%python-updater" >> $pks
-  fi
-
   grep -q 'Please run "revdep-pax" after installation.' $log
   if [[ $? -eq 0 ]]; then
     echo "%revdep-pax" >> $pks
