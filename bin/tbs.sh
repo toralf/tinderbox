@@ -44,11 +44,9 @@ function rufs()  {
 }
 
 
-#
+# get the current stage3 file name, verify and unpack it
 #
 function UnpackStage3()  {
-  # get the current stage3 file name
-  #
   wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
   wgetpath=/releases/amd64/autobuilds
   latest=latest-stage3.txt
@@ -108,7 +106,7 @@ function UnpackStage3()  {
 }
 
 
-#
+# repos.d/, make.conf and all that stuff under /etc/portage/
 #
 function CompilePortageFiles()  {
   # https://wiki.gentoo.org/wiki/Overlay/Local_overlay
@@ -155,8 +153,6 @@ EOF
   m=etc/portage/make.conf
   chmod a+w $m
 
-  # replace CFLAGS and DISTDIR, remove PORTDIR and PKGDIR entirely, USE
-  #
   sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native /'  \
           -e '/^CPU_FLAGS_X86=/d'                   \
           -e '/^USE=/d'                             \
@@ -207,7 +203,7 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 
 EOF
 
-  mkdir tmp/tb  # chr.sh will bind-mount here the tinderbox sources from the host
+  mkdir tmp/tb  # chr.sh will bind-mount onto here the tinderbox directory from the host
 
   # create portage directories and symlink them
   #
@@ -265,7 +261,7 @@ EOF
 }
 
 
-#
+# DNS resolution and VIM
 #
 function CompileMiscFiles()  {
   cp -L /etc/hosts /etc/resolv.conf etc/
@@ -279,19 +275,18 @@ EOF
 }
 
 
-#
+# upgrade GCC, build and install kernel sources, upgrade @system (inherits @world)
 #
 function FillPackageList()  {
   pks=tmp/packages
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
 
-  # try to upgrade GCC as early as possible
   # INFO prevents insert_pkgs.sh from touching the package list too early
   #
   cat << EOF >> $pks
 INFO start with the package list
-@world
+@system
 %BuildKernel
 %rm /etc/portage/package.mask/ncurses
 sys-devel/gcc
@@ -301,7 +296,12 @@ EOF
 }
 
 
-# finalize installation of a Gentoo Linux + install packages used in job.sh
+# finalize setup of a chroot image
+#
+# - configure locale, timezone etc
+# - install and configure tools used in job.sh
+# - install kernel sources
+# - dry test a @world upgrade
 #
 function EmergeMandatoryPackages() {
   wucmd="emerge --deep --update --changed-use --with-bdeps=y @world --pretend"
@@ -394,7 +394,7 @@ EOF
 
   cd $tbhome
 
-  # strip of $tbhome
+  # strip off $tbhome
   #
   d=$(basename $imagedir)/$name
 
