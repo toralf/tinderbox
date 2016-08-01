@@ -358,7 +358,7 @@ EOF
 
 
 # put all successfully emerged dependencies of $task into the world file
-# otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) everytime
+# otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482)
 #
 function PutDepsIntoWorld()  {
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
