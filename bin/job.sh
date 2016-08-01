@@ -361,7 +361,7 @@ EOF
 # put all successfully emerged dependencies of $task into the world file
 # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally for everry emerge
 #
-function UpdateWorldFile()  {
+function PutDepsIntoWorld()  {
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
@@ -381,7 +381,7 @@ function GotAnIssue()  {
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
-  UpdateWorldFile
+  PutDepsIntoWorld
 
   # mostly OOM
   #
@@ -630,9 +630,16 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $pks
   fi
 
+  # auto-unmerge packages like :
+  #
+  # !!! The following installed packages are masked:
+  # - dev-ruby/dep_selector-0.1.1::gentoo (masked by: package.mask)
+  # For more information, see the MASKED PACKAGES section in the emerge
+  # man page or refer to the Gentoo Handbook.
+  #
   del=$(grep '^\- .*/.* (masked by: package.mask)$' $log | cut -f2 -d ' ' | cut -f1 -d ':' | sed 's/^/=/g')
   if [[ -n "$del" ]]; then
-    echo "%emerge --depclean --verbose=n" >> $pks
+    echo "%PutDepsIntoWorld" >> $pks
     for p in $del
     do
       equery --quiet depends --indirect $p 1>/dev/null
@@ -711,11 +718,10 @@ function EmergeTask() {
       if [[ $? -eq 0 ]]; then
         Mail "notice: Perl upgrade issue in $task" $log
         PostEmerge
-
         echo "$task"                >> $pks
         echo "%perl-cleaner --all"  >> $pks
+        PutDepsIntoWorld
 
-        UpdateWorldFile
         return
       fi
 
