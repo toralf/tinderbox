@@ -736,23 +736,7 @@ function EmergeTask() {
         fi
       fi
 
-      # try to update as much as possible of the remaining emerge list
-      #
-      while :;
-      do
-        emerge --resume --skipfirst &> $log
-        if [[ $? -eq 0 ]]; then
-          PostEmerge
-          break
-        else
-          grep -q '* unsatisfied dependencies. Please restart/continue the operation' $log
-          if [[ $? -eq 0 ]]; then
-            break
-          fi
-          GotAnIssue
-          PostEmerge
-        fi
-      done
+      Mail "skip resume attempt" $log
 
     else
       # the return code of emerge was zero
