@@ -699,9 +699,6 @@ function EmergeTask() {
 
     emerge $opts $task &> $log
     if [[ $? -ne 0 ]]; then
-      # @... failed
-      #
-
       # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
       #
       grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $log
@@ -718,23 +715,14 @@ function EmergeTask() {
       GotAnIssue
       PostEmerge
 
-      if [[ "$task" = "@system" ]]; then
-        # do not complain twice in case of a package failure
-        #
-        if [[ -z "$failed" ]]; then
-          Mail "notice: $task failed" $log
-        fi
+      if [[ "$task" = "@system" && -z "$failed" ]]; then
+        Mail "notice: $task failed" $log
       fi
 
-      Mail "skip resume attempt" $log
-
     else
-      # the return code of emerge was zero
-      #
       if [[ "$task" = "@world" ]]; then
         date >> /tmp/timestamp.world
-        echo "%emerge --depclean --verbose=n" >> $pks
-
+        echo "%emerge --depclean" >> $pks
       fi
       PostEmerge
     fi
