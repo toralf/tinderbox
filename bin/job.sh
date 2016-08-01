@@ -484,7 +484,7 @@ function GotAnIssue()  {
 }
 
 
-# switch the system java
+# switch the java engine
 #
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
@@ -545,8 +545,6 @@ function SwitchGCC() {
         echo "%BuildKernel" >> $pks
       fi
 
-      # affected libs
-      #
       if [[ "$majold" = "4" && "$majnew" = "5" ]]; then
         rm -rf /var/cache/revdep-rebuild/*
         revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &>> $log
@@ -580,7 +578,7 @@ function SelectNewKernel() {
 # by appending them in their opposite order to the package list
 #
 function PostEmerge() {
-  # we must not update these config files
+  # do not auto-update these config files
   #
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
@@ -601,8 +599,6 @@ function PostEmerge() {
 
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
   if [[ $? -eq 0 ]]; then
-    # bail out if it happens too often
-    #
     n=$(tac /var/log/emerge.log | grep -F -m 20 '*** emerge' | grep -c "emerge .* @preserved-rebuild")
     if [[ $n -gt 4 ]]; then
       Finish "${n}x @preserved-rebuild within last 20 emerge jobs"
@@ -625,12 +621,10 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $pks
   fi
 
-  # auto-unmerge packages like :
+  # auto-unmerge packages, eg:
   #
   # !!! The following installed packages are masked:
   # - dev-ruby/dep_selector-0.1.1::gentoo (masked by: package.mask)
-  # For more information, see the MASKED PACKAGES section in the emerge
-  # man page or refer to the Gentoo Handbook.
   #
   del=$(grep '^\- .*/.* (masked by: package.mask)$' $log | cut -f2 -d ' ' | cut -f1 -d ':' | sed 's/^/=/g')
   if [[ -n "$del" ]]; then
@@ -646,7 +640,7 @@ function PostEmerge() {
 }
 
 
-# test hook, eg. to catch package/s which left install artefacts
+# test hook, eg. to catch install artefacts
 #
 function check() {
   exe=/tmp/tb/bin/PRE-CHECK.sh
@@ -680,6 +674,13 @@ function check() {
 
 # $task might be @set, a command line like "%emerge -C ..." or a single package
 #
+
+#TODO:
+# [22:22] <kentnl> toralf: as an idea, if you ever stumble into problems with dependency conflicts ( esp: perl ones ), tar up  /var/db/pkg, /var/lib/portage and /etc/portage and stash it somewhere, and with a bit of luck we'll work out how to share them somewhere and use them as "how to avoid broken portage" test cases.
+# [22:23] <kentnl> because obviously, we need a way for people who are modifying packages to avoid those problems to say "does this change actually fix this problem" , but usually the people doing the fixes don't have the horrible broken trees :/
+# [22:24] * kentnl still has to work out how we actually use this data as well as how we get them to devs , but that will be easier I hope once we have a few test images
+# [22:26] <toralf> kentnl: ok, will do
+#
 function EmergeTask() {
   # handle prefix @
   #
@@ -703,12 +704,6 @@ function EmergeTask() {
 
       # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
       #
-      #TODO:
-# [22:22] <kentnl> toralf: as an idea, if you ever stumble into problems with dependency conflicts ( esp: perl ones ), tar up  /var/db/pkg, /var/lib/portage and /etc/portage and stash it somewhere, and with a bit of luck we'll work out how to share them somewhere and use them as "how to avoid broken portage" test cases.
-# [22:23] <kentnl> because obviously, we need a way for people who are modifying packages to avoid those problems to say "does this change actually fix this problem" , but usually the people doing the fixes don't have the horrible broken trees :/
-# [22:24] * kentnl still has to work out how we actually use this data as well as how we get them to devs , but that will be easier I hope once we have a few test images
-# [22:26] <toralf> kentnl: ok, will do
-
       grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $log
       if [[ $? -eq 0 ]]; then
         Mail "notice: Perl upgrade issue in $task" $log
@@ -745,16 +740,10 @@ function EmergeTask() {
     fi
 
     if [[ "$task" = "@system" ]]; then
-      # touch that file to have the next attempt in 24 hours
-      #
       date >> /tmp/timestamp.system
-      # even if @system failed, try @world
-      #
       echo "@world" >> $pks
     fi
 
-    # report before depclean could happen
-    #
     /usr/bin/pfl &>/dev/null
 
   else
@@ -808,34 +797,25 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# [21:56] <mgorny> toralf: if you're still using my config, i suggest you comment out XDG_CONFIG_DIRS and XDG_DATA_DIRS. they cause a massive breakage, and it seems we may actually want to respect whatever's in env.d for them
-#
-# export XDG_DATA_DIRS="/root/share-read"
-# export XDG_CONFIG_DIRS="/root/config-read"
-
-
 while :;
 do
-  # start an updated instance of ourself if we do differ from it
+  # restart ourself if we do differ from us
   #
   diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
   if [[ $? -ne 0 ]]; then
     exit 125
   fi
 
-  # check before we pick up after ourself
-  #
   check
   rm -rf /var/tmp/portage/*
 
   date > $log
   if [[ -f /tmp/STOP ]]; then
-    Finish "got stop signal"
+    Finish "catched stop signal"
   fi
 
   GetNextTask
   EmergeTask
-
 done
 
 Finish "Bummer! We should never reach this line !"
