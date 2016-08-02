@@ -177,12 +177,13 @@ function CollectIssueFiles() {
   This is an $mask amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
 
   -----------------------------------------------------------------
+  USE flags defined in ...
 
-  make.conf:
-USE="$(source /etc/portage/make.conf; echo $USE)"
+  ... make.conf:
+USE="$(source /etc/portage/make.conf; echo -n '  '; echo $USE)"
 
-  package.use flags:
-$(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':')
+  ... /etc/portage/package.use/*:
+$(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':' | sed 's/^/  /g')
 
   -----------------------------------------------------------------
 
@@ -634,11 +635,15 @@ function PostEmerge() {
   #
   del=$(grep '^\- .*/.* (masked by: package.mask)$' $log | cut -f2 -d ' ' | cut -f1 -d ':' | sed 's/^/=/g')
   if [[ -n "$del" ]]; then
-    echo "%PutDepsIntoWorld" >> $pks
+    first=1
     for p in $del
     do
       equery --quiet depends --indirect $p 1>/dev/null
       if [[ $? -eq 1 ]]; then
+        if [[ $first -eq 1 ]]; then
+          first=0
+          echo "%PutDepsIntoWorld" >> $pks
+        fi
         echo "%emerge --unmerge $p" >> $pks
       fi
     done
