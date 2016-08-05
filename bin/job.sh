@@ -313,18 +313,19 @@ EOF
 versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
-
-~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block
+--
 
 EOF
 
-  # search for the same issue else return the latest N open and resolved bugs respectively
+  # if we don't found the bug then return a list of similar bugs
+  # and create an appropriate bugz command line
   #
   exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body | cut -f1 -d ' ')
-
   if [[ -n "$exact" ]]; then
-    echo -e "\nhttps://bugs.gentoo.org/show_bug.cgi?id=$exact\n" >> $issuedir/body
+    echo -e "\n  https://bugs.gentoo.org/show_bug.cgi?id=$exact\n" >> $issuedir/body
   else
+    echo -e "  ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block\n" >> $issuedir/body
+
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
     g="stabilize|Bump| keyword| bump"
 
@@ -683,14 +684,14 @@ function check() {
 }
 
 
-# $task might be @set, a command line like "%emerge -C ..." or a single package
-#
-
-#TODO:
+# TODO:
 # [22:22] <kentnl> toralf: as an idea, if you ever stumble into problems with dependency conflicts ( esp: perl ones ), tar up  /var/db/pkg, /var/lib/portage and /etc/portage and stash it somewhere, and with a bit of luck we'll work out how to share them somewhere and use them as "how to avoid broken portage" test cases.
 # [22:23] <kentnl> because obviously, we need a way for people who are modifying packages to avoid those problems to say "does this change actually fix this problem" , but usually the people doing the fixes don't have the horrible broken trees :/
 # [22:24] * kentnl still has to work out how we actually use this data as well as how we get them to devs , but that will be easier I hope once we have a few test images
 # [22:26] <toralf> kentnl: ok, will do
+
+
+# $task might be @set, a command line like "%emerge -C ..." or a single package
 #
 function EmergeTask() {
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
