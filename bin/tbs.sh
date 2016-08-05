@@ -168,7 +168,7 @@ USE="
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 "
 
-ACCEPT_KEYWORDS="amd64 $( [[ "$mask" = "unstable" ]] && echo -n '~amd64' )"
+ACCEPT_KEYWORDS=$( [[ "$mask" = "unstable" ]] && echo -n '~amd64' || echo 'amd64' )
 $(/usr/bin/cpuinfo2cpuflags-x86)
 PAX_MARKINGS="XT"
 
