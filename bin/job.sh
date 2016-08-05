@@ -185,6 +185,9 @@ USE="$(source /etc/portage/make.conf; echo -n '  '; echo $USE)"
   ... /etc/portage/package.use/*:
 $(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':' | sed 's/^/  /g')
 
+  unmasked packages in /etc/portage/package.unmask/*:
+$(grep -v -e '^#' -e '^$' /etc/portage/package.unmask/* | cut -f2- -d':' | sed 's/^/  /g')
+
   -----------------------------------------------------------------
 
 gcc-config -l:
