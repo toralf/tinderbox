@@ -323,7 +323,7 @@ EOF
   # if we don't found the bug then return a list of similar bugs
   # and create an appropriate bugz command line
   #
-  exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tee -a $issuedir/body | cut -f1 -d ' ')
+  exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
   if [[ -n "$exact" ]]; then
     echo -e "\n  https://bugs.gentoo.org/show_bug.cgi?id=$exact\n" >> $issuedir/body
   else
