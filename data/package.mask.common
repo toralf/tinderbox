@@ -1,7 +1,7 @@
 # package.mask/common
 #
 
-# various issue(s) otherwise at the 1st start of vim within an image
+# various issue(s) at the 1st start of vim
 #
 app-vim/c-support
 app-vim/ctx
@@ -16,19 +16,19 @@ media-libs/jpeg
 #
 media-video/libav
 
-# just a mess
+# broken
 #
 dev-util/pkgconfig-openbsd
 
 # can't be build w/ recent kernels
 #
-net-fs/openafs*
+#net-fs/openafs*
 
-# replace /etc/resolv.conf by an - for us not working - symlink in /run
+# replace /etc/resolv.conf just with a symlink
 #
 net-dns/resolvconf-symlink
 
-# Oracle sucks
+# no Oracle
 #
 app-office/openoffice-bin
 
