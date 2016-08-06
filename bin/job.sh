@@ -142,10 +142,11 @@ function CollectIssueFiles() {
   oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $bak | grep "\.log"           | cut -f2 -d' ')
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
+#   cnfgr=$(grep -m 1      'Configuring source in'                                     $bak | awk ' { print $5 } ')/configure
 
   # strip away escape sequences, echo is used to expand those variables containing place holders
   #
-  for f in $(echo $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso)
+  for f in $(echo $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso) #$cnfgr
   do
     if [[ -f $f ]]; then
       stresc < $f > $issuedir/files/$(basename $f)
