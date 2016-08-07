@@ -20,10 +20,6 @@ media-video/libav
 #
 dev-util/pkgconfig-openbsd
 
-# can't be build w/ recent kernels
-#
-#net-fs/openafs*
-
 # replace /etc/resolv.conf just with a symlink
 #
 net-dns/resolvconf-symlink
