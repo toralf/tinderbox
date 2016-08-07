@@ -326,8 +326,8 @@ EOF
   #
   exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
   if [[ -n "$exact" ]]; then
-    echo -e "\n  ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir -a $exact\n" >> $issuedir/body
-    echo -e "\n  https://bugs.gentoo.org/show_bug.cgi?id=$exact\n" >> $issuedir/body
+    echo -e "\n  https://bugs.gentoo.org/show_bug.cgi?id=$exact" >> $issuedir/body
+    echo -e "\n  ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir -a $exact" >> $issuedir/body
   else
     echo -e "  ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block\n" >> $issuedir/body
 
