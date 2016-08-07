@@ -368,7 +368,7 @@ emerge sys-kernel/hardened-sources || exit 6
 #
 sed -i -e 's/^/#/g' /etc/portage/package.mask/ncurses
 $wucmd &> /tmp/world.log
-rc=$?
+rc=\$?
 if [[ \$rc -ne 0 ]]; then
   # try to auto-fix the setup by fixing the USE flags set
   #
