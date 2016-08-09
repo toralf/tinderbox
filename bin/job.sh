@@ -618,7 +618,14 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     n=$(tac /var/log/emerge.log | grep -F -m 20 '*** emerge' | grep -c "emerge .* @preserved-rebuild")
     if [[ $n -gt 4 ]]; then
-      Finish "${n}x @preserved-rebuild within last 20 emerge jobs"
+      # even if the root cause of the @preserved-rebuild issue was solved the test above would still be true
+      # therefore we need a marker which tells us to ignore the test
+      # this marker is the truncastion of the file of the @preserved-rebuild history
+      #
+      f=/tmp/timestamp.preserved-rebuild
+      if [[ -s $f ]]; then
+        Finish "${n}x @preserved-rebuild, solve the issue and run 'truncate -s 0 $name/$f' before next start"
+      fi
     fi
     echo "@preserved-rebuild" >> $pks
   fi
