@@ -31,3 +31,7 @@ app-office/openoffice-bin
 # breaks gcc: images2/amd64-hardened-no-multilib-unstable_20160718-203355
 #
 dev-lang/gnat-gcc
+
+# https://bugs.gentoo.org/show_bug.cgi?id=574016
+#
+net-fs/openafs-kernel
