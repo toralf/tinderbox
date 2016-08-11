@@ -227,11 +227,14 @@ EOF
   touch $issuedir/{issue,title}
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
-    # inform the maintainers of the already installed package too
-    # sort -u guarantees, that $issuedir/cc is completely read in before it will be overwritten
+    # we need package name+version althought this gives more noise in our mail inbox
     #
     s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
+    # inform the maintainers of the already installed package too
+    #
     cc=$(equery meta -m $s | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
+    # sort -u guarantees, that $issuedir/cc is completely read in before it will be overwritten
+    #
     (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',' > $issuedir/cc
 
     grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' > $issuedir/issue
