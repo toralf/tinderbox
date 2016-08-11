@@ -108,6 +108,7 @@ An exception has occurred in the compiler
 error in .* command
 Can't locate Locale/Messages.pm in @INC
 Ebuild author forgot an entry
+Please install required programs:
 .*command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
 pushd.*No such file or directory

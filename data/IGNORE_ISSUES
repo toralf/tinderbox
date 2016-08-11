@@ -7,6 +7,7 @@ Currently no working fortran compiler is available
 emerge: there are no ebuilds built with USE flags to satisfy
 emerge: there are no ebuilds to satisfy
 emerge with binary use flag first
+ERROR: Please install required programs:  guile-config
 Error: circular dependencies:
 Error: The above package list contains packages which cannot be
 Fetch instructions for
