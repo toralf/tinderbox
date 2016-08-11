@@ -153,9 +153,11 @@ function CollectIssueFiles() {
     fi
   done
 
+  cp $bak $issuedir
+
   # compress files bigger than 1 MiByte
   #
-  for f in $issuedir/files/*
+  for f in $issuedir/files/* $issuedir/_*
   do
     c=$(wc -c < $f)
     if [[ $c -gt 1000000 ]]; then
@@ -351,7 +353,7 @@ EOF
 
   # attach now collected files
   #
-  for f in $issuedir/emerge-info.txt $issuedir/files/* $bak
+  for f in $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
   do
     uuencode $f $(basename $f) >> $issuedir/body
   done
