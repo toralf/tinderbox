@@ -13,5 +13,6 @@ sys-fs/vhba
 sys-kernel/
 virtual/
 www-apache/mod_
+www-client/chromium
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
