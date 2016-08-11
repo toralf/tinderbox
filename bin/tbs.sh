@@ -458,7 +458,7 @@ flags="
   mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia multitarget
   mysql mysqli ncurses networking nls nscd nss obj objc odbc offensive
   ogg ois opencv openexr opengl openmpi openssl opus osc pam pcre16 pdo
-  php pkcs11 plasma png policykit postgres postproc postscript
+  php pkcs11 plasma plotutils png policykit postgres postproc postscript
   printsupport pulseaudio pwquality pyqt4 python qemu qml qt3support qt4
   qt5 rdoc rendering scripts scrypt sddm sdl semantic-desktop server
   smartcard smpeg snmp sockets source sourceview spice sql sqlite
