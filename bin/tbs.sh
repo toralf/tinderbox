@@ -225,11 +225,11 @@ EOF
   chmod a+rw  etc/portage/package.mask/self
 
   if [[ "$mask" = "unstable" ]]; then
-    # unmask ffmpeg (v3) at every 2nd unstable image
+    # unmask ffmpeg (v3) at 2/3 of unstable images
     #
-    let "r = $RANDOM %2"
-    if [[ $r -eq 0 ]]; then
-      echo "media-video/ffmpeg" >> etc/portage/package.unmask/ffmpeg
+    let "r = $RANDOM %3"
+    if [[ $r -ne 0 ]]; then
+      echo "media-video/ffmpeg" > etc/portage/package.unmask/ffmpeg
     fi
   fi
 
