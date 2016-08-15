@@ -398,7 +398,7 @@ EOF
   #
   d=$(basename $imagedir)/$name
 
-  # authentication avoids an 10 sec tarpitting delay by the ISP
+  # authentication avoids a 10 sec tarpitting delay by the ISP
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
 
