@@ -3,7 +3,7 @@
 
 # deliver SMTP emails w/ authentication and secure to us
 #
-mail-mta/ssmtp    ssl
+mail-mta/ssmtp    ssl mta
 
 # otherwise it gives: HTTPS support not compiled in.
 #
