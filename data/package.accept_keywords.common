@@ -10,3 +10,7 @@
 # https://bugs.gentoo.org/show_bug.cgi?id=580316
 #
 dev-lang/mono ~amd64
+
+# https://bugs.gentoo.org/show_bug.cgi?id=590966
+#
+~sys-devel/gcc-4.9.4
