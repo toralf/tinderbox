@@ -190,7 +190,6 @@ $(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':' | sed 's/^
 
   unmasked packages in /etc/portage/package.unmask/*:
 $(grep -v -e '^#' -e '^$' /etc/portage/package.unmask/* | cut -f2- -d':' | sed 's/^/  /g')
-
   -----------------------------------------------------------------
 
 gcc-config -l:
@@ -549,6 +548,13 @@ function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
   gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
   if [[ $? -ne 0 ]]; then
+    # schedule kernel rebuild if it was build before
+    #
+    if [[ -e /usr/src/linux/.config ]]; then
+      (cd /usr/src/linux && make clean 2>>$log)
+      echo "%BuildKernel" >> $pks
+    fi
+
     verold=$(gcc -v 2>&1 | tail -n 1 | cut -f1-3 -d' ')
     gcc-config --nocolor $latest &> $log
     . /etc/profile
@@ -557,24 +563,20 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
 
-    # re-build affected software against new GCC libs
+    # re-build affected software against new GCC libs is mandatory
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # schedule kernel rebuild if it was build before
-      #
-      if [[ -e /usr/src/linux/.config ]]; then
-        (cd /usr/src/linux && make clean 2>>$log)
-        echo "%BuildKernel" >> $pks
-      fi
+      rm -rf /var/cache/revdep-rebuild/*
 
       if [[ "$majold" = "4" && "$majnew" = "5" ]]; then
-        rm -rf /var/cache/revdep-rebuild/*
-        revdep-rebuild --library libstdc++.so.6 -- --exclude gcc &>> $log
-        if [[ $? -ne 0 ]]; then      # bail out, a failed GCC upgrade causes all types of hassle
-          GotAnIssue
-          echo "%revdep-rebuild --library libstdc++.so.6 -- --exclude gcc" >> $pks
-          Finish "FAILED: $FUNCNAME from $verold to $vernew rebuild failed"
-        fi
+        cmd="revdep-rebuild --library libstdc++.so.6 -- --exclude gcc"
+      fi
+
+      $cmd &>> $log
+      if [[ $? -ne 0 ]]; then
+        GotAnIssue
+        echo "%$cmd" >> $pks
+        Finish "FAILED: $FUNCNAME from $verold to $vernew rebuild failed"
       fi
     fi
   fi
