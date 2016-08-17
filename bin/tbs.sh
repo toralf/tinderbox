@@ -316,8 +316,10 @@ de_DE ISO-8859-1
 de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
-locale-gen
-eselect locale set en_US.utf8
+
+. /etc/profile
+locale-gen || exit 1
+eselect locale set en_US.utf8 || exit 1
 . /etc/profile
 
 echo "Europe/Berlin" > /etc/timezone
