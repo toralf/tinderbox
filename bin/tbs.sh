@@ -376,7 +376,7 @@ if [[ \$rc -ne 0 ]]; then
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $wucmd &> /tmp/world.log || rc=11
+    $wucmd &> /tmp/world.log && rc=0 || rc=11
   else
     rc=12
   fi
