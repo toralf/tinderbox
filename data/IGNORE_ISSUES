@@ -27,6 +27,7 @@ needs multilib profile on amd64
 no suitable configured kernel include tree found
 No packages selected for removal by unmerge
 No supported Python implementation in PYTHON_SINGLE_TARGET/PYTHON_TARGETS.
+OpenMP is not available in your current selected compiler
 Please buy & download
 Please, run 'haskell-updater'
 Please switch your active compiler to gcc with
