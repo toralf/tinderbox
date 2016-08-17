@@ -20,10 +20,6 @@ do
     continue
   fi
 
-  if [[ -e $i/tmp/STOP ]]; then
-    continue
-  fi
-
   pks=$i/tmp/packages
   if [[ ! -s $pks ]]; then
     continue
