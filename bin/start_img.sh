@@ -20,13 +20,13 @@ if [[ $# -gt 0 ]]; then
   verbose=1
 fi
 
-# delay the start of individual images after boot up
-# to lower the iowait states impact
+# delayed start after boot to lower the I/O impact
 #
 sleep=0
 uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
 if [[ $? -eq 0 ]]; then
   sleep=300
+  rm -f amd64-*/tmp/{LOCK,STOP} # cleanup
 fi
 
 for mnt in ${@:-~/amd64-*}
