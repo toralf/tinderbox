@@ -404,26 +404,27 @@ EOF
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
 
-  # bugz is used in job.sh to check for existing bugs
+  # user grants etc.
   #
   cp /home/tinderbox/.bugzrc $d/root
 
   if [[ $rc -ne 0 ]]; then
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
-    echo
+
     if  [[ $rc -lt 11 ]]; then
-      cat $d/tmp/setup.log
-    else
-      echo " do:"
       echo
-      echo "    view $d/tmp/world.log"
-      echo "    vi $d/etc/portage/make.conf"
-      echo "    sc $d '$wucmd'"
-      echo "    ln -s $d"
-      echo "    sta $name"
+      cat $d/tmp/setup.log
     fi
+
     echo
+    echo "    view $d/tmp/world.log"
+    echo "    vi $d/etc/portage/make.conf"
+    echo "    sc $d '$wucmd'"
+    echo "    ln -s $d"
+    echo "    sta $name"
+    echo
+
     exit $rc
   fi
 
