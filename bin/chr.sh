@@ -15,7 +15,7 @@ tbhome=/home/tinderbox
 function mountall() {
   mount -o bind       $tbhome/tb            $mnt/tmp/tb             &&\
   mount -o bind,ro    /usr/portage          $mnt/usr/portage        &&\
-  mount -o bind       /var/tmp/distfiles    $mnt/var/tmp/distfiles  &&\
+  mount -o bind       /home/tinderbox/images/distfiles    $mnt/var/tmp/distfiles  &&\
   mount -t tmpfs      tmpfs -o size=9G      $mnt/var/tmp/portage    &&\
 
   mount -t proc       none                  $mnt/proc               &&\
