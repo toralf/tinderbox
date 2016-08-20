@@ -420,9 +420,9 @@ EOF
     echo
     echo "    view $d/tmp/world.log"
     echo "    vi $d/etc/portage/make.conf"
-    echo "    sc $d '$wucmd'"
+    echo "    sudo ~/tb/bin/chr.sh $d '$wucmd'"
     echo "    ln -s $d"
-    echo "    sta $name"
+    echo "    ~/tb/bin/start_img.sh $name"
     echo
 
     exit $rc
