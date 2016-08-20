@@ -15,4 +15,4 @@ app-editors/emacs -dbus -svg -ssl -gtk -gtk3
 
 # blocks nearly always @world upgrade otherwise
 #
-dev-util/cmake  -qt4 -qt5
+dev-util/cmake    -qt4 -qt5
