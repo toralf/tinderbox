@@ -533,8 +533,8 @@ if [[ ! -d $imagedir ]]; then
   exit 3
 fi
 
-# $name holds the directory name of the chroot image
-# we do append later <profile>, <mask> and <timestamp>
+# $name holds the directory/symlink name  of the chroot image
+# we do append <profile>, <mask> and <timestamp> onto this prefix too
 #
 name="amd64"
 
