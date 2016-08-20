@@ -7,7 +7,7 @@
 
 # typical call:
 #
-# $> echo "sudo ~/tb/bin/tbs.sh -A -m stable -i /home/tinderbox/images1 -p default/linux/amd64/13.0/desktop/plasma" | at now
+# $> echo "sudo ~/tb/bin/tbs.sh | at now"
 
 
 # due to using sudo we need to define the path to $HOME
@@ -477,21 +477,21 @@ flags="
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
 
-autostart="n"     # start the chroot image after setup ?
+autostart="y"     # start the chroot image after setup ?
 flags=$(rufs)
-imagedir=""       # test different underlying file systems
-mask=""
-profile=""
+imagedir="$tbhome/images"
+mask="unstable"
+profile="default/linux/amd64/13.0/desktop"
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
 fi
 
-while getopts Af:i:m:p: opt
+while getopts a:f:i:m:p: opt
 do
   case $opt in
-    A)  autostart="y"
+    a)  autostart="$OPTARG"
         ;;
     f)  if [[ -f "$OPTARG" ]] ; then
           # USE flags are either specified in make.conf or directly in the file
