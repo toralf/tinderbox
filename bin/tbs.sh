@@ -7,7 +7,7 @@
 
 # typical call:
 #
-# $> echo "sudo ~/tb/bin/tbs.sh | at now"
+# $> echo "sudo ~/tb/bin/tbs.sh" | at now
 
 
 # due to using sudo we need to define the path to $HOME
@@ -342,7 +342,7 @@ root=tinderbox@zwiebeltoralf.de
 MinUserId=9999
 mailhub=mail.zwiebeltoralf.de:465
 rewriteDomain=zwiebeltoralf.de
-hostname=ms-magpie.zwiebeltoralf.de
+hostname=mr-fox.zwiebeltoralf.de
 UseTLS=YES
 " > /etc/ssmtp/ssmtp.conf
 
