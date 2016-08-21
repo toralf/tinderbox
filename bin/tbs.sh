@@ -58,7 +58,6 @@ function UnpackStage3()  {
   fi
 
   # $stage3 holds the full stage3 file name as found in $latest
-  # complete $name with keyword, suffix (if given) and time stamp
   #
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
     name="$name-hardened"
@@ -80,10 +79,13 @@ function UnpackStage3()  {
     name="$name-$(basename $profile)"
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   fi
-  name="${name}-${mask}"
+
+  # complete $name with suffix (if given), keyword and time stamp
+  #
   if [[ -n "$suffix" ]]; then
     name="${name}-${suffix}"
   fi
+  name="${name}-${mask}"
   name="${name}_$(date +%Y%m%d-%H%M%S)"
 
   echo " image: $name"
