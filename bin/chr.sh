@@ -13,27 +13,38 @@
 tbhome=/home/tinderbox
 
 function mountall() {
-  mount -o bind       $tbhome/tb            $mnt/tmp/tb             &&\
-  mount -o bind,ro    /usr/portage          $mnt/usr/portage        &&\
-  mount -o bind       /home/tinderbox/images/distfiles    $mnt/var/tmp/distfiles  &&\
-  mount -t tmpfs      tmpfs -o size=9G      $mnt/var/tmp/portage    &&\
 
-  mount -t proc       none                  $mnt/proc               &&\
-  mount --rbind       /sys                  $mnt/sys                &&\
-  mount --make-rslave $mnt/sys                                      &&\
-  mount --rbind       /dev                  $mnt/dev                &&\
-  mount --make-rslave $mnt/dev
+  # system dirs
+  #
+  mount -t proc       none        $mnt/proc   &&\
+  mount --rbind       /sys        $mnt/sys    &&\
+  mount --make-rslave $mnt/sys                &&\
+  mount --rbind       /dev        $mnt/dev    &&\
+  mount --make-rslave $mnt/dev                &&\
+  # portage and tinderbox
+  #
+  mount -o bind       $tbhome/tb                $mnt/tmp/tb             &&\
+  mount -o bind,ro    /usr/portage              $mnt/usr/portage        &&\
+  mount -t tmpfs      tmpfs -o size=9G          $mnt/var/tmp/portage    &&\
+  mount -o bind       $tbhome/images/distfiles  $mnt/var/tmp/distfiles
 
   return $?
 }
 
 
 function umountall()  {
-  umount -l $mnt/dev{/shm,/pts,}
-  umount -l $mnt/{sys,proc}
-  umount    $mnt/var/tmp/{portage,distfiles}
-  umount    $mnt/usr/portage
-  umount    $mnt/tmp/tb
+  rc=0
+
+  umount -l $mnt/dev{/pts,/shm,/mqueue,}  || rc=$?
+  sleep 1
+  umount -l $mnt/{proc,sys}               || rc=$?
+  sleep 1
+
+  umount    $mnt/tmp/tb                       || rc=$?
+  umount    $mnt/usr/portage                  || rc=$?
+  umount    $mnt/var/tmp/{distfiles,portage}  || rc=$?
+
+  return $rc
 }
 
 
@@ -95,9 +106,12 @@ if [[ $# -gt 0 ]]; then
 else
   /usr/bin/chroot $mnt /bin/bash -l
 fi
-rc=$?
+rc1=$?
 
 umountall
+rc2=$?
+
 rm $lock
 
+let "rc = $rc1 + $rc2"
 exit $rc
