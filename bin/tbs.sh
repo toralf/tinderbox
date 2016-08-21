@@ -58,6 +58,7 @@ function UnpackStage3()  {
   fi
 
   # $stage3 holds the full stage3 file name as found in $latest
+  # complete $name with keyword, suffix (if given) and time stamp
   #
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
     name="$name-hardened"
@@ -79,10 +80,11 @@ function UnpackStage3()  {
     name="$name-$(basename $profile)"
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   fi
-
-  # now complete it with keyword and time stamp
-  #
-  name="$name-${mask}_$(date +%Y%m%d-%H%M%S)"
+  name="${name}-${mask}"
+  if [[ -n "$suffix" ]]; then
+    name="${name}-${suffix}"
+  fi
+  name="${name}_$(date +%Y%m%d-%H%M%S)"
 
   echo " image: $name"
   echo
@@ -482,13 +484,14 @@ flags=$(rufs)
 imagedir="$tbhome/images"
 mask="unstable"
 profile="default/linux/amd64/13.0/desktop"
+suffix=""
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
 fi
 
-while getopts a:f:i:m:p: opt
+while getopts a:f:i:m:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -511,6 +514,8 @@ do
     m)  mask="$OPTARG"
         ;;
     p)  profile="$OPTARG"
+        ;;
+    s)  suffix="$OPTARG"
         ;;
     *)  echo " '$opt' not implemented"
         exit 2
