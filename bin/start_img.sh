@@ -26,7 +26,7 @@ sleep=0
 uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
 if [[ $? -eq 0 ]]; then
   min=$(uptime --pretty | cut -f2 -d ' ')
-  if [[ $min -lt 2 ]]; then
+  if [[ $min -lt 10 ]]; then
     sleep=120
     rm -f amd64-*/tmp/{LOCK,STOP} # cleanup
   fi
