@@ -11,8 +11,8 @@ net-misc/wget     ssl
 
 # known blocker
 #
-app-editors/emacs -dbus -svg -ssl -gtk -gtk3
-dev-libs/boehm    threads
-dev-util/cmake    -qt4 -qt5
-media-libs/mesa   -vaapi
-
+app-editors/emacs   -dbus -svg -ssl -gtk -gtk3
+dev-libs/boehm-gc   threads
+dev-util/cmake      -qt4 -qt5
+gnome-base/librsvg  -tools
+media-libs/mesa     -vaapi
