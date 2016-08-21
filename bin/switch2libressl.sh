@@ -2,6 +2,12 @@
 #
 # set -x
 
+# switch from OpenSSL to LibreSSL
+
+# typical call:
+#
+# sudo ~/tb/bin/chr.sh amd64-hardened-unstable-libressl_20160821-203105 "/tmp/tb/bin/switch2libressl.sh"
+
 # heuristic test that we are within a chroot image
 #
 if [[ ! -e /tmp/packages || ! -e /tmp/setup.sh || ! -e /tmp/setup.log ]]; then
