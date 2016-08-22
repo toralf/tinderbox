@@ -416,7 +416,13 @@ EOF
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
 
-    if  [[ $rc -lt 11 ]]; then
+    if [[ $rc -ge 32 ]]; then
+      echo
+      echo "umount error !"
+      echo
+    fi
+
+    if [[ $rc -lt 11 || $rc -gt 32 ]]; then
       echo
       cat $d/tmp/setup.log
     fi
