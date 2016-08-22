@@ -333,11 +333,11 @@ EOF
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$exact
 
-  ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir -a $exact
+  ~/tb/bin/bgo.sh -d $name/$issuedir -a $exact
 
 EOF
   else
-    echo -e "  ~/tb/bin/bgo.sh -d ~/images?/$name/$issuedir $block\n" >> $issuedir/body
+    echo -e "  ~/tb/bin/bgo.sh -d $name/$issuedir $block\n" >> $issuedir/body
 
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
     g="stabilize|Bump| keyword| bump"
