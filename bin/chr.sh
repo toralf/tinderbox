@@ -16,7 +16,7 @@ function mountall() {
 
   # system dirs
   #
-  mount -t proc       none        $mnt/proc   &&\
+  mount -t proc       proc        $mnt/proc   &&\
   mount --rbind       /sys        $mnt/sys    &&\
   mount --make-rslave $mnt/sys                &&\
   mount --rbind       /dev        $mnt/dev    &&\
@@ -37,7 +37,7 @@ function umountall()  {
 
   umount -l $mnt/dev{/pts,/shm,/mqueue,}  || rc=$?
   sleep 1
-  umount -l $mnt/{proc,sys}               || rc=$?
+  umount -l $mnt/{sys,proc}               || rc=$?
   sleep 1
 
   umount    $mnt/tmp/tb                       || rc=$?
