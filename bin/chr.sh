@@ -36,9 +36,7 @@ function umountall()  {
   rc=0
 
   umount -l $mnt/dev{/pts,/shm,/mqueue,}  || rc=$?
-  sleep 1
   umount -l $mnt/{sys,proc}               || rc=$?
-  sleep 1
 
   umount    $mnt/tmp/tb                       || rc=$?
   umount    $mnt/usr/portage                  || rc=$?
