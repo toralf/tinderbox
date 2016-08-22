@@ -13,24 +13,16 @@ fi
 orig=/tmp/tb/bin/runme.sh
 copy=/tmp/runme.sh
 
-# be verbose if image names are given
+# be more verbose if image names are given (== likely interactive mode)
 #
 verbose=0
 if [[ $# -gt 0 ]]; then
   verbose=1
 fi
 
-# delayed start after boot to lower the I/O impact
+# delay subsequent start to lower I/O impact
 #
 sleep=0
-uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
-if [[ $? -eq 0 ]]; then
-  min=$(uptime --pretty | cut -f2 -d ' ')
-  if [[ $min -lt 10 ]]; then
-    sleep=120
-    rm -f amd64-*/tmp/{LOCK,STOP} # cleanup
-  fi
-fi
 
 for mnt in ${@:-~/amd64-*}
 do
@@ -72,9 +64,10 @@ do
 
   # ok, start it
   #
-  nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
-
   sleep $sleep
+  nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
+  sleep=30
+
 done
 
 # otherwise the prompt isn't visible (due to 'nohup ... &'  ?)
