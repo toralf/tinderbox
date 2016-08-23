@@ -461,12 +461,12 @@ flags="
   cairo cdb cdda cddb cgi cgoups clang compat consolekit contrib
   corefonts csc cups curl custom-cflags custom-optimization dbus dec_av2
   declarative designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs
-  evdev exif extra extraengine ffmpeg fluidsynth fontconfig fortran fpm
+  evdev exif ext4 extra extraengine ffmpeg fluidsynth fontconfig fortran fpm
   freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring
   gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui
   gzip haptic havege hdf5 help ibus icu imap imlib infinality inifile introspection
   ipv6 isag ithreads jadetex javascript javaxml jpeg kerberos kvm lapack
-  latex ldap libinput libkms libvirtd llvm logrotate lzma mad mbox
+  latex ldap libinput libkms libvirtd llvm logrotate lvm lzma mad mbox
   mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
   mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia multitarget
   mysql mysqli ncurses networking nls nscd nss obj objc odbc offensive
