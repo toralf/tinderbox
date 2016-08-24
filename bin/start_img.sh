@@ -66,7 +66,7 @@ do
   #
   sleep $sleep
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
-  sleep=30
+  sleep=20
 
 done
 
