@@ -631,7 +631,7 @@ function PostEmerge() {
       #
       f=/tmp/timestamp.preserved-rebuild
       if [[ -s $f ]]; then
-        Finish "${n}x @preserved-rebuild, solve the issue and run 'truncate -s 0 $name/$f' before next start"
+        Finish "${n}x @preserved-rebuild, run 'truncate -s 0 $name/$f' before next start"
       fi
     fi
     echo "@preserved-rebuild" >> $pks
