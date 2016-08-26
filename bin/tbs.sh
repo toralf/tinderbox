@@ -454,41 +454,42 @@ EOF
 # main
 #
 
-# use the following set as an input to create an randomized subset from it
+# define all possible USE flags here we do consider
 #
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat btrfs bugzilla bzip2
   cairo cdb cdda cddb cgi cgoups clang compat consolekit contrib
-  corefonts csc cups curl custom-cflags custom-optimization dbus dec_av2
-  declarative designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs
-  evdev exif ext4 extra extraengine ffmpeg fluidsynth fontconfig fortran fpm
-  freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring
-  gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui
-  gzip haptic havege hdf5 help ibus icu imap imlib infinality inifile introspection
-  ipv6 isag ithreads jadetex javascript javaxml jpeg kerberos kvm lapack
-  latex ldap libinput libkms libvirtd llvm logrotate lvm lzma mad mbox
-  mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
-  mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia multitarget
-  mysql mysqli ncurses networking nls nscd nss obj objc odbc offensive
-  ogg ois opencv openexr opengl openmpi openssl opus osc pam pcre16 pdo
-  php pkcs11 plasma plotutils png policykit postgres postproc postscript
-  printsupport pulseaudio pwquality pyqt4 python qemu qml qt3support qt4
-  qt5 rdoc rendering scripts scrypt sddm sdl semantic-desktop server
-  smartcard smime smpeg snmp sockets source sourceview spice sql sqlite
-  sqlite3 ssh ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo
-  system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
-  system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
-  theora thinkpad threads timidity tk tls tools tracepath traceroute
-  truetype udisks ufed uml usb usbredir utils uxa v4l v4l2 vaapi vala
-  vdpau video vim vlc vorbis vpx wav wayland webgl webkit webstart
-  widgets wma wxwidgets X x264 x265 xa xcb xetex xinerama xinetd xkb xml
-  xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
+  corefonts csc cups curl custom-cflags custom-optimization cxx dbus
+  dec_av2 declarative designer dnssec dot drmkms dvb dvd ecc egl eglfs
+  emacs evdev exif ext4 extra extraengine ffmpeg fluidsynth fontconfig
+  fortran fpm freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas
+  gnome-keyring gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3
+  gtkstyle gudev gui gzip haptic havege hdf5 help ibus icu imap imlib
+  infinality inifile introspection ipv6 isag ithreads jadetex javascript
+  javaxml jpeg kerberos kvm lapack latex ldap libinput libkms libvirtd
+  llvm logrotate lvm lzma mad mbox mdnsresponder-compat melt midi mikmod
+  minimal minizip mng mod modplug mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi
+  mssql mta multimedia multitarget mysql mysqli ncurses networking nls
+  nscd nss obj objc odbc offensive ogg ois opencv openexr opengl openmpi
+  openssl opus osc pam pcre16 pdo php pkcs11 plasma plotutils png
+  policykit postgres postproc postscript printsupport pulseaudio
+  pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc rendering
+  scripts scrypt sddm sdl semantic-desktop server smartcard smime smpeg
+  snmp sockets source sourceview spice sql sqlite sqlite3 ssh
+  ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo system-ffmpeg
+  system-harfbuzz system-icu system-jpeg system-libevent system-libs
+  system-libvpx system-llvm system-sqlite szip tcl tcpd theora thinkpad
+  threads timidity tk tls tools tracepath traceroute truetype udisks
+  ufed uml usb usbredir utils uxa v4l v4l2 vaapi vala vdpau video vim
+  vlc vorbis vpx wav wayland webgl webkit webstart widgets wma wxwidgets
+  X x264 x265 xa xcb xetex xinerama xinetd xkb xml xmlreader xmp
+  xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
 "
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
 
-autostart="y"     # start the chroot image after setup ?
-flags=$(rufs)
+autostart="y"                 # start the chroot image after setup was ok ?
+flags=$(rufs)                 # create a randomized use flag set
 imagedir="$tbhome/images"
 mask="unstable"
 profile="default/linux/amd64/13.0/desktop"
