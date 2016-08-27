@@ -325,17 +325,19 @@ cc:       $(cat $issuedir/cc)
 
 EOF
 
-  # if we don't found the bug then return a list of similar bugs
+  # if we don't found an appropriate bug
+  # then we do return a list of similar bugs
   # and create an appropriate bugz command line
   #
-  exact=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-  if [[ -n "$exact" ]]; then
+  id=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+  if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
-  https://bugs.gentoo.org/show_bug.cgi?id=$exact
+  https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  ~/tb/bin/bgo.sh -d $name/$issuedir -a $exact
+  ~/tb/bin/bgo.sh -d $name/$issuedir -a $id
 
 EOF
+    fi
   else
     echo -e "  ~/tb/bin/bgo.sh -d $name/$issuedir $block\n" >> $issuedir/body
 
@@ -495,7 +497,7 @@ function GotAnIssue()  {
     fi
   fi
 
-  # don't send an mail for the same issue twice
+  # don't send an email twice if an issue is in ALREADY_CATCHED
   #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
