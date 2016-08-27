@@ -337,7 +337,6 @@ EOF
   ~/tb/bin/bgo.sh -d $name/$issuedir -a $id
 
 EOF
-    fi
   else
     echo -e "  ~/tb/bin/bgo.sh -d $name/$issuedir $block\n" >> $issuedir/body
 
