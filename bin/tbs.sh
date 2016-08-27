@@ -24,11 +24,11 @@ tbhome=/home/tinderbox
 #
 # (m)ask   a flag with a likelihood of 1/m
 # or (s)et a flag with a likelihood of 1/s
-# else let it be unset
+# else flag is unchanged (likelihood: 1 - 1/m -1/s)
 #
 function rufs()  {
-  m=40
-  s=8
+  m=30
+  s=6
 
   for f in $(echo $flags)
   do
