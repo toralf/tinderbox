@@ -491,7 +491,6 @@ flags="
 
 autostart="y"                 # start the chroot image if setup was ok
 flags=$(rufs)                 # create a (r)andomized (U)SE (f)lag (s)et
-imagedir="$tbhome/images"
 mask="unstable"
 profile="default/linux/amd64/13.0/desktop"
 suffix=""
@@ -501,7 +500,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-while getopts a:f:i:m:p:s: opt
+while getopts a:f:m:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -518,8 +517,6 @@ do
           flags="$OPTARG"
           echo -e "\nWARN: read USE flags from command line !\n"
         fi
-        ;;
-    i)  imagedir="$OPTARG"
         ;;
     m)  mask="$OPTARG"
         ;;
@@ -543,11 +540,7 @@ if [[ ! -d /usr/portage/profiles/$profile ]]; then
   exit 3
 fi
 
-if [[ ! -d $imagedir ]]; then
-  echo " imagedir does not exist: $imagedir"
-  exit 3
-fi
-
+imagedir="$tbhome/images"
 # $name holds the directory/symlink name of the chroot image
 # append <profile>, <mask> and <timestamp> onto this prefix too
 #
