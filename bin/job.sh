@@ -726,7 +726,7 @@ function EmergeTask() {
       opts="--deep --update --changed-use --with-bdeps=y"
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=30"
-      date >> /tmp/timestamp.preserved-rebuild  # successful or not
+      date >> /tmp/timestamp.preserved-rebuild  # timestamp, successful or not
     else
       opts="--update"
     fi
@@ -739,15 +739,20 @@ function EmergeTask() {
       fi
     else
       if [[ "$task" = "@world" ]]; then
-        date >> /tmp/timestamp.world        # last success
+        date >> /tmp/timestamp.world        # timestamp of last success
         echo "%emerge --depclean" >> $pks
       fi
     fi
 
     PostEmerge
     if [[ "$task" = "@system" ]]; then
-      date >> /tmp/timestamp.system         # last success
-      echo "@world" >> $pks
+      date >> /tmp/timestamp.system         # timestamp of last success
+      # give up to upgrade @world after 2 days
+      #
+      let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.world) - 3 * 24 * 60 * 60"
+      if [[ $diff -lt 0 ]]; then
+        echo "@world" >> $pks
+      fi
     fi
     /usr/bin/pfl &>/dev/null
 
