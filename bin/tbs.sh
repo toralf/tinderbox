@@ -247,9 +247,10 @@ EOF
     echo -e "app-editors/xemacs\napp-xemacs/*" > etc/portage/package.mask/xemacs
   fi
 
-  # ncurses often blocks GCC upgrade
+  # GCC upgrade blocker
   #
-  echo "=sys-libs/ncurses-6.0-r1" > etc/portage/package.mask/ncurses
+  echo "=sys-libs/ncurses-6.0-r1" >  etc/portage/package.mask/gcc_upgrade_blocker
+  echo ">=dev-libs/gmp-6.1.0"     >> etc/portage/package.mask/gcc_upgrade_blocker
 
   # data/package.env.common contains the counterpart
   #
@@ -292,7 +293,7 @@ function FillPackageList()  {
 INFO start with the package list
 @system
 %BuildKernel
-%rm /etc/portage/package.mask/ncurses
+%rm /etc/portage/package.mask/gcc_upgrade_blocker
 sys-devel/gcc
 EOF
 
@@ -365,14 +366,14 @@ emerge mail-client/mailx || exit 4
 #
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 5
 
-# we have "sys-kernel/" in IGNORE_PACKAGES therefore we've to emerge kernel sources here
+# we have "sys-kernel/" in IGNORE_PACKAGES therefore emerge kernel sources here
 #
 emerge sys-kernel/hardened-sources || exit 6
 
 # at least the very first @world must not fail
-# at that point GCC should be upgraded, therefore dry-test here without masked ncurses
+# at that point GCC should already be upgraded, therefore dry-test without blockers
 #
-sed -i -e 's/^/#/g' /etc/portage/package.mask/ncurses
+sed -i -e 's/^/#/g' /etc/portage/package.mask/gcc_upgrade_blocker
 $wucmd &> /tmp/world.log
 rc=\$?
 if [[ \$rc -ne 0 ]]; then
@@ -385,7 +386,7 @@ if [[ \$rc -ne 0 ]]; then
     rc=12
   fi
 fi
-sed -i -e 's/#//g' /etc/portage/package.mask/ncurses
+sed -i -e 's/#//g' /etc/portage/package.mask/gcc_upgrade_blocker
 
 exit \$rc
 
