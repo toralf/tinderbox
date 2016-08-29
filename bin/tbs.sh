@@ -507,7 +507,7 @@ do
     a)  autostart="$OPTARG"
         ;;
     f)  if [[ -f "$OPTARG" ]] ; then
-          # USE flags are either specified in make.conf or directly in the file
+          # USE flags are either defined in a make.conf or just derived from a file
           #
           if [[ "$(basename $OPTARG)" = "make.conf" ]]; then
             flags="$(source $OPTARG; echo $USE)"
@@ -515,8 +515,8 @@ do
             flags="$(cat $OPTARG)"
           fi
         else
-          flags="$OPTARG"         # get the USE flags from command line
-          echo -e "\nWARN: USE flags read from command line b/c not a file !\n"
+          flags="$OPTARG"
+          echo -e "\nWARN: read USE flags from command line !\n"
         fi
         ;;
     i)  imagedir="$OPTARG"
