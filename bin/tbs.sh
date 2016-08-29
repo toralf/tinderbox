@@ -489,8 +489,8 @@ flags="
 # echo $flags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
 #
 
-autostart="y"                 # start the chroot image after setup was ok ?
-flags=$(rufs)                 # create a randomized use flag set
+autostart="y"                 # start the chroot image if setup was ok
+flags=$(rufs)                 # create a (r)andomized (U)SE (f)lag (s)et
 imagedir="$tbhome/images"
 mask="unstable"
 profile="default/linux/amd64/13.0/desktop"
@@ -507,7 +507,7 @@ do
     a)  autostart="$OPTARG"
         ;;
     f)  if [[ -f "$OPTARG" ]] ; then
-          # USE flags are either defined in a make.conf or just derived from a file
+          # USE flags are either defined in another make.conf or just derived from a file
           #
           if [[ "$(basename $OPTARG)" = "make.conf" ]]; then
             flags="$(source $OPTARG; echo $USE)"
@@ -548,8 +548,8 @@ if [[ ! -d $imagedir ]]; then
   exit 3
 fi
 
-# $name holds the directory/symlink name  of the chroot image
-# we do append <profile>, <mask> and <timestamp> onto this prefix too
+# $name holds the directory/symlink name of the chroot image
+# append <profile>, <mask> and <timestamp> onto this prefix too
 #
 name="amd64"
 
