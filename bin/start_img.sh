@@ -72,5 +72,7 @@ done
 
 # otherwise the prompt isn't visible (due to 'nohup ... &'  ?)
 #
-sleep 1
+if [[ $sleep ]]; then
+	sleep 1
+fi
 
