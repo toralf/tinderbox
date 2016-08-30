@@ -749,7 +749,11 @@ function EmergeTask() {
       date >> /tmp/timestamp.system         # timestamp of last success
       # give up to upgrade @world after 2 days
       #
-      let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.world) - 3 * 24 * 60 * 60"
+      if [[ -f /tmp/timestamp.world ]]; then
+        let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.world) - 3 * 24 * 60 * 60"
+      else
+        diff=0
+      fi
       if [[ $diff -lt 0 ]]; then
         echo "@world" >> $pks
       fi
