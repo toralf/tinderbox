@@ -459,7 +459,7 @@ EOF
 #
 flags="
   aes-ni alisp alsa apache apache2 avcodec avformat btrfs bugzilla bzip2
-  cairo cdb cdda cddb cgi cgoups clang compat consolekit contrib
+  cairo cdb cdda cddb cgi cgroups clang compat consolekit contrib
   corefonts csc cups curl custom-cflags custom-optimization cxx dbus
   dec_av2 declarative designer dnssec dot drmkms dvb dvd ecc egl eglfs
   emacs evdev exif ext4 extra extraengine ffmpeg fluidsynth fontconfig
