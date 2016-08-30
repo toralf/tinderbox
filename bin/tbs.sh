@@ -474,7 +474,7 @@ flags="
   nscd nss obj objc odbc offensive ogg ois opencv openexr opengl openmpi
   openssl opus osc pam pcre16 pdo php pkcs11 plasma plotutils png
   policykit postgres postproc postscript printsupport pulseaudio
-  pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc rendering
+  pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc rendering sasl
   scripts scrypt sddm sdl semantic-desktop server smartcard smime smpeg
   snmp sockets source sourceview spice sql sqlite sqlite3 ssh
   ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo system-ffmpeg
