@@ -16,7 +16,7 @@ if [[ ! -e /tmp/packages || ! -e /tmp/setup.sh || ! -e /tmp/setup.log ]]; then
     echo -en "\n and you forced us to continue ! "
     for i in $(seq 1 10); do
       echo -n '.'
-    fi
+    done
     echo ' going on'
   else
     exit 1
