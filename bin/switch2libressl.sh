@@ -19,7 +19,7 @@ if [[ ! -e /tmp/packages || ! -e /tmp/setup.sh || ! -e /tmp/setup.log ]]; then
     done
     echo ' going on'
   else
-    exit 1
+    exit 11
   fi
 fi
 
@@ -29,16 +29,15 @@ sed -i  -e 's/ [+-]*openssl[ ]*/ /'   \
         -e 's/USE="/CURL_SSL="libressl"\nUSE="-openssl -gnutls libressl \n  /' \
         /etc/portage/make.conf
 
-mkdir -p                    /etc/portage/profile
-echo "-libressl"          > /etc/portage/profile/use.stable.mask
-
-echo "dev-libs/openssl"   > /etc/portage/package.mask/openssl
-echo "dev-libs/libressl"  > /etc/portage/package.accept_keywords/libressl
+mkdir -p                  /etc/portage/profile
+echo "-libressl"        > /etc/portage/profile/use.stable.mask
+echo "dev-libs/openssl" > /etc/portage/package.mask/openssl   || exit 12
 
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
 
-cat << EOF > /etc/portage/package.accept_keywords/libressl
+cat << EOF >> /etc/portage/package.accept_keywords/libressl   || exit 14
+dev-libs/libressl
 $py2
 $py3
 =app-eselect/eselect-python-20160222
@@ -47,7 +46,7 @@ dev-libs/libevent
 dev-lang/erlang
 EOF
 
-emerge -f libressl openssh wget python iptuils  &&\
+emerge -f libressl openssh wget python iputils  &&\
 emerge -C openssl         &&\
 emerge -1 libressl        &&\
 emerge -1 openssh         &&\
