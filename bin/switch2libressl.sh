@@ -29,7 +29,7 @@ sed -i  -e 's/ [+-]*openssl[ ]*/ /'   \
         -e 's/USE="/CURL_SSL="libressl"\nUSE="-openssl -gnutls libressl \n  /' \
         /etc/portage/make.conf
 
-mkdir -p /etc/portage/profile
+mkdir -p                    /etc/portage/profile
 echo "-libressl"          > /etc/portage/profile/use.stable.mask
 
 echo "dev-libs/openssl"   > /etc/portage/package.mask/openssl
@@ -43,7 +43,6 @@ $py2
 $py3
 =app-eselect/eselect-python-20160222
 =dev-lang/python-exec-2.4.3
-
 dev-libs/libevent
 dev-lang/erlang
 EOF
