@@ -266,16 +266,15 @@ EOF
     head -n 20 $sandb >> $issuedir/issue
 
   else
-    # to catch the real culprit we've loop over all patterns exactly in their written order
+    # to catch the real culprit we've loop over all patterns exactly in their order
     # therefore we can't use "grep -f CATCH_ISSUES"
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
     do
-      grep -m 1 -B 2 -A 3 "$c" $bak | cut -c1-400 > $issuedir/issue
+      grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue
       if [[ -s $issuedir/issue ]]; then
-        grep -m 1 "$c" $issuedir/issue > $issuedir/title
-        echo "$c" > $issuedir/pattern # for debug purpose
+        head -n 3 < $issuedir/issue | tail -n 1 > $issuedir/title
         break
       fi
     done
