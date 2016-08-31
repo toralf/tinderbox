@@ -37,7 +37,7 @@ echo "-curl_ssl_libressl"   >>  /etc/portage/profile/use.stable.mask
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
 
-cat << EOF >> /etc/portage/package.accept_keywords/libressl   || exit 14
+cat << EOF >> /etc/portage/package.accept_keywords/libressl || exit 14
 dev-libs/libressl
 $py2
 $py3
@@ -46,12 +46,12 @@ $py3
 dev-libs/libevent
 
 ~mail-mta/ssmtp-2.64
-~net-misc/curl-7.50.1
 ~net-analyzer/tcpdump-4.7.4
 ~dev-python/cryptography-1.3.4
+~www-client/lynx-2.8.9_pre9
 EOF
 
-echo "dev-libs/openssl"     >   /etc/portage/package.mask/openssl   || exit 12
+echo "dev-libs/openssl" > /etc/portage/package.mask/openssl || exit 12
 
 emerge -f libressl openssh wget python iputils  &&\
 emerge -C openssl         &&\
