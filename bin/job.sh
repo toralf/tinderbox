@@ -275,6 +275,7 @@ EOF
       grep -m 1 -B 2 -A 3 "$c" $bak | cut -c1-400 > $issuedir/issue
       if [[ -s $issuedir/issue ]]; then
         grep -m 1 "$c" $issuedir/issue > $issuedir/title
+        echo "$c" > $issuedir/pattern # for debug purpose
         break
       fi
     done
