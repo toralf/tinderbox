@@ -66,8 +66,15 @@ do
   #
   sleep $sleep
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
-  sleep=20
 
+  # heuristic test of a reboot where the cache isn't filled
+  #
+  uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
+  if [[ $? -eq 0 ]]; then
+    sleep=60
+  else
+    sleep=5
+  fi
 done
 
 # otherwise the prompt isn't visible (due to 'nohup ... &'  ?)
