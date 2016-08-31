@@ -46,7 +46,7 @@ dev-libs/libevent
 dev-lang/erlang
 EOF
 
-emerge -f libressl  &&\
+emerge -f libressl openssh wget python iptuils  &&\
 emerge -C openssl   &&\
 emerge -1 libressl  &&\
 emerge -1 openssh   &&\
