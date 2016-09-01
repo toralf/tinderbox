@@ -24,7 +24,8 @@ if [[ ! -e /tmp/packages || ! -e /tmp/setup.sh || ! -e /tmp/setup.log ]]; then
   fi
 fi
 
-sed -i  -e 's/ [+-]*openssl[ ]*/ /'   \
+sed -i  -e '/^CURL_SSL="/d'           \
+        -e 's/ [+-]*openssl[ ]*/ /'   \
         -e 's/ [+-]*libressl[ ]*/ /'  \
         -e 's/ [+-]*gnutls[ ]*/ /'    \
         -e 's/USE="/CURL_SSL="libressl"\nUSE="-openssl -gnutls libressl \n  /' \
