@@ -280,11 +280,11 @@ EOF
     done
   fi
 
-  # shrink a looong path name
+  # shrink too long error messages like "/a/b/c.h:23: error 1"
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
-  # kick off hex addresses et al to improve bugz search result
+  # kick off hex addresses and such stuff to improve bugz search result
   #
   sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
 
