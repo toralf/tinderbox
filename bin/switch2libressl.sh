@@ -6,7 +6,7 @@
 
 # typical call:
 #
-# sudo ~/tb/bin/chr.sh amd64-hardened-unstable-libressl_20160821-203105 "/tmp/tb/bin/switch2libressl.sh"
+# sudo ~/tb/bin/chr.sh <image name> "/tmp/tb/bin/switch2libressl.sh"
 
 # are we within a tinderbox chroot image ?
 #
