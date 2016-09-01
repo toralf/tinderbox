@@ -187,6 +187,7 @@ ACCEPT_LICENSE="*"
 # parallel make issues aren't reliable reproducible
 #
 MAKEOPTS="-j1"
+NINJAFLAGS="-j1"
 
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build"
 ACCEPT_PROPERTIES="-interactive"
