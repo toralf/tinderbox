@@ -542,7 +542,7 @@ do
         ;;
     s)  suffix="$OPTARG"
         ;;
-    *)  echo " '$opt' not implemented"
+    *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 2
         ;;
   esac
