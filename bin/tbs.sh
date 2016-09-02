@@ -515,7 +515,7 @@ if [[ $(($RANDOM % 10)) -eq 0 ]]; then
   mask="stable"
 fi
 
-profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -e 'kde' -e 'x32' -e 'selinux' -e 'musl' -e 'uclibc' -e 'profile' | sort --random-sort | head -n1)
+profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -e 'kde' -e 'x32' -e 'selinux' -e 'musl' -e 'uclibc' -e 'profile' -e 'developer' | sort --random-sort | head -n1)
 
 suffix=""
 
