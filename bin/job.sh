@@ -496,7 +496,7 @@ function GotAnIssue()  {
     fi
   fi
 
-  # don't send an email twice if an issue is in ALREADY_CATCHED
+  # don't send an email if an issue is in ALREADY_CATCHED
   #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
@@ -567,10 +567,8 @@ function SwitchGCC() {
     # re-build affected software against new GCC libs is mandatory
     #
     if [[ "$majold" != "$majnew" ]]; then
-      rm -rf /var/cache/revdep-rebuild/*
-
       if [[ "$majold" = "4" && "$majnew" = "5" ]]; then
-        cmd="revdep-rebuild --library libstdc++.so.6 -- --exclude gcc"
+        cmd="revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc"
       fi
 
       $cmd &>> $log
