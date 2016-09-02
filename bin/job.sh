@@ -479,7 +479,8 @@ function GotAnIssue()  {
   #
   grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $bak
   if [[ $? -eq 0 ]]; then
-    Finish "notice: Perl upgrade issue in $task"
+    Mail "notice: Perl upgrade issue in $task" $bak
+    echo -e "$task\nINFO pls check Perl upgrade\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
   fi
 
   if [[ $is_sandbox_issue -eq 1 ]]; then
