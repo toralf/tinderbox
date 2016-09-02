@@ -4,16 +4,13 @@
 
 # setup a new tinderbox chroot image
 #
-
 # typical call:
 #
 # $> echo "sudo ~/tb/bin/tbs.sh" | at now
 
-
 # due to using sudo we need to define the path to $HOME
 #
 tbhome=/home/tinderbox
-
 
 #############################################################################
 #
@@ -27,7 +24,8 @@ tbhome=/home/tinderbox
 # else flag is unchanged (likelihood: 1 - 1/m -1/s)
 #
 function rufs()  {
-  # define all possible USE flags here we do consider
+  # the USE flags we do consider
+  # echo $allflags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/    /g'
   #
   allflags="
     aes-ni alisp alsa apache apache2 avcodec avformat btrfs bugzilla bzip2
@@ -58,19 +56,14 @@ function rufs()  {
     X x264 x265 xa xcb xetex xinerama xinetd xkb xml xmlreader xmp
     xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
   "
-  # echo $allflags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/  /g'
-  #
 
   m=30
   s=6
-
   for f in $(echo $allflags)
   do
     let "r = $RANDOM % $m"
-
     if [[ $r -eq 0 ]]; then
       echo -n " -$f"
-
     elif [[ $r -le $s ]]; then
       echo -n " $f"
     fi
@@ -78,7 +71,7 @@ function rufs()  {
 }
 
 
-# get the current stage3 file name, verify and unpack it
+# unpack the current stage3 file
 #
 function UnpackStage3()  {
   wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
@@ -171,7 +164,7 @@ priority = 2
 
 EOF
 
-  # we'd stay at the "rsync" method for now, "git" pulls in too much deps (gitk etc.)
+  # stay at the "rsync" method for now, "git" would pull in too much deps (gitk etc.)
   #
   cat << EOF > etc/portage/repos.conf/gentoo.conf
 [gentoo]
@@ -318,7 +311,7 @@ EOF
 }
 
 
-# first tasks: upgrade GCC (if possible), build linux kernel, upgrade @system
+# first tasks: upgrade GCC first (if possible), build linux kernel, upgrade @system
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -491,7 +484,6 @@ EOF
 }
 
 
-
 #############################################################################
 #
 # main
@@ -563,6 +555,7 @@ if [[ ! -d /usr/portage/profiles/$profile ]]; then
 fi
 
 imagedir="$tbhome/images"
+
 # $name holds the directory/symlink name of the chroot image
 # append <profile>, <mask> and <timestamp> onto this prefix too
 #
