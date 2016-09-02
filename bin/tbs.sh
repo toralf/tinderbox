@@ -495,10 +495,21 @@ flags="
 #
 
 autostart="y"                 # start the chroot image if setup was ok
+
 flags=$(rufs)                 # create a (r)andomized (U)SE (f)lag (s)et
+
 libressl="n"
+if [[ $(($RANDOM % 5)) -eq 0 ]]; then
+  libressl="y"
+fi
+
 mask="unstable"
-profile="default/linux/amd64/13.0/desktop"
+if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+  mask="stable"
+fi
+
+profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -e 'kde' -e 'x32' -e 'selinux' -e 'musl' -e 'uclibc' -e 'profile' | sort --random-sort | head -n1)
+
 suffix=""
 
 if [[ "$(whoami)" != "root" ]]; then
