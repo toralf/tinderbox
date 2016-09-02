@@ -248,10 +248,10 @@ EOF
     echo -e "app-editors/xemacs\napp-xemacs/*" > etc/portage/package.mask/xemacs
   fi
 
-  # GCC upgrade blocker
+  # upgrade blocker
   #
-  echo "=sys-libs/ncurses-6.0-r1" >  etc/portage/package.mask/gcc_upgrade_blocker
-  echo ">=dev-libs/gmp-6.1.0"     >> etc/portage/package.mask/gcc_upgrade_blocker
+  echo "=sys-libs/ncurses-6.0-r1" >  etc/portage/package.mask/upgrade_blocker
+  echo ">=dev-libs/gmp-6.1.0"     >> etc/portage/package.mask/upgrade_blocker
 
   # data/package.env.common contains the counterpart
   #
@@ -281,7 +281,7 @@ EOF
 }
 
 
-# upgrade GCC, build and install kernel sources, upgrade @system (inherits @world)
+# first tasks: upgrade GCC (if possible), build linux kernel, upgrade @system
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -293,10 +293,15 @@ function FillPackageList()  {
   cat << EOF >> $pks
 INFO start with the package list
 @system
+%rm -f /etc/portage/package.mask/upgrade_blocker
+@system
 %BuildKernel
-%rm /etc/portage/package.mask/gcc_upgrade_blocker
 sys-devel/gcc
 EOF
+
+  if [[ "$libressl" = "y" ]]; then
+    echo "%/tmp/tb/bin/switch2libressl.sh" >> $pks
+  fi
 
   chown tinderbox.tinderbox $pks
 }
@@ -372,9 +377,8 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/por
 emerge sys-kernel/hardened-sources || exit 6
 
 # at least the very first @world must not fail
-# at that point GCC should already be upgraded, therefore dry-test without blockers
 #
-sed -i -e 's/^/#/g' /etc/portage/package.mask/gcc_upgrade_blocker
+sed -i -e 's/^/#/g' /etc/portage/package.mask/upgrade_blocker
 $wucmd &> /tmp/world.log
 rc=\$?
 if [[ \$rc -ne 0 ]]; then
@@ -387,7 +391,7 @@ if [[ \$rc -ne 0 ]]; then
     rc=12
   fi
 fi
-sed -i -e 's/#//g' /etc/portage/package.mask/gcc_upgrade_blocker
+sed -i -e 's/#//g' /etc/portage/package.mask/upgrade_blocker
 
 exit \$rc
 
@@ -492,6 +496,7 @@ flags="
 
 autostart="y"                 # start the chroot image if setup was ok
 flags=$(rufs)                 # create a (r)andomized (U)SE (f)lag (s)et
+libressl="n"
 mask="unstable"
 profile="default/linux/amd64/13.0/desktop"
 suffix=""
@@ -501,7 +506,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-while getopts a:f:m:p:s: opt
+while getopts a:f:l:m:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -518,6 +523,9 @@ do
           flags="$OPTARG"
           echo -e "\nWARN: read USE flags from command line !\n"
         fi
+        ;;
+    l)  libressl="$OPTARG"
+        suffix="libressl"
         ;;
     m)  mask="$OPTARG"
         ;;
