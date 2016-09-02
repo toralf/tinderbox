@@ -492,6 +492,10 @@ EOF
 #
 # main
 #
+if [[ "$(whoami)" != "root" ]]; then
+  echo " you must be root !"
+  exit 1
+fi
 
 autostart="y"                 # start the chroot image if setup was ok
 
@@ -510,11 +514,6 @@ fi
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -e 'kde' -e 'x32' -e 'selinux' -e 'musl' -e 'uclibc' -e 'profile' | sort --random-sort | head -n1)
 
 suffix=""
-
-if [[ "$(whoami)" != "root" ]]; then
-  echo " you must be root !"
-  exit 1
-fi
 
 while getopts a:f:l:m:p:s: opt
 do
