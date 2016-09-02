@@ -109,6 +109,10 @@ function UnpackStage3()  {
     name="$name-$(basename $(dirname $profile))-systemd"
     stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
+  elif [[ "$(basename $profile)" = "x32" ]]; then
+    name="$name-$(basename $profile)"
+    stage3=$(grep "^20....../systemd/stage3-x32-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+
   else
     name="$name-$(basename $profile)"
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
