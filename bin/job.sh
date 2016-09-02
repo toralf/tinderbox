@@ -569,6 +569,8 @@ function SwitchGCC() {
     if [[ "$majold" != "$majnew" ]]; then
       if [[ "$majold" = "4" && "$majnew" = "5" ]]; then
         cmd="revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc"
+      else
+        Finish "ERROR: $FUNCNAME from $verold to $vernew rebuild not implemented"
       fi
 
       $cmd &>> $log
