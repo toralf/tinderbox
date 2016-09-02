@@ -232,8 +232,7 @@ EOF
   if [[ "$mask" = "unstable" ]]; then
     # unmask ffmpeg at 2 of 3 unstable images
     #
-    let "r = $RANDOM % 3"
-    if [[ $r -ne 0 ]]; then
+    if [[ $(($RANDOM % 3)) -ne 0 ]]; then
       echo "media-video/ffmpeg" > etc/portage/package.unmask/ffmpeg
     fi
   fi
