@@ -23,10 +23,10 @@ function mountall() {
   mount --make-rslave $mnt/dev                &&\
   # portage and tinderbox
   #
-  mount -o bind       $tbhome/tb                $mnt/tmp/tb             &&\
-  mount -o bind,ro    /usr/portage              $mnt/usr/portage        &&\
-  mount -t tmpfs      tmpfs -o size=12G         $mnt/var/tmp/portage    &&\
-  mount -o bind       $tbhome/images/distfiles  $mnt/var/tmp/distfiles
+  mount -o bind       $tbhome/tb          $mnt/tmp/tb             &&\
+  mount -o bind,ro    /usr/portage        $mnt/usr/portage        &&\
+  mount -t tmpfs      tmpfs -o size=12G   $mnt/var/tmp/portage    &&\
+  mount -o bind       /var/tmp/distfiles  $mnt/var/tmp/distfiles
 
   return $?
 }
@@ -56,11 +56,11 @@ if [[ ! "$(whoami)" = "root" ]]; then
   exit 1
 fi
 
-# usually we get the symlink of the chroot image int $HOME of tinderbox
+# usually we use the symlink of the chroot image
 #
 mnt=$1
 
-# treat remaining as a command line to be run within chroot
+# treat alter all remaining options as a command line to be run within chroot
 #
 shift
 

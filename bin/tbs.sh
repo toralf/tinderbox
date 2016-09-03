@@ -126,9 +126,9 @@ function UnpackStage3()  {
   # download stage3 if not already done
   #
   b=$(basename $stage3)
-  f=/home/tinderbox/images/distfiles/$b
+  f=/var/tmp/distfiles/$b
   if [[ ! -f $f || ! -s $f ]]; then
-    wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/home/tinderbox/images/distfiles || exit 6
+    wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 6
   fi
 
   # do always verify it
