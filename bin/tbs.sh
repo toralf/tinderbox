@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#set -x
+set -x
 
 # setup a new tinderbox chroot image
 #
@@ -103,7 +103,7 @@ function UnpackStage3()  {
     stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
   elif [[ "$(basename $profile)" = "x32" ]]; then
-    name="$name-$(basename $profile)"
+    name="$name-x32"
     stage3=$(grep "^20....../systemd/stage3-x32-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
   else
@@ -121,6 +121,11 @@ function UnpackStage3()  {
 
   echo " image: $name"
   echo
+
+  if [[ -z "$stage3" ]]; then
+    echo "couldn't derive stage3 filename !"
+    exit 5
+  fi
 
   # download stage3 if not already done
   #
@@ -549,7 +554,7 @@ if [[ "$mask" != "stable" && "$mask" != "unstable" ]]; then
   exit 3
 fi
 
-if [[ ! -d /usr/portage/profiles/$profile ]]; then
+if [[ -z "$profile" || ! -d /usr/portage/profiles/$profile ]]; then
   echo " profile unknown: $profile"
   exit 3
 fi
