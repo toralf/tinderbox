@@ -736,7 +736,9 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       if [[ "$task" = "@system" && -z "$failed" ]]; then
-        Mail "notice: $task itself failed" $log
+        if [[ ! -f /etc/portage/package.mask/upgrade_blocker ]]; then
+          Mail "notice: $task failed" $log
+        fi
       fi
     else
       if [[ "$task" = "@world" ]]; then
