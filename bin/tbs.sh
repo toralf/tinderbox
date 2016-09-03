@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-set -x
+# set -x
 
 # setup a new tinderbox chroot image
 #
@@ -104,7 +104,7 @@ function UnpackStage3()  {
 
   elif [[ "$(basename $profile)" = "x32" ]]; then
     name="$name-x32"
-    stage3=$(grep "^20....../systemd/stage3-x32-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../stage3-x32-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
   else
     name="$name-$(basename $profile)"
