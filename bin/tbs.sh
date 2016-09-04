@@ -515,31 +515,10 @@ fi
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
 suffix=""
 
-while getopts a:c:f:l:m:p:s: opt
+while getopts a:f:l:m:o:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
-        ;;
-    c)  # origin from an existing image
-        # the settings here migh be overwritten by parameters on the command line
-        #
-        origin="$OPTARG"
-        if [[ ! -e $origin ]]; then
-          echo "cannot get origin '$origin' to origin from !"
-          exit 2
-        fi
-
-        profile=$(readlink $origin/etc/portage/make.profile | cut -f6- -d'/')
-        flags="$(source $origin/etc/portage/make.conf; echo $USE)"
-        mask="stable"
-        grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          mask="unstable"
-        fi
-        grep -q 'CURL_SSL="libressl"' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          libressl="y"
-        fi
         ;;
     f)  if [[ -f "$OPTARG" ]] ; then
           # USE flags are either defined in another make.conf or just derived from a file
@@ -558,6 +537,24 @@ do
         suffix="libressl"
         ;;
     m)  mask="$OPTARG"
+        ;;
+    o)  # an origin to clone from
+        #
+        origin="$OPTARG"
+        if [[ ! -e $origin ]]; then
+          echo "origin '$origin' to clone from doesn't exist!"
+          exit 2
+        fi
+        profile=$(readlink $origin/etc/portage/make.profile | cut -f6- -d'/')
+        flags="$(source $origin/etc/portage/make.conf; echo $USE)"
+        grep -q 'CURL_SSL="libressl"' $origin/etc/portage/make.conf
+        if [[ $? -eq 0 ]]; then
+          libressl="y"
+        fi
+        grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
+        if [[ $? -ne 0 ]]; then
+          mask="stable"
+        fi
         ;;
     p)  profile="$OPTARG"
         ;;
