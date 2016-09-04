@@ -180,15 +180,15 @@ function CollectIssueFiles() {
   This is an $mask amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
 
   -----------------------------------------------------------------
-  USE flags defined in ...
+  USE flags ...
 
-  ... make.conf:
+  ... in make.conf:
 USE="$(source /etc/portage/make.conf; echo -n '  '; echo $USE)"
 
-  ... /etc/portage/package.use/*:
+  ... in /etc/portage/package.use/*:
 $(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':' | sed 's/^/  /g')
 
-  unmasked packages in /etc/portage/package.unmask/*:
+  entries in /etc/portage/package.unmask/*:
 $(grep -v -e '^#' -e '^$' /etc/portage/package.unmask/* | cut -f2- -d':' | sed 's/^/  /g')
   -----------------------------------------------------------------
 
@@ -201,7 +201,7 @@ $(eselect ruby    list 2>/dev/null  && echo)
 
 EOF
 
-  # avoid --verbose here, it would blow up its output above the 16 KB limit of b.g.o.
+  # avoid --verbose here, it would blow up the output above the 16 KB limit of b.g.o.
   #
   emerge --info --verbose=n $short >> $issuedir/emerge-info.txt
 
@@ -228,13 +228,13 @@ EOF
   touch $issuedir/{issue,title}
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
-    # we need package name+version althought this gives more noise in our mail inbox
+    # we provide package name+version althought this gives more noise in our mail inbox
     #
     s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
     # inform the maintainers of the already installed package too
     #
     cc=$(equery meta -m $s | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
-    # sort -u guarantees, that $issuedir/cc is completely read in before it will be overwritten
+    # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
     #
     (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',' > $issuedir/cc
 
