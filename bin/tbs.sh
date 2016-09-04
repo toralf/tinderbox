@@ -107,6 +107,11 @@ function UnpackStage3()  {
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   fi
 
+    if [[ -z "$stage3" ]]; then
+    echo "couldn't derive stage3 filename !"
+    exit 5
+  fi
+
   # complete $name
   #
   if [[ "$libressl" = "y" ]]; then
@@ -119,11 +124,6 @@ function UnpackStage3()  {
   name="${name}_$(date +%Y%m%d-%H%M%S)"
   echo " image: $name"
   echo
-
-  if [[ -z "$stage3" ]]; then
-    echo "couldn't derive stage3 filename !"
-    exit 5
-  fi
 
   # download stage3 if not already done
   #
