@@ -113,9 +113,9 @@ function UnpackStage3()  {
     $name="$name-libressl"
   fi
   if [[ -n "$suffix" ]]; then
-    name="${name}-${suffix}"
+    name="$name-$suffix"
   fi
-  name="${name}-${mask}"
+  name="$name-$mask"
   name="${name}_$(date +%Y%m%d-%H%M%S)"
   echo " image: $name"
   echo
