@@ -319,10 +319,17 @@ function FillPackageList()  {
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
 
-  # INFO prevents insert_pkgs.sh from touching the package list too early
+  # at least this INFO prevents insert_pkgs.sh from touching the package list too early
   #
+  echo "INFO start with the randomized package list" >> $pks
+
+  if [[ -n "$origin" ]]; then
+    echo "INFO end of emerge history of $origin" >> $pks
+    qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' | tac >> $pks
+    echo "INFO start of emerge history of $origin" >> $pks
+  fi
+
   cat << EOF >> $pks
-INFO start with the package list
 @system
 %rm -f /etc/portage/package.mask/upgrade_blocker
 @system
@@ -495,27 +502,44 @@ if [[ "$(whoami)" != "root" ]]; then
 fi
 
 autostart="y"                 # start the chroot image if setup was ok
-
+origin=""                     # the origin to clone
 flags=$(rufs)                 # create a (r)andomized (U)SE (f)lag (s)et
-
 libressl="n"
 if [[ $(($RANDOM % 5)) -eq 0 ]]; then
   libressl="y"
 fi
-
 mask="unstable"
 if [[ $(($RANDOM % 10)) -eq 0 ]]; then
   mask="stable"
 fi
-
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -e 'kde' -e 'x32' -e 'selinux' -e 'musl' -e 'uclibc' -e 'profile' -e 'developer' | sort --random-sort | head -n1)
-
 suffix=""
 
-while getopts a:f:l:m:p:s: opt
+while getopts a:c:f:l:m:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
+        ;;
+    c)  # origin from an existing image
+        # the settings here migh be overwritten by parameters on the command line
+        #
+        origin="$OPTARG"
+        if [[ ! -e $origin ]]; then
+          echo "cannot get origin '$origin' to origin from !"
+          exit 2
+        fi
+
+        profile=$(readlink $origin/etc/portage/make.profile | cut -f6- -d'/')
+        flags="$(source $origin/etc/portage/make.conf; echo $USE)"
+        mask="stable"
+        grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
+        if [[ $? -eq 0 ]]; then
+          mask="unstable"
+        fi
+        grep -q 'CURL_SSL="libressl"' $origin/etc/portage/make.conf
+        if [[ $? -eq 0 ]]; then
+          libressl="y"
+        fi
         ;;
     f)  if [[ -f "$OPTARG" ]] ; then
           # USE flags are either defined in another make.conf or just derived from a file
