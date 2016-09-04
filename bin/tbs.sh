@@ -107,14 +107,16 @@ function UnpackStage3()  {
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   fi
 
-  # complete $name with suffix (if given), keyword and time stamp
+  # complete $name
   #
+  if [[ "$libressl" = "y" ]]; then
+    $name="$name-libressl"
+  fi
   if [[ -n "$suffix" ]]; then
     name="${name}-${suffix}"
   fi
   name="${name}-${mask}"
   name="${name}_$(date +%Y%m%d-%H%M%S)"
-
   echo " image: $name"
   echo
 
@@ -534,7 +536,6 @@ do
         fi
         ;;
     l)  libressl="$OPTARG"
-        suffix="libressl"
         ;;
     m)  mask="$OPTARG"
         ;;
