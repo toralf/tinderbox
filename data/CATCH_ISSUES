@@ -177,6 +177,7 @@ no configure script found
 Function .* not defined
 rake aborted!
 extra arguments no longer supported; please file a bug
+eant failed
 Error:
 ERROR :
 ERROR:
