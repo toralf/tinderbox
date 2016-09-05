@@ -755,7 +755,7 @@ function EmergeTask() {
       if [[ -f /tmp/timestamp.world ]]; then
         let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.world) - 3 * 24 * 60 * 60"
       else
-        diff=0
+        diff=-1
       fi
       if [[ $diff -lt 0 ]]; then
         echo "@world" >> $pks
