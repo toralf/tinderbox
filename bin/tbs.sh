@@ -115,7 +115,7 @@ function UnpackStage3()  {
   # complete $name
   #
   if [[ "$libressl" = "y" ]]; then
-    $name="$name-libressl"
+    name="$name-libressl"
   fi
   if [[ -n "$suffix" ]]; then
     name="$name-$suffix"
