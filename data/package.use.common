@@ -16,5 +16,6 @@ app-text/xmlto      -latex
 dev-libs/boehm-gc   threads
 dev-libs/libpcre    pcre16
 dev-util/cmake      -qt4 -qt5
+dev-vcs/git         -perl
 gnome-base/librsvg  -tools
 media-libs/mesa     -vaapi
