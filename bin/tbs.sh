@@ -323,7 +323,7 @@ function FillPackageList()  {
 
   # at least this INFO prevents insert_pkgs.sh from touching the package list too early
   #
-  echo "INFO start with the randomized package list" >> $pks
+  echo "INFO starting with the randomized package list" >> $pks
 
   if [[ -n "$origin" ]]; then
     echo "INFO end of emerge history of $origin" >> $pks
