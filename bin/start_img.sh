@@ -20,7 +20,7 @@ if [[ $# -gt 0 ]]; then
   verbose=1
 fi
 
-# delay subsequent start to lower I/O impact
+# delay start of subsequent images to lower I/O impact
 #
 sleep=0
 
@@ -67,7 +67,7 @@ do
   sleep $sleep
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
 
-  # heuristic test of a reboot where the cache isn't filled
+  # after reboot spread the I/O impact more over time
   #
   uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
   if [[ $? -eq 0 ]]; then
@@ -80,6 +80,6 @@ done
 # otherwise the prompt isn't visible (due to 'nohup ... &'  ?)
 #
 if [[ $sleep ]]; then
-	sleep 1
+  sleep 1
 fi
 
