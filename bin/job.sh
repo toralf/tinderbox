@@ -481,9 +481,9 @@ function GotAnIssue()  {
   if [[ $? -eq 0 ]]; then
     # stop for now, "kent\n" et al might have a look into it
     #
-    tar -cjp /var/db/pkg      -f $issuedir/var.db.pkg.tbz2
-    tar -cjp /var/lib/portage -f $issuedir/var.lib.portage.tbz2
-    tar -cjp /etc/portage     -f $issuedir/etc.portage.tbz2
+    tar -cjpf $issuedir/var.db.pkg.tbz2       /var/db/pkg
+    tar -cjpf $issuedir/var.lib.portage.tbz2  /var/lib/portage
+    tar -cjpf $issuedir/etc.portage.tbz2      /etc/portage
     Finish "stopped here for further debugging - TAR'ed appropriate files"
 
     Mail "notice: Perl upgrade issue in $task" $bak
