@@ -477,7 +477,7 @@ function GotAnIssue()  {
 
   # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
   #
-  grep -q -e 'perl module is required for intltool' -e "Can't locate Locale/Messages.pm in @INC" $bak
+  grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
     Mail "notice: Perl upgrade issue in $task" $bak
     echo -e "$task\nINFO pls check Perl upgrade\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
