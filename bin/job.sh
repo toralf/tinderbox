@@ -479,6 +479,13 @@ function GotAnIssue()  {
   #
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
+    # stop for now, "kent\n" et al might have a look into it
+    #
+    tar -cjp /var/db/pkg      -f $issuedir/var.db.pkg.tbz2
+    tar -cjp /var/lib/portage -f $issuedir/var.lib.portage.tbz2
+    tar -cjp /etc/portage     -f $issuedir/etc.portage.tbz2
+    Finish "stopped here for further debugging - TAR'ed appropriate files"
+
     Mail "notice: Perl upgrade issue in $task" $bak
     echo -e "$task\nINFO pls check Perl upgrade\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
   fi
@@ -708,13 +715,6 @@ function check() {
     rm $out
   fi
 }
-
-
-# TODO:
-# [22:22] <kentnl> toralf: as an idea, if you ever stumble into problems with dependency conflicts ( esp: perl ones ), tar up  /var/db/pkg, /var/lib/portage and /etc/portage and stash it somewhere, and with a bit of luck we'll work out how to share them somewhere and use them as "how to avoid broken portage" test cases.
-# [22:23] <kentnl> because obviously, we need a way for people who are modifying packages to avoid those problems to say "does this change actually fix this problem" , but usually the people doing the fixes don't have the horrible broken trees :/
-# [22:24] * kentnl still has to work out how we actually use this data as well as how we get them to devs , but that will be easier I hope once we have a few test images
-# [22:26] <toralf> kentnl: ok, will do
 
 
 # $task might be @set, a command line like "%emerge -C ..." or a single package
