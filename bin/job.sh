@@ -485,10 +485,13 @@ function GotAnIssue()  {
     tar -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     tar -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
-    Mail "notice: Perl upgrade issue in $task" $bak
-    echo -e "$task\nINFO pls check Perl upgrade due to failed $task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
-
-    return
+    if [[ "$task" = "@system" || "$task" = "@world" ]]; then
+      Mail "notice: Perl upgrade issue in $task" $bak
+      echo -e "$task\nINFO pls check Perl upgrade due to failed $task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
+      return
+    else
+      Finish "perl issue"
+    fi
   fi
 
   if [[ $is_sandbox_issue -eq 1 ]]; then
