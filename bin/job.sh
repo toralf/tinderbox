@@ -487,6 +487,7 @@ function GotAnIssue()  {
     tar -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     tar -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
+    Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
     Finish "stopped here for further debugging - TAR'ed appropriate files"
 
     Mail "notice: Perl upgrade issue in $task" $bak
