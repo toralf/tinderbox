@@ -479,19 +479,14 @@ function GotAnIssue()  {
   #
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
-    # stop for now, "kent\n" et al might have a look into it
-    #
     (
     cd /;
     tar -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
     tar -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     tar -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
-    Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
-    Finish "stopped here for further debugging - TAR'ed appropriate files"
-
     Mail "notice: Perl upgrade issue in $task" $bak
-    echo -e "$task\nINFO pls check Perl upgrade\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
+    echo -e "$task\nINFO pls check Perl upgrade due to failed $task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
   fi
 
   if [[ $is_sandbox_issue -eq 1 ]]; then
