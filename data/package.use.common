@@ -11,6 +11,7 @@ net-misc/wget       ssl
 
 # known blocker
 #
+app-crypt/pinentry  -qt4
 app-editors/emacs   -dbus -svg -ssl -gtk -gtk3
 app-text/xmlto      -latex
 dev-libs/boehm-gc   threads
@@ -19,3 +20,7 @@ dev-util/cmake      -qt4 -qt5
 dev-vcs/git         -perl
 gnome-base/librsvg  -tools
 media-libs/mesa     -vaapi
+
+# it spews just an ewarn
+#
+<=net-misc/openssh-7.3_p1-r2    -hpn

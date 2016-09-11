@@ -2,6 +2,7 @@ app-emulation/vice
 app-eselect/
 dev-embedded/
 dev-java/
+dev-python/mysql-python
 java-virtuals/
 net-analyzer/openvas
 perl-core/
