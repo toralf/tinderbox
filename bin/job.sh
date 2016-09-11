@@ -487,6 +487,8 @@ function GotAnIssue()  {
     )
     Mail "notice: Perl upgrade issue in $task" $bak
     echo -e "$task\nINFO pls check Perl upgrade due to failed $task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
+
+    return
   fi
 
   if [[ $is_sandbox_issue -eq 1 ]]; then
