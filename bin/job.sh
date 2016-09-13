@@ -593,6 +593,10 @@ function SwitchGCC() {
         GotAnIssue
         echo "%$cmd" >> $pks
         Finish "FAILED: $FUNCNAME from $verold to $vernew rebuild failed"
+      else
+        # kick off the old GCC to double-ensure that nothing from it is left
+        #
+        echo "%emerge --depclean"
       fi
     fi
   fi
