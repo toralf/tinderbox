@@ -345,10 +345,6 @@ function FillPackageList()  {
 sys-devel/gcc
 EOF
 
-  if [[ "$libressl" = "y" ]]; then
-    echo "%/tmp/tb/bin/switch2libressl.sh" >> $pks
-  fi
-
   chown tinderbox.tinderbox $pks
 }
 
@@ -422,6 +418,10 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/por
 #
 emerge sys-kernel/hardened-sources || exit 6
 
+if [[ "$libressl" = "y" ]]; then
+  /tmp/tb/bin/switch2libressl.sh || exit \$?
+fi
+
 # at least the very first @world must not fail
 #
 sed -i -e 's/^/#/g' /etc/portage/package.mask/upgrade_blocker
@@ -456,11 +456,11 @@ EOF
   #
   d=$(basename $imagedir)/$name
 
-  # authentication avoids a 10 sec tarpitting delay by the ISP
+  # authentication avoids a 10 sec tarpitting delay by the Hoster
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
 
-  # user grants etc.
+  # b.g.o. credentials
   #
   cp /home/tinderbox/.bugzrc $d/root
 
@@ -468,13 +468,7 @@ EOF
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
 
-    if [[ $rc -ge 32 ]]; then
-      echo
-      echo "umount error !"
-      echo
-    fi
-
-    if [[ $rc -lt 11 || $rc -gt 32 ]]; then
+    if [[ $rc -ne 11 && $rc -ne 12 ]]; then
       echo
       cat $d/tmp/setup.log
     fi
