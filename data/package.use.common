@@ -16,6 +16,7 @@ app-editors/emacs   -dbus -svg -ssl -gtk -gtk3
 app-text/xmlto      -latex
 dev-libs/boehm-gc   threads
 dev-libs/libpcre    pcre16
+net-nds/openldap    -sasl
 dev-util/cmake      -qt4 -qt5
 dev-vcs/git         -perl
 gnome-base/librsvg  -tools
