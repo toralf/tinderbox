@@ -337,6 +337,7 @@ function FillPackageList()  {
   fi
 
   cat << EOF >> $pks
+%emerge --depclean
 @system
 %rm -f /etc/portage/package.mask/upgrade_blocker
 @system
