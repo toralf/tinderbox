@@ -486,11 +486,11 @@ function GotAnIssue()  {
     tar -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
     if [[ "$task" = "@system" || "$task" = "@world" ]]; then
-      Mail "notice: Perl upgrade issue in $task" $bak
-      echo -e "$task\nINFO pls check Perl upgrade due to failed $task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
+      Mail "notice: auto.fixing Perl upgrade issue in $task" $bak
+      echo -e "$task\nINFO pls check if the Perl upgrade issue is solved for $task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
       return
     else
-      Finish "perl issue"
+      Finish "unsolved perl issue"
     fi
   fi
 
