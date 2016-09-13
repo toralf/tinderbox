@@ -178,6 +178,7 @@ Function .* not defined
 rake aborted!
 extra arguments no longer supported; please file a bug
 eant failed
+E: Cannot find external tool
 Error:
 ERROR :
 ERROR:
