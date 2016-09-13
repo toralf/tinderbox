@@ -292,9 +292,12 @@ EOF
   # the BLOCKER file must follow this syntax:
   #
   #   # comment
-  #   bug id
-  #   pattern
+  #   <bug id>
+  #   <pattern>
   #   ...
+  #
+  # if <pattern> is defined multiple times the first will win
+  #
   block=$(
     grep -v -e '^#' -e '^[1-9].*' /tmp/tb/data/BLOCKER |\
     while read line
@@ -579,7 +582,7 @@ function SwitchGCC() {
     # re-build affected software against new GCC libs is mandatory
     #
     if [[ "$majold" != "$majnew" ]]; then
-      if [[ "$majold" = "4" && "$majnew" = "5" ]]; then
+      if [[ "$majnew" = "5" || "$majnew" = "6" ]]; then
         cmd="revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc"
       else
         Finish "ERROR: $FUNCNAME from $verold to $vernew rebuild not implemented"

@@ -7,6 +7,9 @@ mcs Not found|gmcs
 # gnutls-3.4
 546124
 gnutls_
+# GCC 6
+582084
+undefined reference to
 # GCC-5 porting
 536984
 undefined reference to

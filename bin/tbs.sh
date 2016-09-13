@@ -269,6 +269,11 @@ EOF
     if [[ $(($RANDOM % 3)) -ne 0 ]]; then
       echo "media-video/ffmpeg" > etc/portage/package.unmask/ffmpeg
     fi
+
+    # GCC-6
+    #
+    echo "sys-devel/gcc:6.2.0"    > etc/portage/package.unmask/gcc-6
+    echo "sys-devel/gcc:6.2.0 **" > etc/portage/package.accept_keywords/gcc-6
   fi
 
   touch      etc/portage/package.use/setup     # USE flags added by setup.sh or us
