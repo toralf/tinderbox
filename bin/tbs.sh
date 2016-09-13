@@ -507,7 +507,7 @@ autostart="y"                 # start the chroot image if setup was ok
 origin=""                     # the origin to clone
 flags=$(rufs)                 # create a (r)andomized (U)SE (f)lag (s)et
 libressl="n"
-if [[ $(($RANDOM % 5)) -eq 0 ]]; then
+if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
 fi
 mask="unstable"
