@@ -2,11 +2,7 @@
 #
 # set -x
 
-# switch from OpenSSL to LibreSSL
-
-# typical call:
-#
-# sudo ~/tb/bin/chr.sh <image name> "/tmp/tb/bin/switch2libressl.sh"
+# https://wiki.gentoo.org/wiki/Project:LibreSSL
 
 # are we within a tinderbox chroot image ?
 #
@@ -24,6 +20,8 @@ if [[ ! -e /tmp/packages || ! -e /tmp/setup.sh || ! -e /tmp/setup.log ]]; then
   fi
 fi
 
+# change make.conf and other portage config files
+#
 sed -i  -e '/^CURL_SSL="/d'           \
         -e 's/ [+-]*openssl[ ]*/ /'   \
         -e 's/ [+-]*libressl[ ]*/ /'  \
@@ -38,7 +36,7 @@ echo "-curl_ssl_libressl"   >>  /etc/portage/profile/use.stable.mask
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
 
-# keyword at an stable image libressl-ready packages
+# keyword at a stable image appropriate packages
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -ne 0 ]]; then
@@ -60,6 +58,8 @@ fi
 
 echo "dev-libs/openssl" > /etc/portage/package.mask/openssl || exit 23
 
+# now fetch and emerge the packages
+#
 emerge -f libressl openssh wget python iputils  &&\
 emerge -C openssl         &&\
 emerge -1 libressl        &&\
