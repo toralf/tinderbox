@@ -20,7 +20,7 @@ if [[ ! -e /tmp/packages || ! -e /tmp/setup.sh || ! -e /tmp/setup.log ]]; then
     done
     echo ' going on'
   else
-    exit 11
+    exit 21
   fi
 fi
 
@@ -38,7 +38,11 @@ echo "-curl_ssl_libressl"   >>  /etc/portage/profile/use.stable.mask
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
 
-cat << EOF >> /etc/portage/package.accept_keywords/libressl || exit 14
+# keyword at an stable image libressl-ready packages
+#
+grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
+if [[ $? -ne 0 ]]; then
+  cat << EOF > /etc/portage/package.accept_keywords/libressl || exit 22
 dev-libs/libressl
 $py2
 $py3
@@ -52,7 +56,9 @@ dev-libs/libevent
 ~www-client/lynx-2.8.9_pre9
 EOF
 
-echo "dev-libs/openssl" > /etc/portage/package.mask/openssl || exit 12
+fi
+
+echo "dev-libs/openssl" > /etc/portage/package.mask/openssl || exit 23
 
 emerge -f libressl openssh wget python iputils  &&\
 emerge -C openssl         &&\
