@@ -29,9 +29,11 @@ sed -i  -e '/^CURL_SSL="/d'           \
         -e 's/USE="/CURL_SSL="libressl"\nUSE="-openssl -gnutls libressl \n  /' \
         /etc/portage/make.conf
 
-mkdir -p                        /etc/portage/profile
-echo "-libressl"            >>  /etc/portage/profile/use.stable.mask
-echo "-curl_ssl_libressl"   >>  /etc/portage/profile/use.stable.mask
+mkdir -p                      /etc/portage/profile
+echo "-libressl"          >>  /etc/portage/profile/use.stable.mask
+echo "-curl_ssl_libressl" >>  /etc/portage/profile/use.stable.mask
+
+echo "dev-libs/openssl"   >   /etc/portage/package.mask/openssl || exit 23
 
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
@@ -56,12 +58,15 @@ EOF
 
 fi
 
-echo "dev-libs/openssl" > /etc/portage/package.mask/openssl || exit 23
-
-# now fetch and emerge the packages
+# fetch packages before we uninstall any package
 #
-emerge -f libressl openssh wget python iputils  &&\
-emerge -C openssl         &&\
+emerge -f libressl openssh wget python iputils || exit 24
+
+qlist -IC dev-libs/openssl
+if [[ $? -eq 0 ]]; then
+  emerge -C openssl || exit 25
+fi
+
 emerge -1 libressl        &&\
 emerge -1 openssh         &&\
 emerge -1 wget            &&\
