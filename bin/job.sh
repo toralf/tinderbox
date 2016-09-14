@@ -328,11 +328,9 @@ cc:       $(cat $issuedir/cc)
 
 EOF
 
-  # if we don't found an appropriate bug
-  # then we do return a list of similar bugs
-  # and create an appropriate bugz command line
+  # search for an already filed bug or return a list of similar bugs
   #
-  id=$(bugz --columns 400 -q search --status OPEN,RESOLVED --show-status "$short" "$(cat $issuedir/title)" 2>&1 | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+  id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short $(cat $issuedir/title) 2>/dev/null | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
