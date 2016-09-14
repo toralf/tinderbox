@@ -661,6 +661,11 @@ function PostEmerge() {
     echo "%haskell-updater" >> $pks
   fi
 
+  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $log
+  if [[ $? -eq 0 ]]; then
+    echo "%perl-cleaner --all" >> $pks
+  fi
+
   grep -q 'Please run "revdep-pax" after installation.' $log
   if [[ $? -eq 0 ]]; then
     echo "%revdep-pax" >> $pks
