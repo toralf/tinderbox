@@ -490,8 +490,6 @@ function GotAnIssue()  {
       Mail "notice: auto.fixing Perl upgrade issue in $task" $bak
       echo -e "$task\nINFO pls check if the Perl upgrade issue is solved for $task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
       return
-    else
-      Finish "unsolved perl issue"
     fi
   fi
 
@@ -661,9 +659,9 @@ function PostEmerge() {
     echo "%haskell-updater" >> $pks
   fi
 
-  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $log
+  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $log
   if [[ $? -eq 0 ]]; then
-    echo "%perl-cleaner --all" >> $pks
+    echo "%SwitchGCC" >> $pks
   fi
 
   grep -q 'Please run "revdep-pax" after installation.' $log
@@ -671,9 +669,9 @@ function PostEmerge() {
     echo "%revdep-pax" >> $pks
   fi
 
-  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $log
+  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $log
   if [[ $? -eq 0 ]]; then
-    echo "%SwitchGCC" >> $pks
+    echo "%perl-cleaner --all" >> $pks
   fi
 
   # auto-unmerge packages, eg:
