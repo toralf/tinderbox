@@ -284,7 +284,7 @@ EOF
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
-  # kick off hex addresses and such stuff to improve bugz search result
+  # kick off hex addresses and such stuff to improve search results in b.g.o.
   #
   sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
 
@@ -328,9 +328,11 @@ cc:       $(cat $issuedir/cc)
 
 EOF
 
-  # search for an already filed bug or return a list of similar bugs
+  # search if $issue is already filed or return a list of similar records
   #
-  id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short $(cat $issuedir/title) 2>/dev/null | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
+  # replace in search string the package version with its name only and strip away quotes
+  #
+  id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short $(cut -f3- -d' ' $issuedir/title | tr "['\"]" " ") 2>/dev/null | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
