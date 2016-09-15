@@ -33,7 +33,7 @@ mkdir -p                      /etc/portage/profile
 echo "-libressl"          >>  /etc/portage/profile/use.stable.mask
 echo "-curl_ssl_libressl" >>  /etc/portage/profile/use.stable.mask
 
-echo "dev-libs/openssl"   >   /etc/portage/package.mask/openssl || exit 23
+echo "dev-libs/openssl"   >   /etc/portage/package.mask/openssl || exit 22
 
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
@@ -42,7 +42,7 @@ py3="dev-lang/python:3.4"
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -ne 0 ]]; then
-  cat << EOF > /etc/portage/package.accept_keywords/libressl || exit 22
+  cat << EOF > /etc/portage/package.accept_keywords/libressl || exit 23
 dev-libs/libressl
 $py2
 $py3
@@ -72,5 +72,9 @@ emerge -1 openssh         &&\
 emerge -1 wget            &&\
 emerge -1 $py2 $py3       &&\
 emerge @preserved-rebuild
+rc=$?
 
-exit $?
+if [[ $rc -ne 0 ]]; then
+  exit 26
+fi
+exit 0
