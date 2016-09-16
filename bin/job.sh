@@ -597,7 +597,7 @@ function SwitchGCC() {
       else
         # kick off the old GCC to double-ensure that nothing from it is left
         #
-        echo "%emerge --depclean"
+        echo "%emerge --unmerge $(gcc-config --list-profiles --nocolor | grep -v ' \*$' | cut -f5 -d'-' | sed 's#^#=sys-devel/gcc-#g' | xargs)"
       fi
     fi
   fi
