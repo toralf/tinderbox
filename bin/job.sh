@@ -510,11 +510,14 @@ function GotAnIssue()  {
   fi
 
   # don't send an email if an issue is in ALREADY_CATCHED
+  # or if the issue has already a bug report
   #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+    if [[ -z "$id" ]]; then
+      Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+    fi
   fi
 }
 
