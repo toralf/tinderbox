@@ -595,9 +595,9 @@ function SwitchGCC() {
         echo "%$cmd" >> $pks
         Finish "FAILED: $FUNCNAME from $verold to $vernew rebuild failed"
       else
-        # kick off the old GCC to double-ensure that nothing from it is left
+        # clean up old GCC to double-ensure that packages builds against the new version
         #
-        echo "%emerge --unmerge $(gcc-config --list-profiles --nocolor | grep -v ' \*$' | cut -f5 -d'-' | sed 's#^#=sys-devel/gcc-#g' | xargs)"
+        echo "%emerge --unmerge =sys-devel/gcc-${verold}*"
       fi
     fi
   fi
