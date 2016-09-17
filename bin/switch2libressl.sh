@@ -46,10 +46,10 @@ if [[ $? -ne 0 ]]; then
 dev-libs/libressl
 $py2
 $py3
-=app-eselect/eselect-python-20160222
-=dev-lang/python-exec-2.4.3
-dev-libs/libevent
+~app-eselect/eselect-python-20160222
+~dev-lang/python-exec-2.4.3
 
+~dev-libs/libevent-2.1.5
 ~mail-mta/ssmtp-2.64
 ~net-analyzer/tcpdump-4.7.4
 ~dev-python/cryptography-1.3.4
