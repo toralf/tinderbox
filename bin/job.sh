@@ -765,6 +765,7 @@ function EmergeTask() {
       fi
     fi
 
+    touch /tmp/timestamp.system
     PostEmerge
     /usr/bin/pfl &>/dev/null
 
