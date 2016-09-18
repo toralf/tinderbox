@@ -6,11 +6,8 @@
 #
 
 # typical call:
-# ./bgo.sh dir [-b "ninja-porting" ] [-c "same here" -i 123456 ]
 #
-# eg.:
-# ./bgo.sh amd64-gnome-unstable_20150731-133239/tmp/issues/20150809-061731_dev-java_ant-ivy-2.3.0
-#
+#  ~/tb/bin/bgo.sh -d amd64-desktop-unstable_20160916-100730//tmp/issues/20160918-113424_sci-chemistry_reduce-3.16.111118 -b 582084
 
 block=""
 comment="same at a tinderbox image"
@@ -20,10 +17,10 @@ id=""
 while getopts a:b:c:d: opt
 do
   case $opt in
-    a)  id="$OPTARG";;          # attach onto this bug id
-    b)  block="$OPTARG";;       # either a bug id or an alias like "ninja-porting"
-    c)  comment="$OPTARG";;     # used if we attach onto an existing bug
-    d)  dir="$OPTARG";;         # directory containing all data
+    a)  id="$OPTARG";;          # attach onto the given id
+    b)  block="$OPTARG";;       # block that bug (id or alias)
+    c)  comment="$OPTARG";;     # add comment, used with -a
+    d)  dir="$OPTARG";;         # issue directory
     *)  echo " not implemented !"
         exit 1;;
   esac
