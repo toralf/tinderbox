@@ -331,7 +331,6 @@ function FillPackageList()  {
   echo "INFO starting with the randomized package list" >> $pks
 
   if [[ -n "$origin" && -e $origin/var/log/emerge.log ]]; then
-    echo "INFO end of emerge history of $origin" >> $pks
     qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' | tac >> $pks
     echo "INFO start of emerge history of $origin" >> $pks
   fi
