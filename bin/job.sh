@@ -753,8 +753,14 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       if [[ "$task" = "@system" && -z "$failed" ]]; then
-        if [[ ! -f /etc/portage/package.mask/upgrade_blocker ]]; then
-          Mail "notice: $task failed" $log
+        if [[ -f /etc/portage/package.mask/upgrade_blocker ]]; then
+          # force to remove it here b/c the appropriate entry in $pks
+          # will pushed back due to our next action
+          #
+          rm /etc/portage/package.mask/upgrade_blocker
+          echo "@system" >> $pks
+        else
+          Finish "notice: $task failed"
         fi
       fi
     else
@@ -767,7 +773,7 @@ function EmergeTask() {
     PostEmerge
     if [[ "$task" = "@system" ]]; then
       date >> /tmp/timestamp.system         # timestamp of last success
-      # give up to upgrade @world after 2 days
+      # give up to upgrade @world after 2 failed attempts (==2 days)
       #
       if [[ -f /tmp/timestamp.world ]]; then
         let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.world) - 3 * 24 * 60 * 60"
