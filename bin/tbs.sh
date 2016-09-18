@@ -352,10 +352,10 @@ EOF
 # - configure locale, timezone etc
 # - install and configure tools used in job.sh
 # - install kernel sources
-# - dry test a @world upgrade
+# - dry test a @system upgrade
 #
 function EmergeMandatoryPackages() {
-  wucmd="emerge --deep --update --changed-use --with-bdeps=y @world --pretend"
+  dryrun="emerge --deep --update --changed-use --with-bdeps=y @system --pretend"
 
   cat << EOF > tmp/setup.sh
 
@@ -377,7 +377,7 @@ echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
 
-# avoid nano from being depcleaned if another editor is emerged too
+# avoid nano from being depcleaned after another editor is emerged too
 #
 emerge --noreplace app-editors/nano
 
@@ -420,17 +420,17 @@ if [[ "$libressl" = "y" ]]; then
   /tmp/tb/bin/switch2libressl.sh || exit \$?
 fi
 
-# at least the very first @world must not fail
+# auto-adapt the USE flags so that the very first @system isn't blocked
 #
 sed -i -e 's/^/#/g' /etc/portage/package.mask/upgrade_blocker
-$wucmd &> /tmp/world.log
+$dryrun &> /tmp/dryrun.log
 rc=\$?
 if [[ \$rc -ne 0 ]]; then
   # try to auto-fix the setup by fixing the USE flags set
   #
-  grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/world.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
+  grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $wucmd &> /tmp/world.log && rc=0 || rc=11
+    $dryrun &> /tmp/dryrun.log && rc=0 || rc=11
   else
     rc=12
   fi
@@ -472,9 +472,9 @@ EOF
     fi
 
     echo
-    echo "    view $d/tmp/world.log"
+    echo "    view $d/tmp/dryrun.log"
     echo "    vi $d/etc/portage/make.conf"
-    echo "    sudo ~/tb/bin/chr.sh $d '$wucmd'"
+    echo "    sudo ~/tb/bin/chr.sh $d '$dryrun'"
     echo "    ln -s $d"
     echo "    ~/tb/bin/start_img.sh $name"
     echo
