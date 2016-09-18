@@ -31,6 +31,7 @@ OpenMP is not available in your current selected compiler
 Please buy & download
 Please, run 'haskell-updater'
 Please switch your active compiler to gcc with
+Please use a supported ICD
 Please use GCC-4.9 for now.
 some Java tools are not available on some VMs on some architectures
 Sorry, but this version does not yet support features

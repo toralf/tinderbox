@@ -9,7 +9,7 @@ mcs Not found|gmcs
 gnutls_
 # GCC 6
 582084
-error: cannot convert|error: incomplete type.*::.*|error: nonnull argument .* compared to NULL|error: left operand of shift expression|error: template instantiation depth exceeds maximum|error: narrowing conversion of|error: call of overloaded|error: expected unqualified-id before|error: no match for|error: .* was not declared in this scope|error: declaration of .* has a|error: expected unqualified-id before|error: unable to find string literal operator|error: looser throw specifier for|error: operands to .* have different types
+error: cannot convert|error: incomplete type.*::.*|error: nonnull argument .* compared to NULL|error: left operand of shift expression|error: template instantiation depth exceeds maximum|error: narrowing conversion of|error: call of overloaded|error: expected unqualified-id before|error: no match for|error: .* was not declared in this scope|error: declaration of .* has a|error: expected unqualified-id before|error: unable to find string literal operator|error: looser throw specifier for|error: operands to .* have different types|error: no matching function for call to|error: conflicting declaration of C function|error: .* needed for in-class initialization|error: exception cleanup for this|error: .* has no member named|error: invalid conversion from|error: this .* does not guard|error: redefinition of|error: reference to .* is ambiguous|error: exponent has no digits
 # GCC-5 porting
 536984
 undefined reference to
