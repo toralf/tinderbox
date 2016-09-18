@@ -488,7 +488,7 @@ function GotAnIssue()  {
     tar -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     tar -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
-    if [[ "$task" = "@system" || "$task" = "@world" ]]; then
+    if [[ "$task" = "@system" ]]; then
       Mail "notice: auto.fixing Perl upgrade issue in $task" $bak
       echo -e "$task\nINFO pls check if the Perl upgrade issue is solved for $task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
       return
@@ -740,7 +740,7 @@ function EmergeTask() {
   if [[ "$(echo $task | cut -c1)" = '@' ]]; then
     # emerge a package set
     #
-    if [[ "$task" = "@world" || "$task" = "@system" ]]; then
+    if [[ "$task" = "@system" ]]; then
       opts="--deep --update --changed-use --with-bdeps=y"
     elif [[ "$task" = "@preserved-rebuild" ]]; then
       opts="--backtrack=30"
@@ -763,27 +763,9 @@ function EmergeTask() {
           Finish "notice: $task failed"
         fi
       fi
-    else
-      if [[ "$task" = "@world" ]]; then
-        date >> /tmp/timestamp.world        # timestamp of last success
-        echo "%emerge --depclean" >> $pks
-      fi
     fi
 
     PostEmerge
-    if [[ "$task" = "@system" ]]; then
-      date >> /tmp/timestamp.system         # timestamp of last success
-      # give up to upgrade @world after 2 failed attempts (==2 days)
-      #
-      if [[ -f /tmp/timestamp.world ]]; then
-        let "diff = $(date +%s) - $(date +%s -r /tmp/timestamp.world) - 3 * 24 * 60 * 60"
-      else
-        diff=-1
-      fi
-      if [[ $diff -lt 0 ]]; then
-        echo "@world" >> $pks
-      fi
-    fi
     /usr/bin/pfl &>/dev/null
 
   else
