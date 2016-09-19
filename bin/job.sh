@@ -737,40 +737,42 @@ function check() {
 # $task might be @set, a command line like "%emerge -C ..." or a single package
 #
 function EmergeTask() {
-  if [[ "$(echo $task | cut -c1)" = '@' ]]; then
-    # emerge a package set
-    #
-    if [[ "$task" = "@system" ]]; then
-      opts="--deep --update --changed-use --with-bdeps=y"
-    elif [[ "$task" = "@preserved-rebuild" ]]; then
-      opts="--backtrack=30"
-      date >> /tmp/timestamp.preserved-rebuild  # timestamp, successful or not
-    else
-      opts="--update"
-    fi
-
-    emerge $opts $task &> $log
+  if [[ "$task" = "@preserved-rebuild" ]]; then
+    emerge --backtrack=30 $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
-      if [[ "$task" = "@system" && -z "$failed" ]]; then
-        if [[ -f /etc/portage/package.mask/upgrade_blocker ]]; then
-          # force to remove it here b/c the appropriate entry in $pks
-          # will pushed back due to our next action
-          #
-          rm /etc/portage/package.mask/upgrade_blocker
-          echo "@system" >> $pks
-        else
-          Finish "notice: $task failed"
-        fi
-      fi
     fi
 
-    touch /tmp/timestamp.system
+    date >> /tmp/timestamp.preserved-rebuild  # timestamp, successful or not
+    PostEmerge
+
+  elif [[ "$task" = "@system" ]]; then
+    emerge --deep --update --changed-use --with-bdeps=y $task &> $log
+    if [[ $? -ne 0 ]]; then
+      GotAnIssue
+
+      # quirk for the very first @system after initial setup
+      #
+      if [[ -f /etc/portage/package.mask/upgrade_blocker ]]; then
+        rm /etc/portage/package.mask/upgrade_blocker
+        echo "$task" >> $pks
+
+      elif [[ -n "$(grep 'For more information about Blocked Packages, please refer to the following' $log)" ]]; then
+        Mail "info: $task failed" $log
+
+      else
+        Finish "notice: $task failed"
+      fi
+
+    else
+      touch /tmp/timestamp.system
+    fi
+
     PostEmerge
     /usr/bin/pfl &>/dev/null
 
   else
-    # run a command line (prefixed with "%") or emerge the given package
+    # run a command line (prefixed with "%") or just emerge a package
     #
     if [[ "$(echo $task | cut -c1)" = '%' ]]; then
       cmd=$(echo "$task" | cut -c2-)
