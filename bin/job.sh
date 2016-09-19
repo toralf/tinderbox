@@ -702,9 +702,9 @@ function PostEmerge() {
 }
 
 
-# test hook, eg. to catch install artefacts
+# test hook, eg. to catch install artefacts from previous installation
 #
-function check() {
+function pre-check() {
   exe=/tmp/tb/bin/PRE-CHECK.sh
 
   if [[ -x $exe ]]; then
@@ -829,7 +829,7 @@ do
     exit 125
   fi
 
-  check
+  pre-check
   rm -rf /var/tmp/portage/*
 
   date > $log
