@@ -765,11 +765,9 @@ function EmergeTask() {
       else
         Finish "notice: $task failed"
       fi
-
-    else
-      touch /tmp/timestamp.system
     fi
 
+    touch /tmp/timestamp.system
     PostEmerge
     /usr/bin/pfl &>/dev/null
 
