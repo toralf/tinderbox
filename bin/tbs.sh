@@ -152,14 +152,10 @@ priority = 2
 
 EOF
 
-  # stay at the "rsync" method for now, "git" would pull in too much deps (gitk etc.)
-  #
   cat << EOF > etc/portage/repos.conf/gentoo.conf
 [gentoo]
 location  = /usr/portage
 auto-sync = no
-#sync-type = rsync
-#sync-uri  = rsync://rsync.de.gentoo.org/gentoo-portage/
 
 EOF
 
@@ -203,7 +199,7 @@ SSL_BITS=4096
 #
 ACCEPT_LICENSE="*"
 
-# parallel make issues aren't reliable reproducible
+# parallel make issues aren't reliable reproducible and therefore out of the scope of the tinderbox
 #
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
@@ -229,7 +225,7 @@ EOF
 
   mkdir tmp/tb  # chr.sh will bind-mount onto here the tinderbox directory from the host
 
-  # create portage directories and symlink them
+  # create portage directories and symlink common files into them
   #
   mkdir usr/portage
   mkdir var/tmp/{distfiles,portage}
@@ -245,17 +241,17 @@ EOF
     (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
   done
 
-  touch       etc/portage/package.mask/self     # hold all failed package at this image
+  touch       etc/portage/package.mask/self     # failed package at this image
   chmod a+rw  etc/portage/package.mask/self
 
   if [[ "$mask" = "unstable" ]]; then
-    # unmask ffmpeg at 2 of 3 unstable images
+    # unmask ffmpeg at 2/3 of all unstable images
     #
     if [[ $(($RANDOM % 3)) -ne 0 ]]; then
       echo "media-video/ffmpeg" > etc/portage/package.unmask/ffmpeg
     fi
 
-    # GCC-6
+    # unmask GCC-6 per request of Soap
     #
     echo "sys-devel/gcc:6.2.0"    > etc/portage/package.unmask/gcc-6
     echo "sys-devel/gcc:6.2.0 **" > etc/portage/package.accept_keywords/gcc-6
@@ -271,7 +267,7 @@ EOF
     echo -e "app-editors/xemacs\napp-xemacs/*" > etc/portage/package.mask/xemacs
   fi
 
-  # upgrade blocker
+  # upgrade blocker (at least to upgrade GCC)
   #
   echo "=sys-libs/ncurses-6.0-r1" >  etc/portage/package.mask/upgrade_blocker
   echo ">=dev-libs/gmp-6.1.0"     >> etc/portage/package.mask/upgrade_blocker
@@ -290,7 +286,7 @@ EOF
 }
 
 
-# DNS resolution and VIM
+# DNS resolution and vim defaults
 #
 function CompileMiscFiles()  {
   cp -L /etc/hosts /etc/resolv.conf etc/
@@ -299,12 +295,12 @@ function CompileMiscFiles()  {
 set softtabstop=2
 set shiftwidth=2
 set tabstop=2
-
+set expandtab
 EOF
 }
 
 
-# first tasks: upgrade GCC first (if possible), build linux kernel, upgrade @system
+# put few tasks on top of the package list: GCC (at least a 1st attempt), build the linux kernel, @system
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -485,7 +481,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-# the remte stage3 space
+# the remote stage3 space
 #
 imagedir=$tbhome/images
 wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
