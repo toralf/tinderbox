@@ -71,21 +71,11 @@ function rufs()  {
 }
 
 
-# unpack the current stage3 file
+# append features of the image onto $name except the timestamp
+# and do set here $stage3 too which holds the full stage3 file name
 #
-function UnpackStage3()  {
-  wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
-  wgetpath=/releases/amd64/autobuilds
-  latest=latest-stage3.txt
-
-  wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
-  if [[ $? -ne 0 ]]; then
-    echo " wget failed: $latest"
-    exit 4
-  fi
-
-  # $stage3 holds the full stage3 file name as found in $latest
-  #
+function ComputeImageName()  {
+  name="amd64"
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
     name="$name-hardened"
     stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
@@ -107,24 +97,21 @@ function UnpackStage3()  {
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   fi
 
-    if [[ -z "$stage3" ]]; then
-    echo "couldn't derive stage3 filename !"
-    exit 5
-  fi
-
-  # complete $name
-  #
   if [[ "$libressl" = "y" ]]; then
     name="$name-libressl"
   fi
+
   if [[ -n "$suffix" ]]; then
     name="$name-$suffix"
   fi
-  name="$name-$mask"
-  name="${name}_$(date +%Y%m%d-%H%M%S)"
-  echo " image: $name"
-  echo
 
+  name="$name-$mask"
+}
+
+
+# unpack the current stage3 file
+#
+function UnpackStage3()  {
   # download stage3 if not already done
   #
   b=$(basename $stage3)
@@ -133,8 +120,6 @@ function UnpackStage3()  {
     wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 6
   fi
 
-  # do always verify it
-  #
   gpg --quiet --verify $f.DIGESTS.asc || exit 7
 
   cd $imagedir  || exit 8
@@ -144,7 +129,7 @@ function UnpackStage3()  {
 }
 
 
-# repos.d/, make.conf and all that stuff under /etc/portage/
+# repos.d/, make.conf and other stuff in /etc/portage/
 #
 function CompilePortageFiles()  {
   # https://wiki.gentoo.org/wiki/Overlay/Local_overlay
@@ -500,25 +485,29 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-autostart="y"                 # start the chroot image if setup was ok
-origin=""                     # the origin to clone
-flags=$(rufs)                 # create a (r)andomized (U)SE (f)lag (s)et
+# the remte stage3 space
+#
+imagedir=$tbhome/images
+wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
+wgetpath=/releases/amd64/autobuilds
+latest=latest-stage3.txt
+
+# command lineoptions
+#
+autostart="y"   # start the chroot image if setup was ok
+flags=$(rufs)   # create a (r)andomized (U)SE (f)lag (s)et
 libressl="n"
-if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-  libressl="y"
-fi
 mask="unstable"
-if [[ $(($RANDOM % 10)) -eq 0 ]]; then
-  mask="stable"
-fi
-profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
-suffix=""
+origin=""       # the origin to clone from
+profile=""
+suffix=""       # free text
 
 while getopts a:f:l:m:o:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
         ;;
+
     f)  if [[ -f "$OPTARG" ]] ; then
           # USE flags are either defined in another make.conf or just derived from a file
           #
@@ -532,17 +521,23 @@ do
           echo -e "\nWARN: read USE flags from command line !\n"
         fi
         ;;
+
     l)  libressl="$OPTARG"
         ;;
+
     m)  mask="$OPTARG"
+        if [[ "$mask" != "stable" && "$mask" != "unstable" ]]; then
+          echo " wrong value for mask: $mask"
+          exit 3
+        fi
         ;;
-    o)  # an origin to clone from
-        #
-        origin="$OPTARG"
+
+    o)  origin="$OPTARG"
         if [[ ! -e $origin ]]; then
           echo "origin '$origin' to clone from doesn't exist!"
           exit 2
         fi
+
         profile=$(readlink $origin/etc/portage/make.profile | cut -f6- -d'/')
         flags="$(source $origin/etc/portage/make.conf; echo $USE)"
         grep -q 'CURL_SSL="libressl"' $origin/etc/portage/make.conf
@@ -554,32 +549,59 @@ do
           mask="stable"
         fi
         ;;
+
     p)  profile="$OPTARG"
+        if [[ ! -d /usr/portage/profiles/$profile ]]; then
+          echo " profile unknown: $profile"
+          exit 4
+        fi
         ;;
+
     s)  suffix="$OPTARG"
         ;;
+
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 2
         ;;
   esac
 done
 
-if [[ "$mask" != "stable" && "$mask" != "unstable" ]]; then
-  echo " wrong value for mask: $mask"
-  exit 3
-fi
-
-if [[ -z "$profile" || ! -d /usr/portage/profiles/$profile ]]; then
-  echo " profile unknown: $profile"
-  exit 3
-fi
-
-imagedir="$tbhome/images"
-
-# $name holds the directory/symlink name of the chroot image
-# append <profile>, <mask> and <timestamp> onto this prefix too
+# latest contains the stage3 file name which is derived in ComputeImageName() too
 #
-name="amd64"
+wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
+if [[ $? -ne 0 ]]; then
+  echo " wget failed of: $latest"
+  exit 3
+fi
+
+# do we throw a profile ?
+#
+if [[ -z "$profile" ]]; then
+  while :;
+  do
+    profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
+    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+      libressl="y"
+    else
+      libressl="n"
+    fi
+    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+      mask="stable"
+    else
+      mask="unstable"
+    fi
+    ComputeImageName
+
+    ls -1d $tbhome/${name}_20??????-?????? &>/dev/null || break
+  done
+
+else
+  ComputeImageName
+fi
+
+name="${name}_$(date +%Y%m%d-%H%M%S)"
+echo " image: $name"
+echo
 
 cd $tbhome
 
