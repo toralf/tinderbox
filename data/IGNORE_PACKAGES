@@ -6,6 +6,7 @@ dev-java/
 dev-python/mysql-python
 java-virtuals/
 net-analyzer/openvas
+net-analyzer/snips
 perl-core/
 sec-policy/
 sys-cluster/
