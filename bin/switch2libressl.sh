@@ -50,10 +50,13 @@ $py3
 ~dev-lang/python-exec-2.4.3
 
 ~dev-libs/libevent-2.1.5
+~dev-python/cryptography-1.3.4
 ~mail-mta/ssmtp-2.64
 ~net-analyzer/tcpdump-4.7.4
-~dev-python/cryptography-1.3.4
+~net-nds/openldap-2.4.44
 ~www-client/lynx-2.8.9_pre9
+
+
 EOF
 
 fi
