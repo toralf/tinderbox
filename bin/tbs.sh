@@ -581,7 +581,7 @@ if [[ -z "$profile" ]]; then
     else
       libressl="n"
     fi
-    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+    if [[ $(($RANDOM % 10)) -eq 0 && "$libressl" = "n" ]]; then
       mask="stable"
     else
       mask="unstable"
