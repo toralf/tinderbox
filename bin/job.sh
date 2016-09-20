@@ -736,7 +736,7 @@ function pre-check() {
 }
 
 
-# $task might be @set, a command line like "%emerge -C ..." or a single package
+# no special handling for @world anymore
 #
 function EmergeTask() {
   if [[ "$task" = "@preserved-rebuild" ]]; then
@@ -745,7 +745,7 @@ function EmergeTask() {
       GotAnIssue
     fi
 
-    date >> /tmp/timestamp.preserved-rebuild  # timestamp, successful or not
+    date >> /tmp/timestamp.preserved-rebuild
     PostEmerge
 
   elif [[ "$task" = "@system" ]]; then
@@ -759,15 +759,16 @@ function EmergeTask() {
         rm /etc/portage/package.mask/upgrade_blocker
         echo "$task" >> $pks
 
-      elif [[ -n "$(grep 'For more information about Blocked Packages, please refer to the following' $log)" ]]; then
-        Mail "info: $task failed" $log
-
-      else
-        Finish "notice: $task failed"
+      elif [[ -z "$failed" ]]; then
+        if [[ -n "$(grep 'For more information about Blocked Packages, please refer to the following' $log)" ]]; then
+          Mail "info: $task failed" $log
+        else
+          Finish "notice: $task failed"
+        fi
       fi
     fi
 
-    touch /tmp/timestamp.system
+    date >> /tmp/timestamp.system
     PostEmerge
     /usr/bin/pfl &>/dev/null
 
