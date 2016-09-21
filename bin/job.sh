@@ -492,13 +492,13 @@ function GotAnIssue()  {
     )
     if [[ "$task" = "@system" ]]; then
       Mail "notice: auto.fixing Perl upgrade issue in $task" $bak
-      echo -e "$task\nINFO pls check if the Perl upgrade issue is solved for $task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
+      echo -e "$task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
       return
     fi
   fi
 
   if [[ $is_sandbox_issue -eq 1 ]]; then
-    # build this specific package version w/o sandboxing from now on
+    # (re-)build this specific package version w/o sandboxing from now on
     #
     echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
     echo "$task" >> $pks
