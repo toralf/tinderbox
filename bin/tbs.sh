@@ -396,10 +396,6 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/por
 #
 emerge sys-kernel/hardened-sources || exit 6
 
-if [[ "$libressl" = "y" ]]; then
-  /tmp/tb/bin/switch2libressl.sh || exit \$?
-fi
-
 # auto-adapt the USE flags so that the very first @system isn't blocked
 #
 sed -i -e 's/^/#/g' /etc/portage/package.mask/upgrade_blocker
@@ -416,6 +412,10 @@ if [[ \$rc -ne 0 ]]; then
   fi
 fi
 sed -i -e 's/#//g' /etc/portage/package.mask/upgrade_blocker
+
+if [[ "$libressl" = "y" ]]; then
+  /tmp/tb/bin/switch2libressl.sh || exit \$?
+fi
 
 exit \$rc
 
