@@ -576,15 +576,15 @@ if [[ -z "$profile" ]]; then
   while :;
   do
     profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
-    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-      libressl="y"
-    else
-      libressl="n"
-    fi
-    if [[ $(($RANDOM % 10)) -eq 0 && "$libressl" = "n" ]]; then
+    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
       mask="stable"
     else
       mask="unstable"
+      if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+        libressl="y"
+      else
+        libressl="n"
+      fi
     fi
     ComputeImageName
 
