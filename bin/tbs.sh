@@ -24,7 +24,6 @@ tbhome=/home/tinderbox
 # else flag is unchanged (likelihood: 1 - 1/m -1/s)
 #
 function rufs()  {
-  # the USE flags we do consider
   # echo $allflags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/    /g'
   #
   allflags="
@@ -47,7 +46,7 @@ function rufs()  {
     pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc rendering sasl
     scripts scrypt sddm sdl semantic-desktop server smartcard smime smpeg
     snmp sockets source sourceview spice sql sqlite sqlite3 ssh
-    ssh-askpass ssl sslv2 sslv3 svg swscale system-cairo system-ffmpeg
+    ssh-askpass ssl sslv2 sslv3 ssp svg swscale system-cairo system-ffmpeg
     system-harfbuzz system-icu system-jpeg system-libevent system-libs
     system-libvpx system-llvm system-sqlite szip tcl tcpd theora thinkpad
     threads timidity tk tls tools tracepath traceroute truetype udisks
