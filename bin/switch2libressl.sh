@@ -29,11 +29,12 @@ sed -i  -e '/^CURL_SSL="/d'           \
         -e 's/USE="/CURL_SSL="libressl"\nUSE="-openssl -gnutls libressl \n  /' \
         /etc/portage/make.conf
 
-mkdir -p                      /etc/portage/profile
-echo "-libressl"          >>  /etc/portage/profile/use.stable.mask
-echo "-curl_ssl_libressl" >>  /etc/portage/profile/use.stable.mask
+mkdir -p /etc/portage/profile
+echo "-libressl"              >> /etc/portage/profile/use.stable.mask
+echo "-curl_ssl_libressl"     >> /etc/portage/profile/use.stable.mask
 
-echo "dev-libs/openssl"   >   /etc/portage/package.mask/openssl || exit 22
+echo "dev-libs/openssl"                 > /etc/portage/package.mask/openssl  || exit 22
+echo "mail-mta/ssmtp libressl -gnutls"  > /etc/portage/package.use/ssmtp     || exit 22
 
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
