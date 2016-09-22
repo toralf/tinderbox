@@ -108,11 +108,9 @@ function ComputeImageName()  {
 }
 
 
-# unpack the current stage3 file
+# download/unpack the stage3 file
 #
 function UnpackStage3()  {
-  # download stage3 if not already done
-  #
   b=$(basename $stage3)
   f=/var/tmp/distfiles/$b
   if [[ ! -f $f || ! -s $f ]]; then
@@ -124,15 +122,13 @@ function UnpackStage3()  {
   cd $imagedir  || exit 8
   mkdir $name   || exit 9
   cd $name
-  tar xjpf $f   || exit 10
+  tar xjpf $f --xattrs  || exit 10
 }
 
 
-# repos.d/, make.conf and other stuff in /etc/portage/
+# configure repos.d/, make.conf and other stuff
 #
 function CompilePortageFiles()  {
-  # https://wiki.gentoo.org/wiki/Overlay/Local_overlay
-  #
   mkdir -p                  usr/local/portage/{metadata,profiles}
   echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
   echo 'local' >            usr/local/portage/profiles/repo_name
@@ -194,7 +190,7 @@ L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -
 
 SSL_BITS=4096
 
-# just compile-tests
+# we do only compile-tests
 #
 ACCEPT_LICENSE="*"
 
@@ -222,9 +218,9 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 
 EOF
 
-  mkdir tmp/tb  # chr.sh will bind-mount onto here the tinderbox directory from the host
+  mkdir tmp/tb  # chr.sh will bind-mount onto here the tinderbox directory of the host
 
-  # create portage directories and symlink common files into them
+  # create portage directories, symlink common files into them
   #
   mkdir usr/portage
   mkdir var/tmp/{distfiles,portage}
@@ -299,7 +295,7 @@ EOF
 }
 
 
-# put few tasks on top of the package list: GCC (at least a 1st attempt), build the linux kernel, @system
+# prepend the package list with few mandatory tasks
 #
 function FillPackageList()  {
   pks=tmp/packages
