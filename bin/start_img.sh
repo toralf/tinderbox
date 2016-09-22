@@ -4,9 +4,9 @@
 
 # start a tinderbox chroot image
 #
-iam="$(whoami)"
-if [[ ! "$iam" = "tinderbox" ]]; then
-  echo " wrong user '$iam' !"
+
+if [[ ! "$(whoami)" = "tinderbox" ]]; then
+  echo " wrong user "
   exit 1
 fi
 
@@ -20,9 +20,15 @@ if [[ $# -gt 0 ]]; then
   verbose=1
 fi
 
-# delay start of subsequent images to lower I/O impact
+# delay start of subsequent images to lower I/O impact (and much more after reboot)
 #
-sleep=0
+uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
+if [[ $? -eq 0 ]]; then
+  delay=180
+else
+  delay=5
+fi
+sleep=0 # do not sleep for the 1st image
 
 for mnt in ${@:-~/amd64-*}
 do
@@ -66,18 +72,10 @@ do
   #
   sleep $sleep
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
-
-  # after reboot spread the I/O impact more over time
-  #
-  uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
-  if [[ $? -eq 0 ]]; then
-    sleep=60
-  else
-    sleep=5
-  fi
+  sleep=$delay
 done
 
-# otherwise the prompt isn't visible (due to 'nohup ... &'  ?)
+# otherwise we have no visible prompt (due to 'nohup ... &'  ?)
 #
 if [[ $sleep ]]; then
   sleep 1
