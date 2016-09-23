@@ -4,6 +4,7 @@ Cannot build with randomized sbrk. Your options
 configure: error: Linux kernel in .* is version .*, but version newer than .* is not supported
 Couldn't find .* to unmerge.
 Currently no working fortran compiler is available
+cc1: error: incompatible gcc/plugin versions
 emerge: there are no ebuilds built with USE flags to satisfy
 emerge: there are no ebuilds to satisfy
 emerge with binary use flag first
