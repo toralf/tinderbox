@@ -561,13 +561,6 @@ function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
   gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
   if [[ $? -ne 0 ]]; then
-    # schedule kernel rebuild if it was build before
-    #
-    if [[ -e /usr/src/linux/.config ]]; then
-      (cd /usr/src/linux && make clean 2>>$log)
-      echo "%BuildKernel" >> $pks
-    fi
-
     verold=$(gcc -v 2>&1 | tail -n 1 | cut -f1-3 -d' ')
     gcc-config --nocolor $latest &> $log
     . /etc/profile
@@ -583,6 +576,13 @@ function SwitchGCC() {
         cmd="revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc"
       else
         Finish "ERROR: $FUNCNAME from $verold to $vernew rebuild not implemented"
+      fi
+
+      # rebuild kernel to avoid an error like: "cc1: error: incompatible gcc/plugin versions"
+      #
+      if [[ -e /usr/src/linux/.config ]]; then
+        (cd /usr/src/linux && make clean &>>$log)
+        BuildKernel &>> $log
       fi
 
       $cmd &>> $log
