@@ -427,12 +427,6 @@ function GotAnIssue()  {
     return
   fi
 
-  grep -q 'Always study the list of packages to be cleaned for any obvious' $bak
-  if [[ $? -eq 0 ]]; then
-    Mail "notice: depclean failed" $bak
-    return
-  fi
-
   # the package specific log file
   #
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
