@@ -31,7 +31,7 @@ function rufs()  {
     cairo cdb cdda cddb cgi cgroups clang compat consolekit contrib
     corefonts csc cups curl custom-cflags custom-optimization cxx dbus
     dec_av2 declarative designer dnssec dot drmkms dvb dvd ecc egl eglfs
-    emacs evdev exif ext4 extra extraengine ffmpeg fluidsynth fontconfig
+    emacs evdev exif ext4 extra extraengine ffmpeg fitz fluidsynth fontconfig
     fortran fpm freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas
     gnome-keyring gnuplot gnutls gpg graphtft gstreamer gtk gtk2 gtk3
     gtkstyle gudev gui gzip haptic havege hdf5 help hpn ibus icu imap
