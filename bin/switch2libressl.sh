@@ -82,5 +82,4 @@ if [[ $rc -ne 0 ]]; then
   exit 26
 fi
 
-rm /etc/portage/package.mask/openssl
 exit 0
