@@ -178,6 +178,7 @@ EOF
   cat << EOF >> $m
 USE="
   pax_kernel xtpax -cdinstall -oci8 -bindist
+  ssp
 
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 "
