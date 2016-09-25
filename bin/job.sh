@@ -203,7 +203,7 @@ $(eselect ruby    list 2>/dev/null  && echo)
 
 EOF
 
-  # avoid --verbose here, it would blow up the output above the 16 KB limit of b.g.o.
+  # no --verbose, output is bigger than the 16 KB limit of b.g.o.
   #
   emerge --info --verbose=n $short >> $issuedir/emerge-info.txt
 
@@ -720,7 +720,7 @@ function pre-check() {
       echo                                  >> $out
       tail -n 30 $log                       >> $out
       echo                                  >> $out
-      emerge --info $task                   >> $out
+      emerge --info --verbose=n $task       >> $out
       echo                                  >> $out
       Mail "$exe : rc=$rc, task=$task" $out
     fi
