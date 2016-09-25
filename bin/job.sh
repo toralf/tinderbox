@@ -135,6 +135,9 @@ function CollectIssueFiles() {
   # misc build logs
   #
   cflog=$(grep -m 1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
+  if [[ -z "$cflog" ]]; then
+    cflog=$(ls -1 /var/tmp/portage/$failed/work/*/config.log 2>/dev/null)
+  fi
   apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"           | cut -f5 -d' ')
   cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"    | cut -f2 -d'"')
   cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $bak | sed  "s/txt./txt/"     | cut -f8 -d' ')
@@ -142,11 +145,10 @@ function CollectIssueFiles() {
   oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $bak | grep "\.log"           | cut -f2 -d' ')
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
-#   cnfgr=$(grep -m 1      'Configuring source in'                                     $bak | awk ' { print $5 } ')/configure
 
   # strip away escape sequences, echo is used to expand those variables containing place holders
   #
-  for f in $(echo $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso) #$cnfgr
+  for f in $(echo $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso)
   do
     if [[ -f $f ]]; then
       stresc < $f > $issuedir/files/$(basename $f)
