@@ -741,7 +741,7 @@ function EmergeTask() {
       GotAnIssue
     fi
 
-    date >> /tmp/timestamp.preserved-rebuild
+    (date; echo $failed) >> /tmp/timestamp.preserved-rebuild
     PostEmerge
 
   elif [[ "$task" = "@system" ]]; then
@@ -764,7 +764,7 @@ function EmergeTask() {
       fi
     fi
 
-    date >> /tmp/timestamp.system
+    (date; echo $failed) >> /tmp/timestamp.system
     PostEmerge
     /usr/bin/pfl &>/dev/null
 
