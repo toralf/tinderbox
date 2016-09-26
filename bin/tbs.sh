@@ -458,7 +458,7 @@ EOF
     exit $rc
   fi
 
-  # create symlink to $HOME *iff* the setup was successful
+  # create symlink to $HOME but only if the setup was successful
   #
   ln -s $d || exit 11
 
@@ -477,7 +477,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-# the remote stage3 space
+# the remote stage3 directory
 #
 imagedir=$tbhome/images
 wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
@@ -486,7 +486,7 @@ latest=latest-stage3.txt
 
 # command lineoptions
 #
-autostart="y"   # start the chroot image if setup was ok
+autostart="y"   # start the chroot image (if setup was ok)
 flags=$(rufs)   # create a (r)andomized (U)SE (f)lag (s)et
 libressl="n"
 mask="unstable"
@@ -501,7 +501,7 @@ do
         ;;
 
     f)  if [[ -f "$OPTARG" ]] ; then
-          # USE flags are either defined in another make.conf or just derived from a file
+          # USE flags are either defined in another make.conf or derived from a file
           #
           if [[ "$(basename $OPTARG)" = "make.conf" ]]; then
             flags="$(source $OPTARG; echo $USE)"
@@ -558,7 +558,7 @@ do
   esac
 done
 
-# latest contains the stage3 file name which is derived in ComputeImageName() too
+# fetch it here b/c $latest contains the stage3 file name which is assigned to $stage3 in ComputeImageName()
 #
 wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
 if [[ $? -ne 0 ]]; then
@@ -566,12 +566,12 @@ if [[ $? -ne 0 ]]; then
   exit 3
 fi
 
-# do we throw a profile ?
+# arbitrarily choose a profile, mask et al
 #
 if [[ -z "$profile" ]]; then
   while :;
   do
-    profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
+    profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n 1)
     if [[ $(($RANDOM % 10)) -eq 0 ]]; then
       mask="stable"
     else
@@ -592,7 +592,7 @@ else
 fi
 
 name="${name}_$(date +%Y%m%d-%H%M%S)"
-echo " image: $name"
+echo " $imagedir/$name"
 echo
 
 cd $tbhome
