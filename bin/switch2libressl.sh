@@ -4,6 +4,8 @@
 
 # https://wiki.gentoo.org/wiki/Project:LibreSSL
 
+echo "$0: start"
+
 # are we within a tinderbox chroot image ?
 #
 if [[ ! -e /tmp/packages || ! -e /tmp/setup.sh || ! -e /tmp/setup.log ]]; then
@@ -62,14 +64,20 @@ EOF
 
 fi
 
+echo "$0: fetch"
+
 # fetch packages before we uninstall any package
 #
 emerge -f libressl openssh wget python iputils || exit 24
+
+echo "$0: unmerge"
 
 qlist -IC dev-libs/openssl
 if [[ $? -eq 0 ]]; then
   emerge -C openssl || exit 25
 fi
+
+echo "$0: re-merge"
 
 emerge -1 libressl        &&\
 emerge -1 openssh         &&\
@@ -77,6 +85,8 @@ emerge -1 wget            &&\
 emerge -1 $py2 $py3       &&\
 emerge @preserved-rebuild
 rc=$?
+
+echo "$0: rc=$rc"
 
 if [[ $rc -ne 0 ]]; then
   exit 26
