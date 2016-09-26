@@ -40,7 +40,7 @@ if [[ -z "$avail_pks" ]]; then
 fi
 
 # - the host repo is synced every 3 hours, add 1 hour too for mirroring
-# - strip away the package version do test the latest visible package
+# - kick off (D)eleted ebuilds and strip away the package version
 # - dirname works here b/c the output of 'git diff' looks like:
 #
 # A       www-apache/passenger/passenger-5.0.24.ebuild
@@ -56,7 +56,7 @@ awk ' { print $2 } '      |\
 xargs dirname 2>/dev/null |\
 sort --unique > $tmp
 
-# shuffle the new ebuilds around for each image
+# shuffle the new ebuilds around for each image in a different way
 #
 if [[ -s $tmp ]]; then
   for pks in $avail_pks
