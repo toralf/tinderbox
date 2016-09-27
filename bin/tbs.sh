@@ -276,7 +276,7 @@ EOF
   #
   cat << EOF > etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"
-CXXFLAGS="\$CFLAGS -Werror=terminate"
+CXXFLAGS="\$CXXFLAGS -g -ggdb"
 FEATURES="splitdebug"
 
 EOF
