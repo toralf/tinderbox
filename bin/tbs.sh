@@ -175,6 +175,10 @@ EOF
           -e '/^#/d'                                \
           -e 's#^DISTDIR=.*#DISTDIR="/var/tmp/distfiles"#' $m
 
+  if [[ "$mask" = "unstable" ]]; then
+    sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' $m
+  fi
+
   cat << EOF >> $m
 USE="
   pax_kernel xtpax -cdinstall -oci8 -bindist
@@ -272,7 +276,7 @@ EOF
   #
   cat << EOF > etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"
-CXXFLAGS="\$CFLAGS"
+CXXFLAGS="\$CFLAGS -Werror=terminate"
 FEATURES="splitdebug"
 
 EOF
