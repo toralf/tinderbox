@@ -29,7 +29,7 @@ function rufs()  {
   allflags="
     aes-ni alisp alsa apache apache2 avcodec avformat btrfs bugzilla bzip2
     cairo cdb cdda cddb cgi cgroups clang compat consolekit contrib
-    corefonts csc cups curl custom-cflags custom-optimization cxx dbus
+    corefonts csc cups curl custom-cflags custom-optimization dbus
     dec_av2 declarative designer dnssec dot drmkms dvb dvd ecc egl eglfs
     emacs evdev exif ext4 extra extraengine ffmpeg fitz fluidsynth fontconfig
     fortran fpm freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas
@@ -175,10 +175,6 @@ EOF
           -e '/^#/d'                                \
           -e 's#^DISTDIR=.*#DISTDIR="/var/tmp/distfiles"#' $m
 
-  if [[ "$mask" = "unstable" ]]; then
-    sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' $m
-  fi
-
   cat << EOF >> $m
 USE="
   pax_kernel xtpax -cdinstall -oci8 -bindist
@@ -272,7 +268,8 @@ EOF
   echo "=sys-libs/ncurses-6.0-r1" >  etc/portage/package.mask/upgrade_blocker
   echo ">=dev-libs/gmp-6.1.0"     >> etc/portage/package.mask/upgrade_blocker
 
-  # data/package.env.common contains the counterpart
+  # define special environments for dedicated packages
+  # have a look into package.env.common
   #
   cat << EOF > etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"
@@ -576,7 +573,7 @@ if [[ -z "$profile" ]]; then
   while :;
   do
     profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n 1)
-    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+    if [[ -z "$(ls -1d amd64-*-stable_* 2>/dev/null)" ]]; then
       mask="stable"
     else
       mask="unstable"
