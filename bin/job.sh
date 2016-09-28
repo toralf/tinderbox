@@ -597,6 +597,10 @@ function SwitchGCC() {
         #
         echo "%emerge --unmerge =sys-devel/gcc-${verold}*"
       fi
+
+      if [[ "$mask" = "unstable" ]]; then
+        sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
+      fi
     fi
   fi
 }
