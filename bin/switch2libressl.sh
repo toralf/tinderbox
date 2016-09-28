@@ -36,7 +36,8 @@ echo "-libressl"              >> /etc/portage/profile/use.stable.mask
 echo "-curl_ssl_libressl"     >> /etc/portage/profile/use.stable.mask
 
 echo "dev-libs/openssl"                 > /etc/portage/package.mask/openssl  || exit 22
-echo "mail-mta/ssmtp libressl -gnutls"  > /etc/portage/package.use/ssmtp     || exit 22
+echo "mail-mta/ssmtp libressl -gnutls"  > /etc/portage/package.use/ssmtp
+echo "dev-lang/python -tk"              > /etc/portage/package.use/python
 
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
@@ -91,5 +92,7 @@ echo "$0: rc=$rc"
 if [[ $rc -ne 0 ]]; then
   exit 26
 fi
+
+rm /etc/portage/package.use/python
 
 exit 0
