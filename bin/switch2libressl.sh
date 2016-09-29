@@ -32,12 +32,22 @@ sed -i  -e '/^CURL_SSL="/d'           \
         /etc/portage/make.conf
 
 mkdir -p /etc/portage/profile
-echo "-libressl"              >> /etc/portage/profile/use.stable.mask
-echo "-curl_ssl_libressl"     >> /etc/portage/profile/use.stable.mask
 
-echo "dev-libs/openssl"                 > /etc/portage/package.mask/openssl  || exit 22
-echo "mail-mta/ssmtp libressl -gnutls"  > /etc/portage/package.use/ssmtp
-echo "dev-lang/python -tk"              > /etc/portage/package.use/python
+cat << EOF >> /etc/portage/profile/use.stable.mask
+-libressl
+-curl_ssl_libressl
+
+EOF
+
+echo "dev-libs/openssl"   >  /etc/portage/package.mask/openssl
+
+cat << EOF > /etc/portage/package.use/libressl
+dev-db/mysql-connector-c  -ssl
+dev-lang/python           -tk
+dev-qt/qtsql              -mysql
+mail-mta/ssmtp            libressl -gnutls
+
+EOF
 
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
@@ -59,7 +69,6 @@ $py3
 ~net-analyzer/tcpdump-4.7.4
 ~net-nds/openldap-2.4.44
 ~www-client/lynx-2.8.9_pre9
-
 
 EOF
 
