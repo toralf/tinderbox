@@ -334,9 +334,8 @@ EOF
 
   # search if $issue is already filed or return a list of similar records
   #
-  # replace in search string the package version with its name only and strip away quotes
-  #
-  id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$(cut -f3- -d' ' $issuedir/title | tr "['‘\"]" " ")" 2>/dev/null | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
+  search_string=$(cut -f3- -d' ' $issuedir/title | tr "['‘\"]" " ")
+  id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
