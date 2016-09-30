@@ -334,7 +334,7 @@ EOF
 
   # search if $issue is already filed or return a list of similar records
   #
-  search_string=$(cut -f3- -d' ' $issuedir/title | tr "['‘\"]" " ")
+  search_string=$(cut -f3- -d' ' $issuedir/title | sed "s/['‘’\"]/ /g")
   id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
