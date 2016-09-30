@@ -35,6 +35,7 @@ Please switch your active compiler to gcc with
 Please use a supported ICD
 Please use GCC-4.9 for now.
 some Java tools are not available on some VMs on some architectures
+Select exactly one database type out of these:
 Sorry, but this version does not yet support features
 Sorry, but you have to patch kernel sources with the following patch
 Space constraints set in the ebuild were not met!
