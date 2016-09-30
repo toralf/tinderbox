@@ -9,6 +9,21 @@
 #
 #  ~/tb/bin/bgo.sh -d amd64-desktop-unstable_20160916-100730//tmp/issues/20160918-113424_sci-chemistry_reduce-3.16.111118 -b 582084
 
+
+function errmsg() {
+  echo "
+  *
+  *
+  *
+  failed with error code $1
+  *
+  *
+  *
+
+  "
+  cat bugz.err
+}
+
 block=""
 comment="same at a tinderbox image"
 dir=""
@@ -33,17 +48,22 @@ cd $dir || exit 2
 
 if [[ -f ./.reported ]]; then
   echo
-  echo "already reported !"
+  echo "already reported ! remove $dir/.reported before repeating !"
   echo
   exit 3
 fi
 
+
+# pick up after a possible previous run
+#
+truncate -s 0 bugz.{out,err}
+
 if [[ -n "$id" ]]; then
   # attach onto an existing bug
   #
-  bugz attach --content-type "text/plain" --description "$comment" $id emerge-info.txt 1> bugz.out 2> bugz.err
+  bugz attach --content-type "text/plain" --description "$comment" $id emerge-info.txt 1>>bugz.out 2>>bugz.err || errmsg $?
   rc=$?
-  bugz modify -s CONFIRMED $id 1>> bugz.out 2>> bugz.err
+  bugz modify -s CONFIRMED $id 1>>bugz.out 2>>bugz.err || errmsg $?
 
 else
   # create a new bug
@@ -64,15 +84,16 @@ else
     --description-from "./issue"            \
     --batch                           \
     --default-confirm n               \
-    1> bugz.out 2> bugz.err
+    1>>bugz.out 2>>bugz.err
   rc=$?
 
   id=$(grep ' * Bug .* submitted' bugz.out | sed 's/[^0-9]//g')
   if [[ -z "$id" ]]; then
+    errmsg $rc
     echo
     echo "empty bug id"
     echo
-    tail -v bugz.*
+    cat bugz.out
     exit 4
   fi
 fi
@@ -82,15 +103,12 @@ echo "https://bugs.gentoo.org/show_bug.cgi?id=$id"
 echo
 
 if [[ $rc -ne 0 || -s bugz.err ]]; then
-  echo
-  echo "error code $rc"
-  cat bugz.err
-  echo
-  exit $rc
+  errmsg $rc
+  exit 5
 fi
 
 if [[ -n "$block" ]]; then
-  bugz modify --add-blocked "$block" $id 1>/dev/null
+  bugz modify --add-blocked "$block" $id 1>>bugz.out 2>>bugz.err || errmsg $?
 fi
 
 # attach files
@@ -99,7 +117,7 @@ for f in files/*
 do
   echo "$f" | grep -q "\.bz2" && ct="application/x-bzip2" || ct="text/plain"
   echo "  $f"
-  bugz attach --content-type "$ct" --description "" $id $f 1>>bugz.out 2>>bugz.err
+  bugz attach --content-type "$ct" --description "" $id $f 1>>bugz.out 2>>bugz.err || errmsg $?
 done
 
 # avoid duplicate reports
