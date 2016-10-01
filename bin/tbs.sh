@@ -6,7 +6,7 @@
 #
 # typical call:
 #
-# $> echo "sudo ~/tb/bin/tbs.sh" | at now
+# $> echo "sudo ~/tb/bin/tbs.sh" | at now + 10 min
 
 # due to using sudo we need to define the path to $HOME
 #
@@ -569,7 +569,7 @@ if [[ $? -ne 0 ]]; then
   exit 3
 fi
 
-# arbitrarily choose a profile etc.
+# arbitrarily choose a profile, keyword and libressl
 #
 if [[ -z "$profile" ]]; then
   while :;
