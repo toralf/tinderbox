@@ -316,9 +316,9 @@ function FillPackageList()  {
   fi
 
   cat << EOF >> $pks
-%rm -f /etc/portage/package.mask/upgrade_blocker
 @system
 %BuildKernel
+%rm -f /etc/portage/package.mask/upgrade_blocker
 sys-devel/gcc
 EOF
 
