@@ -76,9 +76,9 @@ fi
 
 echo "$0: fetch"
 
-# fetch packages before we uninstall any package
+# fetch packages before we uninstall openssl and break therefore wget
 #
-emerge -f libressl openssh wget python iputils || exit 24
+emerge -f libressl openssh wget python || exit 24
 
 echo "$0: unmerge"
 
@@ -101,7 +101,5 @@ echo "$0: rc=$rc"
 if [[ $rc -ne 0 ]]; then
   exit 26
 fi
-
-rm /etc/portage/package.use/python
 
 exit 0
