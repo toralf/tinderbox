@@ -266,7 +266,9 @@ EOF
   # upgrade blocker (at least to upgrade GCC)
   #
   echo "=sys-libs/ncurses-6.0-r1" >  etc/portage/package.mask/upgrade_blocker
-  echo ">=dev-libs/gmp-6.1.0"     >> etc/portage/package.mask/upgrade_blocker
+  if [[ ! "$(qlist -ICv dev-libs/gmp)" = "dev-libs/gmp-6.1.0" ]]; then
+    echo ">=dev-libs/gmp-6.1.0" >> etc/portage/package.mask/upgrade_blocker
+  fi
 
   # define special environments for dedicated packages
   # have a look into package.env.common
@@ -567,20 +569,23 @@ if [[ $? -ne 0 ]]; then
   exit 3
 fi
 
-# arbitrarily choose a profile, mask et al
+# arbitrarily choose a profile etc.
 #
 if [[ -z "$profile" ]]; then
   while :;
   do
+    mask="unstable"
+    libressl="n"
     profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n 1)
     if [[ -z "$(ls -1d amd64-*-stable_* 2>/dev/null)" ]]; then
       mask="stable"
     else
-      mask="unstable"
-      if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-        libressl="y"
-      else
-        libressl="n"
+      # QT is not libressl ready
+      #
+      if [[ -z "$(echo $profile | grep 'plasma')" ]]; then
+        if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+          libressl="y"
+        fi
       fi
     fi
     ComputeImageName
