@@ -71,7 +71,7 @@ function rufs()  {
 
 
 # append features of the image onto $name except the timestamp
-# and do set here $stage3 too which holds the full stage3 file name
+# set $stage3 here too
 #
 function ComputeImageName()  {
   name="amd64"
@@ -241,7 +241,7 @@ EOF
   chmod a+rw  etc/portage/package.mask/self
 
   if [[ "$mask" = "unstable" ]]; then
-    # unmask ffmpeg at 2/3 of all unstable images
+    # unmask ffmpeg-3 at 2/3 of all unstable images
     #
     if [[ $(($RANDOM % 3)) -ne 0 ]]; then
       echo "media-video/ffmpeg" > etc/portage/package.unmask/ffmpeg
@@ -253,10 +253,10 @@ EOF
     echo "sys-devel/gcc:6.2.0 **" > etc/portage/package.accept_keywords/gcc-6
   fi
 
-  touch      etc/portage/package.use/setup     # USE flags added by setup.sh or us
+  touch      etc/portage/package.use/setup     # USE flags added during setup phase
   chmod a+rw etc/portage/package.use/setup
 
-  # emerging xemacs hangs at hardened: https://bugs.gentoo.org/show_bug.cgi?id=540818
+  # xemacs hangs at hardened: https://bugs.gentoo.org/show_bug.cgi?id=540818
   #
   echo $profile | grep -q "hardened"
   if [[ $? -eq 0 ]]; then
@@ -285,7 +285,7 @@ EOF
 }
 
 
-# DNS resolution and vim defaults
+# DNS resolution, vimrc defaults
 #
 function CompileMiscFiles()  {
   cp -L /etc/hosts /etc/resolv.conf etc/
@@ -299,7 +299,7 @@ EOF
 }
 
 
-# prepend the package list with few mandatory tasks
+# add few mandatory tasks to the list too, eg. always switch to latest GCC first
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -363,7 +363,7 @@ emerge --noreplace app-editors/nano
 emerge sys-apps/elfix || exit 2
 migrate-pax -m
 
-# our preferred simple mailer
+# our SMTP mailer
 #
 emerge mail-mta/ssmtp || exit 3
 
@@ -401,9 +401,11 @@ sed -i -e 's/^/#/g' /etc/portage/package.mask/upgrade_blocker
 $dryrun &> /tmp/dryrun.log
 rc=\$?
 if [[ \$rc -ne 0 ]]; then
-  # try to auto-fix the setup by fixing the USE flags set
+  # try to auto-fix the USE flags set
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
+  # re-try it now
+  #
   if [[ -s /etc/portage/package.use/setup ]]; then
     $dryrun &> /tmp/dryrun.log && rc=0 || rc=11
   else
@@ -433,7 +435,7 @@ EOF
   #
   d=$(basename $imagedir)/$name
 
-  # authentication avoids a 10 sec tarpitting delay by the Hoster
+  # authentication avoids a 10 sec tarpitting delay by the hoster of our (mail) domain
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
 
@@ -487,8 +489,6 @@ wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
 wgetpath=/releases/amd64/autobuilds
 latest=latest-stage3.txt
 
-# command lineoptions
-#
 autostart="y"   # start the chroot image (if setup was ok)
 flags=$(rufs)   # create a (r)andomized (U)SE (f)lag (s)et
 libressl="n"
@@ -504,7 +504,7 @@ do
         ;;
 
     f)  if [[ -f "$OPTARG" ]] ; then
-          # USE flags are either defined in another make.conf or derived from a file
+          # USE flags are either defined or just listed in a file
           #
           if [[ "$(basename $OPTARG)" = "make.conf" ]]; then
             flags="$(source $OPTARG; echo $USE)"
@@ -561,7 +561,7 @@ do
   esac
 done
 
-# fetch it here b/c $latest contains the stage3 file name which is assigned to $stage3 in ComputeImageName()
+# fetch $latest here b/c it contains the stage3 file name which we need in ComputeImageName()
 #
 wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
 if [[ $? -ne 0 ]]; then
@@ -577,19 +577,26 @@ if [[ -z "$profile" ]]; then
     mask="unstable"
     libressl="n"
     profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n 1)
+
+    # have 1 stable image all the time
+    #
     if [[ -z "$(ls -1d amd64-*-stable_* 2>/dev/null)" ]]; then
       mask="stable"
     else
-      # QT is not libressl ready
+      # switch at every n-th image to libressl
       #
-      if [[ -z "$(echo $profile | grep 'plasma')" ]]; then
-        if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+      if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+        # QT is not libressl ready
+        #
+        if [[ -z "$(echo $profile | grep 'plasma')" ]]; then
           libressl="y"
         fi
       fi
     fi
     ComputeImageName
 
+    # do not run 2 nearly identical images (except their USE flag sets)
+    #
     ls -1d $tbhome/${name}_20??????-?????? &>/dev/null || break
   done
 
