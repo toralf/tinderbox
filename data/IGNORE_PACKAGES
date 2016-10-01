@@ -1,5 +1,6 @@
 app-eselect/
 dev-embedded/
+dev-ros/
 java-virtuals/
 net-analyzer/openvas
 net-analyzer/snips
