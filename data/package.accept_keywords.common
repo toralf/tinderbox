@@ -1,16 +1,11 @@
 # package.accept_keywords/common
 #
 
-# https://bugs.gentoo.org/show_bug.cgi?id=580302
-# https://bugs.gentoo.org/show_bug.cgi?id=579918
-#
->=dev-libs/glib-2.48.1
->=dev-util/gdbus-codegen-2.48.1
-
-# https://bugs.gentoo.org/show_bug.cgi?id=580316
-#
-dev-lang/mono ~amd64
-
 # https://bugs.gentoo.org/show_bug.cgi?id=590966
 #
 ~sys-devel/gcc-4.9.4
+
+# request by Soap
+#
+~dev-libs/boost-1.62.0        **
+~dev-util/boost-build-1.62.0  **

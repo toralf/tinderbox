@@ -1,9 +1,5 @@
-app-backup/holland*
-app-emulation/vice
 app-eselect/
 dev-embedded/
-dev-java/
-dev-python/mysql-python
 java-virtuals/
 net-analyzer/openvas
 net-analyzer/snips
@@ -15,6 +11,5 @@ sys-fs/vhba
 sys-kernel/
 virtual/
 www-apache/mod_
-www-client/chromium
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell

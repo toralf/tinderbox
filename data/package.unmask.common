@@ -1,2 +1,7 @@
 # package.unmask/common
 #
+
+# request by Soap
+#
+~dev-libs/boost-1.62.0
+~dev-util/boost-build-1.62.0

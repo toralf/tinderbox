@@ -179,6 +179,8 @@ rake aborted!
 extra arguments no longer supported; please file a bug
 eant failed
 E: Cannot find external tool
+pushd: too many arguments
+are banned in EAPI
 Error:
 ERROR :
 ERROR:

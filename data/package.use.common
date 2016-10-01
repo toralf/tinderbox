@@ -23,7 +23,3 @@ dev-util/cmake      -qt4 -qt5
 dev-vcs/git         -perl
 media-libs/mesa     -vaapi
 sys-apps/kmod       tools
-
-# it spews an ewarn instead hard coding it
-#
-<=net-misc/openssh-7.3_p1-r2    -hpn
