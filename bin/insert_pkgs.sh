@@ -55,7 +55,7 @@ tmp=$(mktemp /tmp/pksXXXXXX)
 grep -v '^D'          |\
 grep '\.ebuild$'      |\
 awk ' { print $2 } '  |\
-xargs cut -f1-2 -d'/' |\
+cut -f1-2 -d'/'       |\
 sort --unique > $tmp
 
 # shuffle the ebuilds around in a different way for each image
