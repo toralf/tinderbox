@@ -8,12 +8,15 @@ A profile, keyword and the USE flag sets are choosen, portage config files are c
 
 The tinderbox script itself is *job.sh*.
 
-It runs over the package list till the image is stopped or the package list is empty. The wrapper *runme.sh* supports a smooth upgrade of it.
+It runs over the package list till the image is stopped or the package list is empty.
+The wrapper *runme.sh* supports a smooth upgrade of it.
+New issues are reported via email.
+Bugs can then be filed with *bgo.sh*.
 
-An image is started with *start_img.sh* and stopped with *stop_img.sh*. The *chr.sh* is used to chroot into it, before it bind-mount host directories onto their chroot mount point counterparts. Install artefacts are detected by *PRE-CHECK.sh* script. Latest ebuilds are put on top of each package list by *insert_pkgs.sh*. Bugs are filed with *bgo.sh*.
+An image is started with *start_img.sh* and stopped with *stop_img.sh*. The *chr.sh* is used to chroot into it, before it bind-mount host directories onto their chroot mount point counterparts. Install artefacts are detected by *PRE-CHECK.sh* script. Latest ebuilds are put on top of each package list by *insert_pkgs.sh*.
 
 ## installation
-Copy both *bin* and *data* into */home/tinderbox/tb*, point a (big) directory to */home/tinderbox/images* and start your first own tinderbox. Don't forget to grant sudo rights to the user *tinderbox* for *chr.sh* and *tbs.sh*.
+Copy both *bin* and *data* into */home/tinderbox/tb*, point a (big) directory to */home/tinderbox/images*. Grant sudo rights to the user *tinderbox* for *chr.sh* and *tbs.sh*.
 
 ## typical calls
 Setup a new image:
