@@ -14,7 +14,6 @@ The tinderbox script itself is *job.sh*.
 It runs over the package list till an image is stopped or its package list is empty.
 The wrapper *runme.sh* supports a smooth upgrade of the script during runtime.
 New issues are reported via email to the user.
-Install artefacts are detected by *PRE-CHECK.sh* script.
 Bugs can be filed with *bgo.sh*.
 
 An image is started with *start_img.sh* and stopped with *stop_img.sh*.
