@@ -411,12 +411,10 @@ function GotAnIssue()  {
     Finish "FATAL: $fatal"
   fi
 
-  # the host repository is synced every 3 hours, that might interfere with a longer emerge operation
-  # the final solution is a local repo, but no way as long as we just have 16 GB RAM at all
-  #
-  grep -q 'AssertionError: ebuild not found for' $bak
+  grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
-    Mail "notice: race of repository sync and local emerge" $bak  # mail to us to check that we're not in a loop
+    Mail "notice: race of repository sync and emerge dep tree calculation" $bak
+    echo $task >> $pks
     return
   fi
 
