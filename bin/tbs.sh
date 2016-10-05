@@ -585,7 +585,7 @@ if [[ -z "$profile" ]]; then
     else
       # switch at every n-th image to libressl
       #
-      if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+      if [[ $(($RANDOM % 4)) -eq 0 ]]; then
         # QT is not libressl ready
         #
         if [[ -z "$(echo $profile | grep 'plasma')" ]]; then
