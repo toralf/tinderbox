@@ -219,6 +219,15 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 
 EOF
 
+  # set  ABI_X86="32 64" at every n-th image too
+  #
+  echo $profile | grep -q 'no-multilib'
+  if [[ $? -ne 0 ]]; then
+    if [[ $(($RANDOM % 1)) -eq 0 ]]; then
+      echo 'ABI_X86="32 64"' >> $m
+    fi
+  fi
+
   mkdir tmp/tb  # chr.sh will bind-mount onto here the tinderbox directory of the host
 
   # create portage directories, symlink common files into them
@@ -578,15 +587,21 @@ if [[ -z "$profile" ]]; then
     libressl="n"
     profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n 1)
 
-    # have 1 stable image all the time
+    # run not more than 2 systemd images
     #
-    if [[ -z "$(ls -1d amd64-*-stable_* 2>/dev/null)" ]]; then
+    if [[ $(ls -1d amd64-*-systemd-* 2>/dev/null | wc -l) -gt 2 ]]; then
+      continue
+    fi
+
+    # run always 1 stable image
+    #
+    if [[ $(ls -1d amd64-*-stable_* 2>/dev/null | wc -l) -eq 0 ]]; then
       mask="stable"
     else
-      # switch at every n-th image to libressl
+      # switch at every n-th unstable image to libressl
       #
       if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-        # QT is not libressl ready
+        # plasma (QT) is not libressl ready
         #
         if [[ -z "$(echo $profile | grep 'plasma')" ]]; then
           libressl="y"
@@ -595,7 +610,7 @@ if [[ -z "$profile" ]]; then
     fi
     ComputeImageName
 
-    # do not run 2 nearly identical images (except their USE flag sets)
+    # do not run 2 nearly similar images (well, the USE flag set and the package list do differ always)
     #
     ls -1d $tbhome/${name}_20??????-?????? &>/dev/null || break
   done
