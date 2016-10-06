@@ -218,15 +218,6 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 
 EOF
 
-  # set  ABI_X86="32 64" at every n-th image
-  #
-  echo $profile | grep -q 'no-multilib'
-  if [[ $? -ne 0 ]]; then
-    if [[ $(($RANDOM % 1)) -eq 0 ]]; then
-      echo 'ABI_X86="32 64"' >> $m
-    fi
-  fi
-
   mkdir tmp/tb  # mount point of the tinderbox directory of the host
 
   # create portage directories and symlink commonly used files into them
@@ -269,13 +260,6 @@ EOF
   echo $profile | grep -q "hardened"
   if [[ $? -eq 0 ]]; then
     echo -e "app-editors/xemacs\napp-xemacs/*" > etc/portage/package.mask/xemacs
-  fi
-
-  # upgrade blocker (at least to upgrade GCC)
-  #
-  echo "=sys-libs/ncurses-6.0-r1" >  etc/portage/package.mask/upgrade_blocker
-  if [[ ! "$(qlist -ICv dev-libs/gmp)" = "dev-libs/gmp-6.1.0" ]]; then
-    echo ">=dev-libs/gmp-6.1.0" >> etc/portage/package.mask/upgrade_blocker
   fi
 
   # define special environments for dedicated packages
@@ -328,7 +312,6 @@ function FillPackageList()  {
   cat << EOF >> $pks
 @system
 %BuildKernel
-%rm -f /etc/portage/package.mask/upgrade_blocker
 sys-devel/gcc
 EOF
 
@@ -366,9 +349,7 @@ echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
 
-# avoid nano from being depcleaned after another editor is emerged too
-#
-emerge --noreplace app-editors/nano
+echo "=sys-libs/ncurses-6.0-r1" >  /etc/portage/package.mask/upgrade_blocker
 
 emerge sys-apps/elfix || exit \$?
 migrate-pax -m
@@ -405,9 +386,10 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/por
 #
 emerge sys-kernel/hardened-sources || exit \$?
 
+rm /etc/portage/package.mask/upgrade_blocker
+
 # auto-adapt the USE flags so that the very first @system isn't blocked
 #
-sed -i -e 's/^/#/g' /etc/portage/package.mask/upgrade_blocker
 $dryrun &> /tmp/dryrun.log
 rc=\$?
 if [[ \$rc -ne 0 ]]; then
@@ -421,7 +403,6 @@ if [[ \$rc -ne 0 ]]; then
     $dryrun &> /tmp/dryrun.log && rc=0
   fi
 fi
-sed -i -e 's/#//g' /etc/portage/package.mask/upgrade_blocker
 
 if [[ "$libressl" = "y" ]]; then
   /tmp/tb/bin/switch2libressl.sh || exit \$?
