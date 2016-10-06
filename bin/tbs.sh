@@ -581,38 +581,43 @@ fi
 # arbitrarily choose a profile, keyword and libre/open ssl vendor
 #
 if [[ -z "$profile" ]]; then
+  profiles=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort)
   while :;
   do
-    mask="unstable"
-    libressl="n"
-    profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n 1)
+    for profile in $profiles
+    do
+      mask="unstable"
+      libressl="n"
 
-    # run not more than 2 systemd images
-    #
-    if [[ $(ls -1d amd64-*-systemd-* 2>/dev/null | wc -l) -gt 1 ]]; then
-      continue
-    fi
-
-    # run always 1 stable image
-    #
-    if [[ $(ls -1d amd64-*-stable_* 2>/dev/null | wc -l) -eq 0 ]]; then
-      mask="stable"
-    else
-      # switch at every n-th unstable image to libressl
+      # run not more than 2 systemd images
       #
-      if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-        # plasma (QT) is not libressl ready
-        #
-        if [[ -z "$(echo $profile | grep 'plasma')" ]]; then
-          libressl="y"
+      if [[ -z "$(echo $profile | grep 'systemd')" ]]; then
+        if [[ $(ls -1d amd64-*-systemd-* 2>/dev/null | wc -l) -gt 1 ]]; then
+          continue
         fi
       fi
-    fi
-    ComputeImageName
 
-    # do not run 2 nearly similar images (well, the USE flag set and the package list do differ always)
-    #
-    ls -1d $tbhome/${name}_20??????-?????? &>/dev/null || break
+      # run always 1 stable image
+      #
+      if [[ $(ls -1d amd64-*-stable_* 2>/dev/null | wc -l) -eq 0 ]]; then
+        mask="stable"
+      else
+        # switch at every n-th unstable image to libressl
+        #
+        if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+          # plasma (QT) is not libressl ready
+          #
+          if [[ -z "$(echo $profile | grep 'plasma')" ]]; then
+            libressl="y"
+          fi
+        fi
+      fi
+      ComputeImageName
+
+      # do not run 2 nearly similar images (well, the USE flag set and the package list do differ always)
+      #
+      ls -1d $tbhome/${name}_20??????-?????? &>/dev/null || break
+    done
   done
 
 else
