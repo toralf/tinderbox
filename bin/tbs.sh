@@ -17,7 +17,7 @@ tbhome=/home/tinderbox
 # functions
 #
 
-# return a (r)andomized (U)SE (f)lag (s)ubset from the set stored in $flags
+# create a (r)andomized (U)SE (f)lag (s)ubset
 #
 # (m)ask   a flag with a likelihood of 1/m
 # or (s)et a flag with a likelihood of 1/s
@@ -70,8 +70,7 @@ function rufs()  {
 }
 
 
-# append features of the image onto $name except the timestamp
-# set $stage3 here too
+# enlarge $name except a timestamp and set $stage3
 #
 function ComputeImageName()  {
   name="amd64"
@@ -108,7 +107,7 @@ function ComputeImageName()  {
 }
 
 
-# download/unpack the stage3 file
+# download, verify and unpack the stage3 file
 #
 function UnpackStage3()  {
   b=$(basename $stage3)
@@ -122,11 +121,11 @@ function UnpackStage3()  {
   cd $imagedir  || exit 8
   mkdir $name   || exit 9
   cd $name
-  tar xjpf $f --xattrs  || exit 10
+  tar xjpf $f --xattrs || exit 10
 }
 
 
-# configure repos.d/, make.conf and other stuff
+# configure repos.d/* files, make.conf and other stuff
 #
 function CompilePortageFiles()  {
   mkdir -p                  usr/local/portage/{metadata,profiles}
@@ -219,7 +218,7 @@ GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.inf
 
 EOF
 
-  # set  ABI_X86="32 64" at every n-th image too
+  # set  ABI_X86="32 64" at every n-th image
   #
   echo $profile | grep -q 'no-multilib'
   if [[ $? -ne 0 ]]; then
@@ -228,9 +227,9 @@ EOF
     fi
   fi
 
-  mkdir tmp/tb  # chr.sh will bind-mount onto here the tinderbox directory of the host
+  mkdir tmp/tb  # mount point of the tinderbox directory of the host
 
-  # create portage directories, symlink common files into them
+  # create portage directories and symlink commonly used files into them
   #
   mkdir usr/portage
   mkdir var/tmp/{distfiles,portage}
@@ -294,7 +293,7 @@ EOF
 }
 
 
-# DNS resolution, vimrc defaults
+# DNS resolution, and .vimrc
 #
 function CompileMiscFiles()  {
   cp -L /etc/hosts /etc/resolv.conf etc/
@@ -308,7 +307,7 @@ EOF
 }
 
 
-# add few mandatory tasks to the list too, eg. always switch to latest GCC first
+# add few mandatory tasks to the list too
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -324,6 +323,8 @@ function FillPackageList()  {
     echo "INFO start of emerge history of $origin" >> $pks
   fi
 
+  # first task: switch to latest GCC
+  #
   cat << EOF >> $pks
 @system
 %BuildKernel
@@ -490,20 +491,20 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-# the remote stage3 directory
+# the remote stage3 location
 #
 imagedir=$tbhome/images
 wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
 wgetpath=/releases/amd64/autobuilds
 latest=latest-stage3.txt
 
-autostart="y"   # start the chroot image (if setup was ok)
-flags=$(rufs)   # create a (r)andomized (U)SE (f)lag (s)et
+autostart="y"   # start the chroot image after setup ?
+flags=$(rufs)   # holds the current USE flag subset
 libressl="n"
 mask="unstable"
-origin=""       # the origin to clone from
+origin=""       # clone from another tinderbox image ?
 profile=""
-suffix=""       # free text
+suffix=""       # free optional text
 
 while getopts a:f:l:m:o:p:s: opt
 do
@@ -569,7 +570,7 @@ do
   esac
 done
 
-# fetch $latest here b/c it contains the stage3 file name which we need in ComputeImageName()
+# fetch $latest here b/c it contains the stage3 file name which we derive in ComputeImageName()
 #
 wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
 if [[ $? -ne 0 ]]; then
@@ -577,7 +578,7 @@ if [[ $? -ne 0 ]]; then
   exit 3
 fi
 
-# arbitrarily choose a profile, keyword and libressl
+# arbitrarily choose a profile, keyword and libre/open ssl vendor
 #
 if [[ -z "$profile" ]]; then
   while :;
