@@ -589,7 +589,7 @@ if [[ -z "$profile" ]]; then
 
     # run not more than 2 systemd images
     #
-    if [[ $(ls -1d amd64-*-systemd-* 2>/dev/null | wc -l) -gt 2 ]]; then
+    if [[ $(ls -1d amd64-*-systemd-* 2>/dev/null | wc -l) -gt 1 ]]; then
       continue
     fi
 
