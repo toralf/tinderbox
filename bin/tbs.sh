@@ -591,7 +591,7 @@ if [[ -z "$profile" ]]; then
 
       # run not more than 2 systemd images
       #
-      if [[ -z "$(echo $profile | grep 'systemd')" ]]; then
+      if [[ -n "$(echo $profile | grep 'systemd')" ]]; then
         if [[ $(ls -1d amd64-*-systemd-* 2>/dev/null | wc -l) -gt 1 ]]; then
           continue
         fi
@@ -616,7 +616,7 @@ if [[ -z "$profile" ]]; then
 
       # do not run 2 nearly similar images (well, the USE flag set and the package list do differ always)
       #
-      ls -1d $tbhome/${name}_20??????-?????? &>/dev/null || break
+      ls -1d $tbhome/${name}_20??????-?????? &>/dev/null || break 2
     done
   done
 
