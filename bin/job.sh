@@ -734,6 +734,16 @@ function EmergeTask() {
       fi
     fi
 
+    # activate it now
+    #
+    if [[ ! -f /tmp/timestamp.system ]]; then
+      eselect profile show | grep -q 'no-multilib'
+      if [[ $? -ne 0 ]]; then
+        echo 'ABI_X86="32 64"' >> /etc/portage/make.conf
+        echo $task >> $pks
+      fi
+    fi
+
     echo "$(date) $failed" >> /tmp/timestamp.system
     PostEmerge
     /usr/bin/pfl &>/dev/null
