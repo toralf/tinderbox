@@ -718,15 +718,13 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
 
-      #  mandatory to update at least the very first @system
+      #  mandatory that the very first @system succeeds
       #
-      if [[ -f /etc/portage/package.mask/upgrade_blocker ]]; then
-        # quirk for the very first @system after initial setup
-        #
-        rm /etc/portage/package.mask/upgrade_blocker
-        echo "$task" >> $pks
+      if [[ ! -f /tmp/timestamp.system ]]; then
+        Finish "notice: 1st $task failed"
+      fi
 
-      elif [[ -z "$failed" ]]; then
+      if [[ -z "$failed" ]]; then
         if [[ -n "$(grep 'For more information about Blocked Packages, please refer to the following' $log)" ]]; then
           Mail "info: $task failed" $log
         else
