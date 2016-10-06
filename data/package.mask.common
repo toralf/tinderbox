@@ -28,10 +28,14 @@ net-dns/resolvconf-symlink
 #
 app-office/openoffice-bin
 
-# breaks gcc: images2/amd64-hardened-no-multilib-unstable_20160718-203355
+# breaks gcc
 #
 dev-lang/gnat-gcc
 
-# https://bugs.gentoo.org/show_bug.cgi?id=574016
+# doesn't build with newer kernels: https://bugs.gentoo.org/show_bug.cgi?id=574016
 #
 net-fs/openafs-kernel
+
+# doesn't finish: https://bugs.gentoo.org/show_bug.cgi?id=596070
+#
+app-emacs/jde
