@@ -347,7 +347,7 @@ function EmergeMandatoryPackages() {
 
   cat << EOF > tmp/setup.sh
 
-eselect profile set $profile || exit 1
+eselect profile set $profile || exit \$?
 
 echo "en_US ISO-8859-1
 en_US.UTF-8 UTF-8
@@ -357,8 +357,8 @@ de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
 
 . /etc/profile
-locale-gen || exit 1
-eselect locale set en_US.utf8 || exit 1
+locale-gen                    || exit \$?
+eselect locale set en_US.utf8 || exit \$?
 . /etc/profile
 
 echo "Europe/Berlin" > /etc/timezone
@@ -369,12 +369,12 @@ emerge --noreplace net-misc/netifrc
 #
 emerge --noreplace app-editors/nano
 
-emerge sys-apps/elfix || exit 2
+emerge sys-apps/elfix || exit \$?
 migrate-pax -m
 
 # our SMTP mailer
 #
-emerge mail-mta/ssmtp || exit 3
+emerge mail-mta/ssmtp || exit \$?
 
 echo "
 root=tinderbox@zwiebeltoralf.de
@@ -387,7 +387,7 @@ UseTLS=YES
 
 # our preferred MTA
 #
-emerge mail-client/mailx || exit 4
+emerge mail-client/mailx || exit \$?
 
 # install mandatory tools
 #   <package>                   <command/s>
@@ -398,11 +398,11 @@ emerge mail-client/mailx || exit 4
 #   app-portage/portage-utils   qlop
 #   www-client/pybugz           bugz
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit 5
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit \$?
 
 # we have "sys-kernel/" in IGNORE_PACKAGES therefore emerge kernel sources here
 #
-emerge sys-kernel/hardened-sources || exit 6
+emerge sys-kernel/hardened-sources || exit \$?
 
 # auto-adapt the USE flags so that the very first @system isn't blocked
 #
@@ -410,15 +410,14 @@ sed -i -e 's/^/#/g' /etc/portage/package.mask/upgrade_blocker
 $dryrun &> /tmp/dryrun.log
 rc=\$?
 if [[ \$rc -ne 0 ]]; then
+  rc=123
   # try to auto-fix the USE flags set
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   # re-try it now
   #
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $dryrun &> /tmp/dryrun.log && rc=0 || rc=11
-  else
-    rc=12
+    $dryrun &> /tmp/dryrun.log && rc=0
   fi
 fi
 sed -i -e 's/#//g' /etc/portage/package.mask/upgrade_blocker
@@ -456,7 +455,7 @@ EOF
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
 
-    if [[ $rc -ne 11 && $rc -ne 12 ]]; then
+    if [[ $rc -ne 123 ]]; then
       echo
       cat $d/tmp/setup.log
     fi
