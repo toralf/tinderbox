@@ -298,13 +298,8 @@ function FillPackageList()  {
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
 
-  # at least this INFO prevents insert_pkgs.sh from touching the package list too early
-  #
-  echo "INFO starting with the randomized package list" >> $pks
-
   if [[ -n "$origin" && -e $origin/var/log/emerge.log ]]; then
     qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' | tac >> $pks
-    echo "INFO start of emerge history of $origin" >> $pks
   fi
 
   # first task: switch to latest GCC
