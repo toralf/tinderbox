@@ -408,6 +408,8 @@ if [[ "$libressl" = "y" ]]; then
   /tmp/tb/bin/switch2libressl.sh || exit \$?
 fi
 
+emerge --update --pretend sys-devel/gcc || rc=123
+
 exit \$rc
 
 EOF
