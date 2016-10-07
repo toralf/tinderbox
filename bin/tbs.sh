@@ -331,7 +331,10 @@ function EmergeMandatoryPackages() {
 
   cat << EOF > tmp/setup.sh
 
-eselect profile set $profile || exit \$?
+eselect profile set $profile
+if [[ \$? -ne 0 ]]; then
+  exit 1
+fi
 
 echo "en_US ISO-8859-1
 en_US.UTF-8 UTF-8
@@ -341,22 +344,37 @@ de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
 
 . /etc/profile
-locale-gen                    || exit \$?
-eselect locale set en_US.utf8 || exit \$?
+locale-gen
+if [[ \$? -ne 0 ]]; then
+  exit 2
+fi
+
+eselect locale set en_US.utf8
+if [[ \$? -ne 0 ]]; then
+  exit 3
+fi
+
 . /etc/profile
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
 
-echo "=sys-libs/ncurses-6.0-r1" >  /etc/portage/package.mask/upgrade_blocker
+echo "=sys-libs/ncurses-6.0-r1" > /etc/portage/package.mask/upgrade_blocker
 
-emerge sys-apps/elfix || exit \$?
+emerge sys-apps/elfix
+if [[ \$? -ne 0 ]]; then
+  exit 4
+fi
+
 migrate-pax -m
 
 # our SMTP mailer
 #
-emerge mail-mta/ssmtp || exit \$?
+emerge mail-mta/ssmtp
+if [[ \$? -ne 0 ]]; then
+  exit 5
+fi
 
 echo "
 root=tinderbox@zwiebeltoralf.de
@@ -369,7 +387,10 @@ UseTLS=YES
 
 # our preferred MTA
 #
-emerge mail-client/mailx || exit \$?
+emerge mail-client/mailx
+if [[ \$? -ne 0 ]]; then
+  exit 6
+fi
 
 # install mandatory tools
 #   <package>                   <command/s>
@@ -380,11 +401,17 @@ emerge mail-client/mailx || exit \$?
 #   app-portage/portage-utils   qlop
 #   www-client/pybugz           bugz
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz || exit \$?
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz
+if [[ \$? -ne 0 ]]; then
+  exit 7
+fi
 
 # we have "sys-kernel/" in IGNORE_PACKAGES therefore emerge kernel sources here
 #
-emerge sys-kernel/hardened-sources || exit \$?
+emerge sys-kernel/hardened-sources
+if [[ \$? -ne 0 ]]; then
+  exit 8
+fi
 
 rm /etc/portage/package.mask/upgrade_blocker
 
@@ -403,7 +430,10 @@ if [[ \$? -ne 0 ]]; then
 fi
 
 if [[ "$libressl" = "y" ]]; then
-  /tmp/tb/bin/switch2libressl.sh || exit \$?
+  /tmp/tb/bin/switch2libressl.sh
+  if [[ \$? -ne 0 ]]; then
+    exit 9
+  fi
 fi
 
 emerge --update --pretend sys-devel/gcc || exit 123
