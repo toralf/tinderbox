@@ -357,19 +357,20 @@ fi
 . /etc/profile
 
 echo "Europe/Berlin" > /etc/timezone
+
 emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
 
-echo "=sys-libs/ncurses-6.0-r1" > /etc/portage/package.mask/upgrade_blocker
+echo "=sys-libs/ncurses-6.0-r1" >> /etc/portage/package.mask/setup_blocker
+echo "=dev-lang/perl-5.24.0-r1" >> /etc/portage/package.mask/setup_blocker
 
 emerge sys-apps/elfix
 if [[ \$? -ne 0 ]]; then
   exit 4
 fi
-
 migrate-pax -m
 
-# our SMTP mailer
+# our preferred MTA
 #
 emerge mail-mta/ssmtp
 if [[ \$? -ne 0 ]]; then
@@ -413,7 +414,7 @@ if [[ \$? -ne 0 ]]; then
   exit 8
 fi
 
-rm /etc/portage/package.mask/upgrade_blocker
+rm /etc/portage/package.mask/setup_blocker
 
 # auto-adapt the USE flags so that the very first @system isn't blocked
 #
