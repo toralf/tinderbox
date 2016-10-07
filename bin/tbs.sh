@@ -391,16 +391,14 @@ rm /etc/portage/package.mask/upgrade_blocker
 # auto-adapt the USE flags so that the very first @system isn't blocked
 #
 $dryrun &> /tmp/dryrun.log
-rc=\$?
-if [[ \$rc -ne 0 ]]; then
-  rc=123
+if [[ \$? -ne 0 ]]; then
   # try to auto-fix the USE flags set
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   # re-try it now
   #
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $dryrun &> /tmp/dryrun.log && rc=0
+    $dryrun &> /tmp/dryrun.log || exit 123
   fi
 fi
 
@@ -408,9 +406,7 @@ if [[ "$libressl" = "y" ]]; then
   /tmp/tb/bin/switch2libressl.sh || exit \$?
 fi
 
-emerge --update --pretend sys-devel/gcc || rc=123
-
-exit \$rc
+emerge --update --pretend sys-devel/gcc || exit 123
 
 EOF
 
