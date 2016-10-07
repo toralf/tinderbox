@@ -720,21 +720,23 @@ function EmergeTask() {
 
       #  mandatory that the very first @system succeeds
       #
-      if [[ ! -f /tmp/timestamp.system ]]; then
-        Finish "notice: 1st $task failed"
+      if [[ ! -s /tmp/timestamp.system ]]; then
+        Finish "notice: 1st @system failed"
       fi
 
+      # if not just a package failed then inform us at least
+      #
       if [[ -z "$failed" ]]; then
         if [[ -n "$(grep 'For more information about Blocked Packages, please refer to the following' $log)" ]]; then
-          Mail "info: $task failed" $log
+          Mail "info: @system failed" $log
         else
-          echo "$task" >> $pks
-          Finish "notice: $task failed"
+          echo "@system" >> $pks
+          Finish "notice: @system failed"
         fi
       fi
     fi
 
-    # activate 32/64bit library builds
+    # activate 32/64bit library builds if the very first @system upgrade succeeded
     #
     if [[ ! -s /tmp/timestamp.system ]]; then
       eselect profile show | grep -q 'no-multilib'
@@ -749,7 +751,7 @@ function EmergeTask() {
     /usr/bin/pfl &>/dev/null
 
   else
-    # run a command line (prefixed with "%") or just emerge a package
+    # run either a command line (prefixed with "%") or just emerge the given package
     #
     if [[ "$(echo $task | cut -c1)" = '%' ]]; then
       cmd=$(echo "$task" | cut -c2-)
