@@ -734,9 +734,9 @@ function EmergeTask() {
       fi
     fi
 
-    # activate it now
+    # activate 32/64bit library builds
     #
-    if [[ ! -f /tmp/timestamp.system ]]; then
+    if [[ ! -s /tmp/timestamp.system ]]; then
       eselect profile show | grep -q 'no-multilib'
       if [[ $? -ne 0 ]]; then
         echo 'ABI_X86="32 64"' >> /etc/portage/make.conf
