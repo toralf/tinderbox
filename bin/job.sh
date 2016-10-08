@@ -717,26 +717,16 @@ function EmergeTask() {
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
-
-      # if not just a package failed then inform us at least
+    else
+      # activate 32/64bit library builds if @system upgrade succeeded
       #
-      if [[ -z "$failed" ]]; then
-        if [[ -n "$(grep 'For more information about Blocked Packages, please refer to the following' $log)" ]]; then
-          Mail "info: @system failed" $log
-        else
-          echo "@system" >> $pks
-          Finish "notice: @system failed"
-        fi
-      fi
-    fi
-
-    # activate 32/64bit library builds if the very first @system upgrade succeeded
-    #
-    if [[ ! -s /tmp/timestamp.system ]]; then
-      eselect profile show | grep -q 'no-multilib'
+      grep -q '^ABI_X86=' /etc/portage/make.conf
       if [[ $? -ne 0 ]]; then
-        echo 'ABI_X86="32 64"' >> /etc/portage/make.conf
-        echo $task >> $pks
+        eselect profile show | grep -q 'no-multilib'
+        if [[ $? -ne 0 ]]; then
+          echo 'ABI_X86="32 64"' >> /etc/portage/make.conf
+          echo "@system" >> $pks
+        fi
       fi
     fi
 
