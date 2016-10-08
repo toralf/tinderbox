@@ -718,12 +718,6 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
 
-      #  mandatory that the very first @system succeeds
-      #
-      if [[ ! -s /tmp/timestamp.system ]]; then
-        Finish "notice: 1st @system failed"
-      fi
-
       # if not just a package failed then inform us at least
       #
       if [[ -z "$failed" ]]; then
