@@ -307,6 +307,7 @@ function FillPackageList()  {
   cat << EOF >> $pks
 @system
 %BuildKernel
+%rm /etc/portage/package.mask/setup_blocker
 sys-devel/gcc
 EOF
 
@@ -408,8 +409,6 @@ emerge sys-kernel/hardened-sources
 if [[ \$? -ne 0 ]]; then
   exit 8
 fi
-
-rm /etc/portage/package.mask/setup_blocker
 
 # auto-adapt the USE flags so that the very first @system isn't blocked
 #
