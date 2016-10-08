@@ -103,7 +103,7 @@ function ComputeImageName()  {
     name="$name-$suffix"
   fi
 
-  name="$name-$mask"
+  name="$name-$keyword"
 }
 
 
@@ -182,7 +182,7 @@ USE="
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 "
 
-ACCEPT_KEYWORDS=$( [[ "$mask" = "unstable" ]] && echo -n '~amd64' || echo 'amd64' )
+ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo -n '~amd64' || echo 'amd64' )
 $(/usr/bin/cpuinfo2cpuflags-x86)
 PAX_MARKINGS="XT"
 
@@ -239,7 +239,7 @@ EOF
   touch       etc/portage/package.mask/self     # failed package at this image
   chmod a+rw  etc/portage/package.mask/self
 
-  if [[ "$mask" = "unstable" ]]; then
+  if [[ "$keyword" = "unstable" ]]; then
     # unmask ffmpeg-3 at 2/3 of all unstable images
     #
     if [[ $(($RANDOM % 3)) -ne 0 ]]; then
@@ -505,12 +505,12 @@ latest=latest-stage3.txt
 autostart="y"   # start the chroot image after setup ?
 flags=$(rufs)   # holds the current USE flag subset
 libressl="n"
-mask="unstable"
+keyword="unstable"
 origin=""       # clone from another tinderbox image ?
 profile=""
 suffix=""       # free optional text
 
-while getopts a:f:l:m:o:p:s: opt
+while getopts a:f:k:l:o:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -530,14 +530,14 @@ do
         fi
         ;;
 
-    l)  libressl="$OPTARG"
-        ;;
-
-    m)  mask="$OPTARG"
-        if [[ "$mask" != "stable" && "$mask" != "unstable" ]]; then
-          echo " wrong value for mask: $mask"
+    k)  keyword="$OPTARG"
+        if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
+          echo " wrong value for keyword: $keyword"
           exit 3
         fi
+        ;;
+
+    l)  libressl="$OPTARG"
         ;;
 
     o)  origin="$OPTARG"
@@ -554,7 +554,7 @@ do
         fi
         grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
         if [[ $? -ne 0 ]]; then
-          mask="stable"
+          keyword="stable"
         fi
         ;;
 
@@ -590,7 +590,7 @@ if [[ -z "$profile" ]]; then
   do
     for profile in $profiles
     do
-      mask="unstable"
+      keyword="unstable"
       libressl="n"
 
       # run not more than 2 systemd images
@@ -604,7 +604,7 @@ if [[ -z "$profile" ]]; then
       # run always 1 stable image
       #
       if [[ $(ls -1d amd64-*-stable_* 2>/dev/null | wc -l) -eq 0 ]]; then
-        mask="stable"
+        keyword="stable"
       else
         # switch at every n-th unstable image to libressl
         #

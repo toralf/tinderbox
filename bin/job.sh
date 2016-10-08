@@ -170,16 +170,16 @@ function CollectIssueFiles() {
 
   # create an email containing convenient links + info ready for being picked up by copy+paste
   #
-  mask="stable"
+  keyword="stable"
   grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
   if [[ $? -eq 0 ]]; then
-    mask="unstable"
+    keyword="unstable"
   fi
 
   cat << EOF >> $issuedir/emerge-info.txt
   -----------------------------------------------------------------
 
-  This is an $mask amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
+  This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
 
   -----------------------------------------------------------------
   USE flags ...
@@ -595,7 +595,7 @@ function SwitchGCC() {
         echo "%emerge --unmerge =sys-devel/gcc-${verold}*"
       fi
 
-      if [[ "$mask" = "unstable" ]]; then
+      if [[ "$keyword" = "unstable" ]]; then
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
       fi
     fi
