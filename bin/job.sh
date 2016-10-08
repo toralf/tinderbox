@@ -717,7 +717,9 @@ function EmergeTask() {
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
+      echo "$(date) $failed" >> /tmp/timestamp.system
     else
+      echo "$(date) ok" >> /tmp/timestamp.system
       # activate 32/64bit library builds if @system upgrade succeeded
       #
       grep -q '^ABI_X86=' /etc/portage/make.conf
@@ -730,7 +732,6 @@ function EmergeTask() {
       fi
     fi
 
-    echo "$(date) $failed" >> /tmp/timestamp.system
     PostEmerge
     /usr/bin/pfl &>/dev/null
 
