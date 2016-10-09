@@ -668,27 +668,6 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     echo "%perl-cleaner --all" >> $pks
   fi
-
-  # auto-unmerge packages, eg:
-  #
-  # !!! The following installed packages are masked:
-  # - dev-ruby/dep_selector-0.1.1::gentoo (masked by: package.mask)
-  #
-  del=$(grep '^\- .*/.* (masked by: package.mask)$' $log | cut -f2 -d ' ' | cut -f1 -d ':' | sed 's/^/=/g')
-  if [[ -n "$del" ]]; then
-    first=1
-    for p in $del
-    do
-      equery --quiet depends --indirect $p 1>/dev/null
-      if [[ $? -eq 1 ]]; then
-        if [[ $first -eq 1 ]]; then
-          first=0
-          echo "%PutDepsIntoWorld" >> $pks
-        fi
-        echo "%emerge --unmerge $p" >> $pks
-      fi
-    done
-  fi
 }
 
 
