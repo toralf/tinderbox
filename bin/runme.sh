@@ -2,7 +2,7 @@
 #
 # set -x
 
-# wrapper to allow us to change job.sh whilst a copy of it is in use
+# wrapper which allows to edit job.sh whilst a copy of it is in use
 #
 mailto="tinderbox@zwiebeltoralf.de"
 
@@ -31,7 +31,7 @@ do
       /bin/bash $copy
       rc=$?
 
-      # rc=125: job.sh detected a newer version of
+      # rc=125: job.sh signaled to restart a newer version of job.sh
       #
       if [[ $rc -ne 125 ]]; then
         break

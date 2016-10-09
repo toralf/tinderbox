@@ -736,7 +736,6 @@ export GCC_COLORS=""                # suppress colour output of gcc-4.9 and abov
 #
 name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
 
-# got from [20:25] <mgorny> toralf: also, my make.conf: http://dpaste.com/3CM0WK8 ;-)
 # https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
 export XDG_DESKTOP_DIR="/root/Desktop"
@@ -755,13 +754,16 @@ export XDG_DATA_HOME="/root/share"
 
 while :;
 do
-  # restart ourself if we do differ from us
+  # restart ourself if origin was edited
   #
   diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
   if [[ $? -ne 0 ]]; then
     exit 125
   fi
 
+  # clean up from a previous emerge operation
+  # this can't be made by portage b/c we've to collect build files
+  #
   rm -rf /var/tmp/portage/*
 
   date > $log
