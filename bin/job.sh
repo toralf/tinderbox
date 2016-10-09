@@ -478,16 +478,14 @@ function GotAnIssue()  {
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
     (
-    cd /;
+    cd /
     tar -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
     tar -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     tar -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
-    if [[ "$task" = "@system" ]]; then
-      Mail "notice: auto-fixing Perl upgrade issue in $task" $bak
-      echo -e "$task\n%perl-cleaner --force --libperl\n%perl-cleaner --modules" >> $pks
-      return
-    fi
+    Mail "notice: auto-fixing Perl upgrade issue for task $task" $bak
+    echo -e "$task\n%perl-cleaner --all" >> $pks
+    return
   fi
 
   if [[ $is_sandbox_issue -eq 1 ]]; then
@@ -571,23 +569,16 @@ function SwitchGCC() {
     # re-build affected software against new GCC libs is mandatory
     #
     if [[ "$majold" != "$majnew" ]]; then
-      if [[ "$majnew" = "5" || "$majnew" = "6" ]]; then
-        cmd="revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc"
-      else
-        Finish "ERROR: $FUNCNAME from $verold to $vernew rebuild not implemented"
-      fi
-
-      # rebuild kernel to avoid an error like: "cc1: error: incompatible gcc/plugin versions"
+      # rebuild kernel sources to avoid an error like: "cc1: error: incompatible gcc/plugin versions"
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>>$log)
         BuildKernel &>> $log
       fi
 
-      $cmd &>> $log
+      revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc &>> $log
       if [[ $? -ne 0 ]]; then
         GotAnIssue
-        echo "%$cmd" >> $pks
         Finish "FAILED: $FUNCNAME from $verold to $vernew rebuild failed"
       else
         # clean up old GCC to double-ensure that packages builds against the new version
