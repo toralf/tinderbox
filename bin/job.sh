@@ -38,6 +38,24 @@ function Finish()  {
 }
 
 
+# arbitraily choose a java engine
+#
+function SwitchJDK()  {
+  old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
+  if [[ -n "$old" ]]; then
+    new=$(eselect java-vm list 2>/dev/null | grep -E 'oracle-jdk-[[:digit:]]|icedtea[-bin]*-[[:digit:]]' | grep -v 'system-vm' | awk ' { print $2 } ' | sort --random-sort | head -n 1)
+    if [[ -n "$new" ]]; then
+      if [[ "$new" != "$old" ]]; then
+        eselect java-vm set system $new &> $log
+        if [[ $? -ne 0 ]]; then
+          Mail "$FUNCNAME failed for $old -> $new" $log
+        fi
+      fi
+    fi
+  fi
+}
+
+
 # for a package do evaluate here if it is worth to call emerge
 #
 function GetNextTask() {
@@ -509,24 +527,6 @@ function GotAnIssue()  {
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
     if [[ -z "$id" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
-    fi
-  fi
-}
-
-
-# arbitraily choose a java engine
-#
-function SwitchJDK()  {
-  old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
-  if [[ -n "$old" ]]; then
-    new=$(eselect java-vm list 2>/dev/null | grep -E 'oracle-jdk-[[:digit:]]|icedtea[-bin]*-[[:digit:]]' | grep -v 'system-vm' | awk ' { print $2 } ' | sort --random-sort | head -n 1)
-    if [[ -n "$new" ]]; then
-      if [[ "$new" != "$old" ]]; then
-        eselect java-vm set system $new &> $log
-        if [[ $? -ne 0 ]]; then
-          Mail "$FUNCNAME failed for $old -> $new" $log
-        fi
-      fi
     fi
   fi
 }
