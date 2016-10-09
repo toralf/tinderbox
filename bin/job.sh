@@ -107,21 +107,21 @@ function GetNextTask() {
       return  # a package set
 
     else
-      # a package
+      # we do ignore known trouble makers
       #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
-      # skip if $task is masked or an invalid string
+      # skip if $task is masked, keyworded or an invalid string
       #
       best_visible=$(portageq best_visible / $task 2>/dev/null)
       if [[ $? -ne 0 || -z "$best_visible" ]]; then
         continue
       fi
 
-      # skip if installed $task is up to date or would be downgraded
+      # skip if $task is already installed or would be downgraded
       #
       installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
@@ -761,16 +761,15 @@ do
     exit 125
   fi
 
-  # clean up from a previous emerge operation
-  # this can't be made by portage b/c we've to collect build files
-  #
-  rm -rf /var/tmp/portage/*
-
   date > $log
   if [[ -f /tmp/STOP ]]; then
     Finish "catched stop signal"
   fi
 
+  # clean up from a previous emerge operation
+  # this can't be made by portage b/c we had to collect build files first
+  #
+  rm -rf /var/tmp/portage/*
   GetNextTask
   EmergeTask
 done
