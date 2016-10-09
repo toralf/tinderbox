@@ -379,21 +379,6 @@ EOF
 }
 
 
-# put all successfully emerged dependencies of $task into the world file
-# otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482)
-#
-function PutDepsIntoWorld()  {
-  line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
-  echo "$line" | grep -q ':  === ('
-  if [[ $? -eq 0 ]]; then
-    echo "$line" | grep -q ':  === (1 of '
-    if [[ $? -ne 0 ]]; then
-      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
-    fi
-  fi
-}
-
-
 # collect all useful information together
 #
 function GotAnIssue()  {
@@ -402,7 +387,17 @@ function GotAnIssue()  {
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
-  PutDepsIntoWorld
+  # put all successfully emerged dependencies of $task into the world file
+  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482)
+  #
+  line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
+  echo "$line" | grep -q ':  === ('
+  if [[ $? -eq 0 ]]; then
+    echo "$line" | grep -q ':  === (1 of '
+    if [[ $? -ne 0 ]]; then
+      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
+    fi
+  fi
 
   # mostly OOM
   #
