@@ -399,13 +399,15 @@ function GotAnIssue()  {
     fi
   fi
 
-  # mostly OOM
+  # bail out if an OOM or related do happen
   #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
     Finish "FATAL: $fatal"
   fi
 
+  # our current shared repository solution is racy
+  #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
     Mail "notice: race of repository sync and emerge dep tree calculation" $bak
@@ -421,7 +423,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # the package specific log file
+  # guess the package specific log file name
   #
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
   if [[ -z "$failedlog" ]]; then
@@ -448,13 +450,15 @@ function GotAnIssue()  {
     fi
   fi
 
-  # after this point we expect that we catched an issue with a single package
+  # after this point we expect to catch an issue of a known package name
   #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
     return
   fi
 
+  # we do need the version less apckage name eg for bugzilla search
+  #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   if [[ -z "$short" ]]; then
     Mail "warn: \$short is empty for failed: $failed" $bak
@@ -468,7 +472,7 @@ function GotAnIssue()  {
   is_sandbox_issue=0
   CollectIssueFiles
 
-  # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=41124  https://bugs.gentoo.org/show_bug.cgi?id=570460
+  # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
   #
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
@@ -484,12 +488,12 @@ function GotAnIssue()  {
   fi
 
   if [[ $is_sandbox_issue -eq 1 ]]; then
-    # (re-)build this specific package version w/o sandboxing from now on
+    # (re-)build this specific package version w/o sandboxing from now on at this image
     #
     echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
     echo "$task" >> $pks
   else
-    # mask this particular package version
+    # mask this particular package version at this image
     #
     grep -q "=$failed$" /etc/portage/package.mask/self
     if [[ $? -ne 0 ]]; then
@@ -497,8 +501,8 @@ function GotAnIssue()  {
     fi
   fi
 
-  # don't send an email if an issue is in ALREADY_CATCHED
-  # or if the issue has already a bug report
+  # don't send out the email if the issue is in ALREADY_CATCHED
+  # and if the issue has already a bug report id
   #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
@@ -510,7 +514,7 @@ function GotAnIssue()  {
 }
 
 
-# switch the java engine
+# arbitraily choose a java engine
 #
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
