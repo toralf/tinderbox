@@ -71,11 +71,14 @@ do
   # ok, start it
   #
   sleep $sleep
+
+  # a copy allows us to change the origin w/o harming a runnning instance
+  #
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
   sleep=$delay
 done
 
-# otherwise we have no visible prompt (due to 'nohup ... &'  ?)
+# otherwise we have no visible prompt (due to 'nohup ... &')
 #
 if [[ $sleep ]]; then
   sleep 1
