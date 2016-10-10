@@ -2,8 +2,8 @@
 #
 # set -x
 
-# this is the tinderbox script - it runs within the chroot image for few weeks
-#
+# this is the tinderbox script:
+# it runs "emerge -u" for each package and parses the output, that's all
 
 # barrier start
 # this prevents the start of a broken copy of ourself - see end of file too
