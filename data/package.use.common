@@ -18,6 +18,7 @@ dev-libs/boehm-gc   threads
 dev-libs/libpcre    pcre16
 dev-lang/python     threads
 dev-qt/qtgui        egl eglfs
+gnome-base/librsvg  -tools
 net-nds/openldap    -sasl
 dev-util/cmake      -qt4 -qt5
 dev-vcs/git         -perl -gtk
