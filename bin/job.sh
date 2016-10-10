@@ -107,12 +107,15 @@ function GetNextTask() {
       return  # a package set
 
     else
-      # we do ignore known trouble makers
+      # ignore known trouble makers
       #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
+
+      # make some pre-checks here
+      # emerge takes too much time before it gives up
 
       # skip if $task is masked, keyworded or an invalid string
       #
@@ -131,7 +134,7 @@ function GetNextTask() {
         fi
       fi
 
-      # well, call emerge on $task
+      # well, emerge $task
       #
       return
     fi
@@ -139,7 +142,8 @@ function GetNextTask() {
 }
 
 
-# collect convenient information
+# gather together what we do need for a bugzilla report
+# and compile the email to us
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
@@ -397,7 +401,7 @@ EOF
 }
 
 
-# collect all useful information together
+# emerge failed for some reason, classify its output
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -670,7 +674,7 @@ function PostEmerge() {
 }
 
 
-# no special handling for @world anymore
+# this is the heart of the tinderbox, just emerge a package/set
 #
 function EmergeTask() {
   if [[ "$task" = "@preserved-rebuild" ]]; then
@@ -767,7 +771,7 @@ do
   fi
 
   # clean up from a previous emerge operation
-  # this can't be made by portage b/c we had to collect build files first
+  # this isn't made by portage b/c we had to collect build files first
   #
   rm -rf /var/tmp/portage/*
   GetNextTask
