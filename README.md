@@ -12,8 +12,8 @@ Few mandatory packages (MTA, bugz etc.) are installed.
 
 The tinderbox script itself is *job.sh*.
 
-It basically parse the output of *cat/tmp/packages | xargs -n1 emerge -u* - that's all
-Its wrapper *runme.sh* supports development of it w/o to harm running instances.
+It basically parse the output of *cat /tmp/packages | xargs -n1 emerge -u*.
+Its wrapper *runme.sh* supports the development while copies of it are running.
 It uses *chr.sh* to handle chroot related actions.
 
 New issues are reported via email to the user. Bugs can then be filed using *bgo.sh*.
