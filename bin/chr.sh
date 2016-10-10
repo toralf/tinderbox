@@ -2,7 +2,7 @@
 #
 #set -x
 
-# chroot wrapper, bind mount file systems of the host to their image counter parts
+# chroot into an image either interactively -or- run a command and exit afterwards
 #
 # typical call:
 #
