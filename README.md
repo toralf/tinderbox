@@ -12,9 +12,9 @@ Few mandatory packages (MTA, bugz etc.) are installed.
 
 The tinderbox script itself is *job.sh*.
 
-It runs over the package list till an image is stopped or its package list is empty.
-The wrapper *runme.sh* supports developing of the script *job.sh* w/o interrupting running images.
-It uses *chr.sh* is used to chroot into an image. 
+It basically parse the output of *cat/tmp/packages | xargs -n1 emerge -u* - that's all
+Its wrapper *runme.sh* supports development of it w/o to harm running instances.
+It uses *chr.sh* to handle chroot related actions.
 
 New issues are reported via email to the user. Bugs can then be filed using *bgo.sh*.
 
