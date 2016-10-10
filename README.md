@@ -14,13 +14,9 @@ The tinderbox script itself is *job.sh*.
 
 It runs over the package list till an image is stopped or its package list is empty.
 The wrapper *runme.sh* supports developing of the script *job.sh* w/o interrupting running images.
-New issues are reported via email to the user.
+It uses *chr.sh* is used to chroot into an image. 
 
-Bugs can be filed with *bgo.sh*.
-
-An image is started with *start_img.sh* and stopped with *stop_img.sh*.
-The *chr.sh* is used to chroot into an image either interactively or by passing a command to it.
-Latest ebuilds are put on top of each package list by *insert_pkgs.sh*.
+New issues are reported via email to the user. Bugs can then be filed using *bgo.sh*.
 
 ## installation
 Copy both *bin* and *data* into */home/tinderbox/tb*.
