@@ -3,7 +3,7 @@
 
 # deliver SMTP emails w/ authentication and secure
 #
-mail-mta/ssmtp      ssl mta
+mail-mta/ssmtp      mta ssl
 
 # otherwise it gives: HTTPS support not compiled in.
 #
@@ -11,18 +11,18 @@ net-misc/wget       ssl
 
 # known blocker
 #
-app-crypt/pinentry  -qt4 -gtk
-app-editors/emacs   -dbus -svg -ssl -gtk -gtk3
+app-crypt/pinentry  -gtk -qt4
+app-editors/emacs   -dbus -gtk -gtk3 -ssl -svg
 app-text/xmlto      -latex
 dev-libs/boehm-gc   threads
 dev-libs/libpcre    pcre16
 dev-lang/python     threads
 dev-qt/qtgui        egl eglfs
-gnome-base/librsvg  -tools
-net-nds/openldap    -sasl
 dev-util/cmake      -qt4 -qt5
-dev-vcs/git         -perl -gtk
+dev-vcs/git         -gtk -perl
+gnome-base/librsvg  -tools
 media-libs/mesa     -vaapi
+net-nds/openldap    -sasl
 sys-apps/kmod       tools
 sys-libs/ncurses    -gpm
 x11-libs/gtk+       -cups
