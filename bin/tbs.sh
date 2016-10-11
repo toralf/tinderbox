@@ -548,7 +548,7 @@ do
 
         profile=$(readlink $origin/etc/portage/make.profile | cut -f6- -d'/')
         flags="$(source $origin/etc/portage/make.conf; echo $USE)"
-        grep -q 'CURL_SSL="libressl"' $origin/etc/portage/make.conf
+        grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           libressl="y"
         fi
