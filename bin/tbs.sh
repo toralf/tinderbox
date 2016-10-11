@@ -590,29 +590,39 @@ if [[ -z "$profile" ]]; then
   do
     for profile in $profiles
     do
-      keyword="unstable"
-      libressl="n"
-
       # run not more than 2 systemd images
       #
       if [[ -n "$(echo $profile | grep 'systemd')" ]]; then
-        if [[ $(ls -1d amd64-*-systemd-* 2>/dev/null | wc -l) -gt 1 ]]; then
+        if [[ $(ls -1d amd64-*-systemd-* 2>/dev/null | wc -l) -ge 2 ]]; then
           continue
         fi
       fi
 
+      # run not more than 2 no-multilib images
+      #
+      if [[ -n "$(echo $profile | grep 'no-multilib')" ]]; then
+        if [[ $(ls -1d amd64-*-no-multilib-* 2>/dev/null | wc -l) -ge 2 ]]; then
+          continue
+        fi
+      fi
+
+      libressl="n"
+
       # run always 1 stable image
       #
-      if [[ $(ls -1d amd64-*-stable_* 2>/dev/null | wc -l) -eq 0 ]]; then
+      if [[ $(ls -1d amd64-*-stable_* 2>/dev/null | wc -l) -lt 1 ]]; then
         keyword="stable"
       else
-        # switch at every n-th unstable image to libressl
+        keyword="unstable"
+        # switch every n-th unstable image to libressl
         #
         if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+          libressl="y"
+
           # plasma (QT) is not libressl ready
           #
           if [[ -z "$(echo $profile | grep 'plasma')" ]]; then
-            libressl="y"
+            continue
           fi
         fi
       fi
