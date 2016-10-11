@@ -430,7 +430,7 @@ function GotAnIssue()  {
     Finish "FATAL: $fatal"
   fi
 
-  # our current shared repository solution is racy
+  # our current shared repository solution is (but rarely) racy
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
@@ -439,7 +439,6 @@ function GotAnIssue()  {
     return
   fi
 
-  # missing or wrong USE flags, license, fetch restrictions et al
   # we do not mask those package b/c the root cause might be fixed/circumvent during the lifetime of the image
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
@@ -447,7 +446,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # guess the package specific log file name
+  # guess the failed package and its log file name
   #
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
   if [[ -z "$failedlog" ]]; then
@@ -457,31 +456,23 @@ function GotAnIssue()  {
     fi
   fi
 
-  # $failed contains package name + version + revision
-  #
   if [[ -n "$failedlog" ]]; then
     failed=$(basename $failedlog | cut -f1-2 -d':' | tr ':' '/')
   else
-    # guess the actually failed package
-    #
-    # alternatives :
-    #[20:43] <_AxS_> toralf:   grep -l "If you need support, post the output of" /var/tmp/portage/*/*/temp/build.log   <-- that should work in all but maybe fetch failures.
-    #[20:38] <kensington> something like itfailed() { echo "${PF} - $(date)" >> failed.log }  register_die_hook itfailed in /etc/portage/bashrc
-    #
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
     if [[ -z "$failedlog" ]]; then
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
     fi
   fi
 
-  # after this point we expect to catch an issue of a known package name
+  # after this point we expect to work on an issue of a known package name
   #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
     return
   fi
 
-  # we do need the version less apckage name eg for bugzilla search
+  # we do need the version less package name eg. for a wider bugzilla search
   #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   if [[ -z "$short" ]]; then
@@ -489,7 +480,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # collect all related files in $issuedir
+  # put together all related files in $issuedir
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
@@ -498,7 +489,7 @@ function GotAnIssue()  {
   CollectIssueFiles
   CompileInfoMail
 
-  # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
+  # special handling for Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
   #
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
@@ -529,6 +520,7 @@ function GotAnIssue()  {
 
   # don't send out the email if the issue is in ALREADY_CATCHED
   # and if the issue has already a bug report id
+  # but create the email for a later purpose
   #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
