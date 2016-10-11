@@ -512,7 +512,7 @@ function GotAnIssue()  {
   else
     # mask this particular package version at this image
     #
-    grep -q "=$failed$" /etc/portage/package.mask/self
+    grep -q "^=$failed$" /etc/portage/package.mask/self
     if [[ $? -ne 0 ]]; then
       echo "=$failed" >> /etc/portage/package.mask/self
     fi
