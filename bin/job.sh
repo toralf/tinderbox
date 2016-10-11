@@ -423,14 +423,14 @@ function GotAnIssue()  {
     fi
   fi
 
-  # bail out if an OOM or related do happen
+  # bail out if an OOM or related did happen
   #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
     Finish "FATAL: $fatal"
   fi
 
-  # our current shared repository solution is (but rarely) racy
+  # our current shared repository solution is (rarely) racy
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
@@ -439,14 +439,14 @@ function GotAnIssue()  {
     return
   fi
 
-  # we do not mask those package b/c the root cause might be fixed/circumvent during the lifetime of the image
+  # do not mask those package b/c the root cause might be fixed/circumvent during the lifetime of the image
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
     return
   fi
 
-  # guess the failed package and its log file name
+  # guess the failed package from its log file name
   #
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
   if [[ -z "$failedlog" ]]; then
@@ -460,6 +460,8 @@ function GotAnIssue()  {
     failed=$(basename $failedlog | cut -f1-2 -d':' | tr ':' '/')
   else
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
+    # well, go the opposite way and guess the log file name from the package name
+    #
     if [[ -z "$failedlog" ]]; then
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
     fi
@@ -472,7 +474,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # we do need the version less package name eg. for a wider bugzilla search
+  #the version less package name is used for a broader bugzilla search
   #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
   if [[ -z "$short" ]]; then
@@ -480,7 +482,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # put together all related files in $issuedir
+  # have a copy of all related files in $issuedir
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
@@ -580,7 +582,7 @@ function SwitchGCC() {
         GotAnIssue
         Finish "FAILED: $FUNCNAME from $verold to $vernew rebuild failed"
       else
-        # clean up old GCC to double-ensure that packages builds against the new version
+        # clean up old GCC to double-ensure that packages build against only the new version
         #
         echo "%emerge --unmerge =sys-devel/gcc-${verold}*"
       fi
@@ -608,8 +610,8 @@ function SelectNewKernel() {
 }
 
 
-# we do just *schedule* emerge operation here
-# by appending them in their opposite order to the package list
+# do *schedule* emerge operation here, do not run emerge
+# append actions in their reverse order to the package list
 #
 function PostEmerge() {
   # do not auto-update these config files
@@ -670,7 +672,7 @@ function PostEmerge() {
 }
 
 
-# this is the heart of the tinderbox, just emerge a package/set
+# this is the heart of the tinderbox, the rest is just output parsing
 #
 function EmergeTask() {
   if [[ "$task" = "@preserved-rebuild" ]]; then
