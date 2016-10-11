@@ -143,7 +143,6 @@ function GetNextTask() {
 
 
 # gather together what we do need for a bugzilla report
-# and compile the email to us
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
@@ -189,9 +188,12 @@ function CollectIssueFiles() {
     fi
   done
   chmod a+r $issuedir/files/*
+}
 
-  # create an email containing convenient links + info ready for being picked up by copy+paste
-  #
+
+# create an email containing convenient links + info ready for being picked up by copy+paste
+#
+function CompileInfoMail() {
   keyword="stable"
   grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
   if [[ $? -eq 0 ]]; then
@@ -401,7 +403,7 @@ EOF
 }
 
 
-# emerge failed for some reason, classify its output
+# emerge failed for some reason, parse the output
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -487,12 +489,14 @@ function GotAnIssue()  {
     return
   fi
 
-  # collect build + log files into $issuedir
+  # collect all related files in $issuedir
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
   is_sandbox_issue=0
+
   CollectIssueFiles
+  CompileInfoMail
 
   # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
   #
