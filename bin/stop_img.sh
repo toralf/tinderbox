@@ -2,15 +2,8 @@
 #
 #set -x
 
-# stop a tinderbox chroot image
+# stop tinderbox chroot image/s
 #
-
-# be verbose for dedicated image/s
-#
-verbose=0
-if [[ $# -gt 0 ]]; then
-  verbose=1
-fi
 
 for mnt in ${@:-~/amd64-*}
 do
@@ -23,7 +16,7 @@ do
       touch $mnt/tmp/STOP
     fi
   else
-    [[ $verbose -eq 1 ]] && echo " did NOT found LOCK: $mnt"
+    echo " did NOT found LOCK: $mnt"
   fi
 done
 

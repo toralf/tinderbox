@@ -2,7 +2,7 @@
 #
 #set -x
 
-# start a tinderbox chroot image
+# start tinderbox chroot image/s
 #
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
@@ -10,17 +10,12 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
+# run a copy to allow editing of the origin
+#
 orig=/tmp/tb/bin/runme.sh
 copy=/tmp/runme.sh
 
-# be more verbose if image names are given (== likely interactive mode)
-#
-verbose=0
-if [[ $# -gt 0 ]]; then
-  verbose=1
-fi
-
-# delay start of subsequent images to lower I/O impact (and much more after reboot)
+# delay start of subsequent images to lower I/O impact (but only after reboot)
 #
 uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
 if [[ $? -eq 0 ]]; then
@@ -28,8 +23,8 @@ if [[ $? -eq 0 ]]; then
 else
   delay=5
 fi
-sleep=0 # do not sleep for the 1st image
 
+sleep=0 # do not sleep before the 1st image
 for mnt in ${@:-~/amd64-*}
 do
   # $mnt must not be a broken symlink
@@ -49,36 +44,33 @@ do
   # image must not be locked
   #
   if [[ -f $mnt/tmp/LOCK ]]; then
-    [[ $verbose -eq 1 ]] && echo " found LOCK: $mnt"
+    echo " found LOCK: $mnt"
     continue
   fi
   
   # image must not be stopping
   #
   if [[ -f $mnt/tmp/STOP ]]; then
-    [[ $verbose -eq 1 ]] && echo " found STOP: $mnt"
+    echo " found STOP: $mnt"
     continue
   fi
 
-  # non-empty package list is required
+  # non-empty package list required
   #
   pks=$mnt/tmp/packages
   if [[ -f $pks && ! -s $pks ]]; then
-    [[ $verbose -eq 1 ]] && echo " package list is empty: $mnt"
+    echo " package list is empty: $mnt"
     continue
   fi
 
   # ok, start it
   #
   sleep $sleep
-
-  # a copy allows us to change the origin w/o harming a runnning instance
-  #
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
   sleep=$delay
 done
 
-# otherwise we have no visible prompt (due to 'nohup ... &')
+# avoid a non-visible prompt
 #
 if [[ $sleep ]]; then
   sleep 1
