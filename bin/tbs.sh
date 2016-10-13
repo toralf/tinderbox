@@ -582,61 +582,25 @@ if [[ $? -ne 0 ]]; then
   exit 3
 fi
 
-# arbitrarily choose a profile, keyword and libre/open ssl vendor
-#
 if [[ -z "$profile" ]]; then
-  profiles=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort)
-  while :;
-  do
-    for profile in $profiles
-    do
-      # run not more than 2 systemd images
-      #
-      if [[ -n "$(echo $profile | grep 'systemd')" ]]; then
-        if [[ $(ls -1d amd64-*-systemd-* 2>/dev/null | wc -l) -ge 2 ]]; then
-          continue
-        fi
-      fi
-
-      # run not more than 2 no-multilib images
-      #
-      if [[ -n "$(echo $profile | grep 'no-multilib')" ]]; then
-        if [[ $(ls -1d amd64-*-no-multilib-* 2>/dev/null | wc -l) -ge 2 ]]; then
-          continue
-        fi
-      fi
-
-      libressl="n"
-
-      # run always 1 stable image
-      #
-      if [[ $(ls -1d amd64-*-stable_* 2>/dev/null | wc -l) -lt 1 ]]; then
-        keyword="stable"
-      else
-        keyword="unstable"
-        # switch every n-th unstable image to libressl
-        #
-        if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-          libressl="y"
-
-          # plasma (QT) is not libressl ready
-          #
-          if [[ -z "$(echo $profile | grep 'plasma')" ]]; then
-            continue
-          fi
-        fi
-      fi
-      ComputeImageName
-
-      # do not run 2 nearly similar images (well, the USE flag set and the package list do differ always)
-      #
-      ls -1d $tbhome/${name}_20??????-?????? &>/dev/null || break 2
-    done
-  done
-
-else
-  ComputeImageName
+  # arbitrarily choose a profile, keyword and ssl vendor
+  #
+  profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
+  keyword="unstable"
+  libressl="n"
+  # switch every n-th image to stable
+  #
+  if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+    keyword="stable"
+  else
+    # switch every n-th unstable image to libressl
+    #
+    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+      libressl="y"
+    fi
+  fi
 fi
+ComputeImageName
 
 name="${name}_$(date +%Y%m%d-%H%M%S)"
 echo " $imagedir/$name"
