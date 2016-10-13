@@ -574,14 +574,6 @@ do
   esac
 done
 
-# fetch $latest here b/c it contains the stage3 file name which we derive in ComputeImageName()
-#
-wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
-if [[ $? -ne 0 ]]; then
-  echo " wget failed of: $latest"
-  exit 3
-fi
-
 if [[ -z "$profile" ]]; then
   # arbitrarily choose a profile, keyword and ssl vendor
   #
@@ -600,8 +592,16 @@ if [[ -z "$profile" ]]; then
     fi
   fi
 fi
-ComputeImageName
 
+# fetch $latest now - it contains the stage3 file name needed in ComputeImageName()
+#
+wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
+if [[ $? -ne 0 ]]; then
+  echo " wget failed of: $latest"
+  exit 3
+fi
+
+ComputeImageName
 name="${name}_$(date +%Y%m%d-%H%M%S)"
 echo " $imagedir/$name"
 echo
