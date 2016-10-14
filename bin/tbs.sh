@@ -517,16 +517,14 @@ do
         ;;
 
     f)  if [[ -f "$OPTARG" ]] ; then
-          # USE flags are either defined or just listed in a file
+          # USE flags are either defined as USE="..." or justed listed
           #
-          if [[ "$(basename $OPTARG)" = "make.conf" ]]; then
-            flags="$(source $OPTARG; echo $USE)"
-          else
+          flags="$(source $OPTARG; echo $USE)"
+          if [[ -z "$flags" ]]; then
             flags="$(cat $OPTARG)"
           fi
         else
           flags="$OPTARG"
-          echo -e "\nWARN: read USE flags from command line !\n"
         fi
         ;;
 
