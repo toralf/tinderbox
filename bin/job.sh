@@ -235,7 +235,7 @@ EOF
 
   # get bug report assignee and cc, GLEP 67 rules
   #
-  m=$(equery meta -m $failed | grep '@' | xargs)
+  m=$(equery meta $failed | grep '@' | xargs)
   if [[ -z "$m" ]]; then
     m="maintainer-needed@gentoo.org"
   fi
@@ -261,7 +261,7 @@ EOF
     s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
     # inform the maintainers of the already installed package too
     #
-    cc=$(equery meta -m $s | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
+    cc=$(equery meta $s | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
     # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
     #
     (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',' > $issuedir/cc
