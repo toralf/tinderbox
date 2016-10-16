@@ -24,7 +24,7 @@ else
   delay=5
 fi
 
-sleep=0 # do not sleep before the 1st image
+is_first=1
 for mnt in ${@:-~/amd64-*}
 do
   # $mnt must not be a broken symlink
@@ -65,14 +65,15 @@ do
 
   # ok, start it
   #
-  sleep $sleep
+  if [[ $is_first -eq 1 ]]; then
+    is_first=0
+  else
+    sleep $delay
+  fi
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
-  sleep=$delay
 done
 
 # avoid a non-visible prompt
 #
-if [[ $sleep ]]; then
-  sleep 1
-fi
+sleep 1
 
