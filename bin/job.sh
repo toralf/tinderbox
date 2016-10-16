@@ -525,7 +525,7 @@ function GotAnIssue()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -eq 0 ]]; then
     if [[ -z "$id" ]]; then
-      Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+      Mail "ISSUE $(cat $issuedir/title)" $issuedir/body
     fi
   else
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
