@@ -240,9 +240,9 @@ EOF
   chmod a+rw  etc/portage/package.mask/self
 
   if [[ "$keyword" = "unstable" ]]; then
-    # unmask ffmpeg-3 at 2/3 of all unstable images
+    # unmask ffmpeg-3 at 1/2 of all unstable images
     #
-    if [[ $(($RANDOM % 3)) -ne 0 ]]; then
+    if [[ $(($RANDOM % 2)) -eq 0 ]]; then
       echo "media-video/ffmpeg" > etc/portage/package.unmask/ffmpeg
     fi
 
@@ -255,15 +255,7 @@ EOF
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
   chmod a+rw etc/portage/package.use/setup
 
-  # xemacs hangs at hardened: https://bugs.gentoo.org/show_bug.cgi?id=540818
-  #
-  echo $profile | grep -q "hardened"
-  if [[ $? -eq 0 ]]; then
-    echo -e "app-editors/xemacs\napp-xemacs/*" > etc/portage/package.mask/xemacs
-  fi
-
-  # define special environments for dedicated packages
-  # have a look into package.env.common
+  # support special environments for dedicated packages
   #
   cat << EOF > etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"

@@ -9,7 +9,11 @@ mail-mta/ssmtp      mta ssl
 #
 net-misc/wget       ssl
 
-# known blocker
+# https://bugs.gentoo.org/show_bug.cgi?id=540818
+#
+app-editors/xemacs  -nopie
+
+# known setup blocker
 #
 app-crypt/pinentry  -gtk -qt4
 app-editors/emacs   -dbus -gtk -gtk3 -ssl -svg
