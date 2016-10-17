@@ -288,10 +288,16 @@ EOF
 function FillPackageList()  {
   pks=tmp/packages
 
-  qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
-
   if [[ -n "$origin" && -e $origin/var/log/emerge.log ]]; then
-    qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' | tac >> $pks
+    # reduce the randomized package list by packages which will be emerged before in the same order as made in $origin
+    # (except changes due to modified deps of the current portage tree in the mean while)
+    #
+    qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' | tac >> $pks.tmp
+    qsearch --all --nocolor --name-only --quiet | sort --random-sort | fgrep -v -f $pks.tmp > $pks
+    cat $pks.tmp >> $pks
+    rm $pks.tmp
+  else
+    qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
   fi
 
   # first task: switch to latest GCC
