@@ -385,12 +385,13 @@ fi
 #   <package>                   <command/s>
 #
 #   app-arch/sharutils          uudecode
+#   app-portage/eix             eix
 #   app-portage/gentoolkit      equery eshowkw revdep-rebuild
 #   app-portage/pfl             pfl
 #   app-portage/portage-utils   qlop
 #   www-client/pybugz           bugz
 #
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz app-portage/eix
 if [[ \$? -ne 0 ]]; then
   exit 7
 fi

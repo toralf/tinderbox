@@ -32,6 +32,8 @@ function Mail() {
 #
 function Finish()  {
   Mail "FINISHED: $*" $log
+
+  eix-update -q
   rm -f /tmp/STOP
 
   exit 0
