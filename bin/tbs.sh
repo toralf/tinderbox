@@ -56,8 +56,8 @@ function rufs()  {
     xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
   "
 
-  m=30
-  s=6
+  m=40
+  s=4
   for f in $(echo $allflags)
   do
     let "r = $RANDOM % $m"
