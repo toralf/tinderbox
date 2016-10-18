@@ -46,6 +46,7 @@ Couldn't download .* Aborting.
 Fetched file: .* VERIFY FAILED!
 Fetch failed for
 error: package .* does not exist
+error: .* was not declared in this scope
 error:
 stack smashing detected
 No rule to make target

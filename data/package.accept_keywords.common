@@ -1,10 +1,14 @@
 # package.accept_keywords/common
 #
 
-# https://bugs.gentoo.org/show_bug.cgi?id=590966
+# stabilize gcc-4: https://bugs.gentoo.org/show_bug.cgi?id=590966
 #
 ~sys-devel/gcc-4.9.4
 
-# https://bugs.gentoo.org/show_bug.cgi?id=451324
+# stabilize gif-5: https://bugs.gentoo.org/show_bug.cgi?id=451324
 #
 ~media-libs/giflib-5.1.4
+
+# _AXS_ asked: https://bugs.gentoo.org/show_bug.cgi?id=596204
+#
+~mail-client/thunderbird-45.4.0
