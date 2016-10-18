@@ -512,12 +512,29 @@ latest=latest-stage3.txt
 
 autostart="y"   # start the chroot image after setup ?
 flags=$(rufs)   # holds the current USE flag subset
-libressl="n"
-keyword="unstable"
 origin=""       # clone from another tinderbox image ?
-profile=""
 suffix=""       # free optional text
 
+# arbitrarily choose profile, keyword and ssl vendor
+#
+profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
+# 10% stable
+#
+if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+  keyword="stable"
+else
+  keyword="unstable"
+fi
+# 25% libressl
+#
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  libressl="y"
+else
+  libressl="n"
+fi
+
+# here's the chance to overwrite the pre settings made above
+#
 while getopts a:f:k:l:o:p:s: opt
 do
   case $opt in
@@ -579,25 +596,6 @@ do
         ;;
   esac
 done
-
-if [[ -z "$profile" ]]; then
-  # arbitrarily choose a profile, keyword and ssl vendor
-  #
-  profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
-  keyword="unstable"
-  libressl="n"
-  # switch every n-th image to stable
-  #
-  if [[ $(($RANDOM % 10)) -eq 0 ]]; then
-    keyword="stable"
-  else
-    # switch every n-th unstable image to libressl
-    #
-    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-      libressl="y"
-    fi
-  fi
-fi
 
 # fetch $latest now - it contains the stage3 file name needed in ComputeImageName()
 #
