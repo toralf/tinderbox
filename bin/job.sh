@@ -272,7 +272,9 @@ EOF
     echo "file collision with $s" > $issuedir/title
 
   elif [[ -f $sandb ]]; then
-    is_sandbox_issue=1
+
+    donotmaskit=1
+    echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
 
     p="$(grep -m1 ^A: $sandb)"
     echo "$p" | grep -q "A: /root/"
@@ -308,6 +310,17 @@ EOF
         break
       fi
     done
+
+    # this gcc-6 issue is forced by us, masking all affected packages
+    # would prevent tinderboxing of a lot of deps
+    #
+    # next time this package will be build with default c++ flags
+    #
+    grep -q '\[\-Werror=terminate\]' $issuedir/title
+    if [[ $? -eq 0 ]]; then
+      echo "=$failed cxx" >> /etc/portage/package.env/cxx
+      donotmaskit=1
+    fi
   fi
 
   # shrink too long error messages like "/a/b/c.h:23: error 1"
@@ -488,7 +501,7 @@ function GotAnIssue()  {
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
-  is_sandbox_issue=0
+  donotmaskit=0
 
   CollectIssueFiles
   CompileInfoMail
@@ -508,10 +521,9 @@ function GotAnIssue()  {
     return
   fi
 
-  if [[ $is_sandbox_issue -eq 1 ]]; then
-    # (re-)build this specific package version w/o sandboxing from now on at this image
+  if [[ $donotmaskit -eq 1 ]]; then
+    # retry it with special package.env settings
     #
-    echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
     echo "$task" >> $pks
   else
     # mask this particular package version at this image

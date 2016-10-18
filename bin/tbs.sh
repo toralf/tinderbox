@@ -44,13 +44,13 @@ function rufs()  {
     opengl openmpi openssl opus osc pam pcre16 pdo php pkcs11 plasma
     plotutils png policykit postgres postproc postscript printsupport
     pulseaudio pwquality pyqt4 python qemu qml qt3support qt4 qt5 rdoc
-    rendering sasl scripts scrypt sddm sdl semantic-desktop server
+    rendering sasl scripts scrypt sddm sdl secure-delete semantic-desktop server
     smartcard smime smpeg snmp sockets source sourceview spice sql sqlite
     sqlite3 ssh ssh-askpass ssl sslv2 sslv3 ssp svg swscale system-cairo
     system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
     system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
     theora thinkpad threads timidity tk tls tools tracepath traceroute
-    truetype udisks ufed uml usb usbredir utils uxa v4l v4l2 vaapi vala
+    truetype udev udisks ufed uml usb usbredir utils uxa v4l v4l2 vaapi vala
     vdpau video vim vlc vorbis vpx wav wayland webgl webkit webstart
     widgets wma wxwidgets X x264 x265 xa xcb xetex xinerama xinetd xkb xml
     xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
@@ -264,8 +264,17 @@ FEATURES="splitdebug"
 
 EOF
 
-  echo 'FEATURES="test"'                  > etc/portage/env/test
-  echo 'FEATURES="-sandbox -usersandbox"' > etc/portage/env/nosandbox
+  # no special c++ flags (eg. to revert -Werror=terminate)
+  #
+  echo 'CXXFLAGS="-O2 -pipe -march=native'  > etc/portage/env/cxx
+
+  # have a look in package.env.common
+  #
+  echo 'FEATURES="test"'                    > etc/portage/env/test
+
+  # we force breakage with XDG_* settings in job.sh
+  #
+  echo 'FEATURES="-sandbox -usersandbox"'   > etc/portage/env/nosandbox
 }
 
 
