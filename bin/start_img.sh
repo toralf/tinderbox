@@ -19,7 +19,7 @@ copy=/tmp/runme.sh
 #
 uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
 if [[ $? -eq 0 ]]; then
-  delay=180
+  delay=240
 else
   delay=5
 fi
