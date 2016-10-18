@@ -555,17 +555,21 @@ do
 
     k)  keyword="$OPTARG"
         if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
-          echo " wrong value for keyword: $keyword"
-          exit 3
+          echo " wrong value for \$keyword: $keyword"
+          exit 2
         fi
         ;;
 
     l)  libressl="$OPTARG"
+        if [[ "$libressl" != "y" && "$libressl" != "n" ]]; then
+          echo " wrong value for \$libressl: $libressl"
+          exit 2
+        fi
         ;;
 
     o)  origin="$OPTARG"
         if [[ ! -e $origin ]]; then
-          echo "origin '$origin' to clone from doesn't exist!"
+          echo "\$origin '$origin' doesn't exist!"
           exit 2
         fi
 
@@ -574,9 +578,13 @@ do
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           libressl="y"
+        else
+          libressl="n"
         fi
         grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
-        if [[ $? -ne 0 ]]; then
+        if [[ $? -eq 0 ]]; then
+          keyword="unstable"
+        else
           keyword="stable"
         fi
         ;;
@@ -584,7 +592,7 @@ do
     p)  profile="$OPTARG"
         if [[ ! -d /usr/portage/profiles/$profile ]]; then
           echo " profile unknown: $profile"
-          exit 4
+          exit 2
         fi
         ;;
 
@@ -597,7 +605,7 @@ do
   esac
 done
 
-# fetch $latest now - it contains the stage3 file name needed in ComputeImageName()
+# $latest contains the stage3 file name needed in ComputeImageName()
 #
 wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
 if [[ $? -ne 0 ]]; then
