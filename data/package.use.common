@@ -13,6 +13,30 @@ net-misc/wget       ssl
 #
 app-editors/xemacs  -nopie
 
+# needed for Firefox (and maybe Thunderbird too)
+#
+dev-db/sqlite           secure-delete
+dev-lang/python         sqlite
+dev-qt/qtsql            sqlite
+media-libs/libvpx       postproc
+media-libs/libpng       apng
+media-sound/pulseaudio  alsa
+sys-libs/ntdb           python
+sys-libs/tdb            python
+sys-libs/tevent         python
+x11-libs/cairo          X
+x11-libs/libxcb         xkb
+
+# circular dependencies with dev-libs/openssl
+#
+app-crypt/mit-krb5      -pkinit
+
+# misc
+#
+sys-devel/llvm          clang
+sys-libs/zlib           minizip
+x11-base/xorg-server    glamor
+
 # known setup blocker
 #
 app-crypt/pinentry  -gtk -qt4
