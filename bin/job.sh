@@ -581,7 +581,7 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
     majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
 
-    # re-build affected software against new GCC libs is mandatory
+    # switch the system to the new gcc
     #
     if [[ "$majold" != "$majnew" ]]; then
       # rebuild kernel sources to avoid an error like: "cc1: error: incompatible gcc/plugin versions"
@@ -595,12 +595,16 @@ function SwitchGCC() {
       if [[ $? -ne 0 ]]; then
         GotAnIssue
         Finish "FAILED: $FUNCNAME from $verold to $vernew rebuild failed"
-      else
-        # clean up old GCC to double-ensure that packages build against only the new version
-        #
-        echo "%emerge --unmerge =sys-devel/gcc-${verold}*"
       fi
 
+      # clean up old GCC to double-ensure that packages is build against the new headers/libs
+      #
+      fix_libtool_files.sh $verold
+      emerge --unmerge =sys-devel/gcc-${verold}*
+
+      # per request of Soap this is forced for the new gcc-6
+      # if a package fails therefore then we will add a package specific entry to package.env
+      #
       if [[ "$keyword" = "unstable" ]]; then
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
       fi
