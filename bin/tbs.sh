@@ -182,9 +182,11 @@ USE="
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 "
 
-ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo -n '~amd64' || echo 'amd64' )
+ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
 $(/usr/bin/cpuinfo2cpuflags-x86)
 PAX_MARKINGS="XT"
+
+$( [[ "$multilib" = "y" ]] && echo '#ABI_X86="32 64"' )
 
 L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
 
@@ -532,10 +534,17 @@ if [[ $(($RANDOM % 4)) -eq 0 ]]; then
 else
   libressl="n"
 fi
+# 50% ABI_X86="32 64"
+#
+if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+  multilib="y"
+else
+  multilib="n"
+fi
 
 # here's the chance to overwrite the pre settings made above
 #
-while getopts a:f:k:l:o:p:s: opt
+while getopts a:f:k:l:m:o:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -563,6 +572,13 @@ do
     l)  libressl="$OPTARG"
         if [[ "$libressl" != "y" && "$libressl" != "n" ]]; then
           echo " wrong value for \$libressl: $libressl"
+          exit 2
+        fi
+        ;;
+
+    m)  multilib="$OPTARG"
+        if [[ "$multilib" != "y" && "$multilib" != "n" ]]; then
+          echo " wrong value for \$multilib $multilib"
           exit 2
         fi
         ;;
@@ -604,6 +620,13 @@ do
         ;;
   esac
 done
+
+if [[ "$multilib" = "y" ]]; then
+  echo "$profile" | grep -q 'no-multilib'
+  if [[ $? -eq 0 ]]; then
+    multilib="n"
+  fi
+fi
 
 # $latest contains the stage3 file name needed in ComputeImageName()
 #

@@ -716,15 +716,12 @@ function EmergeTask() {
       echo "$(date) $failed" >> /tmp/timestamp.system
     else
       echo "$(date) ok" >> /tmp/timestamp.system
-      # activate 32/64bit library builds if @system upgrade succeeded
+      # activate 32/64 bit library build if @system was successful and not yet done
       #
-      grep -q '^ABI_X86=' /etc/portage/make.conf
-      if [[ $? -ne 0 ]]; then
-        eselect profile show | grep -q 'no-multilib'
-        if [[ $? -ne 0 ]]; then
-          echo 'ABI_X86="32 64"' >> /etc/portage/make.conf
-          echo "@system" >> $pks
-        fi
+      grep -q '^#ABI_X86=' /etc/portage/make.conf
+      if [[ $? -eq 0 ]]; then
+        sed -i -e 's/^#ABI_X86=/ABI_X86=/' /etc/portage/make.conf
+        echo "@system" >> $pks
       fi
     fi
 
