@@ -584,7 +584,7 @@ function SwitchGCC() {
     # switch the system to the new gcc
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # rebuild kernel sources to avoid an error like: "cc1: error: incompatible gcc/plugin versions"
+      # *re*build kernel sources to avoid: "cc1: error: incompatible gcc/plugin versions"
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>>$log)
@@ -594,13 +594,20 @@ function SwitchGCC() {
       revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc &>> $log
       if [[ $? -ne 0 ]]; then
         GotAnIssue
-        Finish "FAILED: $FUNCNAME from $verold to $vernew rebuild failed"
+        Finish "FAILED: $FUNCNAME revdep-rebuild failed"
       fi
 
       # clean up old GCC to double-ensure that packages is build against the new headers/libs
       #
-      fix_libtool_files.sh $verold
-      emerge --unmerge =sys-devel/gcc-${verold}*
+      fix_libtool_files.sh $verold &>>$log
+      if [[ $? -ne 0 ]]; then
+        Finish "FAILED: $FUNCNAME fix_libtool_files.sh failed"
+      fi
+
+      emerge --unmerge =sys-devel/gcc-$verold &>>$log
+      if [[ $? -ne 0 ]]; then
+        Finish "FAILED: $FUNCNAME unmerge of old gcc failed"
+      fi
 
       # per request of Soap this is forced for the new gcc-6
       # if a package fails therefore then we will add a package specific entry to package.env
