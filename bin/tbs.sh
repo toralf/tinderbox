@@ -242,16 +242,18 @@ EOF
   chmod a+rw  etc/portage/package.mask/self
 
   if [[ "$keyword" = "unstable" ]]; then
-    # unmask ffmpeg-3 at 1/2 of all unstable images
+    # unmask ffmpeg-3 at 50% of unstable images
     #
     if [[ $(($RANDOM % 2)) -eq 0 ]]; then
       echo "media-video/ffmpeg" > etc/portage/package.unmask/ffmpeg
     fi
 
-    # unmask GCC-6 per request of Soap
+    # unmask GCC-6 at 50% of unstable images
     #
-    echo "sys-devel/gcc:6.2.0"    > etc/portage/package.unmask/gcc-6
-    echo "sys-devel/gcc:6.2.0 **" > etc/portage/package.accept_keywords/gcc-6
+    if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+      echo "sys-devel/gcc:6.2.0"    > etc/portage/package.unmask/gcc-6
+      echo "sys-devel/gcc:6.2.0 **" > etc/portage/package.accept_keywords/gcc-6
+    fi
   fi
 
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
