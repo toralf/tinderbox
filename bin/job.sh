@@ -589,6 +589,8 @@ function SwitchGCC() {
         BuildKernel &>> $log
       fi
 
+      # this must not fail
+      #
       revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc &>> $log
       if [[ $? -ne 0 ]]; then
         GotAnIssue
@@ -608,9 +610,9 @@ function SwitchGCC() {
       fi
 
       # per request of Soap this is forced for the new gcc-6
-      # if a package fails therefore then we will add a package specific entry to package.env
+      # if a package fails to build then a package specific entry is added to package.env to circumvent it in future
       #
-      if [[ "$keyword" = "unstable" ]]; then
+      if [[ $majnew -eq 6 ]]; then
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
       fi
     fi
