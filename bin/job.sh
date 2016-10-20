@@ -573,13 +573,13 @@ function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
   gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
   if [[ $? -ne 0 ]]; then
-    verold=$(gcc -v 2>&1 | tail -n 1 | cut -f1-3 -d' ')
+    verold=$(gcc -dumpversion)
     gcc-config --nocolor $latest &> $log
     . /etc/profile
-    vernew=$(gcc -v 2>&1 | tail -n 1 | cut -f1-3 -d' ')
+    vernew=$(gcc -dumpversion)
 
-    majold=$(echo $verold | cut -f3 -d ' ' | cut -c1)
-    majnew=$(echo $vernew | cut -f3 -d ' ' | cut -c1)
+    majold=$(echo $verold | cut -c1)
+    majnew=$(echo $vernew | cut -c1)
 
     # switch the system to the new gcc
     #
@@ -601,12 +601,12 @@ function SwitchGCC() {
       #
       fix_libtool_files.sh $verold &>>$log
       if [[ $? -ne 0 ]]; then
-        Finish "FAILED: $FUNCNAME fix_libtool_files.sh failed"
+        Finish "FAILED: $FUNCNAME fix_libtool_files.sh $verold failed"
       fi
 
       emerge --unmerge =sys-devel/gcc-$verold &>>$log
       if [[ $? -ne 0 ]]; then
-        Finish "FAILED: $FUNCNAME unmerge of old gcc failed"
+        Finish "FAILED: $FUNCNAME unmerge of gcc $verold failed"
       fi
 
       # per request of Soap this is forced for the new gcc-6
