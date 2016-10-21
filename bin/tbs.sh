@@ -270,7 +270,7 @@ EOF
 
   # no special c++ flags (eg. to revert -Werror=terminate)
   #
-  echo 'CXXFLAGS="-O2 -pipe -march=native'  > etc/portage/env/cxx
+  echo 'CXXFLAGS="-O2 -pipe -march=native"' > etc/portage/env/cxx
 
   # have a look in package.env.common
   #
@@ -316,6 +316,7 @@ function FillPackageList()  {
   # first task: switch to latest GCC
   #
   cat << EOF >> $pks
+@world
 @system
 %BuildKernel
 %rm /etc/portage/package.mask/setup_blocker

@@ -712,10 +712,11 @@ function EmergeTask() {
   elif [[ "$task" = "@system" ]]; then
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
-      GotAnIssue
       echo "$(date) $failed" >> /tmp/timestamp.system
+      GotAnIssue
     else
       echo "$(date) ok" >> /tmp/timestamp.system
+      echo "@world" >> $pks
       # activate 32/64 bit library build if @system was successful and not yet done
       #
       grep -q '^#ABI_X86=' /etc/portage/make.conf
@@ -724,7 +725,16 @@ function EmergeTask() {
         echo "@system" >> $pks
       fi
     fi
+    PostEmerge
+    /usr/bin/pfl &>/dev/null
 
+  elif [[ "$task" = "@world" ]]; then
+    emerge --deep --update --changed-use --with-bdeps=y $task &> $log
+    if [[ $? -ne 0 ]]; then
+      GotAnIssue
+    else
+      echo "%emerge --depclean" >> $pks
+    fi
     PostEmerge
     /usr/bin/pfl &>/dev/null
 
