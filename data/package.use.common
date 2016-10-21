@@ -18,14 +18,17 @@ app-editors/xemacs  -nopie
 dev-db/sqlite           secure-delete
 dev-lang/python         sqlite
 dev-qt/qtsql            sqlite
+mail-client/thunderbird -pulseaudio system-icu
 media-libs/libvpx       postproc
 media-libs/libpng       apng
 media-sound/pulseaudio  alsa
+media-video/ffmpeg      sdl
 sys-libs/ntdb           python
 sys-libs/tdb            python
 sys-libs/tevent         python
 x11-libs/cairo          X
 x11-libs/libxcb         xkb
+www-client/firefox      -pulseaudio system-icu
 
 # circular dependencies with dev-libs/openssl
 #
@@ -33,13 +36,14 @@ app-crypt/mit-krb5      -pkinit
 
 # misc
 #
+media-video/ffmpeg      -sdl
 sys-devel/llvm          clang
 sys-libs/zlib           minizip
-x11-base/xorg-server    glamor
+x11-base/xorg-server    glamor -minimal
 
 # known setup blocker
 #
-app-crypt/pinentry  -gtk -qt4
+app-crypt/pinentry  -qt4
 app-editors/emacs   -dbus -gtk -gtk3 -ssl -svg
 app-text/xmlto      -latex
 dev-libs/boehm-gc   threads

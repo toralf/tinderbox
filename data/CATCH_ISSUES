@@ -47,6 +47,7 @@ Fetched file: .* VERIFY FAILED!
 Fetch failed for
 error: package .* does not exist
 error: .* was not declared in this scope
+error: '::isinf'
 error:
 stack smashing detected
 No rule to make target
@@ -182,6 +183,7 @@ eant failed
 E: Cannot find external tool
 pushd: too many arguments
 are banned in EAPI
+PostgreSQL slot must be set to one of:
 Error:
 ERROR :
 ERROR:
