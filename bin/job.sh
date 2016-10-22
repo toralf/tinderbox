@@ -516,8 +516,11 @@ function GotAnIssue()  {
     tar -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     tar -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
-    Mail "notice: auto-fixing Perl upgrade issue for task $task" $bak
-    echo -e "$task\n%perl-cleaner --all" >> $pks
+    Mail "notice: fixing Perl upgrade issue: $task" $bak
+    if [[ "$task" = "@system" ]]; then
+      echo "$task" >> $pks
+    fi
+    echo "%perl-cleaner --all" >> $pks
     return
   fi
 
@@ -731,8 +734,10 @@ function EmergeTask() {
   elif [[ "$task" = "@world" ]]; then
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
+      echo "$(date) $failed" >> /tmp/timestamp.world
       GotAnIssue
     else
+      echo "$(date) ok" >> /tmp/timestamp.world
       echo "%emerge --depclean" >> $pks
     fi
     PostEmerge
