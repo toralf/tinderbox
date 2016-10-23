@@ -695,7 +695,7 @@ function PostEmerge() {
 
   grep -q ">>> Installing .* dev-lang/perl-[1-9]" $log
   if [[ $? -eq 0 ]]; then
-    echo "%perl-cleaner --all" >> $pks
+    echo "%ionice -c 3 perl-cleaner --all" >> $pks
   fi
 }
 
