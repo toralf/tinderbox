@@ -537,14 +537,12 @@ function GotAnIssue()  {
     fi
   fi
 
-  # send an email if the issue was not yet catched && not yet reported
+  # send an email if the issue was not yet marked
   #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    if [[ -z "$id" ]]; then
-      Mail "ISSUE $(cat $issuedir/title)" $issuedir/body
-    fi
+    Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
   fi
 }
 
