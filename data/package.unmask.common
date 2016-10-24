@@ -4,3 +4,7 @@
 # request by leio at 1st of October 2016
 #
 ~sys-apps/sandbox-2.11
+
+# https://bugs.gentoo.org/show_bug.cgi?id=597712
+#
+~dev-libs/botan-1.11.32
