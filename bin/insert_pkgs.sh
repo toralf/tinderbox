@@ -9,7 +9,7 @@ mailto="tinderbox@zwiebeltoralf.de"
 
 # collect all package list filenames if the image ...
 #   1. is symlinked to ~
-#   2. is running
+#   2. is running (no LOCK)
 #   3. has a non-empty package list
 #   4. doesn't have any special entries in its package list
 #
@@ -25,7 +25,7 @@ do
     continue
   fi
 
-  grep -q -E "^(STOP|INFO|%|@)" $pks
+  grep -q -E "^(STOP|INFO|%|@|#)" $pks
   if [[ $? -eq 0 ]]; then
     continue
   fi
@@ -33,14 +33,14 @@ do
   avail_pks="$avail_pks $pks"
 done
 
-# bail out ?
+# no candidate found ?
 #
 if [[ -z "$avail_pks" ]]; then
   exit
 fi
 
 # the host repo is synced every 3 hours, add 1 hour too for mirroring
-# kick off (D)eleted ebuilds and strip away the package version
+# kick off (D)eleted ebuilds and do not use the package version
 #
 # A       www-apache/passenger/passenger-5.0.24.ebuild
 # M       www-apps/kibana-bin/kibana-bin-4.1.4.ebuild
@@ -63,7 +63,8 @@ sort --unique > $tmp
 if [[ -s $tmp ]]; then
   for pks in $avail_pks
   do
-    sort --random-sort < $tmp >> $pks
+    echo "# $(basename $0) at $(date)"  >> $pks
+    sort --random-sort < $tmp           >> $pks
   done
 fi
 

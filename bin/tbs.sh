@@ -306,8 +306,11 @@ function FillPackageList()  {
     # (except changes due to modified deps of the current portage tree in the mean while)
     #
     qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' | tac >> $pks.tmp
+
     qsearch --all --nocolor --name-only --quiet | sort --random-sort | fgrep -v -f $pks.tmp > $pks
+    echo "# package history of $origin" >> $pks
     cat $pks.tmp >> $pks
+
     rm $pks.tmp
   else
     qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks

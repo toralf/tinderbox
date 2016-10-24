@@ -85,10 +85,10 @@ function GetNextTask() {
     task=$(tail -n 1 $pks)
     sed -i -e '$d' $pks
 
-    if [[ -n "$(echo $task | grep '^INFO')" ]]; then
+    if [[ -n "$(echo "$task" | grep '^INFO')" ]]; then
       Mail "$task"
 
-    elif [[ -n "$(echo $task | grep '^STOP')" ]]; then
+    elif [[ -n "$(echo "$task" | grep '^STOP')" ]]; then
       Finish "$task"
 
     elif  [[ -z "$task" ]]; then
@@ -96,17 +96,20 @@ function GetNextTask() {
         continue  # package list itself isn't empty, just this line
       fi
 
-      # we reached the end of the lifetime
+      # package list is empty
       #
       /usr/bin/pfl &>/dev/null
       n=$(qlist --installed | wc -l)
-      Finish "$n packages emerged"
+      Finish "$n packages emerged, spin up a new one"
 
-    elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
+    elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
       return  # a complete command line
 
-    elif [[ "$(echo $task | cut -c1)" = '@' ]]; then
+    elif [[ "$(echo "$task" | cut -c1)" = '@' ]]; then
       return  # a package set
+
+    elif [[ "$(echo "$task" | cut -c1)" = '#' ]]; then
+      continue  # just a comment line
 
     else
       # ignore known trouble makers
