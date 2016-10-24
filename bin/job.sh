@@ -705,18 +705,20 @@ function EmergeTask() {
     emerge --backtrack=30 $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
+      echo "$(date) $failed"  >> /tmp/timestamp.preserved-rebuild
+    else
+      echo "$(date) ok"       >> /tmp/timestamp.preserved-rebuild
     fi
 
-    echo "$(date) $failed" >> /tmp/timestamp.preserved-rebuild
     PostEmerge
 
   elif [[ "$task" = "@system" ]]; then
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
-      echo "$(date) $failed" >> /tmp/timestamp.system
       GotAnIssue
+      echo "$(date) $failed"  >> /tmp/timestamp.system
     else
-      echo "$(date) ok" >> /tmp/timestamp.system
+      echo "$(date) ok"       >> /tmp/timestamp.system
       echo "@world" >> $pks
       # activate 32/64 bit library build if @system was successful and not yet done
       #
@@ -732,8 +734,29 @@ function EmergeTask() {
   elif [[ "$task" = "@world" ]]; then
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
-      echo "$(date) $failed" >> /tmp/timestamp.world
       GotAnIssue
+      echo "$(date) $failed" >> /tmp/timestamp.world
+
+      # if @world failed try to update as much as possible of the remaining packages
+      # otherwise next time we might stuck at the same package as before
+      #
+      while :;
+      do
+        emerge --resume --skipfirst &> $log
+        if [[ $? -ne 0 ]]; then
+          grep -q '* unsatisfied dependencies. Please restart/continue the operation' $log
+          if [[ $? -eq 0 ]]; then
+            break
+          fi
+          GotAnIssue
+          echo "$(date) $failed" >> /tmp/timestamp.world
+          PostEmerge
+        else
+          PostEmerge
+          break
+        fi
+      done
+
     else
       echo "$(date) ok" >> /tmp/timestamp.world
       echo "%emerge --depclean" >> $pks
