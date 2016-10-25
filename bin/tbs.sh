@@ -424,6 +424,13 @@ if [[ \$? -ne 0 ]]; then
   exit 8
 fi
 
+if [[ "$libressl" = "y" ]]; then
+  /tmp/tb/bin/switch2libressl.sh
+  if [[ \$? -ne 0 ]]; then
+    exit 9
+  fi
+fi
+
 emerge --update --pretend sys-devel/gcc || exit 121
 
 rm /etc/portage/package.mask/setup_blocker
@@ -432,20 +439,13 @@ rm /etc/portage/package.mask/setup_blocker
 #
 $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
-  # try to auto-fix the USE flags set
+  # auto-fix of the USE flags set possible ?
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
     $dryrun &> /tmp/dryrun.log || exit 122
   else
     exit 123
-  fi
-fi
-
-if [[ "$libressl" = "y" ]]; then
-  /tmp/tb/bin/switch2libressl.sh
-  if [[ \$? -ne 0 ]]; then
-    exit 9
   fi
 fi
 
