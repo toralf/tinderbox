@@ -4,7 +4,8 @@
 
 # https://wiki.gentoo.org/wiki/Project:LibreSSL
 
-echo "$0: start"
+sep="=================================================================="
+echo -e "\n$sep\n$0: start"
 
 # are we within a tinderbox chroot image ?
 #
@@ -52,7 +53,7 @@ EOF
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
 
-# keyword at a stable image appropriate packages
+# keyword packages at a *stable* image
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -ne 0 ]]; then
@@ -72,20 +73,20 @@ EOF
 
 fi
 
-echo "$0: fetch"
+echo -e "\n$sep\n$0: fetch"
 
 # fetch packages before we uninstall openssl and break therefore wget
 #
 emerge -f libressl openssh wget python || exit 24
 
-echo "$0: unmerge"
+echo -e "\n$sep\n$0: unmerge"
 
 qlist -IC dev-libs/openssl
 if [[ $? -eq 0 ]]; then
   emerge -C openssl || exit 25
 fi
 
-echo "$0: re-merge"
+echo -e "\n$sep\n$0: re-merge"
 
 emerge -1 libressl        &&\
 emerge -1 openssh         &&\
@@ -94,6 +95,6 @@ emerge -1 $py2 $py3       &&\
 emerge @preserved-rebuild
 rc=$?
 
-echo "$0: rc=$rc"
+echo -e "\n$sep\n$0: rc=$rc"
 
 exit $rc
