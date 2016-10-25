@@ -224,12 +224,14 @@ $(grep -v -e '^#' -e '^$' /etc/portage/package.unmask/* | cut -f2- -d':' | sed '
   -----------------------------------------------------------------
 
 gcc-config -l:
-$(gcc-config -l        2>&1         && echo)
+$(gcc-config -l 2>&1                && echo)
 llvm-config --version:
 $(llvm-config --version 2>&1        && echo)
 $(eselect java-vm list 2>/dev/null  && echo)
 $(eselect python  list 2>&1         && echo)
 $(eselect ruby    list 2>/dev/null  && echo)
+java-config -L:
+$(java-config -L 2>&1               && echo)
   -----------------------------------------------------------------
 
 EOF
@@ -755,6 +757,7 @@ function EmergeTask() {
           echo "$(date) $failed" >> /tmp/timestamp.world
           PostEmerge
         else
+          echo "$(date) resumed" >> /tmp/timestamp.world
           PostEmerge
           break
         fi
