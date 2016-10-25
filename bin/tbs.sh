@@ -319,10 +319,8 @@ function FillPackageList()  {
   # first task: switch to latest GCC
   #
   cat << EOF >> $pks
-@world
 @system
 %BuildKernel
-%rm /etc/portage/package.mask/setup_blocker
 sys-devel/gcc
 EOF
 
@@ -426,6 +424,10 @@ if [[ \$? -ne 0 ]]; then
   exit 8
 fi
 
+emerge --update --pretend sys-devel/gcc || exit 121
+
+rm /etc/portage/package.mask/setup_blocker
+
 # auto-adapt the USE flags so that the very first @system isn't blocked
 #
 $dryrun &> /tmp/dryrun.log
@@ -433,10 +435,10 @@ if [[ \$? -ne 0 ]]; then
   # try to auto-fix the USE flags set
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
-  # re-try it now
-  #
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $dryrun &> /tmp/dryrun.log || exit 123
+    $dryrun &> /tmp/dryrun.log || exit 122
+  else
+    exit 123
   fi
 fi
 
@@ -446,8 +448,6 @@ if [[ "$libressl" = "y" ]]; then
     exit 9
   fi
 fi
-
-emerge --update --pretend sys-devel/gcc || exit 123
 
 EOF
 
@@ -476,7 +476,7 @@ EOF
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
 
-    if [[ $rc -ne 123 ]]; then
+    if [[ $rc -lt 121 ]]; then
       echo
       cat $d/tmp/setup.log
     fi
