@@ -37,7 +37,7 @@ function rufs()  {
     jpeg kerberos kvm lapack latex ldap libinput libkms libvirtd llvm
     logrotate lua lvm lzma mad mbox mdnsresponder-compat melt midi mikmod
     minimal minizip mng mod modplug mono mp3 mp4 mpeg mpeg2 mpeg3 mpg123
-    mpi mssql mta multimedia multitarget mysql mysqli ncurses networking
+    mpi mssql mta multimedia mysql mysqli ncurses networking
     nscd nss obj objc odbc offensive ogg ois opencv openexr opengl
     openmpi openssl opus osc pam pcre16 perl php pkcs11 plasma plotutils
     png policykit postgres postproc postscript printsupport pulseaudio
