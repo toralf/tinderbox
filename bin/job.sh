@@ -13,10 +13,7 @@
 # strip away escape sequences
 #
 function stresc() {
-  # remove colour ESC sequences, ^[[K and carriage return
-  # do not use perl -ne 's/\e\[?.*?[\@-~]//g; print' due to : https://bugs.gentoo.org/show_bug.cgi?id=564998#c6
-  #
-  perl -MTerm::ANSIColor=colorstrip -nle '$_ = colorstrip($_); s/\e\[K//g; s/\r/\n/g; print'
+  perl -MTerm::ANSIColor=colorstrip -nle '$_ = colorstrip($_); s/\e\[K//g; s/\e\[\[//g; s/\r/\n/g; print'
 }
 
 
