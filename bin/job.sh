@@ -230,8 +230,8 @@ $(llvm-config --version 2>&1        && echo)
 $(eselect java-vm list 2>/dev/null  && echo)
 $(eselect python  list 2>&1         && echo)
 $(eselect ruby    list 2>/dev/null  && echo)
-java-config -L:
-$(java-config -L 2>/dev/null        && echo)
+java-config:
+$(java-config --list-available-vms --nocolor 2>/dev/null  && echo)
   -----------------------------------------------------------------
 
 EOF
