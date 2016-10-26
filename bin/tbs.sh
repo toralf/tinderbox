@@ -38,13 +38,13 @@ function rufs()  {
     logrotate lua lvm lzma mad mbox mdnsresponder-compat melt midi mikmod
     minimal minizip mng mod modplug mono mp3 mp4 mpeg mpeg2 mpeg3 mpg123
     mpi mssql mta multimedia multitarget mysql mysqli ncurses networking
-    nls nscd nss obj objc odbc offensive ogg ois opencv openexr opengl
+    nscd nss obj objc odbc offensive ogg ois opencv openexr opengl
     openmpi openssl opus osc pam pcre16 perl php pkcs11 plasma plotutils
     png policykit postgres postproc postscript printsupport pulseaudio
     pwquality pypy pyqt4 python qemu qml qt3support qt5 rdoc rendering
     ruby sasl scripts scrypt sddm sdl secure-delete semantic-desktop
     server smartcard smime smpeg snmp sockets source sourceview spice sql
-    sqlite sqlite3 ssh ssh-askpass ssl ssp svg swscale system-cairo
+    sqlite sqlite3 ssh ssh-askpass ssl svg swscale system-cairo
     system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
     system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
     theora thinkpad threads timidity tk tls tools tracepath traceroute
