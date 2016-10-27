@@ -321,6 +321,7 @@ function FillPackageList()  {
   cat << EOF >> $pks
 @system
 %BuildKernel
+%rm -f /etc/portage/package.mask/setup_blocker
 sys-devel/gcc
 EOF
 
@@ -431,23 +432,29 @@ if [[ "$libressl" = "y" ]]; then
   fi
 fi
 
-emerge --update --pretend sys-devel/gcc || exit 121
-
-rm /etc/portage/package.mask/setup_blocker
-
-# auto-adapt the USE flags so that the very first @system isn't blocked
+# gcc upgrade and the the very first @system must work
+# for gcc the setup_blocker file is needed
 #
+rc=0
+emerge --update --pretend sys-devel/gcc || rc=121
+
+mv /etc/portage/package.mask/setup_blocker /tmp
+
 $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
   # auto-fix of the USE flags set possible ?
   #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $dryrun &> /tmp/dryrun.log || exit 122
+    $dryrun &> /tmp/dryrun.log || ((rc=rc+1))
   else
-    exit 123
+    ((rc=rc+1))
   fi
 fi
+
+mv /tmp/setup_blocker /etc/portage/package.mask/
+
+exit \$rc
 
 EOF
 
