@@ -759,16 +759,18 @@ function EmergeTask() {
     PostEmerge
     /usr/bin/pfl &>/dev/null
 
-  else
-    # run either a command line (prefixed with "%") or just emerge the given package
-    #
-    if [[ "$(echo $task | cut -c1)" = '%' ]]; then
-      cmd=$(echo "$task" | cut -c2-)
-    else
-      cmd="emerge --update $task"
-    fi
-
+  elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
+    cmd=$(echo "$task" | cut -c2-)
     $cmd &> $log
+    if [[ $? -ne 0 ]]; then
+      GotAnIssue
+      PostEmerge
+      Finish "cmd '$cmd' failed"
+    fi
+    PostEmerge
+
+  else
+    emerge --update $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
     fi
