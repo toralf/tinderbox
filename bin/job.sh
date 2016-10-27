@@ -20,8 +20,8 @@ function stresc() {
 # send out an email with $1 as the subject and $2 as the body
 #
 function Mail() {
-  subject=$(echo "$1" | cut -c1-200)
-  ( [[ -e $2 ]] && stresc < $2 || date ) | mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
+  subject=$(echo "$1" | cut -c1-200 | tr '\n' ' ' | stresc)
+  ( [[ -e $2 ]] && stresc < $2 || echo "<no body>" ) | mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
 }
 
 
@@ -233,7 +233,9 @@ $(java-config --list-available-vms --nocolor 2>/dev/null  && echo)
 
 EOF
 
-  # no --verbose, output is bigger than the 16 KB limit of b.g.o.
+  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+
+  # no --verbose, output size would exceed the 16 KB limit of b.g.o.
   #
   emerge --info --verbose=n $short >> $issuedir/emerge-info.txt
 
@@ -447,16 +449,16 @@ function GotAnIssue()  {
     Finish "FATAL: $fatal"
   fi
 
-  # our current shared repository solution is (rarely) racy
+  # our current shared repository solution is (even rarely) racy
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
-    Mail "notice: race of repository sync and emerge dep tree calculation" $bak
+    Mail "notice: race of host repository sync and running emerge" $bak
     echo $task >> $pks
     return
   fi
 
-  # do not mask those package b/c the root cause might be fixed/circumvent during the lifetime of the image
+  # just ignore few issues and do not mask affected packages
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
@@ -477,29 +479,21 @@ function GotAnIssue()  {
     failed=$(basename $failedlog | cut -f1-2 -d':' | tr ':' '/')
   else
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
-    # well, go the opposite way and guess the log file name from the package name
+    # try the opposite way: guess the log file name from the package
     #
     if [[ -z "$failedlog" ]]; then
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
     fi
   fi
 
-  # after this point we expect to work on an issue of a known package name
+  # after this point we expect to have a failed package
   #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
     return
   fi
 
-  #the version less package name is used for a broader bugzilla search
-  #
-  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
-  if [[ -z "$short" ]]; then
-    Mail "warn: \$short is empty for failed: $failed" $bak
-    return
-  fi
-
-  # have a copy of all related files in $issuedir
+  # collect related files in $issuedir
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
@@ -508,7 +502,7 @@ function GotAnIssue()  {
   CollectIssueFiles
   CompileInfoMail
 
-  # special handling for Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
+  # handle the Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
   #
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
@@ -527,19 +521,16 @@ function GotAnIssue()  {
   fi
 
   if [[ $donotmaskit -eq 1 ]]; then
-    # retry it with special package.env settings
+    # retry emerge (eg. with later to add special package.env settings)
     #
     echo "$task" >> $pks
   else
     # mask this particular package version at this image
     #
-    grep -q "^=$failed$" /etc/portage/package.mask/self
-    if [[ $? -ne 0 ]]; then
-      echo "=$failed" >> /etc/portage/package.mask/self
-    fi
+    echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
-  # send an email if the issue was not yet marked
+  # send an email if the issue was not yet catched
   #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
@@ -600,7 +591,7 @@ function SwitchGCC() {
         Finish "FAILED: $FUNCNAME revdep-rebuild failed"
       fi
 
-      # clean up old GCC to double-ensure that packages is build against the new headers/libs
+      # clean up old GCC to double-ensure that packages are build against the new gcc headers and libs
       #
       fix_libtool_files.sh $verold &>>$log
       if [[ $? -ne 0 ]]; then
@@ -613,7 +604,7 @@ function SwitchGCC() {
       fi
 
       # per request of Soap this is forced for the new gcc-6
-      # if a package fails to build then a package specific entry is added to package.env to circumvent it in future
+      # if a package fails therefore then it will be get special package.env settings next time
       #
       if [[ $majnew -eq 6 ]]; then
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
@@ -623,7 +614,7 @@ function SwitchGCC() {
 }
 
 
-# eselect the latest *emerged* kernel and schedule a build if necessary
+# eselect the latest *emerged* kernel and schedule a build of it
 #
 function SelectNewKernel() {
   last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/')
@@ -638,11 +629,10 @@ function SelectNewKernel() {
 }
 
 
-# do *schedule* emerge operation here, do not run emerge
-# append actions in their reverse order to the package list
+# *schedule* emerge operation here, but do not run it
 #
 function PostEmerge() {
-  # do not auto-update these config files
+  # don't auto-update these config files
   #
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
@@ -661,14 +651,12 @@ function PostEmerge() {
     SelectNewKernel
   fi
 
+  # sometimes we run into a @preserved-rebuild loop, bail out then
+  #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
   if [[ $? -eq 0 ]]; then
     n=$(tac /var/log/emerge.log | grep -F -m 20 '*** emerge' | grep -c "emerge .* @preserved-rebuild")
     if [[ $n -gt 4 ]]; then
-      # even if the root cause of the @preserved-rebuild issue was solved the test above would still be true
-      # therefore we need a marker which tells us to ignore the test
-      # this marker is the truncastion of the file of the @preserved-rebuild history
-      #
       f=/tmp/timestamp.preserved-rebuild
       if [[ -s $f ]]; then
         chmod a+w $f
@@ -709,6 +697,10 @@ function EmergeTask() {
       GotAnIssue
       echo "$(date) $failed"  >> /tmp/timestamp.preserved-rebuild
     else
+      grep -q 'Nothing to merge; quitting.' $log
+      if [[ $? -ne 0 ]]; then
+        Mail "notice: @preserved-rebuild really ok ?" $log
+      fi
       echo "$(date) ok"       >> /tmp/timestamp.preserved-rebuild
     fi
 
