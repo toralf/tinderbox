@@ -25,6 +25,9 @@ do
     continue
   fi
 
+  # looking for '#' too avoids adding packages to a package list
+  # if the previous addition wasn't processed yet
+  #
   grep -q -E "^(STOP|INFO|%|@|#)" $pks
   if [[ $? -eq 0 ]]; then
     continue
