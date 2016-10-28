@@ -559,7 +559,7 @@ function BuildKernel()  {
 }
 
 
-# switch to latest GCC, see: https://wiki.gentoo.org/wiki/Upgrading_GCC
+# switch to latest GCC
 #
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
@@ -570,28 +570,30 @@ function SwitchGCC() {
     . /etc/profile
     vernew=$(gcc -dumpversion)
 
+    # this locks the package list
+    #
+    echo "# gcc switch from $verold to $vernew" >> $pks
+
     majold=$(echo $verold | cut -c1)
     majnew=$(echo $vernew | cut -c1)
 
-    # switch the system to the new gcc
+    # rebuild libs at a major version number change
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # *re*build kernel sources to avoid: "cc1: error: incompatible gcc/plugin versions"
+      # avoid: "cc1: error: incompatible gcc/plugin versions"
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>>$log)
         BuildKernel &>> $log
       fi
 
-      # this must not fail
-      #
       revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc &>> $log
       if [[ $? -ne 0 ]]; then
         GotAnIssue
         Finish "FAILED: $FUNCNAME revdep-rebuild failed"
       fi
 
-      # clean up old GCC to double-ensure that packages are build against the new gcc headers and libs
+      # double-ensure that packages are build against the new gcc headers and libs
       #
       fix_libtool_files.sh $verold &>>$log
       if [[ $? -ne 0 ]]; then
@@ -731,8 +733,8 @@ function EmergeTask() {
       GotAnIssue
       echo "$(date) $failed" >> /tmp/timestamp.world
 
-      # if @world failed try to update as much as possible of the remaining packages
-      # otherwise next time we might stuck at the same package as before
+      # if @world failed then try to update as much as possible of the remain
+      # otherwise next time we stuck at the same package again without progress
       #
       while :;
       do
