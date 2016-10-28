@@ -697,7 +697,7 @@ function EmergeTask() {
       GotAnIssue
       echo "$(date) $failed"  >> /tmp/timestamp.preserved-rebuild
     else
-      grep -q 'Nothing to merge; quitting.' $log
+      grep -q -e 'Nothing to merge; quitting.' -e 'No outdated packages were found on your system.' $log
       if [[ $? -ne 0 ]]; then
         Mail "notice: @preserved-rebuild really ok ?" $log
       fi
