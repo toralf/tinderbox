@@ -276,9 +276,8 @@ EOF
     echo "file collision with $s" > $issuedir/title
 
   elif [[ -f $sandb ]]; then
-
-    donotmaskit=1
     echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
+    retry_with_changed_env=1
 
     p="$(grep -m1 ^A: $sandb)"
     echo "$p" | grep -q "A: /root/"
@@ -323,7 +322,7 @@ EOF
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
       echo "=$failed cxx" >> /etc/portage/package.env/cxx
-      donotmaskit=1
+      retry_with_changed_env=1
     fi
   fi
 
@@ -375,9 +374,13 @@ cc:       $(cat $issuedir/cc)
 
 EOF
 
-  # search if $issue is already filed or return a list of similar records
+  # search if this $issue was already filed, if not then return a list of matching records
   #
   search_string=$(cut -f3- -d' ' $issuedir/title | sed "s/['‘’\"]/ /g")
+  grep -q "file collision" $issuedir/title
+  if [[ $? -eq 0 ]]; then
+    search_string=$(echo "$search_string" | sed -e 's/\-[0-9\-r\.]*$//g')
+  fi
   id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
@@ -449,12 +452,12 @@ function GotAnIssue()  {
     Finish "FATAL: $fatal"
   fi
 
-  # our current shared repository solution is (even rarely) racy
+  # our current shared repository solution is (although rarely) racy
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
     Mail "notice: race of host repository sync and running emerge" $bak
-    echo $task >> $pks
+    echo "$task" >> $pks
     return
   fi
 
@@ -465,7 +468,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # guess the failed package from its log file name
+  # guess the failed package name from its log file name
   #
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
   if [[ -z "$failedlog" ]]; then
@@ -479,7 +482,7 @@ function GotAnIssue()  {
     failed=$(basename $failedlog | cut -f1-2 -d':' | tr ':' '/')
   else
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
-    # try the opposite way: guess the log file name from the package
+    # try the opposite way: guess the log file name from the package name
     #
     if [[ -z "$failedlog" ]]; then
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
@@ -497,8 +500,8 @@ function GotAnIssue()  {
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
-  donotmaskit=0
 
+  retry_with_changed_env=0
   CollectIssueFiles
   CompileInfoMail
 
@@ -508,9 +511,9 @@ function GotAnIssue()  {
   if [[ $? -eq 0 ]]; then
     (
     cd /
-    tar -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
-    tar -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
-    tar -cjpf $issuedir/etc.portage.tbz2      etc/portage
+    tar --dereference -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
+    tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
+    tar --dereference -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
     Mail "notice: fixing Perl upgrade issue: $task" $bak
     if [[ "$task" = "@system" ]]; then
@@ -520,13 +523,12 @@ function GotAnIssue()  {
     return
   fi
 
-  if [[ $donotmaskit -eq 1 ]]; then
-    # retry emerge (eg. with later to add special package.env settings)
-    #
+  if [[ $retry_with_changed_env -eq 1 ]]; then
     echo "$task" >> $pks
+    if [[ "$task" = "@preserved-rebuild" ]]; then
+      Mail "WARN: unexpected $task" $bak
+    fi
   else
-    # mask this particular package version at this image
-    #
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
@@ -631,7 +633,7 @@ function SelectNewKernel() {
 }
 
 
-# *schedule* emerge operation here, but do not run it
+# only *schedule* emerge operation here
 #
 function PostEmerge() {
   # don't auto-update these config files
@@ -690,22 +692,21 @@ function PostEmerge() {
 }
 
 
-# this is the heart of the tinderbox, the rest is just output parsing
+# this is the heart of the tinderbox, the rest is just boring output parsing
 #
 function EmergeTask() {
   if [[ "$task" = "@preserved-rebuild" ]]; then
     emerge --backtrack=30 $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
-      echo "$(date) $failed"  >> /tmp/timestamp.preserved-rebuild
+      echo "$(date) $failed" >> /tmp/timestamp.preserved-rebuild
     else
       grep -q -e 'Nothing to merge; quitting.' -e 'No outdated packages were found on your system.' $log
       if [[ $? -ne 0 ]]; then
         Mail "notice: @preserved-rebuild really ok ?" $log
       fi
-      echo "$(date) ok"       >> /tmp/timestamp.preserved-rebuild
+      echo "$(date) ok" >> /tmp/timestamp.preserved-rebuild
     fi
-
     PostEmerge
 
   elif [[ "$task" = "@system" ]]; then
@@ -716,7 +717,7 @@ function EmergeTask() {
     else
       echo "$(date) ok"       >> /tmp/timestamp.system
       echo "@world" >> $pks
-      # activate 32/64 bit library build if @system was successful and not yet done
+      # activate 32/64 bit library (re-)build if not yet done and @system was successful
       #
       grep -q '^#ABI_X86=' /etc/portage/make.conf
       if [[ $? -eq 0 ]]; then
@@ -732,9 +733,7 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       echo "$(date) $failed" >> /tmp/timestamp.world
-
-      # if @world failed then try to update as much as possible of the remain
-      # otherwise next time we stuck at the same package again without progress
+      # try to update as much as possible of the remain
       #
       while :;
       do
@@ -753,7 +752,6 @@ function EmergeTask() {
           break
         fi
       done
-
     else
       echo "$(date) ok" >> /tmp/timestamp.world
       echo "%emerge --depclean" >> $pks
