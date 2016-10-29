@@ -2,7 +2,7 @@
 #
 # set -x
 
-# setup a new tinderbox chroot image
+# setup a new tinderbox image
 #
 # typical call:
 #
@@ -329,64 +329,50 @@ EOF
 }
 
 
-# finalize setup of a chroot image
-#
-# - configure locale, timezone etc
-# - install and configure tools used in job.sh
-# - install kernel sources
-# - dry test a @system upgrade
+# - configure locale, timezone, MTA etc
+# - install and configure tools used in job.sh:
+#         <package>                   <command/s>
+#         app-arch/sharutils          uudecode
+#         app-portage/eix             eix
+#         app-portage/gentoolkit      equery eshowkw revdep-rebuild
+#         app-portage/pfl             pfl
+#         app-portage/portage-utils   qlop
+#         www-client/pybugz           bugz
+# - unpack kernel sources (b/c"sys-kernel/" is in IGNORE_PACKAGES)
+# - dry test of gcc and @system upgrade (try to auto-fix package-specific USE flags)
 #
 function EmergeMandatoryPackages() {
   dryrun="emerge --deep --update --changed-use --with-bdeps=y @system --pretend"
 
   cat << EOF > tmp/setup.sh
+eselect profile set $profile || exit 1
 
-eselect profile set $profile
-if [[ \$? -ne 0 ]]; then
-  exit 1
-fi
+echo "Europe/Berlin" > /etc/timezone
+emerge --config sys-libs/timezone-data
 
-echo "en_US ISO-8859-1
+echo "
+en_US ISO-8859-1
 en_US.UTF-8 UTF-8
 de_DE ISO-8859-1
 de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
+locale-gen || exit 2
+eselect locale set en_US.utf8 || exit 3
+env-update
+source /etc/profile
 
-. /etc/profile
-locale-gen
-if [[ \$? -ne 0 ]]; then
-  exit 2
-fi
-
-eselect locale set en_US.utf8
-if [[ \$? -ne 0 ]]; then
-  exit 3
-fi
-
-. /etc/profile
-
-echo "Europe/Berlin" > /etc/timezone
-
-emerge --config sys-libs/timezone-data
 emerge --noreplace net-misc/netifrc
 
-echo "=sys-libs/ncurses-6.0-r1" >> /etc/portage/package.mask/setup_blocker
-echo "~dev-lang/perl-5.24.0"    >> /etc/portage/package.mask/setup_blocker
+echo "
+=sys-libs/ncurses-6.0-r1
+~dev-lang/perl-5.24.0
+" >> /etc/portage/package.mask/setup_blocker
 
-emerge sys-apps/elfix
-if [[ \$? -ne 0 ]]; then
-  exit 4
-fi
+emerge sys-apps/elfix || exit 4
 migrate-pax -m
 
-# our preferred MTA
-#
-emerge mail-mta/ssmtp
-if [[ \$? -ne 0 ]]; then
-  exit 5
-fi
-
+emerge mail-mta/ssmtp || exit 5
 echo "
 root=tinderbox@zwiebeltoralf.de
 MinUserId=9999
@@ -395,46 +381,16 @@ rewriteDomain=zwiebeltoralf.de
 hostname=mr-fox.zwiebeltoralf.de
 UseTLS=YES
 " > /etc/ssmtp/ssmtp.conf
+emerge mail-client/mailx || exit 6
 
-# our preferred MTA
-#
-emerge mail-client/mailx
-if [[ \$? -ne 0 ]]; then
-  exit 6
-fi
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz app-portage/eix || exit 7
 
-# install mandatory tools
-#   <package>                   <command/s>
-#
-#   app-arch/sharutils          uudecode
-#   app-portage/eix             eix
-#   app-portage/gentoolkit      equery eshowkw revdep-rebuild
-#   app-portage/pfl             pfl
-#   app-portage/portage-utils   qlop
-#   www-client/pybugz           bugz
-#
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz app-portage/eix
-if [[ \$? -ne 0 ]]; then
-  exit 7
-fi
-
-# we have "sys-kernel/" in IGNORE_PACKAGES therefore emerge kernel sources here
-#
-emerge sys-kernel/hardened-sources
-if [[ \$? -ne 0 ]]; then
-  exit 8
-fi
+emerge sys-kernel/hardened-sources || exit 8
 
 if [[ "$libressl" = "y" ]]; then
-  /tmp/tb/bin/switch2libressl.sh
-  if [[ \$? -ne 0 ]]; then
-    exit 9
-  fi
+  /tmp/tb/bin/switch2libressl.sh || exit 9
 fi
 
-# gcc upgrade and the the very first @system must work
-# for gcc the setup_blocker file is needed
-#
 rc=0
 emerge --update --pretend sys-devel/gcc || rc=121
 
@@ -442,8 +398,6 @@ mv /etc/portage/package.mask/setup_blocker /tmp
 
 $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
-  # auto-fix of the USE flags set possible ?
-  #
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
     $dryrun &> /tmp/dryrun.log || ((rc=rc+1))
@@ -458,8 +412,6 @@ exit \$rc
 
 EOF
 
-  # installation takes about 1/2 hour
-  #
   cd - 1>/dev/null
 
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
@@ -467,15 +419,13 @@ EOF
 
   cd $tbhome
 
-  # strip off $tbhome
-  #
   d=$(basename $imagedir)/$name
 
   # authentication avoids a 10 sec tarpitting delay by the hoster of our (mail) domain
   #
   grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
 
-  # b.g.o. credentials
+  # b.g.o. user credentials
   #
   cp /home/tinderbox/.bugzrc $d/root
 
@@ -499,8 +449,6 @@ EOF
     exit $rc
   fi
 
-  # create symlink to $HOME but only if the setup was successful
-  #
   ln -s $d || exit 11
 
   echo
@@ -525,9 +473,9 @@ wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
 wgetpath=/releases/amd64/autobuilds
 latest=latest-stage3.txt
 
-autostart="y"   # start the chroot image after setup ?
+autostart="y"   # start the image after setup ?
 flags=$(rufs)   # holds the current USE flag subset
-origin=""       # clone from another tinderbox image ?
+origin=""       # clone from another image ?
 suffix=""       # free optional text
 
 # arbitrarily choose profile, keyword and ssl vendor
@@ -555,7 +503,7 @@ else
   multilib="n"
 fi
 
-# here's the chance to overwrite the pre settings made above
+# overwrite the (thrown) settings
 #
 while getopts a:f:k:l:m:o:p:s: opt
 do
