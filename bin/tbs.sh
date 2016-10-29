@@ -533,9 +533,9 @@ suffix=""       # free optional text
 # arbitrarily choose profile, keyword and ssl vendor
 #
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
-# 10% stable
+# 5% stable
 #
-if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+if [[ $(($RANDOM % 20)) -eq 0 ]]; then
   keyword="stable"
 else
   keyword="unstable"
