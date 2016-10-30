@@ -414,6 +414,13 @@ EOF
 
   cd - 1>/dev/null
 
+  # eselect LANG issue: https://bugs.gentoo.org/show_bug.cgi?id=598480
+  #
+  (
+    cd $name/usr/share/eselect
+    patch -p1 --forward < /home/tinderbox/live-eselect.patch
+  )
+
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
 
