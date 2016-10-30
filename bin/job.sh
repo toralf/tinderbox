@@ -301,8 +301,8 @@ EOF
     head -n 20 $sandb >> $issuedir/issue
 
   else
-    # to catch the real culprit we've loop over all patterns exactly in their order
-    # therefore we can't use "grep -f CATCH_ISSUES"
+    # to catch the real culprit loop over all patterns exactly in their defined order
+    # therefore "grep -f CATCH_ISSUES" won't work
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
@@ -314,10 +314,9 @@ EOF
       fi
     done
 
-    # this gcc-6 issue is forced by us, masking all affected packages
-    # would prevent tinderboxing of a lot of deps
-    #
-    # next time this package will be build with default c++ flags
+    # this gcc-6 issue is forced by us, masking this package
+    # would prevent tinderboxing of a lot of affected deps
+    # therefore rebuild this package with default CXX flags
     #
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
@@ -326,11 +325,11 @@ EOF
     fi
   fi
 
-  # shrink too long error messages like "/a/b/c.h:23: error 1"
+  # shrink too long error messages
   #
   sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
 
-  # kick off hex addresses and such stuff to improve search results in b.g.o.
+  # kick off hex addresses and such stuff to improve search results matching in b.g.o.
   #
   sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
 
@@ -377,11 +376,18 @@ EOF
   # search if this $issue was already filed, if not then return a list of matching records
   #
   search_string=$(cut -f3- -d' ' $issuedir/title | sed "s/['‘’\"]/ /g")
+
+  # handle file collision case: remove the package version from the counterpart
+  #
   grep -q "file collision" $issuedir/title
   if [[ $? -eq 0 ]]; then
     search_string=$(echo "$search_string" | sed -e 's/\-[0-9\-r\.]*$//g')
   fi
+
+  # get the newest bug number
+  #
   id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
+
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
@@ -403,14 +409,12 @@ EOF
     bugz --columns 400 -q search --status RESOLVED  $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
   fi
 
-  # attach now collected files
-  #
   for f in $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
   do
     uuencode $f $(basename $f) >> $issuedir/body
   done
 
-  # prefix the Subject with package name + version
+  # prefix it with package name + version
   #
   sed -i -e "s#^#$failed : #" $issuedir/title
 
@@ -445,7 +449,7 @@ function GotAnIssue()  {
     fi
   fi
 
-  # bail out if an OOM or related did happen
+  # bail out if an OOM happened or gcc upgrade failed
   #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
@@ -489,14 +493,14 @@ function GotAnIssue()  {
     fi
   fi
 
-  # after this point we expect to have a failed package
+  # after this point we expect to have a failed package name
   #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
     return
   fi
 
-  # collect related files in $issuedir
+  # collect all related files in $issuedir
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
@@ -525,9 +529,6 @@ function GotAnIssue()  {
 
   if [[ $retry_with_changed_env -eq 1 ]]; then
     echo "$task" >> $pks
-    if [[ "$task" = "@preserved-rebuild" ]]; then
-      Mail "WARN: unexpected $task" $bak
-    fi
   else
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
