@@ -296,29 +296,25 @@ EOF
 }
 
 
-# add few mandatory tasks to the list too
+# always upgrade gcc first, then build the kernel and upgrade @system
 #
 function FillPackageList()  {
   pks=tmp/packages
 
   if [[ -n "$origin" && -e $origin/var/log/emerge.log ]]; then
-    # reduce the randomized package list by packages which will be emerged before in the same order as made in $origin
-    # (except changes due to modified deps of the current portage tree in the mean while)
+    # filter out from the randomized package list the ones got from $origin
     #
-    qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' | tac >> $pks.tmp
-
+    qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.tmp
     qsearch --all --nocolor --name-only --quiet | sort --random-sort | fgrep -v -f $pks.tmp > $pks
-    echo "# package history of $origin" >> $pks
-    cat $pks.tmp >> $pks
-
+    echo "# $(wc -l < $pks.tmp) packages of $origin" >> $pks
+    tac $pks.tmp >> $pks
     rm $pks.tmp
   else
     qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
   fi
 
-  # first task: switch to latest GCC
-  #
   cat << EOF >> $pks
+# setup done
 @system
 %BuildKernel
 %rm -f /etc/portage/package.mask/setup_blocker
