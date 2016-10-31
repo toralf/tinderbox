@@ -730,6 +730,7 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       echo "$(date) $failed" >> /tmp/timestamp.world
+      PostEmerge
       # try to update as much as possible of the remain
       #
       while :;
