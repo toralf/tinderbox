@@ -700,13 +700,9 @@ function EmergeTask() {
     emerge --backtrack=30 $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
-      echo "$(date) $failed" >> /tmp/timestamp.preserved-rebuild
+      echo "$(date) $failed"  >> /tmp/timestamp.preserved-rebuild
     else
-      grep -q -e 'Nothing to merge; quitting.' -e 'No outdated packages were found on your system.' $log
-      if [[ $? -ne 0 ]]; then
-        Mail "notice: @preserved-rebuild really ok ?" $log
-      fi
-      echo "$(date) ok" >> /tmp/timestamp.preserved-rebuild
+      echo "$(date) ok"       >> /tmp/timestamp.preserved-rebuild
     fi
     PostEmerge
 
@@ -756,8 +752,8 @@ function EmergeTask() {
     else
       echo "$(date) ok" >> /tmp/timestamp.world
       echo "%emerge --depclean" >> $pks
+      PostEmerge
     fi
-    PostEmerge
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
