@@ -64,7 +64,7 @@ sort --unique > $tmp
 # shuffle the ebuilds around in a different way for each image
 #
 if [[ -s $tmp ]]; then
-  info="# $(basename $0) $(wc -l < $tmp) packages) at $(date)"
+  info="# $(basename $0) $(wc -l < $tmp) packages at $(date)"
   for pks in $avail_pks
   do
     echo "$info"              >> $pks
