@@ -2,8 +2,9 @@
 #
 # set -x
 
-# this is the tinderbox script:
-# it runs "emerge -u" for each package and parses the output, that's all
+# this is the tinderbox script itself
+# main function: EmergeTask()
+# the remaining code just parses the output, that's all
 
 # barrier start
 # this prevents the start of a broken copy of ourself - see end of file too
@@ -520,6 +521,8 @@ function GotAnIssue()  {
     tar --dereference -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
     Mail "notice: fixing Perl upgrade issue: $task" $bak
+    # regular packages might fail with a similar error message as if Perl itself would be broken
+    #
     if [[ "$task" = "@system" ]]; then
       echo "$task" >> $pks
     fi
@@ -573,7 +576,7 @@ function SwitchGCC() {
     . /etc/profile
     vernew=$(gcc -dumpversion)
 
-    # this locks the package list
+    # this will avoid to append packages by insert_pkgs.sh onto our package list $pks
     #
     echo "# gcc switch from $verold to $vernew" >> $pks
 
@@ -596,7 +599,7 @@ function SwitchGCC() {
         Finish "FAILED: $FUNCNAME revdep-rebuild failed"
       fi
 
-      # double-ensure that packages are build against the new gcc headers and libs
+      # double-ensure that packages are build against the new gcc headers/libs
       #
       fix_libtool_files.sh $verold &>>$log
       if [[ $? -ne 0 ]]; then
@@ -634,10 +637,11 @@ function SelectNewKernel() {
 }
 
 
-# only *schedule* emerge operation here
+# work on follow-ups from the previous emerge operation
+# but only *schedule* a needed emerge operation her
 #
 function PostEmerge() {
-  # don't auto-update these config files
+  # don't change these config files
   #
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
@@ -662,10 +666,12 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     n=$(tac /var/log/emerge.log | grep -F -m 20 '*** emerge' | grep -c "emerge .* @preserved-rebuild")
     if [[ $n -gt 4 ]]; then
+      # empty that file manually will let this check passed
+      #
       f=/tmp/timestamp.preserved-rebuild
       if [[ -s $f ]]; then
         chmod a+w $f
-        Finish "${n}x @preserved-rebuild, run 'truncate -s 0 $name/$f' before next start"
+        Finish "${n}x @preserved-rebuild, run 'truncate -s 0 $name/$f' and restart this image"
       fi
     fi
     echo "@preserved-rebuild" >> $pks
@@ -693,7 +699,7 @@ function PostEmerge() {
 }
 
 
-# this is the heart of the tinderbox, the rest is just boring output parsing
+# this is the tinderbox, the rest is just output parsing
 #
 function EmergeTask() {
   if [[ "$task" = "@preserved-rebuild" ]]; then
@@ -817,6 +823,9 @@ do
   fi
 
   date > $log
+
+  # this is one of exits of this loop
+  #
   if [[ -f /tmp/STOP ]]; then
     Finish "catched stop signal"
   fi
@@ -825,11 +834,15 @@ do
   # this isn't made by portage b/c we had to collect build files first
   #
   rm -rf /var/tmp/portage/*
+
+  # another regular exit of this loop: append STOP onto $pks or empty it
+  #
   GetNextTask
+
+  # the heart of the tinderbox
+  #
   EmergeTask
 done
-
-Finish "Bummer! We should never reach this line !"
 
 # barrier end (see start of this file too)
 #
