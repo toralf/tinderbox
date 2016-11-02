@@ -25,10 +25,9 @@ do
     continue
   fi
 
-  # looking for '#' too avoids adding packages to a package list
-  # if the previous addition wasn't processed yet
+  # do not consider '#' - that's just a comment marker
   #
-  grep -q -E "^(STOP|INFO|%|@|#)" $pks
+  grep -q -E "^(STOP|INFO|%|@)" $pks
   if [[ $? -eq 0 ]]; then
     continue
   fi
@@ -42,8 +41,8 @@ if [[ -z "$avail_pks" ]]; then
   exit
 fi
 
-# the host repo is synced every 3 hours, add 1 hour too for mirroring
-# kick off (D)eleted ebuilds and do not use the package version
+# the host repo is synced every 3 hours, shift 1 hour for mirroring
+# kick off (D)eleted ebuilds and just use the package name
 #
 # A       www-apache/passenger/passenger-5.0.24.ebuild
 # M       www-apps/kibana-bin/kibana-bin-4.1.4.ebuild
