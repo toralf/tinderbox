@@ -6,27 +6,22 @@
 # to check for artefacts from the previous emerge step
 #
 
-# misplaced/left files
+# bug       pattern
 #
-function checkTmp() {
-  for f in
-  do
-    if [[ -e $f ]]; then
-      found=$(dirname $f)/.$(basename $f).found
-      if [[ ! -f $found ]]; then
-        ls -ld $f
-        touch $found  # don't report this finding again
-        rc=1
-      fi
-    fi
-  done
-}
-
-
-# main
-#
+# 563396    ./%\{_*
+#           /tmp/file??????
 
 rc=0
-# checkTmp
+for f in /%\{_* /tmp/file??????
+do
+  if [[ -e $f ]]; then
+    reported=$(dirname $f)/.reported.$(basename $f)
+    if [[ ! -f $reported ]]; then
+      ls -ld $f
+      touch $reported  # don't report this finding again
+      rc=1
+    fi
+  fi
+done
 
 exit $rc

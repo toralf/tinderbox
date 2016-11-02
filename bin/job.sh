@@ -783,6 +783,39 @@ function EmergeTask() {
 }
 
 
+# test hook, eg. to catch install artefacts
+#
+function pre-check() {
+  exe=/tmp/tb/bin/PRE-CHECK.sh
+
+  if [[ -x $exe ]]; then
+    out=/tmp/pre-check.log
+
+    $exe &> $out
+    rc=$?
+
+    # -1 == 255:-2 == 254, ...
+    #
+    if [[ $rc -gt 127 ]]; then
+      Mail "$exe returned $rc, task=$task" $out
+      Finish "error: stopped"
+    fi
+
+    if [[ $rc -ne 0 ]]; then
+      echo                                  >> $out
+      echo "seen at tinderbox image $name"  >> $out
+      echo                                  >> $out
+      tail -n 30 $log                       >> $out
+      echo                                  >> $out
+      emerge --info --verbose=n $task       >> $out
+      echo                                  >> $out
+      Mail "$exe : rc=$rc, task=$task" $out
+    fi
+
+    rm $out
+  fi
+}
+
 #############################################################################
 #
 #       main
@@ -821,6 +854,8 @@ do
   if [[ $? -ne 0 ]]; then
     exit 125
   fi
+
+  pre-check
 
   date > $log
 
