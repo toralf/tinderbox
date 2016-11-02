@@ -61,7 +61,7 @@ if [[ $? -ne 0 ]]; then
 dev-libs/libressl
 $py2
 $py3
-~app-eselect/eselect-python-20160222
+~app-eselect/eselect-python-20160516
 ~dev-lang/python-exec-2.4.3
 
 ~dev-libs/libevent-2.1.5
