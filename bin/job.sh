@@ -765,7 +765,7 @@ function EmergeTask() {
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     cmd=$(echo "$task" | cut -c2-)
-    $cmd &> $log
+    ($cmd) &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       PostEmerge
