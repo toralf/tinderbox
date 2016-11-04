@@ -116,12 +116,11 @@ function UnpackStage3()  {
     wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 6
   fi
 
-  gpg --quiet --verify $f.DIGESTS.asc || exit 7
+  gpg --quiet --verify $f.DIGESTS.asc || exit 4
 
-  cd $imagedir  || exit 8
-  mkdir $name   || exit 9
-  cd $name
-  tar xjpf $f --xattrs || exit 10
+  mkdir $name           || exit 4
+  cd $name              || exit 4
+  tar xjpf $f --xattrs  || exit 4
 }
 
 
@@ -325,6 +324,8 @@ EOF
 }
 
 
+# create and run a shell script to:
+#
 # - configure locale, timezone, MTA etc
 # - install and configure tools used in job.sh:
 #         <package>                   <command/s>
@@ -341,7 +342,7 @@ function EmergeMandatoryPackages() {
   dryrun="emerge --deep --update --changed-use --with-bdeps=y @system --pretend"
 
   cat << EOF > tmp/setup.sh
-eselect profile set $profile || exit 1
+eselect profile set $profile || exit 51
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
@@ -353,8 +354,8 @@ de_DE ISO-8859-1
 de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
-locale-gen || exit 2
-eselect locale set en_US.utf8 || exit 3
+locale-gen || exit 52
+eselect locale set en_US.utf8 || exit 53
 env-update
 source /etc/profile
 
@@ -365,10 +366,10 @@ echo "
 ~dev-lang/perl-5.24.0
 " >> /etc/portage/package.mask/setup_blocker
 
-emerge sys-apps/elfix || exit 4
+emerge sys-apps/elfix || exit 54
 migrate-pax -m
 
-emerge mail-mta/ssmtp || exit 5
+emerge mail-mta/ssmtp || exit 55
 echo "
 root=tinderbox@zwiebeltoralf.de
 MinUserId=9999
@@ -377,14 +378,14 @@ rewriteDomain=zwiebeltoralf.de
 hostname=mr-fox.zwiebeltoralf.de
 UseTLS=YES
 " > /etc/ssmtp/ssmtp.conf
-emerge mail-client/mailx || exit 6
+emerge mail-client/mailx || exit 56
 
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz app-portage/eix || exit 7
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz app-portage/eix || exit 57
 
-emerge sys-kernel/hardened-sources || exit 8
+emerge sys-kernel/hardened-sources || exit 58
 
 if [[ "$libressl" = "y" ]]; then
-  /tmp/tb/bin/switch2libressl.sh || exit 9
+  /tmp/tb/bin/switch2libressl.sh || exit 59
 fi
 
 rc=0
@@ -408,29 +409,33 @@ exit \$rc
 
 EOF
 
-  cd - 1>/dev/null
-
-  # eselect LANG issue: https://bugs.gentoo.org/show_bug.cgi?id=598480
+  # <app-admin/eselect1.4.7 LANG issue: https://bugs.gentoo.org/show_bug.cgi?id=598480
   #
   (
-    cd $name/usr/share/eselect
+    cd usr/share/eselect
     patch -p1 --forward < /home/tinderbox/live-eselect.patch
-  )
-
-  $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
-  rc=$?
-
-  cd $tbhome
-
-  d=$(basename $imagedir)/$name
-
-  # authentication avoids a 10 sec tarpitting delay by the hoster of our (mail) domain
-  #
-  grep "^Auth" /etc/ssmtp/ssmtp.conf >> $d/etc/ssmtp/ssmtp.conf
+  ) || exit 6
 
   # b.g.o. user credentials
   #
-  cp /home/tinderbox/.bugzrc $d/root
+  cp /home/tinderbox/.bugzrc root || exit 6
+
+  cd ..
+  $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
+  rc=$?
+
+  # authentication avoids a 10 sec tarpitting delay by the hoster of our (mail) domain
+  #
+  grep "^Auth" /etc/ssmtp/ssmtp.conf >> $name/etc/ssmtp/ssmtp.conf || exit 6
+
+  cd $tbhome
+
+  # try to shorten the link to the image, eg.: img1/amd64-...
+  #
+  d=$(basename $imagedir)/$name
+  if [[ ! -d $d ]]; then
+    d=$imagedir/$name
+  fi
 
   if [[ $rc -ne 0 ]]; then
     echo
@@ -452,7 +457,7 @@ EOF
     exit $rc
   fi
 
-  ln -s $d || exit 11
+  ln -s $d || exit 6
 
   echo
   echo " setup  OK : $d"
@@ -471,7 +476,7 @@ fi
 
 # the remote stage3 location
 #
-imagedir=$tbhome/images
+imagedir=$(pwd)
 wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
 wgetpath=/releases/amd64/autobuilds
 latest=latest-stage3.txt
@@ -592,6 +597,13 @@ if [[ "$multilib" = "y" ]]; then
   fi
 fi
 
+#############################################################################
+#
+if [[ "$tbhome" = "$imagedir" ]]; then
+  echo "you are in \$tbhome instead of an image dir !"
+  exit 3
+fi
+
 # $latest contains the stage3 file name needed in ComputeImageName()
 #
 wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
@@ -604,8 +616,6 @@ ComputeImageName
 name="${name}_$(date +%Y%m%d-%H%M%S)"
 echo " $imagedir/$name"
 echo
-
-cd $tbhome
 
 UnpackStage3
 CompilePortageFiles
