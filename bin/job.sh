@@ -661,6 +661,7 @@ function PostEmerge() {
   fi
 
   # sometimes we run into a @preserved-rebuild loop, bail out then
+  # especially sci-bio/embassy is often the culprit
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
   if [[ $? -eq 0 ]]; then
@@ -713,6 +714,8 @@ function EmergeTask() {
     PostEmerge
 
   elif [[ "$task" = "@system" ]]; then
+    # should work always, otherwise inspect the emerge log
+    #
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
@@ -732,13 +735,13 @@ function EmergeTask() {
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$task" = "@world" ]]; then
+    # re-try to update as much as possible
+    #
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       echo "$(date) $failed" >> /tmp/timestamp.world
       PostEmerge
-      # try to update as much as possible of the remain
-      #
       while :;
       do
         emerge --resume --skipfirst &> $log
@@ -764,6 +767,8 @@ function EmergeTask() {
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
+    #  a command line, prefixed with an '%'
+    #
     cmd=$(echo "$task" | cut -c2-)
     ($cmd) &> $log
     if [[ $? -ne 0 ]]; then
@@ -774,6 +779,8 @@ function EmergeTask() {
     PostEmerge
 
   else
+    # just a package
+    #
     emerge --update $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
