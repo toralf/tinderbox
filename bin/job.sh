@@ -720,6 +720,7 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       echo "$(date) $failed"  >> /tmp/timestamp.system
+      Mail "notice: $task failed in $failed" $log
     else
       echo "$(date) ok"       >> /tmp/timestamp.system
       echo "@world" >> $pks
