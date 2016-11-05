@@ -700,6 +700,29 @@ function PostEmerge() {
 }
 
 
+# re-try emerge to update as much as possible
+#
+function SkipFirstAndResume() {
+  while :;
+  do
+    emerge --resume --skipfirst &> $log
+    if [[ $? -ne 0 ]]; then
+      grep -q '* unsatisfied dependencies. Please restart/continue the operation' $log
+      if [[ $? -eq 0 ]]; then
+        break
+      fi
+      GotAnIssue
+      echo "$(date) $failed" >> /tmp/timestamp.world
+      PostEmerge
+    else
+      echo "$(date) resumed" >> /tmp/timestamp.world
+      PostEmerge
+      break
+    fi
+  done
+}
+
+
 # this is the tinderbox, the rest is just output parsing
 #
 function EmergeTask() {
@@ -736,30 +759,12 @@ function EmergeTask() {
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$task" = "@world" ]]; then
-    # re-try to update as much as possible
-    #
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       echo "$(date) $failed" >> /tmp/timestamp.world
       PostEmerge
-      while :;
-      do
-        emerge --resume --skipfirst &> $log
-        if [[ $? -ne 0 ]]; then
-          grep -q '* unsatisfied dependencies. Please restart/continue the operation' $log
-          if [[ $? -eq 0 ]]; then
-            break
-          fi
-          GotAnIssue
-          echo "$(date) $failed" >> /tmp/timestamp.world
-          PostEmerge
-        else
-          echo "$(date) resumed" >> /tmp/timestamp.world
-          PostEmerge
-          break
-        fi
-      done
+      SkipFirstAndResume
     else
       echo "$(date) ok" >> /tmp/timestamp.world
       echo "%emerge --depclean" >> $pks
