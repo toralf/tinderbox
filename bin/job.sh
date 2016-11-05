@@ -1,4 +1,4 @@
-#!/bin/sh
+# #!/bin/sh
 #
 # set -x
 
@@ -431,6 +431,7 @@ EOF
 
 
 # emerge failed for some reason, parse the output
+# return 1 if a Perl Upgrade issue appears, b/c in this case no resume should be made
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -520,14 +521,7 @@ function GotAnIssue()  {
     tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     tar --dereference -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
-    Mail "notice: fixing Perl upgrade issue: $task" $bak
-    # regular packages might fail with a similar error message as if Perl itself would be broken
-    #
-    if [[ "$task" = "@system" ]]; then
-      echo "$task" >> $pks
-    fi
-    echo "%perl-cleaner --all" >> $pks
-    return
+    return 1
   fi
 
   if [[ $retry_with_changed_env -eq 1 ]]; then
@@ -737,14 +731,19 @@ function EmergeTask() {
     PostEmerge
 
   elif [[ "$task" = "@system" ]]; then
-    # should work always, otherwise inspect the emerge log
-    #
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
+      rc=$?
       echo "$(date) $failed"  >> /tmp/timestamp.system
       PostEmerge
-      SkipFirstAndResume
+      if [[ $rc -eq 0 ]]; then
+        SkipFirstAndResume
+      else
+        Mail "notice: fixing Perl upgrade issue: $task" $log
+        echo "$task" >> $pks
+        echo "%perl-cleaner --all" >> $pks
+      fi
     else
       echo "$(date) ok"       >> /tmp/timestamp.system
       echo "@world" >> $pks
