@@ -124,7 +124,7 @@ function UnpackStage3()  {
 }
 
 
-# configure repos.d/* files, make.conf and other stuff
+# repos.d/* , make.conf and other stuff
 #
 function CompilePortageFiles()  {
   mkdir -p                  usr/local/portage/{metadata,profiles}
@@ -132,6 +132,8 @@ function CompilePortageFiles()  {
   echo 'local' >            usr/local/portage/profiles/repo_name
   chown -R portage:portage  usr/local/portage/
 
+  # the local repo rules, then tinderbox follows, the last (basic) is the gentoo repository
+  #
   mkdir -p     etc/portage/repos.conf/
   cat << EOF > etc/portage/repos.conf/default.conf
 [DEFAULT]
@@ -140,8 +142,11 @@ main-repo = gentoo
 [gentoo]
 priority = 1
 
-[local]
+[tinderbox]
 priority = 2
+
+[local]
+priority = 3
 
 EOF
 
@@ -150,6 +155,13 @@ EOF
 location  = /usr/portage
 auto-sync = no
 
+EOF
+
+  cat << EOF > etc/portage/repos.conf/tinderbox.conf
+[tinderbox]
+location  = /tmp/tb/data/portage
+masters   = gentoo
+auto-sync = no
 EOF
 
   cat << EOF > etc/portage/repos.conf/local.conf
@@ -271,7 +283,7 @@ EOF
   #
   echo 'CXXFLAGS="-O2 -pipe -march=native"' > etc/portage/env/cxx
 
-  # have a look in package.env.common
+  # force tests of entries defined in package.env.common
   #
   echo 'FEATURES="test"'                    > etc/portage/env/test
 
@@ -281,7 +293,7 @@ EOF
 }
 
 
-# DNS resolution, and .vimrc
+# DNS resolution + .vimrc
 #
 function CompileMiscFiles()  {
   cp -L /etc/hosts /etc/resolv.conf etc/
@@ -292,10 +304,11 @@ set shiftwidth=2
 set tabstop=2
 set expandtab
 EOF
+
 }
 
 
-# always upgrade gcc first, then build the kernel and upgrade @system
+# always upgrade gcc first, then build the kernel, then upgrade @system
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -342,7 +355,7 @@ function EmergeMandatoryPackages() {
   dryrun="emerge --deep --update --changed-use --with-bdeps=y @system --pretend"
 
   cat << EOF > tmp/setup.sh
-eselect profile set $profile || exit 51
+eselect profile set $profile || exit 6
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
@@ -354,8 +367,8 @@ de_DE ISO-8859-1
 de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
-locale-gen || exit 52
-eselect locale set en_US.utf8 || exit 53
+locale-gen || exit 6
+eselect locale set en_US.utf8 || exit 6
 env-update
 source /etc/profile
 
@@ -366,26 +379,18 @@ echo "
 ~dev-lang/perl-5.24.0
 " >> /etc/portage/package.mask/setup_blocker
 
-emerge sys-apps/elfix || exit 54
+emerge sys-apps/elfix || exit 6
 migrate-pax -m
 
-emerge mail-mta/ssmtp || exit 55
-echo "
-root=tinderbox@zwiebeltoralf.de
-MinUserId=9999
-mailhub=mail.zwiebeltoralf.de:465
-rewriteDomain=zwiebeltoralf.de
-hostname=mr-fox.zwiebeltoralf.de
-UseTLS=YES
-" > /etc/ssmtp/ssmtp.conf
-emerge mail-client/mailx || exit 56
+emerge mail-mta/ssmtp || exit 6
+emerge mail-client/mailx || exit 6
 
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz app-portage/eix || exit 57
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz app-portage/eix || exit 6
 
-emerge sys-kernel/hardened-sources || exit 58
+emerge sys-kernel/hardened-sources || exit 6
 
 if [[ "$libressl" = "y" ]]; then
-  /tmp/tb/bin/switch2libressl.sh || exit 59
+  /tmp/tb/bin/switch2libressl.sh || exit 6
 fi
 
 rc=0
@@ -409,24 +414,21 @@ exit \$rc
 
 EOF
 
-  # <app-admin/eselect1.4.7 LANG issue: https://bugs.gentoo.org/show_bug.cgi?id=598480
+  # <app-admin/eselect-1.4.7 LANG issue: https://bugs.gentoo.org/show_bug.cgi?id=598480
   #
   (
     cd usr/share/eselect
     patch -p1 --forward < /home/tinderbox/live-eselect.patch
-  ) || exit 6
-
-  # b.g.o. user credentials
-  #
-  cp /home/tinderbox/.bugzrc root || exit 6
+  ) || exit 5
 
   cd ..
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
 
-  # authentication avoids a 10 sec tarpitting delay by the hoster of our (mail) domain
+  # provide credentials only to running images
   #
-  grep "^Auth" /etc/ssmtp/ssmtp.conf >> $name/etc/ssmtp/ssmtp.conf || exit 6
+  (cd root;       ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 7
+  (cd etc/ssmtp;  ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 7
 
   cd $tbhome
 
