@@ -37,7 +37,7 @@ app-crypt/mit-krb5      -pkinit
 # misc
 #
 media-video/ffmpeg      -sdl
-sys-devel/llvm          clang
+#sys-devel/llvm          clang
 sys-libs/zlib           minizip
 x11-base/xorg-server    glamor -minimal
 
@@ -53,8 +53,20 @@ dev-qt/qtgui        egl eglfs
 dev-util/cmake      -qt4 -qt5
 dev-vcs/git         -gtk -perl
 gnome-base/librsvg  -tools
-media-libs/mesa     -vaapi
+media-libs/mesa     -vaapi -video_cards_radeonsi -video_cards_radeon
 net-nds/openldap    -sasl
 sys-apps/kmod       tools
 sys-libs/ncurses    -gpm
 x11-libs/gtk+       -cups
+
+# don't depend on QT eventually which failes with gcc-6
+#
+sys-auth/polkit     -kde
+
+# pulls otherwise llvm during switch 2 libressl
+#
+app-text/xmlto      -text
+
+# test? ( ssl )
+#
+net-misc/openssh    ssl
