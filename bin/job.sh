@@ -29,11 +29,11 @@ function Mail() {
 # clean up and exit
 #
 function Finish()  {
+  /usr/bin/pfl &>/dev/null
+  eix-update -q
   Mail "FINISHED: $*" $log
 
-  eix-update -q
   rm -f /tmp/STOP
-
   exit 0
 }
 
@@ -96,7 +96,6 @@ function GetNextTask() {
 
       # package list is empty
       #
-      /usr/bin/pfl &>/dev/null
       n=$(qlist --installed | wc -l)
       Finish "$n packages emerged, spin up a new one"
 
@@ -756,7 +755,6 @@ function EmergeTask() {
         echo "@system" >> $pks
       fi
     fi
-    /usr/bin/pfl &>/dev/null
 
   elif [[ "$task" = "@world" ]]; then
     emerge --deep --update --changed-use --with-bdeps=y $task &> $log
@@ -770,7 +768,6 @@ function EmergeTask() {
       echo "%emerge --depclean" >> $pks
       PostEmerge
     fi
-    /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     #  a command line, prefixed with an '%'
