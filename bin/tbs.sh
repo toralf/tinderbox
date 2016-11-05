@@ -590,11 +590,17 @@ do
   esac
 done
 
-if [[ "$multilib" = "y" ]]; then
-  echo "$profile" | grep -q 'no-multilib'
-  if [[ $? -eq 0 ]]; then
-    multilib="n"
-  fi
+# doesn't make sense
+#
+echo "$profile" | grep -q 'no-multilib'
+  multilib="n"
+fi
+
+# setup  too often fails and QT isn't libressl ready
+#
+echo "$profile" | grep -q 'plasma'
+if [[ $? -eq 0 ]]; then
+  libressl="n"
 fi
 
 #############################################################################
