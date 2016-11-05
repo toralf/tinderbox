@@ -1,3 +1,4 @@
 *.pdf
 data/ALREADY_CATCHED
+data/portage/*-*/
 sdata/
