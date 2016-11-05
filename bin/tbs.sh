@@ -397,9 +397,9 @@ $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $dryrun &> /tmp/dryrun.log || ((rc=rc+1))
+    $dryrun &> /tmp/dryrun.log || rc=122
   else
-    ((rc=rc+1))
+    rc=123
   fi
 fi
 
