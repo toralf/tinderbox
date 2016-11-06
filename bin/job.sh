@@ -18,7 +18,7 @@ function stresc() {
 }
 
 
-# send out an email with $1 as the subject and $2 as the body
+# mail out with $1 as the subject and $2 as the body
 #
 function Mail() {
   subject=$(echo "$1" | cut -c1-200 | tr '\n' ' ' | stresc)
@@ -38,6 +38,7 @@ function Finish()  {
 }
 
 
+# helper of GetNextTask()
 # arbitraily choose a java engine
 #
 function SwitchJDK()  {
@@ -56,7 +57,8 @@ function SwitchJDK()  {
 }
 
 
-# for a package do evaluate here if it is worth to call emerge
+# return the next item from the package list (last line)
+# and store it into $task
 #
 function GetNextTask() {
   #   update @system once a day, if no special task is scheduled
@@ -109,15 +111,13 @@ function GetNextTask() {
       continue  # just a comment line
 
     else
-      # ignore known trouble makers
-      #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
-      # make some pre-checks here
-      # emerge takes too much time before it gives up
+      # make some pre-checks here to speed up b/c
+      # emerge takes too much time to check for all alternatives before it gives up
 
       # skip if $task is masked, keyworded or an invalid string
       #
@@ -144,6 +144,7 @@ function GetNextTask() {
 }
 
 
+# helper of GotAnIssue()
 # gather together what we do need for a bugzilla report
 #
 function CollectIssueFiles() {
@@ -193,6 +194,7 @@ function CollectIssueFiles() {
 }
 
 
+# helper of GotAnIssue()
 # create an email containing convenient links + info ready for being picked up by copy+paste
 #
 function CompileInfoMail() {
@@ -430,7 +432,8 @@ EOF
 
 
 # emerge failed for some reason, parse the output
-# return 1 if a Perl Upgrade issue appears, b/c in this case no resume should be made
+# return 1 if a Perl Upgrade issue appears, b/c in this case no resume must be made
+# otherwise return 0
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -615,6 +618,7 @@ function SwitchGCC() {
 }
 
 
+# helper of PostEmerge()
 # eselect the latest *emerged* kernel and schedule a build of it
 #
 function SelectNewKernel() {
@@ -630,6 +634,7 @@ function SelectNewKernel() {
 }
 
 
+# helper of EmergeTask()
 # work on follow-ups from the previous emerge operation
 # but only *schedule* a needed emerge operation her
 #
@@ -693,6 +698,7 @@ function PostEmerge() {
 }
 
 
+# helper of EmergeTask()
 # re-try emerge to update as much as possible
 #
 function SkipFirstAndResume() {
