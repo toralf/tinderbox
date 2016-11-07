@@ -81,7 +81,7 @@ emerge -f libressl openssh wget python || exit 24
 
 echo -e "\n$sep\n$0: unmerge"
 
-qlist -IC dev-libs/openssl
+qlist --installed --nocolor dev-libs/openssl
 if [[ $? -eq 0 ]]; then
   emerge -C openssl || exit 25
 fi
