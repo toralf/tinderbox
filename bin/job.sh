@@ -78,10 +78,10 @@ function GetNextTask() {
     fi
   fi
 
-  # splice last line of the package list $pks into $task
-  #
   while :;
   do
+    # splice last line of the package list $pks into $task
+    #
     task=$(tail -n 1 $pks)
     sed -i -e '$d' $pks
 
@@ -93,13 +93,10 @@ function GetNextTask() {
 
     elif  [[ -z "$task" ]]; then
       if [[ -s $pks ]]; then
-        continue  # package list itself isn't empty, just this line
+        continue  # this line is empty, but not the package list
       fi
-
-      # package list is empty
-      #
       n=$(qlist --installed | wc -l)
-      Finish "$n packages emerged, spin up a new one"
+      Finish "$n packages emerged, spin up a new image"
 
     elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
       return  # a complete command line
@@ -702,6 +699,7 @@ function PostEmerge() {
 # re-try emerge to update as much as possible
 #
 function SkipFirstAndResume() {
+  suffix=$(echo "$task" | sed 's/@//g')
   while :;
   do
     emerge --resume --skipfirst &> $log
@@ -711,10 +709,10 @@ function SkipFirstAndResume() {
         break
       fi
       GotAnIssue
-      echo "$(date) $failed" >> /tmp/timestamp.world
+      echo "$(date) $failed" >> /tmp/timestamp.$suffix
       PostEmerge
     else
-      echo "$(date) resumed" >> /tmp/timestamp.world
+      echo "$(date) resumed" >> /tmp/timestamp.$suffix
       PostEmerge
       break
     fi
@@ -871,22 +869,24 @@ do
     exit 125
   fi
 
+  # install artefacts from previous operations ?
+  #
   pre-check
 
   date > $log
 
-  # this is one of exits of this loop
+  # this is the preferred exit of this loop (except empty package list)
   #
   if [[ -f /tmp/STOP ]]; then
     Finish "catched stop signal"
   fi
 
   # clean up from a previous emerge operation
-  # this isn't made by portage b/c we had to collect build files first
+  # this isn't made by portage b/c we had to collect relevant build and log files first
   #
   rm -rf /var/tmp/portage/*
 
-  # another regular exit of this loop: append STOP onto $pks or empty it
+  # another regular exit of this loop: "echo STOP >> $pks" or have it being empty
   #
   GetNextTask
 
