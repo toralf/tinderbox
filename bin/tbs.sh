@@ -27,7 +27,7 @@ function rufs()  {
   allflags="
     aes-ni alisp alsa aqua avcodec avformat btrfs bugzilla bzip2 cairo cdb
     cdda cddb cgi cgroups clang compat consolekit contrib corefonts csc
-    cups curl custom-cflags custom-optimization dbus dec_av2 declarative
+    cups curl dbus dec_av2 declarative
     designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev exif ext4
     extra extraengine ffmpeg fitz fluidsynth fontconfig fortran fpm
     freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring
