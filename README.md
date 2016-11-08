@@ -19,16 +19,16 @@ It uses *chr.sh* to handle chroot related actions.
 New issues are reported via email to the user. Bugs can then be filed using *bgo.sh*.
 
 ## installation
-Copy both *bin* and *data* into */home/tinderbox/tb*. Create an sdata subdir there too with the files *ssmtp.conf* and *.bugzrc* having meaningful credential data. Grant sudo rights to the user *tinderbox* for *chr.sh* and *tbs.sh*.
+Copy *bin*, *data* and *sdata* into */home/tinderbox/tb*. Adapt the 2 files in *sdata* and strip away the suffix *.sample*. Grant sudo rights to the user *tinderbox* to execute *chr.sh* and *tbs.sh*.
 
 ## typical calls
 Setup a new image:
 
     $> sudo ~/tb/bin/tbs.sh 
 
-Start it:
+Start all:
 
-    $> ~/tb/bin/start_img.sh
+    $> ~/tb/bin/start_img.sh <image name>
 
 
 ## more info

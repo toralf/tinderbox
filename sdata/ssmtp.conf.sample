@@ -1,0 +1,10 @@
+root=<user@domain>
+MinUserId=9999
+mailhub=<mail.domain>:465
+rewriteDomain=<domain>
+hostname=<host.domain>
+UseTLS=YES
+
+AuthUser=<authuser@domain>
+AuthPass=<authpass>
+

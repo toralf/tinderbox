@@ -1,4 +1,5 @@
 *.pdf
 data/ALREADY_CATCHED
 data/portage/*-*/
-sdata/
+sdata/.bugzrc
+sdata/ssmtp.conf
