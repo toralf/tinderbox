@@ -558,7 +558,7 @@ function BuildKernel()  {
 }
 
 
-# switch to latest GCC
+# switch to highest GCC version
 #
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
@@ -569,17 +569,13 @@ function SwitchGCC() {
     . /etc/profile
     vernew=$(gcc -dumpversion)
 
-    # this will avoid to append packages by insert_pkgs.sh onto our package list $pks
-    #
-    echo "# gcc switch from $verold to $vernew" >> $pks
-
     majold=$(echo $verold | cut -c1)
     majnew=$(echo $vernew | cut -c1)
 
-    # rebuild libs at a major version number change
+    # rebuild kernel and libs after a major version number change
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # avoid: "cc1: error: incompatible gcc/plugin versions"
+      # without a rebuild we get issues like: "cc1: error: incompatible gcc/plugin versions"
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>>$log)
@@ -592,20 +588,21 @@ function SwitchGCC() {
         Finish "FAILED: $FUNCNAME revdep-rebuild failed"
       fi
 
-      # double-ensure that packages are build against the new gcc headers/libs
+      # should be a no-op
       #
       fix_libtool_files.sh $verold &>>$log
       if [[ $? -ne 0 ]]; then
         Finish "FAILED: $FUNCNAME fix_libtool_files.sh $verold failed"
       fi
 
+      # removce old GCC to double-ensure that packages are build against the new gcc headers/libs
+      #
       emerge --unmerge =sys-devel/gcc-$verold &>>$log
       if [[ $? -ne 0 ]]; then
         Finish "FAILED: $FUNCNAME unmerge of gcc $verold failed"
       fi
 
-      # per request of Soap this is forced for the new gcc-6
-      # if a package fails therefore then it will be get special package.env settings next time
+      # per request of Soap this is forced with gcc-6
       #
       if [[ $majnew -eq 6 ]]; then
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
@@ -751,7 +748,7 @@ function EmergeTask() {
       echo "$(date) ok"       >> /tmp/timestamp.system
       echo "@world" >> $pks
       PostEmerge
-      # activate 32/64 bit library (re-)build if not yet done and @system was successful
+      # activate 32/64 bit library (re-)build if not yet done
       #
       grep -q '^#ABI_X86=' /etc/portage/make.conf
       if [[ $? -eq 0 ]]; then
