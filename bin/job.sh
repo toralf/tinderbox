@@ -29,12 +29,15 @@ function Mail() {
 # clean up and exit
 #
 function Finish()  {
+  rc=$1
+  shift
+
   /usr/bin/pfl &>/dev/null
   eix-update -q
   Mail "FINISHED: $*" $log
 
   rm -f /tmp/STOP
-  exit 0
+  exit $rc
 }
 
 
@@ -89,14 +92,14 @@ function GetNextTask() {
       Mail "$task"
 
     elif [[ -n "$(echo "$task" | grep '^STOP')" ]]; then
-      Finish "$task"
+      Finish 0 "$task"
 
     elif  [[ -z "$task" ]]; then
       if [[ -s $pks ]]; then
         continue  # this line is empty, but not the package list
       fi
       n=$(qlist --installed | wc -l)
-      Finish "$n packages emerged, spin up a new image"
+      Finish 0 "$n packages emerged, spin up a new image"
 
     elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
       return  # a complete command line
@@ -454,7 +457,7 @@ function GotAnIssue()  {
   #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
-    Finish "FATAL: $fatal"
+    Finish 1 "FATAL: $fatal"
   fi
 
   # our current shared repository solution is (although rarely) racy
@@ -553,7 +556,7 @@ function BuildKernel()  {
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
-    Finish "ERROR: $FUNCNAME failed (rc=$rc)"
+    Finish 2 "ERROR: $FUNCNAME failed (rc=$rc)"
   fi
 }
 
@@ -585,21 +588,21 @@ function SwitchGCC() {
       revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc &>> $log
       if [[ $? -ne 0 ]]; then
         GotAnIssue
-        Finish "FAILED: $FUNCNAME revdep-rebuild failed"
+        Finish 2 "FAILED: $FUNCNAME revdep-rebuild failed"
       fi
 
       # should be a no-op
       #
       fix_libtool_files.sh $verold &>>$log
       if [[ $? -ne 0 ]]; then
-        Finish "FAILED: $FUNCNAME fix_libtool_files.sh $verold failed"
+        Finish 2 "FAILED: $FUNCNAME fix_libtool_files.sh $verold failed"
       fi
 
       # removce old GCC to double-ensure that packages are build against the new gcc headers/libs
       #
       emerge --unmerge =sys-devel/gcc-$verold &>>$log
       if [[ $? -ne 0 ]]; then
-        Finish "FAILED: $FUNCNAME unmerge of gcc $verold failed"
+        Finish 2 "FAILED: $FUNCNAME unmerge of gcc $verold failed"
       fi
 
       # per request of Soap this is forced with gcc-6
@@ -664,7 +667,7 @@ function PostEmerge() {
       f=/tmp/timestamp.preserved-rebuild
       if [[ -s $f ]]; then
         chmod a+w $f
-        Finish "${n}x @preserved-rebuild, run 'truncate -s 0 $name/$f' and restart this image"
+        Finish 2 "${n}x @preserved-rebuild, run 'truncate -s 0 $name/$f' and restart this image"
       fi
     fi
     echo "@preserved-rebuild" >> $pks
@@ -778,7 +781,7 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       PostEmerge
-      Finish "cmd '$cmd' failed"
+      Finish 2 "cmd '$cmd' failed"
     fi
     PostEmerge
 
@@ -809,7 +812,7 @@ function pre-check() {
     #
     if [[ $rc -gt 127 ]]; then
       Mail "$exe returned $rc, task=$task" $out
-      Finish "error: stopped"
+      Finish 2 "error: stopped"
     fi
 
     if [[ $rc -ne 0 ]]; then
@@ -875,7 +878,7 @@ do
   # this is the preferred exit of this loop (except empty package list)
   #
   if [[ -f /tmp/STOP ]]; then
-    Finish "catched stop signal"
+    Finish 0 "catched stop signal"
   fi
 
   # clean up from a previous emerge operation
