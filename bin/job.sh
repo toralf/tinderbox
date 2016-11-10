@@ -553,11 +553,8 @@ function BuildKernel()  {
     make modules_install  &&\
     make install
   ) &> $log
-  rc=$?
 
-  if [[ $rc -ne 0 ]]; then
-    Finish 2 "ERROR: $FUNCNAME failed (rc=$rc)"
-  fi
+  exit $?
 }
 
 
@@ -578,11 +575,14 @@ function SwitchGCC() {
     # rebuild kernel and libs after a major version number change
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # without a rebuild we get issues like: "cc1: error: incompatible gcc/plugin versions"
+      # without a rebuild we'd get issues like: "cc1: error: incompatible gcc/plugin versions"
       #
       if [[ -e /usr/src/linux/.config ]]; then
-        (cd /usr/src/linux && make clean &>>$log)
+        (cd /usr/src/linux && make clean) &>>$log
         BuildKernel &>> $log
+        if [[ $? -ne 0 ]]; then
+          Finish 2 "ERROR: $FUNCNAME failed "
+        fi
       fi
 
       revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc &>> $log
