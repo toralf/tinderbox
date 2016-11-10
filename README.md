@@ -26,7 +26,7 @@ Setup a new image:
 
     $> sudo ~/tb/bin/tbs.sh 
 
-Start all:
+Start it:
 
     $> ~/tb/bin/start_img.sh <image name>
 
