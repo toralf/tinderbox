@@ -464,7 +464,7 @@ function GotAnIssue()  {
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
-    Mail "notice: race of host repository sync and running emerge" $bak
+#     Mail "notice: race of host repository sync and running emerge" $bak
     echo "$task" >> $pks
     return
   fi
