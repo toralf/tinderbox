@@ -427,7 +427,7 @@ EOF
 
   # provide credentials only to running images
   #
-  cd -
+  cd - 1>/dev/null
   (cd root      && ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 7
   (cd etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 7
 
