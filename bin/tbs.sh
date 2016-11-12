@@ -427,8 +427,9 @@ EOF
 
   # provide credentials only to running images
   #
-  (cd root;       ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 7
-  (cd etc/ssmtp;  ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 7
+  cd -
+  (cd root      && ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 7
+  (cd etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 7
 
   cd $tbhome
 
@@ -595,6 +596,7 @@ done
 # doesn't make sense
 #
 echo "$profile" | grep -q 'no-multilib'
+if [[ $? -eq 0 ]]; then
   multilib="n"
 fi
 
