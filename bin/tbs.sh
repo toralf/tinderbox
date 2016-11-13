@@ -418,7 +418,7 @@ EOF
   #
   (
     cd usr/share/eselect
-    patch -p1 --forward < /home/tinderbox/live-eselect.patch
+    patch -p1 --forward --quiet < /home/tinderbox/live-eselect.patch
   ) || exit 5
 
   cd ..
