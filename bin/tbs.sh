@@ -452,7 +452,7 @@ EOF
     echo
     echo "    view $d/tmp/dryrun.log"
     echo "    vi $d/etc/portage/make.conf"
-    echo "    sudo ~/tb/bin/chr.sh $d '$dryrun'"
+    echo "    sudo ~/tb/bin/chr.sh $d '  $dryrun  '"
     echo "    ln -s $d"
     echo "    ~/tb/bin/start_img.sh $name"
     echo
