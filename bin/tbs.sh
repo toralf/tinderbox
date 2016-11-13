@@ -44,7 +44,7 @@ function rufs()  {
     pwquality pypy pyqt4 python qemu qml qt3support qt5 rdoc rendering
     ruby sasl scripts scrypt sddm sdl secure-delete semantic-desktop
     server smartcard smime smpeg snmp sockets source sourceview spice sql
-    sqlite sqlite3 ssh ssh-askpass ssl svg swscale system-cairo
+    sqlite sqlite3 ssh ssh-askpass ssl svc svg swscale system-cairo
     system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
     system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
     theora thinkpad threads timidity tk tls tools tracepath traceroute
@@ -489,7 +489,7 @@ flags=$(rufs)   # holds the current USE flag subset
 origin=""       # clone from another image ?
 suffix=""       # free optional text
 
-# arbitrarily choose profile, keyword and ssl vendor
+# arbitrarily pre-select profile, keyword, ssl and others
 #
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
 # 5% stable
@@ -514,7 +514,7 @@ else
   multilib="n"
 fi
 
-# overwrite the (thrown) settings
+# the caller can overwrite the (thrown) settings
 #
 while getopts a:f:k:l:m:o:p:s: opt
 do
@@ -600,7 +600,7 @@ if [[ $? -eq 0 ]]; then
   multilib="n"
 fi
 
-# setup  too often fails and QT isn't libressl ready
+# setup too often fails and QT isn't libressl ready yet
 #
 echo "$profile" | grep -q 'plasma'
 if [[ $? -eq 0 ]]; then
@@ -610,7 +610,7 @@ fi
 #############################################################################
 #
 if [[ "$tbhome" = "$imagedir" ]]; then
-  echo "you are in \$tbhome instead of an image dir !"
+  echo "you are in \$tbhome !"
   exit 3
 fi
 
