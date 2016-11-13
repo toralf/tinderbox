@@ -6,7 +6,8 @@
 #
 mailto="tinderbox@zwiebeltoralf.de"
 
-# these are paths within a chroot image
+# run a copy to allow editing of the origin
+# change job.sh to use the current job.sh asap
 #
 orig=/tmp/tb/bin/job.sh
 copy=/tmp/job.sh

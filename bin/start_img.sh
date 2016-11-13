@@ -11,6 +11,7 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
 fi
 
 # run a copy to allow editing of the origin
+# stop and start an image to use the current runme.sh
 #
 orig=/tmp/tb/bin/runme.sh
 copy=/tmp/runme.sh
