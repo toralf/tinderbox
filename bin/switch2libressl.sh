@@ -92,7 +92,8 @@ emerge -1 libressl        &&\
 emerge -1 openssh         &&\
 emerge -1 wget            &&\
 emerge -1 $py2 $py3       &&\
-emerge @preserved-rebuild
+emerge @preserved-rebuild &&\
+emerge -u --changed-use mail-mta/ssmtp
 rc=$?
 
 echo -e "\n$sep\n$0: rc=$rc"
