@@ -386,6 +386,7 @@ emerge mail-mta/ssmtp || exit 6
 emerge mail-client/mailx || exit 6
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz app-portage/eix || exit 6
+chown portage:portage /var/cache/eix
 
 emerge sys-kernel/hardened-sources || exit 6
 
