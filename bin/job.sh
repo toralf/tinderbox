@@ -296,9 +296,9 @@ pls see bug #567192 too
 EOF
       echo "sandbox issue (XDG_xxx_DIR related)" > $issuedir/title
     else
-      # other sandbox issues
+      # other sandbox issues, strip away temp file name suffix
       #
-      echo "sandbox issue $p" > $issuedir/title
+      echo "sandbox issue $p" | sed 's/\.cache.*/.cache./g' > $issuedir/title
     fi
     head -n 20 $sandb >> $issuedir/issue
 
