@@ -46,7 +46,6 @@ cat << EOF > /etc/portage/package.use/libressl
 dev-db/mysql-connector-c  -ssl
 dev-lang/python           -tk
 dev-qt/qtsql              -mysql
-mail-mta/ssmtp            libressl -gnutls
 
 EOF
 
