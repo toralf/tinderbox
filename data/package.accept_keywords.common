@@ -17,6 +17,3 @@
 #
 ~dev-libs/botan-1.11.32
 
-# cannot open database file /var/cache/eix/portage.eix for writing (mode = 'wb')
-#
-~app-portage/eix-0.32.1
