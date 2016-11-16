@@ -17,3 +17,8 @@
 #
 ~dev-libs/botan-1.11.32
 
+# stable request https://bugs.gentoo.org/show_bug.cgi?id=590244
+#
+~dev-libs/boost-1.62.0
+~dev-util/boost-build-1.62.0
+
