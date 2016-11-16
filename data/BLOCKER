@@ -22,3 +22,6 @@ sandbox issue A: /root/
 # flex
 598186
 yy.*_|yywrap
+# xorg-1.19
+599976
+error: too many arguments to function .pScreen..BlockHandler
