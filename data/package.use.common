@@ -64,10 +64,6 @@ x11-libs/gtk+       -cups
 #
 sys-auth/polkit     -kde
 
-# pulls otherwise llvm during switch 2 libressl
-#
-app-text/xmlto      -text
-
 # test? ( ssl )
 #
 net-misc/openssh    ssl
