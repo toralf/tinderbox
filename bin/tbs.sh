@@ -333,6 +333,10 @@ function FillPackageList()  {
 sys-devel/gcc
 EOF
 
+  if [[ "$libressl" = "y" ]]; then
+    echo "%/tmp/tb/bin/switch2libressl.sh" >> $pks
+  fi
+  
   chown tinderbox.tinderbox $pks
 }
 
