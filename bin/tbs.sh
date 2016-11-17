@@ -99,10 +99,6 @@ function ComputeImageName()  {
     name="$name-libressl"
   fi
 
-  if [[ -n "$suffix" ]]; then
-    name="$name-$suffix"
-  fi
-
   name="$name-$keyword"
 }
 
@@ -492,7 +488,6 @@ latest=latest-stage3.txt
 autostart="y"   # start the image after setup ?
 flags=$(rufs)   # holds the current USE flag subset
 origin=""       # clone from another image ?
-suffix=""       # free optional text
 
 # arbitrarily pre-select profile, keyword, ssl and others
 #
@@ -521,7 +516,7 @@ fi
 
 # the caller can overwrite the (thrown) settings
 #
-while getopts a:f:k:l:m:o:p:s: opt
+while getopts a:f:k:l:m:o:p: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -587,9 +582,6 @@ do
           echo " profile unknown: $profile"
           exit 2
         fi
-        ;;
-
-    s)  suffix="$OPTARG"
         ;;
 
     *)  echo " '$opt' with '$OPTARG' not implemented"
