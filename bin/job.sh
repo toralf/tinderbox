@@ -390,11 +390,11 @@ EOF
   #
   id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
 
-  if [[ $id -eq 582084 ]]; then
+  if [[ "$block" = "-b 582084" ]]; then
     # check that it is really gcc-6
     #
     if [[ $(gcc -dumpversion | cut -c1) -ne 6 ]] ; then
-      id=""
+      block=""
     fi
   fi
 
