@@ -21,7 +21,10 @@ XDG_xxx_DIR related
 sandbox issue A: /root/
 # flex
 598186
-yy.*_|yywrap
+yy
 # xorg-1.19
 599976
 error: too many arguments to function .pScreen..BlockHandler
+# libressl
+561854
+undefined reference to .SSLv3_method.
