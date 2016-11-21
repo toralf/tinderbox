@@ -31,10 +31,11 @@ function Mail() {
 function Finish()  {
   rc=$1
   shift
+  subject=$(echo "$*" | cut -c1-200 | tr '\n' ' ' | stresc)
 
   /usr/bin/pfl &>/dev/null
   eix-update -q
-  Mail "FINISHED: $*" $log
+  Mail "FINISHED: $subject" $log
 
   rm -f /tmp/STOP
   exit $rc
