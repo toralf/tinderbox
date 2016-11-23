@@ -496,6 +496,7 @@ if [[ $(($RANDOM % 20)) -eq 0 ]]; then
 else
   keyword="unstable"
 fi
+
 # 33% libressl
 #
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
@@ -503,11 +504,27 @@ if [[ $(($RANDOM % 3)) -eq 0 ]]; then
 else
   libressl="n"
 fi
+
+# QT isn't libressl ready
+#
+echo "$profile" | grep -q 'plasma'
+if [[ $? -eq 0 ]]; then
+  libressl="n"
+fi
+
+
 # 25% ABI_X86="32 64"
 #
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   multilib="y"
 else
+  multilib="n"
+fi
+
+# doesn't make sense
+#
+echo "$profile" | grep -q 'no-multilib'
+if [[ $? -eq 0 ]]; then
   multilib="n"
 fi
 
@@ -586,20 +603,6 @@ do
         ;;
   esac
 done
-
-# doesn't make sense
-#
-echo "$profile" | grep -q 'no-multilib'
-if [[ $? -eq 0 ]]; then
-  multilib="n"
-fi
-
-# QT isn't libressl ready
-#
-echo "$profile" | grep -q 'plasma'
-if [[ $? -eq 0 ]]; then
-  libressl="n"
-fi
 
 #############################################################################
 #
