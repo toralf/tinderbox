@@ -199,12 +199,8 @@ L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -
 
 SSL_BITS=4096
 
-# we do only compile-tests
-#
 ACCEPT_LICENSE="*"
 
-# parallel make issues aren't reliable reproducible and therefore out of the scope of the tinderbox
-#
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
 
@@ -213,8 +209,8 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
 
-# no "fail-clean", files would be cleaned before being picked up
-#
+INPUT_DEVICES="evdev synaptics"
+
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
 
 PORT_LOGDIR="/var/log/portage"
@@ -299,6 +295,7 @@ set softtabstop=2
 set shiftwidth=2
 set tabstop=2
 set expandtab
+
 EOF
 
 }
@@ -499,9 +496,9 @@ if [[ $(($RANDOM % 20)) -eq 0 ]]; then
 else
   keyword="unstable"
 fi
-# 25% libressl
+# 33% libressl
 #
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
 else
   libressl="n"
@@ -597,7 +594,7 @@ if [[ $? -eq 0 ]]; then
   multilib="n"
 fi
 
-# setup too often fails and QT isn't libressl ready yet
+# QT isn't libressl ready
 #
 echo "$profile" | grep -q 'plasma'
 if [[ $? -eq 0 ]]; then
