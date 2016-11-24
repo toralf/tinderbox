@@ -6,12 +6,14 @@
 #
 # typical call:
 #
-# $> sudo ~/tb/bin/chr.sh amd64-plasma-unstable_20150811-144142 [ "eix-update -q" ]
+# $> sudo ~/tb/bin/chr.sh amd64-plasma-unstable_20150811-144142
 
 # due to sudo we need to define the path of $HOME of the tinderbox user
 #
 tbhome=/home/tinderbox
 
+# if a mount fails then bail out immediately
+#
 function mountall() {
 
   # system dirs
@@ -32,6 +34,8 @@ function mountall() {
 }
 
 
+# if an umount fails then try to umount as much as possible
+#
 function umountall()  {
   rc=0
 
@@ -56,11 +60,11 @@ if [[ ! "$(whoami)" = "root" ]]; then
   exit 1
 fi
 
-# usually we use the symlink of the chroot image
+# the path to the chroot image
 #
 mnt=$1
 
-# treat alter all remaining options as a command line to be run within chroot
+# remaining options are treated as a complete command line to be run within chroot
 #
 shift
 
@@ -90,15 +94,8 @@ grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
 #
 mountall || exit 4
 
-# sometimes resolv.conf is symlinked to var/run: bug https://bugs.gentoo.org/show_bug.cgi?id=555694
-# so remove it before
-#
-rm -f                   $mnt/etc/resolv.conf
-cp -L /etc/resolv.conf  $mnt/etc/resolv.conf
-cp -L /etc/hosts        $mnt/etc/hosts
-
 if [[ $# -gt 0 ]]; then
-  # enforce a login of user root to ensure that its environment is sourced
+  # enforce a login of user root b/c then its environment is sourced
   #
   /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
 else
