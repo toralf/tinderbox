@@ -60,16 +60,14 @@ sys-apps/kmod       tools
 sys-libs/ncurses    -gpm
 x11-libs/gtk+       -cups
 
-# don't depend on QT eventually which failes with gcc-6
-#
-sys-auth/polkit     -kde
-
-# test? ( ssl )
+# we activated FEATURE=test and from the ebuild: test? ( ssl )
 #
 net-misc/openssh    ssl
 
-#
+# can't be build static with pam
 #
 sys-apps/busybox    -pam
 
+# circ deps otherwise with dev-dotnet/libgdiplus
 #
+dev-lang/mono       minimal

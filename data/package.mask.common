@@ -6,6 +6,7 @@
 app-vim/c-support
 app-vim/ctx
 app-vim/curcmdmode
+app-vim/easytags
 app-vim/notes
 
 #	media-libs/libjpeg-turbo is preferred: https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
