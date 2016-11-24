@@ -27,31 +27,31 @@ function rufs()  {
   allflags="
     aes-ni alisp alsa aqua avcodec avformat btrfs bugzilla bzip2 cairo cdb
     cdda cddb cgi cgroups clang compat consolekit contrib corefonts csc
-    cups curl dbus dec_av2 declarative
-    designer dnssec dot drmkms dvb dvd ecc egl eglfs emacs evdev exif ext4
-    extra extraengine ffmpeg fitz fluidsynth fontconfig fortran fpm
-    freetds ftp gcj gd gif git glamor gles gles2 gnomecanvas gnome-keyring
-    gnuplot gnutls go gpg graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev
-    gui gzip haptic havege hdf5 help hpn ibus icu imap imlib infinality
-    inifile introspection ipv6 isag ithreads jadetex javascript javaxml
-    jpeg kerberos kvm lapack latex ldap libinput libkms libvirtd llvm
-    logrotate lua lvm lzma mad mbox mdnsresponder-compat melt midi mikmod
-    minimal minizip mng mod modplug mono mp3 mp4 mpeg mpeg2 mpeg3 mpg123
-    mpi mssql mta multimedia mysql mysqli ncurses networking
-    nscd nss obj objc odbc offensive ogg ois opencv openexr opengl
-    openmpi openssl opus osc pam pcre16 perl php pkcs11 plasma plotutils
-    png policykit postgres postproc postscript printsupport pulseaudio
-    pwquality pypy pyqt4 python qemu qml qt3support qt5 rdoc rendering
-    ruby sasl scripts scrypt sddm sdl secure-delete semantic-desktop
-    server smartcard smime smpeg snmp sockets source sourceview spice sql
-    sqlite sqlite3 ssh ssh-askpass ssl svc svg swscale system-cairo
-    system-ffmpeg system-harfbuzz system-icu system-jpeg system-libevent
-    system-libs system-libvpx system-llvm system-sqlite szip tcl tcpd
-    theora thinkpad threads timidity tk tls tools tracepath traceroute
-    truetype udev udisks ufed uml usb usbredir utils uxa v4l v4l2 vaapi
-    vala vdpau video vim vlc vorbis vpx wav wayland webgl webkit webstart
-    widgets wma wxwidgets X x264 x265 xa xcb xetex xinerama xinetd xkb xml
-    xmlreader xmp xscreensaver xslt xvfb xvmc xz zenmap ziffy zip zlib
+    cups curl dbus dec_av2 declarative designer dnssec dot drmkms dvb dvd
+    ecc egl eglfs emacs evdev exif ext4 extra extraengine ffmpeg fitz
+    fluidsynth fontconfig fortran fpm freetds ftp gcj gd gif git glamor
+    gles gles2 gnomecanvas gnome-keyring gnuplot gnutls go gpg graphtft
+    gstreamer gtk gtk2 gtk3 gtkstyle gudev gui gzip haptic havege hdf5
+    help hpn ibus icu imap imlib infinality inifile introspection ipv6
+    isag jadetex javascript javaxml jpeg kerberos kvm lapack latex ldap
+    libinput libkms libvirtd llvm logrotate lua lvm lzma mad mbox
+    mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
+    mono mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia mysql
+    mysqli ncurses networking nscd nss obj objc odbc offensive ogg ois
+    opencv openexr opengl openmpi openssl opus osc pam pcre16 perl php
+    pkcs11 plasma plotutils png policykit postgres postproc postscript
+    printsupport pulseaudio pwquality pypy python qemu qml qt5 rdoc
+    rendering ruby sasl scripts scrypt sddm sdl secure-delete
+    semantic-desktop server smartcard smime smpeg snmp sockets source
+    sourceview spice sql sqlite sqlite3 ssh ssh-askpass ssl svc svg
+    swscale system-cairo system-ffmpeg system-harfbuzz system-icu
+    system-jpeg system-libevent system-libs system-libvpx system-llvm
+    system-sqlite szip tcl tcpd theora thinkpad threads timidity tk tls
+    tools tracepath traceroute truetype udev udisks ufed uml usb usbredir
+    utils uxa v4l v4l2 vaapi vala vdpau video vim vlc vorbis vpx wav
+    wayland webgl webkit webstart widgets wma wxwidgets X x264 x265 xa xcb
+    xetex xinerama xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb
+    xvmc xz zenmap ziffy zip zlib
   "
   # echo $allflags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/    /g'
   #
@@ -507,13 +507,18 @@ else
   libressl="n"
 fi
 
-# QT isn't libressl ready
+# QT isn't ready for libressl
 #
 echo "$profile" | grep -q 'plasma'
 if [[ $? -eq 0 ]]; then
   libressl="n"
 fi
 
+# libressl isn't stable yet
+#
+if [[ "$keyword" = "stable" ]]; then
+  libressl="n"
+fi
 
 # 25% ABI_X86="32 64"
 #
