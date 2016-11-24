@@ -56,7 +56,7 @@ function rufs()  {
   # echo $allflags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/    /g'
   #
 
-  m=40
+  m=50
   s=4
   for f in $(echo $allflags)
   do
