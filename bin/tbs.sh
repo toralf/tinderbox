@@ -209,7 +209,9 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
 
+ALSA_CARDS="hda-intel"
 INPUT_DEVICES="evdev synaptics"
+VIDEO_CARDS="i965"
 
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
 
