@@ -20,7 +20,7 @@ media-video/libav
 #
 dev-util/pkgconfig-openbsd
 
-# replace /etc/resolv.conf just with a symlink
+# replace /etc/resolv.conf just with a symlink : https://bugs.gentoo.org/show_bug.cgi?id=555694
 #
 net-dns/resolvconf-symlink
 
