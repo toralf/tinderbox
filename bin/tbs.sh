@@ -375,7 +375,7 @@ emerge --noreplace net-misc/netifrc
 
 echo "
 =sys-libs/ncurses-6.0-r1
-~dev-lang/perl-5.24.0
+>=dev-lang/perl-5.24.0
 " >> /etc/portage/package.mask/setup_blocker
 
 emerge sys-apps/elfix || exit 6
