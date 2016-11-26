@@ -376,29 +376,34 @@ cc:       $(cat $issuedir/cc)
 
 EOF
 
-  # search if this $issue was already filed, if not then return a list of matching records
+  # search in bugzilla if $issue was already filed
   #
-  search_string=$(cut -f3- -d' ' $issuedir/title | sed "s/['‘’\"]/ /g")
 
-  # handle file collision case: remove the package version from the counterpart
+  # strip away the package name and replace certain characters with spaces
+  #
+  search_string=$(cut -f3- -d' ' $issuedir/title | sed -e "s/['‘’\"]/ /g" -e 's,^/, ,')
+
+  # for the file collision case: remove the package version from the counterpart
   #
   grep -q "file collision" $issuedir/title
   if [[ $? -eq 0 ]]; then
     search_string=$(echo "$search_string" | sed -e 's/\-[0-9\-r\.]*$//g')
   fi
 
-  # get the newest bug number
+  # get the latest bug number if there are more than one
   #
   id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
 
   if [[ "$block" = "-b 582084" ]]; then
-    # check that it is really gcc-6
+    # gcc-5 might have similar issues as gcc-6, so check that it is really gcc-6
     #
     if [[ $(gcc -dumpversion | cut -c1) -ne 6 ]] ; then
       block=""
     fi
   fi
 
+  # do we found a bugzilla bug id ?
+  #
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
