@@ -216,7 +216,7 @@ VIDEO_CARDS="i965"
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
 
 PORT_LOGDIR="/var/log/portage"
-PORTAGE_ELOG_CLASSES="qa warn error"
+PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="root@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
