@@ -33,7 +33,7 @@ function Finish()  {
   shift
   subject=$(echo "$*" | cut -c1-200 | tr '\n' ' ' | stresc)
 
-  /usr/bin/pfl &>/dev/null
+  timeout 60 /usr/bin/pfl &>/dev/null
   eix-update -q
   Mail "FINISHED: $subject" $log
 
@@ -764,8 +764,10 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       rc=$?
+
       echo "$(date) $failed"  >> /tmp/timestamp.system
       PostEmerge
+
       if [[ $rc -eq 0 ]]; then
         SkipFirstAndResume
       else
@@ -787,7 +789,7 @@ function EmergeTask() {
     fi
 
   elif [[ "$task" = "@world" ]]; then
-    emerge --deep --update --changed-use --with-bdeps=y $task &> $log
+    emerge --deep --update --changed-use $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       echo "$(date) $failed"  >> /tmp/timestamp.world
