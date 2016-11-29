@@ -351,7 +351,7 @@ EOF
 # - dry test of gcc and @system upgrade to auto-fix package-specific USE flags
 #
 function EmergeMandatoryPackages() {
-  dryrun="emerge --deep --update --changed-use --with-bdeps=y @system --pretend"
+  dryrun="emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y @system --pretend"
 
   cat << EOF > tmp/setup.sh
 eselect profile set $profile || exit 6
