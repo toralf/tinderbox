@@ -760,7 +760,7 @@ function EmergeTask() {
     PostEmerge
 
   elif [[ "$task" = "@system" ]]; then
-    emerge --deep --update --changed-use --with-bdeps=y $task &> $log
+    emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       rc=$?
@@ -789,7 +789,7 @@ function EmergeTask() {
     fi
 
   elif [[ "$task" = "@world" ]]; then
-    emerge --deep --update --changed-use $task &> $log
+    emerge --backtrack=30 --deep --update --changed-use $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       echo "$(date) $failed"  >> /tmp/timestamp.world
