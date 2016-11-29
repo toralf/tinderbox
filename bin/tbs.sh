@@ -389,10 +389,6 @@ chown portage:portage /var/cache/eix
 
 emerge sys-kernel/hardened-sources || exit 6
 
-if [[ "$libressl" = "y" ]]; then
-  /tmp/tb/bin/switch2libressl.sh || exit 6
-fi
-
 rc=0
 emerge --update --pretend sys-devel/gcc || rc=121
 
