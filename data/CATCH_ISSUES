@@ -49,6 +49,7 @@ Fetch failed for
 error: package .* does not exist
 error: .* was not declared in this scope
 error: '::isinf'
+error while loading shared libraries:
 error:
 stack smashing detected
 No rule to make target
@@ -167,6 +168,7 @@ sed: can't read .*: No such file or directory
 parser error : .* not defined
 make: invalid option
 Uncaught error in
+/root/cache
 ^Error:
 recipe for target .* failed
 does not exist
@@ -185,6 +187,7 @@ E: Cannot find external tool
 pushd: too many arguments
 are banned in EAPI
 PostgreSQL slot must be set to one of:
+gmcs: No such file or directory
 Error:
 ERROR :
 ERROR:

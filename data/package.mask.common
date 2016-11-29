@@ -40,3 +40,7 @@ net-fs/openafs-kernel
 # doesn't finish: https://bugs.gentoo.org/show_bug.cgi?id=596070
 #
 app-emacs/jde
+
+# hang: https://bugs.gentoo.org/show_bug.cgi?id=601130
+#
+www-client/w3mmee

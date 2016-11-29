@@ -21,8 +21,8 @@ dev-qt/qtsql            sqlite
 mail-client/thunderbird -pulseaudio system-icu
 media-libs/libvpx       postproc
 media-libs/libpng       apng
-media-sound/pulseaudio  alsa
 media-video/ffmpeg      sdl
+net-dns/libidn          -mono
 sys-libs/ntdb           python
 sys-libs/tdb            python
 sys-libs/tevent         python
@@ -36,8 +36,6 @@ app-crypt/mit-krb5      -pkinit
 
 # misc
 #
-media-video/ffmpeg      -sdl
-#sys-devel/llvm          clang
 sys-libs/zlib           minizip
 x11-base/xorg-server    glamor -minimal
 
@@ -60,7 +58,7 @@ sys-apps/kmod       tools
 sys-libs/ncurses    -gpm
 x11-libs/gtk+       -cups
 
-# we activated FEATURE=test and from the ebuild: test? ( ssl )
+# we activated FEATURE=test and the ebuild has: test? ( ssl )
 #
 net-misc/openssh    ssl
 
@@ -71,3 +69,11 @@ sys-apps/busybox    -pam
 # circ deps otherwise with dev-dotnet/libgdiplus
 #
 dev-lang/mono       minimal
+
+#
+#
+net-libs/libproxy   -webkit
+
+#
+#
+x11-libs/gdk-pixbuf X

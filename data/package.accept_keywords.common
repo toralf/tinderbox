@@ -21,3 +21,8 @@
 #   [20:54] <willikins> toralf, you have notes! [Nov-18 17:02] <dilfridge> I have another request for your tinderbox stable vm... could you please run stable tree plus =dev-libs/icu-58.1-r1 ?! thanks a lot!
 #
 ~dev-libs/icu-58.1
+
+# https://bugs.gentoo.org/show_bug.cgi?id=600686
+#
+~sci-chemistry/votca-csg-1.4
+~sci-libs/votca-tools-1.4
