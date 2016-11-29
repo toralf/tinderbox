@@ -250,7 +250,7 @@ EOF
     # unmask ffmpeg-3 at 33% of unstable images
     #
     if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-      echo "~media-video/ffmpeg-3.2" > etc/portage/package.unmask/ffmpeg
+      echo "media-video/ffmpeg" > etc/portage/package.unmask/ffmpeg
     fi
 
     # unmask GCC-6 at 25% of unstable images
