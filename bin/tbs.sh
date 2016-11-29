@@ -322,6 +322,8 @@ function FillPackageList()  {
 
   cat << EOF >> $pks
 # setup done
+app-portage/pfl
+app-portage/eix
 @system
 %BuildKernel
 %rm -f /etc/portage/package.mask/setup_blocker
@@ -342,13 +344,11 @@ EOF
 # - install and configure tools used in job.sh:
 #         <package>                   <command/s>
 #         app-arch/sharutils          uudecode
-#         app-portage/eix             eix
 #         app-portage/gentoolkit      equery eshowkw revdep-rebuild
-#         app-portage/pfl             pfl
 #         app-portage/portage-utils   qlop
 #         www-client/pybugz           bugz
 # - unpack kernel sources (b/c"sys-kernel/" is in IGNORE_PACKAGES)
-# - dry test of gcc and @system upgrade (try to auto-fix package-specific USE flags)
+# - dry test of gcc and @system upgrade to auto-fix package-specific USE flags
 #
 function EmergeMandatoryPackages() {
   dryrun="emerge --deep --update --changed-use --with-bdeps=y @system --pretend"
@@ -384,7 +384,7 @@ migrate-pax -m
 emerge mail-mta/ssmtp || exit 6
 emerge mail-client/mailx || exit 6
 
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/pfl app-portage/portage-utils www-client/pybugz app-portage/eix || exit 6
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz  || exit 6
 chown portage:portage /var/cache/eix
 
 emerge sys-kernel/hardened-sources || exit 6
