@@ -777,7 +777,6 @@ function EmergeTask() {
       fi
     else
       echo "$(date) ok"       >> /tmp/timestamp.system
-      echo "@world" >> $pks
       PostEmerge
       # activate 32/64 bit library (re-)build if not yet done
       #
@@ -786,19 +785,6 @@ function EmergeTask() {
         sed -i -e 's/^#ABI_X86=/ABI_X86=/' /etc/portage/make.conf
         echo "@system" >> $pks
       fi
-    fi
-
-  elif [[ "$task" = "@world" ]]; then
-    emerge --backtrack=30 --deep --update --changed-use $task &> $log
-    if [[ $? -ne 0 ]]; then
-      GotAnIssue
-      echo "$(date) $failed"  >> /tmp/timestamp.world
-      PostEmerge
-      SkipFirstAndResume
-    else
-      echo "$(date) ok"       >> /tmp/timestamp.world
-      echo "%emerge --depclean" >> $pks
-      PostEmerge
     fi
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
