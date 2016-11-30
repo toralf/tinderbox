@@ -5,10 +5,6 @@
 #
 ~sys-devel/gcc-4.9.4
 
-# _AXS_ asked: https://bugs.gentoo.org/show_bug.cgi?id=596204
-#
-~mail-client/thunderbird-45.4.0
-
 # https://bugs.gentoo.org/show_bug.cgi?id=597712
 #
 ~dev-libs/botan-1.11.33
@@ -18,11 +14,11 @@
 ~dev-libs/boost-1.62.0
 ~dev-util/boost-build-1.62.0
 
-#   [20:54] <willikins> toralf, you have notes! [Nov-18 17:02] <dilfridge> I have another request for your tinderbox stable vm... could you please run stable tree plus =dev-libs/icu-58.1-r1 ?! thanks a lot!
-#
-~dev-libs/icu-58.1
-
 # https://bugs.gentoo.org/show_bug.cgi?id=600686
 #
 ~sci-chemistry/votca-csg-1.4
 ~sci-libs/votca-tools-1.4
+
+# https://bugs.gentoo.org/show_bug.cgi?id=575466
+#
+~dev-games/openscenegraph-3.4.0

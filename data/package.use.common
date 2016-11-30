@@ -1,7 +1,7 @@
 # package.use/common
 #
 
-# deliver SMTP emails w/ authentication and secure
+# deliver SMTP emails secure (and with authentication)
 #
 mail-mta/ssmtp      mta ssl
 
@@ -26,7 +26,6 @@ net-dns/libidn          -mono
 sys-libs/ntdb           python
 sys-libs/tdb            python
 sys-libs/tevent         python
-x11-libs/cairo          X
 x11-libs/libxcb         xkb
 www-client/firefox      -pulseaudio system-icu
 
@@ -37,11 +36,9 @@ app-crypt/mit-krb5      -pkinit
 # misc
 #
 sys-libs/zlib           minizip
-x11-base/xorg-server    glamor -minimal
+x11-base/xorg-server    -minimal
 
 # known setup blocker
-#
-app-crypt/pinentry  -qt4
 app-editors/emacs   -dbus -gtk -gtk3 -ssl -svg
 app-text/docbook-xsl-stylesheets  -ruby
 app-text/xmlto      -latex
@@ -49,7 +46,7 @@ dev-libs/boehm-gc   threads
 dev-libs/libpcre    pcre16
 dev-lang/python     threads
 dev-qt/qtgui        egl eglfs
-dev-util/cmake      -qt4 -qt5
+dev-util/cmake      -qt5
 dev-vcs/git         -gtk -perl
 gnome-base/librsvg  -tools
 media-libs/mesa     -vaapi -video_cards_radeonsi -video_cards_radeon
@@ -73,7 +70,3 @@ dev-lang/mono       minimal
 #
 #
 net-libs/libproxy   -webkit
-
-#
-#
-x11-libs/gdk-pixbuf X
