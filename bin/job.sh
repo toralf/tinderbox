@@ -546,6 +546,7 @@ function GotAnIssue()  {
   fi
 
   # send an email if the issue was not yet catched
+  # even if we found an already filed bug
   #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
@@ -555,7 +556,7 @@ function GotAnIssue()  {
 }
 
 
-# *compiled* kernel modules are needed by some packages
+# certain packages depend on *compiled* kernel modules
 #
 function BuildKernel()  {
   (
@@ -594,10 +595,12 @@ function SwitchGCC() {
         (cd /usr/src/linux && make clean) &>>$log
         BuildKernel &>> $log
         if [[ $? -ne 0 ]]; then
-          Finish 2 "ERROR: $FUNCNAME failed "
+          Finish 2 "ERROR: kernel can't be rebuild with new gcc $vernew"
         fi
       fi
 
+      # works for gcc-5 as well as for gcc-6
+      #
       revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc &>> $log
       if [[ $? -ne 0 ]]; then
         GotAnIssue
@@ -605,7 +608,7 @@ function SwitchGCC() {
         Finish 2 "FAILED: $FUNCNAME revdep-rebuild failed"
       fi
 
-      # should be a no-op
+      # should be a no-op nowadays
       #
       fix_libtool_files.sh $verold &>>$log
       if [[ $? -ne 0 ]]; then
@@ -629,25 +632,9 @@ function SwitchGCC() {
 }
 
 
-# helper of PostEmerge()
-# eselect the latest *emerged* kernel and schedule a build of it
-#
-function SelectNewKernel() {
-  last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/')
-  link=$(eselect kernel show | tail -n 1 | sed -e 's/ //g' | cut -f4 -d'/')
-
-  if [[ "$last" != "$link" ]]; then
-    eselect kernel set $last &>> $log
-    if [[ ! -f /usr/src/linux/.config ]]; then
-      echo "%BuildKernel" >> $pks
-    fi
-  fi
-}
-
-
 # helper of EmergeTask()
 # work on follow-ups from the previous emerge operation
-# but only *schedule* a needed emerge operation her
+# do just *schedule* needed operations
 #
 function PostEmerge() {
   # don't change these config files
@@ -677,17 +664,24 @@ de_DE.UTF-8@euro UTF-8
 
   grep -q ">>> Installing .* sys-kernel/.*-sources" $log
   if [[ $? -eq 0 ]]; then
-    SelectNewKernel
+    last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/')
+    link=$(eselect kernel show | tail -n 1 | sed -e 's/ //g' | cut -f4 -d'/')
+
+    if [[ "$last" != "$link" ]]; then
+      eselect kernel set $last &>> $log
+      if [[ ! -f /usr/src/linux/.config ]]; then
+        echo "%BuildKernel" >> $pks
+      fi
+    fi
   fi
 
-  # sometimes we run into a @preserved-rebuild loop, bail out then
-  # especially sci-bio/embassy is often the culprit
+  # bail out if we run into a @preserved-rebuild loop
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
   if [[ $? -eq 0 ]]; then
     n=$(tac /var/log/emerge.log | grep -F -m 20 '*** emerge' | grep -c "emerge .* @preserved-rebuild")
     if [[ $n -gt 4 ]]; then
-      # empty that file manually will let this check passed
+      # empty that file manually will let this check above passed next time
       #
       f=/tmp/timestamp.preserved-rebuild
       if [[ -s $f ]]; then
