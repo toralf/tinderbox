@@ -446,8 +446,7 @@ EOF
 
 
 # emerge failed for some reason, parse the output
-# return 1 if a Perl Upgrade issue appears, b/c in this case no resume must be made
-# otherwise return 0
+# return 1 if a Perl Upgrade issue appears otherwise return 0
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -721,31 +720,6 @@ de_DE.UTF-8@euro UTF-8
 }
 
 
-# helper of EmergeTask()
-# re-try emerge to update as much as possible
-#
-function SkipFirstAndResume() {
-  suffix=$(echo "$task" | sed 's/@//g')
-  while :;
-  do
-    emerge --resume --skipfirst &> $log
-    if [[ $? -ne 0 ]]; then
-      grep -q '* unsatisfied dependencies. Please restart/continue the operation' $log
-      if [[ $? -eq 0 ]]; then
-        break
-      fi
-      GotAnIssue
-      echo "$(date) $failed" >> /tmp/timestamp.$suffix
-      PostEmerge
-    else
-      echo "$(date) resumed" >> /tmp/timestamp.$suffix
-      PostEmerge
-      break
-    fi
-  done
-}
-
-
 # this is the tinderbox, the rest is just output parsing
 #
 function EmergeTask() {
@@ -768,12 +742,12 @@ function EmergeTask() {
       echo "$(date) $failed"  >> /tmp/timestamp.system
       PostEmerge
 
-      if [[ $rc -eq 0 ]]; then
-        SkipFirstAndResume
-      else
+      if [[ $rc -eq 1 ]]; then
         Mail "notice: fixing Perl upgrade issue: $task" $log
         echo "$task" >> $pks
         echo "%perl-cleaner --all" >> $pks
+      else
+        Mail "notice: $task failed" $log
       fi
     else
       echo "$(date) ok"       >> /tmp/timestamp.system
