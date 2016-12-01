@@ -188,6 +188,7 @@ pushd: too many arguments
 are banned in EAPI
 PostgreSQL slot must be set to one of:
 gmcs: No such file or directory
+eapply: no files specified
 Error:
 ERROR :
 ERROR:
