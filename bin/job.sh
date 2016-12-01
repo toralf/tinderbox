@@ -196,7 +196,7 @@ function CollectIssueFiles() {
 
 
 # helper of GotAnIssue()
-# create an email containing convenient links + info ready for being picked up by copy+paste
+# create an email containing convenient links and command lines ready for copy+paste
 #
 function CompileInfoMail() {
   keyword="stable"
@@ -211,16 +211,8 @@ function CompileInfoMail() {
   This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
 
   -----------------------------------------------------------------
-  USE flags ...
-
-  ... in make.conf:
+  USE flags in make.conf:
 USE="$(source /etc/portage/make.conf; echo -n '  '; echo $USE)"
-
-  ... in /etc/portage/package.use/*:
-$(grep -v -e '^#' -e '^$' /etc/portage/package.use/* | cut -f2- -d':' | sed 's/^/  /g')
-
-  entries in /etc/portage/package.unmask/*:
-$(grep -v -e '^#' -e '^$' /etc/portage/package.unmask/* | cut -f2- -d':' | sed 's/^/  /g')
   -----------------------------------------------------------------
 
 gcc-config -l:
