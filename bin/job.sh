@@ -371,9 +371,9 @@ EOF
   # search in bugzilla if $issue was already filed
   #
 
-  # strip away the package name and replace certain characters, line numbers et al with spaces
+  # strip away the package name and replace certain characters, placeholders and line numbers et al with spaces
   #
-  search_string=$(cut -f3- -d' ' $issuedir/title | sed -e "s/['‘’\"]/ /g" -e 's,^/, ,' -e 's/:[0-9]*/: /g')
+  search_string=$(cut -f3- -d' ' $issuedir/title | sed -e "s/['‘’\"]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g')
 
   # for the file collision case: remove the package version from the counterpart
   #
