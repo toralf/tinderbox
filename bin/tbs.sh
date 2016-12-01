@@ -211,7 +211,7 @@ CLEAN_DELAY=0
 
 ALSA_CARDS="hda-intel"
 INPUT_DEVICES="evdev synaptics"
-VIDEO_CARDS="i965"
+VIDEO_CARDS="intel i965"
 
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
 
@@ -385,7 +385,6 @@ emerge mail-mta/ssmtp || exit 6
 emerge mail-client/mailx || exit 6
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz  || exit 6
-chown portage:portage /var/cache/eix
 
 emerge sys-kernel/hardened-sources || exit 6
 
