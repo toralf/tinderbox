@@ -1,17 +1,30 @@
 # package.use/common
 #
 
-# deliver SMTP emails secure (and with authentication)
+# mandatory to send emails to us
 #
 mail-mta/ssmtp      mta ssl
 
-# otherwise it gives: HTTPS support not compiled in.
+# make a setup of a new tinderbox image less painfull
 #
-net-misc/wget       ssl
+dev-libs/boehm-gc   threads
+dev-libs/libpcre    pcre16
+dev-lang/python     threads
+dev-util/cmake      -qt5
+sys-apps/kmod       tools
+sys-libs/ncurses    -gpm
 
-# https://bugs.gentoo.org/show_bug.cgi?id=540818
+# hang: https://bugs.gentoo.org/show_bug.cgi?id=540818
 #
 app-editors/xemacs  -nopie
+
+# due to FEATURES=test and test? ( ssl )
+#
+net-misc/openssh    ssl
+
+# can't be linked statically with +pam
+#
+sys-apps/busybox    -pam
 
 # needed for Firefox (and maybe Thunderbird too)
 #
@@ -29,44 +42,7 @@ sys-libs/tevent         python
 x11-libs/libxcb         xkb
 www-client/firefox      -pulseaudio system-icu
 
-# circular dependencies with dev-libs/openssl
-#
-app-crypt/mit-krb5      -pkinit
-
 # misc
 #
 sys-libs/zlib           minizip
 x11-base/xorg-server    -minimal
-
-# known setup blocker
-app-editors/emacs   -dbus -gtk -gtk3 -ssl -svg
-app-text/docbook-xsl-stylesheets  -ruby
-app-text/xmlto      -latex
-dev-libs/boehm-gc   threads
-dev-libs/libpcre    pcre16
-dev-lang/python     threads
-dev-qt/qtgui        egl eglfs
-dev-util/cmake      -qt5
-dev-vcs/git         -gtk -perl
-gnome-base/librsvg  -tools
-media-libs/mesa     -vaapi -video_cards_radeonsi -video_cards_radeon
-net-nds/openldap    -sasl
-sys-apps/kmod       tools
-sys-libs/ncurses    -gpm
-x11-libs/gtk+       -cups
-
-# we activated FEATURE=test and the ebuild has: test? ( ssl )
-#
-net-misc/openssh    ssl
-
-# can't be build static with pam
-#
-sys-apps/busybox    -pam
-
-# circ deps otherwise with dev-dotnet/libgdiplus
-#
-dev-lang/mono       minimal
-
-#
-#
-net-libs/libproxy   -webkit

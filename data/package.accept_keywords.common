@@ -5,10 +5,6 @@
 #
 ~sys-devel/gcc-4.9.4
 
-# https://bugs.gentoo.org/show_bug.cgi?id=597712
-#
-~dev-libs/botan-1.11.33
-
 # stable request https://bugs.gentoo.org/show_bug.cgi?id=590244
 #
 ~dev-libs/boost-1.62.0
@@ -18,7 +14,3 @@
 #
 ~sci-chemistry/votca-csg-1.4
 ~sci-libs/votca-tools-1.4
-
-# https://bugs.gentoo.org/show_bug.cgi?id=575466
-#
-~dev-games/openscenegraph-3.4.0
