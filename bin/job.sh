@@ -593,10 +593,11 @@ function SwitchGCC() {
 
       # works for gcc-5 as well as for gcc-6
       #
-      revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc &>> $log
+      cmd="revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc"
+      $cmd &>> $log
       if [[ $? -ne 0 ]]; then
         GotAnIssue
-        echo "%revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc" >> $pks
+        echo "%${cmd}" >> $pks
         Finish 2 "FAILED: $FUNCNAME revdep-rebuild failed"
       fi
 
