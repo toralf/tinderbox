@@ -13,19 +13,15 @@ app-vim/notes
 #
 media-libs/jpeg
 
-#	media-video/ffmpeg is prefered
-#
-media-video/libav
-
 # broken
 #
 dev-util/pkgconfig-openbsd
 
-# replace /etc/resolv.conf just with a symlink : https://bugs.gentoo.org/show_bug.cgi?id=555694
+# turns /etc/resolv.conf into a symlink: https://bugs.gentoo.org/show_bug.cgi?id=555694
 #
 net-dns/resolvconf-symlink
 
-# no Oracle
+# libreoffice rules
 #
 app-office/openoffice-bin
 
@@ -36,10 +32,6 @@ dev-lang/gnat-gcc
 # doesn't build with newer kernels: https://bugs.gentoo.org/show_bug.cgi?id=574016
 #
 net-fs/openafs-kernel
-
-# doesn't finish: https://bugs.gentoo.org/show_bug.cgi?id=596070
-#
-app-emacs/jde
 
 # hang: https://bugs.gentoo.org/show_bug.cgi?id=601130
 #
