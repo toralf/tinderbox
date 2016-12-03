@@ -502,13 +502,6 @@ else
   libressl="n"
 fi
 
-# QT isn't ready for libressl
-#
-echo "$profile" | grep -q 'plasma'
-if [[ $? -eq 0 ]]; then
-  libressl="n"
-fi
-
 # libressl isn't stable yet
 #
 if [[ "$keyword" = "stable" ]]; then
