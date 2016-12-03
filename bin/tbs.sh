@@ -483,41 +483,32 @@ autostart="y"   # start the image after setup ?
 flags=$(rufs)   # holds the current USE flag subset
 origin=""       # clone from another image ?
 
-# arbitrarily pre-select profile, keyword, ssl and others
+# arbitrarily pre-select profile, keyword, ssl vendor and ABI_X86
 #
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
-# 5% stable
-#
+
 if [[ $(($RANDOM % 20)) -eq 0 ]]; then
   keyword="stable"
 else
   keyword="unstable"
 fi
 
-# 33% libressl
-#
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
 else
   libressl="n"
 fi
 
-# libressl isn't stable yet
-#
 if [[ "$keyword" = "stable" ]]; then
   libressl="n"
 fi
 
-# 25% ABI_X86="32 64"
-#
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   multilib="y"
 else
   multilib="n"
 fi
 
-# doesn't make sense
-#
 echo "$profile" | grep -q 'no-multilib'
 if [[ $? -eq 0 ]]; then
   multilib="n"
