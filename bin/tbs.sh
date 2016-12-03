@@ -141,8 +141,11 @@ priority = 1
 [tinderbox]
 priority = 2
 
+#[foo]
+#priority = 3
+
 [local]
-priority = 3
+priority = 99
 
 EOF
 
@@ -158,6 +161,16 @@ EOF
 location  = /tmp/tb/data/portage
 masters   = gentoo
 auto-sync = no
+
+EOF
+
+  cat << EOF > etc/portage/repos.conf/foo.conf
+[foo]
+location  = /usr/local/foo
+auto-sync = yes
+sync-type = git
+sync-uri  = https://anongit.gentoo.org/git/proj/foo.git
+
 EOF
 
   cat << EOF > etc/portage/repos.conf/local.conf
