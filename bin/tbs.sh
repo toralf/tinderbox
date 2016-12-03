@@ -165,11 +165,11 @@ auto-sync = no
 EOF
 
   cat << EOF > etc/portage/repos.conf/foo.conf
-[foo]
-location  = /usr/local/foo
-auto-sync = yes
-sync-type = git
-sync-uri  = https://anongit.gentoo.org/git/proj/foo.git
+#[foo]
+#location  = /usr/local/foo
+#auto-sync = yes
+#sync-type = git
+#sync-uri  = https://anongit.gentoo.org/git/proj/foo.git
 
 EOF
 
