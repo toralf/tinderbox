@@ -1,7 +1,6 @@
 app-eselect/
 app-xemacs/
 dev-embedded/
-dev-python/mysql-python
 dev-ros/
 java-virtuals/
 net-analyzer/openvas

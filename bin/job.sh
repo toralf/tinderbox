@@ -668,23 +668,6 @@ de_DE.UTF-8@euro UTF-8
     fi
   fi
 
-  # bail out if we run into a @preserved-rebuild loop
-  #
-  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
-  if [[ $? -eq 0 ]]; then
-    n=$(tac /var/log/emerge.log | grep -F -m 20 '*** emerge' | grep -c "emerge .* @preserved-rebuild")
-    if [[ $n -gt 4 ]]; then
-      # empty that file manually will let this check above passed next time
-      #
-      f=/tmp/timestamp.preserved-rebuild
-      if [[ -s $f ]]; then
-        chmod a+w $f
-        Finish 2 "${n}x @preserved-rebuild, run 'truncate -s 0 $name/$f' and restart this image"
-      fi
-    fi
-    echo "@preserved-rebuild" >> $pks
-  fi
-
   grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $log
   if [[ $? -eq 0 ]]; then
     echo "%haskell-updater" >> $pks
