@@ -386,10 +386,7 @@ source /etc/profile
 
 emerge --noreplace net-misc/netifrc
 
-echo "
-=sys-libs/ncurses-6.0-r1
->=dev-lang/perl-5.24.0
-" >> /etc/portage/package.mask/setup_blocker
+echo ">=dev-lang/perl-5.24.0" >> /etc/portage/package.mask/setup_blocker
 
 emerge sys-apps/elfix || exit 6
 migrate-pax -m
