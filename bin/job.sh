@@ -192,7 +192,7 @@ function CollectIssueFiles() {
     fi
   done
 
-  tar --dereference -cjpf $issuedir/etc.portage.tbz2 /etc/portage 2>/dev/null
+  tar --dereference -cjpf $issuedir/files/etc.portage.tbz2 /etc/portage 2>/dev/null
 
   chmod a+r $issuedir/files/*
 }
