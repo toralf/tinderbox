@@ -670,6 +670,11 @@ de_DE.UTF-8@euro UTF-8
     fi
   fi
 
+  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
+  if [[ $? -eq 0 ]]; then
+    echo "@preserved-rebuild" >> $pks
+  fi
+
   grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $log
   if [[ $? -eq 0 ]]; then
     echo "%haskell-updater" >> $pks
