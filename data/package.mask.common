@@ -36,3 +36,7 @@ net-fs/openafs-kernel
 # hang: https://bugs.gentoo.org/show_bug.cgi?id=601130
 #
 www-client/w3mmee
+
+# @preserved-rebuild loop with dev-python/mysql-python
+#
+app-backup/holland-lib-mysql
