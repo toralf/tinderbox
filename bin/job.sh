@@ -710,6 +710,11 @@ function EmergeTask() {
     fi
     PostEmerge
 
+    grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $log
+    if [[ $? -eq 0 ]]; then
+      Finish "notice: loop in $task"
+    fi
+
   elif [[ "$task" = "@system" ]]; then
     emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
