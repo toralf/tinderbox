@@ -191,6 +191,9 @@ function CollectIssueFiles() {
       bzip2 $f
     fi
   done
+
+  tar --dereference -cjpf $issuedir/etc.portage.tbz2 /etc/portage 2>/dev/null
+
   chmod a+r $issuedir/files/*
 }
 
@@ -526,7 +529,6 @@ function GotAnIssue()  {
     cd /
     tar --dereference -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
     tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
-    tar --dereference -cjpf $issuedir/etc.portage.tbz2      etc/portage
     )
     return 1
   fi
