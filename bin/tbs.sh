@@ -72,7 +72,7 @@ function rufs()  {
 }
 
 
-# enlarge $name except a timestamp and set $stage3
+# ... and get the current stage3 file name
 #
 function ComputeImageName()  {
   name="amd64"
@@ -130,7 +130,7 @@ function CompilePortageFiles()  {
   echo 'local' >            usr/local/portage/profiles/repo_name
   chown -R portage:portage  usr/local/portage/
 
-  # the local repo rules, then tinderbox follows, the last (basic) is the gentoo repository
+  # the local repository rules always
   #
   mkdir -p     etc/portage/repos.conf/
   cat << EOF > etc/portage/repos.conf/default.conf
@@ -183,7 +183,7 @@ auto-sync = no
 
 EOF
 
-  # compile make.conf
+  # compile make.conf now together
   #
   m=etc/portage/make.conf
   chmod a+w $m
@@ -242,7 +242,7 @@ EOF
 
   mkdir tmp/tb  # mount point of the tinderbox directory of the host
 
-  # create portage directories and symlink commonly used files into them
+  # create portage directories and symlinks (becomes effective by the bind-mount of ~/tb)
   #
   mkdir usr/portage
   mkdir var/tmp/{distfiles,portage}
@@ -312,7 +312,7 @@ EOF
 }
 
 
-# always upgrade gcc first, then build the kernel, then upgrade @system
+# always upgrade GCC first, then build the kernel, upgrade @system and emerge few mandatory/useful packages
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -357,7 +357,7 @@ EOF
 #         app-portage/portage-utils   qlop
 #         www-client/pybugz           bugz
 # - unpack kernel sources (b/c"sys-kernel/" is in IGNORE_PACKAGES)
-# - dry test of gcc and @system upgrade to auto-fix package-specific USE flags
+# - dry test of GCC and @system upgrade to auto-fix package-specific USE flags
 #
 function EmergeMandatoryPackages() {
   dryrun="emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y @system --pretend"
