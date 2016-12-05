@@ -260,12 +260,6 @@ EOF
   chmod a+rw  etc/portage/package.mask/self
 
   if [[ "$keyword" = "unstable" ]]; then
-    # unmask ffmpeg-3 at 33% of unstable images
-    #
-    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-      echo "media-video/ffmpeg" > etc/portage/package.unmask/ffmpeg
-    fi
-
     # unmask GCC-6 at 25% of unstable images
     #
     if [[ $(($RANDOM % 4)) -eq 0 ]]; then
