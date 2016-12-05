@@ -716,6 +716,11 @@ function EmergeTask() {
       Finish "notice: loop in $task"
     fi
 
+    grep -q $task $log
+    if [[ $? -eq 0 ]]; then
+      Mail "notice: repeated $task" $log
+    fi
+
   elif [[ "$task" = "@system" ]]; then
     emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
