@@ -115,7 +115,7 @@ fi
 #
 for f in files/*
 do
-  echo "$f" | grep -q "\.bz2" && ct="application/x-bzip2" || ct="text/plain"
+  echo "$f" | grep -q "bz2$" && ct="application/x-bzip2" || ct="text/plain"
   echo "  $f"
   bugz attach --content-type "$ct" --description "" $id $f 1>>bugz.out 2>>bugz.err || errmsg $?
 done
