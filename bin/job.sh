@@ -643,13 +643,14 @@ function PostEmerge() {
 
   grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $log
   if [[ $? -eq 0 ]]; then
-    echo "
+    cat << EOF >> /etc/locale.gen
 en_US ISO-8859-1
 en_US.UTF-8 UTF-8
 de_DE ISO-8859-1
 de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
-" >> /etc/locale.gen
+
+EOF
 
     locale-gen                    &>/dev/null
     eselect locale set en_US.utf8 &>/dev/null
