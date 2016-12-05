@@ -19,10 +19,6 @@ tbhome=/home/tinderbox
 
 # create a (r)andomized (U)SE (f)lag (s)ubset
 #
-# (m)ask   a flag with a likelihood of 1/m
-# or (s)et a flag with a likelihood of 1/s
-# else flag is unchanged (likelihood: 1 - 1/m -1/s)
-#
 function rufs()  {
   allflags="
     aes-ni alisp alsa aqua avcodec avformat btrfs bugzilla bzip2 cairo cdb
@@ -53,18 +49,24 @@ function rufs()  {
     xetex xinerama xinetd xkb xml xmlreader xmp xscreensaver xslt xvfb
     xvmc xz zenmap ziffy zip zlib
   "
-  # echo $allflags | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/    /g'
+  # formatter: echo "$allflags" | xargs -n 1 | sort -u | xargs -s 76 | sed 's/^/    /g'
   #
 
-  m=50
-  s=4
+  # (m)ask a flag with a likelihood of 1/m
+  # or (s)et it with a likelihood of s/m
+  # else don't mention it
+  #
+  m=50  # == 2%
+  s=4   # == 8%
+
   for f in $(echo $allflags)
   do
     let "r = $RANDOM % $m"
     if [[ $r -eq 0 ]]; then
-      echo -n " -$f"
+      echo -n " -$f"    # mask it
+
     elif [[ $r -le $s ]]; then
-      echo -n " $f"
+      echo -n " $f"     # set it
     fi
   done
 }
