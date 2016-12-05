@@ -157,7 +157,7 @@ function CollectIssueFiles() {
   echo "#"      >> $ehist
   $cmd          >> $ehist
 
-  # misc build logs
+  # misc build files
   #
   cflog=$(grep -m 1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
   if [[ -z "$cflog" ]]; then
