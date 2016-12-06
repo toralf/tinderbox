@@ -711,14 +711,11 @@ function EmergeTask() {
     fi
     PostEmerge
 
-    grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $log
+    grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
+              -e 'The following mask changes are necessary to proceed:' \
+              $log
     if [[ $? -eq 0 ]]; then
-      Finish "notice: loop in $task"
-    fi
-
-    grep -q $task $log
-    if [[ $? -eq 0 ]]; then
-      Mail "notice: repeated $task" $log
+      Finish "notice: broken $task"
     fi
 
   elif [[ "$task" = "@system" ]]; then
