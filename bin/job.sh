@@ -715,7 +715,7 @@ function EmergeTask() {
               -e 'The following mask changes are necessary to proceed:' \
               $log
     if [[ $? -eq 0 ]]; then
-      Finish "notice: broken $task"
+      Finish 0 "notice: broken $task"
     fi
 
   elif [[ "$task" = "@system" ]]; then
