@@ -35,21 +35,22 @@ do
   avail_pks="$avail_pks $pks"
 done
 
-# no candidate found ?
-#
 if [[ -z "$avail_pks" ]]; then
+  echo "no image ready"
   exit
 fi
 
-# the host repo is synced every 3 hours, shift 1 hour for mirroring
-# kick off (D)eleted ebuilds and just use the package name
+# put package names of new or changed ebuilds into tmp
+#
+tmp=$(mktemp /tmp/pksXXXXXX)
+
+# the host repo is synced every 3 hours, add 1 hour for mirroring
+# kick off (D)eleted ebuilds and get the package name only
 #
 # A       www-apache/passenger/passenger-5.0.24.ebuild
 # M       www-apps/kibana-bin/kibana-bin-4.1.4.ebuild
 # A       www-apps/kibana-bin/kibana-bin-4.4.0.ebuild
-
-tmp=$(mktemp /tmp/pksXXXXXX)
-
+#
 (
   cd /usr/portage/
   git diff --name-status "@{ 4 hour ago }".."@{ 1 hour ago }"
@@ -62,8 +63,8 @@ sort --unique > $tmp
 
 # shuffle the ebuilds around in a different way for each image
 #
+info="# $(wc -l < $tmp) packages at $(date)"
 if [[ -s $tmp ]]; then
-  info="# $(basename $0) $(wc -l < $tmp) packages at $(date)"
   for pks in $avail_pks
   do
     echo "$info"              >> $pks
@@ -71,4 +72,5 @@ if [[ -s $tmp ]]; then
   done
 fi
 
+echo "$info"
 rm $tmp
