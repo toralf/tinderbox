@@ -362,6 +362,12 @@ EOF
 function EmergeMandatoryPackages() {
   dryrun="emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y @system --pretend"
 
+  # especially at unstable images let Perl being upgraded as part of a @system upgrade
+  # before that an upgrade of Perl as a part of the dependency tree of another package
+  # would cause almost a blocker
+  #
+  perl_stable_version=$(portageq best_version / dev-lang/perl)
+
   cat << EOF > tmp/setup.sh
 eselect profile set $profile || exit 6
 
@@ -382,7 +388,7 @@ source /etc/profile
 
 emerge --noreplace net-misc/netifrc
 
-echo ">=dev-lang/perl-5.24.0" >> /etc/portage/package.mask/setup_blocker
+echo ">${perl_stable_version}" >> /etc/portage/package.mask/setup_blocker
 
 emerge sys-apps/elfix || exit 6
 migrate-pax -m
