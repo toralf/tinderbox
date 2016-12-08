@@ -71,7 +71,7 @@ do
   else
     sleep $delay
   fi
-  nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &
+  nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &>/tmp/$(basename $mnt).log &
 done
 
 # avoid a non-visible prompt
