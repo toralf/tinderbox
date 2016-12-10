@@ -400,7 +400,7 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 
 emerge sys-kernel/hardened-sources || exit 6
 
-rc=0
+rc=10
 emerge --update --pretend sys-devel/gcc || rc=121
 
 mv /etc/portage/package.mask/setup_blocker /tmp
@@ -447,7 +447,7 @@ EOF
     d=$imagedir/$name
   fi
 
-  if [[ $rc -ne 0 ]]; then
+  if [[ $rc -ne 10 ]]; then
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
 
