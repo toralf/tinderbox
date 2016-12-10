@@ -7,6 +7,20 @@
 
 for mnt in ${@:-~/amd64-*}
 do
+  # $mnt must not be a broken symlink
+  #
+  if [[ -L $mnt && ! -e $mnt ]]; then
+    echo "broken symlink: $mnt"
+    continue
+  fi
+
+  # $mnt must be a directory
+  #
+  if [[ ! -d $mnt ]]; then
+    echo "not a valid dir: $mnt"
+    continue
+  fi
+
   # chroot image must be running
   #
   if [[ -f $mnt/tmp/LOCK ]]; then
