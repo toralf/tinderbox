@@ -8,16 +8,19 @@ The the latest stage3 is downloaded, verified and unpacked.
 The package list is filled with all known packages.
 Portage config files are compiled.
 Few mandatory packages (MTA, bugz etc.) are installed.
+The switch to libressl - if applicable - and upgrade of GCC are scheduled as the first tasks when the image is started.
 
-The tinderbox script itself is *job.sh*.
-It basically parse the output of *cat /tmp/packages | xargs -n1 emerge -u*.
-Its wrapper *runme.sh* supports the development while copies of it are running.
-It uses *chr.sh* to handle chroot related actions.
+The start of a tinderbox image is made by *job.sh*.
+It basically parses the output of *cat /tmp/packages | xargs -n1 emerge -u*.
+It uses *chr.sh* to handle all chroot related actions.
 
-New issues are reported via email to the user. Bugs can then be filed using *bgo.sh*.
+Issues are reported with all necessary data via email to the user.
+Bugs can be filed using *bgo.sh*.
 
 ## installation
-Copy *bin*, *data* and *sdata* into */home/tinderbox/tb*. Adapt the 2 files in *sdata* and strip away the suffix *.sample*. Grant sudo rights to the user *tinderbox* to execute *chr.sh* and *tbs.sh*.
+Copy *bin*, *data* and *sdata* into */home/tinderbox/tb*.
+Adapt the 2 files in *sdata* and strip away the suffix *.sample*.
+Grant sudo rights to the user *tinderbox* to execute *chr.sh* and *tbs.sh*.
 
 ## typical calls
 Setup a new image:
