@@ -28,11 +28,11 @@ Grant sudo rights to the user *tinderbox* to execute *chr.sh* and *tbs.sh*.
 ## typical calls
 Setup a new image:
 
-    $> sudo ~/tb/bin/tbs.sh 
+    sudo ~/tb/bin/tbs.sh 
 
 Start it:
 
-    $> ~/tb/bin/start_img.sh <image name>
+    ~/tb/bin/start_img.sh <image name>
 
 
 ## more info
