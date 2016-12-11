@@ -11,7 +11,10 @@ Few mandatory packages (MTA, bugz etc.) are installed.
 The switch to libressl - if applicable - and upgrade of GCC are scheduled as the first tasks when the image is started.
 
 The start of a tinderbox image is made by *job.sh*.
-It basically parses the output of *cat /tmp/packages | xargs -n1 emerge -u*.
+It basically parses the output of
+
+*cat /tmp/packages | xargs -n1 emerge -u*
+
 It uses *chr.sh* to handle all chroot related actions.
 
 Issues are reported with all necessary data via email to the user.
