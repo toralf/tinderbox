@@ -33,7 +33,7 @@ function Finish()  {
   shift
   subject=$(echo "$*" | cut -c1-200 | tr '\n' ' ' | stresc)
 
-  timeout 60 /usr/bin/pfl &>/dev/null
+  timeout 60 /usr/bin/pfl
   eix-update -q
   Mail "FINISHED: $subject" $log
 
@@ -65,7 +65,7 @@ function SwitchJDK()  {
 # and store it into $task
 #
 function GetNextTask() {
-  #   update @system once a day, if no special task is scheduled
+  # update @system once a day, if no special task is scheduled
   #
   ts=/tmp/timestamp.system
   if [[ ! -f $ts ]]; then
@@ -150,7 +150,7 @@ function GetNextTask() {
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
-  cmd="qlop --nocolor --gauge --human --list --unlist"
+  local cmd="qlop --nocolor --gauge --human --list --unlist"
 
   echo "# This file contains the emerge history got with:" > $ehist
   echo "# $cmd" >> $ehist
@@ -472,19 +472,18 @@ function GotAnIssue()  {
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
-#     Mail "notice: race of host repository sync and running emerge" $bak
     echo "$task" >> $pks
     return
   fi
 
-  # just ignore few issues and do not mask affected packages
+  # ignore certain issues & do not mask those packages
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
     return
   fi
 
-  # guess the failed package name from its log file name
+  # guess the failed package and its log file name
   #
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
   if [[ -z "$failedlog" ]]; then
@@ -498,14 +497,12 @@ function GotAnIssue()  {
     failed=$(basename $failedlog | cut -f1-2 -d':' | tr ':' '/')
   else
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
-    # try the opposite way: guess the log file name from the package name
-    #
-    if [[ -z "$failedlog" ]]; then
+    if [[ -n "$failed" ]]; then
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
     fi
   fi
 
-  # after this point we expect to have a failed package name
+  # after this point we must have a failed package name
   #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
@@ -595,7 +592,7 @@ function SwitchGCC() {
 
       # works for gcc-5 as well as for gcc-6
       #
-      cmd="revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc"
+      local cmd="revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc"
       $cmd &>> $log
       if [[ $? -ne 0 ]]; then
         GotAnIssue
@@ -724,7 +721,7 @@ function EmergeTask() {
       GotAnIssue
       rc=$?
 
-      echo "$(date) $failed"  >> /tmp/timestamp.system
+      echo "$(date) $failed" >> /tmp/timestamp.system
       PostEmerge
 
       if [[ $rc -eq 1 ]]; then
@@ -735,7 +732,7 @@ function EmergeTask() {
         Mail "notice: $task failed" $log
       fi
     else
-      echo "$(date) ok"       >> /tmp/timestamp.system
+      echo "$(date) ok" >> /tmp/timestamp.system
       PostEmerge
       # activate 32/64 bit library (re-)build if not yet done
       #
@@ -749,7 +746,7 @@ function EmergeTask() {
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     #  a command line, prefixed with an '%'
     #
-    cmd=$(echo "$task" | cut -c2-)
+    local cmd=$(echo "$task" | cut -c2-)
     ($cmd) &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
@@ -784,7 +781,7 @@ function pre-check() {
     # -1 == 255:-2 == 254, ...
     #
     if [[ $rc -gt 127 ]]; then
-      Mail "$exe returned $rc, task=$task" $out
+      Mail "$exe returned $rc, task $task" $out
       Finish 2 "error: stopped"
     fi
 
@@ -796,7 +793,7 @@ function pre-check() {
       echo                                  >> $out
       emerge --info --verbose=n $task       >> $out
       echo                                  >> $out
-      Mail "$exe : rc=$rc, task=$task" $out
+      Mail "$exe : rc=$rc, task $task" $out
     fi
 
     rm $out
