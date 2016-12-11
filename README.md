@@ -7,7 +7,7 @@ A profile, keyword and a USE flag set are choosen.
 The current stage3 file is downloaded, verified and unpacked.
 The package list is filled with all known packages.
 Portage config files are compiled.
-Few mandatory packages (MTA, bugz etc.) are installed.
+Few mandatory packages (*ssmtp*, *pybugz* etc.) are installed.
 The switch to libressl - if applicable - and upgrade of GCC are scheduled as the first tasks when the image is started.
 
 The start of a tinderbox image is made by *job.sh*.
