@@ -322,7 +322,7 @@ function FillPackageList()  {
     #
     qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.tmp
     qsearch --all --nocolor --name-only --quiet | sort --random-sort | fgrep -v -f $pks.tmp > $pks
-    echo "# $(wc -l < $pks.tmp) packages of $origin" >> $pks
+    echo "INFO $(wc -l < $pks.tmp) packages of $origin processed" >> $pks
     tac $pks.tmp >> $pks
     rm $pks.tmp
   else
@@ -334,15 +334,20 @@ function FillPackageList()  {
 app-portage/pfl
 app-portage/eix
 @system
+EOF
+
+  if [[ "$libressl" = "y" ]]; then
+    cat << EOF >> $pks
+%/tmp/tb/bin/switch2libressl.sh
+EOF
+  fi
+
+  cat << EOF >> $pks
 %BuildKernel
 %rm -f /etc/portage/package.mask/setup_blocker
 sys-devel/gcc
 EOF
 
-  if [[ "$libressl" = "y" ]]; then
-    echo "%/tmp/tb/bin/switch2libressl.sh" >> $pks
-  fi
-  
   chown tinderbox.tinderbox $pks
 }
 
