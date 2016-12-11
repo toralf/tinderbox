@@ -66,7 +66,7 @@ $py3
 ~dev-libs/libevent-2.1.5
 ~mail-mta/ssmtp-2.64
 ~net-nds/openldap-2.4.44
-~www-client/lynx-2.8.9_pre9
+~www-client/lynx-2.8.9_pre11
 
 EOF
 
@@ -74,12 +74,15 @@ fi
 
 echo -e "\n$sep\n$0: fetch"
 
-# fetch packages before we uninstall openssl and break therefore wget
+# fetch packages before we uninstall openssl (== break wget)
 #
 emerge -f libressl openssh wget python || exit 24
 
 echo -e "\n$sep\n$0: unmerge"
 
+# openssl is already away if we run this script again
+# eix isn't installed at this point
+#
 qlist --installed --nocolor dev-libs/openssl
 if [[ $? -eq 0 ]]; then
   emerge -C openssl || exit 25
