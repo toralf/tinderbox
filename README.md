@@ -13,7 +13,7 @@ The switch to libressl - if applicable - and upgrade of GCC are scheduled as the
 The start of a tinderbox image is made by *job.sh*.
 It basically parses the output of
 
-    *cat /tmp/packages | xargs -n1 emerge -u*
+    cat /tmp/packages | xargs -n1 emerge -u
 
 It uses *chr.sh* to handle all chroot related actions.
 
