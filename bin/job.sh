@@ -33,7 +33,7 @@ function Finish()  {
   shift
   subject=$(echo "$*" | cut -c1-200 | tr '\n' ' ' | stresc)
 
-  timeout 60 /usr/bin/pfl
+  /usr/bin/pfl
   eix-update -q
   Mail "FINISHED: $subject" $log
 
@@ -741,6 +741,7 @@ function EmergeTask() {
         sed -i -e 's/^#ABI_X86=/ABI_X86=/' /etc/portage/make.conf
         echo "@system" >> $pks
       fi
+      /usr/bin/pfl
     fi
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
