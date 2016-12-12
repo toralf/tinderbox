@@ -17,8 +17,10 @@ Grant to the user these sudo rights:
 The setup of a new image is made by *tbs.sh*.
     
     cd ~/images; sudo ~/tb/bin/tbs.sh 
-A profile, keyword and a USE flag set are choosen and the current stage3 file is downloaded, verified and unpacked.
-Mandatory portage config files will be compiled and few mandatory packages (*ssmtp*, *pybugz* etc.) are installed.
+A profile, keyword and a USE flag set are choosen.
+The current stage3 file is downloaded, verified and unpacked.
+Mandatory portage config files will be compiled.
+Few required packages (*ssmtp*, *pybugz* etc.) are installed.
 The package list */tmp/packages* is created from all visible packages.
 The upgrade of GCC and the switch to libressl - if applicable - are scheduled as the first tasks.
 A symlink is made into *~/run*.
