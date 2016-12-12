@@ -463,6 +463,8 @@ EOF
       cat $d/tmp/setup.log
     fi
 
+    # the usage of "~" is here ok b/c usually those commands are run as user "tinderbox"
+    #
     echo
     echo "    view $d/tmp/dryrun.log"
     echo "    vi $d/etc/portage/make.conf"
@@ -474,7 +476,7 @@ EOF
     exit $rc
   fi
 
-  (cd ~/run && ln -s ../$d) || exit 6
+  (cd $tbhome/run && ln -s ../$d) || exit 6
 
   echo
   echo " setup  OK : $d"
