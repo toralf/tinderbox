@@ -426,11 +426,11 @@ exit \$rc
 
 EOF
 
-  # <app-admin/eselect-1.4.7 LANG issue: https://bugs.gentoo.org/show_bug.cgi?id=598480
+  # <app-admin/eselect-1.4.7 $LANG issue
   #
   (
-    cd usr/share/eselect
-    patch -p1 --forward --quiet < /home/tinderbox/live-eselect.patch
+    cd usr/share/eselect &&\
+    wget -q -O- https://598480.bugs.gentoo.org/attachment.cgi?id=451903 2>/dev/null | patch -p1
   ) || exit 5
 
   cd ..
