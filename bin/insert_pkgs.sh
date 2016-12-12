@@ -2,7 +2,7 @@
 #
 #set -x
 
-# pick up latest ebuilds and put them on top of individual package lists
+# pick up latest ebuilds and put them on top of each applicable package list
 #
 
 mailto="tinderbox@zwiebeltoralf.de"
@@ -25,9 +25,12 @@ do
     continue
   fi
 
-  # do not consider '#' - that's just a comment marker
+  # consider '#' too here
+  # eg. it is set if we clone an image to replay the emerge order
+  # or if the setup is not fully done
+  # or if the previously added package/s aren't processed yet
   #
-  grep -q -E "^(STOP|INFO|%|@)" $pks
+  grep -q -E "^(STOP|INFO|%|@|#)" $pks
   if [[ $? -eq 0 ]]; then
     continue
   fi
@@ -40,7 +43,7 @@ if [[ -z "$avail_pks" ]]; then
   exit
 fi
 
-# put package names of new or changed ebuilds into tmp
+# get package names of all new or changed ebuilds
 #
 tmp=$(mktemp /tmp/pksXXXXXX)
 
