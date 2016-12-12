@@ -33,7 +33,7 @@ function Finish()  {
   shift
   subject=$(echo "$*" | cut -c1-200 | tr '\n' ' ' | stresc)
 
-  /usr/bin/pfl
+  /usr/bin/pfl 1>/dev/null
   eix-update -q
   Mail "FINISHED: $subject" $log
 
@@ -741,8 +741,8 @@ function EmergeTask() {
         sed -i -e 's/^#ABI_X86=/ABI_X86=/' /etc/portage/make.conf
         echo "@system" >> $pks
       fi
-      /usr/bin/pfl
     fi
+    /usr/bin/pfl 1>/dev/null
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     #  a command line, prefixed with an '%'
