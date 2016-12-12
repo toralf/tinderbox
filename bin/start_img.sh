@@ -28,6 +28,12 @@ fi
 is_first=1
 for mnt in ${@:-~/run/amd64-*}
 do
+  # prepend $@ with ./ to specify non-common location/s
+  #
+  if [[ "$mnt" = "$(basename $mnt)" ]]
+    mnt=~/run/$mnt
+  fi
+
   # $mnt must not be a broken symlink
   #
   if [[ -L $mnt && ! -e $mnt ]]; then

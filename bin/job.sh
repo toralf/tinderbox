@@ -407,7 +407,7 @@ EOF
 
 EOF
   else
-    echo -e "  ~/tb/bin/bgo.sh -d $name/$issuedir $block\n" >> $issuedir/body
+    echo -e "  ~/tb/bin/bgo.sh -d ~/run/$name/$issuedir $block\n" >> $issuedir/body
 
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
     g="stabilize|Bump| keyword| bump"
