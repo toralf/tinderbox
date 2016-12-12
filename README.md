@@ -26,9 +26,10 @@ A symlink is made into *~/run*.
 ###start of an image
     
     ~/tb/bin/start_img.sh <image name>
-It runs the wrapper *runme.sh* for the tidnerbox script *job.sh* itself.
-That uses *chr.sh* to handle the chroot related actions.
-it basically parses the output of *cat /tmp/packages | xargs -n 1 emerge -u*.
+
+The wrapper *runme.sh* calls the tinderbox script *job.sh* itself.
+It basically parses the output of *cat /tmp/packages | xargs -n 1 emerge -u*.
+It uses *chr.sh* to handle the chroot related actions.
 
 ###stop of an image
     
