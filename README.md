@@ -21,19 +21,25 @@ A profile, keyword and a USE flag set are choosen and the current stage3 file is
 Mandatory portage config files will be compiled and few mandatory packages (*ssmtp*, *pybugz* etc.) are installed.
 The package list */tmp/packages* is created from all visible packages.
 The upgrade of GCC and the switch to libressl - if applicable - are scheduled as the first tasks.
+A symlink is made into *~/run*.
 
 ###start of an image
-The start of a tinderbox image after it was setup is made by *job.sh*.
-It uses *chr.sh* to handle the chroot related actions and basically parses the output of *cat /tmp/packages | xargs -n 1 emerge -u*.
+    
+    ~/tb/bin/start_img.sh <image name>
+It runs the wrapper *runme.sh* for the tidnerbox script *job.sh* itself.
+That uses *chr.sh* to handle the chroot related actions.
+it basically parses the output of *cat /tmp/packages | xargs -n 1 emerge -u*.
 
 ###stop of an image
-The stop of a tinderbox image is made using
     
     ~/tb/bin/stop_img.sh <image name>
 
-A marker (*/tmp/STOP*) is made within that image.
-The current emerge operation has to be finished and *job.sh* will exit.
-After this the symlink from *~/run* has to been removed.
+A marker (*/tmp/STOP*) is made in that image.
+The current emerge operation will be finished before *job.sh* exits.
+
+###removal of an image
+Just remove the symlink in *~/run*.
+The image itself might stay in the image dir as long as it is needed.
 
 ###reported findings
 All findings are reported with necessary data via email to the user specified in teh variable *mailto*.
