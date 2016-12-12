@@ -4,19 +4,17 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 ## scripts
 ###setup of a new image
 The setup of a new image is made by *tbs.sh*.
-A profile, keyword and a USE flag set are choosen.
-The current stage3 file is downloaded, verified and unpacked.
-The package list is filled with all known packages.
-Portage config files are compiled.
-Few mandatory packages (*ssmtp*, *pybugz* etc.) are installed.
+A profile, keyword and a USE flag set are choosen and the current stage3 file is downloaded, verified and unpacked.
+Mandatory portage config files will be compiled and few mandatory packages (*ssmtp*, *pybugz* etc.) are installed.
+The package list is created with all known packages.
 The upgrade of GCC  and the switch to libressl - if applicable - are scheduled as the first tasks when the image is started.
 
 ###start of an image
 The start of a tinderbox image is made by *job.sh*.
-It basically parses the output of
+It uses *chr.sh* to handle all chroot related actions.
+Then it basically parses the output of
     
     cat /tmp/packages | xargs -n1 emerge -u
-It uses *chr.sh* to handle all chroot related actions.
 
 ###reported findings
 Issues are reported with all necessary data via email to the user.
