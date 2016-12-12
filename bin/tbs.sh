@@ -465,14 +465,14 @@ EOF
     echo "    view $d/tmp/dryrun.log"
     echo "    vi $d/etc/portage/make.conf"
     echo "    sudo ~/tb/bin/chr.sh $d '  $dryrun  '"
-    echo "    ln -s $d"
+    echo "    (cd ~/run && ln -s ../$d)"
     echo "    ~/tb/bin/start_img.sh $name"
     echo
 
     exit $rc
   fi
 
-  ln -s $d || exit 6
+  (cd ~/run && ln -s ../$d) || exit 6
 
   echo
   echo " setup  OK : $d"

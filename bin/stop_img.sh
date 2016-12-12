@@ -5,7 +5,7 @@
 # stop tinderbox chroot image/s
 #
 
-for mnt in ${@:-~/amd64-*}
+for mnt in ${@:-~/run/amd64-*}
 do
   # $mnt must not be a broken symlink
   #

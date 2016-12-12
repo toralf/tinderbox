@@ -26,7 +26,7 @@ else
 fi
 
 is_first=1
-for mnt in ${@:-~/amd64-*}
+for mnt in ${@:-~/run/amd64-*}
 do
   # $mnt must not be a broken symlink
   #
@@ -71,7 +71,7 @@ do
   else
     sleep $delay
   fi
-  nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &>/tmp/$(basename $mnt).log &
+  nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &>~/logs/$(basename $mnt).log &
 done
 
 # avoid a non-visible prompt
