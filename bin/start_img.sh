@@ -30,7 +30,7 @@ for mnt in ${@:-~/run/amd64-*}
 do
   # prepend $@ with ./ to specify non-common location/s
   #
-  if [[ "$mnt" = "$(basename $mnt)" ]]
+  if [[ "$mnt" = "$(basename $mnt)" ]]; then
     mnt=~/run/$mnt
   fi
 
