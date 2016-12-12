@@ -2,14 +2,16 @@
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
 ## installation
-Create a users home directory */home/tinderbox* and copy *./bin*, *./data* and *./sdata* into the subdir *~/tb*.
-Create *~/logs*, *~/run* and a big image directory *~/images* (the images names in use are symlinked to *~/run*).
-Grant sudo rights to the user *tinderbox* to execute *chr.sh* and *tbs.sh*:
+Create user *tinderbox* and its home directory */home/tinderbox*.
+
+    mkdir ~/images ~/logs ~/run ~/tb
+Unpack *./bin*, *./data* and *./sdata* into *~/tb*.
 Edit the files in *sdata* and strip away the suffix *.sample*.
+Grant to the user theses rights:
     
     tinderbox ALL=(ALL) NOPASSWD: /home/tinderbox/tb/bin/chr.sh,/home/tinderbox/tb/bin/tbs.sh,/usr/bin/chroot
 
-## scripts
+## usage
 ###setup of a new image
 The setup of a new image is made by *tbs.sh*.
     
