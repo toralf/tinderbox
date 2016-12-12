@@ -430,7 +430,9 @@ EOF
   #
   (
     cd usr/share/eselect &&\
-    wget -q -O- https://598480.bugs.gentoo.org/attachment.cgi?id=451903 2>/dev/null | patch -p1
+    wget -q -O- https://598480.bugs.gentoo.org/attachment.cgi?id=451903 2>/dev/null |\
+    sed 's,/libs/config.bash.in,/libs/config.bash,g' |\
+    patch -p1 --forward
   ) || exit 5
 
   cd ..
