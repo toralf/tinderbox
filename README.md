@@ -2,10 +2,10 @@
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
 ## installation
-Create user *tinderbox*
+Create the user *tinderbox*
 
     useradd -m tinderbox
-and within its home directory */home/tinderbox*: 
+and run its home directory */home/tinderbox*
     
     mkdir ~/images ~/logs ~/run ~/tb
 Unpack *./bin*, *./data* and *./sdata* into *~/tb*.
@@ -13,7 +13,7 @@ Edit the files in *~/sdata* and strip away the suffix *.sample*.
 Grant to the user these sudo rights:
     
     tinderbox ALL=(ALL) NOPASSWD: /home/tinderbox/tb/bin/chr.sh,/home/tinderbox/tb/bin/tbs.sh,/usr/bin/chroot
-Create one or more big directories to hold the images.
+Create one or more big directories to hold the chroot images.
 
 ## usage
 ###setup of a new image
@@ -45,7 +45,7 @@ The current emerge operation will be finished before *job.sh* exits.
 
 ###removal of an image
 Just remove the symlink in *~/run*.
-The image itself might stay in the image dir as long as it is needed.
+The chroot image itself might be kept around as long as it is needed.
 
 ###reported findings
 All findings are reported with necessary data via email to the user specified in teh variable *mailto*.
