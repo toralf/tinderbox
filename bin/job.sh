@@ -742,7 +742,7 @@ function EmergeTask() {
         echo "@system" >> $pks
       fi
     fi
-    /usr/bin/pfl 1>/dev/null
+    /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     #  a command line, prefixed with an '%'
