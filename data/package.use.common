@@ -1,52 +1,52 @@
 # package.use/common
 #
 
-# mandatory to send emails to us
+# mandatory to send emails authorized to us
 #
-mail-mta/ssmtp      mta ssl
+mail-mta/ssmtp            mta ssl
 
 # make a setup of a new tinderbox image less painfull
 #
-app-editors/emacs   -dbus -X
-app-text/xmlto      -latex
-dev-libs/boehm-gc   threads
-dev-libs/libpcre    pcre16
-dev-lang/python     threads
-dev-util/cmake      -qt5
-dev-vcs/git         -perl
-net-dns/libidn      -emacs
-sys-apps/kmod       tools
-sys-libs/ncurses    -gpm
+app-editors/emacs         -dbus -X
+app-text/xmlto            -latex
+dev-libs/boehm-gc         threads
+dev-libs/libpcre          pcre16
+dev-lang/python           threads
+dev-util/cmake            -qt5
+dev-vcs/git               -perl
+net-dns/libidn            -emacs
+sys-apps/kmod             tools
+sys-libs/ncurses          -gpm
 
 # hang: https://bugs.gentoo.org/show_bug.cgi?id=540818
 #
-app-editors/xemacs  -nopie
+app-editors/xemacs        -nopie
 
 # due to FEATURES=test and test? ( ssl )
 #
-net-misc/openssh    ssl
+net-misc/openssh          ssl
 
 # can't be linked statically with +pam
 #
-sys-apps/busybox    -pam
-
-# needed for Firefox (and maybe Thunderbird too)
-#
-dev-db/sqlite           secure-delete
-dev-lang/python         sqlite
-dev-qt/qtsql            sqlite
-mail-client/thunderbird -pulseaudio system-icu
-media-libs/libvpx       postproc
-media-libs/libpng       apng
-media-video/ffmpeg      sdl
-net-dns/libidn          -mono
-sys-libs/ntdb           python
-sys-libs/tdb            python
-sys-libs/tevent         python
-x11-libs/libxcb         xkb
-www-client/firefox      -pulseaudio system-icu
+sys-apps/busybox          -pam
 
 # misc
 #
-sys-libs/zlib           minizip
-x11-base/xorg-server    -minimal
+sys-libs/zlib             minizip
+x11-base/xorg-server      -minimal
+
+# needed for Firefox and Thunderbird
+#
+dev-db/sqlite             secure-delete
+dev-lang/python           sqlite
+dev-qt/qtsql              sqlite
+mail-client/thunderbird   -pulseaudio system-icu
+media-libs/libvpx         postproc
+media-libs/libpng         apng
+media-video/ffmpeg        sdl
+net-dns/libidn            -mono
+sys-libs/ntdb             python
+sys-libs/tdb              python
+sys-libs/tevent           python
+x11-libs/libxcb           xkb
+www-client/firefox        -pulseaudio system-icu
