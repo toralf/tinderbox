@@ -405,8 +405,8 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 
 emerge sys-kernel/hardened-sources || exit 6
 
-rc=10
-emerge --update --pretend sys-devel/gcc || rc=121
+rc=0
+emerge --update --pretend sys-devel/gcc || rc=3
 
 mv /etc/portage/package.mask/setup_blocker /tmp
 
@@ -454,16 +454,19 @@ EOF
     d=$imagedir/$name
   fi
 
-  if [[ $rc -ne 10 ]]; then
+  # hint: rc % 3 shows which dryrun step failed
+  #
+  if [[ $rc -ne 0 ]]; then
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
 
-    if [[ $rc -lt 121 ]]; then
+    if [[ $rc -eq 6 ]]; then
       echo
       cat $d/tmp/setup.log
     fi
 
-    # the usage of "~" is here ok b/c usually those commands are run as user "tinderbox"
+    # the usage of "~" is here ok b/c usually those commands are
+    # manually run by the user "tinderbox"
     #
     echo
     echo "    view $d/tmp/dryrun.log"
