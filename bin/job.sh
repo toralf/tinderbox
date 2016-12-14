@@ -296,7 +296,7 @@ EOF
       #
       echo "sandbox issue $p" | sed 's/\.cache.*/.cache./g' > $issuedir/title
     fi
-    head -n 20 $sandb >> $issuedir/issue
+    head -n 10 $sandb >> $issuedir/issue
 
   else
     # to catch the real culprit loop over all patterns exactly in their defined order
