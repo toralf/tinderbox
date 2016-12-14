@@ -14,3 +14,7 @@
 #
 ~sci-chemistry/votca-csg-1.4
 ~sci-libs/votca-tools-1.4
+
+# (ffmpeg-3) - [TRACKER] https://bugs.gentoo.org/show_bug.cgi?id=574788
+#
+media-video/ffmpeg
