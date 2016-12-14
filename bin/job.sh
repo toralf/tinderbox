@@ -744,6 +744,13 @@ function EmergeTask() {
     fi
     /usr/bin/pfl &>/dev/null
 
+  elif [[ "$task" = "@world" ]]; then
+    emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y $task &> $log
+    if [[ $? -ne 0 ]]; then
+      GotAnIssue
+    fi
+    /usr/bin/pfl &>/dev/null
+
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     #  a command line, prefixed with an '%'
     #
