@@ -13,6 +13,7 @@ dev-libs/boehm-gc         threads
 dev-libs/libpcre          pcre16
 dev-lang/python           threads
 dev-util/cmake            -qt5
+media-libs/mesa           -vaapi
 net-dns/libidn            -emacs
 sys-apps/kmod             tools
 sys-libs/ncurses          -gpm
