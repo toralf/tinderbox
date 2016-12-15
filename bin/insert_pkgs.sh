@@ -14,7 +14,7 @@ mailto="tinderbox@zwiebeltoralf.de"
 #   4. doesn't have any special entries in its package list
 #
 avail_pks=""
-for i in ~/run/amd64-*
+for i in ~/run/*
 do
   if [[ ! -e $i/tmp/LOCK ]]; then
     continue

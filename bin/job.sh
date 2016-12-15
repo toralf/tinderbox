@@ -820,7 +820,7 @@ pks=/tmp/packages                   # the pre-filled package list file
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 
-# eg.: amd64-gnome-unstable_20150913-104240
+# eg.: gnome-unstable_20150913-104240
 #
 name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
 

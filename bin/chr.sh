@@ -6,7 +6,7 @@
 #
 # typical call:
 #
-# $> sudo ~/tb/bin/chr.sh amd64-plasma-unstable_20150811-144142
+# $> sudo ~/tb/bin/chr.sh ~/run/plasma-unstable_20150811-144142
 
 # due to sudo we need to define the path of $HOME of the tinderbox user
 #

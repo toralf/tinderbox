@@ -5,7 +5,7 @@
 # stop tinderbox chroot image/s
 #
 
-for mnt in ${@:-~/run/amd64-*}
+for mnt in ${@:-~/run/*}
 do
   # prepend $@ with ./ to specify non-common location/s
   #

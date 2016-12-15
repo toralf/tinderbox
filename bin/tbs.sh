@@ -75,25 +75,24 @@ function rufs()  {
 # ... and get the current stage3 file name
 #
 function ComputeImageName()  {
-  name="amd64"
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
-    name="$name-hardened"
+    name="hardened"
     stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
   elif [[ "$profile" = "hardened/linux/amd64/no-multilib" ]]; then
-    name="$name-hardened-no-multilib"
+    name="hardened-no-multilib"
     stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
   elif [[ "$profile" = "default/linux/amd64/13.0/no-multilib" ]]; then
-    name="$name-13.0-no-multilib"
+    name="13.0-no-multilib"
     stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
   elif [[ "$(basename $profile)" = "systemd" ]]; then
-    name="$name-$(basename $(dirname $profile))-systemd"
+    name="$(basename $(dirname $profile))-systemd"
     stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
 
   else
-    name="$name-$(basename $profile)"
+    name="$(basename $profile)"
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   fi
 
@@ -447,7 +446,7 @@ EOF
 
   cd $tbhome
 
-  # try to shorten the link to the image, eg.: img1/amd64-...
+  # try to shorten the link to the image, eg.: img1/plasma-..
   #
   d=$(basename $imagedir)/$name
   if [[ ! -d $d ]]; then
