@@ -849,7 +849,7 @@ do
     exit 125
   fi
 
-  # install artefacts from previous operations ?
+  # check for install artefacts from previous operations
   #
   pre-check
 
@@ -866,7 +866,7 @@ do
   #
   rm -rf /var/tmp/portage/*
 
-  # another regular exit of this loop: "echo STOP >> $pks" or have it being empty
+  # 2 other regular exit variants of this loop: package list is empty or contains a STOP line
   #
   GetNextTask
 
