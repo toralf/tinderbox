@@ -7,13 +7,13 @@
 
 # stable request https://bugs.gentoo.org/show_bug.cgi?id=590244
 #
-~dev-libs/boost-1.62.0
-~dev-util/boost-build-1.62.0
+#~dev-libs/boost-1.62.0
+#~dev-util/boost-build-1.62.0
 
 # https://bugs.gentoo.org/show_bug.cgi?id=600686
 #
-~sci-chemistry/votca-csg-1.4
-~sci-libs/votca-tools-1.4
+#~sci-chemistry/votca-csg-1.4
+#~sci-libs/votca-tools-1.4
 
 # (ffmpeg-3) - [TRACKER] https://bugs.gentoo.org/show_bug.cgi?id=574788
 #
