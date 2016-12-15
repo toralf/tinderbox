@@ -76,6 +76,7 @@ function GetNextTask() {
       grep -q -E "^(STOP|INFO|%|@)" $pks
       if [[ $? -ne 0 ]]; then
         task="@system"
+        echo "@world" >> $pks
         SwitchJDK
         return
       fi
