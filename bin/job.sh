@@ -749,6 +749,7 @@ function EmergeTask() {
     if [[ $? -ne 0 ]]; then
       GotAnIssue
     fi
+    PostEmerge
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
