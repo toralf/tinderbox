@@ -853,13 +853,13 @@ do
   #
   pre-check
 
-  date > $log
-
   # this is the preferred exit of this loop (except empty package list)
   #
   if [[ -f /tmp/STOP ]]; then
     Finish 0 "catched stop signal"
   fi
+
+  date > $log
 
   # clean up from a previous emerge operation
   # this isn't made by portage b/c we had to collect relevant build and log files first
