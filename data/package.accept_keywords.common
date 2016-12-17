@@ -18,3 +18,7 @@
 # (ffmpeg-3) - [TRACKER] https://bugs.gentoo.org/show_bug.cgi?id=574788
 #
 media-video/ffmpeg
+
+# [22:33] <Arfrever> toralf: Please perform testing with =sys-libs/glibc-2.24* unmasked :) .
+#
+=sys-libs/glibc-2.24* **

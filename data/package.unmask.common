@@ -2,11 +2,17 @@
 #
 
 # request by leio at 1st of October 2016
+#
 # but this breaks at least always Firefox, Thunderbird
 #
 #~sys-apps/sandbox-2.11
 
 # Poly-C_atwork via IRC https://bugs.gentoo.org/show_bug.cgi?id=598186
-# libpcap can't be build therefore a lot of network tools are affected
+#
+# libpcap can't be build therefore a lot of network tools wouldn#t be build
 #
 #~sys-devel/flex-2.6.2
+
+# [22:33] <Arfrever> toralf: Please perform testing with =sys-libs/glibc-2.24* unmasked :) .
+#
+~sys-libs/glibc-2.24
