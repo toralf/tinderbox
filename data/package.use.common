@@ -39,8 +39,7 @@ x11-base/xorg-server      -minimal
 #
 dev-db/sqlite             secure-delete
 dev-lang/python           sqlite
-dev-qt/qtsql              sqlite
-mail-client/thunderbird   -pulseaudio system-icu
+mail-client/thunderbird   -pulseaudio icu
 media-libs/libvpx         postproc
 media-libs/libpng         apng
 media-video/ffmpeg        sdl
@@ -49,4 +48,4 @@ sys-libs/ntdb             python
 sys-libs/tdb              python
 sys-libs/tevent           python
 x11-libs/libxcb           xkb
-www-client/firefox        -pulseaudio system-icu
+www-client/firefox        -pulseaudio icu
