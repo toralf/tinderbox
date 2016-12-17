@@ -749,6 +749,8 @@ function EmergeTask() {
     emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
+    else
+      echo "%emerge --depclean" >> $pks
     fi
     PostEmerge
     /usr/bin/pfl &>/dev/null
