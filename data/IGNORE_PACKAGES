@@ -1,4 +1,6 @@
 app-eselect/
+app-office/libreoffice
+app-office/libreoffice-l10n
 app-xemacs/
 dev-embedded/
 dev-ros/
@@ -13,5 +15,6 @@ sys-fs/vhba
 sys-kernel/
 virtual/
 www-apache/mod_
+www-client/chromium
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
