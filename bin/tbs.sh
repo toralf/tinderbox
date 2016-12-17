@@ -110,7 +110,7 @@ function UnpackStage3()  {
   b=$(basename $stage3)
   f=/var/tmp/distfiles/$b
   if [[ ! -f $f || ! -s $f ]]; then
-    wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 6
+    wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 4
   fi
 
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
@@ -366,12 +366,6 @@ EOF
 function EmergeMandatoryPackages() {
   dryrun="emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y @system --pretend"
 
-  # especially at unstable images let Perl being upgraded as part of a @system upgrade
-  # before that an upgrade of Perl as a part of the dependency tree of another package
-  # would cause almost a blocker
-  #
-  perl_stable_version=$(portageq best_version / dev-lang/perl)
-
   cat << EOF > tmp/setup.sh
 eselect profile set $profile || exit 6
 
@@ -392,7 +386,7 @@ source /etc/profile
 
 emerge --noreplace net-misc/netifrc
 
-echo ">${perl_stable_version}" >> /etc/portage/package.mask/setup_blocker
+echo "# packages preventing an upgrade of GCC before @system is made" > /etc/portage/package.mask/setup_blocker
 
 emerge sys-apps/elfix || exit 6
 migrate-pax -m
@@ -400,12 +394,10 @@ migrate-pax -m
 emerge mail-mta/ssmtp || exit 6
 emerge mail-client/mailx || exit 6
 
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz  || exit 6
-
-emerge sys-kernel/hardened-sources || exit 6
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz sys-kernel/hardened-sources || exit 6
 
 rc=0
-emerge --update --pretend sys-devel/gcc || rc=3
+emerge --update --pretend sys-devel/gcc || rc=7
 
 mv /etc/portage/package.mask/setup_blocker /tmp
 
@@ -413,9 +405,9 @@ $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $dryrun &> /tmp/dryrun.log || ((rc=rc+1))
+    $dryrun &> /tmp/dryrun.log || rc=7
   else
-    ((rc=rc+2))
+    rc=7
   fi
 fi
 
@@ -432,17 +424,22 @@ EOF
     wget -q -O- https://598480.bugs.gentoo.org/attachment.cgi?id=451903 2>/dev/null |\
     sed 's,/libs/config.bash.in,/libs/config.bash,g' |\
     patch -p1 --forward
-  ) || exit 5
+  ) || exit 8
 
   cd ..
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
 
+  cd - 1>/dev/null
+
   # provide credentials only to running images
   #
-  cd - 1>/dev/null
-  (cd root      && ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 7
-  (cd etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 7
+  (cd root      && ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 8
+  (cd etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 8
+
+  # add more flags here after the setup was made
+  #
+  #sed -i -e 's/^CFLAGS="/CFLAGS="-Werror=implicit-function-declaration /' etc/portage/make.conf || exit 8
 
   cd $tbhome
 
@@ -453,8 +450,6 @@ EOF
     d=$imagedir/$name
   fi
 
-  # hint: rc % 3 shows which dryrun step failed
-  #
   if [[ $rc -ne 0 ]]; then
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
@@ -462,6 +457,9 @@ EOF
     if [[ $rc -eq 6 ]]; then
       echo
       cat $d/tmp/setup.log
+    elif [[ $rc -eq 7 ]]; then
+      echo
+      cat $d/tmp/dryrun.log
     fi
 
     # the usage of "~" is here ok b/c usually those commands are
@@ -478,7 +476,7 @@ EOF
     exit $rc
   fi
 
-  (cd $tbhome/run && ln -s ../$d) || exit 6
+  (cd $tbhome/run && ln -s ../$d) || exit 9
 
   echo
   echo " setup  OK : $d"
