@@ -176,15 +176,8 @@ auto-sync = no
 EOF
 }
 
-# repos.d/* , make.conf and other stuff
-#
-function CompilePortageFiles()  {
-  mkdir -p                  usr/local/portage/{metadata,profiles}
-  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
-  echo 'local' >            usr/local/portage/profiles/repo_name
-  chown -R portage:portage  usr/local/portage/
 
-  CompileRepoFiles
+function CompileMakeConf()  {
   # compile make.conf now together
   #
   chmod a+w etc/portage/make.conf
@@ -246,6 +239,19 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gor.bytemark.co.uk/gentoo/ rsync://ftp.snt.utwente.nl/gentoo"
 
 EOF
+}
+
+
+# repos.d/* , make.conf and other stuff
+#
+function CompilePortageFiles()  {
+  mkdir -p                  usr/local/portage/{metadata,profiles}
+  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
+  echo 'local' >            usr/local/portage/profiles/repo_name
+  chown -R portage:portage  usr/local/portage/
+
+  CompileRepoFiles
+  CompileMakeConf
 
   mkdir tmp/tb  # mount point of the tinderbox directory of the host
 
