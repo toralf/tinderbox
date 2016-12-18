@@ -184,8 +184,7 @@ EOF
 
   # compile make.conf now together
   #
-  m=etc/portage/make.conf
-  chmod a+w $m
+  chmod a+w etc/portage/make.conf
 
   sed -i  -e '/^CFLAGS="/d'       \
           -e '/^CXXFLAGS=/d'      \
@@ -195,11 +194,11 @@ EOF
           -e '/^PKGDIR=/d'        \
           -e '/^#/d'              \
           -e '/^DISTDIR=/d'       \
-          $m
+          etc/portage/make.conf
 
 # no -Werror=implicit-function-declaration, please see https://bugs.gentoo.org/show_bug.cgi?id=602960
 #
-  cat << EOF >> $m
+  cat << EOF >> etc/portage/make.conf
 CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
 
