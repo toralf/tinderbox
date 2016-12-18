@@ -660,12 +660,12 @@ EOF
   if [[ $? -eq 0 ]]; then
     last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/')
     link=$(eselect kernel show | tail -n 1 | sed -e 's/ //g' | cut -f4 -d'/')
-
     if [[ "$last" != "$link" ]]; then
       eselect kernel set $last &>> $log
-      if [[ ! -f /usr/src/linux/.config ]]; then
-        echo "%BuildKernel" >> $pks
-      fi
+    fi
+
+    if [[ ! -f /usr/src/linux/.config ]]; then
+      echo "%BuildKernel" >> $pks
     fi
   fi
 
