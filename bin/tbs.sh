@@ -242,17 +242,7 @@ EOF
 }
 
 
-# repos.d/* , make.conf and other stuff
-#
-function ConfigureImage()  {
-  mkdir -p                  usr/local/portage/{metadata,profiles}
-  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
-  echo 'local' >            usr/local/portage/profiles/repo_name
-  chown -R portage:portage  usr/local/portage/
-
-  CompileRepoFiles
-  CompileMakeConf
-
+function CompilePackageFiles()  {
   mkdir tmp/tb  # mount point of the tinderbox directory of the host
 
   # create portage directories and symlinks (becomes effective by the bind-mount of ~/tb)
@@ -306,6 +296,21 @@ EOF
   # we force breakage with XDG_* settings in job.sh
   #
   echo 'FEATURES="-sandbox -usersandbox"'   > etc/portage/env/nosandbox
+}
+
+
+# repos.d/* , make.conf and other stuff
+#
+function ConfigureImage()  {
+  mkdir -p                  usr/local/portage/{metadata,profiles}
+  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
+  echo 'local' >            usr/local/portage/profiles/repo_name
+  chown -R portage:portage  usr/local/portage/
+
+  CompileRepoFiles
+  CompileMakeConf
+  CompilePackageFiles
+
 }
 
 
