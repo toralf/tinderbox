@@ -1,10 +1,6 @@
 # package.accept_keywords/common
 #
 
-# stabilize gcc-4: https://bugs.gentoo.org/show_bug.cgi?id=590966
-#
-~sys-devel/gcc-4.9.4
-
 # stable request https://bugs.gentoo.org/show_bug.cgi?id=590244
 #
 #~dev-libs/boost-1.62.0
