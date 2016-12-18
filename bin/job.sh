@@ -357,7 +357,7 @@ EOF
 
   # the email contains:
   # - the issue, package version and maintainer
-  # - a bgo.sh command line ready for copy+paste
+  # - a command line ready for copy+paste to file a bug
   # - bugzilla search result/s
   #
   cp $issuedir/issue $issuedir/body
@@ -404,7 +404,7 @@ EOF
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  ~/tb/bin/bgo.sh -d $name/$issuedir -a $id
+  ~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -a $id
 
 EOF
   else
