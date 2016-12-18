@@ -187,7 +187,9 @@ EOF
   m=etc/portage/make.conf
   chmod a+w $m
 
-  sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native /'  \
+  # no -Werror=implicit-function-declaration, please see https://bugs.gentoo.org/show_bug.cgi?id=602960
+  #
+  sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native -Wimplicit-function-declaration /'  \
           -e '/^CPU_FLAGS_X86=/d'                   \
           -e '/^USE=/d'                             \
           -e '/^PORTDIR=/d'                         \
@@ -435,10 +437,6 @@ EOF
   #
   (cd root      && ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 8
   (cd etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 8
-
-  # add more flags here after the setup was made
-  #
-  #sed -i -e 's/^CFLAGS="/CFLAGS="-Werror=implicit-function-declaration /' etc/portage/make.conf || exit 8
 
   cd $tbhome
 
