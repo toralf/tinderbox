@@ -101,6 +101,9 @@ function ComputeImageName()  {
   fi
 
   name="$name-$keyword"
+  name="${name}_$(date +%Y%m%d-%H%M%S)"
+  echo " $imagedir/$name"
+  echo
 }
 
 
@@ -648,10 +651,6 @@ if [[ $? -ne 0 ]]; then
 fi
 
 ComputeImageName
-name="${name}_$(date +%Y%m%d-%H%M%S)"
-echo " $imagedir/$name"
-echo
-
 UnpackStage3
 ConfigureImage
 EmergeMandatoryPackages
