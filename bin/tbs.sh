@@ -121,14 +121,7 @@ function UnpackStage3()  {
 }
 
 
-# repos.d/* , make.conf and other stuff
-#
-function CompilePortageFiles()  {
-  mkdir -p                  usr/local/portage/{metadata,profiles}
-  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
-  echo 'local' >            usr/local/portage/profiles/repo_name
-  chown -R portage:portage  usr/local/portage/
-
+function CompileRepoFiles()  {
   # the local repository rules always
   #
   mkdir -p     etc/portage/repos.conf/
@@ -181,7 +174,17 @@ masters   = gentoo
 auto-sync = no
 
 EOF
+}
 
+# repos.d/* , make.conf and other stuff
+#
+function CompilePortageFiles()  {
+  mkdir -p                  usr/local/portage/{metadata,profiles}
+  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
+  echo 'local' >            usr/local/portage/profiles/repo_name
+  chown -R portage:portage  usr/local/portage/
+
+  CompileRepoFiles
   # compile make.conf now together
   #
   chmod a+w etc/portage/make.conf
