@@ -187,17 +187,22 @@ EOF
   m=etc/portage/make.conf
   chmod a+w $m
 
-  # no -Werror=implicit-function-declaration, please see https://bugs.gentoo.org/show_bug.cgi?id=602960
-  #
-  sed -i  -e 's/^CFLAGS="/CFLAGS="-march=native -Wimplicit-function-declaration /'  \
-          -e '/^CPU_FLAGS_X86=/d'                   \
-          -e '/^USE=/d'                             \
-          -e '/^PORTDIR=/d'                         \
-          -e '/^PKGDIR=/d'                          \
-          -e '/^#/d'                                \
-          -e 's#^DISTDIR=.*#DISTDIR="/var/tmp/distfiles"#' $m
+  sed -i  -e '/^CFLAGS="/d'       \
+          -e '/^CXXFLAGS=/d'      \
+          -e '/^CPU_FLAGS_X86=/d' \
+          -e '/^USE=/d'           \
+          -e '/^PORTDIR=/d'       \
+          -e '/^PKGDIR=/d'        \
+          -e '/^#/d'              \
+          -e '/^DISTDIR=/d'       \
+          $m
 
+# no -Werror=implicit-function-declaration, please see https://bugs.gentoo.org/show_bug.cgi?id=602960
+#
   cat << EOF >> $m
+CFLAGS="-O2 -pipe -march=native -Wimplicit-function-declaration"
+CXXFLAGS="-O2 -pipe -march=native"
+
 USE="
   pax_kernel xtpax -cdinstall -oci8 -bindist
   ssp
@@ -212,8 +217,6 @@ PAX_MARKINGS="XT"
 $( [[ "$multilib" = "y" ]] && echo '#ABI_X86="32 64"' )
 
 L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
-
-SSL_BITS=4096
 
 ACCEPT_LICENSE="*"
 
@@ -231,6 +234,7 @@ VIDEO_CARDS="intel i965"
 
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
 
+DISTDIR="/var/tmp/distfiles"
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
