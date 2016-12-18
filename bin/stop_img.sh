@@ -5,6 +5,11 @@
 # stop tinderbox chroot image/s
 #
 
+if [[ ! "$(whoami)" = "tinderbox" ]]; then
+  echo " wrong user "
+  exit 1
+fi
+
 for mnt in ${@:-~/run/*}
 do
   # prepend $@ with ./ to specify non-common location/s
