@@ -370,7 +370,7 @@ function ConfigureImage()  {
 }
 
 
-# create and run a shell script to:
+# create a shell script to:
 #
 # - configure locale, timezone, MTA etc
 # - install and configure tools used in job.sh:
@@ -381,7 +381,7 @@ function ConfigureImage()  {
 #         www-client/pybugz           bugz
 # - dry test of GCC and @system upgrade to auto-fix package-specific USE flags
 #
-function EmergeMandatoryPackages() {
+function CreateSetupScript()  {
   dryrun="emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y @system --pretend"
 
   cat << EOF > tmp/setup.sh
@@ -434,6 +434,13 @@ mv /tmp/setup_blocker /etc/portage/package.mask/
 exit \$rc
 
 EOF
+}
+
+
+# we need at least a working mailer
+#
+function EmergeMandatoryPackages() {
+  CreateSetupScript
 
   # <app-admin/eselect-1.4.7 $LANG issue
   #
