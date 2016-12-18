@@ -314,21 +314,6 @@ EOF
 }
 
 
-# repos.d/* , make.conf and other stuff
-#
-function ConfigureImage()  {
-  mkdir -p                  usr/local/portage/{metadata,profiles}
-  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
-  echo 'local' >            usr/local/portage/profiles/repo_name
-  chown -R portage:portage  usr/local/portage/
-
-  CompileRepoFiles
-  CompileMakeConf
-  CompilePackageFiles
-  CompileMiscFiles
-}
-
-
 # always upgrade GCC first, then build the kernel, upgrade @system and emerge few mandatory/useful packages
 #
 function FillPackageList()  {
@@ -366,6 +351,22 @@ sys-devel/gcc
 EOF
 
   chown tinderbox.tinderbox $pks
+}
+
+
+# repos.d/* , make.conf and other stuff
+#
+function ConfigureImage()  {
+  mkdir -p                  usr/local/portage/{metadata,profiles}
+  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
+  echo 'local' >            usr/local/portage/profiles/repo_name
+  chown -R portage:portage  usr/local/portage/
+
+  CompileRepoFiles
+  CompileMakeConf
+  CompilePackageFiles
+  CompileMiscFiles
+  FillPackageList
 }
 
 
@@ -646,7 +647,6 @@ echo
 
 UnpackStage3
 ConfigureImage
-FillPackageList
 EmergeMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
