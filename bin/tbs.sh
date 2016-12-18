@@ -342,7 +342,7 @@ EOF
   fi
 
   cat << EOF >> $pks
-%BuildKernel
+%emerge -u sys-kernel/hardened-sources
 %rm -f /etc/portage/package.mask/setup_blocker
 sys-devel/gcc
 EOF
@@ -360,7 +360,6 @@ EOF
 #         app-portage/gentoolkit      equery eshowkw revdep-rebuild
 #         app-portage/portage-utils   qlop
 #         www-client/pybugz           bugz
-# - unpack kernel sources (b/c"sys-kernel/" is in IGNORE_PACKAGES)
 # - dry test of GCC and @system upgrade to auto-fix package-specific USE flags
 #
 function EmergeMandatoryPackages() {
@@ -394,7 +393,7 @@ migrate-pax -m
 emerge mail-mta/ssmtp || exit 6
 emerge mail-client/mailx || exit 6
 
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz sys-kernel/hardened-sources || exit 6
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 6
 
 rc=0
 emerge --update --pretend sys-devel/gcc || rc=7
