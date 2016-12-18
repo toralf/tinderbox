@@ -299,21 +299,6 @@ EOF
 }
 
 
-# repos.d/* , make.conf and other stuff
-#
-function ConfigureImage()  {
-  mkdir -p                  usr/local/portage/{metadata,profiles}
-  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
-  echo 'local' >            usr/local/portage/profiles/repo_name
-  chown -R portage:portage  usr/local/portage/
-
-  CompileRepoFiles
-  CompileMakeConf
-  CompilePackageFiles
-
-}
-
-
 # DNS resolution + .vimrc
 #
 function CompileMiscFiles()  {
@@ -326,7 +311,21 @@ set tabstop=2
 set expandtab
 
 EOF
+}
 
+
+# repos.d/* , make.conf and other stuff
+#
+function ConfigureImage()  {
+  mkdir -p                  usr/local/portage/{metadata,profiles}
+  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
+  echo 'local' >            usr/local/portage/profiles/repo_name
+  chown -R portage:portage  usr/local/portage/
+
+  CompileRepoFiles
+  CompileMakeConf
+  CompilePackageFiles
+  CompileMiscFiles
 }
 
 
@@ -647,7 +646,6 @@ echo
 
 UnpackStage3
 ConfigureImage
-CompileMiscFiles
 FillPackageList
 EmergeMandatoryPackages
 
