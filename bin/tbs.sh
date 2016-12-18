@@ -200,7 +200,7 @@ EOF
 # no -Werror=implicit-function-declaration, please see https://bugs.gentoo.org/show_bug.cgi?id=602960
 #
   cat << EOF >> $m
-CFLAGS="-O2 -pipe -march=native -Wimplicit-function-declaration"
+CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
 
 USE="
