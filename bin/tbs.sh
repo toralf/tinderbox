@@ -72,7 +72,7 @@ function rufs()  {
 }
 
 
-# ... and get the current stage3 file name
+# deduce our tinderox image name from the profile and current stage3 file name
 #
 function ComputeImageName()  {
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
@@ -124,6 +124,8 @@ function UnpackStage3()  {
 }
 
 
+# configure 3 repositories amd prepare a placeholder too
+#
 function CompileRepoFiles()  {
   # the local repository rules always
   #
@@ -180,9 +182,9 @@ EOF
 }
 
 
+# compile make.conf now together
+#
 function CompileMakeConf()  {
-  # compile make.conf now together
-  #
   chmod a+w etc/portage/make.conf
 
   sed -i  -e '/^CFLAGS="/d'       \
@@ -245,6 +247,9 @@ EOF
 }
 
 
+# few of the package files resides physically in /tmp/tb/data
+# for those we do just creates symlinks here
+#
 function CompilePackageFiles()  {
   mkdir tmp/tb  # mount point of the tinderbox directory of the host
 
@@ -317,7 +322,9 @@ EOF
 }
 
 
-# always upgrade GCC first, then build the kernel, upgrade @system and emerge few mandatory/useful packages
+# always upgrade GCC first, then build the kernel, upgrade @system
+# then emerge few mandatory/useful packages
+# and start with the randomized package list
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -357,7 +364,7 @@ EOF
 }
 
 
-# repos.d/* , make.conf and other stuff
+# repos.d/* , make.conf and all the stuff
 #
 function ConfigureImage()  {
   mkdir -p                  usr/local/portage/{metadata,profiles}
@@ -440,7 +447,7 @@ EOF
 }
 
 
-# we need at least a working mailer
+# we need at least a working mailer and bugz
 #
 function EmergeMandatoryPackages() {
   CreateSetupScript
@@ -559,7 +566,7 @@ if [[ $? -eq 0 ]]; then
   multilib="n"
 fi
 
-# the caller can overwrite the (thrown) settings
+# the caller can overwrite the (thrown) settings now
 #
 while getopts a:f:k:l:m:o:p: opt
 do
@@ -642,17 +649,15 @@ if [[ "$tbhome" = "$imagedir" ]]; then
   exit 3
 fi
 
-# $latest contains the stage3 file name needed in ComputeImageName()
-#
 wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
 if [[ $? -ne 0 ]]; then
   echo " wget failed of: $latest"
   exit 3
 fi
 
-ComputeImageName
-UnpackStage3
-ConfigureImage
+ComputeImageName          &&\
+UnpackStage3              &&\
+ConfigureImage            &&\
 EmergeMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
