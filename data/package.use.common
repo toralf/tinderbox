@@ -1,7 +1,7 @@
 # package.use/common
 #
-# this file resides in /tmp/tb/data within an tinderbox image
-# and is symlinked into its right location under /etc/portage
+# this file resides in /tmp/tb/data within a tinderbox image
+# the appropriate symlink under /etc/portage/ points to it
 
 # mandatory to send emails authorized to us
 #
@@ -39,15 +39,15 @@ x11-base/xorg-server      -minimal
 
 # needed for Firefox and Thunderbird
 #
-dev-db/sqlite             secure-delete
-dev-lang/python           sqlite
-mail-client/thunderbird   -pulseaudio icu
-media-libs/libvpx         postproc
-media-libs/libpng         apng
-media-video/ffmpeg        sdl
-net-dns/libidn            -mono
-sys-libs/ntdb             python
-sys-libs/tdb              python
-sys-libs/tevent           python
-x11-libs/libxcb           xkb
-www-client/firefox        -pulseaudio icu
+#dev-db/sqlite             secure-delete
+#dev-lang/python           sqlite
+#mail-client/thunderbird   -pulseaudio
+#media-libs/libvpx         postproc
+#media-libs/libpng         apng
+#media-video/ffmpeg        sdl
+#net-dns/libidn            -mono
+#sys-libs/ntdb             python
+#sys-libs/tdb              python
+#sys-libs/tevent           python
+#x11-libs/libxcb           xkb
+#www-client/firefox        -pulseaudio

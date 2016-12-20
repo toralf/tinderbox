@@ -1,7 +1,7 @@
 # package.unmask/common
 #
-# this file resides in /tmp/tb/data within an tinderbox image
-# and is symlinked into its right location under /etc/portage
+# this file resides in /tmp/tb/data within a tinderbox image
+# the appropriate symlink under /etc/portage/ points to it
 
 # please note that this file rules over /etc/portage/package.mask/self
 # so best is to let it be empty
