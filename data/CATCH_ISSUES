@@ -55,6 +55,7 @@ stack smashing detected
 No rule to make target
 final link failed: Nonrepresentable section on output
 ld returned 1 exit status
+Error: No implementations provided for the following modules:
 LoadError
 cannot find symbol
 incompatible types
