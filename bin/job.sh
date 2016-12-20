@@ -386,10 +386,6 @@ EOF
     search_string=$(echo "$search_string" | sed -e 's/\-[0-9\-r\.]*$//g')
   fi
 
-  # get the latest bug number if there are more than one
-  #
-  id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
-
   if [[ "$block" = "-b 582084" ]]; then
     # gcc-5 might have similar issues as gcc-6, so check that it is really gcc-6
     #
@@ -397,6 +393,10 @@ EOF
       block=""
     fi
   fi
+
+  # get the latest bug number if there are more than one
+  #
+  id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
 
   # do we found a bugzilla bug id ?
   #
