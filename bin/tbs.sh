@@ -72,7 +72,7 @@ function rufs()  {
 }
 
 
-# deduce our tinderox image name from the profile and current stage3 file name
+# deduce our tinderbox image name from the profile and current stage3 file name
 #
 function ComputeImageName()  {
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
