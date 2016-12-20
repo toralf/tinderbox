@@ -1,5 +1,7 @@
 # package.mask/common
 #
+# this file resides in /tmp/tb/data within an tinderbox image
+# and is symlinked into its right location under /etc/portage
 
 # various issue(s) at the 1st start of vim
 #

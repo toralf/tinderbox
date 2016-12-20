@@ -1,14 +1,8 @@
 # package.unmask/common
 #
+# this file resides in /tmp/tb/data within an tinderbox image
+# and is symlinked into its right location under /etc/portage
 
-# request by leio at 1st of October 2016
-#
-# but this breaks at least always Firefox, Thunderbird
-#
-#~sys-apps/sandbox-2.11
-
-# Poly-C_atwork via IRC https://bugs.gentoo.org/show_bug.cgi?id=598186
-#
-# libpcap can't be build therefore a lot of network tools wouldn#t be build
-#
-#~sys-devel/flex-2.6.2
+# please note that this file rules over /etc/portage/package.mask/self
+# so best is to let it be empty
+# file individual entries within each tinderbox image instead

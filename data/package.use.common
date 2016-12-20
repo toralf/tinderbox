@@ -1,5 +1,7 @@
 # package.use/common
 #
+# this file resides in /tmp/tb/data within an tinderbox image
+# and is symlinked into its right location under /etc/portage
 
 # mandatory to send emails authorized to us
 #
