@@ -396,7 +396,20 @@ EOF
 
   # get the latest bug number if there are more than one
   #
-  id=$(bugz -q --columns 400 search --status OPEN,RESOLVED --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
+  confirmed="n"
+  for status in OPEN RESOLVED
+  do
+    id=$(bugz -q --columns 400 search --status $status --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
+    if [[ -n "$id" ]]; then
+      if [[ "$status" = "OPEN" ]]; then
+        grep -q "$id CONFIRMED" $issuedir/body
+        if [[ $? -eq 0 ]]; then
+          confirmed="y"
+        fi
+      fi
+      break
+    fi
+  done
 
   # do we found a bugzilla bug id ?
   #
@@ -537,13 +550,12 @@ function GotAnIssue()  {
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
-  # send an email if the issue was not yet catched
-  # even if we found an already filed bug
-  #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+    if [[ "$confirmed" != "y" ]]; then
+      Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+    fi
   fi
 }
 
