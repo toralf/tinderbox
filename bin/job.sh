@@ -402,7 +402,7 @@ EOF
     id=$(bugz -q --columns 400 search --status $status --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       if [[ "$status" = "OPEN" ]]; then
-        grep -q "$id CONFIRMED" $issuedir/body
+        grep -q -E "$id CONFIRMED|IN_PROGRESS" $issuedir/body
         if [[ $? -eq 0 ]]; then
           confirmed="y"
         fi
