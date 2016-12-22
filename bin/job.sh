@@ -209,34 +209,11 @@ function CompileInfoMail() {
     keyword="unstable"
   fi
 
-  cat << EOF >> $issuedir/emerge-info.txt
-  -----------------------------------------------------------------
-
-  This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
-
-  -----------------------------------------------------------------
-  USE flags in make.conf:
-USE="$(source /etc/portage/make.conf; echo -n '  '; echo $USE)"
-  -----------------------------------------------------------------
-
-gcc-config -l:
-$(gcc-config -l 2>&1                && echo)
-llvm-config --version:
-$(llvm-config --version 2>&1        && echo)
-$(eselect java-vm list 2>/dev/null  && echo)
-$(eselect python  list 2>&1         && echo)
-$(eselect ruby    list 2>/dev/null  && echo)
-java-config:
-$(java-config --list-available-vms --nocolor 2>/dev/null  && echo)
-  -----------------------------------------------------------------
-
-EOF
-
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
 
   # no --verbose, output size would exceed the 16 KB limit of b.g.o.
   #
-  emerge --info --verbose=n $short >> $issuedir/emerge-info.txt
+  emerge --info --verbose=n $short > $issuedir/emerge-info.txt
 
   # get bug report assignee and cc, GLEP 67 rules
   #
@@ -355,16 +332,31 @@ EOF
     done
   )
 
-  # the email contains:
-  # - the issue, package version and maintainer
-  # - a command line ready for copy+paste to file a bug
-  # - bugzilla search result/s
+  # put the issue into the email body before we extend it for b.g.o.
   #
   cp $issuedir/issue $issuedir/body
 
-  cat << EOF >> $issuedir/body
+  cat << EOF >> $issuedir/issue
 
---
+  -----------------------------------------------------------------
+
+  This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
+
+  -----------------------------------------------------------------
+  from make.conf:
+USE="$(source /etc/portage/make.conf; echo -n '  '; echo $USE)"
+
+gcc-config -l:
+$(gcc-config -l 2>&1                && echo)
+llvm-config --version:
+$(llvm-config --version 2>&1        && echo)
+$(eselect java-vm list 2>/dev/null  && echo)
+$(eselect python  list 2>&1         && echo)
+$(eselect ruby    list 2>/dev/null  && echo)
+java-config:
+$(java-config --list-available-vms --nocolor 2>/dev/null  && echo)
+  -----------------------------------------------------------------
+
 versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
