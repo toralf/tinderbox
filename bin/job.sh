@@ -394,19 +394,17 @@ EOF
     fi
   fi
 
-  # get the latest bug number if there are more than one
+  # no need to report this issue if an existing bug report meets one of the criterias
   #
-  confirmed="n"
-  for status in OPEN RESOLVED
+  report_it="y"
+  for statreso in "CONFIRMED ---" "IN_PROGRESS ---" "RESOLVED DUPLICATE"
   do
-    id=$(bugz -q --columns 400 search --status $status --show-status $short "$search_string" | tail -n 1 | grep '^[[:digit:]]* ' | tee -a $issuedir/body | cut -f1 -d ' ')
+    stat=$(echo $statreso | cut -f1 -d' ')
+    reso=$(echo $statreso | cut -f2 -d' ')
+
+    id=$(bugz -q --columns 400 search --status "$stat" --resolution "$reso" --show-status $short "$search_string" | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      if [[ "$status" = "OPEN" ]]; then
-        grep -q -E "$id CONFIRMED|IN_PROGRESS" $issuedir/body
-        if [[ $? -eq 0 ]]; then
-          confirmed="y"
-        fi
-      fi
+      report_it="n"
       break
     fi
   done
@@ -426,12 +424,12 @@ EOF
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
     g="stabilize|Bump| keyword| bump"
 
-    echo "  OPEN:     $h&resolution=---&short_desc=$short"      >> $issuedir/body
-    bugz --columns 400 -q search --show-status      $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
+    echo "  OPEN:     ${h}&resolution=---&short_desc=${short}"      >> $issuedir/body
+    bugz --columns 400 -q search --status OPEN --show-status  $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
 
     echo "" >> $issuedir/body
-    echo "  RESOLVED: $h&bug_status=RESOLVED&short_desc=$short" >> $issuedir/body
-    bugz --columns 400 -q search --status RESOLVED  $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
+    echo "  RESOLVED: ${h}&bug_status=RESOLVED&short_desc=${short}" >> $issuedir/body
+    bugz --columns 400 -q search --status RESOLVED            $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
   fi
 
   for f in $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
@@ -553,7 +551,7 @@ function GotAnIssue()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    if [[ "$confirmed" != "y" ]]; then
+    if [[ "$report_it" = "y" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
     fi
   fi
