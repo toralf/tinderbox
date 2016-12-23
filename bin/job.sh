@@ -335,6 +335,7 @@ EOF
   # put the issue into the email body before we extend it for b.g.o.
   #
   cp $issuedir/issue $issuedir/body
+  echo >> $issuedir/body
 
   cat << EOF >> $issuedir/issue
 
@@ -416,7 +417,7 @@ EOF
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
     g="stabilize|Bump| keyword| bump"
 
-    echo "  OPEN:     ${h}&resolution=---&short_desc=${short}"      >> $issuedir/body
+    echo "  OPEN:     ${h}&resolution=---&short_desc=${short}" >> $issuedir/body
     bugz --columns 400 -q search --status OPEN --show-status  $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
 
     echo "" >> $issuedir/body
