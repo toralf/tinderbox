@@ -391,15 +391,15 @@ EOF
   #
   report_it="y"
 
-  id=$(bugz -q --columns 400 search --show-status $short "$search_string" | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+  id=$(bugz -q --columns 400 search --show-status $short "$search_string" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
   if [[ -n "$id" ]]; then
     report_it="n"
   else
-    id=$(bugz -q --columns 400 search --show-status $short "$search_string" | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status $short "$search_string" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       report_it="n"
     else
-      id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $short "$search_string" | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+      id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $short "$search_string" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
       if [[ -n "$id" ]]; then
         report_it="n"
       fi
@@ -422,11 +422,11 @@ EOF
     g="stabilize|Bump| keyword| bump"
 
     echo "  OPEN:     ${h}&resolution=---&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --status OPEN --show-status  $short 2>&1 | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
+    bugz --columns 400 -q search --status OPEN --show-status  $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
 
     echo "" >> $issuedir/body
     echo "  RESOLVED: ${h}&bug_status=RESOLVED&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --status RESOLVED            $short 2>&1 | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
+    bugz --columns 400 -q search --status RESOLVED            $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
   fi
 
   for f in $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
