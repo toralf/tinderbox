@@ -387,22 +387,26 @@ EOF
     fi
   fi
 
-  # no need to report this issue if an existing bug report meets one of the criterias
+  # no need to report this issue if an appropriate bug report does exist
   #
   report_it="y"
-  for statreso in "CONFIRMED ---" "IN_PROGRESS ---" "RESOLVED DUPLICATE"
-  do
-    stat=$(echo $statreso | cut -f1 -d' ')
-    reso=$(echo $statreso | cut -f2 -d' ')
 
-    id=$(bugz -q --columns 400 search --status "$stat" --resolution "$reso" --show-status $short "$search_string" | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+  id=$(bugz -q --columns 400 search --show-status $short "$search_string" | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+  if [[ -n "$id" ]]; then
+    report_it="n"
+  else
+    id=$(bugz -q --columns 400 search --show-status $short "$search_string" | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       report_it="n"
-      break
+    else
+      id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $short "$search_string" | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+      if [[ -n "$id" ]]; then
+        report_it="n"
+      fi
     fi
-  done
+  fi
 
-  # do we found a bugzilla bug id ?
+  # provide an easy append method for the latest bug id
   #
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
@@ -418,11 +422,11 @@ EOF
     g="stabilize|Bump| keyword| bump"
 
     echo "  OPEN:     ${h}&resolution=---&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --status OPEN --show-status  $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
+    bugz --columns 400 -q search --status OPEN --show-status  $short 2>&1 | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
 
     echo "" >> $issuedir/body
     echo "  RESOLVED: ${h}&bug_status=RESOLVED&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --status RESOLVED            $short 2>&1 | grep -v -i -E "$g" | tail -n 20 | tac >> $issuedir/body
+    bugz --columns 400 -q search --status RESOLVED            $short 2>&1 | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
   fi
 
   for f in $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
