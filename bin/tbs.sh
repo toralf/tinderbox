@@ -453,12 +453,13 @@ function EmergeMandatoryPackages() {
   CreateSetupScript
 
   # <app-admin/eselect-1.4.7 $LANG issue
+  # https://598480.bugs.gentoo.org/attachment.cgi?id=451903
+  #   wget -q -O- https://598480.bugs.gentoo.org/attachment.cgi?id=451903 2>/dev/null |\
+  #   sed 's,/libs/config.bash.in,/libs/config.bash,g' > ~/eselect.patch
   #
   (
     cd usr/share/eselect &&\
-    wget -q -O- https://598480.bugs.gentoo.org/attachment.cgi?id=451903 2>/dev/null |\
-    sed 's,/libs/config.bash.in,/libs/config.bash,g' |\
-    patch -p1 --forward
+    patch -p1 --forward < $tbhome/eselect.patch
   ) || exit 8
 
   cd ..
