@@ -269,6 +269,11 @@ function CompilePackageFiles()  {
     (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
   done
 
+  for d in package.{accept_keywords,unmask}
+  do
+    (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.$keyword $keyword)
+  done
+
   touch       etc/portage/package.mask/self     # failed package at this image
   chmod a+rw  etc/portage/package.mask/self
 

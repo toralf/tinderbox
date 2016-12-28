@@ -1,0 +1,4 @@
+# package.accept_keywords/stable
+#
+# this file resides in /tmp/tb/data within a tinderbox image
+# the appropriate symlink under /etc/portage/ points to it

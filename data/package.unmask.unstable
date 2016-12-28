@@ -1,0 +1,6 @@
+# package.unmask/unstable
+#
+# this file resides in /tmp/tb/data within a tinderbox image
+# the appropriate symlink under /etc/portage/ points to it
+
+# please note that this file rules over /etc/portage/package.mask/self
