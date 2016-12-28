@@ -6,3 +6,8 @@
 # please note that this file rules over /etc/portage/package.mask/self
 # so best is to let it be empty
 # file individual entries within each tinderbox image instead
+
+# Soap via IRC:
+#
+~dev-libs/boost-1.63.0
+~dev-util/boost-build-1.63.0
