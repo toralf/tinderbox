@@ -8,10 +8,10 @@
 ~dev-libs/boost-1.62.0
 ~dev-util/boost-build-1.62.0
 
-# Soap via IRC:
+# stable request: not yet made
 #
-~dev-libs/boost-1.63.0
-~dev-util/boost-build-1.63.0
+#~dev-libs/boost-1.63.0
+#~dev-util/boost-build-1.63.0
 
 # stable request https://bugs.gentoo.org/show_bug.cgi?id=574788
 #
