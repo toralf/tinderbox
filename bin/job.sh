@@ -366,11 +366,6 @@ java-config:
 $(java-config --list-available-vms --nocolor 2>/dev/null  && echo)
   -----------------------------------------------------------------
 
-versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
-assignee: $(cat $issuedir/assignee)
-cc:       $(cat $issuedir/cc)
---
-
 EOF
 
   # search in bugzilla if $issue was already filed
