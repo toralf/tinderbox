@@ -587,7 +587,7 @@ function SwitchGCC() {
   if [[ $? -ne 0 ]]; then
     verold=$(gcc -dumpversion)
     gcc-config --nocolor $latest &> $log
-    . /etc/profile
+    source /etc/profile
     vernew=$(gcc -dumpversion)
 
     majold=$(echo $verold | cut -c1)
