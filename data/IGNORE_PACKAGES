@@ -1,20 +1,36 @@
-app-eselect/
-app-office/libreoffice
-app-office/libreoffice-l10n
+# entries in the package list matches the pattern here will be skipped
+# this file MUST NOT have empty lines
+#
+#
+# misc, let them emerged just as dependencies
+#
 app-xemacs/
+app-eselect/
 dev-embedded/
 dev-ros/
 java-virtuals/
-net-analyzer/openvas
-net-analyzer/snips
 perl-core/
 sec-policy/
 sys-cluster/
-sys-fs/loop-aes
-sys-fs/vhba
 sys-kernel/
 virtual/
 www-apache/mod_
-www-client/chromium
+#
+# outdated or br0ken
+#
+net-analyzer/openvas
+net-analyzer/snips
+sys-fs/loop-aes
+sys-fs/vhba
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
+#
+# too fat and/or too long compile time
+#
+app-office/libreoffice
+app-office/libreoffice-l10n
+sci-libs/openfoam
+www-client/chromium
+#
+#
+# no empty line after this comment
