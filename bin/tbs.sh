@@ -348,6 +348,7 @@ function FillPackageList()  {
 
   cat << EOF >> $pks
 # setup done
+app-text/wgetpaste
 app-portage/pfl
 app-portage/eix
 @system
