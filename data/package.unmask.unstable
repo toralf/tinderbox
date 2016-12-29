@@ -4,3 +4,8 @@
 # the appropriate symlink under /etc/portage/ points to it
 
 # please note that this file rules over /etc/portage/package.mask/self
+
+# Soap via IRC:
+#
+~dev-libs/boost-1.63.0
+~dev-util/boost-build-1.63.0
