@@ -723,6 +723,7 @@ function EmergeTask() {
               -e 'The following mask changes are necessary to proceed:' \
               $log
     if [[ $? -eq 0 ]]; then
+      echo $task >> $pks
       Finish 0 "notice: broken $task"
     fi
 
