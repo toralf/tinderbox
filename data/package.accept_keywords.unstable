@@ -2,8 +2,3 @@
 #
 # this file resides in /tmp/tb/data within a tinderbox image
 # the appropriate symlink under /etc/portage/ points to it
-
-# Soap via IRC:
-#
-~dev-libs/boost-1.63.0
-~dev-util/boost-build-1.63.0
