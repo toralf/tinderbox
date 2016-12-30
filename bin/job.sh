@@ -710,7 +710,7 @@ EOF
 #
 function EmergeTask() {
   if [[ "$task" = "@preserved-rebuild" ]]; then
-    emerge --backtrack=30 $task &> $log
+    emerge --backtrack=100 $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       echo "$(date) $failed"  >> /tmp/timestamp.preserved-rebuild
@@ -728,7 +728,7 @@ function EmergeTask() {
     fi
 
   elif [[ "$task" = "@system" ]]; then
-    emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y $task &> $log
+    emerge --backtrack=100 --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       rc=$?
@@ -757,7 +757,7 @@ function EmergeTask() {
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$task" = "@world" ]]; then
-    emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y $task &> $log
+    emerge --backtrack=100 --deep --update --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
     else
