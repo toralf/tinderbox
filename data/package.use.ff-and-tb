@@ -2,7 +2,6 @@
 #
 # this file resides in /tmp/tb/data within a tinderbox image
 # and has to by copied/symlinked manually into the right place
-# eg.: for i in ~/run/*; do cp ~/tb/data/package.use.ff-and-tb $i/etc/portage/package.use; done
 
 dev-db/sqlite             secure-delete
 dev-lang/python           sqlite
