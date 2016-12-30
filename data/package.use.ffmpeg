@@ -1,0 +1,6 @@
+# package.use file for ffmpeg tests
+#
+# this file resides in /tmp/tb/data within a tinderbox image
+# and has to by copied/symlinked manually into the right place
+
+*/* convert exif ffmpeg gd icu messages mikmod mod python qml svc system-ffmpeg truetype video
