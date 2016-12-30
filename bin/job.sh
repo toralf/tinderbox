@@ -390,7 +390,7 @@ EOF
     fi
   fi
 
-  # no need to report this issue if an appropriate bug report does exist
+  # don't report this issue if an appropriate bug report exists
   #
   report_it="y"
 
@@ -409,7 +409,8 @@ EOF
     fi
   fi
 
-  # provide an easy append method for the latest bug id
+  # compile a command line ready for copy+paste
+  # and add bugzilla search results if needed
   #
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
@@ -432,21 +433,25 @@ EOF
     bugz --columns 400 -q search --status RESOLVED  $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
   fi
 
+  # attach the files onto the email using the old-school uuencode (unfortuantely not MIME compliant)
+  #
   for f in $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
   do
     uuencode $f $(basename $f) >> $issuedir/body
   done
 
-  # prefix it with package name + version
+  # prefix title with package name + version
   #
   sed -i -e "s#^#$failed : #" $issuedir/title
 
-  # b.g.o. limits "Summary" to 255 chars
+  # b.g.o. has a limit of "Summary" at 255 chars
   #
   if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
     truncate -s 255 $issuedir/title
   fi
 
+  # allows us to modify the content as non-root/portage user too
+  #
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
 }
