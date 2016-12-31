@@ -392,19 +392,19 @@ EOF
 
   # don't report this issue if an appropriate bug report exists
   #
-  report_it="y"
+  bug_report_exists="n"
 
   id=$(bugz -q --columns 400 search --show-status $short "$search_string" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
   if [[ -n "$id" ]]; then
-    report_it="n"
+    bug_report_exists="y"
   else
     id=$(bugz -q --columns 400 search --show-status $short "$search_string" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      report_it="n"
+      bug_report_exists="y"
     else
       id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $short "$search_string" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
       if [[ -n "$id" ]]; then
-        report_it="n"
+        bug_report_exists="y"
       fi
     fi
   fi
@@ -457,8 +457,8 @@ EOF
 }
 
 
-# emerge failed for some reason, parse the output
-# return 1 if a Perl Upgrade issue appears otherwise return 0
+# emerge failed for some reason, therefore parse the output
+# return 1 if the well-known Perl upgrade issue appears otherwise return 0
 #
 function GotAnIssue()  {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -556,7 +556,7 @@ function GotAnIssue()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    if [[ "$report_it" = "y" ]]; then
+    if [[ "$bug_report_exists" = "n" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
     fi
   fi
