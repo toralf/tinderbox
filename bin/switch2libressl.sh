@@ -4,23 +4,17 @@
 
 # https://wiki.gentoo.org/wiki/Project:LibreSSL
 
-sep="=================================================================="
-echo -e "\n$sep\n$0: start"
+pks="/tmp/packages"
+
+echo
+echo "=================================================================="
+echo
 
 # are we within a tinderbox chroot image ?
 #
-if [[ ! -e /tmp/packages || ! -e /tmp/setup.sh || ! -e /tmp/setup.log ]]; then
+if [[ ! -e $pks ]]; then
   echo " we're not within a tinderbox image"
-  if [[ "$1" = "-f" ]]; then
-    echo -en "\n and you forced us to continue ! "
-    for i in $(seq 1 10); do
-      echo -n '.'
-      sleep 1
-    done
-    echo ' going on'
-  else
-    exit 21
-  fi
+  exit 21
 fi
 
 # change make.conf and other portage config files
@@ -30,33 +24,39 @@ sed -i  -e '/^CURL_SSL="/d'           \
         -e 's/ [+-]*libressl[ ]*/ /'  \
         -e 's/ [+-]*gnutls[ ]*/ /'    \
         -e 's/USE="/CURL_SSL="libressl"\nUSE="-openssl -gnutls libressl \n  /' \
-        /etc/portage/make.conf
+        /etc/portage/make.conf || exit 22
 
-mkdir -p /etc/portage/profile
+mkdir -p /etc/portage/profile || exit 23
 
-cat << EOF >> /etc/portage/profile/use.stable.mask
+# mask openssl
+#
+echo "dev-libs/openssl" > /etc/portage/package.mask/openssl || exit 24
+
+# unmask libressl USSE flags
+#
+cat << EOF >> /etc/portage/profile/use.stable.mask || exit 25
 -libressl
 -curl_ssl_libressl
 
 EOF
 
-echo "dev-libs/openssl"   >  /etc/portage/package.mask/openssl
-
-cat << EOF > /etc/portage/package.use/libressl
+# libressl switch often fails w/o these USE flags
+#
+cat << EOF > /etc/portage/package.use/libressl || exit 26
 dev-db/mysql-connector-c  -ssl
 dev-lang/python           -tk
 dev-qt/qtsql              -mysql
 
 EOF
 
+# keyword unstable packages at *stable* images
+#
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
 
-# keyword packages at a *stable* image
-#
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -ne 0 ]]; then
-  cat << EOF > /etc/portage/package.accept_keywords/libressl || exit 23
+  cat << EOF > /etc/portage/package.accept_keywords/libressl || exit 27
 dev-libs/libressl
 $py2
 $py3
@@ -69,35 +69,23 @@ $py3
 ~www-client/lynx-2.8.9_pre11
 
 EOF
-
 fi
 
-echo -e "\n$sep\n$0: fetch"
-
-# fetch packages before we uninstall openssl (== break wget)
+# fetch packages before we uninstall openssl (which breaks wget)
 #
-emerge -f libressl openssh wget python || exit 24
+emerge -f libressl openssh wget python || exit 28
 
-echo -e "\n$sep\n$0: unmerge"
-
-# openssl is already away if we run this script again
-# eix isn't installed at this point
+# we use "%<cmd>" here to force Finish() in the case of an emerge failure
 #
-qlist --installed --nocolor dev-libs/openssl
-if [[ $? -eq 0 ]]; then
-  emerge -C openssl || exit 25
-fi
+cat << EOF >> $pks || exit 29
+# entries by $0 at $(date)
+%emerge -u --changed-use mail-mta/ssmtp
+%emerge @preserved-rebuild
+%emerge -1 $py2 $py3
+%emerge -1 wget
+%emerge -1 openssh
+%emerge -1 libressl
+%emerge -C openssl
+EOF
 
-echo -e "\n$sep\n$0: re-merge"
-
-emerge -1 libressl        &&\
-emerge -1 openssh         &&\
-emerge -1 wget            &&\
-emerge -1 $py2 $py3       &&\
-emerge @preserved-rebuild &&\
-emerge -u --changed-use mail-mta/ssmtp
-rc=$?
-
-echo -e "\n$sep\n$0: rc=$rc"
-
-exit $rc
+exit 0
