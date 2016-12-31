@@ -77,6 +77,8 @@ do
   else
     sleep $delay
   fi
+
+  echo " $(date) starting $mnt"
   nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &>~/logs/$(basename $mnt).log &
 done
 
