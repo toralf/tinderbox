@@ -1,6 +1,9 @@
-# package.use file for ffmpeg tests
+# package.use file for ffmpeg/libav
 #
 # this file resides in /tmp/tb/data within a tinderbox image
 # and has to by copied/symlinked manually into the right place
+# eg.: cd /etc/portage/package.use/ && ln -s ../../../tmp/tb/data/package.use.ffmpeg ffmpeg
+#
 
 */* convert exif ffmpeg gd icu messages mikmod mod python qml svc system-ffmpeg truetype video
+
