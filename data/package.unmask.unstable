@@ -9,3 +9,7 @@
 #
 ~dev-libs/boost-1.63.0
 ~dev-util/boost-build-1.63.0
+
+# https://bugs.gentoo.org/show_bug.cgi?id=603726
+#
+~media-video/libav-12
