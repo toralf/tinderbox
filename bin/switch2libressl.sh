@@ -44,7 +44,7 @@ EOF
 #
 cat << EOF > /etc/portage/package.use/libressl || exit 26
 dev-db/mysql-connector-c  -ssl
-dev-lang/python           -tk
+#dev-lang/python           -tk
 dev-qt/qtsql              -mysql
 
 EOF
