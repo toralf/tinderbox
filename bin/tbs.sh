@@ -427,16 +427,15 @@ emerge mail-client/mailx || exit 6
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 6
 
-rc=0
-emerge --update --pretend sys-devel/gcc || rc=7
+emerge --update --pretend sys-devel/gcc || exit 7
 
 $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $dryrun &> /tmp/dryrun.log || rc=7
+    $dryrun &> /tmp/dryrun.log || exit 7
   else
-    rc=7
+    exit 7
   fi
 fi
 
