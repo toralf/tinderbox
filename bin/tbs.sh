@@ -362,7 +362,6 @@ EOF
 
   cat << EOF >> $pks
 %emerge -u sys-kernel/hardened-sources
-%rm -f /etc/portage/package.mask/setup_blocker
 sys-devel/gcc
 EOF
 
@@ -420,8 +419,6 @@ source /etc/profile
 
 emerge --noreplace net-misc/netifrc
 
-echo "# packages preventing an upgrade of GCC before @system is made" > /etc/portage/package.mask/setup_blocker
-
 emerge sys-apps/elfix || exit 6
 migrate-pax -m
 
@@ -433,8 +430,6 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 rc=0
 emerge --update --pretend sys-devel/gcc || rc=7
 
-mv /etc/portage/package.mask/setup_blocker /tmp
-
 $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
@@ -444,8 +439,6 @@ if [[ \$? -ne 0 ]]; then
     rc=7
   fi
 fi
-
-mv /tmp/setup_blocker /etc/portage/package.mask/
 
 exit \$rc
 
