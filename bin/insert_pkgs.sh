@@ -38,34 +38,31 @@ do
   avail_pks="$avail_pks $pks"
 done
 
-if [[ -z "$avail_pks" ]]; then
-  echo "no image ready"
-  exit
-fi
-
 # get package names from new/changed ebuilds
 #
 tmp=$(mktemp /tmp/pksXXXXXX)
 
-(
-  cd /usr/portage/
-  # the host repo is synced every 3 hours via a cron job, which ideally calls us
-  #
-  git diff --diff-filter=ACMR --name-status "@{ 3 hour ago }".."@{ 0 hour ago }"
-) | grep -F '.ebuild' | cut -f2- | xargs -n 1 | cut -f1-2 -d'/' | sort --unique > $tmp
-
-# prepend the package names onto the package list files at each available each image
+# the host repository is synced every 3 hours via a cron job
+# which ideally calls us then too
 #
+cd /usr/portage/
+git diff --diff-filter=ACMR --name-status "@{ 3 hour ago }".."@{ 0 hour ago }" 2>/dev/null |\
+grep -F -e '/files/' -e '.ebuild' | cut -f2- | xargs -n 1 | cut -f1-2 -d'/' | sort --unique > $tmp
+
 info="# $(wc -l < $tmp) packages at $(date)"
+echo "$info"
+
 if [[ -s $tmp ]]; then
+  # prepend the package names onto the available package list files
+  #
   for pks in $avail_pks
   do
-    echo "$info"              >> $pks
-    # shuffle the package names around in a different way for each image
+    # shuffle the packages around in a different way for each list
     #
+    echo "$info"              >> $pks
     sort --random-sort < $tmp >> $pks
+    echo "$pks"
   done
 fi
 
-echo "$info"
 rm $tmp
