@@ -43,34 +43,26 @@ if [[ -z "$avail_pks" ]]; then
   exit
 fi
 
-# get package names of all new or changed ebuilds
+# get package names from new/changed ebuilds
 #
 tmp=$(mktemp /tmp/pksXXXXXX)
 
-# the host repo is synced every 3 hours, add 1 hour for mirroring
-# kick off (D)eleted ebuilds and get the package name only
-#
-# A       www-apache/passenger/passenger-5.0.24.ebuild
-# M       www-apps/kibana-bin/kibana-bin-4.1.4.ebuild
-# A       www-apps/kibana-bin/kibana-bin-4.4.0.ebuild
-#
 (
   cd /usr/portage/
-  git diff --name-status "@{ 4 hour ago }".."@{ 1 hour ago }"
-) |\
-grep -v '^D'          |\
-grep '\.ebuild$'      |\
-awk ' { print $2 } '  |\
-cut -f1-2 -d'/'       |\
-sort --unique > $tmp
+  # the host repo is synced every 3 hours, add 1 hour for mirroring
+  #
+  git diff --diff-filter=ACMR --name-status "@{ 4 hour ago }".."@{ 1 hour ago }"
+) | grep -F '.ebuild' | cut -f2- | xargs -n 1 | cut -f1-2 -d'/' | sort --unique > $tmp
 
-# shuffle the ebuilds around in a different way for each image
+# prepend the package names onto the package list files at each available each image
 #
 info="# $(wc -l < $tmp) packages at $(date)"
 if [[ -s $tmp ]]; then
   for pks in $avail_pks
   do
     echo "$info"              >> $pks
+    # shuffle the package names around in a different way for each image
+    #
     sort --random-sort < $tmp >> $pks
   done
 fi
