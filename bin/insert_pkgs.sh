@@ -49,9 +49,9 @@ tmp=$(mktemp /tmp/pksXXXXXX)
 
 (
   cd /usr/portage/
-  # the host repo is synced every 3 hours, add 1 hour for mirroring
+  # the host repo is synced every 3 hours via a cron job, which ideally calls us
   #
-  git diff --diff-filter=ACMR --name-status "@{ 4 hour ago }".."@{ 1 hour ago }"
+  git diff --diff-filter=ACMR --name-status "@{ 3 hour ago }".."@{ 0 hour ago }"
 ) | grep -F '.ebuild' | cut -f2- | xargs -n 1 | cut -f1-2 -d'/' | sort --unique > $tmp
 
 # prepend the package names onto the package list files at each available each image
