@@ -332,7 +332,15 @@ EOF
     done
   )
 
-  # put the issue into the email body before we extend it for b.g.o.
+  # distinguish between gcc-5/6
+  #
+  if [[ "$block" = "-b 582084" ]]; then
+    if [[ $(gcc -dumpversion | cut -c1) -eq 5 ]] ; then
+      block="-b 603260"
+    fi
+  fi
+
+  # copy the issue to the email body before we extend it for b.g.o. comment#0
   #
   cp $issuedir/issue $issuedir/body
   cat <<EOF >> $issuedir/body
@@ -380,14 +388,6 @@ EOF
   grep -q "file collision" $issuedir/title
   if [[ $? -eq 0 ]]; then
     search_string=$(echo "$search_string" | sed -e 's/\-[0-9\-r\.]*$//g')
-  fi
-
-  if [[ "$block" = "-b 582084" ]]; then
-    # gcc-5 might have similar issues as gcc-6, so check that it is really gcc-6
-    #
-    if [[ $(gcc -dumpversion | cut -c1) -ne 6 ]] ; then
-      block=""
-    fi
   fi
 
   # don't report this issue if an appropriate bug report exists
