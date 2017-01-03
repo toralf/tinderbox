@@ -480,7 +480,7 @@ function GotAnIssue()  {
   if [[ $? -eq 0 ]]; then
     echo "$line" | grep -q ':  === (1 of '
     if [[ $? -ne 0 ]]; then
-      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
+      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &> /dev/null
     fi
   fi
 
@@ -605,7 +605,7 @@ function SwitchGCC() {
       # without a rebuild we'd get issues like: "cc1: error: incompatible gcc/plugin versions"
       #
       if [[ -e /usr/src/linux/.config ]]; then
-        (cd /usr/src/linux && make clean) &>>$log
+        (cd /usr/src/linux && make clean) &>> $log
         BuildKernel &>> $log
         if [[ $? -ne 0 ]]; then
           Finish 2 "ERROR: kernel can't be rebuild with new gcc $vernew"
@@ -624,14 +624,14 @@ function SwitchGCC() {
 
       # should be a no-op nowadays
       #
-      fix_libtool_files.sh $verold &>>$log
+      fix_libtool_files.sh $verold &>> $log
       if [[ $? -ne 0 ]]; then
         Finish 2 "FAILED: $FUNCNAME fix_libtool_files.sh $verold failed"
       fi
 
       # removce old GCC to double-ensure that packages are build against the new gcc headers/libs
       #
-      emerge --unmerge =sys-devel/gcc-$verold &>>$log
+      emerge --unmerge =sys-devel/gcc-$verold &>> $log
       if [[ $? -ne 0 ]]; then
         Finish 2 "FAILED: $FUNCNAME unmerge of gcc $verold failed"
       fi
@@ -656,8 +656,8 @@ function PostEmerge() {
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
-  etc-update --automode -5  &>/dev/null
-  env-update                &>/dev/null
+  etc-update --automode -5  &> /dev/null
+  env-update                &> /dev/null
   source /etc/profile
 
   grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $log
@@ -671,9 +671,9 @@ de_DE.UTF-8@euro UTF-8
 
 EOF
 
-    locale-gen                    &>/dev/null
-    eselect locale set en_US.utf8 &>/dev/null
-    env-update                    &>/dev/null
+    locale-gen                    &> /dev/null
+    eselect locale set en_US.utf8 &> /dev/null
+    env-update                    &> /dev/null
     source /etc/profile
   fi
 
@@ -765,7 +765,7 @@ function EmergeTask() {
         echo "@system" >> $pks
       fi
     fi
-    /usr/bin/pfl &>/dev/null
+    /usr/bin/pfl &> /dev/null
 
   elif [[ "$task" = "@world" ]]; then
     emerge --backtrack=100 --deep --update --changed-use --with-bdeps=y $task &> $log
@@ -775,7 +775,7 @@ function EmergeTask() {
       echo "%emerge --depclean" >> $pks
     fi
     PostEmerge
-    /usr/bin/pfl &>/dev/null
+    /usr/bin/pfl &> /dev/null
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     #  a command line, prefixed with an '%'

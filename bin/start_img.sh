@@ -79,7 +79,7 @@ do
   fi
 
   echo " $(date) starting $mnt"
-  nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &>~/logs/$(basename $mnt).log &
+  nohup nice sudo ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &> ~/logs/$(basename $mnt).log &
 done
 
 # avoid a non-visible prompt
