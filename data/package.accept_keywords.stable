@@ -12,3 +12,8 @@
 #
 media-video/ffmpeg
 media-video/ffmpegthumbnailer
+
+# stable request https://bugs.gentoo.org/show_bug.cgi?id=603260
+#
+~sys-devel/gcc-5.4.0
+
