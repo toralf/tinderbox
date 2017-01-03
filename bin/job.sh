@@ -394,20 +394,26 @@ EOF
   #
   bug_report_exists="n"
 
-  id=$(bugz -q --columns 400 search --show-status $short "$search_string" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-  if [[ -n "$id" ]]; then
-    bug_report_exists="y"
-  else
-    id=$(bugz -q --columns 400 search --show-status $short "$search_string" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+  for i in $failed $short
+  do
+    id=$(bugz -q --columns 400 search --show-status $i "$search_string" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       bug_report_exists="y"
-    else
-      id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $short "$search_string" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-      if [[ -n "$id" ]]; then
-        bug_report_exists="y"
-      fi
+      break;
     fi
-  fi
+
+    id=$(bugz -q --columns 400 search --show-status $i "$search_string" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    if [[ -n "$id" ]]; then
+      bug_report_exists="y"
+      break
+    fi
+
+    id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $i "$search_string" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    if [[ -n "$id" ]]; then
+      bug_report_exists="y"
+      break
+    fi
+  done
 
   # compile a command line ready for copy+paste
   # and add bugzilla search results if needed
