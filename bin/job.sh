@@ -43,7 +43,7 @@ function Finish()  {
 
 
 # helper of GetNextTask()
-# arbitraily choose a java engine
+# set arbitrarily the system java engine
 #
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
@@ -61,7 +61,7 @@ function SwitchJDK()  {
 }
 
 
-# return the next item from the package list (last line)
+# return the next item (== last line) from the package list
 # and store it into $task
 #
 function GetNextTask() {
@@ -118,8 +118,8 @@ function GetNextTask() {
         continue
       fi
 
-      # make some pre-checks here to speed up b/c
-      # emerge takes too much time to check for all alternatives before it gives up
+      # make some checks here to speed up emerge b/c
+      # it takes too much time to try alternative paths
 
       # skip if $task is masked, keyworded or an invalid string
       #
@@ -147,7 +147,7 @@ function GetNextTask() {
 
 
 # helper of GotAnIssue()
-# gather together what we do need for a bugzilla report
+# gather together what we do need for the email and/or the bugzilla report
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
@@ -158,7 +158,7 @@ function CollectIssueFiles() {
   echo "#"      >> $ehist
   $cmd          >> $ehist
 
-  # misc build files
+  # collect misc build files
   #
   cflog=$(grep -m 1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
   if [[ -z "$cflog" ]]; then
@@ -172,7 +172,7 @@ function CollectIssueFiles() {
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
 
-  # strip away escape sequences, echo is used to expand those variables containing place holders
+  # strip away escape sequences, echo is used to expand variables containing place holders
   #
   for f in $(echo $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso)
   do
@@ -193,6 +193,8 @@ function CollectIssueFiles() {
     fi
   done
 
+  # store target files isntead only the sysmlinks into the archive file
+  #
   tar --dereference -cjpf $issuedir/files/etc.portage.tbz2 /etc/portage 2>/dev/null
 
   chmod a+r $issuedir/files/*
@@ -209,6 +211,8 @@ function CompileInfoMail() {
     keyword="unstable"
   fi
 
+  # strip away the package version
+  #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
 
   # no --verbose, output size would exceed the 16 KB limit of b.g.o.
@@ -258,7 +262,7 @@ function CompileInfoMail() {
     p="$(grep -m1 ^A: $sandb)"
     echo "$p" | grep -q "A: /root/"
     if [[ $? -eq 0 ]]; then
-      # handle XDG sandbox issues in a special way
+      # handle XDG sandbox issues (forced by us) in a special way
       #
       cat <<EOF > $issuedir/issue
 This issue is forced at the tinderbox by making:
@@ -277,8 +281,7 @@ EOF
     head -n 10 $sandb >> $issuedir/issue
 
   else
-    # to catch the real culprit loop over all patterns exactly in their defined order
-    # therefore "grep -f CATCH_ISSUES" won't work
+    # loop over all patterns exactly in their defined order therefore "grep -f CATCH_ISSUES" won't work here
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
@@ -292,7 +295,7 @@ EOF
 
     # this gcc-6 issue is forced by us, masking this package
     # would prevent tinderboxing of a lot of affected deps
-    # therefore rebuild this package with default CXX flags
+    # therefore build the failed package now with default CXX flags
     #
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
