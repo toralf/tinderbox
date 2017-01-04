@@ -172,9 +172,9 @@ function CollectIssueFiles() {
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
 
-  # strip away escape sequences, echo is used to expand variables containing place holders
+  # strip away escape sequences
   #
-  for f in $(echo $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso)
+  for f in $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso
   do
     if [[ -f $f ]]; then
       stresc < $f > $issuedir/files/$(basename $f)
