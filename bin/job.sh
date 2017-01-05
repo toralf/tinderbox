@@ -76,7 +76,6 @@ function GetNextTask() {
       grep -q -E "^(STOP|INFO|%|@)" $pks
       if [[ $? -ne 0 ]]; then
         task="@system"
-        echo "@world" >> $pks
         SwitchJDK
         return
       fi
@@ -748,6 +747,7 @@ function EmergeTask() {
       rc=$?
 
       echo "$(date) $failed" >> /tmp/timestamp.system
+      echo "@world" >> $pks
       PostEmerge
 
       if [[ $rc -eq 1 ]]; then
