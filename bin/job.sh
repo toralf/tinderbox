@@ -779,6 +779,7 @@ function EmergeTask() {
     fi
     PostEmerge
     /usr/bin/pfl &> /dev/null
+    cp $log /tmp/world.log
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     #  a command line, prefixed with an '%'
