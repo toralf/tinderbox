@@ -232,7 +232,7 @@ ALSA_CARDS="hda-intel"
 INPUT_DEVICES="evdev synaptics"
 VIDEO_CARDS="intel i965"
 
-FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox test-fail-continue -news"
+FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news"
 
 DISTDIR="/var/tmp/distfiles"
 PORT_LOGDIR="/var/log/portage"
