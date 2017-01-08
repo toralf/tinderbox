@@ -44,9 +44,10 @@ tmp=$(mktemp /tmp/pksXXXXXX)
 
 # the host repository is synced every 3 hours via a cron job
 # which ideally calls us then too
+# add 1 hour for the mirrors to be synced too
 #
 cd /usr/portage/
-git diff --diff-filter=ACMR --name-status "@{ 3 hour ago }".."@{ 0 hour ago }" 2>/dev/null |\
+git diff --diff-filter=ACMR --name-status "@{ 4 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' | cut -f2- | xargs -n 1 | cut -f1-2 -d'/' | sort --unique > $tmp
 
 info="# $(wc -l < $tmp) packages at $(date)"
