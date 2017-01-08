@@ -30,7 +30,7 @@ function rufs()  {
     gstreamer gtk gtk2 gtk3 gtkstyle gudev gui gzip haptic havege hdf5
     help hpn ibus icu imap imlib infinality inifile introspection ipv6
     isag jadetex javascript javaxml jpeg kerberos kvm lapack latex ldap
-    libinput libkms libvirtd llvm logrotate lua lvm lzma mad mbox
+    libinput libkms libvirtd llvm logrotate lua luajit lvm lzma mad mbox
     mdnsresponder-compat melt midi mikmod minimal minizip mng mod modplug
     mono mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta multimedia mysql
     mysqli natspec ncurses networking nscd nss obj objc odbc offensive ogg ois
