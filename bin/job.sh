@@ -524,6 +524,8 @@ function GotAnIssue()  {
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
     if [[ -n "$failed" ]]; then
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+    else
+      failed=$(grep -m1 -F ' * Package:    ' | awk ' { print $3 } ' $bak)
     fi
   fi
 
