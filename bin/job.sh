@@ -391,23 +391,34 @@ EOF
     sed -i -e 's/\-[0-9\-r\.]*$//g' $stri
   fi
 
+  # if a bug was filed but for another package version (== $short)
+  # then we have to decide if we file a bug or not
+  # eg.: to stabelize a new GCC compiler the stable package might fail with the new compiler
+  # but the unstable version was already fixed before
+  #
   for i in $failed $short
   do
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $stri)" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      bug_report_exists="y"
+      if [[ "$i" = "$failed" ]]; then
+        bug_report_exists="y"
+      fi
       break;
     fi
 
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $stri)" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      bug_report_exists="y"
+      if [[ "$i" = "$failed" ]]; then
+        bug_report_exists="y"
+      fi
       break
     fi
 
     id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $i "$(cat $stri)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      bug_report_exists="y"
+      if [[ "$i" = "$failed" ]]; then
+        bug_report_exists="y"
+      fi
       break
     fi
   done
