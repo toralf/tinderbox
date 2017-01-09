@@ -389,7 +389,7 @@ EOF
   #
   stri=/tmp/search
   cut -f3- -d' ' $issuedir/title > $stri
-  sed -i -e "s/['‘’\"\*\[\]\(\)<>&]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' $stri
+  sed -i -e "s/['‘’\"]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' -e 's/[<>&\*\?]/ /g' $stri
   # for the file collision case: remove the package version (from the counterpart)
   #
   grep -q "file collision" $stri
