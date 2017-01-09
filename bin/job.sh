@@ -379,38 +379,39 @@ $(java-config --list-available-vms --nocolor 2>/dev/null  && echo)
 EOF
 
   # search in bugzilla if $issue was already filed
-  #
-
-  # strip away the package name and replace certain characters, placeholders and line numbers et al with spaces
-  #
-  search_string=$(cut -f3- -d' ' $issuedir/title | sed -e "s/['‘’\"\*\&\[\]\{\}\(\)\<\>]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g')
-
-  # for the file collision case: remove the package version from the counterpart
-  #
-  grep -q "file collision" $issuedir/title
-  if [[ $? -eq 0 ]]; then
-    search_string=$(echo "$search_string" | sed -e 's/\-[0-9\-r\.]*$//g')
-  fi
-
   # don't report this issue if an appropriate bug report exists
   #
   bug_report_exists="n"
 
+  # strip away the package name and replace certain characters,
+  # placeholders and line numbers et al with spaces;
+  # use a temp file to dangle around special chars
+  #
+  stri=/tmp/search
+  cut -f3- -d' ' $issuedir/title > $stri
+  sed -i -e "s/['‘’\"\*\[\]\(\)<>&]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' $stri
+  # for the file collision case: remove the package version (from the counterpart)
+  #
+  grep -q "file collision" $stri
+  if [[ $? -eq 0 ]]; then
+    sed -i -e 's/\-[0-9\-r\.]*$//g' $stri
+  fi
+
   for i in $failed $short
   do
-    id=$(bugz -q --columns 400 search --show-status $i "$search_string" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status $i "$(cat $stri)" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       bug_report_exists="y"
       break;
     fi
 
-    id=$(bugz -q --columns 400 search --show-status $i "$search_string" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status $i "$(cat $stri)" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       bug_report_exists="y"
       break
     fi
 
-    id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $i "$search_string" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $i "$(cat $stri)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       bug_report_exists="y"
       break
