@@ -378,16 +378,14 @@ $(java-config --list-available-vms --nocolor 2>/dev/null  && echo)
 
 EOF
 
-  # search in bugzilla if $issue was already filed
-  # don't report this issue if an appropriate bug report exists
-  #
-  bug_report_exists="n"
-
+  # don't report this issue if an appropriate bug report exists;
   # strip away the package name and replace certain characters,
   # placeholders and line numbers et al with spaces;
   # use a temp file to dangle around special chars
   #
-  stri=/tmp/search
+  stri=$issuedir/bugz_search_string
+  bug_report_exists="n"
+
   cut -f3- -d' ' $issuedir/title > $stri
   sed -i -e "s/['‘’\"]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' -e 's/[<>&\*\?]/ /g' $stri
   # for the file collision case: remove the package version (from the counterpart)
