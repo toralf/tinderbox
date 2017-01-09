@@ -755,7 +755,6 @@ function EmergeTask() {
       rc=$?
 
       echo "$(date) $failed" >> /tmp/timestamp.system
-      echo "@world" >> $pks
       PostEmerge
 
       if [[ $rc -eq 1 ]]; then
@@ -764,6 +763,7 @@ function EmergeTask() {
         echo "%perl-cleaner --all" >> $pks
       else
         Mail "notice: $task failed" $log
+        echo "@world" >> $pks
       fi
     else
       echo "$(date) ok" >> /tmp/timestamp.system
