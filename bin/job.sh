@@ -362,9 +362,6 @@ EOF
   This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
 
   -----------------------------------------------------------------
-  from make.conf:
-USE="$(source /etc/portage/make.conf; echo -n '  '; echo $USE)"
-
 gcc-config -l:
 $(gcc-config -l 2>&1                && echo)
 llvm-config --version:
@@ -373,9 +370,8 @@ $(eselect java-vm list 2>/dev/null  && echo)
 $(eselect python  list 2>&1         && echo)
 $(eselect ruby    list 2>/dev/null  && echo)
 java-config:
-$(java-config --list-available-vms --nocolor 2>/dev/null  && echo)
+$(java-config --list-available-vms --nocolor 2>/dev/null && echo)
   -----------------------------------------------------------------
-
 EOF
 
   # don't report this issue if an appropriate bug report exists;
