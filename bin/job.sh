@@ -584,7 +584,7 @@ function BuildKernel()  {
     make install
   ) &> $log
 
-  exit $?
+  return $?
 }
 
 
