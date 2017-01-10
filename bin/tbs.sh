@@ -309,6 +309,10 @@ EOF
   # we force breakage with XDG_* settings in job.sh
   #
   echo 'FEATURES="-sandbox -usersandbox"'   > etc/portage/env/nosandbox
+
+  # test known to be broken
+  #
+  echo 'FEATURES="test-fail-continue"'      > etc/portage/env/test-fail-continue
 }
 
 
