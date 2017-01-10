@@ -182,8 +182,6 @@ EOF
     fi
   done
 
-  cp $bak $issuedir
-
   # compress files bigger than 1 MiByte
   #
   for f in $issuedir/files/* $issuedir/_*
@@ -550,6 +548,7 @@ function GotAnIssue()  {
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
+  cp $bak $issuedir
 
   retry_with_changed_env=0
   CollectIssueFiles
