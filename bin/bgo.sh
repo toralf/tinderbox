@@ -53,6 +53,10 @@ if [[ -f ./.reported ]]; then
   exit 3
 fi
 
+if [[ ! -f emerge-info.txt ]]; then
+  echo "did not found emerge-info.txt !"
+  exit 4
+fi
 
 # pick up after a possible previous run
 #
