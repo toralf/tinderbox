@@ -48,7 +48,7 @@ Just remove the symlink in *~/run*.
 The chroot image itself might be kept around as long as it is needed.
 
 ###reported findings
-All findings are reported with necessary data via email to the user specified in teh variable *mailto*.
+All findings are reported email to the user specified in the variable *mailto*.
 Bugs can be filed using *bgo.sh*.
 
 ## more info
