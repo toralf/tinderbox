@@ -386,16 +386,16 @@ EOF
   # certain characters, line numbers et al with spaces;
   # use a temp file to dangle around special chars
   #
-  stri=$issuedir/bugz_search_string
+  bsi=$issuedir/bugz_search_items
   bug_report_exists="n"
 
-  cut -f3- -d' ' $issuedir/title > $stri
-  sed -i -e "s/['‘’\"]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' -e 's/[<>&\*\?]/ /g' $stri
+  cp $issuedir/title > $bsi
+  sed -i -e "s/['‘’\"]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' -e 's/[<>&\*\?]/ /g' $bsi
   # for the file collision case: remove the package version (from the counterpart)
   #
-  grep -q "file collision" $stri
+  grep -q "file collision" $bsi
   if [[ $? -eq 0 ]]; then
-    sed -i -e 's/\-[0-9\-r\.]*$//g' $stri
+    sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
   fi
 
   # if a bug was filed but for another package version (== $short)
@@ -405,17 +405,17 @@ EOF
   #
   for i in $failed $short
   do
-    id=$(bugz -q --columns 400 search --show-status $i "$(cat $stri)" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       break;
     fi
 
-    id=$(bugz -q --columns 400 search --show-status $i "$(cat $stri)" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       break
     fi
 
-    id=$(bugz -q --columns 400 search --status resolved $i "$(cat $stri)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --status resolved $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       break
     fi
