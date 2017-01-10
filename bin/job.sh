@@ -866,7 +866,7 @@ function pre-check() {
 # here we catch certain QA issues
 #
 function ParseElogForQA() {
-  find /var/log/portage/elog -newer /tmp/timestamp.qa |\
+  find /var/log/portage/elog -name '*.log' -newer /tmp/timestamp.qa |\
   while read i
   do
     #  (runtime-paths) - [TRACKER] Ebuild that install into paths that should be created at runtime
@@ -899,7 +899,7 @@ $(bugz -q --columns 400 search --show-status $short "installs into paths")
 
 EOF
 
-      Mail "$failed : QA warning" $issuedir/body
+      Mail "$(cat $issuedir/title)" $issuedir/body
     fi
   done
 
