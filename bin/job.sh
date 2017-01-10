@@ -879,13 +879,7 @@ function ParseElogForQA() {
 
       mkdir -p $issuedir
 
-      # get bug report assignee and cc, GLEP 67 rules
-      #
-      m=$(equery meta -m $failed | grep '@' | xargs)
-      if [[ -z "$m" ]]; then
-        m="maintainer-needed@gentoo.org"
-      fi
-      echo "qa@gentoo.org" > $issuedir/cc
+      GetMailAddresses
 
       # title and issue
       #
