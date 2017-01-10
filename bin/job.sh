@@ -200,6 +200,27 @@ EOF
 }
 
 
+# get bug report assignee and cc, GLEP 67 rules
+#
+function GetMailAddresses() {
+  m=$(equery meta -m $failed | grep '@' | xargs)
+  if [[ -z "$m" ]]; then
+    m="maintainer-needed@gentoo.org"
+  fi
+
+  # if we found more than 1 maintainer, then take the 1st as the assignee
+  #
+  echo "$m" | grep -q ' '
+  if [[ $? -eq 0 ]]; then
+    echo "$m" | cut -f1  -d ' ' > $issuedir/assignee
+    echo "$m" | cut -f2- -d ' ' | tr ' ' ',' > $issuedir/cc
+  else
+    echo "$m" > $issuedir/assignee
+    touch $issuedir/cc
+  fi
+}
+
+
 # helper of GotAnIssue()
 # create an email containing convenient links and command lines ready for copy+paste
 #
@@ -218,23 +239,7 @@ function CompileInfoMail() {
   #
   emerge --info --verbose=n $short > $issuedir/emerge-info.txt
 
-  # get bug report assignee and cc, GLEP 67 rules
-  #
-  m=$(equery meta -m $failed | grep '@' | xargs)
-  if [[ -z "$m" ]]; then
-    m="maintainer-needed@gentoo.org"
-  fi
-
-  # if we found more than 1 maintainer, then take the 1st as the assignee
-  #
-  echo "$m" | grep -q ' '
-  if [[ $? -eq 0 ]]; then
-    echo "$m" | cut -f1  -d ' ' > $issuedir/assignee
-    echo "$m" | cut -f2- -d ' ' | tr ' ' ',' > $issuedir/cc
-  else
-    echo "$m" > $issuedir/assignee
-    touch $issuedir/cc
-  fi
+  GetMailAddresses
 
   # try to find a descriptive title and the most meaningful lines of the issue
   #
