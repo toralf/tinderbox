@@ -857,6 +857,56 @@ function pre-check() {
   fi
 }
 
+
+# here we catch certain QA issues
+#
+function ParseElogForQA() {
+  find /var/log/portage/elog -newer /tmp/timestamp.qa |\
+  while read i
+  do
+    #  (runtime-paths) - [TRACKER] Ebuild that install into paths that should be created at runtime
+    #
+    grep -q 'QA Notice: This ebuild installs into paths that should be created at runtime.' $i
+    if [[ $? -eq 0 ]]; then
+      failed=$(basename $i | cut -f1-2 -d':' | tr ':' '/')
+      short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+      issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
+
+      mkdir -p $issuedir
+
+      # get bug report assignee and cc, GLEP 67 rules
+      #
+      m=$(equery meta -m $failed | grep '@' | xargs)
+      if [[ -z "$m" ]]; then
+        m="maintainer-needed@gentoo.org"
+      fi
+      echo "qa@gentoo.org" > $issuedir/cc
+
+      # title and issue
+      #
+      echo "$failed : installs into paths that should be created at runtime" > $issuedir/title
+      cp $i $issuedir/issue
+
+      # the email body
+      #
+      cp $issuedir/issue $issuedir/body
+      cat << EOF > $issuedir/body
+
+ https://bugs.gentoo.org/show_bug.cgi?id=520404
+
+$(bugz -q --columns 400 search --show-status $short "installs into paths")
+
+  ~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -b 520404
+
+EOF
+
+      Mail "$failed : QA warning" $issuedir/body
+    fi
+  done
+
+}
+
+
 #############################################################################
 #
 #       main
@@ -917,9 +967,16 @@ do
   #
   GetNextTask
 
+  touch /tmp/timestamp.qa
+
   # the heart of the tinderbox
   #
   EmergeTask
+
+  # use the timestamp above to process newly created elog files
+  #
+  ParseElogForQA
+
 done
 
 # barrier end (see start of this file too)
