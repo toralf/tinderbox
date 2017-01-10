@@ -192,7 +192,7 @@ function CollectIssueFiles() {
     fi
   done
 
-  # store target files isntead only the sysmlinks into the archive file
+  # store target files instead only the sysmlinks into the archive file
   #
   tar --dereference -cjpf $issuedir/files/etc.portage.tbz2 /etc/portage 2>/dev/null
 
