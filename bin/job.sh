@@ -544,7 +544,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # collect all related files in $issuedir
+  # keep all related files in $issuedir
   #
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir/files
@@ -558,7 +558,7 @@ function GotAnIssue()  {
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
     # just keep these files, do not put them into the ./files subdir
-    # be/c then they would be attached onto the bug report
+    # b/c then they would be attached onto the bug report
     #
     (
     cd /
@@ -568,12 +568,17 @@ function GotAnIssue()  {
     return 1
   fi
 
+  # fall back to safe emerge opts and retry the emerge operation
+  #
   if [[ $retry_with_changed_env -eq 1 ]]; then
     echo "$task" >> $pks
   else
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
+  # we do process an issue only once, so if it is in ALREADY_CATCHED
+  # we do not care for dups in any way nor we'll spam the inbox
+  #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -ne 0 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
