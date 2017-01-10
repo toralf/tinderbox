@@ -152,10 +152,12 @@ function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
   local cmd="qlop --nocolor --gauge --human --list --unlist"
 
-  echo "# This file contains the emerge history got with:" > $ehist
-  echo "# $cmd" >> $ehist
-  echo "#"      >> $ehist
-  $cmd          >> $ehist
+  echo << EOF > $ehist
+# This file contains the emerge history got with:
+# $cmd
+#
+EOF
+  $cmd >> $ehist
 
   # collect misc build files
   #
