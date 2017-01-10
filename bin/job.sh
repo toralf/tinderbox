@@ -557,6 +557,9 @@ function GotAnIssue()  {
   #
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
+    # just keep these files, do not put them into the ./files subdir
+    # be/c then they would be attached onto the bug report
+    #
     (
     cd /
     tar --dereference -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
