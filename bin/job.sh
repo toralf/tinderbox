@@ -279,6 +279,13 @@ EOF
     fi
     head -n 10 $sandb >> $issuedir/issue
 
+  elif [[ -n "$(grep -m 1 ' *   Make check failed. See above for details.' $bak)" ]]; then
+    echo "fails with FEATURES=test" > $issuedir/title
+    echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+    retry_with_changed_env=1
+
+    (cd /var/tmp/portage/$failed/work/* && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests)
+
   else
     # loop over all patterns exactly in their defined order therefore "grep -f CATCH_ISSUES" won't work here
     #
