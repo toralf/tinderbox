@@ -146,7 +146,7 @@ function GetNextTask() {
 
 
 # helper of GotAnIssue()
-# gather together what we do need for the email and/or the bugzilla report
+# gather together what we do need for the email and/or the bug report
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
@@ -375,8 +375,8 @@ $(java-config --list-available-vms --nocolor 2>/dev/null && echo)
 EOF
 
   # don't report this issue if an appropriate bug report exists;
-  # strip away the package name and replace certain characters,
-  # placeholders and line numbers et al with spaces;
+  # strip away from the search string the package name and replace
+  # certain characters, line numbers et al with spaces;
   # use a temp file to dangle around special chars
   #
   stri=$issuedir/bugz_search_string
@@ -414,7 +414,7 @@ EOF
       break
     fi
 
-    id=$(bugz -q --columns 400 search --status resolved --resolution "DUPLICATE" $i "$(cat $stri)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --status resolved $i "$(cat $stri)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       if [[ "$i" = "$failed" ]]; then
         bug_report_exists="y"
