@@ -53,8 +53,8 @@ if [[ -f ./.reported ]]; then
   exit 3
 fi
 
-if [[ ! -f emerge-info.txt ]]; then
-  echo "did not found emerge-info.txt !"
+if [[ ! -f ./issue ]]; then
+  echo "did not found mandatory file(s) !"
   exit 4
 fi
 
@@ -72,6 +72,12 @@ if [[ -n "$id" ]]; then
 else
   # create a new bug
   #
+  if [[ -f emerge-info.txt ]]; then
+    append='--append-command "cat emerge-info.txt"'
+  else
+    append=''
+  fi
+
   bugz post \
     --product "Gentoo Linux"          \
     --component "Current packages"    \
@@ -82,10 +88,10 @@ else
     --priority "Normal"               \
     --severity "Normal"               \
     --alias ""                        \
-    --assigned-to "$(cat ./assignee)"       \
-    --cc "$(cat cc)"                        \
-    --append-command "cat emerge-info.txt"  \
-    --description-from "./issue"            \
+    --assigned-to "$(cat ./assignee)" \
+    --cc "$(cat cc)"                  \
+    $append                           \
+    --description-from "./issue"      \
     --batch                           \
     --default-confirm n               \
     1>>bugz.out 2>>bugz.err
