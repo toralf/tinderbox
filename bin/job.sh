@@ -245,6 +245,19 @@ function AttachFiles()  {
 }
 
 
+function AppendMetainfoToBody() {
+  cat <<EOF >> $issuedir/body
+
+--
+versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
+assignee: $(cat $issuedir/assignee)
+cc:       $(cat $issuedir/cc)
+--
+
+EOF
+}
+
+
 # helper of GotAnIssue()
 # create an email containing convenient links and command lines ready for copy+paste
 #
@@ -381,16 +394,7 @@ EOF
   # copy the issue to the email body before we extend it for b.g.o. comment#0
   #
   cp $issuedir/issue $issuedir/body
-  cat <<EOF >> $issuedir/body
-
---
-versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
-assignee: $(cat $issuedir/assignee)
-cc:       $(cat $issuedir/cc)
---
-
-EOF
-
+  AppendMetainfoToBody
   AppendThisIsMeToIssue
 
   cat << EOF >> $issuedir/issue
