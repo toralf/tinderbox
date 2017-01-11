@@ -234,7 +234,7 @@ EOF
 }
 
 
-# attach content of the given file names onto the email body using the old-school uuencode
+# attach content of the given files onto the email body using the old-school uuencode
 # (unfortuantely not MIME compliant)
 #
 function AttachFiles()  {
@@ -900,6 +900,7 @@ function ParseElogForQA() {
       GetMailAddresses
       id=$(bugz -q --columns 400 search --show-status $short "installs into paths" | sort -u -n | tail -n 1 | tee $issuedir/body | cut -f1 -d ' ')
       echo -e "\n~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -b 520404 -s QA\n" >> $issuedir/body
+      AttachFiles $issuedir/issue
 
       Mail "${id:-issue} $failed : QA issue" $issuedir/body
     fi
