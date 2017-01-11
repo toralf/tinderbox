@@ -58,15 +58,19 @@ if [[ ! -f ./issue ]]; then
   exit 4
 fi
 
-# pick up after a possible previous run
+# pick up after from a previous run
 #
 truncate -s 0 bugz.{out,err}
 
 if [[ -n "$id" ]]; then
-  # attach onto an existing bug
+  # modify an existing bug
   #
-  bugz attach --content-type "text/plain" --description "$comment" $id emerge-info.txt 1>>bugz.out 2>>bugz.err || errmsg $?
-  rc=$?
+  if [[ -f emerge-info.txt ]]; then
+    bugz attach --content-type "text/plain" --description "$comment" $id emerge-info.txt 1>>bugz.out 2>>bugz.err || errmsg $?
+    rc=$?
+  else
+    bugz modify --comment "$comment" $id 1>>bugz.out 2>>bugz.err || errmsg $?
+  fi
   bugz modify -s CONFIRMED $id 1>>bugz.out 2>>bugz.err || errmsg $?
 
 else
