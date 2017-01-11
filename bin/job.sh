@@ -234,6 +234,17 @@ EOF
 }
 
 
+# attach content of the given file names onto the email body using the old-school uuencode
+# (unfortuantely not MIME compliant)
+#
+function AttachFiles()  {
+  for f in $*
+  do
+    uuencode $f $(basename $f) >> $issuedir/body
+  done
+}
+
+
 # helper of GotAnIssue()
 # create an email containing convenient links and command lines ready for copy+paste
 #
@@ -463,12 +474,7 @@ EOF
     bugz --columns 400 -q search --status RESOLVED  $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
   fi
 
-  # attach the files onto the email using the old-school uuencode (unfortuantely not MIME compliant)
-  #
-  for f in $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
-  do
-    uuencode $f $(basename $f) >> $issuedir/body
-  done
+  AttachFiles $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
   # prefix title with package name + version
   #
