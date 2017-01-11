@@ -394,7 +394,7 @@ EOF
   bsi=$issuedir/bugz_search_items
   bug_report_exists="n"
 
-  cp $issuedir/title > $bsi
+  cp $issuedir/title $bsi
   sed -i -e "s/['‘’\"]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' -e 's/[<>&\*\?]/ /g' $bsi
   # for the file collision case: remove the package version (from the counterpart)
   #
