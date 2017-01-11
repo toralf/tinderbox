@@ -2,7 +2,7 @@
 #
 # set -x
 
-# create a bugz entry at b.g.o
+# create or modify an bug report at http://bugzilla.gentoo.org
 #
 
 # typical call:
@@ -13,29 +13,28 @@
 function errmsg() {
   echo "
   *
-  *
-  *
   failed with error code $1
-  *
-  *
   *
 
   "
-  cat bugz.err
+  tail -v bugz.*
 }
 
+
+id=""
 block=""
 comment="same at a tinderbox image"
 dir=""
-id=""
+severity="Normal"
 
-while getopts a:b:c:d: opt
+while getopts a:b:c:d:s: opt
 do
   case $opt in
     a)  id="$OPTARG";;          # attach onto the given id
     b)  block="$OPTARG";;       # block that bug (id or alias)
     c)  comment="$OPTARG";;     # add comment, used with -a
     d)  dir="$OPTARG";;         # issue directory
+    s)  severity="$OPTARG";;     # "normal", "QA" and so on
     *)  echo " not implemented !"
         exit 1;;
   esac
@@ -44,12 +43,11 @@ done
 if [[ -z "$dir" ]]; then
   exit 1
 fi
+
 cd $dir || exit 2
 
 if [[ -f ./.reported ]]; then
-  echo
   echo "already reported ! remove $dir/.reported before repeating !"
-  echo
   exit 3
 fi
 
@@ -58,30 +56,18 @@ if [[ ! -f ./issue ]]; then
   exit 4
 fi
 
-# pick up after from a previous run
+# pick up after from a previous call
 #
 truncate -s 0 bugz.{out,err}
 
 if [[ -n "$id" ]]; then
-  # modify an existing bug
+  # modify an existing bug report
   #
-  if [[ -f emerge-info.txt ]]; then
-    bugz attach --content-type "text/plain" --description "$comment" $id emerge-info.txt 1>>bugz.out 2>>bugz.err || errmsg $?
-    rc=$?
-  else
-    bugz modify --comment "$comment" $id 1>>bugz.out 2>>bugz.err || errmsg $?
-  fi
-  bugz modify -s CONFIRMED $id 1>>bugz.out 2>>bugz.err || errmsg $?
+  bugz modify --status CONFIRMED --comment "$comment" $id 1>>bugz.out 2>>bugz.err || errmsg $?
 
 else
-  # create a new bug
+  # create a new bug report
   #
-  if [[ -f emerge-info.txt ]]; then
-    append='--append-command "cat emerge-info.txt"'
-  else
-    append=''
-  fi
-
   bugz post \
     --product "Gentoo Linux"          \
     --component "Current packages"    \
@@ -90,50 +76,49 @@ else
     --op-sys "Linux"                  \
     --platform "All"                  \
     --priority "Normal"               \
-    --severity "Normal"               \
+    --severity "$severity"            \
     --alias ""                        \
     --assigned-to "$(cat ./assignee)" \
     --cc "$(cat cc)"                  \
-    $append                           \
     --description-from "./issue"      \
     --batch                           \
     --default-confirm n               \
-    1>>bugz.out 2>>bugz.err
-  rc=$?
+    1>>bugz.out 2>>bugz.err || errmsg $?
 
   id=$(grep ' * Bug .* submitted' bugz.out | sed 's/[^0-9]//g')
   if [[ -z "$id" ]]; then
-    errmsg $rc
     echo
     echo "empty bug id"
     echo
-    cat bugz.out
-    exit 4
+    errmsg 4
   fi
 fi
 
 echo
 echo "https://bugs.gentoo.org/show_bug.cgi?id=$id"
-echo
 
-if [[ $rc -ne 0 || -s bugz.err ]]; then
-  errmsg $rc
-  exit 5
+if [[ -s bugz.err ]]; then
+  errmsg 5
 fi
 
-if [[ -n "$block" ]]; then
-  bugz modify --add-blocked "$block" $id 1>>bugz.out 2>>bugz.err || errmsg $?
+if [[ -f emerge-info.txt ]]; then
+  bugz attach --content-type "text/plain" $id emerge-info.txt 1>>bugz.out 2>>bugz.err || errmsg $?
 fi
 
 # attach files
 #
 if [[ -d ./files ]]; then
+  echo
   for f in files/*
   do
     echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
     echo "  $f"
     bugz attach --content-type "$ct" --description "" $id $f 1>>bugz.out 2>>bugz.err || errmsg $?
   done
+fi
+
+if [[ -n "$block" ]]; then
+  bugz modify --add-blocked "$block" $id 1>>bugz.out 2>>bugz.err || errmsg $?
 fi
 
 # avoid duplicate reports
