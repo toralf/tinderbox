@@ -889,18 +889,15 @@ function ParseElogForQA() {
 
       # the email body
       #
-      cp $issuedir/issue $issuedir/body
       cat << EOF > $issuedir/body
-
- https://bugs.gentoo.org/show_bug.cgi?id=520404
-
-$(bugz -q --columns 400 search --show-status $short "installs into paths")
 
   ~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -b 520404
 
 EOF
+      id=$(bugz -q --columns 400 search --show-status $short "installs into paths" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+      echo -e "https://bugs.gentoo.org/show_bug.cgi?id=${id:-520404}\n" >> $issuedir/body
 
-      Mail "$(cat $issuedir/title)" $issuedir/body
+      Mail "${id:-issue} $failed : QA issue" $issuedir/body
     fi
   done
 
