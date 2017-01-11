@@ -265,12 +265,6 @@ EOF
 # create an email containing convenient links and command lines ready for copy+paste
 #
 function CompileInfoMail() {
-  keyword="stable"
-  grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
-  if [[ $? -eq 0 ]]; then
-    keyword="unstable"
-  fi
-
   # strip away the package version
   #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
@@ -931,6 +925,14 @@ export GCC_COLORS=""                # suppress colour output of gcc-4.9 and abov
 # eg.: gnome-unstable_20150913-104240
 #
 name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
+
+# needed for the bugzilla comment #0
+#
+keyword="stable"
+grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
+if [[ $? -eq 0 ]]; then
+  keyword="unstable"
+fi
 
 # https://bugs.gentoo.org/show_bug.cgi?id=567192
 #
