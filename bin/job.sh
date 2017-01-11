@@ -245,6 +245,9 @@ function AttachFiles()  {
 }
 
 
+# this info helps to decide to file a bug for a stable package despite
+# the fact that the issue was already fixed in an unstable version
+#
 function AddMetainfoToBody() {
   cat <<EOF >> $issuedir/body
 
