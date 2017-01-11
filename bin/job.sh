@@ -879,28 +879,15 @@ function ParseElogForQA() {
 
       mkdir -p $issuedir
       chmod 777 $issuedir
-
-      GetMailAddresses
-
-      # title and issue
-      #
       echo "$failed : installs into paths that should be created at runtime" > $issuedir/title
       cp $i $issuedir/issue
-
-      # the email body
-      #
-      cat << EOF > $issuedir/body
-
-  ~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -b 520404 -s QA
-
-EOF
-      id=$(bugz -q --columns 400 search --show-status $short "installs into paths" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-      echo -e "https://bugs.gentoo.org/show_bug.cgi?id=${id:-520404}\n" >> $issuedir/body
+      GetMailAddresses
+      id=$(bugz -q --columns 400 search --show-status $short "installs into paths" | sort -u -n | tail -n 1 | tee $issuedir/body | cut -f1 -d ' ')
+      echo -e "\n~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -b 520404 -s QA\n" >> $issuedir/body
 
       Mail "${id:-issue} $failed : QA issue" $issuedir/body
     fi
   done
-
 }
 
 
