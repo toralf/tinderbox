@@ -878,6 +878,7 @@ function ParseElogForQA() {
       issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
 
       mkdir -p $issuedir
+      chmod 777 $issuedir
 
       GetMailAddresses
 
