@@ -891,7 +891,7 @@ function ParseElogForQA() {
       #
       cat << EOF > $issuedir/body
 
-  ~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -b 520404
+  ~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -b 520404 -s QA
 
 EOF
       id=$(bugz -q --columns 400 search --show-status $short "installs into paths" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
