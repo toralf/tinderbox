@@ -102,10 +102,10 @@ if [[ -s bugz.err ]]; then
 fi
 
 if [[ -f emerge-info.txt ]]; then
-  bugz attach --content-type "text/plain" $id emerge-info.txt 1>>bugz.out 2>>bugz.err || errmsg $?
+  bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>>bugz.out 2>>bugz.err || errmsg $?
 fi
 
-# attach files
+# attach all in ./files
 #
 if [[ -d ./files ]]; then
   echo
