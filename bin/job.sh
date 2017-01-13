@@ -254,7 +254,7 @@ function AddMetainfoToBody() {
   cat <<EOF >> $issuedir/body
 
 --
-versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else { print $3$1 } }' | xargs)
+versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc)
 --
