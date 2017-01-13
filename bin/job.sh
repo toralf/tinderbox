@@ -467,11 +467,11 @@ EOF
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  ~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -a $id
+  ~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir -a $id
 
 EOF
   else
-    echo -e "  ~/tb/bin/bgo.sh -d ~/run/$name/$issuedir $block\n" >> $issuedir/body
+    echo -e "  ~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
 
     h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
     g="stabilize|Bump| keyword| bump"
@@ -797,7 +797,7 @@ function EmergeTask() {
     fi
 
   elif [[ "$task" = "@system" ]]; then
-    emerge --backtrack=100 --deep --update --changed-use --with-bdeps=y $task &> $log
+    emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
       rc=$?
@@ -826,7 +826,7 @@ function EmergeTask() {
     /usr/bin/pfl &> /dev/null
 
   elif [[ "$task" = "@world" ]]; then
-    emerge --backtrack=100 --deep --update --changed-use --with-bdeps=y $task &> $log
+    emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
     else
@@ -921,7 +921,7 @@ function ParseElogForQA() {
       GetMailAddresses
       grep -A 10 $issuedir/issue > $issuedir/body
       AddMetainfoToBody
-      echo -e "\n~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
+      echo -e "\n~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
       id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
 
       Mail "${id:-qa} $failed : $reason" $issuedir/body
