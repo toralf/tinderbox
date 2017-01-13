@@ -704,8 +704,8 @@ function PostEmerge() {
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
-  etc-update --automode -5  &> /dev/null
-  env-update                &> /dev/null
+  etc-update --automode -5  1>/dev/null
+  env-update                1>/dev/null
   source /etc/profile
 
   grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $bak
@@ -719,9 +719,9 @@ de_DE.UTF-8@euro UTF-8
 
 EOF
 
-    locale-gen                    &> /dev/null
-    eselect locale set en_US.utf8 &> /dev/null
-    env-update                    &> /dev/null
+    locale-gen                    1>/dev/null
+    eselect locale set en_US.utf8 1>/dev/null
+    env-update                    1>/dev/null
     source /etc/profile
   fi
 
