@@ -149,6 +149,8 @@ function GetNextTask() {
 # gather together what we do need for the email and/or the bug report
 #
 function CollectIssueFiles() {
+  mkdir -p $issuedir/files
+
   ehist=/var/tmp/portage/emerge-history.txt
   local cmd="qlop --nocolor --gauge --human --list --unlist"
 
@@ -258,6 +260,13 @@ cc:       $(cat $issuedir/cc)
 --
 
 EOF
+}
+
+
+function CreateIssueDir() {
+  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
+  mkdir -p $issuedir
+  chmod 777 $issuedir
 }
 
 
@@ -565,10 +574,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # keep all related files in $issuedir
-  #
-  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
-  mkdir -p $issuedir/files
+  CreateIssueDir
   cp $bak $issuedir
 
   retry_with_changed_env=0
@@ -894,9 +900,7 @@ function ParseElogForQA() {
       short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
       blocker="-b 520404"
 
-      issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
-      mkdir -p $issuedir
-      chmod 777 $issuedir
+      CreateIssueDir
 
       cp $i $issuedir/issue
       AddWhoamiToIssue
