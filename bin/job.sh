@@ -887,27 +887,30 @@ function ParseElogForQA() {
   do
     #  (runtime-paths) - [TRACKER] Ebuild that install into paths that should be created at runtime
     #
-    grep -q 'QA Notice: This ebuild installs into paths that should be created at runtime.' $i
+    reason="installs into paths that should be created at runtime"
+    grep -q "QA Notice: $reason" $i
     if [[ $? -eq 0 ]]; then
-      failed=$(basename $i | cut -f1-2 -d':' | tr ':' '/')
+      failed=$(basename $i  | cut -f1-2 -d':' | tr ':' '/')
       short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
-      issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
+      blocker="-b 520404"
 
+      issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
       mkdir -p $issuedir
       chmod 777 $issuedir
-      echo "$failed : installs into paths that should be created at runtime" > $issuedir/title
 
       cp $i $issuedir/issue
       AddWhoamiToIssue
       AttachFiles $issuedir/issue
 
-      GetMailAddresses
-      echo -e "search results:\n" >> $issuedir/body
-      id=$(bugz -q --columns 400 search --show-status $short "installs into paths" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-      AddMetainfoToBody
-      echo -e "\n~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -b 520404 -s QA" >> $issuedir/body
+      echo "$failed : $reason" > $issuedir/title
 
-      Mail "${id:-issue} $failed : QA issue" $issuedir/body
+      GetMailAddresses
+      grep -A 10 $issuedir/issue > $issuedir/body
+      AddMetainfoToBody
+      echo -e "\n~/tb/bin/bgo.sh -d ~/run/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
+      id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+
+      Mail "${id:-qa} $failed : $reason" $issuedir/body
     fi
   done
 }
