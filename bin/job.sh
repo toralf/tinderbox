@@ -507,11 +507,6 @@ EOF
 # return 1 if the well-known Perl upgrade issue appears otherwise return 0
 #
 function GotAnIssue()  {
-  # prefix our log backup file with an "_" to distinguish it from portage's log files
-  #
-  bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
-  stresc < $log > $bak
-
   # put all successfully emerged dependencies of $task into the world file
   # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482)
   #
@@ -699,6 +694,11 @@ function SwitchGCC() {
 # do just *schedule* needed operations
 #
 function PostEmerge() {
+  # prefix our log backup file with an "_" to distinguish it from portage's log files
+  #
+  bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
+  stresc < $log > $bak
+
   # don't change these config files
   #
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
