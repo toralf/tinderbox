@@ -796,13 +796,14 @@ function EmergeTask() {
         grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
                   -e 'The following mask changes are necessary to proceed:' \
                   -e '* Error: The above package list contains packages which cannot be' \
-                  $log
+                  $bak
         if [[ $? -eq 0 ]]; then
           echo $task >> $pks
           Finish 0 "notice: broken $task"
         fi
       fi
     fi
+
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.preserved-rebuild
 
   elif [[ "$task" = "@system" ]]; then
@@ -831,6 +832,7 @@ function EmergeTask() {
         echo "@system" >> $pks
       fi
     fi
+
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.system
     /usr/bin/pfl &> /dev/null
 
@@ -844,9 +846,9 @@ function EmergeTask() {
     else
       echo "%emerge --depclean" >> $pks
     fi
+
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.world
     /usr/bin/pfl &> /dev/null
-    cp $log /tmp/world.log
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     #  a command line, prefixed with an '%'
