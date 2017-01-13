@@ -873,6 +873,10 @@ function EmergeTask() {
       GotAnIssue
     fi
   fi
+
+  if [[ $rc -eq 0 ]]; then
+    rm $bak
+  fi
 }
 
 
