@@ -781,19 +781,29 @@ function EmergeTask() {
   failed=""
 
   if [[ "$task" = "@preserved-rebuild" ]]; then
+    rc=0
     emerge --backtrack=100 $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
+      rc=$?
     fi
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.preserved-rebuild
     PostEmerge
 
-    grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
-              -e 'The following mask changes are necessary to proceed:' \
-              $log
-    if [[ $? -eq 0 ]]; then
-      echo $task >> $pks
-      Finish 0 "notice: broken $task"
+    if [[ $rc -eq 1 ]]; then
+      Mail "notice: fixing Perl upgrade issue: $task" $log
+      echo "$task" >> $pks
+      echo "%perl-cleaner --all" >> $pks
+
+    else
+      grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
+                -e 'The following mask changes are necessary to proceed:' \
+                -e '* Error: The above package list contains packages which cannot be' \
+                $log
+      if [[ $? -eq 0 ]]; then
+        echo $task >> $pks
+        Finish 0 "notice: broken $task"
+      fi
     fi
 
   elif [[ "$task" = "@system" ]]; then
