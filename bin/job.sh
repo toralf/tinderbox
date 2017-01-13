@@ -778,14 +778,14 @@ EOF
 # this is the tinderbox, the rest is just output parsing
 #
 function EmergeTask() {
+  failed=""
+
   if [[ "$task" = "@preserved-rebuild" ]]; then
     emerge --backtrack=100 $task &> $log
     if [[ $? -ne 0 ]]; then
       GotAnIssue
-      echo "$(date) $failed"  >> /tmp/timestamp.preserved-rebuild
-    else
-      echo "$(date) ok"       >> /tmp/timestamp.preserved-rebuild
     fi
+    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.preserved-rebuild
     PostEmerge
 
     grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
@@ -802,9 +802,7 @@ function EmergeTask() {
       GotAnIssue
       rc=$?
 
-      echo "$(date) $failed" >> /tmp/timestamp.system
       PostEmerge
-
       if [[ $rc -eq 1 ]]; then
         Mail "notice: fixing Perl upgrade issue: $task" $log
         echo "$task" >> $pks
@@ -813,8 +811,8 @@ function EmergeTask() {
         Mail "notice: $task failed" $log
         echo "@world" >> $pks
       fi
+
     else
-      echo "$(date) ok" >> /tmp/timestamp.system
       PostEmerge
       # activate 32/64 bit library (re-)build if not yet done
       #
@@ -824,6 +822,7 @@ function EmergeTask() {
         echo "@system" >> $pks
       fi
     fi
+    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.system
     /usr/bin/pfl &> /dev/null
 
   elif [[ "$task" = "@world" ]]; then
@@ -833,6 +832,7 @@ function EmergeTask() {
     else
       echo "%emerge --depclean" >> $pks
     fi
+    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.world
     PostEmerge
     /usr/bin/pfl &> /dev/null
     cp $log /tmp/world.log
