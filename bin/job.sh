@@ -725,6 +725,15 @@ EOF
     source /etc/profile
   fi
 
+  # [15:02] <iamben> sandiego: emerge @preserved-rebuild should be your very last step in upgrading, it's not urgent at all.  do "emerge -uDNav @world" first
+  #
+  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
+  if [[ $? -eq 0 ]]; then
+    echo "@preserved-rebuild" >> $pks
+  fi
+
+  # switching and building a new kernel should be one of the last steps
+  #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $log
   if [[ $? -eq 0 ]]; then
     last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/')
@@ -738,29 +747,30 @@ EOF
     fi
   fi
 
-  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
-  if [[ $? -eq 0 ]]; then
-    echo "@preserved-rebuild" >> $pks
-  fi
-
   grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $log
   if [[ $? -eq 0 ]]; then
     echo "%haskell-updater" >> $pks
   fi
 
+  # switching to a new gcc might schedule an upgrade of the linux kernel too
+  #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $log
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $pks
   fi
 
-  grep -q 'Please run "revdep-pax" after installation.' $log
-  if [[ $? -eq 0 ]]; then
-    echo "%revdep-pax" >> $pks
-  fi
-
+  # use ionice to lower the impact if many images at the same side would upgrade perl
+  #
   grep -q ">>> Installing .* dev-lang/perl-[1-9]" $log
   if [[ $? -eq 0 ]]; then
     echo "%ionice -c 3 perl-cleaner --all" >> $pks
+  fi
+
+  # setting pax permissions shoudld be made asap
+  #
+  grep -q 'Please run "revdep-pax" after installation.' $log
+  if [[ $? -eq 0 ]]; then
+    echo "%revdep-pax" >> $pks
   fi
 }
 
