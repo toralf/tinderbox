@@ -789,7 +789,6 @@ function EmergeTask() {
       GotAnIssue
       if [[ $? -eq 1 ]]; then
         Mail "notice: fixing Perl upgrade issue: $task" $log
-        echo "$task" >> $pks
         echo "%perl-cleaner --all" >> $pks
 
       else
@@ -798,7 +797,7 @@ function EmergeTask() {
                   -e '* Error: The above package list contains packages which cannot be' \
                   $bak
         if [[ $? -eq 0 ]]; then
-          echo $task >> $pks
+          echo "$task" >> $pks
           Finish 0 "notice: broken $task"
         fi
       fi
