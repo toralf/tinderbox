@@ -708,7 +708,7 @@ function PostEmerge() {
   env-update                &> /dev/null
   source /etc/profile
 
-  grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $log
+  grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $bak
   if [[ $? -eq 0 ]]; then
     cat << EOF >> /etc/locale.gen
 en_US ISO-8859-1
@@ -727,19 +727,19 @@ EOF
 
   # [15:02] <iamben> sandiego: emerge @preserved-rebuild should be your very last step in upgrading, it's not urgent at all.  do "emerge -uDNav @world" first
   #
-  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $log
+  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
     echo "@preserved-rebuild" >> $pks
   fi
 
   # switching and building a new kernel should be one of the last steps
   #
-  grep -q ">>> Installing .* sys-kernel/.*-sources" $log
+  grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
     last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/')
     link=$(eselect kernel show | tail -n 1 | sed -e 's/ //g' | cut -f4 -d'/')
     if [[ "$last" != "$link" ]]; then
-      eselect kernel set $last &>> $log
+      eselect kernel set $last
     fi
 
     if [[ ! -f /usr/src/linux/.config ]]; then
@@ -747,28 +747,28 @@ EOF
     fi
   fi
 
-  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $log
+  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $bak
   if [[ $? -eq 0 ]]; then
     echo "%haskell-updater" >> $pks
   fi
 
   # switching to a new gcc might schedule an upgrade of the linux kernel too
   #
-  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $log
+  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $pks
   fi
 
   # use ionice to lower the impact if many images at the same side would upgrade perl
   #
-  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $log
+  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "%ionice -c 3 perl-cleaner --all" >> $pks
   fi
 
   # setting pax permissions shoudld be made asap
   #
-  grep -q 'Please run "revdep-pax" after installation.' $log
+  grep -q 'Please run "revdep-pax" after installation.' $bak
   if [[ $? -eq 0 ]]; then
     echo "%revdep-pax" >> $pks
   fi
