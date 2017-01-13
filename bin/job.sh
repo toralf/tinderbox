@@ -273,7 +273,7 @@ function CreateIssueDir() {
 # helper of GotAnIssue()
 # create an email containing convenient links and command lines ready for copy+paste
 #
-function CompileInfoMail() {
+function CompileIssueMail() {
   # strip away the package version
   #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
@@ -579,7 +579,7 @@ function GotAnIssue()  {
 
   retry_with_changed_env=0
   CollectIssueFiles
-  CompileInfoMail
+  CompileIssueMail
 
   # handle the Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
   #
