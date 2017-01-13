@@ -781,39 +781,39 @@ function EmergeTask() {
   failed=""
 
   if [[ "$task" = "@preserved-rebuild" ]]; then
-    rc=0
     emerge --backtrack=100 $task &> $log
-    if [[ $? -ne 0 ]]; then
-      GotAnIssue
-      rc=$?
-    fi
-    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.preserved-rebuild
+    rc=$?
     PostEmerge
 
-    if [[ $rc -eq 1 ]]; then
-      Mail "notice: fixing Perl upgrade issue: $task" $log
-      echo "$task" >> $pks
-      echo "%perl-cleaner --all" >> $pks
+    if [[ $rc -ne 0 ]]; then
+      GotAnIssue
+      if [[ $? -eq 1 ]]; then
+        Mail "notice: fixing Perl upgrade issue: $task" $log
+        echo "$task" >> $pks
+        echo "%perl-cleaner --all" >> $pks
 
-    else
-      grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
-                -e 'The following mask changes are necessary to proceed:' \
-                -e '* Error: The above package list contains packages which cannot be' \
-                $log
-      if [[ $? -eq 0 ]]; then
-        echo $task >> $pks
-        Finish 0 "notice: broken $task"
+      else
+        grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
+                  -e 'The following mask changes are necessary to proceed:' \
+                  -e '* Error: The above package list contains packages which cannot be' \
+                  $log
+        if [[ $? -eq 0 ]]; then
+          echo $task >> $pks
+          Finish 0 "notice: broken $task"
+        fi
       fi
     fi
+    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.preserved-rebuild
 
   elif [[ "$task" = "@system" ]]; then
     emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task &> $log
-    if [[ $? -ne 0 ]]; then
-      GotAnIssue
-      rc=$?
+    rc=$?
+    PostEmerge
 
-      PostEmerge
-      if [[ $rc -eq 1 ]]; then
+    if [[ $rc -ne 0 ]]; then
+      GotAnIssue
+
+      if [[ $? -eq 1 ]]; then
         Mail "notice: fixing Perl upgrade issue: $task" $log
         echo "$task" >> $pks
         echo "%perl-cleaner --all" >> $pks
@@ -823,7 +823,6 @@ function EmergeTask() {
       fi
 
     else
-      PostEmerge
       # activate 32/64 bit library (re-)build if not yet done
       #
       grep -q '^#ABI_X86=' /etc/portage/make.conf
@@ -837,13 +836,15 @@ function EmergeTask() {
 
   elif [[ "$task" = "@world" ]]; then
     emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task &> $log
-    if [[ $? -ne 0 ]]; then
+    rc=$?
+    PostEmerge
+
+    if [[ $rc -ne 0 ]]; then
       GotAnIssue
     else
       echo "%emerge --depclean" >> $pks
     fi
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.world
-    PostEmerge
     /usr/bin/pfl &> /dev/null
     cp $log /tmp/world.log
 
@@ -852,21 +853,24 @@ function EmergeTask() {
     #
     local cmd=$(echo "$task" | cut -c2-)
     ($cmd) &> $log
-    if [[ $? -ne 0 ]]; then
+    rc=$?
+    PostEmerge
+
+    if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      PostEmerge
       Finish 2 "cmd '$cmd' failed"
     fi
-    PostEmerge
 
   else
     # just a package
     #
     emerge --update $task &> $log
-    if [[ $? -ne 0 ]]; then
+    rc=$?
+    PostEmerge
+
+    if [[ $rc -ne 0 ]]; then
       GotAnIssue
     fi
-    PostEmerge
   fi
 }
 
