@@ -1,4 +1,4 @@
-# entries in the package list matches the pattern here will be skipped
+# entries in the package list matchinf a pattern here will be skipped
 # this file MUST NOT have empty lines
 #
 #
@@ -33,4 +33,4 @@ sci-libs/openfoam
 www-client/chromium
 #
 #
-# no empty line after this comment
+# no (even empty) line after this comment
