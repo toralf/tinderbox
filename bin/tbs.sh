@@ -278,9 +278,9 @@ function CompilePackageFiles()  {
   chmod a+rw  etc/portage/package.mask/self
 
   if [[ "$keyword" = "unstable" ]]; then
-    # unmask GCC-6 at 25% of unstable images
+    # unmask GCC-6 : https://bugs.gentoo.org/show_bug.cgi?id=582084
     #
-    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
       echo "sys-devel/gcc:6.2.0"    > etc/portage/package.unmask/gcc-6
       echo "sys-devel/gcc:6.2.0 **" > etc/portage/package.accept_keywords/gcc-6
     fi
