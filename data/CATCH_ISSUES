@@ -171,6 +171,7 @@ make: invalid option
 Uncaught error in
 /root/cache
 ^Error:
+: Error:
 recipe for target .* failed
 does not exist
 \\[ERROR\\]
