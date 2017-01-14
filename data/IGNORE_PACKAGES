@@ -7,7 +7,6 @@
 app-xemacs/
 app-eselect/
 dev-embedded/
-dev-ros/
 java-virtuals/
 perl-core/
 sec-policy/
@@ -25,7 +24,7 @@ sys-fs/vhba
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
 #
-# too fat and/or too long compile time
+# too long compile time
 #
 app-office/libreoffice
 app-office/libreoffice-l10n
