@@ -576,7 +576,7 @@ function GotAnIssue()  {
   CollectIssueFiles
   CompileIssueMail
 
-  # handle the Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
+  # https://bugs.gentoo.org/show_bug.cgi?id=596664
   #
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
@@ -588,6 +588,7 @@ function GotAnIssue()  {
     tar --dereference -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
     tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     )
+    Mail "notice: Perl upgrade issue happened for: $task" $log
     return 1
   fi
 
@@ -784,7 +785,6 @@ function EmergeTask() {
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
       if [[ $? -eq 1 ]]; then
-        Mail "notice: fixing Perl upgrade issue: $task" $log
         echo "%perl-cleaner --all" >> $pks
 
       else
@@ -810,7 +810,6 @@ function EmergeTask() {
       GotAnIssue
 
       if [[ $? -eq 1 ]]; then
-        Mail "notice: fixing Perl upgrade issue: $task" $log
         echo "$task" >> $pks
         echo "%perl-cleaner --all" >> $pks
       else
