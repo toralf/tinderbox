@@ -838,6 +838,9 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
+      if [[ -n "$failed" ]]; then
+        echo "%emerge --resume --skip-first" >> $pks
+      fi
     else
       echo "%emerge --depclean" >> $pks
     fi
