@@ -589,6 +589,8 @@ function GotAnIssue()  {
     tar --dereference -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
     tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     )
+    echo "$task" >> $pks
+    echo "%perl-cleaner --all" >> $pks
     Mail "notice: Perl upgrade issue happened for: $task" $log
     return 1
   fi
@@ -785,10 +787,7 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $? -eq 1 ]]; then
-        echo "%perl-cleaner --all" >> $pks
-
-      else
+      if [[ $? -eq 0 ]]; then
         grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
                   -e 'The following mask changes are necessary to proceed:' \
                   -e '* Error: The above package list contains packages which cannot be' \
@@ -809,11 +808,7 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-
-      if [[ $? -eq 1 ]]; then
-        echo "$task" >> $pks
-        echo "%perl-cleaner --all" >> $pks
-      else
+      if [[ $? -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         else
@@ -841,11 +836,10 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $? -eq 1 ]]; then
-        echo "$task" >> $pks
-        echo "%perl-cleaner --all" >> $pks
-      elif [[ -n "$failed" ]]; then
-        echo "%emerge --resume --skip-first" >> $pks
+      if [[ $? -eq 0 ]]; then
+        if [[ -n "$failed" ]]; then
+          echo "%emerge --resume --skip-first" >> $pks
+        fi
       fi
     else
       echo "%emerge --depclean" >> $pks
@@ -876,10 +870,6 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $? -eq 1 ]]; then
-        echo "$task" >> $pks
-        echo "%perl-cleaner --all" >> $pks
-      fi
     fi
   fi
 
