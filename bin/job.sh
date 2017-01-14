@@ -719,7 +719,7 @@ de_DE.UTF-8@euro UTF-8
 
 EOF
 
-    locale-gen                    1>/dev/null
+    locale-gen -j1                1>/dev/null
     eselect locale set en_US.utf8 1>/dev/null
     env-update                    1>/dev/null
     source /etc/profile

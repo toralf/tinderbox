@@ -416,7 +416,7 @@ de_DE ISO-8859-1
 de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
-locale-gen || exit 6
+locale-gen -j1 || exit 6
 eselect locale set en_US.utf8 || exit 6
 env-update
 source /etc/profile
