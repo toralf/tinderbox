@@ -281,8 +281,9 @@ function CompilePackageFiles()  {
     # unmask GCC-6 : https://bugs.gentoo.org/show_bug.cgi?id=582084
     #
     if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-      echo "sys-devel/gcc:6.2.0"    > etc/portage/package.unmask/gcc-6
-      echo "sys-devel/gcc:6.2.0 **" > etc/portage/package.accept_keywords/gcc-6
+      v=$(ls /usr/portage/sys-devel/gcc/gcc-6.*.ebuild | xargs -n 1 basename | tail -n 1 | xargs -n 1 qatom | awk ' { print $3 } ')
+      echo "sys-devel/gcc:$v"    > etc/portage/package.unmask/gcc-6
+      echo "sys-devel/gcc:$v **" > etc/portage/package.accept_keywords/gcc-6
     fi
   fi
 
