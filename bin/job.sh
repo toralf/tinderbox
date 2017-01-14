@@ -704,10 +704,7 @@ function PostEmerge() {
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
-  etc-update --automode -5  1>/dev/null
-  env-update                1>/dev/null
-  source /etc/profile
-
+  etc-update --automode -5 1>/dev/null
   grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $bak
   if [[ $? -eq 0 ]]; then
     cat << EOF >> /etc/locale.gen
@@ -718,12 +715,11 @@ de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
 
 EOF
-
     locale-gen -j1                1>/dev/null
     eselect locale set en_US.utf8 1>/dev/null
-    env-update                    1>/dev/null
-    source /etc/profile
   fi
+  env-update 1>/dev/null
+  source /etc/profile
 
   # [15:02] <iamben> sandiego: emerge @preserved-rebuild should be your very last step in upgrading, it's not urgent at all.  do "emerge -uDNav @world" first
   #
