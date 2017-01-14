@@ -874,6 +874,10 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
+      if [[ $? -eq 1 ]]; then
+        echo "$task" >> $pks
+        echo "%perl-cleaner --all" >> $pks
+      fi
     fi
   fi
 
