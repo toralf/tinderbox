@@ -504,7 +504,8 @@ EOF
 
 
 # emerge failed for some reason, therefore parse the output
-# return 1 if the well-known Perl upgrade issue appears otherwise return 0
+# return 1 if the perl upgrade failed
+# return 0 otherwise
 #
 function GotAnIssue()  {
   # put all successfully emerged dependencies of $task into the world file
@@ -945,7 +946,7 @@ function ParseElogForQA() {
       echo -e "\n~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
       id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
 
-      Mail "${id:-qa} $failed : $reason" $issuedir/body
+      Mail "${id:-QA} $failed : $reason" $issuedir/body
     fi
   done
 }
