@@ -841,7 +841,10 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ -n "$failed" ]]; then
+      if [[ $? -eq 1 ]]; then
+        echo "$task" >> $pks
+        echo "%perl-cleaner --all" >> $pks
+      elif [[ -n "$failed" ]]; then
         echo "%emerge --resume --skip-first" >> $pks
       fi
     else
