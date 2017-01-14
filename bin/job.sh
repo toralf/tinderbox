@@ -815,7 +815,11 @@ function EmergeTask() {
         echo "%perl-cleaner --all" >> $pks
       else
         Mail "notice: $task failed" $log
-        echo "@world" >> $pks
+        if [[ -n "$failed" ]]; then
+          echo "%emerge --resume --skip-first" >> $pks
+        else
+          echo "@world" >> $pks
+        fi
       fi
 
     else
