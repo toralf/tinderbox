@@ -217,6 +217,7 @@ USE="
   ssp
 
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
+$( if [[ "$clang" = "y" ]]; then echo "clang"; fi)
 "
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
