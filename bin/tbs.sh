@@ -362,6 +362,7 @@ app-text/wgetpaste
 app-portage/pfl
 app-portage/eix
 @system
+%rm -f /etc/portage/package.mask/setup_blocker
 EOF
 
   if [[ "$libressl" = "y" ]]; then
@@ -408,6 +409,7 @@ function ConfigureImage()  {
 #
 function CreateSetupScript()  {
   dryrun="emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y @system --pretend"
+  perl_stable_version=$(portageq best_version / dev-lang/perl)
 
   cat << EOF > tmp/setup.sh
 eselect profile set $profile || exit 6
@@ -429,6 +431,9 @@ source /etc/profile
 
 emerge --noreplace net-misc/netifrc
 
+echo -e "# packages preventing the setup (tbs.sh) of this tinderbox image\n#\n" > /etc/portage/package.mask/setup_blocker
+echo ">${perl_stable_version}" >> /etc/portage/package.mask/setup_blocker
+
 emerge sys-apps/elfix || exit 6
 migrate-pax -m
 
@@ -437,17 +442,20 @@ emerge mail-client/mailx || exit 6
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 6
 
-emerge --update --pretend sys-devel/gcc || exit 7
+emerge --update --pretend sys-devel/gcc || exit 6
 
+rc=0
+mv /etc/portage/package.mask/setup_blocker /tmp/
 $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $dryrun &> /tmp/dryrun.log || exit 7
+    $dryrun &> /tmp/dryrun.log || rc=7
   else
-    exit 7
+    rc=7
   fi
 fi
+mv /tmp/setup_blocker /etc/portage/package.mask/
 
 exit \$rc
 
