@@ -96,6 +96,10 @@ function ComputeImageName()  {
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   fi
 
+  if [[ "$clang" = "y" ]]; then
+    name="$name-clang"
+  fi
+
   if [[ "$libressl" = "y" ]]; then
     name="$name-libressl"
   fi
@@ -282,14 +286,12 @@ function CompilePackageFiles()  {
   touch       etc/portage/package.mask/self     # failed package at this image
   chmod a+rw  etc/portage/package.mask/self
 
-  if [[ "$keyword" = "unstable" ]]; then
+  if [[ "$clang" = "y" || "$keyword" = "unstable" && $(($RANDOM % 3)) -eq 0 ]]; then
     # unmask GCC-6 : https://bugs.gentoo.org/show_bug.cgi?id=582084
     #
-    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-      v=$(ls /usr/portage/sys-devel/gcc/gcc-6.*.ebuild | xargs -n 1 basename | tail -n 1 | xargs -n 1 qatom | awk ' { print $3 } ')
-      echo "sys-devel/gcc:$v"    > etc/portage/package.unmask/gcc-6
-      echo "sys-devel/gcc:$v **" > etc/portage/package.accept_keywords/gcc-6
-    fi
+    v=$(ls /usr/portage/sys-devel/gcc/gcc-6.*.ebuild | xargs -n 1 basename | tail -n 1 | xargs -n 1 qatom | awk ' { print $3 } ')
+    echo "sys-devel/gcc:$v"    > etc/portage/package.unmask/gcc-6
+    echo "sys-devel/gcc:$v **" > etc/portage/package.accept_keywords/gcc-6
   fi
 
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
@@ -319,6 +321,10 @@ EOF
   # test known to be broken
   #
   echo 'FEATURES="test-fail-continue"'      > etc/portage/env/test-fail-continue
+
+  # use gcc (instead clang)
+  #
+  echo -e "CC=gcc\nCXX=g++"                 > etc/portage/env/usegnucompiler
 }
 
 
@@ -337,13 +343,13 @@ EOF
 }
 
 
-# always upgrade GCC first, then build the kernel, upgrade @system
-# then emerge few mandatory/useful packages
-# and start with the randomized package list
+# the last line is the first entry and so on
 #
 function FillPackageList()  {
   pks=tmp/packages
 
+  # replay the actually installed package history from the origin ?
+  #
   if [[ -n "$origin" && -e $origin/var/log/emerge.log ]]; then
     # filter out from the randomized package list the ones got from $origin
     #
@@ -356,6 +362,8 @@ function FillPackageList()  {
     qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
   fi
 
+  # upgrade @system and emerge few mandatory/useful package/s too
+  #
   cat << EOF >> $pks
 # setup done
 app-text/wgetpaste
@@ -365,16 +373,22 @@ app-portage/eix
 %rm -f /etc/portage/package.mask/setup_blocker
 EOF
 
+  # switch to an alternative SSL lib before @system will be upgraded
+  #
   if [[ "$libressl" = "y" ]]; then
-    cat << EOF >> $pks
-%/tmp/tb/bin/switch2libressl.sh
-EOF
+    echo "%/tmp/tb/bin/switch2libressl.sh" >> $pks
   fi
 
-  cat << EOF >> $pks
-%emerge -u sys-kernel/hardened-sources
-sys-devel/gcc
-EOF
+  # prefix "%" is needed here b/c IGNORE_PACKAGE rules otherwise
+  #
+  echo "%emerge -u sys-kernel/hardened-sources" >> $pks
+
+  # compiler/s must not fail, switch to latest compiler as early as possible
+  #
+  if [[ "$clang" = "y" ]]; then
+    echo "%emerge -u sys-devel/clang" >> $pks
+  fi
+  echo "%emerge -u sys-devel/gcc" >> $pks
 
   chown tinderbox.tinderbox $pks
 }
@@ -549,6 +563,7 @@ wgetpath=/releases/amd64/autobuilds
 latest=latest-stage3.txt
 
 autostart="y"   # start the image after setup ?
+clang="n"       # prefer CLANG over GCC
 flags=$(rufs)   # holds the current USE flag subset
 origin=""       # clone from another image ?
 suffix=""       # will be appended onto the name before the timestamp
@@ -586,10 +601,18 @@ fi
 
 # the caller can overwrite the (thrown) settings now
 #
-while getopts a:f:k:l:m:o:p:s: opt
+while getopts a:c:f:k:l:m:o:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
+        ;;
+
+    c)  clang="$OPTARG"
+        if [[ "$clang" != "y" && "$clang" != "n" ]]; then
+          echo " wrong value for \$clang: $clang"
+          exit 2
+        fi
+        keyword="unstable"
         ;;
 
     f)  if [[ -f "$OPTARG" ]] ; then
