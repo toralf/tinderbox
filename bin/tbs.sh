@@ -456,6 +456,10 @@ emerge mail-client/mailx || exit 6
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 6
 
+if [[ "$clang" = "y" ]]; then
+  echo -e "CC=clang\nCXX=clang++" >> /etc/make.conf
+fi
+
 emerge --update --pretend sys-devel/gcc || exit 6
 
 rc=0
