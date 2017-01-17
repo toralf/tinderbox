@@ -84,5 +84,4 @@ done
 
 # avoid a non-visible prompt
 #
-sleep 1
-
+echo
