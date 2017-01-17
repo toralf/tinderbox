@@ -1,4 +1,6 @@
-# entries in the package list matchinf a pattern here will be skipped
+# entries in the package list matching a pattern here will be skipped
+# (but of course emerged as a dependency of another package)
+#
 # this file MUST NOT have empty lines
 #
 #
@@ -28,7 +30,6 @@ x11-plugins/gkrell
 #
 app-office/libreoffice
 app-office/libreoffice-l10n
-sci-libs/openfoam
 www-client/chromium
 #
 #
