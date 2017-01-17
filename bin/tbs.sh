@@ -356,7 +356,7 @@ function FillPackageList()  {
     #
     qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.tmp
     qsearch --all --nocolor --name-only --quiet | sort --random-sort | fgrep -v -f $pks.tmp > $pks
-    echo "INFO $(wc -l < $pks.tmp) packages of $origin processed" >> $pks
+    echo "INFO $(wc -l < $pks.tmp) packages of origin $origin replayed" >> $pks
     tac $pks.tmp >> $pks
     rm $pks.tmp
   else
