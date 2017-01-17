@@ -620,6 +620,9 @@ function GotAnIssue()  {
 #
 function BuildKernel()  {
   (
+    eval $(grep -e ^CC= -e ^CXX= /etc/portage/make.conf)
+    export CC CXX
+
     cd /usr/src/linux     &&\
     make defconfig        &&\
     make modules_prepare  &&\
