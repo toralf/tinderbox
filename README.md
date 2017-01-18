@@ -23,9 +23,10 @@ At a hardened host these tweaks of *Grsecurity* are needed:
 
 ## usage
 ###setup of a new image
-The setup of a new image is made by *tbs.sh*.
+The setup of a new image is made by *tbs.sh* (*at* from *sys-process/at* schedules a command for later, catches the output and email it to the user)
     
-    cd ~/img1; sudo ~/tb/bin/tbs.sh 
+    (cd ~/img2; echo "sudo ~/tb/bin/tbs.sh" | at now + 0 min)
+
 A profile, keyword and a USE flag set are choosen.
 The current stage3 file is downloaded, verified and unpacked.
 Mandatory portage config files will be compiled.
