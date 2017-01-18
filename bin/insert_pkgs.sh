@@ -25,11 +25,7 @@ do
     continue
   fi
 
-  # consider '#' too here
-  # eg. it is set if we clone an image to replay the emerge order
-  # or if the setup is still in progress
-  # or if the previously added package/s aren't processed yet
-  # or ...
+  # do not change a package list where a special action is scheduled
   #
   grep -q -E "^(STOP|INFO|%|@|#)" $pks
   if [[ $? -eq 0 ]]; then
