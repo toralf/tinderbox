@@ -43,6 +43,10 @@ The wrapper *runme.sh* calls the tinderbox script *job.sh* itself.
 It basically parses the output of *cat /tmp/packages | xargs -n 1 emerge -u*.
 It uses *chr.sh* to handle the chroot related actions.
 
+###retry a package fixed without revision bump
+
+    sed -i -e '/sys-fs\/eudev/d' ~/tb/data/ALREADY_CATCHED ~/run/*/etc/portage/package.mask/self ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue}
+    for i in ~/run/*/tmp/packages; do grep -q -E "^(STOP|INFO|%|@|#)" $i || echo 'sys-fs/eudev' >> $i; done
 ###stop of an image
     
     ~/tb/bin/stop_img.sh <image name>
