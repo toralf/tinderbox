@@ -7,7 +7,7 @@ Create the user *tinderbox*
     useradd -m tinderbox
 Create few tinderbox and one or more big directories to hold the chroot images, preferred namespace : ~/img*X*, eg. run in its home directory */home/tinderbox*
     
-    mkdir ~/img{12} ~/logs ~/run ~/tb
+    mkdir ~/img{1,2} ~/logs ~/run ~/tb
 Copy *./bin*, *./data* and *./sdata* into *~/tb*.
 Edit the files in *~/sdata* and strip away the suffix *.sample*.
 Grant to the user these sudo rights:
