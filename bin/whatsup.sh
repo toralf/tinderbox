@@ -5,6 +5,13 @@
 # quick & dirty stats
 #
 
+# gives sth like:
+#
+# emerged days    backlog rate
+# 5953    8.1     12905   752     13.0-libressl-unstable_20170110-100022
+# 5259    7.1     14913   575     13.0-systemd-unstable_20170111-105830
+# 5704    8.5     14096   576     13.0-unstable_20170109-235418
+#
 function Overall() {
   echo
   echo "emerged days    backlog rate"
@@ -23,6 +30,12 @@ function Overall() {
 }
 
 
+# gives sth like:
+#
+# 13.0-libressl-unstable_20170110-100022            13:59:12 *** media-gfx/pictureflow
+# 13.0-systemd-unstable_20170111-105830             13:54:54 >>> (4 of 4) games-server/cyphesis-0.6.2-r1
+# 13.0-unstable_20170109-235418                     13:53:24 *** www-apps/chromedriver-bin
+#
 function LastEmergeOperation()  {
   echo
   df -h |\
@@ -41,6 +54,12 @@ function LastEmergeOperation()  {
 }
 
 
+# gives sth like:
+#
+# 13.0-libressl-unstable_20170110-100022            410 1244 1068  821  510  645  485  510  260
+# 13.0-systemd-unstable_20170111-105830             545  681 1115  679  775  625  507  332
+# 13.0-unstable_20170109-235418                      14  896 1029  813  551  438  618  625  416  304
+#
 function PackagesPerDay() {
   echo
   ls -1d ~/run/* |\
