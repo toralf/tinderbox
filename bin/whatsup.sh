@@ -92,7 +92,7 @@ function PackagesPerDay() {
       }
       END {
         foreach my $k (sort { $a <=> $b } keys %h) {
-          printf ("%5i", $h{$k})
+          printf ("%5i", $h{$k});
         }
       }
     '
