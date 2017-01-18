@@ -5,10 +5,10 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 Create the user *tinderbox*
 
     useradd -m tinderbox
-and run its home directory */home/tinderbox*
+Create few tinderbox and one or more big directories to hold the chroot images, preferred namespace : ~/img*X*, eg. run in its home directory */home/tinderbox*
     
     mkdir ~/img{12} ~/logs ~/run ~/tb
-Unpack *./bin*, *./data* and *./sdata* into *~/tb*.
+Copy *./bin*, *./data* and *./sdata* into *~/tb*.
 Edit the files in *~/sdata* and strip away the suffix *.sample*.
 Grant to the user these sudo rights:
     
@@ -39,6 +39,7 @@ A symlink is made into *~/run*.
     
     ~/tb/bin/start_img.sh <image name>
 
+Without an image name all symlinks in *~/run* are processed.
 The wrapper *runme.sh* calls the tinderbox script *job.sh* itself.
 It basically parses the output of *cat /tmp/packages | xargs -n 1 emerge -u*.
 It uses *chr.sh* to handle the chroot related actions.
