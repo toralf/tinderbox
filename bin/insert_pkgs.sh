@@ -27,8 +27,9 @@ do
 
   # consider '#' too here
   # eg. it is set if we clone an image to replay the emerge order
-  # or if the setup is not fully done
+  # or if the setup is still in progress
   # or if the previously added package/s aren't processed yet
+  # or ...
   #
   grep -q -E "^(STOP|INFO|%|@|#)" $pks
   if [[ $? -eq 0 ]]; then
@@ -38,7 +39,7 @@ do
   avail_pks="$avail_pks $pks"
 done
 
-# get package names from new/changed ebuilds
+# store here the package names of new/changed/modified/renamed ebuilds
 #
 tmp=$(mktemp /tmp/pksXXXXXX)
 
