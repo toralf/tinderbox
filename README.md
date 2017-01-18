@@ -13,7 +13,6 @@ Edit the files in *~/sdata* and strip away the suffix *.sample*.
 Grant to the user these sudo rights:
     
     tinderbox ALL=(ALL) NOPASSWD: /home/tinderbox/tb/bin/chr.sh,/home/tinderbox/tb/bin/tbs.sh,/usr/bin/chroot
-Create one or more big directories to hold the chroot images, preferred namespace : ~/img*X*
 
 At a hardened host these tweaks of *Grsecurity* are needed: 
 
