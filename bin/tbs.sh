@@ -295,6 +295,11 @@ function CompilePackageFiles()  {
     echo "sys-devel/gcc:$v **" > etc/portage/package.accept_keywords/gcc-6
   fi
 
+  echo "$profile" | grep -e "-hardened-"
+  if [[ $? -eq 0 ]]; then
+    echo -e "#https://bugs.gentoo.org/show_bug.cgi?id=602992\n#\napp-editors/emacs" >> etc/portage/package.mask/emacs
+  fi
+
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
   chmod a+rw etc/portage/package.use/setup
 
