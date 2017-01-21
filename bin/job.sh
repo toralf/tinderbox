@@ -876,7 +876,12 @@ function EmergeTask() {
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
       if [[ $? -eq 0 ]]; then
-        Finish 2 "cmd '$cmd' failed"
+        # ok, no Perl upgrade issue, but no resume too ?
+        #
+        echo "$cmd" | grep -q -e "--resume --skip-first"
+        if [[ $? -ne 0 ]]; then
+          Finish 2 "cmd '$cmd' failed"
+        fi
       fi
     fi
 
