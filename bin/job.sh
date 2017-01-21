@@ -263,6 +263,8 @@ EOF
 }
 
 
+# 777: sometimes we have to modify title or issue
+#
 function CreateIssueDir() {
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir
