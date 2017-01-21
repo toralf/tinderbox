@@ -875,7 +875,9 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      Finish 2 "cmd '$cmd' failed"
+      if [[ $? -eq 0 ]]; then
+        Finish 2 "cmd '$cmd' failed"
+      fi
     fi
 
   else
