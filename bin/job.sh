@@ -727,21 +727,9 @@ function PostEmerge() {
   #
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
+  rm -f etc/._cfg0000_locale.gen
 
   etc-update --automode -5 1>/dev/null
-  grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $bak
-  if [[ $? -eq 0 ]]; then
-    cat << EOF >> /etc/locale.gen
-en_US ISO-8859-1
-en_US.UTF-8 UTF-8
-de_DE ISO-8859-1
-de_DE@euro ISO-8859-15
-de_DE.UTF-8@euro UTF-8
-
-EOF
-    locale-gen -j1                1>/dev/null
-    eselect locale set en_US.utf8 1>/dev/null
-  fi
   env-update 1>/dev/null
   source /etc/profile
 
