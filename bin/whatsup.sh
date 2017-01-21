@@ -5,6 +5,20 @@
 # quick & dirty stats
 #
 
+# either a directory name or take all mounted "img<X>" directories
+#
+function __for_all_images() {
+  if [[ -d $1 ]]; then
+    ls -1d $1/*
+
+  else
+    df -h |\
+    grep 'img./' |\
+    cut -f4-5 -d'/'
+  fi
+}
+
+
 # gives sth like:
 #
 # emerged days    backlog rate
@@ -15,7 +29,8 @@
 function Overall() {
   echo "emerged days    backlog rate"
   se=0; sre=0; srp=0
-  ls -1d ~/run/* |\
+
+  __for_all_images ~/run |\
   while read i
   do
     log=$i/var/log/emerge.log
@@ -38,9 +53,7 @@ function Overall() {
 # 13.0-unstable_20170109-235418                     13:53:24 *** www-apps/chromedriver-bin
 #
 function LastEmergeOperation()  {
-  df -h |\
-  grep 'img./' |\
-  cut -f4-5 -d'/' |\
+  __for_all_images |\
   while read i
   do
     printf "%s\r\t\t\t\t\t\t  " $(basename $i)
@@ -64,7 +77,7 @@ function LastEmergeOperation()  {
 # 13.0-unstable_20170109-235418                      14  896 1029  813  551  438  618  625  416  304
 #
 function PackagesPerDay() {
-  ls -1d ~/run/* |\
+  __for_all_images ~/run |\
   while read i
   do
     printf "%s\r\t\t\t\t\t\t" $(basename $i)
