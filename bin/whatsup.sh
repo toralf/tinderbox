@@ -119,7 +119,7 @@ do
         ;;
     p)  PackagesPerDay
         ;;
-    *)  echo "call: $(basename $0) -o -l -p"
+    *)  echo "call: $(basename $0) [-o] [-l] [-p]"
         exit 0
         ;;
   esac
