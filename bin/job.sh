@@ -855,6 +855,8 @@ function EmergeTask() {
         fi
       fi
     else
+      # if @world is ok then run this before any @preserved-rebuild
+      #
       echo "%emerge --depclean" >> $pks
     fi
 
