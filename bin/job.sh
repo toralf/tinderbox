@@ -591,7 +591,9 @@ function GotAnIssue()  {
     )
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
-    Mail "notice: Perl upgrade issue happened for: $task" $log
+    if [[ "$task" != "@system" ]]; then
+      Mail "notice: Perl upgrade issue happened for: $task" $log
+    fi
     return 1
   fi
 
