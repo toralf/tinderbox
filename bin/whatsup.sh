@@ -19,7 +19,7 @@ function __for_all_images() {
 }
 
 
-# gives sth like:
+# gives sth. like:
 #
 # emerged days    backlog rate
 # 5953    8.1     12905   752     13.0-libressl-unstable_20170110-100022
@@ -46,7 +46,7 @@ function Overall() {
 }
 
 
-# gives sth like:
+# gives sth. like:
 #
 # 13.0-libressl-unstable_20170110-100022            13:59:12 *** media-gfx/pictureflow
 # 13.0-systemd-unstable_20170111-105830             13:54:54 >>> (4 of 4) games-server/cyphesis-0.6.2-r1
@@ -70,7 +70,7 @@ function LastEmergeOperation()  {
 }
 
 
-# gives sth like:
+# gives sth. like:
 #
 # 13.0-libressl-unstable_20170110-100022            410 1244 1068  821  510  645  485  510  260
 # 13.0-systemd-unstable_20170111-105830             545  681 1115  679  775  625  507  332
