@@ -346,6 +346,41 @@ EOF
   fi
 }
 
+
+# guess from the title if there's a bug tracker for this issue
+# the BLOCKER file must follow this syntax:
+#
+#   # comment
+#   <bug id>
+#   <pattern>
+#   ...
+#
+# if <pattern> is defined more than once then the first entry will make it
+#
+function SearchForBlocker() {
+  block=$(
+    grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER |\
+    while read line
+    do
+      grep -q -E "$line" $issuedir/title
+      if [[ $? -eq 0 ]]; then
+        echo -n "-b "
+        grep -m 1 -B 1 "$line" /tmp/tb/data/BLOCKER | head -n 1 # no grep -E here !
+        break
+      fi
+    done
+  )
+
+  # distinguish between gcc-5/6
+  #
+  if [[ "$block" = "-b 582084" ]]; then
+    if [[ $(gcc -dumpversion | cut -c1) -eq 5 ]] ; then
+      block="-b 603260"
+    fi
+  fi
+}
+
+
 # helper of GotAnIssue()
 # create an email containing convenient links and command lines ready for copy+paste
 #
@@ -369,36 +404,7 @@ function CompileIssueMail() {
   #
   sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
 
-  # guess from the title if there's a bug tracker for this issue
-  # the BLOCKER file must follow this syntax:
-  #
-  #   # comment
-  #   <bug id>
-  #   <pattern>
-  #   ...
-  #
-  # if <pattern> is defined more than once then the first entry will make it
-  #
-  block=$(
-    grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER |\
-    while read line
-    do
-      grep -q -E "$line" $issuedir/title
-      if [[ $? -eq 0 ]]; then
-        echo -n "-b "
-        grep -m 1 -B 1 "$line" /tmp/tb/data/BLOCKER | head -n 1 # no grep -E here !
-        break
-      fi
-    done
-  )
-
-  # distinguish between gcc-5/6
-  #
-  if [[ "$block" = "-b 582084" ]]; then
-    if [[ $(gcc -dumpversion | cut -c1) -eq 5 ]] ; then
-      block="-b 603260"
-    fi
-  fi
+  SearchForBlocker
 
   # copy the issue to the email body before we extend it for b.g.o. comment#0
   #
