@@ -297,7 +297,12 @@ function CompilePackageFiles()  {
 
   echo "$profile" | grep -e "^hardened/"
   if [[ $? -eq 0 ]]; then
-    echo -e "# https://bugs.gentoo.org/show_bug.cgi?id=602992\n#\napp-editors/emacs" >> etc/portage/package.mask/emacs
+    cat <<EOF >> etc/portage/package.mask/emacs
+# https://bugs.gentoo.org/show_bug.cgi?id=602992
+#
+app-editors/emacs
+app-editors/emacs-vcs
+EOF
   fi
 
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
