@@ -270,22 +270,9 @@ function CreateIssueDir() {
 }
 
 
-# helper of GotAnIssue()
-# create an email containing convenient links and command lines ready for copy+paste
+# try to find a descriptive title and the most meaningful lines of the issue
 #
-function CompileIssueMail() {
-  # strip away the package version
-  #
-  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
-
-  # no --verbose, output size would exceed the 16 KB limit of b.g.o.
-  #
-  emerge --info --verbose=n $short > $issuedir/emerge-info.txt
-
-  GetMailAddresses
-
-  # try to find a descriptive title and the most meaningful lines of the issue
-  #
+function GuessTitleAndIssue() {
   touch $issuedir/{issue,title}
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
@@ -357,6 +344,22 @@ EOF
       retry_with_changed_env=1
     fi
   fi
+}
+
+# helper of GotAnIssue()
+# create an email containing convenient links and command lines ready for copy+paste
+#
+function CompileIssueMail() {
+  # strip away the package version
+  #
+  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+
+  # no --verbose, output size would exceed the 16 KB limit of b.g.o.
+  #
+  emerge --info --verbose=n $short > $issuedir/emerge-info.txt
+
+  GetMailAddresses
+  GuessTitleAndIssue
 
   # shrink too long error messages
   #
