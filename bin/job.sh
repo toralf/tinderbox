@@ -381,58 +381,16 @@ function SearchForBlocker() {
 }
 
 
-# helper of GotAnIssue()
-# create an email containing convenient links and command lines ready for copy+paste
+# don't report this issue if an appropriate bug report exists
 #
-function CompileIssueMail() {
-  # strip away the package version
-  #
-  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
-
-  # no --verbose, output size would exceed the 16 KB limit of b.g.o.
-  #
-  emerge --info --verbose=n $short > $issuedir/emerge-info.txt
-
-  GetMailAddresses
-  GuessTitleAndIssue
-
-  # shrink too long error messages
-  #
-  sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
-
-  # kick off hex addresses and such stuff to improve search results matching in b.g.o.
-  #
-  sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
-
-  SearchForBlocker
-
-  # copy the issue to the email body before we extend it for b.g.o. comment#0
-  #
-  cp $issuedir/issue $issuedir/body
-  AddMetainfoToBody
-  AddWhoamiToIssue
-
-  cat << EOF >> $issuedir/issue
-gcc-config -l:
-$(gcc-config -l 2>&1                && echo)
-llvm-config --version:
-$(llvm-config --version 2>&1        && echo)
-$(eselect java-vm list 2>/dev/null  && echo)
-$(eselect python  list 2>&1         && echo)
-$(eselect ruby    list 2>/dev/null  && echo)
-java-config:
-$(java-config --list-available-vms --nocolor 2>/dev/null && echo)
-  -----------------------------------------------------------------
-EOF
-
-  # don't report this issue if an appropriate bug report exists;
-  # strip away from the search string the package name and replace
-  # certain characters, line numbers et al with spaces;
-  # use a temp file to dangle around special chars
-  #
+function SearchForAnAlreadyFiledBug() {
   bsi=$issuedir/bugz_search_items
   bug_report_exists="n"
 
+  # strip away from the bugzilla search string the package name and replace
+  # certain characters, line numbers et al with spaces;
+  # use a temp file to dangle around special chars
+  #
   cp $issuedir/title $bsi
   sed -i -e "s/['‘’\"]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' -e 's/[<>&\*\?]/ /g' $bsi
   # for the file collision case: remove the package version (from the counterpart)
@@ -492,6 +450,54 @@ EOF
     echo "  RESOLVED: ${h}&bug_status=RESOLVED&short_desc=${short}" >> $issuedir/body
     bugz --columns 400 -q search --status RESOLVED  $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
   fi
+}
+
+
+# helper of GotAnIssue()
+# create an email containing convenient links and command lines ready for copy+paste
+#
+function CompileIssueMail() {
+  # strip away the package version
+  #
+  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+
+  # no --verbose, output size would exceed the 16 KB limit of b.g.o.
+  #
+  emerge --info --verbose=n $short > $issuedir/emerge-info.txt
+
+  GetMailAddresses
+  GuessTitleAndIssue
+
+  # shrink too long error messages
+  #
+  sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
+
+  # kick off hex addresses and such stuff to improve search results matching in b.g.o.
+  #
+  sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
+
+  SearchForBlocker
+
+  # copy the issue to the email body before we extend it for b.g.o. comment#0
+  #
+  cp $issuedir/issue $issuedir/body
+  AddMetainfoToBody
+  AddWhoamiToIssue
+
+  cat << EOF >> $issuedir/issue
+gcc-config -l:
+$(gcc-config -l 2>&1                && echo)
+llvm-config --version:
+$(llvm-config --version 2>&1        && echo)
+$(eselect java-vm list 2>/dev/null  && echo)
+$(eselect python  list 2>&1         && echo)
+$(eselect ruby    list 2>/dev/null  && echo)
+java-config:
+$(java-config --list-available-vms --nocolor 2>/dev/null && echo)
+  -----------------------------------------------------------------
+EOF
+
+  SearchForAnAlreadyFiledBug
 
   AttachFiles $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
