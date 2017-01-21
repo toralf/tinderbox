@@ -13,7 +13,6 @@
 # 5704    8.5     14096   576     13.0-unstable_20170109-235418
 #
 function Overall() {
-  echo
   echo "emerged days    backlog rate"
   se=0; sre=0; srp=0
   ls -1d ~/run/* |\
@@ -29,7 +28,6 @@ function Overall() {
     fi
     echo -e "$e\t$d\t$p\t$rp\t$(basename $i)"
   done
-  echo
 }
 
 
@@ -40,7 +38,6 @@ function Overall() {
 # 13.0-unstable_20170109-235418                     13:53:24 *** www-apps/chromedriver-bin
 #
 function LastEmergeOperation()  {
-  echo
   df -h |\
   grep 'img./' |\
   cut -f4-5 -d'/' |\
@@ -57,7 +54,6 @@ function LastEmergeOperation()  {
     '
   done |\
   sort
-  echo
 }
 
 
@@ -68,7 +64,6 @@ function LastEmergeOperation()  {
 # 13.0-unstable_20170109-235418                      14  896 1029  813  551  438  618  625  416  304
 #
 function PackagesPerDay() {
-  echo
   ls -1d ~/run/* |\
   while read i
   do
@@ -98,12 +93,12 @@ function PackagesPerDay() {
     '
     echo " "
   done
-  echo
 }
 
 
 while getopts lop opt
 do
+  echo
   case $opt in
     l)  LastEmergeOperation
         ;;
@@ -115,4 +110,5 @@ do
         exit 0
         ;;
   esac
+  echo
 done
