@@ -505,7 +505,7 @@ EOF
   #
   sed -i -e "s#^#$failed : #" $issuedir/title
 
-  # b.g.o. has a limit of "Summary" at 255 chars
+  # b.g.o. has a limit for "Summary" of 255 chars
   #
   if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
     truncate -s 255 $issuedir/title
@@ -519,7 +519,7 @@ EOF
 
 
 # emerge failed for some reason, therefore parse the output
-# return 1 if the perl upgrade failed
+# return 1 if the upgrade/re-emerge of perl failed
 # return 0 otherwise
 #
 function GotAnIssue()  {
