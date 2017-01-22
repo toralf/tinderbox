@@ -16,6 +16,7 @@ gcc-5 is not yet supported
 gcc version .* found, expected gcc
 hardened sed failed
 Incorrect kernel configuration options
+Invalid resume list:
 kernel too new
 License file not found!
 license setup failed
