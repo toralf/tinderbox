@@ -433,7 +433,7 @@ function ConfigureImage()  {
 # - dry test of GCC and @system upgrade to auto-fix package-specific USE flags
 #
 function CreateSetupScript()  {
-  dryrun="emerge --backtrack=30 --deep --update --changed-use --with-bdeps=y @system --pretend"
+  dryrun="emerge --backtrack=100 --deep --update --changed-use --with-bdeps=y @system --pretend"
   perl_stable_version=$(portageq best_version / dev-lang/perl)
 
   cat << EOF > tmp/setup.sh
@@ -583,15 +583,11 @@ flags=$(rufs)   # holds the current USE flag subset
 origin=""       # clone from another image ?
 suffix=""       # will be appended onto the name before the timestamp
 
-# arbitrarily pre-select profile, keyword, ssl vendor and ABI_X86
+# pre-select profile, keyword, ssl vendor and ABI_X86
 #
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
 
-if [[ $(($RANDOM % 20)) -eq 0 ]]; then
-  keyword="stable"
-else
-  keyword="unstable"
-fi
+keyword="unstable"
 
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
