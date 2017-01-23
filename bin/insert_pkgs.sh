@@ -25,7 +25,7 @@ do
     continue
   fi
 
-  # do not change a package list where a special action is scheduled
+  # do not change a package list if a special action is scheduled/not finished
   #
   grep -q -E "^(STOP|INFO|%|@|#)" $pks
   if [[ $? -eq 0 ]]; then
@@ -35,7 +35,7 @@ do
   avail_pks="$avail_pks $pks"
 done
 
-# store here the package names of new/changed/modified/renamed ebuilds
+# holds the package names of new/changed/modified/renamed ebuilds
 #
 tmp=$(mktemp /tmp/pksXXXXXX)
 
@@ -51,14 +51,17 @@ info="# $(wc -l < $tmp) packages at $(date)"
 echo "$info"
 
 if [[ -s $tmp ]]; then
-  # prepend the package names onto the available package list files
+  # prepend the package names onto change-able package list files
   #
   for pks in $avail_pks
   do
-    # shuffle the packages around in a different way for each list
+    # shuffle the packages around for each image in a different way
     #
     echo "$info"              >> $pks
     sort --random-sort < $tmp >> $pks
+
+    # goes to stdout/the log file of the caller
+    #
     echo "$pks"
   done
 fi
