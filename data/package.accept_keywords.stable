@@ -16,8 +16,3 @@ media-video/ffmpegthumbnailer
 # stable request https://bugs.gentoo.org/show_bug.cgi?id=603260
 #
 ~sys-devel/gcc-5.4.0
-
-# https://bugs.gentoo.org/show_bug.cgi?id=605126#c8
-#
-~dev-lang/mercury-13.05.2
-~dev-lang/mercury-extras-13.05.2
