@@ -330,7 +330,7 @@ EOF
     while read c
     do
       grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue
-      if [[ -s $issuedir/issue ]]; then
+      if [[ $? -eq 0 ]]; then
         head -n 3 < $issuedir/issue | tail -n 1 > $issuedir/title
         break
       fi
@@ -338,6 +338,10 @@ EOF
 
     if [[ ! -s $issuedir/title ]]; then
       Finish 2 "title is empty for task $task"
+    fi
+
+    if [[ ! -s $issuedir/issue ]]; then
+      Finish 2 "issue is empty for task $task"
     fi
 
     # this gcc-6 issue is forced by us, masking this package
