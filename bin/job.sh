@@ -336,12 +336,12 @@ EOF
       fi
     done
 
-    if [[ ! -s $issuedir/title ]]; then
-      Finish 2 "title is empty for task $task"
+    if [[ $(wc -w <$issuedir/title) -eq 0 ]]; then
+      Finish 2 "no title for task $task"
     fi
 
-    if [[ ! -s $issuedir/issue ]]; then
-      Finish 2 "issue is empty for task $task"
+    if [[ $(wc -w <$issuedir/issue) -eq 0 ]]; then
+      Finish 2 "no issue for task $task"
     fi
 
     # this gcc-6 issue is forced by us, masking this package
