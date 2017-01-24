@@ -20,6 +20,7 @@ multiple definition of
 must be installed to use
 Non type-variable argument
 too few arguments to function
+: redefining predefined macro
 Error 137
 Line indented less than expected
 Parse error
