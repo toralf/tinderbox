@@ -11,17 +11,22 @@
 # 563396    ./%\{_*
 # 598840    /tmp/file??????
 
-#
-exit 0
-
 rc=0
-for f in
+
+# helper to prevent duplicate reports
+#
+findings=/tmp/$(basename $0).list
+if [[ ! -f $findings ]]; then
+  touch $findings
+fi
+
+for i in
 do
-  if [[ -e $f ]]; then
-    reported=$(dirname $f)/.reported.$(basename $f)
-    if [[ ! -f $reported ]]; then
-      ls -ld $f
-      touch $reported  # don't report this finding again
+  if [[ -e $i ]]; then
+    grep -F -e "$i" -f $findings
+    if [[ $? -ne 0 ]]; then
+      ls -ld $i
+      echo "$i" >> $findings
       rc=1
     fi
   fi
