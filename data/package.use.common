@@ -40,3 +40,11 @@ app-crypt/pinentry        -qt4
 app-text/poppler          -qt4
 sys-libs/zlib             minizip
 x11-base/xorg-server      -minimal
+
+#As soon as /etc/profile.d/nix.sh gets installed into system
+#next bash process will create that link and output a message.
+#
+#You can disable profile injection completely with USE=-etc_profile
+#if you plan to build-test nix only. It should only affect profile injection.
+#
+sys-apps/nix              -etc_profile
