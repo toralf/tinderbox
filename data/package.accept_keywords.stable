@@ -3,11 +3,6 @@
 # this file resides in /tmp/tb/data within a tinderbox image
 # the appropriate symlink under /etc/portage/ points to it
 
-# stable request https://bugs.gentoo.org/show_bug.cgi?id=590244
-#
-~dev-libs/boost-1.62.0
-~dev-util/boost-build-1.62.0
-
 # stable request https://bugs.gentoo.org/show_bug.cgi?id=574788
 #
 media-video/ffmpeg
