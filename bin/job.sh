@@ -1028,8 +1028,11 @@ do
   # restart ourself if origin was edited
   #
   diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
-  if [[ $? -ne 0 ]]; then
-    exit 125
+  rc=$?
+  if [[ $rc -eq 1 ]]; then
+    exit 125  # do differ
+  elif [[ $rc -eq 2 ]]; then
+    exit 2    # trouble
   fi
 
   # check for install artefacts from previous operations
