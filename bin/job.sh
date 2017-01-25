@@ -1030,9 +1030,9 @@ do
   diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
   rc=$?
   if [[ $rc -eq 1 ]]; then
-    exit 125  # do differ
+    exit 125  # was edited
   elif [[ $rc -eq 2 ]]; then
-    exit 2    # trouble
+    exit 1    # trouble
   fi
 
   # check for install artefacts from previous operations
