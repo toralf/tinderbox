@@ -840,6 +840,10 @@ function EmergeTask() {
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         else
+          # there's no need to update @world
+          # b/c new ebuilds are scheduled by insert_pkgs.sh
+          # but if @system failes then @world might succeed
+          #
           echo "@world" >> $pks
         fi
       fi
