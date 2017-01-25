@@ -350,8 +350,11 @@ EOF
     #
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
-      echo "=$failed cxx" >> /etc/portage/package.env/cxx
-      retry_with_changed_env=1
+      grep -q "=$failed cxx" /etc/portage/package.env/cxx
+      if [[ $? -ne 0 ]]; then
+        echo "=$failed cxx" >> /etc/portage/package.env/cxx
+        retry_with_changed_env=1
+      fi
     fi
   fi
 }
