@@ -55,7 +55,7 @@ py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
 
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
-if [[ $? -ne 0 ]]; then
+if [[ $? -eq 1 ]]; then
   cat << EOF > /etc/portage/package.accept_keywords/libressl || exit 27
 dev-libs/libressl
 $py2

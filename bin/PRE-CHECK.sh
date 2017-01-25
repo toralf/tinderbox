@@ -24,7 +24,7 @@ for i in
 do
   if [[ -e $i ]]; then
     grep -F -e "$i" -f $findings
-    if [[ $? -ne 0 ]]; then
+    if [[ $? -eq 1 ]]; then
       ls -ld $i
       echo "$i" >> $findings
       rc=1

@@ -73,8 +73,10 @@ function GetNextTask() {
   else
     let "diff = $(date +%s) - $(date +%s -r $ts)"
     if [[ $diff -gt 86400 ]]; then
+      # here we do not care about the "#" lines
+      #
       grep -q -E "^(STOP|INFO|%|@)" $pks
-      if [[ $? -ne 0 ]]; then
+      if [[ $? -eq 1 ]]; then
         task="@system"
         SwitchJDK
         return
@@ -351,7 +353,7 @@ EOF
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
       grep -q "=$failed cxx" /etc/portage/package.env/cxx
-      if [[ $? -ne 0 ]]; then
+      if [[ $? -eq 1 ]]; then
         echo "=$failed cxx" >> /etc/portage/package.env/cxx
         retry_with_changed_env=1
       fi
@@ -543,7 +545,7 @@ function GotAnIssue()  {
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
     echo "$line" | grep -q ':  === (1 of '
-    if [[ $? -ne 0 ]]; then
+    if [[ $? -eq 1 ]]; then
       emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &> /dev/null
     fi
   fi
@@ -642,7 +644,7 @@ function GotAnIssue()  {
   #   for i in ~/run/*/tmp/packages; do grep -q -E "^(STOP|INFO|%|@|#)" $i || echo 'sys-fs/eudev' >> $i; done
   #
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
-  if [[ $? -ne 0 ]]; then
+  if [[ $? -eq 1 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
     if [[ "$bug_report_exists" = "n" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
@@ -675,7 +677,7 @@ function BuildKernel()  {
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
   gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
-  if [[ $? -ne 0 ]]; then
+  if [[ $? -eq 1 ]]; then
     verold=$(gcc -dumpversion)
     gcc-config --nocolor $latest &> $log
     source /etc/profile
@@ -890,7 +892,7 @@ function EmergeTask() {
         # ok, no Perl upgrade issue, but no resume too ?
         #
         echo "$cmd" | grep -q -e "--resume --skip-first"
-        if [[ $? -ne 0 ]]; then
+        if [[ $? -eq 1 ]]; then
           Finish 2 "cmd '$cmd' failed"
         fi
       fi
