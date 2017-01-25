@@ -6,7 +6,6 @@
 # stable request https://bugs.gentoo.org/show_bug.cgi?id=574788
 #
 media-video/ffmpeg
-media-video/ffmpegthumbnailer
 
 # stable request https://bugs.gentoo.org/show_bug.cgi?id=603260
 #
