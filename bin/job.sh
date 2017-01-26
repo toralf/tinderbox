@@ -107,7 +107,7 @@ function GetNextTask() {
     elif [[ "$(echo "$task" | cut -c1)" = "#" ]]; then
       continue  # comment
 
-    elif [[ -z "$(echo "$task" | cut -c1 | grep -E '(@|%)')" ]]; then
+    elif [[ -n "$(echo "$task" | cut -c1 | grep -E '(@|%)')" ]]; then
       return  # work on a package set/command
 
     else
