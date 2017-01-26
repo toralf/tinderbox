@@ -104,7 +104,7 @@ function GetNextTask() {
       n=$(qlist --installed | wc -l)
       Finish 0 "$n packages emerged, spin up a new image"
 
-    elif [[ -z "$(echo "$task" | cut -c1)" = "#" ]]; then
+    elif [[ "$(echo "$task" | cut -c1)" = "#" ]]; then
       continue  # comment
 
     elif [[ -z "$(echo "$task" | cut -c1 | grep -E '(@|%)')" ]]; then
@@ -599,7 +599,7 @@ function GotAnIssue()  {
 
   # short must be a valid atom
   #
-  if [[ ! -d /usr/portage/$short ]]
+  if [[ ! -d /usr/portage/$short ]]; then
     Mail "warn: \$short=$short isn't valid, \$task=$task, \$failed=$failed" $bak
     return
   fi
