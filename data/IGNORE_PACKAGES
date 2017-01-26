@@ -29,7 +29,6 @@ x11-plugins/gkrell
 # too long compile time
 #
 app-office/libreoffice
-app-office/libreoffice-l10n
 www-client/chromium
 #
 #
