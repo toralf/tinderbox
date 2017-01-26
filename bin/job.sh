@@ -113,8 +113,8 @@ function GetNextTask() {
         continue
       fi
 
-      # make some checks here to speed up emerge b/c
-      # it takes too much time to try alternative paths
+      # make some checks here to speed up things
+      # b/c emerge spend too much time to try alternative paths
 
       # skip if $task is masked, keyworded or an invalid string
       #
