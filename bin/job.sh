@@ -469,10 +469,6 @@ EOF
 # create an email containing convenient links and command lines ready for copy+paste
 #
 function CompileIssueMail() {
-  # strip away the package version
-  #
-  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
-
   # no --verbose, output size would exceed the 16 KB limit of b.g.o.
   #
   emerge --info --verbose=n $short > $issuedir/emerge-info.txt
@@ -594,6 +590,17 @@ function GotAnIssue()  {
   #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
+    return
+  fi
+
+  # strip away the package version
+  #
+  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+
+  # short must be a valid atom
+  #
+  if [[ ! -d /usr/portage/$short ]]
+    Mail "warn: \$short=$short isn't valid, \$task=$task, \$failed=$failed" $bak
     return
   fi
 
