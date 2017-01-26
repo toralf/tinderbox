@@ -104,8 +104,11 @@ function GetNextTask() {
       n=$(qlist --installed | wc -l)
       Finish 0 "$n packages emerged, spin up a new image"
 
-    elif [[ -n "$(echo "$task" | cut -c1 | grep -E '(@|%|#)')" ]]; then
-      return  # package set/command/comment
+    elif [[ -z "$(echo "$task" | cut -c1)" = "#" ]]; then
+      continue  # comment
+
+    elif [[ -z "$(echo "$task" | cut -c1 | grep -E '(@|%)')" ]]; then
+      return  # work on a package set/command
 
     else
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
