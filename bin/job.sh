@@ -404,7 +404,7 @@ function SearchForAnAlreadyFiledBug() {
   # use a temp file to dangle around special chars
   #
   cp $issuedir/title $bsi
-  sed -i -e "s/['‘’\"]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' -e 's/[<>&\*\?]/ /g' $bsi
+  sed -i -e "s/['‘’\"\`]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' -e 's/[<>&\*\?]/ /g' -e 's,[()], ,g' $bsi
   # for the file collision case: remove the package version (from the counterpart)
   #
   grep -q "file collision" $bsi
