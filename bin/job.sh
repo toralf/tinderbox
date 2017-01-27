@@ -153,7 +153,7 @@ function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
   local cmd="qlop --nocolor --gauge --human --list --unlist"
 
-  echo << EOF > $ehist
+  cat << EOF > $ehist
 # This file contains the emerge history got with:
 # $cmd
 #
@@ -250,7 +250,7 @@ function AttachFiles()  {
 # the fact that the issue was already fixed in an unstable version
 #
 function AddMetainfoToBody() {
-  cat <<EOF >> $issuedir/body
+  cat << EOF >> $issuedir/body
 
 --
 versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' | xargs)
@@ -690,47 +690,25 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -c1)
     majnew=$(echo $vernew | cut -c1)
 
-    # rebuild kernel and libs after a major version number change
+    # rebuild kernel and tool chain after a major version number change
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # without a rebuild we'd get issues like: "cc1: error: incompatible gcc/plugin versions"
-      #
-      if [[ -e /usr/src/linux/.config ]]; then
-        (cd /usr/src/linux && make clean) &>> $log
-        BuildKernel &>> $log
-        if [[ $? -ne 0 ]]; then
-          Finish 2 "ERROR: kernel can't be rebuild with new gcc $vernew"
-        fi
-      fi
-
-      # works for gcc-5 as well as for gcc-6
-      #
-      local cmd="revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc"
-      $cmd &>> $log
-      if [[ $? -ne 0 ]]; then
-        GotAnIssue
-        echo "%${cmd}" >> $pks
-        Finish 2 "FAILED: $FUNCNAME revdep-rebuild failed"
-      fi
-
-      # should be a no-op nowadays
-      #
-      fix_libtool_files.sh $verold &>> $log
-      if [[ $? -ne 0 ]]; then
-        Finish 2 "FAILED: $FUNCNAME fix_libtool_files.sh $verold failed"
-      fi
-
-      # removce old GCC to double-ensure that packages are build against the new gcc headers/libs
-      #
-      emerge --unmerge =sys-devel/gcc-$verold &>> $log
-      if [[ $? -ne 0 ]]; then
-        Finish 2 "FAILED: $FUNCNAME unmerge of gcc $verold failed"
-      fi
-
       # per request of Soap this is forced with gcc-6
       #
       if [[ $majnew -eq 6 ]]; then
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
+      fi
+
+      cat << EOF >> $pks
+%emerge --unmerge =sys-devel/gcc-$verold
+%fix_libtool_files.sh $verold
+%revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
+EOF
+      # without a *re*build we'd get issues like: "cc1: error: incompatible gcc/plugin versions"
+      #
+      if [[ -e /usr/src/linux/.config ]]; then
+        (cd /usr/src/linux && make clean &> /dev/null)
+        echo "%BuildKernel" >> $pks
       fi
     fi
   fi
