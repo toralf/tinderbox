@@ -7,7 +7,7 @@
 #
 mail-mta/ssmtp            mta ssl
 
-# make a setup of a new tinderbox image less painfull
+# make a setup of a new tinderbox image less painful
 #
 app-crypt/mit-krb5        -pkinit
 app-editors/emacs         -dbus -ssl -X
@@ -21,6 +21,7 @@ media-libs/mesa           -vaapi
 net-dns/libidn            -emacs
 sys-apps/kmod             tools
 sys-libs/ncurses          -gpm
+x11-misc/xdg-utils        -perl
 
 # hang: https://bugs.gentoo.org/show_bug.cgi?id=540818
 #
@@ -41,10 +42,12 @@ app-text/poppler          -qt4
 sys-libs/zlib             minizip
 x11-base/xorg-server      -minimal
 
-#As soon as /etc/profile.d/nix.sh gets installed into system
-#next bash process will create that link and output a message.
+# From slyfox:
 #
-#You can disable profile injection completely with USE=-etc_profile
-#if you plan to build-test nix only. It should only affect profile injection.
+# As soon as /etc/profile.d/nix.sh gets installed into system
+# next bash process will create that link and output a message.
+#
+# You can disable profile injection completely with USE=-etc_profile
+# if you plan to build-test nix only. It should only affect profile injection.
 #
 sys-apps/nix              -etc_profile
