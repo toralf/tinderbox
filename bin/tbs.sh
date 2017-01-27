@@ -308,6 +308,15 @@ EOF
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
   chmod a+rw etc/portage/package.use/setup
 
+  # activate at every n-th image pre-defined USE flag sets too
+  #
+  for f in {ff-and-tb,ffmpeg}
+  do
+    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+      (cd etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.$f $f)
+    fi
+  done
+
   # support special environments for dedicated packages
   #
   cat << EOF > etc/portage/env/splitdebug
