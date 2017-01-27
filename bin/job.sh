@@ -292,7 +292,7 @@ function GuessTitleAndIssue() {
 
   elif [[ -f $sandb ]]; then
     echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
-    retry_with_changed_env=1
+    try_again=1
 
     p="$(grep -m1 ^A: $sandb)"
     echo "$p" | grep -q "A: /root/"
@@ -318,7 +318,7 @@ EOF
   elif [[ -n "$(grep -m 1 ' *   Make check failed. See above for details.' $bak)" ]]; then
     echo "fails with FEATURES=test" > $issuedir/title
     echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
-    retry_with_changed_env=1
+    try_again=1
 
     (cd /var/tmp/portage/$failed/work/* && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests)
 
@@ -352,7 +352,7 @@ EOF
       grep -q "=$failed cxx" /etc/portage/package.env/cxx
       if [[ $? -eq 1 ]]; then
         echo "=$failed cxx" >> /etc/portage/package.env/cxx
-        retry_with_changed_env=1
+        try_again=1
       fi
     fi
   fi
@@ -607,7 +607,7 @@ function GotAnIssue()  {
   CreateIssueDir
   cp $bak $issuedir
 
-  retry_with_changed_env=0
+  try_again=0
   CollectIssueFiles
   CompileIssueMail
 
@@ -633,7 +633,7 @@ function GotAnIssue()  {
 
   # fall back to safe emerge opts and retry the emerge operation
   #
-  if [[ $retry_with_changed_env -eq 1 ]]; then
+  if [[ $try_again -eq 1 ]]; then
     echo "$task" >> $pks
   else
     echo "=$failed" >> /etc/portage/package.mask/self
