@@ -107,8 +107,8 @@ function GetNextTask() {
     elif [[ "$(echo "$task" | cut -c1)" = "#" ]]; then
       continue  # comment
 
-    elif [[ -n "$(echo "$task" | cut -c1 | grep -E '(@|%)')" ]]; then
-      return  # work on a package set/command
+    elif [[ -n "$(echo "$task" | cut -c1 | grep -E '(=|@|%)')" ]]; then
+      return  # work on a package/set/command
 
     else
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
@@ -885,7 +885,7 @@ function EmergeTask() {
     fi
 
   else
-    # just a package
+    # just a package (maybe prefixed with an "=")
     #
     emerge --update $task &> $log
     rc=$?
