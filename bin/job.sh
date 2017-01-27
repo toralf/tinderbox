@@ -527,10 +527,13 @@ EOF
 
 
 # emerge failed for some reason, therefore parse the output
-# return 1 if the upgrade/re-emerge of perl failed
-# return 0 otherwise
 #
 function GotAnIssue()  {
+  # if a Perl upgrade or a special package setting failed
+  # then we might try again $task
+  #
+  try_again=0
+
   # put all successfully emerged dependencies of $task into the world file
   # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482)
   #
@@ -607,7 +610,6 @@ function GotAnIssue()  {
   CreateIssueDir
   cp $bak $issuedir
 
-  try_again=0
   CollectIssueFiles
   CompileIssueMail
 
@@ -628,14 +630,11 @@ function GotAnIssue()  {
     if [[ "$task" != "@system" ]]; then
       Mail "notice: Perl upgrade issue happened for: $task" $log
     fi
-    return 1
+    try_again=1
+    return
   fi
 
-  # fall back to safe emerge opts and retry the emerge operation
-  #
-  if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $pks
-  else
+  if [[ $try_again -eq 0 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
@@ -797,7 +796,9 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $? -eq 0 ]]; then
+      if [[ $try_again -eq 1 ]]; then
+        echo "$task" >> $pks
+      else
         grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
                   -e 'The following mask changes are necessary to proceed:' \
                   -e '* Error: The above package list contains packages which cannot be' \
@@ -818,7 +819,9 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $? -eq 0 ]]; then
+      if [[ $try_again -eq 1 ]]; then
+        echo "$task" >> $pks
+      else
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         else
@@ -850,7 +853,9 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $? -eq 0 ]]; then
+      if [[ $try_again -eq 1 ]]; then
+        echo "$task" >> $pks
+      else
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         fi
@@ -874,8 +879,10 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $? -eq 0 ]]; then
-        # ok, no Perl upgrade issue, but no resume too ?
+      if [[ $try_again -eq 1 ]]; then
+        echo "$task" >> $pks
+      else
+        # jump out except in the "resume + skip first" case
         #
         echo "$cmd" | grep -q -e "--resume --skip-first"
         if [[ $? -eq 1 ]]; then
@@ -893,6 +900,9 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
+      if [[ $try_again -eq 1 ]]; then
+        echo "$task" >> $pks
+      fi
     fi
   fi
 
