@@ -297,7 +297,7 @@ function CompilePackageFiles()  {
 
   echo "$profile" | grep -e "^hardened/"
   if [[ $? -eq 0 ]]; then
-    cat <<EOF >> etc/portage/package.mask/emacs
+    cat << EOF >> etc/portage/package.mask/emacs
 # https://bugs.gentoo.org/show_bug.cgi?id=602992
 #
 app-editors/emacs

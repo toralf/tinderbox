@@ -299,7 +299,7 @@ function GuessTitleAndIssue() {
     if [[ $? -eq 0 ]]; then
       # handle XDG sandbox issues (forced by us) in a special way
       #
-      cat <<EOF > $issuedir/issue
+      cat << EOF > $issuedir/issue
 This issue is forced at the tinderbox by making:
 
 $(grep '^export XDG_' /tmp/job.sh)
