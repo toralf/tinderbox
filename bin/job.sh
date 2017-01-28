@@ -529,11 +529,6 @@ EOF
 # emerge failed for some reason, therefore parse the output
 #
 function GotAnIssue()  {
-  # if a Perl upgrade or a special package setting failed
-  # then we might try again $task
-  #
-  try_again=0
-
   # put all successfully emerged dependencies of $task into the world file
   # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482)
   #
@@ -625,12 +620,14 @@ function GotAnIssue()  {
     tar --dereference -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
     tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     )
+
+    # do not set try_again here b/c we have to clean up first
+    #
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
     if [[ "$task" != "@system" ]]; then
       Mail "notice: Perl upgrade issue happened for: $task" $log
     fi
-    try_again=1
     return
   fi
 
@@ -787,7 +784,8 @@ function PostEmerge() {
 # this is the tinderbox, the rest is just output parsing
 #
 function EmergeTask() {
-  failed=""
+  failed=""       # contains the package
+  try_again=0     # flag to repeat $task
 
   if [[ "$task" = "@preserved-rebuild" ]]; then
     emerge --backtrack=100 $task &> $log
@@ -796,9 +794,7 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $pks
-      else
+      if [[ $try_again -eq 0 ]]; then
         grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
                   -e 'The following mask changes are necessary to proceed:' \
                   -e '* Error: The above package list contains packages which cannot be' \
@@ -819,9 +815,7 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $pks
-      else
+      if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         else
@@ -853,9 +847,7 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $pks
-      else
+      if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         fi
@@ -879,9 +871,7 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $pks
-      else
+      if [[ $try_again -eq 0 ]]; then
         # jump out except in the "resume + skip first" case
         #
         echo "$cmd" | grep -q -e "--resume --skip-first"
@@ -900,10 +890,11 @@ function EmergeTask() {
 
     if [[ $rc -ne 0 ]]; then
       GotAnIssue
-      if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $pks
-      fi
     fi
+  fi
+
+  if [[ $try_again -eq 1 ]]; then
+    echo "$task" >> $pks
   fi
 
   if [[ $rc -eq 0 ]]; then
