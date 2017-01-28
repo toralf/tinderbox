@@ -892,6 +892,8 @@ function WorkOnTask() {
     RunCmd "emerge --update $task"
   fi
 
+  # set in RunCmd()
+  #
   if [[ $rc -eq 0 ]]; then
     rm $bak
   fi
