@@ -529,8 +529,8 @@ EOF
 # emerge failed for some reason, therefore parse the output
 #
 function GotAnIssue()  {
-  # put all successfully emerged dependencies of $task into the world file
-  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482)
+  # keep all successfully emerged dependencies of $task
+  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditinoally in every emerge
   #
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
   echo "$line" | grep -q ':  === ('
@@ -604,7 +604,6 @@ function GotAnIssue()  {
 
   CreateIssueDir
   cp $bak $issuedir
-
   CollectIssueFiles
   CompileIssueMail
 
@@ -621,7 +620,7 @@ function GotAnIssue()  {
     tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     )
 
-    # do not set try_again here b/c we have to clean up first
+    # special wrok flow: do not set $try_again here b/c have to clean up first
     #
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
@@ -637,8 +636,8 @@ function GotAnIssue()  {
 
   # process an issue only once, so if it is in ALREADY_CATCHED
   # then don't care for dups nor spam the inbox
-  # if a package was fixed w/o a revision bump and should be re-tested
-  # then sth. like the following helps:
+  # therefore if a package was fixed w/o a revision bump and should be re-tested
+  # then sth. like the following is needed:
   #
   #   sed -i -e '/sys-fs\/eudev/d' ~/tb/data/ALREADY_CATCHED ~/run/*/etc/portage/package.mask/self ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue}
   #   for i in ~/run/*/tmp/packages; do grep -q -E "^(STOP|INFO|%|@|#)" $i || echo 'sys-fs/eudev' >> $i; done
@@ -712,8 +711,7 @@ EOF
 
 
 # helper of RunCmd()
-# work on follow-ups from the previous emerge operation
-# do just *schedule* needed operations
+# *schedule* needed follow-ups from a previously run emerge
 #
 function PostEmerge() {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -803,8 +801,8 @@ function RunCmd() {
 # this is the heart of the tinderbox, the rest is just output parsing
 #
 function WorkOnTask() {
-  failed=""       # contains the package
-  try_again=0     # flag to repeat $task
+  failed=""       # contains the package atom
+  try_again=0     # flag whether to repeat $task or not
 
   if [[ "$task" = "@preserved-rebuild" ]]; then
     RunCmd "emerge --backtrack=100 $task"
@@ -830,10 +828,9 @@ function WorkOnTask() {
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         else
-          # althought @system failes @world might succeed,
-          # but there's no general need to update @world
-          # b/c new ebuilds are scheduled by insert_pkgs.sh
-          # already
+          # there's no general need to update @world
+          # b/c new ebuilds are scheduled by insert_pkgs.sh already,
+          # but if @system fails then @world might succeed
           #
           echo "@world" >> $pks
         fi
@@ -845,7 +842,7 @@ function WorkOnTask() {
       grep -q '^#ABI_X86=' /etc/portage/make.conf
       if [[ $? -eq 0 ]]; then
         sed -i -e 's/^#ABI_X86=/ABI_X86=/' /etc/portage/make.conf
-        # start with @system then continue with @world
+        # first make @system multi-lib ready then @world
         #
         echo -e "@world\n@system" >> $pks
       fi
@@ -863,7 +860,7 @@ function WorkOnTask() {
         fi
       fi
     else
-      # if @world was ok then run this before any scheduled @preserved-rebuild would be run
+      # if @world was ok then depclean before any scheduled @preserved-rebuild
       #
       echo "%emerge --depclean" >> $pks
     fi
@@ -877,7 +874,7 @@ function WorkOnTask() {
     RunCmd "$(echo "$task" | cut -c2-)"
     if [[ $? -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        # jump out except in a "resume + skip first" case
+        # jump out except for a "resume + skip first" case
         #
         echo "$RunCmd" | grep -q -e "--resume --skip-first"
         if [[ $? -eq 1 ]]; then
