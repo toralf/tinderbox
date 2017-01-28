@@ -3,7 +3,7 @@
 # set -x
 
 # this is the tinderbox script itself
-# main function: EmergeTask()
+# main function: WorkOnTask()
 # the remaining code just parses the output, that's all
 
 # barrier start
@@ -711,7 +711,7 @@ EOF
 }
 
 
-# helper of EmergeTask()
+# helper of RunCmd()
 # work on follow-ups from the previous emerge operation
 # do just *schedule* needed operations
 #
@@ -781,19 +781,34 @@ function PostEmerge() {
 }
 
 
-# this is the tinderbox, the rest is just output parsing
+# helper of WorkOnTask()
 #
-function EmergeTask() {
+function RunCmd() {
+  ($1) &> $log
+  rc=$?
+  PostEmerge
+
+  if [[ $rc -ne 0 ]]; then
+    GotAnIssue
+  fi
+
+  if [[ $try_again -eq 1 ]]; then
+    echo "$task" >> $pks
+  fi
+
+  return $rc
+}
+
+
+# this is the heart of the tinderbox, the rest is just output parsing
+#
+function WorkOnTask() {
   failed=""       # contains the package
   try_again=0     # flag to repeat $task
 
   if [[ "$task" = "@preserved-rebuild" ]]; then
-    emerge --backtrack=100 $task &> $log
-    rc=$?
-    PostEmerge
-
-    if [[ $rc -ne 0 ]]; then
-      GotAnIssue
+    RunCmd "emerge --backtrack=100 $task"
+    if [[ $? -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
                   -e 'The following mask changes are necessary to proceed:' \
@@ -809,31 +824,30 @@ function EmergeTask() {
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.preserved-rebuild
 
   elif [[ "$task" = "@system" ]]; then
-    emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task &> $log
-    rc=$?
-    PostEmerge
-
-    if [[ $rc -ne 0 ]]; then
-      GotAnIssue
+    RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
+    if [[ $? -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         else
-          # there's no need to update @world
+          # althought @system failes @world might succeed,
+          # but there's no general need to update @world
           # b/c new ebuilds are scheduled by insert_pkgs.sh
-          # but if @system failes then @world might succeed
+          # already
           #
           echo "@world" >> $pks
         fi
       fi
 
     else
-      # activate 32/64 bit library (re-)build if not yet done
+      # activate 32/64 bit ABI if not yet done
       #
       grep -q '^#ABI_X86=' /etc/portage/make.conf
       if [[ $? -eq 0 ]]; then
         sed -i -e 's/^#ABI_X86=/ABI_X86=/' /etc/portage/make.conf
-        echo "@system" >> $pks
+        # start with @system then continue with @world
+        #
+        echo -e "@world\n@system" >> $pks
       fi
     fi
 
@@ -841,19 +855,15 @@ function EmergeTask() {
     /usr/bin/pfl &> /dev/null
 
   elif [[ "$task" = "@world" ]]; then
-    emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task &> $log
-    rc=$?
-    PostEmerge
-
-    if [[ $rc -ne 0 ]]; then
-      GotAnIssue
+    RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
+    if [[ $? -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         fi
       fi
     else
-      # if @world is ok then run this before any @preserved-rebuild
+      # if @world was ok then run this before any scheduled @preserved-rebuild would be run
       #
       echo "%emerge --depclean" >> $pks
     fi
@@ -862,39 +872,24 @@ function EmergeTask() {
     /usr/bin/pfl &> /dev/null
 
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
-    #  a command line, prefixed with an '%'
+    #  a command: prefixed with a '%'
     #
-    local cmd=$(echo "$task" | cut -c2-)
-    ($cmd) &> $log
-    rc=$?
-    PostEmerge
-
-    if [[ $rc -ne 0 ]]; then
-      GotAnIssue
+    RunCmd "$(echo "$task" | cut -c2-)"
+    if [[ $? -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        # jump out except in the "resume + skip first" case
+        # jump out except in a "resume + skip first" case
         #
-        echo "$cmd" | grep -q -e "--resume --skip-first"
+        echo "$RunCmd" | grep -q -e "--resume --skip-first"
         if [[ $? -eq 1 ]]; then
-          Finish 2 "cmd '$cmd' failed"
+          Finish 2 "command '$RunCmd' failed"
         fi
       fi
     fi
 
   else
-    # just a package (maybe prefixed with an "=")
+    # just a package (optional prefixed with an "=")
     #
-    emerge --update $task &> $log
-    rc=$?
-    PostEmerge
-
-    if [[ $rc -ne 0 ]]; then
-      GotAnIssue
-    fi
-  fi
-
-  if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $pks
+    RunCmd "emerge --update $task"
   fi
 
   if [[ $rc -eq 0 ]]; then
@@ -1012,7 +1007,7 @@ export XDG_DATA_HOME="/root/share"
 
 while :;
 do
-  # restart ourself if origin was edited
+  # restart this script if its origin was changed
   #
   diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
   rc=$?
@@ -1026,33 +1021,23 @@ do
   #
   pre-check
 
-  # this is the preferred exit of this loop (except empty package list)
-  #
   if [[ -f /tmp/STOP ]]; then
-    Finish 0 "catched stop signal"
+    Finish 0 "catched STOP"
   fi
 
-  date > $log
-
   # clean up from a previous emerge operation
-  # this isn't made by portage b/c we had to collect relevant build and log files first
+  # (not made by portage to collect relevant build and log files first)
   #
   rm -rf /var/tmp/portage/*
 
-  # 2 other regular exit variants of this loop: package list is empty or contains a STOP line
+  # process only elog files created after this timestamp
   #
-  GetNextTask
-
   touch /tmp/timestamp.qa
 
-  # the heart of the tinderbox
-  #
-  EmergeTask
-
-  # use the timestamp above to process newly created elog files
-  #
+  date > $log
+  GetNextTask
+  WorkOnTask
   ParseElogForQA
-
 done
 
 # barrier end (see start of this file too)
