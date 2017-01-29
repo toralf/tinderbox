@@ -235,8 +235,8 @@ EOF
 }
 
 
-# attach content of the given files onto the email body using the old-school uuencode
-# (unfortuantely not MIME compliant)
+# attach content of the given files onto the email body
+# (unfortunately not MIME compliant)
 #
 function AttachFiles()  {
   for f in $*
@@ -246,8 +246,10 @@ function AttachFiles()  {
 }
 
 
-# this info helps to decide to file a bug for a stable package despite
-# the fact that the issue was already fixed in an unstable version
+# this info helps to decide
+# whether to file a bug for a stable package
+# despite the fact that the issue was already fixed in an unstable version
+# or not
 #
 function AddMetainfoToBody() {
   cat << EOF >> $issuedir/body
@@ -271,7 +273,7 @@ function CreateIssueDir() {
 }
 
 
-# try to find a descriptive title and the most meaningful lines of the issue
+# get an descriptive title from the most meaningful lines of the issue
 #
 function GuessTitleAndIssue() {
   touch $issuedir/{issue,title}
@@ -359,7 +361,7 @@ EOF
 }
 
 
-# guess from the title if there's a bug tracker for this issue
+# guess from the title if there's an appropriate bug tracker
 # the BLOCKER file must follow this syntax:
 #
 #   # comment
@@ -526,6 +528,30 @@ EOF
 }
 
 
+# guess the failed package and its log file name
+#
+function GetFailed()  {
+  failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
+  if [[ -z "$failedlog" ]]; then
+    failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
+    if [[ -z "$failedlog" ]]; then
+      failedlog=$(grep -m 1 "^>>>  '" $bak | cut -f2 -d"'")
+    fi
+  fi
+
+  if [[ -n "$failedlog" ]]; then
+    failed=$(basename $failedlog | cut -f1-2 -d':' | tr ':' '/')
+  else
+    failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
+    if [[ -n "$failed" ]]; then
+      failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+    else
+      failed=$(grep -m1 -F ' * Package:    ' | awk ' { print $3 } ' $bak)
+    fi
+  fi
+}
+
+
 # emerge failed for some reason, therefore parse the output
 #
 function GotAnIssue()  {
@@ -556,33 +582,14 @@ function GotAnIssue()  {
     return
   fi
 
-  # ignore certain issues & do not mask those packages
+  # ignore certain issues & don't mask affected packages
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
     return
   fi
 
-  # guess the failed package and its log file name
-  #
-  failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
-  if [[ -z "$failedlog" ]]; then
-    failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
-    if [[ -z "$failedlog" ]]; then
-      failedlog=$(grep -m 1 "^>>>  '" $bak | cut -f2 -d"'")
-    fi
-  fi
-
-  if [[ -n "$failedlog" ]]; then
-    failed=$(basename $failedlog | cut -f1-2 -d':' | tr ':' '/')
-  else
-    failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
-    if [[ -n "$failed" ]]; then
-      failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
-    else
-      failed=$(grep -m1 -F ' * Package:    ' | awk ' { print $3 } ' $bak)
-    fi
-  fi
+  GetFailed
 
   # after this point we must have a failed package name
   #
