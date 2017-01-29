@@ -7,7 +7,7 @@
 
 # all active images + all running images
 #
-function __for_all_images() {
+function list_images() {
   (
     cd ~;
     ls -1d run/* | xargs -n1 readlink | cut -f2- -d'/'
@@ -27,7 +27,7 @@ function Overall() {
   echo "emerged days    backlog rate"
   se=0; sre=0; srp=0
 
-  __for_all_images ~/run |\
+  list_images |\
   while read i
   do
     log=$i/var/log/emerge.log
@@ -50,7 +50,7 @@ function Overall() {
 # 13.0-unstable_20170109-235418                     13:53:24 *** www-apps/chromedriver-bin
 #
 function LastEmergeOperation()  {
-  __for_all_images |\
+  list_images |\
   while read i
   do
     printf "%s\r\t\t\t\t\t\t  " $(basename $i)
@@ -74,7 +74,7 @@ function LastEmergeOperation()  {
 # 13.0-unstable_20170109-235418                      14  896 1029  813  551  438  618  625  416  304
 #
 function PackagesPerDay() {
-  __for_all_images ~/run |\
+  list_images |\
   while read i
   do
     printf "%s\r\t\t\t\t\t\t" $(basename $i)
