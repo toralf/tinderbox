@@ -5,7 +5,7 @@
 # quick & dirty stats
 #
 
-# all active images + all running images
+# all active | running images
 #
 function list_images() {
   (
@@ -27,8 +27,7 @@ function Overall() {
   echo "emerged days    backlog rate"
   se=0; sre=0; srp=0
 
-  list_images |\
-  while read i
+  for i in $images
   do
     log=$i/var/log/emerge.log
     e=$(qlop -lC -f $log | wc -l)
@@ -50,8 +49,7 @@ function Overall() {
 # 13.0-unstable_20170109-235418                     13:53:24 *** www-apps/chromedriver-bin
 #
 function LastEmergeOperation()  {
-  list_images |\
-  while read i
+  for i in $images
   do
     printf "%s\r\t\t\t\t\t\t  " $(basename $i)
     tac ~/$i/var/log/emerge.log |\
@@ -74,8 +72,7 @@ function LastEmergeOperation()  {
 # 13.0-unstable_20170109-235418                      14  896 1029  813  551  438  618  625  416  304
 #
 function PackagesPerDay() {
-  list_images |\
-  while read i
+  for i in $images
   do
     printf "%s\r\t\t\t\t\t\t" $(basename $i)
     qlop -lC -f $i/var/log/emerge.log |\
@@ -108,6 +105,8 @@ function PackagesPerDay() {
 
 #######################################################################
 #
+images=$(list_images)
+
 while getopts lop opt
 do
   echo
