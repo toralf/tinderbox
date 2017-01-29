@@ -530,7 +530,7 @@ EOF
 #
 function GotAnIssue()  {
   # keep all successfully emerged dependencies of $task
-  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditinoally in every emerge
+  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally in every emerge
   #
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
   echo "$line" | grep -q ':  === ('
