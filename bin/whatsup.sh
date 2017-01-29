@@ -5,17 +5,14 @@
 # quick & dirty stats
 #
 
-# either a directory name or take all mounted "img<X>" directories
+# all active images + all running images
 #
 function __for_all_images() {
-  if [[ -d $1 ]]; then
-    ls -1d $1/*
-
-  else
-    df -h |\
-    grep 'img./' |\
-    cut -f4-5 -d'/'
-  fi
+  (
+    cd ~;
+    ls -1d run/* | xargs -n1 readlink | cut -f2- -d'/'
+    df -h | grep 'img./' | cut -f4-5 -d'/'
+  ) | sort -u
 }
 
 
@@ -109,6 +106,8 @@ function PackagesPerDay() {
 }
 
 
+#######################################################################
+#
 while getopts lop opt
 do
   echo
