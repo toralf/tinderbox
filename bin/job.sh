@@ -878,14 +878,15 @@ function WorkOnTask() {
   elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
     #  a command: prefixed with a '%'
     #
-    RunCmd "$(echo "$task" | cut -c2-)"
+    cmd="$(echo "$task" | cut -c2-)"
+    RunCmd "$cmd"
     if [[ $? -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         # jump out except for a "resume + skip first" case
         #
         echo "$RunCmd" | grep -q -e "--resume --skip-first"
         if [[ $? -eq 1 ]]; then
-          Finish 2 "command '$RunCmd' failed"
+          Finish 2 "command '$cmd' failed"
         fi
       fi
     fi
