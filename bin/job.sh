@@ -643,7 +643,7 @@ function GotAnIssue()  {
     tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     )
 
-    # special wrok flow: do not set $try_again here b/c have to clean up first
+    # special work flow: do not set $try_again here b/c have to clean up first
     #
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
@@ -772,14 +772,14 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $pks
   fi
 
-  # use ionice to lower the impact if many images at the same side would upgrade perl
+  # run this unconditionally for a Perl upgrade
   #
   grep -q ">>> Installing .* dev-lang/perl-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%ionice -c 3 perl-cleaner --all" >> $pks
+    echo "%perl-cleaner --all" >> $pks
   fi
 
-  # setting pax permissions shoudld be made asap
+  # set PAX permissions asap
   #
   grep -q 'Please run "revdep-pax" after installation.' $bak
   if [[ $? -eq 0 ]]; then
