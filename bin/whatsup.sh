@@ -25,19 +25,17 @@ function list_images() {
 #
 function Overall() {
   echo "emerged days    backlog rate"
-  se=0; sre=0; srp=0
-
   for i in $images
   do
     log=$i/var/log/emerge.log
-    e=$(qlop -lC -f $log | wc -l)
-    d=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
-    p=$(wc -l < $i/tmp/packages)
-    rp=$(echo "(19000 - $p) / $d" | bc 2>/dev/null)
-    if [[ $rp -le 0 || $rp -gt 3000 ]]; then
-      rp='-'
+    emerged=$(qlop -lC -f $log | wc -l)
+    days=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
+    backlog=$(wc -l < $i/tmp/packages)
+    rate=$(echo "(19000 - $backlog) / $days" | bc 2>/dev/null)
+    if [[ $rate -le 0 || $rate -gt 3000 ]]; then
+      rate='-'
     fi
-    echo -e "$e\t$d\t$p\t$rp\t$(basename $i)"
+    echo -e "$emerged\t$days\t$backlog\t$rate\t$(basename $i)"
   done
 }
 
