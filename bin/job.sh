@@ -549,6 +549,14 @@ function GetFailed()  {
       failed=$(grep -m1 -F ' * Package:    ' | awk ' { print $3 } ' $bak)
     fi
   fi
+
+  # strip away the package version must work
+  #
+  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+  if [[ ! -d /usr/portage/$short ]]; then
+    Mail "warn: \$short=$short isn't valid, \$task=$task, \$failed=$failed" $bak
+    failed=""
+  fi
 }
 
 
@@ -614,14 +622,6 @@ function GotAnIssue()  {
   #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
-    return
-  fi
-
-  # strip away the package version
-  #
-  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
-  if [[ ! -d /usr/portage/$short ]]; then
-    Mail "warn: \$short=$short isn't valid, \$task=$task, \$failed=$failed" $bak
     return
   fi
 
