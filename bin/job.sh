@@ -552,6 +552,25 @@ function GetFailed()  {
 }
 
 
+# process an issue only once
+# if it is in ALREADY_CATCHED then don't care for dups nor spam the inbox
+# therefore if a package was fixed w/o a revision bump and should be re-tested
+# then sth. like the following is needed:
+#
+#   sed -i -e '/sys-fs\/eudev/d' ~/tb/data/ALREADY_CATCHED ~/run/*/etc/portage/package.mask/self ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue}
+#   for i in ~/run/*/tmp/packages; do grep -q -E "^(STOP|INFO|%|@|#)" $i || echo 'sys-fs/eudev' >> $i; done
+#
+function ReportIssue()  {
+  grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
+  if [[ $? -eq 1 ]]; then
+    cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
+    if [[ "$bug_report_exists" = "n" ]]; then
+      Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+    fi
+  fi
+}
+
+
 # emerge failed for some reason, therefore parse the output
 #
 function GotAnIssue()  {
@@ -601,9 +620,6 @@ function GotAnIssue()  {
   # strip away the package version
   #
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
-
-  # short must be a valid atom
-  #
   if [[ ! -d /usr/portage/$short ]]; then
     Mail "warn: \$short=$short isn't valid, \$task=$task, \$failed=$failed" $bak
     return
@@ -641,21 +657,7 @@ function GotAnIssue()  {
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
-  # process an issue only once, so if it is in ALREADY_CATCHED
-  # then don't care for dups nor spam the inbox
-  # therefore if a package was fixed w/o a revision bump and should be re-tested
-  # then sth. like the following is needed:
-  #
-  #   sed -i -e '/sys-fs\/eudev/d' ~/tb/data/ALREADY_CATCHED ~/run/*/etc/portage/package.mask/self ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue}
-  #   for i in ~/run/*/tmp/packages; do grep -q -E "^(STOP|INFO|%|@|#)" $i || echo 'sys-fs/eudev' >> $i; done
-  #
-  grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
-  if [[ $? -eq 1 ]]; then
-    cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    if [[ "$bug_report_exists" = "n" ]]; then
-      Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
-    fi
-  fi
+  ReportIssue
 }
 
 
