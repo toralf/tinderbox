@@ -33,8 +33,8 @@ function Finish()  {
   shift
   subject=$(echo "$*" | cut -c1-200 | tr '\n' ' ' | stresc)
 
-  /usr/bin/pfl 1>/dev/null
-  eix-update -q
+  /usr/bin/pfl &> /dev/null
+  eix-update -q &> /dev/null
   Mail "FINISHED: $subject" $log
 
   rm -f /tmp/STOP
