@@ -59,7 +59,7 @@ Bugs can be filed using *bgo.sh*.
 ###manually bug hunting within an image
 1. stop an image
 2. chroot into it
-    
+
     sudo ~/tb/bin/chr.sh <image name>
 3. inspect/adapt files in */etc/portage/packages.*
 4. do your work
@@ -67,15 +67,15 @@ Bugs can be filed using *bgo.sh*.
 
 ###test a (long runnning) package
 Append the package list in the following way:
-
+    
     cat <<<EOF >> <image name>/tmp/packages
-STOP this text is displayed as the subject of an email
-package1
-package2
-%action1
-package3
-...
-EOF
+    STOP this text is displayed as the subject of an email
+    package1
+    package2
+    %action1
+    package3
+    ...
+    EOF
 
 Use "STOP" instead "INFO" to not further process teh package list.
 
