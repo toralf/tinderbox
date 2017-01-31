@@ -1,26 +1,6 @@
 # tinderbox
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
-## installation
-Create the user *tinderbox*
-
-    useradd -m tinderbox
-Create few tinderbox and one or more big directories to hold the chroot images, preferred namespace : ~/img*X*, eg. run in its home directory */home/tinderbox*
-    
-    mkdir ~/img{1,2} ~/logs ~/run ~/tb
-Copy *./bin*, *./data* and *./sdata* into *~/tb*.
-Edit the files in *~/sdata* and strip away the suffix *.sample*.
-Grant to the user these sudo rights:
-    
-    tinderbox ALL=(ALL) NOPASSWD: /home/tinderbox/tb/bin/chr.sh,/home/tinderbox/tb/bin/tbs.sh,/usr/bin/chroot
-
-At a hardened host these tweaks of *Grsecurity* are needed: 
-
-    sysctl -w kernel.grsecurity.chroot_deny_chmod=0
-    sysctl -w kernel.grsecurity.chroot_caps=0
-    sysctl -w kernel.grsecurity.chroot_deny_mount=0
-    sysctl -w kernel.grsecurity.tpe=0
-
 ## usage
 ###setup of a new image
 The setup of a new image is made by *tbs.sh* (*at* from *sys-process/at* schedules a command for later, catches the output and email it to the user)
@@ -80,6 +60,26 @@ Append the package list in the following way:
     EOF
 
 Use "STOP" instead "INFO" to stop the image afterwards.
+
+## installation
+Create the user *tinderbox*
+
+    useradd -m tinderbox
+Create few tinderbox and one or more big directories to hold the chroot images, preferred namespace : ~/img*X*, eg. run in its home directory */home/tinderbox*
+
+    mkdir ~/img{1,2} ~/logs ~/run ~/tb
+Copy *./bin*, *./data* and *./sdata* into *~/tb*.
+Edit the files in *~/sdata* and strip away the suffix *.sample*.
+Grant to the user these sudo rights:
+
+    tinderbox ALL=(ALL) NOPASSWD: /home/tinderbox/tb/bin/chr.sh,/home/tinderbox/tb/bin/tbs.sh,/usr/bin/chroot
+
+At a hardened host these tweaks of *Grsecurity* are needed:
+
+    sysctl -w kernel.grsecurity.chroot_deny_chmod=0
+    sysctl -w kernel.grsecurity.chroot_caps=0
+    sysctl -w kernel.grsecurity.chroot_deny_mount=0
+    sysctl -w kernel.grsecurity.tpe=0
 
 ## more info
 https://www.zwiebeltoralf.de/tinderbox.html
