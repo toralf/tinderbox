@@ -34,7 +34,7 @@ function Overall() {
     days=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
     backlog=$(wc -l < $i/tmp/packages)
     rate=$(echo "(19000 - $backlog) / $days" | bc 2>/dev/null)
-    if [[ $rate -le 0 || $rate -gt 3000 ]]; then
+    if [[ $rate -le 0 || $rate -gt 1500 ]]; then
       rate='-'
     fi
     if [[ -e ~/run/$(basename $i) ]]; then
