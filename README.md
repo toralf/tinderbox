@@ -43,6 +43,8 @@ The wrapper *runme.sh* uses *chr.sh* to handle all chroot related actions and ca
 The file */tmp/LOCK* is created to avoid 2 parallel starts.
 Without an image name all symlinks in *~/run* are processed.
 
+###stop of an image
+
     ~/tb/bin/stop_img.sh <image name>
 
 A marker (*/tmp/STOP*) is made in that image.
