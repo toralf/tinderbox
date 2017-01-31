@@ -77,7 +77,7 @@ Append the package list in the following way:
     ...
     EOF
 
-Use "STOP" instead "INFO" to not further process teh package list.
+Use "STOP" instead "INFO" to stop the image afterwards.
 
 ## more info
 https://www.zwiebeltoralf.de/tinderbox.html
