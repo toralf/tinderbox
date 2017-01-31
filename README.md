@@ -30,6 +30,12 @@ Without an image name all symlinks in *~/run* are processed.
 A marker (*/tmp/STOP*) is made in that image.
 The current emerge operation will be finished before *job.sh* exits and */tmp/LOCK* is removed.
 
+###chroot into an image
+    
+    sudo chr.sh <image name>
+
+Works only if the image is not started.
+
 ###removal of an image
 Just remove the symlink in *~/run* and the log file in *~/logs*.
 The chroot image itself will be kept around until the data dir is overwritten.
@@ -44,10 +50,7 @@ Bugs can be filed using *bgo.sh*.
 
 ###manually bug hunting within an image
 1. stop an image
-2. "login" into it:
-
-    sudo chr.sh <image name>
-
+2. chroot into it
 3. inspect/adapt files in */etc/portage/packages.*
 4. do your work
 5. exit
