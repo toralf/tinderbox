@@ -2,7 +2,7 @@
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
 ## usage
-###setup of a new image
+###create of a new image
 The setup of a new image is made by *tbs.sh* (*at* from *sys-process/at* schedules a command for later, catches the output and email it to the user)
     
     (cd ~/img2; echo "sudo ~/tb/bin/tbs.sh" | at now + 0 min)
@@ -13,7 +13,7 @@ Mandatory portage config files will be compiled.
 Few required packages (*ssmtp*, *pybugz* etc.) are installed.
 The package list */tmp/packages* is created from all visible packages.
 The upgrade of GCC and the switch to libressl - if applicable - are scheduled as the first tasks.
-A symlink is made into *~/run*.
+A symlink is made into *~/run* and the image is started.
 
 ###start of an image
     
@@ -45,18 +45,18 @@ The chroot image itself will be kept around until the data dir is overwritten.
     whatsup.sh -o -l -p
 
 ###reported findings
-All findings are reported email to the user specified in the variable *mailto*.
+New findings are reported via email to the user specified in the variable of each *mailto*.
 Bugs can be filed using *bgo.sh*.
 
 ###manually bug hunting within an image
-1. stop an image
+1. stop image if running (or another to not run more than 10 chroots in parallel)
 2. chroot into it
 3. inspect/adapt files in */etc/portage/packages.*
 4. do your work
 5. exit
-6. start the image (if stopped before)
+6. start the stopped image
 
-###test a (long runnning) package
+###unattended test of a package/s
 Append the package list in the following way:
     
     cat <<<EOF >> <image name>/tmp/packages
