@@ -18,18 +18,19 @@ function list_images() {
 
 # gives sth. like:
 #
-# emerged days    backlog rate  ~/run  locked
-# 5464    8.4     14166   575     yes     yes     13.0-no-multilib-libressl-unstable_20170122-225602
-# 908     .9      18929   78      yes     yes     13.0-systemd-libressl-unstable_20170130-102323
-# 5417    8.0     15367   454     yes     yes     13.0-unstable_20170123-090431
-# 6573    9.7     10469   879     yes     yes     desktop-stable_20170121-152726
+# emerged failed  days    backlog rate    ~/run   locked
+# 5567    91      8.6     14005   580     yes     yes     13.0-no-multilib-libressl-unstable_20170122-225602
+# 1286    13      1.2     18641   299     yes     yes     13.0-systemd-libressl-unstable_20170130-102323
+# 5537    75      8.2     15200   463     yes     yes     13.0-unstable_20170123-090431
+# 6711    75      10.0    10090   891     yes     yes     desktop-stable_20170121-152726
 #
 function Overall() {
-  echo "emerged days    backlog rate  ~/run  locked"
+  echo "emerged failed  days    backlog rate    ~/run   locked"
   for i in $images
   do
     log=$i/var/log/emerge.log
     emerged=$(qlop -lC -f $log | wc -l)
+    failed=$(ls -1d $i/tmp/issues/* | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
     days=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
     backlog=$(wc -l < $i/tmp/packages)
     rate=$(echo "(19000 - $backlog) / $days" | bc 2>/dev/null)
@@ -39,15 +40,15 @@ function Overall() {
     if [[ -e ~/run/$(basename $i) ]]; then
       run="yes"
     else
-      run=" no"
+      run=""
     fi
     if [[ -f ~/$i/tmp/LOCK ]]; then
       lock="yes"
     else
-      lock=" no"
+      lock=""
     fi
 
-    echo -e "$emerged\t$days\t$backlog\t$rate\t$run\t$lock\t$(basename $i)"
+    echo -e "$emerged\t$failed\t$days\t$backlog\t$rate\t$run\t$lock\t$(basename $i)"
   done
 }
 
