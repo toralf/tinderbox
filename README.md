@@ -66,7 +66,7 @@ Bugs can be filed using *bgo.sh*.
 5. exit and start the image
 
 ###test a (long runnning) package
-1. append the package list in the following way:
+Append the package list in the following way:
     cat <<<EOF >> <image name>/tmp/packages
 STOP this text is displayed as the subject of an email
 package1
