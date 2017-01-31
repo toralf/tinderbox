@@ -17,7 +17,7 @@ A symlink is made into *~/run*.
 
 ###start of an image
     
-    ~/tb/bin/start_img.sh <image name>
+    start_img.sh <image name>
 
 The wrapper *runme.sh* uses *chr.sh* to handle all chroot related actions and calls the tinderbox script *job.sh* itself.
 The file */tmp/LOCK* is created to avoid 2 parallel starts.
@@ -25,7 +25,7 @@ Without an image name all symlinks in *~/run* are processed.
 
 ###stop of an image
 
-    ~/tb/bin/stop_img.sh <image name>
+    stop_img.sh <image name>
 
 A marker (*/tmp/STOP*) is made in that image.
 The current emerge operation will be finished before *job.sh* exits and */tmp/LOCK* is removed.
@@ -33,6 +33,10 @@ The current emerge operation will be finished before *job.sh* exits and */tmp/LO
 ###removal of an image
 Just remove the symlink in *~/run* and the log file in *~/logs*.
 The chroot image itself will be kept around until the data dir is overwritten.
+
+###status
+
+    whatsup.sh -olp
 
 ###reported findings
 All findings are reported email to the user specified in the variable *mailto*.
@@ -42,7 +46,7 @@ Bugs can be filed using *bgo.sh*.
 1. stop an image
 2. chroot into it
 
-    sudo ~/tb/bin/chr.sh <image name>
+    sudo chr.sh <image name>
 3. inspect/adapt files in */etc/portage/packages.*
 4. do your work
 5. exit and start the image
