@@ -39,29 +39,44 @@ A symlink is made into *~/run*.
     
     ~/tb/bin/start_img.sh <image name>
 
+The wrapper *runme.sh* uses *chr.sh* to handle all chroot related actions and calls the tinderbox script *job.sh* itself.
+The file */tmp/LOCK* is created to avoid 2 parallel starts.
 Without an image name all symlinks in *~/run* are processed.
-The wrapper *runme.sh* calls the tinderbox script *job.sh* itself.
-It basically parses the output of *cat /tmp/packages | xargs -n 1 emerge -u*.
-It uses *chr.sh* to handle the chroot related actions.
 
-###retry a package fixed without revision bump
-
-    sed -i -e '/sys-fs\/eudev/d' ~/tb/data/ALREADY_CATCHED ~/run/*/etc/portage/package.mask/self ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue}
-    for i in ~/run/*/tmp/packages; do grep -q -E "^(STOP|INFO|%|@|#)" $i || echo 'sys-fs/eudev' >> $i; done
-###stop of an image
-    
     ~/tb/bin/stop_img.sh <image name>
 
 A marker (*/tmp/STOP*) is made in that image.
-The current emerge operation will be finished before *job.sh* exits.
+The current emerge operation will be finished before *job.sh* exits and */tmp/LOCK* is removed.
 
 ###removal of an image
-Just remove the symlink in *~/run*.
-The chroot image itself might be kept around as long as it is needed.
+Just remove the symlink in *~/run* and the log file in *~/logs*.
+The chroot image itself will be kept around until the data dir is overwritten.
 
 ###reported findings
 All findings are reported email to the user specified in the variable *mailto*.
 Bugs can be filed using *bgo.sh*.
+
+###manually bug hunting within an image
+1. stop an image
+2. chroot into it
+    
+    sudo ~/tb/bin/chr.sh <image name>
+3. inspect/adapt files in */etc/portage/packages.*
+4. do your work
+5. exit and start the image
+
+###test a (long runnning) package
+1. append the package list in the following way:
+    cat <<<EOF >> <image name>/tmp/packages
+STOP this text is displayed as the subject of an email
+package1
+package2
+%action1
+package3
+...
+EOF
+
+Use "STOP" instead "INFO" to not further process teh package list.
 
 ## more info
 https://www.zwiebeltoralf.de/tinderbox.html
