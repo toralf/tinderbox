@@ -36,7 +36,7 @@ The chroot image itself will be kept around until the data dir is overwritten.
 
 ###status
 
-    whatsup.sh -olp
+    whatsup.sh -o -l -p
 
 ###reported findings
 All findings are reported email to the user specified in the variable *mailto*.
