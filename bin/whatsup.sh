@@ -18,13 +18,14 @@ function list_images() {
 
 # gives sth. like:
 #
-# emerged days    backlog rate
-# 5953    8.1     12905   752     13.0-libressl-unstable_20170110-100022
-# 5259    7.1     14913   575     13.0-systemd-unstable_20170111-105830
-# 5704    8.5     14096   576     13.0-unstable_20170109-235418
+# emerged days    backlog rate  ~/run  locked
+# 5464    8.4     14166   575     yes     yes     13.0-no-multilib-libressl-unstable_20170122-225602
+# 908     .9      18929   78      yes     yes     13.0-systemd-libressl-unstable_20170130-102323
+# 5417    8.0     15367   454     yes     yes     13.0-unstable_20170123-090431
+# 6573    9.7     10469   879     yes     yes     desktop-stable_20170121-152726
 #
 function Overall() {
-  echo "emerged days    backlog rate"
+  echo "emerged days    backlog rate  ~/run  locked"
   for i in $images
   do
     log=$i/var/log/emerge.log
@@ -35,7 +36,18 @@ function Overall() {
     if [[ $rate -le 0 || $rate -gt 3000 ]]; then
       rate='-'
     fi
-    echo -e "$emerged\t$days\t$backlog\t$rate\t$(basename $i)"
+    if [[ -e ~/run/$(basename $i) ]]; then
+      run="yes"
+    else
+      run=" no"
+    fi
+    if [[ -f ~/$i/tmp/LOCK ]]; then
+      lock="yes"
+    else
+      lock=" no"
+    fi
+
+    echo -e "$emerged\t$days\t$backlog\t$rate\t$run\t$lock\t$(basename $i)"
   done
 }
 
