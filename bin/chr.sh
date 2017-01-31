@@ -44,7 +44,7 @@ function umountall()  {
 
   umount    $mnt/tmp/tb                       || rc=$?
   umount    $mnt/usr/portage                  || rc=$?
-  umount    $mnt/var/tmp/{distfiles,portage}  || rc=$?
+  umount -l $mnt/var/tmp/{distfiles,portage}  || rc=$?
 
   return $rc
 }
