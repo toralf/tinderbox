@@ -886,7 +886,7 @@ function WorkOnTask() {
       if [[ $try_again -eq 0 ]]; then
         # jump out except for a "resume + skip first" case
         #
-        echo "$RunCmd" | grep -q -e "--resume --skip-first"
+        echo "$cmd" | grep -q -e "--resume --skip-first"
         if [[ $? -eq 1 ]]; then
           Finish 2 "command '$cmd' failed"
         fi
