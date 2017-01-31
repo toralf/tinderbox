@@ -32,9 +32,9 @@ The current emerge operation will be finished before *job.sh* exits and */tmp/LO
 
 ###chroot into an image
     
-    sudo chr.sh <image name>
+    sudo nice chr.sh <image name>
 
-Works only if the image is not started.
+Works only if the image is not started - and be nice to the main task the host is used for.
 
 ###removal of an image
 Just remove the symlink in *~/run* and the log file in *~/logs*.
