@@ -1044,11 +1044,11 @@ do
   touch /tmp/timestamp.qa
 
   date > $log
-  truncate -s0 /tmp/task
   GetNextTask
   echo "$task" > /tmp/task
   WorkOnTask
   ParseElogForQA
+  rm /tmp/task
 done
 
 # barrier end (see start of this file too)
