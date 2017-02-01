@@ -71,8 +71,7 @@ function LastEmergeOperation()  {
       my @t = split (/\s+/, scalar localtime ($F[0]));
       print join (" ", $t[3], @F[1,3..$#F]), "\n";
     '
-  done |\
-  sort
+  done
 }
 
 
@@ -152,5 +151,6 @@ do
         exit 0
         ;;
   esac
-  echo
 done
+
+echo
