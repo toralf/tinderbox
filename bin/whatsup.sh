@@ -129,7 +129,7 @@ function CurrentTask()  {
       seconds=$(echo "$delta % 60" | bc)
       minutes=$(echo "$delta / 60 % 60" | bc)
       hours=$(echo "$delta / 60 / 60" | bc)
-      printf "  %02i:%02i:%02i   " $hours $minutes $seconds
+      printf "  %2i:%2i:%02i hrs  " $hours $minutes $seconds
       cat $i/tmp/task
     else
       echo
