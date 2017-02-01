@@ -1035,7 +1035,7 @@ do
   fi
 
   # clean up from a previous emerge operation
-  # (not made by portage to collect relevant build and log files first)
+  # (cannot be made by portage b/c relevant build files have to be saved before)
   #
   rm -rf /var/tmp/portage/*
 
@@ -1045,6 +1045,7 @@ do
 
   date > $log
   GetNextTask
+  echo "$(date | cut -c5-19)  $task" > /tmp/task
   WorkOnTask
   ParseElogForQA
 done
