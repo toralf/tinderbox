@@ -135,7 +135,7 @@ images=$(list_images)
 echo
 echo "$(echo $images | wc -w) images ($(ls ~/img? | wc -w) at all) :"
 
-while getopts lopt opt
+while getopts hlopt\? opt
 do
   echo
   case $opt in
@@ -147,7 +147,8 @@ do
         ;;
     t)  CurrentTask
         ;;
-    *)  echo "call: $(basename $0) [-o] [-l] [-p] [t]"
+    *)  echo "call: $(basename $0) [-o] [-l] [-p] [-t]"
+        echo
         exit 0
         ;;
   esac
