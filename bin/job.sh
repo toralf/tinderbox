@@ -944,7 +944,7 @@ function pre-check() {
 # here we catch certain QA issues
 #
 function ParseElogForQA() {
-  find /var/log/portage/elog -name '*.log' -newer /tmp/timestamp.qa |\
+  find /var/log/portage/elog -name '*.log' $( [[ -f /tmp/timestamp.qa ]] && echo "-newer /tmp/timestamp.qa" ) |\
   while read i
   do
     #  (runtime-paths) - [TRACKER] Ebuild that install into paths that should be created at runtime
@@ -973,6 +973,10 @@ function ParseElogForQA() {
       Mail "${id:-QA} $failed : $reason" $issuedir/body
     fi
   done
+
+  # process next time only elog files created after this timestamp
+  #
+  touch /tmp/timestamp.qa
 }
 
 
@@ -1038,10 +1042,6 @@ do
   # (cannot be made by portage b/c relevant build files have to be saved before)
   #
   rm -rf /var/tmp/portage/*
-
-  # process only elog files created after this timestamp
-  #
-  touch /tmp/timestamp.qa
 
   date > $log
   GetNextTask
