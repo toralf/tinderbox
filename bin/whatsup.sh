@@ -123,8 +123,16 @@ function PackagesPerDay() {
 function CurrentTask()  {
   for i in $images
   do
-    printf "%s\r\t\t\t\t\t\t  " $(basename $i)
-    cat $i/tmp/task 2>/dev/null || echo
+    if [[ -f $i/tmp/task ]]; then
+      delta=$(echo "$(date +%s) - $(date +%s -r $i/tmp/task)" | bc)
+      seconds=$(echo "$delta % 60" | bc)
+      minutes=$(echo "$delta / 60 % 60" | bc)
+      hours=$(echo "$delta / 60 / 60" | bc)
+      printf "%s\r\t\t\t\t\t\t  %02i:%02i:%02i   " $(basename $i) $hours $minutes $seconds
+      cat $i/tmp/task
+    else
+      echo
+    fi
   done
 }
 
