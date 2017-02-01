@@ -9,7 +9,7 @@
 #
 function list_images() {
   (
-    cd ~;
+    cd ~
     ls -1d run/* | xargs -n1 readlink | cut -f2- -d'/'
     df -h | grep 'img./' | cut -f4-5 -d'/'
   ) | sort -u
