@@ -55,17 +55,18 @@ function Overall() {
 
 # gives sth. like:
 #
-# 13.0-libressl-unstable_20170110-100022            13:59:12 *** media-gfx/pictureflow
-# 13.0-systemd-unstable_20170111-105830             13:54:54 >>> (4 of 4) games-server/cyphesis-0.6.2-r1
-# 13.0-unstable_20170109-235418                     13:53:24 *** www-apps/chromedriver-bin
-#
+# 13.0-systemd-libressl-unstable_20170130-102323    16:08:46 >>> (1 of 1) media-sound/splay-0.9.5.2-r2
+# 13.0-unstable_20170123-090431                     16:08:56 >>> (1 of 1) net-proxy/shadowsocks-libev-2.6.2
+# desktop-stable_20170121-152726                    16:08:43
+# gnome-stable_20170122-104332                      16:07:47 >>> (2 of 2) x11-terms/valaterm-0.6
+
 function LastEmergeOperation()  {
   for i in $images
   do
     printf "%s\r\t\t\t\t\t\t  " $(basename $i)
     tac ~/$i/var/log/emerge.log |\
     grep -m 1 -E '(>>>|\*\*\*|===) emerge' |\
-    sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' |\
+    sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ \*\*\*.*//g' |\
     perl -wane '
       chop ($F[0]);
       my @t = split (/\s+/, scalar localtime ($F[0]));
