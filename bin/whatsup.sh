@@ -147,7 +147,7 @@ do
         ;;
     t)  CurrentTask
         ;;
-    *)  echo "call: $(basename $0) [-o] [-l] [-p] [-t]"
+    *)  echo "call: $(basename $0) [-l] [-o] [-p] [-t]"
         echo
         exit 0
         ;;
