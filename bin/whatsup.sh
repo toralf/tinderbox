@@ -114,6 +114,21 @@ function PackagesPerDay() {
 }
 
 
+# gives sth. like:
+#
+# 13.0-no-multilib-libressl-unstable_20170122-2256  Feb  1 11:15:48  dev-python/coloredlogs
+# 13.0-systemd-libressl-unstable_20170130-102323
+# 13.0-unstable_20170123-090431                     Feb  1 11:13:31  dev-java/dtdparser
+#
+function CurrentTask()  {
+  for i in $images
+  do
+    printf "%s\r\t\t\t\t\t\t  " $(basename $i)
+    cat $i/tmp/task 2>/dev/null || echo
+  done
+}
+
+
 #######################################################################
 #
 images=$(list_images)
@@ -121,7 +136,7 @@ images=$(list_images)
 echo
 echo "$(echo $images | wc -w) images ($(ls ~/img? | wc -w) at all) :"
 
-while getopts lop opt
+while getopts lopt opt
 do
   echo
   case $opt in
@@ -131,7 +146,9 @@ do
         ;;
     p)  PackagesPerDay
         ;;
-    *)  echo "call: $(basename $0) [-o] [-l] [-p]"
+    t)  CurrentTask
+        ;;
+    *)  echo "call: $(basename $0) [-o] [-l] [-p] [t]"
         exit 0
         ;;
   esac
