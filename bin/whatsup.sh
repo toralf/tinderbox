@@ -64,12 +64,12 @@ function LastEmergeOperation()  {
   do
     printf "%s\r\t\t\t\t\t\t  " $(basename $i)
     tac ~/$i/var/log/emerge.log |\
-    grep -m 1 -e "[>>>|***] emerge" |\
-    sed -e 's/ \-\-.* / /g' -e 's, to /,,g' |\
+    grep -m 1 -E '(>>>|\*\*\*|===) emerge' |\
+    sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' |\
     perl -wane '
       chop ($F[0]);
       my @t = split (/\s+/, scalar localtime ($F[0]));
-      print join (" ", $t[3], @F[1,3..$#F]), "\n";
+      print join (" ", $t[3], @F[1..$#F]), "\n";
     '
   done
 }
