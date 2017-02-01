@@ -1044,8 +1044,9 @@ do
   touch /tmp/timestamp.qa
 
   date > $log
+  echo "$(date | cut -c5-19)"         > /tmp/task
   GetNextTask
-  echo "$(date | cut -c5-19)  $task" > /tmp/task
+  echo "$(date | cut -c5-19)  $task"  > /tmp/task
   WorkOnTask
   ParseElogForQA
 done
