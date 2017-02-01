@@ -118,6 +118,9 @@ function PackagesPerDay() {
 #
 images=$(list_images)
 
+echo
+echo "$(echo $images | wc -w) images ($(ls ~/img? | wc -w) at all) :"
+
 while getopts lop opt
 do
   echo
