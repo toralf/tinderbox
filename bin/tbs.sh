@@ -35,7 +35,7 @@ function rufs()  {
     modplug mono mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta mtp multimedia
     mysql mysqli natspec ncurses networking nscd nss obj objc odbc
     offensive ogg ois opencv openexr opengl openmpi openssl opus osc pam
-    pcre16 perl php pkcs11 plasma plotutils png policykit postgres
+    pcre16 perl php pkcs11 plasma plotutils plugins png policykit postgres
     postproc postscript printsupport pulseaudio pwquality pypy python qemu
     qml qt5 rdoc rendering ruby sasl scripts scrypt sddm sdl secure-delete
     semantic-desktop server smartcard smime smpeg snmp sockets source
