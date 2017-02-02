@@ -5,7 +5,7 @@
 # quick & dirty stats
 #
 
-# all active | running images
+# all active|running images
 #
 function list_images() {
   (
@@ -19,10 +19,10 @@ function list_images() {
 # gives sth. like:
 #
 # emerged failed  days    backlog rate    ~/run   locked
-# 5567    91      8.6     14005   580     yes     yes     13.0-no-multilib-libressl-unstable_20170122-225602
-# 1286    13      1.2     18641   299     yes     yes     13.0-systemd-libressl-unstable_20170130-102323
-# 5537    75      8.2     15200   463     yes     yes     13.0-unstable_20170123-090431
-# 6711    75      10.0    10090   891     yes     yes     desktop-stable_20170121-152726
+# 7927    115     35.9    13409   155             yes     gnome-systemd-unstable_20161228-112305
+# 6110    108     10.5    12991   572     yes             13.0-no-multilib-libressl-unstable_20170122-225602
+# 3029    45      3.0     16921   693     yes             13.0-systemd-libressl-unstable_20170130-102323
+# 6185    90      10.1    14245   470     yes     yes     13.0-unstable_20170123-090431
 #
 function Overall() {
   echo "emerged failed  days    backlog rate    ~/run   locked"
@@ -79,9 +79,9 @@ function LastEmergeOperation()  {
 
 # gives sth. like:
 #
-# 13.0-libressl-unstable_20170110-100022            410 1244 1068  821  510  645  485  510  260
-# 13.0-systemd-unstable_20170111-105830             545  681 1115  679  775  625  507  332
-# 13.0-unstable_20170109-235418                      14  896 1029  813  551  438  618  625  416  304
+# gnome-unstable_20170201-093005                    655   56
+# hardened-no-multilib-libressl-unstable_20170131- 1062  798
+# hardened-unstable_20170129-183636                 344  870 1045  503
 #
 function PackagesPerDay() {
   for i in $images
@@ -122,9 +122,9 @@ function PackagesPerDay() {
 
 # gives sth. like:
 #
-# 13.0-no-multilib-libressl-unstable_20170122-2256  Feb  1 11:15:48  dev-python/coloredlogs
-# 13.0-systemd-libressl-unstable_20170130-102323
-# 13.0-unstable_20170123-090431                     Feb  1 11:13:31  dev-java/dtdparser
+# gnome-stable_20170122-104332                       0: 0:19 hrs  dev-php/PEAR-File
+# gnome-systemd-libressl-unstable_20170202-095758    1: 5:12 hrs  %emerge -u sys-devel/gcc
+# gnome-unstable_20170201-093005                     0: 0:33 hrs  media-gfx/zbar
 #
 function CurrentTask()  {
   for i in $images
