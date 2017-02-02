@@ -91,9 +91,17 @@ function PackagesPerDay() {
     perl -wane '
       BEGIN { %h   = (); $i = 0; $old = 0; }
       {
-        my $dd = $F[2];
+        my $day = $F[2];
         my ($hh, $mm, $ss) = split (/:/, $F[3]);
-        $cur = $dd * 24*60*60 + $hh * 60*60 + $mm * 60 + $ss;
+
+        $cur = $day * 24*60*60 + $hh * 60*60 + $mm * 60 + $ss;
+
+        # month changed ?
+        #
+        if ($cur < $old)  {
+          $old = $old % 86400;
+        }
+
         if ($cur - $old > 86400) {
           $old = $cur;
           $i++;
