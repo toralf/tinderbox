@@ -89,19 +89,18 @@ function PackagesPerDay() {
     printf "%s\r\t\t\t\t\t\t" $(basename $i)
     qlop -lC -f $i/var/log/emerge.log |\
     perl -wane '
-      BEGIN {
-        %h   = ();
-        $day = 0;
-        $old = "";
-      }
+      BEGIN { %h   = (); $day = 0; $old = 0; }
       {
-        my $cur = $F[2];
-        if ($old ne $cur) {
+        my $dd = $F[2];
+        my ($hh, $mm, $ss) = split (/:/, $F[3]);
+        $cur = $dd * 24*60*60 + $hh * 60*60 + $mm * 60 + $ss;
+        if ($cur - $old > 86400) {
           $old = $cur;
           $day++;
         }
         $h{$day}++;
       }
+
       END {
         foreach my $k (sort { $a <=> $b } keys %h) {
           printf ("%5i", $h{$k});
