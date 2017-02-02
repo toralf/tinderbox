@@ -30,10 +30,11 @@ function Overall() {
   do
     log=$i/var/log/emerge.log
     emerged=$(qlop -lC -f $log | wc -l)
-    failed=$(ls -1 $i/tmp/issues 2>/dev/null | xargs -n 1 basename 2>/dev/null | cut -f2- -d'_' | sort -u | wc -w)
+    failed=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
     days=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
     backlog=$(wc -l < $i/tmp/packages)
-    rate=$(echo "(19000 - $backlog) / $days" | bc 2>/dev/null)
+    rate=$(echo "(19000 - $backlog) / $days" | bc)
+
     if [[ $rate -le 0 || $rate -gt 1500 ]]; then
       rate='-'
     fi
@@ -148,6 +149,12 @@ echo "$(echo $images | wc -w) images ($(ls ~/img? | wc -w) at all) :"
 while getopts hlopt\? opt
 do
   echo
+
+  # ignore stderr but keep its setting
+  #
+  exec 3>&2
+  exec 2> /dev/null
+
   case $opt in
     l)  LastEmergeOperation
         ;;
@@ -162,6 +169,8 @@ do
         exit 0
         ;;
   esac
+
+  exec 2>&3
 done
 
 echo
