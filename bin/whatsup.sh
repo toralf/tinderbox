@@ -91,12 +91,10 @@ function PackagesPerDay() {
     perl -wane '
       BEGIN {
         %h   = ();
-        $sum = 0;
         $day = 0;
         $old = "";
       }
       {
-        $sum++;
         my $cur = $F[2];
         if ($old ne $cur) {
           $old = $cur;
