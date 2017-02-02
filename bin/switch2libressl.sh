@@ -37,7 +37,6 @@ echo "dev-libs/openssl" > /etc/portage/package.mask/openssl || exit 24
 cat << EOF >> /etc/portage/profile/use.stable.mask || exit 25
 -libressl
 -curl_ssl_libressl
-
 EOF
 
 # libressl switch often fails w/o these USE flags
@@ -46,29 +45,27 @@ cat << EOF > /etc/portage/package.use/libressl || exit 26
 dev-db/mysql-connector-c  -ssl
 #dev-lang/python           -tk
 dev-qt/qtsql              -mysql
-
 EOF
 
-# keyword unstable packages at *stable* images
-#
 py2="dev-lang/python:2.7"
 py3="dev-lang/python:3.4"
 
+# keyword certain packages at a *stable* image
+#
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
   cat << EOF > /etc/portage/package.accept_keywords/libressl || exit 27
 dev-libs/libressl
 $py2
 $py3
-~dev-libs/libevent-2.1.5
+~dev-libs/libevent-2.1.8
 ~mail-mta/ssmtp-2.64
-~net-nds/openldap-2.4.44
 ~www-client/lynx-2.8.9_pre11
-
 EOF
 fi
 
-# fetch packages before we uninstall openssl (which breaks wget)
+# fetch packages before openssl is uninstalled
+# (b/c wget won't work after uninstalling openssl)
 #
 emerge -f libressl openssh wget python || exit 28
 
