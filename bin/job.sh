@@ -351,8 +351,8 @@ EOF
     #
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
-      grep -q "=$failed cxx" /etc/portage/package.env/cxx
-      if [[ $? -eq 1 ]]; then
+      grep -q "=$failed cxx" /etc/portage/package.env/cxx 2>/dev/null
+      if [[ $? -ne 0 ]]; then
         echo "=$failed cxx" >> /etc/portage/package.env/cxx
         try_again=1
       fi
@@ -565,7 +565,7 @@ function GetFailed()  {
 # therefore if a package was fixed w/o a revision bump and should be re-tested
 # then sth. like the following is needed:
 #
-#   sed -i -e '/sys-fs\/eudev/d' ~/tb/data/ALREADY_CATCHED ~/run/*/etc/portage/package.mask/self ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue}
+#   sed -i -e '/sys-fs\/eudev/d' ~/tb/data/ALREADY_CATCHED ~/run/*/etc/portage/package.mask/self ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue,cxx}
 #   for i in ~/run/*/tmp/packages; do grep -q -E "^(STOP|INFO|%|@|#)" $i || echo 'sys-fs/eudev' >> $i; done
 #
 function ReportIssue()  {
