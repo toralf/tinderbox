@@ -529,7 +529,7 @@ function EmergeMandatoryPackages() {
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
 
-  # try to shorten the link to the image, eg.: img1/plasma-..
+  # try to shorten the link to the image, eg.: img1/plasma-...
   #
   cd $tbhome
   d=$(basename $imagedir)/$name
@@ -563,7 +563,7 @@ function EmergeMandatoryPackages() {
     exit $rc
   fi
 
-  (cd $tbhome/run && ln -s ../$d) || exit 13
+  (cd $tbhome/run && ln -s ../$d) || exit 11
 
   echo
   echo " setup  OK : $d"
