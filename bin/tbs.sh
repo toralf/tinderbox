@@ -472,16 +472,16 @@ echo ">${perl_stable_version}" >> /etc/portage/package.mask/setup_blocker
 emerge sys-apps/elfix || exit 6
 migrate-pax -m
 
-emerge mail-mta/ssmtp || exit 6
-emerge mail-client/mailx || exit 6
+emerge mail-mta/ssmtp || exit 7
+emerge mail-client/mailx || exit 7
 
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 6
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 8
 
 if [[ "$clang" = "y" ]]; then
   echo -e "CC=clang\nCXX=clang++" >> /etc/make.conf
 fi
 
-emerge --update --pretend sys-devel/gcc || exit 6
+emerge --update --pretend sys-devel/gcc || exit 9
 
 rc=0
 mv /etc/portage/package.mask/setup_blocker /tmp/
@@ -489,9 +489,9 @@ $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
-    $dryrun &> /tmp/dryrun.log || rc=7
+    $dryrun &> /tmp/dryrun.log || rc=9
   else
-    rc=7
+    rc=9
   fi
 fi
 mv /tmp/setup_blocker /etc/portage/package.mask/
@@ -515,7 +515,7 @@ function EmergeMandatoryPackages() {
   (
     cd usr/share/eselect &&\
     patch -p1 --forward < $tbhome/eselect.patch
-  ) || exit 8
+  ) || exit 10
 
   cd ..
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
@@ -525,8 +525,8 @@ function EmergeMandatoryPackages() {
 
   # provide credentials only to running images
   #
-  (cd root      && ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 8
-  (cd etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 8
+  (cd root      && ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 11
+  (cd etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 12
 
   cd $tbhome
 
@@ -541,12 +541,12 @@ function EmergeMandatoryPackages() {
     echo
     echo " setup NOT successful (rc=$rc) @ $d"
 
-    if [[ $rc -eq 6 ]]; then
-      echo
-      cat $d/tmp/setup.log
-    elif [[ $rc -eq 7 ]]; then
+    if [[ $rc -eq 9 ]]; then
       echo
       cat $d/tmp/dryrun.log
+    else
+      echo
+      cat $d/tmp/setup.log
     fi
 
     # the usage of "~" is here ok b/c usually those commands are
@@ -563,7 +563,7 @@ function EmergeMandatoryPackages() {
     exit $rc
   fi
 
-  (cd $tbhome/run && ln -s ../$d) || exit 9
+  (cd $tbhome/run && ln -s ../$d) || exit 13
 
   echo
   echo " setup  OK : $d"
