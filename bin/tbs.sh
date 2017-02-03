@@ -447,6 +447,12 @@ function CreateSetupScript()  {
   perl_stable_version=$(portageq best_version / dev-lang/perl)
 
   cat << EOF > tmp/setup.sh
+function ExitOnError() {
+  echo "saving portage tmp files ..."
+  cp -ar /var/tmp/portage /tmp
+  exit \$1
+}
+
 eselect profile set $profile || exit 6
 
 echo "Europe/Berlin" > /etc/timezone
@@ -469,13 +475,15 @@ emerge --noreplace net-misc/netifrc
 echo -e "# packages preventing the setup (tbs.sh) of this tinderbox image\n#\n" > /etc/portage/package.mask/setup_blocker
 echo ">${perl_stable_version}" >> /etc/portage/package.mask/setup_blocker
 
-emerge sys-apps/elfix || exit 6
+emerge sys-apps/elfix || ExitOnError 6
 migrate-pax -m
 
-emerge mail-mta/ssmtp || exit 7
-emerge mail-client/mailx || exit 7
+emerge mail-mta/ssmtp || ExitOnError 7
+emerge mail-client/mailx || ExitOnError 7
+(cd /etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .) || ExitOnError 7
 
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 8
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || ExitOnError 8
+(cd /root && ln -snf ../tmp/tb/sdata/.bugzrc .)  || ExitOnError 8
 
 if [[ "$clang" = "y" ]]; then
   echo -e "CC=clang\nCXX=clang++" >> /etc/make.conf
@@ -521,17 +529,9 @@ function EmergeMandatoryPackages() {
   $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
 
-  cd - 1>/dev/null
-
-  # provide credentials only to running images
-  #
-  (cd root      && ln -snf    ../tmp/tb/sdata/.bugzrc    .)  || exit 11
-  (cd etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .)  || exit 12
-
-  cd $tbhome
-
   # try to shorten the link to the image, eg.: img1/plasma-..
   #
+  cd $tbhome
   d=$(basename $imagedir)/$name
   if [[ ! -d $d ]]; then
     d=$imagedir/$name
