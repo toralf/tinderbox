@@ -226,7 +226,7 @@ PAX_MARKINGS="XT"
 
 $( [[ "$multilib" = "y" ]] && echo '#ABI_X86="32 64"' )
 
-L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
+$( [[ -n "$origin" ]] && grep "^L10N" $origin/etc/portage/make.conf || L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)" )
 
 ACCEPT_LICENSE="*"
 
@@ -677,17 +677,26 @@ do
 
         profile=$(readlink $origin/etc/portage/make.profile | cut -f6- -d'/')
         flags="$(source $origin/etc/portage/make.conf; echo $USE)"
+
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           libressl="y"
         else
           libressl="n"
         fi
+
         grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           keyword="unstable"
         else
           keyword="stable"
+        fi
+
+        grep -q '#ABI_X86="32 64"' $origin/etc/portage/make.conf
+        if [[ $? -eq 0 ]]; then
+          multilib="y"
+        else
+          multilib="n"
         fi
         ;;
 
