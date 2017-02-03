@@ -368,13 +368,11 @@ EOF
 function FillPackageList()  {
   pks=tmp/packages
 
-  # replay the actually installed package history from the origin ?
-  #
-  if [[ -n "$origin" && -e $origin/var/log/emerge.log ]]; then
-    # filter out from the randomized package list the ones got from $origin
+  if [[ -n "$origin" ]]; then
+    cp $origin/$pks $pks
+    # replay the emerge history
     #
-    qlop --nocolor --list -f $origin/var/log/emerge.log | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.tmp
-    qsearch --all --nocolor --name-only --quiet | sort --random-sort | fgrep -v -f $pks.tmp > $pks
+    qlop --nocolor --list -f $origin/var/log/emerge.log 2>/dev/null | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.tmp
     echo "INFO $(wc -l < $pks.tmp) packages of origin $origin replayed" >> $pks
     tac $pks.tmp >> $pks
     rm $pks.tmp
