@@ -423,11 +423,17 @@ function SearchForAnAlreadyFiledBug() {
   do
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
+      if [[ "$i" = "$failed" ]]; then
+        bug_report_exists="y"
+      fi
       break;
     fi
 
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
+      if [[ "$i" = "$failed" ]]; then
+        bug_report_exists="y"
+      fi
       break
     fi
 
@@ -441,10 +447,6 @@ function SearchForAnAlreadyFiledBug() {
   # and add bugzilla search results if needed
   #
   if [[ -n "$id" ]]; then
-    if [[ "$i" = "$failed" ]]; then
-      bug_report_exists="y"
-    fi
-
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
 
