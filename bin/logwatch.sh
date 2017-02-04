@@ -13,7 +13,7 @@ f=/tmp/watch.tinderbox.logs
 if [[ ! -f $f ]]; then
   if [[ "$(wc -w ~/logs/* 2>/dev/null | tail -n 1)" != "0 total" ]]; then
     ls -l ~/logs/* > $f
-    (cat $f; echo; echo "remove $f to re-activate this test again") | mail -s "logs are non-empty" $mailto
+    (head ~/logs/*; echo; echo "to re-activate this test again, do:  rm $f") | mail -s "logs are non-empty" $mailto
   fi
 fi
 
