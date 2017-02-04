@@ -440,7 +440,7 @@ function SearchForAnAlreadyFiledBug() {
     id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved  $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo
-      echo "  ^^ DUPLICATEs"
+      echo "  ^^ DUPLICATE" >> $issuedir/body
       break
     fi
 
