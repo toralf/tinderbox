@@ -399,7 +399,7 @@ function SearchForBlocker() {
 #
 function SearchForAnAlreadyFiledBug() {
   bsi=$issuedir/bugz_search_items
-  bug_report_exists="n"
+  open_bug_report_exists="n"
 
   # strip away from the bugzilla search string the package name and replace
   # certain characters, line numbers et al with spaces;
@@ -424,7 +424,7 @@ function SearchForAnAlreadyFiledBug() {
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       if [[ "$i" = "$failed" ]]; then
-        bug_report_exists="y"
+        open_bug_report_exists="y"
       fi
       break;
     fi
@@ -432,7 +432,7 @@ function SearchForAnAlreadyFiledBug() {
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       if [[ "$i" = "$failed" ]]; then
-        bug_report_exists="y"
+        open_bug_report_exists="y"
       fi
       break
     fi
@@ -581,7 +581,7 @@ function ReportIssue()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -eq 1 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    if [[ "$bug_report_exists" = "n" ]]; then
+    if [[ "$open_bug_report_exists" = "n" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
     fi
   fi
