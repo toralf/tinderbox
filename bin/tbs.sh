@@ -287,7 +287,7 @@ function CompilePackageFiles()  {
   touch       etc/portage/package.mask/self     # failed package at this image
   chmod a+rw  etc/portage/package.mask/self
 
-  if [[ "$clang" = "y" || "$keyword" = "unstable" && $(($RANDOM % 3)) -eq 0 ]]; then
+  if [[ "$clang" = "y" || "$keyword" = "unstable" && $(($RANDOM % 3)) -eq 0 || -f $origin/etc/portage/package.unmask/gcc-6 ]]; then
     # unmask GCC-6 : https://bugs.gentoo.org/show_bug.cgi?id=582084
     #
     v=$(ls /usr/portage/sys-devel/gcc/gcc-6.*.ebuild | xargs -n 1 basename | tail -n 1 | xargs -n 1 qatom | awk ' { print $3 } ')
@@ -516,12 +516,13 @@ function EmergeMandatoryPackages() {
   # <app-admin/eselect-1.4.7 $LANG issue
   #
   if [[ "$(qlist -ICv app-admin/eselect | xargs -n 1 qatom | cut -f3 -d' ')" = "1.4.5" ]]; then
-    cd usr/share/eselect
+    (
+      cd usr/share/eselect
 
-    wget -q -O- https://598480.bugs.gentoo.org/attachment.cgi?id=451903 2>/dev/null |\
-    sed 's,/libs/config.bash.in,/libs/config.bash,g' |\
-    patch -p1 --forward
-
+      wget -q -O- https://598480.bugs.gentoo.org/attachment.cgi?id=451903 2>/dev/null |\
+      sed 's,/libs/config.bash.in,/libs/config.bash,g' |\
+      patch -p1 --forward
+    )
     if [[ $? -ne 0 ]]; then
       exit 10
     fi
