@@ -179,6 +179,9 @@ does not exist
 convert: no
 syntax error
 record .* undefined
+ocamlfind: Package .* not found
+E: Failure
+terminated with error code
 make.* Error
 setup.py:.*: UserWarning: .* must be installed to build
 no configure script found
