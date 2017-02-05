@@ -414,6 +414,14 @@ function SearchForAnAlreadyFiledBug() {
     sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
   fi
 
+  # don't waste time if b.g.o. isn't reachable
+  #
+  bugz -q get 2 1> /dev/null
+  if [[ $? -ne 0 ]]; then
+    echo "$(date) b.g.o. can't be queried for $failed"
+    return
+  fi
+
   # if a bug was filed but for another package version (== $short)
   # then we have to decide if we file a bug or not
   # eg.: to stabelize a new GCC compiler the stable package might fail with the new compiler
