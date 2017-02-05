@@ -322,10 +322,14 @@ EOF
 
   elif [[ -n "$(grep -m 1 -e ' *   Make check failed. See above for details.' -e "ERROR: .* failed (test phase)" $bak)" ]]; then
     echo "fails with FEATURES=test" > $issuedir/title
-    echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
-    try_again=1
-
-    (cd /var/tmp/portage/$failed/work/* && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests)
+    grep -q -e "=$failed" /etc/portage/package.env/test-fail-continue
+    if [[ $? -eq 0 ]]; then
+      Finish 2 "found $failed in /etc/portage/package.env/test-fail-continue"
+    else
+      echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+      try_again=1
+      (cd /var/tmp/portage/$failed/work/$(basename $failed) && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests)
+    fi
 
   else
     # loop over all patterns exactly in their defined order therefore "grep -f CATCH_ISSUES" won't work here
