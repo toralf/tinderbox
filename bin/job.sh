@@ -18,11 +18,11 @@ function stresc() {
 }
 
 
-# mail out with $1 as the subject and $2 as the body
+# send an email, $1 is subject, $2 is body
 #
 function Mail() {
   subject=$(echo "$1" | cut -c1-200 | tr '\n' ' ' | stresc)
-  ( [[ -e $2 ]] && stresc < $2 || echo "<no body>" ) | mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
+  ( [[ -e $2 ]] && stresc < $2 || echo "<no body>" ) | timeout 120 mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
 }
 
 
@@ -279,7 +279,7 @@ function GuessTitleAndIssue() {
   touch $issuedir/{issue,title}
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
-    # we provide package name+version althought this gives more noise in our mail inbox
+    # we provide package name+version althought this gives more noise in our inbox
     #
     s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
     # inform the maintainers of the already installed package too

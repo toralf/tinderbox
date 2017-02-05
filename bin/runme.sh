@@ -43,7 +43,7 @@ done
 
 if [[ $rc -gt 127 ]]; then
   name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
-  date | mail -s "$(basename $0): $name rc=$rc" $mailto
+  date | timeout 120 mail -s "$(basename $0): $name rc=$rc" $mailto
 fi
 
 exit $rc
