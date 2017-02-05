@@ -332,7 +332,7 @@ EOF
     fi
 
   else
-    # loop over all patterns exactly in their defined order therefore "grep -f CATCH_ISSUES" won't work here
+    # loop over all patterns exactly in their defined order therefore "grep -f CATCH_ISSUES" can't be used here
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
