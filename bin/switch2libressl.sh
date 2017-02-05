@@ -67,8 +67,12 @@ fi
 #
 emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python || exit 28
 
-# the unmerge should yield eventually a @preserved-rebuild
+# unmerge of opensll should in PostEmerge() schedules a @preserved-rebuild
+# but force it again with "%" to bail out if it fails
 #
-echo "%emerge -C openssl" >> $pks
+cat << EOF >> $pks
+%emerge @preserved-rebuild
+%emerge -C openssl
+EOF
 
 exit 0
