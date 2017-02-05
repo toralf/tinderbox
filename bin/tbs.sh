@@ -154,14 +154,12 @@ priority = 2
 
 [local]
 priority = 99
-
 EOF
 
   cat << EOF > etc/portage/repos.conf/gentoo.conf
 [gentoo]
 location  = /usr/portage
 auto-sync = no
-
 EOF
 
   cat << EOF > etc/portage/repos.conf/tinderbox.conf
@@ -169,7 +167,6 @@ EOF
 location  = /tmp/tb/data/portage
 masters   = gentoo
 auto-sync = no
-
 EOF
 
   cat << EOF > etc/portage/repos.conf/foo.conf
@@ -178,7 +175,6 @@ EOF
 #auto-sync = yes
 #sync-type = git
 #sync-uri  = https://anongit.gentoo.org/git/proj/foo.git
-
 EOF
 
   cat << EOF > etc/portage/repos.conf/local.conf
@@ -186,7 +182,6 @@ EOF
 location  = /usr/local/portage
 masters   = gentoo
 auto-sync = no
-
 EOF
 }
 
@@ -252,7 +247,6 @@ PORTAGE_ELOG_MAILURI="root@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
 GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gor.bytemark.co.uk/gentoo/ rsync://ftp.snt.utwente.nl/gentoo"
-
 EOF
 }
 
@@ -323,7 +317,6 @@ EOF
 CFLAGS="\$CFLAGS -g -ggdb"
 CXXFLAGS="\$CXXFLAGS -g -ggdb"
 FEATURES="splitdebug"
-
 EOF
 
   # no special c++ flags (eg. to revert -Werror=terminate)
@@ -358,7 +351,6 @@ set softtabstop=2
 set shiftwidth=2
 set tabstop=2
 set expandtab
-
 EOF
 }
 
@@ -374,16 +366,23 @@ function FillPackageList()  {
     #
     qlop --nocolor --list -f $origin/var/log/emerge.log 2>/dev/null | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.tmp
     echo "INFO $(wc -l < $pks.tmp) packages of origin $origin replayed" >> $pks
+    # use the (remaining) package list from origin
+    #
     tac $pks.tmp >> $pks
     rm $pks.tmp
   else
+    # fully randomized package list
+    #
     qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
   fi
 
-  # upgrade @system and emerge few mandatory/useful package/s too
+  # emerge/upgrade mandatory package/s and upgrade @system
+  # the last action (@world) is mainly used to prevent insert_pks.sh
+  # from changing the package list before the setup is completed
   #
   cat << EOF >> $pks
 # setup done
+@world
 app-text/wgetpaste
 app-portage/pfl
 app-portage/eix
@@ -392,7 +391,7 @@ app-portage/eix
 %rm -f /etc/portage/package.mask/setup_blocker
 EOF
 
-  # switch to an alternative SSL lib before @system will be upgraded
+  # switch to an alternative SSL lib before @system is upgraded
   #
   if [[ "$libressl" = "y" ]]; then
     echo "%/tmp/tb/bin/switch2libressl.sh" >> $pks
@@ -402,7 +401,7 @@ EOF
   #
   echo "%emerge -u sys-kernel/hardened-sources" >> $pks
 
-  # compiler/s must not fail, switch to latest compiler as early as possible
+  # switch to latest compiler asap
   #
   if [[ "$clang" = "y" ]]; then
     echo "%emerge -u sys-devel/clang" >> $pks
@@ -503,7 +502,6 @@ fi
 mv /tmp/setup_blocker /etc/portage/package.mask/
 
 exit \$rc
-
 EOF
 }
 
