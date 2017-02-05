@@ -320,7 +320,7 @@ EOF
     fi
     head -n 10 $sandb >> $issuedir/issue
 
-  elif [[ -n "$(grep -m 1 ' *   Make check failed. See above for details.' $bak)" ]]; then
+  elif [[ -n "$(grep -m 1 -e ' *   Make check failed. See above for details.' -e "ERROR: .* failed (test phase)" $bak)" ]]; then
     echo "fails with FEATURES=test" > $issuedir/title
     echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
