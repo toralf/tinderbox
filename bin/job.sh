@@ -23,6 +23,9 @@ function stresc() {
 function Mail() {
   subject=$(echo "$1" | cut -c1-200 | tr '\n' ' ' | stresc)
   ( [[ -e $2 ]] && stresc < $2 || echo "<no body>" ) | timeout 120 mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
+  if [[ $? -eq 124 ]]; then
+    echo "$(date) mail timed out for $failed"
+  fi
 }
 
 
