@@ -22,7 +22,7 @@ uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
 if [[ $? -eq 0 ]]; then
   delay=240
 else
-  delay=5
+  delay=1
 fi
 
 is_first=1
