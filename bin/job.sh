@@ -322,7 +322,7 @@ EOF
 
   elif [[ -n "$(grep -m 1 -e ' *   Make check failed. See above for details.' -e "ERROR: .* failed (test phase)" $bak)" ]]; then
     echo "fails with FEATURES=test" > $issuedir/title
-    grep -q -e "=$failed" /etc/portage/package.env/test-fail-continue
+    grep -q -e "=$failed" /etc/portage/package.env/test-fail-continue 2>/dev/null
     if [[ $? -eq 0 ]]; then
       Finish 2 "found $failed in /etc/portage/package.env/test-fail-continue"
     else
