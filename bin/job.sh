@@ -908,7 +908,7 @@ function WorkOnTask() {
     RunCmd "$cmd"
     if [[ $? -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        # jump out except for a "resume + skip first" case
+        # bail out except ...
         #
         echo "$cmd" | grep -q -e "--resume --skip-first"
         if [[ $? -eq 1 ]]; then
@@ -918,7 +918,7 @@ function WorkOnTask() {
     fi
 
   else
-    # just a package (optional prefixed with an "=")
+    # just a package (optional prefixed with "=")
     #
     RunCmd "emerge --update $task"
   fi
