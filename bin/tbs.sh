@@ -437,7 +437,9 @@ function ConfigureImage()  {
 #         app-portage/gentoolkit      equery eshowkw revdep-rebuild
 #         app-portage/portage-utils   qlop
 #         www-client/pybugz           bugz
-# - dry test of GCC and @system upgrade to auto-fix package-specific USE flags
+# - update sandbox if applicable
+# . dry test of GCC
+# - dry test of @system upgrade to auto-fix package-specific USE flags
 #
 function CreateSetupScript()  {
   dryrun="emerge --backtrack=100 --deep --update --changed-use --with-bdeps=y @system --pretend"
@@ -480,11 +482,13 @@ emerge mail-client/mailx || ExitOnError 7
 (cd /etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .) || ExitOnError 7
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || ExitOnError 8
-(cd /root && ln -snf ../tmp/tb/sdata/.bugzrc .)  || ExitOnError 8
+(cd /root && ln -snf ../tmp/tb/sdata/.bugzrc .) || ExitOnError 8
 
 if [[ "$clang" = "y" ]]; then
   echo -e "CC=clang\nCXX=clang++" >> /etc/make.conf
 fi
+
+emerge -u sys-apps/sandbox || ExitOnError 8
 
 emerge --update --pretend sys-devel/gcc || exit 9
 
