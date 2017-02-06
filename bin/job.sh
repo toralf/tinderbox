@@ -847,7 +847,7 @@ function WorkOnTask() {
                   $bak
         if [[ $? -eq 0 ]]; then
           echo "$task" >> $pks
-          Finish 0 "notice: broken $task"
+          Mail "notice: broken $task" $bak
         fi
       fi
     fi
