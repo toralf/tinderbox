@@ -149,6 +149,7 @@ Compilation failed in require at
 is banned in EAPI
 Failed Running libtoolize
 Select exactly one database type out of these: mysql oracle postgres sqlite
+failed to load "
 make .* Error
 The source directory .* doesn.t exist
 Document .* does not validate
