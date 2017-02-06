@@ -823,10 +823,6 @@ function RunCmd() {
     GotAnIssue
   fi
 
-  if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $pks
-  fi
-
   return $rc
 }
 
@@ -849,6 +845,8 @@ function WorkOnTask() {
           echo "$task" >> $pks
           Mail "notice: broken $task" $bak
         fi
+      else
+        echo "$task" >> $pks
       fi
     fi
 
@@ -867,6 +865,8 @@ function WorkOnTask() {
           #
           echo "@world" >> $pks
         fi
+      else
+        echo "$task" >> $pks
       fi
 
     else
@@ -891,6 +891,8 @@ function WorkOnTask() {
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         fi
+      else
+        echo "$task" >> $pks
       fi
     else
       # if @world was ok then depclean before any scheduled @preserved-rebuild
@@ -914,6 +916,8 @@ function WorkOnTask() {
         if [[ $? -eq 1 ]]; then
           Finish 2 "command '$cmd' failed"
         fi
+      else
+        echo "$task" >> $pks
       fi
     fi
 
@@ -921,6 +925,11 @@ function WorkOnTask() {
     # just a package (optional prefixed with "=")
     #
     RunCmd "emerge --update $task"
+    if [[ $? -ne 0 ]]; then
+      if [[ $try_again -eq 1 ]]; then
+        echo "$task" >> $pks
+      fi
+    fi
   fi
 
   # $rc was set in RunCmd()
