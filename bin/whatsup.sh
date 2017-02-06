@@ -30,10 +30,14 @@ function Overall() {
     log=$i/var/log/emerge.log
     if [[ -f $log ]]; then
       emerged=$(qlop -lC -f $log | wc -l)
-      failed=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
+      if [[ -d $i/tmp/issues ]]; then
+        failed=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
+      else
+        failed="-"
+      fi
       days=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
       backlog=$(wc -l < $i/tmp/packages)
-      rate=$(echo "(19000 - $backlog) / $days" | bc)
+      rate=$(echo "(19000 - $backlog) / $days" | bc 2>/dev/null)
 
       if [[ $rate -le 0 || $rate -gt 1500 ]]; then
         rate='-'
