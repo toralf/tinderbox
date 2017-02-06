@@ -737,6 +737,8 @@ EmergeMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
   su - tinderbox -c "$(dirname $0)/start_img.sh $name"
+else
+  echo "no autostart choosen - run sth. like:  start_img.sh $name"
 fi
 
 exit 0
