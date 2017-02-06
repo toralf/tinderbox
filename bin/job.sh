@@ -328,7 +328,7 @@ EOF
     else
       echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
       try_again=1
-      (cd /var/tmp/portage/$failed/work/$(basename $failed) && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests)
+      (cd /var/tmp/portage/$failed/work/$(basename $failed) && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests || ls -l /var/tmp/portage/*/work)
     fi
 
   else
@@ -837,13 +837,10 @@ function WorkOnTask() {
     RunCmd "emerge --backtrack=100 $task"
     if [[ $? -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        grep -q   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
-                  -e 'The following mask changes are necessary to proceed:' \
-                  -e '* Error: The above package list contains packages which cannot be' \
-                  $bak
-        if [[ $? -eq 0 ]]; then
-          echo "$task" >> $pks
-          Mail "notice: broken $task" $bak
+        if [[ -n "$failed" ]]; then
+          echo "%emerge --resume --skip-first" >> $pks
+        else
+          Finish 2 "$task is broken"
         fi
       else
         echo "$task" >> $pks
@@ -903,7 +900,7 @@ function WorkOnTask() {
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.world
     /usr/bin/pfl &> /dev/null
 
-  elif [[ "$(echo $task | cut -c1)" = '%' ]]; then
+  elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
     #  a command: prefixed with a '%'
     #
     cmd="$(echo "$task" | cut -c2-)"
