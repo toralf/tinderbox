@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#set -x
+# set -x
 
 # quick & dirty stats
 #
@@ -9,9 +9,8 @@
 #
 function list_images() {
   (
-    cd ~
-    ls -1d run/* | xargs -n 1 readlink | cut -f2- -d'/'
-    df -h | grep '/tinderbox/img./' | cut -f4-5 -d'/'
+    ls -1d ~/run/* | xargs -n 1 readlink | sed "s,^..,/home/tinderbox,g"
+    df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' | sed "s,^,/home/tinderbox/,g"
   ) | sort -u
 }
 
@@ -29,27 +28,31 @@ function Overall() {
   for i in $images
   do
     log=$i/var/log/emerge.log
-    emerged=$(qlop -lC -f $log | wc -l)
-    failed=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
-    days=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
-    backlog=$(wc -l < $i/tmp/packages)
-    rate=$(echo "(19000 - $backlog) / $days" | bc)
+    if [[ -f $log ]]; then
+      emerged=$(qlop -lC -f $log | wc -l)
+      failed=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
+      days=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
+      backlog=$(wc -l < $i/tmp/packages)
+      rate=$(echo "(19000 - $backlog) / $days" | bc)
 
-    if [[ $rate -le 0 || $rate -gt 1500 ]]; then
-      rate='-'
-    fi
-    if [[ -e ~/run/$(basename $i) ]]; then
-      run="yes"
-    else
-      run=""
-    fi
-    if [[ -f ~/$i/tmp/LOCK ]]; then
-      lock="yes"
-    else
-      lock=""
-    fi
+      if [[ $rate -le 0 || $rate -gt 1500 ]]; then
+        rate='-'
+      fi
+      if [[ -e ~/run/$(basename $i) ]]; then
+        run="yes"
+      else
+        run=""
+      fi
+      if [[ -f $i/tmp/LOCK ]]; then
+        lock="yes"
+      else
+        lock=""
+      fi
 
-    echo -e "$emerged\t$failed\t$days\t$backlog\t$rate\t$run\t$lock\t$(basename $i)"
+      echo -e "$emerged\t$failed\t$days\t$backlog\t$rate\t$run\t$lock\t$(basename $i)"
+    else
+      echo -e "\t\t\t\t\t\t\t$(basename $i)"
+    fi
   done
 }
 
@@ -64,15 +67,21 @@ function Overall() {
 function LastEmergeOperation()  {
   for i in $images
   do
+    log=$i/var/log/emerge.log
     printf "%s\r\t\t\t\t\t\t  " $(basename $i)
-    tac ~/$i/var/log/emerge.log |\
-    grep -m 1 -E '(>>>|\*\*\*|===) emerge' |\
-    sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ \*\*\*.*//g' |\
-    perl -wane '
-      chop ($F[0]);
-      my @t = split (/\s+/, scalar localtime ($F[0]));
-      print join (" ", $t[3], @F[1..$#F]), "\n";
-    '
+    if [[ -f $log ]]; then
+      tac $log |\
+      grep -m 1 -E '(>>>|\*\*\*|===) emerge' |\
+      sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ \*\*\*.*//g' |\
+      perl -wane '
+        chop ($F[0]);
+        my @t = split (/\s+/, scalar localtime ($F[0]));
+        print join (" ", $t[3], @F[1..$#F]), "\n";
+      '
+    else
+      ls -l $log
+      echo
+    fi
   done
 }
 
@@ -86,36 +95,41 @@ function LastEmergeOperation()  {
 function PackagesPerDay() {
   for i in $images
   do
-    printf "%s\r\t\t\t\t\t\t" $(basename $i)
-    qlop -lC -f $i/var/log/emerge.log |\
-    perl -wane '
-      BEGIN { %h   = (); $i = 0; $old = 0; }
-      {
-        my $day = $F[2];
-        my ($hh, $mm, $ss) = split (/:/, $F[3]);
+    log=$i/var/log/emerge.log
+    printf "%s\r\t\t\t\t\t\t  " $(basename $i)
+    if [[ -f $log ]]; then
+      qlop -lC -f $log |\
+      perl -wane '
+        BEGIN { %h   = (); $i = 0; $old = 0; }
+        {
+          my $day = $F[2];
+          my ($hh, $mm, $ss) = split (/:/, $F[3]);
 
-        $cur = $day * 24*60*60 + $hh * 60*60 + $mm * 60 + $ss;
+          $cur = $day * 24*60*60 + $hh * 60*60 + $mm * 60 + $ss;
 
-        # month changed ?
-        #
-        if ($cur < $old)  {
-          $old = $old % 86400;
+          # month changed ?
+          #
+          if ($cur < $old)  {
+            $old = $old % 86400;
+          }
+
+          if ($cur - $old > 86400) {
+            $old = $cur;
+            $i++;
+          }
+          $h{$i}++;
         }
 
-        if ($cur - $old > 86400) {
-          $old = $cur;
-          $i++;
+        END {
+          foreach my $k (sort { $a <=> $b } keys %h) {
+            printf ("%5i", $h{$k});
+          }
         }
-        $h{$i}++;
-      }
-
-      END {
-        foreach my $k (sort { $a <=> $b } keys %h) {
-          printf ("%5i", $h{$k});
-        }
-      }
-    '
-    echo " "
+      '
+      echo " "
+    else
+      echo
+    fi
   done
 }
 
@@ -129,9 +143,10 @@ function PackagesPerDay() {
 function CurrentTask()  {
   for i in $images
   do
-    printf "%s\r\t\t\t\t\t\t" $(basename $i)
-    if [[ -f $i/tmp/task ]]; then
-      delta=$(echo "$(date +%s) - $(date +%s -r $i/tmp/task)" | bc)
+    tsk=$i/tmp/task
+    printf "%s\r\t\t\t\t\t\t  " $(basename $i)
+    if [[ -f $tsk ]]; then
+      delta=$(echo "$(date +%s) - $(date +%s -r $tsk)" | bc)
       seconds=$(echo "$delta % 60" | bc)
       minutes=$(echo "$delta / 60 % 60" | bc)
       hours=$(echo "$delta / 60 / 60" | bc)
@@ -157,8 +172,8 @@ do
 
   # ignore stderr but keep its setting
   #
-  exec 3>&2
-  exec 2> /dev/null
+#   exec 3>&2
+#   exec 2> /dev/null
 
   case $opt in
     l)  LastEmergeOperation
@@ -175,7 +190,7 @@ do
         ;;
   esac
 
-  exec 2>&3
+#   exec 2>&3
 done
 
 echo
