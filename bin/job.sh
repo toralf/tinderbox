@@ -54,7 +54,7 @@ function SwitchJDK()  {
     new=$(eselect java-vm list 2>/dev/null | grep -E 'oracle-jdk-[[:digit:]]|icedtea[-bin]*-[[:digit:]]' | grep -v 'system-vm' | awk ' { print $2 } ' | sort --random-sort | head -n 1)
     if [[ -n "$new" ]]; then
       if [[ "$new" != "$old" ]]; then
-        eselect java-vm set system $new &> $log
+        eselect java-vm set system $new &>> $log
         if [[ $? -ne 0 ]]; then
           Mail "$FUNCNAME failed for $old -> $new" $log
         fi
@@ -672,7 +672,7 @@ function GotAnIssue()  {
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
     if [[ "$task" != "@system" ]]; then
-      Mail "notice: Perl upgrade issue happened for: $task" $log
+      Mail "notice: Perl upgrade issue happened for: $task" $bak
     fi
     return
   fi
