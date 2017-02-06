@@ -122,9 +122,9 @@ function PackagesPerDay() {
 
 # gives sth. like:
 #
-# gnome-stable_20170122-104332                       0: 0:19 hrs  dev-php/PEAR-File
-# gnome-systemd-libressl-unstable_20170202-095758    1: 5:12 hrs  %emerge -u sys-devel/gcc
-# gnome-unstable_20170201-093005                     0: 0:33 hrs  media-gfx/zbar
+# 13.0-no-multilib-unstable_20170203-153432          0h  0m 52s  games-puzzle/tanglet
+# 13.0-systemd-libressl-unstable_20170130-102323     0h  0m 39s  @preserved-rebuild
+# desktop-unstable_20170127-120123                   0h  2m 00s  app-text/bibletime
 #
 function CurrentTask()  {
   for i in $images
