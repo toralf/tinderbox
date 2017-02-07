@@ -71,7 +71,7 @@ function LastEmergeOperation()  {
   for i in $images
   do
     log=$i/var/log/emerge.log
-    printf "%s\r\t\t\t\t\t\t" $(basename $i)
+    printf "%s\r\t\t\t\t\t" $(basename $i)
     if [[ -f $log ]]; then
       tac $log |\
       grep -m 1 -E '(>>>|\*\*\*|===) emerge' |\
@@ -104,7 +104,7 @@ function PackagesPerDay() {
   for i in $images
   do
     log=$i/var/log/emerge.log
-    printf "%s\r\t\t\t\t\t\t" $(basename $i)
+    printf "%s\r\t\t\t\t\t" $(basename $i)
     if [[ -f $log ]]; then
       echo -n "  "
       qlop -lC -f $log |\
