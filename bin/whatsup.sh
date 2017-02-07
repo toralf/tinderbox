@@ -81,7 +81,7 @@ function LastEmergeOperation()  {
 
         my $diff = time() - $F[0];
         my $hh = $diff / 60 / 60;
-        my $mm = $diff % 60 / 60;
+        my $mm = $diff / 60 % 60;
         my $ss = $diff % 60 % 60;
 
         printf ("  %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
