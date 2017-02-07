@@ -106,6 +106,7 @@ function PackagesPerDay() {
     log=$i/var/log/emerge.log
     printf "%s\r\t\t\t\t\t\t" $(basename $i)
     if [[ -f $log ]]; then
+      echo -n "  "
       qlop -lC -f $log |\
       perl -wane '
         BEGIN { %h   = (); $i = 0; $old = 0; }
@@ -130,7 +131,7 @@ function PackagesPerDay() {
 
         END {
           foreach my $k (sort { $a <=> $b } keys %h) {
-            printf ("  %5i", $h{$k});
+            printf ("%5i", $h{$k});
           }
         }
       '
