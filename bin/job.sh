@@ -225,12 +225,18 @@ function GetMailAddresses() {
 }
 
 
+# put the name on top of the #comment 0
+# and a marker between the issue and tinderbox specific data
+#
 function AddWhoamiToIssue() {
+  sed -i "1i\
+This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.\
+  \
+  -----------------------------------------------------------------\
+  \
+" $issuedir/issue
+
   cat << EOF >> $issuedir/issue
-
-  -----------------------------------------------------------------
-
-  This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
 
   -----------------------------------------------------------------
 
@@ -528,7 +534,6 @@ $(eselect python  list 2>&1         && echo)
 $(eselect ruby    list 2>/dev/null  && echo)
 java-config:
 $(java-config --list-available-vms --nocolor 2>/dev/null && echo)
-  -----------------------------------------------------------------
 EOF
 
   SearchForAnAlreadyFiledBug
