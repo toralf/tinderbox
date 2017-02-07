@@ -63,24 +63,28 @@ function Overall() {
 
 # gives sth. like:
 #
-# 13.0-systemd-libressl-unstable_20170130-102323    16:08:46 >>> (1 of 1) media-sound/splay-0.9.5.2-r2
-# 13.0-unstable_20170123-090431                     16:08:56 >>> (1 of 1) net-proxy/shadowsocks-libev-2.6.2
-# desktop-stable_20170121-152726                    16:08:43
-# gnome-stable_20170122-104332                      16:07:47 >>> (2 of 2) x11-terms/valaterm-0.6
-
+# 13.0-no-multilib-unstable_20170203-153432          0h  0m 37s >>> (1 of 1) dev-php/pecl-timezonedb-2016.10
+# desktop-stable_20170206-184215                     1h  0m 46s >>> (23 of 25) dev-games/openscenegraph-3.4.0
+# desktop-unstable_20170127-120123                   0h  0m 58s
+#
 function LastEmergeOperation()  {
   for i in $images
   do
     log=$i/var/log/emerge.log
-    printf "%s\r\t\t\t\t\t\t  " $(basename $i)
+    printf "%s\r\t\t\t\t\t\t" $(basename $i)
     if [[ -f $log ]]; then
       tac $log |\
       grep -m 1 -E '(>>>|\*\*\*|===) emerge' |\
       sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ \*\*\*.*//g' |\
       perl -wane '
         chop ($F[0]);
-        my @t = split (/\s+/, scalar localtime ($F[0]));
-        print join (" ", $t[3], @F[1..$#F]), "\n";
+
+        my $diff = time() - $F[0];
+        my $hh = $diff / 60 / 60;
+        my $mm = $diff % 60 / 60;
+        my $ss = $diff % 60 % 60;
+
+        printf ("  %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
       '
     else
       ls -l $log
@@ -100,7 +104,7 @@ function PackagesPerDay() {
   for i in $images
   do
     log=$i/var/log/emerge.log
-    printf "%s\r\t\t\t\t\t\t  " $(basename $i)
+    printf "%s\r\t\t\t\t\t\t" $(basename $i)
     if [[ -f $log ]]; then
       qlop -lC -f $log |\
       perl -wane '
@@ -126,7 +130,7 @@ function PackagesPerDay() {
 
         END {
           foreach my $k (sort { $a <=> $b } keys %h) {
-            printf ("%5i", $h{$k});
+            printf ("  %5i", $h{$k});
           }
         }
       '
@@ -148,7 +152,7 @@ function CurrentTask()  {
   for i in $images
   do
     tsk=$i/tmp/task
-    printf "%s\r\t\t\t\t\t\t  " $(basename $i)
+    printf "%s\r\t\t\t\t\t\t" $(basename $i)
     if [[ -f $tsk ]]; then
       delta=$(echo "$(date +%s) - $(date +%s -r $tsk)" | bc)
       seconds=$(echo "$delta % 60" | bc)
