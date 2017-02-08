@@ -16,13 +16,17 @@ fi
 orig=/tmp/tb/bin/runme.sh
 copy=/tmp/runme.sh
 
-# delay start of subsequent images to lower I/O impact (but only after reboot)
+# delay start of subsequent images to lower I/O impact
 #
-uptime --pretty | cut -f3 -d ' ' | grep -q "minutes"
-if [[ $? -eq 0 ]]; then
-  delay=240
-else
-  delay=1
+delay=1
+if [[ $# -eq 0 ]]; then
+  # test if we were called from /etc/local.d/tinderbox.start
+  #
+  if [[ -f /tmp/tinderbox.start.log ]]; then
+    if [[ ! -s /tmp/tinderbox.start.log ]]; then
+      delay=30
+    fi
+  fi
 fi
 
 is_first=1
