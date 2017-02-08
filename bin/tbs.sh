@@ -106,6 +106,10 @@ function ComputeImageName()  {
 
   name="$name-$keyword"
 
+  if [[ "$multilib" = "y" ]]; then
+    name="$name-abi32+64"
+  fi
+
   if [[ -n "$suffix" ]]; then
     name="$name-$suffix"
   fi
