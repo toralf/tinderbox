@@ -17,14 +17,13 @@ function list_images() {
 
 # gives sth. like:
 #
-# emerged failed  days    backlog rate    ~/run   locked
-# 7927    115     35.9    13409   155             yes     gnome-systemd-unstable_20161228-112305
-# 6110    108     10.5    12991   572     yes             13.0-no-multilib-libressl-unstable_20170122-225602
-# 3029    45      3.0     16921   693     yes             13.0-systemd-libressl-unstable_20170130-102323
-# 6185    90      10.1    14245   470     yes     yes     13.0-unstable_20170123-090431
-#
+#emerged failed   day   backlog   ~/run   lock    stop
+# 4724    85      6.3     15567   yes     yes             13.0-no-multilib-unstable_20170203-153432
+# 2537    30      3.1     17007   yes     yes    yes      desktop-stable_20170206-184215
+# 49      -       .2      19171   yes     yes             gnome-libressl-unstable_20170209-171515
+
 function Overall() {
-  echo "emerged failed  days    backlog rate    ~/run   locked"
+  echo "emerged failed  day   backlog   ~/run   lock    stop"
   for i in $images
   do
     log=$i/var/log/emerge.log
@@ -37,23 +36,12 @@ function Overall() {
       fi
       days=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
       backlog=$(wc -l < $i/tmp/packages)
-      rate=$(echo "(19000 - $backlog) / $days" | bc 2>/dev/null)
 
-      if [[ $rate -le 0 || $rate -gt 1500 ]]; then
-        rate='-'
-      fi
-      if [[ -e ~/run/$(basename $i) ]]; then
-        run="yes"
-      else
-        run=""
-      fi
-      if [[ -f $i/tmp/LOCK ]]; then
-        lock="yes"
-      else
-        lock=""
-      fi
+      [[ -e ~/run/$(basename $i) ]] && run="yes"  || run=""
+      [[ -f $i/tmp/LOCK ]]          && lock="yes" || lock=""
+      [[ -f $i/tmp/STOP ]]          && stop="yes" || stop=""
 
-      echo -e "$emerged\t$failed\t$days\t$backlog\t$rate\t$run\t$lock\t$(basename $i)"
+      echo -e "$emerged\t$failed\t$days\t$backlog\t$run\t$lock\t$stop\t$(basename $i)"
     else
       echo -e "\t\t\t\t\t\t\t$(basename $i)"
     fi
