@@ -428,7 +428,7 @@ function SearchForAnAlreadyFiledBug() {
 
   # don't waste time if b.g.o. isn't reachable
   #
-  bugz -q get 2 1> /dev/null
+  bugz -q get 2 2> /dev/null
   if [[ $? -ne 0 ]]; then
     echo "$(date) b.g.o. can't be queried for $failed"
     return
@@ -1002,7 +1002,7 @@ function ParseElogForQA() {
       grep -A 10 $issuedir/issue > $issuedir/body
       AddMetainfoToBody
       echo -e "\n~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
-      id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+      id=$(bugz -q --columns 400 search --show-status $short "$reason" 2> /dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
 
       Mail "${id:-QA} $failed : $reason" $issuedir/body
     fi
