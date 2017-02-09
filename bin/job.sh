@@ -229,11 +229,11 @@ function GetMailAddresses() {
 # and a marker between the issue and tinderbox specific data
 #
 function AddWhoamiToIssue() {
-  sed -i "1i\
-This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.\
-  \
-  -----------------------------------------------------------------\
-  \
+  lf="\n"
+  sed -i "1i$lf\
+  This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.$lf\
+  -----------------------------------------------------------------$lf\
+$lf\
 " $issuedir/issue
 
   cat << EOF >> $issuedir/issue
