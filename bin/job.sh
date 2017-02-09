@@ -230,10 +230,9 @@ function GetMailAddresses() {
 #
 function AddWhoamiToIssue() {
   lf="\n"
-  sed -i "1i$lf\
+  sed -i "1i\
   This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.$lf\
   -----------------------------------------------------------------$lf\
-$lf\
 " $issuedir/issue
 
   cat << EOF >> $issuedir/issue
