@@ -820,7 +820,7 @@ function PostEmerge() {
 # helper of WorkOnTask()
 #
 function RunCmd() {
-  ($1) &> $log
+  /bin/sh -c "$1" &> $log
   rc=$?
   PostEmerge
 
