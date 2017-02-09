@@ -87,7 +87,6 @@ function LastEmergeOperation()  {
         printf ("  %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
       '
     else
-      ls -l $log
       echo
     fi
   done
