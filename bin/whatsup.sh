@@ -107,8 +107,11 @@ function PackagesPerDay() {
             # new month
             #
             $old = $old % 86400;
-            if ($day > 1) {
-              $i += ($day - 1)
+            if ($day >= 2) {
+              foreach my $j (2..$day) {
+                $i++;
+                $h{$i} = 0;
+              }
             }
           }
           if ($cur - $old > 86400) {
