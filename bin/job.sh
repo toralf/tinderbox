@@ -428,7 +428,7 @@ function SearchForAnAlreadyFiledBug() {
 
   # don't waste time if b.g.o. isn't reachable
   #
-  bugz -q get 2 2> /dev/null
+  bugz -q get 2 &> /dev/null
   if [[ $? -ne 0 ]]; then
     echo "$(date) b.g.o. can't be queried for $failed"
     return
