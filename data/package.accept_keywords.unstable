@@ -5,5 +5,4 @@
 
 # IRC: Arfrever
 #
-~sys-libs/glibc-2.25 **
-~sys-libs/glibc-2.25.1 **
+=sys-libs/glibc-2.25* **
