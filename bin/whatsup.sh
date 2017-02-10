@@ -94,31 +94,46 @@ function PackagesPerDay() {
     printf "%s\r\t\t\t\t\t" $(basename $i)
     if [[ -f $log ]]; then
       echo -n "  "
+
+      # qlop gives sth like: Fri Aug 19 13:43:15 2016 >>> app-portage/cpuid2cpuflags-1
+      #
       qlop -lC -f $log |\
       perl -wane '
-        BEGIN { %h   = (); $i = 0; $old = 0; }
+        BEGIN { %h = (); $i = 1; $first = 1}
         {
           my $day = $F[2];
           my ($hh, $mm, $ss) = split (/:/, $F[3]);
 
           $cur = $day * 24*60*60 + $hh * 60*60 + $mm * 60 + $ss;
 
-          if ($cur < $old)  {
-            # new month
-            #
-            $old = $old % 86400;
-            if ($day >= 2) {
-              foreach my $j (2..$day) {
+          if ($first) {
+            $old = $cur;
+            $first = 0;
+
+          } else {
+            if ($cur < $old)  {
+              # month changed
+              #
+              $old = $old % 86400;
+              if ($day >= 2) {
+                foreach my $j (2..$day) {
+                  $i++;
+                  $h{$i} = 0;
+                }
+              }
+            }
+
+            my $diff = $cur - $old;
+
+            if ($diff > 86400)  {
+              $old = $cur;
+
+              while ($diff > 86400) {
+                $diff -= 86400;
                 $i++;
                 $h{$i} = 0;
               }
             }
-          }
-          if ($cur - $old > 86400) {
-            # new day
-            #
-            $old = $cur;
-            $i++;
           }
 
           $h{$i}++;
