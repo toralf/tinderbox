@@ -103,16 +103,21 @@ function PackagesPerDay() {
 
           $cur = $day * 24*60*60 + $hh * 60*60 + $mm * 60 + $ss;
 
-          # month changed ?
-          #
           if ($cur < $old)  {
+            # new month
+            #
             $old = $old % 86400;
+            if ($day > 1) {
+              $i += ($day - 1)
+            }
           }
-
           if ($cur - $old > 86400) {
+            # new day
+            #
             $old = $cur;
             $i++;
           }
+
           $h{$i}++;
         }
 
