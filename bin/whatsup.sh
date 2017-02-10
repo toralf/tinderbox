@@ -75,7 +75,7 @@ function LastEmergeOperation()  {
         printf ("  %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
       '
     else
-      echo
+      echo "        "
     fi
   done
 }
@@ -129,7 +129,7 @@ function PackagesPerDay() {
       '
       echo " "
     else
-      echo
+      echo "        "
     fi
   done
 }
@@ -154,7 +154,7 @@ function CurrentTask()  {
       printf "  %2ih %2im %02is  " $hours $minutes $seconds
       cat $i/tmp/task
     else
-      echo
+      echo "        "
     fi
   done
 }
