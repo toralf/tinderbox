@@ -28,20 +28,22 @@ function Overall() {
   do
     log=$i/var/log/emerge.log
     if [[ -f $log ]]; then
-      emerged=$(qlop -lC -f $log | wc -l)
+      emerged=$(grep -c '::: completed emerge' $log)
+      # we do count failed package, not failed attempts of the same package version
+      #
       if [[ -d $i/tmp/issues ]]; then
         failed=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
       else
         failed="-"
       fi
-      days=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
+      day=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
       backlog=$(wc -l < $i/tmp/packages)
 
       [[ -e ~/run/$(basename $i) ]] && run="yes"  || run=""
       [[ -f $i/tmp/LOCK ]]          && lock="yes" || lock=""
       [[ -f $i/tmp/STOP ]]          && stop="yes" || stop=""
 
-      echo -e "$emerged\t$failed\t$days\t$backlog\t$run\t$lock\t$stop\t$(basename $i)"
+      echo -e "$emerged\t$failed\t$day\t$backlog\t$run\t$lock\t$stop\t$(basename $i)"
     else
       echo -e "\t\t\t\t\t\t\t$(basename $i)"
     fi
