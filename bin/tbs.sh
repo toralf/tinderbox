@@ -96,6 +96,12 @@ function ComputeImageName()  {
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
   fi
 
+  # don't mention the default to avoid too long image names
+  #
+  if [[ "$keyword" = "stable" ]]; then
+    name="$name-$keyword"
+  fi
+
   if [[ "$clang" = "y" ]]; then
     name="$name-clang"
   fi
@@ -103,8 +109,6 @@ function ComputeImageName()  {
   if [[ "$libressl" = "y" ]]; then
     name="$name-libressl"
   fi
-
-  name="$name-$keyword"
 
   if [[ "$multilib" = "y" ]]; then
     name="$name-abi32+64"
