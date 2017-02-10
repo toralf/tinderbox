@@ -62,7 +62,7 @@ function LastEmergeOperation()  {
     printf "%s\r\t\t\t\t\t" $(basename $i)
     if [[ -f $log ]]; then
       tac $log |\
-      grep -m 1 -E '(>>>|\*\*\*|===|:::) emerge' |\
+      grep -m 1 -E -e '(>>>|\*\*\*) emerge' -e '::: completed emerge' |\
       sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ \*\*\*.*//g' |\
       perl -wane '
         chop ($F[0]);
