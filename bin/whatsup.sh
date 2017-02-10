@@ -97,51 +97,20 @@ function PackagesPerDay() {
 
       # qlop gives sth like: Fri Aug 19 13:43:15 2016 >>> app-portage/cpuid2cpuflags-1
       #
-      qlop -lC -f $log |\
+      grep '::: completed emerge' $log |\
+      cut -f1 -d ':' |\
       perl -wane '
-        BEGIN { %h = (); $i = 1; $first = 1}
+        BEGIN { @p = (); $first = 0}
         {
-          my $day = $F[2];
-          my ($hh, $mm, $ss) = split (/:/, $F[3]);
-
-          $cur = $day * 24*60*60 + $hh * 60*60 + $mm * 60 + $ss;
-
-          if ($first) {
-            $old = $cur;
-            $first = 0;
-
-          } else {
-            if ($cur < $old)  {
-              # month changed
-              #
-              $old = $old % 86400;
-              if ($day >= 2) {
-                foreach my $j (2..$day) {
-                  $i++;
-                  $h{$i} = 0;
-                }
-              }
-            }
-
-            my $diff = $cur - $old;
-
-            if ($diff > 86400)  {
-              $old = $cur;
-
-              while ($diff > 86400) {
-                $diff -= 86400;
-                $i++;
-                $h{$i} = 0;
-              }
-            }
-          }
-
-          $h{$i}++;
+          $cur = $F[0];
+          $first = $cur if ($first == 0);
+          my $i = int (($cur-$first)/86400);
+          $p[$i]++;
         }
 
         END {
-          foreach my $k (sort { $a <=> $b } keys %h) {
-            printf ("%5i", $h{$k});
+          foreach my $i (0..$#p) {
+            printf ("%5i", $p[$i]);
           }
         }
       '
