@@ -239,7 +239,6 @@ function AddWhoamiToIssue() {
   cat << EOF >> $issuedir/issue
 
   -----------------------------------------------------------------
-
 EOF
 }
 
@@ -526,11 +525,11 @@ function CompileIssueMail() {
 
   cat << EOF >> $issuedir/issue
 gcc-config -l:
-$(gcc-config -l 2>&1                && echo)
+$(gcc-config -l 2>/dev/null         && echo)
 llvm-config --version:
-$(llvm-config --version 2>&1        && echo)
+$(llvm-config --version 2>/dev/null && echo)
 $(eselect java-vm list 2>/dev/null  && echo)
-$(eselect python  list 2>&1         && echo)
+$(eselect python  list 2>/dev/null  && echo)
 $(eselect ruby    list 2>/dev/null  && echo)
 java-config:
 $(java-config --list-available-vms --nocolor 2>/dev/null && echo)
