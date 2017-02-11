@@ -218,8 +218,8 @@ CXXFLAGS="-O2 -pipe -march=native"
 USE="
   pax_kernel ssp xtpax -bindist -cdinstall -oci8
 
-$(echo $flags | xargs -s 78 | sed 's/^/  /g')
-$( if [[ "$clang" = "y" ]]; then echo "clang"; fi)
+$( echo $flags | xargs -s 78 | sed 's/^/  /g' )
+$( if [[ "$clang" = "y" ]]; then echo 'clang'; fi )
 "
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
