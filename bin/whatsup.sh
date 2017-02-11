@@ -17,36 +17,33 @@ function list_images() {
 
 # gives sth. like:
 #
-#emerged failed   day   backlog   ~/run   lock    stop
-# 4724    85      6.3     15567   yes     yes             13.0-no-multilib-unstable_20170203-153432
-# 2537    30      3.1     17007   yes     yes    yes      desktop-stable_20170206-184215
-# 49      -       .2      19171   yes     yes             gnome-libressl-unstable_20170209-171515
-
+#  inst fail  day  todo ~/run lock stop
+#  5254   97  7.8 14862     Y    Y    n 13.0-no-multilib-unstable_20170203-153432
+#   587    8  0.9 19021     Y    Y    n 13.0-systemd-libressl-unstable-abi32+64_20170210-142202
+#  3689   40  4.6 15088     Y    Y    n desktop-stable_20170206-184215
+#
 function Overall() {
-  echo "emerged failed  day   backlog   ~/run   lock    stop"
+  echo " inst fail  day  todo ~/run lock stop"
   for i in $images
   do
     log=$i/var/log/emerge.log
     if [[ -f $log ]]; then
-      emerged=$(grep -c '::: completed emerge' $log)
-      # we do count failed package, not failed attempts of the same package version
-      #
-      if [[ -d $i/tmp/issues ]]; then
-        failed=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
-      else
-        failed="-"
-      fi
+      inst=$(grep -c '::: completed emerge' $log)
       day=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
-      backlog=$(wc -l < $i/tmp/packages)
-
-      [[ -e ~/run/$(basename $i) ]] && run="yes"  || run=""
-      [[ -f $i/tmp/LOCK ]]          && lock="yes" || lock=""
-      [[ -f $i/tmp/STOP ]]          && stop="yes" || stop=""
-
-      echo -e "$emerged\t$failed\t$day\t$backlog\t$run\t$lock\t$stop\t$(basename $i)"
     else
-      echo -e "\t\t\t\t\t\t\t$(basename $i)"
+      inst=0
+      day=0
     fi
+    # we do count fail package, not fail attempts of the same package version
+    #
+    fail=$(ls -1 $i/tmp/issues 2>/dev/null | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
+    todo=$(wc -l < $i/tmp/packages 2>/dev/null)
+
+    [[ -e ~/run/$(basename $i) ]] && run="Y"  || run="n"
+    [[ -f $i/tmp/LOCK ]]          && lock="Y" || lock="n"
+    [[ -f $i/tmp/STOP ]]          && stop="Y" || stop="n"
+
+    printf "%5i %4i %4.1f %5i %5s %4s %4s %s\n" $inst $fail $day $todo $run $lock $stop $(basename $i)
   done
 }
 
