@@ -226,19 +226,18 @@ function GetMailAddresses() {
 }
 
 
-# put the name on top of the #comment 0
-# and a marker between the issue and tinderbox specific data
+# usually comment0 starts with the issue itslef
+# then this info should appear
 #
 function AddWhoamiToIssue() {
-  lf="\n"
-  sed -i "1i\
-  This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.$lf\
-  -----------------------------------------------------------------$lf\
-" $issuedir/issue
-
   cat << EOF >> $issuedir/issue
 
   -----------------------------------------------------------------
+
+  This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
+
+  -----------------------------------------------------------------
+
 EOF
 }
 
