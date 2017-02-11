@@ -756,11 +756,15 @@ function PostEmerge() {
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
-  # don't change these config files
+  # don't change these config files after setup
   #
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
-  rm -f etc/._cfg0000_locale.gen
+  ls /etc/._cfg????_locale.gen &> /dev/null
+  if [[ $? -eq 0 ]]; then
+    echo "%locale-gen" >> $pks
+    rm -f /etc/._cfg????_locale.gen
+  fi
 
   etc-update --automode -5 1>/dev/null
   env-update 1>/dev/null
