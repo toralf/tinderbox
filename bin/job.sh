@@ -978,7 +978,7 @@ function pre-check() {
 }
 
 
-# here we catch certain QA issues
+# catch QA issues
 #
 function ParseElogForQA() {
   find /var/log/portage/elog -name '*.log' $( [[ -f /tmp/timestamp.qa ]] && echo "-newer /tmp/timestamp.qa" ) |\
