@@ -123,15 +123,15 @@ function PackagesPerDay() {
 
 # gives sth. like:
 #
-# 13.0-no-multilib-unstable_20170203-153432          0h  0m 52s  games-puzzle/tanglet
-# 13.0-systemd-libressl-unstable_20170130-102323     0h  0m 39s  @preserved-rebuild
-# desktop-unstable_20170127-120123                   0h  2m 00s  app-text/bibletime
+# 13.0-no-multilib-unstable_20170203-15343   0h  1m 01s  app-benchmarks/volanomark
+# 13.0-systemd-libressl-unstable-abi32+64_   0h  9m 14s  sci-astronomy/cpl
+# desktop-stable_20170206-184215             1h 35m 56s  dev-lang/mercury
 #
 function CurrentTask()  {
   for i in $images
   do
     tsk=$i/tmp/task
-    printf "%s\r\t\t\t\t\t\t" $(basename $i)
+    printf "%s\r\t\t\t\t\t" $(basename $i)
     if [[ -f $tsk ]]; then
       delta=$(echo "$(date +%s) - $(date +%s -r $tsk)" | bc)
       seconds=$(echo "$delta % 60" | bc)
