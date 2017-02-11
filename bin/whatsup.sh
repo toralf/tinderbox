@@ -22,13 +22,13 @@ function PrintImageName()  {
 
 # gives sth. like:
 #
-#  inst fail  day  todo ~/run lock stop
-#  5254   97  7.8 14862     Y    Y    n 13.0-no-multilib-unstable_20170203-153432
-#   587    8  0.9 19021     Y    Y    n 13.0-systemd-libressl-unstable-abi32+64_20170210-142202
-#  3689   40  4.6 15088     Y    Y    n desktop-stable_20170206-184215
+#  inst fail   day   todo ~/run lock stop
+#  5254   97   7.8  14862     Y    Y    n 13.0-no-multilib-unstable_20170203-153432
+#   587    8   0.9  19021     Y    Y    n 13.0-systemd-libressl-unstable-abi32+64_20170210-142202
+#  3689   40   4.6  15088     Y    Y    n desktop-stable_20170206-184215
 #
 function Overall() {
-  echo " inst fail  day  todo ~/run lock stop"
+  echo " inst fail   day   todo ~/run lock stop"
   for i in $images
   do
     log=$i/var/log/emerge.log
@@ -48,7 +48,7 @@ function Overall() {
     [[ -f $i/tmp/LOCK ]]          && lock="y" || lock=""
     [[ -f $i/tmp/STOP ]]          && stop="y" || stop=""
 
-    printf "%5i %4i %4.1f %5i %5s %4s %4s %s\n" $inst $fail $day $todo "$run" "$lock" "$stop" $(basename $i)
+    printf "%5i %4i  %4.1f  %5i %5s %4s %4s %s\n" $inst $fail $day $todo "$run" "$lock" "$stop" $(basename $i)
   done
 }
 
