@@ -14,7 +14,7 @@
 # strip away escape sequences
 #
 function stresc() {
-  perl -MTerm::ANSIColor=colorstrip -nle 'colorstrip; s/\e\[K//g; s/\e\[\[//g; s/\e\[\(B//g; s/\r/\n/g; s/\x00/<NULL>/g; s/\e\[.m//g; s/\e\[..m//g; print'
+  perl -MTerm::ANSIColor=colorstrip -nle 'colorstrip; s/\e\[K//g; s/\e\[\[//g; s/\e\[\(B//g; s/\r/\n/g; s/\x00/<NULL>/g; s/\e\[m//g; s/\e\[.m//g; s/\e\[..m//g; print'
 }
 
 
@@ -702,7 +702,7 @@ function BuildKernel()  {
     make                  &&\
     make modules_install  &&\
     make install
-  ) &> $log
+  ) &>> $log
 
   return $?
 }
@@ -715,7 +715,7 @@ function SwitchGCC() {
   gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
   if [[ $? -eq 1 ]]; then
     verold=$(gcc -dumpversion)
-    gcc-config --nocolor $latest &> $log
+    gcc-config --nocolor $latest &>> $log
     source /etc/profile
     vernew=$(gcc -dumpversion)
 
@@ -823,7 +823,7 @@ function PostEmerge() {
 # helper of WorkOnTask()
 #
 function RunCmd() {
-  ($1) &> $log
+  ($1) &>> $log
   rc=$?
   PostEmerge
 
