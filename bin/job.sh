@@ -428,7 +428,7 @@ function SearchForAnAlreadyFiledBug() {
 
   # don't waste time if b.g.o. isn't reachable
   #
-  bugz -q get 2 &> /dev/null
+  bugz -q get 2 &>/dev/null
   if [[ $? -ne 0 ]]; then
     echo "$(date) b.g.o. can't be queried for $failed"
     return
@@ -441,7 +441,7 @@ function SearchForAnAlreadyFiledBug() {
   #
   for i in $failed $short
   do
-    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2> /dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       if [[ "$i" = "$failed" ]]; then
         open_bug_report_exists="y"
@@ -449,7 +449,7 @@ function SearchForAnAlreadyFiledBug() {
       break;
     fi
 
-    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2> /dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       if [[ "$i" = "$failed" ]]; then
         open_bug_report_exists="y"
@@ -457,14 +457,14 @@ function SearchForAnAlreadyFiledBug() {
       break
     fi
 
-    id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved  $i "$(cat $bsi)" 2> /dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved  $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo
       echo "  ^^ DUPLICATE" >> $issuedir/body
       break
     fi
 
-    id=$(bugz -q --columns 400 search --show-status --status resolved $i "$(cat $bsi)" 2> /dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status --status resolved $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       break
     fi
@@ -1006,7 +1006,7 @@ function ParseElogForQA() {
       grep -A 10 $issuedir/issue > $issuedir/body
       AddMetainfoToBody
       echo -e "\n~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
-      id=$(bugz -q --columns 400 search --show-status $short "$reason" 2> /dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+      id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
 
       Mail "${id:-QA} $failed : $reason" $issuedir/body
     fi
