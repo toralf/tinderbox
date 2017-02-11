@@ -209,7 +209,7 @@ function CompileMakeConf()  {
           -e '/^DISTDIR=/d'       \
           etc/portage/make.conf
 
-# no -Werror=implicit-function-declaration, please see https://bugs.gentoo.org/show_bug.cgi?id=602960
+# no -Werror=implicit-function-declaration: https://bugs.gentoo.org/show_bug.cgi?id=602960
 #
   cat << EOF >> etc/portage/make.conf
 CFLAGS="-O2 -pipe -march=native -Wall"
@@ -258,8 +258,7 @@ EOF
 }
 
 
-# few of the package files resides physically in /tmp/tb/data
-# for those we do just creates symlinks here
+# symlink the (shared) package files of /tmp/tb/data to the portage directories
 #
 function CompilePackageFiles()  {
   mkdir tmp/tb  # mount point of the tinderbox directory of the host
@@ -309,7 +308,7 @@ EOF
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
   chmod a+rw etc/portage/package.use/setup
 
-  # activate at every n-th image pre-defined USE flag sets too
+  # activate at every n-th image predefined USE flag sets (ffmpeg, firefox/thunderbird, etc) too
   #
   for f in {ff-and-tb,ffmpeg}
   do
@@ -326,7 +325,7 @@ CXXFLAGS="\$CXXFLAGS -g -ggdb"
 FEATURES="splitdebug"
 EOF
 
-  # no special c++ flags (eg. to revert -Werror=terminate)
+  # no special c++ flags (eg. revert -Werror=terminate)
   #
   echo 'CXXFLAGS="-O2 -pipe -march=native"' > etc/portage/env/cxx
 
@@ -384,7 +383,7 @@ function FillPackageList()  {
   fi
 
   # emerge/upgrade mandatory package/s and upgrade @system
-  # the last action (@world) is mainly used to prevent insert_pks.sh
+  # the side effect of the last action (@world) is to prevent insert_pks.sh
   # from changing the package list before the setup is completed
   #
   cat << EOF >> $pks
@@ -404,7 +403,7 @@ EOF
     echo "%/tmp/tb/bin/switch2libressl.sh" >> $pks
   fi
 
-  # prefix "%" is needed here b/c IGNORE_PACKAGE rules otherwise
+  # prefix "%" is needed here due to IGNORE_PACKAGE
   #
   echo "%emerge -u sys-kernel/hardened-sources" >> $pks
 
