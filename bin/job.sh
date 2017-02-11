@@ -14,7 +14,7 @@
 # strip away escape sequences
 #
 function stresc() {
-  perl -MTerm::ANSIColor=colorstrip -nle 'colorstrip; s/\e\[K//g; s/\e\[\[//g; s/\e\[\(B//g; s/\r/\n/g; s/\x00/<NULL>/g; s/\e\[m//g; s/\e\[.m//g; s/\e\[..m//g; s/..\(B.\[m//g; print'
+  perl -wne 's/\x1b\x28\x42//g; s/\r/\n/g; s/\x00/<NULL>/g; print'
 }
 
 
