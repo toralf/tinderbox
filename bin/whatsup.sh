@@ -15,6 +15,11 @@ function list_images() {
 }
 
 
+function PrintImageName()  {
+  printf "%s\r\t\t\t\t\t            \r\t\t\t\t\t" $(basename $i)
+}
+
+
 # gives sth. like:
 #
 #  inst fail  day  todo ~/run lock stop
@@ -39,11 +44,11 @@ function Overall() {
     fail=$(ls -1 $i/tmp/issues 2>/dev/null | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
     todo=$(wc -l < $i/tmp/packages 2>/dev/null)
 
-    [[ -e ~/run/$(basename $i) ]] && run="Y"  || run="n"
-    [[ -f $i/tmp/LOCK ]]          && lock="Y" || lock="n"
-    [[ -f $i/tmp/STOP ]]          && stop="Y" || stop="n"
+    [[ -e ~/run/$(basename $i) ]] && run="y"  || run=""
+    [[ -f $i/tmp/LOCK ]]          && lock="y" || lock=""
+    [[ -f $i/tmp/STOP ]]          && stop="y" || stop=""
 
-    printf "%5i %4i %4.1f %5i %5s %4s %4s %s\n" $inst $fail $day $todo $run $lock $stop $(basename $i)
+    printf "%5i %4i %4.1f %5i %5s %4s %4s %s\n" $inst $fail $day $todo "$run" "$lock" "$stop" $(basename $i)
   done
 }
 
@@ -58,7 +63,7 @@ function LastEmergeOperation()  {
   for i in $images
   do
     log=$i/var/log/emerge.log
-    printf "%s\r\t\t\t\t\t" $(basename $i)
+    PrintImageName
     if [[ -f $log ]]; then
       tac $log |\
       grep -m 1 -E -e '(>>>|\*\*\*) emerge' -e '::: completed emerge' |\
@@ -90,7 +95,7 @@ function PackagesPerDay() {
   for i in $images
   do
     log=$i/var/log/emerge.log
-    printf "%s\r\t\t\t\t\t" $(basename $i)
+    PrintImageName
     if [[ -f $log ]]; then
       echo -n "  "
 
@@ -131,7 +136,7 @@ function CurrentTask()  {
   for i in $images
   do
     tsk=$i/tmp/task
-    printf "%s\r\t\t\t\t\t" $(basename $i)
+    PrintImageName
     if [[ -f $tsk ]]; then
       delta=$(echo "$(date +%s) - $(date +%s -r $tsk)" | bc)
       seconds=$(echo "$delta % 60" | bc)
