@@ -333,7 +333,7 @@ EOF
     else
       echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
       try_again=1
-      (cd /var/tmp/portage/$failed/work/$(basename $failed) && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests || ls -l /var/tmp/portage/*/work)
+      (cd /var/tmp/portage/$failed/work/$(basename $failed) && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests || ls -l /var/tmp/portage/*/*/work)
     fi
 
   else
