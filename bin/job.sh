@@ -580,7 +580,7 @@ function GetFailed()  {
 
   # strip away the package version must work
   #
-  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+  short=$(qatom $failed 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
   if [[ ! -d /usr/portage/$short ]]; then
     Mail "warn: \$short=$short isn't valid, \$task=$task, \$failed=$failed" $bak
     failed=""
