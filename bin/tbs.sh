@@ -216,8 +216,7 @@ CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
 
 USE="
-  pax_kernel xtpax -cdinstall -oci8 -bindist
-  ssp
+  pax_kernel ssp xtpax -bindist -cdinstall -oci8
 
 $(echo $flags | xargs -s 78 | sed 's/^/  /g')
 $( if [[ "$clang" = "y" ]]; then echo "clang"; fi)
