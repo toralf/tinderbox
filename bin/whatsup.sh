@@ -16,7 +16,7 @@ function list_images() {
 
 
 function PrintImageName()  {
-  printf "%s\r\t\t\t\t\t            \r\t\t\t\t\t" $(basename $i)
+  printf "%s\r\t\t\t\t\t               \r\t\t\t\t\t" $(basename $i)
 }
 
 
