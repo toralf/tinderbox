@@ -151,6 +151,7 @@ is banned in EAPI
 Failed Running libtoolize
 Select exactly one database type out of these: mysql oracle postgres sqlite
 failed to load "
+Type of arg .* to shift must be array
 make .* Error
 The source directory .* doesn.t exist
 Document .* does not validate
