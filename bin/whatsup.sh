@@ -64,21 +64,23 @@ function LastEmergeOperation()  {
   do
     log=$i/var/log/emerge.log
     PrintImageName
-    if [[ -f $log ]]; then
-      tac $log |\
-      grep -m 1 -E -e '(>>>|\*\*\*) emerge' -e '::: completed emerge' |\
-      sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' |\
-      perl -wane '
-        chop ($F[0]);
-
-        my $diff = time() - $F[0];
-        my $hh = $diff / 60 / 60;
-        my $mm = $diff / 60 % 60;
-        my $ss = $diff % 60 % 60;
-
-        printf ("  %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
-      '
+    if [[ ! -f $log ]]; then
+      continue
     fi
+
+    tac $log |\
+    grep -m 1 -E -e '(>>>|\*\*\*) emerge' -e '::: completed emerge' |\
+    sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' |\
+    perl -wane '
+      chop ($F[0]);
+
+      my $diff = time() - $F[0];
+      my $hh = $diff / 60 / 60;
+      my $mm = $diff / 60 % 60;
+      my $ss = $diff % 60 % 60;
+
+      printf ("  %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
+    '
   done
 }
 
@@ -94,30 +96,32 @@ function PackagesPerDay() {
   do
     log=$i/var/log/emerge.log
     PrintImageName
-    if [[ -f $log ]]; then
-      echo -n "  "
-
-      # qlop gives sth like: Fri Aug 19 13:43:15 2016 >>> app-portage/cpuid2cpuflags-1
-      #
-      grep '::: completed emerge' $log |\
-      cut -f1 -d ':' |\
-      perl -wane '
-        BEGIN { @p = (); $first = 0}
-        {
-          $cur = $F[0];
-          $first = $cur if ($first == 0);
-          my $i = int (($cur-$first)/86400);
-          $p[$i]++;
-        }
-
-        END {
-          foreach my $i (0..$#p) {
-            printf ("%4i", $p[$i]);
-          }
-          print "\n";
-        }
-      '
+    if [[ ! -f $log ]]; then
+      continue
     fi
+
+    echo -n "  "
+
+    # qlop gives sth like: Fri Aug 19 13:43:15 2016 >>> app-portage/cpuid2cpuflags-1
+    #
+    grep '::: completed emerge' $log |\
+    cut -f1 -d ':' |\
+    perl -wane '
+      BEGIN { @p = (); $first = 0}
+      {
+        $cur = $F[0];
+        $first = $cur if ($first == 0);
+        my $i = int (($cur-$first)/86400);
+        $p[$i]++;
+      }
+
+      END {
+        foreach my $i (0..$#p) {
+          printf ("%4i", $p[$i]);
+        }
+        print "\n";
+      }
+    '
   done
 }
 
@@ -133,14 +137,16 @@ function CurrentTask()  {
   do
     tsk=$i/tmp/task
     PrintImageName
-    if [[ -f $tsk ]]; then
-      delta=$(echo "$(date +%s) - $(date +%s -r $tsk)" | bc)
-      seconds=$(echo "$delta % 60" | bc)
-      minutes=$(echo "$delta / 60 % 60" | bc)
-      hours=$(echo "$delta / 60 / 60" | bc)
-      printf "  %2ih %2im %02is  " $hours $minutes $seconds
-      cat $i/tmp/task
+    if [[ ! -f $tsk ]]; then
+      continue
     fi
+
+    delta=$(echo "$(date +%s) - $(date +%s -r $tsk)" | bc)
+    seconds=$(echo "$delta % 60" | bc)
+    minutes=$(echo "$delta / 60 % 60" | bc)
+    hours=$(echo "$delta / 60 / 60" | bc)
+    printf "  %2ih %2im %02is  " $hours $minutes $seconds
+    cat $i/tmp/task
   done
 }
 
