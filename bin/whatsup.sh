@@ -78,8 +78,6 @@ function LastEmergeOperation()  {
 
         printf ("  %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
       '
-    else
-      echo "        "
     fi
   done
 }
@@ -116,11 +114,9 @@ function PackagesPerDay() {
           foreach my $i (0..$#p) {
             printf ("%4i", $p[$i]);
           }
+          print "\n";
         }
       '
-      echo " "
-    else
-      echo "        "
     fi
   done
 }
@@ -144,8 +140,6 @@ function CurrentTask()  {
       hours=$(echo "$delta / 60 / 60" | bc)
       printf "  %2ih %2im %02is  " $hours $minutes $seconds
       cat $i/tmp/task
-    else
-      echo "        "
     fi
   done
 }
