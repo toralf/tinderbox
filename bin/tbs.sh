@@ -25,7 +25,7 @@ function rufs()  {
     cdda cddb cgi cgroups cjk clang compat consolekit contrib corefonts
     csc cups curl dbus dec_av2 declarative designer dnssec dot drmkms dvb
     dvd ecc egl eglfs emacs evdev exif ext4 extra extraengine fax ffmpeg
-    filter fitz fluidsynth fontconfig fortran fpm freetds ftp gcj gd gif git
+    filter fitz fluidsynth fontconfig fortran fpm freetds ftp gd gif git
     glamor gles gles2 gnomecanvas gnome-keyring gnuplot gnutls go gpg
     graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui gzip haptic havege
     hdf5 help hpn ibus icu imap imlib infinality inifile introspection
