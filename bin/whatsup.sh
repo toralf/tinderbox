@@ -100,14 +100,12 @@ function PackagesPerDay() {
       continue
     fi
 
-    echo -n "  "
-
     # qlop gives sth like: Fri Aug 19 13:43:15 2016 >>> app-portage/cpuid2cpuflags-1
     #
     grep '::: completed emerge' $log |\
     cut -f1 -d ':' |\
     perl -wane '
-      BEGIN { @p = (); $first = 0}
+      BEGIN { @p = (); $first = 0; print "  ";}
       {
         $cur = $F[0];
         $first = $cur if ($first == 0);
