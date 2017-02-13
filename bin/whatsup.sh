@@ -62,8 +62,8 @@ function Overall() {
 function LastEmergeOperation()  {
   for i in $images
   do
-    log=$i/var/log/emerge.log
     PrintImageName
+    log=$i/var/log/emerge.log
     if [[ ! -f $log ]]; then
       continue
     fi
@@ -94,8 +94,8 @@ function LastEmergeOperation()  {
 function PackagesPerDay() {
   for i in $images
   do
-    log=$i/var/log/emerge.log
     PrintImageName
+    log=$i/var/log/emerge.log
     if [[ ! -f $log ]]; then
       continue
     fi
@@ -133,8 +133,8 @@ function PackagesPerDay() {
 function CurrentTask()  {
   for i in $images
   do
-    tsk=$i/tmp/task
     PrintImageName
+    tsk=$i/tmp/task
     if [[ ! -f $tsk ]]; then
       continue
     fi
