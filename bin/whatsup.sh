@@ -55,9 +55,9 @@ function Overall() {
 
 # gives sth. like:
 #
-# 13.0-no-multilib-unstable_20170203-153432          0h  0m 37s >>> (1 of 1) dev-php/pecl-timezonedb-2016.10
-# desktop-stable_20170206-184215                     1h  0m 46s >>> (23 of 25) dev-games/openscenegraph-3.4.0
-# desktop-unstable_20170127-120123                   0h  0m 58s
+# 13.0-no-multilib-unstable_20170203-15343   0h  0m 24s *** app-crypt/manuale
+# 13.0-systemd-libressl-unstable-abi32+64_   0h  3m 45s >>> (4 of 9) net-nds/openldap-2.4.44-r1
+# desktop-stable_20170206-184215             0h  0m 20s ::: (2 of 2) media-video/vamps-0.99.2
 #
 function LastEmergeOperation()  {
   for i in $images
@@ -67,7 +67,7 @@ function LastEmergeOperation()  {
     if [[ -f $log ]]; then
       tac $log |\
       grep -m 1 -E -e '(>>>|\*\*\*) emerge' -e '::: completed emerge' |\
-      sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\*.*//g' |\
+      sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' |\
       perl -wane '
         chop ($F[0]);
 
@@ -87,9 +87,9 @@ function LastEmergeOperation()  {
 
 # gives sth. like:
 #
-# gnome-unstable_20170201-093005                    655   56
-# hardened-no-multilib-libressl-unstable_20170131- 1062  798
-# hardened-unstable_20170129-183636                 344  870 1045  503
+# gnome-systemd-unstable_20170203-145554     5431019 946 803 511 564 771 596 598 237
+# gnome-unstable_20170201-093005             655 940 984 568 639 500 301 407 320 596 494 430  18
+# plasma-stable_20170206-185342              589 729 950 8021011 768 344
 #
 function PackagesPerDay() {
   for i in $images
@@ -114,7 +114,7 @@ function PackagesPerDay() {
 
         END {
           foreach my $i (0..$#p) {
-            printf ("%5i", $p[$i]);
+            printf ("%4i", $p[$i]);
           }
         }
       '
@@ -161,12 +161,6 @@ echo "$(echo $images | wc -w) images ($(ls ~/img? | wc -w) at all) :"
 while getopts hlopt\? opt
 do
   echo
-
-  # ignore stderr but keep its setting
-  #
-#   exec 3>&2
-#   exec 2> /dev/null
-
   case $opt in
     l)  LastEmergeOperation
         ;;
@@ -181,8 +175,6 @@ do
         exit 0
         ;;
   esac
-
-#   exec 2>&3
 done
 
 echo
