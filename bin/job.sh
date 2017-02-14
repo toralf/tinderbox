@@ -22,7 +22,7 @@ function stresc() {
 # send an email, $1 is subject, $2 is body
 #
 function Mail() {
-  subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' '<lf>')
+  subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
   ( [[ -e $2 ]] && stresc < $2 || echo "<no body>" ) | timeout 120 mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
   rc=$?
   if [[ $rc -ne 0 ]]; then
@@ -36,7 +36,9 @@ function Mail() {
 function Finish()  {
   rc=$1
   shift
-  subject=$(echo "$*" | cut -c1-200 | tr '\n' ' ' | stresc)
+  # althought stresc is made in Mail() too do it here too b/c $1 might contain " and/or '
+  #
+  subject=$(echo "$@" | stresc | cut -c1-200 | tr '\n' ' ')
 
   /usr/bin/pfl &> /dev/null
   eix-update -q &> /dev/null
