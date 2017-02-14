@@ -22,10 +22,11 @@ function stresc() {
 # send an email, $1 is subject, $2 is body
 #
 function Mail() {
-  subject=$(echo "$1" | cut -c1-200 | tr '\n' ' ' | stresc)
+  subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' '<lf>')
   ( [[ -e $2 ]] && stresc < $2 || echo "<no body>" ) | timeout 120 mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
-  if [[ $? -eq 124 ]]; then
-    echo "$(date) mail timed out for $failed"
+  rc=$?
+  if [[ $rc -ne 0 ]]; then
+    echo "$(date) rc=$rc failed=$failed issuedir=$issuedir"
   fi
 }
 
@@ -332,7 +333,18 @@ EOF
     else
       echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
       try_again=1
-      (cd /var/tmp/portage/$failed/work/$(basename $failed) && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests || ls -l /var/tmp/portage/*/*/work)
+      wd=/var/tmp/portage/$failed/work/$(basename $failed)
+      if [[ ! -d $wd ]]; then
+        wd=$(fgrep " * Working directory: '" $bak | cut -f2 -d"'")
+      fi
+      if [[ ! -d $wd ]]; then
+        Mail "warn: working dir not found for $failed" $bak
+      else
+        (cd $wd && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>/dev/null)
+        if [[ $? -ne 0 ]]; then
+          Mail "warn: no test dir found: $issuedir" $bak
+        fi
+      fi
     fi
 
   else
@@ -425,18 +437,8 @@ function SearchForAnAlreadyFiledBug() {
     sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
   fi
 
-  # don't waste time if b.g.o. isn't reachable
-  #
-  bugz -q get 2 &>/dev/null
-  if [[ $? -ne 0 ]]; then
-    echo "$(date) b.g.o. can't be queried for $failed"
-    return
-  fi
-
-  # if a bug was filed but for another package version (== $short)
-  # then we have to decide if we file a bug or not
-  # eg.: to stabelize a new GCC compiler the stable package might fail with the new compiler
-  # but the unstable version was already fixed before
+  # search first for opened, then for closed bugs
+  # start with same package version, then just for the package name
   #
   for i in $failed $short
   do
@@ -445,7 +447,7 @@ function SearchForAnAlreadyFiledBug() {
       if [[ "$i" = "$failed" ]]; then
         open_bug_report_exists="y"
       fi
-      break;
+      break
     fi
 
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
@@ -458,8 +460,7 @@ function SearchForAnAlreadyFiledBug() {
 
     id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved  $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      echo
-      echo "  ^^ DUPLICATE" >> $issuedir/body
+      echo " ^ duplicate" >> $issuedir/body
       break
     fi
 
@@ -469,8 +470,7 @@ function SearchForAnAlreadyFiledBug() {
     fi
   done
 
-  # compile a command line ready for copy+paste
-  # and add bugzilla search results if needed
+  # compile a command line ready for copy+paste and add bugzilla search results
   #
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
@@ -482,8 +482,8 @@ EOF
   else
     echo -e "  ~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
 
-    h="https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr"
-    g="stabilize|Bump| keyword| bump"
+    h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
+    g='stabilize|Bump| keyword| bump'
 
     echo "  OPEN:     ${h}&resolution=---&short_desc=${short}" >> $issuedir/body
     bugz --columns 400 -q search --show-status      $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
@@ -522,16 +522,16 @@ function CompileIssueMail() {
   AddMetainfoToBody
   AddWhoamiToIssue
 
+  # installed versions of languages and compilers
+  #
   cat << EOF >> $issuedir/issue
 gcc-config -l:
-$(gcc-config -l 2>/dev/null         && echo)
-llvm-config --version:
-$(llvm-config --version 2>/dev/null && echo)
-$(eselect java-vm list 2>/dev/null  && echo)
-$(eselect python  list 2>/dev/null  && echo)
-$(eselect ruby    list 2>/dev/null  && echo)
-java-config:
-$(java-config --list-available-vms --nocolor 2>/dev/null && echo)
+$(gcc-config -l                   )
+$( [[ -x /usr/bin/llvm-config ]] && echo llvm-config: && llvm-config --version )
+$(eselect python  list 2>/dev/null)
+$(eselect ruby    list 2>/dev/null)
+$( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-available-vms --nocolor )
+$(eselect java-vm list 2>/dev/null)
 EOF
 
   SearchForAnAlreadyFiledBug
@@ -575,14 +575,6 @@ function GetFailed()  {
     else
       failed=$(grep -m1 -F ' * Package:    ' | awk ' { print $3 } ' $bak)
     fi
-  fi
-
-  # strip away the package version must work
-  #
-  short=$(qatom $failed 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
-  if [[ ! -d /usr/portage/$short ]]; then
-    Mail "warn: \$short=$short isn't valid, \$task=$task, \$failed=$failed" $bak
-    failed=""
   fi
 }
 
@@ -649,6 +641,14 @@ function GotAnIssue()  {
   #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
+    return
+  fi
+
+  # should never fail here
+  #
+  short=$(qatom "$failed" | cut -f1-2 -d' ' | tr ' ' '/')
+  if [[ ! -d /usr/portage/$short ]]; then
+    Mail "warn: \$short=$short isn't valid, \$task=$task, \$failed=$failed" $bak
     return
   fi
 
@@ -1075,8 +1075,8 @@ do
     Finish 0 "catched STOP"
   fi
 
-  # clean up from a previous emerge operation
-  # (cannot be made by portage b/c relevant build files have to be saved before)
+  # clean up from a previous (failed) emerge operation
+  # configured to not be made by portage b/c relevant build files have to be saved before
   #
   rm -rf /var/tmp/portage/*
 
