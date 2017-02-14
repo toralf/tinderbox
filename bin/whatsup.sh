@@ -69,8 +69,8 @@ function LastEmergeOperation()  {
     fi
 
     tac $log |\
-    grep -m 1 -E -e '(>>>|\*\*\*) emerge' -e '::: completed emerge' |\
-    sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' |\
+    grep -m 1 -E -e '(>>>|\*\*\*) emerge' -e ' \*\*\* terminating.' -e '::: completed emerge' |\
+    sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* terminating\./ /g' |\
     perl -wane '
       chop ($F[0]);
 
@@ -136,6 +136,7 @@ function CurrentTask()  {
     PrintImageName
     tsk=$i/tmp/task
     if [[ ! -f $tsk ]]; then
+      echo
       continue
     fi
 
