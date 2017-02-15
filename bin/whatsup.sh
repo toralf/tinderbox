@@ -101,6 +101,7 @@ function PackagesPerDay() {
     PrintImageName
     log=$i/var/log/emerge.log
     if [[ ! -f $log ]]; then
+      echo
       continue
     fi
 
