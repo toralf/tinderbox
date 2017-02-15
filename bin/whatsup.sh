@@ -22,10 +22,9 @@ function PrintImageName()  {
 
 # gives sth. like:
 #
-#  inst fail   day   todo ~/run lock stop
-#  5254   97   7.8  14862     Y    Y    n 13.0-no-multilib-unstable_20170203-153432
-#   587    8   0.9  19021     Y    Y    n 13.0-systemd-libressl-unstable-abi32+64_20170210-142202
-#  3689   40   4.6  15088     Y    Y    n desktop-stable_20170206-184215
+#  4243   64   5.1  15304     y    y      13.0-systemd-libressl-unstable-abi32+64_20170210-142202
+#    14    0   0.0  18970          y      desktop-libressl-abi32+64_20170215-185650
+#  6316   71   9.0   9631     y    y    y desktop-stable_20170206-184215
 #
 function Overall() {
   echo " inst fail   day   todo ~/run lock stop"
@@ -39,9 +38,13 @@ function Overall() {
       inst=0
       day=0
     fi
-    # we do count fail package, not fail attempts of the same package version
+    # we do count fail packages, but not failed attempts of the same package version
     #
-    fail=$(ls -1 $i/tmp/issues 2>/dev/null | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
+    if [[ -d $i/tmp/issues ]]; then
+      fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
+    else
+      fail=0
+    fi
     todo=$(wc -l < $i/tmp/packages 2>/dev/null)
 
     [[ -e ~/run/$(basename $i) ]] && run="y"  || run=""
@@ -65,6 +68,7 @@ function LastEmergeOperation()  {
     PrintImageName
     log=$i/var/log/emerge.log
     if [[ ! -f $log ]]; then
+      echo
       continue
     fi
 
