@@ -52,6 +52,7 @@ error: .* was not declared in this scope
 error: '::isinf'
 error while loading shared libraries:
 error:.*failed to fetch
+Failed to load interface for
 error:
 stack smashing detected
 No rule to make target
