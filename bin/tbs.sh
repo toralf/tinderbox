@@ -37,7 +37,7 @@ function rufs()  {
     offensive ogg ois opencv openexr opengl openmpi openssl opus osc pam
     pcre16 perl php pkcs11 plasma plotutils plugins png policykit postgres
     postproc postscript printsupport pulseaudio pwquality pypy python qemu
-    qml qt5 rdoc rendering ruby sasl scripts scrypt sddm sdl secure-delete
+    qml qt5 rdoc rdp rendering ruby sasl scripts scrypt sddm sdl secure-delete
     semantic-desktop server smartcard smime smpeg snmp sockets source
     sourceview spice sql sqlite sqlite3 ssh ssh-askpass ssl svc svg
     swscale system-cairo system-ffmpeg system-harfbuzz system-icu
