@@ -21,6 +21,7 @@ gnome-base/librsvg        -tools
 media-libs/mesa           -vaapi
 net-dns/libidn            -emacs
 sys-apps/kmod             tools
+sys-apps/man-db           -nls
 sys-libs/ncurses          -gpm
 x11-misc/xdg-utils        -perl
 
@@ -32,11 +33,11 @@ app-editors/xemacs        -nopie
 #
 app-text/xmlto            -text
 
-# due to FEATURES=test and test? ( ssl )
+# test? ( ssl )
 #
 net-misc/openssh          ssl
 
-# can't be linked statically with +pam
+# can't be linked statically otherwise
 #
 sys-apps/busybox          -pam
 
@@ -51,8 +52,5 @@ x11-base/xorg-server      -minimal
 #
 # As soon as /etc/profile.d/nix.sh gets installed into system
 # next bash process will create that link and output a message.
-#
-# You can disable profile injection completely with USE=-etc_profile
-# if you plan to build-test nix only. It should only affect profile injection.
 #
 sys-apps/nix              -etc_profile
