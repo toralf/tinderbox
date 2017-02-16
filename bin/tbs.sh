@@ -380,10 +380,13 @@ function FillPackageList()  {
     tac $pks.tmp >> $pks
     rm $pks.tmp
   else
-    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    # test new and/or changed ebuilds only at a fraction of all images
+    # in favour of the repository coverage
+    #
+    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
       echo '# just run over the repository and ignore its daily changes' > $pks
     fi
-    # fully randomized package list
+    # randomized package list
     #
     qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
   fi
