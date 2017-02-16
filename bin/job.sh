@@ -609,12 +609,11 @@ function ReportIssue()  {
 }
 
 
-# emerge failed for some reason, therefore parse the output
+# put all successfully emerged dependencies of $task in the world file
+# otherwise we'd need to use "--deep" unconditionally
+# (https://bugs.gentoo.org/show_bug.cgi?id=563482)
 #
-function GotAnIssue()  {
-  # keep all successfully emerged dependencies of $task
-  # otherwise we'd need "--deep" (https://bugs.gentoo.org/show_bug.cgi?id=563482) unconditionally in every emerge
-  #
+function KeepDeps() {
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
@@ -623,9 +622,14 @@ function GotAnIssue()  {
       emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &> /dev/null
     fi
   fi
+}
 
-  # bail out if an OOM happened or gcc upgrade failed
-  #
+
+# emerge failed for some reason, therefore parse the output
+#
+function GotAnIssue()  {
+  KeepDeps
+
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
@@ -639,7 +643,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # ignore certain issues & don't mask affected packages
+  # ignore certain issues, stop processing of those issues completely
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
