@@ -59,7 +59,7 @@ Bugs can be filed using *bgo.sh* - the comand line is part of the email.
 ###unattended test of a package/s
 Append package/s to the package list in the following way:
     
-    cat <<<EOF >> <image name>/tmp/packages
+    cat <<<EOF >> ~/run/[image_name]/tmp/packages
     INFO this text is displayed as the subject of an info email
     package1
     ...
@@ -69,22 +69,22 @@ Append package/s to the package list in the following way:
     ...
     EOF
 
-Use "STOP" instead "INFO" to stop the image afterwards.
+Use "STOP" instead "INFO" to stop the image.
 
 ## installation
 Create the user *tinderbox*:
 
     useradd -m tinderbox
-Run this in the home directory */home/tinderbox*:
+Run this in */home/tinderbox*:
 
     mkdir ~/img{1,2} ~/logs ~/run ~/tb
 Copy *./bin*, *./data* and *./sdata* into *~/tb*.
 Edit the files in *~/sdata* and strip away the suffix *.sample*.
-Grant to the user these sudo rights:
+Grant sudo rights:
 
     tinderbox ALL=(ALL) NOPASSWD: /home/tinderbox/tb/bin/chr.sh,/home/tinderbox/tb/bin/tbs.sh,/usr/bin/chroot
 
-At a hardened host these tweaks of *Grsecurity* are needed:
+At a hardened tweak *Grsecurity*:
 
     sysctl -w kernel.grsecurity.chroot_deny_chmod=0
     sysctl -w kernel.grsecurity.chroot_caps=0
