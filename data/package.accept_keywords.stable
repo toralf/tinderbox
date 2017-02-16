@@ -3,10 +3,6 @@
 # this file resides in /tmp/tb/data within a tinderbox image
 # the appropriate symlink under /etc/portage/ points to it
 
-# stable request https://bugs.gentoo.org/show_bug.cgi?id=574788
-#
-media-video/ffmpeg
-
 # stable request https://bugs.gentoo.org/show_bug.cgi?id=603260
 #
 ~sys-devel/gcc-5.4.0
