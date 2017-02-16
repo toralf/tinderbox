@@ -28,7 +28,7 @@ function rufs()  {
     filter fitz fluidsynth fontconfig fortran fpm freetds ftp gd gif git
     glamor gles gles2 gnomecanvas gnome-keyring gnuplot gnutls go gpg
     graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui gzip haptic havege
-    hdf5 help hpn ibus icu imap imlib infinality inifile introspection
+    hdf5 help ibus icu imap imlib infinality inifile introspection
     ipv6 isag jadetex javascript javaxml jpeg kerberos kvm lapack latex
     ldap libinput libkms libvirtd llvm logrotate lua luajit lvm lzma mad
     mbox mdnsresponder-compat melt midi mikmod minimal minizip mng mod
