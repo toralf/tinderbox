@@ -4,7 +4,3 @@
 # the appropriate symlink under /etc/portage/ points to it
 
 # please note that this file rules over /etc/portage/package.mask/self
-
-# https://bugs.gentoo.org/show_bug.cgi?id=603726
-#
-~media-video/libav-12
