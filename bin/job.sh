@@ -40,8 +40,8 @@ function Finish()  {
   #
   subject=$(echo "$@" | stresc | cut -c1-200 | tr '\n' ' ')
 
-  /usr/bin/pfl &> /dev/null
-  eix-update -q &> /dev/null
+  /usr/bin/pfl &>/dev/null
+  eix-update -q &>/dev/null
   Mail "FINISHED: $subject" $log
 
   rm -f /tmp/STOP
@@ -619,7 +619,7 @@ function KeepDeps() {
   if [[ $? -eq 0 ]]; then
     echo "$line" | grep -q ':  === (1 of '
     if [[ $? -eq 1 ]]; then
-      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &> /dev/null
+      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
     fi
   fi
 }
@@ -745,7 +745,7 @@ EOF
       # without a *re*build we'd get issues like: "cc1: error: incompatible gcc/plugin versions"
       #
       if [[ -e /usr/src/linux/.config ]]; then
-        (cd /usr/src/linux && make clean &> /dev/null)
+        (cd /usr/src/linux && make clean &>/dev/null)
         echo "%BuildKernel" >> $pks
       fi
     fi
@@ -766,7 +766,7 @@ function PostEmerge() {
   #
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
-  ls /etc/._cfg????_locale.gen &> /dev/null
+  ls /etc/._cfg????_locale.gen &>/dev/null
   if [[ $? -eq 0 ]]; then
     echo "%locale-gen" >> $pks
     rm -f /etc/._cfg????_locale.gen
@@ -893,7 +893,7 @@ function WorkOnTask() {
     fi
 
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.system
-    /usr/bin/pfl &> /dev/null
+    /usr/bin/pfl &>/dev/null
 
   elif [[ "$task" = "@world" ]]; then
     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
@@ -912,7 +912,7 @@ function WorkOnTask() {
     fi
 
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.world
-    /usr/bin/pfl &> /dev/null
+    /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
     #  a command: prefixed with a '%'
