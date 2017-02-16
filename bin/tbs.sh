@@ -367,7 +367,10 @@ function FillPackageList()  {
   pks=tmp/packages
 
   if [[ -n "$origin" ]]; then
+    # clone from an existing image
+    #
     cp $origin/$pks $pks
+
     # replay the emerge history
     #
     qlop --nocolor --list -f $origin/var/log/emerge.log 2>/dev/null | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.tmp
@@ -377,9 +380,12 @@ function FillPackageList()  {
     tac $pks.tmp >> $pks
     rm $pks.tmp
   else
+    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+      echo '# just run over the repository and ignore its daily changes' > $pks
+    fi
     # fully randomized package list
     #
-    qsearch --all --nocolor --name-only --quiet | sort --random-sort > $pks
+    qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
   fi
 
   # emerge/upgrade mandatory package/s and upgrade @system
