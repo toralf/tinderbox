@@ -53,6 +53,7 @@ error: '::isinf'
 error while loading shared libraries:
 error:.*failed to fetch
 Failed to load interface for
+The .* distribution was not found and is required by
 error:
 stack smashing detected
 No rule to make target
@@ -162,7 +163,6 @@ dblatex or fop must be installed to use
 No Python implementation set
 install: cannot stat .*: No such file or directory
 could not be found, but is required.
-The .* distribution was not found and is required by
 The library 'System.Xml.dll' could not be found.
 mktextfm:.*failed to make
 Failed Running autopoint
