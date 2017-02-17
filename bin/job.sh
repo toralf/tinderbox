@@ -80,11 +80,13 @@ function GetNextTask() {
   else
     let "diff = $(date +%s) - $(date +%s -r $ts)"
     if [[ $diff -gt 86400 ]]; then
-      # here we do not care about the "#" lines
+      # do not care about "#" lines to schedule @system
       #
       grep -q -E "^(STOP|INFO|%|@)" $pks
       if [[ $? -eq 1 ]]; then
         task="@system"
+        # switch the java machine too if we are already here
+        #
         SwitchJDK
         return
       fi
@@ -167,7 +169,7 @@ function CollectIssueFiles() {
 EOF
   $cmd >> $ehist
 
-  # collect misc build files
+  # collect few more build file names
   #
   cflog=$(grep -m 1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
   if [[ -z "$cflog" ]]; then
@@ -180,9 +182,10 @@ EOF
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
 
-  # strip away escape sequences
+  # strip away escape sequences from all collected file names
+  # and store the output in the ./files subdir
   #
-  for f in $ehist $failedlog $cflog $apout $cmlog $cmerr $sandb $oracl $envir $salso
+  for f in $ehist $failedlog $sandb $cflog $apout $cmlog $cmerr $oracl $envir $salso
   do
     if [[ -f $f ]]; then
       stresc < $f > $issuedir/files/$(basename $f)
@@ -193,8 +196,7 @@ EOF
   #
   for f in $issuedir/files/* $issuedir/_*
   do
-    c=$(wc -c < $f)
-    if [[ $c -gt 1000000 ]]; then
+    if [[ $(wc -c < $f) -gt 1000000 ]]; then
       bzip2 $f
     fi
   done
@@ -769,7 +771,7 @@ function PostEmerge() {
   ls /etc/._cfg????_locale.gen &>/dev/null
   if [[ $? -eq 0 ]]; then
     echo "%locale-gen" >> $pks
-    rm -f /etc/._cfg????_locale.gen
+    rm /etc/._cfg????_locale.gen
   fi
 
   etc-update --automode -5 1>/dev/null
@@ -803,14 +805,14 @@ function PostEmerge() {
     echo "%haskell-updater" >> $pks
   fi
 
-  # switching to a new gcc might schedule an upgrade of the linux kernel too
+  # switch to the new GCC soon
   #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $pks
   fi
 
-  # run this unconditionally for a Perl upgrade
+  # fixing Perl is one of the first steps
   #
   grep -q ">>> Installing .* dev-lang/perl-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
@@ -841,7 +843,7 @@ function RunCmd() {
 }
 
 
-# this is the heart of the tinderbox, the rest is just output parsing
+# this is the heart of the tinderbox
 #
 function WorkOnTask() {
   failed=""       # contains the package atom
@@ -1018,7 +1020,7 @@ function ParseElogForQA() {
     fi
   done
 
-  # process next time only elog files created after this timestamp
+  # process next time only those elog files which were created after this timestamp
   #
   touch /tmp/timestamp.qa
 }
@@ -1082,8 +1084,9 @@ do
     Finish 0 "catched STOP"
   fi
 
-  # clean up from a previous (failed) emerge operation
-  # configured to not be made by portage b/c relevant build files have to be saved before
+  # clean up from a previously failed emerge operation
+  # it is configured to not be made by portage automatically
+  # b/c relevant build files have to be collected before
   #
   rm -rf /var/tmp/portage/*
 
