@@ -852,7 +852,7 @@ function WorkOnTask() {
 
   if [[ "$task" = "@preserved-rebuild" ]]; then
     RunCmd "emerge --backtrack=100 $task"
-    if [[ $? -ne 0 ]]; then
+    if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
@@ -868,7 +868,7 @@ function WorkOnTask() {
 
   elif [[ "$task" = "@system" ]]; then
     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
-    if [[ $? -ne 0 ]]; then
+    if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
@@ -900,7 +900,7 @@ function WorkOnTask() {
 
   elif [[ "$task" = "@world" ]]; then
     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
-    if [[ $? -ne 0 ]]; then
+    if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
@@ -922,7 +922,7 @@ function WorkOnTask() {
     #
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
-    if [[ $? -ne 0 ]]; then
+    if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         # bail out except ...
         #
@@ -939,7 +939,7 @@ function WorkOnTask() {
     # just a package (optional prefixed with "=")
     #
     RunCmd "emerge --update $task"
-    if [[ $? -ne 0 ]]; then
+    if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 1 ]]; then
         echo "$task" >> $pks
       fi
