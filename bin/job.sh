@@ -679,14 +679,7 @@ function GotAnIssue()  {
     tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     )
 
-    # special work flow: do not just set $try_again here
-    # b/c perl has to be cleaned up first
-    #
-    echo "$task" >> $pks
-    echo "%perl-cleaner --all" >> $pks
-    if [[ "$task" != "@system" ]]; then
-      Mail "notice: Perl upgrade issue happened for: $task" $bak
-    fi
+    try_again=1
     rc=2
     return
   fi
@@ -868,8 +861,6 @@ function WorkOnTask() {
         else
           Finish 2 "$task is broken"
         fi
-      else
-        echo "$task" >> $pks
       fi
     fi
 
@@ -888,8 +879,6 @@ function WorkOnTask() {
           #
           echo "@world" >> $pks
         fi
-      else
-        echo "$task" >> $pks
       fi
 
     elif [[ $rc -eq 0 ]]; then
@@ -914,8 +903,6 @@ function WorkOnTask() {
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         fi
-      else
-        echo "$task" >> $pks
       fi
 
     elif [[ $rc -eq 0 ]]; then
@@ -940,8 +927,6 @@ function WorkOnTask() {
         if [[ $? -eq 1 ]]; then
           Finish 2 "command '$cmd' failed"
         fi
-      else
-        echo "$task" >> $pks
       fi
     fi
 
@@ -949,17 +934,19 @@ function WorkOnTask() {
     # just a package (optional prefixed with "=")
     #
     RunCmd "emerge --update $task"
-    if [[ $rc -eq 1 ]]; then
-      if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $pks
-      fi
-    fi
   fi
 
-  # $rc was set in RunCmd()
-  #
+  if [[ $try_again -eq 1 ]]; then
+    echo "$task" >> $pks
+  fi
+
   if [[ $rc -eq 0 ]]; then
     rm $bak
+  elif [[ $rc -eq 2 ]]; then
+    echo "%perl-cleaner --all" >> $pks
+    if [[ "$task" != "@system" ]]; then
+      Mail "notice: Perl upgrade issue happened for: $task" $bak
+    fi
   fi
 }
 
