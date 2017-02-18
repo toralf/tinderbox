@@ -83,7 +83,7 @@ function LastEmergeOperation()  {
       my $mm = $diff / 60 % 60;
       my $ss = $diff % 60 % 60;
 
-      printf ("  %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
+      printf (" %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
     '
   done
 }
@@ -110,7 +110,7 @@ function PackagesPerDay() {
     grep '::: completed emerge' $log |\
     cut -f1 -d ':' |\
     perl -wane '
-      BEGIN { @p = (); $first = 0; print "  ";}
+      BEGIN { @p = (); $first = 0; }
       {
         $cur = $F[0];
         $first = $cur if ($first == 0);
@@ -149,7 +149,7 @@ function CurrentTask()  {
     seconds=$(echo "$delta % 60" | bc)
     minutes=$(echo "$delta / 60 % 60" | bc)
     hours=$(echo "$delta / 60 / 60" | bc)
-    printf "  %2ih %2im %02is  " $hours $minutes $seconds
+    printf " %2ih %2im %02is  " $hours $minutes $seconds
     cat $i/tmp/task
   done
 }
