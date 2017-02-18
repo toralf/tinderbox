@@ -679,7 +679,8 @@ function GotAnIssue()  {
     tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
     )
 
-    # special work flow: do not set $try_again here b/c have to clean up first
+    # special work flow: do not just set $try_again here
+    # b/c perl has to be cleaned up first
     #
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
