@@ -120,7 +120,7 @@ function PackagesPerDay() {
 
       END {
         foreach my $i (0..$#p) {
-          printf ("%4i", $p[$i]);
+          printf ("%5i", $p[$i]);
         }
         print "\n";
       }
