@@ -345,9 +345,9 @@ EOF
       if [[ ! -d $wd ]]; then
         Mail "warn: working dir not found for $failed" $bak
       else
-        (cd $wd && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>/dev/null)
+        (cd $wd && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>/dev/null || ls -l ./ > /tmp/ls-l.txt)
         if [[ $? -ne 0 ]]; then
-          Mail "warn: no test dir found: $issuedir" $bak
+          Mail "warn: no test dir found: $issuedir" /tmp/ls-l.txt
         fi
       fi
     fi
