@@ -10,6 +10,7 @@ if [[ -s ~/nohup.out ]]; then
 fi
 
 f=/tmp/tinderbox.logwatch.out
+
 if [[ ! -f $f ]]; then
   if [[ "$(wc -c ~/logs/* 2>/dev/null | tail -n 1)" != "0 total" ]]; then
     ls -l ~/logs/* >> $f
