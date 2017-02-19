@@ -98,7 +98,10 @@ rc1=$?
 umountall
 rc2=$?
 
-rm $lock
+if [[ $rc2 -eq 0 ]]; then
+  rm $lock
+fi
 
 let "rc = $rc1 + $rc2"
+
 exit $rc
