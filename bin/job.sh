@@ -825,7 +825,8 @@ function CheckForPerlUpgradeIssue() {
 }
 
 
-# helper of WorkOnTask()
+# just run a command (parameter $1) - usually "emerge <something>"
+# and work on the output
 #
 function RunCmd() {
   ($1) &>> $log
@@ -1075,7 +1076,7 @@ do
     exit 1    # trouble
   fi
 
-  # check for install artefacts from previous operations
+  # check for install artefacts from previous task
   #
   pre-check
 
