@@ -975,13 +975,17 @@ function pre-check() {
     fi
 
   else
-    echo                                  >> $out
-    echo "seen at tinderbox image $name"  >> $out
-    echo                                  >> $out
-    tail -n 30 $log                       >> $out
-    echo                                  >> $out
-    emerge --info --verbose=n $task       >> $out
-    echo                                  >> $out
+    cat << EOF >> $out
+
+--
+seen at tinderbox image $name
+log:
+$( tail -n 30 $log )
+
+--
+emerge --info:
+$( emerge --info --verbose=n $task )
+EOF
     Mail "$exe : rc=$rc, task $task" $out
   fi
 }
@@ -1073,10 +1077,10 @@ do
   if [[ $rc -eq 1 ]]; then
     exit 125  # was edited
   elif [[ $rc -eq 2 ]]; then
-    exit 1    # trouble
+    exit 1    # trouble ahead
   fi
 
-  # check for install artefacts from previous task
+  # check for install artefacts from a previous task
   #
   pre-check
 
