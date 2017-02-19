@@ -666,24 +666,6 @@ function GotAnIssue()  {
   CollectIssueFiles
   CompileIssueMail
 
-  # https://bugs.gentoo.org/show_bug.cgi?id=596664
-  #
-  grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
-  if [[ $? -eq 0 ]]; then
-    # just keep these files, do not put them into the ./files subdir
-    # b/c then they would be attached onto the bug report
-    #
-    (
-    cd /
-    tar --dereference -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
-    tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
-    )
-
-    try_again=1
-    status=2
-    return
-  fi
-
   if [[ $try_again -eq 0 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
@@ -823,6 +805,26 @@ function PostEmerge() {
 }
 
 
+# https://bugs.gentoo.org/show_bug.cgi?id=596664
+#
+function CheckForPerlUpgradeIssue() {
+  grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
+  if [[ $? -eq 0 ]]; then
+    # just keep these files, do not put them into the ./files subdir
+    # b/c then they would be attached onto the bug report
+    #
+    (
+    cd /
+    tar --dereference -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
+    tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
+    )
+
+    try_again=1
+    status=2
+  fi
+}
+
+
 # helper of WorkOnTask()
 #
 function RunCmd() {
@@ -835,6 +837,7 @@ function RunCmd() {
 
   if [[ $status -eq 1 ]]; then
     GotAnIssue
+    CheckForPerlUpgradeIssue
   fi
 }
 
