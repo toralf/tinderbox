@@ -970,9 +970,8 @@ function pre-check() {
     rm $out
 
   elif [[ $rc -gt 127 ]]; then
-      Mail "$exe returned $rc, task $task" $out
-      Finish 2 "error: stopped"
-    fi
+    Mail "$exe returned $rc, task $task" $out
+    Finish 2 "error: stopped"
 
   else
     cat << EOF >> $out
