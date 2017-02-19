@@ -6,11 +6,7 @@
 #
 # typical call:
 #
-# $> echo "sudo ~/tb/bin/tbs.sh" | at now + 10 min
-
-# due to using sudo we need to define the path to $HOME
-#
-tbhome=/home/tinderbox
+# $> echo "cd ~/img2; ~/tb/bin/tbs.sh" | at now + 0 min
 
 #############################################################################
 #
@@ -30,7 +26,7 @@ function rufs()  {
     graphtft gstreamer gtk gtk2 gtk3 gtkstyle gudev gui gzip haptic havege
     hdf5 help ibus icu imap imlib infinality inifile introspection
     ipv6 isag jadetex javascript javaxml jpeg kerberos kvm lapack latex
-    ldap libinput libkms libvirtd llvm logrotate lua luajit lvm lzma mad
+    ldap libinput libkms libnotify libvirtd llvm logrotate lua luajit lvm lzma mad
     mbox mdnsresponder-compat melt midi mikmod minimal minizip mng mod
     modplug mono mp3 mp4 mpeg mpeg2 mpeg3 mpg123 mpi mssql mta mtp multimedia
     mysql mysqli natspec ncurses networking nscd nss obj objc odbc
@@ -77,23 +73,23 @@ function rufs()  {
 function ComputeImageName()  {
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
     name="hardened"
-    stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
 
   elif [[ "$profile" = "hardened/linux/amd64/no-multilib" ]]; then
     name="hardened-no-multilib"
-    stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
 
   elif [[ "$profile" = "default/linux/amd64/13.0/no-multilib" ]]; then
     name="13.0-no-multilib"
-    stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
 
   elif [[ "$(basename $profile)" = "systemd" ]]; then
     name="$(basename $(dirname $profile))-systemd"
-    stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
 
   else
     name="$(basename $profile)"
-    stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $tbhome/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
   fi
 
   # don't mention the default to avoid too long image names
@@ -197,8 +193,6 @@ EOF
 # compile make.conf now together
 #
 function CompileMakeConf()  {
-  chmod a+w etc/portage/make.conf
-
   sed -i  -e '/^CFLAGS="/d'       \
           -e '/^CXXFLAGS=/d'      \
           -e '/^CPU_FLAGS_X86=/d' \
@@ -422,8 +416,6 @@ EOF
     echo "%emerge -u sys-devel/clang" >> $pks
   fi
   echo "%emerge -u sys-devel/gcc" >> $pks
-
-  chown tinderbox.tinderbox $pks
 }
 
 
@@ -551,7 +543,7 @@ function EmergeMandatoryPackages() {
 
   # try to shorten the link to the image, eg.: img1/plasma-...
   #
-  cd $tbhome
+  cd ~
   d=$(basename $imagedir)/$name
   if [[ ! -d $d ]]; then
     d=$imagedir/$name
@@ -575,7 +567,7 @@ function EmergeMandatoryPackages() {
     echo
     echo "    view $d/tmp/dryrun.log"
     echo "    vi $d/etc/portage/make.conf"
-    echo "    sudo ~/tb/bin/chr.sh $d '  $dryrun  '"
+    echo "    ~/tb/bin/chr.sh $d '  $dryrun  '"
     echo "    (cd ~/run && ln -s ../$d)"
     echo "    ~/tb/bin/start_img.sh $name"
     echo
@@ -583,7 +575,7 @@ function EmergeMandatoryPackages() {
     exit $rc
   fi
 
-  (cd $tbhome/run && ln -s ../$d) || exit 11
+  (cd ~/run && ln -s ../$d) || exit 11
 
   echo
   echo " setup  OK : $d"
@@ -738,12 +730,12 @@ done
 
 #############################################################################
 #
-if [[ "$tbhome" = "$imagedir" ]]; then
-  echo "you are in \$tbhome !"
+if [[ "$HOME" = "$imagedir" ]]; then
+  echo "you are in \$HOME ?!"
   exit 3
 fi
 
-wget --quiet $wgethost/$wgetpath/$latest --output-document=$tbhome/$latest
+wget --quiet $wgethost/$wgetpath/$latest --output-document=~/$latest
 if [[ $? -ne 0 ]]; then
   echo " wget failed of: $latest"
   exit 3

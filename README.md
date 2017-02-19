@@ -5,7 +5,7 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 ###create a new image
 The setup of a new image is made by *tbs.sh* (*at* from *sys-process/at* schedules a command for later, catches the output and email it to the user)
     
-    (cd ~/img2; echo "sudo ~/tb/bin/tbs.sh" | at now + 0 min)
+    echo "cd ~/img2; ~/tb/bin/tbs.sh" | at now + 0 min
 
 A profile, keyword and a USE flag set are choosen.
 The current stage3 file is downloaded, verified and unpacked.
@@ -32,17 +32,17 @@ The current emerge operation will be finished before *job.sh* exits and */tmp/LO
 
 ###chroot into an image
     
-    sudo nice chr.sh <image name>
+    chr.sh <image name>
 
-Works only if the image is not started - and be nice to the main task the host is used for.
+Without any argument an interactive login is made. Otherwise the arguments are treated as commands. Those will be run and an exit is made.
 
 ###removal of an image
 Just remove the symlink in *~/run* and the log file in *~/logs*.
-The chroot image itself will be kept around until the data dir is overwritten.
+The chroot image itself will be kept around in the data dir.
 
 ###status of all images
 
-    whatsup.sh -o -t -l -p
+    whatsup.sh -otlp
 
 ###report findings
 New findings are send via email to the user specified in the variable of each *mailto*.
@@ -82,7 +82,7 @@ Copy *./bin*, *./data* and *./sdata* into *~/tb*.
 Edit files in *~/sdata* and strip away the suffix *.sample*.
 Grant sudo rights:
 
-    tinderbox ALL=(ALL) NOPASSWD: /home/tinderbox/tb/bin/chr.sh,/home/tinderbox/tb/bin/tbs.sh,/usr/bin/chroot
+    tinderbox ALL=(ALL) NOPASSWD: /bin/mount,/bin/umount,/usr/bin/chroot
 
 At a hardened Gentoo tweak *Grsecurity*:
 

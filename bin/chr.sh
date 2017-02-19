@@ -6,11 +6,7 @@
 #
 # typical call:
 #
-# $> sudo ~/tb/bin/chr.sh ~/run/plasma-unstable_20150811-144142
-
-# due to sudo we need to define the path of $HOME of the tinderbox user
-#
-tbhome=/home/tinderbox
+# $> ~/tb/bin/chr.sh ~/run/plasma-unstable_20150811-144142
 
 # if a mount fails then bail out immediately
 #
@@ -18,17 +14,17 @@ function mountall() {
 
   # system dirs
   #
-  mount -t proc       proc        $mnt/proc   &&\
-  mount --rbind       /sys        $mnt/sys    &&\
-  mount --make-rslave $mnt/sys                &&\
-  mount --rbind       /dev        $mnt/dev    &&\
-  mount --make-rslave $mnt/dev                &&\
+  sudo /bin/mount -t proc       proc        $mnt/proc   &&\
+  sudo /bin/mount --rbind       /sys        $mnt/sys    &&\
+  sudo /bin/mount --make-rslave $mnt/sys                &&\
+  sudo /bin/mount --rbind       /dev        $mnt/dev    &&\
+  sudo /bin/mount --make-rslave $mnt/dev                &&\
   # portage and tinderbox
   #
-  mount -o bind       $tbhome/tb          $mnt/tmp/tb             &&\
-  mount -o bind,ro    /usr/portage        $mnt/usr/portage        &&\
-  mount -t tmpfs      tmpfs -o size=16G   $mnt/var/tmp/portage    &&\
-  mount -o bind       /var/tmp/distfiles  $mnt/var/tmp/distfiles
+  sudo /bin/mount -o bind       ~/tb                $mnt/tmp/tb             &&\
+  sudo /bin/mount -o bind,ro    /usr/portage        $mnt/usr/portage        &&\
+  sudo /bin/mount -t tmpfs      tmpfs -o size=16G   $mnt/var/tmp/portage    &&\
+  sudo /bin/mount -o bind       /var/tmp/distfiles  $mnt/var/tmp/distfiles
 
   return $?
 }
@@ -39,12 +35,12 @@ function mountall() {
 function umountall()  {
   rc=0
 
-  umount -l $mnt/dev{/pts,/shm,/mqueue,}  || rc=$?
-  umount -l $mnt/{sys,proc}               || rc=$?
+  sudo /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}  || rc=$?
+  sudo /bin/umount -l $mnt/{sys,proc}               || rc=$?
 
-  umount    $mnt/tmp/tb                       || rc=$?
-  umount    $mnt/usr/portage                  || rc=$?
-  umount -l $mnt/var/tmp/{distfiles,portage}  || rc=$?
+  sudo /bin/umount    $mnt/tmp/tb                       || rc=$?
+  sudo /bin/umount    $mnt/usr/portage                  || rc=$?
+  sudo /bin/umount -l $mnt/var/tmp/{distfiles,portage}  || rc=$?
 
   return $rc
 }
@@ -55,10 +51,6 @@ function umountall()  {
 # main                                                                      #
 #                                                                           #
 #############################################################################
-if [[ ! "$(whoami)" = "root" ]]; then
-  echo " you must be root !"
-  exit 1
-fi
 
 # the path to the chroot image
 #
@@ -97,9 +89,9 @@ mountall || exit 4
 if [[ $# -gt 0 ]]; then
   # enforce a login of user root b/c then its environment is sourced
   #
-  /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
+  sudo /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
 else
-  /usr/bin/chroot $mnt /bin/bash -l
+  sudo /usr/bin/chroot $mnt /bin/bash -l
 fi
 rc1=$?
 
