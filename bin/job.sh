@@ -680,7 +680,7 @@ function GotAnIssue()  {
     )
 
     try_again=1
-    rc=2
+    status=2
     return
   fi
 
@@ -828,33 +828,31 @@ function PostEmerge() {
 function RunCmd() {
   ($1) &>> $log
   if [[ $? -ne 0 ]]; then
-    rc=1
+    status=1
   fi
 
   PostEmerge
 
-  if [[ $rc -eq 1 ]]; then
+  if [[ $status -eq 1 ]]; then
     GotAnIssue
   fi
-
-  return $rc
 }
 
 
 # this is the heart of the tinderbox
 #
-# rc=0  ok
-# rc=1  task failed - set in RunCmd()
-# rc=2  Perl upgrade issue appeared - set in GotAnIssue()
+# status=0  ok
+# status=1  task failed - set in RunCmd()
+# status=2  Perl upgrade issue appeared - set in GotAnIssue()
 #
 function WorkOnTask() {
-  rc=0
+  status=0
   failed=""       # contains the package atom
   try_again=0     # flag whether to repeat $task or not
 
   if [[ "$task" = "@preserved-rebuild" ]]; then
     RunCmd "emerge --backtrack=100 $task"
-    if [[ $rc -eq 1 ]]; then
+    if [[ $status -eq 1 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
@@ -868,7 +866,7 @@ function WorkOnTask() {
 
   elif [[ "$task" = "@system" ]]; then
     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
-    if [[ $rc -eq 1 ]]; then
+    if [[ $status -eq 1 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
@@ -881,7 +879,7 @@ function WorkOnTask() {
         fi
       fi
 
-    elif [[ $rc -eq 0 ]]; then
+    elif [[ $status -eq 0 ]]; then
       # activate 32/64 bit ABI if not yet done
       #
       grep -q '^#ABI_X86=' /etc/portage/make.conf
@@ -898,14 +896,14 @@ function WorkOnTask() {
 
   elif [[ "$task" = "@world" ]]; then
     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
-    if [[ $rc -eq 1 ]]; then
+    if [[ $status -eq 1 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         fi
       fi
 
-    elif [[ $rc -eq 0 ]]; then
+    elif [[ $status -eq 0 ]]; then
       # if @world was ok then depclean before any scheduled @preserved-rebuild
       #
       echo "%emerge --depclean" >> $pks
@@ -919,7 +917,7 @@ function WorkOnTask() {
     #
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
-    if [[ $rc -eq 1 ]]; then
+    if [[ $status -eq 1 ]]; then
       if [[ $try_again -eq 0 ]]; then
         # bail out except ...
         #
@@ -940,9 +938,9 @@ function WorkOnTask() {
     echo "$task" >> $pks
   fi
 
-  if [[ $rc -eq 0 ]]; then
+  if [[ $status -eq 0 ]]; then
     rm $bak
-  elif [[ $rc -eq 2 ]]; then
+  elif [[ $status -eq 2 ]]; then
     echo "%perl-cleaner --all" >> $pks
     if [[ "$task" != "@system" ]]; then
       Mail "notice: Perl upgrade issue happened for: $task" $bak
