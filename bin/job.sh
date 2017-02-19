@@ -34,7 +34,7 @@ function Mail() {
 # clean up and exit
 #
 function Finish()  {
-  rc=$1
+  ec=$1
   shift
   # althought stresc is made in Mail() too do it here too b/c $1 might contain " and/or '
   #
@@ -45,7 +45,7 @@ function Finish()  {
   Mail "FINISHED: $subject" $log
 
   rm -f /tmp/STOP
-  exit $rc
+  exit $ec
 }
 
 
@@ -957,32 +957,32 @@ function WorkOnTask() {
 #
 function pre-check() {
   exe=/tmp/tb/bin/PRE-CHECK.sh
+  out=/tmp/pre-check.log
 
-  if [[ -x $exe ]]; then
-    out=/tmp/pre-check.log
+  if [[ ! -x $exe ]]; then
+    return
+  fi
 
-    $exe &> $out
-    rc=$?
+  $exe &> $out
+  rc=$?
 
-    # -1 == 255:-2 == 254, ...
-    #
-    if [[ $rc -gt 127 ]]; then
+  if [[ $rc -eq 0 ]]; then
+    rm $out
+
+  elif [[ $rc -gt 127 ]]; then
       Mail "$exe returned $rc, task $task" $out
       Finish 2 "error: stopped"
     fi
 
-    if [[ $rc -ne 0 ]]; then
-      echo                                  >> $out
-      echo "seen at tinderbox image $name"  >> $out
-      echo                                  >> $out
-      tail -n 30 $log                       >> $out
-      echo                                  >> $out
-      emerge --info --verbose=n $task       >> $out
-      echo                                  >> $out
-      Mail "$exe : rc=$rc, task $task" $out
-    fi
-
-    rm $out
+  else
+    echo                                  >> $out
+    echo "seen at tinderbox image $name"  >> $out
+    echo                                  >> $out
+    tail -n 30 $log                       >> $out
+    echo                                  >> $out
+    emerge --info --verbose=n $task       >> $out
+    echo                                  >> $out
+    Mail "$exe : rc=$rc, task $task" $out
   fi
 }
 
