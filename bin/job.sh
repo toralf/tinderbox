@@ -85,7 +85,7 @@ function GetNextTask() {
       grep -q -E "^(STOP|INFO|%|@)" $pks
       if [[ $? -eq 1 ]]; then
         task="@system"
-        # switch the java machine too if we are already here
+        # switch the java machine too by the way
         #
         SwitchJDK
         return
@@ -154,7 +154,7 @@ function GetNextTask() {
 
 
 # helper of GotAnIssue()
-# gather together what we do need for the email and/or the bug report
+# gather together what's needed for the email and/or the bug report
 #
 function CollectIssueFiles() {
   mkdir -p $issuedir/files
@@ -217,7 +217,7 @@ function GetMailAddresses() {
     m="maintainer-needed@gentoo.org"
   fi
 
-  # if we found more than 1 maintainer, then take the 1st as the assignee
+  # if there's more than 1 maintainer, then take the 1st as the assignee
   #
   echo "$m" | grep -q ' '
   if [[ $? -eq 0 ]]; then
@@ -275,7 +275,7 @@ EOF
 }
 
 
-# 777: sometimes we have to modify title or issue
+# 777: allow an user to manually modify title or issue
 #
 function CreateIssueDir() {
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
@@ -292,7 +292,7 @@ function GuessTitleAndIssue() {
   sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak | grep "sandbox.*\.log"  | cut -f2 -d'"')
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
-    # we provide package name+version althought this gives more noise in our inbox
+    # provide package name+version althought this gives more noise in our inbox
     #
     s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
     # inform the maintainers of the already installed package too
@@ -521,7 +521,7 @@ function CompileIssueMail() {
 
   SearchForBlocker
 
-  # copy the issue to the email body before we extend it for b.g.o. comment#0
+  # copy the issue to the email body before it is furnished for b.g.o. as comment#0
   #
   cp $issuedir/issue $issuedir/body
   AddMetainfoToBody
@@ -654,8 +654,6 @@ function GotAnIssue()  {
 
   GetFailed
 
-  # after this point we must have a failed package name
-  #
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
     return

@@ -38,7 +38,7 @@ function Overall() {
       inst=0
       day=0
     fi
-    # we do count fail packages, but not failed attempts of the same package version
+    # count fail packages, but not every failed attempt of the same package version
     #
     if [[ -d $i/tmp/issues ]]; then
       fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)

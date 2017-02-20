@@ -10,10 +10,10 @@ echo
 echo "=================================================================="
 echo
 
-# are we within a tinderbox chroot image ?
+# test to be within a tinderbox chroot image ?
 #
 if [[ ! -e $pks ]]; then
-  echo " we're not within a tinderbox image"
+  echo " don't run this script outside of a tinderbox image !"
   exit 21
 fi
 

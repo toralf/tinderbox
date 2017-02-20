@@ -20,7 +20,7 @@ copy=/tmp/runme.sh
 #
 delay=1
 if [[ $# -eq 0 ]]; then
-  # test if we were called from /etc/local.d/tinderbox.start
+  # test if this script was called from /etc/local.d/tinderbox.start
   #
   if [[ -f /tmp/tinderbox.start.log ]]; then
     if [[ ! -s /tmp/tinderbox.start.log ]]; then

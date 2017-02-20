@@ -327,7 +327,7 @@ EOF
   #
   echo 'FEATURES="test"'                    > etc/portage/env/test
 
-  # we force breakage with XDG_* settings in job.sh
+  # breakage with XDG_* settings in job.sh is forced
   #
   echo 'FEATURES="-sandbox -usersandbox"'   > etc/portage/env/nosandbox
 
@@ -517,7 +517,7 @@ EOF
 }
 
 
-# we need at least a working mailer and bugz
+# at least a working mailer and bugz are needed
 #
 function EmergeMandatoryPackages() {
   CreateSetupScript
