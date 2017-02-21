@@ -79,11 +79,10 @@ function LastEmergeOperation()  {
       chop ($F[0]);
 
       my $diff = time() - $F[0];
-      my $hh = $diff / 60 / 60;
-      my $mm = $diff / 60 % 60;
+      my $mm = $diff / 60;
       my $ss = $diff % 60 % 60;
 
-      printf (" %2ih %2im %02is %s\n", $hh, $mm, $ss, join (" ", @F[1..$#F]));
+      printf (" %3i:%02i min  %s\n", $mm, $ss, join (" ", @F[1..$#F]));
     '
   done
 }
@@ -147,9 +146,8 @@ function CurrentTask()  {
 
     delta=$(echo "$(date +%s) - $(date +%s -r $tsk)" | bc)
     seconds=$(echo "$delta % 60" | bc)
-    minutes=$(echo "$delta / 60 % 60" | bc)
-    hours=$(echo "$delta / 60 / 60" | bc)
-    printf " %2ih %2im %02is  " $hours $minutes $seconds
+    minutes=$(echo "$delta / 60" | bc)
+    printf " %3i:%02i min  " $minutes $seconds
     cat $i/tmp/task
   done
 }
