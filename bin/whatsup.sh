@@ -2,10 +2,10 @@
 #
 # set -x
 
-# quick & dirty stats
+# quick & dirty tinderbox statistics
 #
 
-# all active|running images
+# all active|run'ing images
 #
 function list_images() {
   (
@@ -22,9 +22,10 @@ function PrintImageName()  {
 
 # gives sth. like:
 #
-#  4243   64   5.1  15304     y    y      13.0-systemd-libressl-unstable-abi32+64_20170210-142202
-#    14    0   0.0  18970          y      desktop-libressl-abi32+64_20170215-185650
-#  6316   71   9.0   9631     y    y    y desktop-stable_20170206-184215
+#  inst fail   day   todo ~/run lock stop
+#  4222   44   5.0  16041     y    y      13.0-abi32+64_20170216-202818
+#  3267   46   2.9  16897          y      desktop_20170218-203252
+#  4363   71   6.0  16667     y    y    y desktop-libressl-abi32+64_20170215-185650
 #
 function Overall() {
   echo " inst fail   day   todo ~/run lock stop"
@@ -58,9 +59,9 @@ function Overall() {
 
 # gives sth. like:
 #
-# 13.0-no-multilib-unstable_20170203-15343   0h  0m 24s *** app-crypt/manuale
-# 13.0-systemd-libressl-unstable-abi32+64_   0h  3m 45s >>> (4 of 9) net-nds/openldap-2.4.44-r1
-# desktop-stable_20170206-184215             0h  0m 20s ::: (2 of 2) media-video/vamps-0.99.2
+# 13.0-abi32+64_20170216-202818              0:13 min  >>> (5 of 8) dev-perl/Email-MessageID-1.406.0
+# desktop_20170218-203252                   71:51 min  >>> (1 of 1) games-emulation/sdlmame-0.174
+# desktop-libressl-abi32+64_20170215-18565   0:32 min  *** dev-ruby/stringex
 #
 function LastEmergeOperation()  {
   for i in $images
@@ -90,9 +91,9 @@ function LastEmergeOperation()  {
 
 # gives sth. like:
 #
-# gnome-systemd-unstable_20170203-145554     5431019 946 803 511 564 771 596 598 237
-# gnome-unstable_20170201-093005             655 940 984 568 639 500 301 407 320 596 494 430  18
-# plasma-stable_20170206-185342              589 729 950 8021011 768 344
+# 13.0-abi32+64_20170216-202818             838  998  782  843  732   29
+# desktop_20170218-203252                   881 1420  966
+# desktop-libressl-abi32+64_20170215-18565  292  729 1186  725  739  625   67
 #
 function PackagesPerDay() {
   for i in $images
@@ -130,9 +131,9 @@ function PackagesPerDay() {
 
 # gives sth. like:
 #
-# 13.0-no-multilib-unstable_20170203-15343   0h  1m 01s  app-benchmarks/volanomark
-# 13.0-systemd-libressl-unstable-abi32+64_   0h  9m 14s  sci-astronomy/cpl
-# desktop-stable_20170206-184215             1h 35m 56s  dev-lang/mercury
+# 13.0-abi32+64_20170216-202818              1:53 min  mail-filter/assp
+# desktop_20170218-203252                   72:08 min  sdlmame
+# desktop-libressl-abi32+64_20170215-18565   0:03 min  dev-ruby/stringex
 #
 function CurrentTask()  {
   for i in $images
