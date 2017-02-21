@@ -346,10 +346,8 @@ EOF
     else
       echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
       try_again=1
-      (cd $work && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>/dev/null || ls -l ./ > /tmp/ls-l.txt)
-      if [[ $? -eq 0 ]]; then
-        rm /tmp/ls-l.txt
-      else
+      (cd $work && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>/dev/null || ls -ld /var/tmp/portage/*/*/*/* > /tmp/ls-l.txt)
+      if [[ $? -ne 0 ]]; then
         Mail "warn: no test dir found: $issuedir" /tmp/ls-l.txt
       fi
     fi
