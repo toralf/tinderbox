@@ -257,16 +257,18 @@ EOF
 function CompilePackageFiles()  {
   mkdir tmp/tb  # mount point of the tinderbox directory of the host
 
-  # create portage directories and symlinks (becomes effective by the bind-mount of ~/tb)
+  # create portage directories and symlinks (becomes effective due to bind-mount of ~/tb)
   #
   mkdir usr/portage
   mkdir var/tmp/{distfiles,portage}
 
-  for d in package.{accept_keywords,env,mask,unmask,use} env patches profile
+  for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
-    mkdir     etc/portage/$d 2>/dev/null
+    mkdir     etc/portage/$d
     chmod 777 etc/portage/$d
   done
+
+  (cd etc/portage; ln -s ../../../tmp/tb/data/patches patches)
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
