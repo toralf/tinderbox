@@ -188,12 +188,13 @@ EOF
   # collect few more build files, strip away escape sequences
   # and compress files bigger than 1 MiByte
   #
-  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"           | cut -f5 -d' ')
-  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"    | cut -f2 -d'"')
-  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $bak | sed  "s/txt./txt/"     | cut -f8 -d' ')
-  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $bak | grep "\.log"           | cut -f2 -d' ')
-  envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
-  salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
+  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"          | cut -f5 -d' ')
+  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"   | cut -f2 -d'"')
+  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $bak | sed  "s/txt./txt/"    | cut -f8 -d' ')
+  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $bak | grep "\.log"          | cut -f2 -d' ')
+  envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                         | cut -f2 -d"'")
+  salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"          | awk '{ print $1 }' )
+  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak                                  | grep "sandbox.*\.log" | cut -f2 -d'"')
 
   for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso
   do
@@ -299,8 +300,6 @@ function CreateIssueDir() {
 #
 function GuessTitleAndIssue() {
   touch $issuedir/{issue,title}
-
-  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak | grep "sandbox.*\.log"  | cut -f2 -d'"')
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
     # provide package name+version althought this gives more noise in our inbox
