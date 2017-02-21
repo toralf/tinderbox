@@ -239,8 +239,7 @@ function GetMailAddresses() {
 }
 
 
-# usually comment0 starts with the issue itslef
-# then this info should appear
+# comment #0 starts with the issue itself, then this info should follow
 #
 function AddWhoamiToIssue() {
   cat << EOF >> $issuedir/issue
@@ -255,8 +254,8 @@ EOF
 }
 
 
-# attach content of the given files onto the email body
-# (unfortunately not MIME compliant)
+# attach the content of the given files onto the email body
+# (TODO: uuencode is not MIME compliant)
 #
 function AttachFiles()  {
   for f in $*
