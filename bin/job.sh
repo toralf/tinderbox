@@ -169,12 +169,9 @@ function CollectIssueFiles() {
 EOF
   $cmd >> $ehist
 
-  # collect few more build file names
+  # collect few more build files, strip away escape sequences
+  # and compress files bigger than 1 MiByte
   #
-  cflog=$(grep -m 1 -A 2 'Please attach the following file when seeking support:'    $bak | grep "config\.log"     | cut -f2 -d' ')
-  if [[ -z "$cflog" ]]; then
-    cflog=$(ls -1 /var/tmp/portage/$failed/work/*/config.log 2>/dev/null)
-  fi
   apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"           | cut -f5 -d' ')
   cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"    | cut -f2 -d'"')
   cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $bak | sed  "s/txt./txt/"     | cut -f8 -d' ')
@@ -182,18 +179,13 @@ EOF
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                          | cut -f2 -d"'")
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"           | awk '{ print $1 }' )
 
-  # strip away escape sequences from all collected file names
-  # and store the output in the ./files subdir
-  #
-  for f in $ehist $failedlog $sandb $cflog $apout $cmlog $cmerr $oracl $envir $salso
+  for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso
   do
     if [[ -f $f ]]; then
       stresc < $f > $issuedir/files/$(basename $f)
     fi
   done
 
-  # compress files bigger than 1 MiByte
-  #
   for f in $issuedir/files/* $issuedir/_*
   do
     if [[ $(wc -c < $f) -gt 1000000 ]]; then
@@ -201,7 +193,11 @@ EOF
     fi
   done
 
-  # store content of target files instead just their symlinks
+  # collect all config.log files
+  #
+  (cd /var/tmp/portage/$failed/work/ && tar -cjpf $issuedir/files/config.log.tbz2 $(find ./ -name "config.log") || rm $issuedir/files/config.log.tbz2)
+
+  # and now the complete /etc/portage
   #
   (cd / && tar --dereference -cjpf $issuedir/files/etc.portage.tbz2 etc/portage)
 
