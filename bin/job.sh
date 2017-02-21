@@ -156,11 +156,14 @@ function GetNextTask() {
 # especially in ABI="32 64" we might have more than 1 dir in /var/tmp/portage
 #
 function SetWorkDir() {
-  work=$(fgrep " * Working directory: '" $bak | cut -f2 -d"'")
+  work=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'")
   if [[ ! -d $work ]]; then
-    work=/var/tmp/portage/$failed/work/$(basename $failed)
+    work=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" ")
     if [[ ! -d $work ]]; then
-      Mail "warn: work dir not found for $failed" $bak
+      work=/var/tmp/portage/$failed/work/$(basename $failed)
+      if [[ ! -d $work ]]; then
+        Mail "warn: work dir not found for $failed" $bak
+      fi
     fi
   fi
 }
