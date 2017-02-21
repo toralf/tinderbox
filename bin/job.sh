@@ -153,6 +153,19 @@ function GetNextTask() {
 }
 
 
+# especially in ABI="32 64" we might have more than 1 dir in /var/tmp/portage
+#
+function SetWorkDir() {
+  work=$(fgrep " * Working directory: '" $bak | cut -f2 -d"'")
+  if [[ ! -d $work ]]; then
+    work=/var/tmp/portage/$failed/work/$(basename $failed)
+    if [[ ! -d $work ]]; then
+      Mail "warn: work dir not found for $failed" $bak
+    fi
+  fi
+}
+
+
 # helper of GotAnIssue()
 # gather together what's needed for the email and/or the bug report
 #
@@ -195,7 +208,7 @@ EOF
 
   # collect all config.log files
   #
-  (cd /var/tmp/portage/$failed/work/ && tar -cjpf $issuedir/files/config.log.tbz2 $(find ./ -name "config.log") || rm $issuedir/files/config.log.tbz2)
+  (cd $work && tar -cjpf $issuedir/files/config.log.tbz2 $(find ./ -name "config.log") 2>/dev/null || rm $issuedir/files/config.log.tbz2)
 
   # and now the complete /etc/portage
   #
@@ -334,17 +347,11 @@ EOF
     else
       echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
       try_again=1
-      wd=/var/tmp/portage/$failed/work/$(basename $failed)
-      if [[ ! -d $wd ]]; then
-        wd=$(fgrep " * Working directory: '" $bak | cut -f2 -d"'")
-      fi
-      if [[ ! -d $wd ]]; then
-        Mail "warn: working dir not found for $failed" $bak
+      (cd $work && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>/dev/null || ls -l ./ > /tmp/ls-l.txt)
+      if [[ $? -eq 0 ]]; then
+        rm /tmp/ls-l.txt
       else
-        (cd $wd && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>/dev/null || ls -l ./ > /tmp/ls-l.txt)
-        if [[ $? -ne 0 ]]; then
-          Mail "warn: no test dir found: $issuedir" /tmp/ls-l.txt
-        fi
+        Mail "warn: no test dir found: $issuedir" /tmp/ls-l.txt
       fi
     fi
 
@@ -657,6 +664,7 @@ function GotAnIssue()  {
 
   CreateIssueDir
   cp $bak $issuedir
+  SetWorkDir
   CollectIssueFiles
   CompileIssueMail
 
