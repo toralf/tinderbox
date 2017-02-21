@@ -206,9 +206,9 @@ EOF
     fi
   done
 
-  # collect all config.log files
+  # collect all config.log files, if any
   #
-  (cd $work && tar -cjpf $issuedir/files/config.log.tbz2 $(find ./ -name "config.log") 2>/dev/null || rm $issuedir/files/config.log.tbz2)
+  (f=/tmp/files; truncate -s 0 $f && cd $work && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f))
 
   # and now the complete /etc/portage
   #
