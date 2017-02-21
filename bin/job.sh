@@ -804,28 +804,8 @@ function PostEmerge() {
 }
 
 
-# https://bugs.gentoo.org/show_bug.cgi?id=596664
-#
-function CheckForPerlUpgradeIssue() {
-  grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
-  if [[ $? -eq 0 ]]; then
-    # just keep these files, do not put them into the ./files subdir
-    # b/c then they would be attached onto the bug report
-    #
-    (
-    cd /
-    tar --dereference -cjpf $issuedir/var.db.pkg.tbz2       var/db/pkg
-    tar --dereference -cjpf $issuedir/var.lib.portage.tbz2  var/lib/portage
-    )
-
-    try_again=1
-    status=2
-  fi
-}
-
-
-# just run a command (parameter $1) - usually "emerge <something>"
-# and work on the output
+# just run the command (parameter $1) - usually "emerge <something>" -
+# and process the output
 #
 function RunCmd() {
   ($1) &>> $log
@@ -837,7 +817,13 @@ function RunCmd() {
 
   if [[ $status -eq 1 ]]; then
     GotAnIssue
-    CheckForPerlUpgradeIssue
+    grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
+    if [[ $? -eq 0 ]]; then
+      # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
+      #
+      try_again=1
+      status=2
+    fi
   fi
 }
 
