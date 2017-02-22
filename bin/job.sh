@@ -157,11 +157,11 @@ function GetNextTask() {
 #
 function SetWorkDir() {
   work=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'")
-  if [[ ! -d $work ]]; then
+  if [[ ! -d "$work" ]]; then
     work=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" ")
-    if [[ ! -d $work ]]; then
+    if [[ ! -d "$work" ]]; then
       work=/var/tmp/portage/$failed/work/$(basename $failed)
-      if [[ ! -d $work ]]; then
+      if [[ ! -d "$work" ]]; then
         Mail "warn: work dir not found for $failed" $bak
       fi
     fi
@@ -210,9 +210,13 @@ EOF
     fi
   done
 
-  # collect all config.log files, if any
+  # get every config.log file
   #
-  ([[ -d $work ]] && f=/tmp/files && truncate -s 0 $f && cd $work && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f))
+  if [[ -d "$work" ]]; then
+    f=/tmp/files
+    rm -f $f
+    (cd "$work" && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f) && rm $f)
+  fi
 
   # and now the complete /etc/portage
   #
@@ -348,13 +352,13 @@ EOF
     else
       echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
       try_again=1
-      f=/tmp/ls-l.txt
-      truncate -s 0 $f
-      if [[ -d $work ]]; then
-        (cd $work && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>$f)
+      if [[ -d "$work" ]]; then
+        f=/tmp/ls-l.txt
+        rm -f $f
+        (cd "$work" && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>$f && rm $f)
         if [[ $? -ne 0 || -s $f ]]; then
-          ls -ld /var/tmp/portage/*/*/*/* >> $f
-          Mail "warn: collecting test results for $work fails" $f
+          ls -ld /var/tmp/portage/*/*/work/* >> $f
+          Mail "warn: collecting test results for '$work' fails" $f
         fi
       fi
     fi
