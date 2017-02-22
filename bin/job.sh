@@ -161,9 +161,6 @@ function SetWorkDir() {
     work=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" ")
     if [[ ! -d "$work" ]]; then
       work=/var/tmp/portage/$failed/work/$(basename $failed)
-      if [[ ! -d "$work" ]]; then
-        Mail "warn: work dir not found for $failed" $bak
-      fi
     fi
   fi
 }
@@ -216,6 +213,8 @@ EOF
     f=/tmp/files
     rm -f $f
     (cd "$work" && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f) && rm $f)
+  else
+    Mail "warn: work dir not found for $failed" $bak
   fi
 
   # and now the complete /etc/portage
