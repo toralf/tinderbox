@@ -213,8 +213,6 @@ EOF
     f=/tmp/files
     rm -f $f
     (cd "$work" && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f) && rm $f)
-  else
-    Mail "warn: work dir not found for $failed" $bak
   fi
 
   # and now the complete /etc/portage
