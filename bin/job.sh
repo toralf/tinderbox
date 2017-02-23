@@ -825,10 +825,10 @@ function RunCmd() {
 
   if [[ $status -eq 1 ]]; then
     GotAnIssue
+    # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
+    #
     grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
     if [[ $? -eq 0 ]]; then
-      # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
-      #
       try_again=1
       status=2
     fi
@@ -839,8 +839,8 @@ function RunCmd() {
 # this is the heart of the tinderbox
 #
 # status=0  ok
-# status=1  task failed - set in RunCmd()
-# status=2  Perl upgrade issue appeared - set in GotAnIssue()
+# status=1  task failed
+# status=2  task failed due to Perl upgrade issue
 #
 function WorkOnTask() {
   status=0
