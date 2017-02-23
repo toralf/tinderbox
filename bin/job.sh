@@ -74,21 +74,23 @@ function SwitchJDK()  {
 function GetNextTask() {
   # update @system once a day, if no special task is scheduled
   #
-  ts=/tmp/timestamp.system
-  if [[ ! -f $ts ]]; then
-    touch $ts
-  else
-    let "diff = $(date +%s) - $(date +%s -r $ts)"
-    if [[ $diff -gt 86400 ]]; then
-      # do not care about "#" lines to schedule @system
-      #
-      grep -q -E "^(STOP|INFO|%|@)" $pks
-      if [[ $? -eq 1 ]]; then
-        task="@system"
-        # switch the java machine too by the way
+  if [[ -s $pks ]]; then
+    ts=/tmp/timestamp.system
+    if [[ ! -f $ts ]]; then
+      touch $ts
+    else
+      let "diff = $(date +%s) - $(date +%s -r $ts)"
+      if [[ $diff -gt 86400 ]]; then
+        # do not care about "#" lines to schedule @system
         #
-        SwitchJDK
-        return
+        grep -q -E "^(STOP|INFO|%|@)" $pks
+        if [[ $? -eq 1 ]]; then
+          task="@system"
+          # switch the java machine too by the way
+          #
+          SwitchJDK
+          return
+        fi
       fi
     fi
   fi
