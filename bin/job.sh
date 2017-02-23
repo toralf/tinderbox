@@ -514,7 +514,7 @@ EOF
 function CompileIssueMail() {
   # no --verbose, output size would exceed the 16 KB limit of b.g.o.
   #
-  emerge --info --verbose=n $short > $issuedir/emerge-info.txt
+  emerge --info --verbose=n $short &> $issuedir/emerge-info.txt
 
   GetMailAddresses
   GuessTitleAndIssue
