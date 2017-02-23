@@ -976,7 +976,7 @@ $( tail -n 30 $log )
 
 --
 emerge --info:
-$( emerge --info --verbose=n $task )
+$( emerge --info --verbose=n $task 2>&1 )
 EOF
     Mail "$exe : rc=$rc, task $task" $out
   fi
