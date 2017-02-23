@@ -473,7 +473,7 @@ function SearchForAnAlreadyFiledBug() {
 
     id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved  $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      echo " ^ duplicate" >> $issuedir/body
+      echo -en "\n ^ duplicate " >> $issuedir/body
       break
     fi
 
@@ -487,7 +487,7 @@ function SearchForAnAlreadyFiledBug() {
   #
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
-  https://bugs.gentoo.org/show_bug.cgi?id=$id
+ https://bugs.gentoo.org/show_bug.cgi?id=$id
 
   ~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir -a $id
 
