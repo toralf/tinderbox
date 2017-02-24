@@ -826,8 +826,8 @@ function RunCmd() {
     #
     grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
     if [[ $? -eq 0 ]]; then
-      try_again=1
-      status=2
+      echo "$task" >> $pks
+      echo "%perl-cleaner --all" >> $pks
     fi
   fi
 
@@ -841,7 +841,6 @@ function RunCmd() {
 #
 # status=0  ok
 # status=1  task failed
-# status=2  task failed due to Perl upgrade issue
 #
 function WorkOnTask() {
   status=0
@@ -934,11 +933,6 @@ function WorkOnTask() {
 
   if [[ $status -eq 0 ]]; then
     rm $bak
-  elif [[ $status -eq 2 ]]; then
-    echo "%perl-cleaner --all" >> $pks
-    if [[ "$task" != "@system" ]]; then
-      Mail "notice: Perl upgrade issue happened for: $task" $bak
-    fi
   fi
 }
 
