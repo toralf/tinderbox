@@ -820,7 +820,10 @@ function RunCmd() {
 
   PostEmerge
 
-  if [[ $status -eq 1 ]]; then
+  if [[ $status -eq 0 ]]; then
+    rm $bak
+
+  elif [[ $status -eq 1 ]]; then
     GotAnIssue
     # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
     #
@@ -929,10 +932,6 @@ function WorkOnTask() {
     # just a package (optional prefixed with "=")
     #
     RunCmd "emerge --update $task"
-  fi
-
-  if [[ $status -eq 0 ]]; then
-    rm $bak
   fi
 }
 
