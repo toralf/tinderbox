@@ -848,7 +848,7 @@ function RunCmd() {
 #
 function WorkOnTask() {
   status=0
-  failed=""       # contains the package atom
+  failed=""       # contains the package name+version
   try_again=0     # flag whether to repeat $task or not
 
   if [[ "$task" = "@preserved-rebuild" ]]; then
@@ -869,21 +869,15 @@ function WorkOnTask() {
       if [[ -n "$failed" ]]; then
         echo "%emerge --resume --skip-first" >> $pks
       else
-        # there's no general need to update @world
-        # b/c new ebuilds are scheduled by insert_pkgs.sh already,
-        # but if @system fails then @world might succeed
-        #
         echo "@world" >> $pks
       fi
 
     elif [[ $status -eq 0 ]]; then
-      # activate 32/64 bit ABI if not yet done
+      # activate 32/64 bit ABI if not yet done and re-build affected software
       #
       grep -q '^#ABI_X86=' /etc/portage/make.conf
       if [[ $? -eq 0 ]]; then
         sed -i -e 's/^#ABI_X86=/ABI_X86=/' /etc/portage/make.conf
-        # first re-make @system multi-lib ready then @world
-        #
         echo -e "@world\n@system" >> $pks
       fi
     fi
@@ -899,8 +893,6 @@ function WorkOnTask() {
       fi
 
     elif [[ $status -eq 0 ]]; then
-      # if @world was ok then depclean before any scheduled @preserved-rebuild
-      #
       echo "%emerge --depclean" >> $pks
     fi
 
