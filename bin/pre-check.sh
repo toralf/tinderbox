@@ -2,8 +2,7 @@
 #
 #set -x
 
-# this script is called from job.sh before a new $task is processed
-# to check for artefacts from the previous emerge step
+# this script checks for artefacts from the last task
 #
 
 # bug       pattern
@@ -11,7 +10,6 @@
 # 563396    ./%\{_*
 # 598840    /tmp/file??????
 
-rc=0
 
 # helper to prevent duplicate reports
 #
@@ -20,12 +18,14 @@ if [[ ! -f $findings ]]; then
   touch $findings
 fi
 
+rc=0
+
 for i in
 do
   if [[ -e $i ]]; then
     grep -F -e "$i" -f $findings
     if [[ $? -eq 1 ]]; then
-      ls -ld $i
+      ls -ld $i                 # this output goes into our mail
       echo "$i" >> $findings
       rc=1
     fi
