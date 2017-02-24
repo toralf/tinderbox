@@ -749,7 +749,7 @@ ConfigureImage            &&\
 EmergeMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
-  $(dirname $0)/start_img.sh $name
+  su - tinderbox -c $(dirname $0)/start_img.sh $name
 fi
 
 exit 0
