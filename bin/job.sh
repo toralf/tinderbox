@@ -823,7 +823,7 @@ function RunCmd() {
   if [[ $status -eq 0 ]]; then
     rm $bak
 
-  elif [[ $status -eq 1 ]]; then
+  else
     GotAnIssue
     if [[ $try_again -eq 1 ]]; then
       echo "$task" >> $pks
@@ -835,6 +835,7 @@ function RunCmd() {
     if [[ $? -eq 0 ]]; then
       echo "$task" >> $pks
       echo "%perl-cleaner --all" >> $pks
+      status=3
     fi
   fi
 }
@@ -845,6 +846,7 @@ function RunCmd() {
 # status=0  ok
 # status=1  task failed
 # status=2  task failed but try it again
+# status=3  Perl upgrade issue
 #
 function WorkOnTask() {
   status=0
