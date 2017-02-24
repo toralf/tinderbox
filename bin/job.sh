@@ -825,6 +825,9 @@ function RunCmd() {
 
   elif [[ $status -eq 1 ]]; then
     GotAnIssue
+    if [[ $try_again -eq 1 ]]; then
+      echo "$task" >> $pks
+    fi
     # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
     #
     grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
@@ -832,10 +835,6 @@ function RunCmd() {
       echo "$task" >> $pks
       echo "%perl-cleaner --all" >> $pks
     fi
-  fi
-
-  if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $pks
   fi
 }
 
