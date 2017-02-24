@@ -830,6 +830,10 @@ function RunCmd() {
       status=2
     fi
   fi
+
+  if [[ $try_again -eq 1 ]]; then
+    echo "$task" >> $pks
+  fi
 }
 
 
@@ -926,10 +930,6 @@ function WorkOnTask() {
     # just a package (optional prefixed with "=")
     #
     RunCmd "emerge --update $task"
-  fi
-
-  if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $pks
   fi
 
   if [[ $status -eq 0 ]]; then
