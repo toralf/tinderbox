@@ -6,7 +6,7 @@
 #
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
-  echo " wrong user "
+  echo " $0: wrong user $USER"
   exit 1
 fi
 
