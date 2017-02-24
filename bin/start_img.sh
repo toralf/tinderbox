@@ -26,7 +26,7 @@ fi
 is_first=1
 for mnt in ${@:-~/run/*}
 do
-  # prepend $@ with ./ to specify non-common location/s
+  # hint: prepend $@ with ./ to specify non-common location/s
   #
   if [[ "$mnt" = "$(basename $mnt)" ]]; then
     mnt=~/run/$mnt
