@@ -6,13 +6,8 @@
 # main function: WorkOnTask()
 # the remaining code just parses the output, that's all
 
-# barrier start
-# this prevents the start of a broken copy of ourself - see end of file too
-#
-(
 
-# strip away escape sequences
-# colorstrip() returns its result !
+# strip away escape sequences, hint: colorstrip() does not modify its input
 #
 function stresc() {
   perl -MTerm::ANSIColor=colorstrip -nle '$_ = colorstrip($_); s,\r,\n,g; s/\x00/<0x00>/g; s/\x1b\x28\x42//g; s/\x1b\x5b\x4b//g; print'
@@ -217,7 +212,7 @@ EOF
     (cd "$work" && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f) && rm $f)
   fi
 
-  # and now the complete /etc/portage
+  # attach all of /etc/portage
   #
   (cd / && tar --dereference -cjpf $issuedir/files/etc.portage.tbz2 etc/portage)
 
@@ -491,11 +486,11 @@ function SearchForAnAlreadyFiledBug() {
     cat << EOF >> $issuedir/body
  https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  ~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir -a $id
+  bgo.sh -d ~/img?/$name/$issuedir -a $id
 
 EOF
   else
-    echo -e "  ~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
+    echo -e "  bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
 
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'
@@ -951,7 +946,7 @@ function WorkOnTask() {
 # test hook, eg. to catch install artefacts
 #
 function pre-check() {
-  exe=/tmp/tb/bin/PRE-CHECK.sh
+  exe=/tmp/pre-check.sh
   out=/tmp/pre-check.log
 
   if [[ ! -x $exe ]]; then
@@ -1011,7 +1006,7 @@ function ParseElogForQA() {
       GetMailAddresses
       grep -A 10 $issuedir/issue > $issuedir/body
       AddMetainfoToBody
-      echo -e "\n~/tb/bin/bgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
+      echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
       id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
 
       Mail "${id:-QA} $failed : $reason" $issuedir/body
@@ -1064,16 +1059,6 @@ export XDG_DATA_HOME="/root/share"
 
 while :;
 do
-  # restart this script if its origin was changed
-  #
-  diff -q /tmp/tb/bin/job.sh /tmp/job.sh 1>/dev/null
-  rc=$?
-  if [[ $rc -eq 1 ]]; then
-    exit 125  # was edited
-  elif [[ $rc -eq 2 ]]; then
-    exit 1    # trouble ahead
-  fi
-
   # check for install artefacts from a previous task
   #
   pre-check
@@ -1095,7 +1080,3 @@ do
   ParseElogForQA
   rm /tmp/task
 done
-
-# barrier end (see start of this file too)
-#
-)

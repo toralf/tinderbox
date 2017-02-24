@@ -6,7 +6,7 @@
 #
 # typical call:
 #
-# $> ~/tb/bin/chr.sh ~/run/plasma-unstable_20150811-144142
+# $> sudo /opt/tb/bin/chr.sh ~/run/plasma-unstable_20150811-144142
 
 # if a mount fails then bail out immediately
 #
@@ -14,17 +14,17 @@ function mountall() {
 
   # system dirs
   #
-  sudo /bin/mount -t proc       proc        $mnt/proc   &&\
-  sudo /bin/mount --rbind       /sys        $mnt/sys    &&\
-  sudo /bin/mount --make-rslave $mnt/sys                &&\
-  sudo /bin/mount --rbind       /dev        $mnt/dev    &&\
-  sudo /bin/mount --make-rslave $mnt/dev                &&\
+  /bin/mount -t proc       proc        $mnt/proc   &&\
+  /bin/mount --rbind       /sys        $mnt/sys    &&\
+  /bin/mount --make-rslave $mnt/sys                &&\
+  /bin/mount --rbind       /dev        $mnt/dev    &&\
+  /bin/mount --make-rslave $mnt/dev                &&\
   # portage and tinderbox
   #
-  sudo /bin/mount -o bind       ~/tb                $mnt/tmp/tb             &&\
-  sudo /bin/mount -o bind,ro    /usr/portage        $mnt/usr/portage        &&\
-  sudo /bin/mount -t tmpfs      tmpfs -o size=16G   $mnt/var/tmp/portage    &&\
-  sudo /bin/mount -o bind       /var/tmp/distfiles  $mnt/var/tmp/distfiles
+  /bin/mount -o bind       /home/tinderbox/tb  $mnt/tmp/tb             &&\
+  /bin/mount -o bind,ro    /usr/portage        $mnt/usr/portage        &&\
+  /bin/mount -t tmpfs      tmpfs -o size=16G   $mnt/var/tmp/portage    &&\
+  /bin/mount -o bind       /var/tmp/distfiles  $mnt/var/tmp/distfiles
 
   return $?
 }
@@ -35,12 +35,12 @@ function mountall() {
 function umountall()  {
   rc=0
 
-  sudo /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}  || rc=$?
-  sudo /bin/umount -l $mnt/{sys,proc}               || rc=$?
+  /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}     || rc=$?
+  /bin/umount -l $mnt/{sys,proc}                  || rc=$?
 
-  sudo /bin/umount    $mnt/tmp/tb                       || rc=$?
-  sudo /bin/umount    $mnt/usr/portage                  || rc=$?
-  sudo /bin/umount -l $mnt/var/tmp/{distfiles,portage}  || rc=$?
+  /bin/umount    $mnt/tmp/tb                      || rc=$?
+  /bin/umount    $mnt/usr/portage                 || rc=$?
+  /bin/umount -l $mnt/var/tmp/{distfiles,portage} || rc=$?
 
   return $rc
 }
@@ -89,9 +89,9 @@ mountall || exit 4
 if [[ $# -gt 0 ]]; then
   # enforce a login of user root b/c then its environment is sourced
   #
-  sudo /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
+  /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
 else
-  sudo /usr/bin/chroot $mnt /bin/bash -l
+  /usr/bin/chroot $mnt /bin/bash -l
 fi
 rc1=$?
 

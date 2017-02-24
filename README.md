@@ -5,7 +5,7 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 ###create a new image
 The setup of a new image is made by *tbs.sh* (*at* from *sys-process/at* schedules a command for later, catches the output and email it to the user)
     
-    echo "cd ~/img2; ~/tb/bin/tbs.sh" | at now + 0 min
+    echo "cd ~/img2; sudo /opt/tb/bin/tbs.sh" | at now + 0 min
 
 A profile, keyword and a USE flag set are choosen.
 The current stage3 file is downloaded, verified and unpacked.
@@ -19,22 +19,22 @@ A symlink is made into *~/run* and the image is started.
     
     start_img.sh <image name>
 
-The wrapper *runme.sh* uses *chr.sh* to handle all chroot related actions and calls the tinderbox script *job.sh* itself.
+The wrapper *chr.sh* handles all chroot related actions and calls the tinderbox script *job.sh* itself.
 The file */tmp/LOCK* is created to avoid 2 parallel starts.
-Without an image name all symlinks in *~/run* are processed.
+Without an argument all symlinks in *~/run* are processed.
 
 ###stop an image
 
     stop_img.sh <image name>
 
 A marker (*/tmp/STOP*) is made in that image.
-The current emerge operation will be finished before *job.sh* exits and */tmp/LOCK* is removed.
+The current task operation will be finished before *job.sh* removes */tmp/LOCK* and exits.
 
 ###chroot into an image
     
-    chr.sh <image name>
+    sudo /opt/tb/bin/chr.sh <image name>
 
-Without any argument an interactive login is made. Otherwise the arguments are treated as commands. Those will be run and an exit is made.
+Without any argument an interactive login is made. Otherwise the arguments are treated as command(s) to be run within that image.
 
 ###removal of an image
 Just remove the symlink in *~/run* and the log file in *~/logs*.
@@ -78,11 +78,13 @@ Create the user *tinderbox*:
 Run in */home/tinderbox*:
 
     mkdir ~/img{1,2} ~/logs ~/run ~/tb
-Copy *./bin*, *./data* and *./sdata* into *~/tb*.
+Copy *./data* and *./sdata* into *~/tb* and *./bin* into */opt/tb*.
+The user tinderbox must not be allowed to edit the scripts.
+The user must have write permissions for the data files.
 Edit files in *~/sdata* and strip away the suffix *.sample*.
 Grant sudo rights:
 
-    tinderbox ALL=(ALL) NOPASSWD: /bin/mount,/bin/umount,/usr/bin/chroot
+    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/tbs.sh
 
 At a hardened Gentoo tweak *Grsecurity*:
 

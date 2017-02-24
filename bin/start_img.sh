@@ -10,12 +10,6 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-# run a copy to allow editing of the origin
-# stop and start an image to use the current runme.sh
-#
-orig=/tmp/tb/bin/runme.sh
-copy=/tmp/runme.sh
-
 # delay start of subsequent images to lower I/O impact
 #
 delay=1
@@ -58,7 +52,7 @@ do
     echo " found LOCK: $mnt"
     continue
   fi
-  
+
   # image must not be stopping
   #
   if [[ -f $mnt/tmp/STOP ]]; then
@@ -82,8 +76,11 @@ do
     sleep $delay
   fi
 
+  cp /opt/tb/bin/{job,pre-check,switch2libressl}.sh $mnt/tmp
+  chmod a+w $mnt/tmp/pre-check.sh         # allowed to be adapted by the tinderbox user
+
   echo " $(date) starting $mnt"
-  nohup nice ~/tb/bin/chr.sh $mnt "cp $orig $copy && $copy" &> ~/logs/$(basename $mnt).log &
+  nohup nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
 done
 
 # avoid a non-visible prompt

@@ -6,7 +6,7 @@
 #
 # typical call:
 #
-# $> echo "cd ~/img2; ~/tb/bin/tbs.sh" | at now + 0 min
+# $> echo "cd ~/img2; sudo /opt/tb/bin/tbs.sh" | at now + 0 min
 
 #############################################################################
 #
@@ -73,23 +73,23 @@ function rufs()  {
 function ComputeImageName()  {
   if [[ "$profile" = "hardened/linux/amd64" ]]; then
     name="hardened"
-    stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" $latest | cut -f1 -d' ')
 
   elif [[ "$profile" = "hardened/linux/amd64/no-multilib" ]]; then
     name="hardened-no-multilib"
-    stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ')
 
   elif [[ "$profile" = "default/linux/amd64/13.0/no-multilib" ]]; then
     name="13.0-no-multilib"
-    stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ')
 
   elif [[ "$(basename $profile)" = "systemd" ]]; then
     name="$(basename $(dirname $profile))-systemd"
-    stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $latest | cut -f1 -d' ')
 
   else
     name="$(basename $profile)"
-    stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" ~/$latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ')
   fi
 
   # don't mention the default to avoid too long image names
@@ -115,8 +115,6 @@ function ComputeImageName()  {
   fi
 
   name="${name}_$(date +%Y%m%d-%H%M%S)"
-  echo " $imagedir/$name"
-  echo
 }
 
 
@@ -124,24 +122,29 @@ function ComputeImageName()  {
 #
 function UnpackStage3()  {
   b=$(basename $stage3)
-  f=/var/tmp/distfiles/$b
+  f=$distfiles/$b
   if [[ ! -f $f || ! -s $f ]]; then
-    wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=/var/tmp/distfiles || exit 4
+    wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles || exit 4
   fi
 
+  # do this once before:
+  # gpg --keyserver hkps.pool.sks-keyservers.net --recv-keys 0x9E6438C817072058
+  # gpg --edit-key 0x9E6438C817072058
+  #   and trust it ultimately
+  # maybe do the same for 0xBB572E0E2D182910
+  #
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
 
-  mkdir $name           || exit 4
-  cd $name              || exit 4
-  tar xjpf $f --xattrs  || exit 4
+  mkdir $name || exit 4
+  cd $name    || exit 4
+  tar -xjpf $f --xattrs --exclude='./dev/*' || exit 4
 }
 
 
-# configure 3 repositories amd prepare a placeholder too
+# configure 3 repositories and prepare a placeholder too
+# the local repository rules always
 #
 function CompileRepoFiles()  {
-  # the local repository rules always
-  #
   mkdir -p     etc/portage/repos.conf/
   cat << EOF > etc/portage/repos.conf/default.conf
 [DEFAULT]
@@ -240,7 +243,7 @@ VIDEO_CARDS="intel i965"
 
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news"
 
-DISTDIR="/var/tmp/distfiles"
+DISTDIR="$distfiles"
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
@@ -257,14 +260,14 @@ EOF
 function CompilePackageFiles()  {
   mkdir tmp/tb  # mount point of the tinderbox directory of the host
 
-  # create portage directories and symlinks (becomes effective due to bind-mount of ~/tb)
+  # create portage directories and symlinks
   #
   mkdir usr/portage
   mkdir var/tmp/{distfiles,portage}
 
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
-    mkdir     etc/portage/$d
+    [[ ! -d etc/portage/$d ]] && mkdir etc/portage/$d
     chmod 777 etc/portage/$d
   done
 
@@ -405,7 +408,7 @@ EOF
   # switch to an alternative SSL lib before @system is upgraded
   #
   if [[ "$libressl" = "y" ]]; then
-    echo "%/tmp/tb/bin/switch2libressl.sh" >> $pks
+    echo "%/tmp/switch2libressl.sh" >> $pks
   fi
 
   # prefix "%" is needed here due to IGNORE_PACKAGE
@@ -428,6 +431,7 @@ function ConfigureImage()  {
   echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
   echo 'local' >            usr/local/portage/profiles/repo_name
   chown -R portage:portage  usr/local/portage/
+  chmod g+s                 usr/local/portage/
 
   CompileRepoFiles
   CompileMakeConf
@@ -539,48 +543,41 @@ function EmergeMandatoryPackages() {
     fi
   fi
 
-  cd ..
-  $(dirname $0)/chr.sh $name '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
-  rc=$?
-
-  # try to shorten the link to the image, eg.: img1/plasma-...
+  # shorten the link to the image, eg.: img1/plasma-...
   #
-  cd ~
-  d=$(basename $imagedir)/$name
-  if [[ ! -d $d ]]; then
-    d=$imagedir/$name
-  fi
+  mnt=$(basename $img)/$name
+
+  cd /home/tinderbox/
+  /opt/tb/bin/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
+  rc=$?
 
   if [[ $rc -ne 0 ]]; then
     echo
-    echo " setup NOT successful (rc=$rc) @ $d"
+    echo " setup NOT successful (rc=$rc) @ $mnt"
 
     if [[ $rc -eq 9 ]]; then
       echo
-      cat $d/tmp/dryrun.log
+      cat $mnt/tmp/dryrun.log
     else
       echo
-      cat $d/tmp/setup.log
+      cat $mnt/tmp/setup.log
     fi
 
-    # the usage of "~" is here ok b/c usually those commands are
-    # manually run by the user "tinderbox"
-    #
     echo
-    echo "    view $d/tmp/dryrun.log"
-    echo "    vi $d/etc/portage/make.conf"
-    echo "    ~/tb/bin/chr.sh $d '  $dryrun  '"
-    echo "    (cd ~/run && ln -s ../$d)"
-    echo "    ~/tb/bin/start_img.sh $name"
+    echo "    view ~/$mnt/tmp/dryrun.log"
+    echo "    vi ~/$mnt/etc/portage/make.conf"
+    echo "    sudo /opt/tb/bin/chr.sh $mnt '  $dryrun  '"
+    echo "    (cd ~/run && ln -s ../$mnt)"
+    echo "    start_img.sh $name"
     echo
 
     exit $rc
   fi
 
-  (cd ~/run && ln -s ../$d) || exit 11
+  (cd run && ln -s ../$mnt) || exit 11
 
   echo
-  echo " setup  OK : $d"
+  echo " setup  OK : $mnt"
   echo
 }
 
@@ -594,15 +591,17 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+# the local distfiles directory
+#
+distfiles=/var/tmp/distfiles
+
 # the remote stage3 location
 #
-imagedir=$(pwd)
 wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
 wgetpath=/releases/amd64/autobuilds
-latest=latest-stage3.txt
 
 autostart="y"   # start the image after setup ?
-clang="n"       # prefer CLANG over GCC
+clang="n"       # prefer CLANG
 flags=$(rufs)   # holds the current USE flag subset
 origin=""       # clone from another image ?
 suffix=""       # will be appended onto the name before the timestamp
@@ -732,26 +731,25 @@ done
 
 #############################################################################
 #
-if [[ "$HOME" = "$imagedir" ]]; then
+img=$(pwd)
+
+if [[ "$HOME" = "$img" ]]; then
   echo "you are in \$HOME ?!"
   exit 3
 fi
 
-wget --quiet $wgethost/$wgetpath/$latest --output-document=~/$latest
-if [[ $? -ne 0 ]]; then
-  echo " wget failed of: $latest"
-  exit 3
-fi
+latest=$distfiles/latest-stage3.txt
+wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
 
 ComputeImageName          &&\
+echo " $img/$name"        &&\
+echo                      &&\
 UnpackStage3              &&\
 ConfigureImage            &&\
 EmergeMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
-  su - tinderbox -c "$(dirname $0)/start_img.sh $name"
-else
-  echo "no autostart choosen - run sth. like:  start_img.sh $name"
+  start_img.sh $name
 fi
 
 exit 0
