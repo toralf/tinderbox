@@ -548,7 +548,7 @@ function EmergeMandatoryPackages() {
   mnt=$(basename $img)/$name
 
   cd /home/tinderbox/
-  /opt/tb/bin/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
+  $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
@@ -566,7 +566,7 @@ function EmergeMandatoryPackages() {
     echo
     echo "    view ~/$mnt/tmp/dryrun.log"
     echo "    vi ~/$mnt/etc/portage/make.conf"
-    echo "    sudo /opt/tb/bin/chr.sh $mnt '  $dryrun  '"
+    echo "    sudo $(dirname $0)/chr.sh $mnt '  $dryrun  '"
     echo "    (cd ~/run && ln -s ../$mnt)"
     echo "    start_img.sh $name"
     echo
@@ -749,7 +749,7 @@ ConfigureImage            &&\
 EmergeMandatoryPackages
 
 if [[ "$autostart" = "y" ]]; then
-  start_img.sh $name
+  $(dirname $0)/start_img.sh $name
 fi
 
 exit 0
