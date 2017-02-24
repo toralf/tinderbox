@@ -827,6 +827,7 @@ function RunCmd() {
     GotAnIssue
     if [[ $try_again -eq 1 ]]; then
       echo "$task" >> $pks
+      status=2
     fi
     # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
     #
@@ -843,6 +844,7 @@ function RunCmd() {
 #
 # status=0  ok
 # status=1  task failed
+# status=2  task failed but try it again
 #
 function WorkOnTask() {
   status=0
@@ -852,12 +854,10 @@ function WorkOnTask() {
   if [[ "$task" = "@preserved-rebuild" ]]; then
     RunCmd "emerge --backtrack=100 $task"
     if [[ $status -eq 1 ]]; then
-      if [[ $try_again -eq 0 ]]; then
-        if [[ -n "$failed" ]]; then
-          echo "%emerge --resume --skip-first" >> $pks
-        else
-          Finish 2 "$task is broken"
-        fi
+      if [[ -n "$failed" ]]; then
+        echo "%emerge --resume --skip-first" >> $pks
+      else
+        Finish 2 "$task is broken"
       fi
     fi
 
@@ -866,16 +866,14 @@ function WorkOnTask() {
   elif [[ "$task" = "@system" ]]; then
     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
     if [[ $status -eq 1 ]]; then
-      if [[ $try_again -eq 0 ]]; then
-        if [[ -n "$failed" ]]; then
-          echo "%emerge --resume --skip-first" >> $pks
-        else
-          # there's no general need to update @world
-          # b/c new ebuilds are scheduled by insert_pkgs.sh already,
-          # but if @system fails then @world might succeed
-          #
-          echo "@world" >> $pks
-        fi
+      if [[ -n "$failed" ]]; then
+        echo "%emerge --resume --skip-first" >> $pks
+      else
+        # there's no general need to update @world
+        # b/c new ebuilds are scheduled by insert_pkgs.sh already,
+        # but if @system fails then @world might succeed
+        #
+        echo "@world" >> $pks
       fi
 
     elif [[ $status -eq 0 ]]; then
@@ -884,7 +882,7 @@ function WorkOnTask() {
       grep -q '^#ABI_X86=' /etc/portage/make.conf
       if [[ $? -eq 0 ]]; then
         sed -i -e 's/^#ABI_X86=/ABI_X86=/' /etc/portage/make.conf
-        # first make @system multi-lib ready then @world
+        # first re-make @system multi-lib ready then @world
         #
         echo -e "@world\n@system" >> $pks
       fi
@@ -896,10 +894,8 @@ function WorkOnTask() {
   elif [[ "$task" = "@world" ]]; then
     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
     if [[ $status -eq 1 ]]; then
-      if [[ $try_again -eq 0 ]]; then
-        if [[ -n "$failed" ]]; then
-          echo "%emerge --resume --skip-first" >> $pks
-        fi
+      if [[ -n "$failed" ]]; then
+        echo "%emerge --resume --skip-first" >> $pks
       fi
 
     elif [[ $status -eq 0 ]]; then
@@ -912,24 +908,16 @@ function WorkOnTask() {
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
-    #  a command: prefixed with a '%'
-    #
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
     if [[ $status -eq 1 ]]; then
-      if [[ $try_again -eq 0 ]]; then
-        # bail out except ...
-        #
-        echo "$cmd" | grep -q -e "--resume --skip-first"
-        if [[ $? -eq 1 ]]; then
-          Finish 2 "command '$cmd' failed"
-        fi
+      echo "$cmd" | grep -q -e "--resume --skip-first"
+      if [[ $? -eq 1 ]]; then
+        Finish 2 "command '$cmd' failed"
       fi
     fi
 
   else
-    # just a package (optional prefixed with "=")
-    #
     RunCmd "emerge --update $task"
   fi
 }
