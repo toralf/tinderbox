@@ -351,7 +351,7 @@ EOF
         rm -f $f
         (cd "$work" && tar --dereference -cjpf $issuedir/files/tests.tbz2 ./tests ./regress 2>$f && rm $f)
         if [[ $? -ne 0 || -s $f ]]; then
-          ls -ld /var/tmp/portage/*/*/work/* >> $f
+          ls -ld /var/tmp/portage/*/*/work/*/* >> $f
           Mail "warn: collecting test results for '$work' fails" $f
         fi
       fi
