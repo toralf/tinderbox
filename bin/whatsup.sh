@@ -110,7 +110,7 @@ function PackagesPerDay() {
     grep '::: completed emerge' $log |\
     cut -f1 -d ':' |\
     perl -wane '
-      BEGIN { @p = (); $first = 0; }
+      BEGIN { @p = (0); $first = 0; }
       {
         $cur = $F[0];
         $first = $cur if ($first == 0);
