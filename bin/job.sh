@@ -824,6 +824,7 @@ function RunCmd() {
     rm $bak
 
   else
+    try_again=0
     GotAnIssue
     if [[ $try_again -eq 1 ]]; then
       echo "$task" >> $pks
@@ -851,7 +852,6 @@ function RunCmd() {
 function WorkOnTask() {
   status=0
   failed=""       # contains the package name+version
-  try_again=0     # flag whether to repeat $task or not
 
   if [[ "$task" = "@preserved-rebuild" ]]; then
     RunCmd "emerge --backtrack=100 $task"
