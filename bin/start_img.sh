@@ -4,26 +4,15 @@
 
 # start tinderbox chroot image/s
 #
-
+# typcial call:
+#
+# $> start_img.sh desktop-libressl_20170224-103028
+#
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " $0: wrong user $USER"
   exit 1
 fi
 
-# delay start of subsequent images to lower I/O impact
-#
-delay=1
-if [[ $# -eq 0 ]]; then
-  # test if this script was called from /etc/local.d/tinderbox.start
-  #
-  if [[ -f /tmp/tinderbox.start.log ]]; then
-    if [[ ! -s /tmp/tinderbox.start.log ]]; then
-      delay=30
-    fi
-  fi
-fi
-
-is_first=1
 for mnt in ${@:-~/run/*}
 do
   # hint: prepend $@ with ./ to specify non-common location/s
@@ -68,19 +57,12 @@ do
     continue
   fi
 
-  # ok, start it
-  #
-  if [[ $is_first -eq 1 ]]; then
-    is_first=0
-  else
-    sleep $delay
-  fi
-
   cp /opt/tb/bin/{job,pre-check,switch2libressl}.sh $mnt/tmp
-  chmod a+w $mnt/tmp/pre-check.sh         # allowed to be adapted by the tinderbox user
+  chmod a+w $mnt/tmp/pre-check.sh
 
   echo " $(date) starting $mnt"
   nohup nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
+  sleep 1
 done
 
 # avoid a non-visible prompt
