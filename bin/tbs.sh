@@ -421,6 +421,8 @@ EOF
     echo "%emerge -u sys-devel/clang" >> $pks
   fi
   echo "%emerge -u sys-devel/gcc" >> $pks
+
+  chmod a+w $pks
 }
 
 
