@@ -982,11 +982,17 @@ function ReportQA() {
 #
 function ParseElogForQA() {
   f=/tmp/files
-  find /var/log/portage/elog -name '*.log' $( [[ -f /tmp/timestamp.qa ]] && echo "-newer /tmp/timestamp.qa" ) > $f
+  ts=/tmp/timestamp.qa
+
+  if [[ -f /tmp/timestamp.qa ]]; then
+    find /var/log/portage/elog -name '*.log' -newer $ts > $f
+  else
+    find /var/log/portage/elog -name '*.log'            > $f
+  fi
 
   # process next time only those elog files which were created after this timestamp
   #
-  touch /tmp/timestamp.qa
+  touch $ts
 
   cat $f |\
   while read elogfile
