@@ -954,6 +954,30 @@ EOF
 }
 
 
+# helper of ParseElogForQA()
+#
+function ReportQA() {
+  failed=$(basename $i  | cut -f1-2 -d':' | tr ':' '/')
+  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+
+  CreateIssueDir
+
+  cp $i $issuedir/issue
+  AddWhoamiToIssue
+  AttachFiles $issuedir/issue
+
+  echo "$failed : $reason" > $issuedir/title
+
+  GetMailAddresses
+  grep -A 10 $issuedir/issue > $issuedir/body
+  AddMetainfoToBody
+  echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
+  id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+
+  Mail "${id:-QA} $failed : $reason" $issuedir/body
+}
+
+
 # catch QA issues
 #
 function ParseElogForQA() {
@@ -965,25 +989,8 @@ function ParseElogForQA() {
     reason="installs into paths that should be created at runtime"
     grep -q "QA Notice: $reason" $i
     if [[ $? -eq 0 ]]; then
-      failed=$(basename $i  | cut -f1-2 -d':' | tr ':' '/')
-      short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
       blocker="-b 520404"
-
-      CreateIssueDir
-
-      cp $i $issuedir/issue
-      AddWhoamiToIssue
-      AttachFiles $issuedir/issue
-
-      echo "$failed : $reason" > $issuedir/title
-
-      GetMailAddresses
-      grep -A 10 $issuedir/issue > $issuedir/body
-      AddMetainfoToBody
-      echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
-      id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-
-      Mail "${id:-QA} $failed : $reason" $issuedir/body
+      ReportQA
     fi
   done
 
