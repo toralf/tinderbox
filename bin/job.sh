@@ -969,7 +969,7 @@ function ReportQA() {
   echo "$failed : $reason" > $issuedir/title
 
   GetMailAddresses
-  grep -A 10 $issuedir/issue > $issuedir/body
+  grep -A 10 "$reason" $issuedir/issue > $issuedir/body
   AddMetainfoToBody
   echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
   id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
@@ -999,15 +999,15 @@ function ParseElogForQA() {
   do
     #  (runtime-paths) - [TRACKER] Ebuild that install into paths that should be created at runtime
     #
-    reason="installs into paths that should be created at runtime"
-    grep -q "QA Notice: $reason" $elogfile
+    reason="QA Notice: installs into paths that should be created at runtime"
+    grep -q "$reason" $elogfile
     if [[ $? -eq 0 ]]; then
       blocker="-b 520404"
       ReportQA
     fi
 
-    reason="python_prepare_all() didn't call distutils-r1_python_prepare_all"
-    grep -q "QA: $reason" $elogfile
+    reason="QA: python_prepare_all() didn't call distutils-r1_python_prepare_all"
+    grep -q "$reason" $elogfile
     if [[ $? -eq 0 ]]; then
       ReportQA
     fi
