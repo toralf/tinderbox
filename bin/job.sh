@@ -957,12 +957,12 @@ EOF
 # helper of ParseElogForQA()
 #
 function ReportQA() {
-  failed=$(basename $i  | cut -f1-2 -d':' | tr ':' '/')
+  failed=$(basename $elogfile  | cut -f1-2 -d':' | tr ':' '/')
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
 
   CreateIssueDir
 
-  cp $i $issuedir/issue
+  cp $elogfile $issuedir/issue
   AddWhoamiToIssue
   AttachFiles $issuedir/issue
 
@@ -981,28 +981,31 @@ function ReportQA() {
 # catch QA issues
 #
 function ParseElogForQA() {
-  find /var/log/portage/elog -name '*.log' $( [[ -f /tmp/timestamp.qa ]] && echo "-newer /tmp/timestamp.qa" ) |\
-  while read i
+  f=/tmp/files
+  find /var/log/portage/elog -name '*.log' $( [[ -f /tmp/timestamp.qa ]] && echo "-newer /tmp/timestamp.qa" ) > $f
+
+  # process next time only those elog files which were created after this timestamp
+  #
+  touch /tmp/timestamp.qa
+
+  cat $f |\
+  while read elogfile
   do
     #  (runtime-paths) - [TRACKER] Ebuild that install into paths that should be created at runtime
     #
     reason="installs into paths that should be created at runtime"
-    grep -q "QA Notice: $reason" $i
+    grep -q "QA Notice: $reason" $elogfile
     if [[ $? -eq 0 ]]; then
       blocker="-b 520404"
       ReportQA
     fi
 
     reason="python_prepare_all() didn't call distutils-r1_python_prepare_all"
-    grep -q "QA: $reason" $i
+    grep -q "QA: $reason" $elogfile
     if [[ $? -eq 0 ]]; then
       ReportQA
     fi
   done
-
-  # process next time only those elog files which were created after this timestamp
-  #
-  touch /tmp/timestamp.qa
 }
 
 
