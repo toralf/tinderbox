@@ -992,6 +992,12 @@ function ParseElogForQA() {
       blocker="-b 520404"
       ReportQA
     fi
+
+    reason="python_prepare_all() didn't call distutils-r1_python_prepare_all"
+    grep -q "QA: $reason" $i
+    if [[ $? -eq 0 ]]; then
+      ReportQA
+    fi
   done
 
   # process next time only those elog files which were created after this timestamp
