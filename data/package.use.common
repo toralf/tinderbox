@@ -33,10 +33,6 @@ app-editors/xemacs        -nopie
 #
 app-text/xmlto            -text
 
-# test? ( ssl )
-#
-net-misc/openssh          ssl
-
 # can't be linked statically otherwise
 #
 sys-apps/busybox          -pam
