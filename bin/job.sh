@@ -259,10 +259,25 @@ EOF
 # attach the content of the given file names to the body
 #
 function AttachFilesToBody()  {
+#   boundary="--------------$(date +%s).$(date +%N)"
+#
+#   sed -i "1i\Content-Type: multipart/mixed; boundary=\"$boundary\"" $issuedir/body
+#
   for f in $*
   do
+#     cat << EOF >> $issuedir/body
+#
+# $boundary
+# Content-Type: $(file --mime-type $f | cut -f2 -d' '); name="$(basename $f)"
+# Content-Transfer-Encoding: base64
+# Content-Disposition: attachment; filename="$(basename $f)"
+#
+# EOF
     uuencode $f $(basename $f) >> $issuedir/body
+#     echo >> $issuedir/body
   done
+#
+#   echo -e "\n$boundary--" >> $issuedir/body
 }
 
 
