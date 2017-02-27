@@ -259,7 +259,7 @@ EOF
 # attach the content of the given files onto the email body
 # (TODO: uuencode is not MIME compliant)
 #
-function AttachFiles()  {
+function AttachFilesToBody()  {
   for f in $*
   do
     uuencode $f $(basename $f) >> $issuedir/body
@@ -546,7 +546,7 @@ EOF
 
   SearchForAnAlreadyFiledBug
 
-  AttachFiles $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
+  AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
   # prefix title with package name + version
   #
@@ -972,7 +972,7 @@ function ReportQA() {
   AddMetainfoToBody
   echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
   id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-  AttachFiles $issuedir/issue
+  AttachFilesToBody $issuedir/issue
 
   Mail "${id:-QA} $failed : $reason" $issuedir/body
 }
