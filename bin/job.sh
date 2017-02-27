@@ -986,7 +986,11 @@ function ReportQA() {
   id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
   AttachFilesToBody $issuedir/issue
 
-  Mail "${id:-QA} $failed : $reason" $issuedir/body
+  # be just prepared to file the issue even if a bug id was found
+  #
+  if [[ -z "$id" ]]; then
+    Mail "QA $failed : $reason" $issuedir/body
+  fi
 }
 
 
