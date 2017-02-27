@@ -35,19 +35,22 @@ do
   available="$available $pks"
 done
 
-# holds the package names of new/changed/modified/renamed ebuilds
+# holds the package names of added/changed/modified/renamed ebuilds
 #
 tmp=$(mktemp /tmp/pksXXXXXX)
 
 # the host repository is synced every 3 hours via a cron job
-# which ideally calls us then too
-# add 1 hour for the mirrors to be synced too
+# which ideally calls us afterwards;
+# add 1 hour for the mirrors to be in sync with their masters
 #
 cd /usr/portage/
 git diff --diff-filter=ACMR --name-status "@{ 4 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- | xargs -n 1 | cut -f1-2 -d'/' | sort --unique > $tmp
 
 info="# $(wc -l < $tmp) packages at $(date)"
+
+# this goes to stdout of the caller
+#
 echo "$info"
 
 if [[ -s $tmp ]]; then
@@ -55,14 +58,10 @@ if [[ -s $tmp ]]; then
   #
   for pks in $available
   do
-    # shuffle the packages around for each image in a different way
+    # shuffle them around for each image in a different way before
     #
     echo "$info"              >> $pks
     sort --random-sort < $tmp >> $pks
-
-    # goes to stdout/the log file of the caller
-    #
-    echo "$pks"
   done
 fi
 
