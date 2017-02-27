@@ -1036,7 +1036,8 @@ function ParseElogForQA() {
 #       main
 #
 mailto="tinderbox@zwiebeltoralf.de"
-log=/tmp/task.log                   # holds always output of the running task command
+tsk=/tmp/task                       # holds the current task
+log=$tsk.log                        # holds always output of the running task command
 pks=/tmp/packages                   # the (during setup pre-filled) package list file
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
@@ -1069,6 +1070,12 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
+# no normal stop before, eg. due to a reboot ?
+#
+if [[ -s $tsk ]]; then
+  cat $tsk >> $pks && rm $tsk
+fi
+
 while :;
 do
   pre-check
@@ -1077,16 +1084,15 @@ do
     Finish 0 "catched STOP"
   fi
 
-  # clean up from a previously failed emerge operation
-  # that is configured to not be made automatically
-  # b/c build files have to be collected before cleaning
+  # clean up from a previously failed operation
+  # no auto-clean is made b/c build files have to be collected first
   #
   rm -rf /var/tmp/portage/*
 
   date > $log
   GetNextTask
-  echo "$task" | tee -a $log> /tmp/task
+  echo "$task" | tee -a $log > $tsk
   WorkOnTask
   ParseElogForQA
-  rm /tmp/task
+  rm $tsk
 done
