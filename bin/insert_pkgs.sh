@@ -13,7 +13,7 @@ mailto="tinderbox@zwiebeltoralf.de"
 #   3. has a non-empty package list
 #   4. doesn't have any special entries in its package list
 #
-avail_pks=""
+available=""
 for i in ~/run/*
 do
   if [[ ! -e $i/tmp/LOCK ]]; then
@@ -32,7 +32,7 @@ do
     continue
   fi
 
-  avail_pks="$avail_pks $pks"
+  available="$available $pks"
 done
 
 # holds the package names of new/changed/modified/renamed ebuilds
@@ -51,9 +51,9 @@ info="# $(wc -l < $tmp) packages at $(date)"
 echo "$info"
 
 if [[ -s $tmp ]]; then
-  # prepend the package names onto change-able package list files
+  # prepend the package names onto available package list files
   #
-  for pks in $avail_pks
+  for pks in $available
   do
     # shuffle the packages around for each image in a different way
     #
