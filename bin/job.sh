@@ -964,7 +964,6 @@ function ReportQA() {
 
   cp $elogfile $issuedir/issue
   AddWhoamiToIssue
-  AttachFiles $issuedir/issue
 
   echo "$failed : $reason" > $issuedir/title
 
@@ -973,6 +972,7 @@ function ReportQA() {
   AddMetainfoToBody
   echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
   id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+  AttachFiles $issuedir/issue
 
   Mail "${id:-QA} $failed : $reason" $issuedir/body
 }
