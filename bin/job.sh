@@ -256,8 +256,7 @@ EOF
 }
 
 
-# attach the content of the given files onto the email body
-# (TODO: uuencode is not MIME compliant)
+# attach the content of the given file names to the body
 #
 function AttachFilesToBody()  {
   for f in $*
@@ -267,10 +266,8 @@ function AttachFilesToBody()  {
 }
 
 
-# this info helps to decide
-# whether to file a bug for a stable package
+# this info helps to decide to file a bug eg. for a stable package
 # despite the fact that the issue was already fixed in an unstable version
-# or not
 #
 function AddMetainfoToBody() {
   cat << EOF >> $issuedir/body
@@ -526,10 +523,16 @@ function CompileIssueMail() {
 
   SearchForBlocker
 
+  # after the search do now prefix title with package name + version
+  #
+  sed -i -e "s#^#$failed : #" $issuedir/title
+
   # copy the issue to the email body before it is furnished for b.g.o. as comment#0
   #
   cp $issuedir/issue $issuedir/body
   AddMetainfoToBody
+  AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
+
   AddWhoamiToIssue
 
   # installed versions of languages and compilers
@@ -546,19 +549,13 @@ EOF
 
   SearchForAnAlreadyFiledBug
 
-  AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
-
-  # prefix title with package name + version
-  #
-  sed -i -e "s#^#$failed : #" $issuedir/title
-
   # b.g.o. has a limit for "Summary" of 255 chars
   #
   if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
     truncate -s 255 $issuedir/title
   fi
 
-  # allows us to modify the content as non-root/portage user too
+  # give write perms to non-root/portage user too
   #
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
