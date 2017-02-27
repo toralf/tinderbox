@@ -1020,12 +1020,12 @@ function ParseElogForQA() {
 #       main
 #
 mailto="tinderbox@zwiebeltoralf.de"
-log=/tmp/task.log                   # holds always output of "emerge ... "
-pks=/tmp/packages                   # the pre-filled package list file
+log=/tmp/task.log                   # holds always output of the running task command
+pks=/tmp/packages                   # the (during setup pre-filled) package list file
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 
-# eg.: gnome-unstable_20150913-104240
+# eg.: gnome_20150913-104240
 #
 name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
 
@@ -1055,8 +1055,6 @@ export XDG_DATA_HOME="/root/share"
 
 while :;
 do
-  # check for install artefacts from a previous task
-  #
   pre-check
 
   if [[ -f /tmp/STOP ]]; then
@@ -1064,8 +1062,8 @@ do
   fi
 
   # clean up from a previously failed emerge operation
-  # it is configured to not be made by portage automatically
-  # b/c relevant build files have to be collected before
+  # that is configured to not be made automatically
+  # b/c build files have to be collected before cleaning
   #
   rm -rf /var/tmp/portage/*
 
