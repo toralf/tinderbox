@@ -223,8 +223,6 @@ ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64
 $(/usr/bin/cpuinfo2cpuflags-x86)
 PAX_MARKINGS="XT"
 
-$( [[ "$multilib" = "y" ]] && echo '#ABI_X86="32 64"' )
-
 $( [[ -n "$origin" ]] && grep "^L10N" $origin/etc/portage/make.conf || L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)" )
 
 ACCEPT_LICENSE="*"
@@ -506,6 +504,8 @@ fi
 emerge -u sys-apps/sandbox || ExitOnError 8
 
 emerge --update --pretend sys-devel/gcc || exit 9
+
+$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' >> /etc/portage/make.conf )
 
 rc=0
 mv /etc/portage/package.mask/setup_blocker /tmp/

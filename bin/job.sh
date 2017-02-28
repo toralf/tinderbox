@@ -888,15 +888,6 @@ function WorkOnTask() {
       else
         echo "@world" >> $pks
       fi
-
-    elif [[ $status -eq 0 ]]; then
-      # activate 32/64 bit ABI if not yet done and re-build affected software
-      #
-      grep -q '^#ABI_X86=' /etc/portage/make.conf
-      if [[ $? -eq 0 ]]; then
-        sed -i -e 's/^#ABI_X86=/ABI_X86=/' /etc/portage/make.conf
-        echo -e "@world\n@system" >> $pks
-      fi
     fi
 
     echo "$(date) ${failed:-ok}" >> /tmp/timestamp.system
