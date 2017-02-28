@@ -851,7 +851,7 @@ function RunCmd() {
     if [[ $? -eq 0 ]]; then
       echo "$task" >> $pks
       echo "%perl-cleaner --all" >> $pks
-      status=3
+      status=2
     fi
   fi
 }
@@ -861,7 +861,7 @@ function RunCmd() {
 #
 # status=0  ok
 # status=1  task failed
-# status=2  task failed and all further post-actions are already scheduled
+# status=2  task failed and appropriate post-actions are already scheduled
 #
 function WorkOnTask() {
   status=0
@@ -895,7 +895,7 @@ function WorkOnTask() {
       fi
     fi
 
-    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.$task
+    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.$(echo "$task" | cut -c2-)
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
