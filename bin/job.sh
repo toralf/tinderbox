@@ -190,7 +190,7 @@ EOF
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"          | awk '{ print $1 }' )
   sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak                                  | grep "sandbox.*\.log" | cut -f2 -d'"')
 
-  for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso
+  for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso $work/../temp/eclass-debug.log
   do
     if [[ -f $f ]]; then
       stresc < $f > $issuedir/files/$(basename $f)
