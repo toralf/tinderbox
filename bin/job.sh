@@ -685,6 +685,16 @@ function GotAnIssue()  {
   CollectIssueFiles
   CompileIssueMail
 
+  # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
+  #
+  grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
+  if [[ $? -eq 0 ]]; then
+    echo "$task" >> $pks
+    echo "%perl-cleaner --all" >> $pks
+    status=2
+    return
+  fi
+
   if [[ $try_again -eq 0 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
@@ -843,14 +853,6 @@ function RunCmd() {
     GotAnIssue
     if [[ $try_again -eq 1 ]]; then
       echo "$task" >> $pks
-      status=2
-    fi
-    # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
-    #
-    grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
-    if [[ $? -eq 0 ]]; then
-      echo "$task" >> $pks
-      echo "%perl-cleaner --all" >> $pks
       status=2
     fi
   fi
