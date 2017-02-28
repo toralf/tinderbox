@@ -30,11 +30,17 @@ Without an argument all symlinks in *~/run* are processed.
 A marker (*/tmp/STOP*) is made in that image.
 The current task operation will be finished before *job.sh* removes */tmp/LOCK* and exits.
 
-###chroot into an image
+###chroot into a stopped image
     
-    sudo /opt/tb/bin/chr.sh <image name>
+    sudo /opt/tb/bin/chr.sh <image dir>
 
-Without any argument an interactive login is made. Otherwise the arguments are treated as command(s) to be run within that image.
+This bind-mounts all host-related dirs. Without any argument then an interactive login is made. Otherwise the arguments are treated as command(s) to be run within that image and an exit is made afterwards.
+
+###chroot into a running image
+    
+    sudo /opt/tb/bin/scw.sh <image dir>
+
+Simple wrapper of chroot with few checks.
 
 ###removal of an image
 Just remove the symlink in *~/run* and the log file in *~/logs*.
@@ -84,7 +90,7 @@ The user must have write permissions for the data files.
 Edit files in *~/sdata* and strip away the suffix *.sample*.
 Grant sudo rights:
 
-    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/tbs.sh
+    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/tbs.sh
 
 At a hardened Gentoo tweak *Grsecurity*:
 
