@@ -498,7 +498,7 @@ function SearchForAnAlreadyFiledBug() {
     cat << EOF >> $issuedir/body
  https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  bgo.sh -d ~/img?/$name/$issuedir -a $id
+  bgo.sh -d ~/img?/$name/$issuedir -a $id -c "same issue at an $keyword amd64 chroot image (named $name)"
 
 EOF
   else
