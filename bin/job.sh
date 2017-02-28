@@ -985,7 +985,7 @@ function ReportQA() {
   GetMailAddresses
   grep -A 10 "$reason" $issuedir/issue > $issuedir/body
   AddMetainfoToBody
-  echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA\n $blocker" >> $issuedir/body
+  echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
   id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
   AttachFilesToBody $issuedir/issue
 
@@ -1016,12 +1016,14 @@ function ParseElogForQA() {
   cat $f |\
   while read elogfile
   do
+    block=""
+
     #  (runtime-paths) - [TRACKER] Ebuild that install into paths that should be created at runtime
     #
     reason="QA Notice: installs into paths that should be created at runtime"
     grep -q "$reason" $elogfile
     if [[ $? -eq 0 ]]; then
-      blocker="-b 520404"
+      block="-b 520404"
       ReportQA
     fi
 
