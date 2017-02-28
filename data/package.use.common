@@ -50,3 +50,7 @@ x11-base/xorg-server      -minimal
 # next bash process will create that link and output a message.
 #
 sys-apps/nix              -etc_profile
+
+# https://bugs.gentoo.org/show_bug.cgi?id=601784
+#
+net-misc/wget             ssl
