@@ -861,50 +861,41 @@ function RunCmd() {
 #
 # status=0  ok
 # status=1  task failed
-# status=2  task failed but try it again
-# status=3  Perl upgrade issue
+# status=2  task failed and all further post-actions are already scheduled
 #
 function WorkOnTask() {
   status=0
   failed=""       # contains the package name+version
 
-  if [[ "$task" = "@preserved-rebuild" ]]; then
-    RunCmd "emerge --backtrack=100 $task"
-    if [[ $status -eq 1 ]]; then
+  if [[ "$(echo "$task" | cut -c1)" = '@' ]]; then
+    case $task in
+      @preserved-rebuild) RunCmd "emerge --backtrack=100 $task"
+      ;;
+      @system|@world)     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
+      ;;
+      *)                  RunCmd "emerge --update $task"
+    esac
+
+    if [[ $status -eq 0 ]]; then
+      case $task in
+        @world) echo "%emerge --depclean" >> $pks
+        ;;
+      esac
+
+    elif [[ $status -eq 1 ]]; then
       if [[ -n "$failed" ]]; then
         echo "%emerge --resume --skip-first" >> $pks
       else
-        Finish 2 "$task is broken"
+        case $task in
+          @preserved-rebuild) Finish 2 "$task is broken"
+          ;;
+          @system)            echo "@world" >> $pks
+          ;;
+        esac
       fi
     fi
 
-    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.preserved-rebuild
-
-  elif [[ "$task" = "@system" ]]; then
-    RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
-    if [[ $status -eq 1 ]]; then
-      if [[ -n "$failed" ]]; then
-        echo "%emerge --resume --skip-first" >> $pks
-      else
-        echo "@world" >> $pks
-      fi
-    fi
-
-    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.system
-    /usr/bin/pfl &>/dev/null
-
-  elif [[ "$task" = "@world" ]]; then
-    RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
-    if [[ $status -eq 1 ]]; then
-      if [[ -n "$failed" ]]; then
-        echo "%emerge --resume --skip-first" >> $pks
-      fi
-
-    elif [[ $status -eq 0 ]]; then
-      echo "%emerge --depclean" >> $pks
-    fi
-
-    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.world
+    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.$task
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
