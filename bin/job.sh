@@ -443,15 +443,18 @@ function SearchForBlocker() {
 # don't report this issue if an appropriate bug report exists
 #
 function SearchForAnAlreadyFiledBug() {
-  bsi=$issuedir/bugz_search_items
   open_bug_report_exists="n"
 
-  # strip away from the bugzilla search string the package name and replace
-  # certain characters, line numbers et al with spaces;
-  # use a temp file to dangle around special chars
+  # contains the search string for b.g.o.
   #
+  bsi=$issuedir/bugz_search_items
   cp $issuedir/title $bsi
-  sed -i -e "s/['‘’\"\`]/ /g" -e 's,/.../, ,' -e 's/:[0-9]*/: /g' -e 's/[<>&\*\?]/ /g' -e 's,[()], ,g' $bsi
+  #
+  # strip away from the bugzilla search string the package name
+  # replace certain special characters, line numbers et al with spaces;
+  #
+  sed -i -e "s/['‘’\"\`]/ /g" -e 's,/.../, ,' -e 's/.* : //' -e 's/[<>&\*\?]/ /g' -e 's,[()], ,g' $bsi
+  #
   # for the file collision case: remove the package version (from the counterpart)
   #
   grep -q "file collision" $bsi
@@ -460,7 +463,7 @@ function SearchForAnAlreadyFiledBug() {
   fi
 
   # search first for opened, then for closed bugs
-  # start with same package version, then just for the package name
+  # search first for the same package version, then just for the package name
   #
   for i in $failed $short
   do
