@@ -612,9 +612,10 @@ function GetFailed()  {
 }
 
 
-# process an issue only once
+# process an issue only once:
 # if it is in ALREADY_CATCHED then don't care for dups nor spam the inbox
-# therefore if a package was fixed w/o a revision bump and should be re-tested
+#
+# if a package was fixed w/o a revision bump and should be re-tested
 # then sth. like the following is needed:
 #
 #   sed -i -e '/sys-fs\/eudev/d' ~/tb/data/ALREADY_CATCHED ~/run/*/etc/portage/package.mask/self ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue,cxx}
@@ -955,7 +956,7 @@ EOF
 
 # helper of ParseElogForQA()
 #
-function ReportQA() {
+function WorkOnQA() {
   failed=$(basename $elogfile  | cut -f1-2 -d':' | tr ':' '/')
   short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
 
@@ -973,11 +974,12 @@ function ReportQA() {
   id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
   AttachFilesToBody $issuedir/issue
 
-  # be just prepared to file the issue even if a bug id was found
-  #
   if [[ -z "$id" ]]; then
-    Mail "QA $failed : $reason" $issuedir/body
+    open_bug_report_exists="n"
+  else
+    open_bug_report_exists="y"
   fi
+  ReportIssue
 }
 
 
@@ -1008,13 +1010,13 @@ function ParseElogForQA() {
     grep -q "$reason" $elogfile
     if [[ $? -eq 0 ]]; then
       block="-b 520404"
-      ReportQA
+      WorkOnQA
     fi
 
     reason="QA: python_prepare_all() didn't call distutils-r1_python_prepare_all"
     grep -q "$reason" $elogfile
     if [[ $? -eq 0 ]]; then
-      ReportQA
+      WorkOnQA
     fi
   done
 }
