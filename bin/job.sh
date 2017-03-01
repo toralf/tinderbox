@@ -39,7 +39,7 @@ function Finish()  {
   eix-update -q &>/dev/null
   Mail "FINISHED: $subject" $log
 
-  rm -f /tmp/STOP
+  rm -f /tmp/STOP $tsk
   exit $ec
 }
 
