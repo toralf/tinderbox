@@ -190,7 +190,7 @@ EOF
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"          | awk '{ print $1 }' )
   sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak                                  | grep "sandbox.*\.log" | cut -f2 -d'"')
 
-  for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso $work/../temp/eclass-debug.log
+  for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso
   do
     if [[ -f $f ]]; then
       stresc < $f > $issuedir/files/$(basename $f)
@@ -204,12 +204,16 @@ EOF
     fi
   done
 
-  # get every config.log file
-  #
   if [[ -d "$work" ]]; then
+    # catch every config.log file
+    #
     f=/tmp/files
     rm -f $f
     (cd "$work" && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f) && rm $f)
+
+    # provide the whole temp dir
+    #
+    (cd "$work"/../.. && tar --dereference -cjpf $issuedir/files/temp.tbz2 ./temp)
   fi
 
   # attach all of /etc/portage
