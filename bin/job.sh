@@ -881,7 +881,7 @@ function WorkOnTask() {
 
     if [[ $status -eq 0 ]]; then
       case $task in
-        @preserved-rebuild|@world) echo "%emerge --depclean" >> $pks
+        @world) echo "%emerge --depclean" >> $pks
         ;;
       esac
 
