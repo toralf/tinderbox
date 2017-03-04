@@ -211,9 +211,9 @@ EOF
     rm -f $f
     (cd "$work" && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f) && rm $f)
 
-    # provide the whole temp dir
+    # provide the whole temp dir if it exists
     #
-    (cd "$work"/../.. && tar --dereference -cjpf $issuedir/files/temp.tbz2 ./temp)
+    (cd "$work"/../.. && [[ -d ./temp ]] && tar --dereference -cjpf $issuedir/files/temp.tbz2 ./temp)
   fi
 
   # attach all of /etc/portage
