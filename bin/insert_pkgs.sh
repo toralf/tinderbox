@@ -59,9 +59,10 @@ if [[ -s $tmp ]]; then
   for pks in $available
   do
     # shuffle them around for each image in a different way before
+    # limit max amount of packages, otherwise we might block that image forever
     #
-    echo "$info"              >> $pks
-    sort --random-sort < $tmp >> $pks
+    echo "$info"                            >> $pks
+    sort --random-sort < $tmp | head -n 100 >> $pks
   done
 fi
 
