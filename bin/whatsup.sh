@@ -91,9 +91,9 @@ function LastEmergeOperation()  {
 
 # gives sth. like:
 #
-# 13.0-abi32+64_20170216-202818             838  998  782  843  732   29
-# desktop_20170218-203252                   881 1420  966
-# desktop-libressl-abi32+64_20170215-18565  292  729 1186  725  739  625   67
+# gnome-systemd_20170301-222559     793 1092  617
+# plasma-abi32+64_20170216-195507   454 1002  839  672 1111  864  691  719 665 469 521 487
+# plasma-abi32+64_20170228-094845   627  462 1111  718  171
 #
 function PackagesPerDay() {
   for i in $images
@@ -120,7 +120,11 @@ function PackagesPerDay() {
 
       END {
         foreach my $i (0..$#p) {
-          printf ("%5i", $p[$i]);
+          if ($i < 8)  {
+            printf ("%5i", $p[$i]);
+          } else  {
+            printf ("%4i", $p[$i]);
+          }
         }
         print "\n";
       }
