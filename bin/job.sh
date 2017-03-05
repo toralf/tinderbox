@@ -507,6 +507,7 @@ function SearchForAnAlreadyFiledBug() {
 
   bgo.sh -d ~/img?/$name/$issuedir -a $id -c "same issue at an $keyword amd64 chroot image (named $name)"
 
+
 EOF
   else
     echo -e "  bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
