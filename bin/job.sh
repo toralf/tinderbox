@@ -37,7 +37,12 @@ function Finish()  {
 
   /usr/bin/pfl &>/dev/null
   eix-update -q &>/dev/null
-  Mail "FINISHED: $subject" $log
+
+  if [[ $ec -eq 0 ]]; then
+    Mail "finished ok: $subject"
+  else
+    Mail "finished EC=$ec: $subject" $log
+  fi
 
   rm -f /tmp/STOP $tsk
   exit $ec
