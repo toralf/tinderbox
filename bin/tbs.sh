@@ -377,11 +377,10 @@ function FillPackageList()  {
     tac $pks.tmp >> $pks
     rm $pks.tmp
   else
-    # test new and/or changed ebuilds only at a fraction of all images
-    # in favour of the repository coverage
+    # in favour of a good coverage do not test latest repo changes at all images
     #
     if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-      echo '# just run over the repository and ignore its daily changes' > $pks
+      echo '# this keeps insert_pkgs.sh away' > $pks
     fi
     # randomized package list
     #
@@ -389,8 +388,8 @@ function FillPackageList()  {
   fi
 
   # emerge/upgrade mandatory package/s and upgrade @system
-  # the side effect of the last action (@world) is to prevent insert_pks.sh
-  # from changing the package list before the setup is completed
+  # "# setup" prevents insert_pks.sh from changing the package list
+  # before the setup is fully completed
   #
   cat << EOF >> $pks
 # setup done
@@ -403,7 +402,7 @@ app-portage/eix
 %rm -f /etc/portage/package.mask/setup_blocker
 EOF
 
-  # switch to an alternative SSL lib before @system is upgraded
+  # switch to an alternative SSL lib before upgrade of @system
   #
   if [[ "$libressl" = "y" ]]; then
     echo "%/tmp/switch2libressl.sh" >> $pks
