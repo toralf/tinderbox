@@ -7,7 +7,8 @@
 # the remaining code just parses the output, that's all
 
 
-# strip away escape sequences, hint: colorstrip() does not modify its input
+# strip away escape sequences
+# hint: colorstrip() doesn't modify its argument, instead it returns the result
 #
 function stresc() {
   perl -MTerm::ANSIColor=colorstrip -nle '$_ = colorstrip($_); s,\r,\n,g; s/\x00/<0x00>/g; s/\x1b\x28\x42//g; s/\x1b\x5b\x4b//g; print'
@@ -26,7 +27,8 @@ function Mail() {
 }
 
 
-# clean up and exit, $1: error code, $2: part of email Subject
+# clean up and exit
+# $1: error code, $2: part of email Subject
 #
 function Finish()  {
   ec=$1
@@ -68,7 +70,7 @@ function SwitchJDK()  {
 }
 
 
-# move content of the last line of the package list into $task
+# move last line of the package list into $task
 #
 function GetNextTask() {
   # update @system once a day, if no special task is scheduled
