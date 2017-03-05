@@ -50,7 +50,7 @@ function Finish()  {
 
 
 # helper of GetNextTask()
-# set arbitrarily the system java engine
+# random selection of the system java engine
 #
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
@@ -68,11 +68,11 @@ function SwitchJDK()  {
 }
 
 
-# return the next item (== last line) from the package list
-# and store it into $task
+# move content of the last line of the package list into $task
 #
 function GetNextTask() {
   # update @system once a day, if no special task is scheduled
+  # and switch the java machine too by the way
   #
   if [[ -s $pks ]]; then
     ts=/tmp/timestamp.system
@@ -86,8 +86,6 @@ function GetNextTask() {
         grep -q -E "^(STOP|INFO|%|@)" $pks
         if [[ $? -eq 1 ]]; then
           task="@system"
-          # switch the java machine too by the way
-          #
           SwitchJDK
           return
         fi
@@ -97,8 +95,6 @@ function GetNextTask() {
 
   while :;
   do
-    # splice last line of the package list $pks into $task
-    #
     task=$(tail -n 1 $pks)
     sed -i -e '$d' $pks
 
@@ -147,7 +143,7 @@ function GetNextTask() {
         fi
       fi
 
-      # well, emerge $task
+      # well, found a $task
       #
       return
     fi
@@ -155,7 +151,7 @@ function GetNextTask() {
 }
 
 
-# especially in ABI="32 64" we might have more than 1 dir in /var/tmp/portage
+# especially in ABI="32 64" we might have more than 1 subdir in /var/tmp/portage
 #
 function SetWorkDir() {
   work=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'")
@@ -169,7 +165,7 @@ function SetWorkDir() {
 
 
 # helper of GotAnIssue()
-# gather together what's needed for the email and/or the bug report
+# gather together what's needed for mail and bugzilla
 #
 function CollectIssueFiles() {
   mkdir -p $issuedir/files
