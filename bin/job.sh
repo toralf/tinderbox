@@ -14,7 +14,7 @@ function stresc() {
 }
 
 
-# send an email, $1 is subject, $2 is body
+# send an email, mandatory $1 is Subject, optional $2 is Body
 #
 function Mail() {
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
@@ -26,17 +26,17 @@ function Mail() {
 }
 
 
-# clean up and exit
+# clean up and exit, $1: error code, $2: part of email Subject
 #
 function Finish()  {
   ec=$1
-  shift
-  # althought stresc is made in Mail() too do it here too b/c $1 might contain " and/or '
-  #
-  subject=$(echo "$@" | stresc | cut -c1-200 | tr '\n' ' ')
 
-  /usr/bin/pfl &>/dev/null
-  eix-update -q &>/dev/null
+  # althought stresc is made at least in Mail() do it here too b/c $1 might contain quotes
+  #
+  subject=$(echo "$2" | stresc | cut -c1-200 | tr '\n' ' ')
+
+  /usr/bin/pfl            &>/dev/null
+  /usr/bin/eix-update -q  &>/dev/null
 
   if [[ $ec -eq 0 ]]; then
     Mail "finished ok: $subject"
