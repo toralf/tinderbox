@@ -507,7 +507,6 @@ function SearchForAnAlreadyFiledBug() {
 
   bgo.sh -d ~/img?/$name/$issuedir -a $id -c "same issue at an $keyword amd64 chroot image (named $name)"
 
-
 EOF
   else
     echo -e "  bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
@@ -522,6 +521,10 @@ EOF
     echo "  RESOLVED: ${h}&bug_status=RESOLVED&short_desc=${short}" >> $issuedir/body
     bugz --columns 400 -q search --status RESOLVED  $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
   fi
+
+  # this newline is for convenience to better copy+paste the laste line
+  #
+  echo >> $issuedir/body
 }
 
 
