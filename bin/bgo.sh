@@ -23,7 +23,7 @@ function errmsg() {
 
 id=""
 block=""
-comment="same at a tinderbox image"
+comment="<unset>"
 dir=""
 severity="Normal"
 
@@ -63,6 +63,9 @@ truncate -s 0 bugz.{out,err}
 if [[ -n "$id" ]]; then
   # modify an existing bug report
   #
+  if [[ "$comment" = "<unset>" ]]; then
+    comment="same at the tinderbox image $(readlink -f $dir | cut -f5 -d'/')"
+  fi
   bugz modify --status CONFIRMED --comment "$comment" $id 1>>bugz.out 2>>bugz.err || errmsg $?
 
 else
