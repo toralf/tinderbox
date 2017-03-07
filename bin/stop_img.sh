@@ -38,6 +38,7 @@ do
     if [[ -f $mnt/tmp/STOP ]]; then
       echo " STOP marker already set: $mnt"
     else
+      echo " $(date) stopping $mnt"
       touch $mnt/tmp/STOP
     fi
   else
