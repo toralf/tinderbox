@@ -272,6 +272,13 @@ function AttachFilesToBody()  {
 #
   for f in $*
   do
+    s=$( ls -l $f | awk ' { print $5 } ' )
+    ((s = s / 1000000))
+    if [[ $s -gt 3 ]]; then
+      echo -e "\n not attached b/c bigger than 3 MiByte: $f"
+      continue
+    fi
+
 #     cat << EOF >> $issuedir/body
 #
 # $boundary
