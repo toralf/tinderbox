@@ -92,36 +92,39 @@ function GetNextTask() {
 
   while :;
   do
+    if [[ ! -s $pks ]]; then
+      n=$(qlist --installed | wc -l)
+      Finish 0 "empty package list, $n packages emerged"
+    fi
+
     task=$(tail -n 1 $pks)
     sed -i -e '$d' $pks
 
-    if [[ -n "$(echo "$task" | grep '^INFO')" ]]; then
+    if [[ -z "$task" ]]; then
+      continue  # empty lies are allowed
+
+    elif [[ -n "$(echo "$task" | grep '^INFO')" ]]; then
       Mail "$task"
 
     elif [[ -n "$(echo "$task" | grep '^STOP')" ]]; then
       Finish 0 "$task"
 
-    elif  [[ -z "$task" ]]; then
-      if [[ -s $pks ]]; then
-        continue  # this line is empty, but not the package list
-      fi
-      n=$(qlist --installed | wc -l)
-      Finish 0 "$n packages emerged, spin up a new image"
-
     elif [[ "$(echo "$task" | cut -c1)" = "#" ]]; then
       continue  # comment
 
     elif [[ -n "$(echo "$task" | cut -c1 | grep -E '(=|@|%)')" ]]; then
-      return  # work on a package/set/command
+      return  # work on a fixed version | set | command
 
     else
+      # any valid package atom
+      #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
       # make some checks here to speed up things
-      # b/c emerge spend too much time to try alternative paths
+      # eg. emerge spend too much time to try alternative paths
 
       # skip if $task is masked, keyworded or an invalid string
       #
