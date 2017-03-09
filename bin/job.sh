@@ -558,7 +558,6 @@ function CompileIssueMail() {
   #
   cp $issuedir/issue $issuedir/body
   AddMetainfoToBody
-  AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
   AddWhoamiToIssue
 
@@ -581,6 +580,11 @@ EOF
   if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
     truncate -s 255 $issuedir/title
   fi
+
+  # should be the last step b/c uuencoded attachments might be very large
+  # and therefore b.g.o. search results aren't shown by Thunderbird
+  #
+  AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
   # give write perms to non-root/portage user too
   #
