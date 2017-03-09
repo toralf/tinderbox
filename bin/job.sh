@@ -58,13 +58,8 @@ function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
   if [[ -n "$old" ]]; then
     new=$(eselect java-vm list 2>/dev/null | grep -E 'oracle-jdk-[[:digit:]]|icedtea[-bin]*-[[:digit:]]' | grep -v 'system-vm' | awk ' { print $2 } ' | sort --random-sort | head -n 1)
-    if [[ -n "$new" ]]; then
-      if [[ "$new" != "$old" ]]; then
-        eselect java-vm set system $new &>> $log
-        if [[ $? -ne 0 ]]; then
-          Mail "$FUNCNAME failed for $old -> $new" $log
-        fi
-      fi
+    if [[ -n "$new" && "$new" != "$old" ]]; then
+      eselect java-vm set system $new 1>> $log
     fi
   fi
 }
