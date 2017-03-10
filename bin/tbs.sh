@@ -544,11 +544,8 @@ function EmergeMandatoryPackages() {
     fi
   fi
 
-  # shorten the link to the image, eg.: img1/plasma-...
-  #
-  mnt=$(basename $img)/$name
-
   cd /home/tinderbox/
+
   $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
 
@@ -574,12 +571,6 @@ function EmergeMandatoryPackages() {
 
     exit $rc
   fi
-
-  (cd run && ln -s ../$mnt) || exit 11
-
-  echo
-  echo " setup  OK : $mnt"
-  echo
 }
 
 
@@ -742,12 +733,19 @@ fi
 latest=$distfiles/latest-stage3.txt
 wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
 
-ComputeImageName          &&\
-echo " $img/$name"        &&\
-echo                      &&\
-UnpackStage3              &&\
-ConfigureImage            &&\
+ComputeImageName
+mnt=$(basename $img)/$name
+echo " $mnt"
+echo
+UnpackStage3
+ConfigureImage
 EmergeMandatoryPackages
+
+cd ~/run && ln -s ../$mnt || exit 11
+
+echo
+echo " setup  OK: $name"
+echo
 
 if [[ "$autostart" = "y" ]]; then
   su - tinderbox -c $(dirname $0)/start_img.sh $name
