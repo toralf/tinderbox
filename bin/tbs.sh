@@ -236,7 +236,7 @@ ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
 
 ALSA_CARDS="hda-intel"
-INPUT_DEVICES="evdev synaptics"
+INPUT_DEVICES="evdev libinput"
 VIDEO_CARDS="intel i965"
 
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news"
