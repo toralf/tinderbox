@@ -450,7 +450,7 @@ function SearchForAnAlreadyFiledBug() {
   # strip away from the bugzilla search string the package name
   # replace certain special characters, line numbers et al with spaces;
   #
-  sed -i -e "s/['‘’\"\`]/ /g" -e 's,/.../, ,' -e 's/.* : //' -e 's/[<>&\*\?]/ /g' -e 's,[()], ,g' $bsi
+  sed -i -e 's,&<[[:alnum:]].*>,,g' -e "s/['‘’\"\`]/ /g" -e 's,/.../, ,' -e 's/.* : //' -e 's/[<>&\*\?]/ /g' -e 's,[()], ,g' $bsi
   #
   # for the file collision case: remove the package version (from the counterpart)
   #
