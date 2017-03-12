@@ -60,7 +60,7 @@ Bugs can be filed using *bgo.sh* - the comand line is part of the email.
 3. inspect/adapt files in */etc/portage/packages.*
 4. do your work, use */usr/local/portage* to test changed ebuilds, b/c */usr/portage* is shared among all images by the host
 5. exit
-6. start stopped image/s
+6. start previously stopped image/s
 
 ###unattended test of a package/s
 Append package/s to the package list in the following way:
