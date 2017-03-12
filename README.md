@@ -58,7 +58,7 @@ Bugs can be filed using *bgo.sh* - the comand line is part of the email.
 1. stop image if running (or other/s to not run more than 10 chroots in parallel)
 2. chroot into it
 3. inspect/adapt files in */etc/portage/packages.*
-4. do your work
+4. do your work, use */usr/local/portage* to test changed ebuilds, b/c */usr/portage* is shared among all images by the host
 5. exit
 6. start stopped image/s
 
