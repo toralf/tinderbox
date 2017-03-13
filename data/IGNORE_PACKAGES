@@ -1,7 +1,7 @@
 # entries in the package list matching a pattern here will be skipped
 # (but of course emerged as a dependency of another package)
 #
-# this file MUST NOT have empty lines
+# this file MUST NOT have empty lines (except the last EOL)
 #
 #
 # misc, let them emerged just as dependencies
@@ -30,6 +30,3 @@ x11-plugins/gkrell
 #
 app-office/libreoffice
 www-client/chromium
-#
-#
-# no (even empty) line after this comment
