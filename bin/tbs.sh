@@ -725,8 +725,8 @@ done
 #
 img=$(pwd)
 
-if [[ "$HOME" = "$img" ]]; then
-  echo "you are in \$HOME ?!"
+if [[ "/home/tinderbox" = "$img" ]]; then
+  echo "you are in /home/tinderbox !"
   exit 3
 fi
 
@@ -741,7 +741,7 @@ UnpackStage3
 ConfigureImage
 EmergeMandatoryPackages
 
-cd ~/run && ln -s ../$mnt || exit 11
+cd /home/tinderbox/run && ln -s ../$mnt || exit 11
 
 echo
 echo " setup  OK: $name"
