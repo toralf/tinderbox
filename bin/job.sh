@@ -794,7 +794,14 @@ function PostEmerge() {
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    echo "@preserved-rebuild" >> $pks
+    # this check just prevents a never-ending loop
+    # it doesn't help in a flip-flop cycle
+    #
+    if [[ "$task" = "@preserved-rebuild" ]]; then
+      Mail "notice: @preserved-rebuild called 2x in a row" $bak
+    else
+      echo "@preserved-rebuild" >> $pks
+    fi
   fi
 
   # switching and building a new kernel should be one of the last steps
