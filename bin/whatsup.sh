@@ -123,7 +123,11 @@ function PackagesPerDay() {
           if ($i < 5)  {
             printf ("%5i", $p[$i]);
           } else  {
-            printf ("%4i", $p[$i]);
+            if ($p[$i]) {
+              printf ("%4i", $p[$i]);
+            } else  {
+              print " x";
+            }
           }
           if ($i != $#p && $i % 7 == 6)  {
             print ".";
