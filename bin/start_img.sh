@@ -59,10 +59,6 @@ do
 
   cp /opt/tb/bin/{job,pre-check,switch2libressl}.sh $mnt/tmp || continue
 
-  # permit the tinderbox user to edit this copy
-  #
-  chmod a+w $mnt/tmp/pre-check.sh
-
   echo " $(date) starting $mnt"
   nohup nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
   sleep 1
