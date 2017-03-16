@@ -120,7 +120,7 @@ function PackagesPerDay() {
 
       END {
         foreach my $i (0..$#p) {
-          if ($i < 5)  {
+          if ($i < 4)  {
             printf ("%5i", $p[$i]);
           } else  {
             if ($p[$i]) {
