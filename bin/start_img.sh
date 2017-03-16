@@ -57,7 +57,10 @@ do
     continue
   fi
 
-  cp /opt/tb/bin/{job,pre-check,switch2libressl}.sh $mnt/tmp
+  cp /opt/tb/bin/{job,pre-check,switch2libressl}.sh $mnt/tmp || continue
+
+  # permit the tinderbox user to edit this copy
+  #
   chmod a+w $mnt/tmp/pre-check.sh
 
   echo " $(date) starting $mnt"
