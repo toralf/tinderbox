@@ -459,10 +459,10 @@ function SearchForAnAlreadyFiledBug() {
     sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
   fi
 
-  # search first for opened, then for closed bugs
-  # search first for the same package version, then just for the package name
+  # prefer opened over closed bugs
+  # search first for the same release, then for the package, then just for its name
   #
-  for i in $failed $short
+  for i in $failed $short $(echo $short | cut -f2 -d'/')
   do
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
