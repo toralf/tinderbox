@@ -261,20 +261,18 @@ EOF
 }
 
 
-# attach the content of the given file names to the body
+# attach given files to the email body
 #
 function AttachFilesToBody()  {
   for f in $*
   do
-    s=$( ls -l $f | awk ' { print $5 } ' )
-    ((s = s / 1000000))
-    if [[ $s -gt 3 ]]; then
-      echo -e "\n not attached b/c bigger than 3 MiByte: $f"
-      continue
-    fi
-
     echo >> $issuedir/body
-    uuencode $f $(basename $f) >> $issuedir/body
+    s=$( ls -l $f | awk ' { print $5 } ' )
+    if [[ $s -gt 2097152 ]]; then
+      echo " not attached b/c bigger than 2 MB: $f" >> $issuedir/body
+    else
+      uuencode $f $(basename $f) >> $issuedir/body
+    fi
     echo >> $issuedir/body
   done
 }
