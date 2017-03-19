@@ -2,24 +2,24 @@
 #
 # set -x
 
-# this is a (s)imple (c)hroot (w)rapper for the tinderbox user
+# this is a (s)imple (c)hroot (w)rapper to go into a (running) tinderbox image
+# it will not mound any file systems like /dev, /proc and so on
 
-dir=$(readlink -f $1 2>&1)
-if [[ $? -ne 0 ]]; then
-  echo "failure in readlink ?!"
-  exit 1
+mnt=$1
+
+# guess a location if just the name is given
+#
+if [[ ! -d $mnt ]]; then
+  mnt=$(ls -d /home/tinderbox/{run,img?}/$mnt 2>/dev/null | head -n 1)
+  if [[ ! -d $mnt ]]; then
+    echo "cannot guess the full path to the image"
+    exit 1
+  fi
+  echo
+  echo " no full path were given, choosing: $mnt"
+  echo
 fi
 
-if [[ ! -d $dir ]]; then
-  echo "dir '$dir' doesn't exist !"
-  exit 2
-fi
-
-if [[ ! "$(echo $dir | cut -f1-3 -d'/')" = "/home/tinderbox" ]]; then
-  echo "please stay inside of your home !"
-  exit 3
-fi
-
-sudo /usr/bin/chroot $dir
+sudo /usr/bin/chroot $mnt
 
 exit $?
