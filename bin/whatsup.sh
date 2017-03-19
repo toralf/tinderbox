@@ -23,37 +23,36 @@ function PrintImageName()  {
 
 # gives sth. like:
 #
-#  inst fail   day   todo ~/run lock stop
-#  4222   44   5.0  16041     y    y      13.0-abi32+64_20170216-202818
-#  3267   46   2.9  16897          y      desktop_20170218-203252
-#  4363   71   6.0  16667     y    y    y desktop-libressl-abi32+64_20170215-185650
+#  inst fail   day   todo locked stopping
+#  3735   41   3.6  16369                   run/13.0-no-multilib_20170315-195201
+#  6956   75   9.6  13285      y            run/13.0-systemd_20170309-190652
+#  2904   29   2.5  17220      y           img2/13.0-systemd-libressl_20170316-210316
 #
 function Overall() {
-  echo " inst fail   day   todo ~/run lock stop"
+  echo " inst fail   day   todo locked stopping"
   for i in $images
   do
     log=$i/var/log/emerge.log
+    inst=0
+    fail=0
+    day=0
     if [[ -f $log ]]; then
       inst=$(grep -c '::: completed emerge' $log)
       day=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
-    else
-      inst=0
-      day=0
     fi
     # count fail packages, but not every failed attempt of the same package version
     #
     if [[ -d $i/tmp/issues ]]; then
       fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
-    else
-      fail=0
     fi
     todo=$(wc -l < $i/tmp/packages 2>/dev/null)
+    [[ -f $i/tmp/LOCK ]] && lck="y" || lck=""
+    [[ -f $i/tmp/STOP ]] && stp="y" || stp=""
+    d=$(basename $(dirname $i))
+    b=$(basename $i)
+    [[ -e ~/run/$b ]] && d="run"
 
-    [[ -e ~/run/$(basename $i) ]] && run="y"  || run=""
-    [[ -f $i/tmp/LOCK ]]          && lock="y" || lock=""
-    [[ -f $i/tmp/STOP ]]          && stop="y" || stop=""
-
-    printf "%5i %4i  %4.1f  %5i %5s %4s %4s %s\n" $inst $fail $day $todo "$run" "$lock" "$stop" $(basename $i)
+    printf "%5i %4i  %4.1f  %5i %6s %8s %5s/%s\n" $inst $fail $day $todo "$lck" "$stp" "$d" "$b"
   done
 }
 
