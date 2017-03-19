@@ -68,7 +68,7 @@ function LastEmergeOperation()  {
   do
     PrintImageName
     log=$i/var/log/emerge.log
-    if [[ ! -f $log ]]; then
+    if [[ ! -f $log || ! -f $i/tmp/LOCK ]]; then
       echo
       continue
     fi
@@ -151,7 +151,7 @@ function CurrentTask()  {
   do
     PrintImageName
     tsk=$i/tmp/task
-    if [[ ! -f $tsk ]]; then
+    if [[ ! -f $tsk || ! -f $i/tmp/LOCK ]]; then
       echo
       continue
     fi
