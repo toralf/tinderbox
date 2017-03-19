@@ -47,6 +47,3 @@ app-backup/holland-lib-mysql
 #
 app-admin/elektra
 
-# https://bugs.gentoo.org/show_bug.cgi?id=612404
-#
-dev-lang/gnat-gpl
