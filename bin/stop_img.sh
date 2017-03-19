@@ -12,10 +12,13 @@ fi
 
 for mnt in ${@:-~/run/*}
 do
-  # prepend $@ with ./ to specify non-common location/s
-  #
-  if [[ "$mnt" = "$(basename $mnt)" ]]; then
-    mnt=~/run/$mnt
+  if [[ ! -d $mnt ]]; then
+    tmp=$(ls -d /home/tinderbox/{run,img?}/$mnt 2>/dev/null | head -n 1)
+    if [[ ! -d $tmp ]]; then
+      echo "cannot guess the full path to the image $mnt"
+      continue
+    fi
+    mnt=$tmp
   fi
 
   # $mnt must not be a broken symlink

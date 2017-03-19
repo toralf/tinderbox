@@ -10,11 +10,12 @@ mnt=$1
 # guess a location if just the name is given
 #
 if [[ ! -d $mnt ]]; then
-  mnt=$(ls -d /home/tinderbox/{run,img?}/$mnt 2>/dev/null | head -n 1)
-  if [[ ! -d $mnt ]]; then
-    echo "cannot guess the full path to the image"
+  tmp=$(ls -d /home/tinderbox/{run,img?}/$mnt 2>/dev/null | head -n 1)
+  if [[ ! -d $tmp ]]; then
+    echo "cannot guess the full path to the image $mnt"
     exit 1
   fi
+  mnt=$tmp
   echo
   echo " no full path were given, choosing: $mnt"
   echo
