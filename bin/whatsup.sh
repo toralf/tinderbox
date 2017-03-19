@@ -16,8 +16,8 @@ function list_images() {
 
 
 function PrintImageName()  {
-  string="$(basename $i | cut -c1-32)"
-  printf "%-32s" $string
+  string="$(basename $i | cut -c1-26)"
+  printf "%-26s" $string
 }
 
 
