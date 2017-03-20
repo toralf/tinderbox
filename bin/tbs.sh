@@ -305,14 +305,15 @@ EOF
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
   chmod a+rw etc/portage/package.use/setup
 
-  # activate at every n-th image predefined USE flag sets (ffmpeg, firefox/thunderbird, etc) too
+  # activate at every n-th image predefined USE flag sets
   #
-  for f in {ff-and-tb,ffmpeg}
-  do
-    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-      (cd etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.$f $f)
-    fi
-  done
+  if [[ $(($RANDOM % 100)) -lt 40 ]]; then
+    (cd etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb)
+  fi
+
+  if [[ $(($RANDOM % 100)) -lt 25 ]]; then
+    (cd etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
+  fi
 
   # support special environments for dedicated packages
   #
