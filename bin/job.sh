@@ -986,10 +986,8 @@ function WorkOnQA() {
 
   if [[ -z "$id" ]]; then
     open_bug_report_exists="n"
-  else
-    open_bug_report_exists="y"
+    ReportIssue
   fi
-  ReportIssue
 }
 
 
