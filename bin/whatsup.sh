@@ -2,7 +2,7 @@
 #
 # set -x
 
-# quick & dirty tinderbox statistics
+# few tinderbox statistics
 #
 
 # all active|run'ing images
