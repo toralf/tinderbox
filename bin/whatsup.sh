@@ -11,7 +11,7 @@ function list_images() {
   (
     ls -1d ~/run/* | xargs -n 1 readlink | sed "s,^..,/home/tinderbox,g"
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' | sed "s,^,/home/tinderbox/,g"
-  ) | sort -u
+  ) | sort -u -k 5 -t'/'
 }
 
 
