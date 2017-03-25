@@ -724,9 +724,7 @@ done
 
 #############################################################################
 #
-img=$(pwd)
-
-if [[ "/home/tinderbox" = "$img" ]]; then
+if [[ "/home/tinderbox" = "$(pwd)" ]]; then
   echo "you are in /home/tinderbox !"
   exit 3
 fi
@@ -735,7 +733,7 @@ latest=$distfiles/latest-stage3.txt
 wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
 
 ComputeImageName
-mnt=$(basename $img)/$name
+mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
 echo " $mnt"
 echo
 UnpackStage3
