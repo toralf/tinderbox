@@ -749,7 +749,7 @@ echo " setup  OK: $name"
 echo
 
 if [[ "$autostart" = "y" ]]; then
-  su - tinderbox -c $(dirname $0)/start_img.sh $name
+  su - tinderbox -c "$(dirname $0)/start_img.sh $name"
 fi
 
 exit 0
