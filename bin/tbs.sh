@@ -345,7 +345,7 @@ EOF
 }
 
 
-# DNS resolution + .vimrc
+# DNS resolution + .vimrc (avoid interactive question)
 #
 function CompileMiscFiles()  {
   cp -L /etc/hosts /etc/resolv.conf etc/
@@ -355,6 +355,7 @@ set softtabstop=2
 set shiftwidth=2
 set tabstop=2
 set expandtab
+:let g:session_autosave = 'no'
 EOF
 }
 
