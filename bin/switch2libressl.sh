@@ -2,7 +2,7 @@
 #
 # set -x
 
-# https://wiki.gentoo.org/wiki/Project:LibreSSL
+# background is in https://wiki.gentoo.org/wiki/Project:LibreSSL
 
 pks="/tmp/packages"
 
@@ -15,7 +15,7 @@ if [[ ! -e $pks ]]; then
   exit 21
 fi
 
-# set libressl as the preferred vendor in make.conf
+# set LibreSSL as the preferred vendor in make.conf
 #
 # CURL_SSL="libressl"
 # USE="-openssl -gnutls libressl
@@ -30,11 +30,11 @@ sed -i  -e '/^CURL_SSL="/d'           \
 
 mkdir -p /etc/portage/profile || exit 23
 
-# mask openssl
+# mask OpenSSL forever
 #
 echo "dev-libs/openssl" > /etc/portage/package.mask/openssl || exit 24
 
-# unmask libressl related USE flags
+# unmask LibreSSL related USE flags
 #
 cat << EOF >> /etc/portage/profile/use.stable.mask || exit 25
 -libressl
@@ -48,7 +48,6 @@ dev-db/mysql-connector-c  -ssl
 dev-lang/python           -tk
 dev-qt/qtsql              -mysql
 EOF
-
 
 # certain packages needs keywording at a stable tinderbox image
 #
