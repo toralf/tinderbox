@@ -2,7 +2,9 @@
 #
 # set -x
 
-# background is in https://wiki.gentoo.org/wiki/Project:LibreSSL
+# switch a tinderbox image from OpenSSL to LibeSSL
+# inspired by https://wiki.gentoo.org/wiki/Project:LibreSSL
+#
 
 pks="/tmp/packages"
 
@@ -41,7 +43,7 @@ cat << EOF >> /etc/portage/profile/use.stable.mask || exit 25
 -curl_ssl_libressl
 EOF
 
-# switch to libressl often fails w/o these settings
+# switch to LibeSSL often fails w/o these settings
 #
 cat << EOF > /etc/portage/package.use/libressl || exit 26
 dev-db/mysql-connector-c  -ssl
@@ -58,6 +60,7 @@ dev-libs/libressl
 dev-lang/python:2.7
 dev-lang/python:3.4
 ~mail-mta/ssmtp-2.64
+EOF
 
 fi
 
@@ -66,12 +69,13 @@ fi
 #
 emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python || exit 28
 
-# unmerge of OpenSSL should schedule in job.sh in function PostEmerge() already a @preserved-rebuild
-# but force that here too with "%" to bail out if it fails
+# unmerge of OpenSSL should already schedule a @preserved-rebuild in the script job.sh
+# but force it here too with "%" to eventually bail out if that task fails
 #
 cat << EOF >> $pks
 %emerge @preserved-rebuild
 %emerge -C openssl
+
 EOF
 
 exit 0
