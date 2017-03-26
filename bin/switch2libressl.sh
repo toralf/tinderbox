@@ -52,6 +52,7 @@ dev-qt/qtsql              -mysql
 EOF
 
 # few unstable packages need being keyworded at a stable tinderbox image
+# too beside libressl itself
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
@@ -63,7 +64,7 @@ EOF
 fi
 
 # fetch packages before openssl is uninstalled
-# (and therefore wget wouldn't work before it is rebuilt)
+# (and wget won't work before it is rebuilt agains libressl)
 #
 emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python || exit 28
 
