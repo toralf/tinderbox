@@ -10,17 +10,16 @@ echo
 echo "=================================================================="
 echo
 
-# test to be within a tinderbox chroot image ?
-#
 if [[ ! -e $pks ]]; then
   echo " don't run this script outside of a tinderbox image !"
   exit 21
 fi
 
-# set libressl as the preferred vendor in change make.conf:
+# set libressl as the preferred vendor in make.conf
 #
 # CURL_SSL="libressl"
 # USE="-openssl -gnutls libressl
+# ...
 #
 sed -i  -e '/^CURL_SSL="/d'           \
         -e 's/ [+-]*openssl[ ]*/ /'   \
@@ -42,7 +41,7 @@ cat << EOF >> /etc/portage/profile/use.stable.mask || exit 25
 -curl_ssl_libressl
 EOF
 
-# libressl switch often fails w/o these settings
+# switch to libressl often fails w/o these settings
 #
 cat << EOF > /etc/portage/package.use/libressl || exit 26
 dev-db/mysql-connector-c  -ssl
@@ -51,7 +50,7 @@ dev-qt/qtsql              -mysql
 EOF
 
 
-# at a stable image certain packages needs keywording
+# certain packages needs keywording at a stable tinderbox image
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
@@ -70,8 +69,8 @@ fi
 #
 emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python || exit 28
 
-# unmerge of opensll should in PostEmerge() schedules a @preserved-rebuild
-# but force it again with "%" to bail out if it fails
+# unmerge of OpenSSL should schedule in job.sh in function PostEmerge() already a @preserved-rebuild
+# but force that here too with "%" to bail out if it fails
 #
 cat << EOF >> $pks
 %emerge @preserved-rebuild
