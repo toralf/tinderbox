@@ -51,21 +51,19 @@ dev-lang/python           -tk
 dev-qt/qtsql              -mysql
 EOF
 
-# certain packages needs keywording at a stable tinderbox image
+# few unstable packages need being keyworded at a stable tinderbox image
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
   cat << EOF > /etc/portage/package.accept_keywords/libressl || exit 27
 dev-libs/libressl
-dev-lang/python:2.7
-dev-lang/python:3.4
-~mail-mta/ssmtp-2.64
+~mail-mta/ssmtp-2.64-r3
 EOF
 
 fi
 
 # fetch packages before openssl is uninstalled
-# (and therefore wget wouldn't work before been rebuild)
+# (and therefore wget wouldn't work before it is rebuilt)
 #
 emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python || exit 28
 
