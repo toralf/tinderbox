@@ -57,10 +57,8 @@ if [[ $? -eq 1 ]]; then
 dev-libs/libressl
 dev-lang/python:2.7
 dev-lang/python:3.4
-~dev-libs/libevent-2.1.8
 ~mail-mta/ssmtp-2.64
-~www-client/lynx-2.8.9_pre11
-EOF
+
 fi
 
 # fetch packages before openssl is uninstalled
