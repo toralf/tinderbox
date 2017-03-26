@@ -17,7 +17,10 @@ if [[ ! -e $pks ]]; then
   exit 21
 fi
 
-# set libressl as the preferred vendor in change make.conf
+# set libressl as the preferred vendor in change make.conf:
+#
+# CURL_SSL="libressl"
+# USE="-openssl -gnutls libressl
 #
 sed -i  -e '/^CURL_SSL="/d'           \
         -e 's/ [+-]*openssl[ ]*/ /'   \
