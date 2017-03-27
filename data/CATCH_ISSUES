@@ -201,6 +201,7 @@ PostgreSQL slot must be set to one of:
 gmcs: No such file or directory
 eapply: no files specified
 python_export called without a python implementation and EPYTHON is unset
+Fatal error
 Error:
 ERROR :
 ERROR:
