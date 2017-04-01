@@ -1,11 +1,12 @@
 # entries in the package list matching a pattern here will be skipped
-# (but of course emerged as a dependency of another package)
+# from being emerged directly but of course those are emerged as a
+# dependency of another package
 #
-# this file MUST NOT have empty lines (except the last EOL)
+# this file MUST NOT have empty lines (except the last one)
 #
+# misc
 #
-# misc, let them emerged just as dependencies
-#
+app-doc/linux-gazette
 app-xemacs/
 app-eselect/
 dev-embedded/
@@ -16,6 +17,7 @@ sys-cluster/
 sys-kernel/
 virtual/
 www-apache/mod_
+www-client/chromium
 #
 # outdated or br0ken
 #
@@ -26,7 +28,3 @@ sys-fs/vhba
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
 #
-# too long compile time
-#
-app-office/libreoffice
-www-client/chromium
