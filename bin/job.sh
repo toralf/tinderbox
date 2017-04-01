@@ -424,14 +424,6 @@ function SearchForBlocker() {
       fi
     done
   )
-
-  # distinguish between gcc-5/6
-  #
-  if [[ "$block" = "-b 582084" ]]; then
-    if [[ $(gcc -dumpversion | cut -c1) -eq 5 ]] ; then
-      block="-b 603260"
-    fi
-  fi
 }
 
 
