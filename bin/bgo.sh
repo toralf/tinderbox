@@ -11,6 +11,8 @@
 
 
 function errmsg() {
+  rc=$1
+
   echo "
   *
   failed with error code $1
@@ -18,6 +20,8 @@ function errmsg() {
 
   "
   tail -v bugz.*
+
+  exit $rc
 }
 
 
