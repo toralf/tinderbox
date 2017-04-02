@@ -58,8 +58,14 @@ if [[ -s $tmp ]]; then
   #
   for pks in $available
   do
-    # shuffle them around for each image in a different way before
-    # limit max amount of packages, otherwise we might block that image forever
+    # in favour of a good coverage do not test latest repo changes at all images
+    #
+    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+      continue
+    fi
+
+    # shuffle packages around in a different way for an image,
+    # furthermore limit max amount of injected packages
     #
     echo "$info"                            >> $pks
     sort --random-sort < $tmp | head -n 100 >> $pks
