@@ -298,7 +298,7 @@ EOF
 # returns : sci-biology/tophat
 #
 function getShort() {
-  return $(qatom "$1" 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
+  echo $(qatom "$1" 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
 }
 
 
