@@ -320,9 +320,10 @@ function GuessTitleAndIssue() {
     # provide package name+version althought this gives more noise in our inbox
     #
     s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
-    # inform the maintainers of the already installed package too
+    # inform the maintainers of the sibbling package too
+    # strip away version + release b/c the repository might be updated in the mean while
     #
-    cc=$(equery meta -m $s | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
+    cc=$(equery meta -m $(getShort "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
     # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
     #
     (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',' > $issuedir/cc
