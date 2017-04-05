@@ -294,6 +294,14 @@ EOF
 }
 
 
+# $1      : sci-biology/tophat-2.1.1-r3
+# returns : sci-biology/tophat
+#
+function getShort() {
+  return $(qatom "$1" 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
+}
+
+
 # 777: allow an user to manually modify title or issue
 #
 function CreateIssueDir() {
@@ -599,7 +607,7 @@ function GetFailed()  {
 
   # must work
   #
-  short=$(qatom "$failed" 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
+  short=$(getShort "$failed")
   if [[ ! -d /usr/portage/$short ]]; then
     failed=""
     short=""
@@ -960,7 +968,7 @@ EOF
 #
 function WorkOnQA() {
   failed=$(basename $elogfile  | cut -f1-2 -d':' | tr ':' '/')
-  short=$(qatom $failed | cut -f1-2 -d' ' | tr ' ' '/')
+  short=$(getShort "$failed")
 
   CreateIssueDir
 
