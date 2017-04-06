@@ -220,7 +220,7 @@ $( if [[ "$clang" = "y" ]]; then echo "clang"; fi )
 "
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
-$(/usr/bin/cpuinfo2cpuflags-x86 | sed -e 's/: /="/g' -e 's/$/"/g')
+$(/usr/bin/cpuid2cpuflags | sed -e 's/: /="/g' -e 's/$/"/g')
 PAX_MARKINGS="XT"
 
 $( [[ -n "$origin" ]] && grep "^L10N" $origin/etc/portage/make.conf || L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)" )
