@@ -9,7 +9,7 @@
 #
 function list_images() {
   (
-    ls -1d ~/run/* | xargs -n 1 readlink | while read d; do [[ -d $d ]] && echo "$d"; done | sed "s,^..,/home/tinderbox,g"
+    ls -1d ~/run/* | xargs -n 1 readlink | sed "s,^..,/home/tinderbox,g" | while read d; do [[ -d $d ]] && echo "$d"; done
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' | sed "s,^,/home/tinderbox/,g"
   ) | sort -u -k 5 -t'/'
 }
