@@ -394,6 +394,10 @@ EOF
       Finish 2 "no issue for task $task"
     fi
 
+    if [[ $(wc -c <$issuedir/issue) -gt 2000 ]]; then
+      sed -i -e "1d" $issuedir/issue
+    fi
+
     # this gcc-6 issue is forced by us, masking this package
     # would prevent tinderboxing of a lot of affected deps
     # therefore build the failed package now with default CXX flags
