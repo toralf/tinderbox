@@ -616,7 +616,7 @@ if [[ "$keyword" = "stable" ]]; then
   libressl="n"
 fi
 
-if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   multilib="y"
 else
   multilib="n"
