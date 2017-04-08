@@ -220,7 +220,6 @@ $( if [[ "$clang" = "y" ]]; then echo "clang"; fi )
 "
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
-$(/usr/bin/cpuid2cpuflags | sed -e 's/: /="/g' -e 's/$/"/g')
 PAX_MARKINGS="XT"
 
 $( [[ -n "$origin" ]] && grep "^L10N" $origin/etc/portage/make.conf || L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)" )
@@ -314,6 +313,8 @@ EOF
   if [[ $(($RANDOM % 100)) -lt 25 ]]; then
     (cd etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
   fi
+
+  echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpuflags
 
   # support special environments for dedicated packages
   #
