@@ -624,15 +624,12 @@ if [[ "$keyword" = "stable" ]]; then
   libressl="n"
 fi
 
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-  multilib="y"
-else
-  multilib="n"
-fi
-
+multilib="n"
 echo "$profile" | grep -q 'no-multilib'
-if [[ $? -eq 0 ]]; then
-  multilib="n"
+if [[ $? -ne 0 ]]; then
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    multilib="y"
+  fi
 fi
 
 # the caller can overwrite the (thrown) settings now
