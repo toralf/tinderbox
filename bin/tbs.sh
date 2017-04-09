@@ -354,9 +354,10 @@ function CompileMiscFiles()  {
   cat << EOF > root/.vimrc
 set softtabstop=2
 set shiftwidth=2
-set tabstop=2
 set expandtab
-:let g:session_autosave = 'no'
+let g:session_autosave = 'no'
+set formatoptions-=t
+
 EOF
 }
 
