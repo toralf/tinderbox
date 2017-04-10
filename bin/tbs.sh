@@ -520,7 +520,7 @@ rc=0
 mv /etc/portage/package.mask/setup_blocker /tmp/
 $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
-  grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u > /etc/portage/package.use/setup
+  grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
   if [[ -s /etc/portage/package.use/setup ]]; then
     $dryrun &> /tmp/dryrun.log || rc=9
   else
