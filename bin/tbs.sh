@@ -356,7 +356,7 @@ set softtabstop=2
 set shiftwidth=2
 set expandtab
 let g:session_autosave = 'no'
-set formatoptions-=t
+autocmd BufEnter *.txt set textwidth=0
 
 EOF
 }
