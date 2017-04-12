@@ -179,6 +179,7 @@ Uncaught error in
 ^Error:
 : Error:
 recipe for target .* failed
+backend requires .* - aborting
 does not exist
 \\[ERROR\\]
 convert: no
