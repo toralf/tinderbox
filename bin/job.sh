@@ -1031,6 +1031,13 @@ function ParseElogForQA() {
     if [[ $? -eq 0 ]]; then
       WorkOnQA
     fi
+
+    reason="QA Notice: dosym target omits basename:"
+    grep -q "$reason" $elogfile
+    if [[ $? -eq 0 ]]; then
+      block="-b 379899"
+      WorkOnQA
+    fi
   done
 }
 
