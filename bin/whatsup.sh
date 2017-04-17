@@ -40,7 +40,8 @@ function Overall() {
       inst=$(grep -c '::: completed emerge' $log)
       day=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
     fi
-    # count fail packages, but not every failed attempt of the same package version
+    # count failed packages based on their version, but not every failed attempt
+    # directory name is eg.: 20170417-082345_app-misc_fsniper-1.3.1-r2
     #
     if [[ -d $i/tmp/issues ]]; then
       fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename | cut -f2- -d'_' | sort -u | wc -w)
