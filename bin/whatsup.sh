@@ -156,9 +156,9 @@ function CurrentTask()  {
       continue
     fi
 
-    delta=$(echo "$(date +%s) - $(date +%s -r $tsk)" | bc)
-    seconds=$(echo "$delta % 60" | bc)
-    minutes=$(echo "$delta / 60" | bc)
+    delta=$(expr $(date +%s) - $(date +%s -r $tsk))
+    seconds=$(expr $delta % 60)
+    minutes=$(expr $delta / 60)
     printf " %3i:%02i min  " $minutes $seconds
     cat $i/tmp/task
   done
