@@ -52,6 +52,7 @@ info="# $(wc -l < $tmp) packages at $(date)"
 # this goes to stdout of the caller
 #
 echo "$info"
+cat $tmp
 
 if [[ -s $tmp ]]; then
   # prepend the package names onto available package list files
