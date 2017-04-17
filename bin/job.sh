@@ -999,26 +999,19 @@ function WorkOnQA() {
 # catch QA issues
 #
 function ParseElogForQA() {
-  f=/tmp/files
-  ts=/tmp/timestamp.qa
+  f=/tmp/qafilenames
 
-  if [[ -f /tmp/timestamp.qa ]]; then
-    find /var/log/portage/elog -name '*.log' -newer $ts > $f
+  if [[ -f $f ]]; then
+    find /var/log/portage/elog -name '*.log' -newer $f  > $f
   else
     find /var/log/portage/elog -name '*.log'            > $f
   fi
-
-  # process next time only those elog files which were created after this timestamp
-  #
-  touch $ts
 
   cat $f |\
   while read elogfile
   do
     block=""
 
-    #  (runtime-paths) - [TRACKER] Ebuild that install into paths that should be created at runtime
-    #
     reason="QA Notice: installs into paths that should be created at runtime"
     grep -q "$reason" $elogfile
     if [[ $? -eq 0 ]]; then
