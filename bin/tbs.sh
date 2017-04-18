@@ -514,7 +514,7 @@ emerge -u sys-apps/sandbox || ExitOnError 8
 
 emerge --update --pretend sys-devel/gcc || exit 9
 
-$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' >> /etc/portage/make.conf )
+\$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' >> /etc/portage/make.conf )
 
 rc=0
 mv /etc/portage/package.mask/setup_blocker /tmp/
