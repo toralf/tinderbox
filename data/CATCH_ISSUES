@@ -203,7 +203,8 @@ gmcs: No such file or directory
 eapply: no files specified
 python_export called without a python implementation and EPYTHON is unset
 Fatal error
-Error
+Discovering .* failed
+Error .
 Error:
 ERROR :
 ERROR:
