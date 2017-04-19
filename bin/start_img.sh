@@ -13,6 +13,14 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
+# lower the high I/O impact
+#
+sleep=0
+if [[ "$1" = "reboot" ]]; then
+  sleep=300
+  shift
+fi
+
 for mnt in ${@:-~/run/*}
 do
   if [[ ! -d $mnt ]]; then
@@ -62,6 +70,7 @@ do
 
   cp /opt/tb/bin/{job,pre-check,switch2libressl}.sh $mnt/tmp || continue
 
+  sleep $sleep
   echo " $(date) starting $mnt"
   nohup nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
   sleep 1
