@@ -55,20 +55,21 @@ echo "$info"
 cat $tmp
 
 if [[ -s $tmp ]]; then
-  # prepend the package names onto available package list files
+  # append the packages onto available package list files
   #
   for pks in $available
   do
-    # in favour of a good coverage do not test latest repo changes at all images
+    # in favour of a good coverage do not touch every image every time
     #
     if [[ $(($RANDOM % 3)) -eq 0 ]]; then
       continue
     fi
 
-    # shuffle packages around in a different way for an image,
-    # furthermore limit max amount of injected packages
+    echo "$info" >> $pks
+
+    # shuffle packages around in a different way for each image
+    # and limit amount of added packages
     #
-    echo "$info"                            >> $pks
     sort --random-sort < $tmp | head -n 100 >> $pks
   done
 fi
