@@ -57,6 +57,11 @@ function rufs()  {
 
   for f in $(echo $allflags)
   do
+    if [[ "$libressl" = "y"  && "$f" = "gnutls" ]]; then
+      echo -n " -$f"
+      continue
+    fi
+
     let "r = $RANDOM % $m"
     if [[ $r -eq 0 ]]; then
       echo -n " -$f"    # mask it
@@ -603,7 +608,6 @@ wgetpath=/releases/amd64/autobuilds
 
 autostart="y"   # start the image after setup ?
 clang="n"       # prefer CLANG
-flags=$(rufs)   # holds the current USE flag subset
 origin=""       # clone from another image ?
 suffix=""       # will be appended onto the name before the timestamp
 
@@ -630,6 +634,8 @@ if [[ $? -ne 0 ]]; then
     multilib="y"
   fi
 fi
+
+flags=$(rufs)   # default is to set to an arbitrary USE flag subset
 
 # the caller can overwrite the (thrown) settings now
 #
