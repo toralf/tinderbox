@@ -160,6 +160,10 @@ function GetActualWorkDir() {
     work=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" ")
     if [[ ! -d "$work" ]]; then
       work=/var/tmp/portage/$failed/work/$(basename $failed)
+      if [[ ! -d "$work" ]]; then
+        work=""
+        Mail "$0 failed for $failed" $bak
+      fi
     fi
   fi
 }
