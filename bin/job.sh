@@ -537,7 +537,7 @@ function CompileIssueMail() {
 
   # shrink too long error messages
   #
-  sed -i -e 's#/[^ ]*\(/[^/:]*:\)#/...\1#g' $issuedir/title
+  sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' $issuedir/title
 
   # kick off hex addresses and such stuff to improve search results matching in b.g.o.
   #
