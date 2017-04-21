@@ -273,7 +273,7 @@ function CompilePackageFiles()  {
     chmod 777 etc/portage/$d
   done
 
-  (cd etc/portage; ln -s ../../../tmp/tb/data/patches .)
+  (cd etc/portage; ln -s ../../../tmp/tb/data/patches)
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
@@ -505,10 +505,10 @@ migrate-pax -m
 
 emerge mail-mta/ssmtp || ExitOnError 7
 emerge mail-client/mailx || ExitOnError 7
-(cd /etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf .) || ExitOnError 7
+(cd /etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf) || ExitOnError 7
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || ExitOnError 8
-(cd /root && ln -snf ../tmp/tb/sdata/.bugzrc .) || ExitOnError 8
+(cd /root && ln -snf ../tmp/tb/sdata/.bugzrc) || ExitOnError 8
 
 if [[ "$clang" = "y" ]]; then
   echo -e "CC=clang\nCXX=clang++" >> /etc/make.conf
