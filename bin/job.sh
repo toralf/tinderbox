@@ -151,9 +151,10 @@ function GetNextTask() {
 }
 
 
-# especially in ABI="32 64" we might have more than 1 subdir in /var/tmp/portage
+# especially in ABI="32 64" we might have more than one ./work
+# under /var/tmp/portage/<category>/<name>/
 #
-function SetWorkDir() {
+function GetActualWorkDir() {
   work=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'")
   if [[ ! -d "$work" ]]; then
     work=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" ")
@@ -690,7 +691,7 @@ function GotAnIssue()  {
 
   CreateIssueDir
   cp $bak $issuedir
-  SetWorkDir
+  GetActualWorkDir
   CollectIssueFiles
   CompileIssueMail
 
