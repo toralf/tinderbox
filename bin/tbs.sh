@@ -406,7 +406,6 @@ app-text/wgetpaste
 app-portage/pfl
 app-portage/eix
 @system
-%BuildKernel
 %rm -f /etc/portage/package.mask/setup_blocker
 EOF
 
