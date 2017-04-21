@@ -124,7 +124,7 @@ function GetNextTask() {
       fi
 
       # make some checks here to speed up things
-      # eg. emerge spend too much time to try alternative paths
+      # b/c emerge spends a lot of time to test alternative paths
 
       # skip if $task is masked, keyworded or an invalid string
       #
@@ -152,7 +152,7 @@ function GetNextTask() {
 
 
 # especially in ABI="32 64" we might have more than one ./work
-# under /var/tmp/portage/<category>/<name>/
+# directory under /var/tmp/portage/<category>/<name>/
 #
 function GetActualWorkDir() {
   work=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'")
@@ -170,7 +170,7 @@ function GetActualWorkDir() {
 
 
 # helper of GotAnIssue()
-# gather together what's needed for mail and bugzilla
+# gather together what's needed for the mail and bugzilla
 #
 function CollectIssueFiles() {
   mkdir -p $issuedir/files
@@ -222,8 +222,6 @@ EOF
     (cd "$work"/../.. && [[ -d ./temp ]] && tar --dereference -cjpf $issuedir/files/temp.tbz2 ./temp)
   fi
 
-  # attach all of /etc/portage
-  #
   (cd / && tar --dereference -cjpf $issuedir/files/etc.portage.tbz2 etc/portage)
 
   chmod a+r $issuedir/files/*
