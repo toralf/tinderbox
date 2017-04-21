@@ -871,6 +871,9 @@ function RunCmd() {
     GotAnIssue
     if [[ $try_again -eq 1 ]]; then
       echo "$task" >> $pks
+      # there's currently no special action on this status
+      # this is just "not 0 but we'll continue"
+      #
       status=2
     fi
   fi
