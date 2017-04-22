@@ -697,6 +697,7 @@ do
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           libressl="y"
+          flags="$(echo $flags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
         else
           libressl="n"
         fi
