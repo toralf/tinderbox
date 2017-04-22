@@ -15,6 +15,7 @@ undefined symbol:
 exited with code: 1.
 I can't find the format file
 ; recompile with -fPIC
+Fatal error:
 ld: cannot find
 multiple definition of
 must be installed to use
