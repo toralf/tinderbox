@@ -755,7 +755,7 @@ function SwitchGCC() {
       fi
 
       cat << EOF >> $pks
-%emerge --unmerge =sys-devel/gcc:$verold
+%emerge --unmerge sys-devel/gcc:$verold
 %fix_libtool_files.sh $verold
 %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
 EOF
