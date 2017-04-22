@@ -371,28 +371,23 @@ EOF
 function FillPackageList()  {
   pks=tmp/packages
 
-  if [[ -n "$origin" ]]; then
-    # clone from an existing image
-    #
-    cp $origin/$pks $pks
+  # in favour of a good coverage do not test repo changes at all images
+  #
+  if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+    echo '# this keeps insert_pkgs.sh away' > $pks
+  fi
 
-    # replay the emerge history
+  # fill up the randomized package list
+  #
+  qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
+
+  if [[ -n "$origin" ]]; then
+    # replay the emerge history of origin
     #
-    qlop --nocolor --list -f $origin/var/log/emerge.log 2>/dev/null | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.tmp
-    echo "INFO $(wc -l < $pks.tmp) packages of origin $origin replayed" >> $pks
-    # use the (remaining) package list from origin
-    #
-    tac $pks.tmp >> $pks
-    rm $pks.tmp
-  else
-    # in favour of a good coverage do not test latest repo changes at all images
-    #
-    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-      echo '# this keeps insert_pkgs.sh away' > $pks
-    fi
-    # randomized package list
-    #
-    qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
+    qlop --nocolor --list -f $origin/var/log/emerge.log 2>/dev/null | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.origin
+    echo "INFO $(wc -l < $pks.tmp) packages of $origin replayed" >> $pks
+    tac $pks.origin >> $pks
+    rm $pks.origin
   fi
 
   # emerge/upgrade mandatory package/s and upgrade @system
