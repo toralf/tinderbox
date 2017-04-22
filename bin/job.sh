@@ -892,7 +892,7 @@ function WorkOnTask() {
     case $task in
       @preserved-rebuild) RunCmd "emerge --backtrack=100 $task"
       ;;
-      @system|@world)     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use --with-bdeps=y $task"
+      @system|@world)     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use $task"
       ;;
       *)                  RunCmd "emerge --update $task"
     esac
