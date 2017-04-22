@@ -453,7 +453,7 @@ function SearchForAnAlreadyFiledBug() {
 
   # get away line numbers, certain special terms and characters
   #
-  sed -i -e 's,&<[[:alnum:]].*>,,g' -e 's,['\''‘’\"\`], ,g' -e 's,/\.\.\./, ,' -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' -e 's,.* : ,,' -e 's,[<>&\*\?], ,g' -e 's,[()], ,g' $bsi
+  sed -i -e 's,&<[[:alnum:]].*>,,g' -e 's,['\''‘’\"\`], ,g' -e 's,/\.\.\./, ,' -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' -e 's,.* : ,,' -e 's,[<>&\*\?], ,g' -e 's,[\(\)], ,g' $bsi
 
   # for the file collision case: remove the package version (from the counterpart)
   #
