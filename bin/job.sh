@@ -1,4 +1,4 @@
-# #!/bin/sh
+f# #!/bin/sh
 #
 # set -x
 
@@ -155,13 +155,13 @@ function GetNextTask() {
 # directory under /var/tmp/portage/<category>/<name>/
 #
 function GetActualWorkDir() {
-  work=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'")
-  if [[ ! -d "$work" ]]; then
-    work=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" ")
-    if [[ ! -d "$work" ]]; then
-      work=/var/tmp/portage/$failed/work/$(basename $failed)
-      if [[ ! -d "$work" ]]; then
-        work=""
+  workdir=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'")
+  if [[ ! -d "$workdir" ]]; then
+    workdir=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" ")
+    if [[ ! -d "$workdir" ]]; then
+      workdir=/var/tmp/portage/$failed/work/$(basename $failed)
+      if [[ ! -d "$workdir" ]]; then
+        workdir=""
       fi
     fi
   fi
@@ -209,16 +209,16 @@ EOF
     fi
   done
 
-  if [[ -d "$work" ]]; then
+  if [[ -d "$workdir" ]]; then
     # catch every config.log file
     #
     f=/tmp/files
     rm -f $f
-    (cd "$work" && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f) && rm $f)
+    (cd "$workdir" && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f) && rm $f)
 
     # provide the whole temp dir if it exists
     #
-    (cd "$work"/../.. && [[ -d ./temp ]] && tar --dereference -cjpf $issuedir/files/temp.tbz2 ./temp)
+    (cd "$workdir"/../.. && [[ -d ./temp ]] && tar --dereference -cjpf $issuedir/files/temp.tbz2 ./temp)
   fi
 
   (cd / && tar --dereference -cjpf $issuedir/files/etc.portage.tbz2 etc/portage)
@@ -364,13 +364,13 @@ EOF
     else
       echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
       try_again=1
-      if [[ -d "$work" ]]; then
+      if [[ -d "$workdir" ]]; then
         f=/tmp/ls-l.txt
         rm -f $f
-        (cd "$work" && tar --dereference -cjpf $issuedir/files/tests.tbz2 $(ls -1d ./tests ./regress 2>/dev/null) ./test* 2>$f && rm $f)
+        (cd "$workdir" && tar --dereference -cjpf $issuedir/files/tests.tbz2 $(ls -1d ./tests ./regress 2>/dev/null) ./test* 2>$f && rm $f)
         if [[ $? -ne 0 || -s $f ]]; then
           ls -ld /var/tmp/portage/*/*/work/*/* >> $f
-          Mail "warn: collecting test results for '$work' fails" $f
+          Mail "warn: collecting test results for '$workdir' fails" $f
         fi
       fi
     fi
@@ -629,10 +629,9 @@ function ReportIssue()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -eq 1 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    # download errors might be server specific
+    # download errors (almost causing no work dir) might be server specific
     #
-    grep -q -e "Couldn't download .* Aborting." -e "Fetch failed for" $issuedir/title
-    if [[ $? -eq 0 || "$open_bug_report_exists" = "n" ]]; then
+    if [[  ! -d "$workdir" || "$open_bug_report_exists" = "n" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
     fi
   fi
