@@ -631,7 +631,7 @@ function ReportIssue()  {
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
     # download errors might be server specific
     #
-    grep -q -e "Couldn't download .* Aborting." -e "Fetch failed for" $title
+    grep -q -e "Couldn't download .* Aborting." -e "Fetch failed for" $issuedir/title
     if [[ $? -eq 0 || "$open_bug_report_exists" = "n" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
     fi
