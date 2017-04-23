@@ -213,6 +213,12 @@ function CompileMakeConf()  {
 CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
 
+if [[ -n "$origin" ]]; then
+  l10n=$(grep "^L10N" $origin/etc/portage/make.conf | cut -f2- -d'=')
+else
+  l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
+fi
+
 USE="
   pax_kernel ssp xtpax -bindist -cdinstall -oci8
 
@@ -221,8 +227,6 @@ $( echo $flags | xargs -s 78 | sed 's/^/  /g' )
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
 PAX_MARKINGS="XT"
-
-$( [[ -n "$origin" ]] && grep "^L10N" $origin/etc/portage/make.conf || L10N="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)" )
 
 ACCEPT_LICENSE="*"
 
@@ -237,6 +241,8 @@ CLEAN_DELAY=0
 ALSA_CARDS="hda-intel"
 INPUT_DEVICES="evdev libinput"
 VIDEO_CARDS="intel i965"
+
+L10N="$l10n"
 
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news"
 
