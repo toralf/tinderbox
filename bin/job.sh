@@ -162,7 +162,6 @@ function GetActualWorkDir() {
       work=/var/tmp/portage/$failed/work/$(basename $failed)
       if [[ ! -d "$work" ]]; then
         work=""
-        Mail "$FUNCNAME failed for $failed" $bak
       fi
     fi
   fi
