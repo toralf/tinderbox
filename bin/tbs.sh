@@ -103,10 +103,6 @@ function ComputeImageName()  {
     name="$name-$keyword"
   fi
 
-  if [[ "$clang" = "y" ]]; then
-    name="$name-clang"
-  fi
-
   if [[ "$libressl" = "y" ]]; then
     name="$name-libressl"
   fi
@@ -221,7 +217,6 @@ USE="
   pax_kernel ssp xtpax -bindist -cdinstall -oci8
 
 $( echo $flags | xargs -s 78 | sed 's/^/  /g' )
-$( if [[ "$clang" = "y" ]]; then echo "clang"; fi )
 "
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
@@ -288,9 +283,9 @@ function CompilePackageFiles()  {
   touch       etc/portage/package.mask/self     # failed package at this image
   chmod a+rw  etc/portage/package.mask/self
 
-  if [[ "$clang" = "y" || "$keyword" = "unstable" && $(($RANDOM % 3)) -eq 0 || -f $origin/etc/portage/package.unmask/gcc-6 ]]; then
-    # unmask GCC-6 : https://bugs.gentoo.org/show_bug.cgi?id=582084
-    #
+  # unmask GCC-6 : https://bugs.gentoo.org/show_bug.cgi?id=582084
+  #
+  if [[ "$keyword" = "unstable" && $(($RANDOM % 3)) -eq 0 || -f $origin/etc/portage/package.unmask/gcc-6 ]]; then
     v=$(ls /usr/portage/sys-devel/gcc/gcc-6.*.ebuild | xargs -n 1 basename | tail -n 1 | xargs -n 1 qatom | awk ' { print $3 } ')
     echo "sys-devel/gcc:$v"    > etc/portage/package.unmask/gcc-6
     echo "sys-devel/gcc:$v **" > etc/portage/package.accept_keywords/gcc-6
@@ -344,10 +339,6 @@ EOF
   # test known to be broken
   #
   echo 'FEATURES="test-fail-continue"'      > etc/portage/env/test-fail-continue
-
-  # use gcc (instead clang)
-  #
-  echo -e "CC=gcc\nCXX=g++"                 > etc/portage/env/usegnucompiler
 }
 
 
@@ -416,9 +407,6 @@ EOF
 
   # switch to latest compiler asap
   #
-  if [[ "$clang" = "y" ]]; then
-    echo "%emerge -u sys-devel/clang" >> $pks
-  fi
   echo "%emerge -u sys-devel/gcc" >> $pks
 
   chmod a+w $pks
@@ -503,10 +491,6 @@ emerge mail-client/mailx || ExitOnError 7
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || ExitOnError 8
 (cd /root && ln -snf ../tmp/tb/sdata/.bugzrc) || ExitOnError 8
-
-if [[ "$clang" = "y" ]]; then
-  echo -e "CC=clang\nCXX=clang++" >> /etc/make.conf
-fi
 
 emerge -u sys-apps/sandbox || ExitOnError 8
 
@@ -601,7 +585,6 @@ wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
 wgetpath=/releases/amd64/autobuilds
 
 autostart="y"   # start the image after setup ?
-clang="n"       # prefer CLANG
 origin=""       # clone from another image ?
 suffix=""       # will be appended onto the name before the timestamp
 
@@ -633,18 +616,10 @@ flags=$(rufs)   # default is to set to an arbitrary USE flag subset
 
 # the caller can overwrite the (thrown) settings now
 #
-while getopts a:c:f:k:l:m:o:p:s: opt
+while getopts a:f:k:l:m:o:p:s: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
-        ;;
-
-    c)  clang="$OPTARG"
-        if [[ "$clang" != "y" && "$clang" != "n" ]]; then
-          echo " wrong value for \$clang: $clang"
-          exit 2
-        fi
-        keyword="unstable"
         ;;
 
     f)  if [[ -f "$OPTARG" ]] ; then
