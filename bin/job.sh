@@ -623,17 +623,17 @@ function GetFailed()  {
 # process an issue only once:
 # if it is in ALREADY_CATCHED then don't care for dups nor spam the inbox
 #
-# if a package was fixed w/o a revision bump and should be re-tested
-# then sth. like the following is needed:
-#
-#   sed -i -e '/sys-fs\/eudev/d' ~/tb/data/ALREADY_CATCHED ~/run/*/etc/portage/package.mask/self ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue,cxx}
-#   for i in ~/run/*/tmp/packages; do grep -q -E "^(STOP|INFO|%|@|#)" $i || echo 'sys-fs/eudev' >> $i; done
+# hint: therefore to re-test a package was fixed w/o a revision bump
+# remove it from the image mask file(s) before
 #
 function ReportIssue()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -eq 1 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    if [[ "$open_bug_report_exists" = "n" ]]; then
+    # download errors might be server specific
+    #
+    grep -q -e "Couldn't download .* Aborting." -e "Fetch failed for" $title
+    if [[ $? -eq 0 || "$open_bug_report_exists" = "n" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
     fi
   fi

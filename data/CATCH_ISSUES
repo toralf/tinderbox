@@ -1,3 +1,5 @@
+Couldn't download .* Aborting.
+Fetch failed for
 undefined reference to .yy
 This ebuild will need the
 This package will need access to .* cds.
@@ -45,9 +47,7 @@ CMake Error at
 Configuring incomplete, errors occurred
 Unknown CMake command
 include called with wrong number of arguments
-Couldn't download .* Aborting.
 Fetched file: .* VERIFY FAILED!
-Fetch failed for
 error: package .* does not exist
 error: .* was not declared in this scope
 error: '::isinf'
