@@ -388,8 +388,7 @@ function FillPackageList()  {
   fi
 
   # emerge/upgrade mandatory package/s and upgrade @system
-  # "# setup" prevents insert_pks.sh from changing the package list
-  # before the setup is fully completed
+  # "# setup" keeps insert_pks.sh away till the basic package setup is done
   #
   cat << EOF >> $pks
 # setup done
@@ -407,11 +406,11 @@ EOF
     echo "%/tmp/switch2libressl.sh" >> $pks
   fi
 
-  # prefix "%" is needed here due to IGNORE_PACKAGE
+  # prefix "%" is needed here b/c due to IGNORE_PACKAGE sys-kernel/* is skipped
   #
   echo "%emerge -u sys-kernel/hardened-sources" >> $pks
 
-  # switch to latest compiler asap
+  # upgrade GCC first
   #
   echo "%emerge -u sys-devel/gcc" >> $pks
 
@@ -447,10 +446,10 @@ function ConfigureImage()  {
 #         www-client/pybugz           bugz
 # - update sandbox if applicable
 # . dry test of GCC
-# - dry test of @system upgrade to auto-fix package-specific USE flags
+# - dry test of @system upgrade as an attempt to auto-fix package-specific USE flags deps
 #
 function CreateSetupScript()  {
-  dryrun="emerge --backtrack=100 --deep --update --changed-use --with-bdeps=y @system --pretend"
+  dryrun="emerge --backtrack=100 --deep --update --changed-use @system --pretend"
   perl_stable_version=$(portageq best_version / dev-lang/perl)
 
   cat << EOF > tmp/setup.sh
