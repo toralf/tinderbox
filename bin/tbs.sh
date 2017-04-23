@@ -500,9 +500,9 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 
 emerge -u sys-apps/sandbox || ExitOnError 8
 
-emerge --update --pretend sys-devel/gcc || exit 9
-
 \$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' >> /etc/portage/make.conf )
+
+emerge --update --pretend sys-devel/gcc || exit 9
 
 rc=0
 mv /etc/portage/package.mask/setup_blocker /tmp/
