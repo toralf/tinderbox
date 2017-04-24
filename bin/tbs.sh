@@ -517,7 +517,7 @@ do
   else
     rc=9
   fi
-fi
+done
 mv /tmp/setup_blocker /etc/portage/package.mask/
 
 exit \$rc
