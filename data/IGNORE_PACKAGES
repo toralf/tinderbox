@@ -6,21 +6,18 @@
 #
 # misc
 #
-app-doc/linux-gazette
-app-xemacs/
 app-eselect/
 dev-embedded/
 java-virtuals/
 perl-core/
 sec-policy/
-sys-cluster/
 sys-kernel/
 virtual/
-www-apache/mod_
 www-client/chromium
 #
 # outdated or br0ken
 #
+app-xemacs/
 net-analyzer/openvas
 net-analyzer/snips
 sys-fs/loop-aes
