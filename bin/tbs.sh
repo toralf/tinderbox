@@ -207,17 +207,17 @@ function CompileMakeConf()  {
           -e '/^DISTDIR=/d'       \
           etc/portage/make.conf
 
+  if [[ -n "$origin" ]]; then
+    l10n=$(grep "^L10N" $origin/etc/portage/make.conf | cut -f2- -d'=')
+  else
+    l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
+  fi
+
+  cat << EOF >> etc/portage/make.conf
 # no -Werror=implicit-function-declaration: https://bugs.gentoo.org/show_bug.cgi?id=602960
 #
-  cat << EOF >> etc/portage/make.conf
 CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
-
-if [[ -n "$origin" ]]; then
-  l10n=$(grep "^L10N" $origin/etc/portage/make.conf | cut -f2- -d'=')
-else
-  l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
-fi
 
 USE="
   pax_kernel ssp xtpax -bindist -cdinstall -oci8
