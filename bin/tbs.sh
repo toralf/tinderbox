@@ -719,6 +719,11 @@ if [[ "/home/tinderbox" = "$(pwd)" ]]; then
   exit 3
 fi
 
+if [[ -n "$(echo $profile | grep 'hardened')" ]]; then
+  echo "hardened is broken"
+  exit
+fi
+
 latest=$distfiles/latest-stage3.txt
 wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
 
