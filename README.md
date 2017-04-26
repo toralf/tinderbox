@@ -2,7 +2,7 @@
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
 ## usage
-###create a new image
+### create a new image
 The setup of a new image is made by *tbs.sh* (*at* from *sys-process/at* schedules a command for later, catches the output and email it to the user)
     
     echo "cd ~/img2; sudo /opt/tb/bin/tbs.sh" | at now + 0 min
@@ -15,7 +15,7 @@ The package list */tmp/packages* is created from all visible packages.
 The upgrade of GCC and the switch to libressl - if applicable - are scheduled as the first tasks.
 A symlink is made into *~/run* and the image is started.
 
-###start an image
+### start an image
     
     start_img.sh <image>
 
@@ -23,38 +23,38 @@ The wrapper *chr.sh* handles all chroot related actions and calls the tinderbox 
 The file */tmp/LOCK* is created to avoid 2 parallel starts.
 Without an argument all symlinks in *~/run* are processed.
 
-###stop an image
+### stop an image
 
     stop_img.sh <image>
 
 A marker (*/tmp/STOP*) is made in that image.
 The current task operation will be finished before *job.sh* removes */tmp/LOCK* and exits.
 
-###chroot into a stopped image
+### chroot into a stopped image
     
     sudo /opt/tb/bin/chr.sh <image with dir>
 
 This bind-mounts all host-related dirs. Without any argument then an interactive login is made. Otherwise the arguments are treated as command(s) to be run within that image and an exit is made afterwards.
 
-###chroot into a running image
+### chroot into a running image
     
     sudo /opt/tb/bin/scw.sh <image>
 
 Simple wrapper of chroot with few checks.
 
-###removal of an image
+### removal of an image
 Just remove the symlink in *~/run* and the log file in *~/logs*.
 The chroot image itself will be kept around in the data dir.
 
-###status of all images
+### status of all images
 
     whatsup.sh -otlp
 
-###report findings
+### report findings
 New findings are send via email to the user specified in the variable of each *mailto*.
 Bugs can be filed using *bgo.sh* - the comand line is part of the email.
 
-###manually bug hunting within an image
+### manually bug hunting within an image
 1. stop image if it is running
 2. chroot into it
 3. inspect/adapt files in */etc/portage/packages.*
@@ -62,7 +62,7 @@ Bugs can be filed using *bgo.sh* - the comand line is part of the email.
 5. exit from chroot
 6. revert step 1
 
-###unattended test of a package/s
+### unattended test of a package/s
 Append package/s to the package list in the following way:
     
     cat <<<EOF >> ~/run/[image]/tmp/packages
