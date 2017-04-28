@@ -212,13 +212,12 @@ CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
 
 USE="
-  pax_kernel ssp xtpax -bindist -cdinstall -oci8
+  ssp -bindist -cdinstall -oci8
 
 $( echo $flags | xargs -s 78 | sed 's/^/  /g' )
 "
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
-PAX_MARKINGS="XT"
 
 ACCEPT_LICENSE="*"
 
@@ -470,7 +469,6 @@ echo -e "# packages preventing the setup (tbs.sh) of this tinderbox image\n#\n" 
 echo ">${perl_stable_version}" >> /etc/portage/package.mask/setup_blocker
 
 emerge sys-apps/elfix || ExitOnError 6
-migrate-pax -m
 
 emerge mail-mta/ssmtp || ExitOnError 7
 emerge mail-client/mailx || ExitOnError 7
