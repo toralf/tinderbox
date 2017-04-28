@@ -76,15 +76,7 @@ function rufs()  {
 # deduce our tinderbox image name from the profile and current stage3 file name
 #
 function ComputeImageName()  {
-  if [[ "$profile" = "hardened/linux/amd64" ]]; then
-    name="hardened"
-    stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20.......tar.bz2" $latest | cut -f1 -d' ')
-
-  elif [[ "$profile" = "hardened/linux/amd64/no-multilib" ]]; then
-    name="hardened-no-multilib"
-    stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ')
-
-  elif [[ "$profile" = "default/linux/amd64/13.0/no-multilib" ]]; then
+  if [[ "$profile" = "default/linux/amd64/13.0/no-multilib" ]]; then
     name="13.0-no-multilib"
     stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ')
 
@@ -297,16 +289,6 @@ function CompilePackageFiles()  {
     echo "sys-devel/gcc:$v **" > etc/portage/package.accept_keywords/gcc-6
   fi
 
-  echo "$profile" | grep -e "^hardened/"
-  if [[ $? -eq 0 ]]; then
-    cat << EOF >> etc/portage/package.mask/emacs
-# https://bugs.gentoo.org/show_bug.cgi?id=602992
-#
-app-editors/emacs
-app-editors/emacs-vcs
-EOF
-  fi
-
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
   chmod a+rw etc/portage/package.use/setup
 
@@ -408,7 +390,7 @@ EOF
 
   # prefix "%" is needed here b/c due to IGNORE_PACKAGE sys-kernel/* is skipped
   #
-  echo "%emerge -u sys-kernel/hardened-sources" >> $pks
+  echo "%emerge -u sys-kernel/vanilla-sources" >> $pks
 
   # upgrade GCC first
   #
@@ -599,7 +581,7 @@ suffix=""       # will be appended onto the name before the timestamp
 
 # pre-select profile, keyword, ssl vendor and ABI_X86
 #
-profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer' | sort --random-sort | head -n1)
+profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer|hardened' | sort --random-sort | head -n1)
 
 keyword="unstable"
 
@@ -717,11 +699,6 @@ done
 if [[ "/home/tinderbox" = "$(pwd)" ]]; then
   echo "you are in /home/tinderbox !"
   exit 3
-fi
-
-if [[ -n "$(echo $profile | grep 'hardened')" ]]; then
-  echo "hardened is broken"
-  exit
 fi
 
 latest=$distfiles/latest-stage3.txt
