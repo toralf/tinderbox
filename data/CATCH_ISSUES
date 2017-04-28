@@ -206,6 +206,7 @@ eapply: no files specified
 python_export called without a python implementation and EPYTHON is unset
 Fatal error
 Discovering .* failed
+make failed
 Error .
 Error:
 ERROR :

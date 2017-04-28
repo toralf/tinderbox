@@ -9,7 +9,6 @@
 app-eselect/
 dev-embedded/
 java-virtuals/
-perl-core/
 sec-policy/
 sys-kernel/
 virtual/
@@ -22,6 +21,7 @@ net-analyzer/openvas
 net-analyzer/snips
 sys-fs/loop-aes
 sys-fs/vhba
+sys-cluster/drbd-kernel
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
 #
