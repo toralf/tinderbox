@@ -255,7 +255,8 @@ function AddWhoamiToIssue() {
 
   -----------------------------------------------------------------
 
-  This is an $keyword amd64 chroot image (named $name) at a hardened host acting as a tinderbox.
+  This is an $keyword amd64 chroot image tested at a tinderbox.
+  name: $name
 
   -----------------------------------------------------------------
 
