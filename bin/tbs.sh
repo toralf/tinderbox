@@ -303,6 +303,10 @@ function CompilePackageFiles()  {
 
   echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpuflags
 
+  if [[ "$(basename $profile)" = "systemd" ]]; then
+    echo "sys-apps/util-linux -udev" >> /etc/portage/package.use/util-linux
+  fi
+
   # support special environments for dedicated packages
   #
   cat << EOF > etc/portage/env/splitdebug
