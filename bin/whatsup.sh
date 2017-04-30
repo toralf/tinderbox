@@ -15,9 +15,12 @@ function list_images() {
 }
 
 
+# n is the minimum length to distinguish abbreviated image names
+#
 function PrintImageName()  {
-  string="$(basename $i | cut -c1-26)"
-  printf "%-26s" $string
+  n=29
+  string="$(basename $i | cut -c1-$n)"
+  printf "%-${n}s" $string
 }
 
 
