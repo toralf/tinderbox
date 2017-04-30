@@ -253,12 +253,12 @@ function GetMailAddresses() {
 function AddWhoamiToIssue() {
   cat << EOF >> $issuedir/issue
 
-  -----------------------------------------------------------------
+  -------------------------------------------------------------------
 
-  This is an $keyword amd64 chroot image tested at a tinderbox.
+  This is an $keyword amd64 chroot image at a tinderbox (==build bot)
   name: $name
 
-  -----------------------------------------------------------------
+  -------------------------------------------------------------------
 
 EOF
 }
