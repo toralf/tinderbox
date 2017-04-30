@@ -738,7 +738,7 @@ function SwitchGCC() {
   if [[ $? -eq 1 ]]; then
     verold=$(gcc -dumpversion)
     gcc-config --nocolor $latest &>> $log
-    source /etc/profile
+    source /etc/profile || Finish 2 "can't source /etc/profile"
     vernew=$(gcc -dumpversion)
 
     majold=$(echo $verold | cut -c1)
@@ -790,7 +790,7 @@ function PostEmerge() {
 
   etc-update --automode -5 1>/dev/null
   env-update 1>/dev/null
-  source /etc/profile
+  source /etc/profile || Finish 2 "can't source /etc/profile"
 
   # [15:02] <iamben> sandiego: emerge @preserved-rebuild should be your very last step in upgrading, it's not urgent at all.  do "emerge -uDNav @world" first
   #
