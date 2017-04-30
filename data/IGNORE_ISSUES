@@ -46,6 +46,7 @@ The following REQUIRED_USE flag constraints are unsatisfied:
 The HyperSpec cannot be redistributed.
 Traceback (most recent call last):
 Unable to determine valid vm
+unreliable and an ATLAS install nonsensical.  Aborting.
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
 You must add group tss to the system first
