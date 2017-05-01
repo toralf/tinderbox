@@ -430,7 +430,7 @@ function ConfigureImage()  {
 #         app-portage/portage-utils   qlop
 #         www-client/pybugz           bugz
 # - update sandbox if applicable
-# . dry test of GCC
+# - dry test of GCC
 # - dry test of @system upgrade as an attempt to auto-fix package-specific USE flags deps
 #
 function CreateSetupScript()  {
@@ -469,8 +469,9 @@ source /etc/profile
 
 emerge --noreplace net-misc/netifrc
 
-echo -e "# packages preventing the setup (tbs.sh) of this tinderbox image\n#\n" > /etc/portage/package.mask/setup_blocker
-echo ">${perl_stable_version}" >> /etc/portage/package.mask/setup_blocker
+# newer available unstable Perl versions often prevents basic setup, GCC upgrade or LibreSSL switch
+#
+echo ">${perl_stable_version}" > /etc/portage/package.mask/setup_blocker
 
 emerge sys-apps/elfix || ExitOnError 6
 
