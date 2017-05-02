@@ -569,7 +569,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-# the local distfiles directory
+# the distfiles directory at the host, shared to all images
 #
 distfiles=/var/tmp/distfiles
 
@@ -582,9 +582,9 @@ autostart="y"   # start the image after setup ?
 origin=""       # clone from another image ?
 suffix=""       # will be appended onto the name before the timestamp
 
-# pre-select profile, keyword, ssl vendor and ABI_X86
+# set defaults for profile, keyword, ssl vendor and ABI_X86
 #
-profile=$(eselect profile list | awk ' { print $2 } ' | grep -v -E 'kde|x32|selinux|musl|uclibc|profile|developer|hardened' | sort --random-sort | head -n1)
+profile=$(eselect profile list | awk ' { print $2 } ' | grep "^default" | grep -v -e '/x32' -e "/developer" -e "/uclibc" -e "/selinux" | sort --random-sort | head -n1)
 
 keyword="unstable"
 
@@ -606,7 +606,7 @@ if [[ $? -ne 0 ]]; then
   fi
 fi
 
-flags=$(rufs)   # default is to set to an arbitrary USE flag subset
+flags=$(rufs)   # default is an arbitrary USE flag subset
 
 # the caller can overwrite the (thrown) settings now
 #
