@@ -280,14 +280,6 @@ function CompilePackageFiles()  {
   touch       etc/portage/package.mask/self     # failed package at this image
   chmod a+rw  etc/portage/package.mask/self
 
-  # unmask GCC-6 : https://bugs.gentoo.org/show_bug.cgi?id=582084
-  #
-  if [[ "$keyword" = "unstable" && $(($RANDOM % 3)) -eq 0 || -f $origin/etc/portage/package.unmask/gcc-6 ]]; then
-    v=$(ls /usr/portage/sys-devel/gcc/gcc-6.*.ebuild | xargs -n 1 basename | tail -n 1 | xargs -n 1 qatom | awk ' { print $3 } ')
-    echo "sys-devel/gcc:$v"    > etc/portage/package.unmask/gcc-6
-    echo "sys-devel/gcc:$v **" > etc/portage/package.accept_keywords/gcc-6
-  fi
-
   touch      etc/portage/package.use/setup     # USE flags added during setup phase
   chmod a+rw etc/portage/package.use/setup
 
