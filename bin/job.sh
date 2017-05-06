@@ -922,8 +922,16 @@ function WorkOnTask() {
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
     if [[ $status -eq 1 ]]; then
+      # a failed resume doesn't need any further action
+      #
       echo "$cmd" | grep -q -e "--resume --skip-first"
       if [[ $? -eq 1 ]]; then
+        # fix the breakage and repeat this (usually upgrading GCC)
+        #
+        echo "$cmd" | grep -q -e "revdep-rebuild "
+        if [[ $? -eq 0 ]]; then
+          echo "%$cmd" >> $pks
+        fi
         Finish 2 "command '$cmd' failed"
       fi
     fi
