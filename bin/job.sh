@@ -926,11 +926,11 @@ function WorkOnTask() {
       #
       echo "$cmd" | grep -q -e "--resume --skip-first"
       if [[ $? -eq 1 ]]; then
-        # fix the breakage and repeat this (usually upgrading GCC)
+        # fix the breakage and go on (usually upgrading GCC)
         #
         echo "$cmd" | grep -q -e "revdep-rebuild "
         if [[ $? -eq 0 ]]; then
-          echo "%$cmd" >> $pks
+          echo "%emerge --resume" >> $pks
         fi
         Finish 2 "command '$cmd' failed"
       fi
