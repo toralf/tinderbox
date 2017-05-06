@@ -9,7 +9,9 @@
 app-eselect/
 dev-embedded/
 java-virtuals/
+net-dns/s6
 sec-policy/
+sys-apps/s6
 sys-kernel/
 virtual/
 www-client/chromium
