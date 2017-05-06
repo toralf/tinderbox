@@ -382,15 +382,19 @@ app-portage/eix
 %rm -f /etc/portage/package.mask/setup_blocker
 EOF
 
-  # switch to an alternative SSL lib before upgrade of @system
+  # switch to an alternative SSL lib before @system upgrade
   #
   if [[ "$libressl" = "y" ]]; then
     echo "%/tmp/switch2libressl.sh" >> $pks
   fi
 
-  # prefix "%" is needed here b/c due to IGNORE_PACKAGE sys-kernel/* is skipped
+  # "%" is needed here b/c every sys-kernel/* is skipped - see IGNORE_PACKAGE
   #
-  echo "%emerge -u sys-kernel/vanilla-sources" >> $pks
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    echo "%emerge -u sys-kernel/vanilla-sources"  >> $pks
+  else
+    echo "%emerge -u sys-kernel/gentoo-sources"   >> $pks
+  fi
 
   # upgrade GCC first
   #
