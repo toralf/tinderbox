@@ -1108,7 +1108,7 @@ do
 
   date > $log
   GetNextTask
-  echo "$task" | tee -a $log > $tsk
+  echo "$task" | tee -a $log | tee -a $tsk.history > $tsk
   WorkOnTask
   ParseElogForQA
   rm $tsk
