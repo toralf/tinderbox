@@ -199,6 +199,11 @@ function CompileMakeConf()  {
           -e '/^DISTDIR=/d'       \
           etc/portage/make.conf
 
+  # tinderbox is/should be in group portage
+  #
+  chgrp portage etc/portage/make.conf
+  chmod g+w etc/portage/make.conf
+
   if [[ -n "$origin" ]]; then
     l10n=$(grep "^L10N" $origin/etc/portage/make.conf | cut -f2- -d'=')
   else
