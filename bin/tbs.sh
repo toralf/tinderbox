@@ -370,7 +370,7 @@ function FillPackageList()  {
   fi
 
   # emerge/upgrade mandatory package/s and upgrade @system
-  # "# setup" keeps insert_pks.sh away till the basic package setup is done
+  # "# ..." keeps insert_pks.sh away till the basic package setup is done
   #
   cat << EOF >> $pks
 # setup done
