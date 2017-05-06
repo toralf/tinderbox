@@ -660,12 +660,14 @@ function KeepDeps() {
 function GotAnIssue()  {
   KeepDeps
 
+  # bail out imemdiately, no reasonable root casue from the emerge log expected
+  #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
   fi
 
-  # our current shared repository solution is (although rarely) racy
+  # our current shared repository solution is racy
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
@@ -673,7 +675,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # ignore certain issues, stop processing of those issues completely
+  # ignore certain issues and don't further work on those
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
@@ -693,10 +695,11 @@ function GotAnIssue()  {
   CollectIssueFiles
   CompileIssueMail
 
-  # Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664
-  #
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
+    Mail "info: Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664" $bak
+    # repeat the task after the advised perl cleaner call
+    #
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
     status=2
@@ -796,11 +799,11 @@ function PostEmerge() {
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    # this check just prevents a never-ending loop
-    # it doesn't help in a flip-flop cycle
+    # this check just helps to detect a never-ending loop
+    # it doesn't help in a flip-flop cycle with an intermediate "emerge <package>"
     #
     if [[ "$task" = "@preserved-rebuild" ]]; then
-      Mail "notice: @preserved-rebuild called 2x in a row" $bak
+      Mail "info: @preserved-rebuild called 2x in a row" $bak
     else
       echo "@preserved-rebuild" >> $pks
     fi
