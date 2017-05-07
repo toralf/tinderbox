@@ -76,20 +76,18 @@ function rufs()  {
 # deduce our tinderbox image name from the profile and current stage3 file name
 #
 function ComputeImageName()  {
-  if [[ "$profile" = "default/linux/amd64/13.0/no-multilib" ]]; then
-    name="13.0-no-multilib"
-    stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ')
+  b="$(basename $profile)"
 
-  elif [[ "$(basename $profile)" = "systemd" ]]; then
-    name="$(basename $(dirname $profile))-systemd"
-    stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20.......tar.bz2" $latest | cut -f1 -d' ')
+  if [[ "$b" = "no-multilib" || "$b" = "systemd" ]]; then
+    name="$(basename $(dirname $profile))-$b"
+    stage3=$(grep "^20....../$b/stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ')
 
   else
-    name="$(basename $profile)"
+    name="$b"
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ')
   fi
 
-  # don't mention the default to avoid too long image names
+  # don't mention the default (unstable)
   #
   if [[ "$keyword" = "stable" ]]; then
     name="$name-$keyword"
