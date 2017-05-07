@@ -118,10 +118,11 @@ function UnpackStage3()  {
   fi
 
   # do this once before:
+  #
   # gpg --keyserver hkps.pool.sks-keyservers.net --recv-keys 0x9E6438C817072058
   # gpg --edit-key 0x9E6438C817072058
-  #   and trust it ultimately
-  # maybe do the same for 0xBB572E0E2D182910
+  #   and "trust" it (5==ultimately)
+  # maybe: do the same for 0xBB572E0E2D182910
   #
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
 
@@ -131,7 +132,7 @@ function UnpackStage3()  {
 }
 
 
-# configure 3 repositories and prepare a placeholder too
+# configure our 3 repositories and prepare 1 placeholder too
 # the local repository rules always
 #
 function CompileRepoFiles()  {
@@ -183,7 +184,7 @@ EOF
 }
 
 
-# compile make.conf now together
+# compile make.conf
 #
 function CompileMakeConf()  {
   sed -i  -e '/^CFLAGS="/d'       \
@@ -196,7 +197,7 @@ function CompileMakeConf()  {
           -e '/^DISTDIR=/d'       \
           etc/portage/make.conf
 
-  # tinderbox is/should be in group portage
+  # tinderbox needs to be in group "portage" for edit perms
   #
   chgrp portage etc/portage/make.conf
   chmod g+w etc/portage/make.conf
@@ -208,8 +209,6 @@ function CompileMakeConf()  {
   fi
 
   cat << EOF >> etc/portage/make.conf
-# no -Werror=implicit-function-declaration: https://bugs.gentoo.org/show_bug.cgi?id=602960
-#
 CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
 
@@ -251,10 +250,11 @@ EOF
 }
 
 
-# symlink the (shared) package files of /tmp/tb/data to the portage directories
+# symlink the (host shared) package files from
+# the local /tmp/tb/data to the local portage directories
 #
 function CompilePackageFiles()  {
-  mkdir tmp/tb  # mount point of the tinderbox directory of the host
+  mkdir tmp/tb  # mount point for the tinderbox directory of the host
 
   # create portage directories and symlinks
   #
@@ -342,7 +342,7 @@ EOF
 }
 
 
-# the last line is the first entry and so on
+# the last line int the file is the first task
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -358,7 +358,7 @@ function FillPackageList()  {
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
 
   if [[ -n "$origin" ]]; then
-    # replay the emerge history of origin
+    # replay the emerge history of origin before we continue with the randomized list
     #
     qlop --nocolor --list -f $origin/var/log/emerge.log 2>/dev/null | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.origin
     echo "INFO $(wc -l < $pks.tmp) packages of $origin replayed" >> $pks
@@ -367,7 +367,7 @@ function FillPackageList()  {
   fi
 
   # emerge/upgrade mandatory package/s and upgrade @system
-  # "# ..." keeps insert_pks.sh away till the basic package setup is done
+  # "# ..." keeps insert_pks.sh away till the basic image setup is done
   #
   cat << EOF >> $pks
 # setup done
@@ -379,13 +379,13 @@ app-portage/eix
 %rm -f /etc/portage/package.mask/setup_blocker
 EOF
 
-  # switch to an alternative SSL lib before @system upgrade
+  # switch to another SSL vendor before @system upgrade is made
   #
   if [[ "$libressl" = "y" ]]; then
     echo "%/tmp/switch2libressl.sh" >> $pks
   fi
 
-  # "%" is needed here b/c every sys-kernel/* is skipped - see IGNORE_PACKAGE
+  # "%" is needed here b/c "sys-kernel/*" is in IGNORE_PACKAGE
   #
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
     echo "%emerge -u sys-kernel/vanilla-sources"  >> $pks
@@ -393,7 +393,7 @@ EOF
     echo "%emerge -u sys-kernel/gentoo-sources"   >> $pks
   fi
 
-  # upgrade GCC first
+  # GCC first
   #
   echo "%emerge -u sys-devel/gcc" >> $pks
 
