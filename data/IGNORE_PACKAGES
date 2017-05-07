@@ -4,26 +4,27 @@
 #
 # this file MUST NOT have empty lines (except the last one)
 #
-# misc
+# permanent list
 #
 app-eselect/
 dev-embedded/
 java-virtuals/
-net-dns/s6
+perl-core/
 sec-policy/
-sys-apps/s6
 sys-kernel/
 virtual/
-www-client/chromium
 #
-# outdated or br0ken
+# outdated, br0ken, breaks rebuild,r too fat ...
 #
 app-xemacs/
 net-analyzer/openvas
 net-analyzer/snips
+net-dns/s6
+sys-apps/s6
 sys-fs/loop-aes
 sys-fs/vhba
 sys-cluster/drbd-kernel
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
+www-client/chromium
 #
