@@ -698,6 +698,12 @@ function GotAnIssue()  {
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
     Mail "info: Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664" $bak
+
+    echo "$tsk" | grep -q -e 'perl-cleaner'
+    if [[ $? -eq 0 ]]; then
+      Finish 2 "$tsk repeated"
+    fi
+
     # repeat the task after the advised perl cleaner call
     #
     echo "$task" >> $pks
