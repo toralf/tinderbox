@@ -78,7 +78,11 @@ function rufs()  {
 function ComputeImageName()  {
   b="$(basename $profile)"
 
-  if [[ "$b" = "no-multilib" || "$b" = "systemd" ]]; then
+  if [[ "$b" = "no-multilib" ]]; then
+    name="$(basename $(dirname $profile))-$b"
+    stage3=$(grep "^20....../stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ')
+
+  elif [[ "$b" = "systemd" ]]; then
     name="$(basename $(dirname $profile))-$b"
     stage3=$(grep "^20....../$b/stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ')
 
@@ -551,7 +555,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-# the distfiles directory at the host, shared to all images
+# store the stage3 images in the distfiles directory
 #
 distfiles=/var/tmp/distfiles
 
