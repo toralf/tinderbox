@@ -898,9 +898,9 @@ function WorkOnTask() {
 
   if [[ "$(echo "$task" | cut -c1)" = '@' ]]; then
     case $task in
-      @preserved-rebuild) RunCmd "emerge --backtrack=100 $task"
+      @preserved-rebuild) RunCmd "emerge --backtrack=200 $task"
       ;;
-      @system|@world)     RunCmd "emerge --backtrack=100 --deep --update --newuse --changed-use $task"
+      @system|@world)     RunCmd "emerge --backtrack=200 --deep --update --newuse --changed-use $task"
       ;;
       *)                  RunCmd "emerge --update $task"
     esac

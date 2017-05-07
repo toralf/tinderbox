@@ -436,7 +436,7 @@ function ConfigureImage()  {
 # - dry test of @system upgrade as an attempt to auto-fix package-specific USE flags deps
 #
 function CreateSetupScript()  {
-  dryrun="emerge --backtrack=100 --deep --update --changed-use @system --pretend"
+  dryrun="emerge --backtrack=200 --deep --update --changed-use @system --pretend"
   perl_stable_version=$(portageq best_version / dev-lang/perl)
 
   cat << EOF > tmp/setup.sh
