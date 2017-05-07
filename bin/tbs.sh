@@ -513,21 +513,6 @@ EOF
 function EmergeMandatoryPackages() {
   CreateSetupScript
 
-  # <app-admin/eselect-1.4.7 $LANG issue
-  #
-  if [[ "$(qlist -ICv app-admin/eselect | xargs -n 1 qatom | cut -f3 -d' ')" = "1.4.5" ]]; then
-    (
-      cd usr/share/eselect
-
-      wget -q -O- https://598480.bugs.gentoo.org/attachment.cgi?id=451903 2>/dev/null |\
-      sed 's,/libs/config.bash.in,/libs/config.bash,g' |\
-      patch -p1 --forward
-    )
-    if [[ $? -ne 0 ]]; then
-      exit 10
-    fi
-  fi
-
   cd /home/tinderbox/
 
   $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
