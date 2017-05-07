@@ -521,12 +521,11 @@ function EmergeMandatoryPackages() {
   if [[ $rc -ne 0 ]]; then
     echo
     echo " setup NOT successful (rc=$rc) @ $mnt"
+    echo
 
     if [[ $rc -eq 9 ]]; then
-      echo
       cat $mnt/tmp/dryrun.log
     else
-      echo
       cat $mnt/tmp/setup.log
     fi
 
