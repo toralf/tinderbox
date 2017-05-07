@@ -112,8 +112,7 @@ function ComputeImageName()  {
 # download, verify and unpack the stage3 file
 #
 function UnpackStage3()  {
-  b=$(basename $stage3)
-  f=$distfiles/$b
+  f=$distfiles/$(basename $stage3)
   if [[ ! -f $f || ! -s $f ]]; then
     wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles || exit 4
   fi
