@@ -29,10 +29,6 @@ x11-misc/xdg-utils        -perl
 #
 app-editors/xemacs        -nopie
 
-# broken dep: lynx (libressl)
-#
-app-text/xmlto            -text
-
 # can't be linked statically otherwise
 #
 sys-apps/busybox          -pam
