@@ -80,7 +80,7 @@ function ComputeImageName()  {
 
   if [[ "$b" = "no-multilib" ]]; then
     name="$(basename $(dirname $profile))-$b"
-    stage3=$(grep "^20....../stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ')
+    stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ')
 
   elif [[ "$b" = "systemd" ]]; then
     name="$(basename $(dirname $profile))-$b"
@@ -89,6 +89,11 @@ function ComputeImageName()  {
   else
     name="$b"
     stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ')
+  fi
+
+  if [[ -z "$stage3" ]]; then
+    echo "can't get stage 3 from profile '$profile', name='$name'"
+    exit 3
   fi
 
   # don't mention the default (unstable)
