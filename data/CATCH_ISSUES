@@ -109,6 +109,7 @@ Could not link test program to Python
 cannot find package
 Failed Running aclocal
 is banned in EAPI=
+exceeds the 32 bit address space
 make: .*: Command not found
 make:.* Stop.
 error adding symbols:

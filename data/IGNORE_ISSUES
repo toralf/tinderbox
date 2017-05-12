@@ -52,3 +52,4 @@ We have detected that you currently use udev or devfs or devtmpfs
 You must add group tss to the system first
 You must build your code with position independent code if Qt was built
 you must set LINGUAS in /etc/make.conf
+You need to apply a patch to your kernel to compile and run the aufs4 module
