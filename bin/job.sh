@@ -525,7 +525,7 @@ EOF
 
 
 # helper of GotAnIssue()
-# create an email containing convenient links and command lines ready for copy+paste
+# create an email containing convenient links and a command line ready for copy+paste
 #
 function CompileIssueMail() {
   # no --verbose, output size would exceed the 16 KB limit of b.g.o.
@@ -588,7 +588,7 @@ EOF
 }
 
 
-# guess the failed package and its log file name
+# guess the failed package name and its log file name
 #
 function GetFailed()  {
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
@@ -610,8 +610,6 @@ function GetFailed()  {
     fi
   fi
 
-  # must work
-  #
   short=$(getShort "$failed")
   if [[ ! -d /usr/portage/$short ]]; then
     failed=""
@@ -639,7 +637,7 @@ function ReportIssue()  {
 }
 
 
-# put all successfully emerged dependencies of $task in the world file
+# put all successfully emerged dependencies of $task into the world file
 # otherwise we'd need to use "--deep" unconditionally
 # (https://bugs.gentoo.org/show_bug.cgi?id=563482)
 #
@@ -675,7 +673,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # ignore certain issues and don't further work on those
+  # ignore certain issues and continue with next task
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
@@ -753,7 +751,7 @@ function SwitchGCC() {
     majold=$(echo $verold | cut -c1)
     majnew=$(echo $vernew | cut -c1)
 
-    # rebuild kernel and tool chain after a major version number change
+    # rebuild kernel and toolchain after a major version number change
     #
     if [[ "$majold" != "$majnew" ]]; then
       # per request of Soap this is forced with gcc-6
@@ -779,7 +777,7 @@ EOF
 
 
 # helper of RunCmd()
-# *schedule* needed follow-ups from a previously run emerge
+# it schedules follow-ups from the previously emerge step
 #
 function PostEmerge() {
   # prefix our log backup file with an "_" to distinguish it from portage's log files
@@ -806,7 +804,7 @@ function PostEmerge() {
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
     # this check just helps to detect a never-ending loop
-    # it doesn't help in a flip-flop cycle with an intermediate "emerge <package>"
+    # it doesn't help however in a flip-flop cycle with an intermediate "emerge <package>"
     #
     if [[ "$task" = "@preserved-rebuild" ]]; then
       Mail "info: @preserved-rebuild called 2x in a row" $bak
@@ -815,7 +813,7 @@ function PostEmerge() {
     fi
   fi
 
-  # switching and building a new kernel should be one of the last steps
+  # build and switch to a new kernel is one of the last steps
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
@@ -842,7 +840,7 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $pks
   fi
 
-  # fixing Perl is one of the first steps
+  # fixing Perl asap
   #
   grep -q ">>> Installing .* dev-lang/perl-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
@@ -851,8 +849,8 @@ function PostEmerge() {
 }
 
 
-# just run the command (parameter $1) - usually "emerge <something>" -
-# and process the output
+# just run the command ($1) - usually "emerge <something>" -
+# and parse its output
 #
 function RunCmd() {
   ($1) &>> $log
