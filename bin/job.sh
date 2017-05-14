@@ -848,13 +848,6 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     echo "%perl-cleaner --all" >> $pks
   fi
-
-  # set PAX permissions asap
-  #
-  grep -q 'Please run "revdep-pax" after installation.' $bak
-  if [[ $? -eq 0 ]]; then
-    echo "%revdep-pax" >> $pks
-  fi
 }
 
 
