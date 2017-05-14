@@ -49,7 +49,7 @@ grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- | xargs -n 1 | cut -
 
 info="# $(wc -l < $tmp) packages at $(date)"
 
-# this goes to stdout of the caller
+# the output goes to the stdout of the caller (eg. email for a cron job)
 #
 echo "$info"
 cat $tmp
@@ -59,7 +59,8 @@ if [[ -s $tmp ]]; then
   #
   for pks in $available
   do
-    # in favour of a good coverage do not touch every image every time
+    # to achieve a higher coverage of the repository in time
+    # do not test affected ebuilds at every image
     #
     if [[ $(($RANDOM % 3)) -eq 0 ]]; then
       continue
@@ -68,7 +69,7 @@ if [[ -s $tmp ]]; then
     echo "$info" >> $pks
 
     # shuffle packages around in a different way for each image
-    # and limit amount of added packages
+    # respect an upper limit of the amount of injected packages
     #
     sort --random-sort < $tmp | head -n 100 >> $pks
   done
