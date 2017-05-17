@@ -167,7 +167,7 @@ function CurrentTask()  {
     seconds=$(expr $delta % 60)
     minutes=$(expr $delta / 60)
     printf " %3i:%02i min  " $minutes $seconds
-    cat $i/tmp/task
+    cat $tsk
   done
 }
 
