@@ -416,27 +416,34 @@ EOF
 }
 
 
-# guess from the title if there's an appropriate bug tracker
-# the BLOCKER file must follow this syntax:
+# guess from the origin title if there's an appropriate bug tracker
+# and replace - if given- the title with a more generic one
+# the BLOCKER file must contain 3-line-paragraphs like:
 #
 #   # comment
-#   <bug id>
+#   <bug id> [alternative title]
 #   <pattern>
 #   ...
 #
-# if <pattern> is defined more than once then the first entry will make it
+# if <pattern> is defined more than once then the first will make it
 #
 function SearchForBlocker() {
   block=$(
+    # skip comment and bug id lines
+    #
     grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER |\
-    while read line
+    while read pattern
     do
-      grep -q -E "$line" $issuedir/title
+      grep -q -E "$pattern" $issuedir/title
       if [[ $? -eq 0 ]]; then
         echo -n "-b "
-        # this appends the bug id to stdout
+        # append the bug id to stdout, no grep -E here !
         #
-        grep -m 1 -B 1 "$line" /tmp/tb/data/BLOCKER | head -n 1 # no grep -E here !
+               grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f1  -d' '
+        alt=$( grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f2- -d' ')
+        if [[ -n "$alt" ]]; then
+          echo "$alt" > $issuedir/title
+        fi
         break
       fi
     done
