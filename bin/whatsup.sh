@@ -163,9 +163,9 @@ function CurrentTask()  {
       continue
     fi
 
-    delta=$(expr $(date +%s) - $(date +%s -r $tsk))
-    seconds=$(expr $delta % 60)
-    minutes=$(expr $delta / 60)
+    let "delta = $(date +%s) - $(date +%s -r $tsk)"
+    let "seconds = $delta % 60"
+    let "minutes = $delta / 60"
     printf " %3i:%02i min  " $minutes $seconds
     cat $tsk
   done
