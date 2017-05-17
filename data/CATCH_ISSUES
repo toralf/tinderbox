@@ -56,6 +56,7 @@ error while loading shared libraries:
 error:.*failed to fetch
 Failed to load interface for
 The .* distribution was not found and is required by
+/usr/include/unicode/umachine.h:.*:.*: error: .char16_t. does not name a type
 error:
 stack smashing detected
 No rule to make target

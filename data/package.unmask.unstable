@@ -4,3 +4,6 @@
 # the appropriate symlink under /etc/portage/ points to it
 
 # please note that this file rules over /etc/portage/package.mask/self
+
+~dev-libs/icu-59.1
+~dev-libs/icu-layoutex-59.1
