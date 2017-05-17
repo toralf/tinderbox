@@ -17,17 +17,18 @@ if [[ ! -e $pks ]]; then
   exit 21
 fi
 
-# set LibreSSL as the preferred vendor in make.conf
+# define the SSL vendor in make.conf
 #
 # CURL_SSL="libressl"
-# USE="-openssl -gnutls libressl
+# USE="
+#   -openssl -gnutls libressl
 # ...
 #
 sed -i  -e '/^CURL_SSL="/d'           \
         -e 's/ [+-]*openssl[ ]*/ /'   \
         -e 's/ [+-]*libressl[ ]*/ /'  \
         -e 's/ [+-]*gnutls[ ]*/ /'    \
-        -e 's/USE="/CURL_SSL="libressl"\nUSE="-openssl -gnutls libressl \n  /' \
+        -e 's/USE="/CURL_SSL="libressl"\nUSE="\n  -openssl -gnutls libressl\n  /' \
         /etc/portage/make.conf || exit 22
 
 mkdir -p /etc/portage/profile || exit 23
