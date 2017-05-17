@@ -434,6 +434,8 @@ function SearchForBlocker() {
       grep -q -E "$line" $issuedir/title
       if [[ $? -eq 0 ]]; then
         echo -n "-b "
+        # this appends the bug id to stdout
+        #
         grep -m 1 -B 1 "$line" /tmp/tb/data/BLOCKER | head -n 1 # no grep -E here !
         break
       fi
