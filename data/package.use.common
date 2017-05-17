@@ -33,10 +33,13 @@ app-editors/xemacs        -nopie
 #
 sys-apps/busybox          -pam
 
-# misc
+# unmaintained
 #
 app-crypt/pinentry        -qt4
 app-text/poppler          -qt4
+
+# misc
+#
 sys-libs/zlib             minizip
 x11-base/xorg-server      -minimal
 
@@ -50,3 +53,4 @@ sys-apps/nix              -etc_profile
 # https://bugs.gentoo.org/show_bug.cgi?id=601784
 #
 net-misc/wget             ssl
+
