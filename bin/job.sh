@@ -421,7 +421,7 @@ EOF
 # the BLOCKER file must contain 3-line-paragraphs like:
 #
 #   # comment
-#   <bug id> [alternative title]
+#   <bug id> generic title]
 #   <pattern>
 #   ...
 #
@@ -436,13 +436,12 @@ function SearchForBlocker() {
     do
       grep -q -E "$pattern" $issuedir/title
       if [[ $? -eq 0 ]]; then
-        echo -n "-b "
-        # append the bug id to stdout, no grep -E here !
-        #
-               grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f1  -d' '
-        alt=$( grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f2- -d' ')
-        if [[ -n "$alt" ]]; then
-          echo "$alt" > $issuedir/title
+        num=$( grep -n -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER ) # no grep -E here !
+        let "num = num - 1"
+        echo -n "-b $( sed -n "${num}p" /tmp/tb/data/BLOCKER | cut -f1 -d' ' )"
+        gen=$( sed -n "${num}p" /tmp/tb/data/BLOCKER | cut -f2- -d' ' )
+        if [[ -n "$gen" ]]; then
+          echo "$gen" > $issuedir/title
         fi
         break
       fi
