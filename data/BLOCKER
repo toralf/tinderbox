@@ -27,4 +27,4 @@ error: too many arguments to function .pScreen..BlockHandler
 undefined reference to .SSLv3_method.
 # icu-59
 618636 with GCC <6 fails to build with ICU >=59
-/usr/include/unicode/umachine.h:.*:.*: error:
+/usr/include/unicode/umachine.h:.*:.*: error: .char16_t. does not name a type
