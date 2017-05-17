@@ -297,15 +297,14 @@ EOF
 }
 
 
-# $1      : sci-biology/tophat-2.1.1-r3
-# returns : sci-biology/tophat
+# strip away the version (get $PN from $P)
 #
 function getShort() {
   echo $(qatom "$1" 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
 }
 
 
-# 777: allow an user to manually modify title or issue
+# 777: permmit any user to edit eg. the title
 #
 function CreateIssueDir() {
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
@@ -1105,7 +1104,7 @@ do
 
   date > $log
   GetNextTask
-  echo "$task" | tee -a $log | tee -a $tsk.history > $tsk
+  echo "$task" | tee -a $log $tsk.history > $tsk
   WorkOnTask
   ParseElogForQA
   rm $tsk
