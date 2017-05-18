@@ -235,16 +235,8 @@ function GetMailAddresses() {
     m="maintainer-needed@gentoo.org"
   fi
 
-  # if there's more than 1 maintainer, then take the 1st as the assignee
-  #
-  echo "$m" | grep -q ' '
-  if [[ $? -eq 0 ]]; then
-    echo "$m" | cut -f1  -d ' ' > $issuedir/assignee
-    echo "$m" | cut -f2- -d ' ' | tr ' ' ',' > $issuedir/cc
-  else
-    echo "$m" > $issuedir/assignee
-    touch $issuedir/cc
-  fi
+  echo "$m" | cut -f1  -d ' ' > $issuedir/assignee
+  echo "$m" | cut -f2- -d ' ' -s | tr ' ' ',' > $issuedir/cc
 }
 
 
@@ -992,7 +984,7 @@ EOF
 # helper of ParseElogForQA()
 #
 function WorkOnQA() {
-  failed=$(basename $elogfile  | cut -f1-2 -d':' | tr ':' '/')
+  failed=$(basename $elogfile | cut -f1-2 -d':' | tr ':' '/')
   short=$(getShort "$failed")
 
   CreateIssueDir
@@ -1068,7 +1060,7 @@ export GCC_COLORS=""                # suppress colour output of gcc-4.9 and abov
 
 # eg.: gnome_20150913-104240
 #
-name=$(grep "^PORTAGE_ELOG_MAILFROM=" /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
+name=$(grep '^PORTAGE_ELOG_MAILFROM="' /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
 
 # needed for the bugzilla comment #0
 #
