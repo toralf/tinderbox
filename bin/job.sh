@@ -442,7 +442,7 @@ function SearchForBlocker() {
                grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f1  -d' '
         # prefer a generic title if given
         #
-        gen=$( grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | awk ' { if (NF > 1) { print } } ')
+        gen=$( grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f2- -d' ' -s)
         if [[ -n "$gen" ]]; then
           echo "$gen" > $issuedir/title
         fi
