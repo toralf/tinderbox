@@ -212,7 +212,7 @@ function CompileMakeConf()  {
   chmod g+w etc/portage/make.conf
 
   if [[ -n "$origin" ]]; then
-    l10n=$(grep "^L10N" $origin/etc/portage/make.conf | cut -f2- -d'=')
+    l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=')
   else
     l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
   fi
