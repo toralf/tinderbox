@@ -28,26 +28,31 @@ function Mail() {
 
 
 # clean up and exit
-# $1: error code, $2: part of email Subject
+# $1: return code, $2: part of email Subject
 #
 function Finish()  {
-  ec=$1
+  rc=$1
 
-  # althought stresc is made at least in Mail() do it here too b/c $1 might contain quotes
+  # stresc() is called in Mail() but do it here too b/c $1 might contain quotes
   #
   subject=$(echo "$2" | stresc | cut -c1-200 | tr '\n' ' ')
 
   /usr/bin/pfl            &>/dev/null
   /usr/bin/eix-update -q  &>/dev/null
 
-  if [[ $ec -eq 0 ]]; then
+  if [[ $rc -eq 0 ]]; then
     Mail "finished ok: $subject"
   else
-    Mail "finished EC=$ec: $subject" $log
+    Mail "exit NOT ok, return code=$rc: $subject" $log
   fi
 
-  rm -f /tmp/STOP $tsk
-  exit $ec
+  if [[ $rc -eq 0 ]]; then
+    rm $tsk
+  fi
+
+  rm -f /tmp/STOP
+
+  exit $rc
 }
 
 
@@ -368,7 +373,7 @@ EOF
     fi
 
   else
-    # loop over all patterns exactly in their defined order therefore "grep -f CATCH_ISSUES" can't be used here
+    # loop over patterns in their defined order therefore "grep -f" can't be used here
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
@@ -381,11 +386,11 @@ EOF
     done
 
     if [[ $(wc -w <$issuedir/title) -eq 0 ]]; then
-      Finish 2 "no title for task $task"
+      Finish 2 "title is empty for task $task"
     fi
 
     if [[ $(wc -w <$issuedir/issue) -eq 0 ]]; then
-      Finish 2 "no issue for task $task"
+      Finish 2 "issue is empty for task $task"
     fi
 
     if [[ $(wc -c <$issuedir/issue) -gt 2000 ]]; then
@@ -660,14 +665,23 @@ function KeepDeps() {
 function GotAnIssue()  {
   KeepDeps
 
-  # bail out imemdiately, no reasonable root casue from the emerge log expected
+
+  # bail out immediately, no reasonable emerge log expected
   #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
   fi
 
-  # our current shared repository solution is racy
+  # repeat the current running task if we 're killed, eg for a reboot
+  #
+  grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $bak
+  if [[ $? -eq 0 ]]; then
+    echo "$task" >> $pks
+    Finish 3 "KILLED"
+  fi
+
+  # the shared repository solution is (rarely) racy
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
@@ -1086,10 +1100,11 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# no normal stop before, eg. due to a reboot ?
+# no normal stop before, eg. due to a reboot, therefore re-try last task
 #
 if [[ -s $tsk ]]; then
-  cat $tsk >> $pks && rm $tsk
+  cat $tsk >> $pks
+  rm $tsk
 fi
 
 while :;
