@@ -469,12 +469,14 @@ function SearchForAnAlreadyFiledBug() {
     sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
   fi
 
-  # open bugs rules over closed
-  # search first for the same release, then for the package, then just for its name
+  # search first for exact same version, then for category/package, eventually just for the package name only
+  # get always the highest bug id and write its title to the email body
   #
   for i in $failed $short $(echo $short | cut -f2 -d'/')
   do
-    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " CONFIRMED " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    # open bugs: "confirmed" + "in progress"
+    #
+    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       if [[ "$i" = "$failed" ]]; then
         open_bug_report_exists="y"
@@ -482,27 +484,22 @@ function SearchForAnAlreadyFiledBug() {
       break
     fi
 
-    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-    if [[ -n "$id" ]]; then
-      if [[ "$i" = "$failed" ]]; then
-        open_bug_report_exists="y"
-      fi
-      break
-    fi
-
-    id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved  $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    # closed bugs: dups rules over resolved - and mark the former
+    #
+    id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo -en "\n ^ duplicate " >> $issuedir/body
       break
     fi
 
-    id=$(bugz -q --columns 400 search --show-status --status resolved $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status            --status resolved $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       break
     fi
   done
 
-  # compile a command line ready for copy+paste and add bugzilla search results
+  # compile a command line to easily file the bug
+  # add latest 20 bugzilla search results
   #
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
@@ -525,7 +522,7 @@ EOF
     bugz --columns 400 -q search --status RESOLVED  $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
   fi
 
-  # this newline is for convenience to better copy+paste the laste line
+  # this newline makes the copy+paste of the last line of the mail body more convenient
   #
   echo >> $issuedir/body
 }
