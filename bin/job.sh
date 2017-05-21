@@ -892,27 +892,29 @@ function RunCmd() {
 
 # this is the heart of the tinderbox
 #
-# status=0  ok
-# status=1  task failed
-# status=2  task failed and appropriate post-actions are already scheduled
 #
 function WorkOnTask() {
   status=0
-  failed=""       # contains the package name+version
+  failed=""       # might contain a package
 
   if [[ "$(echo "$task" | cut -c1)" = '@' ]]; then
     case $task in
       @preserved-rebuild) RunCmd "emerge --backtrack=200 $task"
-      ;;
+                          ;;
       @system|@world)     RunCmd "emerge --backtrack=200 --deep --update --newuse --changed-use $task"
-      ;;
+                          ;;
       *)                  RunCmd "emerge --update $task"
+                          ;;
     esac
 
+    # status=0  ok
+    # status=1  task failed
+    # status=2  task failed but appropriate post-actions are already scheduled
+    #
     if [[ $status -eq 0 ]]; then
       case $task in
         @world) echo "%emerge --depclean" >> $pks
-        ;;
+                ;;
       esac
 
     elif [[ $status -eq 1 ]]; then
@@ -921,14 +923,19 @@ function WorkOnTask() {
       else
         case $task in
           @preserved-rebuild) Finish 2 "$task is broken"
-          ;;
+                              ;;
           @system)            echo "@world" >> $pks
-          ;;
+                              ;;
         esac
       fi
     fi
 
-    echo "$(date) ${failed:-ok}" >> /tmp/timestamp.$(echo "$task" | cut -c2-)
+    if [[ $status -eq 0 ]]; then
+      echo "$(date) ok"                     >> /tmp/timestamp.$(echo "$task" | cut -c2-)
+    else
+      echo "$(date) status=$status $failed" >> /tmp/timestamp.$(echo "$task" | cut -c2-)
+    fi
+
     /usr/bin/pfl &>/dev/null
 
   elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
