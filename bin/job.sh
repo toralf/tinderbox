@@ -47,7 +47,7 @@ function Finish()  {
   fi
 
   if [[ $rc -eq 0 ]]; then
-    rm $tsk
+    rm -f $tsk
   fi
 
   rm -f /tmp/STOP
