@@ -234,7 +234,7 @@ ACCEPT_LICENSE="*"
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
 
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
