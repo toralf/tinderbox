@@ -118,18 +118,16 @@ function GetNextTask() {
       continue  # comment
 
     elif [[ -n "$(echo "$task" | cut -c1 | grep -E '(=|@|%)')" ]]; then
-      return  # work on a fixed version | set | command
+      return  # work on a pinned version | package set | command
 
     else
-      # any valid package atom
-      #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
       # make some checks here to speed up things
-      # b/c emerge spends a lot of time to test alternative paths
+      # b/c emerge would spend/waste time to search for alternative (upgrade) paths
 
       # skip if $task is masked, keyworded or an invalid string
       #
@@ -138,7 +136,7 @@ function GetNextTask() {
         continue
       fi
 
-      # skip if $task is already installed or would be downgraded
+      # skip if $task is installed and would be downgraded
       #
       installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
@@ -148,7 +146,7 @@ function GetNextTask() {
         fi
       fi
 
-      # well, found a $task
+      # well, found a $task to do
       #
       return
     fi
@@ -215,7 +213,7 @@ EOF
   done
 
   if [[ -d "$workdir" ]]; then
-    # catch every config.log file
+    # catch all config.log file(s)
     #
     f=/tmp/files
     rm -f $f
@@ -232,7 +230,7 @@ EOF
 }
 
 
-# get bug report assignee and cc, GLEP 67 rules
+# get assignee and cc for the b.g.o. entry (GLEP 67 rules)
 #
 function GetMailAddresses() {
   m=$(equery meta -m $failed | grep '@' | xargs)
@@ -245,7 +243,7 @@ function GetMailAddresses() {
 }
 
 
-# comment #0 starts with the issue itself, then this info should follow
+# comment #0 at b.g.o. starts with the issue, after that present this info
 #
 function AddWhoamiToIssue() {
   cat << EOF >> $issuedir/issue
