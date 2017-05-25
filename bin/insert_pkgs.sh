@@ -2,7 +2,7 @@
 #
 #set -x
 
-# pick up latest ebuilds and put them on top of each applicable package list
+# pick up latest ebuilds from Git repository and put them on top of applicable package lists
 #
 
 mailto="tinderbox@zwiebeltoralf.de"
@@ -29,6 +29,13 @@ do
   #
   grep -q -E "^(STOP|INFO|%|@|#)" $pks
   if [[ $? -eq 0 ]]; then
+    continue
+  fi
+
+  # to achieve a higher coverage of the repository in a given time
+  # do not test every image
+  #
+  if [[ $(($RANDOM % 3)) -eq 0 ]]; then
     continue
   fi
 
@@ -59,13 +66,6 @@ if [[ -s $tmp ]]; then
   #
   for pks in $available
   do
-    # to achieve a higher coverage of the repository in time
-    # do not test affected ebuilds at every image
-    #
-    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-      continue
-    fi
-
     echo "$info" >> $pks
 
     # shuffle packages around in a different way for each image
