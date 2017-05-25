@@ -423,20 +423,28 @@ EOF
 # the BLOCKER file must contain 3-line-paragraphs like:
 #
 #   # comment
-#   <bug id> [generic title]
+#   <bug id> [generic text
 #   <pattern>
 #   ...
 #
 # if <pattern> is defined more than once then the first will make it
 #
 function SearchForBlocker() {
+  in=$1                 # file which might contain a pattern defined in BLOCKER
+  out=${2:-/dev/null}   # optional file, where [generic text] would be written to if defined
+
+  if [[ ! -e $in ]]; then
+    block=""
+    return 1
+  fi
+
   block=$(
     # skip comment and bug id lines
     #
     grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER |\
     while read pattern
     do
-      grep -q -E "$pattern" $issuedir/title
+      grep -q -E "$pattern" $in
       if [[ $? -eq 0 ]]; then
         echo -n "-b "
         # append the bug id to the stdout above, no grep -E here !
@@ -446,7 +454,7 @@ function SearchForBlocker() {
         #
         gen=$( grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f2- -d' ' -s)
         if [[ -n "$gen" ]]; then
-          echo "$gen" > $issuedir/title
+          echo "$gen" > $out
         fi
         break
       fi
@@ -552,7 +560,7 @@ function CompileIssueMail() {
   #
   sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
 
-  SearchForBlocker
+  SearchForBlocker $issuedir/title $issuedir/title
 
   # after the search do now prefix title with package name + version
   #
