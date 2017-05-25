@@ -1030,6 +1030,8 @@ function ParseElogForQA() {
 
       CreateIssueDir
 
+      GetMailAddresses
+
       cp $elogfile $issuedir/issue
       AddWhoamiToIssue
 
@@ -1037,7 +1039,6 @@ function ParseElogForQA() {
       SearchForBlocker
       sed -i -e "s,^,$failed : ," $issuedir/title
 
-      GetMailAddresses
       grep -A 10 "$reason" $issuedir/issue > $issuedir/body
       AddMetainfoToBody
 
