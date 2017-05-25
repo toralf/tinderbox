@@ -1053,27 +1053,17 @@ function ParseElogForQA() {
   cat $f |\
   while read elogfile
   do
-    block=""
-
     reason="QA Notice: installs into paths that should be created at runtime"
-    grep -q "$reason" $elogfile
-    if [[ $? -eq 0 ]]; then
-      block="-b 520404"
-      WorkOnQA
-    fi
+    SearchForBlocker "$elogfile"
+    WorkOnQA "$block"
 
     reason="QA: python_prepare_all() didn't call distutils-r1_python_prepare_all"
-    grep -q "$reason" $elogfile
-    if [[ $? -eq 0 ]]; then
-      WorkOnQA
-    fi
+    SearchForBlocker "$elogfile"
+    WorkOnQA "$block"
 
     reason="QA Notice: dosym target omits basename:"
-    grep -q "$reason" $elogfile
-    if [[ $? -eq 0 ]]; then
-      block="-b 379899"
-      WorkOnQA
-    fi
+    SearchForBlocker "$elogfile"
+    WorkOnQA "$block"
   done
 }
 
