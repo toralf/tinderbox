@@ -1013,6 +1013,8 @@ EOF
 function ParseElogForQA() {
   f=/tmp/qafilenames
 
+  # process all files created after the previous call of ParseElogForQA()
+  #
   if [[ -f $f ]]; then
     find /var/log/portage/elog -name '*.log' -newer $f  > $f
   else
@@ -1022,6 +1024,9 @@ function ParseElogForQA() {
   cat $f |\
   while read elogfile
   do
+    # process each QA issue independent from all others
+    # even for the same file
+    #
     cat /tmp/tb/data/CATCH_ISSUES_QA |\
     while read reason
     do
