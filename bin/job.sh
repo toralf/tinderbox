@@ -48,9 +48,9 @@ function Finish()  {
   /usr/bin/eix-update -q  &>/dev/null
 
   if [[ $rc -eq 0 ]]; then
-    Mail "finished ok: $subject"
+    Mail "Finish ok: $subject"
   else
-    Mail "exit NOT ok, return code=$rc: $subject" $log
+    Mail "Finish NOT ok, rc=$rc: $subject" $log
   fi
 
   if [[ $rc -eq 0 ]]; then
