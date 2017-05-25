@@ -1012,33 +1012,6 @@ EOF
 }
 
 
-# helper of ParseElogForQA()
-#
-function WorkOnQA() {
-  failed=$(basename $elogfile | cut -f1-2 -d':' | tr ':' '/')
-  short=$(getShort "$failed")
-
-  CreateIssueDir
-
-  cp $elogfile $issuedir/issue
-  AddWhoamiToIssue
-
-  echo "$failed : $reason" > $issuedir/title
-
-  GetMailAddresses
-  grep -A 10 "$reason" $issuedir/issue > $issuedir/body
-  AddMetainfoToBody
-  echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
-  id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-  AttachFilesToBody $issuedir/issue
-
-  if [[ -z "$id" ]]; then
-    open_bug_report_exists="n"
-    ReportIssue
-  fi
-}
-
-
 # catch QA issues
 #
 function ParseElogForQA() {
@@ -1053,17 +1026,32 @@ function ParseElogForQA() {
   cat $f |\
   while read elogfile
   do
-    reason="QA Notice: installs into paths that should be created at runtime"
-    SearchForBlocker $elogfile
-    WorkOnQA "$block"
+    cat /tmp/tb/data/CATCH_ISSUES_QA |\
+    while read reason
+    do
+      SearchForBlocker $elogfile
+      failed=$(basename $elogfile | cut -f1-2 -d':' | tr ':' '/')
+      short=$(getShort "$failed")
 
-    reason="QA: python_prepare_all() didn't call distutils-r1_python_prepare_all"
-    SearchForBlocker $elogfile
-    WorkOnQA "$block"
+      CreateIssueDir
 
-    reason="QA Notice: dosym target omits basename:"
-    SearchForBlocker $elogfile
-    WorkOnQA "$block"
+      cp $elogfile $issuedir/issue
+      AddWhoamiToIssue
+
+      echo "$failed : $reason" > $issuedir/title
+
+      GetMailAddresses
+      grep -A 10 "$reason" $issuedir/issue > $issuedir/body
+      AddMetainfoToBody
+      echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
+      id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+      AttachFilesToBody $issuedir/issue
+
+      if [[ -z "$id" ]]; then
+        open_bug_report_exists="n"
+        ReportIssue
+      fi
+    done
   done
 }
 
