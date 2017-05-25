@@ -430,8 +430,7 @@ EOF
 # if <pattern> is defined more than once then the first will make it
 #
 function SearchForBlocker() {
-  in=$1                 # file which might contain a pattern defined in BLOCKER
-  out=${2:-/dev/null}   # optional file, where [generic text] would be written to if defined
+  out=${1:-/dev/null}   # optional file, where [generic text] -if not empty- would be written to
 
   if [[ ! -e $in ]]; then
     block=""
@@ -560,11 +559,8 @@ function CompileIssueMail() {
   #
   sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
 
-  SearchForBlocker $issuedir/title $issuedir/title
-
-  # after the search do now prefix title with package name + version
-  #
-  sed -i -e "s#^#$failed : #" $issuedir/title
+  SearchForBlocker $issuedir/title
+  sed -i -e "s,^,$failed : ," $issuedir/title
 
   # copy the issue to the email body before it is furnished for b.g.o. as comment#0
   #
@@ -1029,7 +1025,6 @@ function ParseElogForQA() {
     cat /tmp/tb/data/CATCH_ISSUES_QA |\
     while read reason
     do
-      SearchForBlocker $elogfile
       failed=$(basename $elogfile | cut -f1-2 -d':' | tr ':' '/')
       short=$(getShort "$failed")
 
@@ -1038,11 +1033,14 @@ function ParseElogForQA() {
       cp $elogfile $issuedir/issue
       AddWhoamiToIssue
 
-      echo "$failed : $reason" > $issuedir/title
+      echo "$reason" > $issuedir/title
+      SearchForBlocker
+      sed -i -e "s,^,$failed : ," $issuedir/title
 
       GetMailAddresses
       grep -A 10 "$reason" $issuedir/issue > $issuedir/body
       AddMetainfoToBody
+
       echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
       id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
       AttachFilesToBody $issuedir/issue
