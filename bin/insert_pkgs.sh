@@ -13,7 +13,7 @@ mailto="tinderbox@zwiebeltoralf.de"
 #   3. has a non-empty package list
 #   4. doesn't have any special entries in its package list
 #
-available=""
+applicable=""
 for i in ~/run/*
 do
   if [[ ! -e $i/tmp/LOCK ]]; then
@@ -39,7 +39,7 @@ do
     continue
   fi
 
-  available="$available $pks"
+  applicable="$applicable $pks"
 done
 
 # holds the package names of added/changed/modified/renamed ebuilds
@@ -62,9 +62,9 @@ echo "$info"
 cat $tmp
 
 if [[ -s $tmp ]]; then
-  # append the packages onto available package list files
+  # append the packages onto applicable package list files
   #
-  for pks in $available
+  for pks in $applicable
   do
     echo "$info" >> $pks
 
