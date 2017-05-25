@@ -22,7 +22,7 @@ function Mail() {
   ( [[ -e $2 ]] && stresc < $2 || echo "<no body>" ) | timeout 120 mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
   rc=$?
   if [[ $rc -ne 0 ]]; then
-    echo "$(date) rc=$rc failed=$failed issuedir=$issuedir"
+    echo "$(date) mail failed with rc=$rc issuedir=$issuedir"
   fi
 }
 
