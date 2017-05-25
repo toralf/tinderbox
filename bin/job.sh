@@ -423,7 +423,7 @@ EOF
 # the BLOCKER file must contain 3-line-paragraphs like:
 #
 #   # comment
-#   <bug id> [generic text
+#   <bug id> [generic text]
 #   <pattern>
 #   ...
 #
@@ -432,25 +432,18 @@ EOF
 function SearchForBlocker() {
   out=${1:-/dev/null}   # optional file, where [generic text] -if not empty- would be written to
 
-  if [[ ! -e $in ]]; then
-    block=""
-    return 1
-  fi
-
   block=$(
     # skip comment and bug id lines
     #
     grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER |\
     while read pattern
     do
-      grep -q -E "$pattern" $in
+      grep -q -E "$pattern" $issuedir/title
       if [[ $? -eq 0 ]]; then
+        # append the bug id to "-b ", no grep -E here !
+        #
         echo -n "-b "
-        # append the bug id to the stdout above, no grep -E here !
-        #
                grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f1  -d' '
-        # prefer a generic title if given
-        #
         gen=$( grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f2- -d' ' -s)
         if [[ -n "$gen" ]]; then
           echo "$gen" > $out
