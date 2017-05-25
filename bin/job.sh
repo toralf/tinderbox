@@ -474,7 +474,7 @@ function SearchForAnAlreadyFiledBug() {
   do
     # open bugs: "confirmed" + "in progress"
     #
-    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>/dev/null | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       if [[ "$i" = "$failed" ]]; then
         open_bug_report_exists="y"
@@ -484,13 +484,13 @@ function SearchForAnAlreadyFiledBug() {
 
     # closed bugs: dups rules over resolved - and mark the former
     #
-    id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo -en "\n ^ duplicate " >> $issuedir/body
       break
     fi
 
-    id=$(bugz -q --columns 400 search --show-status            --status resolved $i "$(cat $bsi)" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status            --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       break
     fi
@@ -513,11 +513,11 @@ EOF
     g='stabilize|Bump| keyword| bump'
 
     echo "  OPEN:     ${h}&resolution=---&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --show-status      $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
+    bugz --columns 400 -q search --show-status      $short | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
 
     echo "" >> $issuedir/body
     echo "  RESOLVED: ${h}&bug_status=RESOLVED&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --status RESOLVED  $short 2>/dev/null | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
+    bugz --columns 400 -q search --status RESOLVED  $short | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
   fi
 
   # this newline makes the copy+paste of the last line of the mail body more convenient
@@ -1014,7 +1014,7 @@ function WorkOnQA() {
   grep -A 10 "$reason" $issuedir/issue > $issuedir/body
   AddMetainfoToBody
   echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
-  id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>/dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+  id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
   AttachFilesToBody $issuedir/issue
 
   if [[ -z "$id" ]]; then
