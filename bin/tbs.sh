@@ -496,7 +496,7 @@ emerge -u sys-apps/sandbox || ExitOnError 8
 emerge --update --pretend sys-devel/gcc || exit 9
 
 mv /etc/portage/package.mask/setup_blocker /tmp/
-for i in 1 2 3
+for i in 1 2 3 4
 do
   $dryrun &> /tmp/dryrun.log
   if [[ \$? -eq 0 ]]; then
@@ -504,7 +504,8 @@ do
     break
   fi
 
-  if [[ \$i -lt 3 ]]; then
+  if [[ \$i -lt 4 ]]; then
+    echo "round \$i" >> /etc/portage/package.use/setup
     grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
   else
     rc=9
