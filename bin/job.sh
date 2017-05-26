@@ -1023,30 +1023,33 @@ function ParseElogForQA() {
     cat /tmp/tb/data/CATCH_ISSUES_QA |\
     while read reason
     do
-      failed=$(basename $elogfile | cut -f1-2 -d':' | tr ':' '/')
-      short=$(getShort "$failed")
+      grep -q -E "$reason" $elogfile
+      if [[ $? -eq 0 ]]; then
+        failed=$(basename $elogfile | cut -f1-2 -d':' | tr ':' '/')
+        short=$(getShort "$failed")
 
-      CreateIssueDir
+        CreateIssueDir
 
-      GetMailAddresses
+        GetMailAddresses
 
-      cp $elogfile $issuedir/issue
-      AddWhoamiToIssue
+        cp $elogfile $issuedir/issue
+        AddWhoamiToIssue
 
-      echo "$reason" > $issuedir/title
-      SearchForBlocker
-      sed -i -e "s,^,$failed : ," $issuedir/title
+        echo "$reason" > $issuedir/title
+        SearchForBlocker
+        sed -i -e "s,^,$failed : ," $issuedir/title
 
-      grep -A 10 "$reason" $issuedir/issue > $issuedir/body
-      AddMetainfoToBody
+        grep -A 10 "$reason" $issuedir/issue > $issuedir/body
+        AddMetainfoToBody
 
-      echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
-      id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-      AttachFilesToBody $issuedir/issue
+        echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
+        id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+        AttachFilesToBody $issuedir/issue
 
-      if [[ -z "$id" ]]; then
-        open_bug_report_exists="n"
-        ReportIssue
+        if [[ -z "$id" ]]; then
+          open_bug_report_exists="n"
+          ReportIssue
+        fi
       fi
     done
   done
