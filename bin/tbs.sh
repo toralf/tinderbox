@@ -505,7 +505,7 @@ do
   fi
 
   if [[ \$i -lt 4 ]]; then
-    echo "round \$i" >> /etc/portage/package.use/setup
+    echo "#round \$i" >> /etc/portage/package.use/setup
     grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
   else
     rc=9
