@@ -26,21 +26,21 @@ function PrintImageName()  {
 
 # gives sth. like:
 #
-#  inst fail   day   todo locked stopping
+# compl fail   day   todo locked stopping
 #  3735   41   3.6  16369                   run/13.0-no-multilib_20170315-195201
 #  6956   75   9.6  13285      y            run/13.0-systemd_20170309-190652
 #  2904   29   2.5  17220      y           img2/13.0-systemd-libressl_20170316-210316
 #
 function Overall() {
-  echo " inst fail   day   todo locked stopping"
+  echo "compl fail   day   todo locked stopping"
   for i in $images
   do
     log=$i/var/log/emerge.log
-    inst=0
+    compl=0
     fail=0
     day=0
     if [[ -f $log ]]; then
-      inst=$(grep -c '::: completed emerge' $log)
+      compl=$(grep -c '::: completed emerge' $log)
       day=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
     fi
     # count failed packages based on their version, but not every failed attempt
@@ -56,7 +56,7 @@ function Overall() {
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="run"
 
-    printf "%5i %4i  %4.1f  %5i %6s %8s %5s/%s\n" $inst $fail $day $todo "$lck" "$stp" "$d" "$b"
+    printf "%5i %4i  %4.1f  %5i %6s %8s %5s/%s\n" $compl $fail $day $todo "$lck" "$stp" "$d" "$b"
   done
 }
 
