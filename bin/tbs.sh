@@ -310,7 +310,7 @@ function CompilePackageFiles()  {
     echo "sys-apps/util-linux -udev" >> etc/portage/package.use/util-linux
   fi
 
-  # support special environments for dedicated packages
+  # create package specific env files
   #
   cat << EOF > etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"
@@ -318,7 +318,7 @@ CXXFLAGS="\$CXXFLAGS -g -ggdb"
 FEATURES="splitdebug"
 EOF
 
-  # no special c++ flags (eg. revert -Werror=terminate)
+  # no special c++ flags (eg. revert "-Werror=terminate" set in job.sh for gcc-6)
   #
   echo 'CXXFLAGS="-O2 -pipe -march=native"' > etc/portage/env/cxx
 
