@@ -455,11 +455,9 @@ function SearchForBlocker() {
 }
 
 
-# don't report an issue if an appropriate bug report exists
+# put findings and convenient clickable links into the mail body
 #
 function SearchForAnAlreadyFiledBug() {
-  open_bug_report_exists="n"
-
   bsi=$issuedir/bugz_search_items     # contains the search string for b.g.o.
   cp $issuedir/title $bsi
 
@@ -483,9 +481,6 @@ function SearchForAnAlreadyFiledBug() {
     #
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      if [[ "$i" = "$failed" ]]; then
-        open_bug_report_exists="y"
-      fi
       break
     fi
 
@@ -636,7 +631,7 @@ function ReportIssue()  {
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
     # download errors (almost causing no work dir) might be server specific
     #
-    if [[  ! -d "$workdir" || "$open_bug_report_exists" = "n" ]]; then
+    if [[  ! -d "$workdir" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
     fi
   fi
@@ -1047,7 +1042,6 @@ function ParseElogForQA() {
         AttachFilesToBody $issuedir/issue
 
         if [[ -z "$id" ]]; then
-          open_bug_report_exists="n"
           ReportIssue
         fi
       fi
