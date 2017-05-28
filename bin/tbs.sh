@@ -254,6 +254,8 @@ PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="root@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
+PORTAGE_GPG_DIR="/var/lib/gentoo/gkeys/keyrings/gentoo/release"
+
 GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gor.bytemark.co.uk/gentoo/ rsync://ftp.snt.utwente.nl/gentoo"
 EOF
 }
