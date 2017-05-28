@@ -45,10 +45,15 @@ do
 done
 
 if [[ -z "$dir" ]]; then
+  echo "no dir given"
   exit 1
 fi
 
-cd $dir || exit 2
+cd $dir
+if [[ $? -ne 0 ]]; then
+  echo "cannot cd into '$dir'"
+  exit 2
+fi
 
 if [[ -f ./.reported ]]; then
   echo "already reported ! remove $dir/.reported before repeating !"
