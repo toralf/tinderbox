@@ -629,10 +629,12 @@ function ReportIssue()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -eq 1 ]]; then
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    # download errors (almost causing no work dir) might be server specific
+    # missing workdir (eg. due to download failed) might be caused by a blocked IP address
     #
-    if [[  ! -d "$workdir" ]]; then
+    if [[ -d "$workdir" ]]; then
       Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+    else
+      Mail "${id:-no work dir}" $issuedir/body
     fi
   fi
 }
