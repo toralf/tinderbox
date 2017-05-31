@@ -619,24 +619,17 @@ function GetFailed()  {
 }
 
 
-# process an issue only once:
-# if it is in ALREADY_CATCHED then don't care for dups nor spam the inbox
-#
-# hint: therefore to re-test a package was fixed w/o a revision bump
-# remove it from the image mask file(s) before
+# report an issue only once, if it is in ALREADY_CATCHED
+# then don't care for dups nor spam the inbox
 #
 function ReportIssue()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
-  if [[ $? -eq 1 ]]; then
-    cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-    # missing workdir (eg. due to download failed) might be caused by a blocked IP address
-    #
-    if [[ -d "$workdir" ]]; then
-      Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
-    else
-      Mail "${id:-no work dir}" $issuedir/body
-    fi
+  if [[ $? -eq 0 ]]; then
+    return
   fi
+
+  cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
+  Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
 }
 
 
