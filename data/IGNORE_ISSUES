@@ -17,6 +17,7 @@ gcc version .* found, expected gcc
 hardened sed failed
 Incorrect kernel configuration options
 Invalid resume list:
+Kernel brk randomization detected
 kernel too new
 License file not found!
 license setup failed
