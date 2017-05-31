@@ -31,16 +31,15 @@ comment="<unset>"
 dir=""
 severity="Normal"
 
-while getopts a:b:c:d:s: opt
+while getopts a:b:c:d:i:s: opt
 do
   case $opt in
-    a)  id="$OPTARG";;          # attach onto the given id
-    b)  block="$OPTARG";;       # block that bug (id or alias)
-    c)  comment="$OPTARG";;     # add comment, used with -a
-    d)  dir="$OPTARG";;         # issue directory
-    s)  severity="$OPTARG";;     # "normal", "QA" and so on
-    *)  echo " not implemented !"
-        exit 1;;
+    i)  id="$OPTARG";;          # (i)d of an already existing bug
+    b)  block="$OPTARG";;       # (b)lock that bug (id or alias)
+    c)  comment="$OPTARG";;     # (c)omment, used with -a
+    d)  dir="$OPTARG";;         # (d)irectory with all files
+    s)  severity="$OPTARG";;    # "normal", "QA" and so on
+    *)  echo " not implemented !"; exit 1;;
   esac
 done
 
