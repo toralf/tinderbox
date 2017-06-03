@@ -25,9 +25,6 @@ error: too many arguments to function .pScreen..BlockHandler
 # libressl
 561854
 undefined reference to .SSLv3_method.
-# icu-59
-618636 with GCC <6 fails to build with ICU >=59
-.char16_t. does not name a type|redefinition of .icu::UnicodeString|UChar. .aka char16_t|UNESCAPE_CHAR_AT. was not declared in this scope|invalid conversion from .const JSChar.*char16_t
 #
 520404
 QA Notice: installs into paths that should be created at runtime
