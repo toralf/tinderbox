@@ -45,7 +45,7 @@ function rufs()  {
 }
 
 
-# deduce our tinderbox image name from the profile and current stage3 file name
+# deduce the tinderbox image name from profile and stage3 filename
 #
 function ComputeImageName()  {
   b="$(basename $profile)"
