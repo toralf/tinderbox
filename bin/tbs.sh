@@ -194,7 +194,7 @@ CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
 
 USE="
-  ssp -bindist -cdinstall -oci8
+  ssp -bindist -cdinstall -oci8 -pax_kernel
 
 $( echo $flags | xargs -s 78 | sed 's/^/  /g' )
 "
