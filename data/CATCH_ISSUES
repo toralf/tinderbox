@@ -37,6 +37,7 @@ Could not find Objective-C runtime
 USE Flag .* not in IUSE
 was not declared in this scope
 You need package
+error: .* has not been declared
 ninja: build stopped:
 : undefined method
 Please specify at least one package name on the command line.
