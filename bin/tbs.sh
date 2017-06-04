@@ -29,9 +29,10 @@ function rufs()  {
   ) | sort -u |\
   while read f
   do
-    if [[ "$libressl" = "y" && "$f" = "gnutls" ]]; then
-      echo -n " -$f"
-      continue
+    if [[ "$libressl" = "y" ]]; then
+      if [[ "$f" = "openssl" || "$f" = "gnutls" ]]; then
+        continue
+      fi
     fi
 
     let "r = $RANDOM % $m"
