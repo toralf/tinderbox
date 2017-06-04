@@ -179,7 +179,7 @@ function CompileMakeConf()  {
           -e '/^DISTDIR=/d'       \
           etc/portage/make.conf
 
-  # tinderbox needs to be in group "portage" for edit perms
+  # hint: put tinderbox into group "portage"
   #
   chgrp portage etc/portage/make.conf
   chmod g+w etc/portage/make.conf
@@ -234,8 +234,8 @@ EOF
 }
 
 
-# symlink the (host shared) package files from
-# the local /tmp/tb/data to the local portage directories
+# symlink within an image a bunch of (host bind mounted) files
+# from /tmp/tb/data to the appropriate portage directories
 #
 function CompilePackageFiles()  {
   mkdir tmp/tb  # mount point for the tinderbox directory of the host
