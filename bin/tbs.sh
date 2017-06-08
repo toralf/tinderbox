@@ -26,7 +26,9 @@ function rufs()  {
   (
     grep -v -e '^$' -e '^#'  /usr/portage/profiles/use.desc                         | cut -f1 -d ' '
     grep -v -e '^$' -e '^#'  /usr/portage/profiles/use.local.desc | cut -f2 -d ':'  | cut -f1 -d ' '
-  ) | sort -u |\
+  ) |\
+  grep -v -e 'static' |\
+  sort -u |\
   while read f
   do
     if [[ "$libressl" = "y" ]]; then
@@ -482,6 +484,13 @@ do
   if [[ \$i -lt 5 ]]; then
     echo "#round \$i" >> /etc/portage/package.use/setup
     grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
+    grep -A 1 'by applying the following change:' /tmp/dryrun.log | grep '^-' | cut -f2,5 -d' ' | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
+
+    tail -n 1 /etc/portage/package.use/setup | grep -q '#round'
+    if [[ \$? -eq 0 ]]; then
+      rc=9
+      break
+    fi
   else
     rc=9
   fi
