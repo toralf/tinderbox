@@ -24,10 +24,11 @@ function rufs()  {
   s=4   # == 8%
 
   (
-    grep -v -e '^$' -e '^#'  /usr/portage/profiles/use.desc                         | cut -f1 -d ' '
-    grep -v -e '^$' -e '^#'  /usr/portage/profiles/use.local.desc | cut -f2 -d ':'  | cut -f1 -d ' '
+    grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.desc
+    grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':'
   ) |\
-  grep -v -e 'static' |\
+  cut -f1 -d ' ' |\
+  grep -v -e 'hostname' -e 'test' -e 'musl' -e 'uclibc' |\
   sort -u |\
   while read f
   do
@@ -209,7 +210,7 @@ ACCEPT_LICENSE="*"
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
 
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
