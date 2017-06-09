@@ -224,7 +224,7 @@ EOF
     #
     f=/tmp/files
     rm -f $f
-    (cd "$workdir" && find ./ -name "config.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/config.log.tbz2 $(cat $f) && rm $f)
+    (cd "$workdir" && find ./ -name "*.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/logs.tbz2 $(cat $f) && rm $f)
 
     # provide the whole temp dir if it exists
     #
