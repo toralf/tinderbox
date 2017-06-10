@@ -16,9 +16,9 @@ while read line
 do
   # split away the version/revision
   #
-  p=$(qatom "$line" | cut -f1-2 -d' ' | tr ' ' '/')
+  p=$(qatom "$line" | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' | tr ' ' '/')
 
-  sed -i -e "/$(echo $ | sed -e 's,/,\/,')/d"  \
+  sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d"  \
     ~/tb/data/ALREADY_CATCHED                   \
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{cxx,nosandbox,test-fail-continue}
