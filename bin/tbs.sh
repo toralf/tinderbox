@@ -28,7 +28,7 @@ function rufs()  {
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':'
   ) |\
   cut -f1 -d ' ' |\
-  grep -v -e 'hostname' -e 'test' -e 'musl' -e 'uclibc' |\
+  grep -v -e 'hostname' -e 'test' -e 'make-symlinks' -e 'musl' -e 'uclibc' |\
   sort -u |\
   while read f
   do
