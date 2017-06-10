@@ -254,7 +254,7 @@ function CompilePackageFiles()  {
     chmod 777 etc/portage/$d
   done
 
-  (cd etc/portage; ln -s ../../../tmp/tb/data/patches)
+  (cd etc/portage; ln -s ../../tmp/tb/data/patches)
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
