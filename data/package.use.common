@@ -18,7 +18,7 @@ dev-lang/python           threads
 dev-util/cmake            -qt5
 dev-vcs/git               -cgi -perl
 gnome-base/librsvg        -tools
-media-libs/mesa           -vaapi
+media-libs/mesa           -llvm -vaapi
 net-dns/libidn            -emacs
 sys-apps/kmod             tools
 sys-apps/man-db           -nls
