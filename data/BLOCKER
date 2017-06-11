@@ -32,5 +32,5 @@ QA Notice: installs into paths that should be created at runtime
 379899
 QA Notice: dosym target omits basename:
 #
-426262
+530632
 This package has a configure.in file which has long been deprecated.
