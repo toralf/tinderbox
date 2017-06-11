@@ -69,8 +69,12 @@ function ComputeImageName()  {
     exit 3
   fi
 
+  # the 1st underscore splits the profile
+  #
+  name="${name}_"
+
   if [[ "$keyword" = "stable" ]]; then
-    name="$name-$keyword"
+    name="$name-stable"
   fi
 
   if [[ "$libressl" = "y" ]]; then
@@ -85,7 +89,11 @@ function ComputeImageName()  {
     name="$name-$suffix"
   fi
 
+  # the 2nd underscore splits the date
+  #
   name="${name}_$(date +%Y%m%d-%H%M%S)"
+
+  name="$(echo $name | sed 's/__/_/')"
 }
 
 
