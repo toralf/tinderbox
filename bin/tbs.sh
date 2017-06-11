@@ -632,7 +632,7 @@ do
           exit 2
         fi
 
-        profile=$(readlink $origin/etc/portage/make.profile | cut -f6- -d'/')
+        profile=$(cd $origin; readlink ./etc/portage/make.profile | cut -f6- -d'/')
         flags="$(source $origin/etc/portage/make.conf; echo $USE)"
 
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
