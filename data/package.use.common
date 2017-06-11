@@ -20,8 +20,10 @@ dev-vcs/git               -cgi -perl
 gnome-base/librsvg        -tools
 media-libs/mesa           -llvm -vaapi
 net-dns/libidn            -emacs
+sys-apps/coreutils        -kill
 sys-apps/kmod             tools
 sys-apps/man-db           -nls
+sys-apps/util-linux       -kill
 sys-libs/ncurses          -gpm
 x11-misc/xdg-utils        -perl
 
