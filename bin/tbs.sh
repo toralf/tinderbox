@@ -566,9 +566,9 @@ suffix=""       # will be appended onto the name before the timestamp
 
 # set defaults for profile, keyword, ssl vendor and ABI_X86
 #
-profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' | grep -v -e 'x32' -e 'developer' | sort --random-sort | head -n1)
+profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n1)
 
-if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+if [[ $(($RANDOM % 2)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's/13/17/')"
 fi
 
