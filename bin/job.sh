@@ -220,7 +220,7 @@ EOF
   done
 
   if [[ -d "$workdir" ]]; then
-    # catch all config.log file(s)
+    # catch all log file(s)
     #
     f=/tmp/files
     rm -f $f
