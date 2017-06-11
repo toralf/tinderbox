@@ -16,35 +16,19 @@
 # create a (r)andomized (U)SE (f)lag (s)ubset
 #
 function rufs()  {
-  # (m)ask a flag with a likelihood of 1/m
-  # or (s)et it with a likelihood of s/m
-  # else don't mention it
-  #
-  m=200 # == 0.5%
-  s=2   # == 1%
-
   (
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.desc
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':'
   ) |\
   cut -f1 -d ' ' |\
-  grep -v -e 'hostname' -e 'linguas' -e 'test' -e 'make-symlinks' -e 'pax' -e 'qt4' -e 'static' -e 'musl' -e 'uclibc' |\
-  sort -u |\
-  while read f
+  grep -v -e 'gnutls' 'hostname' -e 'linguas' -e 'make-symlinks' -e 'musl' -e 'openssl' -e 'pax' -e 'qt4' -e 'static' -e 'test' -e 'uclibc' |\
+  sort -u -R | head -n $(($RANDOM % 60)) | sort |\
+  while read flag
   do
-    if [[ "$libressl" = "y" ]]; then
-      if [[ "$f" = "openssl" || "$f" = "gnutls" ]]; then
-        continue
-      fi
+    if [[ $(($RANDOM % 5)) -eq 0 ]]; then
+      echo -n "-"
     fi
-
-    let "r = $RANDOM % $m"
-    if [[ $r -eq 0 ]]; then
-      echo -n " -$f"    # mask it
-
-    elif [[ $r -le $s ]]; then
-      echo -n " $f"     # set it
-    fi
+    echo -n "$flag "
   done
 }
 
