@@ -20,15 +20,15 @@ function rufs()  {
   # or (s)et it with a likelihood of s/m
   # else don't mention it
   #
-  m=50  # == 2%
-  s=4   # == 8%
+  m=200 # == 0.5%
+  s=2   # == 1%
 
   (
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.desc
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':'
   ) |\
   cut -f1 -d ' ' |\
-  grep -v -e 'hostname' -e 'test' -e 'make-symlinks' -e 'musl' -e 'uclibc' |\
+  grep -v -e 'hostname' -e 'linguas' -e 'test' -e 'make-symlinks' -e 'pax' -e 'qt4' -e 'static' -e 'musl' -e 'uclibc' |\
   sort -u |\
   while read f
   do
