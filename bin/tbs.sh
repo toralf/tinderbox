@@ -6,7 +6,7 @@
 #
 # typical call:
 #
-# $> echo "cd ~/img2; sudo /opt/tb/bin/tbs.sh" | at now + 0 min
+# echo "cd ~/img2; sudo /opt/tb/bin/tbs.sh -p 17.0/desktop/gnome -l y -m n" | at now + 0 min
 
 #############################################################################
 #
@@ -93,7 +93,7 @@ function ComputeImageName()  {
   #
   name="${name}_$(date +%Y%m%d-%H%M%S)"
 
-  name="$(echo $name | sed 's/__/_/')"
+  name="$(echo $name | sed -e 's/_[-_]/_/g')"
 }
 
 
@@ -440,6 +440,7 @@ function ExitOnError() {
 
 cd /etc/portage
 ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
+[[ ! -e make.profile ]] && exit 6
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
@@ -667,7 +668,7 @@ do
         ;;
 
     p)  profile="$OPTARG"
-        if [[ ! -d /usr/portage/profiles/$profile ]]; then
+        if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
           echo " profile unknown: $profile"
           exit 2
         fi
