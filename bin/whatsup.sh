@@ -180,7 +180,6 @@ echo "$(echo $images | wc -w) images ($(ls ~/img? | wc -w) at all) :"
 
 while getopts hlopt\? opt
 do
-  echo
   case $opt in
     l)  LastEmergeOperation
         ;;
@@ -195,6 +194,5 @@ do
         exit 0
         ;;
   esac
+  echo
 done
-
-echo
