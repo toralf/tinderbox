@@ -53,27 +53,22 @@ function rufs()  {
 #
 function ComputeImageName()  {
   b="$(basename $profile)"
+  name="$(echo $profile | tr '/' '-')"
 
-  if [[ "$b" = "no-multilib" ]]; then
-    name="$(basename $(dirname $profile))-$b"
-    stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ')
-
-  elif [[ "$b" = "systemd" ]]; then
-    name="$(basename $(dirname $profile))-$b"
-    stage3=$(grep "^20....../$b/stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ')
-
-  else
-    name="$b"
-    stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ')
-  fi
+  case $b in
+    no-multilib)  stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ')
+    ;;
+    systemd)      stage3=$(grep "^20....../$b/stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ')
+    ;;
+    *)            stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ')
+    ;;
+  esac
 
   if [[ -z "$stage3" ]]; then
     echo "can't get stage 3 from profile '$profile', name='$name'"
     exit 3
   fi
 
-  # don't mention the default (unstable)
-  #
   if [[ "$keyword" = "stable" ]]; then
     name="$name-$keyword"
   fi
