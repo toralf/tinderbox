@@ -559,6 +559,10 @@ suffix=""       # will be appended onto the name before the timestamp
 #
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' | grep -v -e 'x32' -e 'developer' | sort --random-sort | head -n1)
 
+if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+  profile="$(echo $profile | sed -e 's/13/17/')"
+fi
+
 keyword="unstable"
 
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
