@@ -430,7 +430,8 @@ function ExitOnError() {
   exit \$1
 }
 
-eselect profile set $profile || exit 6
+cd /etc/portage
+ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
