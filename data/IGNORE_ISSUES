@@ -32,6 +32,7 @@ no suitable configured kernel include tree found
 No packages selected for removal by unmerge
 No supported Python implementation in PYTHON_SINGLE_TARGET/PYTHON_TARGETS.
 OpenMP is not available in your current selected compiler
+pcmcia support is broken on kernels newer
 Please buy & download
 Please, run 'haskell-updater'
 Please switch your active compiler to gcc with
