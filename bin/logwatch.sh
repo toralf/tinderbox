@@ -4,7 +4,7 @@
 
 mailto="tinderbox@zwiebeltoralf.de"
 
-f=/tmp/tinderbox.logwatch.out
+f=/tmp/$(basename $0).out
 
 while :; do
   if [[ ! -f $f ]]; then
