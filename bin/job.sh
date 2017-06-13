@@ -1084,7 +1084,7 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# no normal stop before, eg. due to a reboot, therefore re-try last task
+# if a task file was found, then a hard stop happened before, therefore re-try it
 #
 if [[ -s $tsk ]]; then
   cat $tsk >> $pks
