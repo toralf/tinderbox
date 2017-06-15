@@ -21,7 +21,7 @@ function rufs()  {
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':'
   ) |\
   cut -f1 -d ' ' |\
-  grep -v -e 'gnutls' 'hostname' -e 'linguas' -e 'make-symlinks' -e 'musl' -e 'openssl' -e 'pax' -e 'qt4' -e 'static' -e 'test' -e 'uclibc' |\
+  grep -v -e 'gnutls' 'hostname' -e 'linguas' -e 'make-symlinks' -e 'musl' -e 'openssl' -e 'pax' -e 'qt4' -e 'selinux' -e 'static' -e 'test' -e 'uclibc' |\
   sort -u -R | head -n $(($RANDOM % 60)) | sort |\
   while read flag
   do
