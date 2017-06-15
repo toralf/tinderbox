@@ -50,3 +50,11 @@ app-admin/elektra
 # https://bugs.gentoo.org/show_bug.cgi?id=617122
 #
 app-misc/grc
+
+# repeating perl upgrade issue
+#
+www-misc/vdradmin-am
+
+# breaks nearly all b/c it sneaks into the PATHs
+#
+dev-util/plan9port
