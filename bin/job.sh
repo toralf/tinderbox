@@ -26,7 +26,7 @@ function stresc() {
 #
 function Mail() {
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
-  ( [[ -e $2 ]] && stresc < $2 || echo "<no body>" ) | timeout 120 mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
+  ( [[ -f $2 ]] && stresc < $2 || echo "${2:-<no body>}" ) | timeout 120 mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
   rc=$?
   if [[ $rc -ne 0 ]]; then
     echo "$(date) mail failed with rc=$rc issuedir=$issuedir"
@@ -532,9 +532,7 @@ EOF
 # create an email containing convenient links and a command line ready for copy+paste
 #
 function CompileIssueMail() {
-  # no --verbose, output size would exceed the 16 KB limit of b.g.o.
-  #
-  emerge --info --verbose=n $short &> $issuedir/emerge-info.txt
+  emerge -p --info $short &> $issuedir/emerge-info.txt
 
   GetMailAddresses
   GuessTitleAndIssue
@@ -619,17 +617,20 @@ function GetFailed()  {
 }
 
 
-# report an issue only once, if it is in ALREADY_CATCHED
-# then don't care for dups nor spam the inbox
-#
-function ReportIssue()  {
+function IssueMail()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -eq 0 ]]; then
     return
   fi
 
   cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-  Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+
+  grep -q "$id CONFIRMED .* $failed" $issuedir/body
+  if [[ $? -eq 0 ]]; then
+    Mail "confirmed: $(cat $issuedir/title)" $issuedir
+  else
+    Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+  fi
 }
 
 
@@ -719,7 +720,7 @@ function GotAnIssue()  {
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
-  ReportIssue
+  IssueMail
 }
 
 
@@ -1037,7 +1038,7 @@ function ParseElogForQA() {
         AttachFilesToBody $issuedir/issue
 
         if [[ -z "$id" ]]; then
-          ReportIssue
+          IssueMail
         fi
       fi
     done
