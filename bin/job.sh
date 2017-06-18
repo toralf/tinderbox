@@ -627,7 +627,7 @@ function IssueMail()  {
 
   grep -q "$id CONFIRMED .* $failed" $issuedir/body
   if [[ $? -eq 0 ]]; then
-    Mail "confirmed: $(cat $issuedir/title)" $issuedir
+    Mail "confirmed bug id $id: $(cat $issuedir/title)" $issuedir
   else
     Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
   fi
