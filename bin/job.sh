@@ -625,11 +625,15 @@ function IssueMail()  {
 
   cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
 
-  grep -q "$id CONFIRMED .* $failed" $issuedir/body
-  if [[ $? -eq 0 ]]; then
-    Mail "confirmed bug id $id: $(cat $issuedir/title)" $issuedir
+  if [[ -n "$id" ]]; then
+    grep -q "$id CONFIRMED .* $failed" $issuedir/body
+    if [[ $? -eq 0 ]]; then
+      Mail "confirmed bug id $id $(cat $issuedir/title)" $issuedir
+    else
+      Mail "found bug id $id $(cat $issuedir/title)" $issuedir/body
+    fi
   else
-    Mail "${id:-ISSUE} $(cat $issuedir/title)" $issuedir/body
+    Mail "ISSUE $(cat $issuedir/title)" $issuedir/body
   fi
 }
 
