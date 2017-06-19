@@ -24,7 +24,7 @@ yy
 error: too many arguments to function .pScreen..BlockHandler
 # libressl
 561854
-undefined reference to .SSLv3_method.
+undefined reference to .EVP_MD_CTX_new
 #
 520404
 QA Notice: installs into paths that should be created at runtime
