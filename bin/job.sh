@@ -813,14 +813,11 @@ function PostEmerge() {
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    # this check just helps to detect a never-ending loop
-    # it doesn't help however in a flip-flop cycle with an intermediate "emerge <package>"
-    #
-    if [[ "$task" = "@preserved-rebuild" ]]; then
-      Mail "info: @preserved-rebuild called 2x in a row" $bak
-    else
-      echo "@preserved-rebuild" >> $pks
+    n=$(tail -n 50 /tmp/task.history | grep -c '@preserved-rebuild')
+    if [[ $n -gt 15 ]]; then
+      Finish 2 "@preserved-rebuild >=30%"
     fi
+    echo "@preserved-rebuild" >> $pks
   fi
 
   # build and switch to a new kernel is one of the last steps
