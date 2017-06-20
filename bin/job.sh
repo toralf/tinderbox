@@ -628,9 +628,9 @@ function IssueMail()  {
   if [[ -n "$id" ]]; then
     grep -q "$id CONFIRMED .* $failed" $issuedir/body
     if [[ $? -eq 0 ]]; then
-      Mail "confirmed bug id $id $(cat $issuedir/title)" $issuedir
+      Mail "confirmed $id $(cat $issuedir/title)" $issuedir
     else
-      Mail "found bug id $id $(cat $issuedir/title)" $issuedir/body
+      Mail "similar $id $(cat $issuedir/title)" $issuedir/body
     fi
   else
     Mail "ISSUE $(cat $issuedir/title)" $issuedir/body
