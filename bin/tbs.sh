@@ -552,10 +552,14 @@ suffix=""       # will be appended onto the name before the timestamp
 #
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n1)
 
+# switch to 17.0 profile at every 2nd image
+#
 if [[ $(($RANDOM % 2)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's/13/17/')"
 fi
 
+# we do almost test unstable package if not specified otherwise
+#
 keyword="unstable"
 
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
@@ -564,10 +568,14 @@ else
   libressl="n"
 fi
 
+# libressl isn't ready for stable
+#
 if [[ "$keyword" = "stable" ]]; then
   libressl="n"
 fi
 
+# 32 bit libs are still needed for few apps
+#
 multilib="n"
 echo "$profile" | grep -q 'no-multilib'
 if [[ $? -ne 0 ]]; then
@@ -576,9 +584,11 @@ if [[ $? -ne 0 ]]; then
   fi
 fi
 
-flags=$(rufs)   # default is an arbitrary USE flag subset
+# create a reandomized USE flag subset
+#
+flags=$(rufs)
 
-# the caller can overwrite the (thrown) settings now
+# the caller can overwrite the (thrown) settings
 #
 while getopts a:f:k:l:m:o:p:s: opt
 do
@@ -587,7 +597,7 @@ do
         ;;
 
     f)  if [[ -f "$OPTARG" ]] ; then
-          # USE flags are either defined as USE="..." or justed listed
+          # USE flags are either defined after USE="..." or justed listed as-is
           #
           flags="$(source $OPTARG; echo $USE)"
           if [[ -z "$flags" ]]; then
