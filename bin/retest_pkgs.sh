@@ -2,9 +2,7 @@
 #
 # set -x
 
-# a helper to test again a (previously failed) package at a tinderbox image
-#
-# for that all mask entries as well as other entries have to be removed
+# retest a package
 #
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
@@ -18,10 +16,22 @@ do
   #
   p=$(qatom "$line" | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' | tr ' ' '/')
 
+  # remove all mask entries as well as other entries
+  #
   sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d"  \
     ~/tb/data/ALREADY_CATCHED                   \
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{cxx,nosandbox,test-fail-continue}
+
+  # schedule the package (not a particular version)
+  #
+  for pks in ~/run/*/tmp/packages
+  do
+    grep -q -E -e "^(STOP|INFO|%|@)" $pks
+    if [[ $? -ne 0 ]]; then
+      echo "$p" >> $pks
+    fi
+  done
 done
 
 exit 0
