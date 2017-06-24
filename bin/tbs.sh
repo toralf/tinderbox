@@ -187,8 +187,9 @@ CXXFLAGS="-O2 -pipe -march=native"
 USE="
 $( echo $flags | xargs -s 78 | sed 's/^/  /g' )
 
-  ssp -bindist -cdinstall -oci8 -pax_kernel
+  ssp -bindist -cdinstall -oci8
 "
+PAX_MARKINGS="none"
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
 
