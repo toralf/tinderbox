@@ -20,6 +20,7 @@ Incorrect kernel configuration options
 Invalid resume list:
 Kernel brk randomization detected
 kernel too new
+ld: -r and -pie may not be used together
 License file not found!
 license setup failed
 Linux >= .* and <= .* required for userspace modules
