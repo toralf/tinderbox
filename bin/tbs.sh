@@ -22,7 +22,7 @@ function rufs()  {
   ) |\
   cut -f1 -d ' ' |\
   grep -v -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'musl' -e 'pax' -e 'qt4' -e 'selinux' -e 'ssl' -e 'static' -e 'test' -e 'tls' -e 'uclibc' |\
-  sort -u -R | head -n $(($RANDOM % 60)) | sort |\
+  sort -u -R | head -n $(($RANDOM % 99)) | sort |\
   while read flag
   do
     if [[ $(($RANDOM % 5)) -eq 0 ]]; then
