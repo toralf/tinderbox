@@ -486,6 +486,8 @@ do
     rc=9
   fi
 done
+echo "#end of automatic" >> /etc/portage/package.use/setup
+
 mv /tmp/setup_blocker /etc/portage/package.mask/
 
 exit \$rc
