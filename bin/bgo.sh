@@ -89,8 +89,6 @@ else
     --priority "Normal"               \
     --severity "$severity"            \
     --alias ""                        \
-    --assigned-to "$(cat ./assignee)" \
-    --cc "$(cat cc)"                  \
     --description-from "./issue"      \
     --batch                           \
     --default-confirm n               \
@@ -132,6 +130,14 @@ fi
 
 if [[ -n "$block" ]]; then
   bugz modify --add-blocked "$block" $id 1>>bugz.out 2>>bugz.err || errmsg $?
+fi
+
+# set assignee and cc as the last step (requested by prometheanfire via IRC)
+#
+if [[ -s ./cc ]]; then
+  bugz modify -a "$(cat ./assignee)" --add-cc "$(cat ./cc)" $id
+else
+  bugz modify -a "$(cat ./assignee)" $id
 fi
 
 # avoid duplicate reports
