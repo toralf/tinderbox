@@ -241,11 +241,8 @@ EOF
 #
 function GetMailAddresses() {
   m=$(equery meta -m $failed | grep '@' | xargs)
-  if [[ -z "$m" ]]; then
-    m="maintainer-needed@gentoo.org"
-  fi
 
-  echo "$m" | cut -f1  -d ' ' > $issuedir/assignee
+  echo "$m" | cut -f1  -d ' ' -s              > $issuedir/assignee
   echo "$m" | cut -f2- -d ' ' -s | tr ' ' ',' > $issuedir/cc
 }
 
