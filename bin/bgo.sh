@@ -136,8 +136,10 @@ fi
 #
 if [[ -s ./cc ]]; then
   bugz modify -a "$(cat ./assignee)" --add-cc "$(cat ./cc)" $id
-else
+elif [[ -s ./assignee ]]; then
   bugz modify -a "$(cat ./assignee)" $id
+else
+  bugz modify -a "maintainer-needed@gentoo.org" $id
 fi
 
 # avoid duplicate reports
