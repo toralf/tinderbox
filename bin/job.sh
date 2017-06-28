@@ -894,9 +894,13 @@ function WorkOnTask() {
                           ;;
       @system|@world)     RunCmd "emerge --backtrack=200 --deep --update --newuse --changed-use $task"
                           ;;
-      *)                  RunCmd "emerge --update $task"
+      *)                  RunCmd "emerge --update $task" | tee /tmp/$task.log
                           ;;
     esac
+
+    # for convenience keep a copy of latest call
+    #
+    cp $log /tmp/$task.log
 
     # status=0  ok
     # status=1  task failed
