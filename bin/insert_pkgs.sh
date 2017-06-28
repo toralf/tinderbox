@@ -9,14 +9,18 @@ mailto="tinderbox@zwiebeltoralf.de"
 
 # collect all package list filenames if the image ...
 #   1. is symlinked to ~
-#   2. is running (no LOCK)
+#   2. is running (LOCK and no STOP)
 #   3. has a non-empty package list
 #   4. doesn't have any special entries in its package list
 #
 applicable=""
 for i in ~/run/*
 do
-  if [[ ! -e $i/tmp/LOCK ]]; then
+  if [[ ! -f $i/tmp/LOCK ]]; then
+    continue
+  fi
+
+  if [[ -f $i/tmp/STOP ]]; then
     continue
   fi
 

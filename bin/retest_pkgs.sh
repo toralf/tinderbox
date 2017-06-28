@@ -10,6 +10,8 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
+# stdin contains all packages
+#
 while read line
 do
   # split away the version/revision
@@ -23,14 +25,22 @@ do
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{cxx,nosandbox,test-fail-continue}
 
-  # schedule the package (not a particular version)
-  #
-  for pks in ~/run/*/tmp/packages
+  for i in ~/run/*
   do
-    grep -q -E -e "^(STOP|INFO|%|@)" $pks
-    if [[ $? -ne 0 ]]; then
-      echo "$p" >> $pks
+    if [[ -f $i/tmp/STOP ]]; then
+      continue
     fi
+
+    pks=$i/tmp/packages
+
+    grep -q -E -e "^(STOP|INFO|%|@)" $pks
+    if [[ $? -eq 0 ]]; then
+      continue
+    fi
+
+    # schedule the package (not a particular version)
+    #
+    echo "$p" >> $pks
   done
 done
 
