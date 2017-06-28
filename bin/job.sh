@@ -92,7 +92,7 @@ function GetNextTask() {
       if [[ $diff -gt 86400 ]]; then
         # do not care about "#" lines to schedule @system
         #
-        grep -q -E "^(STOP|INFO|%|@)" $pks
+        grep -q -E -e "^(STOP|INFO|%|@)" $pks
         if [[ $? -eq 1 ]]; then
           task="@system"
           SwitchJDK
@@ -435,7 +435,7 @@ function SearchForBlocker() {
     grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER |\
     while read pattern
     do
-      grep -q -E "$pattern" $issuedir/title
+      grep -q -E -e "$pattern" $issuedir/title
       if [[ $? -eq 0 ]]; then
         # append the bug id to "-b ", no grep -E here !
         #
@@ -1016,7 +1016,7 @@ function ParseElogForQA() {
     cat /tmp/tb/data/CATCH_ISSUES_QA |\
     while read reason
     do
-      grep -q -E "$reason" $elogfile
+      grep -q -E -e "$reason" $elogfile
       if [[ $? -eq 0 ]]; then
         failed=$(basename $elogfile | cut -f1-2 -d':' | tr ':' '/')
         short=$(getShort "$failed")
