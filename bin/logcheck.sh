@@ -13,7 +13,7 @@ while :; do
       truncate -s 0 ~/nohup.out
     fi
 
-    if [[ -n "$(ls -l ~/logs/* 2>/dev/null)" && "$(wc -c ~/logs/* 2>/dev/null | tail -n 1)" != "0 total" ]]; then
+    if [[ -n "$(ls -l ~/logs/)" && "$(wc -c ~/logs/* 2>/dev/null | tail -n 1 | cut -f1 -d' ')" != "0" ]]; then
       ls -l ~/logs/* >> $f
       head ~/logs/*  >> $f
       echo -e "\nto re-activate this test again, do:  rm $f" >> $f
