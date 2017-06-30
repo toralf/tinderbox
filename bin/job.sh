@@ -803,7 +803,7 @@ function PostEmerge() {
   fi
 
   etc-update --automode -5 1>/dev/null
-  env-update 1>/dev/null
+  env-update &>/dev/null
   source /etc/profile || Finish 2 "can't source /etc/profile"
 
   # [15:02] <iamben> sandiego: emerge @preserved-rebuild should be your very last step in upgrading, it's not urgent at all.  do "emerge -uDNav @world" first
