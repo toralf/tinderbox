@@ -7,8 +7,7 @@
 
 # bug       pattern
 #
-# 563396    ./%\{_*
-# 598840    /tmp/file??????
+# 623336    /tmp/tttest.*
 
 
 # helper to prevent duplicate reports
@@ -18,14 +17,12 @@ if [[ ! -f $findings ]]; then
   touch $findings
 fi
 
-rc=0
-
-for i in
+for i in /tmp/tttest.*
 do
   if [[ -e $i ]]; then
     grep -F -e "$i" -f $findings
     if [[ $? -eq 1 ]]; then
-      ls -ld $i                 # this output goes into our mail
+      ls -ld $i                 # stdout usually catched into an email
       echo "$i" >> $findings
       rc=1
     fi
