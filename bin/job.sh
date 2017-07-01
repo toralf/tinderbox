@@ -359,7 +359,7 @@ EOF
 
   elif [[ -n "$(grep -m 1 -e ' *   Make check failed. See above for details.' -e "ERROR: .* failed (test phase)" $bak)" ]]; then
     # do not define "test-fail-continue" in make.conf or elsewhere as default
-    # we wouldn't be noticed about an emerge failure
+    # b/c emerge wouldn't exit with a failure code then
     #
     echo "fails with FEATURES=test" > $issuedir/title
     grep -q -e "=$failed" /etc/portage/package.env/test-fail-continue 2>/dev/null
@@ -369,8 +369,13 @@ EOF
       echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
       try_again=1
       if [[ -d "$workdir" ]]; then
-        tbz2=$issuedir/files/tests.tbz2
-        (cd "$workdir" && tar --dereference -cjpf $tbz2 ./tests ./regress ./*/t 2>/dev/null || rm -f $tbz2)
+        (
+          cd "$workdir"
+          dirs="$( ls -1d ./tests ./regress ./*/t 2>/dev/null )"
+          if [[ -n "$dirs" ]]; then
+            tar --dereference -cjpf $issuedir/files/tests.tbz2 $dirs
+          fi
+        )
       fi
     fi
 
