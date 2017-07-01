@@ -135,14 +135,11 @@ fi
 # set assignee and cc as the last step (requested by prometheanfire via IRC)
 #
 if [[ -s ./assignee ]]; then
-  bugz modify -a "$(cat ./assignee)" $id 1>>bugz.out 2>>bugz.err || errmsg $?
+  cc=""
   if [[ -s ./cc ]]; then
-    cat ./cc | xargs -n 1 |\
-    while read c
-    do
-      bugz modify --add-cc "$c" $id 1>>bugz.out 2>>bugz.err || errmsg $?
-    done
+    cc="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
   fi
+  bugz modify -a "$(cat ./assignee)" $cc $id 1>>bugz.out 2>>bugz.err || errmsg $?
 else
   bugz modify -a "maintainer-needed@gentoo.org" $id 1>>bugz.out 2>>bugz.err || errmsg $?
 fi
