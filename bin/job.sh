@@ -84,7 +84,7 @@ function GetNextTask() {
   # and switch the java machine too by the way
   #
   if [[ -s $pks ]]; then
-    ts=/tmp/timestamp.system
+    ts=/tmp/timestamp.@system
     if [[ ! -f $ts ]]; then
       touch $ts
     else
@@ -919,17 +919,23 @@ function WorkOnTask() {
       echo "$(date) status=$status $failed" >> /tmp/timestamp.$task
     fi
 
-    # schedule @world, if @system was ok, else resume
-    #
     if [[ $status -eq 0 ]]; then
+      # schedule @world, if @system was ok
+      #
       if [[ "$task" = "@system" ]]; then
         tail -n 1 /tmp/timestamp.@world 2>/dev/null | grep -q " ok$"
-        echo "@world" >> $pks
+        if [[ $? -eq 0 ]]; then
+          echo "@world" >> $pks
+        fi
       elif [[ "$task" = "@world" ]]; then
         "%emerge --depclean" >> $pks
       fi
 
     elif [[ $status -eq 1 ]]; then
+      # resume, if just a package failed
+      # -or- if @preserved-rebuild failed then bail out
+      # -or- try @world, if @system failed
+      #
       if [[ -n "$failed" ]]; then
         echo "%emerge --resume --skip-first" >> $pks
       else
