@@ -240,7 +240,7 @@ EOF
 # get assignee and cc for the b.g.o. entry (GLEP 67 rules)
 #
 function GetMailAddresses() {
-  m=$(equery meta -m $failed | grep '@' | xargs)
+  m=$(equery meta -m $short | grep '@' | xargs)
 
   echo "$m" | cut -f1  -d ' ' -s > $issuedir/assignee
   echo "$m" | cut -f2- -d ' ' -s > $issuedir/cc
