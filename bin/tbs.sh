@@ -288,11 +288,15 @@ EOF
   #
   echo 'CXXFLAGS="-O2 -pipe -march=native"' > etc/portage/env/cxx
 
-  # force tests of entries defined in package.env.common
+  # force tests for packages defined in package.env.common
   #
   echo 'FEATURES="test"'                    > etc/portage/env/test
 
-  # breakage with XDG_* settings in job.sh is forced
+  # deny tests for packages defined in package.env.common
+  #
+  echo 'FEATURES="-test"'                   > etc/portage/env/notest
+
+  # breakage is forced in job.sh by the XDG_* variables
   #
   echo 'FEATURES="-sandbox -usersandbox"'   > etc/portage/env/nosandbox
 
