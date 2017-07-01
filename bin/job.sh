@@ -956,6 +956,7 @@ function WorkOnTask() {
         if [[ $? -eq 0 ]]; then
           echo "%emerge --resume" >> $pks
         fi
+        echo -e "#failed:\n$task" >> $pks
         Finish 2 "command '$cmd' failed"
       fi
     fi
