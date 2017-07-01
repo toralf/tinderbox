@@ -885,63 +885,72 @@ function RunCmd() {
 #
 #
 function WorkOnTask() {
-  status=0
-  failed=""       # might contain a package
+  status=0      # set in RunCmd
+  failed=""     # might contain a package
 
   if [[ "$(echo "$task" | cut -c1)" = '@' ]]; then
-    case $task in
-      @preserved-rebuild) RunCmd "emerge --backtrack=200 $task"
-                          ;;
-      @system|@world)     RunCmd "emerge --backtrack=200 --deep --update --newuse --changed-use $task"
-                          ;;
-      *)                  RunCmd "emerge --update $task" | tee /tmp/$task.log
-                          ;;
-    esac
 
-    # for convenience keep a copy of latest call
+    if [[ "$task" = "@preserved-rebuild" ]]; then
+      RunCmd "emerge --backtrack=200 $task"
+    elif [[ "$task" = "@system" || "$task" = "@world" ]]; then
+      RunCmd "emerge --backtrack=200 --deep --update --newuse --changed-use $task"
+    else
+      RunCmd "emerge --update $task"
+    fi
+
+    # for convenience keep a copy of last run
     #
-    cp $log /tmp/$task.log
+    cp $log /tmp/last.$task.log
 
     # status=0  ok
     # status=1  task failed
     # status=2  task failed but appropriate post-actions are already scheduled
+
+    # keep history of the status
     #
     if [[ $status -eq 0 ]]; then
-      case $task in
-        @world) echo "%emerge --depclean" >> $pks
-                ;;
-      esac
+      echo "$(date) ok"                     >> /tmp/timestamp.$task
+    else
+      echo "$(date) status=$status $failed" >> /tmp/timestamp.$task
+    fi
+
+    # schedule @world, if @system was ok, else resume
+    #
+    if [[ $status -eq 0 ]]; then
+      if [[ "$task" = "@system" ]]; then
+        tail -n 1 /tmp/timestamp.@world 2>/dev/null | grep -q " ok$"
+        echo "@world" >> $pks
+      elif [[ "$task" = "@world" ]]; then
+        "%emerge --depclean" >> $pks
+      fi
 
     elif [[ $status -eq 1 ]]; then
       if [[ -n "$failed" ]]; then
         echo "%emerge --resume --skip-first" >> $pks
       else
-        case $task in
-          @preserved-rebuild) Finish 2 "$task is broken"
-                              ;;
-          @system)            echo "@world" >> $pks
-                              ;;
-        esac
+        if [[ "$task" = "@preserved-rebuild" ]]; then
+          Finish 2 "$task is broken"
+        elif [[ "$task" = "@world" ]]; then
+          echo "@world" >> $pks
+        fi
       fi
     fi
 
-    if [[ $status -eq 0 ]]; then
-      echo "$(date) ok"                     >> /tmp/timestamp.$(echo "$task" | cut -c2-)
-    else
-      echo "$(date) status=$status $failed" >> /tmp/timestamp.$(echo "$task" | cut -c2-)
-    fi
-
+    # feed the online package database
+    #
     /usr/bin/pfl &>/dev/null
 
+  # a special command was run
+  #
   elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
     if [[ $status -eq 1 ]]; then
-      # a failed resume doesn't need any further action
+      # no further action after a failed resume
       #
       echo "$cmd" | grep -q -e "--resume --skip-first"
       if [[ $? -eq 1 ]]; then
-        # fix the breakage and go on (usually upgrading GCC)
+        # re-schedule the task end bail out fix breakage manually (usually upgrading GCC)
         #
         echo "$cmd" | grep -q -e "revdep-rebuild "
         if [[ $? -eq 0 ]]; then
