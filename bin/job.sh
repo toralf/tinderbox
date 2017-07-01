@@ -935,7 +935,7 @@ function WorkOnTask() {
       else
         if [[ "$task" = "@preserved-rebuild" ]]; then
           Finish 2 "$task is broken"
-        elif [[ "$task" = "@world" ]]; then
+        elif [[ "$task" = "@system" ]]; then
           echo "@world" >> $pks
         fi
       fi
