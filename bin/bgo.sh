@@ -134,13 +134,19 @@ fi
 
 # set assignee and cc as the last step (requested by prometheanfire via IRC)
 #
-if [[ -s ./cc ]]; then
-  bugz modify -a "$(cat ./assignee)" --add-cc "$(cat ./cc)" $id 1>>bugz.out 2>>bugz.err || errmsg $?
-elif [[ -s ./assignee ]]; then
+if [[ -s ./assignee ]]; then
   bugz modify -a "$(cat ./assignee)" $id 1>>bugz.out 2>>bugz.err || errmsg $?
+  if [[ -s ./cc ]]; then
+    cat ./cc | xargs -n 1 |\
+    while read c
+    do
+      bugz modify --add-cc "$c" $id 1>>bugz.out 2>>bugz.err || errmsg $?
+    done
+  fi
 else
   bugz modify -a "maintainer-needed@gentoo.org" $id 1>>bugz.out 2>>bugz.err || errmsg $?
 fi
+
 
 # avoid duplicate reports
 #

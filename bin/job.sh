@@ -242,8 +242,8 @@ EOF
 function GetMailAddresses() {
   m=$(equery meta -m $failed | grep '@' | xargs)
 
-  echo "$m" | cut -f1  -d ' ' -s              > $issuedir/assignee
-  echo "$m" | cut -f2- -d ' ' -s | tr ' ' ',' > $issuedir/cc
+  echo "$m" | cut -f1  -d ' ' -s > $issuedir/assignee
+  echo "$m" | cut -f2- -d ' ' -s > $issuedir/cc
 }
 
 
@@ -327,7 +327,7 @@ function GuessTitleAndIssue() {
     cc=$(equery meta -m $(getShort "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
     # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
     #
-    (cat $issuedir/cc; echo $cc) | tr ',' ' '| xargs -n 1 | sort -u | xargs | tr ' ' ',' > $issuedir/cc
+    (cat $issuedir/cc; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
 
     grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' > $issuedir/issue
     echo "file collision with $s" > $issuedir/title
