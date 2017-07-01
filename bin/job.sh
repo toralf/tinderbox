@@ -373,7 +373,7 @@ EOF
           cd "$workdir"
           dirs="$( ls -1d ./tests ./regress ./*/t 2>/dev/null )"
           if [[ -n "$dirs" ]]; then
-            tar --dereference -cjpf $issuedir/files/tests.tbz2 $dirs
+            tar --dereference -cjpf $issuedir/files/tests.tbz2 --exclude='*.o' $dirs
           fi
         )
       fi
