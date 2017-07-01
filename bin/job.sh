@@ -242,8 +242,10 @@ EOF
 function GetMailAddresses() {
   m=$(equery meta -m $short | grep '@' | xargs)
 
-  echo "$m" | cut -f1  -d ' ' -s > $issuedir/assignee
-  echo "$m" | cut -f2- -d ' ' -s > $issuedir/cc
+  # no "-s" for assignee, for cc it is however mandatory
+  #
+  echo "$m" | cut -f1  -d ' '     > $issuedir/assignee
+  echo "$m" | cut -f2- -d ' ' -s  > $issuedir/cc
 }
 
 
