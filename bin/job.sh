@@ -240,12 +240,15 @@ EOF
 # get assignee and cc for the b.g.o. entry (GLEP 67 rules)
 #
 function GetMailAddresses() {
+  truncate -s 0 $issuedir/{assignee,cc}
   m=$(equery meta -m $short | grep '@' | xargs)
 
-  # no "-s" for assignee, for cc it is however mandatory
-  #
-  echo "$m" | cut -f1  -d ' '     > $issuedir/assignee
-  echo "$m" | cut -f2- -d ' ' -s  > $issuedir/cc
+  if [[ -n "$m" ]]; then
+    # "-s" must not be used for assignee, but for cc
+    #
+    echo "$m" | cut -f1  -d ' '     > $issuedir/assignee
+    echo "$m" | cut -f2- -d ' ' -s  > $issuedir/cc
+  fi
 }
 
 

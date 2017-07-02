@@ -120,11 +120,11 @@ if [[ -f emerge-info.txt ]]; then
   bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>>bugz.out 2>>bugz.err || errmsg $?
 fi
 
-# attach all in ./files
+# attach all in ./files, if less than 1 MB
 #
 if [[ -d ./files ]]; then
   echo
-  for f in files/*
+  for f in ./files/*
   do
     s=$(wc -c < $f)
     if [[ $s -lt 1000000 ]]; then
@@ -143,7 +143,7 @@ fi
 
 # set assignee and cc as the last step (requested by prometheanfire via IRC)
 #
-if [[ -s ./assignee && $(wc -c < ./assignee) -gt 2 ]]; then
+if [[ -s ./assignee ]]; then
   cc=""
   if [[ -s ./cc ]]; then
     cc="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
