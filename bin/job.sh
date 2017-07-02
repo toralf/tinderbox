@@ -228,10 +228,10 @@ EOF
 
     # provide the whole temp dir if it exists
     #
-    (cd "$workdir"/../.. && [[ -d ./temp ]] && tar --dereference -cjpf $issuedir/files/temp.tbz2 ./temp)
+    (cd "$workdir"/../.. && [[ -d ./temp ]] && tar -cjpf $issuedir/files/temp.tbz2 --dereference ./temp)
   fi
 
-  (cd / && tar --dereference -cjpf $issuedir/files/etc.portage.tbz2 etc/portage)
+  (cd / && tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage)
 
   chmod a+r $issuedir/files/*
 }
@@ -376,7 +376,7 @@ EOF
           cd "$workdir"
           dirs="$( ls -1d ./tests ./regress ./*/t 2>/dev/null )"
           if [[ -n "$dirs" ]]; then
-            tar --dereference -cjpf $issuedir/files/tests.tbz2 --exclude='*.o' --warning=no-file-ignored $dirs
+            tar -cjpf $issuedir/files/tests.tbz2 --exclude='*.o' --dereference --one-file-system --warning=no-file-ignored $dirs
           fi
         )
       fi
