@@ -511,9 +511,7 @@ function SearchForAnAlreadyFiledBug() {
 
 EOF
   else
-    sev=""
-    grep -q "fails with FEATURES=test" $issuedir/title && sev="-s TESTFAILURE"
-    echo -e "  bgo.sh -d ~/img?/$name/$issuedir $sev $block\n" >> $issuedir/body
+    echo -e "  bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
 
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'

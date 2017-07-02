@@ -76,6 +76,8 @@ if [[ -n "$id" ]]; then
   fi
   bugz modify --status CONFIRMED --comment "$comment" $id 1>>bugz.out 2>>bugz.err || errmsg $?
 
+  grep -q "fails with FEATURES=test" $issuedir/title && bugz modify --set-keywords TESTFAILURE $id
+
 else
   # create a new bug report
   #
