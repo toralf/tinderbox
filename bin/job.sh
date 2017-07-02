@@ -460,7 +460,7 @@ function SearchForBlocker() {
 # put findings and convenient clickable links into the mail body
 #
 function SearchForAnAlreadyFiledBug() {
-  bsi=$issuedir/bugz_search_items     # contains the search string for b.g.o.
+  bsi=$issuedir/bugz_search_items     # better handling in a file than as a shell variable
   cp $issuedir/title $bsi
 
   # get away line numbers, certain special terms and characters
@@ -511,7 +511,9 @@ function SearchForAnAlreadyFiledBug() {
 
 EOF
   else
-    echo -e "  bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
+    sev=""
+    grep -q "fails with FEATURES=test" $issuedir/title && sev="-s TESTFAILURE"
+    echo -e "  bgo.sh -d ~/img?/$name/$issuedir $sev $block\n" >> $issuedir/body
 
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'
