@@ -103,6 +103,10 @@ else
   fi
 fi
 
+# avoid duplicate reports
+#
+touch ./.reported
+
 echo
 echo "https://bugs.gentoo.org/show_bug.cgi?id=$id"
 
@@ -137,7 +141,7 @@ fi
 
 # set assignee and cc as the last step (requested by prometheanfire via IRC)
 #
-if [[ -s ./assignee ]]; then
+if [[ -s ./assignee && $(wc -c < ./assignee) -gt 2 ]]; then
   cc=""
   if [[ -s ./cc ]]; then
     cc="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
@@ -146,10 +150,5 @@ if [[ -s ./assignee ]]; then
 else
   bugz modify -a "maintainer-needed@gentoo.org" $id 1>>bugz.out 2>>bugz.err || errmsg $?
 fi
-
-
-# avoid duplicate reports
-#
-touch ./.reported
 
 echo
