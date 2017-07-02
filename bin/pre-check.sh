@@ -2,7 +2,7 @@
 #
 #set -x
 
-# this script checks for iartefacts left by the last task
+# this script checks for artefacts left by the last task
 #
 
 # bug       pattern
@@ -20,7 +20,7 @@ rc=0
 for i in /tmp/tttest.*
 do
   if [[ -e $i ]]; then
-    grep -F -e "^${i}$" $findings
+    grep -e "^${i}$" $findings
     if [[ $? -eq 1 ]]; then
       ls -ld $i
       echo "$i" >> $findings
