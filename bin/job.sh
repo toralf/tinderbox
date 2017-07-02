@@ -873,7 +873,6 @@ function RunCmd() {
     rm $bak
 
   else
-    try_again=0
     GotAnIssue
     if [[ $try_again -eq 1 ]]; then
       echo "$task" >> $pks
@@ -890,8 +889,13 @@ function RunCmd() {
 #
 #
 function WorkOnTask() {
-  status=0      # set in RunCmd
-  failed=""     # might contain a package
+  # status=0  ok
+  # status=1  task failed
+  # status=2  task failed but appropriate post-actions are already scheduled
+  #
+  status=0
+  failed=""     # usually contains the package name
+  try_again=0   # =1 if eg. just the test step failed
 
   if [[ "$(echo "$task" | cut -c1)" = '@' ]]; then
 
@@ -906,10 +910,6 @@ function WorkOnTask() {
     # for convenience keep a copy of last run
     #
     cp $log /tmp/last.$task.log
-
-    # status=0  ok
-    # status=1  task failed
-    # status=2  task failed but appropriate post-actions are already scheduled
 
     # keep history of the status
     #
@@ -932,12 +932,16 @@ function WorkOnTask() {
       fi
 
     elif [[ $status -eq 1 ]]; then
-      # resume, if just a package failed
-      # -or- if @preserved-rebuild failed then bail out
-      # -or- try @world, if @system failed
+      # resume, if a package failed
+      # -or- bail out if @preserved-rebuild failed
+      # -or- try @world, if @system failed in general
       #
       if [[ -n "$failed" ]]; then
-        echo "%emerge --resume --skip-first" >> $pks
+        if [[ $try_again -eq 1 ]]; then
+          echo "%emerge --resume" >> $pks
+        else
+          echo "%emerge --resume --skip-first" >> $pks
+        fi
       else
         if [[ "$task" = "@preserved-rebuild" ]]; then
           Finish 2 "$task is broken"
@@ -959,9 +963,9 @@ function WorkOnTask() {
     if [[ $status -eq 1 ]]; then
       # no further action after a failed resume
       #
-      echo "$cmd" | grep -q -e "--resume --skip-first"
+      echo "$cmd" | grep -q -e "--resume"
       if [[ $? -eq 1 ]]; then
-        # re-schedule the task end bail out fix breakage manually (usually upgrading GCC)
+        # re-schedule the task and bail out to fix breakage manually (usually upgrading GCC)
         #
         echo "$cmd" | grep -q -e "revdep-rebuild "
         if [[ $? -eq 0 ]]; then
