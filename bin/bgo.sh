@@ -66,7 +66,7 @@ fi
 
 # pick up after from a previous call
 #
-truncate -s 0 bugz.{out,err}
+rm -f bugz.{out,err}
 
 if [[ -n "$id" ]]; then
   # modify an existing bug report
