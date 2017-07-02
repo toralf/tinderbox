@@ -214,7 +214,7 @@ EOF
 
   for f in $issuedir/files/* $issuedir/_*
   do
-    if [[ $(wc -c < $f) -gt 1000000 ]]; then
+    if [[ $(wc -c < $f) -gt 500000 ]]; then
       bzip2 $f
     fi
   done
@@ -373,7 +373,7 @@ EOF
           cd "$workdir"
           dirs="$( ls -1d ./tests ./regress ./*/t 2>/dev/null )"
           if [[ -n "$dirs" ]]; then
-            tar --dereference -cjpf $issuedir/files/tests.tbz2 --exclude='*.o' $dirs
+            tar --dereference -cjpf $issuedir/files/tests.tbz2 --exclude='*.o' --warning=no-file-ignored $dirs
           fi
         )
       fi
