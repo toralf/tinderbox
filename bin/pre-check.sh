@@ -2,13 +2,12 @@
 #
 #set -x
 
-# this script checks for artefacts from the last task
+# this script checks for iartefacts left by the last task
 #
 
 # bug       pattern
 #
 # 623336    /tmp/tttest.*
-
 
 # helper to prevent duplicate reports
 #
@@ -17,12 +16,13 @@ if [[ ! -f $findings ]]; then
   touch $findings
 fi
 
+rc=0
 for i in /tmp/tttest.*
 do
   if [[ -e $i ]]; then
-    grep -F -e "$i" -f $findings
+    grep -F -e "^${i}$" $findings
     if [[ $? -eq 1 ]]; then
-      ls -ld $i                 # stdout usually catched into an email
+      ls -ld $i
       echo "$i" >> $findings
       rc=1
     fi
