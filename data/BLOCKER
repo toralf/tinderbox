@@ -25,6 +25,9 @@ error: too many arguments to function .pScreen..BlockHandler
 # libressl
 561854
 undefined reference to .EVP_MD_CTX_new
+# libressl
+561854
+error: redefinition of .struct bio_method_st.
 #
 520404
 QA Notice: installs into paths that should be created at runtime
