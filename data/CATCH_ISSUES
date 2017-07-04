@@ -214,6 +214,7 @@ Failed to set XATTR_PAX markings
 Error .
 Error:
 ERROR :
+ERROR: .* .install phase.
 ERROR:
 error
 ERROR

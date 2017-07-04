@@ -360,30 +360,29 @@ EOF
     fi
     head -n 10 $sandb >> $issuedir/issue
 
-  elif [[ -n "$(grep -m 1 -e ' *   Make check failed. See above for details.' -e "ERROR: .* failed (test phase)" $bak)" ]]; then
+  elif [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" && -z "$(grep -e "=$failed " /etc/portage/package.env/test-fail-continue 2>/dev/null)" ]]; then
     # do not define "test-fail-continue" in make.conf or elsewhere as default
     # b/c emerge wouldn't exit with a failure code then
     #
+    # even test-fail-continue doesn't guarantees success:
+    # misc/rabbitmq-server-3.6.10 fails both in test and in install phase
+    #
     echo "fails with FEATURES=test" > $issuedir/title
-    grep -q -e "=$failed" /etc/portage/package.env/test-fail-continue 2>/dev/null
-    if [[ $? -eq 0 ]]; then
-      Finish 2 "found $failed in /etc/portage/package.env/test-fail-continue"
-    else
-      echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
-      try_again=1
-      if [[ -d "$workdir" ]]; then
-        (
-          cd "$workdir"
-          dirs="$( ls -1d ./tests ./regress ./*/t ./Testing 2>/dev/null )"
-          if [[ -n "$dirs" ]]; then
-            tar -cjpf $issuedir/files/tests.tbz2 --exclude='*.o' --dereference --one-file-system --warning=no-file-ignored $dirs
-          fi
-        )
-      fi
+    echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+    try_again=1
+    if [[ -d "$workdir" ]]; then
+      (
+        cd "$workdir"
+        dirs="$( ls -1d ./tests ./regress ./*/t ./Testing 2>/dev/null )"
+        if [[ -n "$dirs" ]]; then
+          tar -cjpf $issuedir/files/tests.tbz2 --exclude='*.o' --dereference --one-file-system --warning=no-file-ignored $dirs
+        fi
+      )
     fi
 
   else
-    # loop over patterns in their defined order therefore "grep -f" can't be used here
+    # loop over all patterns in the order there're defined
+    # therefore "grep -f" must not be used here
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
