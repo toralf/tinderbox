@@ -323,6 +323,11 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
+  cat <<EOF > etc/hosts
+127.0.0.1  localhost $(hostname).localdomain
+::1        localhost $(hostname).localdomain
+EOF
+
   cat << EOF > root/.vimrc
 set softtabstop=2
 set shiftwidth=2
