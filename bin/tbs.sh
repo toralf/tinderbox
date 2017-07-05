@@ -318,7 +318,7 @@ function CompileMiscFiles()  {
   #
   # maybe helps to survive test steps eg. at dev-ros/* ebuilds
 
-  cat <<EOF > /etc/resolv.conf
+  cat <<EOF > etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
