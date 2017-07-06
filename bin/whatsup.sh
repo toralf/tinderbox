@@ -176,7 +176,7 @@ function CurrentTask()  {
 #
 images=$(list_images)
 
-echo "$(echo $images | wc -w) images ($(ls ~/img? | wc -w) at all) :"
+echo "$(echo $images | wc -w) images ($(ls -1d ~/img?/* | wc -w) at all) :"
 
 while getopts hlopt\? opt
 do
