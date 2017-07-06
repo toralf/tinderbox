@@ -5,12 +5,12 @@
 # few tinderbox statistics
 #
 
-# all active|run'ing images
+# get all currently mounted or into ~/run symlinked images
 #
 function list_images() {
   (
-    ls -1d ~/run/* | xargs -n 1 readlink | sed "s,^..,/home/tinderbox,g" | while read d; do [[ -d $d ]] && echo "$d"; done
-    df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' | sed "s,^,/home/tinderbox/,g"
+    ls -1d ~/run/* 2>/dev/null | xargs -n 1 readlink 2>/dev/null | sed "s,^..,/home/tinderbox,g" | while read d; do [[ -d $d ]] && echo "$d"; done
+    df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
   ) | sort -u -k 5 -t'/'
 }
 
@@ -47,7 +47,7 @@ function Overall() {
     # directory name is eg.: 20170417-082345_app-misc_fsniper-1.3.1-r2
     #
     if [[ -d $i/tmp/issues ]]; then
-      fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename 2>/dev/null | cut -f2- -d'_' | sort -u | wc -w)
+      fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename 2>/dev/null | cut -f2- -d'_' -s | sort -u | wc -w)
     fi
     todo=$(wc -l < $i/tmp/packages 2>/dev/null)
     [[ -f $i/tmp/LOCK ]] && lck="y" || lck=""
@@ -115,7 +115,7 @@ function PackagesPerDay() {
     # qlop gives sth like: Fri Aug 19 13:43:15 2016 >>> app-portage/cpuid2cpuflags-1
     #
     grep '::: completed emerge' $log |\
-    cut -f1 -d ':' |\
+    cut -f1 -d ':' -s |\
     perl -wane '
       BEGIN { @p = (0); $first = 0; }
       {
