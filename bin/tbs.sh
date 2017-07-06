@@ -18,11 +18,15 @@
 function rufs()  {
   (
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.desc
-    grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':' m -s
+    grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':' -s
   ) |\
   cut -f1 -d ' ' |\
-  grep -v -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'musl' -e 'pax' -e 'qt4' -e 'selinux' -e 'ssl' -e 'static' -e 'systemd' -e 'test' -e 'tls' -e 'uclibc' |\
-  sort -u -R | head -n $(($RANDOM % 99)) | sort |\
+  grep -v   -e 'build' -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'musl'  \
+            -e 'pax' -e 'qt4' -e 'selinux' -e 'ssl' -e 'static' -e 'systemd'    \
+            -e 'test' -e 'tls' -e 'uclibc' |\
+  sort -u -R |\
+  head -n $(($RANDOM % 99)) |\
+  sort |\
   while read flag
   do
     if [[ $(($RANDOM % 5)) -eq 0 ]]; then
