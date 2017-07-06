@@ -56,7 +56,7 @@ tmp=$(mktemp /tmp/pksXXXXXX)
 #
 cd /usr/portage/
 git diff --diff-filter=ACMR --name-status "@{ 4 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
-grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- | xargs -n 1 | cut -f1-2 -d'/' | sort --unique > $tmp
+grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $tmp
 
 info="# $(wc -l < $tmp) packages at $(date)"
 

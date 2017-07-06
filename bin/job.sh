@@ -153,7 +153,7 @@ function GetNextTask() {
         fi
       fi
 
-      # well, found a $task to do
+      # well, found a $task to work on
       #
       return
     fi
@@ -161,13 +161,12 @@ function GetNextTask() {
 }
 
 
-# especially in ABI="32 64" we might have more than one ./work
-# directory under /var/tmp/portage/<category>/<name>/
+# with ABI="32 64" we have more than one ./work directory in /var/tmp/portage/<category>/<name>
 #
 function GetActualWorkDir() {
-  workdir=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'")
+  workdir=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'" -s)
   if [[ ! -d "$workdir" ]]; then
-    workdir=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" ")
+    workdir=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" " -s)
     if [[ ! -d "$workdir" ]]; then
       workdir=/var/tmp/portage/$failed/work/$(basename $failed)
       if [[ ! -d "$workdir" ]]; then
@@ -197,13 +196,13 @@ EOF
   # collect few more build files, strip away escape sequences
   # and compress files bigger than 1 MiByte
   #
-  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"          | cut -f5 -d' ')
-  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"   | cut -f2 -d'"')
-  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $bak | sed  "s/txt./txt/"    | cut -f8 -d' ')
-  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $bak | grep "\.log"          | cut -f2 -d' ')
-  envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                         | cut -f2 -d"'")
+  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"          | cut -f5 -d' ' -s)
+  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
+  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $bak | sed  "s/txt./txt/"    | cut -f8 -d' ' -s)
+  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $bak | grep "\.log"          | cut -f2 -d' ' -s)
+  envir=$(grep -m 1      'The ebuild environment file is located at'                 $bak                         | cut -f2 -d"'" -s)
   salso=$(grep -m 1 -A 2 ' See also'                                                 $bak | grep "\.log"          | awk '{ print $1 }' )
-  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak                                  | grep "sandbox.*\.log" | cut -f2 -d'"')
+  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
 
   for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso
   do
@@ -325,7 +324,7 @@ function GuessTitleAndIssue() {
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
     # provide package name+version althought this gives more noise in our inbox
     #
-    s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ')
+    s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
     # inform the maintainers of the sibbling package too
     # strip away version + release b/c the repository might be updated in the mean while
     #
@@ -479,7 +478,7 @@ function SearchForAnAlreadyFiledBug() {
   # search first for exact same version, then for category/package, eventually just for the package name only
   # get always the highest bug id and write its title to the email body
   #
-  for i in $failed $short $(echo $short | cut -f2 -d'/')
+  for i in $failed $short $(echo $short | cut -f2 -d'/' -s)
   do
     # open bugs: "confirmed" + "in progress"
     #
@@ -594,16 +593,16 @@ EOF
 # guess the failed package name and its log file name
 #
 function GetFailed()  {
-  failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'")
+  failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'" -s)
   if [[ -z "$failedlog" ]]; then
-    failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'")
+    failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'" -s)
     if [[ -z "$failedlog" ]]; then
-      failedlog=$(grep -m 1 "^>>>  '" $bak | cut -f2 -d"'")
+      failedlog=$(grep -m 1 "^>>>  '" $bak | cut -f2 -d"'" -s)
     fi
   fi
 
   if [[ -n "$failedlog" ]]; then
-    failed=$(basename $failedlog | cut -f1-2 -d':' | tr ':' '/')
+    failed=$(basename $failedlog | cut -f1-2 -d':' -s | tr ':' '/')
   else
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
     if [[ -n "$failed" ]]; then
@@ -652,7 +651,7 @@ function KeepDeps() {
   if [[ $? -eq 0 ]]; then
     echo "$line" | grep -q ':  === (1 of '
     if [[ $? -eq 1 ]]; then
-      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' | xargs emerge --noreplace &>/dev/null
+      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' -s | xargs emerge --noreplace &>/dev/null
     fi
   fi
 }
@@ -754,7 +753,7 @@ function BuildKernel()  {
 # switch to highest GCC version
 #
 function SwitchGCC() {
-  latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
+  latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
   gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
   if [[ $? -eq 1 ]]; then
     verold=$(gcc -dumpversion)
@@ -828,8 +827,8 @@ function PostEmerge() {
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
-    last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/')
-    link=$(eselect kernel show | tail -n 1 | sed -e 's/ //g' | cut -f4 -d'/')
+    last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/' -s)
+    link=$(eselect kernel show | tail -n 1 | sed -e 's/ //g' | cut -f4 -d'/' -s)
     if [[ "$last" != "$link" ]]; then
       eselect kernel set $last
     fi
@@ -899,7 +898,7 @@ function WorkOnTask() {
   failed=""     # usually contains the package name
   try_again=0   # =1 if eg. just the test step failed
 
-  if [[ "$(echo "$task" | cut -c1)" = '@' ]]; then
+  if [[ "$task" =~ ^@ ]]; then
 
     if [[ "$task" = "@preserved-rebuild" ]]; then
       RunCmd "emerge --backtrack=200 $task"
@@ -959,7 +958,7 @@ function WorkOnTask() {
 
   # a special command was run
   #
-  elif [[ "$(echo "$task" | cut -c1)" = '%' ]]; then
+  elif [[ "$task" =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
     if [[ $status -eq 1 ]]; then
@@ -1045,7 +1044,7 @@ function ParseElogForQA() {
     do
       grep -q -E -e "$reason" $elogfile
       if [[ $? -eq 0 ]]; then
-        failed=$(basename $elogfile | cut -f1-2 -d':' | tr ':' '/')
+        failed=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
         short=$(getShort "$failed")
 
         CreateIssueDir
@@ -1088,7 +1087,7 @@ export GCC_COLORS=""                # suppress colour output of gcc-4.9 and abov
 
 # eg.: gnome_20150913-104240
 #
-name=$(grep '^PORTAGE_ELOG_MAILFROM="' /etc/portage/make.conf | cut -f2 -d '"' | cut -f1 -d ' ')
+name=$(grep '^PORTAGE_ELOG_MAILFROM="' /etc/portage/make.conf | cut -f2 -d '"' -s | cut -f1 -d ' ')
 
 # needed for the bugzilla comment #0
 #

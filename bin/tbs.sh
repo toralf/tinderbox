@@ -18,7 +18,7 @@
 function rufs()  {
   (
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.desc
-    grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':'
+    grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':' m -s
   ) |\
   cut -f1 -d ' ' |\
   grep -v -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'musl' -e 'pax' -e 'qt4' -e 'selinux' -e 'ssl' -e 'static' -e 'test' -e 'tls' -e 'uclibc' |\
@@ -175,7 +175,7 @@ function CompileMakeConf()  {
   chmod g+w etc/portage/make.conf
 
   if [[ -n "$origin" ]]; then
-    l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=')
+    l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s)
   else
     l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
   fi
@@ -356,7 +356,7 @@ function FillPackageList()  {
   if [[ -n "$origin" ]]; then
     # replay the emerge history of origin before we continue with the randomized list
     #
-    qlop --nocolor --list -f $origin/var/log/emerge.log 2>/dev/null | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' > $pks.origin
+    qlop --nocolor --list -f $origin/var/log/emerge.log 2>/dev/null | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' -s | tr ' ' '/' > $pks.origin
     echo "INFO $(wc -l < $pks.tmp) packages of $origin replayed" >> $pks
     tac $pks.origin >> $pks
     rm $pks.origin
@@ -496,7 +496,7 @@ do
   if [[ \$i -lt 5 ]]; then
     echo "#round \$i" >> /etc/portage/package.use/setup
     grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
-    grep -A 1 'by applying the following change:' /tmp/dryrun.log | grep '^-' | cut -f2,5 -d' ' | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
+    grep -A 1 'by applying the following change:' /tmp/dryrun.log | grep '^-' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
 
     tail -n 1 /etc/portage/package.use/setup | grep -q '#round'
     if [[ \$? -eq 0 ]]; then
@@ -574,7 +574,7 @@ suffix=""       # will be appended onto the name before the timestamp
 
 # set defaults for profile, keyword, ssl vendor and ABI_X86
 #
-profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n1)
+profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n1)
 
 # switch to 17.0 profile at every 2nd image
 #
@@ -659,7 +659,7 @@ do
           exit 2
         fi
 
-        profile=$(cd $origin; readlink ./etc/portage/make.profile | cut -f6- -d'/')
+        profile=$(cd $origin; readlink ./etc/portage/make.profile | cut -f6- -d'/' -s)
         flags="$(source $origin/etc/portage/make.conf; echo $USE)"
 
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf

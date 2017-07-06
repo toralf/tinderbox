@@ -16,7 +16,10 @@ while read line
 do
   # split away the version/revision
   #
-  p=$(qatom "$line" | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' | tr ' ' '/')
+  p=$(qatom "$line" | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  if [[ -z "$p" ]]; then
+    continue
+  fi
 
   # remove all mask entries as well as other entries
   #
