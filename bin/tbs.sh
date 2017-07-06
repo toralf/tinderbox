@@ -393,9 +393,11 @@ EOF
     echo "%emerge -u sys-kernel/gentoo-sources"   >> $pks
   fi
 
-  # GCC first
-  #
   echo "%emerge -u sys-devel/gcc" >> $pks
+
+  # sandbox first
+  #
+  echo "sys-apps/sandbox" >> $pks
 
   chmod a+w $pks
 }
@@ -482,11 +484,9 @@ emerge mail-client/mailx || ExitOnError 7
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || ExitOnError 8
 (cd /root && ln -snf ../tmp/tb/sdata/.bugzrc) || ExitOnError 8
 
-emerge -u sys-apps/sandbox || ExitOnError 8
-
 \$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' >> /etc/portage/make.conf )
 
-emerge --update --pretend sys-devel/gcc || exit 9
+emerge --update --pretend sys-devel/gcc || ExitOnError 9
 
 mv /etc/portage/package.mask/setup_blocker /tmp/
 for i in 1 2 3 4 5
