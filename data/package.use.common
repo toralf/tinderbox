@@ -3,16 +3,14 @@
 # this file resides in /tmp/tb/data within a tinderbox image
 # the appropriate symlink under /etc/portage/ points to it
 
-# mandatory to send emails authorized to us
+# mandatory to send emails authorized and securely to a mail server
 #
 mail-mta/ssmtp            mta ssl
 
 # make a setup of a new tinderbox image less painful
 #
-app-crypt/mit-krb5        -pkinit
 app-editors/emacs         -dbus -ssl -X
 app-text/xmlto            -latex
-dev-libs/boehm-gc         threads
 dev-libs/libpcre          pcre16
 dev-lang/python           threads
 dev-util/cmake            -qt5
@@ -23,9 +21,8 @@ net-dns/libidn            -emacs
 sys-apps/coreutils        -kill
 sys-apps/kmod             tools
 sys-apps/man-db           -nls
-sys-apps/util-linux       -kill
 sys-libs/ncurses          -gpm
-x11-misc/xdg-utils        -perl
+sys-apps/util-linux       -kill
 
 # hang: https://bugs.gentoo.org/show_bug.cgi?id=540818
 #
@@ -56,3 +53,6 @@ sys-apps/nix              -etc_profile
 #
 net-misc/wget             ssl
 
+# requested by asturm at IRC
+#
+kde-frameworks/kdelibs    -webkit
