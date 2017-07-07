@@ -374,7 +374,10 @@ EOF
         cd "$workdir"
         dirs="$( ls -1d ./tests ./regress ./*/t ./Testing 2>/dev/null )"
         if [[ -n "$dirs" ]]; then
-          tar -cjpf $issuedir/files/tests.tbz2 --exclude='*.o' --dereference --one-file-system --warning=no-file-ignored $dirs
+          tar -cjpf $issuedir/files/tests.tbz2 \
+            --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
+            --dereference --one-file-system --warning=no-file-ignored \
+            $dirs
         fi
       )
     fi
