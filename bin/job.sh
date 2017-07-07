@@ -710,12 +710,12 @@ function GotAnIssue()  {
   if [[ $? -eq 0 ]]; then
     Mail "info: Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664" $bak
 
-    echo "$tsk" | grep -q -e 'perl-cleaner'
-    if [[ $? -eq 0 ]]; then
+    if [[ "$tsk" =~ 'perl-cleaner' ]]; then
       Finish 2 "$tsk repeated"
     fi
 
-    # repeat the task after the advised perl cleaner call
+    # repeat $task *after* the advised perl-cleaner
+    # that's why setting try_again=1 won't work here
     #
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
@@ -875,11 +875,10 @@ function RunCmd() {
 
   else
     GotAnIssue
-    if [[ $try_again -eq 1 ]]; then
+    # status is already set to "2" for the infamous perl upgrade issue
+    #
+    if [[ $try_again -eq 1 && status -ne 2 ]]; then
       echo "$task" >> $pks
-      # there's currently no special action on this status
-      # this is just "not 0 but we'll continue"
-      #
       status=2
     fi
   fi
@@ -892,7 +891,7 @@ function RunCmd() {
 function WorkOnTask() {
   # status=0  ok
   # status=1  task failed
-  # status=2  task failed but appropriate post-actions are already scheduled
+  # status=2  task failed and appropriate post-actions are already scheduled
   #
   status=0
   failed=""     # usually contains the package name
