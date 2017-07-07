@@ -5,17 +5,17 @@
 # few tinderbox statistics
 #
 
-# get all currently mounted or into ~/run symlinked images
+# get all from ~/run or otherwise mounted images
 #
 function list_images() {
   (
-    ls -1d ~/run/* 2>/dev/null | xargs -n 1 readlink 2>/dev/null | sed "s,^..,/home/tinderbox,g" | while read d; do [[ -d $d ]] && echo "$d"; done
+    ls ~/run | while read d; do d=./img?/$d; [[ -d $d ]] && echo "$d"; done
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
   ) | sort -u -k 5 -t'/'
 }
 
 
-# n is the minimum length to distinguish abbreviated image names
+# n should be the minimum length to distinguish abbreviated image names
 #
 function PrintImageName()  {
   n=29

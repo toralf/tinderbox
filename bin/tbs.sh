@@ -41,21 +41,21 @@ function rufs()  {
 #
 function ComputeImageName()  {
   b="$(basename $profile)"
-  name="$(echo $profile | tr '/' '-')"
-
   case $b in
-    no-multilib)  stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ')
+    no-multilib)  stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
     ;;
-    systemd)      stage3=$(grep "^20....../$b/stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ')
+    systemd)      stage3=$(grep "^20....../$b/stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
     ;;
-    *)            stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ')
+    *)            stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
     ;;
   esac
 
   if [[ -z "$stage3" ]]; then
-    echo "can't get stage 3 from profile '$profile', name='$name'"
+    echo "can't get stage 3 from profile '$profile'"
     exit 3
   fi
+
+  name="$(echo $profile | tr '/' '-')"
 
   # the 1st underscore splits the profile
   #
@@ -89,7 +89,7 @@ function ComputeImageName()  {
 #
 function UnpackStage3()  {
   f=$distfiles/$(basename $stage3)
-  if [[ ! -f $f || ! -s $f ]]; then
+  if [[ ! -s $f ]]; then
     wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles || exit 4
   fi
 
@@ -173,7 +173,7 @@ function CompileMakeConf()  {
           -e '/^DISTDIR=/d'       \
           etc/portage/make.conf
 
-  # hint: put tinderbox into group "portage"
+  # put tinderbox before into group "portage"
   #
   chgrp portage etc/portage/make.conf
   chmod g+w etc/portage/make.conf
@@ -242,7 +242,7 @@ function CompilePackageFiles()  {
 
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
-    [[ ! -d etc/portage/$d ]] && mkdir etc/portage/$d
+    mkdir etc/portage/$d
     chmod 777 etc/portage/$d
   done
 
@@ -258,10 +258,10 @@ function CompilePackageFiles()  {
     (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.$keyword $keyword)
   done
 
-  touch       etc/portage/package.mask/self     # failed package at this image
+  touch       etc/portage/package.mask/self     # contains failed package at this image
   chmod a+rw  etc/portage/package.mask/self
 
-  touch      etc/portage/package.use/setup     # USE flags added during setup phase
+  touch      etc/portage/package.use/setup      # USE flags added during setup phase
   chmod a+rw etc/portage/package.use/setup
 
   # activate at every n-th image predefined USE flag sets
@@ -342,7 +342,7 @@ EOF
 }
 
 
-# the last line int the file is the first task
+# the last line of the list is the first task and so on
 #
 function FillPackageList()  {
   pks=tmp/packages
@@ -379,25 +379,19 @@ app-portage/eix
 %rm -f /etc/portage/package.mask/setup_blocker
 EOF
 
-  # switch to another SSL vendor before @system upgrade is made
+  # switch to the other SSL vendor before @system
   #
   if [[ "$libressl" = "y" ]]; then
     echo "%/tmp/switch2libressl.sh" >> $pks
   fi
 
-  # "%" is needed here b/c "sys-kernel/*" is in IGNORE_PACKAGE
+  # use "%..." to bail out in case of an ExitOnError
   #
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    echo "%emerge -u sys-kernel/vanilla-sources"  >> $pks
-  else
-    echo "%emerge -u sys-kernel/gentoo-sources"   >> $pks
-  fi
-
-  echo "%emerge -u sys-devel/gcc" >> $pks
-
-  # sandbox first
-  #
-  echo "sys-apps/sandbox" >> $pks
+  cat << EOF >> $pks
+%emerge -u sys-kernel/gentoo-sources
+%emerge -u sys-devel/gcc
+sys-apps/sandbox
+EOF
 
   chmod a+w $pks
 }
@@ -429,9 +423,7 @@ function ConfigureImage()  {
 #         app-portage/gentoolkit      equery eshowkw revdep-rebuild
 #         app-portage/portage-utils   qlop
 #         www-client/pybugz           bugz
-# - update sandbox if applicable
-# - dry test of GCC
-# - dry test of @system upgrade as an attempt to auto-fix package-specific USE flags deps
+# - try to auto-fix package-specific USE flags deps of @system upgrade
 #
 function CreateSetupScript()  {
   dryrun="emerge --backtrack=200 --deep --update --changed-use @system --pretend"
@@ -471,7 +463,7 @@ source /etc/profile
 
 emerge --noreplace net-misc/netifrc
 
-# newer available unstable Perl versions often prevents basic setup, GCC upgrade or LibreSSL switch
+# unstable Perl versions often prevents basic setup, GCC upgrade or LibreSSL switch
 #
 echo ">${perl_stable_version}" > /etc/portage/package.mask/setup_blocker
 
@@ -486,9 +478,9 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 
 \$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' >> /etc/portage/make.conf )
 
-emerge --update --pretend sys-devel/gcc || ExitOnError 9
-
 mv /etc/portage/package.mask/setup_blocker /tmp/
+
+rc=9
 for i in 1 2 3 4 5
 do
   $dryrun &> /tmp/dryrun.log
@@ -497,21 +489,19 @@ do
     break
   fi
 
-  if [[ \$i -lt 5 ]]; then
-    echo "#round \$i" >> /etc/portage/package.use/setup
-    grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
-    grep -A 1 'by applying the following change:' /tmp/dryrun.log | grep '^-' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
+  if [[ \$i -eq 5 ]]; then
+    break
+  fi
 
-    tail -n 1 /etc/portage/package.use/setup | grep -q '#round'
-    if [[ \$? -eq 0 ]]; then
-      rc=9
-      break
-    fi
-  else
-    rc=9
+  echo "#round \$i" >> /etc/portage/package.use/setup
+  grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
+  grep -A 1 'by applying the following change:' /tmp/dryrun.log | grep '^-' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
+
+  tail -n 1 /etc/portage/package.use/setup | grep -q '#round'
+  if [[ \$? -eq 0 ]]; then
+    break
   fi
 done
-echo "#end of automatic" >> /etc/portage/package.use/setup
 
 mv /tmp/setup_blocker /etc/portage/package.mask/
 
@@ -520,7 +510,7 @@ EOF
 }
 
 
-# at least a working mailer and bugz are needed
+# at least a MTA and bugz are needed
 #
 function EmergeMandatoryPackages() {
   CreateSetupScript
@@ -607,7 +597,7 @@ fi
 multilib="n"
 echo "$profile" | grep -q 'no-multilib'
 if [[ $? -ne 0 ]]; then
-  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
     multilib="y"
   fi
 fi
@@ -707,7 +697,7 @@ done
 
 #############################################################################
 #
-if [[ "/home/tinderbox" = "$(pwd)" ]]; then
+if [[ "$(pwd)" = "/home/tinderbox" ]]; then
   echo "you are in /home/tinderbox !"
   exit 3
 fi

@@ -9,7 +9,7 @@ mailto="tinderbox@zwiebeltoralf.de"
 
 # collect all package list filenames if the image ...
 #   1. is symlinked to ~
-#   2. is running (LOCK and no STOP)
+#   2. is running (LOCK but no STOP)
 #   3. has a non-empty package list
 #   4. doesn't have any special entries in its package list
 #
@@ -37,7 +37,7 @@ do
   fi
 
   # to achieve a higher coverage of the repository in a given time
-  # do not test every image
+  # do not test an ebuild at every image
   #
   if [[ $(($RANDOM % 3)) -eq 0 ]]; then
     continue
@@ -48,7 +48,7 @@ done
 
 # holds the package names of added/changed/modified/renamed ebuilds
 #
-tmp=$(mktemp /tmp/pksXXXXXX)
+acmr=$(mktemp /tmp/acmrXXXXXX)
 
 # the host repository is synced every 3 hours via a cron job
 # which ideally calls us afterwards;
@@ -56,16 +56,16 @@ tmp=$(mktemp /tmp/pksXXXXXX)
 #
 cd /usr/portage/
 git diff --diff-filter=ACMR --name-status "@{ 4 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
-grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $tmp
+grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $acmr
 
-info="# $(wc -l < $tmp) packages at $(date)"
+info="# $(wc -l < $acmr) packages at $(date)"
 
 # the output goes to the stdout of the caller (eg. email for a cron job)
 #
 echo "$info"
-cat $tmp
+cat $acmr
 
-if [[ -s $tmp ]]; then
+if [[ -s $acmr ]]; then
   # append the packages onto applicable package list files
   #
   for pks in $applicable
@@ -75,8 +75,8 @@ if [[ -s $tmp ]]; then
     # shuffle packages around in a different way for each image
     # respect an upper limit of the amount of injected packages
     #
-    sort --random-sort < $tmp | head -n 100 >> $pks
+    sort --random-sort < $acmr | head -n 100 >> $pks
   done
 fi
 
-rm $tmp
+rm $acmr

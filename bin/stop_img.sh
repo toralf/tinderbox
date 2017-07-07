@@ -10,7 +10,7 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-for mnt in ${@:-~/run/*}
+for mnt in ${@:-$(ls ~/run)}
 do
   if [[ ! -d $mnt ]]; then
     tmp=$(ls -d /home/tinderbox/{run,img?}/$mnt 2>/dev/null | head -n 1)
@@ -28,7 +28,7 @@ do
     continue
   fi
 
-  # $mnt must be a directory
+  # $mnt must be or point to a directory
   #
   if [[ ! -d $mnt ]]; then
     echo "not a valid dir: $mnt"
@@ -37,15 +37,19 @@ do
 
   # chroot image must be running
   #
-  if [[ -f $mnt/tmp/LOCK ]]; then
-    if [[ -f $mnt/tmp/STOP ]]; then
-      echo " STOP marker already set: $mnt"
-    else
-      echo " $(date) stopping $mnt"
-      touch $mnt/tmp/STOP
-    fi
-  else
+  if [[ ! -f $mnt/tmp/LOCK ]]; then
     echo " did NOT found LOCK: $mnt"
+    continue
   fi
-done
 
+  # chroot image must not already be stopping
+  #
+  if [[ -f $mnt/tmp/STOP ]]; then
+    echo " STOP marker already set: $mnt"
+    continue
+  fi
+
+  echo " $(date) stopping $mnt"
+  touch $mnt/tmp/STOP
+
+done

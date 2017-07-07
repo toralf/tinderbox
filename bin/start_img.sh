@@ -23,7 +23,7 @@ fi
 
 cd ~
 
-for mnt in ${@:-$(ls ~/run 2>/dev/null)}
+for mnt in ${@:-$(ls ~/run)}
 do
   if [[ ! -d $mnt ]]; then
     tmp=$(ls -d /home/tinderbox/img?/$mnt 2>/dev/null)
@@ -41,14 +41,14 @@ do
     continue
   fi
 
-  # $mnt must be a directory
+  # $mnt must be or point to a directory
   #
   if [[ ! -d $mnt ]]; then
     echo "not a valid dir: $mnt"
     continue
   fi
   
-  # image must not be locked
+  # image must not be running
   #
   if [[ -f $mnt/tmp/LOCK ]]; then
     echo " found LOCK: $mnt"
@@ -65,7 +65,7 @@ do
   # non-empty package list required
   #
   pks=$mnt/tmp/packages
-  if [[ -f $pks && ! -s $pks ]]; then
+  if [[ ! -s $pks ]]; then
     echo " package list is empty: $mnt"
     continue
   fi
@@ -76,6 +76,7 @@ do
   echo " $(date) starting $mnt"
   nohup nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
   sleep 1
+
 done
 
 # avoid a non-visible prompt

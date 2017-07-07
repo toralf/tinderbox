@@ -35,12 +35,12 @@ function Mail() {
 
 
 # clean up and exit
-# $1: return code, $2: part of email Subject
+# $1: return code, $2: email Subject
 #
 function Finish()  {
   rc=$1
 
-  # stresc() is called in Mail() but do it here too b/c $1 might contain quotes
+  # although stresc() is called in Mail() run it here too b/c $2 might contain quotes
   #
   subject=$(echo "$2" | stresc | cut -c1-200 | tr '\n' ' ')
 
@@ -77,7 +77,7 @@ function SwitchJDK()  {
 }
 
 
-# move last line of the package list into $task
+# copy content of last line of the package list into variable $task
 #
 function GetNextTask() {
   # update @system once a day, if no special task is scheduled
@@ -113,18 +113,18 @@ function GetNextTask() {
     sed -i -e '$d' $pks
 
     if [[ -z "$task" ]]; then
-      continue  # empty lies are allowed
+      continue  # empty lines are allowed
 
-    elif [[ -n "$(echo "$task" | grep '^INFO')" ]]; then
+    elif [[ "$task" =~ ^INFO ]]; then
       Mail "$task"
 
-    elif [[ -n "$(echo "$task" | grep '^STOP')" ]]; then
+    elif [[ "$task" =~ ^STOP ]]; then
       Finish 0 "$task"
 
-    elif [[ "$(echo "$task" | cut -c1)" = "#" ]]; then
+    elif [[ "$task" =~ ^# ]]; then
       continue  # comment
 
-    elif [[ -n "$(echo "$task" | cut -c1 | grep -E '(=|@|%)')" ]]; then
+    elif [[ "$task" =~ ^= || "$task" =~ ^@ || "$task" =~ ^% ]]; then
       return  # work on a pinned version | package set | command
 
     else
@@ -132,9 +132,6 @@ function GetNextTask() {
       if [[ $? -eq 0 ]]; then
         continue
       fi
-
-      # make some checks here to speed up things
-      # b/c emerge would spend/waste time to search for alternative (upgrade) paths
 
       # skip if $task is masked, keyworded or an invalid string
       #
@@ -153,11 +150,15 @@ function GetNextTask() {
         fi
       fi
 
-      # well, found a $task to work on
+      # well, $task is set to something valid
       #
       return
     fi
   done
+
+  # a valid $task would be catched by a return within the loop
+  #
+  task=""
 }
 
 
@@ -274,8 +275,8 @@ function AttachFilesToBody()  {
   do
     echo >> $issuedir/body
     s=$( ls -l $f | awk ' { print $5 } ' )
-    if [[ $s -gt 2097152 ]]; then
-      echo " not attached b/c bigger than 2 MB: $f" >> $issuedir/body
+    if [[ $s -gt 1048576 ]]; then
+      echo " not attached b/c bigger than 1 MB: $f" >> $issuedir/body
     else
       uuencode $f $(basename $f) >> $issuedir/body
     fi
@@ -316,7 +317,9 @@ function CreateIssueDir() {
 }
 
 
+# get the issue
 # get an descriptive title from the most meaningful lines of the issue
+# edit package.env/... if needed (especially to re-try that package with defaults)
 #
 function GuessTitleAndIssue() {
   touch $issuedir/{issue,title}
@@ -343,7 +346,7 @@ function GuessTitleAndIssue() {
     p="$(grep -m1 ^A: $sandb)"
     echo "$p" | grep -q "A: /root/"
     if [[ $? -eq 0 ]]; then
-      # handle XDG sandbox issues (forced by us) in a special way
+      # handle XDG sandbox issues (forced by us, see end of this file) in a special way
       #
       cat << EOF > $issuedir/issue
 This issue is forced at the tinderbox by making:
@@ -360,25 +363,23 @@ EOF
     head -n 10 $sandb >> $issuedir/issue
 
   elif [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" && -z "$(grep -e "=$failed " /etc/portage/package.env/test-fail-continue 2>/dev/null)" ]]; then
-    # do not define "test-fail-continue" in make.conf or elsewhere as default
-    # b/c emerge wouldn't exit with a failure code then
-    #
-    # even test-fail-continue doesn't guarantees success:
-    # misc/rabbitmq-server-3.6.10 fails both in test and in install phase
-    #
     echo "fails with FEATURES=test" > $issuedir/title
+
+    # do not define "test-fail-continue" in make.conf
+    # b/c then emerge wouldn't return a failure code
+
+    # note: test-fail-continue doesn't guarantees success
+    # eg. misc/rabbitmq-server-3.6.10 fails both in test and in install phase in the same emerge
+    #
     echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
     if [[ -d "$workdir" ]]; then
       (
         cd "$workdir"
-        dirs="$( ls -1d ./tests ./regress ./*/t ./Testing 2>/dev/null )"
-        if [[ -n "$dirs" ]]; then
-          tar -cjpf $issuedir/files/tests.tbz2 \
-            --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
-            --dereference --one-file-system --warning=no-file-ignored \
-            $dirs
-        fi
+        tar -cjpf $issuedir/files/tests.tbz2 \
+          --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
+          --dereference --one-file-system --warning=no-file-ignored \
+          ./tests ./regress ./*/t ./Testing ./_build/default/test 2>/dev/null || rm $issuedir/files/tests.tbz2
       )
     fi
 
@@ -396,20 +397,17 @@ EOF
       fi
     done
 
-    if [[ $(wc -w <$issuedir/title) -eq 0 ]]; then
+    if [[ $(wc -w < $issuedir/title) -eq 0 ]]; then
       Finish 2 "title is empty for task $task"
     fi
 
-    if [[ $(wc -w <$issuedir/issue) -eq 0 ]]; then
-      Finish 2 "issue is empty for task $task"
-    fi
-
-    if [[ $(wc -c <$issuedir/issue) -gt 2000 ]]; then
+    # if the issue text is greater 2 KB, then delete the 1st line
+    #
+    if [[ $(wc -c < $issuedir/issue) -gt 2048 ]]; then
       sed -i -e "1d" $issuedir/issue
     fi
 
-    # this gcc-6 issue is forced by us, masking this package
-    # would prevent tinderboxing of a lot of affected deps
+    # this gcc-6 issue is forced by us
     # therefore build the failed package now with default CXX flags
     #
     grep -q '\[\-Werror=terminate\]' $issuedir/title
@@ -436,7 +434,7 @@ EOF
 # if <pattern> is defined more than once then the first will make it
 #
 function SearchForBlocker() {
-  out=${1:-/dev/null}   # optional file, where [generic text] -if not empty- would be written to
+  out=$1   # optional: file, where [generic text] -if not empty- would be written to
 
   block=$(
     # skip comment and bug id lines
@@ -451,7 +449,7 @@ function SearchForBlocker() {
         echo -n "-b "
                grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f1  -d' '
         gen=$( grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f2- -d' ' -s)
-        if [[ -n "$gen" ]]; then
+        if [[ -n "$gen" && -n "$out" ]]; then
           echo "$gen" > $out
         fi
         break
@@ -558,7 +556,6 @@ function CompileIssueMail() {
   #
   cp $issuedir/issue $issuedir/body
   AddMetainfoToBody
-
   AddWhoamiToIssue
 
   # installed versions of languages and compilers
@@ -826,7 +823,7 @@ function PostEmerge() {
     echo "@preserved-rebuild" >> $pks
   fi
 
-  # build and switch to a new kernel is one of the last steps
+  # build the and switch to the new kernel is one of the last steps
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
@@ -936,19 +933,17 @@ function WorkOnTask() {
       fi
 
     elif [[ $status -eq 1 ]]; then
-      # resume, if a package failed
+      # resume + skip, if a package failed
       # -or- bail out if @preserved-rebuild failed
       # -or- try @world, if @system failed in general
       #
       if [[ -n "$failed" ]]; then
-        if [[ $try_again -eq 1 ]]; then
-          echo "%emerge --resume" >> $pks
-        else
-          echo "%emerge --resume --skip-first" >> $pks
-        fi
+        echo "%emerge --resume --skip-first" >> $pks
+
       else
         if [[ "$task" = "@preserved-rebuild" ]]; then
           Finish 2 "$task is broken"
+
         elif [[ "$task" = "@system" ]]; then
           echo "@world" >> $pks
         fi
@@ -965,17 +960,13 @@ function WorkOnTask() {
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
     if [[ $status -eq 1 ]]; then
-      # no further action after a failed resume
+      # don't care for a failed resume
       #
-      echo "$cmd" | grep -q -e "--resume"
-      if [[ $? -eq 1 ]]; then
-        # re-schedule the task and bail out to fix breakage manually (usually upgrading GCC)
+      if [[ ! "$cmd" =~ " --resume" ]]; then
+        # re-schedule the task for later and bail out now
+        # to fix breakage manually (usually upgrading GCC)
         #
-        echo "$cmd" | grep -q -e "revdep-rebuild "
-        if [[ $? -eq 0 ]]; then
-          echo "%emerge --resume" >> $pks
-        fi
-        echo -e "#failed:\n$task" >> $pks
+        echo -e "$task" >> $pks
         Finish 2 "command '$cmd' failed"
       fi
     fi
@@ -1028,7 +1019,7 @@ EOF
 function ParseElogForQA() {
   f=/tmp/qafilenames
 
-  # process all files created after the previous call of ParseElogForQA()
+  # process all files created after the last call of ParseElogForQA()
   #
   if [[ -f $f ]]; then
     find /var/log/portage/elog -name '*.log' -newer $f  > $f
@@ -1040,7 +1031,7 @@ function ParseElogForQA() {
   while read elogfile
   do
     # process each QA issue independent from all others
-    # even for the same file
+    # even for the same QA file
     #
     cat /tmp/tb/data/CATCH_ISSUES_QA |\
     while read reason
@@ -1116,7 +1107,7 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# if a task file was found, then a hard stop happened before, therefore re-try it
+# if a(n old) task file is found, then a hard stop happened before, so re-try last task
 #
 if [[ -s $tsk ]]; then
   cat $tsk >> $pks
@@ -1138,7 +1129,7 @@ do
 
   date > $log
   GetNextTask
-  echo "$task" | tee -a $log $tsk.history > $tsk
+  echo "$task" | tee -a $tsk.history > $tsk
   WorkOnTask
   ParseElogForQA
   rm $tsk

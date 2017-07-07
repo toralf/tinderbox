@@ -2,7 +2,7 @@
 #
 # set -x
 
-# create or modify an bug report at http://bugzilla.gentoo.org
+# create or modify a bug report at http://bugzilla.gentoo.org
 #
 
 # typical call:
@@ -15,7 +15,7 @@ function errmsg() {
 
   echo "
   *
-  failed with error code $1
+  failed with error code $rc
   *
 
   "
@@ -55,12 +55,12 @@ if [[ $? -ne 0 ]]; then
 fi
 
 if [[ -f ./.reported ]]; then
-  echo "already reported ! remove $dir/.reported before repeating !"
+  echo "already reported ! remove $dir/.reported before retrying !"
   exit 3
 fi
 
 if [[ ! -f ./issue ]]; then
-  echo "did not found mandatory file(s) !"
+  echo "did not found ./issue !"
   exit 4
 fi
 
@@ -127,7 +127,7 @@ if [[ -d ./files ]]; then
   for f in ./files/*
   do
     s=$(wc -c < $f)
-    if [[ $s -lt 1000000 ]]; then
+    if [[ $s -lt 1048576 ]]; then
       # this matches both *.bz2 and *.tbz2
       #
       echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"

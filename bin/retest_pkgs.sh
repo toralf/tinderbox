@@ -21,12 +21,12 @@ do
     continue
   fi
 
-  # remove all mask entries as well as other entries
+  # remove all package specific entries made in job.sh
   #
   sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d"  \
     ~/tb/data/ALREADY_CATCHED                   \
     ~/run/*/etc/portage/package.mask/self       \
-    ~/run/*/etc/portage/package.env/{cxx,nosandbox,test-fail-continue}
+    ~/run/*/etc/portage/package.env/{cxx,nosandbox,notest,test-fail-continue} 2>/dev/null
 
   for i in ~/run/*
   do
@@ -36,12 +36,14 @@ do
 
     pks=$i/tmp/packages
 
+    # here we do not care about package lists having lines starting with a #
+    #
     grep -q -E -e "^(STOP|INFO|%|@)" $pks
     if [[ $? -eq 0 ]]; then
       continue
     fi
 
-    # schedule the package (not a particular version)
+    # re-schedule the package itself (not a specific version)
     #
     echo "$p" >> $pks
   done
