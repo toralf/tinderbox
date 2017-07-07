@@ -9,7 +9,7 @@
 #
 function list_images() {
   (
-    ls ~/run | while read d; do d=./img?/$d; [[ -d $d ]] && echo "$d"; done
+    ls ~/run | while read i; do d=$(echo ./img?/$i); [[ -d $d ]] && echo "$d"; done
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
   ) | sort -u -k 5 -t'/'
 }
