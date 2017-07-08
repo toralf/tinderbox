@@ -379,7 +379,7 @@ function foundTestIssue() {
     cd "$workdir"
     # tar spews an error if it can't find a directory therefore feed only existing dirs to it
     #
-    dirs="$(ls -d ./tests ./regress ./t ./Testing ./_build/default/test 2>/dev/null)"
+    dirs="$(ls -d ./tests ./regress ./t ./Testing 2>/dev/null)"
     if [[ -n "$dirs" ]]; then
       tar -cjpf $issuedir/files/tests.tbz2 \
         --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
