@@ -374,6 +374,13 @@ function foundTestIssue() {
   if [[ $? -ne 0 ]]; then
     echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
+
+  else
+    grep -q -e "=$failed " /etc/portage/package.env/notest
+    if [[ $? -ne 0 ]]; then
+      echo "=$failed notest" >> /etc/portage/package.env/notest
+      try_again=1
+    fi
   fi
 
   (
