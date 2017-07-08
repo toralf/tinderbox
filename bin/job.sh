@@ -938,7 +938,7 @@ function WorkOnTask() {
           echo "@world" >> $pks
         fi
       elif [[ "$task" = "@world" ]]; then
-        "%emerge --depclean" >> $pks
+        echo "%emerge --depclean" >> $pks
       fi
 
     elif [[ $status -eq 1 ]]; then
