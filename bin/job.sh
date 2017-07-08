@@ -366,38 +366,35 @@ EOF
 # helper of GuessTitleAndIssue()
 #
 function foundTestIssue() {
-  # note: test-fail-continue doesn't guarantees success
-  # eg. misc/rabbitmq-server-3.6.10 fails both in test and in install phase in the same emerge
-  #
   # do not define "test-fail-continue" in make.conf
   # b/c then emerge wouldn't return a failure code
   #
-  # do not put this package in "notest" or sth. similar
-  #
-  try_again=1
-  echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+  grep -q -e "=$failed " /etc/portage/package.env/test-fail-continue
+  if [[ $? -ne 0 ]]; then
+    echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+    try_again=1
 
-  if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $issuedir/title)" ]]; then
-    echo "fails with FEATURES=test" > $issuedir/title
-  fi
-
-  # gather data for the devs:
-  # tar spews an error if it can't find a directory therefore feed only existing dirs to tar
-  #
-  if [[ -d "$workdir" ]]; then
-    (
-      cd "$workdir"
-      dirs="$(ls -d ./tests ./regress ./*/t ./Testing ./_build/default/test 2>/dev/null)"
-      if [[ -n "$dirs" ]]; then
-        tar -cjpf $issuedir/files/tests.tbz2 \
-          --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
-          --dereference --one-file-system --warning=no-file-ignored \
-          $dirs || rm $issuedir/files/tests.tbz2
+    if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $issuedir/title)" ]]; then
+      # eg. misc/rabbitmq-server-3.6.10 fails both in test and in install phase in the same emerge
+      #
+      if [[ -z "$(grep -e "ERROR: .* failed (install phase)" $bak)" ]]; then
+        echo "fails with FEATURES=test" > $issuedir/title
       fi
-    )
-  else
-    Mail "notice: no workdir '$workdir' for '$failed' ?"
+    fi
   fi
+
+  (
+    cd "$workdir"
+    # tar spews an error if it can't find a directory therefore feed only existing dirs to it
+    #
+    dirs="$(ls -d ./tests ./regress ./*/t ./Testing ./_build/default/test 2>/dev/null)"
+    if [[ -n "$dirs" ]]; then
+      tar -cjpf $issuedir/files/tests.tbz2 \
+        --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
+        --dereference --one-file-system --warning=no-file-ignored \
+        $dirs || rm $issuedir/files/tests.tbz2
+    fi
+  )
 }
 
 
@@ -428,7 +425,7 @@ function GuessTitleAndIssue() {
       fi
     done
 
-    if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" && -z "$(grep -e "=$failed " /etc/portage/package.env/test-fail-continue 2>/dev/null)" ]]; then
+    if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" ]]; then
       foundTestIssue
     fi
 
