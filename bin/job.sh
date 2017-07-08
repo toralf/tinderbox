@@ -547,7 +547,7 @@ function SearchForAnAlreadyFiledBug() {
     cat << EOF >> $issuedir/body
  https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  bgo.sh -d ~/img?/$name/$issuedir -i $id -c "$failed at the $keyword amd64 chroot image $name at the tinderbox gives: $(cat $issuedir/title)"
+  bgo.sh -d ~/img?/$name/$issuedir -i $id -c '$failed at the $keyword amd64 chroot image $name at the tinderbox gives: $(cat $issuedir/title)'
 
 EOF
   else
