@@ -373,14 +373,24 @@ EOF
     #
     echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
+
+    # gather data for the devs:
+    # tar spews an error if it can't find a directory
+    # therefore feed just existing dirs to tar
+    #
     if [[ -d "$workdir" ]]; then
       (
         cd "$workdir"
-        tar -cjpf $issuedir/files/tests.tbz2 \
-          --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
-          --dereference --one-file-system --warning=no-file-ignored \
-          ./tests ./regress ./*/t ./Testing ./_build/default/test 2>/dev/null || rm $issuedir/files/tests.tbz2
+        dirs="$(ls -d ./tests ./regress ./*/t ./Testing ./_build/default/test 2>/dev/null)"
+        if [[ -n "$dirs" ]]; then
+          tar -cjpf $issuedir/files/tests.tbz2 \
+            --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
+            --dereference --one-file-system --warning=no-file-ignored \
+            $dirs || rm $issuedir/files/tests.tbz2
+        fi
       )
+    else
+      Mail "notice: no workdir '$workdir' for '$failed' ?"
     fi
 
   else
