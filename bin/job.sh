@@ -317,6 +317,90 @@ function CreateIssueDir() {
 }
 
 
+# helper of GuessTitleAndIssue()
+#
+function foundCollision() {
+  # provide package name+version althought this gives more noise in our inbox
+  #
+  s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
+  # inform the maintainers of the sibbling package too
+  # strip away version + release b/c the repository might be updated in the mean while
+  #
+  cc=$(equery meta -m $(getShort "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
+  # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
+  #
+  (cat $issuedir/cc; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
+
+  grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' > $issuedir/issue
+  echo "file collision with $s" > $issuedir/title
+}
+
+
+# helper of GuessTitleAndIssue()
+#
+function foundSandboxIssue() {
+  echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
+  try_again=1
+
+  p="$(grep -m1 ^A: $sandb)"
+  echo "$p" | grep -q "A: /root/"
+  if [[ $? -eq 0 ]]; then
+    # handle XDG sandbox issues (forced by us, see end of this file) in a special way
+    #
+    cat << EOF > $issuedir/issue
+This issue is forced at the tinderbox by making:
+
+$(grep '^export XDG_' /tmp/job.sh)
+
+pls see bug #567192 too
+
+EOF
+    echo "sandbox issue (XDG_xxx_DIR related)" > $issuedir/title
+  else
+    echo "sandbox issue" > $issuedir/title
+  fi
+  head -n 10 $sandb >> $issuedir/issue
+}
+
+
+# helper of GuessTitleAndIssue()
+#
+function foundTestIssue() {
+  # note: test-fail-continue doesn't guarantees success
+  # eg. misc/rabbitmq-server-3.6.10 fails both in test and in install phase in the same emerge
+  #
+  # do not define "test-fail-continue" in make.conf
+  # b/c then emerge wouldn't return a failure code
+  #
+  # do not put this package in "notest" or sth. similar
+  #
+  try_again=1
+  echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+
+  if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $issuedir/title)" ]]; then
+    echo "fails with FEATURES=test" > $issuedir/title
+  fi
+
+  # gather data for the devs:
+  # tar spews an error if it can't find a directory therefore feed only existing dirs to tar
+  #
+  if [[ -d "$workdir" ]]; then
+    (
+      cd "$workdir"
+      dirs="$(ls -d ./tests ./regress ./*/t ./Testing ./_build/default/test 2>/dev/null)"
+      if [[ -n "$dirs" ]]; then
+        tar -cjpf $issuedir/files/tests.tbz2 \
+          --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
+          --dereference --one-file-system --warning=no-file-ignored \
+          $dirs || rm $issuedir/files/tests.tbz2
+      fi
+    )
+  else
+    Mail "notice: no workdir '$workdir' for '$failed' ?"
+  fi
+}
+
+
 # get the issue
 # get an descriptive title from the most meaningful lines of the issue
 # edit package.env/... if needed (especially to re-try that package with defaults)
@@ -325,73 +409,10 @@ function GuessTitleAndIssue() {
   touch $issuedir/{issue,title}
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
-    # provide package name+version althought this gives more noise in our inbox
-    #
-    s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
-    # inform the maintainers of the sibbling package too
-    # strip away version + release b/c the repository might be updated in the mean while
-    #
-    cc=$(equery meta -m $(getShort "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
-    # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
-    #
-    (cat $issuedir/cc; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
-
-    grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' > $issuedir/issue
-    echo "file collision with $s" > $issuedir/title
+    foundCollision
 
   elif [[ -f $sandb ]]; then
-    echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
-    try_again=1
-
-    p="$(grep -m1 ^A: $sandb)"
-    echo "$p" | grep -q "A: /root/"
-    if [[ $? -eq 0 ]]; then
-      # handle XDG sandbox issues (forced by us, see end of this file) in a special way
-      #
-      cat << EOF > $issuedir/issue
-This issue is forced at the tinderbox by making:
-
-$(grep '^export XDG_' /tmp/job.sh)
-
-pls see bug #567192 too
-
-EOF
-      echo "sandbox issue (XDG_xxx_DIR related)" > $issuedir/title
-    else
-      echo "sandbox issue" > $issuedir/title
-    fi
-    head -n 10 $sandb >> $issuedir/issue
-
-  elif [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" && -z "$(grep -e "=$failed " /etc/portage/package.env/test-fail-continue 2>/dev/null)" ]]; then
-    echo "fails with FEATURES=test" > $issuedir/title
-
-    # do not define "test-fail-continue" in make.conf
-    # b/c then emerge wouldn't return a failure code
-
-    # note: test-fail-continue doesn't guarantees success
-    # eg. misc/rabbitmq-server-3.6.10 fails both in test and in install phase in the same emerge
-    #
-    echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
-    try_again=1
-
-    # gather data for the devs:
-    # tar spews an error if it can't find a directory
-    # therefore feed just existing dirs to tar
-    #
-    if [[ -d "$workdir" ]]; then
-      (
-        cd "$workdir"
-        dirs="$(ls -d ./tests ./regress ./*/t ./Testing ./_build/default/test 2>/dev/null)"
-        if [[ -n "$dirs" ]]; then
-          tar -cjpf $issuedir/files/tests.tbz2 \
-            --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
-            --dereference --one-file-system --warning=no-file-ignored \
-            $dirs || rm $issuedir/files/tests.tbz2
-        fi
-      )
-    else
-      Mail "notice: no workdir '$workdir' for '$failed' ?"
-    fi
+    foundSandboxIssue
 
   else
     # loop over all patterns in the order there're defined
@@ -406,6 +427,10 @@ EOF
         break
       fi
     done
+
+    if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" && -z "$(grep -e "=$failed " /etc/portage/package.env/test-fail-continue 2>/dev/null)" ]]; then
+      foundTestIssue
+    fi
 
     if [[ $(wc -w < $issuedir/title) -eq 0 ]]; then
       Finish 2 "title is empty for task $task"
