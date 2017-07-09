@@ -50,3 +50,7 @@ net-misc/wget             ssl
 # requested by asturm at IRC
 #
 kde-frameworks/kdelibs    -webkit
+
+# https://bugs.gentoo.org/show_bug.cgi?id=624338
+#
+dev-java/icedtea-bin     -multilib
