@@ -677,7 +677,7 @@ function IssueMail()  {
   if [[ -n "$id" ]]; then
     grep -q "$id CONFIRMED .* $failed" $issuedir/body
     if [[ $? -eq 0 ]]; then
-      Mail "confirmed $id $(cat $issuedir/title)" $issuedir
+      Mail "confirmed $id $(cat $issuedir/title)" "https://bugs.gentoo.org/show_bug.cgi?id=$id $issuedir"
     else
       Mail "similar $id $(cat $issuedir/title)" $issuedir/body
     fi
