@@ -591,7 +591,10 @@ function CompileIssueMail() {
 
   # kick off hex addresses and such stuff to improve search results matching in b.g.o.
   #
-  sed -i -e 's/0x[0-9a-f]*/<snip>/g' -e 's/: line [0-9]*:/:line <snip>:/g' $issuedir/title
+  sed -i  -e 's/0x[0-9a-f]*/<snip>/g' \
+          -e 's/: line [0-9]*:/:line <snip>:/g' \
+          -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
+          $issuedir/title
 
   SearchForBlocker $issuedir/title
   sed -i -e "s,^,$failed : ," $issuedir/title
