@@ -432,7 +432,7 @@ function GuessTitleAndIssue() {
     do
       grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue
       if [[ $? -eq 0 ]]; then
-        head -n 3 < $issuedir/issue | tail -n 1 > $issuedir/title
+        sed -n '3p' < $issuedir/issue > $issuedir/title
         break
       fi
     done
