@@ -1127,6 +1127,7 @@ log=$tsk.log                        # holds always output of the running task co
 pks=/tmp/packages                   # the (during setup pre-filled) package list file
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
+export GREP_COLORS="never"
 
 # eg.: gnome_20150913-104240
 #
