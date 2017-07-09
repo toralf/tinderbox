@@ -441,13 +441,14 @@ function GuessTitleAndIssue() {
       foundTestIssue
     fi
 
-    if [[ $(wc -w < $issuedir/title) -eq 0 ]]; then
-      Finish 2 "title is empty for task $task"
+    if [[ ! -s $issuedir/title ]]; then
+      Finish 2 "title is empty for task '$task'"
     fi
 
-    # if the issue text is greater 2 KB, then delete the 1st line
+    # if the issue text is too big, then delete one line
+    # and hope this is ok
     #
-    if [[ $(wc -c < $issuedir/issue) -gt 2048 ]]; then
+    if [[ $(wc -c < $issuedir/issue) -gt 1576 ]]; then
       sed -i -e "1d" $issuedir/issue
     fi
 
