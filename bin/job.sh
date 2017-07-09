@@ -64,12 +64,18 @@ function Finish()  {
 
 
 # helper of GetNextTask()
-# random selection of the system java engine
+# choose an arbitrary system java engine
 #
 function SwitchJDK()  {
   old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
   if [[ -n "$old" ]]; then
-    new=$(eselect java-vm list 2>/dev/null | grep -E 'oracle-jdk-[[:digit:]]|icedtea[-bin]*-[[:digit:]]' | grep -v 'system-vm' | awk ' { print $2 } ' | sort --random-sort | head -n 1)
+    new=$(
+      eselect java-vm list 2>/dev/null |\
+      grep -e ' oracle-jdk-[[:digit:]] ' -e ' icedtea[-bin]*-[[:digit:]] ' |\
+      grep -v " icedtea-bin-[[:digit:]].*-x86 " |\
+      grep -v ' system-vm' |\
+      awk ' { print $2 } ' | sort --random-sort | head -n 1
+    )
     if [[ -n "$new" && "$new" != "$old" ]]; then
       eselect java-vm set system $new 1>> $log
     fi
