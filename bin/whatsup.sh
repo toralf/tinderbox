@@ -42,7 +42,7 @@ function Overall() {
     day=0
     if [[ -f $log ]]; then
       compl=$(grep -c '::: completed emerge' $log)
-      day=$(echo "scale=1; ($(tail -n1 $log | cut -c1-10) - $(head -n1 $log | cut -c1-10)) / 86400" | bc)
+      day=$(echo "scale=1; ($(tail -n 1 $log | cut -c1-10) - $(head -n 1 $log | cut -c1-10)) / 86400" | bc)
     fi
     # count failed packages based on their version, but not every failed attempt
     # directory name is eg.: 20170417-082345_app-misc_fsniper-1.3.1-r2
