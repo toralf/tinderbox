@@ -594,6 +594,7 @@ function CompileIssueMail() {
   sed -i  -e 's/0x[0-9a-f]*/<snip>/g' \
           -e 's/: line [0-9]*:/:line <snip>:/g' \
           -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
+          -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
           $issuedir/title
 
   SearchForBlocker $issuedir/title
