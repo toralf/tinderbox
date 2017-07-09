@@ -370,13 +370,13 @@ function foundTestIssue() {
   # do not define "test-fail-continue" in make.conf
   # b/c then emerge wouldn't return a failure code
   #
-  grep -q -e "=$failed " /etc/portage/package.env/test-fail-continue
+  grep -q -e "=$failed " /etc/portage/package.env/test-fail-continue 2>/dev/null
   if [[ $? -ne 0 ]]; then
     echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
 
   else
-    grep -q -e "=$failed " /etc/portage/package.env/notest
+    grep -q -e "=$failed " /etc/portage/package.env/notest 2>/dev/null
     if [[ $? -ne 0 ]]; then
       echo "=$failed notest" >> /etc/portage/package.env/notest
       try_again=1
@@ -547,7 +547,7 @@ function SearchForAnAlreadyFiledBug() {
     cat << EOF >> $issuedir/body
  https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  bgo.sh -d ~/img?/$name/$issuedir -i $id -c '$failed at the $keyword amd64 chroot image $name at the tinderbox gives: $(cat $issuedir/title)'
+  bgo.sh -d ~/img?/$name/$issuedir -i $id -c 'similar issue with $failed at the $keyword amd64 chroot image $name : $(tr "[\`\']" " " $issuedir/title)'
 
 EOF
   else
@@ -618,6 +618,8 @@ EOF
 
   # should be the last step b/c uuencoded attachments might be very large
   # and therefore b.g.o. search results aren't shown by Thunderbird
+  #
+  # the $issuedir/_* files are not part of the b.g.o. record
   #
   AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
