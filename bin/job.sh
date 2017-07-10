@@ -424,15 +424,14 @@ function GuessTitleAndIssue() {
     foundSandboxIssue
 
   else
-    # loop over all patterns in the order there're defined
-    # therefore "grep -f" must not be used here
+    # the pattern order rules therefore "grep -f" must not be used here
     #
     cat /tmp/tb/data/CATCH_ISSUES |\
     while read c
     do
       grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue
       if [[ $? -eq 0 ]]; then
-        sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’\"\`], ,g' > $issuedir/title
+        sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’"`], ,g' > $issuedir/title
         break
       fi
     done
@@ -513,7 +512,7 @@ function SearchForAnAlreadyFiledBug() {
   # get away line numbers, certain special terms and characters
   #
   sed -i  -e 's,&<[[:alnum:]].*>,,g'  \
-          -e 's,['\''‘’\"\`], ,g'     \
+          -e 's,['\''‘’"`], ,g'       \
           -e 's,/\.\.\./, ,'          \
           -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
           -e 's,.* : ,,'              \
