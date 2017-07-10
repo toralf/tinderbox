@@ -683,23 +683,25 @@ function IssueMail()  {
     return
   fi
 
+  prefix=""
   if [[ -n "$id" ]]; then
     grep -q "$id CONFIRMED .* $failed" $issuedir/body
     if [[ $? -eq 0 ]]; then
-      Mail "confirmed $id $(cat $issuedir/title)" "https://bugs.gentoo.org/show_bug.cgi?id=$id $issuedir"
+      prefix="confirmed $id"
     else
-      Mail "similar $id $(cat $issuedir/title)" $issuedir/body
+      prefix="similar $id"
     fi
   else
     grep -q "^$short* : " /tmp/tb/data/ALREADY_CATCHED
     if [[ $? -eq 0 ]]; then
-      Mail "add issue $(cat $issuedir/title)" $issuedir/body
+      prefix="add issue"
     else
-      Mail "new issue $(cat $issuedir/title)" $issuedir/body
+      prefix="new issue"
     fi
   fi
 
   cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
+  Mail "$prefix $(cat $issuedir/title)" $issuedir/body
 }
 
 
