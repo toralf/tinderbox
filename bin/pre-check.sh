@@ -9,6 +9,8 @@
 #
 # 623336    /tmp/tttest.*
 
+exit 0
+
 # helper to prevent duplicate reports
 #
 findings=/tmp/$(basename $0).list
