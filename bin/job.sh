@@ -432,7 +432,7 @@ function GuessTitleAndIssue() {
     do
       grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue
       if [[ $? -eq 0 ]]; then
-        sed -n '3p' < $issuedir/issue > $issuedir/title
+        sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’\"\`], ,g' > $issuedir/title
         break
       fi
     done
@@ -512,7 +512,14 @@ function SearchForAnAlreadyFiledBug() {
 
   # get away line numbers, certain special terms and characters
   #
-  sed -i -e 's,&<[[:alnum:]].*>,,g' -e 's,['\''‘’\"\`], ,g' -e 's,/\.\.\./, ,' -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' -e 's,.* : ,,' -e 's,[<>&\*\?], ,g' -e 's,[\(\)], ,g' $bsi
+  sed -i  -e 's,&<[[:alnum:]].*>,,g'  \
+          -e 's,['\''‘’\"\`], ,g'     \
+          -e 's,/\.\.\./, ,'          \
+          -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
+          -e 's,.* : ,,'              \
+          -e 's,[<>&\*\?], ,g'        \
+          -e 's,[\(\)], ,g'           \
+          $bsi
 
   # for the file collision case: remove the package version (from the counterpart)
   #
@@ -554,7 +561,7 @@ function SearchForAnAlreadyFiledBug() {
     cat << EOF >> $issuedir/body
  https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  bgo.sh -d ~/img?/$name/$issuedir -i $id -c 'similar issue with $failed at the $keyword amd64 chroot image $name : $(tr "[\`\']" " " < $issuedir/title)'
+  bgo.sh -d ~/img?/$name/$issuedir -i $id -c 'got at the $keyword amd64 chroot image $name this : $(cat $issuedir/title)'
 
 EOF
   else
