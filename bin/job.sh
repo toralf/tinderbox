@@ -677,8 +677,6 @@ function IssueMail()  {
     return
   fi
 
-  cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-
   if [[ -n "$id" ]]; then
     grep -q "$id CONFIRMED .* $failed" $issuedir/body
     if [[ $? -eq 0 ]]; then
@@ -687,8 +685,15 @@ function IssueMail()  {
       Mail "similar $id $(cat $issuedir/title)" $issuedir/body
     fi
   else
-    Mail "ISSUE $(cat $issuedir/title)" $issuedir/body
+    grep -q "^$short* : " /tmp/tb/data/ALREADY_CATCHED
+    if [[ $? -eq 0 ]]; then
+      Mail "add issue $(cat $issuedir/title)" $issuedir/body
+    else
+      Mail "new issue $(cat $issuedir/title)" $issuedir/body
+    fi
   fi
+
+  cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
 }
 
 
