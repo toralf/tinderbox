@@ -530,12 +530,14 @@ function SearchForAnAlreadyFiledBug() {
   # search first for exact same version, then for category/package, eventually just for the package name only
   # get always the highest bug id and write its title to the email body
   #
+  echo "unreported" > $issuedir/bgo_result
   for i in $failed $short $(echo $short | cut -f2 -d'/' -s)
   do
     # open bugs: "confirmed" + "in progress"
     #
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
+      echo "confirmed" > $issuedir/bgo_result
       break
     fi
 
@@ -544,11 +546,13 @@ function SearchForAnAlreadyFiledBug() {
     id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo -en "\n ^ duplicate " >> $issuedir/body
+      echo "duplicate" > $issuedir/bgo_result
       break
     fi
 
     id=$(bugz -q --columns 400 search --show-status            --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
+      echo "resolved" > $issuedir/bgo_result
       break
     fi
   done
@@ -683,25 +687,8 @@ function IssueMail()  {
     return
   fi
 
-  prefix=""
-  if [[ -n "$id" ]]; then
-    grep -q "$id CONFIRMED .* $failed" $issuedir/body
-    if [[ $? -eq 0 ]]; then
-      prefix="confirmed $id"
-    else
-      prefix="similar $id"
-    fi
-  else
-    grep -q "^$short* : " /tmp/tb/data/ALREADY_CATCHED
-    if [[ $? -eq 0 ]]; then
-      prefix="add issue"
-    else
-      prefix="new issue"
-    fi
-  fi
-
   cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-  Mail "$prefix $(cat $issuedir/title)" $issuedir/body
+  Mail "$(cat $issuedir/bgo_result) $(cat $issuedir/title)" $issuedir/body
 }
 
 
