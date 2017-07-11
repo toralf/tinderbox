@@ -313,23 +313,16 @@ EOF
 # DNS resolution + .vimrc (avoid interactive question)
 #
 function CompileMiscFiles()  {
-  # "mr-fox.localdomain" has to be resolved to 127.0.0.1 or ::1 respectively
-  # within an image according to /etc/hosts of the host system:
+  # "mr-fox" has to be resolved to 127.0.0.1 or ::1 respectively
   #
-  # IPv4 and IPv6 localhost aliases
-  # 127.0.0.1       localhost mr-fox.localdomain
-  # ::1             localhost mr-fox.lcoaldomain
-  #
-  # maybe helps to survive test steps eg. at dev-ros/* ebuilds
-
   cat <<EOF > etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
 
   cat <<EOF > etc/hosts
-127.0.0.1  localhost $(hostname).localdomain
-::1        localhost $(hostname).localdomain
+127.0.0.1  localhost $(hostname) $(hostname).localdomain
+::1        localhost $(hostname) $(hostname).localdomain
 EOF
 
   cat << EOF > root/.vimrc
