@@ -86,6 +86,15 @@ grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
 #
 mountall || exit 4
 
+# limit the memory to 16 GB to avoid an oom-killer (eg.: dev-perl/GD)
+#
+sysfsdir=/sys/fs/cgroup/memory/tinderbox-$(basename $mnt)
+if [[ ! -d $sysfsdir ]]; then
+  mkdir -p $sysfsdir
+  echo "$(echo "16 * 2^30" | bc)" > $sysfsdir/memory.limit_in_bytes
+fi
+echo "$$" > $sysfsdir/tasks
+
 if [[ $# -gt 0 ]]; then
   # enforce a login of user root b/c then its environment is sourced
   #
