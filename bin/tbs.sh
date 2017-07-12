@@ -310,20 +310,18 @@ EOF
 }
 
 
-# DNS resolution + .vimrc (avoid interactive question)
+# configure DNS
+# configure vim (eg.: avoid interactive question)
 #
 function CompileMiscFiles()  {
-  # "mr-fox" has to be resolved to 127.0.0.1 or ::1 respectively
+  # "mr-fox" must be resolved to "127.0.0.1" or "::1" respectively
   #
   cat <<EOF > etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  cat <<EOF > etc/hosts
-127.0.0.1  localhost $(hostname) $(hostname).localdomain
-::1        localhost $(hostname) $(hostname).localdomain
-EOF
+ grep -e "^127.0.0.1" -e "^::1" /etc/hosts > etc/hosts
 
   cat << EOF > root/.vimrc
 set softtabstop=2
@@ -335,7 +333,7 @@ EOF
 }
 
 
-# the last line of the list is the first task and so on
+# the last line of the package list will be the first task and so on
 #
 function FillPackageList()  {
   pks=tmp/packages
