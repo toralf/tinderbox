@@ -212,6 +212,10 @@ EOF
   sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
   roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $bak | grep "/LastTest\.log" | awk ' { print $2 } ')
 
+  # quirk for failing dev-ros/* tests
+  #
+  grep -q 'ERROR: Unable to contact my own server at \[http://mr-fox:.*/\].' $roslg && echo " network test issue " >> $issuedir/bgo_result
+
   for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
   do
     if [[ -f $f ]]; then
@@ -530,29 +534,31 @@ function SearchForAnAlreadyFiledBug() {
   # search first for exact same version, then for category/package, eventually just for the package name only
   # get always the highest bug id and write its title to the email body
   #
-  echo "unreported" > $issuedir/bgo_result
+
+  touch $issuedir/bgo_result    # might not yet exist
+
   for i in $failed $short $(echo $short | cut -f2 -d'/' -s)
   do
-    # open bugs: "confirmed" + "in progress"
+    # open bugs: "either confirmed" or "in progress"
     #
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      echo "confirmed" > $issuedir/bgo_result
+      echo " confirmed" >> $issuedir/bgo_result
       break
     fi
 
-    # closed bugs: dups rules over resolved - and mark the former
+    # closed bugs: duplicates rules over resolved - and mark the former
     #
     id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo -en "\n ^ duplicate " >> $issuedir/body
-      echo "duplicate" > $issuedir/bgo_result
+      echo " duplicate" >> $issuedir/bgo_result
       break
     fi
 
     id=$(bugz -q --columns 400 search --show-status            --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      echo "resolved" > $issuedir/bgo_result
+      echo " resolved" >> $issuedir/bgo_result
       break
     fi
   done
