@@ -91,7 +91,7 @@ mountall || exit 4
 sysfsdir=/sys/fs/cgroup/memory/tinderbox-$(basename $mnt)
 if [[ ! -d $sysfsdir ]]; then
   mkdir -p $sysfsdir
-  echo "$(echo "10 * 2^30" | bc)" > $sysfsdir/memory.limit_in_bytes
+  echo "$(echo "8 * 2^30" | bc)" > $sysfsdir/memory.limit_in_bytes
 fi
 echo "$$" > $sysfsdir/tasks
 
