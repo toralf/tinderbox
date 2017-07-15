@@ -376,6 +376,7 @@ EOF
   # switch to the other SSL vendor before @system
   #
   if [[ "$libressl" = "y" ]]; then
+    cp $(dirname $0)/switch2libressl.sh tmp/
     echo "%/tmp/switch2libressl.sh" >> $pks
   fi
 

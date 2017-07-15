@@ -70,7 +70,7 @@ do
     continue
   fi
 
-  cp /opt/tb/bin/{job,pre-check,switch2libressl}.sh $mnt/tmp || continue
+  cp /opt/tb/bin/{job,pre-check}.sh $mnt/tmp || continue
 
   sleep $sleep
   echo " $(date) starting $mnt"
