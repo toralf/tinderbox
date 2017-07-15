@@ -112,8 +112,8 @@ function UnpackStage3()  {
 # the local repository rules always
 #
 function CompileRepoFiles()  {
-  mkdir -p     etc/portage/repos.conf/
-  cat << EOF > etc/portage/repos.conf/default.conf
+  mkdir -p     ./etc/portage/repos.conf/
+  cat << EOF > ./etc/portage/repos.conf/default.conf
 [DEFAULT]
 main-repo = gentoo
 
@@ -130,20 +130,20 @@ priority = 2
 priority = 99
 EOF
 
-  cat << EOF > etc/portage/repos.conf/gentoo.conf
+  cat << EOF > ./etc/portage/repos.conf/gentoo.conf
 [gentoo]
 location  = /usr/portage
 auto-sync = no
 EOF
 
-  cat << EOF > etc/portage/repos.conf/tinderbox.conf
+  cat << EOF > ./etc/portage/repos.conf/tinderbox.conf
 [tinderbox]
 location  = /tmp/tb/data/portage
 masters   = gentoo
 auto-sync = no
 EOF
 
-  cat << EOF > etc/portage/repos.conf/foo.conf
+  cat << EOF > ./etc/portage/repos.conf/foo.conf
 #[foo]
 #location  = /usr/local/foo
 #auto-sync = yes
@@ -151,7 +151,7 @@ EOF
 #sync-uri  = https://anongit.gentoo.org/git/proj/foo.git
 EOF
 
-  cat << EOF > etc/portage/repos.conf/local.conf
+  cat << EOF > ./etc/portage/repos.conf/local.conf
 [local]
 location  = /usr/local/portage
 masters   = gentoo
@@ -171,12 +171,12 @@ function CompileMakeConf()  {
           -e '/^PKGDIR=/d'        \
           -e '/^#/d'              \
           -e '/^DISTDIR=/d'       \
-          etc/portage/make.conf
+          ./etc/portage/make.conf
 
   # put tinderbox before into group "portage"
   #
-  chgrp portage etc/portage/make.conf
-  chmod g+w etc/portage/make.conf
+  chgrp portage ./etc/portage/make.conf
+  chmod g+w ./etc/portage/make.conf
 
   if [[ -n "$origin" ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s)
@@ -184,7 +184,7 @@ function CompileMakeConf()  {
     l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
   fi
 
-  cat << EOF >> etc/portage/make.conf
+  cat << EOF >> ./etc/portage/make.conf
 CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
 
@@ -237,52 +237,52 @@ function CompilePackageFiles()  {
 
   # create portage directories and symlinks
   #
-  mkdir usr/portage
-  mkdir var/tmp/{distfiles,portage}
+  mkdir ./usr/portage
+  mkdir ./var/tmp/{distfiles,portage}
 
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
-    mkdir etc/portage/$d
-    chmod 777 etc/portage/$d
+    mkdir ./etc/portage/$d
+    chmod 777 ./etc/portage/$d
   done
 
-  (cd etc/portage; ln -s ../../tmp/tb/data/patches)
+  (cd ./etc/portage; ln -s ../../tmp/tb/data/patches)
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
-    (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
+    (cd ./etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
   done
 
   for d in package.{accept_keywords,unmask}
   do
-    (cd etc/portage/$d; ln -s ../../../tmp/tb/data/$d.$keyword $keyword)
+    (cd ./etc/portage/$d; ln -s ../../../tmp/tb/data/$d.$keyword $keyword)
   done
 
-  touch       etc/portage/package.mask/self     # contains failed package at this image
-  chmod a+rw  etc/portage/package.mask/self
+  touch       ./etc/portage/package.mask/self     # contains failed package at this image
+  chmod a+rw  ./etc/portage/package.mask/self
 
-  touch      etc/portage/package.use/setup      # USE flags added during setup phase
-  chmod a+rw etc/portage/package.use/setup
+  touch      ./etc/portage/package.use/setup      # USE flags added during setup phase
+  chmod a+rw ./etc/portage/package.use/setup
 
   # activate at every n-th image predefined USE flag sets
   #
   if [[ $(($RANDOM % 100)) -lt 40 ]]; then
-    (cd etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb)
+    (cd ./etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb)
   fi
 
   if [[ $(($RANDOM % 100)) -lt 25 ]]; then
-    (cd etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
+    (cd ./etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
   fi
 
-  echo "*/* $(cpuid2cpuflags)" > etc/portage/package.use/00cpuflags
+  echo "*/* $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
 
   if [[ "$(basename $profile)" = "systemd" ]]; then
-    echo "sys-apps/util-linux -udev" >> etc/portage/package.use/util-linux
+    echo "sys-apps/util-linux -udev" >> ./etc/portage/package.use/util-linux
   fi
 
   # create package specific env files
   #
-  cat << EOF > etc/portage/env/splitdebug
+  cat << EOF > ./etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"
 CXXFLAGS="\$CXXFLAGS -g -ggdb"
 FEATURES="splitdebug"
@@ -290,23 +290,23 @@ EOF
 
   # no special c++ flags (eg. revert "-Werror=terminate" set in job.sh for gcc-6)
   #
-  echo 'CXXFLAGS="-O2 -pipe -march=native"' > etc/portage/env/cxx
+  echo 'CXXFLAGS="-O2 -pipe -march=native"' > ./etc/portage/env/cxx
 
   # force tests for packages defined in package.env.common
   #
-  echo 'FEATURES="test"'                    > etc/portage/env/test
+  echo 'FEATURES="test"'                    > ./etc/portage/env/test
 
   # deny tests for packages defined in package.env.common
   #
-  echo 'FEATURES="-test"'                   > etc/portage/env/notest
+  echo 'FEATURES="-test"'                   > ./etc/portage/env/notest
 
   # breakage is forced in job.sh by the XDG_* variables
   #
-  echo 'FEATURES="-sandbox -usersandbox"'   > etc/portage/env/nosandbox
+  echo 'FEATURES="-sandbox -usersandbox"'   > ./etc/portage/env/nosandbox
 
   # test known to be broken
   #
-  echo 'FEATURES="test-fail-continue"'      > etc/portage/env/test-fail-continue
+  echo 'FEATURES="test-fail-continue"'      > ./etc/portage/env/test-fail-continue
 }
 
 
@@ -316,17 +316,17 @@ EOF
 function CompileMiscFiles()  {
   # "mr-fox" must be resolved to "127.0.0.1" or "::1" respectively
   #
-  cat <<EOF > etc/resolv.conf
+  cat <<EOF > ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  cat <<EOF > etc/hosts
+  cat <<EOF > ./etc/hosts
 127.0.0.1 localhost $(hostname) $(hostname -f)
 ::1       localhost $(hostname) $(hostname -f)
 EOF
 
-  cat << EOF > root/.vimrc
+  cat << EOF > ./root/.vimrc
 set softtabstop=2
 set shiftwidth=2
 set expandtab
@@ -339,7 +339,7 @@ EOF
 # the last line of the package list will be the first task and so on
 #
 function FillPackageList()  {
-  pks=tmp/packages
+  pks=./tmp/packages
 
   # in favour of a good coverage do not test repo changes at all images
   #
@@ -376,7 +376,7 @@ EOF
   # switch to the other SSL vendor before @system
   #
   if [[ "$libressl" = "y" ]]; then
-    cp $(dirname $0)/switch2libressl.sh tmp/
+    cp $(dirname $0)/switch2libressl.sh ./tmp/
     echo "%/tmp/switch2libressl.sh" >> $pks
   fi
 
@@ -395,11 +395,11 @@ EOF
 # repos.d/* , make.conf and all the stuff
 #
 function ConfigureImage()  {
-  mkdir -p                  usr/local/portage/{metadata,profiles}
-  echo 'masters = gentoo' > usr/local/portage/metadata/layout.conf
-  echo 'local' >            usr/local/portage/profiles/repo_name
-  chown -R portage:portage  usr/local/portage/
-  chmod g+s                 usr/local/portage/
+  mkdir -p                  ./usr/local/portage/{metadata,profiles}
+  echo 'masters = gentoo' > ./usr/local/portage/metadata/layout.conf
+  echo 'local' >            ./usr/local/portage/profiles/repo_name
+  chown -R portage:portage  ./usr/local/portage/
+  chmod g+s                 ./usr/local/portage/
 
   CompileRepoFiles
   CompileMakeConf
