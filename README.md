@@ -43,7 +43,7 @@ This bind-mounts all host-related dirs. Without any argument then an interactive
 Simple wrapper of chroot with few checks.
 
 ### removal of an image
-Just remove the symlink in *~/run* and the log file in *~/logs*.
+Just remove the symlink in *~/run*.
 The chroot image itself will be kept around in the data dir.
 
 ### status of all images
@@ -51,22 +51,21 @@ The chroot image itself will be kept around in the data dir.
     whatsup.sh -otlp
 
 ### report findings
-New findings are send via email to the user specified in the variable of each *mailto*.
-Bugs can be filed using *bgo.sh* - the comand line is part of the email.
+New findings are send via email to the user specified in the variable *mailto*.
+Bugs can be filed using *bgo.sh* - a comand line ready for copy+paste is in the email.
 
 ### manually bug hunting within an image
 1. stop image if it is running
 2. chroot into it
 3. inspect/adapt files in */etc/portage/packages.*
-4. do your work, use */usr/local/portage* to test changed ebuilds and not*/usr/portage* b/c the later is shared among all images by the host
+4. do your work in */usr/local/portage* to test new/changed ebuilds (do not edit files in */usr/portage*, that is sbind-mountedi from the host)
 5. exit from chroot
-6. revert step 1
 
-### unattended test of a package/s
+### unattended test of package/s
 Append package/s to the package list in the following way:
     
     cat <<<EOF >> ~/run/[image]/tmp/packages
-    STOP this text is displayed as the subject of an info email
+    INFO this text is the subject of an info email (body is empty)
     package1
     ...
     %action1
@@ -75,7 +74,7 @@ Append package/s to the package list in the following way:
     ...
     EOF
 
-Use "INFO" instead "STOP" appropriately.
+"STOP" can be used instead "INFO" to stop the image at that point.
 
 ## installation
 Create the user *tinderbox*:
@@ -85,14 +84,14 @@ Run in */home/tinderbox*:
 
     mkdir ~/img{1,2} ~/logs ~/run ~/tb
 Copy *./data* and *./sdata* into *~/tb* and *./bin* into */opt/tb*.
-The user tinderbox must not be allowed to edit the scripts.
-The user must have write permissions for the data files.
+The user tinderbox must not be allowed to edit the scripts in */opt/tb/bin*.
+The user must have write permissions for the files in ~/tb/data*.
 Edit files in *~/sdata* and strip away the suffix *.sample*.
 Grant sudo rights:
 
     tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/tbs.sh
 
-At a hardened Gentoo tweak *Grsecurity*:
+At a hardened Gentoo tweak *GRsecurity* if appropriate:
 
     sysctl -w kernel.grsecurity.chroot_deny_chmod=0
     sysctl -w kernel.grsecurity.chroot_caps=0
