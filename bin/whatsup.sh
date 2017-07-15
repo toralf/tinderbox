@@ -128,7 +128,9 @@ function PackagesPerDay() {
 
       END {
         foreach my $i (0..$#p) {
-          if ($i < 4)  {
+          # the first 3 days might see >1,000 installations/day
+          #
+          if ($i < 3)  {
             printf ("%5i", $p[$i]);
           } else  {
             if ($p[$i]) {
