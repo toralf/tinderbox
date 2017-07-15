@@ -185,7 +185,7 @@ function GetActualWorkDir() {
 
 
 # helper of GotAnIssue()
-# gather together what's needed for the mail and bugzilla
+# gather together what's needed for the mail and b.g.o.
 #
 function CollectIssueFiles() {
   mkdir -p $issuedir/files
@@ -562,7 +562,7 @@ function SearchForAnAlreadyFiledBug() {
   done
 
   # compile a command line to easily file the bug
-  # add latest 20 bugzilla search results
+  # add latest 20 b.g.o. search results
   #
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
@@ -687,7 +687,7 @@ function GetFailed()  {
 }
 
 
-function IssueMail()  {
+function SendoutIssueMail()  {
   grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
   if [[ $? -eq 0 ]]; then
     return
@@ -730,7 +730,7 @@ function GotAnIssue()  {
     Finish 1 "FATAL: $fatal"
   fi
 
-  # repeat the current running task if we 're killed, eg for a reboot
+  # repeat the current running task if we 're killed, eg. by reboot
   #
   grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $bak
   if [[ $? -eq 0 ]]; then
@@ -753,8 +753,9 @@ function GotAnIssue()  {
     return
   fi
 
+  # get the actual failed package
+  #
   GetFailed
-
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
     return
@@ -762,8 +763,13 @@ function GotAnIssue()  {
 
   CreateIssueDir
   cp $bak $issuedir
+
   GetActualWorkDir
   CollectIssueFiles
+
+  # do this even for a perl issue to ahev the cahnce
+  # to send out the mail nevertheless
+  #
   CompileIssueMail
 
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
@@ -774,8 +780,8 @@ function GotAnIssue()  {
       Finish 2 "$tsk repeated"
     fi
 
-    # repeat $task *after* the advised perl-cleaner
-    # that's why setting try_again=1 won't work here
+    # repeat $task *after* perl-cleaner
+    # that's why try_again=1 doesn't work here
     #
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
@@ -787,7 +793,7 @@ function GotAnIssue()  {
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
-  IssueMail
+  SendoutIssueMail
 }
 
 
@@ -1118,8 +1124,10 @@ function ParseElogForQA() {
         id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
         AttachFilesToBody $issuedir/issue
 
+        # if the issue wasn't found at b.g.o inform us
+        #
         if [[ -z "$id" ]]; then
-          IssueMail
+          SendoutIssueMail
         fi
       fi
     done
@@ -1143,7 +1151,7 @@ export GREP_COLORS="never"
 #
 name=$(grep '^PORTAGE_ELOG_MAILFROM="' /etc/portage/make.conf | cut -f2 -d '"' -s | cut -f1 -d ' ')
 
-# needed for the bugzilla comment #0
+# needed for the b.g.o. comment #0
 #
 keyword="stable"
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
