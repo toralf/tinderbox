@@ -214,7 +214,7 @@ EOF
 
   # quirk for failing dev-ros/* tests
   #
-  grep -q 'ERROR: Unable to contact my own server at \[http://mr-fox:.*/\].' $roslg && echo " network test issue " >> $issuedir/bgo_result
+  grep -q 'ERROR: Unable to contact my own server at' $roslg && echo "TEST ISSUE " > $issuedir/bgo_result
 
   for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
   do
@@ -535,15 +535,13 @@ function SearchForAnAlreadyFiledBug() {
   # get always the highest bug id and write its title to the email body
   #
 
-  touch $issuedir/bgo_result    # might not yet exist
-
   for i in $failed $short $(echo $short | cut -f2 -d'/' -s)
   do
     # open bugs: "either confirmed" or "in progress"
     #
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      echo " confirmed" >> $issuedir/bgo_result
+      echo "CONFIRMED " >> $issuedir/bgo_result
       break
     fi
 
@@ -552,13 +550,13 @@ function SearchForAnAlreadyFiledBug() {
     id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo -en "\n ^ duplicate " >> $issuedir/body
-      echo " duplicate" >> $issuedir/bgo_result
+      echo "DUPLICATE " >> $issuedir/bgo_result
       break
     fi
 
     id=$(bugz -q --columns 400 search --show-status            --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      echo " resolved" >> $issuedir/bgo_result
+      echo "RESOLVED " >> $issuedir/bgo_result
       break
     fi
   done
@@ -623,7 +621,7 @@ function CompileIssueMail() {
   AddMetainfoToBody
   AddWhoamiToIssue
 
-  # installed versions of languages and compilers
+  # report languages and compilers
   #
   cat << EOF >> $issuedir/issue
 gcc-config -l:
@@ -635,6 +633,8 @@ $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-avai
 $(eselect java-vm list 2>/dev/null)
 EOF
 
+  # add findings to the email body too
+  #
   SearchForAnAlreadyFiledBug
 
   # b.g.o. has a limit for "Summary" of 255 chars
@@ -694,7 +694,10 @@ function IssueMail()  {
   fi
 
   cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
-  Mail "$(cat $issuedir/bgo_result) $(cat $issuedir/title)" $issuedir/body
+
+  # $issuedir/bgo_result might not exists
+  #
+  Mail "$(cat $issuedir/bgo_result 2>/dev/null)$(cat $issuedir/title)" $issuedir/body
 }
 
 
