@@ -321,7 +321,10 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
- grep -e "^127.0.0.1" -e "^::1" /etc/hosts > etc/hosts
+  cat <<EOF > etc/hosts
+127.0.0.1 localhost $(hostname) $(hostname -f)
+::1       localhost $(hostname) $(hostname -f)
+EOF
 
   cat << EOF > root/.vimrc
 set softtabstop=2
