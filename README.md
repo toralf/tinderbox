@@ -85,7 +85,7 @@ Run in */home/tinderbox*:
     mkdir ~/img{1,2} ~/logs ~/run ~/tb
 Copy *./data* and *./sdata* into *~/tb* and *./bin* into */opt/tb*.
 The user tinderbox must not be allowed to edit the scripts in */opt/tb/bin*.
-The user must have write permissions for the files in ~/tb/data*.
+The user must have write permissions for the files in *~/tb/data*.
 Edit files in *~/sdata* and strip away the suffix *.sample*.
 Grant sudo rights:
 
