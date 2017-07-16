@@ -395,12 +395,12 @@ function foundTestIssue() {
 
   (
     cd "$workdir"
-    # tar spews an error if it can't find a directory therefore feed only existing dirs to it
+    # tar returns an error if it can't find a directory, therefore feed only existing dirs to it
     #
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
     if [[ -n "$dirs" ]]; then
       tar -cjpf $issuedir/files/tests.tbz2 \
-        --exclude='*.o' --exclude="/dev/" --exclude="/proc/" --exclude="/sys/" --exclude="/run/" \
+        --exclude='*.o' --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
         --dereference --one-file-system --warning=no-file-ignored \
         $dirs
       rc=$?
