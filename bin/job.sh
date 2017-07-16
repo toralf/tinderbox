@@ -866,6 +866,7 @@ function PostEmerge() {
 
   # don't change these config files after setup
   #
+  rm -f /etc/._cfg????_{hosts,resolv.conf}
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
   ls /etc/._cfg????_locale.gen &>/dev/null
