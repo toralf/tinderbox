@@ -63,7 +63,7 @@ function Finish()  {
 }
 
 
-# helper of GetNextTask()
+# helper of setNextTask()
 # choose an arbitrary system java engine
 #
 function SwitchJDK()  {
@@ -85,7 +85,7 @@ function SwitchJDK()  {
 
 # copy content of last line of the package list into variable $task
 #
-function GetNextTask() {
+function setNextTask() {
   # update @system once a day, if no special task is scheduled
   # and switch the java machine too by the way
   #
@@ -170,7 +170,7 @@ function GetNextTask() {
 
 # with ABI="32 64" we have more than one ./work directory in /var/tmp/portage/<category>/<name>
 #
-function GetActualWorkDir() {
+function setWorkDir() {
   workdir=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'" -s)
   if [[ ! -d "$workdir" ]]; then
     workdir=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" " -s)
@@ -250,7 +250,7 @@ EOF
 
 # get assignee and cc for the b.g.o. entry (GLEP 67 rules)
 #
-function GetMailAddresses() {
+function AddMailAddresses() {
   truncate -s 0 $issuedir/{assignee,cc}
   m=$(equery meta -m $short | grep '@' | xargs)
 
@@ -314,7 +314,7 @@ EOF
 
 # strip away the version (get $PN from $P)
 #
-function getShort() {
+function pn2p() {
   echo $(qatom "$1" 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
 }
 
@@ -337,7 +337,7 @@ function foundCollision() {
   # inform the maintainers of the sibbling package too
   # strip away version + release b/c the repository might be updated in the mean while
   #
-  cc=$(equery meta -m $(getShort "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
+  cc=$(equery meta -m $(pn2p "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
   # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
   #
   (cat $issuedir/cc; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
@@ -597,7 +597,7 @@ EOF
 function CompileIssueMail() {
   emerge -p --info $short &> $issuedir/emerge-info.txt
 
-  GetMailAddresses
+  AddMailAddresses
   GuessTitleAndIssue
 
   # shrink too long error messages
@@ -659,7 +659,7 @@ EOF
 
 # guess the failed package name and its log file name
 #
-function GetFailed()  {
+function setFailed()  {
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'" -s)
   if [[ -z "$failedlog" ]]; then
     failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'" -s)
@@ -679,7 +679,7 @@ function GetFailed()  {
     fi
   fi
 
-  short=$(getShort "$failed")
+  short=$(pn2p "$failed")
   if [[ ! -d /usr/portage/$short ]]; then
     failed=""
     short=""
@@ -717,11 +717,10 @@ function KeepDeps() {
 }
 
 
-# emerge failed for some reason, therefore parse the output
+# parse the output of the failed emerge
 #
 function GotAnIssue()  {
   KeepDeps
-
 
   # bail out immediately, no reasonable emerge log expected
   #
@@ -730,7 +729,7 @@ function GotAnIssue()  {
     Finish 1 "FATAL: $fatal"
   fi
 
-  # repeat the current running task if we 're killed, eg. by reboot
+  # repeat the current task if emerge was killed
   #
   grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $bak
   if [[ $? -eq 0 ]]; then
@@ -738,24 +737,25 @@ function GotAnIssue()  {
     Finish 3 "KILLED"
   fi
 
-  # the shared repository solution is (rarely) racy
+  # the shared repository solution is (sometimes) racy
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
     echo "$task" >> $pks
+    Mail "info: hit a race condition in the repository sync" $bak
     return
   fi
 
-  # ignore certain issues and continue with next task
+  # ignore certain issues, skip issue handling and continue with next task
   #
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -eq 0 ]]; then
     return
   fi
 
-  # get the actual failed package
+  # set the actual failed package
   #
-  GetFailed
+  setFailed
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
     return
@@ -764,7 +764,7 @@ function GotAnIssue()  {
   CreateIssueDir
   cp $bak $issuedir
 
-  GetActualWorkDir
+  setWorkDir
   CollectIssueFiles
 
   # do this even for a perl issue to ahev the cahnce
@@ -1104,11 +1104,11 @@ function ParseElogForQA() {
       grep -q -E -e "$reason" $elogfile
       if [[ $? -eq 0 ]]; then
         failed=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
-        short=$(getShort "$failed")
+        short=$(pn2p "$failed")
 
         CreateIssueDir
 
-        GetMailAddresses
+        AddMailAddresses
 
         cp $elogfile $issuedir/issue
         AddWhoamiToIssue
@@ -1175,7 +1175,8 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# if a(n old) task file is found, then a hard stop happened before, so re-try last task
+# if a(n old) task file is found, then a hard stop might happened before
+# therefore re-try the interrupted task
 #
 if [[ -s $tsk ]]; then
   cat $tsk >> $pks
@@ -1190,13 +1191,13 @@ do
     Finish 0 "catched STOP"
   fi
 
-  # clean up from a previously failed operation
-  # no auto-clean is made b/c build files have to be collected first
+  # manually up from a previously failed operation
+  # b/c auto-clean can't be made to collect files first
   #
   rm -rf /var/tmp/portage/*
 
   date > $log
-  GetNextTask
+  setNextTask
   echo "$task" | tee -a $tsk.history > $tsk
   WorkOnTask
   ParseElogForQA
