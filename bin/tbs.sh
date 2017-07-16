@@ -242,7 +242,7 @@ function CompilePackageFiles()  {
 
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
-    mkdir ./etc/portage/$d
+    [[ ! -d $d ]] && mkdir ./etc/portage/$d
     chmod 777 ./etc/portage/$d
   done
 
