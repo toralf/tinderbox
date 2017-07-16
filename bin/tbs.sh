@@ -178,7 +178,7 @@ function CompileMakeConf()  {
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
 
-  if [[ -n "$origin" ]]; then
+  if [[ -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s)
   else
     l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
@@ -351,13 +351,14 @@ function FillPackageList()  {
   #
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
 
-  if [[ -n "$origin" ]]; then
-    # replay the emerge history of origin before we continue with the randomized list
-    #
-    qlop --nocolor --list -f $origin/var/log/emerge.log 2>/dev/null | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' -s | tr ' ' '/' > $pks.origin
-    echo "INFO $(wc -l < $pks.tmp) packages of $origin replayed" >> $pks
-    tac $pks.origin >> $pks
-    rm $pks.origin
+  # replay tasks, not emerge history
+  # skip @sets, b/c @system and @world are scheduled in the new image at different timestamps
+  #
+  #
+  if [[ -e $origin/tmp/task.history ]]; then
+    echo "INFO task history of $origin replayed" >> $pks
+    n=$(tac $origin/tmp/task.history | grep -v -E "^(%|@|#)" | tee -a $pks | wc -l)
+    echo "INFO replay $n tasks of $origin" >> $pks
   fi
 
   # emerge/upgrade mandatory package/s and upgrade @system
@@ -638,8 +639,8 @@ do
           exit 2
         fi
 
-        profile=$(cd $origin; readlink ./etc/portage/make.profile | cut -f6- -d'/' -s)
-        flags="$(source $origin/etc/portage/make.conf; echo $USE)"
+        profile=$(cd $origin && readlink ./etc/portage/make.profile | cut -f6- -d'/' -s)
+        flags="$(source $origin/etc/portage/make.conf && echo $USE)"
 
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
