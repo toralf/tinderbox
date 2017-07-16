@@ -82,21 +82,27 @@ touch $lock || exit 2
 #
 grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
 
-# ok, mount now the directories from the host
+# mount the directories shared by the host
 #
 mountall || exit 4
 
-# limit the memory to 16 GB to avoid an oom-killer (eg.: dev-perl/GD)
+# cgroup based limitations to avoid oom-killer eg. for dev-perl/GD
 #
 sysfsdir=/sys/fs/cgroup/memory/tinderbox-$(basename $mnt)
 if [[ ! -d $sysfsdir ]]; then
   mkdir -p $sysfsdir
-  echo "$(echo "8 * 2^30" | bc)" > $sysfsdir/memory.limit_in_bytes
 fi
+
 echo "$$" > $sysfsdir/tasks
 
+mbytes="$(echo " 8 * 2^30" | bc)"
+echo $mbytes > $sysfsdir/memory.limit_in_bytes
+
+vbytes="$(echo "16 * 2^30" | bc)"
+echo $vbytes > $sysfsdir/memory.memsw.limit_in_bytes
+
 if [[ $# -gt 0 ]]; then
-  # enforce a login of user root b/c then its environment is sourced
+  # su to local root to run with its *image* environment
   #
   /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
 else
