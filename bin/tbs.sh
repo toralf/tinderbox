@@ -242,7 +242,7 @@ function CompilePackageFiles()  {
 
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
-    [[ ! -d $d ]] && mkdir ./etc/portage/$d
+    [[ ! -d ./etc/portage/$d ]] && mkdir ./etc/portage/$d
     chmod 777 ./etc/portage/$d
   done
 
@@ -250,12 +250,12 @@ function CompilePackageFiles()  {
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
-    (cd ./etc/portage/$d; ln -s ../../../tmp/tb/data/$d.common common)
+    (cd ./etc/portage/$d && ln -s ../../../tmp/tb/data/$d.common common)
   done
 
   for d in package.{accept_keywords,unmask}
   do
-    (cd ./etc/portage/$d; ln -s ../../../tmp/tb/data/$d.$keyword $keyword)
+    (cd ./etc/portage/$d && ln -s ../../../tmp/tb/data/$d.$keyword $keyword)
   done
 
   touch       ./etc/portage/package.mask/self     # contains failed package at this image
@@ -267,11 +267,11 @@ function CompilePackageFiles()  {
   # activate at every n-th image predefined USE flag sets
   #
   if [[ $(($RANDOM % 100)) -lt 40 ]]; then
-    (cd ./etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb)
+    (cd ./etc/portage/package.use && ln -s ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb)
   fi
 
   if [[ $(($RANDOM % 100)) -lt 25 ]]; then
-    (cd ./etc/portage/package.use; ln -s ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
+    (cd ./etc/portage/package.use && ln -s ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
   fi
 
   echo "*/* $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
