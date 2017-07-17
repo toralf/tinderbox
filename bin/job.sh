@@ -445,13 +445,13 @@ function GuessTitleAndIssue() {
     fi
 
     if [[ ! -s $issuedir/title ]]; then
-      Finish 2 "title is empty for task '$task'"
+      Mail "warn: empty title for '$task'" $bak
     fi
 
     # if the issue text is too big, then delete one line
     # and hope this is ok
     #
-    if [[ $(wc -c < $issuedir/issue) -gt 1576 ]]; then
+    if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
       sed -i -e "1d" $issuedir/issue
     fi
 
@@ -461,6 +461,12 @@ function GuessTitleAndIssue() {
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
       grep -q "=$failed cxx" /etc/portage/package.env/cxx 2>/dev/null
+      cat <<EOF >> $issuedir/issue
+
+The behaviour "-Werror=terminate" is forced at the tinderbox for GCC-6 to help stabilizing it.
+
+EOF
+
       if [[ $? -ne 0 ]]; then
         echo "=$failed cxx" >> /etc/portage/package.env/cxx
         try_again=1
@@ -482,28 +488,23 @@ function GuessTitleAndIssue() {
 # if <pattern> is defined more than once then the first will make it
 #
 function SearchForBlocker() {
-  out=$1   # optional: file, where [generic text] -if not empty- would be written to
+  out=$1   # optional: [generic text] if not empty would go into this file
 
-  block=$(
-    # skip comment and bug id lines
-    #
-    grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER |\
-    while read pattern
-    do
-      grep -q -E -e "$pattern" $issuedir/title
-      if [[ $? -eq 0 ]]; then
-        # append the bug id to "-b ", no grep -E here !
-        #
-        echo -n "-b "
-               grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f1  -d' '
-        gen=$( grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f2- -d' ' -s)
-        if [[ -n "$gen" && -n "$out" ]]; then
-          echo "$gen" > $out
-        fi
-        break
+  block=""
+
+  while read pattern
+  do
+    grep -q -E -e "$pattern" $issuedir/title
+    if [[ $? -eq 0 ]]; then
+      # no grep -E here !
+      #
+      block="-b $(grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f1  -d' ' -s)"
+      if [[ -n "$out" ]]; then
+        grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f2- -d' ' -s > $out
       fi
-    done
-  )
+      break
+    fi
+  done < <(grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER)     # skip comments and bug id lines
 }
 
 
@@ -532,7 +533,7 @@ function SearchForAnAlreadyFiledBug() {
   fi
 
   # search first for exact same version, then for category/package, eventually just for the package name only
-  # get always the highest bug id and write its title to the email body
+  # get always the highest bug id and write its summary into the email body
   #
 
   for i in $failed $short $(echo $short | cut -f2 -d'/' -s)
@@ -547,26 +548,26 @@ function SearchForAnAlreadyFiledBug() {
 
     # closed bugs: duplicates rules over resolved - and mark the former
     #
-    id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status RESOLVED $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo -en "\n ^ duplicate " >> $issuedir/body
       echo "DUPLICATE " >> $issuedir/bgo_result
       break
     fi
 
-    id=$(bugz -q --columns 400 search --show-status            --status resolved $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status            --status RESOLVED $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo "RESOLVED " >> $issuedir/bgo_result
       break
     fi
   done
 
-  # compile a command line to easily file the bug
-  # add latest 20 b.g.o. search results
+  # compile a command line ready for yopy+paste to file a bug
+  # and add latest 20 b.g.o. search results
   #
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
- https://bugs.gentoo.org/show_bug.cgi?id=$id
+  https://bugs.gentoo.org/show_bug.cgi?id=$id
 
   bgo.sh -d ~/img?/$name/$issuedir -i $id -c 'got at the $keyword amd64 chroot image $name this : $(cat $issuedir/title)'
 
@@ -659,7 +660,7 @@ EOF
 
 # guess the failed package name and its log file name
 #
-function setFailed()  {
+function setFailedAndShort()  {
   failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'" -s)
   if [[ -z "$failedlog" ]]; then
     failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'" -s)
@@ -717,7 +718,7 @@ function KeepDeps() {
 }
 
 
-# parse the output of the failed emerge
+# parse the output of emerge
 #
 function GotAnIssue()  {
   KeepDeps
@@ -729,7 +730,7 @@ function GotAnIssue()  {
     Finish 1 "FATAL: $fatal"
   fi
 
-  # repeat the current task if emerge was killed
+  # repeat the task if emerge was killed
   #
   grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $bak
   if [[ $? -eq 0 ]]; then
@@ -755,7 +756,7 @@ function GotAnIssue()  {
 
   # set the actual failed package
   #
-  setFailed
+  setFailedAndShort
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty for task: $task" $bak
     return
@@ -1204,3 +1205,5 @@ do
   ParseElogForQA
   rm $tsk
 done
+
+Finish 4 "we should never reach this line"
