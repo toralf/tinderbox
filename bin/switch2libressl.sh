@@ -43,6 +43,7 @@ cat << EOF > /etc/portage/package.use/libressl
 dev-db/mysql-connector-c  -ssl
 dev-lang/python           -tk
 dev-qt/qtsql              -mysql
+dev-qt/qtnetwork          -ssl
 EOF
 
 # few unstable packages need being keyworded too at a stable image
