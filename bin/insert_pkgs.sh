@@ -8,8 +8,8 @@
 mailto="tinderbox@zwiebeltoralf.de"
 
 # collect all package list filenames if the image ...
-#   1. is symlinked to ~
-#   2. is running (LOCK but no STOP)
+#   1. is symlinked to ~/run
+#   2. is running (LOCK and no STOP)
 #   3. has a non-empty package list
 #   4. doesn't have any special entries in its package list
 #
@@ -36,8 +36,8 @@ do
     continue
   fi
 
-  # to achieve a higher coverage of the repository in a given time
-  # do not test an ebuild at every image
+  # to get a higher coverage of the repository over a given time
+  # skip few images
   #
   if [[ $(($RANDOM % 3)) -eq 0 ]]; then
     continue
@@ -58,7 +58,7 @@ cd /usr/portage/
 git diff --diff-filter=ACMR --name-status "@{ 4 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $acmr
 
-info="# $(wc -l < $acmr) packages at $(date)"
+info="# $(basename $0) at $(date): added $(wc -l < $acmr) packages"
 
 # the output goes to the stdout of the caller (eg. email for a cron job)
 #
@@ -73,7 +73,7 @@ if [[ -s $acmr ]]; then
     echo "$info" >> $pks
 
     # shuffle packages around in a different way for each image
-    # respect an upper limit of the amount of injected packages
+    # and limit amount of injected packages per image
     #
     sort --random-sort < $acmr | head -n 100 >> $pks
   done
