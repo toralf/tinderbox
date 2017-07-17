@@ -8,7 +8,7 @@
 
 
 # strip away escape sequences
-# hint: colorstrip() doesn't modify its argument, instead it returns the result
+# hint: colorstrip() doesn't modify its argument, it returns the result
 #
 function stresc() {
   perl -MTerm::ANSIColor=colorstrip -nle '
@@ -22,7 +22,7 @@ function stresc() {
 }
 
 
-# send an email, mandatory $1 is Subject, optional $2 is Body
+# send an email, $1 (mandatory) is the subject, $2 (optional) contains the body
 #
 function Mail() {
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
@@ -185,7 +185,7 @@ function setWorkDir() {
 
 
 # helper of GotAnIssue()
-# gather together what's needed for the mail and b.g.o.
+# gather together what's needed for the email and b.g.o.
 #
 function CollectIssueFiles() {
   mkdir -p $issuedir/files
@@ -476,42 +476,35 @@ EOF
 }
 
 
-# guess from the origin title if there's an appropriate bug tracker
-# and replace - if given- the title with a more generic one
-# the BLOCKER file must contain 3-line-paragraphs like:
+# try to match title to a tracker bug
+# the BLOCKER file contains 3-line-paragraphs like:
 #
 #   # comment
-#   <bug id> [generic text]
+#   <bug id>
 #   <pattern>
 #   ...
 #
-# if <pattern> is defined more than once then the first will make it
+# if <pattern> is defined more than once then the first makes it
 #
 function SearchForBlocker() {
-  out=$1   # optional: [generic text] if not empty would go into this file
-
   block=""
-
   while read pattern
   do
     grep -q -E -e "$pattern" $issuedir/title
     if [[ $? -eq 0 ]]; then
-      # no grep -E here !
+      # no grep -E here, instead -F
       #
-      block="-b $(grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f1  -d' ' -s)"
-      if [[ -n "$out" ]]; then
-        grep -m 1 -B 1 "$pattern" /tmp/tb/data/BLOCKER | head -n 1 | cut -f2- -d' ' -s > $out
-      fi
+      block="-b $(grep -m 1 -B 1 -F "$pattern" /tmp/tb/data/BLOCKER)"
       break
     fi
   done < <(grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER)     # skip comments and bug id lines
 }
 
 
-# put findings and convenient clickable links into the mail body
+# put findings + links into the email body
 #
 function SearchForAnAlreadyFiledBug() {
-  bsi=$issuedir/bugz_search_items     # better handling in a file than as a shell variable
+  bsi=$issuedir/bugz_search_items     # easier handling by using a file
   cp $issuedir/title $bsi
 
   # get away line numbers, certain special terms and characters
@@ -525,15 +518,15 @@ function SearchForAnAlreadyFiledBug() {
           -e 's,[\(\)], ,g'           \
           $bsi
 
-  # for the file collision case: remove the package version (from the counterpart)
+  # for the file collision case: remove the package version (from the installed package)
   #
   grep -q "file collision" $bsi
   if [[ $? -eq 0 ]]; then
     sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
   fi
 
-  # search first for exact same version, then for category/package, eventually just for the package name only
-  # get always the highest bug id and write its summary into the email body
+  # search first for the same version, then for category/package name, eventually only for the package name
+  # take always the highest bug id and put that summary into the email body
   #
 
   for i in $failed $short $(echo $short | cut -f2 -d'/' -s)
@@ -546,8 +539,14 @@ function SearchForAnAlreadyFiledBug() {
       break
     fi
 
-    # closed bugs: duplicates rules over resolved - and mark the former
+    # closed bugs: resolved rules over duplicates
     #
+    id=$(bugz -q --columns 400 search --show-status --status RESOLVED $i "$(cat $bsi)" | grep -v "DUPLICATE" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    if [[ -n "$id" ]]; then
+      echo "RESOLVED " >> $issuedir/bgo_result
+      break
+    fi
+
     id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status RESOLVED $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo -en "\n ^ duplicate " >> $issuedir/body
@@ -555,14 +554,9 @@ function SearchForAnAlreadyFiledBug() {
       break
     fi
 
-    id=$(bugz -q --columns 400 search --show-status            --status RESOLVED $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-    if [[ -n "$id" ]]; then
-      echo "RESOLVED " >> $issuedir/bgo_result
-      break
-    fi
   done
 
-  # compile a command line ready for yopy+paste to file a bug
+  # compile a command line ready for copy+paste to file a bug
   # and add latest 20 b.g.o. search results
   #
   if [[ -n "$id" ]]; then
@@ -586,7 +580,7 @@ EOF
     bugz --columns 400 -q search --status RESOLVED  $short | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
   fi
 
-  # this newline makes the copy+paste of the last line of the mail body more convenient
+  # this newline makes the copy+paste of the last line of the email body more convenient
   #
   echo >> $issuedir/body
 }
@@ -613,7 +607,7 @@ function CompileIssueMail() {
           -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
           $issuedir/title
 
-  SearchForBlocker $issuedir/title
+  SearchForBlocker
   sed -i -e "s,^,$failed : ," $issuedir/title
 
   # copy the issue to the email body before it is furnished for b.g.o. as comment#0
@@ -769,7 +763,7 @@ function GotAnIssue()  {
   CollectIssueFiles
 
   # do this even for a perl issue to ahev the cahnce
-  # to send out the mail nevertheless
+  # to send out the email nevertheless
   #
   CompileIssueMail
 
