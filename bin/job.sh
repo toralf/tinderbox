@@ -760,13 +760,13 @@ function GotAnIssue()  {
   cp $bak $issuedir
 
   setWorkDir
+
   CollectIssueFiles
-
-  # do this even for a perl issue to ahev the cahnce
-  # to send out the email nevertheless
-  #
   CompileIssueMail
+  SendoutIssueMail
 
+  # special handling, this whole section should ge eventually away
+  #
   grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
   if [[ $? -eq 0 ]]; then
     Mail "info: Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664" $bak
@@ -775,20 +775,16 @@ function GotAnIssue()  {
       Finish 2 "$tsk repeated"
     fi
 
-    # repeat $task *after* perl-cleaner
-    # that's why try_again=1 doesn't work here
+    # repeat $task *after* perl-cleaner therefore try_again=1 can't be used here
     #
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
     status=2
-    return
   fi
 
-  if [[ $try_again -eq 0 ]]; then
+  if [[ $try_again -eq 0 && $status -ne 2 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
-
-  SendoutIssueMail
 }
 
 
@@ -937,7 +933,7 @@ function RunCmd() {
 
   else
     GotAnIssue
-    # status is already set to "2" for the infamous perl upgrade issue
+    # status is already set to "2" for the infamous Perl upgrade issue
     #
     if [[ $try_again -eq 1 && status -ne 2 ]]; then
       echo "$task" >> $pks
