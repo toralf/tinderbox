@@ -696,7 +696,7 @@ function SendoutIssueMail()  {
 }
 
 
-# put all successfully emerged dependencies of $task into the world file
+# add all successfully emerged dependencies of $task to the world file
 # otherwise we'd need to use "--deep" unconditionally
 # (https://bugs.gentoo.org/show_bug.cgi?id=563482)
 #
@@ -712,7 +712,7 @@ function KeepDeps() {
 }
 
 
-# parse the output of emerge
+# collect files, create an email and decide, whether to send it out or not
 #
 function GotAnIssue()  {
   KeepDeps
@@ -828,7 +828,7 @@ function SwitchGCC() {
     # rebuild kernel and toolchain after a major version number change
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # per request of Soap this is forced with gcc-6
+      # force this at GCC-6 for stabilization help
       #
       if [[ $majnew -eq 6 ]]; then
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
@@ -851,10 +851,10 @@ EOF
 
 
 # helper of RunCmd()
-# it schedules follow-ups from the previously emerge step
+# it schedules follow-ups from the last emerge operation
 #
 function PostEmerge() {
-  # prefix our log backup file with an "_" to distinguish it from portage's log files
+  # prefix our log backup file with an "_" to distinguish it from portages log file
   #
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
@@ -874,7 +874,7 @@ function PostEmerge() {
   env-update &>/dev/null
   source /etc/profile || Finish 2 "can't source /etc/profile"
 
-  # [15:02] <iamben> sandiego: emerge @preserved-rebuild should be your very last step in upgrading, it's not urgent at all.  do "emerge -uDNav @world" first
+  # one of the very last step in upgrading
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
@@ -885,7 +885,7 @@ function PostEmerge() {
     echo "@preserved-rebuild" >> $pks
   fi
 
-  # build the and switch to the new kernel is one of the last steps
+  # build and switch to the new kernel after nealry all other things
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
