@@ -2,9 +2,8 @@
 #
 # set -x
 
-# switch a tinderbox image from OpenSSL to LibeSSL
+# switch a tinderbox image from OpenSSL to LibreSSL
 # inspired by https://wiki.gentoo.org/wiki/Project:LibreSSL
-#
 
 pks="/tmp/packages"
 
@@ -14,7 +13,7 @@ echo
 
 if [[ ! -e $pks ]]; then
   echo " don't run this script outside of a tinderbox image !"
-  exit 21
+  exit 1
 fi
 
 # define the SSL vendor in make.conf
@@ -37,32 +36,32 @@ cat << EOF >> /etc/portage/profile/use.stable.mask
 -curl_ssl_libressl
 EOF
 
-# switch to LibeSSL often fails w/o these settings
+# switch to LibreSSL often fails otherwise
 #
 cat << EOF > /etc/portage/package.use/libressl
 dev-db/mysql-connector-c  -ssl
 dev-lang/python           -tk
-dev-qt/qtsql              -mysql
 dev-qt/qtnetwork          -ssl
+dev-qt/qtsql              -mysql
 EOF
 
-# few unstable packages need being keyworded too at a stable image
+# few unstable packages need ~amd64 at a stable image
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
   cat << EOF > /etc/portage/package.accept_keywords/libressl
 dev-libs/libressl
-~mail-mta/ssmtp-2.64-r3
+>=mail-mta/ssmtp-2.64-r3
 EOF
 fi
 
 # fetch packages before openssl will be uninstalled
-# (wget won't work before it is been rebuild against libressl)
+# (wget won't work till it's been rebuild against libressl)
 #
 emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python || exit 28
 
-# unmerge of OpenSSL should already schedule a @preserved-rebuild in the script job.sh
-# but force it here too with "%" to definitely bail out if it fails
+# unmerge of OpenSSL will trigger a @preserved-rebuild in job.sh
+# but do it here with "%" to definitely bail out if it fails
 #
 cat << EOF >> $pks
 %emerge @preserved-rebuild
