@@ -763,7 +763,6 @@ function GotAnIssue()  {
 
   CollectIssueFiles
   CompileIssueMail
-  SendoutIssueMail
 
   # special handling, this whole section should ge eventually away
   #
@@ -775,16 +774,20 @@ function GotAnIssue()  {
       Finish 2 "$tsk repeated"
     fi
 
-    # repeat $task *after* perl-cleaner therefore try_again=1 can't be used here
+    # repeat $task *after* perl-cleaner therefore try_again=1 won't work here
     #
     echo "$task" >> $pks
     echo "%perl-cleaner --all" >> $pks
     status=2
+
+    echo -e "\nThis might be a dup of bug #596664" >> $issuedir/issue
   fi
 
   if [[ $try_again -eq 0 && $status -ne 2 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
+
+  SendoutIssueMail
 }
 
 
