@@ -635,11 +635,11 @@ do
 
     o)  origin="$OPTARG"
         if [[ ! -e $origin ]]; then
-          echo "\$origin '$origin' doesn't exist!"
+          echo "\$origin '$origin' doesn't exist"
           exit 2
         fi
 
-        profile=$(cd $origin && readlink ./etc/portage/make.profile | cut -f6- -d'/' -s)
+        profile=$(cd $origin && realpath ./etc/portage/make.profile | sed 's,.*/profiles/,,')
         flags="$(source $origin/etc/portage/make.conf && echo $USE)"
 
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
