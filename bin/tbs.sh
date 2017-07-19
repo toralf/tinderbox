@@ -16,6 +16,9 @@
 # create a (r)andomized (U)SE (f)lag (s)ubset
 #
 function rufs()  {
+  n=99   # choose between 0 and n-1 USE flags
+  m=5    # about 1/m will be masked
+
   (
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.desc
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':' -s
@@ -25,11 +28,11 @@ function rufs()  {
             -e 'pax' -e 'qt4' -e 'selinux' -e 'ssl' -e 'static' -e 'systemd'    \
             -e 'test' -e 'tls' -e 'uclibc' |\
   sort -u -R |\
-  head -n $(($RANDOM % 99)) |\
+  head -n $(($RANDOM % $n)) |\
   sort |\
   while read flag
   do
-    if [[ $(($RANDOM % 5)) -eq 0 ]]; then
+    if [[ $(($RANDOM % $m)) -eq 0 ]]; then
       echo -n "-"
     fi
     echo -n "$flag "
