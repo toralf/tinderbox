@@ -86,8 +86,8 @@ function SwitchJDK()  {
 # copy content of last line of the package list into variable $task
 #
 function setNextTask() {
-  # update @system once a day, if no special task is scheduled
-  # and switch the java machine too by the way
+  # update @system and @world once a day, if no special task is scheduled
+  # switch the java machine too by the way
   #
   if [[ -s $pks ]]; then
     ts=/tmp/timestamp.@system
@@ -101,6 +101,7 @@ function setNextTask() {
         grep -q -E -e "^(STOP|INFO|%|@)" $pks
         if [[ $? -eq 1 ]]; then
           task="@system"
+          echo "@world" >> $pks
           SwitchJDK
           return
         fi
@@ -941,11 +942,11 @@ function RunCmd() {
 function WorkOnTask() {
   # status=0  ok
   # status=1  task failed
-  # status=2  task failed and appropriate post-actions are already scheduled
+  # status=2  task failed and special post-actions are scheduled
   #
   status=0
-  failed=""     # usually contains the package name
-  try_again=0   # =1 if eg. just the test step failed
+  failed=""     # hold the failed package name
+  try_again=0   # 1 with default environment values (if applicable)
 
   if [[ "$task" =~ ^@ ]]; then
 
@@ -956,45 +957,23 @@ function WorkOnTask() {
     else
       RunCmd "emerge --update $task"
     fi
-
-    # for convenience keep a copy of last run
-    #
     cp $log /tmp/last.$task.log
 
-    # keep history of the status
-    #
     if [[ $status -eq 0 ]]; then
-      echo "$(date) ok"                     >> /tmp/timestamp.$task
-    else
-      echo "$(date) status=$status $failed" >> /tmp/timestamp.$task
-    fi
-
-    if [[ $status -eq 0 ]]; then
-      # schedule @world, if @system was ok
-      #
-      if [[ "$task" = "@system" ]]; then
-        tail -n 1 /tmp/timestamp.@world 2>/dev/null | grep -q " ok$"
-        if [[ $? -eq 0 ]]; then
-          echo "@world" >> $pks
-        fi
-      elif [[ "$task" = "@world" ]]; then
-        echo "%emerge --depclean" >> $pks
+      echo "$(date) ok" >> /tmp/timestamp.$task
+      if [[ "$task" = "@world" ]]; then
+          echo "%emerge --depclean" >> $pks
       fi
 
-    elif [[ $status -eq 1 ]]; then
-      # resume + skip, if a package failed
-      # -or- bail out if @preserved-rebuild failed
-      # -or- try @world, if @system failed in general
-      #
-      if [[ -n "$failed" ]]; then
-        echo "%emerge --resume --skip-first" >> $pks
-
-      else
-        if [[ "$task" = "@preserved-rebuild" ]]; then
-          Finish 2 "$task is broken"
-
-        elif [[ "$task" = "@system" ]]; then
-          echo "@world" >> $pks
+    else
+      echo "$(date) status=$status $failed" >> /tmp/timestamp.$task
+      if [[ $status -eq 1 ]]; then
+        # just skip a package ?
+        #
+        if [[ -n "$failed" ]]; then
+          echo "%emerge --resume --skip-first" >> $pks
+        elif [[ "$task" = "@preserved-rebuild" ]]; then
+          Finish 2 "$task failed"
         fi
       fi
     fi
@@ -1012,8 +991,7 @@ function WorkOnTask() {
       # don't care for a failed resume
       #
       if [[ ! "$cmd" =~ " --resume" ]]; then
-        # re-schedule the task for later and bail out now
-        # to fix breakage manually (usually upgrading GCC)
+        # re-schedule the task but bail out too to fix breakage manually
         #
         echo -e "$task" >> $pks
         Finish 2 "command '$cmd' failed"
@@ -1188,4 +1166,4 @@ do
   rm $tsk
 done
 
-Finish 4 "we should never reach this line"
+Finish 4 "we should never ever reach this line"
