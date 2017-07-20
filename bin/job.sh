@@ -526,31 +526,20 @@ function SearchForAnAlreadyFiledBug() {
   fi
 
   # search first for the same version, then for category/package name, eventually only for the package name
-  # take always the highest bug id and put that summary into the email body
+  # take the highest bug id as finding and put the summary of the last 10 bugs into the email body
   #
 
   for i in $failed $short $(echo $short | cut -f2 -d'/' -s)
   do
-    # open bugs: "either confirmed" or "in progress"
-    #
-    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo "CONFIRMED " >> $issuedir/bgo_result
       break
     fi
 
-    # closed bugs: resolved rules over duplicates
-    #
-    id=$(bugz -q --columns 400 search --show-status --status RESOLVED $i "$(cat $bsi)" | grep -v "DUPLICATE" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status --status RESOLVED $i "$(cat $bsi)" | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo "RESOLVED " >> $issuedir/bgo_result
-      break
-    fi
-
-    id=$(bugz -q --columns 400 search --resolution "DUPLICATE" --status RESOLVED $i "$(cat $bsi)" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-    if [[ -n "$id" ]]; then
-      echo -en "\n ^ duplicate " >> $issuedir/body
-      echo "DUPLICATE " >> $issuedir/bgo_result
       break
     fi
 
