@@ -23,7 +23,7 @@ CURL_SSL="libressl"
 USE="\${USE} -openssl -gnutls libressl"
 EOF
 
-# mask OpenSSL forever
+# mask OpenSSL
 #
 echo "dev-libs/openssl" > /etc/portage/package.mask/openssl
 
@@ -36,16 +36,19 @@ cat << EOF >> /etc/portage/profile/use.stable.mask
 -curl_ssl_libressl
 EOF
 
-# switch to LibreSSL often fails otherwise
+# set package specific USE flags, otherwise switch to LibreSSL or @system often fails
 #
 cat << EOF > /etc/portage/package.use/libressl
+app-admin/webmin          -ssl
 dev-db/mysql-connector-c  -ssl
 dev-lang/python           -tk
 dev-qt/qtnetwork          -ssl
 dev-qt/qtsql              -mysql
+www-servers/apache        -ssl
 EOF
+chmod a+rw /etc/portage/package.use/libressl
 
-# few unstable packages need ~amd64 at a stable image
+# few unstable packages needed even at a stable image
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
@@ -55,17 +58,16 @@ dev-libs/libressl
 EOF
 fi
 
-# fetch packages before openssl will be uninstalled
-# (wget won't work till it's been rebuild against libressl)
-#
-emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python || exit 28
-
-# unmerge of OpenSSL will trigger a @preserved-rebuild in job.sh
-# but do it here with "%" to definitely bail out if it fails
+# unmerge of OpenSSL triggers already a @preserved-rebuild in job.sh
+# but use "%" here to definitely bail out if it would fail
 #
 cat << EOF >> $pks
 %emerge @preserved-rebuild
 %emerge -C openssl
 EOF
 
-exit 0
+# fetch packages needed to be rebuild before OpenSSL is uninstalled
+# and fetch command won't work till it's been rebuild against LibreSSL
+#
+emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
+exit $?
