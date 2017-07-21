@@ -555,17 +555,17 @@ autostart="y"   # start the image after setup ?
 origin=""       # clone from another image ?
 suffix=""       # will be appended onto the name before the timestamp
 
-# set defaults for profile, keyword, ssl vendor and ABI_X86
+# choose an arbitrary profile
 #
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n1)
 
-# switch to 17.0 profile at every 2nd image
+# switch to 17.0 profile at every n-th image
 #
-if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's/13/17/')"
 fi
 
-# we do almost test unstable package if not specified otherwise
+# to test stable use the command line option
 #
 keyword="unstable"
 
@@ -575,13 +575,13 @@ else
   libressl="n"
 fi
 
-# libressl isn't ready for stable
+# LibreSSL isn't ready for stable
 #
 if [[ "$keyword" = "stable" ]]; then
   libressl="n"
 fi
 
-# 32 bit libs are still needed for few apps
+# are 32 bit libs still needed in the wild ?
 #
 multilib="n"
 echo "$profile" | grep -q 'no-multilib'
@@ -591,12 +591,10 @@ if [[ $? -ne 0 ]]; then
   fi
 fi
 
-# create a reandomized USE flag subset
+# create a randomized USE flag subset
 #
 flags=$(rufs)
 
-# the caller can overwrite the (thrown) settings
-#
 while getopts a:f:k:l:m:o:p:s: opt
 do
   case $opt in
