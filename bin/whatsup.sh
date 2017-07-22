@@ -100,8 +100,8 @@ function LastEmergeOperation()  {
 # gives sth. like:
 #
 # gnome-systemd_20170301-222559     793 1092  696  315
-# plasma-abi32+64_20170216-195507   454 1002  839  672 1111 864 691  719 665 469 521 487 460 403  453 388 248
-# plasma-abi32+64_20170228-094845   627  462 1111  718  546 182
+# plasma-abi32+64_20170216-195507   454 1002  839  672 1111  864 691. 719 665 469 521 487 460 403  453 388 248
+# plasma-abi32+64_20170228-094845   627  462 1111  718  546  182
 #
 function PackagesPerDay() {
   for i in $images
@@ -128,9 +128,10 @@ function PackagesPerDay() {
 
       END {
         foreach my $i (0..$#p) {
-          # the first 3 days might see >1,000 installations/day
+          # the first d days might see >1,000 installations/day
           #
-          if ($i < 3)  {
+          $d=6;
+          if ($i < $d)  {
             printf ("%5i", $p[$i]);
           } else  {
             if ($p[$i]) {
