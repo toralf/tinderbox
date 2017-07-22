@@ -545,10 +545,13 @@ function SearchForAnAlreadyFiledBug() {
     fi
 
   done
+}
 
-  # compile a command line ready for copy+paste to file a bug
-  # and add latest 20 b.g.o. search results
-  #
+
+# compile a command line ready for copy+paste to file a bug
+# and add latest 20 b.g.o. search results
+#
+function AddBugzillaData() {
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
@@ -556,6 +559,7 @@ function SearchForAnAlreadyFiledBug() {
   bgo.sh -d ~/img?/$name/$issuedir -i $id -c 'got at the $keyword amd64 chroot image $name this : $(cat $issuedir/title)'
 
 EOF
+
   else
     echo -e "  bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
 
@@ -574,7 +578,6 @@ EOF
   #
   echo >> $issuedir/body
 }
-
 
 # helper of GotAnIssue()
 # create an email containing convenient links and a command line ready for copy+paste
@@ -618,15 +621,15 @@ $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-avai
 $(eselect java-vm list 2>/dev/null)
 EOF
 
-  # b.g.o. has a limit for "Summary" of 255 chars
-  #
-  if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
-    truncate -s 255 $issuedir/title
+  if [[ -s $issuedir/title ]]; then
+    # b.g.o. has a limit for "Summary" of 255 chars
+    #
+    if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
+      truncate -s 255 $issuedir/title
+    fi
+    SearchForAnAlreadyFiledBug
   fi
-
-  # add findings to the email body too
-  #
-  SearchForAnAlreadyFiledBug
+  AddBugzillaData
 
   # should be the last step b/c uuencoded attachments might be very large
   # and therefore b.g.o. search results aren't shown by Thunderbird
