@@ -3,15 +3,14 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 
 ## usage
 ### create a new image
-The setup of a new image is made by *tbs.sh* (*at* from *sys-process/at* schedules a command for later, catches the output and email it to the user)
-    
-    echo "cd ~/img2; sudo /opt/tb/bin/tbs.sh" | at now + 0 min
+
+    cd ~/img2; setup_img.sh
 
 A profile, keyword and a USE flag set are choosen.
 The current stage3 file is downloaded, verified and unpacked.
 Mandatory portage config files will be compiled.
 Few required packages (*ssmtp*, *pybugz* etc.) are installed.
-The package list */tmp/packages* is created from all visible packages.
+The package list */tmp/packages* is created.
 The upgrade of GCC and the switch to libressl - if applicable - are scheduled as the first tasks.
 A symlink is made into *~/run* and the image is started.
 
@@ -93,7 +92,7 @@ The user must have write permissions for the files in *~/tb/data*.
 Edit files in *~/sdata* and strip away the suffix *.sample*.
 Grant sudo rights:
 
-    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/tbs.sh
+    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/setup_img.sh
 
 At a hardened Gentoo tweak *GRsecurity* if appropriate:
 
