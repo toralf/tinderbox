@@ -673,12 +673,18 @@ function setFailedAndShort()  {
 
 
 function SendoutIssueMail()  {
-  grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
-  if [[ $? -eq 0 ]]; then
-    return
-  fi
+  # no matching pattern in CATCH_* == no title
+  #
+  if [[ -s $issuedir/title ]]; then
+    # do not report the same issue again or use retest.sh
+    #
+    grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
+    if [[ $? -eq 0 ]]; then
+      return
+    fi
 
-  cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
+    cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
+  fi
 
   # $issuedir/bgo_result might not exists
   #
