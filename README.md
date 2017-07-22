@@ -77,7 +77,7 @@ Append package/s to the package list in the following way:
 "STOP" can be used instead "INFO" to stop the image at that point.
 
 ### misc
-The script *insert_pkgs.sh* adds periodically new or change ebuilds on top of arbitrary package lists. *retest_pkgs.sh* is used to revert image specific changes made by *job.sh* to portage files related to the given package(s). And finally *logcheck.sh* is a helper to notify about log file contenst (which should be empty mostly).
+The script *insert_pkgs.sh* adds periodically new or change ebuilds on top of arbitrary package lists. *retest.sh* is used to undo any image specific changes of given package(s) to portage files before emergeing them again. And finally *logcheck.sh* is a helper to notify about non-empty log file(s).
 
 
 ## installation
