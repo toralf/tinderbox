@@ -618,15 +618,15 @@ $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-avai
 $(eselect java-vm list 2>/dev/null)
 EOF
 
-  # add findings to the email body too
-  #
-  SearchForAnAlreadyFiledBug
-
   # b.g.o. has a limit for "Summary" of 255 chars
   #
   if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
     truncate -s 255 $issuedir/title
   fi
+
+  # add findings to the email body too
+  #
+  SearchForAnAlreadyFiledBug
 
   # should be the last step b/c uuencoded attachments might be very large
   # and therefore b.g.o. search results aren't shown by Thunderbird
