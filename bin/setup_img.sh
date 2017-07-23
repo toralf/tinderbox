@@ -26,7 +26,7 @@ function rufs()  {
   cut -f1 -d ' ' |\
   grep -v   -e 'build' -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
             -e 'pax' -e 'qt4' -e 'selinux' -e 'ssl' -e 'static' -e 'systemd'    \
-            -e 'test' -e 'tls' -e 'uclibc' |\
+            -e 'test' -e 'tls' -e 'uclibc' -e 'vim-syntax' |\
   sort -u -R |\
   head -n $(($RANDOM % $n)) |\
   sort |\
@@ -104,6 +104,7 @@ function UnpackStage3()  {
   # maybe: do the same for 0xBB572E0E2D182910
   #
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
+  echo
 
   mkdir $name || exit 4
   cd $name    || exit 4
