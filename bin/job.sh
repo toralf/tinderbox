@@ -495,7 +495,7 @@ function SearchForBlocker() {
     if [[ $? -eq 0 ]]; then
       # no grep -E here, instead -F
       #
-      block="-b $(grep -m 1 -B 1 -F "$pattern" /tmp/tb/data/BLOCKER)"
+      block="-b $(grep -m 1 -B 1 -F "$pattern" /tmp/tb/data/BLOCKER | head -n 1)"
       break
     fi
   done < <(grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER)     # skip comments and bug id lines
