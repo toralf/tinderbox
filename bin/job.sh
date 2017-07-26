@@ -90,7 +90,7 @@ function setNextTask() {
   # switch the java machine too by the way
   #
   if [[ -s $pks ]]; then
-    ts=/tmp/timestamp.@system
+    ts=/tmp/@system.history
     if [[ ! -f $ts ]]; then
       touch $ts
     else
@@ -966,16 +966,16 @@ function WorkOnTask() {
     else
       RunCmd "emerge --update $task"
     fi
-    cp $log /tmp/last.$task.log
+    cp $log /tmp/$task.last.log
 
     if [[ $status -eq 0 ]]; then
-      echo "$(date) ok" >> /tmp/timestamp.$task
+      echo "$(date) ok" >> /tmp/$task.history
       if [[ "$task" = "@world" ]]; then
           echo "%emerge --depclean" >> $pks
       fi
 
     else
-      echo "$(date) status=$status $failed" >> /tmp/timestamp.$task
+      echo "$(date) status=$status $failed" >> /tmp/$task.history
       if [[ $status -eq 1 ]]; then
         # just skip a package ?
         #
@@ -1146,8 +1146,8 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# if a(n old) task file is found, then a hard stop might happened before
-# therefore re-try the interrupted task
+
+# re-try an interrupted task
 #
 if [[ -s $tsk ]]; then
   cat $tsk >> $pks
@@ -1174,5 +1174,3 @@ do
   ParseElogForQA
   rm $tsk
 done
-
-Finish 4 "we should never ever reach this line"
