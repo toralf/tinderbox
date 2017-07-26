@@ -25,7 +25,7 @@ function rufs()  {
   ) |\
   cut -f1 -d ' ' |\
   grep -v   -e 'build' -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
-            -e 'pax' -e 'qt4' -e 'selinux' -e 'ssl' -e 'static' -e 'systemd'    \
+            -e 'pax' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'static' -e 'systemd'    \
             -e 'test' -e 'tls' -e 'uclibc' -e 'vim-syntax' |\
   sort -u -R |\
   head -n $(($RANDOM % $n)) |\
@@ -558,7 +558,7 @@ suffix=""       # will be appended onto the name before the timestamp
 
 # choose an arbitrary profile
 #
-profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n1)
+profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
 
 # switch to 17.0 profile at every n-th image
 #
