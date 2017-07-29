@@ -702,12 +702,10 @@ ConfigureImage
 EmergeMandatoryPackages
 
 cd /home/tinderbox/run && ln -s ../$mnt || exit 11
-
-echo
 echo " setup  OK: $name"
-echo
 
 if [[ "$autostart" = "y" ]]; then
+  echo
   su - tinderbox -c "$(dirname $0)/start_img.sh $name"
 fi
 
