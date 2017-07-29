@@ -249,22 +249,26 @@ EOF
 }
 
 
-# get assignee and cc for the b.g.o. entry (GLEP 67 rules)
+# get assignee and cc for the b.g.o. entry
 #
 function AddMailAddresses() {
-  truncate -s 0 $issuedir/{assignee,cc}
   m=$(equery meta -m $short | grep '@' | xargs)
 
   if [[ -n "$m" ]]; then
-    # "-s" must not be used for assignee, but for cc
-    #
-    echo "$m" | cut -f1  -d ' '     > $issuedir/assignee
-    echo "$m" | cut -f2- -d ' ' -s  > $issuedir/cc
+    a=$(echo "$m" | cut -f1  -d' ')
+    c=$(echo "$m" | cut -f2- -d' ' -s)
+
+    echo "$a" > $issuedir/assignee
+    if [[ -n "$c" ]]; then
+      echo "$c" > $issuedir/cc
+    fi
+  else
+    echo "maintainer-needed@gentoo.org" > $issuedir/assignee
   fi
 }
 
 
-# comment #0 at b.g.o. starts with the issue, after that present this info
+# present this info in #comment0 at b.g.o.
 #
 function AddWhoamiToIssue() {
   cat << EOF >> $issuedir/issue
@@ -306,7 +310,7 @@ function AddMetainfoToBody() {
 --
 versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
-cc:       $(cat $issuedir/cc)
+cc:       $(cat $issuedir/cc 2>/dev/null)
 --
 
 EOF
@@ -538,9 +542,15 @@ function SearchForAnAlreadyFiledBug() {
       break
     fi
 
-    id=$(bugz -q --columns 400 search --show-status --status RESOLVED $i "$(cat $bsi)" | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+    id=$(bugz -q --columns 400 search --show-status --resolution "FIXED" --status RESOLVED $i "$(cat $bsi)" | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
-      echo "RESOLVED " >> $issuedir/bgo_result
+      echo "FIXED " >> $issuedir/bgo_result
+      break
+    fi
+
+    id=$(bugz -q --columns 400 search --show-status --resolution "DUPLICATE" --status RESOLVED $i "$(cat $bsi)" | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+    if [[ -n "$id" ]]; then
+      echo "DUPLICATE " >> $issuedir/bgo_result
       break
     fi
 

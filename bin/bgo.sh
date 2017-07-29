@@ -142,15 +142,15 @@ if [[ -n "$block" ]]; then
 fi
 
 # set assignee and cc as the last step (requested by prometheanfire via IRC)
+# to reduce the bot email amount to the only one email sent out
+# when all data are attached to the report
 #
-if [[ -s ./assignee ]]; then
-  cc=""
-  if [[ -s ./cc ]]; then
-    cc="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
-  fi
-  bugz modify -a "$(cat ./assignee)" $cc $id 1>>bugz.out 2>>bugz.err || errmsg $?
-else
-  bugz modify -a "maintainer-needed@gentoo.org" $id 1>>bugz.out 2>>bugz.err || errmsg $?
+a="-a $(cat ./assignee)"
+if [[ -s ./cc ]]; then
+  # every entry in cc needs prefixed with --add-cc
+  #
+  c="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
 fi
+bugz modify $a $c $id 1>>bugz.out 2>>bugz.err || errmsg $?
 
 echo
