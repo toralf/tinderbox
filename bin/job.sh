@@ -301,7 +301,7 @@ function AttachFilesToBody()  {
 }
 
 
-# this info helps to decide to file a bug eg. for a stable package
+# this info helps to decide whether to file a bug eg. for a stable package
 # despite the fact that the issue was already fixed in an unstable version
 #
 function AddMetainfoToBody() {
@@ -317,14 +317,14 @@ EOF
 }
 
 
-# strip away the version (get $PN from $P)
+# get $PN from $P (strip away the version)
 #
 function pn2p() {
   echo $(qatom "$1" 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
 }
 
 
-# 777: permmit any user to edit eg. the title
+# 777: permit every user to edit the files
 #
 function CreateIssueDir() {
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
@@ -629,6 +629,9 @@ $(eselect python  list 2>/dev/null)
 $(eselect ruby    list 2>/dev/null)
 $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-available-vms --nocolor )
 $(eselect java-vm list 2>/dev/null)
+
+emerge -qpv $short
+$(emerge -qpv $short)
 EOF
 
   if [[ -s $issuedir/title ]]; then
