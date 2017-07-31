@@ -631,7 +631,7 @@ $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-avai
 $(eselect java-vm list 2>/dev/null)
 
 emerge -qpv $short
-$(emerge -qpv $short)
+$(emerge -qpv $short 2>/dev/null)
 EOF
 
   if [[ -s $issuedir/title ]]; then
