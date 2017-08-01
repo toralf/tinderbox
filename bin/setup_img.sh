@@ -24,7 +24,7 @@ function rufs()  {
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':' -s
   ) |\
   cut -f1 -d ' ' |\
-  grep -v   -e 'build' -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
+  grep -v   -e 'build' -e 'gcj' -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
             -e 'pax' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'static' -e 'systemd'    \
             -e 'test' -e 'tls' -e 'uclibc' -e 'vim-syntax' |\
   sort -u -R |\
@@ -292,7 +292,7 @@ CXXFLAGS="\$CXXFLAGS -g -ggdb"
 FEATURES="splitdebug"
 EOF
 
-  # no special c++ flags (eg. revert "-Werror=terminate" set in job.sh for gcc-6)
+  # no special c++ flags (eg. to revert "-Werror=terminate" which will be set in job.sh for gcc-6)
   #
   echo 'CXXFLAGS="-O2 -pipe -march=native"' > ./etc/portage/env/cxx
 

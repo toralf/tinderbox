@@ -460,8 +460,10 @@ function GuessTitleAndIssue() {
       sed -i -e "1d" $issuedir/issue
     fi
 
-    # this gcc-6 issue is forced by us
-    # therefore build the failed package now with default CXX flags
+    # re-try to build the failed package with default CXX flags
+    #
+    # nifty side effect of the warning:
+    # gcc-5 fails to be build b/c the warning is too new for it
     #
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
