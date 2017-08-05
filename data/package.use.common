@@ -18,10 +18,6 @@ sys-apps/coreutils        -kill
 sys-apps/kmod             tools
 sys-apps/util-linux       -kill
 
-# hang: https://bugs.gentoo.org/show_bug.cgi?id=540818
-#
-app-editors/xemacs        -nopie
-
 # can't be linked statically otherwise
 #
 sys-apps/busybox          -pam

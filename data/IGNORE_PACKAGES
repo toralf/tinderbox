@@ -4,7 +4,7 @@
 #
 # this file MUST NOT have empty lines (except the last one)
 #
-# permanent list
+# categories:
 #
 app-eselect/
 dev-embedded/
@@ -14,18 +14,23 @@ sec-policy/
 sys-kernel/
 virtual/
 #
-# outdated, br0ken, breaks rebuild,r too fat ...
+# packages:
+# outdated, br0ken, breaks revdep-rebuild, too fat, ...
 #
 app-xemacs/
+dev-perl/Math-Pari
 net-analyzer/openvas
 net-analyzer/snips
 net-dns/s6
+sci-libs/linux-gpib
+sci-mathematics/pari
+sys-apps/modutils
 sys-apps/s6
-sys-fs/loop-aes
-sys-fs/vhba
 sys-cluster/drbd-kernel
 sys-cluster/mvapich2
+sys-fs/loop-aes
+sys-fs/vhba
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
 www-client/chromium
-#
+www-client/google-chrome

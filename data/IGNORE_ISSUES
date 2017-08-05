@@ -28,6 +28,7 @@ Linux .* is the latest supported version.
 mingw is needed
 MINITUBE_GOOGLE_API_KEY env variable not defined!
 Multiple package instances within a single package slot have been pulled
+Need FEATURES=-userpriv to run this testsuite
 needs multilib profile on amd64
 No compatible Ruby target selected.
 no suitable configured kernel include tree found
@@ -59,3 +60,7 @@ You must build your code with position independent code if Qt was built
 you must set LINGUAS in /etc/make.conf
 You need to apply a patch to your kernel to compile and run the aufs4 module
 Your C compiler is too old for this package.
+: Fatal error --
+error:certificate has expired
+ \*   invalid use flag combination
+ \*   You need one of the following mpi implementations:
