@@ -39,12 +39,8 @@ EOF
 # set package specific USE flags, otherwise switch to LibreSSL or @system often fails
 #
 cat << EOF > /etc/portage/package.use/libressl
-app-admin/webmin          -ssl
-dev-db/mysql-connector-c  -ssl
 dev-lang/python           -tk
-dev-qt/qtnetwork          -ssl
 dev-qt/qtsql              -mysql
-www-servers/apache        -ssl
 EOF
 chmod a+rw /etc/portage/package.use/libressl
 
