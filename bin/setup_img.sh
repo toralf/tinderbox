@@ -24,8 +24,8 @@ function rufs()  {
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':' -s
   ) |\
   cut -f1 -d ' ' |\
-  grep -v   -e 'build' -e 'gcj' -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
-            -e 'pax' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'static' -e 'systemd'    \
+  grep -v   -e 'bindist' -e 'build' -e 'cdinstall' -e 'gcj' -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
+            -e 'oci8' -e 'pax' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'ssp' -e 'static' -e 'systemd'    \
             -e 'test' -e 'tls' -e 'uclibc' -e 'vim-syntax' |\
   sort -u -R |\
   head -n $(($RANDOM % $n)) |\
@@ -365,11 +365,13 @@ function FillPackageList()  {
     echo "INFO replay $n tasks of $origin" >> $pks
   fi
 
-  # emerge/upgrade mandatory package/s and upgrade @system
+  # emerge/upgrade mandatory package/s and update the image
+  # use "%..." to bail out in case of an error
   # "# ..." keeps insert_pks.sh away till the basic image setup is done
   #
   cat << EOF >> $pks
 # setup done
+%emerge -u sys-kernel/gentoo-sources
 @world
 app-text/wgetpaste
 app-portage/pfl
@@ -385,10 +387,8 @@ EOF
     echo "%/tmp/switch2libressl.sh" >> $pks
   fi
 
-  # use "%..." to bail out in case of an error
   #
   cat << EOF >> $pks
-%emerge -u sys-kernel/gentoo-sources
 %emerge -u sys-devel/gcc
 sys-apps/sandbox
 EOF
