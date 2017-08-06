@@ -64,3 +64,4 @@ Your C compiler is too old for this package.
 error:certificate has expired
  \*   invalid use flag combination
  \*   You need one of the following mpi implementations:
+ \*   ada compiler not available
