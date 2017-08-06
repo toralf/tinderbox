@@ -50,3 +50,7 @@ kde-frameworks/kdelibs    -webkit
 # https://bugs.gentoo.org/show_bug.cgi?id=624338
 #
 dev-java/icedtea-bin     -multilib
+
+# https://bugs.gentoo.org/616228
+#
+dev-qt/qtcore:4           -abi_x86_32
