@@ -583,15 +583,9 @@ if [[ "$keyword" = "stable" ]]; then
   libressl="n"
 fi
 
-# are 32 bit libs still needed in the wild ?
+# legacy: 32 bit libs
 #
 multilib="n"
-echo "$profile" | grep -q 'no-multilib'
-if [[ $? -ne 0 ]]; then
-  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
-    multilib="y"
-  fi
-fi
 
 # create a randomized USE flag subset
 #
