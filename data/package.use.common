@@ -49,8 +49,13 @@ kde-frameworks/kdelibs    -webkit
 
 # https://bugs.gentoo.org/show_bug.cgi?id=624338
 #
-dev-java/icedtea-bin     -multilib
+dev-java/icedtea-bin      -multilib
 
 # https://bugs.gentoo.org/616228
 #
 dev-qt/qtcore:4           -abi_x86_32
+
+# needed du to test
+#
+sys-apps/dbus             debug
+x11-base/xorg-server      xvfb
