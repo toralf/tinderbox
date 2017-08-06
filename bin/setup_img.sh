@@ -24,7 +24,8 @@ function rufs()  {
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':' -s
   ) |\
   cut -f1 -d ' ' |\
-  grep -v   -e 'bindist' -e 'build' -e 'cdinstall' -e 'gcj' -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
+  grep -v   -e 'abi_x86_32' -e 'bindist' -e 'build' -e 'cdinstall' \
+            -e 'gcj' -e 'hostname' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
             -e 'oci8' -e 'pax' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'ssp' -e 'static' -e 'systemd'    \
             -e 'test' -e 'tls' -e 'uclibc' -e 'vim-syntax' |\
   sort -u -R |\
