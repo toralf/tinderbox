@@ -86,6 +86,10 @@ function ComputeImageName()  {
   name="${name}_$(date +%Y%m%d-%H%M%S)"
 
   name="$(echo $name | sed -e 's/_[-_]/_/g')"
+
+  mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
+  echo " $mnt"
+  echo
 }
 
 
@@ -266,16 +270,16 @@ function CompilePackageFiles()  {
   touch       ./etc/portage/package.mask/self     # contains failed package at this image
   chmod a+rw  ./etc/portage/package.mask/self
 
-  touch      ./etc/portage/package.use/setup      # USE flags added during setup phase
+  touch      ./etc/portage/package.use/setup      # USE flags added at setup
   chmod a+rw ./etc/portage/package.use/setup
 
   # activate at every n-th image predefined USE flag sets
   #
-  if [[ $(($RANDOM % 100)) -lt 40 ]]; then
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
     (cd ./etc/portage/package.use && ln -s ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb)
   fi
 
-  if [[ $(($RANDOM % 100)) -lt 25 ]]; then
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
     (cd ./etc/portage/package.use && ln -s ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
   fi
 
@@ -501,7 +505,7 @@ EOF
 }
 
 
-# at least a MTA and bugz are needed
+# at least a MTA and bugz are emerged within the setup script
 #
 function EmergeMandatoryPackages() {
   CreateSetupScript
@@ -544,7 +548,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-# store the stage3 images in the distfiles directory
+# store the stage3 file in the distfiles directory
 #
 distfiles=/var/tmp/distfiles
 
@@ -558,16 +562,14 @@ origin=""       # clone from another image ?
 suffix=""       # will be appended onto the name before the timestamp
 
 # choose an arbitrary profile
-#
-profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
-
 # switch to 17.0 profile at every n-th image
 #
+profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's/13/17/')"
 fi
 
-# to test stable use the command line option
+# force "stable" with the command line option
 #
 keyword="unstable"
 
@@ -597,7 +599,9 @@ do
     a)  autostart="$OPTARG"
         ;;
 
-    f)  if [[ -f "$OPTARG" ]] ; then
+    f)  # set the USE flags
+        #
+        if [[ -f "$OPTARG" ]] ; then
           # USE flags are either defined after USE="..." or justed listed as-is
           #
           flags="$(source $OPTARG; echo $USE)"
@@ -609,7 +613,9 @@ do
         fi
         ;;
 
-    k)  keyword="$OPTARG"
+    k)  # TODO: spelling of the varibale right ?
+        #
+        keyword="$OPTARG"
         if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
           echo " wrong value for \$keyword: $keyword"
           exit 2
@@ -630,7 +636,9 @@ do
         fi
         ;;
 
-    o)  origin="$OPTARG"
+    o)  # "clone" an image
+        #
+        origin="$OPTARG"
         if [[ ! -e $origin ]]; then
           echo "\$origin '$origin' doesn't exist"
           exit 2
@@ -680,18 +688,20 @@ done
 
 #############################################################################
 #
+
+# expect a dedicated image directory
+#
 if [[ "$(pwd)" = "/home/tinderbox" ]]; then
   echo "you are in /home/tinderbox !"
   exit 3
 fi
 
+# the latest file contains all image fiel relevant data
+#
 latest=$distfiles/latest-stage3.txt
 wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
 
 ComputeImageName
-mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
-echo " $mnt"
-echo
 UnpackStage3
 ConfigureImage
 EmergeMandatoryPackages
