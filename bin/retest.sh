@@ -21,7 +21,7 @@ do
     continue
   fi
 
-  # remove all package specific entries made in job.sh
+  # remove all package entries made by job.sh
   #
   sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d"  \
     ~/tb/data/ALREADY_CATCHED                   \
@@ -36,14 +36,14 @@ do
 
     pks=$i/tmp/packages
 
-    # here we do not care about package lists having lines starting with a #
+    # do not care about lines starting with a hash sign
     #
     grep -q -E -e "^(STOP|INFO|%|@)" $pks
     if [[ $? -eq 0 ]]; then
       continue
     fi
 
-    # re-schedule the package itself (not a specific version)
+    # re-schedule the package itself not a specific version of it
     #
     echo "$p" >> $pks
   done
