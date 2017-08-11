@@ -333,9 +333,9 @@ function CreateIssueDir() {
 }
 
 
-# helper of GuessTitleAndIssue()
+# helper of ClassifyIssue()
 #
-function foundCollision() {
+function foundCollisionIssue() {
   # provide package name+version althought this gives more noise in our inbox
   #
   s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
@@ -352,7 +352,7 @@ function foundCollision() {
 }
 
 
-# helper of GuessTitleAndIssue()
+# helper of ClassifyIssue()
 #
 function foundSandboxIssue() {
   echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
@@ -379,7 +379,7 @@ EOF
 }
 
 
-# helper of GuessTitleAndIssue()
+# helper of ClassifyIssue()
 #
 function foundTestIssue() {
   # do not define "test-fail-continue" in make.conf
@@ -421,13 +421,13 @@ function foundTestIssue() {
 
 # get the issue
 # get an descriptive title from the most meaningful lines of the issue
-# edit package.env/... if needed (especially to re-try that package with defaults)
+# if needed: change package.env/...  to re-try failed with defaults settings
 #
-function GuessTitleAndIssue() {
+function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
-    foundCollision
+    foundCollisionIssue
 
   elif [[ -f $sandb ]]; then
     foundSandboxIssue
@@ -445,6 +445,10 @@ function GuessTitleAndIssue() {
       fi
     done
 
+    # an issue in the test phase might not be the only one issue
+    # eg. with test-fail-continue we might still get an issue in
+    # the install phase
+    #
     if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" ]]; then
       foundTestIssue
     fi
@@ -460,13 +464,12 @@ function GuessTitleAndIssue() {
       sed -i -e "1d" $issuedir/issue
     fi
 
-    # re-try to build the failed package with default CXX flags
-    #
-    # nifty side effect of the warning:
-    # gcc-5 fails to be build b/c the warning is too new for it
+    # gcc-5 fails to be build with this compile option b/c it is introduced in gcc-6
     #
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
+      # re-try to build the failed package with default CXX flags
+      #
       grep -q "=$failed cxx" /etc/portage/package.env/cxx 2>/dev/null
       cat <<EOF >> $issuedir/issue
 
@@ -598,7 +601,7 @@ function CompileIssueMail() {
   emerge -p --info $short &> $issuedir/emerge-info.txt
 
   AddMailAddresses
-  GuessTitleAndIssue
+  ClassifyIssue
 
   # shrink too long error messages
   #
