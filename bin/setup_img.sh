@@ -658,11 +658,9 @@ do
           keyword="stable"
         fi
 
-        grep -q '#ABI_X86="32 64"' $origin/etc/portage/make.conf
+        grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           multilib="y"
-        else
-          multilib="n"
         fi
         ;;
 

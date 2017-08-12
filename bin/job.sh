@@ -169,7 +169,7 @@ function setNextTask() {
 }
 
 
-# with ABI="32 64" we have more than one ./work directory in /var/tmp/portage/<category>/<name>
+# for ABI_X86="32 64" we have two ./work directories in /var/tmp/portage/<category>/<name>
 #
 function setWorkDir() {
   workdir=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'" -s)
