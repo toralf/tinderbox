@@ -7,42 +7,41 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
     cd ~/img2; setup_img.sh
 
 A profile, keyword and a USE flag set are choosen.
-The current stage3 file is downloaded, verified and unpacked.
+The current *stage3* file is downloaded, verified and unpacked.
 Mandatory portage config files will be compiled.
 Few required packages (*ssmtp*, *pybugz* etc.) are installed.
 The package list */tmp/packages* is created.
-The upgrade of GCC and the switch to libressl - if applicable - are scheduled as the first tasks.
 A symlink is made into *~/run* and the image is started.
 
 ### start an image
     
     start_img.sh <image>
 
-The wrapper *chr.sh* handles all chroot related actions and calls the tinderbox script *job.sh* itself.
-The file */tmp/LOCK* is created to avoid 2 parallel starts.
-Without an argument all symlinks in *~/run* are processed.
+The wrapper *chr.sh* handles all chroot related actions and gives control to *job.sh*.
+The file */tmp/LOCK* is created to avoid 2 parallel starts of the same image.
+Without any arguments all symlinks in *~/run* are processed.
 
 ### stop an image
 
     stop_img.sh <image>
 
 A marker (*/tmp/STOP*) is made in that image.
-The current task operation will be finished before *job.sh* removes */tmp/LOCK* and exits.
+The current task operation will be finished before *job.sh* removes */tmp/{LOCK,STOP}* and exits.
 
-### chroot into a stopped image
+### complete chroot into a stopped image
     
-    sudo /opt/tb/bin/chr.sh <image with dir>
+    sudo /opt/tb/bin/chr.sh <image>
 
-This bind-mounts all host-related dirs. Without any argument then an interactive login is made. Otherwise the arguments are treated as command(s) to be run within that image and an exit is made afterwards.
+This bind-mounts all host-related dirs. Without any argument an interactive login is made. Otherwise the arguments are treated as command(s) to be run within that image and an exit is made afterwards.
 
-### chroot into a running image
+### simple chroot into a running image
     
     sudo /opt/tb/bin/scw.sh <image>
 
-Simple wrapper of chroot with few checks.
+Simple wrapper of chroot with few checks, no hosts files are mounted. This can be made if an image is already running and therefore chr.sh can't be used.
 
 ### removal of an image
-Just remove the symlink in *~/run*.
+Stop the image and remove the symlink in *~/run*.
 The chroot image itself will be kept around in the data dir.
 
 ### status of all images
