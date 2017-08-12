@@ -16,8 +16,8 @@
 # create a (r)andomized (U)SE (f)lag (s)ubset
 #
 function rufs()  {
-  n=99   # choose between 0 and n-1 USE flags
-  m=5    # about 1/m will be masked
+  n=75   # throw between 0 and n-1 USE flags
+  m=10   # about 1/m will be masked
 
   (
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.desc
@@ -569,19 +569,15 @@ if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's/13/17/')"
 fi
 
-# force "stable" with the command line option
+# for "stable" use the command line option
 #
 keyword="unstable"
 
+# test LibreSSL at every n-th image
+#
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
 else
-  libressl="n"
-fi
-
-# LibreSSL isn't ready for stable
-#
-if [[ "$keyword" = "stable" ]]; then
   libressl="n"
 fi
 
