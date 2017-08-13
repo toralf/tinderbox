@@ -218,7 +218,7 @@ CLEAN_DELAY=0
 
 ALSA_CARDS="hda-intel"
 INPUT_DEVICES="evdev libinput"
-VIDEO_CARDS="intel i965"
+VIDEO_CARDS="intel"
 
 L10N="$l10n"
 
