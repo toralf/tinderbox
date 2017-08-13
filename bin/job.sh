@@ -157,15 +157,11 @@ function setNextTask() {
         fi
       fi
 
-      # well, $task is set to something valid
+      # $task is valid
       #
       return
     fi
   done
-
-  # a valid $task would be catched by a return within the loop
-  #
-  task=""
 }
 
 
