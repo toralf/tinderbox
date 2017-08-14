@@ -578,11 +578,11 @@ EOF
     g='stabilize|Bump| keyword| bump'
 
     echo "  OPEN:     ${h}&resolution=---&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --show-status      $short | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
+    bugz --columns 400 -q search --show-status      $short | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
 
     echo "" >> $issuedir/body
     echo "  RESOLVED: ${h}&bug_status=RESOLVED&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --status RESOLVED  $short | grep -v -i -E "$g" | sort -u -n | tail -n 20 | tac >> $issuedir/body
+    bugz --columns 400 -q search --status RESOLVED  $short | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
   fi
 
   # this newline makes the copy+paste of the last line of the email body more convenient
@@ -683,6 +683,7 @@ function setFailedAndShort()  {
 
   short=$(pn2p "$failed")
   if [[ ! -d /usr/portage/$short ]]; then
+    Mail "warn: '$failed' and/or '$short' are invalid atoms, task: $task" $bak
     failed=""
     short=""
   fi
@@ -693,7 +694,7 @@ function SendoutIssueMail()  {
   # no matching pattern in CATCH_* == no title
   #
   if [[ -s $issuedir/title ]]; then
-    # do not report the same issue again or use retest.sh
+    # do not report the same issue again
     #
     grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
     if [[ $? -eq 0 ]]; then
@@ -713,7 +714,7 @@ function SendoutIssueMail()  {
 # otherwise we'd need to use "--deep" unconditionally
 # (https://bugs.gentoo.org/show_bug.cgi?id=563482)
 #
-function KeepDeps() {
+function PutDepsInWorld() {
   line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
   echo "$line" | grep -q ':  === ('
   if [[ $? -eq 0 ]]; then
@@ -728,7 +729,7 @@ function KeepDeps() {
 # collect files, create an email and decide, whether to send it out or not
 #
 function GotAnIssue()  {
-  KeepDeps
+  PutDepsInWorld
 
   # bail out immediately, no reasonable emerge log expected
   #
@@ -765,7 +766,6 @@ function GotAnIssue()  {
   #
   setFailedAndShort
   if [[ -z "$failed" ]]; then
-    Mail "warn: \$failed is empty for task: $task" $bak
     return
   fi
 
@@ -808,8 +808,8 @@ function GotAnIssue()  {
 #
 function BuildKernel()  {
   (
-    eval $(grep -e ^CC= -e ^CXX= /etc/portage/make.conf)
-    export CC CXX
+    eval $(grep -e ^CC= /etc/portage/make.conf)
+    export CC
 
     cd /usr/src/linux     &&\
     make defconfig        &&\
@@ -897,7 +897,7 @@ function PostEmerge() {
     echo "@preserved-rebuild" >> $pks
   fi
 
-  # build and switch to the new kernel after nealry all other things
+  # build and switch to the new kernel after nearly all other things
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
