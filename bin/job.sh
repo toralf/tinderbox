@@ -378,20 +378,10 @@ EOF
 # helper of ClassifyIssue()
 #
 function foundTestIssue() {
-  # do not define "test-fail-continue" in make.conf
-  # b/c then emerge wouldn't return a failure code
-  #
-  grep -q -e "=$failed " /etc/portage/package.env/test-fail-continue 2>/dev/null
+  grep -q -e "=$failed " /etc/portage/package.env/notest 2>/dev/null
   if [[ $? -ne 0 ]]; then
-    echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+    echo "=$failed notest" >> /etc/portage/package.env/notest
     try_again=1
-
-  else
-    grep -q -e "=$failed " /etc/portage/package.env/notest 2>/dev/null
-    if [[ $? -ne 0 ]]; then
-      echo "=$failed notest" >> /etc/portage/package.env/notest
-      try_again=1
-    fi
   fi
 
   (
@@ -441,10 +431,6 @@ function ClassifyIssue() {
       fi
     done
 
-    # an issue in the test phase might not be the only one issue
-    # eg. with test-fail-continue we might still get an issue in
-    # the install phase
-    #
     if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" ]]; then
       foundTestIssue
     fi
