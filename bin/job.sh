@@ -743,7 +743,7 @@ function GotAnIssue()  {
   grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $bak
   if [[ $? -eq 0 ]]; then
     echo "$task" >> $pks
-    Finish 3 "KILLED"
+    Finish 1 "KILLED"
   fi
 
   # the shared repository solution is (sometimes) racy
@@ -777,26 +777,7 @@ function GotAnIssue()  {
   CollectIssueFiles
   CompileIssueMail
 
-  # special handling, this whole section should ge eventually away
-  #
-  grep -q -e 'perl module is required for intltool' -e "Can't locate .* in @INC" $bak
-  if [[ $? -eq 0 ]]; then
-    Mail "info: Perl upgrade issue: https://bugs.gentoo.org/show_bug.cgi?id=596664" $bak
-
-    if [[ "$tsk" =~ 'perl-cleaner' ]]; then
-      Finish 2 "$tsk repeated"
-    fi
-
-    # repeat $task *after* perl-cleaner therefore try_again=1 won't work here
-    #
-    echo "$task" >> $pks
-    echo "%perl-cleaner --all" >> $pks
-    status=2
-
-    echo -e "\nThis might be a dup of bug #596664" >> $issuedir/issue
-  fi
-
-  if [[ $try_again -eq 0 && $status -ne 2 ]]; then
+  if [[ $try_again -eq 0 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
@@ -892,7 +873,7 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     n=$(tail -n 50 /tmp/task.history | grep -c '@preserved-rebuild')
     if [[ $n -gt 15 ]]; then
-      Finish 2 "@preserved-rebuild >=30%"
+      Finish 3 "@preserved-rebuild >=30%"
     fi
     echo "@preserved-rebuild" >> $pks
   fi
@@ -933,8 +914,7 @@ function PostEmerge() {
 }
 
 
-# just run the command ($1) - usually "emerge <something>" -
-# and parse its output
+# run the command ($1) and parse its output
 #
 function RunCmd() {
   ($1) &>> $log
@@ -946,15 +926,8 @@ function RunCmd() {
 
   if [[ $status -eq 0 ]]; then
     rm $bak
-
   else
     GotAnIssue
-    # status is already set to "2" for the infamous Perl upgrade issue
-    #
-    if [[ $try_again -eq 1 && status -ne 2 ]]; then
-      echo "$task" >> $pks
-      status=2
-    fi
   fi
 }
 
@@ -965,7 +938,6 @@ function RunCmd() {
 function WorkOnTask() {
   # status=0  ok
   # status=1  task failed
-  # status=2  task failed and special post-actions are scheduled
   #
   status=0
   failed=""     # hold the failed package name
@@ -989,18 +961,17 @@ function WorkOnTask() {
       fi
 
     else
-      echo "$(date) status=$status $failed" >> /tmp/$task.history
-      if [[ $status -eq 1 ]]; then
-        # just skip a package ?
-        #
+      if [[ $try_again -eq 1 ]]; then
+        echo "$task" >> $pks
+      else
+        echo "$(date) $failed" >> /tmp/$task.history
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         elif [[ "$task" = "@preserved-rebuild" ]]; then
-          Finish 2 "$task failed"
+          Finish 3 "$task failed"
         fi
       fi
     fi
-
     # feed the online package database
     #
     /usr/bin/pfl &>/dev/null
@@ -1017,7 +988,7 @@ function WorkOnTask() {
         # re-schedule the task but bail out too to fix breakage manually
         #
         echo -e "$task" >> $pks
-        Finish 2 "command '$cmd' failed"
+        Finish 3 "command '$cmd' failed"
       fi
     fi
 
