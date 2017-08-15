@@ -5,7 +5,7 @@
 # few tinderbox statistics
 #
 
-# get anything symlinnked into ~/run or otherwise mounted
+# watch any image either symlinked into ~/run or mounted
 #
 function list_images() {
   (
