@@ -3,15 +3,8 @@
 # this file resides in /tmp/tb/data within a tinderbox image
 # the appropriate symlink under /etc/portage/ points to it
 
-# various issue(s) at the 1st start of vim
-#
-app-vim/c-support
-app-vim/ctx
-app-vim/curcmdmode
-app-vim/easytags
-app-vim/notes
-
-#	media-libs/libjpeg-turbo is preferred: https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
+#	media-libs/libjpeg-turbo is preferred, ABI breakage otherwise:
+# https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
 #
 media-libs/jpeg
 
@@ -51,10 +44,10 @@ app-admin/elektra
 #
 app-misc/grc
 
-# repeating perl upgrade issue
+# repeated perl upgrade issue
 #
 www-misc/vdradmin-am
 
-# breaks nearly all b/c it sneaks into the PATHs
+# call for trouble b/c it sneaks into PATH
 #
 dev-util/plan9port
