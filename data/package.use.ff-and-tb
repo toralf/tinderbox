@@ -7,7 +7,8 @@
 
 dev-db/sqlite             secure-delete
 dev-lang/python           sqlite
-mail-client/thunderbird   -pulseaudio gstreamer system-icu
+dev-libs/libpcre          pcre16
+mail-client/thunderbird   gstreamer -pulseaudio system-icu
 media-libs/libcanberra    alsa
 media-libs/libpng         apng
 media-libs/libsdl2        video
@@ -20,3 +21,4 @@ sys-libs/tevent           python
 www-client/firefox        -pulseaudio system-icu
 x11-libs/cairo            X
 x11-libs/libxcb           xkb
+
