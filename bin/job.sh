@@ -517,11 +517,10 @@ function SearchForAnAlreadyFiledBug() {
     sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
   fi
 
-  # search first for the same version, then for category/package name, eventually only for the package name
-  # take the highest bug id as finding and put the summary of the last 10 bugs into the email body
+  # search first for the same version, then for category/package name
+  # take the highest bug id, but put the summary of the newest 10 bugs into the email body
   #
-
-  for i in $failed $short $(echo $short | cut -f2 -d'/' -s)
+  for i in $failed $short
   do
     id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
@@ -529,18 +528,14 @@ function SearchForAnAlreadyFiledBug() {
       break
     fi
 
-    id=$(bugz -q --columns 400 search --show-status --resolution "FIXED" --status RESOLVED $i "$(cat $bsi)" | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
-    if [[ -n "$id" ]]; then
-      echo "FIXED " >> $issuedir/bgo_result
-      break
-    fi
-
-    id=$(bugz -q --columns 400 search --show-status --resolution "DUPLICATE" --status RESOLVED $i "$(cat $bsi)" | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
-    if [[ -n "$id" ]]; then
-      echo "DUPLICATE " >> $issuedir/bgo_result
-      break
-    fi
-
+    for s in FIXED WORKSFORME DUPLICATE
+    do
+      id=$(bugz -q --columns 400 search --show-status --resolution "$s" --status RESOLVED $i "$(cat $bsi)" | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+      if [[ -n "$id" ]]; then
+        echo "$s " >> $issuedir/bgo_result
+        break 2
+      fi
+    done
   done
 }
 
