@@ -885,13 +885,6 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $pks
   fi
-
-  # fixing Perl asap
-  #
-  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $bak
-  if [[ $? -eq 0 ]]; then
-    echo "%perl-cleaner --all" >> $pks
-  fi
 }
 
 
