@@ -859,10 +859,6 @@ function PostEmerge() {
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    n=$(tail -n 50 /tmp/task.history | grep -c '@preserved-rebuild')
-    if [[ $n -gt 15 ]]; then
-      Finish 3 "@preserved-rebuild >=30%"
-    fi
     echo "@preserved-rebuild" >> $pks
   fi
 
@@ -891,6 +887,13 @@ function PostEmerge() {
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $pks
+  fi
+
+  # prevent endless loops
+  #
+  n=$(tail -n 50 /tmp/task.history | sort -u | wc -l)
+  if [[ $n -lt 35 ]]; then
+    Finish 3 "task repeating >=30%"
   fi
 }
 
