@@ -758,6 +758,13 @@ function GotAnIssue()  {
   CollectIssueFiles
   CompileIssueMail
 
+  grep -q -e "Fix the problem and start perl-cleaner again." $bak
+  if [[ $? -eq 0 ]]; then
+    try_again=1
+    echo "$task" >> $pks      # task might be "@system"
+    task="%perl-cleaner --all"
+  fi
+
   if [[ $try_again -eq 0 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
@@ -958,7 +965,7 @@ function WorkOnTask() {
     if [[ $status -eq 1 ]]; then
       # don't care for a failed resume
       #
-      if [[ ! "$cmd" =~ " --resume" ]]; then
+      if [[ ! "$cmd" =~ "perl-cleaner" && ! "$cmd" =~ " --resume" ]]; then
         # re-schedule the task but bail out too to fix breakage manually
         #
         echo -e "$task" >> $pks
