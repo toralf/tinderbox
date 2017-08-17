@@ -563,7 +563,8 @@ if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's/13/17/')"
 fi
 
-# for "stable" use the command line option
+# we test unstable, for "stable" use the command line option
+# TODO: spelling of the variable "keyword"
 #
 keyword="unstable"
 
@@ -575,7 +576,7 @@ else
   libressl="n"
 fi
 
-# legacy: 32 bit libs
+# legacy: 32 bit libs, override it with a command line option
 #
 multilib="n"
 
@@ -589,11 +590,11 @@ do
     a)  autostart="$OPTARG"
         ;;
 
-    f)  # set the USE flags
+    f)  # USE flags are either defined in a statement like USE="..."
+        # or justed listed as-is in a file
+        # or defined at the command line
         #
         if [[ -f "$OPTARG" ]] ; then
-          # USE flags are either defined after USE="..." or justed listed as-is
-          #
           flags="$(source $OPTARG; echo $USE)"
           if [[ -z "$flags" ]]; then
             flags="$(cat $OPTARG)"
@@ -603,9 +604,7 @@ do
         fi
         ;;
 
-    k)  # TODO: spelling of the varibale right ?
-        #
-        keyword="$OPTARG"
+    k)  keyword="$OPTARG"
         if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
           echo " wrong value for \$keyword: $keyword"
           exit 2
