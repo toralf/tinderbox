@@ -38,7 +38,7 @@ USE Flag .* not in IUSE
 was not declared in this scope
 You need package
 error: .* has not been declared
-FAILED: test/
+FAILED: test
 ninja: build stopped:
 : undefined method
 Please specify at least one package name on the command line.
@@ -53,8 +53,9 @@ Unknown CMake command
 include called with wrong number of arguments
 Fetched file: .* VERIFY FAILED!
 : fatal error: .*
-: error: .*
-Could NOT find .* (missing: .*)
+internal error in relocate
+Failure:
+: error:
 Could not find Objective-C runtime
   A duplicate ELSE command was found inside an IF block.
 Failed to load interface for
@@ -191,7 +192,6 @@ backend requires .* - aborting
 convert: no
 syntax error
 record .* undefined
-Package .* not found
 E: Failure
 terminated with error code
 setup.py:.*: UserWarning: .* must be installed to build
@@ -208,11 +208,14 @@ gmcs: No such file or directory
 eapply: no files specified
 python_export called without a python implementation and EPYTHON is unset
 Discovering .* failed
+make: .*: Command not found
+Package .* not found
  \(Failed\)
  \(OTHER_FAULT\)
 Errors while running
  Failed .* subtests
 Failed test
+\.\.\. FAILED
 Not supported in your configuration: ocamlopt
 : Analysis failed with error:
 Failed .* tests, .*% okay, .* tests skipped.
@@ -227,7 +230,7 @@ make: .*: Command not found
 ERROR: test(s) failed in
 sh: .* No such file or directory
 /bin/sh: .* Not a directory
-Error .
+Could NOT find .* (missing: .*)
   configure failed
  \* .* is not a valid file/directory
 newinitd:.* does not exist
@@ -247,3 +250,6 @@ Can't open heap image file
 \\[ERROR\\]
  \*   \(no error message\)
 Makefile.* Terminated
+Error .
+Files matching a file type that is not allowed:
+Test suite test-threads: FAIL

@@ -12,20 +12,11 @@ mail-mta/ssmtp            mta ssl
 app-editors/emacs         -dbus -ssl -X
 app-text/xmlto            -latex
 dev-lang/python           threads
-media-libs/mesa           -llvm -vaapi
-net-dns/libidn            -emacs
-sys-apps/coreutils        -kill
 sys-apps/kmod             tools
-sys-apps/util-linux       -kill
 
 # can't be linked statically otherwise
 #
 sys-apps/busybox          -pam
-
-# unmaintained
-#
-app-crypt/pinentry        -qt4
-app-text/poppler          -qt4
 
 # misc
 #
@@ -34,18 +25,14 @@ x11-base/xorg-server      -minimal
 
 # From slyfox:
 #
-# As soon as /etc/profile.d/nix.sh gets installed into system
-# next bash process will create that link and output a message.
+# As soon as /etc/profile.d/nix.sh gets installed
+# the next bash process will create a hard link to it
 #
 sys-apps/nix              -etc_profile
 
 # https://bugs.gentoo.org/show_bug.cgi?id=601784
 #
 net-misc/wget             ssl
-
-# requested by asturm at IRC
-#
-kde-frameworks/kdelibs    -webkit
 
 # https://bugs.gentoo.org/show_bug.cgi?id=624338
 #
@@ -55,7 +42,7 @@ dev-java/icedtea-bin      -multilib
 #
 dev-qt/qtcore:4           -abi_x86_32
 
-# needed du to test
+# needed for FEATURES=test
 #
 sys-apps/dbus             debug
 x11-base/xorg-server      xvfb

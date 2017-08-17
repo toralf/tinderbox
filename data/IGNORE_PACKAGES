@@ -19,9 +19,11 @@ virtual/
 #
 app-xemacs/
 dev-perl/Math-Pari
+dev-python/pyzmq
 net-analyzer/openvas
 net-analyzer/snips
 net-dns/s6
+net-libs/zeromq
 sci-libs/linux-gpib
 sci-mathematics/pari
 sys-apps/modutils
