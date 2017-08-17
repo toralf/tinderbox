@@ -346,7 +346,7 @@ EOF
 function FillPackageList()  {
   pks=./tmp/packages
 
-  # in favour of a good coverage do not test repo changes at all images
+  # in favour of a good coverage don't test every time every repo change at every image
   #
   if [[ $(($RANDOM % 3)) -eq 0 ]]; then
     echo '# this keeps insert_pkgs.sh away' > $pks
@@ -356,9 +356,7 @@ function FillPackageList()  {
   #
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
 
-  # replay tasks, not emerge history
-  # skip @sets, b/c @system and @world are scheduled in the new image at different timestamps
-  #
+  # replay the tasks, not the emerge history
   #
   if [[ -e $origin/tmp/task.history ]]; then
     echo "INFO task history of $origin replayed" >> $pks
