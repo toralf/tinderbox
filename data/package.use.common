@@ -9,8 +9,8 @@ mail-mta/ssmtp            mta ssl
 
 # make a setup of a new tinderbox image less painful
 #
-app-editors/emacs         -dbus -ssl -X
-app-text/xmlto            -latex
+#app-editors/emacs         -dbus -ssl -X
+#app-text/xmlto            -latex
 dev-lang/python           threads
 sys-apps/kmod             tools
 
