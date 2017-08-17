@@ -760,9 +760,11 @@ function GotAnIssue()  {
 
   grep -q -e "Fix the problem and start perl-cleaner again." $bak
   if [[ $? -eq 0 ]]; then
-    try_again=1
-    echo "$task" >> $pks      # task might be "@system"
-    task="%perl-cleaner --all"
+    if [[ $try_again -eq 1 ]]; then
+      task="%emerge --resume"
+    else
+      echo "%perl-cleaner --all" >> $pks
+    fi
   fi
 
   if [[ $try_again -eq 0 ]]; then
