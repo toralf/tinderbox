@@ -651,7 +651,7 @@ do
         fi
         ;;
 
-    p)  profile="$OPTARG"
+    p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
         if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
           echo " profile unknown: $profile"
           exit 2
