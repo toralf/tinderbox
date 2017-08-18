@@ -216,10 +216,6 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
 
-ALSA_CARDS="hda-intel"
-INPUT_DEVICES="evdev libinput"
-VIDEO_CARDS="intel"
-
 L10N="$l10n"
 
 FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news"
@@ -564,16 +560,14 @@ if [[ $(($RANDOM % 3)) -eq 0 ]]; then
 fi
 
 # we test unstable, for "stable" use the command line option
-# TODO: spelling of the variable "keyword"
 #
 keyword="unstable"
 
 # test LibreSSL at every n-th image
 #
+libressl="n"
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
-else
-  libressl="n"
 fi
 
 # legacy: 32 bit libs, override it with a command line option
