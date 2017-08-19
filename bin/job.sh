@@ -447,15 +447,8 @@ function ClassifyIssue() {
 
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
-      # re-try to build the failed package with default CXX flags
-      #
+      echo -e "\nThe compiler option '-Werror=terminate' is forced at the tinderbox for GCC-6 to help stabilizing it." >> $issuedir/issue
       grep -q "=$failed cxx" /etc/portage/package.env/cxx 2>/dev/null
-      cat <<EOF >> $issuedir/issue
-
-The behaviour "-Werror=terminate" is forced at the tinderbox for GCC-6 to help stabilizing it.
-
-EOF
-
       if [[ $? -ne 0 ]]; then
         echo "=$failed cxx" >> /etc/portage/package.env/cxx
         try_again=1
