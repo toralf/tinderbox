@@ -431,23 +431,20 @@ function ClassifyIssue() {
       fi
     done
 
+    if [[ ! -s $issuedir/title ]]; then
+      grep -A 1 " \* ERROR: $short.* failed (.* phase):" $bak | tail -n 1 > $issuedir/title
+    fi
+
     if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" ]]; then
       foundTestIssue
     fi
 
-    if [[ ! -s $issuedir/title ]]; then
-      Mail "warn: empty title for '$task'" $bak
-    fi
-
-    # if the issue text is too big, then delete one line
-    # and hope this is ok
+    # if the issue text is too big, then delete 1st line
     #
     if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
       sed -i -e "1d" $issuedir/issue
     fi
 
-    # gcc-5 fails to be build with this compile option b/c it is introduced in gcc-6
-    #
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
       # re-try to build the failed package with default CXX flags
