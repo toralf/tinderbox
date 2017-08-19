@@ -377,7 +377,7 @@ EOF
 
 # helper of ClassifyIssue()
 #
-function foundTestIssue() {
+function collectTestIssueResults() {
   grep -q -e "=$failed " /etc/portage/package.env/notest 2>/dev/null
   if [[ $? -ne 0 ]]; then
     echo "=$failed notest" >> /etc/portage/package.env/notest
@@ -419,20 +419,24 @@ function ClassifyIssue() {
     foundSandboxIssue
 
   else
-    phase=$(grep -m 1 " \* ERROR: $short.* failed (.* phase):" $bak | sed 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' ')
-
-    if [[ "$phase" = "test" ]]; then
-      foundTestIssue
-    fi
+    # phase is empty for fetch failures
+    #
+    phase=$(grep -m 1 " \* ERROR: $short.* failed (.* phase):" $bak | sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' ')
 
     # default title is given by portage
     #
-    grep -A 1 "$pase" $bak | tail -n 1 > $issuedir/title
+    if [[ -n "$phase" ]]; then
+      grep -A 1 "$pase" $bak | tail -n 1 > $issuedir/title
+    fi
+
+    if [[ "$phase" = "test" ]]; then
+      collectTestIssueResults
+    fi
 
     # guess a better title based on pattern files
     # the pattern order within the file is important therefore "grep -f" can't be used
     #
-    cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES |\
+    cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null |\
     while read c
     do
       grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue
@@ -449,6 +453,10 @@ function ClassifyIssue() {
         break
       fi
     done
+
+    if [[ ! -s $issuedir/title ]]; then
+      Mail "warn: empty title for $failed" $bak
+    fi
 
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then
