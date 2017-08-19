@@ -514,6 +514,11 @@ function SearchForAnAlreadyFiledBug() {
     sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
   fi
 
+  if [[ -s $bsi ]]; then
+    Mail "warn: $bsi is empty" $bak
+    return
+  fi
+
   # search first for the same version, then for category/package name
   # take the highest bug id, but put the summary of the newest 10 bugs into the email body
   #
