@@ -1,0 +1,180 @@
+undefined reference to .yy
+This plugin requires the X frontend of gkrellm.
+/bin/sh: bad interpreter: Permission denied
+ACCESS VIOLATION SUMMARY
+Can't read
+class file .* not found
+error: redefinition of
+has incomplete type
+: undefined reference to
+undefined symbol:
+exited with code: 1.
+I can't find the format file
+; recompile with -fPIC
+Fatal error:
+multiple definition of
+must be installed to use
+Non type-variable argument
+too few arguments to function
+: redefining predefined macro
+Error 137
+Line indented less than expected
+: error:
+Parse error .
+object has no attribute
+.*.texinfo:.*: unknown command
+reference to Parameter is ambiguous
+Unknown M68KMAKE directive
+was not declared in this scope
+error: .* has not been declared
+ninja: build stopped:
+: undefined method
+make inconsistent assumptions over
+file was not found
+Cannot specify link libraries for target .* which is not built
+.* library not found, but required for .* module.
+include called with wrong number of arguments
+: fatal error: .*
+internal error in relocate
+Failure:
+  A duplicate ELSE command was found inside an IF block.
+Failed to load interface for
+ImportError:
+The .* distribution was not found and is required by
+stack smashing detected
+ld: cannot find
+Errors in .* projects
+No rule to make target
+CSC: error .*:
+final link failed: Nonrepresentable section on output
+ld returned 1 exit status
+Error: No implementations provided for the following modules:
+LoadError
+cannot find symbol
+incompatible types
+bad class file:
+Compile failed; see the compiler error
+Failed Patch:
+can't get .* relocation type
+Not in scope:
+No instance for (
+texi2info failed
+is not a function name
+mkdir: cannot create directory
+Unable to find program
+javac: invalid source release
+Unknown channel
+bad option
+Assertion .* failed
+Failed to find
+dereferencing pointer to
+Error getting
+ImportError:
+Error on line
+is not on the classpath.
+Failed Running automake
+error while loading shared libraries
+mv: cannot stat
+No CommonLisp implementation found
+Could not link test program to Python
+is banned in EAPI=
+exceeds the 32 bit address space
+make:.* Stop.
+error adding symbols:
+missing separator
+pdflatex failed
+An exception has occurred in the compiler
+error in .* command
+Can't locate Locale/Messages.pm in @INC
+error: expected expression before
+ error: narrowing conversion of
+ error: implicit declaration of
+.* command not found
+mmap: wanted .* bytes at .*, actually mapped at .*
+pushd.*No such file or directory
+Unable to set SELinux security labels
+patch .* failed with
+csc: invalid option
+make.*: No such file or directory.  Stop.
+Unknown module(s) in QT
+LaTeX Error:
+Error producing PDF from TeX source
+Error .*GCING.* in
+Warning as Error:
+pdfetex exited with bad status
+SyntaxError: invalid syntax
+AppArmor parser error for
+/usr/bin/install: will not overwrite just-created
+gettext infrastructure mismatch
+missing binary operator before token
+are incompatible when linking
+POD document had syntax errors
+No supported Python implementation
+Ambiguous occurrence
+Compilation failed in require at
+failed to load "
+Type of arg .* to shift must be array
+java.lang.NoSuchMethodError:
+The source directory .* doesn.t exist
+Document .* does not validate
+not enough memory for initialization
+dblatex or fop must be installed to use
+could not be found, but is required.
+The library 'System.Xml.dll' could not be found.
+mktextfm:.*failed to make
+Failed Running autopoint
+tar: This does not look like a tar archive
+/bin/sh: .* No such file or directory
+requires support for 32-bit executables.
+Failed setting classpath from Ant task
+Option .* requires an argument
+error: .* undeclared
+parser error : .* not defined
+make: invalid option
+Uncaught error in
+^Error:
+: Error:
+recipe for target .* failed
+backend requires .* - aborting
+convert: no
+syntax error
+record .* undefined
+E: Failure
+terminated with error code
+setup.py:.*: UserWarning: .* must be installed to build
+Function .* not defined
+rake aborted!
+extra arguments no longer supported; please file a bug
+Buildfile: .* does not exist!
+E: Cannot find external tool
+pushd: too many arguments
+are banned in EAPI
+gmcs: No such file or directory
+python_export called without a python implementation and EPYTHON is unset
+Discovering .* failed
+make: .*: Command not found
+ \(OTHER_FAULT\)
+Errors while running
+Not supported in your configuration: ocamlopt
+: Analysis failed with error:
+error: expected
+sudo: no tty present and no askpass program specified
+env.*No such file or directory
+error: .
+make: .*: Command not found
+ Segmentation fault
+sh: .* No such file or directory
+/bin/sh: .* Not a directory
+Could NOT find .* (missing: .*)
+ \(RuntimeError\)
+ API requires the .* utility to be installed
+ : No such file or directory - git (Errno::.*)
+   unbound variable:
+fatal: Not a git repository (or any parent up to mount point /var/tmp)
+rm: cannot remove 'libsrtp.a': No such file or directory
+ Performing Test .* - Failed
+OTP release .* does not match required regex
+Can't open heap image file
+\\[ERROR\\]
+Makefile.* Terminated
+Error .

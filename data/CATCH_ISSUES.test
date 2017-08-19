@@ -1,0 +1,18 @@
+#   Failed test
+FAILED .*test
+Failed tests:
+test.* failed
+^FAIL:
+ \(Failed\)
+\.\.\.\*\*\*Failed
+Failed .* test programs. .* subtests failed.
+: FAILED:
+Failed .* tests, .*% okay, .* tests skipped.
+testsuite: .* failed
+Test ".*" from suite ".*" failed.
+Test suite test-threads: FAIL
+.* tests executed, .* failures
+ERROR: test(s) failed in
+ Failed .* subtests
+Failed test
+\.\.\. FAILED

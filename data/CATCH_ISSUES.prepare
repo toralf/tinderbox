@@ -1,0 +1,9 @@
+:Reason: Filesize does not match recorded size
+Couldn't download .* Aborting.
+Fetch failed for
+Fetched file: .* VERIFY FAILED!
+Cannot find \$EPATCH_SOURCE!
+you need to fix the relative paths in patch
+must be called in src_prepare
+Failed Running libtoolize
+eapply: no files specified

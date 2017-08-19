@@ -419,31 +419,36 @@ function ClassifyIssue() {
     foundSandboxIssue
 
   else
-    # the pattern order rules therefore "grep -f" must not be used here
+    phase=$(grep -m 1 " \* ERROR: $short.* failed (.* phase):" $bak | sed 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' ')
+
+    if [[ "$phase" = "test" ]]; then
+      foundTestIssue
+    fi
+
+    # default title is given by portage
     #
-    cat /tmp/tb/data/CATCH_ISSUES |\
+    grep -A 1 "$pase" $bak | tail -n 1 > $issuedir/title
+
+    # guess a better title based on pattern files
+    # the pattern order within the file is important therefore "grep -f" can't be used
+    #
+    cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES |\
     while read c
     do
       grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue
       if [[ $? -eq 0 ]]; then
+        # take 3rd line for the (new) title
+        #
         sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’"`], ,g' > $issuedir/title
+
+        # if the issue is too big, then delete 1st line
+        #
+        if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
+          sed -i -e "1d" $issuedir/issue
+        fi
         break
       fi
     done
-
-    if [[ ! -s $issuedir/title ]]; then
-      grep -A 1 " \* ERROR: $short.* failed (.* phase):" $bak | tail -n 1 > $issuedir/title
-    fi
-
-    if [[ -n "$(grep -e "ERROR: .* failed (test phase)" $bak)" ]]; then
-      foundTestIssue
-    fi
-
-    # if the issue text is too big, then delete 1st line
-    #
-    if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
-      sed -i -e "1d" $issuedir/issue
-    fi
 
     grep -q '\[\-Werror=terminate\]' $issuedir/title
     if [[ $? -eq 0 ]]; then

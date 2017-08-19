@@ -1,0 +1,11 @@
+Configuring incomplete, errors occurred
+Unknown CMake command
+  configure failed
+CMake will not be able to correctly generate this project.
+required internal CMake variable not set
+cmake failed
+Failed Running autoconf
+Failed Running aclocal
+no configure script found
+Package .* not found
+You do not have the SDL/SDL_rotozoom.h headers installed. Exiting.

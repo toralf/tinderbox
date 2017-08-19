@@ -1,0 +1,29 @@
+USE Flag .* not in IUSE
+You need package
+Please specify at least one package name on the command line.
+Could not find a package configuration file provided by
+You have to install development tools first.
+error in setup command
+Could not find Objective-C
+Requires at least PyQ.*
+The Motif libraries are not installed.
+setup: At least the following dependencies are missing:
+This ebuild will need the
+This package will need access to .* cds.
+These fortunes have offensive content. Enable offensive USE Flag
+PYTHON needs to be set for
+Add .* to DEPEND
+cannot find package
+Ebuild author forgot an entry
+Please install required programs:
+Invalid use of .*.eclass
+EPYTHON unset
+One of the following USE flags is needed:
+python_pkg_setup() not called
+Missing USE flags in
+is banned in EAPI
+Select exactly one database type out of these: mysql oracle postgres sqlite
+Unable to find version .* of package
+No Python implementation set
+PostgreSQL slot must be set to one of:
+ \*   PostgreSQL slot is not set to .* or higher.
