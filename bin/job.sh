@@ -1033,7 +1033,7 @@ function ParseElogForQA() {
     # process each QA issue independent from all others
     # even for the same QA file
     #
-    cat /tmp/tb/data/CATCH_ISSUES_QA |\
+    cat /tmp/tb/data/CATCH_QA |\
     while read reason
     do
       grep -q -E -e "$reason" $elogfile
@@ -1059,8 +1059,6 @@ function ParseElogForQA() {
         id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
         AttachFilesToBody $issuedir/issue
 
-        # if the issue wasn't found at b.g.o inform us
-        #
         if [[ -z "$id" ]]; then
           SendoutIssueMail
         fi
