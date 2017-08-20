@@ -570,9 +570,12 @@ if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
 fi
 
-# legacy: 32 bit libs, override it with a command line option
+# ABI_X86="32 64"
 #
 multilib="n"
+if [[ ! "$profile" =~ "no-multilib" && $(($RANDOM % 5)) -eq 0 ]]; then
+  multilib="y"
+fi
 
 # create a randomized USE flag subset
 #
