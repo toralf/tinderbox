@@ -223,9 +223,11 @@ EOF
     fi
   done
 
+  # b.g.o. has a limit of 1 MB
+  #
   for f in $issuedir/files/* $issuedir/_*
   do
-    if [[ $(wc -c < $f) -gt 500000 ]]; then
+    if [[ $(wc -c < $f) -gt 1000000 ]]; then
       bzip2 $f
     fi
   done
