@@ -426,7 +426,7 @@ function ClassifyIssue() {
     # default title is given by portage
     #
     if [[ -n "$phase" ]]; then
-      grep -A 1 "$pase" $bak | tail -n 1 > $issuedir/title
+      grep -A 1 "$phase" $bak | tail -n 1 > $issuedir/title
     fi
 
     if [[ "$phase" = "test" ]]; then
