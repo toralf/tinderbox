@@ -125,7 +125,7 @@ function setNextTask() {
     elif [[ "$task" =~ ^INFO ]]; then
       Mail "$task"
 
-    elif [[ "$task" =~ ^STOP ]]; then
+    elif [[ "$task" =~ ^STOP || -f /tmp/STOP ]]; then
       Finish 0 "$task"
 
     elif [[ "$task" =~ ^# ]]; then
