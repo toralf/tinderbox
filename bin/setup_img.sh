@@ -196,7 +196,7 @@ CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
 
 USE="
-$( echo $flags | xargs -s 78 | sed 's/^/  /g' )
+$( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 
   ssp -bindist -cdinstall -oci8
 "
@@ -216,7 +216,7 @@ CLEAN_DELAY=0
 
 L10N="$l10n"
 
-FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news"
+FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news $features"
 
 DISTDIR="$distfiles"
 PORT_LOGDIR="/var/log/portage"
@@ -573,29 +573,24 @@ if [[ ! "$profile" =~ "no-multilib" && $(($RANDOM % 5)) -eq 0 ]]; then
   multilib="y"
 fi
 
+# additional FEATURES=
+#
+features=""
+# if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+#   features="$features test"
+# fi
+
 # create a randomized USE flag subset
 #
 flags=$(rufs)
 
-while getopts a:f:k:l:m:o:p:s: opt
+while getopts a:f:k:l:m:o:p:s:u: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
         ;;
 
-    f)  # USE flags are expected
-        # - to be defined in a statement like USE="..."
-        # - or listed in a file
-        # - or given at the command line
-        #
-        if [[ -f "$OPTARG" ]] ; then
-          flags="$(source $OPTARG; echo $USE)"
-          if [[ -z "$flags" ]]; then
-            flags="$(cat $OPTARG)"
-          fi
-        else
-          flags="$OPTARG"
-        fi
+    f)  features="$features $OPTARG"
         ;;
 
     k)  keyword="$OPTARG"
@@ -633,7 +628,7 @@ do
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           libressl="y"
-          flags="$(echo $flags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
+          flags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
         else
           libressl="n"
         fi
@@ -659,6 +654,21 @@ do
         ;;
 
     s)  suffix="$OPTARG"
+        ;;
+
+    u)  # USE flags are
+        # - defined in a statement like USE="..."
+        # - or listed in a file
+        # - or given at the command line
+        #
+        if [[ -f "$OPTARG" ]] ; then
+          useflags="$(source $OPTARG; echo $USE)"
+          if [[ -z "$useflags" ]]; then
+            useflags="$(cat $OPTARG)"
+          fi
+        else
+          useflags="$OPTARG"
+        fi
         ;;
 
     *)  echo " '$opt' with '$OPTARG' not implemented"
