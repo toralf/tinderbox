@@ -555,9 +555,12 @@ if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's/13/17/')"
 fi
 
-# we almost do test unstable, use the command line option for "stable"
+# mostly check unstable
 #
 keyword="unstable"
+if [[ $(($RANDOM % 20)) -eq 0 ]]; then
+  keyword="stable"
+fi
 
 # test LibreSSL at every 3rd image
 #
