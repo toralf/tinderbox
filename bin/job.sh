@@ -348,7 +348,7 @@ function foundCollisionIssue() {
   #
   (cat $issuedir/cc 2>/dev/null; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
 
-  grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' > $issuedir/issue
+  grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' >> $issuedir/issue
   echo "file collision with $s" > $issuedir/title
 }
 
@@ -364,7 +364,7 @@ function foundSandboxIssue() {
   if [[ $? -eq 0 ]]; then
     # handle XDG sandbox issues (forced by us, see end of this file) in a special way
     #
-    cat << EOF > $issuedir/issue
+    cat << EOF >> $issuedir/issue
 This issue is forced at the tinderbox by making:
 
 $(grep '^export XDG_' /tmp/job.sh)
@@ -417,6 +417,10 @@ function collectTestIssueResults() {
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
+  if [[ "$keyword" = "stable" ]]; then
+    echo -e "\n=== This is an issue at stable ===\n" >> $issuedir/issue
+  fi
+
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
     foundCollisionIssue
 
@@ -444,7 +448,7 @@ function ClassifyIssue() {
     cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null |\
     while read c
     do
-      grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue
+      grep -m 1 -B 2 -A 3 "$c" $bak >> $issuedir/issue
       if [[ $? -eq 0 ]]; then
         # take 3rd line for the (new) title
         #
