@@ -426,12 +426,12 @@ function ClassifyIssue() {
   else
     # phase is empty for fetch failures
     #
-    phase=$(grep -m 1 " \* ERROR: $short.* failed (.* phase):" $bak | sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' ')
+    phase=$(grep -m 1 " \* ERROR:.* failed \(.* phase\):" $bak | sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' ')
 
     # default title is given by portage
     #
     if [[ -n "$phase" ]]; then
-      grep -A 1 "$phase" $bak | tail -n 1 > $issuedir/title
+      grep -m 1 -A 1 " \* ERROR:.* failed \($phase phase\)" $bak | tail -n 1 > $issuedir/title
     fi
 
     if [[ "$phase" = "test" ]]; then
