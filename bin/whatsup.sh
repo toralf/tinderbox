@@ -9,8 +9,7 @@
 #
 function list_images() {
   (
-    cd ~
-    ls ~/run | while read i; do d=~/$(ls -d img?/$i); [[ -d $d ]] && echo "$d"; done
+    for i in ~/run/*; do realpath $i; done
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
   ) | sort -u -k 5 -t'/'
 }
@@ -42,7 +41,9 @@ function Overall() {
     day=0
     if [[ -f $log ]]; then
       compl=$(grep -c '::: completed emerge' $log)
-      day=$(echo "scale=1; ($(tail -n 1 $log | cut -c1-10) - $(head -n 1 $log | cut -c1-10)) / 86400" | bc)
+      ts1=$(tail -n 1 $log | cut -c1-10)
+      ts2=$(head -n 1 $log | cut -c1-10)
+      day=$(echo "scale=1; ($ts1 - $ts2) / 86400" | bc)
     fi
     # count failed packages based on their version, but not every failed attempt
     # directory name is eg.: 20170417-082345_app-misc_fsniper-1.3.1-r2
@@ -113,8 +114,6 @@ function PackagesPerDay() {
       continue
     fi
 
-    # qlop gives sth like: Fri Aug 19 13:43:15 2016 >>> app-portage/cpuid2cpuflags-1
-    #
     grep '::: completed emerge' $log |\
     cut -f1 -d ':' -s |\
     perl -wane '
@@ -128,7 +127,7 @@ function PackagesPerDay() {
 
       END {
         foreach my $i (0..$#p) {
-          # the first d days might see >1,000 installations/day
+          # the first $d days might have >1,000 installations
           #
           $d=6;
           if ($i < $d)  {
@@ -158,6 +157,7 @@ function PackagesPerDay() {
 # desktop-libressl-abi32+64_20170215-18565   0:03 min  dev-ruby/stringex
 #
 function CurrentTask()  {
+  ts=$(date +%s)
   for i in $images
   do
     PrintImageName
@@ -167,7 +167,7 @@ function CurrentTask()  {
       continue
     fi
 
-    let "delta = $(date +%s) - $(date +%s -r $tsk)"
+    let "delta = $ts - $(date +%s -r $tsk)"
     let "seconds = $delta % 60"
     let "minutes = $delta / 60"
     printf " %3i:%02i min  " $minutes $seconds
