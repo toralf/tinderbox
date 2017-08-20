@@ -61,8 +61,6 @@ function ComputeImageName()  {
 
   name="$(echo $profile | tr '/' '-')"
 
-  # the 1st underscore splits the profile
-  #
   name="${name}_"
 
   if [[ "$keyword" = "stable" ]]; then
@@ -81,13 +79,13 @@ function ComputeImageName()  {
     name="$name-$suffix"
   fi
 
-  # the 2nd underscore splits the date
-  #
   name="${name}_$(date +%Y%m%d-%H%M%S)"
 
+  # "_-" -> "_" and "__" -> "_"
+  #
   name="$(echo $name | sed -e 's/_[-_]/_/g')"
 
-  mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
+  mnt=$(echo $image_dir | sed 's,/home/tinderbox/,,g')/$name
   echo " $mnt"
   echo
 }
@@ -409,8 +407,6 @@ function ConfigureImage()  {
 }
 
 
-# create a shell script to:
-#
 # - configure locale, timezone, MTA etc
 # - install and configure tools used in job.sh:
 #         <package>                   <command/s>
@@ -418,7 +414,7 @@ function ConfigureImage()  {
 #         app-portage/gentoolkit      equery eshowkw revdep-rebuild
 #         app-portage/portage-utils   qlop
 #         www-client/pybugz           bugz
-# - try to auto-fix package-specific USE flags deps of @system upgrade
+# - try to auto-fix USE flags deps to let the first @system update succeed
 #
 function CreateSetupScript()  {
   dryrun="emerge --backtrack=200 --deep --update --changed-use @system --pretend"
@@ -495,7 +491,7 @@ EOF
 }
 
 
-# at least a MTA and bugz are emerged within the setup script
+# at least a MTA and bugz are needed
 #
 function EmergeMandatoryPackages() {
   CreateSetupScript
@@ -559,18 +555,18 @@ if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's/13/17/')"
 fi
 
-# we test unstable, for "stable" use the command line option
+# we almost do test unstable, use the command line option for "stable"
 #
 keyword="unstable"
 
-# test LibreSSL at every n-th image
+# test LibreSSL at every 3rd image
 #
 libressl="n"
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
 fi
 
-# ABI_X86="32 64"
+# test ABI_X86="32 64" at every 5th image
 #
 multilib="n"
 if [[ ! "$profile" =~ "no-multilib" && $(($RANDOM % 5)) -eq 0 ]]; then
@@ -587,9 +583,10 @@ do
     a)  autostart="$OPTARG"
         ;;
 
-    f)  # USE flags are either defined in a statement like USE="..."
-        # or justed listed as-is in a file
-        # or defined at the command line
+    f)  # USE flags are expected
+        # - to be defined in a statement like USE="..."
+        # - or listed in a file
+        # - or given at the command line
         #
         if [[ -f "$OPTARG" ]] ; then
           flags="$(source $OPTARG; echo $USE)"
@@ -673,9 +670,13 @@ done
 #############################################################################
 #
 
+# the call of $0 has to be made from within the image directory
+# to let pwd having
+image_dir=dir=$(pwd)
+
 # expect a dedicated image directory
 #
-if [[ "$(pwd)" = "/home/tinderbox" ]]; then
+if [[ "$image_dir" = "/home/tinderbox" ]]; then
   echo "you are in /home/tinderbox !"
   exit 3
 fi
