@@ -2,7 +2,7 @@
 #
 # set -x
 
-# retest a package
+# read from stdin package(s) and re-test them
 #
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
@@ -10,13 +10,12 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-# stdin contains all packages
-#
-while read line
+xargs -n1 |\
+while read i
 do
   # split away the version/revision
   #
-  p=$(qatom $(portageq best_visible / "$line") 2>/dev/null | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  p=$(qatom $(portageq best_visible / "$i") 2>/dev/null | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
   if [[ -z "$p" ]]; then
     continue
   fi
