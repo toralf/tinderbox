@@ -625,7 +625,11 @@ do
           exit 2
         fi
 
-        profile=$(cd $origin && realpath ./etc/portage/make.profile | sed 's,.*/profiles/,,')
+        profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
+        if [[ -z "$profile" ]]; then
+          echo "can't derive \$profile from '$origin'"
+          exit 2
+        fi
         flags="$(source $origin/etc/portage/make.conf && echo $USE)"
 
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
