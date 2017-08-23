@@ -418,10 +418,6 @@ function collectTestIssueResults() {
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
-  if [[ "$keyword" = "stable" ]]; then
-    echo -e "\n=== This is an issue at stable ===\n" >> $issuedir/issue
-  fi
-
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
     foundCollisionIssue
 
@@ -429,28 +425,31 @@ function ClassifyIssue() {
     foundSandboxIssue
 
   else
-    # phase is empty for fetch failures
+    # note: $phase is empty, eg.: for fetch failures
     #
-    phase=$(grep -m 1 " \* ERROR:.* failed (.* phase):" $bak | sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' ')
-
-    # default title is given by portage
-    #
-    if [[ -n "$phase" ]]; then
-      grep -m 1 -A 1 " \* ERROR:.* failed ($phase phase)" $bak | tail -n 1 > $issuedir/title
-    fi
+    phase=$(
+      grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $bak |\
+      tee $issuedir/issue                                   |\
+      head -n 1                                             |\
+      sed -e 's/.* failed \(.* phase\)/\1/g'                |\
+      cut -f2 -d'('                                         |\
+      cut -f1 -d' '
+    )
+    head -n 2 $issuedir/issue | tail -n 1 > $issuedir/title
 
     if [[ "$phase" = "test" ]]; then
       collectTestIssueResults
     fi
 
-    # guess a better title based on pattern files
+    # try to guess a better title & issue based on pattern files
     # the pattern order within the file is important therefore "grep -f" can't be used
     #
     cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null |\
     while read c
     do
-      grep -m 1 -B 2 -A 3 "$c" $bak >> $issuedir/issue
+      grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue.tmp
       if [[ $? -eq 0 ]]; then
+        mv $issuedir/issue.tmp $issuedir/issue
         # take 3rd line for the (new) title
         #
         sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’"`], ,g' > $issuedir/title
@@ -462,6 +461,7 @@ function ClassifyIssue() {
         fi
         break
       fi
+      rm $issuedir/issue.tmp
     done
 
     if [[ ! -s $issuedir/title ]]; then
@@ -477,6 +477,10 @@ function ClassifyIssue() {
         try_again=1
       fi
     fi
+  fi
+
+  if [[ "$keyword" = "stable" ]]; then
+    echo -e "\n=== This is an issue at stable ===\n" >> $issuedir/issue
   fi
 }
 
