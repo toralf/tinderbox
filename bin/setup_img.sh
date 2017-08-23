@@ -585,7 +585,7 @@ features=""
 
 # create a randomized USE flag subset
 #
-flags=$(rufs)
+useflags=$(rufs)
 
 while getopts a:f:k:l:m:o:p:s:u: opt
 do
@@ -631,12 +631,12 @@ do
           exit 2
         fi
 
-        flags="$(source $origin/etc/portage/make.conf && echo $USE)"
+        useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
 
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           libressl="y"
-          flags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
+          useflags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
         else
           libressl="n"
         fi
