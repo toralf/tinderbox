@@ -685,7 +685,7 @@ done
 
 # the call of $0 has to be made from within the image directory
 # to let pwd having
-image_dir=dir=$(pwd)
+image_dir=$(pwd)
 
 # expect a dedicated image directory
 #
