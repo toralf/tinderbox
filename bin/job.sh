@@ -365,14 +365,12 @@ function foundSandboxIssue() {
   p="$(grep -m1 ^A: $sandb)"
   echo "$p" | grep -q "A: /root/"
   if [[ $? -eq 0 ]]; then
-    # handle XDG sandbox issues (forced by us, see end of this file) in a special way
-    #
     cat << EOF >> $issuedir/issue
-This issue is forced at the tinderbox by making:
+This issue is forced at the tinderbox (pls see bug #567192 too) by setting:
 
 $(grep '^export XDG_' /tmp/job.sh)
 
-pls see bug #567192 too
+sandbox output:
 
 EOF
     echo "sandbox issue (XDG_xxx_DIR related)" > $issuedir/title
