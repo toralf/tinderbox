@@ -630,6 +630,7 @@ do
           echo "can't derive \$profile from '$origin'"
           exit 2
         fi
+
         flags="$(source $origin/etc/portage/make.conf && echo $USE)"
 
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
@@ -688,17 +689,14 @@ done
 #
 
 # the call of $0 has to be made from within the image directory
-# to let pwd having
-image_dir=$(pwd)
-
-# expect a dedicated image directory
 #
+image_dir=$(pwd)
 if [[ "$image_dir" = "/home/tinderbox" ]]; then
   echo "you are in /home/tinderbox !"
   exit 3
 fi
 
-# the latest file contains all image fiel relevant data
+# latest file contains all relevant data
 #
 latest=$distfiles/latest-stage3.txt
 wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
