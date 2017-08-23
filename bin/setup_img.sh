@@ -579,9 +579,9 @@ fi
 # additional FEATURES=
 #
 features=""
-# if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-#   features="$features test"
-# fi
+if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+  features="$features test"
+fi
 
 # create a randomized USE flag subset
 #
