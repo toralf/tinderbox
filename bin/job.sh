@@ -1142,6 +1142,7 @@ fi
 while :;
 do
   pre-check
+  date > $log
 
   if [[ -f /tmp/STOP ]]; then
     Finish 0 "catched STOP"
@@ -1152,7 +1153,6 @@ do
   #
   rm -rf /var/tmp/portage/*
 
-  date > $log
   setNextTask
   echo "$task" | tee -a $tsk.history > $tsk
   WorkOnTask
