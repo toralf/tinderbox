@@ -1,11 +1,12 @@
 #   Failed test
 FAILED .*test
 Failed tests:
-test.* failed
-^FAIL:
- \(Failed\)
-\.\.\.\*\*\*Failed
+FAIL .*
+^FAIL: .*
+^Failure:
+\\.\\.\\.\\*\\*\\*Failed
 Failed .* test programs. .* subtests failed.
+test.* failed
 : FAILED:
 Failed .* tests, .*% okay, .* tests skipped.
 testsuite: .* failed
@@ -15,4 +16,25 @@ Test suite test-threads: FAIL
 ERROR: test(s) failed in
  Failed .* subtests
 Failed test
-\.\.\. FAILED
+\\.\\.\\. FAILED
+ERROR: ld.so: object
+sudo: no tty present and no askpass program specified
+/bin/sh: cppcheck: command not found
+Line .* failed
+ (Failed)
+\\-\\-\\ FAIL:
+\\[  FAILED  \\]
+.*:.*: exit status 1
+missing separator
+Can't locate .* in @INC
+FAIL!
+QFATAL :
+LoadError:
+rake aborted!
+Error decrypting signature:
+syntax error near
+: undefined reference to
+ : error: .*
+: fatal error:
+make:.* test
+CMake Error at

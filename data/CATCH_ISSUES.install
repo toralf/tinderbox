@@ -1,7 +1,6 @@
 newinitd:.* does not exist
- \* .* is not a valid file/directory
+ \\* .* is not a valid file/directory
  !!! .* does not exist
-\*   multilib-strict check failed!
-Files matching a file type that is not allowed:
 chown: invalid user
 install: cannot stat .*: No such file or directory
+USE Flag .* not in IUSE

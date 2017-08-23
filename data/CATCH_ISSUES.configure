@@ -7,5 +7,11 @@ cmake failed
 Failed Running autoconf
 Failed Running aclocal
 no configure script found
-Package .* not found
 You do not have the SDL/SDL_rotozoom.h headers installed. Exiting.
+Could not run psql test program, checking why...
+PostgreSQL slot must be set to one of:
+ \\*   PostgreSQL slot is not set to .* or higher.
+Package .* not found
+.* library not found, but required for .* module.
+configure: error:
+CMake will exit

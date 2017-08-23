@@ -1,0 +1,5 @@
+Fetched file: .* VERIFY FAILED!
+:Reason: Filesize does not match recorded size
+Couldn't download .* Aborting.
+Fetch failed for
+\\*   multilib-strict check failed!

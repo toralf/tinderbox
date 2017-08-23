@@ -1,7 +1,4 @@
 undefined reference to .yy
-This plugin requires the X frontend of gkrellm.
-/bin/sh: bad interpreter: Permission denied
-ACCESS VIOLATION SUMMARY
 Can't read
 class file .* not found
 error: redefinition of
@@ -32,7 +29,6 @@ ninja: build stopped:
 make inconsistent assumptions over
 file was not found
 Cannot specify link libraries for target .* which is not built
-.* library not found, but required for .* module.
 include called with wrong number of arguments
 : fatal error: .*
 internal error in relocate
@@ -47,7 +43,7 @@ Errors in .* projects
 No rule to make target
 CSC: error .*:
 final link failed: Nonrepresentable section on output
-ld returned 1 exit status
+ld returned .* exit status
 Error: No implementations provided for the following modules:
 LoadError
 cannot find symbol
@@ -69,7 +65,6 @@ Assertion .* failed
 Failed to find
 dereferencing pointer to
 Error getting
-ImportError:
 Error on line
 is not on the classpath.
 Failed Running automake
@@ -81,7 +76,6 @@ is banned in EAPI=
 exceeds the 32 bit address space
 make:.* Stop.
 error adding symbols:
-missing separator
 pdflatex failed
 An exception has occurred in the compiler
 error in .* command
@@ -115,7 +109,6 @@ Compilation failed in require at
 failed to load "
 Type of arg .* to shift must be array
 java.lang.NoSuchMethodError:
-The source directory .* doesn.t exist
 Document .* does not validate
 not enough memory for initialization
 dblatex or fop must be installed to use
@@ -143,7 +136,6 @@ E: Failure
 terminated with error code
 setup.py:.*: UserWarning: .* must be installed to build
 Function .* not defined
-rake aborted!
 extra arguments no longer supported; please file a bug
 Buildfile: .* does not exist!
 E: Cannot find external tool
@@ -153,20 +145,18 @@ gmcs: No such file or directory
 python_export called without a python implementation and EPYTHON is unset
 Discovering .* failed
 make: .*: Command not found
- \(OTHER_FAULT\)
+ (OTHER_FAULT)
 Errors while running
 Not supported in your configuration: ocamlopt
 : Analysis failed with error:
 error: expected
-sudo: no tty present and no askpass program specified
 env.*No such file or directory
 error: .
-make: .*: Command not found
  Segmentation fault
 sh: .* No such file or directory
 /bin/sh: .* Not a directory
 Could NOT find .* (missing: .*)
- \(RuntimeError\)
+ (RuntimeError)
  API requires the .* utility to be installed
  : No such file or directory - git (Errno::.*)
    unbound variable:

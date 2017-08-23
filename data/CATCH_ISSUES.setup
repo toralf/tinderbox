@@ -1,4 +1,3 @@
-USE Flag .* not in IUSE
 You need package
 Please specify at least one package name on the command line.
 Could not find a package configuration file provided by
@@ -25,5 +24,3 @@ is banned in EAPI
 Select exactly one database type out of these: mysql oracle postgres sqlite
 Unable to find version .* of package
 No Python implementation set
-PostgreSQL slot must be set to one of:
- \*   PostgreSQL slot is not set to .* or higher.
