@@ -41,8 +41,3 @@ dev-java/icedtea-bin      -multilib
 # https://bugs.gentoo.org/616228
 #
 dev-qt/qtcore:4           -abi_x86_32
-
-# needed for FEATURES=test
-#
-sys-apps/dbus             debug
-x11-base/xorg-server      xvfb
