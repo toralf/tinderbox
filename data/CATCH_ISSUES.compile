@@ -116,7 +116,6 @@ could not be found, but is required.
 The library 'System.Xml.dll' could not be found.
 mktextfm:.*failed to make
 Failed Running autopoint
-tar: This does not look like a tar archive
 /bin/sh: .* No such file or directory
 requires support for 32-bit executables.
 Failed setting classpath from Ant task
@@ -168,3 +167,4 @@ Can't open heap image file
 \\[ERROR\\]
 Makefile.* Terminated
 Error .
+Package .* was not found in the pkg-config search path.

@@ -46,9 +46,3 @@ dev-qt/qtcore:4           -abi_x86_32
 #
 sys-apps/dbus             debug
 x11-base/xorg-server      xvfb
-
-# https://bugs.gentoo.org/show_bug.cgi?id=628076
-#
-sys-auth/polkit           -gtk
-app-crypt/pinentry        -gtk -gnome-keyring
-app-text/ghostscript-gpl  -gtk

@@ -1,4 +1,3 @@
-Configuring incomplete, errors occurred
 Unknown CMake command
   configure failed
 CMake will not be able to correctly generate this project.
@@ -11,7 +10,8 @@ You do not have the SDL/SDL_rotozoom.h headers installed. Exiting.
 Could not run psql test program, checking why...
 PostgreSQL slot must be set to one of:
  \\*   PostgreSQL slot is not set to .* or higher.
-Package .* not found
 .* library not found, but required for .* module.
 configure: error:
 CMake will exit
+CMake Error at
+Configuring incomplete, errors occurred

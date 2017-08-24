@@ -22,7 +22,7 @@ sudo: no tty present and no askpass program specified
 /bin/sh: cppcheck: command not found
 Line .* failed
  (Failed)
-\\-\\-\\ FAIL:
+-- FAIL:
 \\[  FAILED  \\]
 .*:.*: exit status 1
 missing separator
@@ -38,3 +38,4 @@ syntax error near
 : fatal error:
 make:.* test
 CMake Error at
+: exit status 1
