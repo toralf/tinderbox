@@ -974,7 +974,7 @@ function WorkOnTask() {
           echo "%emerge --resume --skip-first" >> $pks
         else
           if [[ "$task" = "@preserved-rebuild" ]]; then
-            Finish 3 "$task failed"
+            Finish 3 "task $task failed"
           fi
           echo "@world" >> $pks
         fi
