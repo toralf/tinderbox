@@ -101,7 +101,6 @@ function setNextTask() {
         grep -q -E -e "^(STOP|INFO|%|@)" $pks
         if [[ $? -eq 1 ]]; then
           task="@system"
-          echo "@world" >> $pks
           SwitchJDK
           return
         fi
@@ -973,8 +972,11 @@ function WorkOnTask() {
         echo "$(date) $failed" >> /tmp/$task.history
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
-        elif [[ "$task" = "@preserved-rebuild" ]]; then
-          Finish 3 "$task failed"
+        else
+          if [[ "$task" = "@preserved-rebuild" ]]; then
+            Finish 3 "$task failed"
+          fi
+          echo "@world" >> $pks
         fi
       fi
     fi
