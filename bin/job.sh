@@ -995,7 +995,7 @@ function WorkOnTask() {
       if [[ ! "$cmd" =~ "perl-cleaner" && ! "$cmd" =~ " --resume" ]]; then
         # re-schedule the task but bail out too to fix breakage manually
         #
-        echo -e "$task" >> $pks
+        echo "$task" >> $pks
         Finish 3 "command '$cmd' failed"
       fi
     fi
