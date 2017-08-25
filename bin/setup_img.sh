@@ -206,6 +206,8 @@ ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64
 
 ACCEPT_LICENSE="*"
 
+VIDEO_CARDS=""
+
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
 
