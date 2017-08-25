@@ -776,15 +776,18 @@ function GotAnIssue()  {
 
   grep -q -e "Fix the problem and start perl-cleaner again." $bak
   if [[ $? -eq 0 ]]; then
-    if [[ $try_again -eq 1 ]]; then
-      task="%emerge --resume"
-    else
+    if [[ $try_again -eq 0 ]]; then
       echo "%perl-cleaner --all" >> $pks
+    else
+      task="%emerge --resume"
     fi
-  fi
 
-  if [[ $try_again -eq 0 ]]; then
-    echo "=$failed" >> /etc/portage/package.mask/self
+  else
+    if [[ $try_again -eq 0 ]]; then
+      echo "=$failed" >> /etc/portage/package.mask/self
+    else
+      echo "$task" >> $pks
+    fi
   fi
 
   SendoutIssueMail
@@ -962,14 +965,12 @@ function WorkOnTask() {
     if [[ $status -eq 0 ]]; then
       echo "$(date) ok" >> /tmp/$task.history
       if [[ "$task" = "@world" ]]; then
-          echo "%emerge --depclean" >> $pks
+        echo "%emerge --depclean" >> $pks
       fi
 
     else
-      if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $pks
-      else
-        echo "$(date) $failed" >> /tmp/$task.history
+      echo "$(date) $failed" >> /tmp/$task.history
+      if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $pks
         else
