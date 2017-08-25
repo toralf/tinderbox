@@ -980,6 +980,7 @@ function WorkOnTask() {
         fi
       fi
     fi
+
     # feed the online package database
     #
     /usr/bin/pfl &>/dev/null
@@ -990,10 +991,9 @@ function WorkOnTask() {
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
     if [[ $status -eq 1 ]]; then
-      # don't care for a failed resume
-      #
-      if [[ ! "$cmd" =~ "perl-cleaner" && ! "$cmd" =~ " --resume" ]]; then
-        # re-schedule the task but bail out too to fix breakage manually
+      if [[ ! "$cmd" = "%emerge --resume --skip-first" ]]; then
+        # bail out to let the breakage being fixed
+        # but nevertheless re-schedule the task
         #
         echo "$task" >> $pks
         Finish 3 "command '$cmd' failed"
