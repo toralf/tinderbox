@@ -933,9 +933,7 @@ function RunCmd() {
 
   PostEmerge
 
-  if [[ $status -eq 0 ]]; then
-    rm $bak
-  else
+  if [[ $status -ne 0 ]]; then
     GotAnIssue
   fi
 }
