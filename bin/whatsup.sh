@@ -41,7 +41,7 @@ function Overall() {
     day=0
     if [[ -f $log ]]; then
       compl=$(grep -c '::: completed emerge' $log)
-      ts1=$(tail -n 1 $log | cut -c1-10)
+      ts1=$(date +%s)
       ts2=$(head -n 1 $log | cut -c1-10)
       day=$(echo "scale=1; ($ts1 - $ts2) / 86400" | bc)
     fi
