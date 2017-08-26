@@ -927,15 +927,15 @@ function PostEmerge() {
 #
 function RunCmd() {
   ($1) &>> $log
-  if [[ $? -ne 0 ]]; then
-    status=1
-  fi
+  rc=$?
 
   PostEmerge
 
-  if [[ $status -ne 0 ]]; then
+  if [[ $rc -ne 0 ]]; then
     GotAnIssue
   fi
+
+  return $rc
 }
 
 
@@ -943,10 +943,6 @@ function RunCmd() {
 #
 #
 function WorkOnTask() {
-  # status=0  ok
-  # status=1  task failed
-  #
-  status=0
   failed=""     # hold the failed package name
   try_again=0   # 1 with default environment values (if applicable)
 
@@ -959,9 +955,11 @@ function WorkOnTask() {
     else
       RunCmd "emerge --update $task"
     fi
+    rc=$?
+
     cp $log /tmp/$task.last.log
 
-    if [[ $status -eq 0 ]]; then
+    if [[ $rc -eq 0 ]]; then
       echo "$(date) ok" >> /tmp/$task.history
       if [[ "$task" = "@world" ]]; then
         echo "%emerge --depclean" >> $pks
@@ -990,7 +988,7 @@ function WorkOnTask() {
   elif [[ "$task" =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
-    if [[ $status -eq 1 ]]; then
+    if [[ $? -eq 1 ]]; then
       if [[ ! "$task" = "%emerge --resume --skip-first" ]]; then
         # bail out to let the breakage being fixed
         # but nevertheless re-schedule the task
