@@ -991,7 +991,7 @@ function WorkOnTask() {
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
     if [[ $status -eq 1 ]]; then
-      if [[ ! "$cmd" = "%emerge --resume --skip-first" ]]; then
+      if [[ ! "$task" = "%emerge --resume --skip-first" ]]; then
         # bail out to let the breakage being fixed
         # but nevertheless re-schedule the task
         #
