@@ -578,11 +578,11 @@ if [[ ! "$profile" =~ "no-multilib" && $(($RANDOM % 5)) -eq 0 ]]; then
   multilib="y"
 fi
 
-# additional FEATURES=
+# additional FEATURES
 #
 features=""
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-  features="$features test"
+  features="test"
 fi
 
 # create a randomized USE flag subset
