@@ -218,7 +218,7 @@ CLEAN_DELAY=0
 
 L10N="$l10n"
 
-FEATURES="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news $features"
+FEATURES="$features"
 
 DISTDIR="$distfiles"
 PORT_LOGDIR="/var/log/portage"
@@ -352,7 +352,7 @@ function FillPackageList()  {
   #
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
 
-  # replay the tasks, not the emerge history
+  # replay only packages, not sets or other commands
   #
   if [[ -e $origin/tmp/task.history ]]; then
     echo "INFO task history of $origin replayed" >> $pks
@@ -578,11 +578,11 @@ if [[ ! "$profile" =~ "no-multilib" && $(($RANDOM % 5)) -eq 0 ]]; then
   multilib="y"
 fi
 
-# additional FEATURES
+# FEATURES
 #
-features=""
+features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news"
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-  features="test"
+  features="$features test"
 fi
 
 # create a randomized USE flag subset
@@ -634,6 +634,7 @@ do
         fi
 
         useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
+        features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
         grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
