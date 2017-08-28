@@ -775,6 +775,16 @@ function GotAnIssue()  {
   CollectIssueFiles
   CompileIssueMail
 
+  # https://bugs.gentoo.org/show_bug.cgi?id=596664
+  #
+  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
+  if [[ $? -eq 0 ]]; then
+    echo "$task" >> $pks
+    task="%emerge -1 dev-perl/XML-Parser"
+    try_again=1
+    return
+  fi
+
   grep -q -e "Fix the problem and start perl-cleaner again." $bak
   if [[ $? -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
