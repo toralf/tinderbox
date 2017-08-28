@@ -11,8 +11,12 @@ mail-mta/ssmtp            mta ssl
 #
 dev-lang/python           threads
 dev-vcs/git               -gnome-keyring
+media-libs/mesa           -llvm
+sys-apps/dbus             debug
 sys-apps/kmod             tools
 sys-fs/eudev              -introspection
+www-client/w3m            -gtk
+x11-base/xorg-server      xvfb
 
 # can't be linked statically otherwise
 #
