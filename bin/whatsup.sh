@@ -9,7 +9,7 @@
 #
 function list_images() {
   (
-    for i in $(ls ~/run/ 2>/dev/null); do realpath $i; done
+    for i in $(ls ~/run/ 2>/dev/null); do echo ~/img?/$i; done
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
   ) | sort -u -k 5 -t'/'
 }
@@ -51,7 +51,8 @@ function Overall() {
     if [[ -d $i/tmp/issues ]]; then
       fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename 2>/dev/null | cut -f2- -d'_' -s | sort -u | wc -w)
     fi
-    todo=$(wc -l < $i/tmp/packages 2>/dev/null)
+    todo=$(wc -l 2>/dev/null < $i/tmp/packages)
+    ((todo=todo+0))
     [[ -f $i/tmp/LOCK ]] && lck="y" || lck=""
     [[ -f $i/tmp/STOP ]] && stp="y" || stp=""
     d=$(basename $(dirname $i))
