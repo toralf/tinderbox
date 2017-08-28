@@ -211,7 +211,7 @@ VIDEO_CARDS=""
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
 
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
