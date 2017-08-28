@@ -9,7 +9,7 @@
 #
 function list_images() {
   (
-    for i in ~/run/*; do realpath $i; done
+    for i in $(ls ~/run/ 2>/dev/null); do realpath $i; done
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
   ) | sort -u -k 5 -t'/'
 }
