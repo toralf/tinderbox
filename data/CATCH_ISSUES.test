@@ -10,7 +10,7 @@ test.* failed
 : FAILED:
 Failed .* tests, .*% okay, .* tests skipped.
 testsuite: .* failed
-Test ".*" from suite ".*" failed.
+Test .* from suite .* failed.
 Test suite test-threads: FAIL
 .* tests executed, .* failures
 ERROR: test(s) failed in
@@ -26,7 +26,7 @@ Line .* failed
 \\[  FAILED  \\]
 .*:.*: exit status 1
 missing separator
-Can't locate .* in @INC
+Can.t locate .* in @INC
 FAIL!
 QFATAL :
 LoadError:
@@ -39,3 +39,7 @@ syntax error near
 make:.* test
 CMake Error at
 : exit status 1
+tty: No such device or address
+: not found
+make\\[.*\\]:.*test.* Error 1
+Programs failed:

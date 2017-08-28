@@ -2,7 +2,6 @@ Unknown CMake command
   configure failed
 CMake will not be able to correctly generate this project.
 required internal CMake variable not set
-cmake failed
 Failed Running autoconf
 Failed Running aclocal
 no configure script found
@@ -15,3 +14,7 @@ configure: error:
 CMake will exit
 CMake Error at
 Configuring incomplete, errors occurred
+extconf.rb:.* (RuntimeError)
+-- Could NOT find
+-- Could not find the required component
+cmake failed

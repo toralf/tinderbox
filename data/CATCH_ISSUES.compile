@@ -1,3 +1,5 @@
+Fatal error:
+: internal compiler error:
 undefined reference to .yy
 Can't read
 class file .* not found
@@ -8,7 +10,6 @@ undefined symbol:
 exited with code: 1.
 I can't find the format file
 ; recompile with -fPIC
-Fatal error:
 multiple definition of
 must be installed to use
 Non type-variable argument
@@ -16,6 +17,7 @@ too few arguments to function
 : redefining predefined macro
 Error 137
 Line indented less than expected
+final link failed: Nonrepresentable section on output
 : error:
 Parse error .
 object has no attribute
@@ -42,7 +44,6 @@ ld: cannot find
 Errors in .* projects
 No rule to make target
 CSC: error .*:
-final link failed: Nonrepresentable section on output
 ld returned .* exit status
 Error: No implementations provided for the following modules:
 LoadError

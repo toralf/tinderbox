@@ -5,3 +5,5 @@ chown: invalid user
 install: cannot stat .*: No such file or directory
 USE Flag .* not in IUSE
 CMake Error
+configure: error: Cannot find .* - please compile and install it first.
+: fatal error:
