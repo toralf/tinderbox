@@ -782,13 +782,7 @@ function GotAnIssue()  {
     else
       task="%emerge --resume"
     fi
-
-  else
-    if [[ $try_again -eq 0 ]]; then
-      echo "=$failed" >> /etc/portage/package.mask/self
-    else
-      echo "$task" >> $pks
-    fi
+    return
   fi
 
   SendoutIssueMail
@@ -933,6 +927,11 @@ function RunCmd() {
 
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
+    if [[ $try_again -eq 0 ]]; then
+      echo "=$failed" >> /etc/portage/package.mask/self
+    else
+      echo "$task" >> $pks
+    fi
   fi
 
   return $rc
