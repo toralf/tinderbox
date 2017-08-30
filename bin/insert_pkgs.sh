@@ -55,7 +55,7 @@ acmr=$(mktemp /tmp/acmrXXXXXX)
 # add 1 hour for the mirrors to be in sync with their masters
 #
 cd /usr/portage/
-git diff --diff-filter=ACMR --name-status "@{ 3 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
+git diff --diff-filter=ACMR --name-status "@{ ${1:-3} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $acmr
 
 info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
