@@ -412,6 +412,7 @@ function collectTestIssueResults() {
 }
 
 
+# helper of CompileIssueMail()
 # get the issue
 # get an descriptive title from the most meaningful lines of the issue
 # if needed: change package.env/...  to re-try failed with defaults settings
@@ -478,6 +479,10 @@ function ClassifyIssue() {
         try_again=1
       fi
     fi
+  fi
+
+  if [[ $try_again -eq 1 ]]; then
+    echo "$task" >> $pks
   fi
 
   if [[ "$keyword" = "stable" ]]; then
@@ -781,7 +786,7 @@ function GotAnIssue()  {
   grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
   if [[ $? -eq 0 ]]; then
     echo "$task" >> $pks
-    task="%emerge -1 dev-perl/XML-Parser"
+    echo "%emerge -1 dev-perl/XML-Parser" >> $pks
     try_again=1
     return
   fi
@@ -791,12 +796,12 @@ function GotAnIssue()  {
     if [[ $try_again -eq 0 ]]; then
       echo "%perl-cleaner --all" >> $pks
     else
-      task="%emerge --resume"
+      echo "%emerge --resume" >> $pks
     fi
     return
   fi
 
-  if [[ $try_again -eq 0 && -n "$failed" ]]; then
+  if [[ -n "$failed" && $try_again -eq 0 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
@@ -942,9 +947,6 @@ function RunCmd() {
 
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
-    if [[ $try_again -eq 1 ]]; then
-      echo "$task" >> $pks
-    fi
   fi
 
   return $rc
