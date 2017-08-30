@@ -146,7 +146,7 @@ function setNextTask() {
       # skip if $task is masked, keyworded or an invalid string
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
-      if [[ -s /tmp/portageq.err ]]; then
+      if [[ $? -ne 0 && "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
         Finish 1 "FATAL: portageq broken" /tmp/portageq.err
       fi
       if [[ -z "$best_visible" ]]; then
