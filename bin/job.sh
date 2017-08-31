@@ -765,22 +765,6 @@ function GotAnIssue()  {
     return
   fi
 
-  # set the actual failed package
-  #
-  setFailedAndShort
-  if [[ -z "$failed" ]]; then
-    Mail "warn: '$failed' and/or '$short' are invalid atoms, task: $task" $bak
-    return
-  fi
-
-  CreateIssueDir
-  cp $bak $issuedir
-
-  setWorkDir
-
-  CollectIssueFiles
-  CompileIssueMail
-
   # https://bugs.gentoo.org/show_bug.cgi?id=596664
   #
   grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
@@ -800,6 +784,22 @@ function GotAnIssue()  {
     fi
     return
   fi
+
+  # set the actual failed package
+  #
+  setFailedAndShort
+  if [[ -z "$failed" ]]; then
+    Mail "warn: '$failed' and/or '$short' are invalid atoms, task: $task" $bak
+    return
+  fi
+
+  CreateIssueDir
+  cp $bak $issuedir
+
+  setWorkDir
+
+  CollectIssueFiles
+  CompileIssueMail
 
   if [[ -n "$failed" && $try_again -eq 0 ]]; then
     echo "=$failed" >> /etc/portage/package.mask/self
