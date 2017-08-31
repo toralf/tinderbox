@@ -930,8 +930,8 @@ function PostEmerge() {
   n=$(wc -l < /tmp/task.history)
   if [[ $n -ge 50 ]]; then
     n=$(tail -n 50 /tmp/task.history | sort -u | wc -l)
-    if [[ $n -lt 35 ]]; then
-      Finish 3 "task repeating >=30%"
+    if [[ $n -lt 38 ]]; then
+      Finish 3 "task repeating >=25%" /tmp/task.history
     fi
   fi
 }
