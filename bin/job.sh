@@ -687,7 +687,6 @@ function setFailedAndShort()  {
 
   short=$(pn2p "$failed")
   if [[ ! -d /usr/portage/$short ]]; then
-    Mail "warn: '$failed' and/or '$short' are invalid atoms, task: $task" $bak
     failed=""
     short=""
   fi
@@ -770,6 +769,7 @@ function GotAnIssue()  {
   #
   setFailedAndShort
   if [[ -z "$failed" ]]; then
+    Mail "warn: '$failed' and/or '$short' are invalid atoms, task: $task" $bak
     return
   fi
 
