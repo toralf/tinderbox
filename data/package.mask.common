@@ -20,10 +20,6 @@ net-dns/resolvconf-symlink
 #
 app-office/openoffice-bin
 
-# breaks gcc
-#
-dev-lang/gnat-gcc
-
 # doesn't build with newer kernels: https://bugs.gentoo.org/show_bug.cgi?id=574016
 #
 net-fs/openafs-kernel
@@ -52,3 +48,7 @@ www-misc/vdradmin-am
 #
 dev-util/plan9port
 
+# breaks portageq: https://bugs.gentoo.org/show_bug.cgi?id=628550
+#
+dev-python/pycryptodome
+dev-python/pygcrypt
