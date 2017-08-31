@@ -49,7 +49,6 @@ chmod a+rw /etc/portage/package.use/libressl
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
   cat << EOF > /etc/portage/package.accept_keywords/libressl
-dev-libs/libressl
 >=mail-mta/ssmtp-2.64-r3
 EOF
 fi
