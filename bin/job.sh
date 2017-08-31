@@ -325,7 +325,12 @@ EOF
 # get $PN from $P (strip away the version)
 #
 function pn2p() {
-  echo $(qatom "$1" 2>/dev/null | cut -f1-2 -d' ' | tr ' ' '/')
+  local s=$(qatom "$1" 2>/dev/null)
+  if [[ $? -eq 0 ]]; then
+    echo $(echo $s | cut -f1-2 -d' ' | tr ' ' '/')
+  else
+    echo ""
+  fi
 }
 
 
