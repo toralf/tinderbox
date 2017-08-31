@@ -327,7 +327,7 @@ EOF
 function pn2p() {
   local s=$(qatom "$1" 2>/dev/null)
   if [[ $? -eq 0 ]]; then
-    echo $(echo $s | cut -f1-2 -d' ' | tr ' ' '/')
+    echo $s | cut -f1-2 -d' ' | tr ' ' '/'
   else
     echo ""
   fi
