@@ -932,12 +932,9 @@ function PostEmerge() {
 
   # prevent endless loops
   #
-  n=$(wc -l < /tmp/task.history)
-  if [[ $n -ge 50 ]]; then
-    n=$(tail -n 50 /tmp/task.history | sort -u | wc -l)
-    if [[ $n -lt 38 ]]; then
-      Finish 3 "task repeating >=25%" /tmp/task.history
-    fi
+  n=$(tail -n 50 /tmp/task.history 2>/dev/null | grep -c "$task")
+  if [[ $n -gt 12 ]]; then
+    Finish 3 "task '$task' repeated $n times"
   fi
 }
 
