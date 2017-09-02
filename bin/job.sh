@@ -1171,8 +1171,7 @@ do
     Finish 0 "catched STOP"
   fi
 
-  # manually up from a previously failed operation
-  # b/c auto-clean can't be made to collect files first
+  # auto-clean is deactivated in favor of collecting issue files first
   #
   rm -rf /var/tmp/portage/*
 
