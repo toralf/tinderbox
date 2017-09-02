@@ -1048,8 +1048,8 @@ function pre-check() {
 
 --
 seen at tinderbox image $name
-log:
-$( tail -n 30 $log )
+$log:
+$( tail -n 30 $log 2>/dev/null )
 
 --
 emerge --info:
