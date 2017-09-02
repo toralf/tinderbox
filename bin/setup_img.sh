@@ -202,7 +202,7 @@ $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 "
 PAX_MARKINGS="none"
 
-ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '~amd64' || echo 'amd64' )
+ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
 ACCEPT_LICENSE="*"
 
