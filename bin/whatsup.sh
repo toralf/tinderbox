@@ -53,9 +53,9 @@ function Overall() {
     fi
     todo=$(wc -l 2>/dev/null < $i/tmp/packages)
     ((todo=todo+0))
-    [[ -f $i/tmp/LOCK ]] && lck="L" || lck=""
-    [[ -f $i/tmp/STOP ]] && stp="S" || stp=""
-    grep -q "^STOP" $i/tmp/packages && stp="${stp}s"
+    [[ -f $i/tmp/LOCK ]] && lck="l" || lck=""
+    [[ -f $i/tmp/STOP ]] && stp="s" || stp=""
+    grep -q "^STOP" $i/tmp/packages && stp="${stp}S"
     d=$(basename $(dirname $i))
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="run"
