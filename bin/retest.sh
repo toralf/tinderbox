@@ -15,13 +15,9 @@ while read i
 do
   # split away the version/revision
   #
-  if [[ "$i" =~ "@" ]]; then
+  p=$(qatom $(portageq best_visible / "$i" 2>/dev/null) 2>/dev/null | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  if [[ -z "$p" ]]; then
     p=$i
-  else
-    p=$(qatom $(portageq best_visible / "$i" 2>/dev/null) 2>/dev/null | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
-    if [[ -z "$p" ]]; then
-      continue
-    fi
   fi
 
   # remove all package entries made by job.sh
