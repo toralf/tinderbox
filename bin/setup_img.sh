@@ -360,14 +360,14 @@ function FillPackageList()  {
     echo "INFO replay $n tasks of $origin" >> $pks
   fi
 
-  # emerge/upgrade mandatory package/s and update the image
+  # emerge/upgrade mandatory package/s, then update the image
   # use "%..." to bail out in case of an error
   # "# ..." keeps insert_pks.sh away till the basic image setup is done
   #
   cat << EOF >> $pks
 # setup done
-%emerge -u sys-kernel/gentoo-sources
 @world
+%emerge -u sys-kernel/gentoo-sources
 app-text/wgetpaste
 app-portage/pfl
 app-portage/eix
