@@ -1,12 +1,14 @@
+Failing test(s):
+ (Failed)
 #   Failed test
 FAILED .*test
 Failed tests:
 FAIL .*
 ^FAIL: .*
 ^Failure:
-\\.\\.\\.\\*\\*\\*Failed
+\\*\\*\\*Failed
 Failed .* test programs. .* subtests failed.
-test.* failed
+\\*\\*\\*Exception:
 : FAILED:
 Failed .* tests, .*% okay, .* tests skipped.
 testsuite: .* failed
@@ -21,8 +23,7 @@ ERROR: ld.so: object
 sudo: no tty present and no askpass program specified
 /bin/sh: cppcheck: command not found
 Line .* failed
- (Failed)
--- FAIL:
+\\-\\- FAIL:
 \\[  FAILED  \\]
 .*:.*: exit status 1
 missing separator
@@ -42,4 +43,9 @@ CMake Error at
 tty: No such device or address
 : not found
 make\\[.*\\]:.*test.* Error 1
-Programs failed:
+Programs failed: .
+: Assertion failure
+Failed .* tests
+Error: .*:test
+No such file or directory
+ERROR:.*:
