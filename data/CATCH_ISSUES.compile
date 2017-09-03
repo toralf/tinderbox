@@ -44,6 +44,7 @@ ld: cannot find
 Errors in .* projects
 No rule to make target
 CSC: error .*:
+: error adding symbols:
 ld returned .* exit status
 Error: No implementations provided for the following modules:
 LoadError
@@ -169,3 +170,4 @@ Can't open heap image file
 Makefile.* Terminated
 Error .
 Package .* was not found in the pkg-config search path.
+missing separator.  Stop.

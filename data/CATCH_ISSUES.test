@@ -40,7 +40,6 @@ syntax error near
 make:.* test
 CMake Error at
 : exit status 1
-tty: No such device or address
 : not found
 make\\[.*\\]:.*test.* Error 1
 Programs failed: .
@@ -49,3 +48,4 @@ Failed .* tests
 Error: .*:test
 No such file or directory
 ERROR:.*:
+make.* No rule to make target
