@@ -211,7 +211,7 @@ VIDEO_CARDS=""
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
 
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y --complete-graph=y"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
@@ -419,7 +419,7 @@ function ConfigureImage()  {
 # - try to auto-fix USE flags deps to let the first @system update succeed
 #
 function CreateSetupScript()  {
-  dryrun="emerge --backtrack=200 --deep --update --changed-use @system --pretend"
+  dryrun="emerge --deep --update --changed-use @system --pretend"
   perl_stable_version=$(portageq best_version / dev-lang/perl)
 
   cat << EOF > tmp/setup.sh

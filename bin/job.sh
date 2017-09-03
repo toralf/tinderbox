@@ -969,9 +969,9 @@ function WorkOnTask() {
   if [[ "$task" =~ ^@ ]]; then
 
     if [[ "$task" = "@preserved-rebuild" ]]; then
-      RunCmd "emerge --backtrack=200 $task"
+      RunCmd "emerge $task"
     elif [[ "$task" = "@system" || "$task" = "@world" ]]; then
-      RunCmd "emerge --backtrack=200 --deep --update --newuse --changed-use $task"
+      RunCmd "emerge --deep --update --newuse --changed-use $task"
     else
       RunCmd "emerge --update $task"
     fi
