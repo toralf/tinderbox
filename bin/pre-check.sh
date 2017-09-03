@@ -2,7 +2,8 @@
 #
 #set -x
 
-# this script checks for artefacts/issues of the last task
+# purpose of this script is to check the pre-reqs
+# # and/or for artefacts/issues of the previous task
 #
 
 rc=0
@@ -24,7 +25,7 @@ rc=0
 #   fi
 # done
 
-if [[ "$task" =~ "dbus" &&  ! -f /etc/machine-id ]]; then
+if [[ "$task" = "sys-apps/dbus" &&  ! -f /etc/machine-id ]]; then
   echo "/etc/machine-id is missing"
   rc=1
 fi
