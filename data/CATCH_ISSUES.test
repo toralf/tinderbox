@@ -3,9 +3,10 @@ Failing test(s):
 #   Failed test
 FAILED .*test
 Failed tests:
-FAIL .*
+^FAIL .*
 ^FAIL: .*
 ^Failure:
+ FAIL .*
 \\*\\*\\*Failed
 Failed .* test programs. .* subtests failed.
 \\*\\*\\*Exception:

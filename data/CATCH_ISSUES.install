@@ -7,3 +7,5 @@ USE Flag .* not in IUSE
 CMake Error
 configure: error: Cannot find .* - please compile and install it first.
 : fatal error:
+/bin/sh: .* cd: .*: Not a directory
+make.* No rule to make target .* needed by .* Stop.
