@@ -937,7 +937,7 @@ function PostEmerge() {
   # prevent endless loops
   #
   n=$(tail -n 50 /tmp/task.history 2>/dev/null | grep -c "$task")
-  if [[ $n -gt 12 ]]; then
+  if [[ $n -gt 15 ]]; then
     Finish 3 "task '$task' repeated $n times"
   fi
 }
