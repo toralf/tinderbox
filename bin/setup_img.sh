@@ -41,24 +41,10 @@ function rufs()  {
 }
 
 
-# deduce the tinderbox image name from profile and stage3 filename
+# helper of UnpackStage3()
+# deduce the tinderbox image name
 #
 function ComputeImageName()  {
-  b="$(basename $profile)"
-  case $b in
-    no-multilib)  stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
-    ;;
-    systemd)      stage3=$(grep "^20....../$b/stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
-    ;;
-    *)            stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
-    ;;
-  esac
-
-  if [[ -z "$stage3" ]]; then
-    echo "can't get stage 3 from profile '$profile'"
-    exit 3
-  fi
-
   name="$(echo $profile | tr '/' '-')"
 
   name="${name}_"
@@ -87,10 +73,33 @@ function ComputeImageName()  {
 }
 
 
-# download, verify and unpack the stage3 file
+# download (if needed), verify and unpack the stage3 file
 #
 function UnpackStage3()  {
+  if [[ -z "$stage3" ]]; then
+    # latest file contains all relevant data
+    #
+    latest=$distfiles/latest-stage3.txt
+    wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
+
+    b="$(basename $profile)"
+    case $b in
+      no-multilib)  stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
+      ;;
+      systemd)      stage3=$(grep "^20....../$b/stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
+      ;;
+      *)            stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
+      ;;
+    esac
+
+    if [[ -z "$stage3" ]]; then
+      echo "can't get stage 3 from profile '$profile'"
+      exit 3
+    fi
+  fi
+
   f=$distfiles/$(basename $stage3)
+
   if [[ ! -s $f ]]; then
     wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles || exit 4
   fi
@@ -104,6 +113,8 @@ function UnpackStage3()  {
   #
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
   echo
+
+  ComputeImageName
 
   mkdir $name || exit 4
   cd $name    || exit 4
@@ -540,6 +551,7 @@ distfiles=/var/tmp/distfiles
 #
 wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
 wgetpath=/releases/amd64/autobuilds
+stage3=""
 
 autostart="y"   # start the image after setup ?
 origin=""       # clone from another image ?
@@ -584,7 +596,7 @@ fi
 #
 useflags=$(rufs)
 
-while getopts a:f:k:l:m:o:p:u: opt
+while getopts a:f:k:l:m:o:p:s:u: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -659,6 +671,9 @@ do
         fi
         ;;
 
+    s)  stage3="$OPTARG"
+        ;;
+
     u)  # USE flags are
         # - defined in a statement like USE="..."
         # - or listed in a file
@@ -694,12 +709,6 @@ if [[ "$image_dir" = "/home/tinderbox" ]]; then
   exit 3
 fi
 
-# latest file contains all relevant data
-#
-latest=$distfiles/latest-stage3.txt
-wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
-
-ComputeImageName
 UnpackStage3
 ConfigureImage
 EmergeMandatoryPackages
