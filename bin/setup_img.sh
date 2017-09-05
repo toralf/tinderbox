@@ -75,10 +75,6 @@ function ComputeImageName()  {
     name="$name-abi32+64"
   fi
 
-  if [[ -n "$suffix" ]]; then
-    name="$name-$suffix"
-  fi
-
   name="${name}_$(date +%Y%m%d-%H%M%S)"
 
   # "_-" -> "_" and "__" -> "_"
@@ -547,7 +543,6 @@ wgetpath=/releases/amd64/autobuilds
 
 autostart="y"   # start the image after setup ?
 origin=""       # clone from another image ?
-suffix=""       # will be appended onto the name before the timestamp
 
 # choose an arbitrary profile
 # switch to 17.0 profile at every n-th image
@@ -589,7 +584,7 @@ fi
 #
 useflags=$(rufs)
 
-while getopts a:f:k:l:m:o:p:s:u: opt
+while getopts a:f:k:l:m:o:p:u: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -662,9 +657,6 @@ do
           echo " profile unknown: $profile"
           exit 2
         fi
-        ;;
-
-    s)  suffix="$OPTARG"
         ;;
 
     u)  # USE flags are
