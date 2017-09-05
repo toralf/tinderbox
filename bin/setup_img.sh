@@ -682,10 +682,13 @@ done
 
 #############################################################################
 #
-
-# the call of $0 has to be made from within the image directory
+# main
 #
+echo "$0 started with ${@}"
+echo
+
 image_dir=$(pwd)
+
 if [[ "$image_dir" = "/home/tinderbox" ]]; then
   echo "you are in /home/tinderbox !"
   exit 3
