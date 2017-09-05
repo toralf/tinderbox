@@ -25,7 +25,7 @@ rc=0
 #   fi
 # done
 
-if [[ "$task" = "sys-apps/dbus" &&  ! -f /etc/machine-id ]]; then
+if [[ -n "$(ls /var/db/pkg/sys-apps/dbus*/ 2>/dev/null)" && ! -f /etc/machine-id ]]; then
   echo "/etc/machine-id is missing"
   rc=1
 fi
