@@ -31,10 +31,14 @@ comment="<unset>"
 dir=""
 severity="Normal"
 
+newbug=1    # if set to 1 then do neither change To: nor Cc:
+
 while getopts a:b:c:d:i:s: opt
 do
   case $opt in
-    i)  id="$OPTARG";;          # (i)d of an already existing bug
+    i)  id="$OPTARG"            # (i)d of an already existing bug
+        newbug=1
+        ;;
     b)  block="$OPTARG";;       # (b)lock that bug (id or alias)
     c)  comment="$OPTARG";;     # (c)omment, used with -a
     d)  dir="$OPTARG";;         # (d)irectory with all files
@@ -146,7 +150,7 @@ fi
 # when all data are attached to the report
 # but only if we opened the bug
 #
-if [[ -z "$id" ]]; then
+if [[ $newbug -eq 1 ]]; then
   a="-a $(cat ./assignee)"
   if [[ -s ./cc ]]; then
     # every entry in cc needs prefixed with --add-cc
