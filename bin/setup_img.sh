@@ -288,10 +288,6 @@ function CompilePackageFiles()  {
 
   echo "*/* $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
 
-  if [[ "$(basename $profile)" = "systemd" ]]; then
-    echo "sys-apps/util-linux -udev" >> ./etc/portage/package.use/util-linux
-  fi
-
   # create package specific env files
   #
   cat << EOF > ./etc/portage/env/splitdebug
