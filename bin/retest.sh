@@ -11,13 +11,13 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
 fi
 
 xargs -n1 |\
-while read i
+while read line
 do
   # split away the version/revision
   #
-  p=$(qatom $(portageq best_visible / "$i" 2>/dev/null) 2>/dev/null | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  p=$(qatom "$line" | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
   if [[ -z "$p" ]]; then
-    p=$i
+    p=$line
   fi
 
   # remove all package entries made by job.sh
@@ -27,13 +27,13 @@ do
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{cxx,nosandbox,notest} 2>/dev/null
 
-  for i in ~/run/*
+  for image in ~/run/*
   do
-    if [[ -f $i/tmp/STOP ]]; then
+    if [[ -f $image/tmp/STOP ]]; then
       continue
     fi
 
-    pks=$i/tmp/packages
+    pks=$image/tmp/packages
 
     # do not care about lines starting with a hash sign
     #
