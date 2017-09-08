@@ -473,7 +473,7 @@ function ClassifyIssue() {
 
     # post-process the title
     #
-    sed -i -e 's,  *, ,g' -e 's,[0-9\.]* sec,,g' -e 's,[0-9\.]* s,,g' -e 's/ \.\.\.*\./ /g' $issuedir/title
+    sed -i -e 's,  *, ,g' -e 's,[0-9]*[\.][0-9]* sec,,g' -e 's,[0-9]*[\.][0-9]* s,,g' -e 's,([0-9]*[\.][0-9]*s),,g' -e 's/ \.\.\.*\./ /g' $issuedir/title
 
     if [[ ! -s $issuedir/title ]]; then
       Mail "warn: empty title for $failed" $bak
