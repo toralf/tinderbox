@@ -583,7 +583,7 @@ fi
 
 # FEATURES
 #
-features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox -news"
+features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
 if [[ $(($RANDOM % 3)) -eq 0 && "$keyword" = "unstable" ]]; then
   features="$features test"
 fi
