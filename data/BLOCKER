@@ -37,3 +37,6 @@ QA Notice: dosym target omits basename:
 #
 530632
 This package has a configure.in file which has long been deprecated.
+# tracker
+381391
+rpc
