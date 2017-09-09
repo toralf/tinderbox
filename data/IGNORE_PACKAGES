@@ -4,7 +4,7 @@
 #
 # this file MUST NOT have empty lines (except the last one)
 #
-# categories:
+# categories: never emerge packages from those
 #
 app-eselect/
 dev-embedded/
@@ -14,8 +14,7 @@ sec-policy/
 sys-kernel/
 virtual/
 #
-# packages:
-# outdated, br0ken, breaks revdep-rebuild, too fat, ...
+# packages: outdated, br0ken, breaks revdep-rebuild, ...
 #
 app-xemacs/
 dev-perl/Math-Pari
@@ -34,10 +33,14 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
-www-client/chromium
-www-client/google-chrome
+#
+# bugs:
 #
 # https://bugs.gentoo.org/628550
 #
 dev-python/pycryptodome
 dev-python/pycparser
+#
+# awefully long build time
+#
+www-client/chromium

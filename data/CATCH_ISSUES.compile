@@ -168,6 +168,7 @@ OTP release .* does not match required regex
 Can't open heap image file
 \\[ERROR\\]
 Makefile.* Terminated
+asciidoc: Command not found
 Error .
 Package .* was not found in the pkg-config search path.
 missing separator.  Stop.

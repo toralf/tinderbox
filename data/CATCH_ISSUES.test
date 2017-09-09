@@ -36,6 +36,7 @@ rake aborted!
 Error decrypting signature:
 syntax error near
 : undefined reference to
+Fatal Error by .*
  : error: .*
 : fatal error:
 make:.* test
@@ -48,5 +49,10 @@ Programs failed: .
 Failed .* tests
 Error: .*:test
 No such file or directory
-ERROR:.*:
+: cannot execute binary file
+^E   .*:
 make.* No rule to make target
+^ERROR:.*:
+: Command not found
+make.* check] Error 1
+test: assertion .* failed

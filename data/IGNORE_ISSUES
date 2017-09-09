@@ -37,6 +37,7 @@ No supported Python implementation in PYTHON_SINGLE_TARGET/PYTHON_TARGETS.
 OpenMP is not available in your current selected compiler
 pcmcia support is broken on kernels newer
 Please buy & download
+please either set LINGUAS or do not use nls
 Please, run 'haskell-updater'
 Please switch your active compiler to gcc with
 Please use a supported ICD
