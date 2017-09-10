@@ -27,7 +27,7 @@ function rufs()  {
   grep -v   -e '32' -e '64' -e "^armv" -e 'bindist' -e 'build' -e 'cdinstall' \
             -e 'gcj' -e 'hostname' -e 'kill' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
             -e 'oci8' -e 'pax' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'ssp' -e 'static' -e 'systemd'    \
-            -e 'test' -e 'tls' -e 'uclibc' -e 'vim-syntax' |\
+            -e 'test' -e 'tls' -e 'uclibc' -e 'valgrind' -e 'vim-syntax' |\
   sort -u -R |\
   head -n $(($RANDOM % $n)) |\
   sort |\
