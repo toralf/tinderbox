@@ -2,8 +2,7 @@
 #
 #set -x
 
-# purpose of this script is to check the pre-reqs
-# # and/or for artefacts/issues of the previous task
+# purpose of this script is to check pre-reqs and left artefacts
 #
 
 rc=0
@@ -24,10 +23,5 @@ rc=0
 #     fi
 #   fi
 # done
-
-if [[ -n "$(ls /var/db/pkg/sys-apps/dbus*/ 2>/dev/null)" && ! -f /etc/machine-id ]]; then
-  echo "/etc/machine-id is missing"
-  rc=1
-fi
 
 exit $rc
