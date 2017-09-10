@@ -391,6 +391,10 @@ EOF
 sys-apps/sandbox
 EOF
 
+if [[ "$profile" =~ "systemd" ]], then
+  echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $pks
+fi
+
   chmod a+w $pks
 }
 
