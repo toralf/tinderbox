@@ -36,13 +36,6 @@ do
     continue
   fi
 
-  # to get a higher coverage of the repository over a given time
-  # skip few images
-  #
-  if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-    continue
-  fi
-
   applicable="$applicable $pks"
 done
 
@@ -50,20 +43,13 @@ done
 #
 acmr=$(mktemp /tmp/acmrXXXXXX)
 
-# the host repository is synced every 2 hours via a cron job
-# which ideally calls us afterwards;
-# add 1 hour for the mirrors to be in sync with their masters
+# give 1 hour to the mirrors to be in sync with the master
 #
 cd /usr/portage/
 git diff --diff-filter=ACMR --name-status "@{ ${1:-3} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $acmr
 
 info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
-
-# the output goes to the stdout of the caller (eg. email for a cron job)
-#
-echo "$info"
-cat $acmr
 
 if [[ -s $acmr ]]; then
   # append the packages onto applicable package list files
