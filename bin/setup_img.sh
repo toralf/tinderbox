@@ -244,8 +244,8 @@ EOF
 # symlink within an image a bunch of (host bind mounted) files
 # from /tmp/tb/data to the appropriate portage directories
 #
-function CompilePackageFiles()  {
-  mkdir tmp/tb  # mount point for the tinderbox directory of the host
+function CompilePortageFiles()  {
+  mkdir tmp/tb  # bind mount point of the tinderbox directory got from the host
 
   # create portage directories and symlinks
   #
@@ -410,7 +410,7 @@ function ConfigureImage()  {
 
   CompileRepoFiles
   CompileMakeConf
-  CompilePackageFiles
+  CompilePortageFiles
   CompileMiscFiles
   CreateBacklog
 }
