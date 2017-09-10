@@ -33,18 +33,18 @@ do
       continue
     fi
 
-    pks=$image/tmp/packages
+    backlog=$image/tmp/backlog
 
     # do not care about lines starting with a hash sign
     #
-    grep -q -E -e "^(STOP|INFO|%|@)" $pks
+    grep -q -E -e "^(STOP|INFO|%|@)" $backlog
     if [[ $? -eq 0 ]]; then
       continue
     fi
 
     # re-schedule the package itself not a specific version of it
     #
-    echo "$p" >> $pks
+    echo "$p" >> $backlog
   done
 done
 

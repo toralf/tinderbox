@@ -5,13 +5,13 @@
 # switch a tinderbox image from OpenSSL to LibreSSL
 # inspired by https://wiki.gentoo.org/wiki/Project:LibreSSL
 
-pks="/tmp/packages"
+backlog="/tmp/backlog"
 
 echo
 echo "=================================================================="
 echo
 
-if [[ ! -e $pks ]]; then
+if [[ ! -e $backlog ]]; then
   echo " don't run this script outside of a tinderbox image !"
   exit 1
 fi
@@ -56,7 +56,7 @@ fi
 # unmerge of OpenSSL triggers already a @preserved-rebuild in job.sh
 # but use "%" here to definitely bail out if it would fail
 #
-cat << EOF >> $pks
+cat << EOF >> $backlog
 %emerge @preserved-rebuild
 %emerge -C openssl
 EOF

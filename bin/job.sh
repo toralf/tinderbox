@@ -91,7 +91,7 @@ function setNextTask() {
   # update @system and @world once a day, if no special task is scheduled
   # switch the java machine too by the way
   #
-  if [[ -s $pks ]]; then
+  if [[ -s $backlog ]]; then
     ts=/tmp/@system.history
     if [[ ! -f $ts ]]; then
       touch $ts
@@ -100,7 +100,7 @@ function setNextTask() {
       if [[ $diff -gt 86400 ]]; then
         # do not care about "#" lines to schedule @system
         #
-        grep -q -E -e "^(STOP|INFO|%|@)" $pks
+        grep -q -E -e "^(STOP|INFO|%|@)" $backlog
         if [[ $? -eq 1 ]]; then
           task="@system"
           SwitchJDK
@@ -112,13 +112,13 @@ function setNextTask() {
 
   while :;
   do
-    if [[ ! -s $pks ]]; then
+    if [[ ! -s $backlog ]]; then
       n=$(qlist --installed | wc -l)
       Finish 0 "empty package list, $n packages emerged"
     fi
 
-    task=$(tail -n 1 $pks)
-    sed -i -e '$d' $pks
+    task=$(tail -n 1 $backlog)
+    sed -i -e '$d' $backlog
 
     if [[ -z "$task" ]]; then
       continue  # empty lines are allowed
@@ -491,7 +491,7 @@ function ClassifyIssue() {
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $pks
+    echo "$task" >> $backlog
   fi
 
   if [[ "$keyword" = "stable" ]]; then
@@ -754,7 +754,7 @@ function GotAnIssue()  {
   #
   grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $pks
+    echo "$task" >> $backlog
     Finish 1 "KILLED"
   fi
 
@@ -762,7 +762,7 @@ function GotAnIssue()  {
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $pks
+    echo "$task" >> $backlog
     Mail "info: hit a race condition in the repository sync" $bak
     return
   fi
@@ -778,8 +778,8 @@ function GotAnIssue()  {
   #
   grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $pks
-    echo "%emerge -1 dev-perl/XML-Parser" >> $pks
+    echo "$task" >> $backlog
+    echo "%emerge -1 dev-perl/XML-Parser" >> $backlog
     try_again=1
     return
   fi
@@ -787,9 +787,9 @@ function GotAnIssue()  {
   grep -q -e "Fix the problem and start perl-cleaner again." $bak
   if [[ $? -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
-      echo "%perl-cleaner --all" >> $pks
+      echo "%perl-cleaner --all" >> $backlog
     else
-      echo "%emerge --resume" >> $pks
+      echo "%emerge --resume" >> $backlog
     fi
     return
   fi
@@ -860,7 +860,7 @@ function SwitchGCC() {
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
       fi
 
-      cat << EOF >> $pks
+      cat << EOF >> $backlog
 %emerge --unmerge sys-devel/gcc:$verold
 %fix_libtool_files.sh $verold
 %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
@@ -869,7 +869,7 @@ EOF
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>/dev/null)
-        echo "%BuildKernel" >> $pks
+        echo "%BuildKernel" >> $backlog
       fi
     fi
   fi
@@ -892,7 +892,7 @@ function PostEmerge() {
   rm -f /etc/portage/._cfg????_make.conf
   ls /etc/._cfg????_locale.gen &>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo "%locale-gen" >> $pks
+    echo "%locale-gen" >> $backlog
     rm /etc/._cfg????_locale.gen
   fi
 
@@ -904,7 +904,7 @@ function PostEmerge() {
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    echo "@preserved-rebuild" >> $pks
+    echo "@preserved-rebuild" >> $backlog
   fi
 
   # build and switch to the new kernel after nearly all other things
@@ -918,20 +918,20 @@ function PostEmerge() {
     fi
 
     if [[ ! -f /usr/src/linux/.config ]]; then
-      echo "%BuildKernel" >> $pks
+      echo "%BuildKernel" >> $backlog
     fi
   fi
 
   grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%haskell-updater" >> $pks
+    echo "%haskell-updater" >> $backlog
   fi
 
   # switch to the new GCC soon
   #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%SwitchGCC" >> $pks
+    echo "%SwitchGCC" >> $backlog
   fi
 
   # prevent endless loops
@@ -982,21 +982,21 @@ function WorkOnTask() {
     if [[ $rc -eq 0 ]]; then
       echo "$(date) ok" >> /tmp/$task.history
       if [[ "$task" = "@world" ]]; then
-        echo "%emerge --depclean" >> $pks
+        echo "%emerge --depclean" >> $backlog
       fi
 
     else
       echo "$(date) $failed" >> /tmp/$task.history
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
-          echo "%emerge --resume --skip-first" >> $pks
+          echo "%emerge --resume --skip-first" >> $backlog
         else
           if [[ "$task" = "@preserved-rebuild" ]]; then
             Finish 3 "task $task failed"
           fi
 
           if [[ "$task" = "@system" ]]; then
-            echo "@world" >> $pks
+            echo "@world" >> $backlog
           fi
         fi
       fi
@@ -1016,7 +1016,7 @@ function WorkOnTask() {
         # bail out to let the breakage being fixed
         # but nevertheless re-schedule the task
         #
-        echo "$task" >> $pks
+        echo "$task" >> $backlog
         Finish 3 "command '$cmd' failed"
       fi
     fi
@@ -1125,7 +1125,7 @@ function ParseElogForQA() {
 mailto="tinderbox@zwiebeltoralf.de"
 tsk=/tmp/task                       # holds the current task
 log=$tsk.log                        # holds always output of the running task command
-pks=/tmp/packages                   # the (during setup pre-filled) package list file
+backlog=/tmp/backlog                   # the (during setup pre-filled) package list file
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"
@@ -1162,7 +1162,7 @@ export XDG_DATA_HOME="/root/share"
 # re-try an interrupted task
 #
 if [[ -s $tsk ]]; then
-  cat $tsk >> $pks
+  cat $tsk >> $backlog
   rm $tsk
 fi
 

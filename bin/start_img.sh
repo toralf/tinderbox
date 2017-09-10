@@ -64,8 +64,8 @@ do
 
   # non-empty package list required
   #
-  pks=$mnt/tmp/packages
-  if [[ ! -s $pks ]]; then
+  backlog=$mnt/tmp/backlog
+  if [[ ! -s $backlog ]]; then
     echo " package list is empty: $mnt"
     continue
   fi

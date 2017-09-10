@@ -343,31 +343,31 @@ EOF
 # the last line of the package list will be the first task and so on
 #
 function FillPackageList()  {
-  pks=./tmp/packages
+  backlog=./tmp/backlog
 
   # in favour of a good coverage don't test every time every repo change at every image
   #
   if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-    echo '# this keeps insert_pkgs.sh away' > $pks
+    echo '# this keeps insert_pkgs.sh away' > $backlog
   fi
 
   # fill up the randomized package list
   #
-  qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
+  qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
 
   # no replay of @sets or %commands
   #
   if [[ -e $origin/tmp/task.history ]]; then
-    echo "INFO finished replay of task history of $origin" >> $pks
-    n=$(tac $origin/tmp/task.history | grep -v -E "^(%|@)" | tee -a $pks | wc -l)
-    echo "INFO starting replay of task history of $origin ($n packages)" >> $pks
+    echo "INFO finished replay of task history of $origin" >> $backlog
+    n=$(tac $origin/tmp/task.history | grep -v -E "^(%|@)" | tee -a $backlog | wc -l)
+    echo "INFO starting replay of task history of $origin ($n packages)" >> $backlog
   fi
 
   # emerge/upgrade mandatory package/s, then update the image
   # use "%..." to bail out in case of an error
-  # "# ..." keeps insert_pks.sh away till the basic image setup is done
+  # "# ..." keeps insert_backlog.sh away till the basic image setup is done
   #
-  cat << EOF >> $pks
+  cat << EOF >> $backlog
 # setup done
 @world
 %emerge -u sys-kernel/gentoo-sources
@@ -382,20 +382,20 @@ EOF
   #
   if [[ "$libressl" = "y" ]]; then
     cp $(dirname $0)/switch2libressl.sh ./tmp/
-    echo "%/tmp/switch2libressl.sh" >> $pks
+    echo "%/tmp/switch2libressl.sh" >> $backlog
   fi
 
   #
-  cat << EOF >> $pks
+  cat << EOF >> $backlog
 %emerge -u sys-devel/gcc
 sys-apps/sandbox
 EOF
 
 if [[ "$profile" =~ "systemd" ]], then
-  echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $pks
+  echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $backlog
 fi
 
-  chmod a+w $pks
+  chmod a+w $backlog
 }
 
 

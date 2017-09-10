@@ -24,19 +24,19 @@ do
     continue
   fi
 
-  pks=$i/tmp/packages
-  if [[ ! -s $pks ]]; then
+  backlog=$i/tmp/backlog
+  if [[ ! -s $backlog ]]; then
     continue
   fi
 
   # do not change a package list if a special action is scheduled/not finished
   #
-  grep -q -E "^(STOP|INFO|%|@|#)" $pks
+  grep -q -E "^(STOP|INFO|%|@|#)" $backlog
   if [[ $? -eq 0 ]]; then
     continue
   fi
 
-  applicable="$applicable $pks"
+  applicable="$applicable $backlog"
 done
 
 # holds the package names of added/changed/modified/renamed ebuilds
@@ -54,14 +54,14 @@ info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
 if [[ -s $acmr ]]; then
   # append the packages onto applicable package list files
   #
-  for pks in $applicable
+  for backlog in $applicable
   do
-    echo "$info" >> $pks
+    echo "$info" >> $backlog
 
     # shuffle packages around in a different way for each image
     # and limit amount of injected packages per image
     #
-    sort --random-sort < $acmr | head -n 100 >> $pks
+    sort --random-sort < $acmr | head -n 100 >> $backlog
   done
 fi
 

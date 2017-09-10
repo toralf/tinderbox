@@ -51,11 +51,11 @@ function Overall() {
     if [[ -d $i/tmp/issues ]]; then
       fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename 2>/dev/null | cut -f2- -d'_' -s | sort -u | wc -w)
     fi
-    todo=$(wc -l 2>/dev/null < $i/tmp/packages)
+    todo=$(wc -l 2>/dev/null < $i/tmp/backlog)
     ((todo=todo+0))
     [[ -f $i/tmp/LOCK ]] && lck="l" || lck=""
     [[ -f $i/tmp/STOP ]] && stp="s" || stp=""
-    grep -q "^STOP" $i/tmp/packages && stp="${stp}S"
+    grep -q "^STOP" $i/tmp/backlog && stp="${stp}S"
     d=$(basename $(dirname $i))
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="run"
