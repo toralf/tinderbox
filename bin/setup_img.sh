@@ -340,9 +340,9 @@ EOF
 }
 
 
-# the last line of the package list will be the first task and so on
+# the last line of the backlog will be the first task and so on
 #
-function FillPackageList()  {
+function CreateBacklog()  {
   backlog=./tmp/backlog
 
   # in favour of a good coverage don't test every time every repo change at every image
@@ -351,7 +351,7 @@ function FillPackageList()  {
     echo '# this keeps insert_pkgs.sh away' > $backlog
   fi
 
-  # fill up the randomized package list
+  # fill up the randomized backlog
   #
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
 
@@ -412,7 +412,7 @@ function ConfigureImage()  {
   CompileMakeConf
   CompilePackageFiles
   CompileMiscFiles
-  FillPackageList
+  CreateBacklog
 }
 
 

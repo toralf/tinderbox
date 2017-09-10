@@ -85,7 +85,7 @@ function SwitchJDK()  {
 }
 
 
-# copy content of last line of the package list into variable $task
+# copy content of last line of the backlog into variable $task
 #
 function setNextTask() {
   # update @system and @world once a day, if no special task is scheduled
@@ -114,7 +114,7 @@ function setNextTask() {
   do
     if [[ ! -s $backlog ]]; then
       n=$(qlist --installed | wc -l)
-      Finish 0 "empty package list, $n packages emerged"
+      Finish 0 "empty backlog, $n packages emerged"
     fi
 
     task=$(tail -n 1 $backlog)
@@ -1125,7 +1125,7 @@ function ParseElogForQA() {
 mailto="tinderbox@zwiebeltoralf.de"
 tsk=/tmp/task                       # holds the current task
 log=$tsk.log                        # holds always output of the running task command
-backlog=/tmp/backlog                   # the (during setup pre-filled) package list file
+backlog=/tmp/backlog                   # the (during setup pre-filled) backlog file
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"

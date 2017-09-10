@@ -62,11 +62,11 @@ do
     continue
   fi
 
-  # non-empty package list required
+  # non-empty backlog required
   #
   backlog=$mnt/tmp/backlog
   if [[ ! -s $backlog ]]; then
-    echo " package list is empty: $mnt"
+    echo " backlog is empty: $mnt"
     continue
   fi
 

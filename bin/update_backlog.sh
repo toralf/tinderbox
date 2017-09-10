@@ -2,16 +2,16 @@
 #
 #set -x
 
-# pick up latest ebuilds from Git repository and put them on top of applicable package lists
+# pick up latest ebuilds from Git repository and put them on top of applicable backlogs
 #
 
 mailto="tinderbox@zwiebeltoralf.de"
 
-# collect all package list filenames if the image ...
+# collect all backlog filenames if the image ...
 #   1. is symlinked to ~/run
 #   2. is running (LOCK and no STOP)
-#   3. has a non-empty package list
-#   4. doesn't have any special entries in its package list
+#   3. has a non-empty backlog
+#   4. doesn't have any special entries in its backlog
 #
 applicable=""
 for i in ~/run/*
@@ -29,7 +29,7 @@ do
     continue
   fi
 
-  # do not change a package list if a special action is scheduled/not finished
+  # do not change a backlog if a special action is scheduled/not finished
   #
   grep -q -E "^(STOP|INFO|%|@|#)" $backlog
   if [[ $? -eq 0 ]]; then
@@ -52,7 +52,7 @@ grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cu
 info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
 
 if [[ -s $acmr ]]; then
-  # append the packages onto applicable package list files
+  # append the packages onto applicable backlog files
   #
   for backlog in $applicable
   do
