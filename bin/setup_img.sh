@@ -355,12 +355,12 @@ function FillPackageList()  {
   #
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $pks
 
-  # replay only packages, not sets or other commands
+  # no replay of @sets or %commands
   #
   if [[ -e $origin/tmp/task.history ]]; then
-    echo "INFO task history of $origin replayed" >> $pks
-    n=$(tac $origin/tmp/task.history | grep -v -E "^(%|@|#)" | tee -a $pks | wc -l)
-    echo "INFO replay $n tasks of $origin" >> $pks
+    echo "INFO finished replay of task history of $origin" >> $pks
+    n=$(tac $origin/tmp/task.history | grep -v -E "^(%|@)" | tee -a $pks | wc -l)
+    echo "INFO starting replay of task history of $origin ($n packages)" >> $pks
   fi
 
   # emerge/upgrade mandatory package/s, then update the image
@@ -553,17 +553,17 @@ autostart="y"   # start the image after setup ?
 origin=""       # clone from another image ?
 
 # choose an arbitrary profile
-# switch to 17.0 profile at every n-th image
+# switch to 17.0 profile at every 4th image
 #
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
-if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's/13/17/')"
 fi
 
-# mostly check unstable
+# test stable rather rarely
 #
 keyword="unstable"
-if [[ $(($RANDOM % 20)) -eq 0 ]]; then
+if [[ $(($RANDOM % 20)) -eq 0 && ! "$profile" =~ "17" ]]; then
   keyword="stable"
 fi
 
