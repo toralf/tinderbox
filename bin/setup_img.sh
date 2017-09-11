@@ -699,7 +699,7 @@ done
 #
 # main
 #
-echo "$0 started with ${@}"
+echo "$0 started with $# args: '${@}'"
 echo
 
 image_dir=$(pwd)
