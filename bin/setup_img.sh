@@ -391,7 +391,7 @@ EOF
 sys-apps/sandbox
 EOF
 
-if [[ "$profile" =~ "systemd" ]], then
+if [[ "$profile" =~ "systemd" ]]; then
   echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $backlog
 fi
 
