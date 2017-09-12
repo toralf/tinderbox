@@ -347,26 +347,37 @@ function CreateBacklog()  {
 
   truncate -s 0 $backlog
 
-  # in favour of a better coverage don't test repo changes at every image
-  #
-  if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-    echo '# this comment keeps update_backlog.sh away' >> $backlog
-  fi
-
   if [[ -e $origin ]]; then
+    # prevent update of the backlog with repo changes
+    #
     echo "# image cloned from $origin" >> $backlog
-  fi
 
-  # fill up with a randomized package list
-  #
-  qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
+    # the backlog might be important too
+    #
+    if [[ -s $origin/tmp/backlog ]]; then
+      echo "INFO finished with backlog of $origin"  >> $backlog
+      cat $origin/tmp/backlog                       >> $backlog
+      echo "INFO starting with backlog of $origin"  >> $backlog
+    fi
 
-  # no replay of @sets or %commands of the cloned image
-  #
-  if [[ -s $origin/tmp/task.history ]]; then
-    echo "INFO finished replay of task history of $origin" >> $backlog
-    n=$(tac $origin/tmp/task.history | grep -v -E "^(%|@)" | tee -a $backlog | wc -l)
-    echo "INFO starting replay of task history of $origin ($n packages)" >> $backlog
+    # no replay of @sets or %commands of the cloned image
+    #
+    if [[ -s $origin/tmp/task.history ]]; then
+      echo "INFO finished replay of task history of $origin"  >> $backlog
+      grep -v -E "^(%|@)" $origin/tmp/task.history | tac      >> $backlog
+      echo "INFO starting replay of task history of $origin"  >> $backlog
+    fi
+
+  else
+    # in favour of a better coverage don't test repo changes at every image
+    #
+    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+      echo '# this comment keeps update_backlog.sh away' >> $backlog
+    fi
+
+    # fill up with a randomized package list
+    #
+    qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
   fi
 
   # first install/upgrade mandatory packages, then update @system and @world
