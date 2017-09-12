@@ -102,6 +102,7 @@ function setNextTask() {
         #
         grep -q -E -e "^(STOP|INFO|%|@)" $backlog
         if [[ $? -eq 1 ]]; then
+          echo "@world" >> $backlog
           task="@system"
           SwitchJDK
           return
