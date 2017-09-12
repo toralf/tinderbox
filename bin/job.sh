@@ -925,7 +925,7 @@ function PostEmerge() {
     # update @system once a day, if nothing else is scheduled
     # switch the java machine too by the way
     #
-    let "diff = $(date +%s) - $(date +%s -r $ts)"
+    let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
     if [[ $diff -gt 86400 ]]; then
       # do not care about "#" lines to schedule @system
       #
