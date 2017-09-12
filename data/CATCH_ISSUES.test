@@ -50,9 +50,13 @@ Failed .* tests
 Error: .*:test
 No such file or directory
 : cannot execute binary file
+AssertionError
 ^E   .*:
 make.* No rule to make target
 ^ERROR:.*:
 : Command not found
 make.* check] Error 1
-test: assertion .* failed
+assertion .* failed
+  NOT ok
+ocamlc: unknown option
+failed conch
