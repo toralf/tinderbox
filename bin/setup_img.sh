@@ -345,27 +345,32 @@ EOF
 function CreateBacklog()  {
   backlog=./tmp/backlog
 
-  # in favour of a good coverage don't test every time every repo change at every image
+  truncate -s 0 $backlog
+
+  # in favour of a better coverage don't test repo changes at every image
   #
   if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-    echo '# this keeps insert_pkgs.sh away' > $backlog
+    echo '# this comment keeps update_backlog.sh away' >> $backlog
   fi
 
-  # fill up the randomized backlog
+  if [[ -e $origin ]]; then
+    echo "# image cloned from $origin" >> $backlog
+  fi
+
+  # fill up with a randomized package list
   #
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
 
-  # no replay of @sets or %commands
+  # no replay of @sets or %commands of the cloned image
   #
-  if [[ -e $origin/tmp/task.history ]]; then
+  if [[ -s $origin/tmp/task.history ]]; then
     echo "INFO finished replay of task history of $origin" >> $backlog
     n=$(tac $origin/tmp/task.history | grep -v -E "^(%|@)" | tee -a $backlog | wc -l)
     echo "INFO starting replay of task history of $origin ($n packages)" >> $backlog
   fi
 
-  # emerge/upgrade mandatory package/s, then update the image
-  # use "%..." to bail out in case of an error
-  # "# ..." keeps insert_backlog.sh away till the basic image setup is done
+  # first install/upgrade mandatory packages, then update @system and @world
+  # "# setup done" keeps update_backlog.sh away till @world is finished entirely
   #
   cat << EOF >> $backlog
 # setup done
