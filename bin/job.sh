@@ -981,9 +981,6 @@ function WorkOnTask() {
 
     if [[ $rc -eq 0 ]]; then
       echo "$(date) ok" >> /tmp/$task.history
-      if [[ "$task" = "@world" ]]; then
-        echo "%emerge --depclean" >> $backlog
-      fi
 
     else
       echo "$(date) $failed" >> /tmp/$task.history
