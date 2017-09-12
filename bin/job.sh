@@ -88,7 +88,7 @@ function SwitchJDK()  {
 # copy content of last line of the backlog into variable $task
 #
 function setNextTask() {
-  # update @system and @world once a day, if no special task is scheduled
+  # update @system once a day, if no special task is scheduled
   # switch the java machine too by the way
   #
   if [[ -s $backlog ]]; then
@@ -102,7 +102,6 @@ function setNextTask() {
         #
         grep -q -E -e "^(STOP|INFO|%|@)" $backlog
         if [[ $? -eq 1 ]]; then
-          echo "@world" >> $backlog
           task="@system"
           SwitchJDK
           return
@@ -994,10 +993,6 @@ function WorkOnTask() {
         else
           if [[ "$task" = "@preserved-rebuild" ]]; then
             Finish 3 "task $task failed"
-          fi
-
-          if [[ "$task" = "@system" ]]; then
-            echo "@world" >> $backlog
           fi
         fi
       fi
