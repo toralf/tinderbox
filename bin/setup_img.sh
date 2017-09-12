@@ -412,6 +412,10 @@ if [[ "$profile" =~ "systemd" ]]; then
 fi
 
   chmod a+w $backlog
+
+  # the timestamp of this file is used to schedule @system upgrade once a day
+  #
+  touch ./tmp/@system.history
 }
 
 

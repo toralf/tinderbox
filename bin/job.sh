@@ -88,28 +88,6 @@ function SwitchJDK()  {
 # copy content of last line of the backlog into variable $task
 #
 function setNextTask() {
-  # update @system once a day, if no special task is scheduled
-  # switch the java machine too by the way
-  #
-  if [[ -s $backlog ]]; then
-    ts=/tmp/@system.history
-    if [[ ! -f $ts ]]; then
-      touch $ts
-    else
-      let "diff = $(date +%s) - $(date +%s -r $ts)"
-      if [[ $diff -gt 86400 ]]; then
-        # do not care about "#" lines to schedule @system
-        #
-        grep -q -E -e "^(STOP|INFO|%|@)" $backlog
-        if [[ $? -eq 1 ]]; then
-          task="@system"
-          SwitchJDK
-          return
-        fi
-      fi
-    fi
-  fi
-
   while :;
   do
     if [[ ! -s $backlog ]]; then
@@ -880,6 +858,8 @@ EOF
 # it schedules follow-ups from the last emerge operation
 #
 function PostEmerge() {
+  local md5=$(md5sum < $backlog)   # will differ if we add something to backlog
+
   # prefix our log backup file with an "_" to distinguish it from portages log file
   #
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
@@ -940,6 +920,24 @@ function PostEmerge() {
   if [[ $n -gt 15 ]]; then
     Finish 3 "task '$task' repeated $n times"
   fi
+
+  if [[ "$md5" = "$(md5sum < $backlog)" ]]; then
+    # update @system once a day, if nothing else is scheduled
+    # switch the java machine too by the way
+    #
+    let "diff = $(date +%s) - $(date +%s -r $ts)"
+    if [[ $diff -gt 86400 ]]; then
+      # do not care about "#" lines to schedule @system
+      #
+      grep -q -E -e "^(STOP|INFO|%|@)" $backlog
+      if [[ $? -eq 1 ]]; then
+        echo -e "\n@world\n@system" >> $backlog
+        return
+      fi
+
+      SwitchJDK
+    fi
+  fi
 }
 
 
@@ -977,13 +975,10 @@ function WorkOnTask() {
     fi
     rc=$?
 
+    echo "$(date) ${failed:-ok}" >> /tmp/$task.history
     cp $log /tmp/$task.last.log
 
-    if [[ $rc -eq 0 ]]; then
-      echo "$(date) ok" >> /tmp/$task.history
-
-    else
-      echo "$(date) $failed" >> /tmp/$task.history
+    if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $backlog
