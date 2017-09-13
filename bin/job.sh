@@ -927,7 +927,7 @@ function PostEmerge() {
     #
     let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
     if [[ $diff -gt 86400 ]]; then
-      # do not care about "#" lines to schedule @system
+      # do not care about "#" lines for image update
       #
       grep -q -E -e "^(STOP|INFO|%|@)" $backlog
       if [[ $? -eq 1 ]]; then
@@ -941,6 +941,61 @@ function PostEmerge() {
 }
 
 
+# helper of RunCmd()
+#
+function CheckQA() {
+  f=/tmp/qafilenames
+
+  # process all files created after the last call of us
+  #
+  if [[ -f $f ]]; then
+    find /var/log/portage/elog -name '*.log' -newer $f  > $f
+  else
+    find /var/log/portage/elog -name '*.log'            > $f
+  fi
+
+  cat $f |\
+  while read elogfile
+  do
+    # process each QA issue independent from all others
+    # even for the same QA file
+    #
+    cat /tmp/tb/data/CATCH_QA |\
+    while read reason
+    do
+      grep -q -E -e "$reason" $elogfile
+      if [[ $? -eq 0 ]]; then
+        failed=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
+        short=$(pn2p "$failed")
+
+        CreateIssueDir
+
+        AddMailAddresses
+
+        cp $elogfile $issuedir/issue
+        AddWhoamiToIssue
+
+        echo "$reason" > $issuedir/title
+        SearchForBlocker
+        sed -i -e "s,^,$failed : ," $issuedir/title
+
+        grep -A 10 "$reason" $issuedir/issue > $issuedir/body
+        AddMetainfoToBody
+
+        echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
+        id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+        AttachFilesToBody $issuedir/issue
+
+        if [[ -z "$id" ]]; then
+          SendoutIssueMail
+        fi
+      fi
+    done
+  done
+}
+
+
+# helper of WorkOnTask()
 # run the command ($1) and parse its output
 #
 function RunCmd() {
@@ -948,10 +1003,10 @@ function RunCmd() {
   rc=$?
 
   PostEmerge
-
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
   fi
+  CheckQA
 
   return $rc
 }
@@ -1054,60 +1109,6 @@ EOF
 }
 
 
-# catch QA issues
-#
-function ParseElogForQA() {
-  f=/tmp/qafilenames
-
-  # process all files created after the last call of ParseElogForQA()
-  #
-  if [[ -f $f ]]; then
-    find /var/log/portage/elog -name '*.log' -newer $f  > $f
-  else
-    find /var/log/portage/elog -name '*.log'            > $f
-  fi
-
-  cat $f |\
-  while read elogfile
-  do
-    # process each QA issue independent from all others
-    # even for the same QA file
-    #
-    cat /tmp/tb/data/CATCH_QA |\
-    while read reason
-    do
-      grep -q -E -e "$reason" $elogfile
-      if [[ $? -eq 0 ]]; then
-        failed=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
-        short=$(pn2p "$failed")
-
-        CreateIssueDir
-
-        AddMailAddresses
-
-        cp $elogfile $issuedir/issue
-        AddWhoamiToIssue
-
-        echo "$reason" > $issuedir/title
-        SearchForBlocker
-        sed -i -e "s,^,$failed : ," $issuedir/title
-
-        grep -A 10 "$reason" $issuedir/issue > $issuedir/body
-        AddMetainfoToBody
-
-        echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
-        id=$(bugz -q --columns 400 search --show-status $short "$reason" | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-        AttachFilesToBody $issuedir/issue
-
-        if [[ -z "$id" ]]; then
-          SendoutIssueMail
-        fi
-      fi
-    done
-  done
-}
-
-
 #############################################################################
 #
 #       main
@@ -1172,6 +1173,5 @@ do
   setNextTask
   echo "$task" | tee -a $tsk.history > $tsk
   WorkOnTask
-  ParseElogForQA
   rm $tsk
 done
