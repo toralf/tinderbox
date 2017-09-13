@@ -975,10 +975,12 @@ function WorkOnTask() {
     fi
     rc=$?
 
-    echo "$(date) ${failed:-ok}" >> /tmp/$task.history
     cp $log /tmp/$task.last.log
 
-    if [[ $rc -ne 0 ]]; then
+    if [[ $rc -eq 0 ]]; then
+      echo "$(date) ok" >> /tmp/$task.history
+    else
+      echo "$(date) ${failed:-NOT ok}" >> /tmp/$task.history
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $backlog
