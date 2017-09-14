@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#set -x
+# set -x
 
 # pick up latest ebuilds from Git repository and put them on top of applicable backlogs
 #

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#set -x
+# set -x
 
 # chroot into an image either interactively -or- run a command and exit afterwards
 #

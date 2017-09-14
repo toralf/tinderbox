@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#set -x
+# set -x
 
 # stop tinderbox chroot image/s
 #

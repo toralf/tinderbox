@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#set -x
+# set -x
 
 # check for non-empty image log files
 #

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#set -x
+# set -x
 
 # purpose of this script is to check pre-reqs and left artefacts
 #

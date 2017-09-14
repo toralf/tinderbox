@@ -452,7 +452,7 @@ function CreateSetupScript()  {
   cat << EOF > tmp/setup.sh
 #!/bin/sh
 #
-#set -x
+# set -x
 
 cd /etc/portage
 ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
