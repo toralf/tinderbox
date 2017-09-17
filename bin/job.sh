@@ -333,7 +333,9 @@ function foundCollisionIssue() {
   cc=$(equery meta -m $(pn2p "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
   # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
   #
-  (cat $issuedir/cc 2>/dev/null; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
+  if [[ -n "$cc" ]]; then
+    (cat $issuedir/cc 2>/dev/null; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
+  fi
 
   grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' >> $issuedir/issue
   echo "file collision with $s" > $issuedir/title
