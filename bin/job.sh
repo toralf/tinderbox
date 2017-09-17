@@ -470,10 +470,6 @@ function ClassifyIssue() {
     fi
   fi
 
-  if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $backlog
-  fi
-
   if [[ "$keyword" = "stable" ]]; then
     echo -e "\n=== This is an issue at stable ===\n" >> $issuedir/issue
   fi
@@ -914,6 +910,10 @@ function PostEmerge() {
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $backlog
+  fi
+
+  if [[ $try_again -eq 1 ]]; then
+    echo "$task" >> $backlog
   fi
 
   # prevent endless loops
