@@ -135,15 +135,15 @@ function PackagesPerDay() {
           # the first $d days might have >1,000 installations
           #
           $d=6;
+          $p[$i] = 0 unless ($p[$i]);
           if ($i < $d)  {
-            printf ("%5i", $p[$i]);
+            printf "%5i", $p[$i]
           } else  {
-            if ($p[$i]) {
-              printf ("%4i", $p[$i]);
-            } else  {
-              print " x";
-            }
+            printf "%4i", $p[$i]
           }
+
+          # a week is Overall
+          #
           if ($i != $#p && $i % 7 == 6)  {
             print ".";
           }
