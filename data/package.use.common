@@ -9,8 +9,10 @@ mail-mta/ssmtp            mta ssl
 
 # make a setup of a new tinderbox image less painful
 #
+dev-java/icedtea-bin      -cups -gtk
 dev-lang/python           threads
 dev-vcs/git               -gnome-keyring
+media-libs/libjpeg-turbo  -java
 media-libs/mesa           -llvm
 sys-apps/dbus             debug
 sys-apps/kmod             tools

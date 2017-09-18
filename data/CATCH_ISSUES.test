@@ -60,3 +60,9 @@ assertion .* failed
   NOT ok
 ocamlc: unknown option
 failed conch
+^FAILED: .
+SyntaxError: .
+Resolve library did not return a fully qualified domain name.
+.* Tests in .* Category Failed
+   FAILED  ess
+:Error:
