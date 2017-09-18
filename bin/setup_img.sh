@@ -387,7 +387,6 @@ function CreateBacklog()  {
 # setup done
 @world
 %emerge -u sys-kernel/gentoo-sources
-app-text/wgetpaste
 app-portage/pfl
 app-portage/eix
 @system
