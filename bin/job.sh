@@ -997,7 +997,7 @@ function CheckQA() {
 
 
 # helper of WorkOnTask()
-# run the command ($1) and parse its output
+# run the command ($1) and act on the output/result
 #
 function RunCmd() {
   ($1) &>> $log
@@ -1005,6 +1005,7 @@ function RunCmd() {
 
   PostEmerge
   CheckQA
+
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
   fi
@@ -1033,9 +1034,7 @@ function WorkOnTask() {
 
     cp $log /tmp/$task.last.log
 
-    if [[ $rc -eq 0 ]]; then
-      echo "$(date) ok" >> /tmp/$task.history
-    else
+    if [[ $rc -ne 0 ]]; then
       echo "$(date) ${failed:-NOT ok}" >> /tmp/$task.history
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
@@ -1048,18 +1047,21 @@ function WorkOnTask() {
       else
         echo "%emerge --resume" >> $backlog
       fi
+
+    else
+      echo "$(date) ok" >> /tmp/$task.history
     fi
 
-    # feed the online package database
+    # feed the Portage File List
     #
     /usr/bin/pfl &>/dev/null
 
-  # a special command was run
-  #
   elif [[ "$task" =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
     RunCmd "$cmd"
-    if [[ $? -eq 1 ]]; then
+    rc=$?
+
+    if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ "$task" =~ "%emerge --resume" ]]; then
           # bail out to let the breakage being fixed
@@ -1075,10 +1077,14 @@ function WorkOnTask() {
 
   else
     RunCmd "emerge --update $task"
-    # eg.: if test phase of a package fails then retry it with "notest"
+    rc=$?
+
+    # eg.: if (just) test phase of a package fails then retry it with "notest"
     #
-    if [[ $try_again -eq 1 ]]; then
-      echo "$task" >> $backlog
+    if [[ $rc -ne 0 ]]; then
+      if [[ $try_again -eq 1 ]]; then
+        echo "$task" >> $backlog
+      fi
     fi
   fi
 }
