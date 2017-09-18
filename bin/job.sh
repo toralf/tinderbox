@@ -1061,9 +1061,9 @@ function WorkOnTask() {
     RunCmd "$cmd"
     if [[ $? -eq 1 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        if [[ "$task" = "%emerge --resume --skip-first" ]]; then
-          # bail out to let the breakage of @system being fixed
-          # but nevertheless re-schedule the task
+        if [[ "$task" =~ "%emerge --resume" ]]; then
+          # bail out to let the breakage being fixed
+          # before re-running the task
           #
           echo "$task" >> $backlog
           Finish 3 "command '$cmd' failed"
