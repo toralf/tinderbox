@@ -855,7 +855,7 @@ EOF
 }
 
 
-# helper of RunCmd()
+# helper of RunAndCheck()
 # it schedules follow-ups from the last emerge operation
 #
 function PostEmerge() {
@@ -942,7 +942,7 @@ function PostEmerge() {
 }
 
 
-# helper of RunCmd()
+# helper of RunAndCheck()
 #
 function CheckQA() {
   f=/tmp/qafilenames
@@ -999,7 +999,7 @@ function CheckQA() {
 # helper of WorkOnTask()
 # run the command ($1) and act on the output/result
 #
-function RunCmd() {
+function RunAndCheck() {
   ($1) &>> $log
   rc=$?
 
@@ -1024,11 +1024,11 @@ function WorkOnTask() {
   if [[ "$task" =~ ^@ ]]; then
 
     if [[ "$task" = "@preserved-rebuild" ]]; then
-      RunCmd "emerge $task"
+      RunAndCheck "emerge $task"
     elif [[ "$task" = "@system" || "$task" = "@world" ]]; then
-      RunCmd "emerge --deep --update --newuse --changed-use $task"
+      RunAndCheck "emerge --deep --update --newuse --changed-use $task"
     else
-      RunCmd "emerge --update $task"
+      RunAndCheck "emerge --update $task"
     fi
     rc=$?
 
@@ -1058,7 +1058,7 @@ function WorkOnTask() {
 
   elif [[ "$task" =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
-    RunCmd "$cmd"
+    RunAndCheck "$cmd"
     rc=$?
 
     if [[ $rc -ne 0 ]]; then
@@ -1076,7 +1076,7 @@ function WorkOnTask() {
     fi
 
   else
-    RunCmd "emerge --update $task"
+    RunAndCheck "emerge --update $task"
     rc=$?
 
     # eg.: if (just) test phase of a package fails then retry it with "notest"
