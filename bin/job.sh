@@ -1175,11 +1175,7 @@ do
   pre-check
   date > $log
 
-  if [[ -f /tmp/STOP ]]; then
-    Finish 0 "catched STOP"
-  fi
-
-  # auto-clean is deactivated in favor of collecting issue files first
+  # auto-clean is deactivated to collect issue files
   #
   rm -rf /var/tmp/portage/*
 
