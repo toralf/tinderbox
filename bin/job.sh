@@ -698,6 +698,7 @@ function SendoutIssueMail()  {
 }
 
 
+# helper of GotAnIssue()
 # add all successfully emerged dependencies of $task to the world file
 # otherwise we'd need to use "--deep" unconditionally
 # (https://bugs.gentoo.org/show_bug.cgi?id=563482)
@@ -794,6 +795,7 @@ function GotAnIssue()  {
 }
 
 
+# helper of PostEmerge()
 # certain packages depend on *compiled* kernel modules
 #
 function BuildKernel()  {
@@ -813,6 +815,7 @@ function BuildKernel()  {
 }
 
 
+# helper of PostEmerge()
 # switch to highest GCC version
 #
 function SwitchGCC() {
@@ -912,10 +915,6 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $backlog
   fi
 
-  if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $backlog
-  fi
-
   # prevent endless loops
   #
   n=$(tail -n 50 /tmp/task.history 2>/dev/null | grep -c "$task")
@@ -923,10 +922,10 @@ function PostEmerge() {
     Finish 3 "task '$task' repeated $n times"
   fi
 
+  # update @system once a day, if nothing else is scheduled
+  # switch the java VM by the way
+  #
   if [[ "$md5" = "$(md5sum < $backlog)" ]]; then
-    # update @system once a day, if nothing else is scheduled
-    # switch the java machine too by the way
-    #
     let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
     if [[ $diff -gt 86400 ]]; then
       # do not care about "#" lines for image update
@@ -1005,10 +1004,10 @@ function RunCmd() {
   rc=$?
 
   PostEmerge
+  CheckQA
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
   fi
-  CheckQA
 
   return $rc
 }
@@ -1046,6 +1045,8 @@ function WorkOnTask() {
             Finish 3 "task $task failed"
           fi
         fi
+      else
+        echo "%emerge --resume" >> $backlog
       fi
     fi
 
@@ -1061,17 +1062,24 @@ function WorkOnTask() {
     if [[ $? -eq 1 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ "$task" = "%emerge --resume --skip-first" ]]; then
-          # bail out to let the breakage being fixed
+          # bail out to let the breakage of @system being fixed
           # but nevertheless re-schedule the task
           #
           echo "$task" >> $backlog
           Finish 3 "command '$cmd' failed"
         fi
+      else
+        echo "%emerge --resume" >> $backlog
       fi
     fi
 
   else
     RunCmd "emerge --update $task"
+    # eg.: if test phase of a package fails then retry it with "notest"
+    #
+    if [[ $try_again -eq 1 ]]; then
+      echo "$task" >> $backlog
+    fi
   fi
 }
 
