@@ -866,7 +866,7 @@ function PostEmerge() {
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
 
-  # don't change these config files after setup
+  # don't change these config files after image setup
   #
   rm -f /etc/._cfg????_{hosts,resolv.conf}
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
@@ -908,7 +908,7 @@ function PostEmerge() {
     echo "%haskell-updater" >> $backlog
   fi
 
-  # switch to the new GCC soon
+  # switch to a new GCC soon
   #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
@@ -923,7 +923,7 @@ function PostEmerge() {
   fi
 
   # update @system once a day, if nothing else is scheduled
-  # switch the java VM by the way
+  # switch the java VM too by the way
   #
   if [[ "$md5" = "$(md5sum < $backlog)" ]]; then
     let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
@@ -1063,13 +1063,8 @@ function WorkOnTask() {
 
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        if [[ "$task" =~ "%emerge --resume" ]]; then
-          # bail out to let the breakage being fixed
-          # before re-running the task
-          #
-          echo "$task" >> $backlog
-          Finish 3 "command '$cmd' failed"
-        fi
+        echo "$task" >> $backlog
+        Finish 3 "fix an issue of the command before it will be run again: '$cmd'"
       else
         echo "%emerge --resume" >> $backlog
       fi
