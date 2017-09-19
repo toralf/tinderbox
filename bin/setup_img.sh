@@ -363,9 +363,9 @@ function CreateBacklog()  {
     # no replay of @sets or %commands of the cloned image
     #
     if [[ -s $origin/tmp/task.history ]]; then
-      echo "INFO finished replay of task history of $origin"  >> $backlog
-      grep -v -E "^(%|@)" $origin/tmp/task.history | tac      >> $backlog
-      echo "INFO starting replay of task history of $origin"  >> $backlog
+      echo "INFO finished replay of task history of $origin"    >> $backlog
+      grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $backlog
+      echo "INFO starting replay of task history of $origin"    >> $backlog
     fi
 
   else
