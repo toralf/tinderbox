@@ -918,15 +918,8 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # prevent endless loops
-  #
-  n=$(tail -n 50 /tmp/task.history 2>/dev/null | grep -c "$task")
-  if [[ $n -gt 15 ]]; then
-    Finish 3 "task '$task' repeated $n times"
-  fi
-
-  # update @system once a day, if nothing else is scheduled
-  # switch the java VM too by the way
+  # update @system once a day and switch the java VM too by the way
+  # but only if nothing else was scheduled
   #
   if [[ "$md5" = "$(md5sum < $backlog)" ]]; then
     let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
