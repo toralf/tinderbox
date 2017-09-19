@@ -84,20 +84,25 @@ function LastEmergeOperation()  {
       continue
     fi
 
-    # we've to catch the always *latest* emerge task
-    # although we'll not display all of them (eg. no *** ... messages)
+    # catch the last started emerge operation, not the attempt
     #
     tac $log |\
-    grep -m 1 -E -e '(>>>|\*\*\*) emerge' -e ' \*\*\* terminating.' -e '::: completed emerge' |\
+    grep -m 1 -E -e '>>>|*** emerge' -e ' \*\*\* terminating.' -e '::: completed emerge' |\
     sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
     perl -wane '
       chop ($F[0]);
 
-      my $diff = time() - $F[0];
-      my $mm = $diff / 60;
-      my $ss = $diff % 60 % 60;
-
-      printf (" %3i:%02i min  %s\n", $mm, $ss, join (" ", @F[1..$#F]));
+      my $delta = time() - $F[0];
+      if ($delta > 3600) {
+        $minutes = $delta / 60 % 60;
+        $hours = $delta / 60 / 60;
+        printf (" %3i:%02i h  ", $hours, $minutes);
+      } else  {
+        $minutes = $delta / 60 % 60;
+        $seconds = $delta % 60 % 60;
+        printf (" %3i:%02i min", $minutes, $seconds);
+      }
+      printf (" %s\n", join (" ", @F[1..$#F]));
     '
   done
 }
@@ -132,17 +137,18 @@ function PackagesPerDay() {
 
       END {
         foreach my $i (0..$#p) {
-          # the first $d days might have >1,000 installations
+          $p[$i] = 0 unless ($p[$i]);
+
+          # the first $d days usually have >1,000 completed emerge operations
           #
           $d=6;
-          $p[$i] = 0 unless ($p[$i]);
           if ($i < $d)  {
             printf "%5i", $p[$i]
           } else  {
             printf "%4i", $p[$i]
           }
 
-          # a week is Overall
+          # mark a 7-day period
           #
           if ($i != $#p && $i % 7 == 6)  {
             print ".";
@@ -173,9 +179,15 @@ function CurrentTask()  {
     fi
 
     let "delta = $ts - $(date +%s -r $tsk)"
-    let "seconds = $delta % 60"
-    let "minutes = $delta / 60"
-    printf " %3i:%02i min  " $minutes $seconds
+    if [[ $delta -gt 3600 ]]; then
+      let "minutes = $delta / 60 % 60"
+      let "hours = $delta / 60 / 60"
+      printf " %3i:%02i h    " $hours $minutes
+    else
+      let "minutes = $delta / 60 % 60"
+      let "seconds = $delta % 60 % 60"
+      printf " %3i:%02i min  " $minutes $seconds
+    fi
     cat $tsk
   done
 }
