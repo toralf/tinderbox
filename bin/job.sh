@@ -105,10 +105,10 @@ function setNextTask() {
       Mail "$task"
 
     elif [[ "$task" =~ ^STOP ]]; then
-      Finish 0 "$task"
+      Finish 0 "got STOP task"
 
     elif [[ -f /tmp/STOP ]]; then
-      Finish 0 "catched STOP in $FUNCNAME"
+      Finish 0 "catched STOP file"
 
     elif [[ "$task" =~ ^# ]]; then
       continue  # comment
