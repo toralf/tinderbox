@@ -7,6 +7,12 @@
 
 mailto="tinderbox@zwiebeltoralf.de"
 
+iam=$(whoami)
+if [[ ! "$iam" = "tinderbox" ]]; then
+  echo "wrong user '$iam' !"
+  exit 1
+fi
+
 # collect all backlog filenames if the image ...
 #   1. is symlinked to ~/run
 #   2. is running (LOCK and no STOP)
@@ -50,12 +56,14 @@ git diff --diff-filter=ACMR --name-status "@{ ${1:-3} hour ago }".."@{ 1 hour ag
 grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $acmr
 
 info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
+echo $info
 
 if [[ -s $acmr ]]; then
   # append the packages onto applicable backlog files
   #
   for backlog in $applicable
   do
+    echo $backlog
     echo "$info" >> $backlog
 
     # shuffle packages around in a different way for each image
