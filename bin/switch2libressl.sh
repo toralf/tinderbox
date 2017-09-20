@@ -61,8 +61,8 @@ cat << EOF >> $backlog
 %emerge -C openssl
 EOF
 
-# fetch packages needed to be rebuild before OpenSSL is uninstalled
-# and fetch command won't work till it's been rebuild against LibreSSL
+# fetch before OpenSSL is uninstalled and the fetch command itfself
+# wouldn't work until being rebuild against LibreSSL
 #
 emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
 exit $?
