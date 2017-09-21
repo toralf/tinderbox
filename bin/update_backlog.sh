@@ -68,7 +68,7 @@ grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cu
 info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
 echo $info
 
-if [[ ! -s $acmr ]]; then
+if [[ -s $acmr ]]; then
   # append the packages onto backlogs backlogs
   #
   for backlog in $backlogs
