@@ -10,7 +10,7 @@
 #  bgo.sh -d ~/run/desktop-unstable_20160916-100730/tmp/issues/20160918-113424_sci-chemistry_reduce-3.16.111118 -b 582084
 
 
-function err () {
+function Warn() {
   rc=$1
 
   echo "
@@ -20,7 +20,12 @@ function err () {
 
   "
   tail -v bugz.*
+}
 
+
+function Error() {
+  rc=$1
+  warn $rc
   exit $rc
 }
 
@@ -78,7 +83,7 @@ if [[ -n "$id" ]]; then
   if [[ "$comment" = "<unset>" ]]; then
     comment="appeared recently at the tinderbox image $(basename $(realpath $dir))"
   fi
-  bugz modify --status CONFIRMED --comment "$comment" $id 1>>bugz.out 2>>bugz.err || err $?
+  bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
 
   grep -q "fails with FEATURES=test" $dir/title && bugz modify --set-keywords TESTFAILURE $id
 
@@ -98,14 +103,14 @@ else
     --description-from "./issue"      \
     --batch                           \
     --default-confirm n               \
-    1>>bugz.out 2>>bugz.err || err $?
+    1>bugz.out 2>bugz.err || Error $?
 
   id=$(grep ' * Bug .* submitted' bugz.out | sed 's/[^0-9]//g')
   if [[ -z "$id" ]]; then
     echo
     echo "empty bug id"
     echo
-    err 4
+    Error 4
   fi
 fi
 
@@ -117,11 +122,11 @@ echo
 echo "https://bugs.gentoo.org/show_bug.cgi?id=$id"
 
 if [[ -s bugz.err ]]; then
-  err 5
+  Error 5
 fi
 
 if [[ -f emerge-info.txt ]]; then
-  bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>>bugz.out 2>>bugz.err || err $?
+  bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 # attach all in ./files, if less than 1 MB
@@ -136,13 +141,13 @@ if [[ -d ./files ]]; then
       #
       echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
       echo "  $f"
-      bugz attach --content-type "$ct" --description "" $id $f 1>>bugz.out 2>>bugz.err || err $?
+      bugz attach --content-type "$ct" --description "" $id $f 1>bugz.out 2>bugz.err || Warn $?
     fi
   done
 fi
 
 if [[ -n "$block" ]]; then
-  bugz modify --add-blocked "$block" $id 1>>bugz.out 2>>bugz.err || err $?
+  bugz modify --add-blocked "$block" $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 # set assignee and cc as the last step (requested by prometheanfire via IRC)
@@ -157,7 +162,7 @@ if [[ $newbug -eq 1 ]]; then
     #
     c="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
   fi
-  bugz modify $a $c $id 1>>bugz.out 2>>bugz.err || err $?
+  bugz modify $a $c $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 echo
