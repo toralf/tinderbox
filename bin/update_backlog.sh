@@ -2,7 +2,7 @@
 #
 # set -x
 
-# pick up latest ebuilds from Git repository and put them on top of applicable backlogs
+# pick up latest ebuilds from Git repository and put them on top of backlogs backlogs
 #
 
 mailto="tinderbox@zwiebeltoralf.de"
@@ -19,7 +19,7 @@ fi
 #   3. has a non-empty backlog
 #   4. doesn't have any special entries in its backlog
 #
-applicable=""
+backlogs=""
 for i in ~/run/*
 do
   if [[ ! -f $i/tmp/LOCK ]]; then
@@ -48,10 +48,10 @@ do
     continue
   fi
 
-  applicable="$applicable $backlog"
+  backlogs="$backlogs $backlog"
 done
 
-if [[ -z "$applicable" ]]; then
+if [[ -z "$backlogs" ]]; then
   exit 0
 fi
 
@@ -69,17 +69,16 @@ info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
 echo $info
 
 if [[ ! -s $acmr ]]; then
-  # append the packages onto applicable backlogs
+  # append the packages onto backlogs backlogs
   #
-  for backlog in $applicable
+  for backlog in $backlogs
   do
     echo $backlog
     echo "$info" >> $backlog
 
     # shuffle packages around in a different way for each backlog
-    # limit amount of injected packages
     #
-    sort --random-sort < $acmr | head -n 100 >> $backlog
+    sort --random-sort < $acmr >> $backlog
   done
 fi
 
