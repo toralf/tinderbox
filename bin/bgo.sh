@@ -25,7 +25,7 @@ function Warn() {
 
 function Error() {
   rc=$1
-  warn $rc
+  Warn $rc
   exit $rc
 }
 
