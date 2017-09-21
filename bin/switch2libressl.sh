@@ -56,7 +56,7 @@ fi
 # unmerge of OpenSSL triggers already a @preserved-rebuild in job.sh
 # but use "%" here to definitely bail out if it would fail
 #
-cat << EOF >> $backlog
+cat << EOF >> $backlog.1st
 %emerge @preserved-rebuild
 %emerge -C openssl
 EOF

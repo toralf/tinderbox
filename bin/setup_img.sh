@@ -340,51 +340,27 @@ EOF
 }
 
 
-# the last line of the backlog will be the first task and so on
+# the last line of a backlog will be the first taken and so on
 #
 function CreateBacklog()  {
   backlog=./tmp/backlog
 
-  truncate -s 0 $backlog
+  truncate -s 0 $backlog{,.1st}
 
   if [[ -e $origin ]]; then
-    # prevent update of the backlog with repo changes
+    # no replay of @sets or %commands of origin
     #
-    echo "# image cloned from $origin" >> $backlog
-
-    # the backlog might be important too
-    #
-    if [[ -s $origin/tmp/backlog ]]; then
-      echo "INFO finished with backlog of $origin"  >> $backlog
-      cat $origin/tmp/backlog                       >> $backlog
-      echo "INFO starting with backlog of $origin"  >> $backlog
-    fi
-
-    # no replay of @sets or %commands of the cloned image
-    #
-    if [[ -s $origin/tmp/task.history ]]; then
-      echo "INFO finished replay of task history of $origin"    >> $backlog
-      grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $backlog
-      echo "INFO starting replay of task history of $origin"    >> $backlog
-    fi
+    echo "INFO finished replay of task history of $origin"    >> $backlog
+    grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $backlog
+    echo "INFO starting replay of task history of $origin"    >> $backlog
 
   else
-    # in favour of a better coverage don't test repo changes at every image
-    #
-    if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-      echo '# this comment keeps update_backlog.sh away' >> $backlog
-    fi
-
     # fill up with a randomized package list
     #
     qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
   fi
 
-  # first install/upgrade mandatory packages, then update @system and @world
-  # "# setup done" keeps update_backlog.sh away till @world is finished entirely
-  #
-  cat << EOF >> $backlog
-# setup done
+  cat << EOF >> $backlog.1st
 @world
 %emerge -u sys-kernel/gentoo-sources
 app-portage/pfl
@@ -397,20 +373,20 @@ EOF
   #
   if [[ "$libressl" = "y" ]]; then
     cp $(dirname $0)/switch2libressl.sh ./tmp/
-    echo "%/tmp/switch2libressl.sh" >> $backlog
+    echo "%/tmp/switch2libressl.sh" >> $backlog.1st
   fi
 
   #
-  cat << EOF >> $backlog
+  cat << EOF >> $backlog.1st
 %emerge -u sys-devel/gcc
 sys-apps/sandbox
 EOF
 
 if [[ "$profile" =~ "systemd" ]]; then
-  echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $backlog
+  echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $backlog.1st
 fi
 
-  chmod a+w $backlog
+  chmod a+w $backlog{,.1st}
 
   # the timestamp of this file is used to schedule @system upgrade once a day
   #

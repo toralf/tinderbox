@@ -88,6 +88,29 @@ function SwitchJDK()  {
 # copy content of last line of the backlog into variable $task
 #
 function setNextTask() {
+
+  if [[ -f /tmp/STOP ]]; then
+    Finish 0 "catched STOP file"
+  fi
+
+  # re-try an unfinished task (eg. due to a reboot)
+  #
+  if [[ -s $tsk ]]; then
+    task=$(cat $tsk)
+    rm $tsk
+    return
+  fi
+
+  # this rules over the common backlog
+  #
+  if [[ -s $backlog.1st ]]; then
+    task=$(tail -n 1 $backlog.1st)
+    sed -i -e '$d' $backlog.1st
+    return
+  fi
+
+  # check the common backlog last
+  #
   while :;
   do
     if [[ ! -s $backlog ]]; then
@@ -734,7 +757,6 @@ function GotAnIssue()  {
   #
   grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $backlog
     Finish 1 "KILLED"
   fi
 
@@ -742,8 +764,8 @@ function GotAnIssue()  {
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $backlog
-    Mail "info: hit a race condition in the repository sync" $bak
+    echo "$task" >> $backlog.1st
+    Mail "info: hit a race condition in repository sync" $bak
     return
   fi
 
@@ -758,8 +780,8 @@ function GotAnIssue()  {
   #
   grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $backlog
-    echo "%emerge -1 dev-perl/XML-Parser" >> $backlog
+    echo "$task" >> $backlog.1st
+    echo "%emerge -1 dev-perl/XML-Parser" >> $backlog.1st
     try_again=1
     return
   fi
@@ -767,9 +789,9 @@ function GotAnIssue()  {
   grep -q -e "Fix the problem and start perl-cleaner again." $bak
   if [[ $? -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
-      echo "%perl-cleaner --all" >> $backlog
+      echo "%perl-cleaner --all" >> $backlog.1st
     else
-      echo "%emerge --resume" >> $backlog
+      echo "%emerge --resume" >> $backlog.1st
     fi
     return
   fi
@@ -842,7 +864,7 @@ function SwitchGCC() {
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
       fi
 
-      cat << EOF >> $backlog
+      cat << EOF >> $backlog.1st
 %emerge --unmerge sys-devel/gcc:$verold
 %fix_libtool_files.sh $verold
 %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
@@ -851,7 +873,7 @@ EOF
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>/dev/null)
-        echo "%BuildKernel" >> $backlog
+        echo "%BuildKernel" >> $backlog.1st
       fi
     fi
   fi
@@ -862,8 +884,6 @@ EOF
 # it schedules follow-ups from the last emerge operation
 #
 function PostEmerge() {
-  local md5=$(md5sum < $backlog)   # will differ if we add something to backlog
-
   # prefix our log backup file with an "_" to distinguish it from portages log file
   #
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
@@ -876,7 +896,7 @@ function PostEmerge() {
   rm -f /etc/portage/._cfg????_make.conf
   ls /etc/._cfg????_locale.gen &>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo "%locale-gen" >> $backlog
+    echo "%locale-gen" >> $backlog.1st
     rm /etc/._cfg????_locale.gen
   fi
 
@@ -888,7 +908,7 @@ function PostEmerge() {
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    echo "@preserved-rebuild" >> $backlog
+    echo "@preserved-rebuild" >> $backlog.1st
   fi
 
   # build and switch to the new kernel after nearly all other things
@@ -902,37 +922,39 @@ function PostEmerge() {
     fi
 
     if [[ ! -f /usr/src/linux/.config ]]; then
-      echo "%BuildKernel" >> $backlog
+      echo "%BuildKernel" >> $backlog.1st
     fi
   fi
 
   grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%haskell-updater" >> $backlog
+    echo "%haskell-updater" >> $backlog.1st
   fi
 
   # switch to a new GCC soon
   #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%SwitchGCC" >> $backlog
+    echo "%SwitchGCC" >> $backlog.1st
   fi
 
   # update @system once a day and switch the java VM too by the way
-  # but only if nothing else was scheduled
+  # but only if nothing else is already scheduled
   #
-  if [[ "$md5" = "$(md5sum < $backlog)" ]]; then
-    let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
-    if [[ $diff -gt 86400 ]]; then
-      # do not care about "#" lines for image update
-      #
-      grep -q -E -e "^(STOP|INFO|%|@)" $backlog
-      if [[ $? -eq 1 ]]; then
-        echo -e "\n@world\n@system" >> $backlog
+  if [[ ! -s $backlog.1st ]]; then
+    # do not care about "#" lines fir this here
+    #
+    grep -q -E "^(STOP|INFO|%|@)" $backlog
+    if [[ $? -ne 0 ]]; then
+      let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
+      if [[ $diff -gt 86400 ]]; then
+        cat << EOF >> $backlog.1st
+@world
+@system
+%SwitchJDK
+EOF
         return
       fi
-
-      SwitchJDK
     fi
   fi
 }
@@ -1034,14 +1056,14 @@ function WorkOnTask() {
       echo "$(date) ${failed:-NOT ok}" >> /tmp/$task.history
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
-          echo "%emerge --resume --skip-first" >> $backlog
+          echo "%emerge --resume --skip-first" >> $backlog.1st
         else
           if [[ "$task" = "@preserved-rebuild" ]]; then
             Finish 3 "task $task failed"
           fi
         fi
       else
-        echo "%emerge --resume" >> $backlog
+        echo "%emerge --resume" >> $backlog.1st
       fi
 
     else
@@ -1059,10 +1081,10 @@ function WorkOnTask() {
 
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        echo "$task" >> $backlog
+        echo "$task" >> $backlog.1st
         Finish 3 "fix an issue of the command before it will be run again: '$cmd'"
       else
-        echo "%emerge --resume" >> $backlog
+        echo "%emerge --resume" >> $backlog.1st
       fi
     fi
 
@@ -1074,7 +1096,7 @@ function WorkOnTask() {
     #
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $backlog
+        echo "$task" >> $backlog.1st
       fi
     fi
   fi
@@ -1157,14 +1179,6 @@ export XDG_RUNTIME_DIR="/root/run"
 export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
-
-
-# re-try an interrupted task
-#
-if [[ -s $tsk ]]; then
-  cat $tsk >> $backlog
-  rm $tsk
-fi
 
 while :;
 do

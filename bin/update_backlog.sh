@@ -35,39 +35,49 @@ do
     continue
   fi
 
-  # do not change a backlog if a special action is scheduled/not finished
+  # do not change a backlog if a special action is scheduled
   #
   grep -q -E "^(STOP|INFO|%|@|#)" $backlog
   if [[ $? -eq 0 ]]; then
     continue
   fi
 
+  # in favour of a better coverage keep update_backlog.sh away from every n-th image
+  #
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    continue
+  fi
+
   applicable="$applicable $backlog"
 done
+
+if [[ -z "$applicable" ]]; then
+  exit 0
+fi
 
 # holds the package names of added/changed/modified/renamed ebuilds
 #
 acmr=$(mktemp /tmp/acmrXXXXXX)
 
-# give 1 hour to the mirrors to be in sync with the master
+# add 1 hour to let mirrors be in sync with master
 #
 cd /usr/portage/
-git diff --diff-filter=ACMR --name-status "@{ ${1:-3} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
+git diff --diff-filter=ACMR --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $acmr
 
 info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
 echo $info
 
-if [[ -s $acmr ]]; then
-  # append the packages onto applicable backlog files
+if [[ ! -s $acmr ]]; then
+  # append the packages onto applicable backlogs
   #
   for backlog in $applicable
   do
     echo $backlog
     echo "$info" >> $backlog
 
-    # shuffle packages around in a different way for each image
-    # and limit amount of injected packages per image
+    # shuffle packages around in a different way for each backlog
+    # limit amount of injected packages
     #
     sort --random-sort < $acmr | head -n 100 >> $backlog
   done

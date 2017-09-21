@@ -26,13 +26,13 @@ function PrintImageName()  {
 
 # gives sth. like:
 #
-# compl fail  days backlog lock stop
-#  3735   41   3.6   16369            run/13.0-no-multilib_20170315-195201
-#  6956   75   9.6   13285    y   sS  run/13.0-systemd_20170309-190652
-#  2904   29   2.5   17220    y       img2/13.0-systemd-libressl_20170316-210316
+# compl fail  days backlog 1st lock stop
+#  3735   41   3.6   16369   0            run/13.0-no-multilib_20170315-195201
+#  6956   75   9.6   13285   0    y   sS  run/13.0-systemd_20170309-190652
+#  2904   29   2.5   17220   2    y       img2/13.0-systemd-libressl_20170316-210316
 #
 function Overall() {
-  echo "compl fail  days backlog lock stop"
+  echo "compl fail  days backlog 1st lock stop"
   for i in $images
   do
     log=$i/var/log/emerge.log
@@ -53,8 +53,10 @@ function Overall() {
       fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename 2>/dev/null | cut -f2- -d'_' -s | sort -u | wc -w)
     fi
 
-    todo=$(wc -l 2>/dev/null < $i/tmp/backlog)
-    ((todo=todo+0))
+    bl=$(wc -l 2>/dev/null < $i/tmp/backlog)
+    bl1=$(wc -l 2>/dev/null < $i/tmp/backlog.1st)
+    ((bl=bl+0))
+    ((bl1=bl1+0))
 
     [[ -f $i/tmp/LOCK ]] && lck="l" || lck=""
     [[ -f $i/tmp/STOP ]] && stp="s" || stp=""
@@ -63,7 +65,7 @@ function Overall() {
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="run"
 
-    printf "%5i %4i %5.1f %7i %4s %4s %4s/%s\n" $compl $fail $day $todo "$lck" "$stp" "$d" "$b"
+    printf "%5i %4i %5.1f %7i %3i %4s %4s %4s/%s\n" $compl $fail $day $bl $bl1 "$lck" "$stp" "$d" "$b"
   done
 }
 
