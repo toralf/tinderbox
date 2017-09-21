@@ -39,6 +39,7 @@ syntax error near
 Fatal Error by .*
  : error: .*
 : fatal error:
+make.* Command not found
 make:.* test
 CMake Error at
 : exit status 1
@@ -66,3 +67,5 @@ Resolve library did not return a fully qualified domain name.
 .* Tests in .* Category Failed
    FAILED  ess
 :Error:
+^not ok [[:digit:]]*
+^make.* Segmentation fault

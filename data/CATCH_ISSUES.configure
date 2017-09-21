@@ -19,3 +19,4 @@ extconf.rb:.* (RuntimeError)
 \\-\\- Could not find the required component
 cmake failed
 bad option:
+Meson encountered an error
