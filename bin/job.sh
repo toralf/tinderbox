@@ -19,6 +19,7 @@ function stresc() {
     s,\b,,g;
     s,\x1b\x28\x42,,g;
     s,\x1b\x5b\x4b,,g;
+    s,,,g;
     print;
   '
 }
@@ -93,7 +94,7 @@ function setNextTask() {
     Finish 0 "catched STOP file"
   fi
 
-  # re-try an unfinished task (eg. due to a reboot)
+  # re-try an unfinished task (reboot/Finish)
   #
   if [[ -s $tsk ]]; then
     task=$(cat $tsk)
@@ -101,7 +102,7 @@ function setNextTask() {
     return
   fi
 
-  # this rules over the common backlog
+  # this backlog rules over the common backlog
   #
   if [[ -s $backlog.1st ]]; then
     task=$(tail -n 1 $backlog.1st)
@@ -109,7 +110,7 @@ function setNextTask() {
     return
   fi
 
-  # check the common backlog last
+  # check the common backlog at last
   #
   while :;
   do
@@ -118,6 +119,8 @@ function setNextTask() {
       Finish 0 "empty backlog, $n packages emerged"
     fi
 
+    # splice last line from the file
+    #
     task=$(tail -n 1 $backlog)
     sed -i -e '$d' $backlog
 
@@ -140,6 +143,8 @@ function setNextTask() {
       return  # work on a pinned version | package set | command
 
     else
+      # emerge those packages only as dependencies
+      #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
@@ -158,7 +163,7 @@ function setNextTask() {
         continue
       fi
 
-      # skip if $task is installed and would be downgraded
+      # skip if $task is already installed and would be downgraded
       #
       installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
@@ -176,6 +181,7 @@ function setNextTask() {
 }
 
 
+# helper of GotAnIssue()
 # for ABI_X86="32 64" we have two ./work directories in /var/tmp/portage/<category>/<name>
 #
 function setWorkDir() {
@@ -587,7 +593,7 @@ function AddBugzillaData() {
 EOF
 
   else
-    echo -e "  bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
+    echo -e "\n  bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
 
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'
