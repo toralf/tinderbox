@@ -13,48 +13,6 @@ if [[ ! "$iam" = "tinderbox" ]]; then
   exit 1
 fi
 
-# collect all backlog filenames if the image ...
-#   1. is symlinked to ~/run
-#   2. is running (LOCK and no STOP)
-#   3. has a non-empty backlog
-#   4. doesn't have any special entries in its backlog
-#
-backlogs=""
-for i in ~/run/*
-do
-  if [[ ! -f $i/tmp/LOCK ]]; then
-    continue
-  fi
-
-  if [[ -f $i/tmp/STOP ]]; then
-    continue
-  fi
-
-  backlog=$i/tmp/backlog
-  if [[ ! -s $backlog ]]; then
-    continue
-  fi
-
-  # do not change a backlog if a special action is scheduled
-  #
-  grep -q -E "^(STOP|INFO|%|@|#)" $backlog
-  if [[ $? -eq 0 ]]; then
-    continue
-  fi
-
-  # in favour of a better coverage keep update_backlog.sh away from every n-th image
-  #
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    continue
-  fi
-
-  backlogs="$backlogs $backlog"
-done
-
-if [[ -z "$backlogs" ]]; then
-  exit 0
-fi
-
 # holds the package names of added/changed/modified/renamed ebuilds
 #
 acmr=$(mktemp /tmp/acmrXXXXXX)
@@ -62,23 +20,20 @@ acmr=$(mktemp /tmp/acmrXXXXXX)
 # add 1 hour to let mirrors be in sync with master
 #
 cd /usr/portage/
-git diff --diff-filter=ACMR --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
+git diff --diff-filter=ACMR --name-status "@{ ${1:-3} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $acmr
 
 info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
 echo $info
 
 if [[ -s $acmr ]]; then
-  # append the packages onto backlogs backlogs
-  #
-  for backlog in $backlogs
+  for i in ~/run/*
   do
-    echo $backlog
-    echo "$info" >> $backlog
-
-    # shuffle packages around in a different way for each backlog
+    bl=$i/tmp/backlog.upd
+    echo "$info" >> $bl
+    # shuffle packages around in a different way for each image
     #
-    sort --random-sort < $acmr >> $backlog
+    sort --random-sort < $acmr >> $bl
   done
 fi
 

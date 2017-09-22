@@ -89,40 +89,51 @@ function SwitchJDK()  {
 # copy content of last line of the backlog into variable $task
 #
 function setNextTask() {
-
-  if [[ -f /tmp/STOP ]]; then
-    Finish 0 "catched STOP file"
-  fi
-
-  # re-try an unfinished task (reboot/Finish)
-  #
-  if [[ -s $tsk ]]; then
-    task=$(cat $tsk)
-    rm $tsk
-    return
-  fi
-
-  # this backlog rules over the common backlog
-  #
-  if [[ -s $backlog.1st ]]; then
-    task=$(tail -n 1 $backlog.1st)
-    sed -i -e '$d' $backlog.1st
-    return
-  fi
-
-  # check the common backlog at last
-  #
   while :;
   do
-    if [[ ! -s $backlog ]]; then
+    if [[ -f /tmp/STOP ]]; then
+      Finish 0 "catched STOP file"
+    fi
+
+    # re-try an unfinished task (reboot/Finish)
+    #
+    if [[ -s $tsk ]]; then
+      task=$(cat $tsk)
+      rm $tsk
+      return
+    fi
+
+    # this is filled by us (and maybe during setup for a cloned image) and rules
+    #
+    if [[ -s /tmp/backlog.1st ]]; then
+      bl=/tmp/backlog.1st
+
+    # mix updated repository packages into the tests
+    #
+    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 2)) -eq 0 ]]; then
+      bl=/tmp/backlog.upd
+
+    # filled once during image setup
+    #
+    elif [[ -s /tmp/backlog ]]; then
+      bl=/tmp/backlog
+
+    #last chance ...
+    #
+    elif [[ -s /tmp/backlog.upd ]]; then
+      bl=/tmp/backlog.upd
+
+    # this is the end, my friend , then end ...
+    #
+    else
       n=$(qlist --installed | wc -l)
       Finish 0 "empty backlog, $n packages emerged"
     fi
 
-    # splice last line from the file
+    # splice last line
     #
-    task=$(tail -n 1 $backlog)
-    sed -i -e '$d' $backlog
+    task=$(tail -n 1 $bl)
+    sed -i -e '$d' $bl
 
     if [[ -z "$task" ]]; then
       continue  # empty lines are allowed
@@ -133,9 +144,6 @@ function setNextTask() {
     elif [[ "$task" =~ ^STOP ]]; then
       Finish 0 "got STOP task"
 
-    elif [[ -f /tmp/STOP ]]; then
-      Finish 0 "catched STOP file"
-
     elif [[ "$task" =~ ^# ]]; then
       continue  # comment
 
@@ -143,7 +151,7 @@ function setNextTask() {
       return  # work on a pinned version | package set | command
 
     else
-      # emerge those packages only as dependencies
+      # emerge some packages only as dependencies
       #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
@@ -770,7 +778,7 @@ function GotAnIssue()  {
   #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $backlog.1st
+    echo "$task" >> $backlog
     Mail "info: hit a race condition in repository sync" $bak
     return
   fi
@@ -786,8 +794,8 @@ function GotAnIssue()  {
   #
   grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $backlog.1st
-    echo "%emerge -1 dev-perl/XML-Parser" >> $backlog.1st
+    echo "$task" >> $backlog
+    echo "%emerge -1 dev-perl/XML-Parser" >> $backlog
     try_again=1
     return
   fi
@@ -795,9 +803,9 @@ function GotAnIssue()  {
   grep -q -e "Fix the problem and start perl-cleaner again." $bak
   if [[ $? -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
-      echo "%perl-cleaner --all" >> $backlog.1st
+      echo "%perl-cleaner --all" >> $backlog
     else
-      echo "%emerge --resume" >> $backlog.1st
+      echo "%emerge --resume" >> $backlog
     fi
     return
   fi
@@ -870,7 +878,7 @@ function SwitchGCC() {
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
       fi
 
-      cat << EOF >> $backlog.1st
+      cat << EOF >> $backlog
 %emerge --unmerge sys-devel/gcc:$verold
 %fix_libtool_files.sh $verold
 %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
@@ -879,7 +887,7 @@ EOF
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>/dev/null)
-        echo "%BuildKernel" >> $backlog.1st
+        echo "%BuildKernel" >> $backlog
       fi
     fi
   fi
@@ -902,7 +910,7 @@ function PostEmerge() {
   rm -f /etc/portage/._cfg????_make.conf
   ls /etc/._cfg????_locale.gen &>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo "%locale-gen" >> $backlog.1st
+    echo "%locale-gen" >> $backlog
     rm /etc/._cfg????_locale.gen
   fi
 
@@ -914,7 +922,7 @@ function PostEmerge() {
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    echo "@preserved-rebuild" >> $backlog.1st
+    echo "@preserved-rebuild" >> $backlog
   fi
 
   # build and switch to the new kernel after nearly all other things
@@ -928,33 +936,33 @@ function PostEmerge() {
     fi
 
     if [[ ! -f /usr/src/linux/.config ]]; then
-      echo "%BuildKernel" >> $backlog.1st
+      echo "%BuildKernel" >> $backlog
     fi
   fi
 
   grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%haskell-updater" >> $backlog.1st
+    echo "%haskell-updater" >> $backlog
   fi
 
   # switch to a new GCC soon
   #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%SwitchGCC" >> $backlog.1st
+    echo "%SwitchGCC" >> $backlog
   fi
 
   # update @system once a day and switch the java VM too by the way
   # but only if nothing else is already scheduled
   #
-  if [[ ! -s $backlog.1st ]]; then
+  if [[ ! -s $backlog ]]; then
     # do not care about "#" lines fir this here
     #
     grep -q -E "^(STOP|INFO|%|@)" $backlog
     if [[ $? -ne 0 ]]; then
       let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
       if [[ $diff -gt 86400 ]]; then
-        cat << EOF >> $backlog.1st
+        cat << EOF >> $backlog
 @world
 @system
 %SwitchJDK
@@ -1062,14 +1070,14 @@ function WorkOnTask() {
       echo "$(date) ${failed:-NOT ok}" >> /tmp/$task.history
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
-          echo "%emerge --resume --skip-first" >> $backlog.1st
+          echo "%emerge --resume --skip-first" >> $backlog
         else
           if [[ "$task" = "@preserved-rebuild" ]]; then
             Finish 3 "task $task failed"
           fi
         fi
       else
-        echo "%emerge --resume" >> $backlog.1st
+        echo "%emerge --resume" >> $backlog
       fi
 
     else
@@ -1087,10 +1095,10 @@ function WorkOnTask() {
 
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        echo "$task" >> $backlog.1st
+        echo "$task" >> $backlog
         Finish 3 "fix an issue of the command before it will be run again: '$cmd'"
       else
-        echo "%emerge --resume" >> $backlog.1st
+        echo "%emerge --resume" >> $backlog
       fi
     fi
 
@@ -1102,7 +1110,7 @@ function WorkOnTask() {
     #
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $backlog.1st
+        echo "$task" >> $backlog
       fi
     fi
   fi
@@ -1153,7 +1161,7 @@ EOF
 mailto="tinderbox@zwiebeltoralf.de"
 tsk=/tmp/task                       # holds the current task
 log=$tsk.log                        # holds always output of the running task command
-backlog=/tmp/backlog                   # the (during setup pre-filled) backlog file
+backlog=/tmp/backlog.1st
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"

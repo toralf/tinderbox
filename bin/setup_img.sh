@@ -341,24 +341,24 @@ EOF
 }
 
 
-# the last line of a backlog will be the first taken and so on
+# the last line of a backlog will be the taken first
 #
 function CreateBacklog()  {
   backlog=./tmp/backlog
 
-  truncate -s 0 $backlog{,.1st}
+  truncate -s 0 $backlog{,.1st,.upd}
+  chmod a+w $backlog{,.1st,.upd}
+
+  # fill up with a randomized package list
+  #
+  qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
 
   if [[ -e $origin ]]; then
     # no replay of @sets or %commands of origin
     #
-    echo "INFO finished replay of task history of $origin"    >> $backlog
-    grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $backlog
-    echo "INFO starting replay of task history of $origin"    >> $backlog
-
-  else
-    # fill up with a randomized package list
-    #
-    qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
+    echo "INFO finished replay of task history of $origin"    >> $backlog.1st
+    grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $backlog.1st
+    echo "INFO starting replay of task history of $origin"    >> $backlog.1st
   fi
 
   cat << EOF >> $backlog.1st
@@ -386,8 +386,6 @@ EOF
 if [[ "$profile" =~ "systemd" ]]; then
   echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $backlog.1st
 fi
-
-  chmod a+w $backlog{,.1st}
 
   # the timestamp of this file is used to schedule @system upgrade once a day
   #
