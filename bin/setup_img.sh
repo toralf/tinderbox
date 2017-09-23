@@ -532,6 +532,17 @@ function EmergeMandatoryPackages() {
 #
 # main
 #
+#############################################################################
+echo "$0 started with $# args: '${@}'"
+echo
+
+image_dir=$(pwd)
+
+if [[ "$image_dir" = "/home/tinderbox" ]]; then
+  echo "you are in /home/tinderbox !"
+  exit 3
+fi
+
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
@@ -547,25 +558,25 @@ wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
 wgetpath=/releases/amd64/autobuilds
 stage3=""
 
-autostart="y"   # start the image after setup ?
-origin=""       # clone from another image ?
+autostart="y"   # start the image after setup
+origin=""       # clone from that origin image
 
 # choose an arbitrary profile
 # switch to 17.0 profile at every 4th image
 #
 profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-  profile="$(echo $profile | sed -e 's/13/17/')"
+  profile="$(echo $profile | sed -e 's,13,17,')"
 fi
 
-# test stable rather rarely
+# test stable rarely
 #
 keyword="unstable"
-if [[ $(($RANDOM % 20)) -eq 0 && ! "$profile" =~ "17" ]]; then
+if [[ $(($RANDOM % 40)) -eq 0 && ! "$profile" =~ "17" ]]; then
   keyword="stable"
 fi
 
-# test LibreSSL at every 3rd image
+# LibreSSL at every 3rd image
 #
 libressl="n"
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
@@ -575,11 +586,11 @@ fi
 # test ABI_X86="32 64" at every 5th image
 #
 multilib="n"
-if [[ ! "$profile" =~ "no-multilib" && $(($RANDOM % 5)) -eq 0 ]]; then
+if [[ $(($RANDOM % 5)) -eq 0 && ! "$profile" =~ "no-multilib" ]]; then
   multilib="y"
 fi
 
-# FEATURES
+# FEATURES=test at every 3rd image
 #
 features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
 if [[ $(($RANDOM % 3)) -eq 0 && "$keyword" = "unstable" ]]; then
@@ -595,31 +606,14 @@ do
   case $opt in
     a)  autostart="$OPTARG"
         ;;
-
     f)  features="$features $OPTARG"
         ;;
-
     k)  keyword="$OPTARG"
-        if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
-          echo " wrong value for \$keyword: $keyword"
-          exit 2
-        fi
         ;;
-
     l)  libressl="$OPTARG"
-        if [[ "$libressl" != "y" && "$libressl" != "n" ]]; then
-          echo " wrong value for \$libressl: $libressl"
-          exit 2
-        fi
         ;;
-
     m)  multilib="$OPTARG"
-        if [[ "$multilib" != "y" && "$multilib" != "n" ]]; then
-          echo " wrong value for \$multilib $multilib"
-          exit 2
-        fi
         ;;
-
     o)  # "clone" an image
         #
         origin="$OPTARG"
@@ -659,15 +653,9 @@ do
         ;;
 
     p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
-        if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
-          echo " profile unknown: $profile"
-          exit 2
-        fi
         ;;
-
     s)  stage3="$OPTARG"
         ;;
-
     u)  # USE flags are
         # - defined in a statement like USE="..."
         # - or listed in a file
@@ -682,25 +670,30 @@ do
           useflags="$OPTARG"
         fi
         ;;
-
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 2
         ;;
   esac
 done
 
-#############################################################################
-#
-# main
-#
-echo "$0 started with $# args: '${@}'"
-echo
+if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
+  echo " wrong value for \$keyword: $keyword"
+  exit 2
+fi
 
-image_dir=$(pwd)
+if [[ "$libressl" != "y" && "$libressl" != "n" ]]; then
+  echo " wrong value for \$libressl: $libressl"
+  exit 2
+fi
 
-if [[ "$image_dir" = "/home/tinderbox" ]]; then
-  echo "you are in /home/tinderbox !"
-  exit 3
+if [[ "$multilib" != "y" && "$multilib" != "n" ]]; then
+  echo " wrong value for \$multilib $multilib"
+  exit 2
+fi
+
+if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
+  echo " profile unknown: $profile"
+  exit 2
 fi
 
 UnpackStage3
