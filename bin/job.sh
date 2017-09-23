@@ -66,26 +66,6 @@ function Finish()  {
 }
 
 
-# helper of setNextTask()
-# choose an arbitrary system java engine
-#
-function SwitchJDK()  {
-  old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
-  if [[ -n "$old" ]]; then
-    new=$(
-      eselect java-vm list 2>/dev/null |\
-      grep -e ' oracle-jdk-[[:digit:]] ' -e ' icedtea[-bin]*-[[:digit:]] ' |\
-      grep -v " icedtea-bin-[[:digit:]].*-x86 " |\
-      grep -v ' system-vm' |\
-      awk ' { print $2 } ' | sort --random-sort | head -n 1
-    )
-    if [[ -n "$new" && "$new" != "$old" ]]; then
-      eselect java-vm set system $new 1>> $log
-    fi
-  fi
-}
-
-
 # copy content of last line of the backlog into variable $task
 #
 function setNextTask() {
@@ -889,6 +869,26 @@ EOF
         (cd /usr/src/linux && make clean &>/dev/null)
         echo "%BuildKernel" >> $backlog
       fi
+    fi
+  fi
+}
+
+
+# helper of setNextTask()
+# choose an arbitrary system java engine
+#
+function SwitchJDK()  {
+  old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
+  if [[ -n "$old" ]]; then
+    new=$(
+      eselect java-vm list 2>/dev/null |\
+      grep -e ' oracle-jdk-[[:digit:]] ' -e ' icedtea[-bin]*-[[:digit:]] ' |\
+      grep -v " icedtea-bin-[[:digit:]].*-x86 " |\
+      grep -v ' system-vm' |\
+      awk ' { print $2 } ' | sort --random-sort | head -n 1
+    )
+    if [[ -n "$new" && "$new" != "$old" ]]; then
+      eselect java-vm set system $new 1>> $log
     fi
   fi
 }
