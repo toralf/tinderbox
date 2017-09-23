@@ -27,24 +27,12 @@ do
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{cxx,nosandbox,notest} 2>/dev/null
 
-  for image in ~/run/*
+  # put this not into backlog.upd
+  # there it could be shifted by a huge repository update far into the future
+  #
+  for i in ~/run/*
   do
-    if [[ -f $image/tmp/STOP ]]; then
-      continue
-    fi
-
-    backlog=$image/tmp/backlog
-
-    # do not care about lines starting with a hash sign
-    #
-    grep -q -E -e "^(STOP|INFO|%|@)" $backlog
-    if [[ $? -eq 0 ]]; then
-      continue
-    fi
-
-    # re-schedule the package itself not a specific version of it
-    #
-    echo "$p" >> $backlog
+    echo "$p" >> $i/tmp/backlog
   done
 done
 

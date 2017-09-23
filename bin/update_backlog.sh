@@ -7,9 +7,8 @@
 
 mailto="tinderbox@zwiebeltoralf.de"
 
-iam=$(whoami)
-if [[ ! "$iam" = "tinderbox" ]]; then
-  echo "wrong user '$iam' !"
+if [[ ! "$(whoami)" = "tinderbox" ]]; then
+  echo "You must be the tinderbox user !"
   exit 1
 fi
 
