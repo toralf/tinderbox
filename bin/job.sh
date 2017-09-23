@@ -170,23 +170,6 @@ function setNextTask() {
 
 
 # helper of GotAnIssue()
-# for ABI_X86="32 64" we have two ./work directories in /var/tmp/portage/<category>/<name>
-#
-function setWorkDir() {
-  workdir=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'" -s)
-  if [[ ! -d "$workdir" ]]; then
-    workdir=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" " -s)
-    if [[ ! -d "$workdir" ]]; then
-      workdir=/var/tmp/portage/$failed/work/$(basename $failed)
-      if [[ ! -d "$workdir" ]]; then
-        workdir=""
-      fi
-    fi
-  fi
-}
-
-
-# helper of GotAnIssue()
 # gather together what's needed for the email and b.g.o.
 #
 function CollectIssueFiles() {
@@ -730,6 +713,23 @@ function PutDepsInWorld() {
     echo "$line" | grep -q ':  === (1 of '
     if [[ $? -eq 1 ]]; then
       emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' -s | xargs emerge --noreplace &>/dev/null
+    fi
+  fi
+}
+
+
+# helper of GotAnIssue()
+# for ABI_X86="32 64" we have two ./work directories in /var/tmp/portage/<category>/<name>
+#
+function setWorkDir() {
+  workdir=$(fgrep -m 1 " * Working directory: '" $bak | cut -f2 -d"'" -s)
+  if [[ ! -d "$workdir" ]]; then
+    workdir=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" " -s)
+    if [[ ! -d "$workdir" ]]; then
+      workdir=/var/tmp/portage/$failed/work/$(basename $failed)
+      if [[ ! -d "$workdir" ]]; then
+        workdir=""
+      fi
     fi
   fi
 }
