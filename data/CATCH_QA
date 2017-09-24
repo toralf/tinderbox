@@ -1,5 +1,5 @@
-QA Notice: installs into paths that should be created at runtime
-QA: python_prepare_all() didn't call distutils-r1_python_prepare_all
-QA Notice: dosym target omits basename:
+installs into paths that should be created at runtime
+python_prepare_all() didn't call distutils-r1_python_prepare_all
+dosym target omits basename:
 cmake-utils_src_prepare has not been run, please open a bug on
 This package has a configure.in file which has long been deprecated.

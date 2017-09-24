@@ -39,8 +39,9 @@ x11-plugins/gkrell
 # https://bugs.gentoo.org/628550
 #
 dev-python/pycryptodome
-dev-python/pycparser
+>=dev-python/pycparser-2.18
 #
 # awefully long build time
 #
 www-client/chromium
+www-client/google-chrome

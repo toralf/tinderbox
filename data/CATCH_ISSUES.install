@@ -10,3 +10,4 @@ configure: error: Cannot find .* - please compile and install it first.
 /bin/sh: .* cd: .*: Not a directory
 make.* No rule to make target .* needed by .* Stop.
 Unhandled exception:
+rm: .* No such file or directory
