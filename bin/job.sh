@@ -519,6 +519,7 @@ function SearchForAnAlreadyFiledBug() {
           -e 's,.* : ,,'              \
           -e 's,[<>&\*\?], ,g'        \
           -e 's,[\(\)], ,g'           \
+          -e 's,:[[:digit:]]*): ,:<snip>:,g'  \
           $bsi
 
   # for the file collision case: remove the package version (from the installed package)
