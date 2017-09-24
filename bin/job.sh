@@ -980,7 +980,7 @@ EOF
 function CheckQA() {
   f=/tmp/qafilenames
 
-  # process all files created after the last call of us
+  # process all elog files created after the last call of this function
   #
   if [[ -f $f ]]; then
     find /var/log/portage/elog -name '*.log' -newer $f  > $f
@@ -988,16 +988,15 @@ function CheckQA() {
     find /var/log/portage/elog -name '*.log'            > $f
   fi
 
+  # process each QA issue independent from others even for the same QA file
+  #
   cat $f |\
   while read elogfile
   do
-    # process each QA issue independent from all others
-    # even for the same QA file
-    #
     cat /tmp/tb/data/CATCH_QA |\
     while read reason
     do
-      grep -q -E -e "$reason" $elogfile
+      grep -q "$reason" $elogfile
       if [[ $? -eq 0 ]]; then
         failed=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
         short=$(pn2p "$failed")
