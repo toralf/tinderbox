@@ -14,7 +14,7 @@ fi
 
 # holds the package names of added/changed/modified/renamed ebuilds
 #
-acmr=$(mktemp /tmp/acmrXXXXXX)
+acmr=/tmp/$(basename $0).acmr
 
 # add 1 hour to let mirrors be in sync with master
 #
@@ -23,10 +23,8 @@ git diff --diff-filter=ACMR --name-status "@{ ${1:-3} hour ago }".."@{ 1 hour ag
 grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique |\
 grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
 
-info="# $(basename $0) at $(date): $(wc -l < $acmr) ACMR packages"
-echo $info
-
 if [[ -s $acmr ]]; then
+  info="# $(basename $0) at $(date): packages: $(wc -l < $acmr)"
   for i in ~/run/*
   do
     bl=$i/tmp/backlog.upd
@@ -36,5 +34,3 @@ if [[ -s $acmr ]]; then
     sort --random-sort < $acmr >> $bl
   done
 fi
-
-rm $acmr
