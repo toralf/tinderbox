@@ -158,7 +158,7 @@ fi
 if [[ $newbug -eq 1 ]]; then
   a="-a $(cat ./assignee)"
   if [[ -s ./cc ]]; then
-    # every entry in cc needs prefixed with --add-cc
+    # entries in cc are space separated and have to be prefixed with --add-cc each
     #
     c="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
   fi
