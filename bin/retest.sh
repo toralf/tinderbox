@@ -27,8 +27,7 @@ do
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{cxx,nosandbox,notest} 2>/dev/null
 
-  # put this not into backlog.upd
-  # there it could be shifted by a huge repository update far into the future
+  # don't put this into backlog.upd b/c it could be delayed by a huge repository update
   #
   for i in ~/run/*
   do
