@@ -165,7 +165,7 @@ if [[ $newbug -eq 1 ]]; then
   bugz modify $a $c $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
-bzgrep -q -F '(test phase)' $d/_emerge_*
+bzgrep -q " \* ERROR:.* failed (.* phase):" $d/_emerge_*
 if [[ $? -eq 0 ]]; then
   bugz modify --set-keywords TESTFAILURE $id
 fi
