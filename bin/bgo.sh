@@ -150,6 +150,13 @@ if [[ -n "$block" ]]; then
   bugz modify --add-blocked "$block" $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
+# test failures aren't show stopper
+#
+bzgrep -q " \* ERROR:.* failed (.* phase):" $dir/_emerge_*
+if [[ $? -eq 0 ]]; then
+  bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
+fi
+
 # set assignee and cc as the last step (requested by prometheanfire via IRC)
 # to reduce the bot email amount to the only one email sent out
 # when all data are attached to the report
@@ -163,11 +170,6 @@ if [[ $newbug -eq 1 ]]; then
     c="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
   fi
   bugz modify $a $c $id 1>bugz.out 2>bugz.err || Warn $?
-fi
-
-bzgrep -q " \* ERROR:.* failed (.* phase):" $dir/_emerge_*
-if [[ $? -eq 0 ]]; then
-  bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 echo
