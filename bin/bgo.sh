@@ -41,8 +41,8 @@ newbug=1    # if set to 1 then do neither change To: nor Cc:
 while getopts a:b:c:d:i:s: opt
 do
   case $opt in
-    i)  id="$OPTARG"            # (i)d of an already existing bug
-        newbug=1
+    i)  id="$OPTARG"            # (i)d of an existing bug
+        newbug=0
         ;;
     b)  block="$OPTARG";;       # (b)lock that bug (id or alias)
     c)  comment="$OPTARG";;     # (c)omment, used with -a
