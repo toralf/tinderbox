@@ -24,13 +24,10 @@ grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cu
 grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
 
 if [[ -s $acmr ]]; then
-  info="# $(basename $0) at $(date): packages: $(wc -l < $acmr)"
+  # shuffle packages around in a different manner for each image
+  #
   for i in ~/run/*
   do
-    bl=$i/tmp/backlog.upd
-    echo "$info" >> $bl
-    # shuffle packages around in a different way for each image
-    #
-    sort --random-sort < $acmr >> $bl
+    sort --random-sort < $acmr >> $i/tmp/backlog.upd
   done
 fi
