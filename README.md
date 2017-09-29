@@ -10,7 +10,7 @@ A profile, keyword and a USE flag set are choosen.
 The current *stage3* file is downloaded, verified and unpacked.
 Mandatory portage config files will be compiled.
 Few required packages (*ssmtp*, *pybugz* etc.) are installed.
-The package list */tmp/packages* is created.
+All available package are listed in a randomized order in */tmp/backlog*.
 A symlink is made into *~/run* and the image is started.
 
 ### start an image
@@ -62,7 +62,7 @@ Bugs can be filed using *bgo.sh* - a comand line ready for copy+paste is in the 
 ### unattended test of package/s
 Append package/s to the package list in the following way:
     
-    cat <<<EOF >> ~/run/[image]/tmp/packages
+    cat <<<EOF >> ~/run/[image]/tmp/backlog
     INFO this text is the subject of an info email (body is empty)
     package1
     ...
@@ -77,7 +77,6 @@ Append package/s to the package list in the following way:
 ### misc
 The script *insert_pkgs.sh* adds periodically new or change ebuilds on top of arbitrary package lists. *retest.sh* is used to undo any image specific changes of given package(s) to portage files before emergeing them again. And finally *logcheck.sh* is a helper to notify about non-empty log file(s).
 
-
 ## installation
 Create the user *tinderbox*:
 
@@ -86,19 +85,12 @@ Run in */home/tinderbox*:
 
     mkdir ~/img{1,2} ~/logs ~/run ~/tb
 Copy *./data* and *./sdata* into *~/tb* and *./bin* into */opt/tb*.
-The user tinderbox must not be allowed to edit the scripts in */opt/tb/bin*.
+The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
 The user must have write permissions for the files in *~/tb/data*.
 Edit files in *~/sdata* and strip away the suffix *.sample*.
 Grant sudo rights:
 
     tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/setup_img.sh
-
-At a hardened Gentoo tweak *GRsecurity* if appropriate:
-
-    sysctl -w kernel.grsecurity.chroot_deny_chmod=0
-    sysctl -w kernel.grsecurity.chroot_caps=0
-    sysctl -w kernel.grsecurity.chroot_deny_mount=0
-    sysctl -w kernel.grsecurity.tpe=0
 
 ## more info
 https://www.zwiebeltoralf.de/tinderbox.html
