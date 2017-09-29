@@ -152,7 +152,7 @@ fi
 
 # test failures aren't show stopper
 #
-bzgrep -q " \* ERROR:.* failed (.* phase):" $dir/_emerge_*
+bzgrep -q " \* ERROR:.* failed (.* phase):" $dir/_emerge_* 2>/dev/null
 if [[ $? -eq 0 ]]; then
   bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
 fi
