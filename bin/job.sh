@@ -953,22 +953,23 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # update @system once a day and switch the java VM too by the way
-  # but only if nothing else is already scheduled
+  # once a day - if nothing is already scheduled - :
+  # - update @syste
+  # - switch the java VM too by the way
+  # - sync image specific overlays
   #
   if [[ ! -s $backlog ]]; then
-    # do not care about "#" lines fir this here
-    #
-    grep -q -E "^(STOP|INFO|%|@)" $backlog
-    if [[ $? -ne 0 ]]; then
-      let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
-      if [[ $diff -gt 86400 ]]; then
-        cat << EOF >> $backlog
+    let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
+    if [[ $diff -gt 86400 ]]; then
+      cat << EOF >> $backlog
 @world
 @system
 %SwitchJDK
 EOF
-        return
+
+      grep -q "^auto-sync *= *yes$" /etc/portage/repos.conf/*
+      if [[ $? -eq 0 ]]; then
+        echo "%emerge --sync" >> $backlog
       fi
     fi
   fi
