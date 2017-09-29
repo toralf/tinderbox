@@ -983,10 +983,12 @@ function CheckQA() {
   # process all elog files created after the last call of this function
   #
   if [[ -f $f ]]; then
-    find /var/log/portage/elog -name '*.log' -newer $f  > $f
+    t=$f.tmp
+    find /var/log/portage/elog -name '*.log' -newer $f  > $f.tmp
   else
-    find /var/log/portage/elog -name '*.log'            > $f
+    find /var/log/portage/elog -name '*.log'            > $f.tmp
   fi
+  mv $f.tmp $f
 
   # process each QA issue independent from others even for the same QA file
   #
