@@ -25,16 +25,16 @@ Without any arguments all symlinks in *~/run* are processed.
 
     stop_img.sh <image>
 
-A marker (*/tmp/STOP*) is made in that image.
-The current task operation will be finished before *job.sh* removes */tmp/{LOCK,STOP}* and exits.
+A marker file */tmp/STOP* is created in that image.
+The current emerge operation is finished before *job.sh* removes */tmp/{LOCK,STOP}* and exits.
 
-### complete chroot into a stopped image
+### chroot into a stopped image
     
     sudo /opt/tb/bin/chr.sh <image>
 
-This bind-mounts all host-related dirs. Without any argument an interactive login is made. Otherwise the arguments are treated as command(s) to be run within that image and an exit is made afterwards.
+This bind-mount all desired directories from the host system. Without any argument an interactive login is made afterwards. Otherwise the argumenti(s) are treated as command(s) to be run within that image before the cheroot is exited.
 
-### simple chroot into a running image
+### chroot into a running image
     
     sudo /opt/tb/bin/scw.sh <image>
 
