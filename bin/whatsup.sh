@@ -75,7 +75,7 @@ function Overall() {
 # gives sth. like:
 #
 # 13.0-abi32+64_20170216-202818              0:13 min  >>> (5 of 8) dev-perl/Email-MessageID-1.406.0
-# desktop_20170218-203252                   71:51 min  >>> (1 of 1) games-emulation/sdlmame-0.174
+# desktop_20170218-203252                    1:10 h    >>> (1 of 1) games-emulation/sdlmame-0.174
 # desktop-libressl-abi32+64_20170215-18565   0:32 min  *** dev-ruby/stringex
 #
 function LastEmergeOperation()  {
@@ -88,7 +88,7 @@ function LastEmergeOperation()  {
       continue
     fi
 
-    # catch the last started emerge operation, not the attempt
+    # catch the last eventually started emerge operation
     #
     tac $log |\
     grep -m 1 -E -e '>>>|*** emerge' -e ' \*\*\* terminating.' -e '::: completed emerge' |\
@@ -168,7 +168,7 @@ function PackagesPerDay() {
 # gives sth. like:
 #
 # 13.0-abi32+64_20170216-202818              1:53 min  mail-filter/assp
-# desktop_20170218-203252                   72:08 min  sdlmame
+# desktop_20170218-203252                    1:11 h    games-emulation/sdlmame
 # desktop-libressl-abi32+64_20170215-18565   0:03 min  dev-ruby/stringex
 #
 function CurrentTask()  {
