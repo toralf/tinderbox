@@ -320,16 +320,17 @@ EOF
 # configure vim (eg.: avoid interactive question)
 #
 function CompileMiscFiles()  {
-  # "mr-fox" must be resolved to "127.0.0.1" or "::1" respectively
+  # resolve hostname to "127.0.0.1" or "::1" respectively
   #
   cat <<EOF > ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
 
+  h=$(hostname)
   cat <<EOF > ./etc/hosts
-127.0.0.1 localhost $(hostname) $(hostname -f)
-::1       localhost $(hostname) $(hostname -f)
+127.0.0.1 localhost $h.localdomain $h
+::1       localhost $h.localdomain $h
 EOF
 
   cat << EOF > ./root/.vimrc
