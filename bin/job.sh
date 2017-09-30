@@ -83,40 +83,40 @@ function setNextTask() {
       return
     fi
 
-    # this is filled by us (and maybe during setup for a cloned image) and rules
+    # this is filled by us (or pre-filled for a cloned image)
     #
     if [[ -s /tmp/backlog.1st ]]; then
       bl=/tmp/backlog.1st
 
-    # mix updated repository packages into the tests
+    # mix updated repository packages
     #
     elif [[ -s /tmp/backlog.upd && $(($RANDOM % 2)) -eq 0 ]]; then
       bl=/tmp/backlog.upd
 
-    # filled once during image setup
+    # filled once during image setup or by retest.sh
     #
     elif [[ -s /tmp/backlog ]]; then
       bl=/tmp/backlog
 
-    #last chance ...
+    # Last Exit to Brooklyn
     #
     elif [[ -s /tmp/backlog.upd ]]; then
       bl=/tmp/backlog.upd
 
-    # this is the end, my friend , then end ...
+    # this is the end, my friend, the end ...
     #
     else
       n=$(qlist --installed | wc -l)
       Finish 0 "empty backlog, $n packages emerged"
     fi
 
-    # splice last line
+    # splice last line fromt he choosen backlog file
     #
     task=$(tail -n 1 $bl)
     sed -i -e '$d' $bl
 
     if [[ -z "$task" ]]; then
-      continue  # empty lines are allowed
+      continue  # empty line
 
     elif [[ "$task" =~ ^INFO ]]; then
       Mail "$task"
@@ -131,14 +131,12 @@ function setNextTask() {
       return  # work on a pinned version | package set | command
 
     else
-      # emerge some packages only as dependencies
-      #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
-      # skip if $task is masked, keyworded or invalid
+      # skip if $task is a masked or keyworded package or an invalid string
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
       if [[ $? -ne 0 ]]; then
@@ -161,7 +159,7 @@ function setNextTask() {
         fi
       fi
 
-      # $task is valid
+      # $task is a valid emerge target
       #
       return
     fi
@@ -1164,7 +1162,7 @@ EOF
 mailto="tinderbox@zwiebeltoralf.de"
 tsk=/tmp/task                       # holds the current task
 log=$tsk.log                        # holds always output of the running task command
-backlog=/tmp/backlog.1st
+backlog=/tmp/backlog.1st            # this is the high prio backlog
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"
