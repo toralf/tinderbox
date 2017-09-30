@@ -238,12 +238,13 @@ PORTAGE_GPG_DIR="/var/lib/gentoo/gkeys/keyrings/gentoo/release"
 PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
 
 GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gor.bytemark.co.uk/gentoo/ rsync://ftp.snt.utwente.nl/gentoo"
+
 EOF
 }
 
 
-# symlink within an image a bunch of (host bind mounted) files
-# from /tmp/tb/data to the appropriate portage directories
+# create symlinks from /tmp/tb/data/** to the appropriate portage directories
+# they become effective by the bind-mount of ~/tb onto /tmp/tb within chr.sh
 #
 function CompilePortageFiles()  {
   mkdir tmp/tb  # bind mount point of the tinderbox directory got from the host
