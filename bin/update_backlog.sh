@@ -19,15 +19,17 @@ acmr=/tmp/$(basename $0).acmr
 # add 1 hour to let mirrors be in sync with master
 #
 cd /usr/portage/
-git diff --diff-filter=ACMR --name-status "@{ ${1:-3} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
+git diff --diff-filter=ACMR --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' -e '/Manifest' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique |\
 grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
 
 if [[ -s $acmr ]]; then
-  # shuffle packages around in a different manner for each image
-  #
   for i in ~/run/*
   do
-    sort --random-sort < $acmr >> $i/tmp/backlog.upd
+    bl=$i/tmp/backlog.upd
+    # re-shuffle avoids that all tinderbox images emerge the same (fat) package at the same time
+    #
+    cat $bl $acmr | sort --random-sort > $bl.tmp
+    mv $bl.tmp $bl
   done
 fi
