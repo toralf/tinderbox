@@ -12,6 +12,7 @@ PostgreSQL slot must be set to one of:
 .* library not found, but required for .* module.
 configure: error:
 CMake will exit
+You need build codec to run the tests
 CMake Error at
 Configuring incomplete, errors occurred
 extconf.rb:.* (RuntimeError)
@@ -20,3 +21,4 @@ extconf.rb:.* (RuntimeError)
 cmake failed
 bad option:
 Meson encountered an error
+Invalid option:

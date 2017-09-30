@@ -16,6 +16,7 @@ virtual/
 #
 # packages: outdated, br0ken, breaks revdep-rebuild, ...
 #
+app-emacs/jde
 app-xemacs/
 dev-perl/Math-Pari
 dev-python/pyzmq
@@ -43,5 +44,6 @@ dev-python/pycryptodome
 #
 # awefully long build time
 #
+dev-util/electron
 www-client/chromium
 www-client/google-chrome

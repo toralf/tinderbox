@@ -12,6 +12,7 @@ Failed .* test programs. .* subtests failed.
 \\*\\*\\*Exception:
 : FAILED:
 Failed .* tests, .*% okay, .* tests skipped.
+ FAILED (.*)
 testsuite: .* failed
 Test .* from suite .* failed.
 Test suite test-threads: FAIL
@@ -39,6 +40,7 @@ Fatal Error by .*
  : error: .*
 : fatal error:
 make.* Command not found
+test.*NOT ok
 make:.* test
 CMake Error at
 : exit status 1
@@ -55,8 +57,6 @@ AssertionError
 make.* No rule to make target
 ^ERROR:.*:
 : Command not found
-make.* check] Error 1
-make.*test.* Error 1
 assertion .* failed
   NOT ok
 ocamlc: unknown option
@@ -69,3 +69,6 @@ Resolve library did not return a fully qualified domain name.
 :Error:
 ^not ok [[:digit:]]*
 ^make.* Segmentation fault
+test in .* failed
+/bin/bash: docker: command not found
+make.* Error 1
