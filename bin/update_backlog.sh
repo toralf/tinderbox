@@ -29,7 +29,7 @@ if [[ -s $acmr ]]; then
     bl=$i/tmp/backlog.upd
     # re-shuffle avoids that all tinderbox images emerge the same (fat) package at the same time
     #
-    sort --random-sort $bl $acmr > $bl.tmp
+    sort -u --random-sort $bl $acmr > $bl.tmp
     mv $bl.tmp $bl
   done
 fi
