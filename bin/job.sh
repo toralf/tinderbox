@@ -1057,6 +1057,9 @@ function WorkOnTask() {
 
   if [[ "$task" =~ ^@ ]]; then
 
+    # @world make sense despite update_back.log.sh b/c of "-NU",
+    # just -D doesn't succeeded after few days
+    #
     if [[ "$task" = "@preserved-rebuild" ]]; then
       opts="$task"
     elif [[ "$task" = "@system" ]]; then
