@@ -1170,6 +1170,7 @@ backlog=/tmp/backlog.1st            # this is the high prio backlog
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"
+export GOMAXPROCS=1                 # "make -j1" for Go
 
 # eg.: gnome_20150913-104240
 #
@@ -1198,6 +1199,7 @@ export XDG_RUNTIME_DIR="/root/run"
 export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
+
 
 while :;
 do
