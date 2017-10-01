@@ -1058,12 +1058,15 @@ function WorkOnTask() {
   if [[ "$task" =~ ^@ ]]; then
 
     if [[ "$task" = "@preserved-rebuild" ]]; then
-      RunAndCheck "emerge $task"
-    elif [[ "$task" = "@system" || "$task" = "@world" ]]; then
-      RunAndCheck "emerge --deep --update --newuse --changed-use $task"
+      opts="$task"
+    elif [[ "$task" = "@system" ]]; then
+      opts="--update --newuse --changed-use $task --deep"
+    elif [[ "$task" = "@world" ]]; then
+      opts="--update --newuse --changed-use $task"
     else
-      RunAndCheck "emerge --update $task"
+      opts="--update $task"
     fi
+    RunAndCheck "emerge $opts"
     rc=$?
 
     cp $log /tmp/$task.last.log
