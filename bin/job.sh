@@ -385,7 +385,7 @@ function collectTestIssueResults() {
     if [[ -n "$dirs" ]]; then
       tar -cjpf $issuedir/files/tests.tbz2 \
         --exclude='*.o' --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
-        --dereference --one-file-system --warning=no-file-ignored \
+        --dereference --sparse --one-file-system --warning=no-file-ignored \
         $dirs
       rc=$?
 
