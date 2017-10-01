@@ -452,9 +452,19 @@ function ClassifyIssue() {
       rm $issuedir/issue.tmp
     done
 
-    # post-process the title
+    # kick off hex addresses, line and time numbers and such stuff
     #
-    sed -i -e 's,  *, ,g' -e 's,[0-9]*[\.][0-9]* sec,,g' -e 's,[0-9]*[\.][0-9]* s,,g' -e 's,([0-9]*[\.][0-9]*s),,g' -e 's/ \.\.\.*\./ /g' $issuedir/title
+    sed -i  -e 's/0x[0-9a-f]*/<snip>/g'         \
+            -e 's/: line [0-9]*:/:line <snip>:/g' \
+            -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
+            -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
+            -e 's,:[[:digit:]]*): ,:<snip>:,g'  \
+            -e 's,  *, ,g'                      \
+            -e 's,[0-9]*[\.][0-9]* sec,,g'      \
+            -e 's,[0-9]*[\.][0-9]* s,,g'        \
+            -e 's,([0-9]*[\.][0-9]*s),,g'       \
+            -e 's/ \.\.\.*\./ /g'               \
+            $issuedir/title
 
     if [[ ! -s $issuedir/title ]]; then
       Mail "warn: empty title for $failed" $bak
@@ -517,7 +527,6 @@ function SearchForAnAlreadyFiledBug() {
           -e 's,.* : ,,'              \
           -e 's,[<>&\*\?], ,g'        \
           -e 's,[\(\)], ,g'           \
-          -e 's,:[[:digit:]]*): ,:<snip>:,g'  \
           $bsi
 
   # for the file collision case: remove the package version (from the installed package)
@@ -593,14 +602,6 @@ function CompileIssueMail() {
   # shrink too long error messages
   #
   sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' $issuedir/title
-
-  # kick off hex addresses and such stuff to improve search results matching in b.g.o.
-  #
-  sed -i  -e 's/0x[0-9a-f]*/<snip>/g' \
-          -e 's/: line [0-9]*:/:line <snip>:/g' \
-          -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
-          -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
-          $issuedir/title
 
   SearchForBlocker
   sed -i -e "s,^,$failed : ," $issuedir/title
