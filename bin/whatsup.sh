@@ -26,13 +26,13 @@ function PrintImageName()  {
 
 # gives sth. like:
 #
-# compl fail  days backlog 1st  upd stat
-#  3735   41   3.6   16369   0    1    l  run/13.0-no-multilib_20170315-195201
-#  6956   75   9.6   13285   0   11   sl  run/13.0-systemd_20170309-190652
-#  2904   29   2.5   17220   2    0       img2/13.0-systemd-libressl_20170316-210316
+# compl fail  days backlog  upd 1st stat
+#  3735   41   3.6   16369    0   1    l  run/13.0-no-multilib_20170315-195201
+#  6956   75   9.6   13285    0   0   sl  run/13.0-systemd_20170309-190652
+#  2904   29   2.5   17220    2   0       img2/13.0-systemd-libressl_20170316-210316
 #
 function Overall() {
-  echo "compl fail  days backlog 1st  upd stat"
+  echo "compl fail  days backlog  upd 1st stat"
   for i in $images
   do
     log=$i/var/log/emerge.log
@@ -67,7 +67,7 @@ function Overall() {
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="run"
 
-    printf "%5i %4i %5.1f %7i %3i %4i %4s %4s/%s\n" $compl $fail $day $bl $bl1 $blu "$flag" "$d" "$b"
+    printf "%5i %4i %5.1f %7i %4i %3i %4s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b"
   done
 }
 
