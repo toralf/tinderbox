@@ -459,6 +459,7 @@ function ClassifyIssue() {
             -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
             -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
             -e 's,:[[:digit:]]*): ,:<snip>:,g'  \
+            -e 's,([[:digit:]]* of [[:digit:]]*),(<snip> of <snip)>,g'  \
             -e 's,  *, ,g'                      \
             -e 's,[0-9]*[\.][0-9]* sec,,g'      \
             -e 's,[0-9]*[\.][0-9]* s,,g'        \
