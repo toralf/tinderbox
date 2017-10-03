@@ -63,7 +63,7 @@ Bugs can be filed using *bgo.sh* - a comand line ready for copy+paste is in the 
 Append package/s to the package list in the following way:
     
     cat <<<EOF >> ~/run/[image]/tmp/backlog
-    INFO this text is the subject of an info email (body is empty)
+    INFO this text becomes the subject of an email if reached
     package1
     ...
     %action1
@@ -74,8 +74,8 @@ Append package/s to the package list in the following way:
 
 "STOP" can be used instead "INFO" to stop the image at that point.
 
-### misc
-The script *insert_pkgs.sh* adds periodically new or change ebuilds on top of arbitrary package lists. *retest.sh* is used to undo any image specific changes of given package(s) to portage files before emergeing them again. And finally *logcheck.sh* is a helper to notify about non-empty log file(s).
+### mis
+The script *update_backlog.sh* mixes repository updates into the backlog of each image. *retest.sh* is used to undo any package specific changes to portage files and schedule an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s).
 
 ## installation
 Create the user *tinderbox*:
@@ -86,7 +86,7 @@ Run in */home/tinderbox*:
     mkdir ~/img{1,2} ~/logs ~/run ~/tb
 Copy *./data* and *./sdata* into *~/tb* and *./bin* into */opt/tb*.
 The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
-The user must have write permissions for the files in *~/tb/data*.
+The user must have write permissions for files in *~/tb/data*.
 Edit files in *~/sdata* and strip away the suffix *.sample*.
 Grant sudo rights:
 
