@@ -1019,7 +1019,7 @@ function CheckQA() {
         AddMetainfoToBody
 
         echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
-        id=$(bugz -q --columns 400 search --show-status $short "$reason" 2> /dev/null | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+        id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
         AttachFilesToBody $issuedir/issue
 
         if [[ -z "$id" ]]; then
