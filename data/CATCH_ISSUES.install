@@ -12,3 +12,5 @@ make.* No rule to make target .* needed by .* Stop.
 Unhandled exception:
 rm: .* No such file or directory
 ! LaTeX Error:
+cp: cannot stat.*: No such file or directory
+sed: .*: No such file or directory

@@ -4,6 +4,7 @@ Failing test(s):
 FAILED .*test
 Failed tests:
 ^FAIL .*
+^FAIL\\\\t.*
 ^FAIL: .*
 ^Failure:
  FAIL .*
