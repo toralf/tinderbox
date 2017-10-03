@@ -63,6 +63,10 @@ function ComputeImageName()  {
 
   name="${name}_$(date +%Y%m%d-%H%M%S)"
 
+  if [[ "$testfeature" = "y" ]]; then
+    name="$name-test"
+  fi
+
   # "_-" -> "_" and "__" -> "_"
   #
   name="$(echo $name | sed -e 's/_[-_]/_/g')"
@@ -198,6 +202,11 @@ function CompileMakeConf()  {
     l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
   fi
 
+  features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
+  if [[ "$testfeature" = "y" ]];
+    features="$features test"
+  fi
+
   cat << EOF >> ./etc/portage/make.conf
 CFLAGS="-O2 -pipe -march=native -Wall"
 CXXFLAGS="-O2 -pipe -march=native"
@@ -302,11 +311,7 @@ EOF
   #
   echo 'CXXFLAGS="-O2 -pipe -march=native"' > ./etc/portage/env/cxx
 
-  # force tests for packages defined in package.env.common
-  #
-  echo 'FEATURES="test"'                    > ./etc/portage/env/test
-
-  # deny tests for packages defined in package.env.common
+  # build w/o tests for packages listed in package.env/* with the keyword "notest"
   #
   echo 'FEATURES="-test"'                   > ./etc/portage/env/notest
 
@@ -571,7 +576,7 @@ if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's,13,17,')"
 fi
 
-# test stable rarely
+# stable rarely
 #
 keyword="unstable"
 if [[ $(($RANDOM % 40)) -eq 0 && ! "$profile" =~ "17" ]]; then
@@ -585,25 +590,25 @@ if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
 fi
 
-# test ABI_X86="32 64" at every 5th image
+# ABI_X86="32 64" at every 5th image
 #
 multilib="n"
 if [[ $(($RANDOM % 5)) -eq 0 && ! "$profile" =~ "no-multilib" ]]; then
   multilib="y"
 fi
 
-# FEATURES=test at every 3rd image
+# FEATURES=test at every 4th image
 #
-features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
-if [[ $(($RANDOM % 3)) -eq 0 && "$keyword" = "unstable" ]]; then
-  features="$features test"
+testfeature="n"
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  testfeature="y"
 fi
 
-# create a randomized USE flag subset
+# do it here yet for a simplier logic, albeit -u or -o could overwrite it
 #
 useflags=$(rufs)
 
-while getopts a:f:k:l:m:o:p:s:u: opt
+while getopts a:f:k:l:m:o:p:s:t:u: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -616,7 +621,7 @@ do
         ;;
     m)  multilib="$OPTARG"
         ;;
-    o)  # "clone" an image
+    o)  # derive image properties from an older one
         #
         origin="$OPTARG"
         if [[ ! -e $origin ]]; then
@@ -658,6 +663,8 @@ do
         ;;
     s)  stage3="$OPTARG"
         ;;
+    t)  testfeature="$OPTARG"
+        ;;
     u)  # USE flags are
         # - defined in a statement like USE="..."
         # - or listed in a file
@@ -695,6 +702,11 @@ fi
 
 if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
   echo " profile unknown: $profile"
+  exit 2
+fi
+
+if [[ "$testfeature" != "y" && "$testfeature" != "n" ]]; then
+  echo " wrong value for \$testfeature $testfeature"
   exit 2
 fi
 
