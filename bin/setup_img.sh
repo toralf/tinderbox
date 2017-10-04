@@ -226,6 +226,7 @@ VIDEO_CARDS=""
 
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
+export GOMAXPROCS=1
 
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y --complete-graph=y --autounmask-keep-masks=y"
 ACCEPT_PROPERTIES="-interactive"

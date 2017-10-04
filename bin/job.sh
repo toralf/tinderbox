@@ -1174,7 +1174,6 @@ backlog=/tmp/backlog.1st            # this is the high prio backlog
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"
-export GOMAXPROCS=1                 # "make -j1" for Go
 
 # eg.: gnome_20150913-104240
 #
