@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-set -x
+# set -x
 
 # this is the tinderbox script itself
 # main function: WorkOnTask()
@@ -741,22 +741,16 @@ function setWorkDir() {
 function GotAnIssue()  {
   PutDepsInWorld
 
-  # bail out immediately, no reasonable emerge log expected
-  #
   fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
   fi
 
-  # repeat the task if emerge was killed
-  #
   grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $bak
   if [[ $? -eq 0 ]]; then
     Finish 1 "KILLED"
   fi
 
-  # the shared repository solution is (sometimes) racy
-  #
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
     echo "$task" >> $backlog
@@ -764,10 +758,22 @@ function GotAnIssue()  {
     return
   fi
 
-  # ignore certain issues, skip issue handling and continue with next task
-  #
-  grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
-  if [[ $? -eq 0 ]]; then
+  setFailedAndShort
+
+  if [[ -f $failedlog ]]; then
+    grep -q -f /tmp/tb/data/IGNORE_ISSUES $failedlog
+    if [[ $? -eq 0 ]]; then
+      return
+    fi
+  else
+    grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
+    if [[ $? -eq 0 ]]; then
+      return
+    fi
+  fi
+
+  if [[ -z "$failed" ]]; then
+    Mail "warn: \$failed='$failed' and/or \$short='$short' are invalid atoms, task: $task" $bak
     return
   fi
 
@@ -788,14 +794,6 @@ function GotAnIssue()  {
     else
       echo "%emerge --resume" >> $backlog
     fi
-    return
-  fi
-
-  # set the actual failed package
-  #
-  setFailedAndShort
-  if [[ -z "$failed" ]]; then
-    Mail "warn: '$failed' and/or '$short' are invalid atoms, task: $task" $bak
     return
   fi
 
