@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# set -x
+set -x
 
 # this is the tinderbox script itself
 # main function: WorkOnTask()
@@ -88,9 +88,9 @@ function setNextTask() {
     if [[ -s /tmp/backlog.1st ]]; then
       bl=/tmp/backlog.1st
 
-    # mix updated repository packages
+    # mix /tmp/backlog and /tmp/backlog.upd if no special action is scheduled
     #
-    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 2)) -eq 0 ]]; then
+    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 2)) -eq 0 && -z "$(grep -E '^(INFO|STOP)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
 
     # filled once during image setup or by retest.sh
