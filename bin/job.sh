@@ -90,7 +90,7 @@ function setNextTask() {
 
     # mix /tmp/backlog and /tmp/backlog.upd if no special action is scheduled
     #
-    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 2)) -eq 0 && -z "$(grep -E '^(INFO|STOP)' /tmp/backlog)" ]]; then
+    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 2)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
 
     # filled once during image setup or by retest.sh
