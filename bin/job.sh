@@ -1102,8 +1102,7 @@ function WorkOnTask() {
 
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        echo "$task" >> $backlog
-        Finish 3 "fix an issue of the command before it will be run again: '$cmd'"
+        Finish 3 "cmd failed: '$cmd'"
       else
         echo "%emerge --resume" >> $backlog
       fi
