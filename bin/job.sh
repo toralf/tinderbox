@@ -772,11 +772,6 @@ function GotAnIssue()  {
     fi
   fi
 
-  if [[ -z "$failed" ]]; then
-    Mail "warn: \$failed='$failed' and/or \$short='$short' are invalid atoms, task: $task" $bak
-    return
-  fi
-
   # https://bugs.gentoo.org/show_bug.cgi?id=596664
   #
   grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
@@ -794,6 +789,11 @@ function GotAnIssue()  {
     else
       echo "%emerge --resume" >> $backlog
     fi
+    return
+  fi
+
+  if [[ -z "$failed" ]]; then
+    Mail "warn: empty failed, task: '$task'" $bak
     return
   fi
 
