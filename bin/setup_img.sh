@@ -13,11 +13,11 @@
 # functions
 #
 
-# create a (r)andomized (U)SE (f)lag (s)ubset
-#
-function rufs()  {
-  n=75   # throw between 0 and n-1 USE flags
-  m=10   # about 1/m will be masked
+function ThrowUseFlags()  {
+  # grab up to n-1 USE flags, mask about 1/m of them
+  #
+  n=75
+  m=10
 
   (
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.desc
@@ -26,7 +26,7 @@ function rufs()  {
   cut -f1 -d ' ' |\
   grep -v   -e '32' -e '64' -e "^armv" -e 'bindist' -e 'build' -e 'cdinstall' \
             -e 'gcj' -e 'hostname' -e 'kill' -e 'linguas' -e 'make-symlinks' -e 'multilib' -e 'musl'  \
-            -e 'oci8' -e 'pax' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'ssp' -e 'static' -e 'systemd'    \
+            -e 'oci8' -e 'pax' -e 'pic' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'ssp' -e 'static' -e 'systemd'    \
             -e 'test' -e 'tls' -e 'uclibc' -e 'valgrind' -e 'vim-syntax' |\
   sort -u -R |\
   head -n $(($RANDOM % $n)) |\
@@ -602,7 +602,7 @@ fi
 
 # do it here yet for a simplier logic, albeit -u or -o could overwrite it
 #
-useflags=$(rufs)
+useflags=$(ThrowUseFlags)
 
 while getopts a:f:k:l:m:o:p:s:t:u: opt
 do
