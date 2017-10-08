@@ -45,9 +45,7 @@ function rufs()  {
 # deduce the tinderbox image name
 #
 function ComputeImageName()  {
-  name="$(echo $profile | tr '/' '-')"
-
-  name="${name}_"
+  name="$(echo $profile | tr '/' '-')_"
 
   if [[ "$keyword" = "stable" ]]; then
     name="$name-stable"
@@ -61,14 +59,11 @@ function ComputeImageName()  {
     name="$name-abi32+64"
   fi
 
-  name="${name}_$(date +%Y%m%d-%H%M%S)"
-
   if [[ "$testfeature" = "y" ]]; then
     name="$name-test"
   fi
 
-  # "_-" -> "_" and "__" -> "_"
-  #
+  name="${name}_$(date +%Y%m%d-%H%M%S)"
   name="$(echo $name | sed -e 's/_[-_]/_/g')"
 
   mnt=$(echo $image_dir | sed 's,/home/tinderbox/,,g')/$name
