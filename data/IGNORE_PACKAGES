@@ -16,31 +16,23 @@ virtual/
 #
 # packages: outdated, br0ken, breaks revdep-rebuild, ...
 #
+/s6
 app-emacs/jde
 app-xemacs/
 dev-perl/Math-Pari
 dev-python/pyzmq
 net-analyzer/openvas
 net-analyzer/snips
-net-dns/s6
 net-libs/zeromq
 sci-libs/linux-gpib
 sci-mathematics/pari
 sys-apps/modutils
-sys-apps/s6
 sys-cluster/drbd-kernel
 sys-cluster/mvapich2
 sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 x11-plugins/gkrell
-#
-# bugs:
-#
-# https://bugs.gentoo.org/628550
-#
-dev-python/pycryptodome
->=dev-python/pycparser-2.18
 #
 # awefully long build time
 #

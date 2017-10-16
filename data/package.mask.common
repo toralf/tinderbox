@@ -44,11 +44,6 @@ app-misc/grc
 #
 www-misc/vdradmin-am
 
-# call for trouble b/c it sneaks into PATH
+# calls for trouble b/c it sneaks into PATH
 #
 dev-util/plan9port
-
-# breaks portageq: https://bugs.gentoo.org/show_bug.cgi?id=628550
-#
-dev-python/pycryptodome
-dev-python/pygcrypt

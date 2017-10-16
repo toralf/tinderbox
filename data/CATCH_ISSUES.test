@@ -9,7 +9,6 @@ Failed tests:
 ^Failure:
  FAIL .*
 \\*\\*\\*Failed
-Failed .* test programs. .* subtests failed.
 \\*\\*\\*Exception:
 : FAILED:
 Failed .* tests, .*% okay, .* tests skipped.
@@ -20,7 +19,7 @@ Test suite test-threads: FAIL
 .* tests executed, .* failures
 ERROR: test(s) failed in
 Failed test
-\\.\\.\\. FAILED
+\\\.\\\.\\\. FAILED
 ERROR: ld.so: object
 sudo: no tty present and no askpass program specified
 /bin/sh: cppcheck: command not found
@@ -72,4 +71,8 @@ Resolve library did not return a fully qualified domain name.
 ^make.* Segmentation fault
 test in .* failed
 /bin/bash: docker: command not found
+\\.\\.\\.\\.\\.\\.\\. no
+ \\.\\. Failed .* subtests
+==== Testing .* failed
+t/.*.t.* Dubious,
 make.* Error 1

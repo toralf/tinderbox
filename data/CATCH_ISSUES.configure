@@ -22,3 +22,5 @@ cmake failed
 bad option:
 Meson encountered an error
 Invalid option:
+Project ERROR:
+Unrecognized option

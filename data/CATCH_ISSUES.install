@@ -14,3 +14,4 @@ rm: .* No such file or directory
 ! LaTeX Error:
 cp: cannot stat.*: No such file or directory
 sed: .*: No such file or directory
+error: .* Not a directory:
