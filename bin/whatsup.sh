@@ -145,7 +145,7 @@ function PackagesPerDay() {
 
           # the first $d days usually have >1,000 completed emerge operations
           #
-          $d=3;
+          $d = 4;
           if ($i < $d)  {
             printf "%5i", $p[$i]
           } else  {
