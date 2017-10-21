@@ -66,7 +66,7 @@ function Finish()  {
 }
 
 
-# copy content of last line of the backlog into variable $task
+# move next item of the appropriate backlog into $task
 #
 function setNextTask() {
   while :;
@@ -75,7 +75,7 @@ function setNextTask() {
       Finish 0 "catched STOP file"
     fi
 
-    # re-try an unfinished task (reboot/Finish)
+    # re-try an unfinished task (eg.: due to a reboot)
     #
     if [[ -s $tsk ]]; then
       task=$(cat $tsk)
@@ -83,22 +83,22 @@ function setNextTask() {
       return
     fi
 
-    # this is filled by us (or pre-filled for a cloned image)
+    # this backlog is only filled by us -or- was pre-filled from the cloned image backlog
     #
     if [[ -s /tmp/backlog.1st ]]; then
       bl=/tmp/backlog.1st
 
-    # mix /tmp/backlog and /tmp/backlog.upd if no special action is scheduled
+    # mix /tmp/backlog and /tmp/backlog.upd by 50% each but only if no special action is scheduled
     #
     elif [[ -s /tmp/backlog.upd && $(($RANDOM % 2)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
 
-    # filled once during image setup or by retest.sh
+    # filled up during image setup -or- regularly by retest.sh
     #
     elif [[ -s /tmp/backlog ]]; then
       bl=/tmp/backlog
 
-    # Last Exit to Brooklyn
+    # last attempt before finishing
     #
     elif [[ -s /tmp/backlog.upd ]]; then
       bl=/tmp/backlog.upd
@@ -110,7 +110,7 @@ function setNextTask() {
       Finish 0 "empty backlog, $n packages emerged"
     fi
 
-    # splice last line fromt he choosen backlog file
+    # splice last line from the appropriate backlog file
     #
     task=$(tail -n 1 $bl)
     sed -i -e '$d' $bl
@@ -131,20 +131,24 @@ function setNextTask() {
       return  # work on a pinned version | package set | command
 
     else
+      # a regular atom
+      #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
-      # skip if $task is a masked or keyworded package or an invalid string
+      # skip if $task is a masked, keyworded or invalid package
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
+
       if [[ $? -ne 0 ]]; then
         if [[ "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
           Finish 1 "FATAL: portageq broken" /tmp/portageq.err
         fi
         continue
       fi
+
       if [[ -z "$best_visible" ]]; then
         continue
       fi
@@ -159,7 +163,7 @@ function setNextTask() {
         fi
       fi
 
-      # $task is a valid emerge target
+      # $task is valid
       #
       return
     fi
@@ -1199,7 +1203,6 @@ export XDG_RUNTIME_DIR="/root/run"
 export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
-
 
 while :;
 do
