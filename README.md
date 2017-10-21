@@ -74,24 +74,29 @@ Append package/s to the package list in the following way:
 
 "STOP" can be used instead "INFO" to stop the image at that point.
 
-### mis
+### misc
 The script *update_backlog.sh* mixes repository updates into the backlog of each image. *retest.sh* is used to undo any package specific changes to portage files and schedule an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s).
 
 ## installation
 Create the user *tinderbox*:
 
     useradd -m tinderbox
+
 Run in */home/tinderbox*:
 
     mkdir ~/img{1,2} ~/logs ~/run ~/tb
-Copy *./data* and *./sdata* into *~/tb* and *./bin* into */opt/tb*.
+
+Clone the git repository.
+
+Move *./data* and *./sdata* into *~/tb* as user *tinderbox*.
+Move *./bin* into */opt/tb* as user *root*.
 The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
-The user must have write permissions for files in *~/tb/data*.
-Edit files in *~/sdata* and strip away the suffix *.sample*.
-Grant sudo rights:
+The user *tinderbox* must have write permissions for files in *~/tb/data*.
+Edit the credentials in *~/sdata* and strip away the suffix *.sample*.
+Grant sudo rights to the user *tinderbox*:
 
     tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/setup_img.sh
 
-## more info
+## (few) more info
 https://www.zwiebeltoralf.de/tinderbox.html
 
