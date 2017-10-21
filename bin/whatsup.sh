@@ -65,13 +65,13 @@ function Overall() {
     [[ -f $i/tmp/STOP ]] && flag="s$flag" || flag=" $flag"
 
     if [[ -f $i/tmp/\@world.history ]]; then
-      tail -n 1 $i/tmp/\@world.history | grep -q '20.. ok$' && flag=" $flag" || flag="W$flag"
+      tail -n 1 $i/tmp/\@world.history  | grep -q "$(date +%Y) ok$" && flag=" $flag" || flag="W$flag"
     else
       flag=" $flag"
     fi
 
     if [[ -s $i/tmp/\@system.history ]]; then
-      tail -n 1 $i/tmp/\@system.history | grep -q '20.. ok$' && flag=" $flag" || flag="S$flag"
+      tail -n 1 $i/tmp/\@system.history | grep -q "$(date +%Y) ok$" && flag=" $flag" || flag="S$flag"
     else
       flag=" $flag"
     fi
