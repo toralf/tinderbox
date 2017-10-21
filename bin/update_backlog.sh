@@ -16,7 +16,7 @@ fi
 #
 acmr=/tmp/$(basename $0).acmr
 
-# add 1 hour to let mirrors be in sync with master
+# add 1 hour to let mirrors be in sync
 #
 cd /usr/portage/
 git diff --diff-filter=ACMR --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
@@ -27,9 +27,9 @@ if [[ -s $acmr ]]; then
   for i in ~/run/*
   do
     bl=$i/tmp/backlog.upd
-    # re-shuffle avoids that all tinderbox images emerge the same (fat) package at the same time
+    # re-shuffle to avoid emerging the same package at different images at the same time
     #
-    sort -u --random-sort $bl $acmr > $bl.tmp
-    mv $bl.tmp $bl
+    sort -u --random-sort $bl $acmr > $bl.tmp && cp $bl.tmp $bl
+    rm $bl.tmp
   done
 fi
