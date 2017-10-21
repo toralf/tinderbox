@@ -24,3 +24,4 @@ Meson encountered an error
 Invalid option:
 Project ERROR:
 Unrecognized option
+Can't locate .* in @INC

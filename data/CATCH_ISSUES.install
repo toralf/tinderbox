@@ -15,3 +15,4 @@ rm: .* No such file or directory
 cp: cannot stat.*: No such file or directory
 sed: .*: No such file or directory
 error: .* Not a directory:
+cp: target .* is not a directory

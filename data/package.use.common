@@ -7,16 +7,6 @@
 #
 mail-mta/ssmtp            mta ssl
 
-# make a setup of a new tinderbox image less painful
-#
-dev-java/icedtea-bin      -cups -gtk
-dev-lang/python           threads
-media-libs/libjpeg-turbo  -java
-media-libs/mesa           -llvm
-sys-apps/kmod             tools
-sys-fs/eudev              -introspection
-www-client/w3m            -gtk
-
 # can't be linked statically otherwise
 #
 sys-apps/busybox          -pam
