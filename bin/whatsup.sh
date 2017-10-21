@@ -64,8 +64,17 @@ function Overall() {
     [[ -f $i/tmp/LOCK ]] && flag="l$flag" || flag=" $flag"
     [[ -f $i/tmp/STOP ]] && flag="s$flag" || flag=" $flag"
 
-    tail -n 1 $i/tmp/\@world.history  2>/dev/null | grep -q '20.. ok$' && flag=" $flag" || flag="W$flag"
-    tail -n 1 $i/tmp/\@system.history 2>/dev/null | grep -q '20.. ok$' && flag=" $flag" || flag="S$flag"
+    if [[ -f $i/tmp/\@world.history ]]; then
+      tail -n 1 $i/tmp/\@world.history | grep -q '20.. ok$' && flag=" $flag" || flag="W$flag"
+    else
+      flag=" $flag"
+    fi
+
+    if [[ -s $i/tmp/\@system.history ]]; then
+      tail -n 1 $i/tmp/\@system.history | grep -q '20.. ok$' && flag=" $flag" || flag="S$flag"
+    else
+      flag=" $flag"
+    fi
 
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="run" || d=$(basename $(dirname $i))
