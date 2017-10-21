@@ -956,13 +956,16 @@ function PostEmerge() {
   fi
 
   # once a day - if nothing is already scheduled - :
-  # - update @syste
-  # - switch the java VM too by the way
+  # - switch the java VM
+  # - update @system and @world
   # - sync image specific overlays
   #
   if [[ ! -s $backlog ]]; then
     let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
     if [[ $diff -gt 86400 ]]; then
+      # @world makes sense despite update_back.log.sh due to "-NU"
+      # see WorkOnTask()
+      #
       cat << EOF >> $backlog
 @world
 @system
@@ -1053,15 +1056,12 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 #
-#
 function WorkOnTask() {
   failed=""     # hold the failed package name
   try_again=0   # 1 with default environment values (if applicable)
 
   if [[ "$task" =~ ^@ ]]; then
-
-    # @world make sense despite update_back.log.sh b/c of "-NU",
-    # just -D doesn't succeeded after few days
+    # (no -D for @world, it doesn't work mostly)
     #
     if [[ "$task" = "@preserved-rebuild" ]]; then
       opts="$task"
