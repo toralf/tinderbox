@@ -370,7 +370,6 @@ function CreateBacklog()  {
 app-portage/pfl
 app-portage/eix
 @system
-%rm -f /etc/portage/package.mask/setup_blocker
 EOF
 
   # switch to the other SSL vendor before @system
@@ -424,7 +423,6 @@ function ConfigureImage()  {
 #
 function CreateSetupScript()  {
   dryrun="emerge --deep --update --changed-use @system --pretend"
-  perl_stable_version=$(portageq best_version / dev-lang/perl)
 
   cat << EOF > tmp/setup.sh
 #!/bin/sh
@@ -452,10 +450,6 @@ source /etc/profile
 
 emerge --noreplace net-misc/netifrc
 
-# unstable Perl versions often prevents basic setup, GCC upgrade or LibreSSL switch
-#
-echo ">${perl_stable_version}" > /etc/portage/package.mask/setup_blocker
-
 emerge mail-mta/ssmtp || exit 7
 emerge mail-client/mailx || exit 7
 (cd /etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf) || exit 7
@@ -464,8 +458,6 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 (cd /root && ln -snf ../tmp/tb/sdata/.bugzrc) || exit 8
 
 \$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' >> /etc/portage/make.conf )
-
-mv /etc/portage/package.mask/setup_blocker /tmp/
 
 rc=9
 for i in 1 2 3 4 5
@@ -489,8 +481,6 @@ do
     break
   fi
 done
-
-mv /tmp/setup_blocker /etc/portage/package.mask/
 
 exit \$rc
 EOF
