@@ -586,12 +586,10 @@ fi
 # FEATURES=test at every 4th image
 #
 testfeature="n"
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+if [[ $(($RANDOM % 4)) -eq 0 && "$keyword" != "stable" ]]; then
   testfeature="y"
 fi
 
-# do it here yet for a simplier logic, albeit -u or -o could overwrite it
-#
 useflags=$(ThrowUseFlags)
 
 while getopts a:f:k:l:m:o:p:s:t:u: opt
