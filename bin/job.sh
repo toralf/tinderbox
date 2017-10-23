@@ -1088,7 +1088,9 @@ function WorkOnTask() {
           fi
         fi
       else
-        echo "%emerge --resume" >> $backlog
+        # no --resume here, b/c due to "test" -> "notest" the dep tree might change
+        #
+        echo "$task" >> $backlog
       fi
 
     else
@@ -1106,9 +1108,15 @@ function WorkOnTask() {
 
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        Finish 3 "cmd failed: '$cmd'"
+        if [[ ! "$task" =~ " --resume" ]]; then
+          Finish 3 "cmd failed: '$cmd'"
+        fi
       else
-        echo "%emerge --resume" >> $backlog
+        if [[ -n "$failed" ]]; then
+          echo "%emerge --resume --skip-first" >> $backlog
+        else
+          echo "%emerge --resume" >> $backlog
+        fi
       fi
     fi
 
@@ -1116,7 +1124,7 @@ function WorkOnTask() {
     RunAndCheck "emerge --update $task"
     rc=$?
 
-    # eg.: if (just) test phase of a package fails then retry it with "notest"
+    # eg.: if (just) the test phase of a package fails then retry it with "notest"
     #
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 1 ]]; then
