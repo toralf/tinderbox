@@ -186,7 +186,7 @@ function CompileMakeConf()  {
           -e '/^DISTDIR=/d'       \
           ./etc/portage/make.conf
 
-  # put tinderbox before into group "portage"
+  # "tinderbox" user needs to be in group "portage" for this
   #
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
@@ -211,26 +211,25 @@ $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 
   ssp -bindist -cdinstall -oci8 -pax_kernel -valgrind
 "
+# legacy from hardened profile
+#
 PAX_MARKINGS="none"
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
+FEATURES="$features"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y --complete-graph=y --autounmask-keep-masks=y"
+ACCEPT_PROPERTIES="-interactive"
+ACCEPT_RESTRICT="-fetch"
 ACCEPT_LICENSE="*"
-
-VIDEO_CARDS=""
+CLEAN_DELAY=0
 
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
 GOMAXPROCS=1
 
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y --complete-graph=y --autounmask-keep-masks=y"
-ACCEPT_PROPERTIES="-interactive"
-ACCEPT_RESTRICT="-fetch"
-CLEAN_DELAY=0
-
 L10N="$l10n"
-
-FEATURES="$features"
+VIDEO_CARDS=""
 
 DISTDIR="$distfiles"
 PORT_LOGDIR="/var/log/portage"
