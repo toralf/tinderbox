@@ -439,7 +439,7 @@ function ClassifyIssue() {
     cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null |\
     while read c
     do
-      grep -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue.tmp
+      grep -a -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue.tmp
       if [[ $? -eq 0 ]]; then
         mv $issuedir/issue.tmp $issuedir/issue
         # take 3rd line for the (new) title
