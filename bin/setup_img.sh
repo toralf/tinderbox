@@ -227,6 +227,7 @@ CLEAN_DELAY=0
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
 GOMAXPROCS=1
+EGO_BUILD_FLAGS="-p 1"
 
 L10N="$l10n"
 VIDEO_CARDS=""
@@ -510,7 +511,7 @@ function EmergeMandatoryPackages() {
     echo
     echo "    view ~/$mnt/tmp/dryrun.log"
     echo "    vi ~/$mnt/etc/portage/make.conf"
-    echo "    sudo $(dirname $0)/chr.sh $mnt '  $dryrun  '"
+    echo "    sudo $(dirname $0)/chr.sh $mnt ' $dryrun '"
     echo "    (cd ~/run && ln -s ../$mnt)"
     echo "    start_img.sh $name"
     echo
