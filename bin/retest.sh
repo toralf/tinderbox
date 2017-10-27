@@ -10,7 +10,8 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-echo ${@} |\
+echo $* |\
+xargs -n 1 |\
 while read line
 do
   # split away the version/revision if applicable
