@@ -1088,13 +1088,14 @@ function WorkOnTask() {
           fi
         fi
       else
-        # no --resume here, b/c due to "test" -> "notest" the dep tree might change
+        # no --resume here, b/c "test" -> "notest" changes the dep tree usually
         #
         echo "$task" >> $backlog
       fi
 
     else
-      echo "$(date) ok" >> /tmp/$task.history
+      msg=$(grep -m 1 "WARNING: " $bak)
+      echo "$(date) ${msg:-ok}" >> /tmp/$task.history
     fi
 
     # feed the Portage File List
