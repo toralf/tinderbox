@@ -317,7 +317,13 @@ EOF
 
   # inject additional env vars into each ebuild phase
   #
-  touch                 ./etc/portage/bashrc
+  cat << EOF > ./etc/portage/bashrc
+# helps to debug dev-perl/ test failures https://bugs.gentoo.org/show_bug.cgi?id=635516
+#
+#DIST_TEST_OVERRIDE="do verbose"
+
+EOF
+
   chown portage:portage ./etc/portage/bashrc
   chmod ug+rw           ./etc/portage/bashrc
 }
