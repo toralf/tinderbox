@@ -8,8 +8,8 @@ Failed tests:
 ^FAIL: .*
 ^Failure:
  FAIL .*
-\\*\\*\\*Failed
-\\*\\*\\*Exception:
+ \\*\\*\\*Failed
+ \\*\\*\\*Exception:
 : FAILED:
 Failed .* tests, .*% okay, .* tests skipped.
  FAILED (.*)
@@ -37,7 +37,7 @@ Error decrypting signature:
 syntax error near
 : undefined reference to
 Fatal Error by .*
- : error: .*
+: error:
 : fatal error:
 make.* Command not found
 test.*NOT ok
@@ -76,3 +76,4 @@ test in .* failed
 ==== Testing .* failed
 t/.*.t.* Dubious,
 make.* Error 1
+Unescaped left brace in regex is illegal here

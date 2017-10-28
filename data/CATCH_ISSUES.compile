@@ -172,3 +172,6 @@ Error .
 Package .* was not found in the pkg-config search path.
 missing separator.  Stop.
 ld returned .* exit status
+is not installed
+is illegal here
+fatal error: .*: No such file or directory
