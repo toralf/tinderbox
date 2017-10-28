@@ -1048,6 +1048,9 @@ function RunAndCheck() {
 
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
+    if [[ $try_again -eq 1 ]]; then
+      echo "$task" >> $backlog
+    fi
   fi
 
   return $rc
@@ -1082,19 +1085,13 @@ function WorkOnTask() {
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $backlog
-        else
-          if [[ "$task" = "@preserved-rebuild" ]]; then
-            Finish 3 "task $task failed"
-          fi
+        elif [[ "$task" = "@preserved-rebuild" ]]; then
+          Finish 3 "task $task failed"
         fi
-      else
-        # no --resume here, b/c "test" -> "notest" changes the dep tree usually
-        #
-        echo "$task" >> $backlog
       fi
 
     else
-      msg=$(grep -m 1 "WARNING: " $bak)
+      msg=$(grep -m 1 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $bak)
       echo "$(date) ${msg:-ok}" >> /tmp/$task.history
     fi
 
@@ -1111,27 +1108,16 @@ function WorkOnTask() {
       if [[ $try_again -eq 0 ]]; then
         if [[ ! "$task" =~ " --resume" ]]; then
           Finish 3 "cmd failed: '$cmd'"
-        fi
-      else
-        if [[ -n "$failed" ]]; then
+        elif [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $backlog
         else
-          echo "%emerge --resume" >> $backlog
+          Finish 3 "cmd failed: '$cmd'"
         fi
       fi
     fi
 
   else
     RunAndCheck "emerge --update $task"
-    rc=$?
-
-    # eg.: if (just) the test phase of a package fails then retry it with "notest"
-    #
-    if [[ $rc -ne 0 ]]; then
-      if [[ $try_again -eq 1 ]]; then
-        echo "$task" >> $backlog
-      fi
-    fi
   fi
 }
 
