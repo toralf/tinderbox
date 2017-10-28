@@ -797,7 +797,7 @@ function GotAnIssue()  {
   fi
 
   if [[ -z "$failed" ]]; then
-    Mail "warn: empty failed, task: '$task'" $bak
+    Mail "warn: \$failed is empty, task: '$task'" $bak
     return
   fi
 
