@@ -66,10 +66,26 @@ function Overall() {
 
     flag=" $flag"
 
-    if [[ -f $i/tmp/\@world.history ]]; then
-      tail -n 1 $i/tmp/\@world.history  | grep -q "$(date +%Y) ok$" && flag=" $flag" || flag="W$flag"
-    else
-      flag=" $flag"
+    file="$i/tmp/\@world.history"
+    if [[ -f $file ]]; then
+      if  [[ -n "$(grep "20.. ok$" $file)" ]]; then
+        flag=" $flag"
+      elif  [[ -n "$(grep 'WARNING: One or more updates/rebuilds' $file)" ]]; then
+        flag="w$flag"
+      else
+        flag="W$flag"
+      fi
+    fi
+
+    file="$i/tmp/\@system.history"
+    if [[ -f $file ]]; then
+      if  [[ -n "$(grep "20.. ok$" $file)" ]]; then
+        flag=" $flag"
+      elif  [[ -n "$(grep 'WARNING: One or more updates/rebuilds' $file)" ]]; then
+        flag="s$flag"
+      else
+        flag="S$flag"
+      fi
     fi
 
     if [[ -s $i/tmp/\@system.history ]]; then
