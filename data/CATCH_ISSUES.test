@@ -1,6 +1,7 @@
 Failing test(s):
  (Failed)
 #   Failed test
+FAILED: .*
 FAILED .*test
 Failed tests:
 ^FAIL .*
@@ -13,6 +14,7 @@ Failed tests:
 : FAILED:
 Failed .* tests, .*% okay, .* tests skipped.
  FAILED (.*)
+ FAILED .*
 testsuite: .* failed
 Test .* from suite .* failed.
 Test suite test-threads: FAIL
@@ -41,7 +43,6 @@ Fatal Error by .*
 : fatal error:
 make.* Command not found
 test.*NOT ok
-make:.* test
 CMake Error at
 : exit status 1
 : not found
@@ -75,5 +76,6 @@ test in .* failed
  \\.\\. Failed .* subtests
 ==== Testing .* failed
 t/.*.t.* Dubious,
-make.* Error 1
 Unescaped left brace in regex is illegal here
+make:.* test
+make.* Error 1

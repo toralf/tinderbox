@@ -34,3 +34,8 @@ dev-java/icedtea-bin      -multilib
 # https://bugs.gentoo.org/616228
 #
 dev-qt/qtcore:4           -abi_x86_32
+
+# circ deps during setup
+#
+sys-fs/eudev              -introspection
+www-client/w3m            -gtk
