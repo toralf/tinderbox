@@ -62,11 +62,11 @@ do
     continue
   fi
 
-  # non-empty backlog required
+  # at least one non-empty backlog is required
   #
-  backlog=$mnt/tmp/backlog
-  if [[ ! -s $backlog ]]; then
-    echo " backlog is empty: $mnt"
+  bl=$mnt/tmp/backlog
+  if [[ ! -s $bl && ! -s $bl.upd && ! -s $bl.1st ]]; then
+    echo " all backlogs are empty: $mnt"
     continue
   fi
 
