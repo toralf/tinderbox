@@ -51,7 +51,6 @@ Space constraints set in the ebuild were not met!
 The following .* changes are necessary to proceed:
 The following REQUIRED_USE flag constraints are unsatisfied:
 The HyperSpec cannot be redistributed.
-Traceback (most recent call last):
 Unable to determine valid vm
 unreliable and an ATLAS install nonsensical.  Aborting.
 Use sys-devel/crossdev to build a .* toolchain
