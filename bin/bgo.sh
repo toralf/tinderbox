@@ -129,14 +129,13 @@ if [[ -f emerge-info.txt ]]; then
   bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bugz.out 2>bugz.err || Warn $?
 fi
 
-# attach all in ./files, if less than 1 MB
-#
 if [[ -d ./files ]]; then
   echo
   for f in ./files/*
   do
-    s=$(wc -c < $f)
-    if [[ $s -lt 1048576 ]]; then
+    # max. size from b.g.o. is 1 MB
+    #
+    if [[ $(wc -c < $f) -lt 1048576 ]]; then
       # this matches both *.bz2 and *.tbz2
       #
       echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
