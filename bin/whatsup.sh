@@ -70,10 +70,10 @@ function Overall() {
     if [[ -f $file ]]; then
       if  [[ -n "$(grep "20.. ok$" $file)" ]]; then
         flag=" $flag"
-      elif  [[ -n "$(grep 'WARNING: One or more updates/rebuilds' $file)" ]]; then
-        flag="w$flag"
-      else
+      elif  [[ -n "$(grep "20.. NOT ok$" $file)" ]]; then
         flag="W$flag"
+      else
+        flag="w$flag"
       fi
     fi
 
@@ -81,10 +81,10 @@ function Overall() {
     if [[ -f $file ]]; then
       if  [[ -n "$(grep "20.. ok$" $file)" ]]; then
         flag=" $flag"
-      elif  [[ -n "$(grep 'WARNING: One or more updates/rebuilds' $file)" ]]; then
-        flag="s$flag"
-      else
+      elif  [[ -n "$(grep "20.. NOT ok$" $file)" ]]; then
         flag="S$flag"
+      else
+        flag="s$flag"
       fi
     fi
 
