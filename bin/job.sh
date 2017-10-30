@@ -1063,17 +1063,20 @@ function WorkOnTask() {
   failed=""     # hold the failed package name
   try_again=0   # 1 with default environment values (if applicable)
 
+  # @system, @world, @preserved-rebuild
+  #
   if [[ "$task" =~ ^@ ]]; then
-    # (no -D for @world, it doesn't work mostly)
-    #
     if [[ "$task" = "@preserved-rebuild" ]]; then
       opts="$task"
     elif [[ "$task" = "@system" ]]; then
       opts="--update --newuse --changed-use $task --deep"
     elif [[ "$task" = "@world" ]]; then
+      # -D doesn't work for @world
+      #
       opts="--update --newuse --changed-use $task"
     else
-      opts="--update $task"
+      Mail "handling of '$task' is not implemented"
+      return
     fi
     RunAndCheck "emerge $opts"
     rc=$?
@@ -1091,14 +1094,14 @@ function WorkOnTask() {
       fi
 
     else
-      msg=$(grep -m 1 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $bak)
+      msg=$(grep -m 1 -e 'WARNING: One or more updates/rebuilds' -e 'resulting in a slot conflict' $bak)
       echo "$(date) ${msg:-ok}" >> /tmp/$task.history
     fi
 
-    # feed the Portage File List
-    #
     /usr/bin/pfl &>/dev/null
 
+  # %revdep-rebuild, %switch2libressl.sh, resuming
+  #
   elif [[ "$task" =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
     RunAndCheck "$cmd"
@@ -1116,6 +1119,14 @@ function WorkOnTask() {
       fi
     fi
 
+  # pinned version
+  #
+  elif [[ "$task" =~ ^= ]]; then
+    p="$(echo "$task" | cut -c2-)"
+    RunAndCheck "emerge $p"
+
+  # straight atom
+  #
   else
     RunAndCheck "emerge --update $task"
   fi
