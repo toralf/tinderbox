@@ -40,3 +40,6 @@ This package has a configure.in file which has long been deprecated.
 # tracker
 381391
 rpc
+# [TRACKER] Packages failing with dev-util/scons and Python 3"
+635934
+SyntaxError: invalid syntax|SyntaxError: Missing parentheses in call to
