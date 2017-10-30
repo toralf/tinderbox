@@ -375,7 +375,7 @@ EOF
 # helper of ClassifyIssue()
 #
 function collectTestIssueResults() {
-  grep -q -e "=$failed " /etc/portage/package.env/notest 2>/dev/null
+  grep -q "=$failed " /etc/portage/package.env/notest 2>/dev/null
   if [[ $? -ne 0 ]]; then
     echo "=$failed notest" >> /etc/portage/package.env/notest
     try_again=1
