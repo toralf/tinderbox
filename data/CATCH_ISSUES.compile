@@ -98,6 +98,7 @@ Error .*GCING.* in
 Warning as Error:
 pdfetex exited with bad status
 SyntaxError: invalid syntax
+SyntaxError: Missing parentheses in call to
 AppArmor parser error for
 /usr/bin/install: will not overwrite just-created
 gettext infrastructure mismatch
