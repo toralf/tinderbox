@@ -28,7 +28,7 @@ do
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{cxx,nosandbox,notest} 2>/dev/null
 
-  # don't use backlog.upd b/c that content is shuffled around by update_backlog.sh
+  # backlog.upd is the 2nd best choice b/c that is shuffled around by update_backlog.sh
   #
   for i in ~/run/*
   do
