@@ -360,7 +360,9 @@ EOF
 }
 
 
-# the last line of a backlog will be the taken first
+# update_backlog.sh writes into the backlog.upd
+# job,sh writes into backlog.1st
+# the default backlog is only shrinked after setup
 #
 function CreateBacklog()  {
   backlog=./tmp/backlog
@@ -368,12 +370,10 @@ function CreateBacklog()  {
   truncate -s 0 $backlog{,.1st,.upd}
   chmod a+w $backlog{,.1st,.upd}
 
-  # fill up with a randomized package list
-  #
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
 
   if [[ -e $origin ]]; then
-    # no replay of @sets or %commands of origin
+    # no replay of @sets or %commands
     #
     echo "INFO finished replay of task history of $origin"    >> $backlog.1st
     grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $backlog.1st
@@ -382,19 +382,20 @@ function CreateBacklog()  {
 
   cat << EOF >> $backlog.1st
 @world
-%emerge -u sys-kernel/gentoo-sources
 app-portage/pfl
 app-portage/eix
 @system
+%emerge -u sys-kernel/gentoo-sources
 EOF
 
-  # switch to the other SSL vendor before @system
+  # switch to the other SSL vendor
   #
   if [[ "$libressl" = "y" ]]; then
     cp $(dirname $0)/switch2libressl.sh ./tmp/
     echo "%/tmp/switch2libressl.sh" >> $backlog.1st
   fi
 
+  # update GCC asap after setup
   #
   cat << EOF >> $backlog.1st
 %emerge -u sys-devel/gcc
