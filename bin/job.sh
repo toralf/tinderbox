@@ -1094,7 +1094,10 @@ function WorkOnTask() {
       fi
 
     else
-      msg=$(grep -m 1 -e 'WARNING: One or more updates/rebuilds' -e 'resulting in a slot conflict' $bak)
+      msg=$(grep -m 1 -e 'WARNING: One or more updates/rebuilds'  \
+                      -e 'resulting in a slot conflict'           \
+                      -e 'The following update has been skipped'  \
+          $bak)
       echo "$(date) ${msg:-ok}" >> /tmp/$task.history
     fi
 
