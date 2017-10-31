@@ -64,8 +64,7 @@ do
 
   # at least one non-empty backlog is required
   #
-  bl=$mnt/tmp/backlog
-  if [[ ! -s $bl && ! -s $bl.upd && ! -s $bl.1st ]]; then
+  if [[ $(cat $mnt/tmp/backlog* 2>/dev/null | wc -l) -eq 0 ]]; then
     echo " all backlogs are empty: $mnt"
     continue
   fi
