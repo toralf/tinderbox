@@ -25,3 +25,4 @@ Invalid option:
 Project ERROR:
 Unrecognized option
 Can't locate .* in @INC
+SyntaxError: invalid syntax

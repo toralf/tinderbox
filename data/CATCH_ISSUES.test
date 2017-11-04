@@ -1,9 +1,16 @@
+^ValueError:
+____ ERROR coll
+argparse.ArgumentError:
+ImportError:
+^ERROR: test
 Failing test(s):
  (Failed)
 #   Failed test
+ \\.\\.\\. ERROR
 FAILED: .*
 FAILED .*test
 Failed tests:
+^E   .*:
 ^FAIL .*
 ^FAIL\\\\t.*
 ^FAIL: .*
@@ -13,8 +20,6 @@ Failed tests:
  \\*\\*\\*Exception:
 : FAILED:
 Failed .* tests, .*% okay, .* tests skipped.
- FAILED (.*)
- FAILED .*
 testsuite: .* failed
 Test .* from suite .* failed.
 Test suite test-threads: FAIL
@@ -45,7 +50,6 @@ make.* Command not found
 test.*NOT ok
 CMake Error at
 : exit status 1
-: not found
 fatal: making test-suite.log:
 Programs failed: .
 : Assertion failure
@@ -54,7 +58,6 @@ Error: .*:test
 No such file or directory
 : cannot execute binary file
 AssertionError
-^E   .*:
 make.* No rule to make target
 ^ERROR:.*:
 : Command not found
@@ -79,3 +82,8 @@ t/.*.t.* Dubious,
 Unescaped left brace in regex is illegal here
 make:.* test
 make.* Error 1
+ FAILED (.*)
+ FAILED .*
+Missing /
+Some packages may not be found
+ failed: Cannot create directory
