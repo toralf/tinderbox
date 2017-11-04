@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# set -x
+set -x
 
 # retest package(s)
 #
@@ -14,6 +14,10 @@ echo $* |\
 xargs -n 1 |\
 while read line
 do
+  if [[ -z "$line" ]]; then
+    continue
+  fi
+
   # split away the version/revision if applicable
   #
   p=$(qatom "$line" | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
