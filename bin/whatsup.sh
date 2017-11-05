@@ -31,6 +31,32 @@ function PrintImageName()  {
 #  6956   75   9.6   13285   0   0     sl  run/13.0-systemd_20170309-190652
 #  10      0   0.0   19301   2   8        img2/13.0-systemd-libressl_20170316-210316
 #
+function check_history()  {
+  local file=$1
+  local lc=$2
+
+  if [[ -s $file ]]; then
+    tail -n 1 $file | grep -q "20.. ok$"
+    if [[ $? -eq 0 ]]; then
+      flag=" $flag"
+      return
+    fi
+
+    tail -n 1 $file | grep -q "20.. NOT ok$"
+    if [[ $? -eq 0 ]]; then
+      local uc=$(echo $lc | tr '[:lower:]' '[:upper:]')
+      flag="${uc}${flag}"
+      return
+    fi
+
+    flag="${lc}${flag}"
+    return
+  fi
+
+  flag=".$flag"
+  return
+}
+
 function Overall() {
   echo "compl fail  days backlog upd 1st status"
   for i in $images
@@ -66,39 +92,9 @@ function Overall() {
 
     flag=" $flag"
 
-    file="$i/tmp/\@world.history"
-    if [[ -f $file ]]; then
-      if  [[ -n "$(grep "20.. ok$" $file)" ]]; then
-        flag=" $flag"
-      elif  [[ -n "$(grep "20.. NOT ok$" $file)" ]]; then
-        flag="W$flag"
-      else
-        flag="w$flag"
-      fi
-    fi
-
-    file="$i/tmp/\@system.history"
-    if [[ -f $file ]]; then
-      if  [[ -n "$(grep "20.. ok$" $file)" ]]; then
-        flag=" $flag"
-      elif  [[ -n "$(grep "20.. NOT ok$" $file)" ]]; then
-        flag="S$flag"
-      else
-        flag="s$flag"
-      fi
-    fi
-
-    if [[ -s $i/tmp/\@system.history ]]; then
-      tail -n 1 $i/tmp/\@system.history | grep -q "$(date +%Y) ok$" && flag=" $flag" || flag="S$flag"
-    else
-      flag=" $flag"
-    fi
-
-    if [[ -s $i/tmp/\@preserved-rebuild.history ]]; then
-      tail -n 1 $i/tmp/\@preserved-rebuild.history | grep -q "$(date +%Y) ok$" && flag=" $flag" || flag="P$flag"
-    else
-      flag=" $flag"
-    fi
+    check_history $i/tmp/@world.history              w
+    check_history $i/tmp/@system.history             s
+    check_history $i/tmp/@preserved-rebuild.history  p
 
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="run" || d=$(basename $(dirname $i))
