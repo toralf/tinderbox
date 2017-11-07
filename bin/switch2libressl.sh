@@ -32,6 +32,7 @@ echo "dev-libs/openssl" > /etc/portage/package.mask/openssl
 cat << EOF > /etc/portage/package.use/libressl
 dev-lang/python           -tk
 dev-qt/qtsql              -mysql
+net-misc/iputils          -ssl
 EOF
 chmod a+rw /etc/portage/package.use/libressl
 
