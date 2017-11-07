@@ -20,21 +20,12 @@ fi
 #
 cat << EOF >> /etc/portage/make.conf
 CURL_SSL="libressl"
-USE="\${USE} -openssl -gnutls libressl"
+USE="\${USE} libressl -openssl -gnutls"
 EOF
 
 # mask OpenSSL
 #
 echo "dev-libs/openssl" > /etc/portage/package.mask/openssl
-
-mkdir -p /etc/portage/profile
-
-# unmask LibreSSL related USE flags
-#
-cat << EOF >> /etc/portage/profile/use.stable.mask
--libressl
--curl_ssl_libressl
-EOF
 
 # set package specific USE flags, otherwise switch to LibreSSL or @system often fails
 #
@@ -44,7 +35,7 @@ dev-qt/qtsql              -mysql
 EOF
 chmod a+rw /etc/portage/package.use/libressl
 
-# few unstable packages needed even at a stable image
+# unstable package(s) needed even at a stable image
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
@@ -54,15 +45,15 @@ EOF
 fi
 
 # unmerge of OpenSSL triggers already a @preserved-rebuild in job.sh
-# but use "%" here to definitely bail out if it would fail
+# but use "%" here to definitely bail out if that do fail here
 #
 cat << EOF >> $backlog.1st
 %emerge @preserved-rebuild
 %emerge -C openssl
 EOF
 
-# fetch before OpenSSL is uninstalled and the fetch command itfself
-# wouldn't work until being rebuild against LibreSSL
+# fetch before OpenSSL is uninstalled
+# b/c then fetch command itself wouldn't work until being rebuild against LibreSSL
 #
 emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
 exit $?
