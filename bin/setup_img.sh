@@ -373,7 +373,9 @@ function CreateBacklog()  {
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
 
   if [[ -e $origin ]]; then
-    # no replay of @sets or %commands
+    # no replay of @sets or %commands, just packages
+    # the history file contains also all failed tasks, but that doesn't hurt
+    # we intentionally don't want the output of `qlist -ICv` here
     #
     echo "INFO finished replay of task history of $origin"    >> $backlog.1st
     grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $backlog.1st
