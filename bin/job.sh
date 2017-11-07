@@ -350,7 +350,8 @@ function foundCollisionIssue() {
 # helper of ClassifyIssue()
 #
 function foundSandboxIssue() {
-  echo "=$failed nosandbox" >> /etc/portage/package.env/nosandbox
+  echo "=$failed nosandbox"     >> /etc/portage/package.env/nosandbox
+  echo "=$failed nousersandbox" >> /etc/portage/package.env/nousersandbox
   try_again=1
 
   p="$(grep -m1 ^A: $sandb)"

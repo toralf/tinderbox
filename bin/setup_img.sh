@@ -317,7 +317,11 @@ EOF
 
   # breakage is forced in job.sh by the XDG_* variables
   #
-  echo 'FEATURES="-sandbox -usersandbox"'   > ./etc/portage/env/nosandbox
+  echo 'FEATURES="-sandbox"'                > ./etc/portage/env/nosandbox
+
+  # dito
+  #
+  echo 'FEATURES="-usersandbox"'            > ./etc/portage/env/nousersandbox
 
   # inject additional env vars into each ebuild phase
   #
