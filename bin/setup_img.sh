@@ -224,10 +224,12 @@ ACCEPT_RESTRICT="-fetch"
 ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 
-MAKEOPTS="-j1"
-NINJAFLAGS="-j1"
-EGO_BUILD_FLAGS="-p 1"
-RUSTFLAGS="-Ccodegen-units=1"
+j="1"
+MAKEOPTS="-j\$j"
+NINJAFLAGS="-j\$j"
+EGO_BUILD_FLAGS="-p \$j"
+GOMAXPROCS=\$j
+RUSTFLAGS="-C codegen-units=\$j"
 
 L10N="$l10n"
 VIDEO_CARDS=""
