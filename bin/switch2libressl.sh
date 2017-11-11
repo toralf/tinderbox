@@ -16,27 +16,26 @@ if [[ ! -e $backlog ]]; then
   exit 1
 fi
 
-# define the SSL vendor in make.conf
+# configure the SSL vendor in global USE flags
 #
 cat << EOF >> /etc/portage/make.conf
 CURL_SSL="libressl"
-USE="\${USE} libressl -openssl -gnutls"
+USE="\${USE} libressl -gnutls -openssl"
 EOF
 
-# mask OpenSSL
+# mask OpenSSL package
 #
 echo "dev-libs/openssl" > /etc/portage/package.mask/openssl
 
-# set package specific USE flags, otherwise switch to LibreSSL or @system often fails
+# quirks for an easier image setup
 #
 cat << EOF > /etc/portage/package.use/libressl
-dev-lang/python           -tk
-dev-qt/qtsql              -mysql
 net-misc/iputils          -ssl
+sys-auth/polkit           -kde
 EOF
 chmod a+rw /etc/portage/package.use/libressl
 
-# unstable package(s) needed even at a stable image
+# unstable package(s) needed at stable
 #
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
@@ -45,8 +44,9 @@ if [[ $? -eq 1 ]]; then
 EOF
 fi
 
-# unmerge of OpenSSL triggers already a @preserved-rebuild in job.sh
-# but use "%" here to definitely bail out if that do fail here
+# unmerge of OpenSSL triggers a @preserved-rebuild
+# where job.sh exits *currently* if it fails
+# but use "%" here to definitely bail out
 #
 cat << EOF >> $backlog.1st
 %emerge @preserved-rebuild
