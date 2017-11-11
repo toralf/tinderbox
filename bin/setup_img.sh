@@ -228,7 +228,7 @@ j="1"
 MAKEOPTS="-j\$j"
 NINJAFLAGS="-j\$j"
 EGO_BUILD_FLAGS="-p \$j"
-GOMAXPROCS=\$j
+GOMAXPROCS="\$j"
 RUSTFLAGS="-C codegen-units=\$j"
 
 L10N="$l10n"
