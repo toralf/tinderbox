@@ -2,7 +2,7 @@
 ____ ERROR coll
 argparse.ArgumentError:
 ImportError:
-^ERROR: test
+^ERROR:.*test
 Failing test(s):
  (Failed)
 #   Failed test
@@ -59,7 +59,6 @@ No such file or directory
 : cannot execute binary file
 AssertionError
 make.* No rule to make target
-^ERROR:.*:
 : Command not found
 assertion .* failed
   NOT ok
@@ -69,7 +68,8 @@ failed conch
 SyntaxError: .
 Resolve library did not return a fully qualified domain name.
 .* Tests in .* Category Failed
-   FAILED  ess
+  *FAILED  ess
+^ERROR:.*:
 :Error:
 ^not ok [[:digit:]]*
 ^make.* Segmentation fault

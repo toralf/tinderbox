@@ -4,7 +4,7 @@
 #
 # this file MUST NOT have empty lines (except the last one)
 #
-# categories: never emerge packages from those
+# categories: never explicitely emerge these packages
 #
 app-eselect/
 dev-embedded/
@@ -39,3 +39,7 @@ x11-plugins/gkrell
 dev-util/electron
 www-client/chromium
 www-client/google-chrome
+#
+# dep conflict for python packages
+#
+app-emulation/docker
