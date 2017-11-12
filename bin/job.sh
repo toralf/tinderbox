@@ -273,6 +273,10 @@ EOF
 
 
 # attach given files to the email body
+# should be the last step b/c uuencoded attachments might be very large
+# and therefore b.g.o. search results aren't shown by Thunderbird
+#
+# the $issuedir/_* files are not part of the b.g.o. record
 #
 function AttachFilesToBody()  {
   for f in $*
@@ -596,6 +600,18 @@ EOF
   echo >> $issuedir/body
 }
 
+
+# b.g.o. has a limit for "Summary" of 255 chars
+#
+function TrimTitle()  {
+  n=${1:-255}
+
+  if [[ $(wc -c < $issuedir/title) -gt $n ]]; then
+    truncate -s $n $issuedir/title
+  fi
+}
+
+
 # helper of GotAnIssue()
 # create an email containing convenient links and a command line ready for copy+paste
 #
@@ -610,13 +626,13 @@ function CompileIssueMail() {
   sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' $issuedir/title
 
   SearchForBlocker
-  sed -i -e "s,^,$failed : ," $issuedir/title
 
-  # copy the issue to the email body before it is furnished for b.g.o. as comment#0
+  # copy the issue to the email body before it is further furnished for b.g.o. as comment#0
   #
   cp $issuedir/issue $issuedir/body
-  AddMetainfoToBody
   AddWhoamiToIssue
+
+  AddMetainfoToBody
 
   # report languages and compilers
   #
@@ -634,21 +650,20 @@ $(emerge -qpv $short 2>/dev/null)
 EOF
 
   if [[ -s $issuedir/title ]]; then
-    # b.g.o. has a limit for "Summary" of 255 chars
-    #
-    if [[ $(wc -c < $issuedir/title) -gt 255 ]]; then
-      truncate -s 255 $issuedir/title
-    fi
+    TrimTitle 200
     SearchForAnAlreadyFiledBug
   fi
+
   AddBugzillaData
 
-  # should be the last step b/c uuencoded attachments might be very large
-  # and therefore b.g.o. search results aren't shown by Thunderbird
-  #
-  # the $issuedir/_* files are not part of the b.g.o. record
-  #
   AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
+
+  if [[ "$phase" = "test" ]]; then
+    sed -i -e "s,^,$failed : [TEST] ," $issuedir/title
+  else
+    sed -i -e "s,^,$failed : ," $issuedir/title
+  fi
+  TrimTitle
 
   # give write perms to non-root/portage user too
   #
@@ -1019,14 +1034,17 @@ function CheckQA() {
 
         echo "$reason" > $issuedir/title
         SearchForBlocker
-        sed -i -e "s,^,$failed : ," $issuedir/title
 
         grep -A 10 "$reason" $issuedir/issue > $issuedir/body
         AddMetainfoToBody
 
         echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
         id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+
         AttachFilesToBody $issuedir/issue
+
+        sed -i -e "s,^,$failed : [QA] ," $issuedir/title
+        TrimTitle
 
         if [[ -z "$id" ]]; then
           SendoutIssueMail
