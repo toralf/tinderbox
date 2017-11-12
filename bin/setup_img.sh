@@ -313,7 +313,7 @@ EOF
   #
   echo 'FEATURES="-test"'                   > ./etc/portage/env/notest
 
-  # special (perl) tests: https://bugs.gentoo.org/635516
+  # special tests: https://bugs.gentoo.org/635516
   #
   echo 'DIST_TEST_OVERRIDE="do verbose"'    > ./etc/portage/env/override
 
