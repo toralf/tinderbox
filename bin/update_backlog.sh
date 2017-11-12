@@ -2,7 +2,7 @@
 #
 # set -x
 
-# pick up latest ebuilds from Git repository and put them on top of backlogs backlogs
+# pick up latest changed ebuilds and merge them into backlog.upd
 #
 
 mailto="tinderbox@zwiebeltoralf.de"
@@ -17,23 +17,21 @@ fi
 acmr=/tmp/$(basename $0).acmr
 
 cd /usr/portage/
+
 # add 1 hour to let mirrors be in sync
 #
 git diff --diff-filter=ACMR --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
-#
 # ./files might contain (new) patches
 #
 grep -F -e '/files/' -e '.ebuild' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique |\
 grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
-
+#
 if [[ -s $acmr ]]; then
   for i in ~/run/*
   do
     bl=$i/tmp/backlog.upd
-    # mix with current backlog to avoid
-    # emerging a package in many images at the same time
+    # mix with current backlog
     #
-    sort -u --random-sort $bl $acmr > $bl.tmp && cp $bl.tmp $bl
-    rm $bl.tmp
+    sort -u --random-sort $bl $acmr > $bl.tmp && cp $bl.tmp $bl && rm $bl.tmp
   done
 fi
