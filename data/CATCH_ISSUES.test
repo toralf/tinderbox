@@ -1,6 +1,7 @@
 ^ValueError:
 ____ ERROR coll
 argparse.ArgumentError:
+^E   .*:
 ImportError:
 ^ERROR:.*test
 Failing test(s):
@@ -10,7 +11,6 @@ Failing test(s):
 FAILED: .*
 FAILED .*test
 Failed tests:
-^E   .*:
 ^FAIL .*
 ^FAIL\\\\t.*
 ^FAIL: .*
@@ -81,6 +81,7 @@ test in .* failed
 t/.*.t.* Dubious,
 Unescaped left brace in regex is illegal here
 make:.* test
+^\?: .*
 make.* Error 1
  FAILED (.*)
  FAILED .*
