@@ -627,7 +627,7 @@ function CompileIssueMail() {
 
   SearchForBlocker
 
-  # copy the issue to the email body before it is further furnished for b.g.o. as comment#0
+  # copy issue to the email body before enhancing it further to become comment#0
   #
   cp $issuedir/issue $issuedir/body
   AddWhoamiToIssue
@@ -875,7 +875,7 @@ function SwitchGCC() {
     # rebuild kernel and toolchain after a major version number change
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # force this at GCC-6 for stabilization help
+      # force this for GCC-6 to help stabilizing it
       #
       if [[ $majnew -eq 6 ]]; then
         sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
@@ -886,7 +886,7 @@ function SwitchGCC() {
 %fix_libtool_files.sh $verold
 %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
 EOF
-      # without a *re*build we'd get issues like: "cc1: error: incompatible gcc/plugin versions"
+      # without a rebuild we'd get issues like: "cc1: error: incompatible gcc/plugin versions"
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>/dev/null)
@@ -1160,7 +1160,7 @@ function WorkOnTask() {
 }
 
 
-# test hook, eg. to catch install artefacts
+# hook, eg. to catch install artefacts
 #
 function pre-check() {
   exe=/tmp/pre-check.sh
