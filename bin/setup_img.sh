@@ -587,32 +587,38 @@ if [[ $(($RANDOM % 2)) -eq 0 ]]; then
   profile="$(echo $profile | sed -e 's,13,17,')"
 fi
 
-# stable rarely
+# stable
 #
 keyword="unstable"
-if [[ $(($RANDOM % 40)) -eq 0 && ! "$profile" =~ "17" ]]; then
-  keyword="stable"
+if [[ $(($RANDOM % 40)) -eq 0 ]]; then
+  if [[ ! "$profile" =~ "17" ]]; then
+    keyword="stable"
+  fi
 fi
 
-# LibreSSL at every 3rd image
+# LibreSSL
 #
 libressl="n"
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   libressl="y"
 fi
 
-# ABI_X86="32 64" at every 5th image
+# ABI_X86="32 64"
 #
 multilib="n"
-if [[ $(($RANDOM % 5)) -eq 0 && ! "$profile" =~ "no-multilib" ]]; then
-  multilib="y"
+if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+  if [[ ! "$profile" =~ "no-multilib" ]]; then
+    multilib="y"
+  fi
 fi
 
-# FEATURES=test at every 4th image
+# FEATURES=test
 #
 testfeature="n"
-if [[ $(($RANDOM % 4)) -eq 0 && "$keyword" != "stable" ]]; then
-  testfeature="y"
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  if [[ "$keyword" != "stable" ]]; then
+    testfeature="y"
+  fi
 fi
 
 useflags=$(ThrowUseFlags)
