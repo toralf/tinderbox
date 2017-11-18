@@ -99,7 +99,7 @@ function Overall() {
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="run" || d=$(basename $(dirname $i))
 
-    printf "%5i %4i %5.1f %7i %3i %3i %6s  %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b"
+    printf "%5i %4i %5.1f %7i %3i %3i %6s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b"
   done
 }
 
