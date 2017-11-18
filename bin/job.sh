@@ -649,6 +649,10 @@ emerge -qpv $short
 $(emerge -qpv $short 2>/dev/null)
 EOF
 
+  while [[ $(wc -c < $issuedir/issue) -gt 16384 ]]; do
+    sed -i '1d' $issuedir/issue
+  done
+
   if [[ -s $issuedir/title ]]; then
     TrimTitle 200
     SearchForAnAlreadyFiledBug
