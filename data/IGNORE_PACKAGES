@@ -43,3 +43,8 @@ www-client/google-chrome
 # dep conflict for python packages
 #
 app-emulation/docker
+dev-perl/Search-Xapian
+#
+# [gentoo-dev-announce] No more stable keywords for Games
+#
+games-*/
