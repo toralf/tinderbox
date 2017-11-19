@@ -1,7 +1,7 @@
 ^ValueError:
 ____ ERROR coll
 argparse.ArgumentError:
-^E   .*:
+^E       .*
 ImportError:
 ^ERROR:.*test
 Failing test(s):
