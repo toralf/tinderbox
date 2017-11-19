@@ -1094,7 +1094,7 @@ function WorkOnTask() {
     elif [[ "$task" = "@system" ]]; then
       opts="--update --newuse --changed-use $task --deep"
     elif [[ "$task" = "@world" ]]; then
-      # -D doesn't work for @world
+      # -D doesn't make sense for @world
       #
       opts="--update --newuse --changed-use $task"
     else
@@ -1136,12 +1136,14 @@ function WorkOnTask() {
 
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        if [[ ! "$task" =~ " --resume" ]]; then
-          Finish 3 "cmd failed: '$cmd'"
-        elif [[ -n "$failed" ]]; then
-          echo "%emerge --resume --skip-first" >> $backlog
+        if [[ "$task" =~ " --resume" ]]; then
+          if [[ -n "$failed" ]]; then
+            echo "%emerge --resume --skip-first" >> $backlog
+          else
+            Finish 3 "resume failed"
+          fi
         else
-          Finish 3 "cmd failed: '$cmd'"
+          Finish 3 "command: '$cmd'"
         fi
       fi
     fi
