@@ -479,16 +479,6 @@ function ClassifyIssue() {
     if [[ ! -s $issuedir/title ]]; then
       Mail "warn: empty title for $failed" $bak
     fi
-
-    grep -q '\[\-Werror=terminate\]' $issuedir/title
-    if [[ $? -eq 0 ]]; then
-      echo -e "\nThe compiler option '-Werror=terminate' is forced at the tinderbox for GCC-6 to help stabilizing it." >> $issuedir/issue
-      grep -q "=$failed cxx" /etc/portage/package.env/cxx 2>/dev/null
-      if [[ $? -ne 0 ]]; then
-        echo "=$failed cxx" >> /etc/portage/package.env/cxx
-        try_again=1
-      fi
-    fi
   fi
 
   if [[ "$keyword" = "stable" ]]; then
@@ -875,12 +865,6 @@ function SwitchGCC() {
     # rebuild kernel and toolchain after a major version number change
     #
     if [[ "$majold" != "$majnew" ]]; then
-      # force this for GCC-6 to help stabilizing it
-      #
-      if [[ $majnew -eq 6 ]]; then
-        sed -i -e 's/^CXXFLAGS="/CXXFLAGS="-Werror=terminate /' /etc/portage/make.conf
-      fi
-
       cat << EOF >> $backlog
 %emerge --unmerge sys-devel/gcc:$verold
 %fix_libtool_files.sh $verold

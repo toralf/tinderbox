@@ -305,10 +305,6 @@ CXXFLAGS="\$CXXFLAGS -g -ggdb"
 FEATURES="splitdebug"
 EOF
 
-  # no special c++ flags (eg. to revert "-Werror=terminate" which will be set in job.sh for gcc-6)
-  #
-  echo 'CXXFLAGS="-O2 -pipe -march=native"' > ./etc/portage/env/cxx
-
   # build w/o tests for packages listed in package.env/* with the keyword "notest"
   #
   echo 'FEATURES="-test"'                   > ./etc/portage/env/notest
