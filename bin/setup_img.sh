@@ -316,9 +316,6 @@ EOF
   # dito
   #
   echo 'FEATURES="-usersandbox"'            > ./etc/portage/env/nousersandbox
-
-  chown portage:portage ./etc/portage/bashrc
-  chmod ug+rw           ./etc/portage/bashrc
 }
 
 
