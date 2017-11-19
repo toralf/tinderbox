@@ -309,10 +309,6 @@ EOF
   #
   echo 'FEATURES="-test"'                   > ./etc/portage/env/notest
 
-  # special tests: https://bugs.gentoo.org/635516
-  #
-  echo 'DIST_TEST_OVERRIDE="do verbose"'    > ./etc/portage/env/override
-
   # breakage is forced in job.sh by the XDG_* variables
   #
   echo 'FEATURES="-sandbox"'                > ./etc/portage/env/nosandbox
@@ -320,15 +316,6 @@ EOF
   # dito
   #
   echo 'FEATURES="-usersandbox"'            > ./etc/portage/env/nousersandbox
-
-  # inject additional env vars into each ebuild phase
-  #
-  cat << EOF > ./etc/portage/bashrc
-# helps to debug dev-perl/ test failures https://bugs.gentoo.org/show_bug.cgi?id=635516
-#
-#DIST_TEST_OVERRIDE="do verbose"
-
-EOF
 
   chown portage:portage ./etc/portage/bashrc
   chmod ug+rw           ./etc/portage/bashrc
