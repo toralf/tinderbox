@@ -856,7 +856,13 @@ function SwitchGCC() {
   if [[ $? -eq 1 ]]; then
     verold=$(gcc -dumpversion)
     gcc-config --nocolor $latest &>> $log
-    source /etc/profile || Finish 2 "can't source /etc/profile"
+    source /etc/profile
+    # corner case, happened rearely (root cause is outside of this function)
+    # but check for that now nevertheless
+    #
+    if [[ $? -ne 0 ]]; then
+      Finish 2 "can't source /etc/profile"
+    fi
     vernew=$(gcc -dumpversion)
 
     majold=$(echo $verold | cut -c1)
@@ -871,6 +877,7 @@ function SwitchGCC() {
 %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
 EOF
       # without a rebuild we'd get issues like: "cc1: error: incompatible gcc/plugin versions"
+      # therefore clean the old object files
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>/dev/null)
