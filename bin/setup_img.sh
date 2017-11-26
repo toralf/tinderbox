@@ -41,6 +41,157 @@ function ThrowUseFlags()  {
 }
 
 
+# helper of main()
+#
+function SetOptions() {
+  # choose an arbitrary profile
+  # switch to 17.0 profile at every 2nd image
+  #
+  profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    profile="$(echo $profile | sed -e 's,13,17,')"
+  fi
+
+  # stable
+  #
+  keyword="unstable"
+  if [[ $(($RANDOM % 40)) -eq 0 ]]; then
+    if [[ ! "$profile" =~ "17" ]]; then
+      keyword="stable"
+    fi
+  fi
+
+  # LibreSSL
+  #
+  libressl="n"
+  if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+    libressl="y"
+  fi
+
+  # ABI_X86="32 64"
+  #
+  multilib="n"
+  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+    if [[ ! "$profile" =~ "no-multilib" ]]; then
+      multilib="y"
+    fi
+  fi
+
+  # FEATURES=test
+  #
+  testfeature="n"
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    if [[ "$keyword" != "stable" ]]; then
+      testfeature="y"
+    fi
+  fi
+
+  useflags=$(ThrowUseFlags)
+
+  while getopts a:f:k:l:m:o:p:s:t:u: opt
+  do
+    case $opt in
+      a)  autostart="$OPTARG"
+          ;;
+      f)  features="$features $OPTARG"
+          ;;
+      k)  keyword="$OPTARG"
+          ;;
+      l)  libressl="$OPTARG"
+          ;;
+      m)  multilib="$OPTARG"
+          ;;
+      o)  # derive image properties from an older one
+          #
+          origin="$OPTARG"
+          if [[ ! -e $origin ]]; then
+            echo "\$origin '$origin' doesn't exist"
+            exit 2
+          fi
+
+          profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
+          if [[ -z "$profile" ]]; then
+            echo "can't derive \$profile from '$origin'"
+            exit 2
+          fi
+
+          useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
+          features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
+
+          grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
+          if [[ $? -eq 0 ]]; then
+            libressl="y"
+            useflags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
+          else
+            libressl="n"
+          fi
+
+          grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
+          if [[ $? -eq 0 ]]; then
+            keyword="unstable"
+          else
+            keyword="stable"
+          fi
+
+          grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
+          if [[ $? -eq 0 ]]; then
+            multilib="y"
+          fi
+          ;;
+
+      p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
+          ;;
+      s)  stage3="$OPTARG"
+          ;;
+      t)  testfeature="$OPTARG"
+          ;;
+      u)  # USE flags are
+          # - defined in a statement like USE="..."
+          # - or listed in a file
+          # - or given at the command line
+          #
+          if [[ -f "$OPTARG" ]] ; then
+            useflags="$(source $OPTARG; echo $USE)"
+            if [[ -z "$useflags" ]]; then
+              useflags="$(cat $OPTARG)"
+            fi
+          else
+            useflags="$OPTARG"
+          fi
+          ;;
+      *)  echo " '$opt' with '$OPTARG' not implemented"
+          exit 2
+          ;;
+    esac
+  done
+
+  if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
+    echo " wrong value for \$keyword: $keyword"
+    exit 2
+  fi
+
+  if [[ "$libressl" != "y" && "$libressl" != "n" ]]; then
+    echo " wrong value for \$libressl: $libressl"
+    exit 2
+  fi
+
+  if [[ "$multilib" != "y" && "$multilib" != "n" ]]; then
+    echo " wrong value for \$multilib $multilib"
+    exit 2
+  fi
+
+  if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
+    echo " profile unknown: $profile"
+    exit 2
+  fi
+
+  if [[ "$testfeature" != "y" && "$testfeature" != "n" ]]; then
+    echo " wrong value for \$testfeature $testfeature"
+    exit 2
+  fi
+}
+
+
 # helper of UnpackStage3()
 # deduce the tinderbox image name
 #
@@ -65,10 +216,10 @@ function ComputeImageName()  {
 
   name="$(echo $name | sed -e 's/_[-_]/_/g' -e 's/_$//')"
 
-  unique=1
+  notunique=0
   ls -d run/${name}_????????-?????? &>/dev/null
   if [[ $? ]]; then
-    unique=0
+    notunique=1
   fi
 
   name="${name}_$(date +%Y%m%d-%H%M%S)"
@@ -77,7 +228,7 @@ function ComputeImageName()  {
   echo " $mnt"
   echo
 
-  return $unique
+  return $notunique
 }
 
 
@@ -566,153 +717,15 @@ stage3=""
 autostart="y"   # start the image after setup
 origin=""       # clone from that origin image
 
-# choose an arbitrary profile
-# switch to 17.0 profile at every 2nd image
-#
-profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
-if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-  profile="$(echo $profile | sed -e 's,13,17,')"
-fi
-
-# stable
-#
-keyword="unstable"
-if [[ $(($RANDOM % 40)) -eq 0 ]]; then
-  if [[ ! "$profile" =~ "17" ]]; then
-    keyword="stable"
-  fi
-fi
-
-# LibreSSL
-#
-libressl="n"
-if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-  libressl="y"
-fi
-
-# ABI_X86="32 64"
-#
-multilib="n"
-if [[ $(($RANDOM % 8)) -eq 0 ]]; then
-  if [[ ! "$profile" =~ "no-multilib" ]]; then
-    multilib="y"
-  fi
-fi
-
-# FEATURES=test
-#
-testfeature="n"
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-  if [[ "$keyword" != "stable" ]]; then
-    testfeature="y"
-  fi
-fi
-
-useflags=$(ThrowUseFlags)
-
-while getopts a:f:k:l:m:o:p:s:t:u: opt
+while :
 do
-  case $opt in
-    a)  autostart="$OPTARG"
-        ;;
-    f)  features="$features $OPTARG"
-        ;;
-    k)  keyword="$OPTARG"
-        ;;
-    l)  libressl="$OPTARG"
-        ;;
-    m)  multilib="$OPTARG"
-        ;;
-    o)  # derive image properties from an older one
-        #
-        origin="$OPTARG"
-        if [[ ! -e $origin ]]; then
-          echo "\$origin '$origin' doesn't exist"
-          exit 2
-        fi
-
-        profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
-        if [[ -z "$profile" ]]; then
-          echo "can't derive \$profile from '$origin'"
-          exit 2
-        fi
-
-        useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
-        features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
-
-        grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          libressl="y"
-          useflags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
-        else
-          libressl="n"
-        fi
-
-        grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          keyword="unstable"
-        else
-          keyword="stable"
-        fi
-
-        grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          multilib="y"
-        fi
-        ;;
-
-    p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
-        ;;
-    s)  stage3="$OPTARG"
-        ;;
-    t)  testfeature="$OPTARG"
-        ;;
-    u)  # USE flags are
-        # - defined in a statement like USE="..."
-        # - or listed in a file
-        # - or given at the command line
-        #
-        if [[ -f "$OPTARG" ]] ; then
-          useflags="$(source $OPTARG; echo $USE)"
-          if [[ -z "$useflags" ]]; then
-            useflags="$(cat $OPTARG)"
-          fi
-        else
-          useflags="$OPTARG"
-        fi
-        ;;
-    *)  echo " '$opt' with '$OPTARG' not implemented"
-        exit 2
-        ;;
-  esac
+  SetOptions
+  ComputeImageName
+  if [[ $? -eq 0 || $# -ne 0 ]]; then
+    break
+  fi
 done
 
-if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
-  echo " wrong value for \$keyword: $keyword"
-  exit 2
-fi
-
-if [[ "$libressl" != "y" && "$libressl" != "n" ]]; then
-  echo " wrong value for \$libressl: $libressl"
-  exit 2
-fi
-
-if [[ "$multilib" != "y" && "$multilib" != "n" ]]; then
-  echo " wrong value for \$multilib $multilib"
-  exit 2
-fi
-
-if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
-  echo " profile unknown: $profile"
-  exit 2
-fi
-
-if [[ "$testfeature" != "y" && "$testfeature" != "n" ]]; then
-  echo " wrong value for \$testfeature $testfeature"
-  exit 2
-fi
-
-ComputeImageName
 UnpackStage3
 ConfigureImage
 EmergeMandatoryPackages
