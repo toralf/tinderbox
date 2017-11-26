@@ -122,8 +122,6 @@ function UnpackStage3()  {
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
   echo
 
-  ComputeImageName
-
   mkdir $name || exit 4
   cd $name    || exit 4
   tar -xjpf $f --xattrs --exclude='./dev/*' || exit 4
@@ -714,6 +712,7 @@ if [[ "$testfeature" != "y" && "$testfeature" != "n" ]]; then
   exit 2
 fi
 
+ComputeImageName
 UnpackStage3
 ConfigureImage
 EmergeMandatoryPackages
