@@ -216,10 +216,10 @@ function ComputeImageName()  {
 
   name="$(echo $name | sed -e 's/_[-_]/_/g' -e 's/_$//')"
 
-  notunique=0
+  duplicate=0
   ls -d run/${name}_????????-?????? &>/dev/null
-  if [[ $? ]]; then
-    notunique=1
+  if [[ $? -eq 0 ]]; then
+    duplicate=1
   fi
 
   name="${name}_$(date +%Y%m%d-%H%M%S)"
@@ -228,7 +228,7 @@ function ComputeImageName()  {
   echo " $mnt"
   echo
 
-  return $notunique
+  return $duplicate
 }
 
 
