@@ -9,7 +9,8 @@ mailto="tinderbox@zwiebeltoralf.de"
 
 f=/tmp/$(basename $0).out
 
-while :; do
+while :
+do
   if [[ ! -f $f ]]; then
     if [[ -s ~/nohup.out ]]; then
       (ls -l ~/nohup.out; head -n 500 ~/nohup.out) | mail -s "nohup.out is non-empty" $mailto

@@ -69,7 +69,7 @@ function Finish()  {
 # move next item of the appropriate backlog into $task
 #
 function setNextTask() {
-  while :;
+  while :
   do
     if [[ -f /tmp/STOP ]]; then
       Finish 0 "catched STOP file"
@@ -337,7 +337,7 @@ function foundCollisionIssue() {
   #
   s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
   # inform the maintainers of the sibbling package too
-  # strip away version + release b/c the repository might be updated in the mean while
+  # strip away version + release b/c the repository might be updated in the meanwhile
   #
   cc=$(equery meta -m $(pn2p "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
   # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
@@ -639,7 +639,8 @@ emerge -qpv $short
 $(emerge -qpv $short 2>/dev/null)
 EOF
 
-  while [[ $(wc -c < $issuedir/issue) -gt 16384 ]]; do
+  while [[ $(wc -c < $issuedir/issue) -gt 16384 ]]
+  do
     sed -i '1d' $issuedir/issue
   done
 
@@ -1230,7 +1231,7 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-while :;
+while :
 do
   pre-check
   date > $log
