@@ -18,6 +18,7 @@ virtual/
 #
 /s6
 app-emacs/jde
+app-vim/ctx
 app-xemacs/
 dev-perl/Math-Pari
 dev-python/pyzmq
