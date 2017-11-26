@@ -63,12 +63,21 @@ function ComputeImageName()  {
     name="$name-test"
   fi
 
+  name="$(echo $name | sed -e 's/_[-_]/_/g' -e 's/_$//')"
+
+  unique=1
+  ls -d run/${name}_????????-?????? &>/dev/null
+  if [[ $? ]]; then
+    unique=0
+  fi
+
   name="${name}_$(date +%Y%m%d-%H%M%S)"
-  name="$(echo $name | sed -e 's/_[-_]/_/g')"
 
   mnt=$(echo $image_dir | sed 's,/home/tinderbox/,,g')/$name
   echo " $mnt"
   echo
+
+  return $unique
 }
 
 
