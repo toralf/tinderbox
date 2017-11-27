@@ -129,7 +129,7 @@ function LastEmergeOperation()  {
       chop ($F[0]);
 
       my $delta = time() - $F[0];
-      if ($delta > 3600) {
+      if ($delta >= 3600) {
         $minutes = $delta / 60 % 60;
         $hours = $delta / 60 / 60;
         printf (" %3i:%02i h  ", $hours, $minutes);
@@ -215,7 +215,7 @@ function CurrentTask()  {
     fi
 
     let "delta = $ts - $(date +%s -r $tsk)"
-    if [[ $delta -gt 3600 ]]; then
+    if [[ $delta -ge 3600 ]]; then
       let "minutes = $delta / 60 % 60"
       let "hours = $delta / 60 / 60"
       printf " %3i:%02i h    " $hours $minutes
