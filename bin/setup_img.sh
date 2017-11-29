@@ -635,7 +635,14 @@ do
   echo "#round \$i" >> /etc/portage/package.use/setup
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
   grep -A 1 'by applying the following change' /tmp/dryrun.log | grep '^- ' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
+  grep -m 1 -A 1 'by applying any of the following changes' /tmp/dryrun.log | grep '^- ' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
 
+  # remove "+"
+  #
+  sed -i -e 's/+//g' /etc/portage/package.use/setup
+
+  # last round didn't brought up a change ?
+  #
   tail -n 1 /etc/portage/package.use/setup | grep -q '#round'
   if [[ \$? -eq 0 ]]; then
     break
