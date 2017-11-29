@@ -356,9 +356,6 @@ function CompileMakeConf()  {
   fi
 
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
-  if [[ "$testfeature" = "y" ]]; then
-    features="$features test"
-  fi
 
   cat << EOF >> ./etc/portage/make.conf
 CFLAGS="-O2 -pipe -march=native -Wall"
@@ -659,6 +656,10 @@ function EmergeMandatoryPackages() {
 
   $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
+
+  if [[ "$testfeature" = "y" ]]; then
+    sed -i -e 's/FEATURES="/FEATURES="test /g' $mnt/etc/portage/make.conf
+  fi
 
   if [[ $rc -ne 0 ]]; then
     echo
