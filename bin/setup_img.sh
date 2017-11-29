@@ -654,7 +654,7 @@ EOF
 }
 
 
-# at least a MTA and bugz are needed
+# MTA, bugz et al are needed
 #
 function EmergeMandatoryPackages() {
   CreateSetupScript
