@@ -43,3 +43,6 @@ rpc
 # [TRACKER] Packages failing with dev-util/scons and Python 3"
 635934
 SyntaxError: invalid syntax|SyntaxError: Missing parentheses in call to
+# Python 3.5 issues
+639190
+No module named setuptools
