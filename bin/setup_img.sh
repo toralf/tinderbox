@@ -617,7 +617,9 @@ emerge mail-client/mailx || exit 7
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 8
 (cd /root && ln -snf ../tmp/tb/sdata/.bugzrc) || exit 8
 
-\$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' >> /etc/portage/make.conf )
+if [[ "$multilib" = "y" ]]: then
+  echo 'ABI_X86="32 64"' >> /etc/portage/make.conf
+fi
 
 if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
