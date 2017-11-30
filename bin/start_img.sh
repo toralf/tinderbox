@@ -13,11 +13,11 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-# lower the I/O impact having an empty cache after reboot
+# lower the I/O impact b/c file cache is empty after reboot
 #
 sleep=0
 if [[ "$1" = "reboot" ]]; then
-  sleep=180
+  sleep=120
   shift
 fi
 
