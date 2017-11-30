@@ -30,7 +30,7 @@ function stresc() {
 function Mail() {
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
   ( [[ -f $2 ]] && stresc < $2 || echo "${2:-<no body>}" ) | timeout 120 mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
-  rc=$?
+  local rc=$?
   if [[ $rc -ne 0 ]]; then
     echo "$(date) mail failed with rc=$rc issuedir=$issuedir"
   fi
@@ -41,7 +41,7 @@ function Mail() {
 # $1: return code, $2: email Subject
 #
 function Finish()  {
-  rc=$1
+  local rc=$1
 
   # although stresc() is called in Mail() run it here too b/c $2 might contain quotes
   #
@@ -396,7 +396,7 @@ function collectTestIssueResults() {
         --exclude='*.o' --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
         --dereference --sparse --one-file-system --warning=no-file-ignored \
         $dirs
-      rc=$?
+      local rc=$?
 
       if [[ $rc -ne 0 ]]; then
         rm $issuedir/files/tests.tbz2
@@ -1056,7 +1056,7 @@ function CheckQA() {
 #
 function RunAndCheck() {
   ($1) &>> $log
-  rc=$?
+  local rc=$?
 
   PostEmerge
   CheckQA
@@ -1094,7 +1094,7 @@ function WorkOnTask() {
       return
     fi
     RunAndCheck "emerge $opts"
-    rc=$?
+    local rc=$?
 
     cp $log /tmp/$task.last.log
 
@@ -1124,7 +1124,7 @@ function WorkOnTask() {
   elif [[ "$task" =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
     RunAndCheck "$cmd"
-    rc=$?
+    local rc=$?
 
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
@@ -1165,7 +1165,7 @@ function pre-check() {
   fi
 
   $exe &> $out
-  rc=$?
+  local rc=$?
 
   if [[ $rc -eq 0 ]]; then
     rm $out
