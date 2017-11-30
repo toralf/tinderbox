@@ -217,7 +217,7 @@ function ComputeImageName()  {
   name="$(echo $name | sed -e 's/_[-_]/_/g' -e 's/_$//')"
 
   duplicate=0
-  ls -d run/${name}_????????-?????? &>/dev/null
+  ls -d /home/tinderbox/run/${name}_????????-?????? &>/dev/null
   if [[ $? -eq 0 ]]; then
     duplicate=1
   fi
