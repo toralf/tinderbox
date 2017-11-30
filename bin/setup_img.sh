@@ -619,6 +619,10 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 
 \$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' >> /etc/portage/make.conf )
 
+if [[ "$testfeature" = "y" ]]; then
+  sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
+fi
+
 rc=9
 for i in 1 2 3 4 5
 do
@@ -663,10 +667,6 @@ function EmergeMandatoryPackages() {
 
   $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
   rc=$?
-
-  if [[ "$testfeature" = "y" ]]; then
-    sed -i -e 's/FEATURES="/FEATURES="test /g' $mnt/etc/portage/make.conf
-  fi
 
   if [[ $rc -ne 0 ]]; then
     echo
