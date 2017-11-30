@@ -617,7 +617,7 @@ emerge mail-client/mailx || exit 7
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 8
 (cd /root && ln -snf ../tmp/tb/sdata/.bugzrc) || exit 8
 
-if [[ "$multilib" = "y" ]]: then
+if [[ "$multilib" = "y" ]]; then
   echo 'ABI_X86="32 64"' >> /etc/portage/make.conf
 fi
 
