@@ -47,10 +47,7 @@ function SetOptions() {
   # choose an arbitrary profile
   # switch to 17.0 profile at every 2nd image
   #
-  profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    profile="$(echo $profile | sed -e 's,13,17,')"
-  fi
+  profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
 
   # stable
   #
