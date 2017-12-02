@@ -769,7 +769,7 @@ function GotAnIssue()  {
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
     echo "$task" >> $backlog
-    Mail "info: hit a race condition in repository sync" $bak
+    sleep 30  # a common sync shouldn't take longer
     return
   fi
 
