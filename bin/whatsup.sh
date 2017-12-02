@@ -27,8 +27,8 @@ function PrintImageName()  {
 # gives sth. like:
 #
 # compl fail  days backlog upd 1st status
-#  3735   41   3.6   16369   0   1   W  l  run/13.0-no-multilib_20170315-195201
-#  6956   75   9.6   13285   0   0     sl  run/13.0-systemd_20170309-190652
+#  3735   41   3.6   16369   0   1   W  r  run/13.0-no-multilib_20170315-195201
+#  6956   75   9.6   13285   0   0     fr  run/13.0-systemd_20170309-190652
 #  10      0   0.0   19301   2   8        img2/13.0-systemd-libressl_20170316-210316
 #
 function check_history()  {
@@ -72,8 +72,8 @@ function Overall() {
       day=$(echo "scale=1; ($t2 - $t1) / 86400" | bc)
     fi
 
-    # count emerge failures based on the distinct package release
-    # directory name example: 20170417-082345_app-misc_fsniper-1.3.1-r2
+    # count emerge failures based on distinct package release
+    # example of an issue directory name: 20170417-082345_app-misc_fsniper-1.3.1-r2
     #
     if [[ -d $i/tmp/issues ]]; then
       fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename 2>/dev/null | cut -f2- -d'_' -s | sort -u | wc -w)
@@ -87,11 +87,13 @@ function Overall() {
     ((blu=blu+0))
 
     flag=""
-    [[ -f $i/tmp/LOCK ]] && flag="l$flag" || flag=" $flag"
-    [[ -f $i/tmp/STOP ]] && flag="s$flag" || flag=" $flag"
+    [[ -f $i/tmp/LOCK ]] && flag="r$flag" || flag=" $flag"    # (r)unning
+    [[ -f $i/tmp/STOP ]] && flag="f$flag" || flag=" $flag"    # (f)inishing
 
     flag=" $flag"
 
+    # lower/bigger issue for (w)world, (s)system or (p)reserved-rebuild
+    #
     check_history $i/tmp/@world.history              w
     check_history $i/tmp/@system.history             s
     check_history $i/tmp/@preserved-rebuild.history  p
