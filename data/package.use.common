@@ -14,7 +14,6 @@ sys-apps/busybox          -pam
 # misc
 #
 sys-libs/zlib             minizip
-x11-base/xorg-server      -minimal
 
 # From slyfox:
 #
@@ -31,7 +30,10 @@ net-misc/wget             ssl
 #
 dev-java/icedtea-bin      -multilib
 
-# circ deps during setup
+# nagging tinderbox image setup difficulties
 #
+dev-java/icedtea-bin      -cups -gtk
+media-libs/libjpeg-turbo  -java
+media-libs/mesa           -llvm
 sys-fs/eudev              -introspection
 www-client/w3m            -gtk
