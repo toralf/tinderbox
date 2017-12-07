@@ -647,9 +647,8 @@ EOF
   if [[ -s $issuedir/title ]]; then
     TrimTitle 200
     SearchForAnAlreadyFiledBug
+    AddBugzillaData
   fi
-
-  AddBugzillaData
 
   AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
