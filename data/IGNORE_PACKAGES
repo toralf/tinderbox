@@ -46,6 +46,7 @@ www-client/google-chrome
 app-emulation/docker
 dev-perl/Search-Xapian
 #
-# No more stable keywords for Games
+# games are usntable / badly maintained for now
 #
+dev-games
 games-
