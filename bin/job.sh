@@ -79,7 +79,6 @@ function setNextTask() {
     #
     if [[ -s $tsk ]]; then
       task=$(cat $tsk)
-      rm $tsk
       return
     fi
 
@@ -1241,6 +1240,11 @@ do
 
   setNextTask
   echo "$task" | tee -a $tsk.history > $tsk
+  chmod a+w $tsk
   WorkOnTask
+
+  # hint: we don't reach this line if Finish() occurs in WorkOnTask()
+  # therefore $tsk is repeated at next start
+  #
   rm $tsk
 done
