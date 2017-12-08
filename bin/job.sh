@@ -163,7 +163,7 @@ function setNextTask() {
         fi
       fi
 
-      # $task is valid
+      # $task seems to be valid, work on it
       #
       return
     fi
@@ -256,7 +256,7 @@ function AddMailAddresses() {
 }
 
 
-# present this info in #comment0 at b.g.o.
+# add this eg. to #comment0 of an b.g.o. record
 #
 function AddWhoamiToIssue() {
   cat << EOF >> $issuedir/issue
@@ -309,7 +309,7 @@ EOF
 }
 
 
-# get $PN from $P (strip away the version)
+# strip away the version (get $PN from $P)
 #
 function pn2p() {
   local s=$(qatom "$1" 2>/dev/null)
@@ -512,7 +512,7 @@ function SearchForBlocker() {
 }
 
 
-# put findings + links into the email body
+# put  b.g.o. findings+links into the email body
 #
 function SearchForAnAlreadyFiledBug() {
   bsi=$issuedir/bugz_search_items     # easier handling by using a file
@@ -666,6 +666,7 @@ EOF
 }
 
 
+# helper of GotAnIssue()
 # guess the failed package name and its log file name
 #
 function setFailedAndShort()  {
@@ -696,6 +697,8 @@ function setFailedAndShort()  {
 }
 
 
+# helper of GotAnIssue() and CheckQA
+#
 function SendoutIssueMail()  {
   # no matching pattern in CATCH_* == no title
   #
@@ -966,23 +969,20 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # once a day - if nothing is already scheduled - :
-  # - switch the java VM
-  # - update @system and @world
-  # - sync image specific overlays
+  # if nothing is in the backlog do the following daily
+  #
+  #   - switch the java VM
+  #   - update @system and @world
+  #   - sync image specific overlays
   #
   if [[ ! -s $backlog ]]; then
     let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
     if [[ $diff -gt 86400 ]]; then
-      # @world makes sense despite update_back.log.sh due to "-NU"
-      # see WorkOnTask()
-      #
       cat << EOF >> $backlog
 @world
 @system
 %SwitchJDK
 EOF
-
       grep -q "^auto-sync *= *yes$" /etc/portage/repos.conf/*
       if [[ $? -eq 0 ]]; then
         echo "%emerge --sync" >> $backlog
