@@ -557,7 +557,7 @@ fi
 function ConfigureImage()  {
   mkdir -p                  ./usr/local/portage/{metadata,profiles}
   echo 'masters = gentoo' > ./usr/local/portage/metadata/layout.conf
-  echo 'local' >            ./usr/local/portage/profiles/repo_name
+  echo 'local'            > ./usr/local/portage/profiles/repo_name
   chown -R portage:portage  ./usr/local/portage/
   chmod g+s                 ./usr/local/portage/
 
