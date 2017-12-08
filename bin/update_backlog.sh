@@ -21,7 +21,7 @@ cd /usr/portage/
 # add 1 hour to let mirrors be in sync
 #
 git diff --diff-filter=ACMR --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
-# ./files might contain (new) patches
+# consider patch files and ebuilds
 #
 grep -F -e '/files/' -e '.ebuild' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique |\
 grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
