@@ -42,6 +42,7 @@ Please, run 'haskell-updater'
 Please switch your active compiler to gcc with
 Please use a supported ICD
 Please use GCC-4.9 for now.
+Please use gcc-config or package.env file to switch to <gcc-7.x for this package.
 PostgreSQL slot must be set to one of:
 some Java tools are not available on some VMs on some architectures
 Select exactly one database type out of these:
