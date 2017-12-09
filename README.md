@@ -4,21 +4,23 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 ## usage
 ### create a new image
 
-    cd ~/img2; setup_img.sh
+    cd ~/img1; setup_img.sh
 
-A profile, keyword and a USE flag set are choosen.
+A profile, keyword and USE flag are set.
 The current *stage3* file is downloaded, verified and unpacked.
 Mandatory portage config files will be compiled.
 Few required packages (*ssmtp*, *pybugz* etc.) are installed.
-All available package are listed in a randomized order in */tmp/backlog*.
+A backlog if filled up from all available package in a randomized order (*/tmp/backlog*).
 A symlink is made into *~/run* and the image is started.
 
 ### start an image
     
     start_img.sh <image>
 
+A file */tmp/LOCK* is created within that image to avoid 2 running instances of the same image.
 The wrapper *chr.sh* handles all chroot related actions and gives control to *job.sh*.
-The file */tmp/LOCK* is created to avoid 2 parallel starts of the same image.
+That script is the heart of the tinderbox.
+
 Without any arguments all symlinks in *~/run* are processed.
 
 ### stop an image
@@ -32,7 +34,7 @@ The current emerge operation is finished before *job.sh* removes */tmp/{LOCK,STO
     
     sudo /opt/tb/bin/chr.sh <image>
 
-This bind-mount all desired directories from the host system. Without any argument an interactive login is made afterwards. Otherwise the argumenti(s) are treated as command(s) to be run within that image before the cheroot is exited.
+This bind-mount all desired directories from the host system. Without any argument an interactive login is made afterwards. Otherwise the argumenti(s) are treated as command(s) to be run within that image before the chroot is left.
 
 ### chroot into a running image
     
@@ -42,7 +44,7 @@ Simple wrapper of chroot with few checks, no hosts files are mounted. This can b
 
 ### removal of an image
 Stop the image and remove the symlink in *~/run*.
-The chroot image itself will be kept around in the data dir.
+The image itself will stay in the data dir, eg.: *~/img2*.
 
 ### status of all images
 
@@ -62,7 +64,7 @@ Bugs can be filed using *bgo.sh* - a comand line ready for copy+paste is in the 
 ### unattended test of package/s
 Append package/s to the package list in the following way:
     
-    cat <<<EOF >> ~/run/[image]/tmp/backlog
+    cat <<<EOF >> ~/run/[image]/tmp/backlog.1st
     INFO this text becomes the subject of an email if reached
     package1
     ...
@@ -75,7 +77,7 @@ Append package/s to the package list in the following way:
 "STOP" can be used instead "INFO" to stop the image at that point.
 
 ### misc
-The script *update_backlog.sh* mixes repository updates into the backlog of each image. *retest.sh* is used to undo any package specific changes to portage files and schedule an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s).
+The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image. *retest.sh* is used to undo any package specific (mask) changes to portage files and to schedule an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s).
 
 ## installation
 Create the user *tinderbox*:
