@@ -376,12 +376,9 @@ ACCEPT_RESTRICT="-fetch"
 ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 
-j="1"
-MAKEOPTS="-j\$j"
-NINJAFLAGS="-j\$j"
-EGO_BUILD_FLAGS="-p \$j"
-GOMAXPROCS="\$j"
-RUSTFLAGS="-C codegen-units=\$j"
+# the rest is in /etc/portage/package.env/noconcurrent
+#
+MAKEOPTS="-j1"
 
 L10N="$l10n"
 VIDEO_CARDS=""
@@ -406,16 +403,13 @@ EOF
 }
 
 
-# create symlinks from /tmp/tb/data/** to the appropriate portage directories
-# they become effective by the bind-mount of ~/tb onto /tmp/tb within chr.sh
+# create portage directories and symlinks in /tmp/tb/data/**
+# to the appropriate portage directories
+# they become effective when the bind-mount of ~/tb onto /tmp/tb in chr.sh happens
 #
 function CompilePortageFiles()  {
-  mkdir tmp/tb  # bind mount point of the tinderbox directory got from the host
-
-  # create portage directories and symlinks
-  #
-  mkdir ./usr/portage
-  mkdir ./var/tmp/{distfiles,portage}
+  mkdir ./tmp/tb
+  mkdir ./var/tmp/distfiles
 
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
@@ -463,15 +457,27 @@ EOF
 
   # build w/o tests for packages listed in package.env/* with the keyword "notest"
   #
-  echo 'FEATURES="-test"'                   > ./etc/portage/env/notest
+  echo 'FEATURES="-test"'         > ./etc/portage/env/notest
 
   # breakage is forced in job.sh by the XDG_* variables
   #
-  echo 'FEATURES="-sandbox"'                > ./etc/portage/env/nosandbox
+  echo 'FEATURES="-sandbox"'      > ./etc/portage/env/nosandbox
 
   # dito
   #
-  echo 'FEATURES="-usersandbox"'            > ./etc/portage/env/nousersandbox
+  echo 'FEATURES="-usersandbox"'  > ./etc/portage/env/nousersandbox
+
+  # no parallel make processes
+  #
+  cat << EOF                      > ./etc/portage/env/noconcurrent
+NINJAFLAGS="-j 1"
+EGO_BUILD_FLAGS="-p 1"
+GOMAXPROCS="1"
+GO19CONCURRENTCOMPILATION=0
+RUSTFLAGS="-C codegen-units=1"
+EOF
+
+  echo "*/* noconcurrent"           > ./etc/portage/package.env/noconcurrent
 }
 
 
