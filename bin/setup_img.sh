@@ -398,6 +398,10 @@ PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
 
 GENTOO_MIRRORS="$wgethost rsync://mirror.netcologne.de/gentoo/ ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gor.bytemark.co.uk/gentoo/ rsync://ftp.snt.utwente.nl/gentoo"
 
+# https://bugs.gentoo.org/640290
+#
+PORTAGE_XATTR_EXCLUDE="${PORTAGE_XATTR_EXCLUDE} user.xdg.*"
+
 EOF
 }
 
