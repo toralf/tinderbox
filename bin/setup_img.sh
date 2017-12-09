@@ -276,14 +276,17 @@ function UnpackStage3()  {
 }
 
 
-# configure our 3 repositories and prepare 1 placeholder too
-# the local repository rules always
+# configure 3 repositories and prepare 1 (foo)
+# the local repository must rule always
+# the first 3 are synced outside of the image
+# [foo] is synced in job.sh daily
 #
 function CompileRepoFiles()  {
   mkdir -p     ./etc/portage/repos.conf/
   cat << EOF > ./etc/portage/repos.conf/default.conf
 [DEFAULT]
 main-repo = gentoo
+auto-sync = no
 
 [gentoo]
 priority = 1
@@ -301,14 +304,12 @@ EOF
   cat << EOF > ./etc/portage/repos.conf/gentoo.conf
 [gentoo]
 location  = /usr/portage
-auto-sync = no
 EOF
 
   cat << EOF > ./etc/portage/repos.conf/tinderbox.conf
 [tinderbox]
 location  = /tmp/tb/data/portage
 masters   = gentoo
-auto-sync = no
 EOF
 
   cat << EOF > ./etc/portage/repos.conf/foo.conf
@@ -323,7 +324,6 @@ EOF
 [local]
 location  = /usr/local/portage
 masters   = gentoo
-auto-sync = no
 EOF
 }
 
