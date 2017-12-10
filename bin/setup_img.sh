@@ -732,11 +732,6 @@ echo
 
 image_dir=$(pwd)
 
-if [[ "$image_dir" = "/home/tinderbox" ]]; then
-  echo "you are in /home/tinderbox !"
-  exit 3
-fi
-
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
