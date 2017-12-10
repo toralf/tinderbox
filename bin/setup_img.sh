@@ -424,6 +424,14 @@ function CompilePortageFiles()  {
   mkdir ./tmp/tb
   mkdir ./var/tmp/distfiles
 
+  for d in ./usr/portage ./var/tmp/portage
+  do
+    if [[ ! -d $d ]]; then
+      mkdir $d
+      echo "notice: $d was missing"
+    fi
+  done
+
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
     [[ ! -d ./etc/portage/$d ]] && mkdir ./etc/portage/$d
