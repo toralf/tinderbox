@@ -238,15 +238,28 @@ function UnpackStage3()  {
     latest=$distfiles/latest-stage3.txt
     wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
 
-    b="$(basename $profile)"
-    case $b in
-      no-multilib)  stage3=$(grep "^20....../stage3-amd64-nomultilib-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
-      ;;
-      systemd)      stage3=$(grep "^20....../$b/stage3-amd64-$b-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
-      ;;
-      *)            stage3=$(grep "^20....../stage3-amd64-20.......tar.bz2" $latest | cut -f1 -d' ' -s)
-      ;;
+    case $profile in
+      17.0/hardened)
+        stage3=$(grep "^20....../hardened/stage3-amd64-hardened-20......\.tar.bz2" $latest)
+        ;;
+
+      17.0/no-multilib/hardened)
+        stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20......\.tar.bz2" $latest)
+        ;;
+
+      17.0/desktop/gnome/systemd|17.0/desktop/plasma/systemd)
+        stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20......\.tar.bz2" $latest)
+        ;;
+
+      17.0/no-multilib)
+        stage3=$(grep "^20....../stage3-amd64-nomultilib-20......\.tar.bz2" $latest)
+        ;;
+
+      *)
+        stage3=$(grep "^20....../stage3-amd64-20......\.tar.bz2" $latest)
+        ;;
     esac
+    stage3=$(echo $stage3 | cut -f1 -d' ' -s)
 
     if [[ -z "$stage3" ]]; then
       echo "can't get stage 3 from profile '$profile'"
