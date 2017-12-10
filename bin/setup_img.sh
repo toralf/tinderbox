@@ -737,7 +737,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-# store the stage3 file in the distfiles directory
+# location of the stage3 file
 #
 distfiles=/var/tmp/distfiles
 
@@ -748,7 +748,7 @@ wgetpath=/releases/amd64/autobuilds
 stage3=""
 
 autostart="y"   # start the image after setup
-origin=""       # clone from that origin image
+origin=""       # clone from the specified image
 
 while :
 do
