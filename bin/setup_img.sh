@@ -222,8 +222,6 @@ function ComputeImageName()  {
   name="${name}_$(date +%Y%m%d-%H%M%S)"
 
   mnt=$(echo $image_dir | sed 's,/home/tinderbox/,,g')/$name
-  echo " $mnt"
-  echo
 
   return $duplicate
 }
@@ -421,16 +419,7 @@ EOF
 # they become effective when the bind-mount of ~/tb onto /tmp/tb in chr.sh happens
 #
 function CompilePortageFiles()  {
-  mkdir ./tmp/tb
-  mkdir ./var/tmp/distfiles
-
-  for d in ./usr/portage ./var/tmp/portage
-  do
-    if [[ ! -d $d ]]; then
-      mkdir $d
-      echo "notice: $d was missing"
-    fi
-  done
+  mkdir ./tmp/tb ./usr/portage ./var/tmp/distfiles ./var/tmp/portage
 
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
@@ -758,6 +747,9 @@ do
     break
   fi
 done
+
+echo " $mnt"
+echo
 
 UnpackStage3
 ConfigureImage
