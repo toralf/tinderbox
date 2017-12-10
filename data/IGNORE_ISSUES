@@ -33,6 +33,7 @@ needs multilib profile on amd64
 No compatible Ruby target selected.
 no suitable configured kernel include tree found
 No packages selected for removal by unmerge
+No pathcc executable was installed, your hardware is unsupported most likely
 No supported Python implementation in PYTHON_SINGLE_TARGET/PYTHON_TARGETS.
 OpenMP is not available in your current selected compiler
 pcmcia support is broken on kernels newer
