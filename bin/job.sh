@@ -473,6 +473,7 @@ function ClassifyIssue() {
             -e 's,[0-9]*[\.][0-9]* s,,g'        \
             -e 's,([0-9]*[\.][0-9]*s),,g'       \
             -e 's/ \.\.\.*\./ /g'               \
+            -e 's/__*/_/g'                      \
             $issuedir/title
 
     if [[ ! -s $issuedir/title ]]; then
