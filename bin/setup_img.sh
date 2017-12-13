@@ -732,7 +732,7 @@ distfiles=/var/tmp/distfiles
 
 # the remote stage3 location
 #
-wgethost=http://ftp.uni-erlangen.de/pub/mirrors/gentoo
+wgethost=http://mirror.netcologne.de/gentoo/
 wgetpath=/releases/amd64/autobuilds
 stage3=""
 
