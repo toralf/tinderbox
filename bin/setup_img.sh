@@ -88,82 +88,10 @@ function SetOptions() {
   fi
 
   useflags=$(ThrowUseFlags)
+}
 
-  while getopts a:f:k:l:m:o:p:t:u: opt
-  do
-    case $opt in
-      a)  autostart="$OPTARG"
-          ;;
-      f)  features="$features $OPTARG"
-          ;;
-      k)  keyword="$OPTARG"
-          ;;
-      l)  libressl="$OPTARG"
-          ;;
-      m)  multilib="$OPTARG"
-          ;;
-      o)  # derive image properties from an older one
-          #
-          origin="$OPTARG"
-          if [[ ! -e $origin ]]; then
-            echo "\$origin '$origin' doesn't exist"
-            exit 2
-          fi
 
-          profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
-          if [[ -z "$profile" ]]; then
-            echo "can't derive \$profile from '$origin'"
-            exit 2
-          fi
-
-          useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
-          features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
-
-          grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
-          if [[ $? -eq 0 ]]; then
-            libressl="y"
-            useflags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
-          else
-            libressl="n"
-          fi
-
-          grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
-          if [[ $? -eq 0 ]]; then
-            keyword="unstable"
-          else
-            keyword="stable"
-          fi
-
-          grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
-          if [[ $? -eq 0 ]]; then
-            multilib="y"
-          fi
-          ;;
-
-      p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
-          ;;
-      t)  testfeature="$OPTARG"
-          ;;
-      u)  # USE flags are
-          # - defined in a statement like USE="..."
-          # - or listed in a file
-          # - or given at the command line
-          #
-          if [[ -f "$OPTARG" ]] ; then
-            useflags="$(source $OPTARG; echo $USE)"
-            if [[ -z "$useflags" ]]; then
-              useflags="$(cat $OPTARG)"
-            fi
-          else
-            useflags="$OPTARG"
-          fi
-          ;;
-      *)  echo " '$opt' with '$OPTARG' not implemented"
-          exit 2
-          ;;
-    esac
-  done
-
+function CheckOptions() {
   if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
     echo " wrong value for \$keyword: $keyword"
     exit 2
@@ -731,6 +659,101 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+while :
+do
+  SetOptions
+  while getopts a:f:k:l:m:o:p:t:u: opt
+  do
+    case $opt in
+      a)  autostart="$OPTARG"
+          ;;
+      f)  features="$features $OPTARG"
+          ;;
+      k)  keyword="$OPTARG"
+          ;;
+      l)  libressl="$OPTARG"
+          ;;
+      m)  multilib="$OPTARG"
+          ;;
+      o)  # derive image properties from an older one
+          #
+          origin="$OPTARG"
+          if [[ ! -e $origin ]]; then
+            echo "\$origin '$origin' doesn't exist"
+            exit 2
+          fi
+
+          profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
+          if [[ -z "$profile" ]]; then
+            echo "can't derive \$profile from '$origin'"
+            exit 2
+          fi
+
+          useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
+          features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
+
+          grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
+          if [[ $? -eq 0 ]]; then
+            libressl="y"
+            useflags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
+          else
+            libressl="n"
+          fi
+
+          grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
+          if [[ $? -eq 0 ]]; then
+            keyword="unstable"
+          else
+            keyword="stable"
+          fi
+
+          grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
+          if [[ $? -eq 0 ]]; then
+            multilib="y"
+          fi
+          ;;
+
+      p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
+          ;;
+      t)  testfeature="$OPTARG"
+          ;;
+      u)  # USE flags are
+          # - defined in a statement like USE="..."
+          # - or listed in a file
+          # - or given at the command line
+          #
+          if [[ -f "$OPTARG" ]] ; then
+            useflags="$(source $OPTARG; echo $USE)"
+            if [[ -z "$useflags" ]]; then
+              useflags="$(cat $OPTARG)"
+            fi
+          else
+            useflags="$OPTARG"
+          fi
+          ;;
+      *)  echo " '$opt' with '$OPTARG' not implemented"
+          exit 2
+          ;;
+    esac
+  done
+  CheckOptions
+
+  ComputeImageName
+  if [[ $? -eq 0 ]]; then
+    break
+  else
+    if [[ $# -eq 0 ]]; then
+      continue
+    else
+      echo "didn't got a valid configuration"
+      exit 1
+    fi
+  fi
+done
+
+echo " $mnt"
+echo
+
 # location of the stage3 file
 #
 distfiles=/var/tmp/distfiles
@@ -739,18 +762,6 @@ distfiles=/var/tmp/distfiles
 #
 wgethost=http://mirror.netcologne.de/gentoo/
 wgetpath=/releases/amd64/autobuilds
-
-while :
-do
-  SetOptions
-  ComputeImageName
-  if [[ $? -eq 0 || $# -ne 0 ]]; then
-    break
-  fi
-done
-
-echo " $mnt"
-echo
 
 UnpackStage3
 ConfigureImage
