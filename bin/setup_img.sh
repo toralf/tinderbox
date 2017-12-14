@@ -155,23 +155,23 @@ function UnpackStage3()  {
 
   case $profile in
     17.0/hardened)
-      stage3=$(grep "^20......T......Z/hardened/stage3-amd64-hardened-20......T......Z\.tar.bz2" $latest)
+      stage3=$(grep "/hardened/stage3-amd64-hardened-20.*\.tar.bz2" $latest)
       ;;
 
     17.0/no-multilib)
-      stage3=$(grep "^20....../stage3-amd64-nomultilib-20......\.tar.bz2" $latest)
+      stage3=$(grep "/stage3-amd64-nomultilib-20.*\.tar.bz2" $latest)
       ;;
 
     17.0/no-multilib/hardened)
-      stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20......\.tar.bz2" $latest)
+      stage3=$(grep "/hardened/stage3-amd64-hardened+nomultilib-20.*\.tar.bz2" $latest)
       ;;
 
     *systemd*)
-      stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20......\.tar.bz2" $latest)
+      stage3=$(grep "/systemd/stage3-amd64-systemd-20.*\.tar.bz2" $latest)
       ;;
 
     *)
-      stage3=$(grep "^20......T......Z/stage3-amd64-20......T......Z\.tar.bz2" $latest)
+      stage3=$(grep "/stage3-amd64-20.*\.tar.bz2" $latest)
       ;;
   esac
   stage3=$(echo $stage3 | cut -f1 -d' ' -s)
