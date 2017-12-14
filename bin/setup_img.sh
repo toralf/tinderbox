@@ -204,10 +204,10 @@ function UnpackStage3()  {
 }
 
 
-# configure 3 repositories and prepare 1 (foo)
+# configure 3 repositories and prepare 1 additional (foo)
 # the local repository must rule always
 # the first 3 are synced outside of the image
-# [foo] is synced in job.sh daily
+# [foo] would be synced in job.sh as a daily task
 #
 function CompileRepoFiles()  {
   mkdir -p     ./etc/portage/repos.conf/
