@@ -19,3 +19,4 @@ error: .* Not a directory:
 cp: target .* is not a directory
 /usr/bin/install: will not overwrite
 File Finder Failed for
+/bin/sed: symbol lookup error:
