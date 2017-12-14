@@ -1080,19 +1080,14 @@ function WorkOnTask() {
   # @system, @world, @preserved-rebuild
   #
   if [[ "$task" =~ ^@ ]]; then
-    if [[ "$task" = "@preserved-rebuild" ]]; then
-      opts="$task"
-    elif [[ "$task" = "@system" ]]; then
-      opts="--update --newuse --changed-use $task --deep"
+    if [[ "$task" = "@system" ]]; then
+      opts="--update --newuse --changed-use --deep"
     elif [[ "$task" = "@world" ]]; then
-      # -D doesn't make sense for @world
-      #
-      opts="--update --newuse --changed-use $task"
+      opts="--update --newuse --changed-use"
     else
-      Mail "handling of '$task' is not implemented"
-      return
+      opts=""
     fi
-    RunAndCheck "emerge $opts"
+    RunAndCheck "emerge $opts $task"
     local rc=$?
 
     cp $log /tmp/$task.last.log
