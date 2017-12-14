@@ -184,7 +184,11 @@ function UnpackStage3()  {
   f=$distfiles/$(basename $stage3)
 
   if [[ ! -s $f ]]; then
-    wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles || exit 4
+    wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles
+    if [[ $? -ne 0 ]]; then
+      echo "can't download stage3 files '$stage3' for profile '$profile'"
+      exit 4
+    fi
   fi
 
   # do this once before:
