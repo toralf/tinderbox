@@ -344,7 +344,7 @@ EOF
 # they become effective when the bind-mount of ~/tb onto /tmp/tb in chr.sh happens
 #
 function CompilePortageFiles()  {
-  mkdir ./tmp/tb ./usr/portage ./var/tmp/distfiles ./var/tmp/portage
+  mkdir ./tmp/tb ./usr/portage ./var/tmp/distfiles
 
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
