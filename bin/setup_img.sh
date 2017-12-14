@@ -241,16 +241,16 @@ function UnpackStage3()  {
         stage3=$(grep "^20......T......Z/hardened/stage3-amd64-hardened-20......T......Z\.tar.bz2" $latest)
         ;;
 
+      17.0/no-multilib)
+        stage3=$(grep "^20....../stage3-amd64-nomultilib-20......\.tar.bz2" $latest)
+        ;;
+
       17.0/no-multilib/hardened)
         stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20......\.tar.bz2" $latest)
         ;;
 
-      17.0/desktop/gnome/systemd|17.0/desktop/plasma/systemd)
+      *systemd*)
         stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20......\.tar.bz2" $latest)
-        ;;
-
-      17.0/no-multilib)
-        stage3=$(grep "^20....../stage3-amd64-nomultilib-20......\.tar.bz2" $latest)
         ;;
 
       *)
