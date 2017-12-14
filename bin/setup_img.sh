@@ -142,18 +142,6 @@ function ComputeImageName()  {
   fi
 
   name="$(echo $name | sed -e 's/_[-_]/_/g' -e 's/_$//')"
-
-  duplicate=0
-  ls -d /home/tinderbox/run/${name}_????????-?????? &>/dev/null
-  if [[ $? -eq 0 ]]; then
-    duplicate=1
-  fi
-
-  name="${name}_$(date +%Y%m%d-%H%M%S)"
-
-  mnt=$(echo $image_dir | sed 's,/home/tinderbox/,,g')/$name
-
-  return $duplicate
 }
 
 
@@ -652,8 +640,6 @@ function EmergeMandatoryPackages() {
 echo "$0 started with $# args: '${@}'"
 echo
 
-image_dir=$(pwd)
-
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
@@ -739,9 +725,17 @@ do
   CheckOptions
 
   ComputeImageName
-  if [[ $? -eq 0 || $# -ne 0 ]]; then
-    break
+  # default: test at unique image name (in ~/run)
+  #
+  if [[ $# -eq 0 ]]; then
+    ls -d /home/tinderbox/run/${name}_????????-?????? &>/dev/null
+    if [[ $? -eq 0 ]]; then
+      continue
+    fi
   fi
+  name="${name}_$(date +%Y%m%d-%H%M%S)"
+  mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
+  break
 done
 
 echo " $mnt"
