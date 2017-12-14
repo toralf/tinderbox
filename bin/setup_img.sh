@@ -406,6 +406,10 @@ PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
 
 GENTOO_MIRRORS="http://mirror.netcologne.de/gentoo/ http://ftp.halifax.rwth-aachen.de/gentoo/ http://ftp.uni-erlangen.de/pub/mirrors/gentoo http://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/"
 
+# https://bugs.gentoo.org/640930
+#
+FETCHCOMMAND="\${FETCHCOMMAND} --compress=none"
+
 # https://bugs.gentoo.org/640290
 #
 PORTAGE_XATTR_EXCLUDE="${PORTAGE_XATTR_EXCLUDE} user.xdg.*"
