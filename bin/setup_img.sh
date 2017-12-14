@@ -447,9 +447,9 @@ EOF
 }
 
 
-# update_backlog.sh writes into the backlog.upd
+# update_backlog.sh writes into backlog.upd
 # job,sh writes into backlog.1st
-# the default backlog is only shrinked after setup
+# the default backlog should not be written after setup
 #
 function CreateBacklog()  {
   backlog=./tmp/backlog
