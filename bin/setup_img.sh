@@ -92,6 +92,11 @@ function SetOptions() {
 
 
 function CheckOptions() {
+  if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
+    echo " profile unknown: $profile"
+    exit 2
+  fi
+
   if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
     echo " wrong value for \$keyword: $keyword"
     exit 2
@@ -104,11 +109,6 @@ function CheckOptions() {
 
   if [[ "$multilib" != "y" && "$multilib" != "n" ]]; then
     echo " wrong value for \$multilib $multilib"
-    exit 2
-  fi
-
-  if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
-    echo " profile unknown: $profile"
     exit 2
   fi
 
