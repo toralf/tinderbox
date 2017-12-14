@@ -739,15 +739,8 @@ do
   CheckOptions
 
   ComputeImageName
-  if [[ $? -eq 0 ]]; then
+  if [[ $? -eq 0 || $# -ne 0 ]]; then
     break
-  else
-    if [[ $# -eq 0 ]]; then
-      continue
-    else
-      echo "didn't got a valid configuration"
-      exit 1
-    fi
   fi
 done
 
