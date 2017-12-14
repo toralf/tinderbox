@@ -390,7 +390,11 @@ CXXFLAGS="\$CXXFLAGS -g -ggdb"
 FEATURES="splitdebug"
 EOF
 
-  # build w/o tests for packages listed in package.env/* with the keyword "notest"
+  # force "test", useful if there's no system-wide "test"
+  #
+  echo 'FEATURES="test"'         > ./etc/portage/env/test
+
+  # build w/o "test", useful if test phase is knwown to be br0ken or takes too long
   #
   echo 'FEATURES="-test"'         > ./etc/portage/env/notest
 
