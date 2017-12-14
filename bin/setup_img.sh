@@ -325,7 +325,7 @@ GENTOO_MIRRORS="http://mirror.netcologne.de/gentoo/ http://ftp.halifax.rwth-aach
 
 # https://bugs.gentoo.org/640930
 #
-FETCHCOMMAND="\${FETCHCOMMAND} --compress=none"
+FETCHCOMMAND="\${FETCHCOMMAND} --continue"
 
 # https://bugs.gentoo.org/640290
 #
