@@ -13,7 +13,7 @@
 # functions
 #
 
-# set *up to* n-1 arbitrarily choosen USE flags in make.conf, about 1/m of them being masked
+# chooses *up to* n-1 arbitrarily choosen USE flags, about 1/m of them are masked
 #
 function ThrowUseFlags()  {
   n=75
@@ -42,10 +42,14 @@ function ThrowUseFlags()  {
 
 
 # helper of main()
+# set variables to arbitrarily choosen values
+# might be overwritten by command line parameter
 #
 function SetOptions() {
-  # choose an arbitrary profile
-  # switch to 17.0 profile at every 2nd image
+  autostart="y"   # start the image after setup
+  origin=""       # clone from the specified image
+
+  # 17.0 rules nowadays
   #
   profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
 
@@ -85,7 +89,7 @@ function SetOptions() {
 
   useflags=$(ThrowUseFlags)
 
-  while getopts a:f:k:l:m:o:p:s:t:u: opt
+  while getopts a:f:k:l:m:o:p:t:u: opt
   do
     case $opt in
       a)  autostart="$OPTARG"
@@ -137,8 +141,6 @@ function SetOptions() {
           ;;
 
       p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
-          ;;
-      s)  stage3="$OPTARG"
           ;;
       t)  testfeature="$OPTARG"
           ;;
@@ -230,39 +232,37 @@ function ComputeImageName()  {
 # download (if needed), verify and unpack the stage3 file
 #
 function UnpackStage3()  {
+  # latest file contains all relevant data
+  #
+  latest=$distfiles/latest-stage3.txt
+  wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
+
+  case $profile in
+    17.0/hardened)
+      stage3=$(grep "^20......T......Z/hardened/stage3-amd64-hardened-20......T......Z\.tar.bz2" $latest)
+      ;;
+
+    17.0/no-multilib)
+      stage3=$(grep "^20....../stage3-amd64-nomultilib-20......\.tar.bz2" $latest)
+      ;;
+
+    17.0/no-multilib/hardened)
+      stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20......\.tar.bz2" $latest)
+      ;;
+
+    *systemd*)
+      stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20......\.tar.bz2" $latest)
+      ;;
+
+    *)
+      stage3=$(grep "^20......T......Z/stage3-amd64-20......T......Z\.tar.bz2" $latest)
+      ;;
+  esac
+  stage3=$(echo $stage3 | cut -f1 -d' ' -s)
+
   if [[ -z "$stage3" ]]; then
-    # latest file contains all relevant data
-    #
-    latest=$distfiles/latest-stage3.txt
-    wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
-
-    case $profile in
-      17.0/hardened)
-        stage3=$(grep "^20......T......Z/hardened/stage3-amd64-hardened-20......T......Z\.tar.bz2" $latest)
-        ;;
-
-      17.0/no-multilib)
-        stage3=$(grep "^20....../stage3-amd64-nomultilib-20......\.tar.bz2" $latest)
-        ;;
-
-      17.0/no-multilib/hardened)
-        stage3=$(grep "^20....../hardened/stage3-amd64-hardened+nomultilib-20......\.tar.bz2" $latest)
-        ;;
-
-      *systemd*)
-        stage3=$(grep "^20....../systemd/stage3-amd64-systemd-20......\.tar.bz2" $latest)
-        ;;
-
-      *)
-        stage3=$(grep "^20......T......Z/stage3-amd64-20......T......Z\.tar.bz2" $latest)
-        ;;
-    esac
-    stage3=$(echo $stage3 | cut -f1 -d' ' -s)
-
-    if [[ -z "$stage3" ]]; then
-      echo "can't get stage 3 from profile '$profile'"
-      exit 3
-    fi
+    echo "can't get stage3 filename for profile '$profile'"
+    exit 3
   fi
 
   f=$distfiles/$(basename $stage3)
@@ -275,7 +275,8 @@ function UnpackStage3()  {
   #
   # gpg --keyserver hkps.pool.sks-keyservers.net --recv-keys 0x9E6438C817072058
   # gpg --edit-key 0x9E6438C817072058
-  #   and "trust" it (5==ultimately)
+  # and set "trust" to 5 (==ultimately)
+  #
   # maybe: do the same for 0xBB572E0E2D182910
   #
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
@@ -738,10 +739,6 @@ distfiles=/var/tmp/distfiles
 #
 wgethost=http://mirror.netcologne.de/gentoo/
 wgetpath=/releases/amd64/autobuilds
-stage3=""
-
-autostart="y"   # start the image after setup
-origin=""       # clone from the specified image
 
 while :
 do
