@@ -58,7 +58,8 @@ function check_history()  {
 }
 
 function Overall() {
-  echo "compl fail  days backlog upd 1st status"
+  echo "compl fail  days backlog upd 1st status  $(echo $images | wc -w) images ($(ls -1d ~/img?/* | wc -w) at all)"
+
   for i in $images
   do
     log=$i/var/log/emerge.log
@@ -234,8 +235,6 @@ function CurrentTask()  {
 #######################################################################
 #
 images=$(list_images)
-
-echo "$(echo $images | wc -w) images ($(ls -1d ~/img?/* | wc -w) at all) :"
 
 while getopts hlopt\? opt
 do
