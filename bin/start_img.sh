@@ -13,7 +13,7 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-# lower the I/O impact b/c file cache is empty after reboot
+# lower the I/O pressure b/c disk cache is empty after reboot
 #
 sleep=0
 if [[ "$1" = "reboot" ]]; then
@@ -25,24 +25,21 @@ cd ~
 
 for mnt in ${@:-$(ls ~/run)}
 do
-  if [[ ! -d $mnt ]]; then
-    tmp=$(ls -d /home/tinderbox/img?/$mnt 2>/dev/null)
-    if [[ ! -d $tmp ]]; then
-      echo "cannot guess the full path to the image $mnt"
-      continue
-    fi
-    mnt=$tmp
+  # try to prepend ~/run if no path is given
+  #
+  if [[ ! -e $mnt && ! $mnt =~ '/' ]]; then
+    mnt=~/run/$mnt
   fi
 
-  # $mnt must not be a broken symlink
-  #
-  if [[ -L $mnt && ! -e $mnt ]]; then
-    echo "broken symlink: $mnt"
+  if [[ ! -e $mnt ]]; then
+    if [[ -L $mnt ]]; then
+      echo "broken symlink: $mnt"
+    else
+      echo "vanished/invalid: $mnt"
+    fi
     continue
   fi
 
-  # $mnt must be or point to a directory
-  #
   if [[ ! -d $mnt ]]; then
     echo "not a valid dir: $mnt"
     continue
