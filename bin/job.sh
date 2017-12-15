@@ -962,6 +962,13 @@ function PostEmerge() {
     echo "%haskell-updater" >> $backlog
   fi
 
+  # Perl still needs love
+  #
+  grep -q ">>> Installing .* sys-lang/perl-[1-9]" $bak
+  if [[ $? -eq 0 ]]; then
+    echo "%perl-cleaner --all" >> $backlog
+  fi
+
   # switch to a new GCC soon
   #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
