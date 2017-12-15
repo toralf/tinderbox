@@ -21,17 +21,15 @@ cd /usr/portage/
 # add 1 hour to let mirrors be in sync
 #
 git diff --diff-filter=ACMR --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
-# consider patch files and ebuilds
-#
 grep -F -e '/files/' -e '.ebuild' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique |\
 grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
+
+# mix current changes into each backlog
 #
 if [[ -s $acmr ]]; then
-  for i in ~/run/*
+  for i in $(ls -1d ~/run/* 2>/dev/null)
   do
     bl=$i/tmp/backlog.upd
-    # mix with current backlog
-    #
     sort -u --random-sort $bl $acmr > $bl.tmp && cp $bl.tmp $bl && rm $bl.tmp
   done
 fi
