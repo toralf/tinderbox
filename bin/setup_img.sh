@@ -732,17 +732,17 @@ do
   CheckOptions
 
   ComputeImageName
-  # default: test at unique image name (in ~/run)
+  # test that there's no similar image in ~/run
   #
-  if [[ $# -eq 0 ]]; then
-    ls -d /home/tinderbox/run/${name}_????????-?????? &>/dev/null
-    if [[ $? -eq 0 ]]; then
-      continue
-    fi
+  ls -d /home/tinderbox/run/${name}_????????-?????? &>/dev/null
+  if [[ $? -ne 0 ]]; then
+    name="${name}_$(date +%Y%m%d-%H%M%S)"
+    # relative path to the HOME dir
+    #
+    mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
+    break
   fi
-  name="${name}_$(date +%Y%m%d-%H%M%S)"
-  mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
-  break
+
 done
 
 echo " $mnt"
