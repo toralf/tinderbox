@@ -24,8 +24,8 @@ function ThrowUseFlags()  {
     grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use.local.desc | cut -f2 -d ':' -s  | cut -f1 -d ' '
   ) |\
   grep -v -e '32' -e '64' -e "^armv" -e 'bindist' -e 'build' -e 'cdinstall' \
-          -e 'gcj' -e 'hostname' -e 'kill' -e 'linguas' -e 'make-symlinks' -e 'minimal' -e 'multilib' -e 'musl'  \
-          -e 'oci8' -e 'pax' -e 'pic' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'ssp' -e 'static' -e 'systemd'    \
+          -e 'gcj' -e 'gcrypt' -e 'hostname' -e 'kill' -e 'linguas' -e 'make-symlinks' -e 'minimal' -e 'multilib' -e 'musl'  \
+          -e 'nettle' -e 'oci8' -e 'openssl' -e 'pax' -e 'pic' -e 'qt4' -e 'tools' -e 'selinux' -e 'ssl' -e 'ssp' -e 'static' -e 'systemd'    \
           -e 'test' -e 'tls' -e 'uclibc' -e 'valgrind' -e 'vim-syntax' |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
