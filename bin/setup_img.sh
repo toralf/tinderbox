@@ -473,11 +473,23 @@ app-portage/portage-utils
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
-  # switch to the other SSL vendor
-  #
   if [[ "$libressl" = "y" ]]; then
-    cp $(dirname $0)/switch2libressl.sh ./tmp/
-    echo "%/tmp/switch2libressl.sh" >> $backlog.1st
+    cat << EOF >> $backlog.1st
+%emerge -C openssl
+%emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
+EOF
+    # quirks for an easier image setup
+    #
+    cat << EOF > /etc/portage/package.use/libressl
+net-misc/iputils          libressl -gcrypt
+sys-auth/polkit           -kde
+EOF
+    chmod a+rw /etc/portage/package.use/libressl
+
+    cat << EOF >> /etc/portage/make.conf
+CURL_SSL="libressl"
+USE="\${USE} libressl -gnutls -openssl"
+EOF
   fi
 
   # update GCC asap after setup
