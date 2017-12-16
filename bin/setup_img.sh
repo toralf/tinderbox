@@ -469,6 +469,7 @@ function CreateBacklog()  {
 @system
 app-portage/eix
 app-portage/pfl
+app-portage/portage-utils
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
