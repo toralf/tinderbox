@@ -40,12 +40,11 @@ chmod a+rw /etc/portage/package.use/libressl
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 1 ]]; then
   cat << EOF > /etc/portage/package.accept_keywords/libressl
->=mail-mta/ssmtp-2.64-r3
 EOF
 fi
 
 # unmerge of OpenSSL triggers a @preserved-rebuild
-# where job.sh exits *currently* if it fails
+# and job.sh usually exits if it fails;
 # but use "%" here to definitely bail out
 #
 cat << EOF >> $backlog.1st
