@@ -720,7 +720,7 @@ function SendoutIssueMail()  {
 
 
 # helper of GotAnIssue()
-# add all successfully emerged dependencies of $task to the world file
+# add successfully emerged dependencies of $task to the world file
 # otherwise we'd need to use "--deep" unconditionally
 # (https://bugs.gentoo.org/show_bug.cgi?id=563482)
 #
@@ -730,7 +730,18 @@ function PutDepsInWorld() {
   if [[ $? -eq 0 ]]; then
     echo "$line" | grep -q ':  === (1 of '
     if [[ $? -eq 1 ]]; then
-      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' -s | xargs emerge --noreplace &>/dev/null
+      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' -s |\
+      while read p
+      do
+        # add only "main" dependencies of $task
+        # https://wiki.gentoo.org/wiki/World_set_(Portage)
+        #
+        if [[ -n "$(qdepends -Q $p 2>/dev/null)" ]]; then
+          if [[ -z "$(emerge -p --quiet --depclean $p 2>/dev/null)" ]]; then
+            emerge --noreplace $p &>/dev/null
+          fi
+        fi
+      done
     fi
   fi
 }
