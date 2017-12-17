@@ -304,9 +304,9 @@ ACCEPT_RESTRICT="-fetch"
 ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
 
-# the rest is in /etc/portage/package.env/noconcurrent
+# see /etc/portage/package.env/noconcurrent and /etc/portage/package.env/noconcurrent
 #
-MAKEOPTS="-j1"
+#MAKEOPTS="-j1"
 
 L10N="$l10n"
 VIDEO_CARDS=""
@@ -405,6 +405,7 @@ EOF
   # no parallel make processes
   #
   cat << EOF                      > ./etc/portage/env/noconcurrent
+MAKEOPTS="-j1"
 NINJAFLAGS="-j 1"
 EGO_BUILD_FLAGS="-p 1"
 GOMAXPROCS="1"
