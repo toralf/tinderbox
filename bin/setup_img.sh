@@ -19,7 +19,7 @@ function ThrowUseFlags()  {
   n=75
   m=10
 
-  grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc
+  grep -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
   egrep -v -e '32|64|^armv|bindist|build|cdinstall|gcj|hostname|kill|linguas|make-symlinks|minimal|multilib|musl|oci8|pax|qt4|tools|selinux|static|systemd|test|uclibc|vim-syntax' |\
