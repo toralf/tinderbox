@@ -340,7 +340,7 @@ EOF
 # they become effective when the bind-mount of ~/tb onto /tmp/tb in chr.sh happens
 #
 function CompilePortageFiles()  {
-  mkdir ./tmp/tb ./usr/portage ./var/tmp/distfiles
+  mkdir ./tmp/tb ./usr/portage ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
 
   for d in package.{accept_keywords,env,mask,unmask,use} env profile
   do
@@ -470,7 +470,6 @@ function CreateBacklog()  {
 @system
 app-portage/eix
 app-portage/pfl
-app-portage/portage-utils
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
@@ -529,12 +528,12 @@ function ConfigureImage()  {
 
 # - configure locale, timezone, MTA etc
 # - install and configure tools used in job.sh:
-#         <package>                   <command/s>
-#         app-arch/sharutils          uudecode
-#         app-portage/gentoolkit      equery eshowkw revdep-rebuild
-#         app-portage/portage-utils   qlop
-#         www-client/pybugz           bugz
-# - try to auto-fix USE flags deps to let the first @system update succeed
+#     <package>                   <command/s>
+#     app-arch/sharutils          uudecode
+#     app-portage/gentoolkit      equery eshowkw revdep-rebuild
+#     app-portage/portage-utils   qatom qdepends qlop
+#     www-client/pybugz           bugz
+# - few attemps to auto-fix USE flags deps
 #
 function CreateSetupScript()  {
   dryrun="emerge --deep --update --changed-use @system --pretend"
