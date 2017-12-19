@@ -733,7 +733,7 @@ function PutDepsInWorld() {
       emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' -s |\
       while read p
       do
-        # add only "main" dependencies of $task
+        # add only the minimal needed subset of dependencies of $task
         # https://wiki.gentoo.org/wiki/World_set_(Portage)
         #
         if [[ -n "$(qdepends -Q $p 2>/dev/null)" ]]; then
