@@ -18,13 +18,9 @@ virtual/
 #
 /s6
 app-emacs/jde
-app-vim/ctx
-app-xemacs/
 dev-perl/Math-Pari
-dev-python/pyzmq
 net-analyzer/openvas
 net-analyzer/snips
-net-libs/zeromq
 sci-libs/linux-gpib
 sci-mathematics/pari
 sys-apps/modutils
@@ -42,18 +38,11 @@ dev-util/electron
 www-client/chromium
 www-client/google-chrome
 #
-# dep conflict for python packages
-#
-app-emulation/docker
-dev-perl/Search-Xapian
-#
 # games are unstable for now
 #
 dev-games
 games-
 #
-# partially breaks @world upgrade
+# ignores -j1 (Go)
 #
-dev-util/ragel
 sys-cluster/
-whoosh
