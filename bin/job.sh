@@ -987,17 +987,20 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # if nothing is in the backlog do the following daily
+  # if nothing is in the backlog do the following
   #
-  #   - switch the java VM
-  #   - update @system and @world
-  #   - sync image specific overlays
+  #   - update @world 24 hours after last run
+  #   - update @system, switch the java VM and sync image specific overlays 24 hours after last run
   #
   if [[ ! -s $backlog ]]; then
-    let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
+    let "diff = $(date +%s) - $(date +%s -r /tmp/@world.history)"
     if [[ $diff -gt 86400 ]]; then
       cat << EOF >> $backlog
 @world
+EOF
+    let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
+    if [[ $diff -gt 86400 ]]; then
+      cat << EOF >> $backlog
 @system
 %SwitchJDK
 EOF
