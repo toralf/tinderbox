@@ -89,3 +89,4 @@ Missing /
 Some packages may not be found
  failed: Cannot create directory
 UnicodeEncodeError:
+PluginValidationError:
