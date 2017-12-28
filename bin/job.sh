@@ -987,28 +987,31 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # if nothing is in the backlog do the following
-  #
-  #   - update @world 24 hours after last run
-  #   - update @system, switch the java VM and sync image specific overlays 24 hours after last run
+  # if nothing is in the backlog then do the following actions 24 hours after their last run
+  #   - update @world
+  #   - update @system, switch java VM and sync image specific overlays
   #
   if [[ ! -s $backlog ]]; then
-    let "diff = $(date +%s) - $(date +%s -r /tmp/@world.history)"
-    if [[ $diff -gt 86400 ]]; then
-      cat << EOF >> $backlog
+    if [[ -f /tmp/@world.history ]]; then
+      let "diff = $(date +%s) - $(date +%s -r /tmp/@world.history)"
+      if [[ $diff -gt 86400 ]]; then
+        cat << EOF >> $backlog
 @world
 EOF
+      fi
     fi
 
-    let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
-    if [[ $diff -gt 86400 ]]; then
-      cat << EOF >> $backlog
+    if [[ -f /tmp/@system.history ]]; then
+      let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
+      if [[ $diff -gt 86400 ]]; then
+        cat << EOF >> $backlog
 @system
 %SwitchJDK
 EOF
-      grep -q "^auto-sync *= *yes$" /etc/portage/repos.conf/*
-      if [[ $? -eq 0 ]]; then
-        echo "%emerge --sync" >> $backlog
+        grep -q "^auto-sync *= *yes$" /etc/portage/repos.conf/*
+        if [[ $? -eq 0 ]]; then
+          echo "%emerge --sync" >> $backlog
+        fi
       fi
     fi
   fi
