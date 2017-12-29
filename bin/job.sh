@@ -460,7 +460,7 @@ function ClassifyIssue() {
       rm $issuedir/issue.tmp
     done
 
-    # kick off hex addresses, line and time numbers and such stuff
+    # kick off hex addresses, line and time numbers and other stuff
     #
     sed -i  -e 's/0x[0-9a-f]*/<snip>/g'         \
             -e 's/: line [0-9]*:/:line <snip>:/g' \
@@ -474,6 +474,7 @@ function ClassifyIssue() {
             -e 's,([0-9]*[\.][0-9]*s),,g'       \
             -e 's/ \.\.\.*\./ /g'               \
             -e 's/__*/_/g'                      \
+            -e 's/; did you mean .* \?$//g'     \
             $issuedir/title
 
     if [[ ! -s $issuedir/title ]]; then
