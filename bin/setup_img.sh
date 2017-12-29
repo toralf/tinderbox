@@ -167,7 +167,7 @@ function UnpackStage3()  {
       ;;
 
     *)
-      stage3=$(grep "/stage3-amd64-20.*\.tar.bz2" $latest)
+      stage3=$(grep "/stage3-amd64-20.*\.tar.xz" $latest)
       ;;
   esac
   stage3=$(echo $stage3 | cut -f1 -d' ' -s)
@@ -200,7 +200,7 @@ function UnpackStage3()  {
 
   mkdir $name || exit 4
   cd $name    || exit 4
-  tar -xjpf $f --xattrs --exclude='./dev/*' || exit 4
+  tar -xpf $f --xattrs --exclude='./dev/*' || exit 4
 }
 
 
