@@ -17,6 +17,7 @@ CMake Error at
 Configuring incomplete, errors occurred
 extconf.rb:.* (RuntimeError)
 \\-\\- Could NOT find
+\\-\\- Could not find
 \\-\\- Could not find the required component
 cmake failed
 bad option:
