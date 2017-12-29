@@ -562,8 +562,6 @@ eselect locale set en_US.utf8 || exit 6
 env-update
 source /etc/profile
 
-emerge --noreplace net-misc/netifrc
-
 emerge mail-mta/ssmtp || exit 7
 emerge mail-client/mailx || exit 7
 (cd /etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf) || exit 7
