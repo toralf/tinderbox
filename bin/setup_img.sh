@@ -766,9 +766,9 @@ distfiles=/var/tmp/distfiles
 wgethost=http://mirror.netcologne.de/gentoo/
 wgetpath=/releases/amd64/autobuilds
 
-UnpackStage3
-ConfigureImage
-EmergeMandatoryPackages
+UnpackStage3            || exit 5
+ConfigureImage          || exit 5
+EmergeMandatoryPackages || exit 5
 
 cd /home/tinderbox/run && ln -s ../$mnt || exit 11
 echo " setup  OK: $name"
