@@ -117,16 +117,16 @@ function setNextTask() {
     if [[ -z "$task" ]]; then
       continue  # empty line
 
-    elif [[ "$task" =~ ^INFO ]]; then
+    elif [[ $task =~ ^INFO ]]; then
       Mail "$task"
 
-    elif [[ "$task" =~ ^STOP ]]; then
+    elif [[ $task =~ ^STOP ]]; then
       Finish 0 "got STOP task"
 
-    elif [[ "$task" =~ ^# ]]; then
+    elif [[ $task =~ ^# ]]; then
       continue  # comment
 
-    elif [[ "$task" =~ ^= || "$task" =~ ^@ || "$task" =~ ^% ]]; then
+    elif [[ $task =~ ^= || $task =~ ^@ || $task =~ ^% ]]; then
       return  # work on a pinned version | package set | command
 
     else
@@ -1106,7 +1106,7 @@ function WorkOnTask() {
 
   # @system, @world, @preserved-rebuild
   #
-  if [[ "$task" =~ ^@ ]]; then
+  if [[ $task =~ ^@ ]]; then
     if [[ "$task" = "@system" ]]; then
       opts="--update --newuse --changed-use --deep"
     elif [[ "$task" = "@world" ]]; then
@@ -1142,14 +1142,14 @@ function WorkOnTask() {
 
   # %revdep-rebuild, %switch2libressl.sh, resuming
   #
-  elif [[ "$task" =~ ^% ]]; then
+  elif [[ $task =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
     RunAndCheck "$cmd"
     local rc=$?
 
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
-        if [[ "$task" =~ " --resume" ]]; then
+        if [[ $task =~ " --resume" ]]; then
           if [[ -n "$failed" ]]; then
             echo "%emerge --resume --skip-first" >> $backlog
           else
@@ -1163,7 +1163,7 @@ function WorkOnTask() {
 
   # pinned version
   #
-  elif [[ "$task" =~ ^= ]]; then
+  elif [[ $task =~ ^= ]]; then
     p="$(echo "$task" | cut -c2-)"
     RunAndCheck "emerge $p"
 

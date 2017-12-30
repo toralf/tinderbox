@@ -53,7 +53,7 @@ function SetOptions() {
   #
   keyword="unstable"
   if [[ $(($RANDOM % 40)) -eq 0 ]]; then
-    if [[ ! "$profile" =~ "17" ]]; then
+    if [[ ! $profile =~ "17" ]]; then
       keyword="stable"
     fi
   fi
@@ -69,7 +69,7 @@ function SetOptions() {
   #
   multilib="n"
   if [[ $(($RANDOM % 8)) -eq 0 ]]; then
-    if [[ ! "$profile" =~ "no-multilib" ]]; then
+    if [[ ! $profile =~ "no-multilib" ]]; then
       multilib="y"
     fi
   fi
@@ -510,7 +510,7 @@ EOF
 sys-apps/sandbox
 EOF
 
-if [[ "$profile" =~ "systemd" ]]; then
+if [[ $profile =~ "systemd" ]]; then
   echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $backlog.1st
 fi
 
