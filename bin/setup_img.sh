@@ -492,6 +492,13 @@ USE="\${USE} libressl -gnutls -openssl"
 EOF
   fi
 
+  # 13.0 -> 17.0 profile switch needs at least: emerge -p1 $(find /usr/ -type f -name '*.a')
+  # fortunately GCC upgrade makes most of the work already
+  #
+  cat << EOF >> $backlog.1st
+%emerge -1 sys-devel/flex
+EOF
+
   # update GCC asap after setup
   #
   cat << EOF >> $backlog.1st
