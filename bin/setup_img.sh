@@ -496,7 +496,9 @@ EOF
   # fortunately GCC upgrade makes most of the work already
   #
   cat << EOF >> $backlog.1st
+%emerge -1 net-libs/liblockfile
 %emerge -1 sys-devel/flex
+%emerge -1 sys-devel/binutils
 EOF
 
   # update GCC asap after setup
