@@ -227,7 +227,7 @@ EOF
 
     # provide the whole temp dir if it exists
     #
-    (cd "$workdir"/../.. && [[ -d ./temp ]] && tar -cjpf $issuedir/files/temp.tbz2 --dereference --warning=no-file-ignored ./temp)
+    (cd "$workdir"/../.. && [[ -d ./temp ]] && tar -cjpf $issuedir/files/temp.tbz2 --dereference --warning='no-file-removed' ./temp)
   fi
 
   (cd / && tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage)
@@ -393,7 +393,7 @@ function collectTestIssueResults() {
     if [[ -n "$dirs" ]]; then
       tar -cjpf $issuedir/files/tests.tbz2 \
         --exclude='*.o' --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
-        --dereference --sparse --one-file-system --warning=no-file-ignored \
+        --dereference --sparse --one-file-system \
         $dirs
       local rc=$?
 
