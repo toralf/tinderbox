@@ -497,6 +497,7 @@ EOF
   #
   if [[ ! $profile =~ "hardened" ]]; then
     cat << EOF >> $backlog.1st
+%emerge -1 sys-apps/texinfo
 %emerge -1 sys-apps/portage
 %emerge -1 net-libs/liblockfile
 %emerge -1 sys-devel/flex
