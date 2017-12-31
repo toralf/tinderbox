@@ -144,41 +144,38 @@ function ComputeImageName()  {
 # download (if needed), verify and unpack the stage3 file
 #
 function UnpackStage3()  {
-  # latest file contains all relevant data
-  #
   latest=$distfiles/latest-stage3.txt
   wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
 
   case $profile in
     17.0/hardened)
-      stage3=$(grep "/hardened/stage3-amd64-hardened-20.*\.tar.bz2" $latest)
+      stage3=$(grep "/hardened/stage3-amd64-hardened-20.*\.tar\." $latest)
       ;;
 
     17.0/no-multilib)
-      stage3=$(grep "/stage3-amd64-nomultilib-20.*\.tar.bz2" $latest)
+      stage3=$(grep "/stage3-amd64-nomultilib-20.*\.tar\." $latest)
       ;;
 
     17.0/no-multilib/hardened)
-      stage3=$(grep "/hardened/stage3-amd64-hardened+nomultilib-20.*\.tar.bz2" $latest)
+      stage3=$(grep "/hardened/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest)
       ;;
 
     *systemd*)
-      stage3=$(grep "/systemd/stage3-amd64-systemd-20.*\.tar.bz2" $latest)
+      stage3=$(grep "/systemd/stage3-amd64-systemd-20.*\.tar\." $latest)
       ;;
 
     *)
-      stage3=$(grep "/stage3-amd64-20.*\.tar.xz" $latest)
+      stage3=$(grep "/stage3-amd64-20.*\.tar\." $latest)
       ;;
   esac
-  stage3=$(echo $stage3 | cut -f1 -d' ' -s)
 
+  stage3=$(echo $stage3 | cut -f1 -d' ' -s)
   if [[ -z "$stage3" ]]; then
     echo "can't get stage3 filename for profile '$profile'"
     exit 3
   fi
 
   f=$distfiles/$(basename $stage3)
-
   if [[ ! -s $f ]]; then
     wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles
     if [[ $? -ne 0 ]]; then
