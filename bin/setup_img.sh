@@ -388,7 +388,7 @@ function CompilePortageFiles()  {
   #
   echo 'FEATURES="-usersandbox"'  > ./etc/portage/env/nousersandbox
 
-  # no parallel make processes
+  # no parallel build
   #
   cat << EOF                      > ./etc/portage/env/noconcurrent
 MAKEOPTS="-j1"
@@ -399,7 +399,7 @@ GO19CONCURRENTCOMPILATION=0
 RUSTFLAGS="-C codegen-units=1"
 EOF
 
-  echo "*/* noconcurrent"           > ./etc/portage/package.env/noconcurrent
+  echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 }
 
 
