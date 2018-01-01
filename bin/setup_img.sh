@@ -332,9 +332,8 @@ EOF
 }
 
 
-# create portage directories and symlinks in /tmp/tb/data/**
-# to the appropriate portage directories
-# they become effective when the bind-mount of ~/tb onto /tmp/tb in chr.sh happens
+# create portage directories
+# symlink or copy /tmp/tb/data/** to the appropriate target dirs
 #
 function CompilePortageFiles()  {
   mkdir ./tmp/tb ./usr/portage ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
@@ -349,12 +348,12 @@ function CompilePortageFiles()  {
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
-    (cd ./etc/portage/$d && ln -s ../../../tmp/tb/data/$d.common common)
+    (cd ./etc/portage/$d && cp ../../../tmp/tb/data/$d.common common)
   done
 
   for d in package.{accept_keywords,unmask}
   do
-    (cd ./etc/portage/$d && ln -s ../../../tmp/tb/data/$d.$keyword $keyword)
+    (cd ./etc/portage/$d && cp ../../../tmp/tb/data/$d.$keyword $keyword)
   done
 
   touch       ./etc/portage/package.mask/self     # contains failed package at this image
@@ -363,20 +362,16 @@ function CompilePortageFiles()  {
   touch      ./etc/portage/package.use/setup      # USE flags added at setup
   chmod a+rw ./etc/portage/package.use/setup
 
-  # activate at every n-th image predefined USE flag sets
-  #
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    (cd ./etc/portage/package.use && ln -s ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb)
+    (cd ./etc/portage/package.use && cp ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb)
   fi
 
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    (cd ./etc/portage/package.use && ln -s ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
+    (cd ./etc/portage/package.use && cp ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
   fi
 
   echo "*/* $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
 
-  # create package specific env files
-  #
   cat << EOF > ./etc/portage/env/splitdebug
 CFLAGS="\$CFLAGS -g -ggdb"
 CXXFLAGS="\$CXXFLAGS -g -ggdb"
@@ -575,9 +570,11 @@ source /etc/profile
 
 emerge mail-mta/ssmtp || exit 7
 emerge mail-client/mailx || exit 7
+# contains credentials
 (cd /etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf) || exit 7
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 8
+# contains credentials
 (cd /root && ln -snf ../tmp/tb/sdata/.bugzrc) || exit 8
 
 if [[ "$multilib" = "y" ]]; then
