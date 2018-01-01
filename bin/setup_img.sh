@@ -372,12 +372,6 @@ function CompilePortageFiles()  {
 
   echo "*/* $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
 
-  cat << EOF > ./etc/portage/env/splitdebug
-CFLAGS="\$CFLAGS -g -ggdb"
-CXXFLAGS="\$CXXFLAGS -g -ggdb"
-FEATURES="splitdebug"
-EOF
-
   # force "test", useful if there's no system-wide "test"
   #
   echo 'FEATURES="test"'         > ./etc/portage/env/test
