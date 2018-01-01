@@ -1,4 +1,4 @@
-#!/bin/sh
+# #!/bin/sh
 #
 # set -x
 
@@ -561,7 +561,7 @@ function SearchForAnAlreadyFiledBug() {
 
 
 # compile a command line ready for copy+paste to file a bug
-# and add latest 20 b.g.o. search results
+# and add the top 20 b.g.o. search results too
 #
 function AddBugzillaData() {
   if [[ -n "$id" ]]; then
@@ -571,10 +571,12 @@ function AddBugzillaData() {
   bgo.sh -d ~/img?/$name/$issuedir -i $id -c 'got at the $keyword amd64 chroot image $name this : $(cat $issuedir/title)'
 
 EOF
-
   else
-    echo -e "\n  bgo.sh -d ~/img?/$name/$issuedir $block\n" >> $issuedir/body
+    cat << EOF >> $issuedir/body
 
+  bgo.sh -d ~/img?/$name/$issuedir $block
+
+EOF
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'
 
@@ -586,7 +588,7 @@ EOF
     bugz --columns 400 -q search --status RESOLVED  $short 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
   fi
 
-  # this newline makes the copy+paste of the last line of the email body more convenient
+  # this newline makes a manual copy+paste action more convenient
   #
   echo >> $issuedir/body
 }
