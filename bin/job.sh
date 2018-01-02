@@ -272,22 +272,17 @@ EOF
 
 
 # attach given files to the email body
-# should be the last step b/c uuencoded attachments might be very large
-# and therefore b.g.o. search results aren't shown by Thunderbird
-#
-# the $issuedir/_* files are not part of the b.g.o. record
+# should be the last part of the email body
 #
 function AttachFilesToBody()  {
   for f in $*
   do
-    echo >> $issuedir/body
-    s=$( ls -l $f | awk ' { print $5 } ' )
-    if [[ $s -gt 1048576 ]]; then
-      echo " not attached b/c bigger than 1 MB: $f" >> $issuedir/body
-    else
+    s=$( ls -l $f 2>/dev/null | awk ' { print $5 } ' )
+    if [[ $s -gt 0 && $s -lt 1048576 ]]; then
+      echo >> $issuedir/body
       uuencode $f $(basename $f) >> $issuedir/body
+      echo >> $issuedir/body
     fi
-    echo >> $issuedir/body
   done
 }
 
