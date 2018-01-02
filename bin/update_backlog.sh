@@ -5,8 +5,6 @@
 # pick up latest changed ebuilds and merge them into backlog.upd
 #
 
-mailto="tinderbox@zwiebeltoralf.de"
-
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo "You must be the tinderbox user !"
   exit 1

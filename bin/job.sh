@@ -29,7 +29,7 @@ function stresc() {
 #
 function Mail() {
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
-  ( [[ -f $2 ]] && stresc < $2 || echo "${2:-<no body>}" ) | timeout 120 mail -s "$subject    @ $name" $mailto &>> /tmp/mail.log
+  ( [[ -f $2 ]] && stresc < $2 || echo "${2:-<no body>}" ) | timeout 120 mail -s "$subject    @ $name" $mailto -a '' &>> /tmp/mail.log
   local rc=$?
   if [[ $rc -ne 0 ]]; then
     echo "$(date) mail failed with rc=$rc issuedir=$issuedir"
