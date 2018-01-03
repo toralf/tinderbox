@@ -467,13 +467,11 @@ EOF
     # quirks for an easier image setup
     #
     cat << EOF > /etc/portage/package.use/libressl
-net-misc/iputils          libressl -gcrypt
-sys-auth/polkit           -kde
+sys-auth/polkit -kde
 EOF
     chmod a+rw /etc/portage/package.use/libressl
 
     cat << EOF >> /etc/portage/make.conf
-CURL_SSL="libressl"
 USE="\${USE} libressl -gnutls -openssl"
 EOF
   fi
