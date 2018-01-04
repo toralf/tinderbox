@@ -29,7 +29,6 @@ sys-cluster/mvapich2
 sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
-x11-plugins/gkrell
 #
 # awefully long build time
 #
