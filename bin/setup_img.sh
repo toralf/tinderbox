@@ -339,29 +339,11 @@ function CompilePortageFiles()  {
 
   (cd ./etc/portage; ln -s ../../tmp/tb/data/patches)
 
-  for d in package.{accept_keywords,env,mask,unmask,use}
-  do
-    (cd ./etc/portage/$d && cp ../../../tmp/tb/data/$d.common common)
-  done
-
-  for d in package.{accept_keywords,unmask}
-  do
-    (cd ./etc/portage/$d && cp ../../../tmp/tb/data/$d.$keyword $keyword)
-  done
-
   touch       ./etc/portage/package.mask/self     # contains failed package at this image
   chmod a+rw  ./etc/portage/package.mask/self
 
   touch      ./etc/portage/package.use/setup      # USE flags added at setup
   chmod a+rw ./etc/portage/package.use/setup
-
-  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    (cd ./etc/portage/package.use && cp ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb)
-  fi
-
-  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    (cd ./etc/portage/package.use && cp ../../../tmp/tb/data/package.use.ffmpeg ffmpeg)
-  fi
 
   echo "*/* $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
 
@@ -535,8 +517,26 @@ function CreateSetupScript()  {
 # set -x
 
 cd /etc/portage
+
 ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
-[[ ! -e make.profile ]] && exit 6
+
+for d in package.{accept_keywords,env,mask,unmask,use}
+do
+  (cd \$d && cp ../../../tmp/tb/data/\$d.common common) || exit 6
+done
+
+for d in package.{accept_keywords,unmask}
+do
+  (cd \$d && cp ../../../tmp/tb/data/\$d.$keyword $keyword) || exit 6
+done
+
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  (cd package.use && cp ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb) || exit 6
+fi
+
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  (cd package.use && cp ../../../tmp/tb/data/package.use.ffmpeg ffmpeg) || exit 6
+fi
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
