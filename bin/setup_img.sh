@@ -288,9 +288,6 @@ $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 
   ssp -bindist -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
-# legacy from hardened profile
-#
-PAX_MARKINGS="none"
 
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
@@ -300,10 +297,6 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 ACCEPT_LICENSE="*"
 CLEAN_DELAY=0
-
-# see /etc/portage/package.env/noconcurrent and /etc/portage/package.env/noconcurrent
-#
-#MAKEOPTS="-j1"
 
 L10N="$l10n"
 VIDEO_CARDS=""
