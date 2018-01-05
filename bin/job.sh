@@ -244,7 +244,7 @@ EOF
 
 # get assignee and cc for the b.g.o. entry
 #
-function AddMailAddresses() {
+function GetAssigneeAndCc() {
   m=$(equery meta -m $short | grep '@' | xargs)
 
   if [[ -n "$m" ]]; then
@@ -407,7 +407,7 @@ function collectTestIssueResults() {
 }
 
 
-# helper of CompileIssueMail()
+# helper of GotAnIssue()
 # get the issue
 # get an descriptive title from the most meaningful lines of the issue
 # if needed: change package.env/...  to re-try failed with defaults settings
@@ -612,9 +612,6 @@ function TrimTitle()  {
 function CompileIssueMail() {
   emerge -p --info $short &> $issuedir/emerge-info.txt
 
-  AddMailAddresses
-  ClassifyIssue
-
   # shrink too long error messages
   #
   sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' $issuedir/title
@@ -786,61 +783,64 @@ function GotAnIssue()  {
   grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
   if [[ $? -eq 0 ]]; then
     echo "$task" >> $backlog
-    sleep 30  # a common sync shouldn't take longer
+    sleep 30  # race with repo updated should be over
     return
   fi
 
   setFailedAndShort
 
-  if [[ -f $failedlog ]]; then
-    grep -q -f /tmp/tb/data/IGNORE_ISSUES $failedlog
-    if [[ $? -eq 0 ]]; then
-      return
-    fi
-  else
-    grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
-    if [[ $? -eq 0 ]]; then
-      return
-    fi
-  fi
-
-  # https://bugs.gentoo.org/show_bug.cgi?id=596664
-  #
-  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
-  if [[ $? -eq 0 ]]; then
-    echo "$task" >> $backlog
-    echo "%emerge -1 dev-perl/XML-Parser" >> $backlog
-    try_again=1
-    return
-  fi
-
-  grep -q -e "Fix the problem and start perl-cleaner again." $bak
-  if [[ $? -eq 0 ]]; then
-    if [[ $try_again -eq 0 ]]; then
-      echo "%perl-cleaner --all" >> $backlog
-    else
-      echo "%emerge --resume" >> $backlog
-    fi
-    return
-  fi
-
   if [[ -z "$failed" ]]; then
-    Mail "warn: \$failed is empty, task: '$task'" $bak
+    grep -q -f /tmp/tb/data/IGNORE_ISSUES ${failedlog:-$bak}
+    if [[ $? -ne 0 ]]; then
+      Mail "warn: \$failed is empty, task: '$task'" $bak
+    fi
     return
   fi
 
   CreateIssueDir
+  GetAssigneeAndCc
   cp $bak $issuedir
-
   setWorkDir
-
   CollectIssueFiles
-  CompileIssueMail
 
-  if [[ -n "$failed" && $try_again -eq 0 ]]; then
+  ClassifyIssue
+
+  # https://bugs.gentoo.org/596664
+  #
+  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
+  if [[ $? -eq 0 ]]; then
+    cat << EOF >> $backlog
+$task
+%emerge -1 dev-perl/XML-Parser
+EOF
+    try_again=1
+    return
+  fi
+
+  # https://bugs.gentoo.org/640866
+  #
+  grep -q -e "Error:  Can't locate Term/ReadKey.pm in @INC" $bak
+  if [[ $? -eq 0 ]]; then
+    cat << EOF >> $backlog
+$task
+%perl-cleaner --all
+EOF
+    try_again=1
+    return
+  fi
+
+  grep -q -f /tmp/tb/data/IGNORE_ISSUES ${failedlog:-$bak}
+  if [[ $? -eq 0 ]]; then
+    return
+  fi
+
+  if [[ $try_again -eq 1 ]]; then
+    echo "$task" >> $backlog
+  else
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
+  CompileIssueMail
   SendoutIssueMail
 }
 
@@ -1052,7 +1052,7 @@ function CheckQA() {
 
         CreateIssueDir
 
-        AddMailAddresses
+        GetAssigneeAndCc
 
         cp $elogfile $issuedir/issue
         AddWhoamiToIssue
@@ -1092,9 +1092,6 @@ function RunAndCheck() {
 
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
-    if [[ $try_again -eq 1 ]]; then
-      echo "$task" >> $backlog
-    fi
   fi
 
   return $rc
