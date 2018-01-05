@@ -16,8 +16,8 @@ You need build codec to run the tests
 CMake Error at
 Configuring incomplete, errors occurred
 extconf.rb:.* (RuntimeError)
--- Could NOT find
--- Could not find
+\\\\-\\\\- Could NOT find
+\\\\-\\\\- Could not find
 cmake failed
 bad option:
 Meson encountered an error
