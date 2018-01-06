@@ -62,19 +62,14 @@ Bugs can be filed using *bgo.sh* - a comand line ready for copy+paste is in the 
 5. exit from chroot
 
 ### unattended test of package/s
-Append package/s to the package list in the following way:
+Append package(s) to the package list in the following way:
     
     cat <<<EOF >> ~/run/[image]/tmp/backlog.1st
-    INFO this text becomes the subject of an email if reached
-    package1
-    ...
-    %action1
-    ...
-    packageN
-    ...
+    INFO net-p2p/bitcoind ok ? https://bugs.gentoo.org/show_bug.cgi?id=642934
+    net-p2p/bitcoind
     EOF
 
-"STOP" can be used instead "INFO" to stop the image at that point.
+"STOP" can be used instead "INFO" to stop the image at that point, the text will become the subject of an email.
 
 ### misc
 The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image. *retest.sh* is used to undo any package specific (mask) changes to portage files and to schedule an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s).
