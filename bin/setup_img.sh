@@ -53,9 +53,7 @@ function SetOptions() {
   #
   keyword="unstable"
   if [[ $(($RANDOM % 40)) -eq 0 ]]; then
-    if [[ ! $profile =~ "17" ]]; then
-      keyword="stable"
-    fi
+    keyword="stable"
   fi
 
   # LibreSSL
@@ -68,8 +66,8 @@ function SetOptions() {
   # ABI_X86="32 64"
   #
   multilib="n"
-  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
-    if [[ ! $profile =~ "no-multilib" ]]; then
+  if [[ ! $profile =~ "no-multilib" ]]; then
+    if [[ $(($RANDOM % 8)) -eq 0 ]]; then
       multilib="y"
     fi
   fi
@@ -77,8 +75,8 @@ function SetOptions() {
   # FEATURES=test
   #
   testfeature="n"
-  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    if [[ "$keyword" != "stable" ]]; then
+  if [[ "$keyword" != "stable" ]]; then
+    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
       testfeature="y"
     fi
   fi
@@ -207,8 +205,8 @@ function UnpackStage3()  {
 # [foo] would be synced in job.sh as a daily task
 #
 function CompileRepoFiles()  {
-  mkdir -p     ./etc/portage/repos.conf/
-  cat << EOF > ./etc/portage/repos.conf/default.conf
+  mkdir -p      ./etc/portage/repos.conf/
+  cat << EOF >> ./etc/portage/repos.conf/default.conf
 [DEFAULT]
 main-repo = gentoo
 auto-sync = no
@@ -226,18 +224,18 @@ priority = 2
 priority = 99
 EOF
 
-  cat << EOF > ./etc/portage/repos.conf/gentoo.conf
+  cat << EOF >> ./etc/portage/repos.conf/gentoo.conf
 [gentoo]
 location  = /usr/portage
 EOF
 
-  cat << EOF > ./etc/portage/repos.conf/tinderbox.conf
+  cat << EOF >> ./etc/portage/repos.conf/tinderbox.conf
 [tinderbox]
 location  = /tmp/tb/data/portage
 masters   = gentoo
 EOF
 
-  cat << EOF > ./etc/portage/repos.conf/foo.conf
+  cat << EOF >> ./etc/portage/repos.conf/foo.conf
 #[foo]
 #location  = /usr/local/foo
 #auto-sync = yes
@@ -245,7 +243,7 @@ EOF
 #sync-uri  = https://anongit.gentoo.org/git/proj/foo.git
 EOF
 
-  cat << EOF > ./etc/portage/repos.conf/local.conf
+  cat << EOF >> ./etc/portage/repos.conf/local.conf
 [local]
 location  = /usr/local/portage
 masters   = gentoo
@@ -253,7 +251,7 @@ EOF
 }
 
 
-# compile make.conf
+# modify the existing one from stage3
 #
 function CompileMakeConf()  {
   sed -i  -e '/^CFLAGS="/d'       \
@@ -290,7 +288,7 @@ $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 "
 
 $( [[ "$profile" =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
-
+$( [[ "$multilib" = "y" ]]        && echo 'ABI_X86="32 64"' )
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
 FEATURES="$features"
@@ -321,7 +319,7 @@ FETCHCOMMAND="\${FETCHCOMMAND} --continue"
 
 # https://bugs.gentoo.org/640290
 #
-PORTAGE_XATTR_EXCLUDE="${PORTAGE_XATTR_EXCLUDE} user.xdg.*"
+PORTAGE_XATTR_EXCLUDE="\${PORTAGE_XATTR_EXCLUDE} user.xdg.*"
 
 EOF
 }
@@ -386,13 +384,13 @@ EOF
 function CompileMiscFiles()  {
   # resolve hostname to "127.0.0.1" or "::1" respectively
   #
-  cat <<EOF > ./etc/resolv.conf
+  cat <<EOF >> ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
 
   h=$(hostname)
-  cat <<EOF > ./etc/hosts
+  cat <<EOF >> ./etc/hosts
 127.0.0.1 localhost $h.localdomain $h
 ::1       localhost $h.localdomain $h
 EOF
@@ -438,19 +436,17 @@ EOF
 
   if [[ "$libressl" = "y" ]]; then
     cat << EOF >> $backlog.1st
+# the unmerge triggers a @preserved-rebuild
 %emerge -C openssl
 %emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
 EOF
     # quirks for an easier image setup
     #
-    cat << EOF > /etc/portage/package.use/libressl
-sys-auth/polkit -kde
+    cat << EOF >> ./etc/portage/package.use/libressl
+net-misc/iputils  openssl
+sys-auth/polkit   -kde
 EOF
-    chmod a+rw /etc/portage/package.use/libressl
-
-    cat << EOF >> /etc/portage/make.conf
-USE="\${USE} libressl -gnutls -openssl"
-EOF
+    chmod a+rw ./etc/portage/package.use/libressl
   fi
 
   # 13.0 -> 17.0 profile switch needs at least: emerge -p1 $(find /usr/ -type f -name '*.a')
@@ -513,7 +509,7 @@ function ConfigureImage()  {
 function CreateSetupScript()  {
   dryrun="emerge --deep --update --changed-use @system --pretend"
 
-  cat << EOF > tmp/setup.sh
+  cat << EOF >> ./tmp/setup.sh
 #!/bin/sh
 #
 # set -x
@@ -564,10 +560,6 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 # contains credentials
 (cd /root && ln -snf ../tmp/tb/sdata/.bugzrc) || exit 8
 
-if [[ "$multilib" = "y" ]]; then
-  echo 'ABI_X86="32 64"' >> /etc/portage/make.conf
-fi
-
 if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
@@ -589,12 +581,9 @@ do
   grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
   grep -A 1 'by applying the following change' /tmp/dryrun.log | grep '^- ' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
   grep -m 1 -A 1 'by applying any of the following changes' /tmp/dryrun.log | grep '^- ' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
-
-  # remove "+"
-  #
   sed -i -e 's/+//g' /etc/portage/package.use/setup
 
-  # last round didn't brought up a change ?
+  # last round didn't added any line ?
   #
   tail -n 1 /etc/portage/package.use/setup | grep -q '#round'
   if [[ \$? -eq 0 ]]; then
@@ -602,12 +591,16 @@ do
   fi
 done
 
+if [[ "$libressl" = "y" ]]; then
+  echo 'USE="\$USE libressl -gnutls -openssl"' >> /etc/portage/make.conf
+fi
+
 exit \$rc
 EOF
 }
 
 
-# MTA, bugz et al are needed
+# MTA, bugz etc are needed
 #
 function EmergeMandatoryPackages() {
   CreateSetupScript
@@ -654,98 +647,101 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-while :
+SetOptions
+while getopts a:f:k:l:m:o:p:t:u: opt
 do
-  SetOptions
-  while getopts a:f:k:l:m:o:p:t:u: opt
-  do
-    case $opt in
-      a)  autostart="$OPTARG"
-          ;;
-      f)  features="$features $OPTARG"
-          ;;
-      k)  keyword="$OPTARG"
-          ;;
-      l)  libressl="$OPTARG"
-          ;;
-      m)  multilib="$OPTARG"
-          ;;
-      o)  # derive image properties from an older one
-          #
-          origin="$OPTARG"
-          if [[ ! -e $origin ]]; then
-            echo "\$origin '$origin' doesn't exist"
-            exit 2
-          fi
-
-          profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
-          if [[ -z "$profile" ]]; then
-            echo "can't derive \$profile from '$origin'"
-            exit 2
-          fi
-
-          useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
-          features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
-
-          grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
-          if [[ $? -eq 0 ]]; then
-            libressl="y"
-            useflags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
-          else
-            libressl="n"
-          fi
-
-          grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
-          if [[ $? -eq 0 ]]; then
-            keyword="unstable"
-          else
-            keyword="stable"
-          fi
-
-          grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
-          if [[ $? -eq 0 ]]; then
-            multilib="y"
-          fi
-          ;;
-
-      p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
-          ;;
-      t)  testfeature="$OPTARG"
-          ;;
-      u)  # USE flags are
-          # - defined in a statement like USE="..."
-          # - or listed in a file
-          # - or given at the command line
-          #
-          if [[ -f "$OPTARG" ]] ; then
-            useflags="$(source $OPTARG; echo $USE)"
-            if [[ -z "$useflags" ]]; then
-              useflags="$(cat $OPTARG)"
-            fi
-          else
-            useflags="$OPTARG"
-          fi
-          ;;
-      *)  echo " '$opt' with '$OPTARG' not implemented"
+  case $opt in
+    a)  autostart="$OPTARG"
+        ;;
+    f)  features="$features $OPTARG"
+        ;;
+    k)  keyword="$OPTARG"
+        ;;
+    l)  libressl="$OPTARG"
+        ;;
+    m)  multilib="$OPTARG"
+        ;;
+    o)  # derive image properties from an older one
+        #
+        origin="$OPTARG"
+        if [[ ! -e $origin ]]; then
+          echo "\$origin '$origin' doesn't exist"
           exit 2
-          ;;
-    esac
-  done
-  CheckOptions
+        fi
 
-  ComputeImageName
+        profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
+        if [[ -z "$profile" ]]; then
+          echo "can't derive \$profile from '$origin'"
+          exit 2
+        fi
+
+        useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
+        features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
+
+        grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
+        if [[ $? -eq 0 ]]; then
+          libressl="y"
+          useflags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
+        else
+          libressl="n"
+        fi
+
+        grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
+        if [[ $? -eq 0 ]]; then
+          keyword="unstable"
+        else
+          keyword="stable"
+        fi
+
+        grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
+        if [[ $? -eq 0 ]]; then
+          multilib="y"
+        fi
+        ;;
+
+    p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
+        ;;
+    t)  testfeature="$OPTARG"
+        ;;
+    u)  # USE flags are
+        # - defined in a statement like USE="..."
+        # - or listed in a file
+        # - or given at the command line
+        #
+        if [[ -f "$OPTARG" ]] ; then
+          useflags="$(source $OPTARG; echo $USE)"
+          if [[ -z "$useflags" ]]; then
+            useflags="$(cat $OPTARG)"
+          fi
+        else
+          useflags="$OPTARG"
+        fi
+        ;;
+    *)  echo " '$opt' with '$OPTARG' not implemented"
+        exit 2
+        ;;
+  esac
+done
+CheckOptions
+
+ComputeImageName
+if [[ $# -eq 0 ]]; then
   # test that there's no similar image in ~/run
   #
   ls -d /home/tinderbox/run/${name}_????????-?????? &>/dev/null
-  if [[ $? -ne 0 ]]; then
-    name="${name}_$(date +%Y%m%d-%H%M%S)"
-    # relative path to the HOME dir
-    #
-    mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
-    break
+  if [[ $? -eq 0 ]]; then
+    exit 4
   fi
+fi
 
-done
+# now append a timestamp onto the name
+#
+name="${name}_$(date +%Y%m%d-%H%M%S)"
+
+# relative path to the HOME dir
+#
+mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
+break
 
 echo " $mnt"
 echo
