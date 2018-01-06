@@ -289,6 +289,8 @@ $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
   ssp -bindist -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
 
+$( [[ "$profile" =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
+
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
 FEATURES="$features"
