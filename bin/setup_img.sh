@@ -431,12 +431,13 @@ function CreateBacklog()  {
 @system
 app-portage/eix
 app-portage/pfl
+# % needed b/c sys-kernel/* is in IGNORE_PACKAGES
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
   if [[ "$libressl" = "y" ]]; then
     cat << EOF >> $backlog.1st
-# the unmerge triggers a @preserved-rebuild
+# unmerge triggers already a @preserved-rebuild
 %emerge -C openssl
 %emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
 EOF
