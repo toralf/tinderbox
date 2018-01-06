@@ -3,7 +3,7 @@
 # this file resides in /tmp/tb/data within a tinderbox image
 # the appropriate symlink under /etc/portage/ points to it
 
-# needed to send SMTP emails from within a tinderbox image
+# needed for SMTPs mailing
 #
 mail-mta/ssmtp            mta ssl
 
@@ -33,8 +33,8 @@ dev-java/icedtea-bin      -multilib
 # nagging tinderbox image setup difficulties
 #
 dev-java/icedtea-bin      -cups -gtk
-sys-apps/man-db           -nls
 media-libs/libjpeg-turbo  -java
 media-libs/mesa           -llvm
+sys-apps/man-db           -nls
 sys-fs/eudev              -introspection
 www-client/w3m            -gtk
