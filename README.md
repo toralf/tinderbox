@@ -9,15 +9,15 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 A profile, keyword and USE flag are set.
 The current *stage3* file is downloaded, verified and unpacked.
 Mandatory portage config files will be compiled.
-Few required packages (*ssmtp*, *pybugz* etc.) are installed.
-A backlog if filled up from all available package in a randomized order (*/tmp/backlog*).
+Few required packages (*ssmtp*, *pybugz* etc.) will be installed.
+A backlog is filled up with all available package in a randomized order (*/tmp/backlog*).
 A symlink is made into *~/run* and the image is started.
 
 ### start an image
     
     start_img.sh <image>
 
-A file */tmp/LOCK* is created within that image to avoid 2 running instances of the same image.
+The file */tmp/LOCK* is created within that image to avoid 2 running instances of the same image.
 The wrapper *chr.sh* handles all chroot related actions and gives control to *job.sh*.
 That script is the heart of the tinderbox.
 
@@ -28,23 +28,23 @@ Without any arguments all symlinks in *~/run* are processed.
     stop_img.sh <image>
 
 A marker file */tmp/STOP* is created in that image.
-The current emerge operation is finished before *job.sh* removes */tmp/{LOCK,STOP}* and exits.
+The current emerge operation will be finished before *job.sh* removes */tmp/{LOCK,STOP}* and exits.
 
 ### chroot into a stopped image
     
     sudo /opt/tb/bin/chr.sh <image>
 
-This bind-mount all desired directories from the host system. Without any argument an interactive login is made afterwards. Otherwise the argumenti(s) are treated as command(s) to be run within that image before the chroot is left.
+This bind-mount all desired directories from the host system. Without any argument an interactive login is made afterwards. Otherwise the argument(s) are treated as command(s) to be run within that image before the chroot is left.
 
 ### chroot into a running image
     
     sudo /opt/tb/bin/scw.sh <image>
 
-Simple wrapper of chroot with few checks, no hosts files are mounted. This can be made if an image is already running and therefore chr.sh can't be used.
+Simple wrapper of chroot with few checks, no hosts files are mounted. This can be made if an image is already running and therefore *chr.sh* can't be used. This script is useful to inspect log files and to run commands like *reix*, *qlop* etc.
 
 ### removal of an image
 Stop the image and remove the symlink in *~/run*.
-The image itself will stay in the data dir, eg.: *~/img2*.
+The image itself will stay in the data dir, eg. in: *~/img2*.
 
 ### status of all images
 
@@ -69,7 +69,7 @@ Append package(s) to the package list in the following way:
     net-p2p/bitcoind
     EOF
 
-"STOP" can be used instead "INFO" to stop the image at that point, the text will become the subject of an email.
+*STOP* can be used instead *INFO* to stop the image at that point, the following text will become the subject of an email.
 
 ### misc
 The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image. *retest.sh* is used to undo any package specific (mask) changes to portage files and to schedule an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s).
