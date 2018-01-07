@@ -447,8 +447,8 @@ EOF
     chmod a+rw ./etc/portage/package.use/libressl
 
     cat << EOF >> ./tmp/00sslvendor
-*/*             libressl -gnutls -openssl
-net-misc/curl   CURL_SSL="libressl"
+*/*             libressl          -gnutls           -openssl
+net-misc/curl   curl_ssl_libressl -curl_ssl_gnutls  -curl_ssl_openssl
 EOF
 
     cat << EOF >> $backlog.1st
@@ -684,10 +684,8 @@ do
         useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
         features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
-        grep -q '^CURL_SSL="libressl"' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
+        if [[ -f /etc/portage/package.use/00sslvendor ]]; then
           libressl="y"
-          useflags="$(echo $useflags | xargs -n 1 | grep -v -e 'openssl' -e 'libressl' -e 'gnutls' | xargs)"
         else
           libressl="n"
         fi
