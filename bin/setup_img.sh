@@ -549,7 +549,6 @@ function CreateSetupScript()  {
 cd /etc/portage
 
 ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
-rm -f ../../usr/portage/profiles/default/linux/amd64/$profile/deprecated
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
