@@ -431,23 +431,32 @@ function CreateBacklog()  {
 @system
 app-portage/eix
 app-portage/pfl
-# % needed b/c sys-kernel/* is in IGNORE_PACKAGES
+# % needed b/c IGNORE_PACKAGES contains sys-kernel/*
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
+  # switch to LibreSSL after GCC upgrade
+  #
   if [[ "$libressl" = "y" ]]; then
-    cat << EOF >> $backlog.1st
-# unmerge triggers already a @preserved-rebuild
-%emerge -C openssl
-%emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
-EOF
-    # quirks for an easier image setup
+    # quirks for a LibreSSL image setup
     #
     cat << EOF >> ./etc/portage/package.use/libressl
 net-misc/iputils  openssl
 sys-auth/polkit   -kde
 EOF
     chmod a+rw ./etc/portage/package.use/libressl
+
+    cat << EOF >> ./tmp/00sslvendor
+*/*             libressl -gnutls -openssl
+net-misc/curl   CURL_SSL="libressl"
+EOF
+
+    cat << EOF >> $backlog.1st
+# unmerge triggers the necessary @preserved-rebuild
+%emerge -C openssl
+%emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
+%mv /tmp/00sslvendor /etc/portage/package.use/00sslvendor
+EOF
   fi
 
   # 13.0 -> 17.0 profile switch needs at least: emerge -p1 $(find /usr/ -type f -name '*.a')
@@ -591,11 +600,6 @@ do
     break
   fi
 done
-
-if [[ "$libressl" = "y" ]]; then
-  echo 'USE="\$USE libressl -gnutls -openssl"'  >> /etc/portage/make.conf
-  echo 'CURL_SSL="libressl"'                    >> /etc/portage/make.conf
-fi
 
 exit \$rc
 EOF
