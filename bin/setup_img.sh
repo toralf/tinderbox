@@ -376,13 +376,45 @@ EOF
 
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
+  # quirks for a LibreSSL image setup
+  #
+  if [[ "$libressl" = "y" ]]; then
+    cat << EOF >> ./etc/portage/package.use/libressl
+net-misc/iputils  openssl
+sys-auth/polkit   -kde
+EOF
+    chmod a+rw ./etc/portage/package.use/libressl
+
+    cat << EOF >> ./tmp/00sslvendor
+*/*             libressl          -gnutls           -openssl
+net-misc/curl   curl_ssl_libressl -curl_ssl_gnutls  -curl_ssl_openssl
+EOF
+  fi
+
+  for d in package.{accept_keywords,env,mask,unmask,use}
+  do
+    cp /home/tinderbox/tb/data/$d.common $d/common
+  done
+
+  for d in package.{accept_keywords,unmask}
+  do
+    cp /home/tinderbox/tb/data/$d.$keyword $d/$keyword
+  done
+
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    cp /home/tinderbox/tb/data/package.use.ff-and-tb package.use/ff-and-tb
+  fi
+
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    cp /home/tinderbox/tb/data/package.use.ffmpeg package.use/ffmpeg
+  fi
+
   chgrp portage ./etc/portage/package.*/*
   chmod a+r,g+w ./etc/portage/package.*/*
 }
 
 
-# configure DNS
-# configure vim (eg.: avoid interactive question)
+# configure DNS and vim (eg.: avoid interactive question)
 #
 function CompileMiscFiles()  {
   # resolve hostname to "127.0.0.1" or "::1" respectively
@@ -441,19 +473,6 @@ EOF
   # switch to LibreSSL after GCC upgrade
   #
   if [[ "$libressl" = "y" ]]; then
-    # quirks for a LibreSSL image setup
-    #
-    cat << EOF >> ./etc/portage/package.use/libressl
-net-misc/iputils  openssl
-sys-auth/polkit   -kde
-EOF
-    chmod a+rw ./etc/portage/package.use/libressl
-
-    cat << EOF >> ./tmp/00sslvendor
-*/*             libressl          -gnutls           -openssl
-net-misc/curl   curl_ssl_libressl -curl_ssl_gnutls  -curl_ssl_openssl
-EOF
-
     cat << EOF >> $backlog.1st
 # unmerge triggers the necessary @preserved-rebuild
 %emerge -C openssl
@@ -531,24 +550,6 @@ cd /etc/portage
 
 ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
 
-for d in package.{accept_keywords,env,mask,unmask,use}
-do
-  (cd \$d && cp ../../../tmp/tb/data/\$d.common common) || exit 6
-done
-
-for d in package.{accept_keywords,unmask}
-do
-  (cd \$d && cp ../../../tmp/tb/data/\$d.$keyword $keyword) || exit 6
-done
-
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-  (cd package.use && cp ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb) || exit 6
-fi
-
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-  (cd package.use && cp ../../../tmp/tb/data/package.use.ffmpeg ffmpeg) || exit 6
-fi
-
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
@@ -612,8 +613,6 @@ EOF
 # MTA, bugz etc are needed
 #
 function EmergeMandatoryPackages() {
-  CreateSetupScript
-
   cd /home/tinderbox/
 
   $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
@@ -764,6 +763,7 @@ wgetpath=/releases/amd64/autobuilds
 
 UnpackStage3            || exit 5
 ConfigureImage          || exit 5
+CreateSetupScript       || exit 5
 EmergeMandatoryPackages || exit 5
 
 cd /home/tinderbox/run && ln -s ../$mnt || exit 11
