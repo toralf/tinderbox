@@ -393,20 +393,20 @@ EOF
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
-    cp /home/tinderbox/tb/data/$d.common $d/common
+    cp /home/tinderbox/tb/data/$d.common ./etc/portage/$d/common
   done
 
   for d in package.{accept_keywords,unmask}
   do
-    cp /home/tinderbox/tb/data/$d.$keyword $d/$keyword
+    cp /home/tinderbox/tb/data/$d.$keyword ./etc/portage/$d/$keyword
   done
 
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    cp /home/tinderbox/tb/data/package.use.ff-and-tb package.use/ff-and-tb
+    cp /home/tinderbox/tb/data/package.use.ff-and-tb ./etc/portage/package.use/ff-and-tb
   fi
 
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    cp /home/tinderbox/tb/data/package.use.ffmpeg package.use/ffmpeg
+    cp /home/tinderbox/tb/data/package.use.ffmpeg ./etc/portage/package.use/ffmpeg
   fi
 
   chgrp portage ./etc/portage/package.*/*
