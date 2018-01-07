@@ -593,7 +593,8 @@ do
 done
 
 if [[ "$libressl" = "y" ]]; then
-  echo 'USE="\$USE libressl -gnutls -openssl"' >> /etc/portage/make.conf
+  echo 'USE="\$USE libressl -gnutls -openssl"'  >> /etc/portage/make.conf
+  echo 'CURL_SSL="libressl"'                    >> /etc/portage/make.conf
 fi
 
 exit \$rc
