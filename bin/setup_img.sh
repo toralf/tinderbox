@@ -375,6 +375,9 @@ RUSTFLAGS="-C codegen-units=1"
 EOF
 
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
+
+  chgrp portage ./etc/portage/package.*/*
+  chmod a+r,g+w ./etc/portage/package.*/*
 }
 
 
