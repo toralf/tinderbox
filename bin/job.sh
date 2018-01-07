@@ -234,6 +234,12 @@ EOF
     # provide the whole temp dir if it exists
     #
     (cd "$workdir"/../.. && [[ -d ./temp ]] && tar -cjpf $issuedir/files/temp.tbz2 --dereference --warning='no-file-removed' ./temp)
+
+    # ICE of GCC ?
+    #
+    if [[ -f $workdir/gcc-build-logs.tar.bz2 ]]; then
+      cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
+    fi
   fi
 
   (cd / && tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage)
