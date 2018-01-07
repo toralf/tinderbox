@@ -484,7 +484,7 @@ EOF
   # 13.0 -> 17.0 profile switch needs at least: emerge -p1 $(find /usr/ -type f -name '*.a')
   # fortunately GCC upgrade makes most of the work already
   #
-  if [[ "$profile" =~ "17" && ! $profile =~ "hardened" ]]; then
+  if [[ $profile =~ "17" && ! $profile =~ "hardened" ]]; then
     cat << EOF >> $backlog.1st
 %emerge -1 sys-apps/texinfo
 %emerge -1 sys-apps/portage
@@ -546,8 +546,8 @@ function CreateSetupScript()  {
 #
 # set -x
 
-cd /etc/portage
-
+# eselect doesn't work for brand new profiles
+#
 ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
 
 echo "Europe/Berlin" > /etc/timezone
@@ -606,6 +606,7 @@ do
 done
 
 exit \$rc
+
 EOF
 }
 
@@ -615,7 +616,7 @@ EOF
 function EmergeMandatoryPackages() {
   cd /home/tinderbox/
 
-  $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.log'
+  $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.sh.log'
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
