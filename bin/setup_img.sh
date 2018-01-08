@@ -660,92 +660,96 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-SetOptions
-while getopts a:f:k:l:m:o:p:t:u: opt
+while :;
 do
-  case $opt in
-    a)  autostart="$OPTARG"
-        ;;
-    f)  features="$features $OPTARG"
-        ;;
-    k)  keyword="$OPTARG"
-        ;;
-    l)  libressl="$OPTARG"
-        ;;
-    m)  multilib="$OPTARG"
-        ;;
-    o)  # derive image properties from an older one
-        #
-        origin="$OPTARG"
-        if [[ ! -e $origin ]]; then
-          echo "\$origin '$origin' doesn't exist"
-          exit 2
-        fi
-
-        profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
-        if [[ -z "$profile" ]]; then
-          echo "can't derive \$profile from '$origin'"
-          exit 2
-        fi
-
-        useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
-        features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
-
-        if [[ -f /etc/portage/package.use/00sslvendor ]]; then
-          libressl="y"
-        else
-          libressl="n"
-        fi
-
-        grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          keyword="unstable"
-        else
-          keyword="stable"
-        fi
-
-        grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          multilib="y"
-        fi
-        ;;
-
-    p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
-        ;;
-    t)  testfeature="$OPTARG"
-        ;;
-    u)  # USE flags are
-        # - defined in a statement like USE="..."
-        # - or listed in a file
-        # - or given at the command line
-        #
-        if [[ -f "$OPTARG" ]] ; then
-          useflags="$(source $OPTARG; echo $USE)"
-          if [[ -z "$useflags" ]]; then
-            useflags="$(cat $OPTARG)"
+  SetOptions
+  while getopts a:f:k:l:m:o:p:t:u: opt
+  do
+    case $opt in
+      a)  autostart="$OPTARG"
+          ;;
+      f)  features="$features $OPTARG"
+          ;;
+      k)  keyword="$OPTARG"
+          ;;
+      l)  libressl="$OPTARG"
+          ;;
+      m)  multilib="$OPTARG"
+          ;;
+      o)  # derive image properties from an older one
+          #
+          origin="$OPTARG"
+          if [[ ! -e $origin ]]; then
+            echo "\$origin '$origin' doesn't exist"
+            exit 2
           fi
-        else
-          useflags="$OPTARG"
-        fi
-        ;;
-    *)  echo " '$opt' with '$OPTARG' not implemented"
-        exit 2
-        ;;
-  esac
-done
-CheckOptions
 
-ComputeImageName
-if [[ $# -eq 0 ]]; then
+          profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
+          if [[ -z "$profile" ]]; then
+            echo "can't derive \$profile from '$origin'"
+            exit 2
+          fi
+
+          useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
+          features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
+
+          if [[ -f /etc/portage/package.use/00sslvendor ]]; then
+            libressl="y"
+          else
+            libressl="n"
+          fi
+
+          grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
+          if [[ $? -eq 0 ]]; then
+            keyword="unstable"
+          else
+            keyword="stable"
+          fi
+
+          grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
+          if [[ $? -eq 0 ]]; then
+            multilib="y"
+          fi
+          ;;
+
+      p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
+          ;;
+      t)  testfeature="$OPTARG"
+          ;;
+      u)  # USE flags are
+          # - defined in a statement like USE="..."
+          # - or listed in a file
+          # - or given at the command line
+          #
+          if [[ -f "$OPTARG" ]] ; then
+            useflags="$(source $OPTARG; echo $USE)"
+            if [[ -z "$useflags" ]]; then
+              useflags="$(cat $OPTARG)"
+            fi
+          else
+            useflags="$OPTARG"
+          fi
+          ;;
+      *)  echo " '$opt' with '$OPTARG' not implemented"
+          exit 2
+          ;;
+    esac
+  done
+  CheckOptions
+
+  ComputeImageName
+  if [[ $# -ne 0 ]]; then
+    break;
+  fi
   # test that there's no similar image in ~/run
   #
   ls -d /home/tinderbox/run/${name}_????????-?????? &>/dev/null
-  if [[ $? -eq 0 ]]; then
-    exit 4
+  if [[ $? -ne 0 ]]; then
+    break
   fi
-fi
+done
 
-# now append a timestamp onto the name
+# append the timestamp to the name
 #
 name="${name}_$(date +%Y%m%d-%H%M%S)"
 
