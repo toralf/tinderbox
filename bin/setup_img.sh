@@ -464,10 +464,9 @@ function CreateBacklog()  {
   cat << EOF >> $backlog.1st
 @world
 @system
-# directory ownership is root:root otherwise
 %eix-update
+# https://bugs.gentoo.org/644030
 %chown portage:portage /var/cache/eix
-%mkdir /var/cache/eix
 app-portage/eix
 app-portage/pfl
 # % needed b/c IGNORE_PACKAGES contains sys-kernel/*
