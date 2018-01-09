@@ -231,9 +231,13 @@ EOF
     rm -f $f
     (cd "$workdir" && find ./ -name "*.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/logs.tbz2 --files-from $f && rm $f)
 
-    # provide the whole temp dir if it exists
+    # provide the whole temp dir if possible
     #
-    (cd "$workdir"/../.. && [[ -d ./temp ]] && tar -cjpf $issuedir/files/temp.tbz2 --dereference --warning='no-file-removed' ./temp)
+    (
+      cd "$workdir"/../.. &&\
+      [[ -d ./temp ]]     &&\
+      tar -cjpf $issuedir/files/temp.tbz2 --dereference --warning='no-file-removed' --warning='no-file-ignored' ./temp
+    )
 
     # ICE of GCC ?
     #
