@@ -22,7 +22,7 @@ function ThrowUseFlags()  {
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|gcj|hostname|kill|linguas|make-symlinks|minimal|multilib|musl|oci8|pax|qt4|tools|selinux|static|symlink|systemd|test|uclibc|vim-syntax' |\
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|gcj|hostname|kill|linguas|make-symlinks|minimal|monolithic|multilib|musl|oci8|pax|qt4|tools|selinux|static|symlink|systemd|test|uclibc|vim-syntax' |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
   sort |\
@@ -338,6 +338,7 @@ function CompilePortageFiles()  {
   do
     [[ ! -d ./etc/portage/$d ]] && mkdir ./etc/portage/$d
     chmod 777 ./etc/portage/$d
+    chgrp portage ./etc/portage/$d
   done
 
   (cd ./etc/portage; ln -s ../../tmp/tb/data/patches)
@@ -379,18 +380,12 @@ EOF
 
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
-  # quirks for a LibreSSL image setup
-  #
   if [[ "$libressl" = "y" ]]; then
-    cat << EOF >> ./etc/portage/package.use/libressl
-net-misc/iputils  openssl
-sys-auth/polkit   -kde
-EOF
-    chmod a+rw ./etc/portage/package.use/libressl
+    cp /home/tinderbox/tb/data/package.use.libressl ./etc/portage/package.use/libressl
 
     cat << EOF >> ./tmp/00sslvendor
-*/*             libressl          -gnutls           -openssl
-net-misc/curl   curl_ssl_libressl -curl_ssl_gnutls  -curl_ssl_openssl
+*/*           libressl          -gnutls           -openssl
+net-misc/curl curl_ssl_libressl -curl_ssl_gnutls  -curl_ssl_openssl
 EOF
   fi
 

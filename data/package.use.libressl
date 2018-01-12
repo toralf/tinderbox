@@ -1,0 +1,7 @@
+# package.use/libressl
+#
+
+net-misc/iputils  openssl
+dev-qt/qtnetwork  -ssl
+sys-auth/polkit   -kde
+
