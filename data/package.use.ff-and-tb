@@ -1,9 +1,5 @@
 # package.use file for Firefox and Thunderbird
 #
-# this file resides in /tmp/tb/data within a tinderbox image
-# and has to by copied/symlinked manually into the right place
-# eg.: cd /etc/portage/package.use/ && ln -s ../../../tmp/tb/data/package.use.ff-and-tb ff-and-tb
-#
 
 dev-db/sqlite             secure-delete
 dev-lang/python           sqlite

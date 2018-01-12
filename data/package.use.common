@@ -1,15 +1,9 @@
 # package.use/common
 #
-# this file resides in /tmp/tb/data within a tinderbox image
-# the appropriate symlink under /etc/portage/ points to it
 
 # needed for SMTPs mailing
 #
 mail-mta/ssmtp            mta ssl
-
-# can't be linked statically otherwise
-#
-sys-apps/busybox          -pam
 
 # misc
 #

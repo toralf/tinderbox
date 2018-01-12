@@ -1,7 +1,5 @@
 # package.mask/common
 #
-# this file resides in /tmp/tb/data within a tinderbox image
-# the appropriate symlink under /etc/portage/ points to it
 
 #	media-libs/libjpeg-turbo is preferred, ABI breakage otherwise:
 # https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
