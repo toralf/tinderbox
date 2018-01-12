@@ -797,13 +797,14 @@ function GotAnIssue()  {
     return
   fi
 
-  setFailedAndShort
+  grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
+  if [[ $? -eq 0 ]]; then
+    return
+  fi
 
+  setFailedAndShort
   if [[ -z "$failed" ]]; then
-    grep -q -f /tmp/tb/data/IGNORE_ISSUES ${failedlog:-$bak}
-    if [[ $? -ne 0 ]]; then
-      Mail "warn: \$failed is empty, task: '$task'" $bak
-    fi
+    Mail "warn: \$failed is empty, task: '$task'" $bak
     return
   fi
 
@@ -812,7 +813,6 @@ function GotAnIssue()  {
   cp $bak $issuedir
   setWorkDir
   CollectIssueFiles
-
   ClassifyIssue
 
   # https://bugs.gentoo.org/596664
@@ -836,11 +836,6 @@ $task
 %perl-cleaner --all
 EOF
     try_again=1
-    return
-  fi
-
-  grep -q -f /tmp/tb/data/IGNORE_ISSUES ${failedlog:-$bak}
-  if [[ $? -eq 0 ]]; then
     return
   fi
 
