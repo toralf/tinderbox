@@ -384,8 +384,8 @@ EOF
     cp /home/tinderbox/tb/data/package.use.libressl ./etc/portage/package.use/libressl
 
     cat << EOF >> ./tmp/00sslvendor
-*/*           libressl          -gnutls           -openssl
-net-misc/curl curl_ssl_libressl -curl_ssl_gnutls  -curl_ssl_openssl
+*/*           libressl -gnutls -openssl
+net-misc/curl curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 EOF
   fi
 
@@ -438,9 +438,8 @@ EOF
 }
 
 
-# update_backlog.sh writes into backlog.upd
-# job,sh writes into backlog.1st
-# the default backlog should not be written after setup
+# update_backlog.sh writes to /tmp/backlog.upd, job.sh writes to /tmp/backlog.1st
+# nothing should write to /tmp/backlog after setup
 #
 function CreateBacklog()  {
   backlog=./tmp/backlog
@@ -459,23 +458,22 @@ function CreateBacklog()  {
     echo "INFO starting replay of task history of $origin"    >> $backlog.1st
   fi
 
+  # explicitely emerge sources b/c IGNORE_PACKAGES contains sys-kernel/*
+  #
   cat << EOF >> $backlog.1st
 @world
 @system
-%eix-update
-# https://bugs.gentoo.org/644030
-%chown portage:portage /var/cache/eix
 app-portage/eix
 app-portage/pfl
-# % needed b/c IGNORE_PACKAGES contains sys-kernel/*
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
   # switch to LibreSSL after GCC upgrade
   #
   if [[ "$libressl" = "y" ]]; then
+    # -C triggers the necessary @preserved-rebuild
+    #
     cat << EOF >> $backlog.1st
-# unmerge triggers the necessary @preserved-rebuild
 %emerge -C openssl
 %emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
 %mv /tmp/00sslvendor /etc/portage/package.use/00sslvendor
@@ -499,7 +497,7 @@ fi
 }
 
 
-# repos.d/* , make.conf and all the stuff
+# portage releated files, DNS etc
 #
 function ConfigureImage()  {
   mkdir -p                  ./usr/local/portage/{metadata,profiles}
