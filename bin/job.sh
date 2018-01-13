@@ -54,7 +54,6 @@ function Finish()  {
   subject=$(echo "$2" | stresc | cut -c1-200 | tr '\n' ' ')
 
   /usr/bin/pfl
-  /usr/bin/eix-update -q
 
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
