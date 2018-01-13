@@ -553,7 +553,7 @@ function SearchForAnAlreadyFiledBug() {
   #
   for i in $failed $short
   do
-    id=$(bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>> $issuedir/body | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+    id=$(timeout 300 bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>> $issuedir/body | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo "CONFIRMED " >> $issuedir/bgo_result
       break
@@ -561,7 +561,7 @@ function SearchForAnAlreadyFiledBug() {
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      id=$(bugz -q --columns 400 search --show-status --resolution "$s" --status RESOLVED $i "$(cat $bsi)" 2>> $issuedir/body | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+      id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution "$s" --status RESOLVED $i "$(cat $bsi)" 2>> $issuedir/body | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
       if [[ -n "$id" ]]; then
         echo "$s " >> $issuedir/bgo_result
         break 2
@@ -592,11 +592,11 @@ EOF
     g='stabilize|Bump| keyword| bump'
 
     echo "  OPEN:     ${h}&resolution=---&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --show-status      $short 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
+    timeout 300 bugz --columns 400 -q search --show-status      $short 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
 
     echo "" >> $issuedir/body
     echo "  RESOLVED: ${h}&bug_status=RESOLVED&short_desc=${short}" >> $issuedir/body
-    bugz --columns 400 -q search --status RESOLVED  $short 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
+    timeout 300 bugz --columns 400 -q search --status RESOLVED  $short 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
   fi
 
   # this newline makes a manual copy+paste action more convenient
@@ -1069,7 +1069,7 @@ function CheckQA() {
         AddMetainfoToBody
 
         echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
-        id=$(bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+        id=$(timeout 300 bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
 
         AttachFilesToBody $issuedir/issue
 
