@@ -287,7 +287,10 @@ $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
   ssp -bindist -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
 
-$( [[ "$profile" =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
+# needed b/c the host is hardened, otherwise we'd get errors like:  Failed to set XATTR_PAX markings -me python.
+#
+PAX_MARKINGS="none"
+
 $( [[ "$multilib" = "y" ]]        && echo 'ABI_X86="32 64"' )
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
