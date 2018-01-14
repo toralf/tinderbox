@@ -8,7 +8,7 @@
 
 
 # strip away escape sequences
-# hint: colorstrip() doesn't modify its argument, it returns the result
+# hint: colorstrip() doesn't modify its argument, instead it returns the result
 #
 function stresc() {
   perl -MTerm::ANSIColor=colorstrip -nle '
@@ -53,7 +53,7 @@ function Finish()  {
   #
   subject=$(echo "$2" | stresc | cut -c1-200 | tr '\n' ' ')
 
-  /usr/bin/pfl
+  /usr/bin/pfl 1> /dev/null
 
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
@@ -1122,6 +1122,7 @@ function WorkOnTask() {
     local rc=$?
 
     cp $log /tmp/$task.last.log
+    /usr/bin/pfl 1> /dev/null
 
     if [[ $rc -ne 0 ]]; then
       echo "$(date) ${failed:-NOT ok}" >> /tmp/$task.history
