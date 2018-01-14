@@ -466,7 +466,6 @@ function CreateBacklog()  {
   cat << EOF >> $backlog.1st
 @world
 @system
-app-portage/eix
 app-portage/pfl
 %emerge -u sys-kernel/gentoo-sources
 EOF
