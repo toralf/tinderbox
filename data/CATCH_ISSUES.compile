@@ -145,6 +145,7 @@ are banned in EAPI
 gmcs: No such file or directory
 python_export called without a python implementation and EPYTHON is unset
 Discovering .* failed
+Usage: mmc
 make: .*: Command not found
  (OTHER_FAULT)
 Errors while running
