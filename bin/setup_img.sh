@@ -278,7 +278,7 @@ function CompileMakeConf()  {
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
 
   cat << EOF >> ./etc/portage/make.conf
-CFLAGS="-O2 -pipe -march=native -Wall"
+CFLAGS="-O2 -pipe -march=native"
 CXXFLAGS="-O2 -pipe -march=native"
 
 USE="
