@@ -53,7 +53,7 @@ function Finish()  {
   #
   subject=$(echo "$2" | stresc | cut -c1-200 | tr '\n' ' ')
 
-  /usr/bin/pfl 1> /dev/null
+  /usr/bin/pfl &> /dev/null
 
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
@@ -1122,7 +1122,7 @@ function WorkOnTask() {
     local rc=$?
 
     cp $log /tmp/$task.last.log
-    /usr/bin/pfl 1> /dev/null
+    /usr/bin/pfl &> /dev/null
 
     if [[ $rc -ne 0 ]]; then
       echo "$(date) ${failed:-NOT ok}" >> /tmp/$task.history
@@ -1135,6 +1135,8 @@ function WorkOnTask() {
       fi
 
     else
+      # this is used in check_history() of whatsup.sh
+      #
       msg=$(grep -m 1 -e 'WARNING: One or more updates/rebuilds'  \
                       -e 'resulting in a slot conflict'           \
                       -e 'The following update has been skipped'  \
