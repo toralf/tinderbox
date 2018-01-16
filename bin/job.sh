@@ -995,9 +995,9 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # if nothing is in the backlog then do the following actions 24 hours after their last run
+  # if nothing is in the backlog then do 24 hours after their last run:
   #   - update @world
-  #   - update @system, switch java VM and sync image specific overlays
+  #   - update @system + switch java VM + sync image specific overlays
   #
   if [[ ! -s $backlog ]]; then
     if [[ -f /tmp/@world.history ]]; then
