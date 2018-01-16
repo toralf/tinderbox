@@ -486,16 +486,13 @@ EOF
   #
   cat << EOF >> $backlog.1st
 %emerge -u sys-devel/gcc
-sys-apps/sandbox
 EOF
 
-if [[ $profile =~ "systemd" ]]; then
-  echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $backlog.1st
-fi
-
-  # the timestamp of this file is used to schedule @system upgrade once a day
+  # stage4 does this but we do use stage3
   #
-  touch ./tmp/@system.history
+  if [[ $profile =~ "systemd" ]]; then
+    echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $backlog.1st
+  fi
 }
 
 
