@@ -146,16 +146,16 @@ function UnpackStage3()  {
   wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
 
   case $profile in
+    */no-multilib/hardened)
+      stage3=$(grep "/hardened/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest)
+      ;;
+
     */hardened)
       stage3=$(grep "/hardened/stage3-amd64-hardened-20.*\.tar\." $latest)
       ;;
 
     */no-multilib)
       stage3=$(grep "/stage3-amd64-nomultilib-20.*\.tar\." $latest)
-      ;;
-
-    */no-multilib/hardened)
-      stage3=$(grep "/hardened/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest)
       ;;
 
     */systemd*)
