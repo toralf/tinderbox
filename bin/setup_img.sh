@@ -337,7 +337,7 @@ EOF
 function CompilePortageFiles()  {
   mkdir ./tmp/tb ./usr/portage ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
 
-  for d in package.{accept_keywords,env,mask,unmask,use} env profile
+  for d in package.{accept_keywords,env,mask,unmask,use} env
   do
     [[ ! -d ./etc/portage/$d ]] && mkdir ./etc/portage/$d
     chmod 777 ./etc/portage/$d
