@@ -532,7 +532,7 @@ function CreateSetupScript()  {
 # eselect doesn't always work for unstable profiles
 #
 cd /etc/portage
-ln -sf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
+ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
