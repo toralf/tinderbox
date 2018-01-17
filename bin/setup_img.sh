@@ -146,19 +146,19 @@ function UnpackStage3()  {
   wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 3
 
   case $profile in
-    17.0/hardened)
+    */hardened)
       stage3=$(grep "/hardened/stage3-amd64-hardened-20.*\.tar\." $latest)
       ;;
 
-    17.0/no-multilib)
+    */no-multilib)
       stage3=$(grep "/stage3-amd64-nomultilib-20.*\.tar\." $latest)
       ;;
 
-    17.0/no-multilib/hardened)
+    */no-multilib/hardened)
       stage3=$(grep "/hardened/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest)
       ;;
 
-    *systemd*)
+    */systemd*)
       stage3=$(grep "/systemd/stage3-amd64-systemd-20.*\.tar\." $latest)
       ;;
 
@@ -528,11 +528,11 @@ function CreateSetupScript()  {
   cat << EOF >> ./tmp/setup.sh
 #!/bin/sh
 #
-# set -x
 
-# eselect doesn't work for brand new profiles
+# eselect doesn't always work for unstable profiles
 #
-ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
+cd /etc/portage
+ln -sf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
@@ -551,7 +551,8 @@ source /etc/profile
 
 emerge mail-mta/ssmtp || exit 7
 emerge mail-client/mailx || exit 7
-# contains credentials
+# credentials
+#
 (cd /etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf) || exit 7
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 8
@@ -581,7 +582,7 @@ do
   grep -m 1 -A 1 'by applying any of the following changes' /tmp/dryrun.log | grep '^- ' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
   sed -i -e 's/+//g' /etc/portage/package.use/setup
 
-  # last round didn't added any line ?
+  # last round didn't added anything ?
   #
   tail -n 1 /etc/portage/package.use/setup | grep -q '#round'
   if [[ \$? -eq 0 ]]; then
