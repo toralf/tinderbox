@@ -814,32 +814,23 @@ function GotAnIssue()  {
   CollectIssueFiles
   ClassifyIssue
 
-  # https://bugs.gentoo.org/596664
-  #
-  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
-  if [[ $? -eq 0 ]]; then
-    cat << EOF >> $backlog
-$task
-%emerge -1 dev-perl/XML-Parser
-EOF
-    try_again=1
-    return
-  fi
-
   # https://bugs.gentoo.org/640866
   #
-  grep -q -e "Error:  Can't locate Term/ReadKey.pm in @INC" $bak
+  grep -q -e "Can't locate Term/ReadKey.pm in @INC" $bak
   if [[ $? -eq 0 ]]; then
     cat << EOF >> $backlog
 $task
 %perl-cleaner --all
 EOF
-    try_again=1
     return
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $backlog
+    # do not repeat eg. @preserved-rebuild
+    #
+    if [[ "$(tail -n 1 $backlog)" != "$task" ]]; then
+      echo "$task" >> $backlog
+    fi
   else
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
