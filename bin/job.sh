@@ -483,7 +483,7 @@ function ClassifyIssue() {
             -e 's,[0-9]*[\.][0-9]* s,,g'        \
             -e 's,([0-9]*[\.][0-9]*s),,g'       \
             -e 's/ \.\.\.*\./ /g'               \
-            -e 's/__*/_/g'                      \
+            -e 's/___*/_/g'                     \
             -e 's/; did you mean .* \?$//g'     \
             $issuedir/title
 
