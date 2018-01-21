@@ -82,6 +82,7 @@ t/.*.t.* Dubious,
 Unescaped left brace in regex is illegal here
 make:.* test
 ^\?: .*
+Segmentation fault
 make.* Error 1
  FAILED (.*)
  FAILED .*
@@ -91,6 +92,8 @@ Some packages may not be found
 UnicodeEncodeError:
 PluginValidationError:
 git: command not found
+INTERNALERROR. AttributeError:
 INTERNALERROR
 error: The .* command requires the .* package
 LLVM ERROR:
+distutils.errors.
