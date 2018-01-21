@@ -295,6 +295,8 @@ $( [[ "$multilib" = "y" ]]        && echo 'ABI_X86="32 64"' )
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
 FEATURES="$features"
+# no compress for faster grep !
+#
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y --complete-graph=y --backtrack=500 --autounmask-keep-masks=y"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
