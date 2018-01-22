@@ -228,7 +228,7 @@ EOF
     #
     f=/tmp/files
     rm -f $f
-    (cd "$workdir" && find ./ -name "*.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/logs.tbz2 --files-from $f && rm $f)
+    (cd "$workdir" && find ./ -name "*.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/logs.tbz2 --files-from $f --warning='no-file-ignored' && rm $f)
 
     # provide the whole temp dir if possible
     #
