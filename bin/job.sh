@@ -227,8 +227,13 @@ EOF
     # catch all log file(s)
     #
     f=/tmp/files
+    (
+      cd "$workdir/.." &&\
+      find ./ -name "*.log" -o -name "testlog.*" > $f &&\
+      [[ -s $f ]] &&\
+      tar -cjpf $issuedir/files/logs.tbz2 --files-from $f --warning='no-file-ignored'
+    )
     rm -f $f
-    (cd "$workdir" && find ./ -name "*.log" > $f && [[ -s $f ]] && tar -cjpf $issuedir/files/logs.tbz2 --files-from $f --warning='no-file-ignored' && rm $f)
 
     # provide the whole temp dir if possible
     #
