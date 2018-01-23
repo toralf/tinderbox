@@ -78,6 +78,7 @@ test in .* failed
 \\.\\.\\.\\.\\.\\.\\. no
  \\.\\. Failed .* subtests
 ==== Testing .* failed
+t/.*.t.* module .* not found:
 t/.*.t.* Dubious,
 Unescaped left brace in regex is illegal here
 make:.* test
@@ -97,3 +98,4 @@ INTERNALERROR
 error: The .* command requires the .* package
 LLVM ERROR:
 distutils.errors.
+Couldn't resolve host

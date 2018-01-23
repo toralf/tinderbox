@@ -19,6 +19,7 @@ Error 137
 Line indented less than expected
 final link failed: Nonrepresentable section on output
 ld: cannot find
+file cannot create directory:
 : error:
 Parse error .
 object has no attribute
@@ -153,6 +154,7 @@ Not supported in your configuration: ocamlopt
 : Analysis failed with error:
 error: expected
 env.*No such file or directory
+RuntimeError: failed to run:
 error: .
  Segmentation fault
 sh: .* No such file or directory
