@@ -537,7 +537,7 @@ cd /etc/portage
 ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
 
 echo "Europe/Berlin" > /etc/timezone
-emerge --config sys-libs/timezone-data
+emerge --config sys-libs/timezone-data || exit 6
 
 echo "
 en_US ISO-8859-1
