@@ -45,21 +45,21 @@ function SetOptions() {
   autostart="y"   # start the image after setup
   origin=""       # clone from the specified image
 
-  # 17.0 rules nowadays
+  # 17.0 rules
   #
   profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
 
-  # stable
+  # check stable rather rarely
   #
   keyword="unstable"
-  if [[ $(($RANDOM % 40)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 30)) -eq 0 ]]; then
     keyword="stable"
   fi
 
-  # LibreSSL
+  # alternative SSL vendor: LibreSSL
   #
   libressl="n"
-  if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
     libressl="y"
   fi
 
@@ -76,7 +76,7 @@ function SetOptions() {
   #
   testfeature="n"
   if [[ "$keyword" != "stable" ]]; then
-    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    if [[ $(($RANDOM % 5)) -eq 0 ]]; then
       testfeature="y"
     fi
   fi
