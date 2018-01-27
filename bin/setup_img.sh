@@ -385,6 +385,10 @@ EOF
 
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
+  if [[ "$testfeature" = "y" ]]; then
+    cp /home/tinderbox/tb/data/package.use.test ./etc/portage/package.use/test
+  fi
+
   if [[ "$libressl" = "y" ]]; then
     cp /home/tinderbox/tb/data/package.use.libressl ./etc/portage/package.use/libressl
 

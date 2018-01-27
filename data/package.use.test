@@ -1,0 +1,6 @@
+# package.use/test
+#
+
+# with FEATURES=test hit almost too late eg. by perl-cleaner
+#
+media-libs/tiff           jpeg
