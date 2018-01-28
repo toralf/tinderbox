@@ -17,20 +17,13 @@ function list_images() {
 # ${n} should be the minimum length to distinguish abbreviated image names
 #
 function PrintImageName()  {
-  n=32
+  n=34
 
   string="$(basename $i | cut -c1-$n)"
   printf "%-${n}s" $string
 }
 
 
-# gives sth. like:
-#
-# compl fail  days backlog upd 1st status
-#  3735   41   3.6   16369   0   1   W  r  run/13.0-no-multilib_20170315-195201
-#  6956   75   9.6   13285   0   0     fr  run/13.0-systemd_20170309-190652
-#  10      0   0.0   19301   2   8        img2/13.0-systemd-libressl_20170316-210316
-#
 function check_history()  {
   local file=$1
   local lc=$2
@@ -57,6 +50,13 @@ function check_history()  {
   return
 }
 
+# gives sth. like:
+#
+# compl fail  days backlog upd 1st status
+#  3735   41   3.6   16369   0   1   W  r  run/13.0-no-multilib_20170315-195201
+#  6956   75   9.6   13285   0   0     fr  run/13.0-systemd_20170309-190652
+#  10      0   0.0   19301   2   8        img2/13.0-systemd-libressl_20170316-210316
+#
 function Overall() {
   echo "compl fail  days backlog upd 1st status  $(echo $images | wc -w) images ($(ls -1d ~/img?/* | wc -w) at all)"
 
@@ -109,9 +109,41 @@ function Overall() {
 
 # gives sth. like:
 #
-# 13.0-abi32+64_20170216-202818              0:13 min  >>> (5 of 8) dev-perl/Email-MessageID-1.406.0
-# desktop_20170218-203252                    1:10 h    >>> (1 of 1) games-emulation/sdlmame-0.174
-# desktop-libressl-abi32+64_20170215-18565   0:32 min  *** dev-ruby/stringex
+# 13.0-abi32+64_20170216-202818              1:53 m  mail-filter/assp
+# desktop_20170218-203252                    1:11 h  games-emulation/sdlmame
+# desktop-libressl-abi32+64_20170215-18565   0:03 m  dev-ruby/stringex
+#
+function CurrentTask()  {
+  ts=$(date +%s)
+  for i in $images
+  do
+    PrintImageName
+    tsk=$i/tmp/task
+    if [[ ! -f $tsk || ! -f $i/tmp/LOCK ]]; then
+      echo
+      continue
+    fi
+
+    let "delta = $ts - $(date +%s -r $tsk)"
+    if [[ $delta -ge 3600 ]]; then
+      let "minutes = $delta / 60 % 60"
+      let "hours = $delta / 60 / 60"
+      printf " %3i:%02i h  " $hours $minutes
+    else
+      let "minutes = $delta / 60 % 60"
+      let "seconds = $delta % 60 % 60"
+      printf " %3i:%02i m  " $minutes $seconds
+    fi
+    cat $tsk
+  done
+}
+
+
+# gives sth. like:
+#
+# 13.0-abi32+64_20170216-202818              0:13 m  >>> (5 of 8) dev-perl/Email-MessageID-1.406.0
+# desktop_20170218-203252                    1:10 h  >>> (1 of 1) games-emulation/sdlmame-0.174
+# desktop-libressl-abi32+64_20170215-18565   0:32 m  *** dev-ruby/stringex
 #
 function LastEmergeOperation()  {
   for i in $images
@@ -135,11 +167,11 @@ function LastEmergeOperation()  {
       if ($delta >= 3600) {
         $minutes = $delta / 60 % 60;
         $hours = $delta / 60 / 60;
-        printf (" %3i:%02i h  ", $hours, $minutes);
+        printf (" %3i:%02i h ", $hours, $minutes);
       } else  {
         $minutes = $delta / 60 % 60;
         $seconds = $delta % 60 % 60;
-        printf (" %3i:%02i min", $minutes, $seconds);
+        printf (" %3i:%02i m ", $minutes, $seconds);
       }
       printf (" %s\n", join (" ", @F[1..$#F]));
     '
@@ -196,38 +228,6 @@ function PackagesPerDay() {
         print "\n";
       }
     '
-  done
-}
-
-
-# gives sth. like:
-#
-# 13.0-abi32+64_20170216-202818              1:53 min  mail-filter/assp
-# desktop_20170218-203252                    1:11 h    games-emulation/sdlmame
-# desktop-libressl-abi32+64_20170215-18565   0:03 min  dev-ruby/stringex
-#
-function CurrentTask()  {
-  ts=$(date +%s)
-  for i in $images
-  do
-    PrintImageName
-    tsk=$i/tmp/task
-    if [[ ! -f $tsk || ! -f $i/tmp/LOCK ]]; then
-      echo
-      continue
-    fi
-
-    let "delta = $ts - $(date +%s -r $tsk)"
-    if [[ $delta -ge 3600 ]]; then
-      let "minutes = $delta / 60 % 60"
-      let "hours = $delta / 60 / 60"
-      printf " %3i:%02i h    " $hours $minutes
-    else
-      let "minutes = $delta / 60 % 60"
-      let "seconds = $delta % 60 % 60"
-      printf " %3i:%02i min  " $minutes $seconds
-    fi
-    cat $tsk
   done
 }
 
