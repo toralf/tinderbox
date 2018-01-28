@@ -16,7 +16,7 @@
 # chooses *up to* n-1 arbitrarily choosen USE flags, about 1/m of them are masked
 #
 function ThrowUseFlags()  {
-  n=50
+  n=75
   m=10
 
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
