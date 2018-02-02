@@ -875,22 +875,19 @@ function SwitchGCC() {
     verold=$(gcc -dumpversion)
     gcc-config --nocolor $latest &>> $log
     source /etc/profile
-    # corner case, happened rearely (root cause is outside of this function)
-    # but check for that now nevertheless
-    #
-    if [[ $? -ne 0 ]]; then
-      Finish 2 "can't source /etc/profile"
-    fi
-    vernew=$(gcc -dumpversion)
 
-    majold=$(echo $verold | cut -c1)
-    majnew=$(echo $vernew | cut -c1)
+    # get rid of the old compilers, increase chances to catch issues
+    #
+    cat << EOF >> $backlog
+%emerge --unmerge sys-devel/gcc:$verold
+EOF
 
     # rebuild kernel and toolchain after a major version number change
     #
+    vernew=$(gcc -dumpversion)
+    majold=$(echo $verold | cut -c1)
+    majnew=$(echo $vernew | cut -c1)
     if [[ "$majold" != "$majnew" ]]; then
-      cat << EOF >> $backlog
-%emerge --unmerge sys-devel/gcc:$verold
 %fix_libtool_files.sh $verold
 %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
 EOF
