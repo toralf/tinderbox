@@ -1105,7 +1105,7 @@ function WorkOnTask() {
   #
   if [[ $task =~ ^@ ]]; then
     if [[ "$task" = "@system" ]]; then
-      opts="--update --newuse --changed-use --deep"
+      opts="--update --newuse --changed-use --changed-deps=y --deep"
     elif [[ "$task" = "@world" ]]; then
       opts="--update --newuse --changed-use --changed-deps=y"
     else

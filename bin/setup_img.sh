@@ -528,7 +528,7 @@ function ConfigureImage()  {
 # - few attemps to auto-fix USE flags deps
 #
 function CreateSetupScript()  {
-  dryrun="emerge --deep --update --changed-use @system --pretend"
+  dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
 
   cat << EOF >> ./tmp/setup.sh
 #!/bin/sh
