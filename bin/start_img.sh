@@ -17,7 +17,7 @@ fi
 #
 sleep=0
 if [[ "$1" = "reboot" ]]; then
-  sleep=120
+  sleep=60
   shift
 fi
 
