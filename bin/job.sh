@@ -819,10 +819,11 @@ function GotAnIssue()  {
   CollectIssueFiles
   ClassifyIssue
 
-  # https://bugs.gentoo.org/640866
+  # ttps://bugs.gentoo.org/463976 https://bugs.gentoo.org/640866 https://bugs.gentoo.org/582046
   #
-  grep -q -e "Can't locate Term/ReadKey.pm in @INC" $bak
+  grep -q -e "Can't locate .*/.*.pm in @INC" -e "configure: error: perl module Locale::gettext required" $bak
   if [[ $? -eq 0 ]]; then
+    try_again=1   # just to not fall in the ==0 code path in WorkOnTask()
     cat << EOF >> $backlog
 $task
 %perl-cleaner --all
