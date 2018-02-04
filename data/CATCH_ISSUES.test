@@ -3,6 +3,7 @@ ____ ERROR coll
 argparse.ArgumentError:
 ^E       .*
 ImportError:
+: FAILED (.*:.*)
 ^ERROR:.*test
 Failing test(s):
  (Failed)

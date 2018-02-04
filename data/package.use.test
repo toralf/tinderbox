@@ -1,6 +1,10 @@
 # package.use/test
 #
 
-# with FEATURES=test hit almost too late eg. by perl-cleaner
+# hit by perl-cleaner which is far too late
 #
 media-libs/tiff           jpeg
+
+# mandatory
+#
+x11-base/xorg-server      xvfb

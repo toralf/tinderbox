@@ -28,7 +28,4 @@ dev-java/icedtea-bin      -multilib
 #
 dev-java/icedtea-bin      -cups -gtk
 media-libs/libjpeg-turbo  -java
-media-libs/mesa           -llvm
-sys-apps/man-db           -nls
 sys-fs/eudev              -introspection
-www-client/w3m            -gtk
