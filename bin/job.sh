@@ -1103,9 +1103,9 @@ function WorkOnTask() {
   # @system, @world, @preserved-rebuild
   #
   if [[ $task =~ ^@ ]]; then
-    if [[ "$task" = "@system" ]]; then
+    if [[ $task = "@system" ]]; then
       opts="--update --newuse --changed-use --changed-deps=y --deep"
-    elif [[ "$task" = "@world" ]]; then
+    elif [[ $task = "@world" ]]; then
       opts="--update --newuse --changed-use --changed-deps=y"
     else
       opts=""
