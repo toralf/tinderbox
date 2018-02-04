@@ -18,7 +18,7 @@ if [[ ! -f $f ]]; then
   if [[ -n "$(ls ~/logs/)" && "$(wc -c ~/logs/* 2>/dev/null | tail -n 1 | awk ' { print $1 } ')" != "0" ]]; then
     ls -l ~/logs/* >> $f
     head ~/logs/*  >> $f
-    echo -e "\nto re-activate this test again, do:  truncate -s 0 logs/*; rm -f $f" >> $f
+    echo -e "\n\n\nto re-activate this test again, do:   truncate -s 0 logs/*; rm -f $f" >> $f
 
     cat $f | mail -s "logs are non-empty" $mailto -a ''
   fi
