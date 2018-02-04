@@ -832,9 +832,7 @@ EOF
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    if [[ $task != "@preserved-rebuild" ]]; then
-      echo "$task" >> $backlog
-    fi
+    echo "$task" >> $backlog
   else
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
@@ -987,7 +985,7 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # if nothing is in the backlog then do 24 hours after their last run:
+  # if $backlog is empty then do 24 hours after the last time:
   #   - update @world
   #   - update @system + switch java VM + sync image specific overlays
   #
@@ -995,9 +993,7 @@ function PostEmerge() {
     if [[ -f /tmp/@world.history ]]; then
       let "diff = $(date +%s) - $(date +%s -r /tmp/@world.history)"
       if [[ $diff -gt 86400 ]]; then
-        cat << EOF >> $backlog
-@world
-EOF
+        echo "@world" >> $backlog
       fi
     fi
 
@@ -1026,14 +1022,13 @@ function CheckQA() {
   # process all elog files created after the last call of this function
   #
   if [[ -f $f ]]; then
-    t=$f.tmp
     find /var/log/portage/elog -name '*.log' -newer $f  > $f.tmp
   else
     find /var/log/portage/elog -name '*.log'            > $f.tmp
   fi
   mv $f.tmp $f
 
-  # process each QA issue independent from others even for the same QA file
+  # process each QA issue independent from all others even for the same QA file
   #
   cat $f |\
   while read elogfile
