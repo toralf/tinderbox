@@ -832,9 +832,7 @@ EOF
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    # do not repeat eg. @preserved-rebuild
-    #
-    if [[ "$(tail -n 1 $backlog)" != "$task" ]]; then
+    if [[ $task != "@preserved-rebuild" ]]; then
       echo "$task" >> $backlog
     fi
   else
