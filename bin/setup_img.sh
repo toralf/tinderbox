@@ -13,7 +13,7 @@
 # functions
 #
 
-# chooses up to n-1 arbitrarily choosen USE flags, up to m-1 of them are masked
+# set up to n-1 arbitrarily choosen USE flags, up to m-1 of them are masked
 #
 function ThrowUseFlags()  {
   n=40
@@ -47,7 +47,7 @@ function SetOptions() {
 
   # 17.0 rules
   #
-  profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/developer' -e '/selinux' | sort --random-sort | head -n 1)
+  profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' | sort --random-sort | head -n 1)
 
   # check stable rather rarely
   #
