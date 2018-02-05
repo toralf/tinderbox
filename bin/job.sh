@@ -632,6 +632,13 @@ function CompileIssueMail() {
 
   SearchForBlocker
 
+  # the upper limit is 16 KB at b.g.o.
+  #
+  while [[ $(wc -c < $issuedir/issue) -gt 12000 ]]
+  do
+    sed -i '1d' $issuedir/issue
+  done
+
   # copy issue to the email body before enhancing it further to become comment#0
   #
   cp $issuedir/issue $issuedir/body
@@ -653,11 +660,6 @@ $(eselect java-vm list 2>/dev/null)
 emerge -qpv $short
 $(emerge -qpv $short 2>/dev/null)
 EOF
-
-  while [[ $(wc -c < $issuedir/issue) -gt 16384 ]]
-  do
-    sed -i '1d' $issuedir/issue
-  done
 
   if [[ -s $issuedir/title ]]; then
     TrimTitle 200
