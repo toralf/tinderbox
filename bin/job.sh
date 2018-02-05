@@ -1147,7 +1147,15 @@ function WorkOnTask() {
           if [[ -n "$failed" ]]; then
             echo "%emerge --resume --skip-first" >> $backlog
           else
-            Finish 3 "resume failed"
+            grep -q ' Invalid resume list:' $bak
+            if [[ $? -eq 0 ]]; then
+              cat << EOF >> $backlog
+@world
+@system
+EOF
+            else
+              Finish 3 "resume failed"
+            fi
           fi
         else
           Finish 3 "command: '$cmd'"
