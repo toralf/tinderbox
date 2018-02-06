@@ -468,6 +468,7 @@ function CreateBacklog()  {
   fi
 
   # explicitely emerge sources b/c IGNORE_PACKAGES contains sys-kernel/*
+  # emerge it befofe @system/@world so the kernel and its modules are already build
   #
   cat << EOF >> $backlog.1st
 @world
@@ -475,7 +476,7 @@ function CreateBacklog()  {
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
-  # switch to LibreSSL after GCC upgrade
+  # switch to LibreSSL before @system
   #
   if [[ "$libressl" = "y" ]]; then
     # -C triggers the necessary @preserved-rebuild
@@ -487,9 +488,10 @@ EOF
 EOF
   fi
 
-  # update GCC asap after setup
+  # update GCC and portage asap
   #
   cat << EOF >> $backlog.1st
+sys-apps/portage
 %emerge -u sys-devel/gcc
 EOF
 
