@@ -476,6 +476,12 @@ function CreateBacklog()  {
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
+  # give media-libs/jpeg a chance (requested by asturm)
+  #
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    echo "media-libs/jpeg" >> $backlog.1st
+  fi
+
   # switch to LibreSSL before @system
   #
   if [[ "$libressl" = "y" ]]; then
