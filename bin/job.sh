@@ -6,7 +6,6 @@
 # main function: WorkOnTask()
 # the remaining code just parses the output, that's all
 
-
 # strip away escape sequences
 # hint: colorstrip() doesn't modify its argument, instead it returns the result
 #
@@ -823,7 +822,7 @@ function GotAnIssue()  {
 
   # ttps://bugs.gentoo.org/463976 https://bugs.gentoo.org/640866 https://bugs.gentoo.org/582046
   #
-  grep -q -e "Can't locate .*/.*.pm in @INC" -e "configure: error: perl module Locale::gettext required" $bak
+  grep -q -e "Can't locate .* in @INC" -e "configure: error: perl module Locale::gettext required" $bak
   if [[ $? -eq 0 ]]; then
     try_again=1   # just to not fall in the ==0 code path in WorkOnTask()
     cat << EOF >> $backlog
