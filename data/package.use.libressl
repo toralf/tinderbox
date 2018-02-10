@@ -1,10 +1,6 @@
 # package.use/libressl
 #
 
-# use "ssl" just for OpenSSL only as long as QT doesn't play well with LibreSSL
-#
-dev-qt/qtnetwork  -ssl
-
 # still open: https://bugs.gentoo.org/643304
 #
 net-misc/iputils  openssl -gcrypt -nettle
