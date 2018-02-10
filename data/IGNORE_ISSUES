@@ -51,6 +51,7 @@ Select exactly one database type out of these:
 Sorry, but this version does not yet support features
 Sorry, but you have to patch kernel sources with the following patch
 Space constraints set in the ebuild were not met!
+sys-apps/systemd.* : sandbox issue (XDG_xxx_DIR related)
 The following .* changes are necessary to proceed:
 The following REQUIRED_USE flag constraints are unsatisfied:
 The HyperSpec cannot be redistributed.
