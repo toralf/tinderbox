@@ -1113,7 +1113,14 @@ function WorkOnTask() {
     /usr/bin/pfl &> /dev/null
 
     if [[ $rc -ne 0 ]]; then
-      echo "$(date) ${failed:-NOT ok}" >> /tmp/$task.history
+      if [[ -n "$failed" ]]; then
+        echo "$(date) $failed" >> /tmp/$task.history
+      else
+        msg=$(grep -m 1 -e 'The following REQUIRED_USE flag constraints are unsatisfied:' \
+            $bak)
+        echo "$(date) ${msg:-NOT ok}" >> /tmp/$task.history
+      fi
+
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then
           echo "%emerge --resume --skip-first" >> $backlog
