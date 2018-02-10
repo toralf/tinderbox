@@ -497,7 +497,6 @@ EOF
   # update GCC and portage asap
   #
   cat << EOF >> $backlog.1st
-sys-apps/portage
 %emerge -u sys-devel/gcc
 EOF
 
