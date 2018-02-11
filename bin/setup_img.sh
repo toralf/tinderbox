@@ -503,7 +503,10 @@ EOF
   # stage4 does this but we do use stage3
   #
   if [[ $profile =~ "systemd" ]]; then
-    echo "%dbus-uuidgen --ensure=/etc/machine-id" >> $backlog.1st
+    cat << EOF >> $backlog.1st
+%systemd-machine-id-setup
+%dbus-uuidgen --ensure=/etc/machine-id
+EOF
   fi
 }
 
@@ -558,6 +561,11 @@ de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
 locale-gen -j1 || exit 6
 eselect locale set en_US.utf8 || exit 6
+
+if [[ $profile =~ "systemd" ]]; then
+  echo 'LANG="en_US.utf8"' > /etc/locale.conf
+fi
+
 env-update
 source /etc/profile
 
