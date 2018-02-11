@@ -354,11 +354,11 @@ function CompilePortageFiles()  {
   touch      ./etc/portage/package.use/setup      # USE flags added at setup
   chmod a+rw ./etc/portage/package.use/setup
 
-  echo "*/* $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
+  echo "*/* $(cpuid2cpuflags)"    > ./etc/portage/package.use/00cpuflags
 
   # force "test", useful if there's no system-wide "test"
   #
-  echo 'FEATURES="test"'         > ./etc/portage/env/test
+  echo 'FEATURES="test"'          > ./etc/portage/env/test
 
   # build w/o "test", useful if test phase is knwown to be br0ken or takes too long
   #
@@ -375,7 +375,7 @@ function CompilePortageFiles()  {
   # no parallel build
   #
   cat << EOF                      > ./etc/portage/env/noconcurrent
-MAKEOPTS="-j1"
+MAKEOPTS="-j 1"
 NINJAFLAGS="-j 1"
 EGO_BUILD_FLAGS="-p 1"
 GOMAXPROCS="1"
@@ -386,34 +386,34 @@ EOF
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
   if [[ "$testfeature" = "y" ]]; then
-    cp /home/tinderbox/tb/data/package.use.test ./etc/portage/package.use/test
+    cp /home/tinderbox/tb/data/package.use.test         ./etc/portage/package.use/test
   fi
 
   if [[ "$libressl" = "y" ]]; then
-    cp /home/tinderbox/tb/data/package.use.libressl ./etc/portage/package.use/libressl
+    cp /home/tinderbox/tb/data/package.use.libressl     ./etc/portage/package.use/libressl
 
     cat << EOF >> ./tmp/00sslvendor
-*/*           libressl -gnutls -openssl
-net-misc/curl curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
+*/*               libressl -gnutls -openssl
+net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 EOF
   fi
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
-    cp /home/tinderbox/tb/data/$d.common ./etc/portage/$d/common
+    cp /home/tinderbox/tb/data/$d.common                ./etc/portage/$d/common
   done
 
   for d in package.{accept_keywords,unmask}
   do
-    cp /home/tinderbox/tb/data/$d.$keyword ./etc/portage/$d/$keyword
+    cp /home/tinderbox/tb/data/$d.$keyword              ./etc/portage/$d/$keyword
   done
 
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    cp /home/tinderbox/tb/data/package.use.ff-and-tb ./etc/portage/package.use/ff-and-tb
+    cp /home/tinderbox/tb/data/package.use.ff-and-tb    ./etc/portage/package.use/ff-and-tb
   fi
 
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    cp /home/tinderbox/tb/data/package.use.ffmpeg ./etc/portage/package.use/ffmpeg
+    cp /home/tinderbox/tb/data/package.use.ffmpeg       ./etc/portage/package.use/ffmpeg
   fi
 
   chgrp portage ./etc/portage/package.*/*
