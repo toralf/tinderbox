@@ -100,3 +100,4 @@ error: The .* command requires the .* package
 LLVM ERROR:
 distutils.errors.
 Couldn't resolve host
+PermissionError: .* Permission denied
