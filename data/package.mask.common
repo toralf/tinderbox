@@ -1,11 +1,6 @@
 # package.mask/common
 #
 
-#	media-libs/libjpeg-turbo is preferred, ABI breakage otherwise:
-# https://bugs.gentoo.org/show_bug.cgi?id=541946 https://bugs.gentoo.org/show_bug.cgi?id=551022
-#
-media-libs/jpeg
-
 # broken
 #
 dev-util/pkgconfig-openbsd
