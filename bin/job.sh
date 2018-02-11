@@ -2,9 +2,11 @@
 #
 # set -x
 
-# this is the tinderbox script itself
-# main function: WorkOnTask()
-# the remaining code just parses the output, that's all
+
+# This is the tinderbox script itself, main function is WorkOnTask().
+# The remaining code just parses the output.
+# That's all.
+
 
 # strip away escape sequences
 # hint: colorstrip() doesn't modify its argument, instead it returns the result
