@@ -100,6 +100,7 @@ if [[ -f $lock ]]; then
   exit 1
 fi
 touch $lock || exit 2
+chown tinderbox:tinderbox $lock
 
 # 2nd barrier to prevent starting the same chroot image twice: grep mount table
 # this is a weak condition b/c a mount could be made using a symlink name
