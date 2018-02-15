@@ -1114,12 +1114,19 @@ function WorkOnTask() {
     cp $log /tmp/$task.last.log
     /usr/bin/pfl &> /dev/null
 
+    # "ok|NOT ok" is used in check_history() of whatsup.sh
+    #
+    msg=$(grep -m 1 -e 'The following REQUIRED_USE flag constraints are unsatisfied:' \
+                    -e 'The following USE changes are necessary'    \
+                    -e 'The following update has been skipped'      \
+                    -e 'WARNING: One or more updates/rebuilds'      \
+                    -e 'resulting in a slot conflict'               \
+        $bak)
+
     if [[ $rc -ne 0 ]]; then
       if [[ -n "$failed" ]]; then
         echo "$(date) $failed" >> /tmp/$task.history
       else
-        msg=$(grep -m 1 -e 'The following REQUIRED_USE flag constraints are unsatisfied:' \
-            $bak)
         echo "$(date) ${msg:-NOT ok}" >> /tmp/$task.history
       fi
 
@@ -1132,13 +1139,6 @@ function WorkOnTask() {
       fi
 
     else
-      # this is used in check_history() of whatsup.sh
-      #
-      msg=$(grep -m 1 -e 'WARNING: One or more updates/rebuilds'  \
-                      -e 'resulting in a slot conflict'           \
-                      -e 'The following update has been skipped'  \
-                      -e 'The following USE changes are necessary'\
-          $bak)
       echo "$(date) ${msg:-ok}" >> /tmp/$task.history
     fi
 
