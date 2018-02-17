@@ -1114,21 +1114,18 @@ function WorkOnTask() {
     cp $log /tmp/$task.last.log
     /usr/bin/pfl &> /dev/null
 
-    # "ok|NOT ok" is used in check_history() of whatsup.sh
+    # "ok|NOT ok|<other>" is used in check_history() of whatsup.sh
+    # to display " ", "[SWP]" or "[swp]" respectively
     #
     msg=$(grep -m 1 -e 'The following REQUIRED_USE flag constraints are unsatisfied:' \
                     -e 'The following USE changes are necessary'    \
                     -e 'The following update has been skipped'      \
                     -e 'WARNING: One or more updates/rebuilds'      \
-                    -e 'resulting in a slot conflict'               \
+                    -e 'Multiple package instances within a single package slot have been pulled' \
         $bak)
 
     if [[ $rc -ne 0 ]]; then
-      if [[ -n "$failed" ]]; then
-        echo "$(date) $failed" >> /tmp/$task.history
-      else
-        echo "$(date) ${msg:-NOT ok}" >> /tmp/$task.history
-      fi
+      echo "$(date) NOT ok ${failed:-$msg}" >> /tmp/$task.history
 
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$failed" ]]; then

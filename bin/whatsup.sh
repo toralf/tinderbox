@@ -29,13 +29,13 @@ function check_history()  {
   local lc=$2
 
   if [[ -s $file ]]; then
-    tail -n 1 $file | grep -q "20.. ok$"
+    tail -n 1 $file | grep -q "20.. ok"
     if [[ $? -eq 0 ]]; then
       flag=" $flag"
       return
     fi
 
-    tail -n 1 $file | grep -q "20.. NOT ok$"
+    tail -n 1 $file | grep -q "20.. NOT ok"
     if [[ $? -eq 0 ]]; then
       local uc=$(echo $lc | tr '[:lower:]' '[:upper:]')
       flag="${uc}${flag}"
