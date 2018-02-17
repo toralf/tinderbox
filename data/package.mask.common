@@ -17,22 +17,6 @@ app-office/openoffice-bin
 #
 net-fs/openafs-kernel
 
-# hang: https://bugs.gentoo.org/show_bug.cgi?id=601130
-#
-www-client/w3mmee
-
-# @preserved-rebuild loop with dev-python/mysql-python
-#
-app-backup/holland-lib-mysql
-
-# https://bugs.gentoo.org/show_bug.cgi?id=601992
-#
-app-admin/elektra
-
-# repeated perl upgrade issue
-#
-www-misc/vdradmin-am
-
 # calls for trouble b/c it sneaks into PATH
 #
 dev-util/plan9port

@@ -46,3 +46,6 @@ SyntaxError: invalid syntax|SyntaxError: Missing parentheses in call to
 # Python 3.5 issues
 639190
 No module named setuptools
+# glibc-2.27
+637144
+ld: cannot find -lieee

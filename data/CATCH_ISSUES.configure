@@ -27,3 +27,5 @@ Unrecognized option
 Can't locate .* in @INC
 SyntaxError: invalid syntax
 This version of Camlp4 is for OCaml
+: uninitialized constant
+\\* ERROR:

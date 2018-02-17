@@ -27,5 +27,6 @@ dev-java/icedtea-bin      -multilib
 # nagging tinderbox image setup difficulties
 #
 dev-java/icedtea-bin      -cups -gtk
+sys-apps/man-db           -nls
 media-libs/libjpeg-turbo  -java
 sys-fs/eudev              -introspection

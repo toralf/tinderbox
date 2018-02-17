@@ -187,4 +187,5 @@ Error .
  loadable library and perl binaries are mismatched
 setup: can't find source for
 USE Flag .* not in IUSE
+:Error:
 ERROR:
