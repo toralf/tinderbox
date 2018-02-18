@@ -430,6 +430,10 @@ function collectTestIssueResults() {
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
+  # test", "compile" etc.
+  #
+  phase=""
+
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
     foundCollisionIssue
 
@@ -437,8 +441,6 @@ function ClassifyIssue() {
     foundSandboxIssue
 
   else
-    # note: $phase is empty, eg.: for fetch failures
-    #
     phase=$(
       grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $bak |\
       tee $issuedir/issue                                   |\
