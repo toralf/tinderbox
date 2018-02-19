@@ -829,7 +829,7 @@ function GotAnIssue()  {
   emerge -qpv $short &> $issuedir/emerge-qpv
   ClassifyIssue
 
-  # ttps://bugs.gentoo.org/463976 https://bugs.gentoo.org/640866 https://bugs.gentoo.org/582046
+  # https://bugs.gentoo.org/463976 https://bugs.gentoo.org/640866 https://bugs.gentoo.org/582046
   #
   grep -q -e "Can't locate .* in @INC" -e "configure: error: perl module Locale::gettext required" $bak
   if [[ $? -eq 0 ]]; then
