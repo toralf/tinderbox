@@ -662,7 +662,7 @@ $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-avai
 $(eselect java-vm list 2>/dev/null)
 
 emerge -qpv $short
-$(emerge -qpv $short 2>/dev/null)
+$(cat $issuedir/emerge-qpv)
 EOF
 
   if [[ -s $issuedir/title ]]; then
@@ -823,6 +823,10 @@ function GotAnIssue()  {
   cp $bak $issuedir
   setWorkDir
   CollectIssueFiles
+
+  # get this before /etc/portage/package.*/* files are changed
+  #
+  emerge -qpv $short &> $issuedir/emerge-qpv
   ClassifyIssue
 
   # ttps://bugs.gentoo.org/463976 https://bugs.gentoo.org/640866 https://bugs.gentoo.org/582046
