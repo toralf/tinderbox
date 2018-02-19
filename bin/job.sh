@@ -879,27 +879,26 @@ function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
   gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
   if [[ $? -eq 1 ]]; then
-    verold=$(gcc -dumpversion)
     gcc-config --nocolor $latest &>> $log
     source /etc/profile
 
-    # get rid of the old compiler to ensure that only the new one is used
+    # ensure that only the new GCC is used
     #
+    verold=$(gcc -dumpversion)
     cat << EOF >> $backlog
 %emerge --unmerge sys-devel/gcc:$verold
 EOF
 
-    # rebuild kernel and toolchain after a major version number change
-    #
     vernew=$(gcc -dumpversion)
     majold=$(echo $verold | cut -c1)
     majnew=$(echo $vernew | cut -c1)
+
     if [[ "$majold" != "$majnew" ]]; then
+      cat << EOF >> $backlog
 %fix_libtool_files.sh $verold
 %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
 EOF
-      # without a rebuild we'd get issues like: "cc1: error: incompatible gcc/plugin versions"
-      # therefore clean the old object files
+      # clean old object files to avoid "cc1: error: incompatible gcc/plugin versions"
       #
       if [[ -e /usr/src/linux/.config ]]; then
         (cd /usr/src/linux && make clean &>/dev/null)
