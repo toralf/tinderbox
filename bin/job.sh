@@ -883,7 +883,7 @@ function SwitchGCC() {
     gcc-config --nocolor $latest &>> $log
     source /etc/profile
 
-    # get rid of the old compilers, increase chances to catch issues
+    # get rid of the old compiler to ensure that only the new one is used
     #
     cat << EOF >> $backlog
 %emerge --unmerge sys-devel/gcc:$verold
