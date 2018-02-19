@@ -3,7 +3,8 @@
 # set -x
 
 
-# This is the tinderbox script itself, main function is WorkOnTask().
+# This is the tinderbox script itself.
+# The main function is WorkOnTask().
 # The remaining code just parses the output.
 # That's all.
 
