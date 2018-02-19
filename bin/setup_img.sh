@@ -45,16 +45,13 @@ function SetOptions() {
   autostart="y"   # start the image after setup
   origin=""       # clone from the specified image
 
-  # 17.0 rules
+  # choose one of 17.0/*
   #
   profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' | sort --random-sort | head -n 1)
 
-  # check stable rather rarely
+  # check stable only explicitely
   #
   keyword="unstable"
-  if [[ $(($RANDOM % 30)) -eq 0 ]]; then
-    keyword="stable"
-  fi
 
   # alternative SSL vendor: LibreSSL
   #
@@ -381,6 +378,8 @@ EGO_BUILD_FLAGS="-p 1"
 GOMAXPROCS="1"
 GO19CONCURRENTCOMPILATION=0
 RUSTFLAGS="-C codegen-units=1"
+RUST_TEST_THREADS=1
+RUST_TEST_TASKS=1
 EOF
 
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
@@ -416,8 +415,8 @@ EOF
     cp /home/tinderbox/tb/data/package.use.ffmpeg       ./etc/portage/package.use/ffmpeg
   fi
 
-  chgrp portage ./etc/portage/package.*/*
-  chmod a+r,g+w ./etc/portage/package.*/*
+  chgrp portage ./etc/portage/package.*/* ./etc/portage/env/*
+  chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/*
 }
 
 
@@ -485,7 +484,7 @@ EOF
   # switch to LibreSSL before @system
   #
   if [[ "$libressl" = "y" ]]; then
-    # -C triggers the necessary @preserved-rebuild
+    # -C triggers the mandatory @preserved-rebuild
     #
     cat << EOF >> $backlog.1st
 %emerge -C openssl
@@ -494,18 +493,19 @@ EOF
 EOF
   fi
 
-  # update GCC and portage asap
+  # update GCC asap
+  # %...  : bail out if it fails
+  # no --deep, that would turn effectively into @system
   #
   cat << EOF >> $backlog.1st
 %emerge -u sys-devel/gcc
 EOF
 
-  # stage4 does this but we do use stage3
+  # stage4 whould have this already but we do use stage3
   #
   if [[ $profile =~ "systemd" ]]; then
     cat << EOF >> $backlog.1st
 %systemd-machine-id-setup
-%dbus-uuidgen --ensure=/etc/machine-id
 EOF
   fi
 }
