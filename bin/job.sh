@@ -877,9 +877,11 @@ function BuildKernel()  {
 #
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
-  gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
+  wanted=${1:-$latest}
+
+  gcc-config --list-profiles --nocolor | grep -q "$wanted \*$"
   if [[ $? -eq 1 ]]; then
-    gcc-config --nocolor $latest &>> $log
+    gcc-config --nocolor $wanted &>> $log
     source /etc/profile
 
     # ensure that only the new GCC is used
