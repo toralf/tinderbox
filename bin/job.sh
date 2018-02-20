@@ -82,14 +82,14 @@ function setNextTask() {
       Finish 0 "catched STOP file"
     fi
 
-    # re-try an unfinished task (eg.: due to a reboot)
+    # re-try an unfinished task (eg.: due to a reboot -or- Finish with rc != 0)
     #
     if [[ -s $tsk ]]; then
       task=$(cat $tsk)
       return
     fi
 
-    # this backlog is only filled by us -or- was pre-filled from the cloned image backlog
+    # backlog.1st is either filled up by us or was pre-filled by setup_img.sh
     #
     if [[ -s /tmp/backlog.1st ]]; then
       bl=/tmp/backlog.1st
@@ -99,7 +99,7 @@ function setNextTask() {
     elif [[ -s /tmp/backlog.upd && $(($RANDOM % 2)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
 
-    # filled up during image setup -or- regularly by retest.sh
+    # filled up during image setup
     #
     elif [[ -s /tmp/backlog ]]; then
       bl=/tmp/backlog
