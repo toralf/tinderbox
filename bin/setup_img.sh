@@ -466,8 +466,7 @@ function CreateBacklog()  {
     echo "INFO starting replay of task history of $origin"    >> $backlog.1st
   fi
 
-  # explicitely emerge sources b/c IGNORE_PACKAGES contains sys-kernel/*
-  # emerge it befofe @system/@world so the kernel and its modules are already build
+  # explicitely emerge kernel sources b/c IGNORE_PACKAGES contains sys-kernel/*
   #
   cat << EOF >> $backlog.1st
 @world
@@ -475,7 +474,7 @@ function CreateBacklog()  {
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
-  # give media-libs/jpeg a chance (requested by asturm)
+  # asturm: give media-libs/jpeg a chance
   #
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
     echo "media-libs/jpeg" >> $backlog.1st
@@ -484,7 +483,7 @@ EOF
   # switch to LibreSSL before @system
   #
   if [[ "$libressl" = "y" ]]; then
-    # -C triggers the mandatory @preserved-rebuild
+    # the unmerge triggers the mandatory @preserved-rebuild
     #
     cat << EOF >> $backlog.1st
 %emerge -C openssl
@@ -493,9 +492,19 @@ EOF
 EOF
   fi
 
-  # update GCC asap
-  # %...  : bail out if it fails
-  # no --deep, that would turn effectively into @system
+  # Soap: reactivate GCC-5 a little bit
+  #
+  if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+    cat << EOF >> $backlog.1st
+%SwitchGCC x86_64-pc-linux-gnu-5.4.0
+EOF
+    echo ">=sys-devel/gcc-6.4.0" > ./etc/portage/package.mask/gcc
+    echo "~sys-devel/gcc-5.4.0"  > ./etc/portage/package.unmask/gcc
+  fi
+
+  # GCC first
+  #   %...  : bail out if it fails
+  #   no --deep, that would turn effectively into @system
   #
   cat << EOF >> $backlog.1st
 %emerge -u sys-devel/gcc
