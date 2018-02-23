@@ -881,17 +881,17 @@ function SwitchGCC() {
 
   gcc-config --list-profiles --nocolor | grep -q "$wanted \*$"
   if [[ $? -eq 1 ]]; then
+    verold=$(gcc -dumpversion)
     gcc-config --nocolor $wanted &>> $log
     source /etc/profile
+    vernew=$(gcc -dumpversion)
 
     # ensure that only the new GCC is used
     #
-    verold=$(gcc -dumpversion)
     cat << EOF >> $backlog
 %emerge --unmerge sys-devel/gcc:$verold
 EOF
 
-    vernew=$(gcc -dumpversion)
     majold=$(echo $verold | cut -c1)
     majnew=$(echo $vernew | cut -c1)
 
