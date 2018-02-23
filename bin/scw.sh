@@ -2,10 +2,10 @@
 #
 # set -x
 
-# this is a (s)imple (c)hroot (w)rapper to go into a (running) tinderbox image
+# this is a (s)imple (c)hroot (w)rapper to chroot into a *running* tinderbox image
 # it will not mount any file systems like /dev, /proc or so
 
-if [[ $# -ne 1 ]]; then
+if [[ $# -eq 0 ]]; then
   echo
   echo " an image name is expected !"
   echo
@@ -13,6 +13,7 @@ if [[ $# -ne 1 ]]; then
 fi
 
 mnt=$1
+shift
 
 # guess a directory if just the name is given
 #
@@ -28,8 +29,12 @@ if [[ ! -d $mnt ]]; then
   mnt=$tmp
 fi
 
-# if $mnt is still invalid than chroot should tell this
-#
-sudo /usr/bin/chroot $mnt
+if [[ $# -gt 0 ]]; then
+  # do "su - root" to double ensure to use the chroot image environment
+  #
+  /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
+else
+  /usr/bin/chroot $mnt /bin/bash -l
+fi
 
 exit $?
