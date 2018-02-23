@@ -76,6 +76,8 @@ No CommonLisp implementation found
 Could not link test program to Python
 is banned in EAPI=
 exceeds the 32 bit address space
+Please upgrade your Go installation.
+Please install go.* or later.
 make:.* Stop.
 error adding symbols:
 pdflatex failed

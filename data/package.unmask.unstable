@@ -6,3 +6,8 @@
 # request by dilfridge
 #
 ~sys-libs/glibc-2.27
+
+# asturm
+#
+~sys-apps/attr-2.4.48
+~sys-apps/acl-2.2.52

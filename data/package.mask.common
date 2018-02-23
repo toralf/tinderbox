@@ -20,3 +20,11 @@ net-fs/openafs-kernel
 # calls for trouble b/c it sneaks into PATH
 #
 dev-util/plan9port
+
+# Bug 601130 - www-client/w3mmee-0.3.2_p24-r9: hang during configure step (infinite loop in choosing a language)
+#
+www-client/w3mmee
+
+# https://bugs.gentoo.org/show_bug.cgi?id=647924  pytest-relaxed changes pytest behaviour in an incompatible way
+#
+dev-python/pytest-relaxed
