@@ -158,7 +158,7 @@ function LastEmergeOperation()  {
     # catch the last eventually started emerge operation
     #
     tac $log |\
-    grep -m 1 -E -e '>>>|*** emerge' -e ' \*\*\* terminating.' -e '::: completed emerge' |\
+    grep -m 1 -E -e '>>>|\*\*\* emerge' -e ' \*\*\* terminating.' -e '::: completed emerge' |\
     sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
     perl -wane '
       chop ($F[0]);
