@@ -842,11 +842,14 @@ EOF
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    # don't repeat the whole process eg. due to a failed test
-    #
-    if [[ $task =~ ^@ || $task =~ ^% ]]; then
+    if [[ $task =~ ^% ]]; then
+      # don't repeat eg. revdep-rebuild after GCC just for a failed test
+      # ignore here a changed dep graph for "test" -> "-test"
+      #
       echo "%emerge --resume" >> $backlog
     else
+      # deps for @sets and for a common package have to be recalculated
+      #
       echo "$task" >> $backlog
     fi
   else
