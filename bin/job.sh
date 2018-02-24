@@ -842,7 +842,13 @@ EOF
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $backlog
+    # don't repeat the whole process eg. due to a failed test
+    #
+    if [[ $task =~ ^@ || $task =~ ^% ]]; then
+      echo "%emerge --resume" >> $backlog
+    else
+      echo "$task" >> $backlog
+    fi
   else
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
