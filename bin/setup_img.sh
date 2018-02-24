@@ -500,6 +500,11 @@ EOF
 EOF
     echo ">=sys-devel/gcc-6.4.0" > ./etc/portage/package.mask/gcc
     echo "~sys-devel/gcc-5.4.0"  > ./etc/portage/package.unmask/gcc
+
+  # stay at GCC-6.x even at unstable
+  #
+  elif [[ $(($RANDOM % 10)) -eq 0 ]]; then
+    echo ">=sys-devel/gcc-7.3.0" > ./etc/portage/package.mask/gcc
   fi
 
   # GCC first
