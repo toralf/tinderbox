@@ -505,11 +505,10 @@ EOF
   # GCC first
   #   %...  : bail out if it fails
   #   no --deep, that would turn effectively into @system
-  # upgrade dev-libs/mpc before to avoid a rebuild of gcc
+  # add dev-libs/mpc too to avoid a rebuild of gcc
   #
   cat << EOF >> $backlog.1st
-%emerge -u sys-devel/gcc
-dev-libs/mpc
+%emerge -u sys-devel/gcc dev-libs/mpc
 EOF
 
   # stage4 whould have this done already but we do use stage3
