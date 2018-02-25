@@ -954,11 +954,6 @@ function PostEmerge() {
   rm -f /etc/._cfg????_{hosts,resolv.conf}
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
-  ls /etc/._cfg????_locale.gen &>/dev/null
-  if [[ $? -eq 0 ]]; then
-    echo "%locale-gen" >> $backlog
-    rm /etc/._cfg????_locale.gen
-  fi
 
   etc-update --automode -5 1>/dev/null
   env-update &>/dev/null
@@ -1284,6 +1279,12 @@ do
   # auto-clean is deactivated to collect issue files
   #
   rm -rf /var/tmp/portage/*
+
+  ls /etc/._cfg????_locale.gen &>/dev/null
+  if [[ $? -eq 0 ]]; then
+    echo "%locale-gen" >> $backlog
+    rm /etc/._cfg????_locale.gen
+  fi
 
   setNextTask
   echo "$task" | tee -a $tsk.history > $tsk
