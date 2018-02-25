@@ -13,14 +13,6 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-# lower the I/O pressure b/c disk cache is empty after reboot
-#
-sleep=0
-if [[ "$1" = "reboot" ]]; then
-  sleep=120
-  shift
-fi
-
 cd ~
 
 for mnt in ${@:-$(ls ~/run)}
@@ -68,7 +60,6 @@ do
 
   cp /opt/tb/bin/{job,pre-check}.sh $mnt/tmp || continue
 
-  sleep $sleep
   echo " $(date) starting $mnt"
   nohup nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
   sleep 1
