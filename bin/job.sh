@@ -1114,9 +1114,9 @@ function WorkOnTask() {
   #
   if [[ $task =~ ^@ ]]; then
     if [[ $task = "@system" ]]; then
-      opts="--update --newuse --changed-use --changed-deps=y --deep"
+      opts="--update --newuse --changed-use --deep"
     elif [[ $task = "@world" ]]; then
-      opts="--update --newuse --changed-use --changed-deps=y"
+      opts="--update --newuse --changed-use"
     else
       opts=""
     fi
@@ -1153,6 +1153,9 @@ function WorkOnTask() {
 
     else
       echo "$(date) ${msg:-ok}" >> /tmp/$task.history
+      if [[ $task = "@world" ]]; then
+        echo "%emerge --depclean" >> $backlog
+      fi
     fi
 
   # %revdep-rebuild, %switch2libressl.sh, resuming
