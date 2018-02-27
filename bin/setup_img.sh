@@ -504,7 +504,7 @@ EOF
   # stay at GCC-6.x even at unstable
   #
   elif [[ $(($RANDOM % 10)) -eq 0 ]]; then
-    echo ">=sys-devel/gcc-7.3.0" > ./etc/portage/package.mask/gcc
+    echo ">=sys-devel/gcc-7.0.0" > ./etc/portage/package.mask/gcc
   fi
 
   # GCC first
