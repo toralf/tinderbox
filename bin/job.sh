@@ -1093,6 +1093,10 @@ function RunAndCheck() {
   ($1) &>> $log
   local rc=$?
 
+  if [[ $task =~ " --depclean" ]]; then
+    return 0
+  fi
+
   PostEmerge
   CheckQA
 
@@ -1181,6 +1185,8 @@ EOF
               Finish 3 "resume failed"
             fi
           fi
+        elif [[ $task =~ " --depclean" ]]; then
+          :
         else
           Finish 3 "command: '$cmd'"
         fi
