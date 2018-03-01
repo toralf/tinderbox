@@ -261,18 +261,23 @@ EOF
 # get assignee and cc for the b.g.o. entry
 #
 function GetAssigneeAndCc() {
-  m=$(equery meta -m $short | grep '@' | xargs)
+  if [[ $( gcc -dumpversion | cut -c1 ) -eq 5 ]]; then
+    echo "soap@gentoo.org" > $issuedir/assignee
 
-  if [[ -n "$m" ]]; then
-    a=$(echo "$m" | cut -f1  -d' ')
-    c=$(echo "$m" | cut -f2- -d' ' -s)
-
-    echo "$a" > $issuedir/assignee
-    if [[ -n "$c" ]]; then
-      echo "$c" > $issuedir/cc
-    fi
   else
-    echo "maintainer-needed@gentoo.org" > $issuedir/assignee
+    m=$(equery meta -m $short | grep '@' | xargs)
+
+    if [[ -n "$m" ]]; then
+      a=$(echo "$m" | cut -f1  -d' ')
+      c=$(echo "$m" | cut -f2- -d' ' -s)
+
+      echo "$a" > $issuedir/assignee
+      if [[ -n "$c" ]]; then
+        echo "$c" > $issuedir/cc
+      fi
+    else
+      echo "maintainer-needed@gentoo.org" > $issuedir/assignee
+    fi
   fi
 }
 
