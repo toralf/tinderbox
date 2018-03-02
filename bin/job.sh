@@ -790,6 +790,25 @@ function setWorkDir() {
 }
 
 
+# helper of GotAnIssue()
+#
+function KeepGoing() {
+  if [[ $task =~ "revdep-rebuild" ]]; then
+    # don't repeat if just for a failed test
+    # and do ignore here a changed dep graph caused by "test" -> "-test"
+    #
+    echo "%emerge --resume" >> $backlog
+
+  else
+    # deps for @sets or for a common package have to be recalculated
+    # b/c they might be changed due to locally masked packages
+    # and/or by an updated repository
+    #
+    echo "$task" >> $backlog
+  fi
+}
+
+
 # collect files, create an email and decide, whether to send it out or not
 #
 function GotAnIssue()  {
@@ -805,9 +824,12 @@ function GotAnIssue()  {
     Finish 1 "KILLED"
   fi
 
-  grep -q -e 'AssertionError: ebuild not found for' -e 'portage.exception.FileNotFound:' $bak
+  grep -q -e 'AssertionError: ebuild not found for' \
+          -e 'portage.exception.FileNotFound:'      \
+          -e 'Traceback (most recent call last):' \
+          $bak
   if [[ $? -eq 0 ]]; then
-    echo "$task" >> $backlog
+    KeepGoing
     sleep 30  # race with repo updated should be over
     return
   fi
@@ -847,16 +869,7 @@ EOF
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    if [[ $task =~ ^% ]]; then
-      # don't repeat eg. revdep-rebuild after GCC just for a failed test
-      # ignore here a changed dep graph for "test" -> "-test"
-      #
-      echo "%emerge --resume" >> $backlog
-    else
-      # deps for @sets and for a common package have to be recalculated
-      #
-      echo "$task" >> $backlog
-    fi
+    KeepGoing
   else
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
