@@ -826,7 +826,6 @@ function GotAnIssue()  {
 
   grep -q -e 'AssertionError: ebuild not found for' \
           -e 'portage.exception.FileNotFound:'      \
-          -e 'Traceback (most recent call last):' \
           $bak
   if [[ $? -eq 0 ]]; then
     KeepGoing
