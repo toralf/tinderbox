@@ -30,18 +30,9 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# awefully long build time
+# awefully long build time (the first 2 nherits a copy of chromium)
 #
 app-editors/atom
 dev-util/electron
 www-client/chromium
 www-client/google-chrome
-#
-# games are unstable for now
-#
-dev-games
-games-
-#
-# ignores -j1 (Go)
-#
-sys-cluster/
