@@ -1111,6 +1111,7 @@ function RunAndCheck() {
   local rc=$?
 
   if [[ $task =~ " --depclean" ]]; then
+    cp $log /tmp/depclean.last.log
     return 0
   fi
 
