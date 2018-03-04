@@ -190,7 +190,6 @@ function UnpackStage3()  {
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
   echo
 
-  mkdir $name || exit 4
   cd $name    || exit 4
   tar -xpf $f --xattrs --exclude='./dev/*' || exit 4
 }
@@ -767,8 +766,9 @@ done
 # append the timestamp to the name
 #
 name="${name}_$(date +%Y%m%d-%H%M%S)"
+mkdir $name || exit 2
 
-# relative path to the HOME dir
+# relative path to the HOME directory of the tinderbox user
 #
 mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
 break
