@@ -185,6 +185,7 @@ IOError: Unable to
  OSError:
 Error: Could not find suitable distribution for Requirement
 TypeError:
+moc: could not find a Qt installation
 Error .
  loadable library and perl binaries are mismatched
 setup: can't find source for
