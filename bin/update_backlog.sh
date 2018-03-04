@@ -25,9 +25,9 @@ grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
 # mix current changes into each backlog
 #
 if [[ -s $acmr ]]; then
-  for i in $(ls -1d ~/run/* 2>/dev/null)
+  for i in $(ls ~/run)
   do
-    bl=$i/tmp/backlog.upd
-    sort -u --random-sort $bl $acmr > $bl.tmp && cp $bl.tmp $bl && rm $bl.tmp
+    bl=~/run/$i/tmp/backlog.upd
+    sort --unique --random-sort $bl $acmr > $bl.tmp && cp $bl.tmp $bl && rm $bl.tmp
   done
 fi

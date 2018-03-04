@@ -29,9 +29,9 @@ do
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{cxx,nosandbox,notest} 2>/dev/null
 
-  for i in ~/run/*
+  for i in $(ls ~/run)
   do
-    echo "$p" >> $i/tmp/backlog.upd
+    echo "$p" >> ~/run/$i/tmp/backlog.upd
   done
 
 done
