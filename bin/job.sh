@@ -759,11 +759,11 @@ function PutDepsInWorld() {
       emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' -s |\
       while read p
       do
-        # add only the minimal needed subset of dependencies of $task
+        # add only the "top level" needed dependencies of $task
         # https://wiki.gentoo.org/wiki/World_set_(Portage)
         #
         if [[ -n "$(qdepends -Q $p 2>/dev/null)" ]]; then
-          if [[ -z "$(emerge -p --quiet --depclean $p 2>/dev/null)" ]]; then
+          if [[ -z "$(emerge --depclean --pretend --quiet $p 2>/dev/null)" ]]; then
             emerge --noreplace $p &>/dev/null
           fi
         fi
@@ -1176,7 +1176,7 @@ function WorkOnTask() {
     else
       echo "$(date) ${msg:-ok}" >> /tmp/$task.history
       if [[ $task = "@world" ]]; then
-        echo "%emerge --depclean" >> $backlog
+        echo "%emerge --depclean --verbose=n" >> $backlog
       fi
     fi
 
