@@ -72,8 +72,8 @@ function SetOptions() {
   # FEATURES=test
   #
   testfeature="n"
-  if [[ "$keyword" != "stable" && ! $profile =~ "systemd" ]]; then
-    if [[ $(($RANDOM % 5)) -eq 0 ]]; then
+  if [[ "$keyword" != "stable" ]]; then
+    if [[ $(($RANDOM % 6)) -eq 0 ]]; then
       testfeature="y"
     fi
   fi
