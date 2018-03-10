@@ -383,14 +383,11 @@ EOF
 
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
-  if [[ "$testfeature" = "y" ]]; then
-    cp /home/tinderbox/tb/data/package.use.test         ./etc/portage/package.use/test
-  fi
-
   if [[ "$libressl" = "y" ]]; then
-    cp /home/tinderbox/tb/data/package.use.libressl     ./etc/portage/package.use/libressl
-
-    cat << EOF >> ./tmp/00sslvendor
+    cat << EOF > ./etc/portage/package.use/libressl
+net-misc/iputils  openssl -gcrypt -nettle
+EOF
+    cat << EOF > ./tmp/00sslvendor
 */*               libressl -gnutls -openssl
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 EOF
@@ -412,6 +409,12 @@ EOF
 
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
     cp /home/tinderbox/tb/data/package.use.ffmpeg       ./etc/portage/package.use/ffmpeg
+  fi
+
+  if [[ "$testfeature" = "y" ]]; then
+    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+      cp /home/tinderbox/tb/data/package.use.test       ./etc/portage/package.use/test
+    fi
   fi
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/*

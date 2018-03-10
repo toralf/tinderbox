@@ -1,6 +1,0 @@
-# package.use/libressl
-#
-
-# still open: https://bugs.gentoo.org/643304
-#
-net-misc/iputils  openssl -gcrypt -nettle
