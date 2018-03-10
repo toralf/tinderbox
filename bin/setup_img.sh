@@ -111,7 +111,6 @@ function CheckOptions() {
 
 
 # helper of UnpackStage3()
-# deduce the tinderbox image name
 #
 function ComputeImageName()  {
   name="$(echo $profile | tr '/' '-')_"
@@ -136,7 +135,7 @@ function ComputeImageName()  {
 }
 
 
-# download (if needed), verify and unpack the stage3 file
+# download, verify and unpack the stage3 file
 #
 function UnpackStage3()  {
   latest=$distfiles/latest-stage3.txt
@@ -190,7 +189,7 @@ function UnpackStage3()  {
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
   echo
 
-  cd $name    || exit 4
+  cd $name || exit 4
   tar -xpf $f --xattrs --exclude='./dev/*' || exit 4
 }
 
