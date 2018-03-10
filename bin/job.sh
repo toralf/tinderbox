@@ -976,10 +976,13 @@ function PostEmerge() {
   env-update &>/dev/null
   source /etc/profile || Finish 2 "can't source /etc/profile"
 
-  # one of the very last step in upgrading
+  # the very last step after an emerge
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
+    if [[ "$task" = "@preserved-rebuild" ]]; then
+      Finish "error: $task would be repeated"
+    fi
     echo "@preserved-rebuild" >> $backlog
   fi
 
