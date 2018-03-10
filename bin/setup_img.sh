@@ -196,9 +196,9 @@ function UnpackStage3()  {
 
 
 # configure 3 repositories and prepare 1 additional (foo)
-# the local repository must rule always
+# the local repository rules
 # the first 3 are synced outside of the image
-# [foo] would be synced in job.sh as a daily task
+# [foo] should be synced in job.sh as a daily task
 #
 function CompileRepoFiles()  {
   mkdir -p      ./etc/portage/repos.conf/
@@ -329,8 +329,8 @@ EOF
 }
 
 
-# create portage directories
-# symlink or copy /tmp/tb/data/** to the appropriate target dirs
+# create portage directoriesa nd symlink or copy
+# /tmp/tb/data/<files> to the appropriate target dirs respectively
 #
 function CompilePortageFiles()  {
   mkdir ./tmp/tb ./usr/portage ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
@@ -442,19 +442,20 @@ EOF
 }
 
 
-# update_backlog.sh writes to /tmp/backlog.upd, job.sh writes to /tmp/backlog.1st
+# update_backlog.sh will write to /tmp/backlog.upd
 # nothing should write to /tmp/backlog after setup
+# job.sh writes later to /tmp/backlog.1st too
 #
 function CreateBacklog()  {
   backlog=./tmp/backlog
 
   truncate -s 0 $backlog{,.1st,.upd}
-  chmod a+w $backlog{,.1st,.upd}
+  chmod a+w     $backlog{,.1st,.upd}
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
 
   if [[ -e $origin ]]; then
-    # no replay of @sets or %commands, just tasks
+    # no replay of @sets or %commands, just of the tasks
     # we intentionally don't want to replay `qlist -ICv`
     #
     echo "INFO finished replay of task history of $origin"    >> $backlog.1st
@@ -470,16 +471,16 @@ function CreateBacklog()  {
 %emerge -u sys-kernel/gentoo-sources
 EOF
 
-  # asturm: give media-libs/jpeg a chance
+  # asturm: give media-libs/jpeg a fair chance
   #
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
     echo "media-libs/jpeg" >> $backlog.1st
   fi
 
-  # switch to LibreSSL before @system
+  # switch to LibreSSL before upgrading @system
   #
   if [[ "$libressl" = "y" ]]; then
-    # the unmerge triggers the mandatory @preserved-rebuild
+    # the unmerge triggers the mandatory @preserved-rebuild already
     #
     cat << EOF >> $backlog.1st
 %emerge -C openssl
@@ -497,15 +498,15 @@ EOF
     echo ">=sys-devel/gcc-6.4.0" > ./etc/portage/package.mask/gcc
     echo "~sys-devel/gcc-5.4.0"  > ./etc/portage/package.unmask/gcc
 
-  # stay at GCC-6.x even at unstable
+  # stay at GCC-6 (even at unstable)
   #
   elif [[ $(($RANDOM % 10)) -eq 0 ]]; then
     echo ">=sys-devel/gcc-7.0.0" > ./etc/portage/package.mask/gcc
   fi
 
-  # GCC first
-  #   %...  : bail out if it fails
-  #   no --deep, that would turn effectively into @system
+  # upgrade GCC first
+  #   %...  : bail out if that fails
+  #   no --deep, that would result effectively in a @system upgrade
   #
   cat << EOF >> $backlog.1st
 %emerge -u sys-devel/gcc
