@@ -551,13 +551,11 @@ function ConfigureImage()  {
 # - few attemps to auto-fix USE flags deps
 #
 function CreateSetupScript()  {
-  dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
-
   cat << EOF >> ./tmp/setup.sh
 #!/bin/sh
 #
 
-# eselect doesn't always work for unstable profiles
+# eselect sometimes can't be used for new unstable profiles
 #
 cd /etc/portage
 ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
@@ -584,46 +582,27 @@ source /etc/profile
 
 emerge mail-mta/ssmtp || exit 7
 emerge mail-client/mailx || exit 7
-# credentials
+# contains credentials
 #
-(cd /etc/ssmtp && ln -snf ../../tmp/tb/sdata/ssmtp.conf) || exit 7
+(cd /etc/ssmtp && ln -sf ../../tmp/tb/sdata/ssmtp.conf) || exit 7
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 8
 # contains credentials
-(cd /root && ln -snf ../tmp/tb/sdata/.bugzrc) || exit 8
+#
+(cd /root && ln -s ../tmp/tb/sdata/.bugzrc) || exit 8
 
 if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
-rc=9
-for i in 1 2 3 4 5
-do
-  $dryrun &> /tmp/dryrun.log
-  if [[ \$? -eq 0 ]]; then
-    rc=0
-    break
-  fi
+# the very first @system must succeed
+#
+$dryrun &> /tmp/dryrun.log
+if [[ \$? -ne 0 ]]; then
+  exit 9
+fi
 
-  if [[ \$i -eq 5 ]]; then
-    break
-  fi
-
-  echo "#round \$i" >> /etc/portage/package.use/setup
-  grep -A 1000 'The following USE changes are necessary to proceed:' /tmp/dryrun.log | grep '^>=' | sort -u >> /etc/portage/package.use/setup
-  grep -A 1 'by applying the following change' /tmp/dryrun.log | grep '^- ' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
-  grep -m 1 -A 1 'by applying any of the following changes' /tmp/dryrun.log | grep '^- ' | cut -f2,5 -d' ' -s | sed -e 's/^/>=/' -e 's/)//' >> /etc/portage/package.use/setup
-  sed -i -e 's/+//g' /etc/portage/package.use/setup
-
-  # last round didn't added anything ?
-  #
-  tail -n 1 /etc/portage/package.use/setup | grep -q '#round'
-  if [[ \$? -eq 0 ]]; then
-    break
-  fi
-done
-
-exit \$rc
+exit 0
 
 EOF
 }
@@ -784,6 +763,8 @@ distfiles=/var/tmp/distfiles
 #
 wgethost=http://mirror.netcologne.de/gentoo/
 wgetpath=/releases/amd64/autobuilds
+
+dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
 
 UnpackStage3            || exit 5
 ConfigureImage          || exit 5
