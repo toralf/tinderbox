@@ -490,7 +490,7 @@ EOF
 
   # Soap: reactivate GCC-5 a little bit
   #
-  if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 20)) -eq 0 ]]; then
     cat << EOF >> $backlog.1st
 %SwitchGCC x86_64-pc-linux-gnu-5.4.0
 EOF
