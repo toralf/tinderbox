@@ -30,6 +30,16 @@ function Error() {
 }
 
 
+#######################################################################
+#
+
+# work around a DNS issue
+#
+host bugs.gentoo.org 2>/dev/null | grep -q 'has address'
+if [[ $? -ne 0 ]]; then
+  Error "DNS issue appeared"
+fi
+
 id=""
 block=""
 comment="<unset>"
@@ -83,14 +93,14 @@ if [[ -n "$id" ]]; then
   if [[ "$comment" = "<unset>" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $dir | cut -f5 -d'/')"
   fi
-  timeout 300 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
+  timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
 
-  grep -q "fails with FEATURES=test" $dir/title && timeout 300 bugz modify --set-keywords TESTFAILURE $id
+  grep -q "fails with FEATURES=test" $dir/title && timeout 60 bugz modify --set-keywords TESTFAILURE $id
 
 else
   # create a new bug report
   #
-  timeout 300 bugz post \
+  timeout 60 bugz post \
     --product "Gentoo Linux"          \
     --component "Current packages"    \
     --version "unspecified"           \
@@ -126,7 +136,7 @@ if [[ -s bugz.err ]]; then
 fi
 
 if [[ -f emerge-info.txt ]]; then
-  timeout 300 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bugz.out 2>bugz.err || Warn $?
+  timeout 60 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 if [[ -d ./files ]]; then
@@ -140,18 +150,18 @@ if [[ -d ./files ]]; then
       #
       echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
       echo "  $f"
-      timeout 300 bugz attach --content-type "$ct" --description "" $id $f 1>bugz.out 2>bugz.err || Warn $?
+      timeout 60 bugz attach --content-type "$ct" --description "" $id $f 1>bugz.out 2>bugz.err || Warn $?
     fi
   done
 fi
 
 if [[ -n "$block" ]]; then
-  timeout 300 bugz modify --add-blocked "$block" $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 60 bugz modify --add-blocked "$block" $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 bzgrep -q " \* ERROR:.* failed (test phase):" $dir/_emerge_* 2>/dev/null
 if [[ $? -eq 0 ]]; then
-  timeout 300 bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 60 bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 # set assignee and cc as the last step (requested by prometheanfire via IRC)
@@ -166,7 +176,7 @@ if [[ $newbug -eq 1 ]]; then
     #
     c="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
   fi
-  timeout 300 bugz modify $a $c $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 60 bugz modify $a $c $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 echo
