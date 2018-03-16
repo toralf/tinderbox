@@ -1022,27 +1022,32 @@ function PostEmerge() {
 
   # if $backlog is empty then do 24 hours after the last time:
   #   - update @world
-  #   - update @system + switch java VM + sync image specific overlays
+  #   - update @system
+  #   - switch java VM
+  #   - sync image specific overlays
   #
   if [[ ! -s $backlog ]]; then
-    if [[ -f /tmp/@world.history ]]; then
-      let "diff = $(date +%s) - $(date +%s -r /tmp/@world.history)"
-      if [[ $diff -gt 86400 ]]; then
-        echo "@world" >> $backlog
-      fi
-    fi
+    diff_s=999999
+    diff_w=999999
 
     if [[ -f /tmp/@system.history ]]; then
-      let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
-      if [[ $diff -gt 86400 ]]; then
-        cat << EOF >> $backlog
+      let "diff_s = $(date +%s) - $(date +%s -r /tmp/@system.history)"
+    fi
+
+    if [[ -f /tmp/@world.history ]]; then
+      let "diff_w = $(date +%s) - $(date +%s -r /tmp/@world.history)"
+    fi
+
+    if [[ $diff_s -gt 86400 || $diff_w -gt 86400 ]]; then
+      cat << EOF >> $backlog
+@world
 @system
 %SwitchJDK
 EOF
-        grep -q "^auto-sync *= *yes$" /etc/portage/repos.conf/*
-        if [[ $? -eq 0 ]]; then
-          echo "%emerge --sync" >> $backlog
-        fi
+
+      grep -q "^auto-sync *= *yes$" /etc/portage/repos.conf/*
+      if [[ $? -eq 0 ]]; then
+        echo "%emerge --sync" >> $backlog
       fi
     fi
   fi
