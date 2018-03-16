@@ -1,6 +1,8 @@
-# package.use file for Firefox and Thunderbird
+# package.use file for web clients and more
 #
 
+# www-client/firefox and mail-client/thunderbird
+#
 dev-db/sqlite             secure-delete
 dev-lang/python           sqlite
 dev-libs/libpcre          pcre16
@@ -15,6 +17,14 @@ sys-libs/ntdb             python
 sys-libs/tdb              python
 sys-libs/tevent           python
 www-client/firefox        -pulseaudio system-icu
-x11-libs/cairo            X
 x11-libs/libxcb           xkb
 
+# www-client/falkon
+#
+app-text/xmlto            text
+dev-libs/libxml2          icu
+dev-libs/libpcre2         pcre16
+dev-qt/qtwebchannel       qml
+dev-qt/qtwebengine        widgets
+media-libs/libvpx         svc
+x11-libs/libxcb           xkb
