@@ -317,10 +317,6 @@ GENTOO_MIRRORS="http://mirror.netcologne.de/gentoo/ http://ftp.halifax.rwth-aach
 #
 FETCHCOMMAND="\${FETCHCOMMAND} --continue"
 
-# https://bugs.gentoo.org/640290
-#
-PORTAGE_XATTR_EXCLUDE="\${PORTAGE_XATTR_EXCLUDE} user.xdg.*"
-
 QEMU_SOFTMMU_TARGETS="x86_64 i386"
 QEMU_USER_TARGETS="x86_64 i386"
 
