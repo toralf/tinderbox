@@ -1027,18 +1027,13 @@ function PostEmerge() {
   #   - sync image specific overlays
   #
   if [[ ! -s $backlog ]]; then
-    diff_s=999999
-    diff_w=999999
+    diff=999999
 
     if [[ -f /tmp/@system.history ]]; then
-      let "diff_s = $(date +%s) - $(date +%s -r /tmp/@system.history)"
+      let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
     fi
 
-    if [[ -f /tmp/@world.history ]]; then
-      let "diff_w = $(date +%s) - $(date +%s -r /tmp/@world.history)"
-    fi
-
-    if [[ $diff_s -gt 86400 || $diff_w -gt 86400 ]]; then
+    if [[ $diff -gt 86400 ]]; then
       cat << EOF >> $backlog
 @world
 @system
