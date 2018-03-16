@@ -89,7 +89,7 @@ function setNextTask() {
       return
     fi
 
-    # backlog.1st was pre-filled by setup_img.sh and is filled up then only by us
+    # backlog.1st was filled at image setup and is later filled up then only by this script
     #
     if [[ -s /tmp/backlog.1st ]]; then
       bl=/tmp/backlog.1st
@@ -99,12 +99,12 @@ function setNextTask() {
     elif [[ -s /tmp/backlog.upd && $(($RANDOM % 3)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
 
-    # filled up once during image setup and should only decrease
+    # filled up at image setup and will only decrease
     #
     elif [[ -s /tmp/backlog ]]; then
       bl=/tmp/backlog
 
-    # last attempt before finishing
+    # last chance
     #
     elif [[ -s /tmp/backlog.upd ]]; then
       bl=/tmp/backlog.upd
@@ -113,7 +113,7 @@ function setNextTask() {
     #
     else
       n=$(qlist --installed | wc -l)
-      Finish 0 "empty backlog, $n packages emerged"
+      Finish 0 "empty backlogs, $n packages emerged"
     fi
 
     # splice last line from the appropriate backlog file
