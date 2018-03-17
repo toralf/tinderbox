@@ -1329,12 +1329,15 @@ do
   fi
 
   setNextTask
+  # it is not necessary that emerge even starts (b/c deps might not be fullfilled)
+  # the emerge attempt itself is sufficient to log $task in the history file $tsk
+  #
   echo "$task" | tee -a $tsk.history > $tsk
   chmod a+w $tsk
   WorkOnTask
 
-  # hint: we don't reach this line if Finish() occurs in WorkOnTask()
-  # therefore $tsk is repeated at next start
+  # hint: this line is not reached if Finish() is called in WorkOnTask()
+  # therefore $tsk will be repeated at next start
   #
   rm $tsk
 done
