@@ -9,8 +9,7 @@
 # That's all.
 
 
-# strip away escape sequences
-# hint: colorstrip() doesn't modify its argument, instead it returns the result
+# strip away escape sequences from any (log) output
 #
 function stresc() {
   perl -MTerm::ANSIColor=colorstrip -nle '
@@ -27,30 +26,37 @@ function stresc() {
 }
 
 
-# send an email, $1 (mandatory) is the subject, $2 (optional) contains the body
+# send an email using mailx
 #
 function Mail() {
+  # $1 (mandatory) is the subject, $2 (optional) contains the body
+  #
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
   (
     if [[ -f $2 ]]; then
       stresc < $2
-      opt="-a ''"       # we are not MIME-compliant
+      opt="-a ''"       # BSD patch added a MIME-header, but we are not MIME-compliant
     else
       echo "${2:-<no body>}"
       opt=""
     fi
   ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt &>> /tmp/mail.log
+
   local rc=$?
+
   if [[ $rc -ne 0 ]]; then
+    # direct thos both to stdout (therefore vatched by logcheck.sh) and to a logfile
+    #
     echo "$(date) mail failed with rc=$rc issuedir=$issuedir" | tee -a /tmp/mail.log
   fi
 }
 
 
 # clean up and exit
-# $1: return code, $2: email Subject
 #
 function Finish()  {
+  # $1: return code, $2: email Subject
+  #
   local rc=$1
 
   # although stresc() is called in Mail() run it here too b/c $2 might contain quotes
