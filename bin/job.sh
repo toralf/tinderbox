@@ -32,20 +32,27 @@ function Mail() {
   # $1 (mandatory) is the subject, $2 (optional) contains the body
   #
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
+
+  opt=""
+  if [[ -f $2 ]]; then
+    grep -q "^begin 644 " $2
+    if [[ $? -eq 0 ]]; then
+      opt="-a ''"       # uuencode is not MIME-compliant
+    fi
+  fi
+
   (
     if [[ -f $2 ]]; then
       stresc < $2
-      opt="-a ''"       # BSD patch added a MIME-header, but we are not MIME-compliant
     else
       echo "${2:-<no body>}"
-      opt=""
     fi
   ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt &>> /tmp/mail.log
 
   local rc=$?
 
   if [[ $rc -ne 0 ]]; then
-    # direct thos both to stdout (therefore vatched by logcheck.sh) and to a logfile
+    # direct this both to stdout (to be catched by logcheck.sh) and to the logfile
     #
     echo "$(date) mail failed with rc=$rc issuedir=$issuedir" | tee -a /tmp/mail.log
   fi
