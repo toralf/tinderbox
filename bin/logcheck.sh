@@ -11,7 +11,7 @@ f=/tmp/$(basename $0).out
 
 if [[ ! -f $f ]]; then
   if [[ -s ~/nohup.out ]]; then
-    (ls -l ~/nohup.out; head -n 500 ~/nohup.out) | mail -s "nohup.out is NOT empty" $mailto -a ''
+    (ls -l ~/nohup.out; head -n 500 ~/nohup.out) | mail -s "nohup.out is NOT empty" $mailto
     truncate -s 0 ~/nohup.out
   fi
 
@@ -20,6 +20,6 @@ if [[ ! -f $f ]]; then
     head ~/logs/*  >> $f
     echo -e "\n\n\nto re-activate this test again, do:\n\n   truncate -s 0 logs/*; rm -f $f" >> $f
 
-    cat $f | mail -s "logs are non-empty" $mailto -a ''
+    cat $f | mail -s "logs are non-empty" $mailto
   fi
 fi

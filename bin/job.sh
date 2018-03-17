@@ -34,10 +34,12 @@ function Mail() {
   (
     if [[ -f $2 ]]; then
       stresc < $2
+      opt="-a ''"       # we are not MIME-compliant
     else
       echo "${2:-<no body>}"
+      opt=""
     fi
-  ) | timeout 120 mail -s "$subject    @ $name" $mailto -a '' &>> /tmp/mail.log
+  ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt &>> /tmp/mail.log
   local rc=$?
   if [[ $rc -ne 0 ]]; then
     echo "$(date) mail failed with rc=$rc issuedir=$issuedir" | tee -a /tmp/mail.log
