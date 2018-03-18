@@ -347,11 +347,11 @@ function CompilePortageFiles()  {
 
   echo "*/* $(cpuid2cpuflags)"    > ./etc/portage/package.use/00cpuflags
 
-  # force "test", useful if there's no system-wide "test"
+  # force "test" for dedicated packages
   #
   echo 'FEATURES="test"'          > ./etc/portage/env/test
 
-  # build w/o "test", useful if test phase is knwown to be br0ken or takes too long
+  # build w/o "test", useful if package specific test phase is known to be br0ken or takes too long
   #
   echo 'FEATURES="-test"'         > ./etc/portage/env/notest
 
