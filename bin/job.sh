@@ -37,7 +37,7 @@ function Mail() {
   if [[ -f $2 ]]; then
     grep -q "^begin 644 " $2
     if [[ $? -eq 0 ]]; then
-      opt="-a ''"       # uuencode is not MIME-compliant
+      opt='-a'       # uuencode is not MIME-compliant
     fi
   fi
 
@@ -47,7 +47,7 @@ function Mail() {
     else
       echo "${2:-<no body>}"
     fi
-  ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt &>> /tmp/mail.log
+  ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt "" &>> /tmp/mail.log # the "" belongs to $opt but doesn't hurt here and let the mail body be looking less ugly
 
   local rc=$?
 
