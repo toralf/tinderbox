@@ -272,9 +272,13 @@ EOF
 # get assignee and cc for the b.g.o. entry
 #
 function GetAssigneeAndCc() {
+  # GCC-5 is a special requests of Soap so redirect bugs of thoses images to hom
+  #
   if [[ $( gcc -dumpversion | cut -c1 ) -eq 5 ]]; then
     echo "soap@gentoo.org" > $issuedir/assignee
 
+  # get assignee and Cc: from package manifest if given
+  #
   else
     m=$(equery meta -m $short | grep '@' | xargs)
 
@@ -286,6 +290,7 @@ function GetAssigneeAndCc() {
       if [[ -n "$c" ]]; then
         echo "$c" > $issuedir/cc
       fi
+
     else
       echo "maintainer-needed@gentoo.org" > $issuedir/assignee
     fi
