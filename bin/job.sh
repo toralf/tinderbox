@@ -97,17 +97,6 @@ function setNextTask() {
       Finish 0 "catched STOP file"
     fi
 
-    # retry an unfinished task (caused eg.: by termination during a reboot -or- last Finish exited with rc != 0)
-    #
-    if [[ -s $tsk ]]; then
-      task=$(cat $tsk)
-      if [[ -s $backlog ]]; then
-        sed -i "1i $task" $backlog  # repeat it after $backlog entries
-      else
-        return                      # repeat it immediately
-      fi
-    fi
-
     # backlog.1st was filled at image setup and is later filled up only by this script
     #
     if [[ -s $backlog ]]; then
@@ -1323,6 +1312,17 @@ export XDG_RUNTIME_DIR="/root/run"
 export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
+
+# retry an unfinished task (caused eg.: by termination during a reboot -or- last Finish exited with rc != 0)
+#
+if [[ -s $tsk ]]; then
+  task=$(cat $tsk)
+  if [[ -s $backlog ]]; then
+    sed -i "1i $task" $backlog  # repeat it after $backlog entries
+  else
+    echo "$task" >> $backlog    # repeat it immediately
+  fi
+fi
 
 while :
 do
