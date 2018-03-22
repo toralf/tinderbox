@@ -23,3 +23,7 @@ net-misc/wget             ssl
 # https://bugs.gentoo.org/show_bug.cgi?id=624338
 #
 dev-java/icedtea-bin      -multilib
+
+# otherwise app-text/po4a wants a perl downgrade
+#
+sys-apps/man-db           -nls
