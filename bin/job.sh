@@ -101,13 +101,17 @@ function setNextTask() {
     #
     if [[ -s $tsk ]]; then
       task=$(cat $tsk)
-      return
+      if [[ -s $backlog ]]; then
+        sed -i "1i $task" $backlog  # repeat it after $backlog entries
+      else
+        return                      # repeat it immediately
+      fi
     fi
 
-    # backlog.1st was filled at image setup and is later filled up then only by this script
+    # backlog.1st was filled at image setup and is later filled up only by this script
     #
-    if [[ -s /tmp/backlog.1st ]]; then
-      bl=/tmp/backlog.1st
+    if [[ -s $backlog ]]; then
+      bl=$backlog
 
     # mix /tmp/backlog.upd into the tasks (about every 3rd step) if no special action is scheduled
     #
