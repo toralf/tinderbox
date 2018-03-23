@@ -306,6 +306,8 @@ PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="root@localhost"
+# $name has no effect with ssmtp used as a MTA, but at least needed in job.sh too to derive the image name
+#
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
 PORTAGE_GPG_DIR="/var/lib/gentoo/gkeys/keyrings/gentoo/release"
