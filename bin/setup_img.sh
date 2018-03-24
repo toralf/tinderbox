@@ -386,6 +386,7 @@ net-misc/iputils  openssl -gcrypt -nettle
 EOF
     cat << EOF > ./tmp/libressl
 */*               libressl -gnutls -openssl
+net-misc/iputils  libressl openssl -gcrypt -nettle
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 EOF
   fi
