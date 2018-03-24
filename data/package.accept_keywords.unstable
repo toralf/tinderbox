@@ -4,3 +4,7 @@
 # request by dilfridge
 #
 ~sys-libs/glibc-2.27  **
+
+# https://bugs.gentoo.org/show_bug.cgi?id=651162
+#
+~dev-libs/libressl-2.7.1 **

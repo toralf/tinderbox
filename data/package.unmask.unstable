@@ -11,3 +11,7 @@
 #
 ~sys-apps/attr-2.4.48
 ~sys-apps/acl-2.2.52
+
+# https://bugs.gentoo.org/show_bug.cgi?id=651162
+#
+~dev-libs/libressl-2.7.1
