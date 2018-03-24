@@ -384,7 +384,7 @@ EOF
     cat << EOF > ./etc/portage/package.use/libressl
 net-misc/iputils  openssl -gcrypt -nettle
 EOF
-    cat << EOF > ./tmp/00sslvendor
+    cat << EOF > ./tmp/libressl
 */*               libressl -gnutls -openssl
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 EOF
@@ -482,7 +482,7 @@ EOF
     cat << EOF >> $backlog.1st
 %emerge -C openssl
 %emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
-%mv /tmp/00sslvendor /etc/portage/package.use/00sslvendor
+%mv /tmp/libressl /etc/portage/package.use/libressl
 EOF
   fi
 
@@ -681,7 +681,7 @@ do
           useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
           features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
-          if [[ -f /etc/portage/package.use/00sslvendor ]]; then
+          if [[ -f /etc/portage/package.use/libressl ]]; then
             libressl="y"
           else
             libressl="n"
