@@ -1185,10 +1185,10 @@ function WorkOnTask() {
       fi
 
       if [[ $try_again -eq 0 ]]; then
-        if [[ -n "$failed" ]]; then
-          echo "%emerge --resume --skip-first" >> $backlog
-        elif [[ "$task" = "@preserved-rebuild" ]]; then
+        if [[ "$task" = "@preserved-rebuild" ]]; then
           Finish 3 "task $task failed"
+        elif [[ -n "$failed" ]]; then
+          echo "%emerge --resume --skip-first" >> $backlog
         fi
       fi
 

@@ -478,9 +478,10 @@ EOF
   # switch to LibreSSL before upgrading @system
   #
   if [[ "$libressl" = "y" ]]; then
-    # the unmerge triggers the mandatory @preserved-rebuild already
+    # @preserved-rebuild must not fail
     #
     cat << EOF >> $backlog.1st
+%emerge @preserved-rebuild
 %emerge -C openssl
 %emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
 %mv /tmp/libressl /etc/portage/package.use/libressl
