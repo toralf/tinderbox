@@ -1229,8 +1229,7 @@ EOF
   # pinned version
   #
   elif [[ $task =~ ^= ]]; then
-    p="$(echo "$task" | cut -c2-)"
-    RunAndCheck "emerge $p"
+    RunAndCheck "emerge $task"
 
   # straight atom
   #
