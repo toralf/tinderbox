@@ -650,8 +650,10 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+i=0
 while :;
 do
+  ((i=i+1))
   SetOptions
   while getopts a:f:k:l:m:o:p:t:u: opt
   do
@@ -728,9 +730,14 @@ do
   CheckOptions
 
   ComputeImageName
-  if [[ $# -ne 0 ]]; then
-    break;
+
+  # 11 profiles x 2^4
+  #
+  if [[ $i -gt 176 ]]; then
+    echo "can't get a unique image name, continue with $name"
+    break
   fi
+
   # test that there's no similar image in ~/run
   #
   ls -d /home/tinderbox/run/${name}_????????-?????? &>/dev/null
