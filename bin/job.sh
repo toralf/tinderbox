@@ -516,10 +516,6 @@ function ClassifyIssue() {
             -e 's/___*/_/g'                     \
             -e 's/; did you mean .* \?$//g'     \
             $issuedir/title
-
-    if [[ ! -s $issuedir/title ]]; then
-      Mail "warn: empty title for $failed" $bak
-    fi
   fi
 
   if [[ "$keyword" = "stable" ]]; then
