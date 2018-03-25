@@ -381,12 +381,16 @@ EOF
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
   if [[ "$libressl" = "y" ]]; then
-    cat << EOF > ./etc/portage/package.use/libressl
+    # https://bugs.gentoo.org/643304
+    #
+    cat << EOF > ./etc/portage/package.use/iputils
 net-misc/iputils  openssl -gcrypt -nettle
 EOF
-    cat << EOF > ./tmp/libressl
+
+    # will be activated after GCC update
+    #
+    cat << EOF > ./tmp/00libressl
 */*               libressl -gnutls -openssl
-net-misc/iputils  libressl openssl -gcrypt -nettle
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 EOF
   fi
@@ -484,7 +488,7 @@ EOF
 %emerge @preserved-rebuild
 %emerge -C openssl
 %emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
-%mv /tmp/libressl /etc/portage/package.use/libressl
+%mv /tmp/00libressl /etc/portage/package.use/
 EOF
   fi
 
@@ -685,7 +689,7 @@ do
           useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
           features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
-          if [[ -f /etc/portage/package.use/libressl ]]; then
+          if [[ -f /etc/portage/package.use/00libressl ]]; then
             libressl="y"
           else
             libressl="n"
