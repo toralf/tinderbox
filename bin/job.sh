@@ -806,8 +806,8 @@ function setWorkDir() {
 #
 function KeepGoing() {
   if [[ $task =~ "revdep-rebuild" ]]; then
-    # don't repeat if just for a failed test
-    # and do ignore here a changed dep graph caused by "test" -> "-test"
+    # don't repeat it (often it failed just in the test phase)
+    # and do ignore a changed dep graph, eg. caused by "test" -> "-test"
     #
     echo "%emerge --resume" >> $backlog
 
@@ -992,9 +992,6 @@ function PostEmerge() {
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    if [[ "$task" = "@preserved-rebuild" ]]; then
-      Finish 2 "error: $task would be repeated"
-    fi
     echo "@preserved-rebuild" >> $backlog
   fi
 
@@ -1135,6 +1132,9 @@ function RunAndCheck() {
 
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
+    if [[ $try_again -eq 0 && "$task" = "@preserved-rebuild" && "$(tail -n 1 $backlog)" = "$task" ]]; then
+      Finish 2 "error: $task would be repeated"
+    fi
   fi
 
   return $rc
