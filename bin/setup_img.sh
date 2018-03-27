@@ -413,6 +413,10 @@ EOF
     cp /home/tinderbox/tb/data/package.use.ffmpeg       ./etc/portage/package.use/ffmpeg
   fi
 
+  if [[ "$testfeature" = "y" ]]; then
+    cp /home/tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
+  fi
+
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/*
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/*
 }
