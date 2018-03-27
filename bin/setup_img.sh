@@ -414,6 +414,12 @@ EOF
     cp /home/tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
   fi
 
+  # perl-5.24/26 dep issues
+  #
+  if [[ "$libressl" = "y" && "$testfeature" = "y" ]]; then
+    echo "net-misc/wget notest" > ./etc/portage/package.env/00libresslnotest
+  fi
+
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/*
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/*
 }
