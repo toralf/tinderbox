@@ -344,9 +344,6 @@ function CompilePortageFiles()  {
   touch       ./etc/portage/package.mask/self     # contains failed package at this image
   chmod a+rw  ./etc/portage/package.mask/self
 
-  touch      ./etc/portage/package.use/setup      # USE flags added at setup
-  chmod a+rw ./etc/portage/package.use/setup
-
   echo "*/* $(cpuid2cpuflags)"    > ./etc/portage/package.use/00cpuflags
 
   # force "test" for dedicated packages
