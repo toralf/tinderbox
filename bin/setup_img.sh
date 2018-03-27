@@ -489,7 +489,8 @@ EOF
   # switch to LibreSSL before upgrading @system
   #
   if [[ "$libressl" = "y" ]]; then
-    # @preserved-rebuild must not fail
+    # @preserved-rebuild will be scheduled by the unmerge of openssl
+    # and will be added before "%emerge @preserved-rebuild" which must not fail eventually
     #
     cat << EOF >> $backlog.1st
 %emerge @preserved-rebuild
