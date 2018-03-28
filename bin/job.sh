@@ -1316,15 +1316,12 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# retry an unfinished task (caused eg.: by termination during a reboot -or- last Finish exited with rc != 0)
+# retry an unfinished task immediately
+# (caused eg. by termination due to a reboot -or- Finish() with rc != 0)
 #
 if [[ -s $tsk ]]; then
-  task=$(cat $tsk)
-  if [[ -s $backlog ]]; then
-    sed -i "1i $task" $backlog  # repeat it after $backlog entries
-  else
-    echo "$task" >> $backlog    # repeat it immediately
-  fi
+  cat "$tsk" >> $backlog
+  rm $stk
 fi
 
 while :
