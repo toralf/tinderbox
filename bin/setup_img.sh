@@ -412,8 +412,6 @@ EOF
 
   if [[ "$testfeature" = "y" ]]; then
     cp /home/tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
-  else
-    echo '*/* notest' > ./etc/portage/package.env/00notest
   fi
 
   # perl-5.24/26 dep issues
@@ -604,6 +602,8 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 
 if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
+else
+  sed -i -e 's/FEATURES="/FEATURES="-test /g' /etc/portage/make.conf
 fi
 
 # the very first @system must succeed
