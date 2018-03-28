@@ -412,6 +412,8 @@ EOF
 
   if [[ "$testfeature" = "y" ]]; then
     cp /home/tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
+  else
+    echo '*/* notest' > ./etc/portage/package.env/00notest
   fi
 
   # perl-5.24/26 dep issues
