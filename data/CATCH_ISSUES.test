@@ -104,3 +104,4 @@ PermissionError: .* Permission denied
 : Errorf call has arguments but no formatting directives
 : py.test: command not found
 mkdir /root/cache: permission denied
+RuntimeError:

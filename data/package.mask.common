@@ -28,3 +28,7 @@ www-client/w3mmee
 # https://bugs.gentoo.org/show_bug.cgi?id=647924  pytest-relaxed changes pytest behaviour in an incompatible way
 #
 dev-python/pytest-relaxed
+
+# https://github.com/mgorny/portage
+#
+sys-apps/portage-mgorny
