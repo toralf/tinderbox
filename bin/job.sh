@@ -1347,10 +1347,19 @@ do
   #
   echo "$task" | tee -a $tsk.history > $tsk
   chmod a+w $tsk
+
+  # catch a never ending loop of the same task or the same pair of tasks
+  #
+  if [[ $(wc -l < $tsk.history) -gt 20 ]]; then
+    if [[ $(tail -n 20 $tsk.history | sort -u | wc -l) -le 2 ]]; then
+      Finish 2 "infinite task loop detected: $(tail -n 2 $tsk.history | xargs)"
+    fi
+  fi
+
   WorkOnTask
 
   # hint: this line is not reached if Finish() is called in WorkOnTask()
-  # therefore $tsk will be repeated at next start
+  # and so $tsk will be intentionally retried at next start
   #
   rm $tsk
 done
