@@ -1346,7 +1346,7 @@ do
   # the emerge attempt itself is sufficient to keep $task in the history
   #
   echo "$task" | tee -a $tsk.history > $tsk
-  chmod a+w $tsk
+  chmod a+r $tsk
 
   # catch a never ending loop of the same task or the same pair of tasks
   #
