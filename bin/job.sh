@@ -496,8 +496,9 @@ function ClassifyIssue() {
           sed -i -e "1d" $issuedir/issue
         fi
         break
+      else
+        rm $issuedir/issue.tmp
       fi
-      rm $issuedir/issue.tmp
     done
 
     # kick off hex addresses, line and time numbers and other stuff
