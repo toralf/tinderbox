@@ -1340,8 +1340,9 @@ do
   fi
 
   setNextTask
+
   # it is not necessary that emerge even starts (b/c deps might not be fullfilled)
-  # the emerge attempt itself is sufficient to log $task in the history file $tsk
+  # the emerge attempt itself is sufficient to keep $task in the history
   #
   echo "$task" | tee -a $tsk.history > $tsk
   chmod a+w $tsk
