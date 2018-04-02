@@ -1321,7 +1321,7 @@ export XDG_DATA_HOME="/root/share"
 # (caused eg. by termination due to a reboot -or- Finish() with rc != 0)
 #
 if [[ -s $tsk ]]; then
-  cat "$tsk" >> $backlog
+  cat $tsk >> $backlog
   rm $stk
 fi
 
