@@ -509,19 +509,20 @@ EOF
 EOF
   fi
 
+  # use shiny new GCC-7 at stable
+  #
+  if [[ "$keyword" = "stable" ]]; then
+    echo "~sys-devel/gcc-7.3.0" > ./etc/portage/package.unmask/gcc
+    echo "~sys-devel/gcc-7.3.0" > ./etc/portage/package.accept_keywords/gcc
+
   # Soap: reactivate GCC-5 a little bit
   #
-  if [[ $(($RANDOM % 20)) -eq 0 ]]; then
+  elif [[ $(($RANDOM % 20)) -eq 0 ]]; then
     cat << EOF >> $backlog.1st
 %SwitchGCC x86_64-pc-linux-gnu-5.4.0
 EOF
     echo ">=sys-devel/gcc-6.4.0" > ./etc/portage/package.mask/gcc
     echo "~sys-devel/gcc-5.4.0"  > ./etc/portage/package.unmask/gcc
-
-  # stay at GCC-6 (even at unstable)
-  #
-  elif [[ $(($RANDOM % 10)) -eq 0 ]]; then
-    echo ">=sys-devel/gcc-7.0.0" > ./etc/portage/package.mask/gcc
   fi
 
   # upgrade GCC first
