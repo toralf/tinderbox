@@ -5,10 +5,6 @@
 #
 mail-mta/ssmtp            mta ssl
 
-# misc
-#
-sys-libs/zlib             minizip
-
 # From slyfox:
 #
 # As soon as /etc/profile.d/nix.sh gets installed
@@ -16,7 +12,7 @@ sys-libs/zlib             minizip
 #
 sys-apps/nix              -etc_profile
 
-# https://bugs.gentoo.org/show_bug.cgi?id=601784
+# https://bugs.gentoo.org/show_bug.cgi?id=611072
 #
 net-misc/wget             ssl
 
@@ -24,6 +20,6 @@ net-misc/wget             ssl
 #
 dev-java/icedtea-bin      -multilib
 
-# otherwise app-text/po4a wants a perl downgrade
+# otherwise app-text/po4a wants a perl downgrade (often during image setup)
 #
 sys-apps/man-db           -nls
