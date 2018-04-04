@@ -459,7 +459,8 @@ function CreateBacklog()  {
   backlog=./tmp/backlog
 
   truncate -s 0 $backlog{,.1st,.upd}
-  chmod a+w     $backlog{,.1st,.upd}
+  chmod ug+w    $backlog{,.1st,.upd}
+  chown tinderbox:portage $backlog{,.1st,.upd}
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
 
