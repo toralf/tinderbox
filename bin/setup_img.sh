@@ -69,6 +69,10 @@ function SetOptions() {
     fi
   fi
 
+  # suffix in the image name
+  #
+  suffix=""
+
   # FEATURES=test
   #
   testfeature="n"
@@ -129,6 +133,10 @@ function ComputeImageName()  {
 
   if [[ "$testfeature" = "y" ]]; then
     name="$name-test"
+  fi
+
+  if [[ -n "$suffix" ]]; then
+    name="$name-$suffix"
   fi
 
   name="$(echo $name | sed -e 's/_[-_]/_/g' -e 's/_$//')"
@@ -670,7 +678,7 @@ while :;
 do
   ((i=i+1))
   SetOptions
-  while getopts a:f:k:l:m:o:p:t:u: opt
+  while getopts a:f:k:l:m:o:p:s:t:u: opt
   do
     case $opt in
       a)  autostart="$OPTARG"
@@ -718,8 +726,9 @@ do
             multilib="y"
           fi
           ;;
-
       p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
+          ;;
+      s)  suffix="$OPTARG"
           ;;
       t)  testfeature="$OPTARG"
           ;;
@@ -749,7 +758,7 @@ do
   # 11 profiles x 2^4
   #
   if [[ $i -gt 176 ]]; then
-    echo "can't get a unique image name, continue with $name"
+    echo "can't get a unique image name, will take $name"
     break
   fi
 
@@ -761,7 +770,7 @@ do
   fi
 done
 
-# append the timestamp to the name
+# append the timestamp onto the name
 #
 name="${name}_$(date +%Y%m%d-%H%M%S)"
 mkdir $name || exit 2
