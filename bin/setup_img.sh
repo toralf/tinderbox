@@ -72,6 +72,9 @@ function SetOptions() {
   # suffix in the image name
   #
   suffix=""
+  if [[ "$keyword" = "stable" ]]; then
+    suffix="gcc7"
+  fi
 
   # FEATURES=test
   #
