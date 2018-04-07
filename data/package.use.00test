@@ -1,4 +1,5 @@
 # package.use/00test
 #
 
-media-libs/tiff     jpeg
+media-libs/tiff       jpeg
+x11-base/xorg-server  xvfb
