@@ -78,8 +78,11 @@ function Finish()  {
     Mail "Finish NOT ok, rc=$rc: $subject" $log
   fi
 
-  if [[ $rc -eq 0 ]]; then
-    rm -f $tsk
+  # if rc != 0 then keep $task in $tsk to retry it at the next start
+  # otherwise delete it
+  #
+  if [[ $rc -eq 0 && -f $tsk ]]; then
+    rm $tsk
   fi
 
   rm -f /tmp/STOP
@@ -239,14 +242,14 @@ EOF
   if [[ -d "$workdir" ]]; then
     # catch all log file(s)
     #
-    f=/tmp/files
     (
+      f=/tmp/files
       cd "$workdir/.." &&\
       find ./ -name "*.log" -o -name "testlog.*" > $f &&\
       [[ -s $f ]] &&\
       tar -cjpf $issuedir/files/logs.tbz2 --files-from $f --warning='no-file-ignored'
+      rm -f $f
     )
-    rm -f $f
 
     # provide the whole temp dir if possible
     #
@@ -425,7 +428,8 @@ function collectTestIssueResults() {
 
   (
     cd "$workdir"
-    # tar returns an error if it can't find a directory, therefore feed only existing dirs to it
+    # tar returns an error if it can't find at least one directory
+    # therefore feed only existing dirs to it
     #
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
     if [[ -n "$dirs" ]]; then
@@ -433,12 +437,6 @@ function collectTestIssueResults() {
         --exclude='*.o' --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
         --dereference --sparse --one-file-system --warning='no-file-ignored' \
         $dirs
-      local rc=$?
-
-      if [[ $rc -ne 0 ]]; then
-        rm $issuedir/files/tests.tbz2
-        Mail "notice: tar failed with rc=$rc for '$failed' with dirs='$dirs'" $bak
-      fi
     fi
   )
 }
@@ -496,10 +494,9 @@ function ClassifyIssue() {
           sed -i -e "1d" $issuedir/issue
         fi
         break
-      else
-        rm $issuedir/issue.tmp
       fi
     done
+    rm -f $issuedir/issue.tmp
 
     # kick off hex addresses, line and time numbers and other stuff
     #
@@ -1317,12 +1314,12 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# retry an unfinished task immediately
+# if non-empty (==failed) then retry the previous task
 # (caused eg. by termination due to a reboot -or- Finish() with rc != 0)
 #
 if [[ -s $tsk ]]; then
   cat $tsk >> $backlog
-  rm $stk
+  rm $tsk
 fi
 
 while :
