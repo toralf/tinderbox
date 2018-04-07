@@ -520,7 +520,7 @@ function ClassifyIssue() {
   fi
 
   if [[ "$keyword" = "stable" ]]; then
-    echo -e "\n=== This is an issue at stable ===\n" >> $issuedir/issue
+    echo -e "\n=== This is an issue at stable maybe due to gcc-7 ===\n" >> $issuedir/issue
   fi
 }
 
