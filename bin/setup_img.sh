@@ -290,7 +290,7 @@ CXXFLAGS="-O2 -pipe -march=native"
 USE="
 $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 
-  ssp -bindist -cdinstall -oci8 -pax_kernel -valgrind -symlink
+  ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
 
 # needed b/c the host is hardened, otherwise we'd get errors like:  Failed to set XATTR_PAX markings -me python.
