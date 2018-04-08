@@ -352,12 +352,7 @@ EOF
 # strip away the version (get $PN from $P)
 #
 function pn2p() {
-  local s=$(qatom "$1" 2>/dev/null)
-  if [[ $? -eq 0 ]]; then
-    echo $s | cut -f1-2 -d' ' | tr ' ' '/'
-  else
-    echo ""
-  fi
+  qatom -q "$1" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' | tr ' ' '/'
 }
 
 
@@ -373,21 +368,28 @@ function CreateIssueDir() {
 # helper of ClassifyIssue()
 #
 function foundCollisionIssue() {
-  # provide package name+version althought this gives more noise in our inbox
+  grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' >> $issuedir/issue
+
+  # get package name+version of the sibbling package
   #
   s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
-  # inform the maintainers of the sibbling package too
-  # strip away version + release b/c the repository might be updated in the meanwhile
-  #
-  cc=$(equery meta -m $(pn2p "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
-  # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
-  #
-  if [[ -n "$cc" ]]; then
-    (cat $issuedir/cc 2>/dev/null; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
-  fi
 
-  grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' >> $issuedir/issue
-  echo "file collision with $s" > $issuedir/title
+  if [[ -z "$s" ]]; then
+    echo "file collision" > $issuedir/title
+
+  else
+    echo "file collision with $s" > $issuedir/title
+
+    # strip away version+release of the sibbling package
+    # b/c the repository might be updated in the meanwhile
+    #
+    cc=$(equery meta -m $(pn2p "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
+    # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
+    #
+    if [[ -n "$cc" ]]; then
+      (cat $issuedir/cc 2>/dev/null; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
+    fi
+  fi
 }
 
 
