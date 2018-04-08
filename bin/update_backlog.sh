@@ -22,11 +22,13 @@ git diff --diff-filter=ACMR --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ag
 grep -F -e '/files/' -e '.ebuild' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique |\
 grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
 
-# mix current changes into each backlog
+# add latest changes to each backlog.upd
 #
 if [[ -s $acmr ]]; then
   for i in $(ls ~/run)
   do
+    # randomizing lowers probability of parallel build of the same package
+    #
     bl=~/run/$i/tmp/backlog.upd
     sort --unique --random-sort $bl $acmr > $bl.tmp && cp $bl.tmp $bl && rm $bl.tmp
   done
