@@ -24,14 +24,14 @@ rc=0
 #   fi
 # done
 
-grep -q "^en_US ISO-8859-1" /etc/locale.gen
-if [[ $? -ne 0 ]]; then
-  if [[ ! -f /tmp/locale.gen.findings ]]; then
-    touch /tmp/locale.gen.findings
-    echo "found no locale"
-    cat /etc/locale.gen
-    rc=1
-  fi
-fi
+# grep -q "^en_US ISO-8859-1" /etc/locale.gen
+# if [[ $? -ne 0 ]]; then
+#   if [[ ! -f /tmp/locale.gen.findings ]]; then
+#     touch /tmp/locale.gen.findings
+#     echo "found no locale"
+#     cat /etc/locale.gen
+#     rc=1
+#   fi
+# fi
 
 exit $rc
