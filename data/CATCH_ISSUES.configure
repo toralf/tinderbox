@@ -29,4 +29,5 @@ SyntaxError: invalid syntax
 This version of Camlp4 is for OCaml
 : uninitialized constant
 meson.build.*ERROR:.*
+USE Flag .* not in IUSE for
 \\* ERROR:
