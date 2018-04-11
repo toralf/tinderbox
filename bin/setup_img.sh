@@ -389,12 +389,6 @@ EOF
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
   if [[ "$libressl" = "y" ]]; then
-    # https://bugs.gentoo.org/643304
-    #
-    cat << EOF > ./etc/portage/package.use/iputils
-net-misc/iputils  openssl -gcrypt -nettle
-EOF
-
     # will be activated after GCC update
     #
     cat << EOF > ./tmp/00libressl
