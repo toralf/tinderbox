@@ -1,5 +1,6 @@
 # package.use file for ffmpeg/libav
 #
 
-*/* convert exif ffmpeg gd icu messages mikmod mod python qml svc system-ffmpeg truetype video
-
+# for u in ...; do quse -NC $u; done | cut -f1-2 -d'/' | sort -uR
+#
+*/* acoustid avformat convert cuda exif ffmpeg gd icu libav messages mikmod mms mod netpbm python qml svc swscale system-ffmpeg truetype vaapi vcodec2 vdpau video void vpx x264 x265 xine
