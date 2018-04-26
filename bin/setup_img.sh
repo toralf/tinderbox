@@ -297,7 +297,7 @@ $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 #
 PAX_MARKINGS="none"
 
-$( [[ "$multilib" = "y" ]]        && echo 'ABI_X86="32 64"' )
+$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' )
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
 FEATURES="$features"
@@ -317,7 +317,8 @@ PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="root@localhost"
-# $name has no effect with ssmtp used as a MTA, but at least needed in job.sh too to derive the image name
+# althought we do not use portages mail functionality currently
+# this variable is read by job.sh to derive the image name
 #
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
