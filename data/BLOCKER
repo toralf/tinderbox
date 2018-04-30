@@ -54,4 +54,4 @@ ld: cannot find -lieee|static declaration of .* follows non-static declaration
 xattr.h|attr
 # ffmpeg-4.0 Alexis Ballier <aballier@gentoo.org>
 653678
-FF_INPUT_BUFFER_PADDING_SIZE
+FF_|CODEC_|av|AV
