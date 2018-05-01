@@ -13,11 +13,11 @@
 # functions
 #
 
-# set up to n-1 arbitrarily choosen USE flags, up to m-1 of them are masked
+# throw up to n-1 USE flags, up to m-1 of them are masked
 #
 function ThrowUseFlags()  {
-  n=40
-  m=10
+  n=80
+  m=20
 
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
@@ -29,10 +29,9 @@ function ThrowUseFlags()  {
   while read flag
   do
     if [[ $(($RANDOM % $m)) -eq 0 ]]; then
-      echo -n "-$flag "
-    else
-      echo -n "$flag "
+      echo -n "-"
     fi
+    echo -n "$flag "
   done
 }
 
