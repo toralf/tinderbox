@@ -1,4 +1,4 @@
-# package.use file for ffmpeg/libav
+# package.use file for ffmpeg
 #
 
 # these USE flags activates ffmpeg
