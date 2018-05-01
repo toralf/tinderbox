@@ -377,9 +377,9 @@ function CompilePortageFiles()  {
   # no parallel build
   #
   cat << EOF                      > ./etc/portage/env/noconcurrent
-MAKEOPTS="-j 1"
-NINJAFLAGS="-j 1"
-EGO_BUILD_FLAGS="-p 1"
+MAKEOPTS="-j1"
+NINJAFLAGS="-j1"
+EGO_BUILD_FLAGS="-p1"
 GOMAXPROCS="1"
 GO19CONCURRENTCOMPILATION=0
 RUSTFLAGS="-C codegen-units=1"
