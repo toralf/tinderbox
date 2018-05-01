@@ -183,8 +183,10 @@ function UnpackStage3()  {
   f=$distfiles/$(basename $stage3)
   if [[ ! -s $f ]]; then
     wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles
-    if [[ $? -ne 0 ]]; then
-      echo "can't download stage3 files '$stage3' for profile '$profile'"
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+      echo "can't download stage3 file '$stage3' of profile '$profile', rc=$rc"
+      rm -f $f{,.DIGESTS.asc}
       exit 4
     fi
   fi
@@ -664,7 +666,10 @@ function EmergeMandatoryPackages() {
 # main
 #
 #############################################################################
-echo "$0 started with $# args: '${@}'"
+echo " $0 started"
+if [[ $# -gt 0 ]]; then
+  echo " additional args: '${@}'"
+fi
 echo
 
 if [[ "$(whoami)" != "root" ]]; then
@@ -788,7 +793,7 @@ distfiles=/var/tmp/distfiles
 
 # the remote stage3 location
 #
-wgethost=http://mirror.netcologne.de/gentoo/
+wgethost=http://ftp.halifax.rwth-aachen.de/gentoo/
 wgetpath=/releases/amd64/autobuilds
 
 dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
