@@ -148,10 +148,13 @@ function setNextTask() {
       continue  # comment
 
     elif [[ $task =~ ^= || $task =~ ^@ || $task =~ ^% ]]; then
-      return  # work on a pinned version | package set | command
+      return  # work on a pinned version || package set || command
 
     else
-      # a regular atom
+      # $task contains a regular atom
+      #
+
+      # skip if $task matches an ignore patterns
       #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
