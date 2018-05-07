@@ -7,3 +7,7 @@
 #
 ~sys-apps/attr-2.4.48
 ~sys-apps/acl-2.2.52
+
+# b-man
+#
+~dev-libs/libressl-2.7.3
