@@ -1260,7 +1260,7 @@ function pre-check() {
 
   elif [[ $rc -gt 127 ]]; then
     Mail "$exe returned $rc, task $task" $out
-    Finish 2 "error: stopped"
+    Finish 2 "error: stopped, rc > 127"
 
   else
     cat << EOF >> $out
@@ -1354,7 +1354,7 @@ do
   #
   if [[ $(wc -l < $tsk.history) -gt 20 ]]; then
     if [[ $(tail -n 20 $tsk.history | sort -u | wc -l) -le 2 ]]; then
-      Finish 2 "infinite task loop detected: $(tail -n 2 $tsk.history | xargs)"
+      Finish 3 "infinite task loop detected: $(tail -n 2 $tsk.history | xargs)"
     fi
   fi
 
