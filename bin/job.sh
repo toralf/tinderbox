@@ -809,8 +809,9 @@ function setWorkDir() {
 #
 function KeepGoing() {
   if [[ $task =~ "revdep-rebuild" ]]; then
-    # don't repeat it (often it failed just in the test phase)
-    # and do ignore a changed dep graph, eg. caused by "test" -> "-test"
+    # don't repeat it, eg.: %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
+    # (often it failed just in the test phase)
+    # so we intentionally ignore a changed dep graph here, caused by eg.: "test" -> "-test"
     #
     echo "%emerge --resume" >> $backlog
 
@@ -818,6 +819,7 @@ function KeepGoing() {
     # deps for @sets or for a common package have to be recalculated
     # b/c they might be changed due to locally masked packages
     # and/or by an updated repository
+    # or by a changed package.env/* entry
     #
     echo "$task" >> $backlog
   fi
@@ -1198,7 +1200,7 @@ function WorkOnTask() {
       fi
     fi
 
-  # %revdep-rebuild, %switch2libressl.sh, resuming
+  # %<command>
   #
   elif [[ $task =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
