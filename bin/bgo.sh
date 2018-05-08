@@ -43,7 +43,7 @@ fi
 id=""
 block=""
 comment="<unset>"
-dir=""
+issuedir=""
 severity="Normal"
 
 newbug=1    # if set to 1 then do neither change To: nor Cc:
@@ -56,25 +56,25 @@ do
         ;;
     b)  block="$OPTARG";;       # (b)lock that bug (id or alias)
     c)  comment="$OPTARG";;     # (c)omment, used with -a
-    d)  dir="$OPTARG";;         # (d)irectory with all files
+    d)  issuedir="$OPTARG";;    # (d)irectory with all files
     s)  severity="$OPTARG";;    # "normal", "QA" and so on
     *)  echo " not implemented !"; exit 1;;
   esac
 done
 
-if [[ -z "$dir" ]]; then
-  echo "no dir given"
+if [[ -z "$issuedir" ]]; then
+  echo "no issuedir given"
   exit 1
 fi
 
-cd $dir
+cd $issuedir
 if [[ $? -ne 0 ]]; then
-  echo "cannot cd into '$dir'"
+  echo "cannot cd into '$issuedir'"
   exit 2
 fi
 
 if [[ -f ./.reported ]]; then
-  echo "already reported ! remove $dir/.reported before retrying !"
+  echo "already reported ! remove $issuedir/.reported before retrying !"
   exit 3
 fi
 
@@ -91,11 +91,11 @@ if [[ -n "$id" ]]; then
   # modify an existing bug report
   #
   if [[ "$comment" = "<unset>" ]]; then
-    comment="appeared recently at the tinderbox image $(realpath $dir | cut -f5 -d'/')"
+    comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
   timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
 
-  grep -q "fails with FEATURES=test" $dir/title && timeout 60 bugz modify --set-keywords TESTFAILURE $id
+  grep -q "fails with FEATURES=test" $issuedir/title && timeout 60 bugz modify --set-keywords TESTFAILURE $id
 
 else
   # create a new bug report
@@ -159,7 +159,7 @@ if [[ -n "$block" ]]; then
   timeout 60 bugz modify --add-blocked "$block" $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
-bzgrep -q " \* ERROR:.* failed (test phase):" $dir/_emerge_* 2>/dev/null
+bzgrep -q " \* ERROR:.* failed (test phase):" $issuedir/_emerge_* 2>/dev/null
 if [[ $? -eq 0 ]]; then
   timeout 60 bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
 fi
