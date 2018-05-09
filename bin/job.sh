@@ -1034,19 +1034,14 @@ function PostEmerge() {
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # if $backlog is empty then do 24 hours after the last time:
-  #   - update @world
-  #   - update @system
+  # if $backlog is empty then do 24 hours after the last time in this order:
+  #   - sync image specific overlays - if specified
   #   - switch java VM
-  #   - sync image specific overlays
+  #   - update @system
+  #   - update @world
   #
   if [[ ! -s $backlog ]]; then
-    diff=999999
-
-    if [[ -f /tmp/@system.history ]]; then
-      let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
-    fi
-
+    let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
     if [[ $diff -gt 86400 ]]; then
       cat << EOF >> $backlog
 @world
