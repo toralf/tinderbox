@@ -75,7 +75,7 @@ function Finish()  {
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
   else
-    Mail "Finish NOT ok, rc=$rc: $subject" $log
+    Mail "Finish NOT ok, rc=$rc: $subject" ${3:-log}
   fi
 
   # if rc != 0 then keep $task in $tsk to retry it at the next start
@@ -1356,7 +1356,7 @@ do
   #
   if [[ $(wc -l < $tsk.history) -gt 20 ]]; then
     if [[ $(tail -n 20 $tsk.history | sort -u | wc -l) -le 2 ]]; then
-      Finish 3 "infinite task loop detected: $(tail -n 2 $tsk.history | xargs)"
+      Finish 3 "infinite task loop detected" $tsk.history
     fi
   fi
 
