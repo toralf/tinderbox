@@ -1,12 +1,6 @@
-# sys-libs/glibc-2.23-r1 breakage
-575232
-minor|major|makedev
 # mono-4 issues
 580316
 mcs Not found|gmcs
-# gnutls-3.4
-546124
-gnutls_
 # giflib-5
 451324
 too few arguments to function .*DGif
@@ -47,8 +41,8 @@ SyntaxError: invalid syntax|SyntaxError: Missing parentheses in call to
 639190
 No module named setuptools
 # glibc-2.27
-637144
-ld: cannot find -lieee|static declaration of .* follows non-static declaration
+#637144
+#ld: cannot find -lieee|static declaration of .* follows non-static declaration
 # attr/acl - Poly-C_atwork
 648864
 xattr.h|attr
