@@ -1,13 +1,4 @@
 # package.unmask/unstable
 #
 
-# please note that this file rules over /etc/portage/package.mask/self
-
-# asturm
-#
-~sys-apps/attr-2.4.48
-~sys-apps/acl-2.2.52
-
-# b-man
-#
-~dev-libs/libressl-2.7.3
+# please note that this file rules over /etc/portage/package.mask/*, especially over "./"self"

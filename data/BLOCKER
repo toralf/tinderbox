@@ -55,3 +55,6 @@ xattr.h|attr
 # ffmpeg-4.0 Alexis Ballier <aballier@gentoo.org>
 653678
 FF_|CODEC_
+#   (libressl-2.7.0) - [TRACKER] packages breaking with >=dev-libs/libressl-2.7.0
+651228
+_get0_|error: static declaration of .BIO_
