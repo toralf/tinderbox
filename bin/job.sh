@@ -1132,8 +1132,8 @@ function RunAndCheck() {
 
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
-    if [[ $try_again -eq 0 && "$task" = "@preserved-rebuild" && "$(tail -n 1 $backlog)" = "$task" ]]; then
-      Finish 2 "error: $task would be repeated"
+    if [[ "$task" = "@preserved-rebuild" && $try_again -eq 0 && -z "$failed" ]]; then
+      Finish 3 "error: @preserved-rebuild failed itself"
     fi
   fi
 
@@ -1342,19 +1342,21 @@ do
   setNextTask
 
   # it is not necessary that emerge even starts (b/c deps might not be fullfilled)
-  # the emerge attempt itself is sufficient to keep $task in the history
+  # the emerge attempt itself is sufficient to keep $task in its history file
   #
   echo "$task" | tee -a $tsk.history > $tsk
   chmod a+r $tsk
 
-  # catch a never ending loop of the same task or the same pair of tasks
+  # catch a never ending loop of the same task or pair of tasks
+  # @system might be repeated often after initial setup if FEATURES=test is set
+  # so wait with the following heuristic check until @world was made
   #
-  if [[ $(wc -l < $tsk.history) -gt 20 ]]; then
-    if [[ $(tail -n 20 $tsk.history | sort -u | wc -l) -le 2 ]]; then
+  grep -q '^@world' $tsk.history
+  if [[ $? -eq 0 ]]; then
+    if [[ $(tail -n 10 $tsk.history | sort -u | wc -l) -le 2 ]]; then
       Finish 3 "infinite task loop detected" $tsk.history
     fi
   fi
-
   WorkOnTask
 
   # hint: this line is not reached if Finish() is called in WorkOnTask()
