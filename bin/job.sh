@@ -75,7 +75,7 @@ function Finish()  {
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
   else
-    Mail "Finish NOT ok, rc=$rc: $subject" ${3:-log}
+    Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$log}
   fi
 
   # if rc != 0 then keep $task in $tsk to retry it at the next start
