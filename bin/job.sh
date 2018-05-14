@@ -1220,6 +1220,8 @@ EOF
           fi
         elif [[ $task =~ " --depclean" ]]; then
           :
+        elif [[ $task =~ " --unmerge " || $task =~ " -C " ]]; then
+          :
         else
           Finish 3 "command: '$cmd'"
         fi
