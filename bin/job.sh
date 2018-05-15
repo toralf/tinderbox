@@ -1349,16 +1349,18 @@ do
   echo "$task" | tee -a $tsk.history > $tsk
   chmod a+r $tsk
 
-  # catch a never ending loop of the same task or pair of tasks
-  # @system might be repeated often after initial setup if FEATURES=test is set
-  # so wait with the following heuristic check until @world was made
+  # catch a never ending loop of the same task or the same pair of tasks
+  # @system might be repeated often for FEATURES=test
   #
-  grep -q '^@world' $tsk.history
-  if [[ $? -eq 0 ]]; then
-    if [[ $(tail -n 10 $tsk.history | sort -u | wc -l) -le 2 ]]; then
-      Finish 3 "infinite task loop detected" $tsk.history
+  tmpfile=$tsk.history.tmp
+  tail -n 8 $tsk.history > $tmpfile
+  grep -q '@' $tmpfile
+  if [[ $? -ne 0 ]]; then
+    if [[ $(tail -n 4 $tmpfile | sort -u | wc -l) -eq 1 || $(sort -u $tmpfile | wc -l) -le 2 ]]; then
+      Finish 3 "infinite task loop detected" $tmpfile
     fi
   fi
+
   WorkOnTask
 
   # hint: this line is not reached if Finish() is called in WorkOnTask()
