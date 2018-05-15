@@ -79,7 +79,7 @@ function SetOptions() {
   #
   testfeature="n"
   if [[ "$keyword" != "stable" ]]; then
-    if [[ $(($RANDOM % 6)) -eq 0 ]]; then
+    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
       testfeature="y"
     fi
   fi
