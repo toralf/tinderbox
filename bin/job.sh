@@ -403,7 +403,7 @@ function foundSandboxIssue() {
   echo "=$failed nousersandbox" >> /etc/portage/package.env/nousersandbox
   try_again=1
 
-  p="$(grep -m1 ^A: $sandb)"
+  p="$(grep -m 1 ^A: $sandb)"
   echo "$p" | grep -q "A: /root/"
   if [[ $? -eq 0 ]]; then
     cat << EOF >> $issuedir/issue
