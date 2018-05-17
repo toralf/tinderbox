@@ -725,8 +725,6 @@ function setFailedAndShort()  {
     failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
     if [[ -n "$failed" ]]; then
       failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
-    else
-      failed=$(grep -m1 -F ' * Package:    ' | awk ' { print $3 } ' $bak)
     fi
   fi
 
@@ -850,12 +848,21 @@ function GotAnIssue()  {
     return
   fi
 
-  grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
-  if [[ $? -eq 0 ]]; then
-    return
+  setFailedAndShort
+
+  if [[ -f "$failedlog" ]]; then
+    grep -q -f /tmp/tb/data/IGNORE_ISSUES $failedlog
+    if [[ $? -eq 0 ]]; then
+      return
+    fi
+
+  else
+    grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
+    if [[ $? -eq 0 ]]; then
+      return
+    fi
   fi
 
-  setFailedAndShort
   if [[ -z "$failed" ]]; then
     Mail "warn: \$failed is empty, task: '$task'" $bak
     return
