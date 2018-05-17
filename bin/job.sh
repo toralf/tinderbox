@@ -722,10 +722,11 @@ function setFailedAndShort()  {
   if [[ -n "$failedlog" ]]; then
     failed=$(basename $failedlog | cut -f1-2 -d':' -s | tr ':' '/')
   else
-    failed="$(cd /var/tmp/portage; ls -1d */* 2>/dev/null)"
-    if [[ -n "$failed" ]]; then
-      failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+    failed="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)"
+    if [[ -z "$failed" ]]; then
+      failed=$(grep -m 1 -F ' * Package:    ' | awk ' { print $3 } ' $bak)
     fi
+    failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
   fi
 
   short=$(pn2p "$failed")
