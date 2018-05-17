@@ -1173,21 +1173,38 @@ function WorkOnTask() {
     # "ok|NOT ok|<msg>" is used in check_history() of whatsup.sh
     # to display " ", "[SWP]" or "[swp]" respectively
     #
-    msg=$(grep -m 1 -e 'The following REQUIRED_USE flag constraints are unsatisfied:' \
-                    -e 'The following USE changes are necessary'    \
-                    -e 'The following update(s) have been skipped due to unsatisfied dependencies'      \
-                    -e 'WARNING: One or more updates/rebuilds'      \
-                    -e 'Multiple package instances within a single package slot have been pulled' \
+    msg=$(grep -m 1 -e 'The following REQUIRED_USE flag constraints are unsatisfied:'               \
+                    -e 'The following update(s) have been skipped due to unsatisfied dependencies'  \
+                    -e 'WARNING: One or more updates/rebuilds'                                      \
+                    -e 'Multiple package instances within a single package slot have been pulled'   \
+                    -e 'The following USE changes are necessary to proceed:'                        \
         $bak)
 
     if [[ $rc -ne 0 ]]; then
       if [[ -n "$failed" ]]; then
         echo "$(date) $failed" >> /tmp/$task.history
       else
-        echo "$(date) ${msg:-NOT ok}" >> /tmp/$task.history
+        echo "$(date) NOT ok $msg" >> /tmp/$task.history
       fi
 
-      if [[ $try_again -eq 0 ]]; then
+      # set package specific USE flags as adviced by emerge
+      # and repeat $task
+      #
+      msg="The following USE changes are necessary to proceed:"
+      grep -q "$msg" $bak
+      if [[ $? -eq 0 ]]; then
+        grep -A 10000 "$msg" $bak |\
+        while read line
+        do
+          if [[ $line =~ ">=" ]]; then
+            echo "$line" >> /etc/portage/package.use/z_changed_use_flags
+          elif [[ -z "$line" ]]; then
+            break
+          fi
+        done
+        echo "$task" >> $backlog
+
+      elif [[ $try_again -eq 0 ]]; then
         if [[ "$task" = "@preserved-rebuild" ]]; then
           Finish 3 "task $task failed"
         elif [[ -n "$failed" ]]; then
@@ -1196,7 +1213,7 @@ function WorkOnTask() {
       fi
 
     else
-      echo "$(date) ${msg:-ok}" >> /tmp/$task.history
+      echo "$(date) ok $msg" >> /tmp/$task.history
       if [[ $task = "@world" && -z "$msg" ]]; then
         echo "%emerge --depclean --verbose=n" >> $backlog
       fi
