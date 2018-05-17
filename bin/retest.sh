@@ -34,7 +34,7 @@ do
     # backlog.upd will be shuffled around by update_backlog.sh
     # so use backlog.1st but put our atom *after* any high-prio task
     #
-      bl=~/run/$i/tmp/backlog.1st
+    bl=~/run/$i/tmp/backlog.1st
     if [[ -s $bl ]]; then
       sed -i -e "1i $p" $bl
     else
