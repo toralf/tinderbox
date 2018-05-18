@@ -1,12 +1,15 @@
 # package.use file for ffmpeg
 #
 
-# these USE flags activates ffmpeg
+# create a randomized package list from USE flags:
 #
 # for u in ... ; do quse -NC $u; done | cut -f1-2 -d'/' | sort -uR
+#
+
+# these USE flags activates ffmpeg
 #
 */*             acoustid avformat convert cuda exif ffmpeg gd swscale system-ffmpeg vcodec2 vdpau video void vpx x264 x265 xine
 
 # these USE flags are often needed too to resolve deps
 #
-*/*             icu messages mikmod mms mod netpbm python qml svc truetype
+*/*             X icu messages mikmod mms mod netpbm python qml svc truetype xkb
