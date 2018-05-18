@@ -1007,6 +1007,11 @@ function PostEmerge() {
   env-update &>/dev/null
   source /etc/profile || Finish 2 "can't source /etc/profile"
 
+  grep -F -q "* IMPORTANT: config file '/etc/locale.gen' needs updating." $bak
+  if [[ $? -eq 0 ]]; then
+    touch /etc/._cfgXXXX_locale.gen # will be handled in the main loop
+  fi
+
   # the very last step after an emerge
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
@@ -1368,7 +1373,17 @@ do
 
   ls /etc/._cfg????_locale.gen &>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo "%locale-gen" >> $backlog
+    cat << EOF >> /etc/locale.gen
+en_US ISO-8859-1
+en_US.UTF-8 UTF-8
+de_DE ISO-8859-1
+de_DE@euro ISO-8859-15
+de_DE.UTF-8@euro UTF-8
+EOF
+    locale-gen                     >> $log
+    eselect locale set en_US.utf8  >> $log
+    source /etc/profile            >> $log
+
     rm /etc/._cfg????_locale.gen
   fi
 
