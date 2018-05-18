@@ -9,7 +9,7 @@
 # That's all.
 
 
-# strip away escape sequences from any (log) output
+# strip away non-printable sequences
 #
 function stresc() {
   perl -MTerm::ANSIColor=colorstrip -nle '
@@ -20,6 +20,9 @@ function stresc() {
     s,\b,,g;
     s,\x1b\x28\x42,,g;
     s,\x1b\x5b\x4b,,g;
+    s,\x01,,g;
+    s,\x02,,g;
+    s,\x03,,g;
     s,,,g;
     print;
   '
