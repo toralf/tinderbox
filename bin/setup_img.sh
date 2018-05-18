@@ -22,7 +22,7 @@ function ThrowUseFlags()  {
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|gcj|hostname|kill|linguas|make-symlinks|minimal|monolithic|multilib|musl|oci8|pax|prefix|qt4|tools|selinux|static|symlink|systemd|test|uclibc|vim-syntax' |\
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|gcj|hostname|kill|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|pax|prefix|qt4|tools|selinux|static|symlink|systemd|test|uclibc|vim-syntax' |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
   sort |\
@@ -413,7 +413,7 @@ EOF
     cp /home/tinderbox/tb/data/package.use.ff-and-tb    ./etc/portage/package.use/ff-and-tb
   fi
 
-  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
     cp /home/tinderbox/tb/data/package.use.ffmpeg       ./etc/portage/package.use/ffmpeg
   fi
 
