@@ -1003,6 +1003,21 @@ function PostEmerge() {
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
+  ls /etc/._cfg????_locale.gen &>/dev/null
+  if [[ $? -eq 0 ]]; then
+    cat << EOF >> /etc/locale.gen
+en_US ISO-8859-1
+en_US.UTF-8 UTF-8
+de_DE ISO-8859-1
+de_DE@euro ISO-8859-15
+de_DE.UTF-8@euro UTF-8
+EOF
+    locale-gen                     > /dev/null
+    eselect locale set en_US.utf8  > /dev/null
+
+    rm /etc/._cfg????_locale.gen
+  fi
+
   etc-update --automode -5 1>/dev/null
   env-update &>/dev/null
   source /etc/profile || Finish 2 "can't source /etc/profile"
@@ -1370,22 +1385,6 @@ do
   # auto-clean is deactivated to collect issue files
   #
   rm -rf /var/tmp/portage/*
-
-  ls /etc/._cfg????_locale.gen &>/dev/null
-  if [[ $? -eq 0 ]]; then
-    cat << EOF >> /etc/locale.gen
-en_US ISO-8859-1
-en_US.UTF-8 UTF-8
-de_DE ISO-8859-1
-de_DE@euro ISO-8859-15
-de_DE.UTF-8@euro UTF-8
-EOF
-    locale-gen                     >> $log
-    eselect locale set en_US.utf8  >> $log
-    source /etc/profile            >> $log
-
-    rm /etc/._cfg????_locale.gen
-  fi
 
   setNextTask
 
