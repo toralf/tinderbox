@@ -865,7 +865,10 @@ function GotAnIssue()  {
   fi
 
   if [[ -z "$failed" ]]; then
-    Mail "warn: \$failed is empty, task: '$task'" $bak
+    grep -q "All ebuilds that could satisfy .* have been masked." $bak
+    if [[ $? -ne 0 ]]; then
+      Mail "warn: \$failed is empty, task: '$task'" $bak
+    fi
     return
   fi
 
