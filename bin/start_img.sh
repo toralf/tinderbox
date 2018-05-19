@@ -51,9 +51,9 @@ do
     continue
   fi
 
-  # at least one non-empty backlog is required
+  # at least one non-empty backlog or the last (unfinished) task is required
   #
-  if [[ $(cat $mnt/tmp/backlog* 2>/dev/null | wc -l) -eq 0 ]]; then
+  if [[ $(cat $mnt/tmp/backlog* /tmp/task 2>/dev/null | wc -l) -eq 0 ]]; then
     echo " all backlogs are empty: $mnt"
     continue
   fi
