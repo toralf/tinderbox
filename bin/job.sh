@@ -1292,43 +1292,6 @@ EOF
 }
 
 
-# hook, eg. to catch install artefacts
-#
-function pre-check() {
-  exe=/tmp/pre-check.sh
-  out=/tmp/pre-check.log
-
-  if [[ ! -x $exe ]]; then
-    return
-  fi
-
-  $exe &> $out
-  local rc=$?
-
-  if [[ $rc -eq 0 ]]; then
-    rm $out
-
-  elif [[ $rc -gt 127 ]]; then
-    Mail "$exe returned $rc, task $task" $out
-    Finish 2 "error: stopped, rc > 127"
-
-  else
-    cat << EOF >> $out
-
---
-seen at tinderbox image $name
-$log:
-$( tail -n 30 $log 2>/dev/null )
-
---
-emerge --info:
-$( emerge --info --verbose=n $task 2>&1 )
-EOF
-    Mail "$exe : rc=$rc, task $task" $out
-  fi
-}
-
-
 #############################################################################
 #
 #       main
@@ -1379,7 +1342,6 @@ fi
 
 while :
 do
-  pre-check
   date > $log
 
   # auto-clean is deactivated to collect issue files
