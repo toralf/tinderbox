@@ -573,10 +573,10 @@ de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
 locale-gen -j1 || exit 6
-eselect locale set en_US.utf8 || exit 6
+eselect locale set en_US.UTF-8 || exit 6
 
 if [[ $profile =~ "systemd" ]]; then
-  echo 'LANG="en_US.utf8"' > /etc/locale.conf
+  echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
 fi
 
 env-update
