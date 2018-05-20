@@ -30,7 +30,7 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# awefully long build time (the first 2 inherit a bundled copy of chromium)
+# awefully long build time and too often updated (the first 2 inherit a bundled copy of chromium)
 #
 app-editors/atom
 dev-util/electron
