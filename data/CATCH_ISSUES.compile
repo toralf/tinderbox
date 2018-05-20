@@ -188,8 +188,8 @@ Error: Could not find suitable distribution for Requirement
 TypeError:
 moc: could not find a Qt installation
 lrelease: could not exec
+loadable library and perl binaries are mismatched
 Error .
- loadable library and perl binaries are mismatched
 setup: can't find source for
 USE Flag .* not in IUSE
 :Error:

@@ -813,27 +813,26 @@ function KeepGoing() {
   if [[ $task =~ "revdep-rebuild" ]]; then
     # don't repeat it, eg.: %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
     # (often it failed just in the test phase)
-    # so we intentionally ignore a changed dep graph here, caused by eg.: "test" -> "-test"
+    # so we intentionally ignore a changed dep graph here, caused eg. by: "test" -> "-test"
     #
     echo "%emerge --resume" >> $backlog
 
   else
     # deps for @sets or for a common package have to be recalculated
     # b/c they might be changed due to locally masked packages
-    # and/or by an updated repository
-    # or by a changed package.env/* entry
+    # and/or by an updated repository or by a changed package.env/* entry
     #
     echo "$task" >> $backlog
   fi
 }
 
 
-# collect files, create an email and decide, whether to send it out or not
+# collect files, create (and maybe send out) an email
 #
 function GotAnIssue()  {
   PutDepsInWorld
 
-  fatal=$(grep -f /tmp/tb/data/FATAL_ISSUES $bak)
+  fatal=$(grep -m 1 -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
   fi
@@ -843,35 +842,22 @@ function GotAnIssue()  {
     Finish 1 "KILLED"
   fi
 
+  # jumped in into the middle of the update of the (shared) repository
+  #
   grep -q -e 'AssertionError: ebuild not found for' \
           -e 'portage.exception.FileNotFound:'      \
           $bak
   if [[ $? -eq 0 ]]; then
     KeepGoing
-    sleep 30  # race with repo updated should be over
+    sleep 30
     return
   fi
 
   setFailedAndShort
 
-  if [[ -f "$failedlog" ]]; then
-    grep -q -f /tmp/tb/data/IGNORE_ISSUES $failedlog
-    if [[ $? -eq 0 ]]; then
-      return
-    fi
-
-  else
-    grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
-    if [[ $? -eq 0 ]]; then
-      return
-    fi
-  fi
-
+  # generic emerge error, not package specific
+  #
   if [[ -z "$failed" ]]; then
-    grep -q "All ebuilds that could satisfy .* have been masked." $bak
-    if [[ $? -ne 0 ]]; then
-      Mail "warn: \$failed is empty, task: '$task'" $bak
-    fi
     return
   fi
 
@@ -881,16 +867,22 @@ function GotAnIssue()  {
   setWorkDir
   CollectIssueFiles
 
-  # get this before /etc/portage/package.*/* files are changed
+  # get this before /etc/portage/package.*/* files might be altered
   #
   emerge -qpv $short &> $issuedir/emerge-qpv
   ClassifyIssue
 
-  # https://bugs.gentoo.org/463976 https://bugs.gentoo.org/640866 https://bugs.gentoo.org/582046
+  # https://bugs.gentoo.org/463976
+  # https://bugs.gentoo.org/582046
+  # https://bugs.gentoo.org/640866
+  # https://bugs.gentoo.org/646698
   #
-  grep -q -e "Can't locate .* in @INC" -e "configure: error: perl module Locale::gettext required" $bak
+  grep -q -e "Can't locate .* in @INC"                                \
+          -e "configure: error: perl module Locale::gettext required" \
+          -e "loadable library and perl binaries are mismatched"      \
+          $bak
   if [[ $? -eq 0 ]]; then
-    try_again=1   # just to not fall in the ==0 code path in WorkOnTask()
+    try_again=1   # but clean Perl before
     cat << EOF >> $backlog
 $task
 %perl-cleaner --all
@@ -904,8 +896,11 @@ EOF
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
-  CompileIssueMail
-  SendoutIssueMail
+  grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
+  if [[ $? -ne 0 ]]; then
+    CompileIssueMail
+    SendoutIssueMail
+  fi
 }
 
 
@@ -992,7 +987,7 @@ function SwitchJDK()  {
 # it schedules follow-ups from the last emerge operation
 #
 function PostEmerge() {
-  # prefix our log backup file with an "_" to distinguish it from portages log file
+  # prefix our log backup file with "_" to distinguish it from portages log file
   #
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
   stresc < $log > $bak
@@ -1005,27 +1000,18 @@ function PostEmerge() {
 
   ls /etc/._cfg????_locale.gen &>/dev/null
   if [[ $? -eq 0 ]]; then
-    cat << EOF >> /etc/locale.gen
-en_US ISO-8859-1
-en_US.UTF-8 UTF-8
-de_DE ISO-8859-1
-de_DE@euro ISO-8859-15
-de_DE.UTF-8@euro UTF-8
-EOF
-    locale-gen                     > /dev/null
-    eselect locale set en_US.utf8  > /dev/null
-
+    locale-gen > /dev/null
     rm /etc/._cfg????_locale.gen
   fi
 
+  # merge the remaining config files automatically
+  #
   etc-update --automode -5 1>/dev/null
+
+  # update the runtime environment
+  #
   env-update &>/dev/null
   source /etc/profile || Finish 2 "can't source /etc/profile"
-
-  grep -F -q "* IMPORTANT: config file '/etc/locale.gen' needs updating." $bak
-  if [[ $? -eq 0 ]]; then
-    touch /etc/._cfgXXXX_locale.gen # will be handled in the main loop
-  fi
 
   # the very last step after an emerge
   #
@@ -1214,8 +1200,8 @@ function WorkOnTask() {
         echo "$(date) NOT ok $msg" >> /tmp/$task.history
       fi
 
-      # set package specific USE flags as adviced by emerge
-      # and repeat $task
+      # set package specific USE flags as adviced and repeat @set
+      # this is needed *here* to achieve a consistent dep tree
       #
       msg="The following USE changes are necessary to proceed:"
       grep -q "$msg" $bak
@@ -1365,7 +1351,7 @@ do
     grep -q '@' $tmpfile
     if [[ $? -ne 0 ]]; then
       if [[ $(sort -u $tmpfile | wc -l) -le 2 ]]; then
-        Finish 3 "infinite task loop might happened" $tmpfile
+        Finish 3 "infinite task loop detected" $tmpfile
       fi
     fi
   fi
