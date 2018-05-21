@@ -428,9 +428,9 @@ EOF
 # helper of ClassifyIssue()
 #
 function collectTestIssueResults() {
-  grep -q "=$failed " /etc/portage/package.env/notest 2>/dev/null
+  grep -q "=$failed " /etc/portage/package.env/test-fail-continue 2>/dev/null
   if [[ $? -ne 0 ]]; then
-    echo "=$failed notest" >> /etc/portage/package.env/notest
+    echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
   fi
 
@@ -811,16 +811,15 @@ function setWorkDir() {
 #
 function KeepGoing() {
   if [[ $task =~ "revdep-rebuild" ]]; then
-    # don't repeat it, eg.: %revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
-    # (often it failed just in the test phase)
-    # so we intentionally ignore a changed dep graph here, caused eg. by: "test" -> "-test"
+    # don't repeat the whole package list itself
+    # (eg. after a GCC upgrade it failes often just in the test phase)
     #
     echo "%emerge --resume" >> $backlog
 
   else
     # deps for @sets or for a common package have to be recalculated
-    # b/c they might be changed due to locally masked packages
-    # and/or by an updated repository or by a changed package.env/* entry
+    # b/c they might be changed due to locally masked packages,
+    # by an updated repository or by an altered package.env/* entry
     #
     echo "$task" >> $backlog
   fi
@@ -848,6 +847,7 @@ function GotAnIssue()  {
           -e 'portage.exception.FileNotFound:'      \
           $bak
   if [[ $? -eq 0 ]]; then
+    try_again=1
     KeepGoing
     sleep 30
     return

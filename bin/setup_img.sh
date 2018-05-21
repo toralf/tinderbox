@@ -367,6 +367,10 @@ function CompilePortageFiles()  {
   #
   echo 'FEATURES="-test"'         > ./etc/portage/env/notest
 
+  # at 2nd attempt to emerge a package do ignore the test phase result
+  #
+  echo 'FEATURES="test-fail-continue"'  > ./etc/portage/env/test-fail-continue
+
   # breakage is forced in job.sh by the XDG_* variables
   #
   echo 'FEATURES="-sandbox"'      > ./etc/portage/env/nosandbox
