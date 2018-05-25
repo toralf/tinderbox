@@ -635,13 +635,17 @@ function EmergeMandatoryPackages() {
       cat $mnt/tmp/setup.log
     fi
 
-    echo
-    echo "    view ~/$mnt/tmp/dryrun.log"
-    echo "    vi ~/$mnt/etc/portage/make.conf"
-    echo "    sudo $(dirname $0)/chr.sh $mnt ' $dryrun '"
-    echo "    (cd ~/run && ln -s ../$mnt)"
-    echo "    start_img.sh $name"
-    echo
+    echo "
+
+      view ~/$mnt/tmp/dryrun.log
+      vi ~/$mnt/etc/portage/make.conf
+
+      sudo $(dirname $0)/chr.sh $mnt ' $dryrun '
+
+      (cd ~/run && ln -s ../$mnt)
+      start_img.sh $name
+
+"
 
     exit $rc
   fi
