@@ -85,6 +85,7 @@ Unescaped left brace in regex is illegal here
 make:.* test
 ^\?: .*
 Segmentation fault
+Test .* failed:
 make.* Error 1
  FAILED (.*)
  FAILED .*

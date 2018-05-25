@@ -48,4 +48,4 @@ xattr.h|attr
 FF_|CODEC_
 #   (libressl-2.7.0) - [TRACKER] packages breaking with >=dev-libs/libressl-2.7.0
 651228
-_get0_|_set0_|error: static declaration of .BIO_|undefined symbol: OPENSSL_
+_get0_|_set0_|error: static declaration of .BIO_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC

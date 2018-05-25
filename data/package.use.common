@@ -22,4 +22,4 @@ dev-java/icedtea-bin      -multilib
 
 # otherwise app-text/po4a wants a perl downgrade (often during image setup)
 #
-sys-apps/man-db           -nls
+#sys-apps/man-db           -nls

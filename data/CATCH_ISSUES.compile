@@ -194,4 +194,5 @@ setup: can't find source for
 USE Flag .* not in IUSE
 :Error:
 RuntimeError: maximum recursion depth exceeded while calling a Python object
+Unable to access the X Display, is $DISPLAY set properly?
 ERROR:

@@ -36,3 +36,18 @@ app-editors/atom
 dev-util/electron
 www-client/chromium
 www-client/google-chrome
+#
+# wait till debundling is made
+#
+sci-libs/tensorflow
+#
+# never-ending loop of "www-misc/vdradmin-am; %perl-cleaner --all"
+#
+www-misc/vdradmin-am
+x11-terms/rxvt-unicode
+x11-misc/urxvt-font-size
+#
+# looong compile time, oold bugs open
+#
+sys-cluster/
+sys-fabric/ibutils
