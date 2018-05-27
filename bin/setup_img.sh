@@ -68,18 +68,15 @@ function SetOptions() {
     fi
   fi
 
-  # suffix in the image name
+  # suffix of the image name
   #
   suffix=""
-  if [[ "$keyword" = "stable" ]]; then
-    suffix="gcc7"
-  fi
 
   # FEATURES=test
   #
   testfeature="n"
   if [[ "$keyword" != "stable" ]]; then
-    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+    if [[ $(($RANDOM % 20)) -eq 0 ]]; then
       testfeature="y"
     fi
   fi
@@ -88,6 +85,8 @@ function SetOptions() {
 }
 
 
+# helper of main()
+#
 function CheckOptions() {
   if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
     echo " profile unknown: $profile"
@@ -258,9 +257,11 @@ EOF
 }
 
 
-# modify the existing one from stage3
+# modify make.conf from stage3
 #
 function CompileMakeConf()  {
+  # strip away the following lines
+  #
   sed -i  -e '/^CFLAGS="/d'       \
           -e '/^CXXFLAGS=/d'      \
           -e '/^CPU_FLAGS_X86=/d' \
@@ -271,7 +272,7 @@ function CompileMakeConf()  {
           -e '/^DISTDIR=/d'       \
           ./etc/portage/make.conf
 
-  # "tinderbox" user needs to be in group "portage" for this
+  # the "tinderbox" user had to put in group "portage" to make this effective
   #
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
@@ -286,7 +287,7 @@ function CompileMakeConf()  {
 
   cat << EOF >> ./etc/portage/make.conf
 CFLAGS="-O2 -pipe -march=native"
-CXXFLAGS="-O2 -pipe -march=native"
+CXXFLAGS="\${CFLAGS}"
 
 USE="
 $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
@@ -636,7 +637,6 @@ function EmergeMandatoryPackages() {
     fi
 
     echo "
-
       view ~/$mnt/tmp/dryrun.log
       vi ~/$mnt/etc/portage/make.conf
 
