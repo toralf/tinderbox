@@ -1213,7 +1213,7 @@ function WorkOnTask() {
         grep -A 10000 "$msg" $bak |\
         while read line
         do
-          if [[ $line =~ ">=" ]]; then
+          if [[ $line =~ ">=" || $line =~ "=" ]]; then
             echo "$line" >> /etc/portage/package.use/z_changed_use_flags
           elif [[ -z "$line" ]]; then
             break
