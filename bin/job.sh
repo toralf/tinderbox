@@ -1162,6 +1162,7 @@ function RunAndCheck() {
 
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
+
     if [[ "$task" = "@preserved-rebuild" && $try_again -eq 0 && -z "$failed" ]]; then
       Finish 3 "error: @preserved-rebuild failed itself"
     fi
@@ -1174,7 +1175,10 @@ function RunAndCheck() {
 # this is the heart of the tinderbox
 #
 function WorkOnTask() {
-  failed=""     # hold the failed package name
+  failed=""     # failed package
+  failedlog=""  # failed package logfile
+  short=""      # failed package w/o version/revision
+
   try_again=0   # 1 with default environment values (if applicable)
 
   # @system, @world, @preserved-rebuild
