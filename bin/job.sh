@@ -703,7 +703,7 @@ EOF
   fi
   TrimTitle
 
-  # give write perms to non-root/portage user too
+  # grant write perms to the issue artefacts to "all"
   #
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
