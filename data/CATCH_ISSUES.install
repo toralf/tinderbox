@@ -21,3 +21,5 @@ cp: target .* is not a directory
 File Finder Failed for
 /bin/sed: symbol lookup error:
 error: static declaration of
+/usr/bin/install crash
+install: cannot create regular file

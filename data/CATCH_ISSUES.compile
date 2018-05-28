@@ -196,3 +196,4 @@ USE Flag .* not in IUSE
 RuntimeError: maximum recursion depth exceeded while calling a Python object
 Unable to access the X Display, is $DISPLAY set properly?
 ERROR:
+make: .* Error

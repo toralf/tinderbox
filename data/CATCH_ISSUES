@@ -3,3 +3,4 @@ Fetched file: .* VERIFY FAILED!
 Couldn't download .* Aborting.
 Fetch failed for
 \\*   multilib-strict check failed!
+The ebuild phase .* has exited unexpectedly. This type of
