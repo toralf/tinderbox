@@ -711,25 +711,31 @@ EOF
 
 
 # helper of GotAnIssue()
-# guess the failed package name and its log file name
+# guess the failed package and logfile name
 #
 function setFailedAndShort()  {
-  failedlog=$(grep -m 1 "The complete build log is located at" $bak | cut -f2 -d"'" -s)
+  failed=$(grep -m 1 -F ' * Package: ' $log | awk ' { print $3 } ')
+  if [[ -z "$failed" ]]; then
+    failed="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)"
+  fi
+
+  failedlog=$(grep -m 1 "The complete build log is located at" $log | cut -f2 -d"'" -s)
   if [[ -z "$failedlog" ]]; then
-    failedlog=$(grep -m 1 -A 1 "', Log file:" $bak | tail -n 1 | cut -f2 -d"'" -s)
+    failedlog=$(grep -m 1 -A 1 "', Log file:" $log | tail -n 1 | cut -f2 -d"'" -s)
     if [[ -z "$failedlog" ]]; then
-      failedlog=$(grep -m 1 "^>>>  '" $bak | cut -f2 -d"'" -s)
+      failedlog=$(grep -m 1 "^>>>  '" $log | cut -f2 -d"'" -s)
+      if [[ -z "$failedlog" ]]; then
+        if [[ -n "$failed" ]]; then
+          failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+        fi
+      fi
     fi
   fi
 
-  if [[ -n "$failedlog" ]]; then
-    failed=$(basename $failedlog | cut -f1-2 -d':' -s | tr ':' '/')
-  else
-    failed="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)"
-    if [[ -z "$failed" ]]; then
-      failed=$(grep -m 1 -F ' * Package:    ' | awk ' { print $3 } ' $bak)
+  if [[ -z "$failed" ]]; then
+    if [[ -n "$failedlog" ]]; then
+      failed=$(basename $failedlog | cut -f1-2 -d':' -s | tr ':' '/')
     fi
-    failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
   fi
 
   short=$(pn2p "$failed")
