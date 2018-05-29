@@ -6,8 +6,7 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 
     cd ~/img1; setup_img.sh
 
-A profile, keyword and USE flag are set.
-The current *stage3* file is downloaded, verified and unpacked.
+The current *stage3* file is downloaded, verified and unpacked, profile, keyword and USE flag are set.
 Mandatory portage config files will be compiled.
 Few required packages (*ssmtp*, *pybugz* etc.) will be installed.
 A backlog is filled up with all available package in a randomized order (*/tmp/backlog*).
@@ -40,7 +39,7 @@ This bind-mount all desired directories from the host system. Without any argume
     
     sudo /opt/tb/bin/scw.sh <image>
 
-Simple wrapper of chroot with few checks, no hosts files are mounted. This can be made if an image is already running and therefore *chr.sh* can't be used. This script is useful to inspect log files and to run commands like *reix*, *qlop* etc.
+Simple wrapper of chroot with few checks, no hosts files are mounted. This can be made if an image is already running and therefore *chr.sh* can't be used. This script is useful to inspect log files and to run commands like *eix*, *qlop* etc.
 
 ### removal of an image
 Stop the image and remove the symlink in *~/run*.
@@ -58,13 +57,13 @@ Bugs can be filed using *bgo.sh* - a comand line ready for copy+paste is in the 
 1. stop image if it is running
 2. chroot into it
 3. inspect/adapt files in */etc/portage/packages.*
-4. do your work in */usr/local/portage* to test new/changed ebuilds (do not edit files in */usr/portage*, that is sbind-mountedi from the host)
+4. do your work in */usr/local/portage* to test new/changed ebuilds (do not edit files in */usr/portage*, that rectory is bind-mounted from the host)
 5. exit from chroot
 
 ### unattended test of package/s
 Append package(s) to the package list in the following way:
     
-    cat <<<EOF >> ~/run/[image]/tmp/backlog.1st
+    cat << EOF >> ~/run/[image]/tmp/backlog.1st
     INFO net-p2p/bitcoind ok ? https://bugs.gentoo.org/show_bug.cgi?id=642934
     net-p2p/bitcoind
     EOF
@@ -72,7 +71,7 @@ Append package(s) to the package list in the following way:
 *STOP* can be used instead *INFO* to stop the image at that point, the following text will become the subject of an email.
 
 ### misc
-The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image. *retest.sh* is used to undo any package specific (mask) changes to portage files and to schedule an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s).
+The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image. *retest.sh* is used to undo any package specific (mask) changes to portage files before it to schedules an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s).
 
 ## installation
 Create the user *tinderbox*:
