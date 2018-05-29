@@ -741,6 +741,7 @@ function setFailedAndShort()  {
   short=$(pn2p "$failed")
   if [[ ! -d /usr/portage/$short ]]; then
     failed=""
+    failedlog=""
     short=""
   fi
 }
@@ -1175,10 +1176,6 @@ function RunAndCheck() {
 # this is the heart of the tinderbox
 #
 function WorkOnTask() {
-  failed=""     # failed package
-  failedlog=""  # failed package logfile
-  short=""      # failed package w/o version/revision
-
   try_again=0   # 1 with default environment values (if applicable)
 
   # @system, @world, @preserved-rebuild
