@@ -988,11 +988,7 @@ function PostEmerge() {
   # prefix our log backup file with "_" to distinguish it from portages log file
   #
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
-  if [[ -f $failedlog ]]; then
-    stresc < $failedlog > $bak
-  else
-    stresc < $log       > $bak
-  fi
+  stresc < $log > $bak
 
   # don't change these config files after image setup
   #
