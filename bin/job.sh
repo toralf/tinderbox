@@ -1350,7 +1350,7 @@ do
   tmpfile=$tsk.history.tmp
   tail -n 20 $tsk.history > $tmpfile
   if [[ $(wc -l < $tmpfile) -eq 20 ]]; then
-    grep -q '@' $tmpfile
+    grep -q -e '@system' -e '@world' $tmpfile
     if [[ $? -ne 0 ]]; then
       if [[ $(sort -u $tmpfile | wc -l) -le 2 ]]; then
         Finish 3 "infinite task loop detected" $tmpfile
