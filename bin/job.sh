@@ -32,7 +32,8 @@ function stresc() {
 # send an email using mailx
 #
 function Mail() {
-  # $1 (mandatory) is the subject, $2 (optional) contains the body
+  # $1 (mandatory) is the subject,
+  # $2 (optional) contains either the text of the body or a filename (with text)
   #
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
 
@@ -55,7 +56,7 @@ function Mail() {
   local rc=$?
 
   if [[ $rc -ne 0 ]]; then
-    # direct this both to stdout (to be catched by logcheck.sh) and to the logfile
+    # direct this both to stdout (could be catched eg. by logcheck.sh) and to an image specific logfile
     #
     echo "$(date) mail failed with rc=$rc issuedir=$issuedir" | tee -a /tmp/mail.log
   fi
@@ -65,7 +66,9 @@ function Mail() {
 # clean up and exit
 #
 function Finish()  {
-  # $1: return code, $2: email Subject
+  # $1: return code
+  # $2: email Subject
+  # $3: file to be attached
   #
   local rc=$1
 
@@ -225,10 +228,6 @@ EOF
   sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
   roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $bak | grep "/LastTest\.log" | awk ' { print $2 } ')
 
-  # quirk for failing dev-ros/* tests
-  #
-  grep -q 'ERROR: Unable to contact my own server at' $roslg && echo "TEST ISSUE " > $issuedir/bgo_result
-
   for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
   do
     if [[ -f $f ]]; then
@@ -272,7 +271,10 @@ EOF
     fi
   fi
 
-  (cd / && tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage)
+  (
+    cd /
+    tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage
+  )
 
   chmod a+r $issuedir/files/*
 }
@@ -314,13 +316,13 @@ EOF
 }
 
 
-# attach given files to the email body
-# should be the last part of the email body
+# attach given files onto the email
+# (should be called after the lines of text)
 #
 function AttachFilesToBody()  {
   for f in $*
   do
-    s=$( ls -l $f 2>/dev/null | awk ' { print $5 } ' )
+    s=$( wc -c < $f )
     if [[ $s -gt 0 && $s -lt 1048576 ]]; then
       echo >> $issuedir/body
       uuencode $f $(basename $f) >> $issuedir/body
@@ -330,8 +332,7 @@ function AttachFilesToBody()  {
 }
 
 
-# this info helps to decide whether to file a bug eg. for a stable package
-# despite the fact that the issue was already fixed in an unstable version
+# query b.g.o. about same/similar bug reports
 #
 function AddMetainfoToBody() {
   cat << EOF >> $issuedir/body
