@@ -30,7 +30,7 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# awefully long build time and too often updated (the first 2 inherit a bundled copy of chromium)
+# awefully long build time and way too often updated (the first 2 inherit a bundled copy of chromium)
 #
 app-editors/atom
 dev-util/electron
@@ -47,7 +47,11 @@ www-misc/vdradmin-am
 x11-terms/rxvt-unicode
 x11-misc/urxvt-font-size
 #
-# looong compile time, oold bugs open
+# looong compile time, too many old bugs open
 #
 sys-cluster/
 sys-fabric/ibutils
+#
+# looong compile times and changed too often updated
+#
+dev-lang/rust
