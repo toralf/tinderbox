@@ -280,22 +280,32 @@ EOF
 }
 
 
-# get assignee and cc for the b.g.o. entry
+# get assignee and cc for the b.g.o. report
 #
 function GetAssigneeAndCc() {
-  m=$(equery meta -m $short | grep '@' | xargs)
+  # all meta info
+  #
+  m=$( equery meta -m $short | grep '@' | xargs )
+  if [[ -z "$m" ]]; then
+    m="maintainer-needed@gentoo.org"
+  fi
 
-  if [[ -n "$m" ]]; then
-    a=$(echo "$m" | cut -f1  -d' ')
-    c=$(echo "$m" | cut -f2- -d' ' -s)
+  # get last author of the package directory is wanted if git is available
+  #
+  l=$( cd /usr/portage && git log -n 1 $short 2> /dev/null | grep "^Author:" | cut -f2 -d'<' -s | cut -f1 -d'>' )
 
-    echo "$a" > $issuedir/assignee
-    if [[ -n "$c" ]]; then
-      echo "$c" > $issuedir/cc
-    fi
+  # assignee
+  #
+  a=$(echo "$m" | cut -f1 -d' ')
+  echo "$a" > $issuedir/assignee
 
-  else
-    echo "maintainer-needed@gentoo.org" > $issuedir/assignee
+  # cc
+  #
+  c=$( echo "$m" | cut -f2- -d' ' -s )
+  if [[ -n "$l" && ! "$l" =~ "$m" ]]; then
+    echo $c $l  > $issuedir/cc
+  elif [[ -n "$c" ]]; then
+    echo $c     > $issuedir/cc
   fi
 }
 
@@ -1341,8 +1351,15 @@ do
   echo "$task" | tee -a $tsk.history > $tsk
   chmod a+r $tsk
 
-  # catch a never ending loop of the same task or the same pair of tasks
-  # a task might be repeated often for FEATURES=test if a bunch if its deps failed in test phase
+  WorkOnTask
+
+  # hint: this line is not reached if Finish() is called in WorkOnTask()
+  # and so $tsk will be intentionally retried at next start
+  #
+  rm $tsk
+
+  # catch a never ending loop of the same task or the same pair of tasks but just after n times
+  # (a task might repeat few times with FEATURES=test if a dep fails in ebuild phase "test")
   #
   tmpfile=$tsk.history.tmp
   tail -n 20 $tsk.history > $tmpfile
@@ -1354,11 +1371,6 @@ do
       fi
     fi
   fi
+  rm $tmpfile
 
-  WorkOnTask
-
-  # hint: this line is not reached if Finish() is called in WorkOnTask()
-  # and so $tsk will be intentionally retried at next start
-  #
-  rm $tsk
 done
