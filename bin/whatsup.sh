@@ -29,7 +29,7 @@ function check_history()  {
   local lc=$2
 
   if [[ -s $file ]]; then
-    tail -n 1 $file | grep -q "20.. ok"
+    tail -n 1 $file | grep -q "20.. ok[ ]*$"
     if [[ $? -eq 0 ]]; then
       flag=" $flag"
       return
@@ -93,7 +93,9 @@ function Overall() {
 
     flag=" $flag"
 
-    # lower/bigger issue for (w)world, (s)system or (p)reserved-rebuild
+    # show result of last run of @system, @world and @preserved-rebuild respectively
+    # upper case: an error occurred, lower case: a warning occurred
+    # a "." means was not run yet and a space, that it was fully ok
     #
     check_history $i/tmp/@world.history              w
     check_history $i/tmp/@system.history             s
