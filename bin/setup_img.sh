@@ -761,7 +761,12 @@ do
   #
   ls -d /home/tinderbox/run/${name}_????????-?????? &>/dev/null
   if [[ $? -ne 0 ]]; then
-    break
+    # check running images too (parallel running instance of this script)
+    #
+    grep -q "${name}_" /proc/mounts
+    if [[ $? -ne 0 ]]; then
+      break
+    fi
   fi
 done
 
