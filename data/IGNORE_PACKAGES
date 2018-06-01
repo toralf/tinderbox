@@ -52,6 +52,10 @@ x11-misc/urxvt-font-size
 sys-cluster/
 sys-fabric/ibutils
 #
-# looong compile times and changed too often updated
+# looong compile times
 #
+dev-lang/ghc
 dev-lang/rust
+sys-devel/clang
+sys-devel/gcc
+sys-devel/llvm
