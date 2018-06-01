@@ -290,9 +290,10 @@ function GetAssigneeAndCc() {
     m="maintainer-needed@gentoo.org"
   fi
 
-  # get last author of the package directory is wanted if git is available
+  # get last author of the package directory (if git is available)
+  # but filter out Gentoo devs
   #
-  l=$( cd /usr/portage && git log -n 1 $short 2> /dev/null | grep "^Author:" | cut -f2 -d'<' -s | cut -f1 -d'>' )
+  l=$( cd /usr/portage && git log -n 1 $short 2> /dev/null | grep "^Author:" | cut -f2 -d'<' -s | cut -f1 -d'>' | grep -v -e "gentoo.org" )
 
   # assignee
   #
