@@ -485,12 +485,11 @@ function CreateBacklog()  {
     echo "INFO starting replay of task history of $origin"    >> $backlog.1st
   fi
 
-  # explicitely emerge kernel sources b/c IGNORE_PACKAGES contains sys-kernel/*
+  # last step: update @system and @world
   #
   cat << EOF >> $backlog.1st
 @world
 @system
-%emerge -u sys-kernel/gentoo-sources
 EOF
 
   # asturm: give media-libs/jpeg a fair chance
@@ -512,6 +511,14 @@ EOF
 %mv /tmp/00libressl /etc/portage/package.use/
 EOF
   fi
+
+  # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
+  # do it now b/c systemd needs kernel sources and complains
+  # in a @preserved-rebuild (eg. for a LibreSSL image)
+  #
+  cat << EOF >> $backlog.1st
+%emerge -u sys-kernel/gentoo-sources
+EOF
 
   # upgrade GCC first
   #   %...  : bail out if that fails
@@ -636,9 +643,11 @@ function EmergeMandatoryPackages() {
       cat $mnt/tmp/setup.log
     fi
 
+    # put helpful commands into the body for an easy copy+paste
+    #
     echo "
       view ~/$mnt/tmp/dryrun.log
-      vi ~/$mnt/etc/portage/make.conf
+      echo '' >> ~/$mnt/etc/portage/package.use/setup
 
       sudo $(dirname $0)/chr.sh $mnt ' $dryrun '
 
