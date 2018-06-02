@@ -958,9 +958,11 @@ EOF
     majnew=$(echo $vernew | cut -c1)
 
     if [[ "$majold" != "$majnew" ]]; then
+      # adding openssh to the rebuild list is a quirk to avoid trouble expecially at ABI="32 64" images
+      #
       cat << EOF >> $backlog
 %fix_libtool_files.sh $verold
-%revdep-rebuild --ignore --library libstdc++.so.6 -- --exclude gcc
+%revdep-rebuild --ignore --library libstdc++.so.6 -- openssh --exclude gcc
 EOF
       # clean old object files to avoid "cc1: error: incompatible gcc/plugin versions"
       #
