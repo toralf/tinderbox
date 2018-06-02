@@ -954,16 +954,6 @@ function SwitchGCC() {
     # get rid of the old compiler files entirely
     #
     echo "%emerge --unmerge sys-devel/gcc:$verold" >> $backlog
-
-    # rebuild kernel ?
-    #
-    majold=$(echo $verold | cut -c1)
-    majnew=$(echo $vernew | cut -c1)
-    if [[ "$majold" != "$majnew" ]]; then
-      if [[ -e /usr/src/linux/.config ]]; then
-        echo "%BuildKernel" >> $backlog
-      fi
-    fi
   fi
 }
 
