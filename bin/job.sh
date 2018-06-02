@@ -943,31 +943,24 @@ function SwitchGCC() {
 
   gcc-config --list-profiles --nocolor | grep -q "$wanted \*$"
   if [[ $? -eq 1 ]]; then
+
+    # switch gcc and update environment
+    #
     verold=$(gcc -dumpversion)
     gcc-config --nocolor $wanted &>> $log
     source /etc/profile
     vernew=$(gcc -dumpversion)
 
-    # ensure that only the new GCC is used
+    # get rid of the old compiler files entirely
     #
-    cat << EOF >> $backlog
-%emerge --unmerge sys-devel/gcc:$verold
-EOF
+    echo "%emerge --unmerge sys-devel/gcc:$verold" >> $backlog
 
+    # rebuild kernel ?
+    #
     majold=$(echo $verold | cut -c1)
     majnew=$(echo $vernew | cut -c1)
-
     if [[ "$majold" != "$majnew" ]]; then
-      # adding openssh to the rebuild list is a quirk to avoid trouble expecially at ABI="32 64" images
-      #
-      cat << EOF >> $backlog
-%fix_libtool_files.sh $verold
-%revdep-rebuild --ignore --library libstdc++.so.6 -- openssh --exclude gcc
-EOF
-      # clean old object files to avoid "cc1: error: incompatible gcc/plugin versions"
-      #
       if [[ -e /usr/src/linux/.config ]]; then
-        (cd /usr/src/linux && make clean &>/dev/null)
         echo "%BuildKernel" >> $backlog
       fi
     fi
