@@ -514,26 +514,20 @@ EOF
 
   # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
   # do it now b/c systemd needs kernel sources and complains
-  # in a @preserved-rebuild (eg. for a LibreSSL image)
+  # in a following @preserved-rebuild
   #
-  cat << EOF >> $backlog.1st
-%emerge -u sys-kernel/gentoo-sources
-EOF
+  echo "%emerge -u sys-kernel/gentoo-sources" >> $backlog.1st
 
   # upgrade GCC first
   #   %...  : bail out if that fails
-  #   no --deep, that would result effectively in a @system upgrade
+  #   no --deep, that would result effectively in @system
   #
-  cat << EOF >> $backlog.1st
-%emerge -u sys-devel/gcc
-EOF
+  echo "%emerge -u sys-devel/gcc" >> $backlog.1st
 
   # stage4 whould have this done already but we do use stage3
   #
   if [[ $profile =~ "systemd" ]]; then
-    cat << EOF >> $backlog.1st
-%systemd-machine-id-setup
-EOF
+  echo "%systemd-machine-id-setup" >> $backlog.1st
   fi
 }
 
