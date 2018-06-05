@@ -80,17 +80,14 @@ function cgroup() {
 #
 mnt=$1
 
+if [[ ! -d $mnt ]]; then
+  echo "not a valid mount point: '$mnt'"
+  exit 1
+fi
+
 # remaining options are treated as a complete command line to be run within chroot
 #
 shift
-
-if [[ ! -d "$mnt" ]]; then
-  echo
-  echo " error: NOT a valid dir: $mnt"
-  echo
-
-  exit 1
-fi
 
 # 1st barrier to prevent starting the same chroot image twice: a lock file
 #
