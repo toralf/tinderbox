@@ -1162,13 +1162,13 @@ function RunAndCheck() {
 function WorkOnTask() {
   try_again=0   # 1 with default environment values (if applicable)
 
-  # @system, @world, @preserved-rebuild
+  # image update
   #
-  if [[ $task =~ ^@ ]]; then
+  if [[ $task = "@system" || $task = "@world" || $task = "@preserved-rebuild" ]]; then
     if [[ $task = "@system" ]]; then
-      opts="--update --newuse --changed-use --changed-deps=y --deep"
+      opts="--update --newuse --changed-use --deep --changed-deps=y"
     elif [[ $task = "@world" ]]; then
-      opts="--update --newuse --changed-use"
+      opts="--update --newuse --changed-use --deep"
     else
       opts=""
     fi
@@ -1265,7 +1265,7 @@ EOF
   elif [[ $task =~ ^= ]]; then
     RunAndCheck "emerge $task"
 
-  # straight atom
+  # straight package or a @set
   #
   else
     RunAndCheck "emerge --update $task"
