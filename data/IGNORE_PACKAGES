@@ -59,3 +59,7 @@ dev-lang/rust
 sys-devel/clang
 sys-devel/gcc
 sys-devel/llvm
+#
+# causes a @preserved-rebuild loop of dev-lang/php-5/7
+#
+dev-libs/Ice
