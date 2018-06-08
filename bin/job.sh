@@ -287,26 +287,12 @@ function GetAssigneeAndCc() {
   #
   m=$( equery meta -m $short | grep '@' | xargs )
   if [[ -z "$m" ]]; then
-    m="maintainer-needed@gentoo.org"
-  fi
-
-  # get last author of the package directory (if git is available)
-  # but filter out Gentoo devs
-  #
-  l=$( cd /usr/portage && git log -n 1 $short 2> /dev/null | grep "^Author:" | cut -f2 -d'<' -s | cut -f1 -d'>' | grep -v -e "gentoo.org" )
-
-  # assignee
-  #
-  a=$(echo "$m" | cut -f1 -d' ')
-  echo "$a" > $issuedir/assignee
-
-  # cc
-  #
-  c=$( echo "$m" | cut -f2- -d' ' -s )
-  if [[ -n "$l" && ! "$l" =~ "$m" ]]; then
-    echo $c $l  > $issuedir/cc
-  elif [[ -n "$c" ]]; then
-    echo $c     > $issuedir/cc
+    echo "maintainer-needed@gentoo.org" > $issuedir/assignee
+  else
+    echo "$m" | cut -f1 -d' ' > $issuedir/assignee
+    if [[ "$m" =~ " " ]]; then
+      echo "$m" | cut -f2- -d' ' > $issuedir/cc
+    fi
   fi
 }
 
