@@ -5,7 +5,7 @@
 # few tinderbox statistics
 #
 
-# watch any image either symlinked into ~/run or mounted
+# watch all images either symlinked into ~/run or running
 #
 function list_images() {
   (
@@ -62,10 +62,11 @@ function Overall() {
 
   for i in $images
   do
-    log=$i/var/log/emerge.log
     compl=0
     fail=0
     day=0
+
+    log=$i/var/log/emerge.log
     if [[ -f $log ]]; then
       compl=$(grep -c '::: completed emerge' $log)
       t1=$(head -n 1 $log | cut -c1-10)
@@ -120,13 +121,24 @@ function CurrentTask()  {
   for i in $images
   do
     PrintImageName
-    tsk=$i/tmp/task
-    if [[ ! -f $tsk || ! -f $i/tmp/LOCK ]]; then
+    if [[ ! -f $i/tmp/LOCK ]]; then
       echo
       continue
     fi
 
-    let "delta = $ts - $(date +%s -r $tsk)"
+    tsk=$i/tmp/task
+    let "delta = $ts - $(date +%s -r $tsk 2>/dev/null)" 2>/dev/null
+    if [[ $? -ne 0 ]]; then
+      echo
+      continue
+    fi
+
+    task=$(cat $tsk 2>/dev/null)
+    if [[ -z "$task" ]]; then
+      echo
+      continue
+    fi
+
     if [[ $delta -ge 3600 ]]; then
       let "minutes = $delta / 60 % 60"
       let "hours = $delta / 60 / 60"
@@ -136,7 +148,7 @@ function CurrentTask()  {
       let "seconds = $delta % 60 % 60"
       printf " %3i:%02i m  " $minutes $seconds
     fi
-    cat $tsk
+    echo $task
   done
 }
 
@@ -151,15 +163,14 @@ function LastEmergeOperation()  {
   for i in $images
   do
     PrintImageName
-    log=$i/var/log/emerge.log
-    if [[ ! -f $log || ! -f $i/tmp/LOCK ]]; then
+    if [[ ! -f $i/tmp/LOCK ]]; then
       echo
       continue
     fi
 
     # catch the last eventually started emerge operation
     #
-    tac $log |\
+    tac $i/var/log/emerge.log 2>/dev/null |\
     grep -m 1 -E -e '>>>|\*\*\* emerge' -e ' \*\*\* terminating.' -e '::: completed emerge' |\
     sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
     perl -wane '
@@ -191,13 +202,8 @@ function PackagesPerDay() {
   for i in $images
   do
     PrintImageName
-    log=$i/var/log/emerge.log
-    if [[ ! -f $log ]]; then
-      echo
-      continue
-    fi
 
-    grep '::: completed emerge' $log |\
+    grep '::: completed emerge' $i/var/log/emerge.log 2>/dev/null |\
     cut -f1 -d ':' -s |\
     perl -wane '
       BEGIN { @p = (0); $first = 0; }
