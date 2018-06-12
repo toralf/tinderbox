@@ -1123,11 +1123,6 @@ function RunAndCheck() {
   ($1) &>> $log
   local rc=$?
 
-  if [[ $task =~ " --depclean" ]]; then
-    cp $log /tmp/depclean.last.log
-    return 0
-  fi
-
   PostEmerge
   CheckQA
 
@@ -1208,10 +1203,12 @@ function WorkOnTask() {
 
     else
       echo "$(date) ok $msg" >> /tmp/$task.history
-      if [[ $task = "@world" && -z "$msg" ]]; then
-        echo "%emerge --depclean --verbose=n" >> $backlog
-      fi
+
+      # otherwise --depclean would be needed now
+      #
+      PutDepsInWorld
     fi
+
 
   # %<command>
   #
@@ -1236,8 +1233,6 @@ EOF
               Finish 3 "resume failed"
             fi
           fi
-        elif [[ $task =~ " --depclean" ]]; then
-          :
         elif [[ $task =~ " --unmerge " || $task =~ " -C " ]]; then
           :
         else
