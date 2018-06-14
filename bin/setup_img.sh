@@ -22,7 +22,7 @@ function ThrowUseFlags()  {
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gcj|hostname|kill|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|pax|prefix|qt4|tools|selinux|ssl|static|symlink|systemd|test|uclibc|vim-syntax|vulkan' |\
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gcj|hostname|kill|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|pax|prefix|qt4|tools|selinux|ssl|static|symlink|systemd|test|uclibc|vim-syntax|vulkan' |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
   sort |\
@@ -402,6 +402,10 @@ EOF
 */*               libressl -gnutls -openssl
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 EOF
+
+    # https://bugs.gentoo.org/657626
+    #
+    echo "*/* ruby_targets_ruby25"  > ./etc/portage/package.use/no_ruby25_with_libressl273
   fi
 
   for d in package.{accept_keywords,env,mask,unmask,use}
