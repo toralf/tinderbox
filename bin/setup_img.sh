@@ -525,9 +525,11 @@ EOF
   # upgrade GCC first
   #   %...  : bail out if that fails
   #   no --deep, that would result effectively in @system
-  #   add dev-libs/mpc to avoid an immediate rebuild of gcc
   #
-  echo "%emerge -u sys-devel/gcc dev-libs/mpc" >> $backlog.1st
+  #   adding dev-libs/mpc to avoid an immediate rebuild of gcc doesn't really saves anything
+  #   because then the old compiler will be rebuild due to the new mpc
+  #
+  echo "%emerge -u sys-devel/gcc" >> $backlog.1st
 
   # the systemd stage4 would have this done already
   #
