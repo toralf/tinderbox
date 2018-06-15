@@ -525,10 +525,11 @@ EOF
   # upgrade GCC first
   #   %...  : bail out if that fails
   #   no --deep, that would result effectively in @system
+  #   add dev-libs/mpc to avoid an immediate rebuild of gcc
   #
-  echo "%emerge -u sys-devel/gcc" >> $backlog.1st
+  echo "%emerge -u sys-devel/gcc dev-libs/mpc" >> $backlog.1st
 
-  # stage4 whould have this done already but we do use stage3
+  # the systemd stage4 would have this done already
   #
   if [[ $profile =~ "systemd" ]]; then
   echo "%systemd-machine-id-setup" >> $backlog.1st
