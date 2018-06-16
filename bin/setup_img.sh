@@ -22,7 +22,7 @@ function ThrowUseFlags()  {
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gcj|hostname|kill|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|pax|prefix|qt4|tools|selinux|ssl|static|symlink|systemd|test|uclibc|vim-syntax|vulkan' |\
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|hostname|kill|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|pax|prefix|qt4|tools|selinux|ssl|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
   sort |\
@@ -80,8 +80,6 @@ function SetOptions() {
       testfeature="y"
     fi
   fi
-
-  useflags=$(ThrowUseFlags)
 }
 
 
@@ -277,13 +275,13 @@ function CompileMakeConf()  {
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
 
+  useflags=$(ThrowUseFlags)
+  features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
   if [[ -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s)
   else
     l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
   fi
-
-  features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
 
   cat << EOF >> ./etc/portage/make.conf
 CFLAGS="-O2 -pipe -march=native"
