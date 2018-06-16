@@ -1117,10 +1117,10 @@ function CheckQA() {
 
 
 # helper of WorkOnTask()
-# run the command ($1) and act on the output/result
+# run ($@) and act on issue if any
 #
 function RunAndCheck() {
-  ($1) &>> $log
+  ($@) &>> $log
   local rc=$?
 
   PostEmerge
@@ -1128,10 +1128,6 @@ function RunAndCheck() {
 
   if [[ $rc -ne 0 ]]; then
     GotAnIssue
-
-    if [[ "$task" = "@preserved-rebuild" && $try_again -eq 0 && -z "$failed" ]]; then
-      Finish 3 "error: @preserved-rebuild failed itself"
-    fi
   fi
 
   return $rc
