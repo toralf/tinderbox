@@ -275,7 +275,6 @@ function CompileMakeConf()  {
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
 
-  useflags=$(ThrowUseFlags)
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
   if [[ -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s)
@@ -676,6 +675,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+useflags=$(ThrowUseFlags)
 i=0
 while :;
 do
