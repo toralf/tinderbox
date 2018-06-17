@@ -399,10 +399,6 @@ EOF
 */*               libressl -gnutls -openssl
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 EOF
-
-    # https://bugs.gentoo.org/657626
-    #
-    echo "*/* ruby_targets_ruby25"  > ./etc/portage/package.use/no_ruby25_with_libressl273
   fi
 
   for d in package.{accept_keywords,env,mask,unmask,use}
@@ -425,12 +421,6 @@ EOF
 
   if [[ "$testfeature" = "y" ]]; then
     cp /home/tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
-  fi
-
-  # perl-5.24/26 dep issues
-  #
-  if [[ "$libressl" = "y" && "$testfeature" = "y" ]]; then
-    echo "net-misc/wget notest" > ./etc/portage/package.env/00libresslnotest
   fi
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/*
