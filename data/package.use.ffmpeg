@@ -8,7 +8,7 @@
 
 # these USE flags activates ffmpeg
 #
-*/*             acoustid avformat convert cuda exif ffmpeg gd swscale system-ffmpeg vcodec2 vdpau video void vpx x264 x265 xine
+*/*             acoustid avformat convert cuda exif ffmpeg gd swscale system-ffmpeg vcodec2 video void vpx x264 x265 xine
 
 # these USE flags are often needed too to resolve deps
 #

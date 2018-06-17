@@ -37,7 +37,7 @@ dev-util/electron
 www-client/chromium
 www-client/google-chrome
 #
-# wait till debundling is made
+# wait till debundling is made, looong compile time
 #
 sci-libs/tensorflow
 #
@@ -47,7 +47,7 @@ www-misc/vdradmin-am
 x11-terms/rxvt-unicode
 x11-misc/urxvt-font-size
 #
-# looong compile time, too many old bugs open
+# too many old bugs open and looong compile time
 #
 sys-cluster/
 sys-fabric/ibutils
@@ -60,6 +60,7 @@ sys-devel/clang
 sys-devel/gcc
 sys-devel/llvm
 #
-# causes a @preserved-rebuild loop of dev-lang/php-5/7
+# causes @preserved-rebuild infinite loop
 #
 dev-libs/Ice
+dev-util/goland
