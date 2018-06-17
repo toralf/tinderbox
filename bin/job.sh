@@ -1117,10 +1117,10 @@ function CheckQA() {
 
 
 # helper of WorkOnTask()
-# run ($@) and act on issue if any
+# run ($1) and act on issue if any
 #
 function RunAndCheck() {
-  ($@) &>> $log
+  ($1) &>> $log
   local rc=$?
 
   PostEmerge
