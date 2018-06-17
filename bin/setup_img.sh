@@ -752,8 +752,9 @@ do
           ;;
     esac
   done
-  CheckOptions
 
+  echo -n "."
+  CheckOptions
   ComputeImageName
 
   # 11 profiles x 2^4
@@ -775,6 +776,7 @@ do
     fi
   fi
 done
+echo
 
 # append the timestamp onto the name
 #
