@@ -523,15 +523,12 @@ EOF
   #   %...  : bail out if that fails
   #   no --deep, that would result effectively in @system
   #
-  #   adding dev-libs/mpc to avoid an immediate rebuild of gcc doesn't really saves anything
-  #   because then the old compiler will be rebuild due to the new mpc
-  #
   echo "%emerge -u sys-devel/gcc" >> $backlog.1st
 
   # the systemd stage4 would have this done already
   #
   if [[ $profile =~ "systemd" ]]; then
-  echo "%systemd-machine-id-setup" >> $backlog.1st
+    echo "%systemd-machine-id-setup" >> $backlog.1st
   fi
 }
 
