@@ -514,7 +514,6 @@ EOF
   #   no --deep, that would result effectively in @system
   #
   echo "%emerge -u sys-devel/gcc" >> $backlog.1st
-  echo "%emerge -1Ou dev-libs/mpc">> $backlog.1st
 
   # the systemd stage4 would have this done already
   #
