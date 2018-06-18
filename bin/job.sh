@@ -103,7 +103,7 @@ function setNextTask() {
   while :
   do
     if [[ -f /tmp/STOP ]]; then
-      Finish 0 "catched STOP file"
+      Finish 0 "catched STOP file" /tmp/STOP
     fi
 
     # high prio backlog rules always
@@ -148,13 +148,13 @@ function setNextTask() {
       Mail "$task"
 
     elif [[ $task =~ ^STOP ]]; then
-      Finish 0 "got STOP task"
+      Finish 0 "$task"
 
     elif [[ $task =~ ^# ]]; then
       continue  # comment
 
     elif [[ $task =~ ^= || $task =~ ^@ || $task =~ ^% ]]; then
-      return  # work on a pinned version || package set || command
+      return  # work on a pinned version || @set || command
 
     else
       # $task contains a regular atom
