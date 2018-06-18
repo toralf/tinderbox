@@ -106,14 +106,14 @@ function setNextTask() {
       Finish 0 "catched STOP file"
     fi
 
-    # high prio backlog rules
-    # was filled at image setup and is later filled up only by this script
+    # high prio backlog rules always
+    # this was filled once at image setup and is later filled up only by this script
     #
     if [[ -s $backlog ]]; then
       bl=$backlog
 
     # 1/3 probability for updated packages
-    # if no special action is scheduled
+    # but only if no special action is scheduled in common backlog
     #
     elif [[ -s /tmp/backlog.upd && $(($RANDOM % 3)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
@@ -124,7 +124,7 @@ function setNextTask() {
     elif [[ -s /tmp/backlog ]]; then
       bl=/tmp/backlog
 
-    # last chance
+    # last chance for updated packages
     #
     elif [[ -s /tmp/backlog.upd ]]; then
       bl=/tmp/backlog.upd
