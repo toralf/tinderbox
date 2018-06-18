@@ -1321,18 +1321,11 @@ do
   #
   rm $tsk
 
-  # catch a never ending loop of the same task or the same pair of tasks
-  # but after n times b/c a task might be repeated for failures with FEATURES=test
+  # catch a never ending loop of @preserved-rebuild
+  # but just if @world was done at least once
   #
-  t20=$tsk.last20
-  tail -n 20 $tsk.history > $t20
-  if [[ $(wc -l < $t20) -eq 20 ]]; then
-    t10=$tsk.last10
-    tail -n 10 $tsk.history > $t10
-    if [[ $(sort -u $t10 | wc -l) -eq 1 || $(sort -u $t20 | wc -l) -le 2 ]]; then
-      Finish 3 "infinite task loop detected" $tmpfile
-    fi
+  if [[ -f /tmp/@world.history && $(tail -n 20 $tsk.history | grep -c "@preserved-rebuild") -ge 10 ]]; then
+    Finish 3 "@preserved-rebuild loop detected" $tmpfile
   fi
-  rm -f $t10 $t20
 
 done
