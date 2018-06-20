@@ -58,7 +58,17 @@ function check_history()  {
 #  10      0   0.0   19301    2   8        img2/13.0-systemd-libressl_20170316-210316
 #
 function Overall() {
-  echo "compl fail  days backlog  upd 1st status  $(echo $images | wc -w) images ($(ls -1d ~/img?/* | wc -w) at all)"
+  running=0
+  for i in $images
+  do
+    if [[ -f $i/tmp/LOCK ]]; then
+      let "running = running + 1"
+    fi
+  done
+  inrun=$(echo $images | wc -w)
+  overall=$(ls -1d ~/img?/* | wc -w)
+
+  echo "compl fail  days backlog  upd 1st status  $running#$inrun images running ($overall at all)"
 
   for i in $images
   do
