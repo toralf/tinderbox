@@ -1056,6 +1056,11 @@ EOF
       fi
     fi
   fi
+
+  grep -q 'Please run emaint --check world' $bak
+  if [[ $? -eq 0 ]]; then
+    echo "%emaint --check world" >> $backlog
+  fi
 }
 
 
