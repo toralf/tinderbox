@@ -157,9 +157,6 @@ function setNextTask() {
       return  # work on a pinned version || @set || command
 
     else
-      # $task contains a regular atom
-      #
-
       # skip if $task matches an ignore patterns
       #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
@@ -167,18 +164,17 @@ function setNextTask() {
         continue
       fi
 
-      # skip if $task is a masked, keyworded or invalid package
+      # skip if there's no installable version (eg. $task is masked, keyworded etc.)
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
 
+      # if portage is broken (eg. by another Python package)
+      # then detect bail out immediately
+      #
       if [[ $? -ne 0 ]]; then
         if [[ "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
           Finish 1 "FATAL: portageq broken" /tmp/portageq.err
         fi
-        continue
-      fi
-
-      if [[ -z "$best_visible" ]]; then
         continue
       fi
 
