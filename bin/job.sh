@@ -906,7 +906,7 @@ function BuildKernel()  {
     export CC
 
     cd /usr/src/linux     &&\
-    make defconfig        &&\
+    make randconfig       &&\
     make modules_prepare  &&\
     make                  &&\
     make modules_install  &&\
