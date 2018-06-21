@@ -1313,7 +1313,8 @@ do
   # the emerge attempt itself is sufficient to keep $task in its history file
   #
   echo "$task" | tee -a $tsk.history > $tsk
-  chmod a+r $tsk
+  chmod g+w $tsk
+  chgrp portage $tsk
 
   WorkOnTask
 
