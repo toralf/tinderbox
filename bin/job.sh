@@ -833,15 +833,16 @@ function GotAnIssue()  {
     Finish 1 "KILLED"
   fi
 
-  # jumped in into the middle of the update of the (shared) repository
+  # the shared repository solution is racy: https://bugs.gentoo.org/639374
   #
   grep -q -e 'AssertionError: ebuild not found for' \
           -e 'portage.exception.FileNotFound:'      \
+          -e 'portage.exception.PortageKeyError: '  \
           $bak
   if [[ $? -eq 0 ]]; then
     try_again=1
     KeepGoing
-    sleep 30
+    sleep 60
     return
   fi
 
