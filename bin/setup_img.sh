@@ -454,9 +454,9 @@ EOF
 }
 
 
-# update_backlog.sh will write to /tmp/backlog.upd
-# nothing should write to /tmp/backlog after setup
-# job.sh writes later to /tmp/backlog.1st too
+# /tmp/backlog.upd : update_backlog.sh will write to it
+# /tmp/backlog     : nothing should write to it after setup
+# /tmp/backlog.1st : filled during setup, job.sh writes to it
 #
 function CreateBacklog()  {
   backlog=./tmp/backlog
@@ -503,11 +503,11 @@ EOF
 EOF
   fi
 
-  # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
-  # do it now b/c systemd needs kernel sources and complains
-  # in a following @preserved-rebuild
+  # systemd needs kernel sources and would complain in the next @preserved-rebuild
   #
-  echo "%emerge -u sys-kernel/gentoo-sources" >> $backlog.1st
+  # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
+  #
+  echo "%emerge -u sys-kernel/vanilla-sources" >> $backlog.1st
 
   # upgrade GCC first
   #   %...  : bail out if that fails
