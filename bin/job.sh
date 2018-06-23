@@ -1161,7 +1161,7 @@ function WorkOnTask() {
     # to display " ", "[SWP]" or "[swp]" respectively
     #
     msg=$(grep -m 1 -e 'The following REQUIRED_USE flag constraints are unsatisfied:'               \
-                    -e 'The following update(s) have been skipped due to unsatisfied dependencies'  \
+                    -e 'The following update.* been skipped due to unsatisfied dependencies'        \
                     -e 'WARNING: One or more updates/rebuilds'                                      \
                     -e 'Multiple package instances within a single package slot have been pulled'   \
                     -e 'The following USE changes are necessary to proceed:'                        \
