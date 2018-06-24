@@ -809,11 +809,12 @@ function KeepGoing() {
     echo "%emerge --resume" >> $backlog
 
   else
-    # deps for @sets or for a common package have to be recalculated
-    # b/c they might be changed due to locally masked packages,
-    # by an updated repository or by an altered package.env/* entry
+    # deps might be changed due to a now masked packages, an updated
+    # repository or by an altered package.env/* entry
     #
-    echo "$task" >> $backlog
+    if [[ "$(tail -n 1 $backlog)" != "$task" ]]; then
+      echo "$task" >> $backlog
+    fi
   fi
 }
 
