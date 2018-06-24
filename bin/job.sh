@@ -1025,13 +1025,6 @@ function PostEmerge() {
     echo "%perl-cleaner --all" >> $backlog
   fi
 
-  # switch to a new GCC soon
-  #
-  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
-  if [[ $? -eq 0 ]]; then
-    echo "%SwitchGCC" >> $backlog
-  fi
-
   # if $backlog is empty then do 24 hours after the last time in this order:
   #   - sync image specific overlays - if specified
   #   - switch java VM
@@ -1052,6 +1045,13 @@ EOF
         echo "%emerge --sync" >> $backlog
       fi
     fi
+  fi
+
+  # switch to a new GCC first
+  #
+  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
+  if [[ $? -eq 0 ]]; then
+    echo "%SwitchGCC" >> $backlog
   fi
 
   grep -q 'Please run emaint --check world' $bak
