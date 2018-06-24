@@ -899,22 +899,38 @@ EOF
 
 
 # helper of PostEmerge()
-# certain packages depend on *compiled* kernel modules
 #
 function BuildKernel()  {
-  (
-    eval $(grep -e ^CC= /etc/portage/make.conf)
-    export CC
+  local cfg=${1:-randconfig}
+  export cfg
 
-    cd /usr/src/linux     &&\
-    make randconfig       &&\
-    make modules_prepare  &&\
-    make                  &&\
-    make modules_install  &&\
-    make install
+  echo "$FUNCNAME with $cfg" >> $log
+  (
+    cd /usr/src/linux
+    make distclean
+    make $cfg
+    if [[ "$cfg" = "randconfig" ]]; then
+      sed -i -e '/^CONFIG_KERNEL_/d' .config
+      echo 'CONFIG_KERNEL_GZIP=y' >> .config
+    fi
+    make
   ) &>> $log
 
-  return $?
+  local rc=$?
+
+  if [[ $rc -ne 0 ]]; then
+    # append .config to prepare the email for the LKML
+    #
+    cat /usr/src/linux/.config >> $log
+
+    # retry with defaults
+    #
+    if [[ "$cfg" = "randconfig" ]]; then
+      echo "%BuildKernel defconfig" >> $backlog
+    fi
+  fi
+
+  return $rc
 }
 
 
