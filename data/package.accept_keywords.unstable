@@ -1,6 +1,2 @@
 # package.accept_keywords/unstable
 #
-
-# build just 1 kernel and stay at it for the lifetime of an image
-#
-sys-kernel/*    -~amd64

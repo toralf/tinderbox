@@ -1,8 +1,8 @@
 # package.unmask/unstable
 #
 
-# please note that this file rules over /etc/portage/package.mask/*, especially over "./"self"
+# please note that this file rules over /etc/portage/package.mask/*, especially over ./self
 
 # b-man
 #
-~dev-libs/libressl-2.7.4
+#~dev-libs/libressl-2.7.4

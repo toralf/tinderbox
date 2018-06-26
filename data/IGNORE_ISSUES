@@ -17,6 +17,7 @@ mingw is needed
 MINITUBE_GOOGLE_API_KEY env variable not defined!
 needs multilib profile on amd64
 No pathcc executable was installed, your hardware is unsupported most likely
+No support for external modules in
 OpenMP is not available in your current selected compiler
 pcmcia support is broken on kernels newer
 Please buy & download
@@ -29,6 +30,7 @@ some Java tools are not available on some VMs on some architectures
 Select exactly one database type out of these:
 Sorry, but this version does not yet support features
 Sorry, but you have to patch kernel sources with the following patch
+SYSVIPC not enabled in the kernel
 The HyperSpec cannot be redistributed.
 Unable to determine valid vm
 unreliable and an ATLAS install nonsensical.  Aborting.
