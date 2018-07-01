@@ -935,23 +935,23 @@ function BuildKernel()  {
 
 
 # helper of PostEmerge()
-# switch to highest GCC version
+# switch to latest GCC
 #
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
-  wanted=${1:-$latest}
 
-  gcc-config --list-profiles --nocolor | grep -q "$wanted \*$"
+  gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
   if [[ $? -eq 1 ]]; then
-
-    # switch gcc and update environment
-    #
     verold=$(gcc -dumpversion)
-    gcc-config --nocolor $wanted &>> $log
-    source /etc/profile
-    vernew=$(gcc -dumpversion)
 
-    # get rid of the old compiler files entirely
+    gcc-config --nocolor $latest &>> $log
+    source /etc/profile
+
+    # bug https://bugs.gentoo.org/459038
+    #
+    echo "%revdep-rebuild" >> $backlog
+
+    # force catching issues of using old GCC installation artefacts
     #
     echo "%emerge --unmerge sys-devel/gcc:$verold" >> $backlog
   fi
