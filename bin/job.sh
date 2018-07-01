@@ -759,26 +759,14 @@ function SendoutIssueMail()  {
 # otherwise we'd need to use "--deep" unconditionally
 # (https://bugs.gentoo.org/show_bug.cgi?id=563482)
 #
-function PutDepsInWorld() {
-  line=$(tac /var/log/emerge.log | grep -m 1 -E ':  === |: Started emerge on: ')
-  echo "$line" | grep -q ':  === ('
-  if [[ $? -eq 0 ]]; then
-    echo "$line" | grep -q ':  === (1 of '
-    if [[ $? -eq 1 ]]; then
-      emerge --depclean --pretend --verbose=n 2>/dev/null | grep "^All selected packages: " | cut -f2- -d':' -s |\
-      while read p
-      do
-        # add only the "top level" needed dependencies of $task
-        # https://wiki.gentoo.org/wiki/World_set_(Portage)
-        #
-        if [[ -n "$(qdepends -Q $p 2>/dev/null)" ]]; then
-          if [[ -z "$(emerge --depclean --pretend --quiet $p 2>/dev/null)" ]]; then
-            emerge --noreplace $p &>/dev/null
-          fi
-        fi
-      done
-    fi
-  fi
+function PutDepsIntoWorldFile() {
+  emerge --depclean --pretend --verbose=n 2>/dev/null |\
+  grep "^All selected packages: " |\
+  cut -f2- -d':' -s |\
+  while read p
+  do
+    emerge -O --noreplace $p &>/dev/null
+  done
 }
 
 
@@ -822,7 +810,7 @@ function KeepGoing() {
 # collect files, create (and maybe send out) an email
 #
 function GotAnIssue()  {
-  PutDepsInWorld
+  PutDepsIntoWorldFile
 
   fatal=$(grep -m 1 -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
@@ -1221,7 +1209,7 @@ function WorkOnTask() {
 
       # otherwise --depclean would be needed now
       #
-      PutDepsInWorld
+      PutDepsIntoWorldFile
     fi
 
 
