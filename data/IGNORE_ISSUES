@@ -16,6 +16,7 @@ Linux .* is the latest supported version.
 mingw is needed
 MINITUBE_GOOGLE_API_KEY env variable not defined!
 needs multilib profile on amd64
+Nonmodular kernel detected, will not build kernel modules
 No pathcc executable was installed, your hardware is unsupported most likely
 No support for external modules in
 OpenMP is not available in your current selected compiler
