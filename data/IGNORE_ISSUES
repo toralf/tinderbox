@@ -8,6 +8,7 @@ gcc version .* found, expected gcc
 Incorrect kernel configuration options
 Kernel brk randomization detected
 kernel too new
+kernel does not exist
 ld: -r and -pie may not be used together
 License file not found!
 license setup failed
@@ -16,6 +17,7 @@ Linux .* is the latest supported version.
 mingw is needed
 MINITUBE_GOOGLE_API_KEY env variable not defined!
 needs multilib profile on amd64
+Need FEATURES=.* to run this testsuite
 Nonmodular kernel detected, will not build kernel modules
 No pathcc executable was installed, your hardware is unsupported most likely
 No support for external modules in

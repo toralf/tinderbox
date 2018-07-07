@@ -173,6 +173,7 @@ rm: cannot remove 'libsrtp.a': No such file or directory
 OTP release .* does not match required regex
 Can't open heap image file
 \\[ERROR\\]
+Relocatable linking .* is not supported
 Makefile.* Terminated
 asciidoc: Command not found
 PermissionError:
