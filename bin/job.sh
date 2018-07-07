@@ -200,8 +200,6 @@ function setNextTask() {
 # gather together what's needed for the email and b.g.o.
 #
 function CollectIssueFiles() {
-  mkdir -p $issuedir/files
-
   ehist=/var/tmp/portage/emerge-history.txt
   local cmd="qlop --nocolor --gauge --human --list --unlist"
 
@@ -353,6 +351,7 @@ function CreateIssueDir() {
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
   mkdir -p $issuedir
   chmod 777 $issuedir
+  mkdir -p $issuedir/files
 }
 
 
