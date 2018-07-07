@@ -1123,6 +1123,7 @@ function CheckQA() {
         echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
         id=$(timeout 300 bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
 
+        collectPortageDir
         AttachFilesToBody $issuedir/issue
 
         sed -i -e "s,^,$failed : [QA] ," $issuedir/title
