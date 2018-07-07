@@ -196,6 +196,16 @@ function setNextTask() {
 }
 
 
+# helper of CollectIssueFiles
+#
+function collectPortageDir()  {
+  (
+    cd /
+    tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage
+  )
+}
+
+
 # helper of GotAnIssue()
 # gather together what's needed for the email and b.g.o.
 #
@@ -265,10 +275,7 @@ EOF
     fi
   fi
 
-  (
-    cd /
-    tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage
-  )
+  collectPortageDir
 
   chmod a+r $issuedir/files/*
 }
