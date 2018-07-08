@@ -16,9 +16,9 @@ acmr=/tmp/$(basename $0).acmr
 
 cd /usr/portage/
 
-# add 1 hour to let mirrors be in sync
+# add 2 hours to let mirrors be in sync
 #
-git diff --diff-filter=ACMR --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
+git diff --diff-filter=ACMR --name-status "@{ ${1:-3} hour ago }".."@{ 2 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' | cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique |\
 grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
 
