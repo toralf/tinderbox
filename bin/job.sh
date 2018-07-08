@@ -276,8 +276,6 @@ EOF
   fi
 
   collectPortageDir
-
-  chmod a+r $issuedir/files/*
 }
 
 
