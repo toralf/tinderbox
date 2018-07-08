@@ -884,9 +884,10 @@ EOF
     echo "=$failed" >> /etc/portage/package.mask/self
   fi
 
+  CompileIssueMail
+
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
   if [[ $? -ne 0 ]]; then
-    CompileIssueMail
     SendoutIssueMail
   fi
 }
