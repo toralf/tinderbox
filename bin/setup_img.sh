@@ -48,6 +48,10 @@ function SetOptions() {
   #
   profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' | sort --random-sort | head -n 1)
 
+  # FEATURES=
+  #
+  features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
+
   # no automatic check of stable amd64
   #
   keyword="unstable"
@@ -275,7 +279,6 @@ function CompileMakeConf()  {
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
 
-  features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
   if [[ -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s)
   else
@@ -673,7 +676,7 @@ do
     case $opt in
       a)  autostart="$OPTARG"
           ;;
-      f)  features="$features $OPTARG"
+      f)  features="$OPTARG"
           ;;
       k)  keyword="$OPTARG"
           ;;
