@@ -1250,7 +1250,7 @@ EOF
               Finish 3 "resume failed"
             fi
           fi
-        elif [[ $task =~ " --unmerge " || $task =~ " -C " || task =~ "BuildKernel" ]]; then
+        elif [[ $task =~ " --unmerge " || $task =~ " -C " || $task =~ "BuildKernel" ]]; then
           :
         else
           Finish 3 "command: '$cmd'"
