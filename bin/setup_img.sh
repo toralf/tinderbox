@@ -259,7 +259,7 @@ EOF
 }
 
 
-# modify make.conf from stage3
+# compile make.conf
 #
 function CompileMakeConf()  {
   # strip away the following lines
@@ -274,11 +274,13 @@ function CompileMakeConf()  {
           -e '/^DISTDIR=/d'       \
           ./etc/portage/make.conf
 
-  # the "tinderbox" user had to put in group "portage" to make this effective
+  # the "tinderbox" user have to be put in group "portage" to make this effective
   #
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
 
+  # choose few arbitrarily languages
+  #
   if [[ -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s)
   else
@@ -303,8 +305,6 @@ $( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' )
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
 FEATURES="$features"
-# do not compress logs in favour of a faster (manual made) grep
-#
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y --complete-graph=y --backtrack=500 --autounmask-keep-masks=y"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
@@ -334,7 +334,7 @@ GENTOO_MIRRORS="http://mirror.netcologne.de/gentoo/ http://ftp.halifax.rwth-aach
 FETCHCOMMAND="\${FETCHCOMMAND} --continue"
 
 QEMU_SOFTMMU_TARGETS="x86_64 i386"
-QEMU_USER_TARGETS="x86_64 i386"
+QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
 
 EOF
 }
@@ -726,8 +726,8 @@ do
       t)  testfeature="$OPTARG"
           ;;
       u)  # USE flags are
-          # - defined in a statement like USE="..."
-          # - or listed in a file
+          # - defined in a file as USE="..."
+          # - or listed in a plain file
           # - or given at the command line
           #
           if [[ -f "$OPTARG" ]] ; then
