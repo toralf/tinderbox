@@ -858,6 +858,13 @@ function GotAnIssue()  {
   emerge -qpv $short &> $issuedir/emerge-qpv
   ClassifyIssue
 
+  CompileIssueMail
+
+  grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
+  if [[ $? -ne 0 ]]; then
+    SendoutIssueMail
+  fi
+
   # https://bugs.gentoo.org/463976
   # https://bugs.gentoo.org/582046
   # https://bugs.gentoo.org/640866
@@ -880,13 +887,6 @@ EOF
     KeepGoing
   else
     echo "=$failed" >> /etc/portage/package.mask/self
-  fi
-
-  CompileIssueMail
-
-  grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
-  if [[ $? -ne 0 ]]; then
-    SendoutIssueMail
   fi
 }
 
