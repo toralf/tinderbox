@@ -1,4 +1,5 @@
 Fatal error:
+fatal error:
 : internal compiler error:
 undefined reference to .yy
 Can't read
@@ -128,6 +129,7 @@ Option .* requires an argument
 error: .* undeclared
 parser error : .* not defined
 make: invalid option
+This BEAM file was compiled for a later version of the run-time system than
 Uncaught error in
 ^Error:
 : Error:
@@ -197,5 +199,6 @@ USE Flag .* not in IUSE
 :Error:
 RuntimeError: maximum recursion depth exceeded while calling a Python object
 Unable to access the X Display, is $DISPLAY set properly?
+The variable KERN_DIR must be a kernel build folder
 ERROR:
 make: .* Error

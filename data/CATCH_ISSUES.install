@@ -23,3 +23,4 @@ File Finder Failed for
 error: static declaration of
 /usr/bin/install crash
 install: cannot create regular file
+environment: line .*: cd: .* No such file or directory

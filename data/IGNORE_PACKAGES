@@ -4,7 +4,7 @@
 #
 # this file MUST NOT have empty lines (except the last one)
 #
-# never explicitly emerge these categories
+# never explicitely emerge these categories
 #
 app-eselect/
 dev-embedded/
@@ -30,16 +30,12 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# awefully long build time and way too often updated (the first 2 inherit a bundled copy of chromium)
+# awefully long build time (the first 2 inherit a bundled copy of chromium)
 #
 app-editors/atom
 dev-util/electron
 www-client/chromium
 www-client/google-chrome
-#
-# wait till debundling is made, looong compile time
-#
-sci-libs/tensorflow
 #
 # never-ending loop of "www-misc/vdradmin-am; %perl-cleaner --all"
 #
@@ -47,18 +43,10 @@ www-misc/vdradmin-am
 x11-terms/rxvt-unicode
 x11-misc/urxvt-font-size
 #
-# too many old bugs open and looong compile time
+# too many old bugs open
 #
 sys-cluster/
 sys-fabric/ibutils
-#
-# looong compile times
-#
-dev-lang/ghc
-dev-lang/rust
-sys-devel/clang
-sys-devel/gcc
-sys-devel/llvm
 #
 # causes @preserved-rebuild infinite loop
 #

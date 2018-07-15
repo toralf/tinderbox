@@ -32,3 +32,7 @@ dev-python/pytest-relaxed
 # https://github.com/mgorny/portage
 #
 sys-apps/portage-mgorny
+
+# https://bugs.gentoo.org/show_bug.cgi?id=660708
+#
+=net-misc/rabbitmq-server-3.7.3-r1

@@ -20,10 +20,6 @@ net-misc/wget             ssl
 #
 dev-java/icedtea-bin      -multilib
 
-# otherwise app-text/po4a wants a perl downgrade (often during image setup)
-#
-#sys-apps/man-db          -nls
-
 # happens too often:
 #
 #(sys-libs/gpm-1.20.7-r2:0/0::gentoo, ebuild scheduled for merge) depends on
