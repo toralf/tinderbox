@@ -48,7 +48,7 @@ function SetOptions() {
   #
   profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' | sort --random-sort | head -n 1)
 
-  # FEATURES=
+  # default FEATURES are more restrict than usual
   #
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
 
@@ -63,7 +63,7 @@ function SetOptions() {
     libressl="y"
   fi
 
-  # ABI_X86="32 64"
+  # will yield into ABI_X86="32 64" in make.conf eventually
   #
   multilib="n"
   if [[ ! $profile =~ "no-multilib" ]]; then
@@ -72,17 +72,15 @@ function SetOptions() {
     fi
   fi
 
-  # suffix of the image name
+  # optional: suffix of the image name
   #
   suffix=""
 
   # FEATURES=test
   #
   testfeature="n"
-  if [[ "$keyword" != "stable" ]]; then
-    if [[ $(($RANDOM % 20)) -eq 0 ]]; then
-      testfeature="y"
-    fi
+  if [[ $(($RANDOM % 20)) -eq 0 ]]; then
+    testfeature="y"
   fi
 }
 
@@ -208,9 +206,9 @@ function UnpackStage3()  {
 
 
 # configure 3 repositories and prepare 1 additional (foo)
-# the local repository rules
 # the first 3 are synced outside of the image
-# [foo] should be synced in job.sh as a daily task
+#
+# the local repository rules
 #
 function CompileRepoFiles()  {
   mkdir -p      ./etc/portage/repos.conf/
@@ -225,9 +223,6 @@ priority = 1
 [tinderbox]
 priority = 2
 
-#[foo]
-#priority = 3
-
 [local]
 priority = 99
 EOF
@@ -241,14 +236,6 @@ EOF
 [tinderbox]
 location  = /tmp/tb/data/portage
 masters   = gentoo
-EOF
-
-  cat << EOF >> ./etc/portage/repos.conf/foo.conf
-#[foo]
-#location  = /usr/local/foo
-#auto-sync = yes
-#sync-type = git
-#sync-uri  = https://anongit.gentoo.org/git/proj/foo.git
 EOF
 
   cat << EOF >> ./etc/portage/repos.conf/local.conf

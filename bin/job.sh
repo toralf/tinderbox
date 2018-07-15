@@ -1006,7 +1006,7 @@ function PostEmerge() {
     echo "@preserved-rebuild" >> $backlog
   fi
 
-  # remove masked packages
+  # unmerge masked packages
   #
   masked_pkgs=$( grep -A 1000 'The following installed packages are masked:' $bak | grep -B 1000 'For more information, see the MASKED PACKAGES section in the emerge' | grep "^\- .* (masked by: package.mask)" | cut -f2 -d' ' -s | cut -f1 -d':' | sed 's/^/=/g' | xargs )
   if [[ -n "$masked_pkgs" ]]; then
@@ -1014,7 +1014,8 @@ function PostEmerge() {
     echo "%emerge -C $masked_pkgs"  >> $backlog
   fi
 
-  # build and switch to the new kernel after nearly all other things
+  # switch to the new kernel sources
+  # build them asap!
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
@@ -1034,15 +1035,12 @@ function PostEmerge() {
     echo "%haskell-updater" >> $backlog
   fi
 
-  # Perl still needs love
-  #
   grep -q ">>> Installing .* sys-lang/perl-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "%perl-cleaner --all" >> $backlog
   fi
 
-  # if $backlog is empty then do 24 hours after the last time in this order:
-  #   - sync image specific overlays - if specified
+  # if $backlog is empty then do 24 hours after the last @system finished in this order:
   #   - switch java VM
   #   - update @system
   #   - update @world
@@ -1055,11 +1053,6 @@ function PostEmerge() {
 @system
 %SwitchJDK
 EOF
-
-      grep -q "^auto-sync *= *yes$" /etc/portage/repos.conf/*
-      if [[ $? -eq 0 ]]; then
-        echo "%emerge --sync" >> $backlog
-      fi
     fi
   fi
 
@@ -1070,6 +1063,8 @@ EOF
     echo "%SwitchGCC" >> $backlog
   fi
 
+  # seems to be a false warning, but it doesn't harm
+  #
   grep -q 'Please run emaint --check world' $bak
   if [[ $? -eq 0 ]]; then
     echo "%emaint --check world" >> $backlog
