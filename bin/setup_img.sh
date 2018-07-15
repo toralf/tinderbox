@@ -279,7 +279,7 @@ function CompileMakeConf()  {
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
 
-  # choose few arbitrarily languages
+  # throw up to 10 languages
   #
   if [[ -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s)
@@ -504,7 +504,7 @@ EOF
 EOF
   fi
 
-  # systemd needs kernel sources and would complain in the next @preserved-rebuild
+  # at least systemd and virtualbox needs kernel sources and would fail in the next @preserved-rebuild otherwise
   #
   # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
   #
@@ -516,7 +516,7 @@ EOF
   #
   echo "%emerge -u sys-devel/gcc" >> $backlog.1st
 
-  # the systemd stage4 would have this done already
+  # the systemd stage4 would have this done for us
   #
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $backlog.1st
@@ -554,6 +554,7 @@ function CreateSetupScript()  {
   cat << EOF >> ./tmp/setup.sh
 #!/bin/sh
 #
+# set -x
 
 # eselect sometimes can't be used for new unstable profiles
 #
