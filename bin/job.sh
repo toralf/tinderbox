@@ -106,8 +106,7 @@ function setNextTask() {
       Finish 0 "catched STOP file" /tmp/STOP
     fi
 
-    # high prio backlog rules always
-    # this was filled once at image setup and is later filled up only by this script
+    # high prio backlog rules
     #
     if [[ -s $backlog ]]; then
       bl=$backlog
@@ -136,7 +135,7 @@ function setNextTask() {
       Finish 0 "empty backlogs, $n packages emerged"
     fi
 
-    # splice last line from the appropriate backlog file
+    # splice last line from the winning backlog file
     #
     task=$(tail -n 1 $bl)
     sed -i -e '$d' $bl
@@ -157,19 +156,18 @@ function setNextTask() {
       return  # work on a pinned version || @set || command
 
     else
-      # skip if $task matches an ignore patterns
+      # skip if $task matches any ignore patterns
       #
       echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
       if [[ $? -eq 0 ]]; then
         continue
       fi
 
-      # skip if there's no installable version (eg. $task is masked, keyworded etc.)
+      # skip if there's no visible version (eg. $task is masked, keyworded etc.)
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
 
-      # if portage is broken (eg. by another Python package)
-      # then detect bail out immediately
+      # bail out if portage itself is broken (caused eg. by a buggy Python package)
       #
       if [[ $? -ne 0 ]]; then
         if [[ "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
