@@ -1003,7 +1003,9 @@ function PostEmerge() {
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    echo "@preserved-rebuild" >> $backlog
+    if [[ "$(tail -n 1 $backlog)" != "@preserved-rebuild" ]]; then
+      echo "@preserved-rebuild" >> $backlog
+    fi
   fi
 
   # unmerge masked packages
@@ -1336,10 +1338,9 @@ do
   #
   rm $tsk
 
-  # catch a never ending loop of @preserved-rebuild
-  # but just if @world was done at least once
+  # catch a loop of @preserved-rebuild but just after first @world
   #
-  if [[ -f /tmp/@world.history && $(tail -n 20 $tsk.history | grep -c "@preserved-rebuild") -ge 10 ]]; then
+  if [[ "$task" = "@preserved-rebuild" && -f /tmp/@world.history && $(tail -n 20 $tsk.history | grep -c "@preserved-rebuild") -ge 10 ]]; then
     Finish 3 "@preserved-rebuild loop detected" $tmpfile
   fi
 
