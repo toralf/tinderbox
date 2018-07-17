@@ -48,7 +48,7 @@ function SetOptions() {
   #
   profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' | sort --random-sort | head -n 1)
 
-  # default FEATURES are more restrict than usual
+  # be more restrict wert sandbox than the common user
   #
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
 
@@ -63,11 +63,11 @@ function SetOptions() {
     libressl="y"
   fi
 
-  # will yield into ABI_X86="32 64" in make.conf eventually
+  # a "y" will yield into ABI_X86="32 64" in make.conf eventually
   #
   multilib="n"
   if [[ ! $profile =~ "no-multilib" ]]; then
-    if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
       multilib="y"
     fi
   fi
