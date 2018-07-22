@@ -858,7 +858,7 @@ function GotAnIssue()  {
 
   CompileIssueMail
 
-  grep -q -f /tmp/tb/data/IGNORE_ISSUES $bak
+  grep -q -f /tmp/tb/data/IGNORE_ISSUES $issuedir/title
   if [[ $? -ne 0 ]]; then
     SendoutIssueMail
   fi
