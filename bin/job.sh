@@ -986,14 +986,6 @@ function PostEmerge() {
     fi
   fi
 
-  # unmerge masked packages
-  #
-  masked_pkgs=$( grep -A 1000 'The following installed packages are masked:' $bak | grep -B 1000 'For more information, see the MASKED PACKAGES section in the emerge' | grep "^\- .* (masked by: package.mask)" | cut -f2 -d' ' -s | cut -f1 -d':' | sed 's/^/=/g' | xargs )
-  if [[ -n "$masked_pkgs" ]]; then
-    echo "%PutDepsIntoWorldFile"    >> $backlog
-    echo "%emerge -C $masked_pkgs"  >> $backlog
-  fi
-
   # switch to the new kernel sources
   # build them asap!
   #
@@ -1194,7 +1186,8 @@ function WorkOnTask() {
     else
       echo "$(date) ok $msg" >> /tmp/$task.history
 
-      # otherwise --depclean would be needed now
+      # otherwise --depclean would be needed to run now
+      # if deps of already installed packages are changed in the meanwhile
       #
       PutDepsIntoWorldFile
     fi
