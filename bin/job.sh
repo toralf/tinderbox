@@ -892,36 +892,14 @@ EOF
 # helper of PostEmerge()
 #
 function BuildKernel()  {
-  local cfg=${1:-randconfig}
-  export cfg
-
   echo "$FUNCNAME with $cfg" >> $log
   (
     cd /usr/src/linux
     make distclean
-    make $cfg
-    if [[ "$cfg" = "randconfig" ]]; then
-      sed -i -e '/^CONFIG_KERNEL_/d' .config
-      echo 'CONFIG_KERNEL_GZIP=y' >> .config
-    fi
+    make defconfig
     make
   ) &>> $log
-
-  local rc=$?
-
-  if [[ $rc -ne 0 ]]; then
-    # append .config to prepare the email for the LKML
-    #
-    cat /usr/src/linux/.config >> $log
-
-    # retry with defaults
-    #
-    if [[ "$cfg" = "randconfig" ]]; then
-      echo "%BuildKernel defconfig" >> $backlog
-    fi
-  fi
-
-  return $rc
+  return $?
 }
 
 
