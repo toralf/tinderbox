@@ -1035,6 +1035,13 @@ EOF
     echo "%SwitchGCC" >> $backlog
   fi
 
+  # switch to default Python
+  #
+  grep -q ">>> Installing .* dev-lang/python-[1-9]" $bak
+  if [[ $? -eq 0 ]]; then
+    echo "%eselect python update" >> $backlog
+  fi
+
   # seems to be a false warning, but it doesn't harm
   #
   grep -q 'Please run emaint --check world' $bak
