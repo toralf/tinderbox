@@ -47,6 +47,7 @@ x11-misc/urxvt-font-size
 #
 sys-cluster/
 sys-fabric/ibutils
+x11-drivers/nvidia-drivers
 #
 # causes @preserved-rebuild infinite loop
 #

@@ -24,3 +24,5 @@ error: static declaration of
 /usr/bin/install crash
 install: cannot create regular file
 environment: line .*: cd: .* No such file or directory
+mv: cannot stat .* No such file or directory
+java.lang.NoSuchMethodError:

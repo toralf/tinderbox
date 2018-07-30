@@ -1,4 +1,6 @@
 Cannot build with randomized sbrk. Your options
+code model kernel not supported in the 32 bit mode
+CONFIG_SYSFS_DEPRECATED_V2 support detected!
 configure: error: Linux kernel in .* is version .*, but version newer than .* is not supported
 Couldn't find .* to unmerge.
 emerge with binary use flag first
@@ -24,6 +26,7 @@ No support for external modules in
 OpenMP is not available in your current selected compiler
 pcmcia support is broken on kernels newer
 Please buy & download
+Please disable .* support in your kernel config and recompile your kernel
 Please switch your active compiler to gcc with
 Please use a supported ICD
 Please use GCC-4.9 for now.

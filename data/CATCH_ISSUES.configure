@@ -13,6 +13,7 @@ PostgreSQL slot must be set to one of:
 configure: error:
 CMake will exit
 You need build codec to run the tests
+Could not find a package configuration file provided by
 CMake Error at
 Configuring incomplete, errors occurred
 extconf.rb:.* (RuntimeError)
@@ -30,5 +31,6 @@ This version of Camlp4 is for OCaml
 : uninitialized constant
 meson.build.*ERROR:.*
 USE Flag .* not in IUSE for
+configure in /.* failed
 ^ERROR: .
 \\* ERROR:

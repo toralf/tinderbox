@@ -181,6 +181,7 @@ asciidoc: Command not found
 PermissionError:
 Package .* was not found in the pkg-config search path.
 missing separator.  Stop.
+ld: -r and -pie may not be used together
 ld returned .* exit status
 is not installed
 is illegal here
@@ -200,5 +201,7 @@ USE Flag .* not in IUSE
 RuntimeError: maximum recursion depth exceeded while calling a Python object
 Unable to access the X Display, is $DISPLAY set properly?
 The variable KERN_DIR must be a kernel build folder
-ERROR:
+^fatal:
 make: .* Error
+^IOError:
+ERROR:

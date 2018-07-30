@@ -38,3 +38,11 @@ sys-libs/ncurses          -gpm
 #     (net-wireless/bluez-5.50:0/3::gentoo, ebuild scheduled for merge) (buildtime)
 #
 dev-lang/python           -bluetooth
+
+# The following USE changes are necessary to proceed:
+# (see "package.use" in the portage(5) man page for more details)
+# required by dev-lang/spidermonkey-52.9.1_pre1::gentoo
+# required by sys-auth/polkit-0.115::gentoo
+# required by gnome-extra/polkit-gnome-0.105-r1::gentoo
+#
+dev-lang/python sqlite
