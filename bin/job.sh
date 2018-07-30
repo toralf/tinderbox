@@ -106,13 +106,15 @@ function setNextTask() {
       Finish 0 "catched STOP file" /tmp/STOP
     fi
 
-    # high prio backlog rules
+    # 1st prio backlog rules
     #
     if [[ -s $backlog ]]; then
       bl=$backlog
 
-    # 1/3 probability for updated packages
-    # but only if no special action is scheduled in common backlog
+    # repository updates
+    # updated regularly by update_backlog.sh
+    #
+    # 1/3 probability but only if no special action is scheduled in common backlog
     #
     elif [[ -s /tmp/backlog.upd && $(($RANDOM % 3)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
@@ -123,7 +125,7 @@ function setNextTask() {
     elif [[ -s /tmp/backlog ]]; then
       bl=/tmp/backlog
 
-    # last chance for updated packages
+    # last chance (1 - 1/3) for updated packages
     #
     elif [[ -s /tmp/backlog.upd ]]; then
       bl=/tmp/backlog.upd
@@ -143,6 +145,8 @@ function setNextTask() {
     if [[ -z "$task" ]]; then
       continue  # empty line
 
+    # INFO and STOP within the backlog are useful for debug purpose
+    #
     elif [[ $task =~ ^INFO ]]; then
       Mail "$task"
 
@@ -1193,8 +1197,7 @@ function WorkOnTask() {
     else
       echo "$(date) ok $msg" >> /tmp/$task.history
 
-      # otherwise --depclean would be needed to run now
-      # if deps of already installed packages are changed in the meanwhile
+      # keep already installed packages if their deps changed in the meanwhile
       #
       PutDepsIntoWorldFile
     fi
