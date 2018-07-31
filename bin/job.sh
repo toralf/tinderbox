@@ -601,7 +601,7 @@ function AddBugzillaData() {
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  bgo.sh -d ~/img?/$name/$issuedir -i $id -c 'got at the $keyword amd64 chroot image $name this : $(cat $issuedir/title)'
+  bgo.sh -d ~/img?/$name/$issuedir $block -i $id -c 'got at the $keyword amd64 chroot image $name this : $(cat $issuedir/title)'
 
 EOF
   else
