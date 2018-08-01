@@ -512,7 +512,7 @@ EOF
 
   # sometimes Python is updated (b/c being a dep) during setup
   #
-  echo "eselect python update" >> $backlog.1st
+  echo "%eselect python update" >> $backlog.1st
 }
 
 
