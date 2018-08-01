@@ -204,4 +204,5 @@ The variable KERN_DIR must be a kernel build folder
 ^fatal:
 make: .* Error
 ^IOError:
+Could not find servlet-api.jar in
 ERROR:

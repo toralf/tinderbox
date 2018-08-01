@@ -51,7 +51,7 @@ FF_|CODEC_
 _get0_|_set0_|error: static declaration of .BIO_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC
 # (qt-5.11) - Qt 5.11 porting
 653646
-invalid use of incomplete type class Q|no matching function for call to.*Q|Q.* was not declared in this scope|incomplete type Q.* used in
+invalid use of incomplete type class Q|no matching function for call to.*Q|Q.* was not declared in this scope|incomplete type Q.* used in|variable Q.* has initializer but|FindQt4.cmake
 # [TRACKER] Issues with sys-libs/glibc-2.27 (directly and indirectly)
 637144
 lieee
