@@ -509,6 +509,10 @@ EOF
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $backlog.1st
   fi
+
+  # sometimes Python is updated (b/c being a dep) during setup
+  #
+  echo "eselect python update" >> $backlog.1st
 }
 
 
