@@ -21,6 +21,7 @@ Line indented less than expected
 final link failed: Nonrepresentable section on output
 ld: cannot find
 file cannot create directory:
+Not in scope:
 : error:
 Parse error .
 object has no attribute
@@ -55,7 +56,6 @@ bad class file:
 Compile failed; see the compiler error
 Failed Patch:
 can't get .* relocation type
-Not in scope:
 No instance for (
 texi2info failed
 is not a function name
@@ -160,6 +160,7 @@ error: expected
 env.*No such file or directory
 RuntimeError: failed to run:
 error: static declaration of
+Not in scope:
 error: .
  Segmentation fault
 sh: .* No such file or directory
@@ -194,6 +195,7 @@ moc: could not find a Qt installation
 lrelease: could not exec
 loadable library and perl binaries are mismatched
 ModuleNotFoundError: No module named
+make.*Command not found
 Error .
 setup: can't find source for
 USE Flag .* not in IUSE
@@ -205,4 +207,5 @@ The variable KERN_DIR must be a kernel build folder
 make: .* Error
 ^IOError:
 Could not find servlet-api.jar in
+.xml:.*Execute failed:
 ERROR:

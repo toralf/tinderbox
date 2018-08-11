@@ -10,6 +10,8 @@ Could not run psql test program, checking why...
 PostgreSQL slot must be set to one of:
  \\*   PostgreSQL slot is not set to .* or higher.
 .* library not found, but required for .* module.
+error: Fortran 77 compiler
+error: fortran compiler does not work
 configure: error:
 CMake will exit
 You need build codec to run the tests

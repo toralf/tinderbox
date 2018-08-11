@@ -8,3 +8,4 @@ rm: cannot remove .*: No such file or directory
 cp: cannot stat
 sed: can't read requirements.txt: No such file or directory
 Please disable .* support in your kernel config and recompile your kernel
+: No such file or directory

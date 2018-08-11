@@ -53,3 +53,7 @@ x11-drivers/nvidia-drivers
 #
 dev-libs/Ice
 dev-util/goland
+#
+# 24 hour build time
+#
+sci-libs/tensorflow
