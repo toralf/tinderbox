@@ -22,7 +22,7 @@ function ThrowUseFlags()  {
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|pax|prefix|qt4|tools|selinux|ssl|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|pam_ssh|pax|prefix|qt4|tools|selinux|ssl|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
   sort |\
@@ -478,7 +478,7 @@ EOF
     echo "media-libs/jpeg" >> $backlog.1st
   fi
 
-  # switch to LibreSSL before upgrading @system
+  # switch to LibreSSL soon
   #
   if [[ "$libressl" = "y" ]]; then
     # @preserved-rebuild will be scheduled by the unmerge of openssl
@@ -492,7 +492,7 @@ EOF
 EOF
   fi
 
-  # at least systemd and virtualbox needs kernel sources and would fail in the next @preserved-rebuild otherwise
+  # at least systemd and virtualbox needs kernel sources and would fail for @preserved-rebuild otherwise
   #
   # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
   #
