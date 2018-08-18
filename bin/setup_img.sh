@@ -632,11 +632,12 @@ function EmergeMandatoryPackages() {
       cat $mnt/tmp/setup.log
     fi
 
-    # put helpful commands into the body for an easy copy+paste
+    # put out expected next commands for an easy copy+paste,
+    # assume that the caller is still in the same directory
     #
     echo "
-      view ~/$mnt/tmp/dryrun.log
-      echo '' >> ~/$mnt/etc/portage/package.use/setup
+      view $mnt/tmp/dryrun.log
+      echo '' >> $mnt/etc/portage/package.use/setup
 
       sudo $(dirname $0)/chr.sh $mnt ' $dryrun '
 
