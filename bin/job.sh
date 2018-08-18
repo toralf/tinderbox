@@ -797,14 +797,15 @@ function setWorkDir() {
 #
 function KeepGoing() {
   if [[ $task =~ "revdep-rebuild" ]]; then
-    # don't repeat the whole package list itself
-    # (eg. after a GCC upgrade it failes often just in the test phase)
+    # don't repeat the whole rebuild list
+    # (eg. after a GCC upgrade it fails often just in the test phase)
     #
     echo "%emerge --resume" >> $backlog
 
   else
-    # deps might be changed due to a now masked packages, an updated
-    # repository or by an altered package.env/* entry
+    # repeat $task instead of just resuming emerge because
+    # dependencies might be changed due to a now masked packages,
+    # an updated repository or by an altered package.env/* entry
     #
     if [[ "$(tail -n 1 $backlog)" != "$task" ]]; then
       echo "$task" >> $backlog
