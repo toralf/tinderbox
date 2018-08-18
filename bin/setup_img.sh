@@ -201,6 +201,7 @@ function UnpackStage3()  {
   echo
 
   cd $name || exit 4
+  echo "untar'ing $f ..."
   tar -xpf $f --xattrs --exclude='./dev/*' || exit 4
 }
 
