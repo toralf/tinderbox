@@ -352,13 +352,12 @@ function pn2p() {
 }
 
 
-# 777: permit every user to edit the files
-#
 function CreateIssueDir() {
   issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
-  mkdir -p $issuedir
-  chmod 777 $issuedir
   mkdir -p $issuedir/files
+  # permit external user to edit files before reporting the bug
+  #
+  chmod 777 $issuedir
 }
 
 
