@@ -18,7 +18,7 @@ yy
 error: too many arguments to function .pScreen..BlockHandler
 # libressl-support
 561854
-EVP_MD_CTX_|error: redefinition of .struct bio_method_st.|BIO_
+EVP_MD_CTX_|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_
 #
 520404
 QA Notice: installs into paths that should be created at runtime
@@ -48,7 +48,7 @@ xattr.h|attr
 FF_|CODEC_
 #   (libressl-2.7.0) - [TRACKER] packages breaking with >=dev-libs/libressl-2.7.0
 651228
-_get0_|_set0_|error: static declaration of .BIO_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC
+undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC
 # (qt-5.11) - Qt 5.11 porting
 653646
 invalid use of incomplete type class Q|no matching function for call to.*Q|Q.* was not declared in this scope|incomplete type Q.* used in|variable Q.* has initializer but|FindQt4.cmake|field .* has incomplete type Q

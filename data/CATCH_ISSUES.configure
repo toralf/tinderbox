@@ -1,5 +1,4 @@
 Unknown CMake command
-  configure failed
 CMake will not be able to correctly generate this project.
 required internal CMake variable not set
 Failed Running autoconf
@@ -34,5 +33,8 @@ This version of Camlp4 is for OCaml
 meson.build.*ERROR:.*
 USE Flag .* not in IUSE for
 configure in /.* failed
+Error: .
+  configure failed
+error: setupterm:
 ^ERROR: .
 \\* ERROR:
