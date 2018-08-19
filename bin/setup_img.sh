@@ -183,7 +183,7 @@ function UnpackStage3()  {
     wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles
     rc=$?
     if [[ $rc -ne 0 ]]; then
-      echo "can't download stage3 file '$stage3' of profile '$profile', rc=$rc"
+      echo " can't download stage3 file '$stage3' of profile '$profile', rc=$rc"
       rm -f $f{,.DIGESTS.asc}
       exit 4
     fi
@@ -201,7 +201,7 @@ function UnpackStage3()  {
   echo
 
   cd $name || exit 4
-  echo "untar'ing $f ..."
+  echo " untar'ing $f ..."
   tar -xpf $f --xattrs --exclude='./dev/*' || exit 4
 }
 
@@ -691,13 +691,13 @@ do
           #
           origin="$OPTARG"
           if [[ ! -e $origin ]]; then
-            echo "\$origin '$origin' doesn't exist"
+            echo " \$origin '$origin' doesn't exist"
             exit 2
           fi
 
           profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
           if [[ -z "$profile" ]]; then
-            echo "can't derive \$profile from '$origin'"
+            echo " can't derive \$profile from '$origin'"
             exit 2
           fi
 
@@ -754,7 +754,7 @@ do
   # 11 profiles x 2^4
   #
   if [[ $i -gt 176 ]]; then
-    echo "can't get a unique image name, will take $name"
+    echo " can't get a unique image name, will take $name"
     break
   fi
 
