@@ -461,7 +461,7 @@ EOF
 function CreateBacklog()  {
   backlog=./tmp/backlog
 
-  truncate -s 0 $backlog{,.1st,.upd}
+  truncate -s 0 $backlog{,.1st,.upd}            || exit 5
   chmod ug+w    $backlog{,.1st,.upd}
   chown tinderbox:portage $backlog{,.1st,.upd}
 
@@ -530,7 +530,7 @@ EOF
 # portage releated files, DNS etc
 #
 function ConfigureImage()  {
-  mkdir -p                  ./usr/local/portage/{metadata,profiles}
+  mkdir -p                  ./usr/local/portage/{metadata,profiles}   || exit 5
   echo 'masters = gentoo' > ./usr/local/portage/metadata/layout.conf
   echo 'local'            > ./usr/local/portage/profiles/repo_name
   chown -R portage:portage  ./usr/local/portage/
@@ -554,7 +554,7 @@ function ConfigureImage()  {
 # - few attemps to auto-fix USE flags deps
 #
 function CreateSetupScript()  {
-  cat << EOF >> ./tmp/setup.sh
+  cat << EOF >> ./tmp/setup.sh || exit 6
 #!/bin/sh
 #
 # set -x
@@ -796,13 +796,15 @@ wgetpath=/releases/amd64/autobuilds
 
 dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
 
-UnpackStage3            || exit 5
-ConfigureImage          || exit 5
-CreateSetupScript       || exit 5
-EmergeMandatoryPackages || exit 5
+UnpackStage3
+ConfigureImage
+CreateSetupScript
+EmergeMandatoryPackages
 
 cd /home/tinderbox/run && ln -s ../$mnt || exit 11
-echo " setup  OK: $name"
+
+echo
+echo " setup OK"
 
 if [[ "$autostart" = "y" ]]; then
   echo
