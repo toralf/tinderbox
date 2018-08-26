@@ -34,13 +34,6 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# awefully long build time (the first 2 inherit a bundled copy of chromium)
-#
-app-editors/atom
-dev-util/electron
-www-client/chromium
-www-client/google-chrome
-#
 # never-ending loop of "www-misc/vdradmin-am; %perl-cleaner --all"
 #
 www-misc/vdradmin-am
@@ -58,6 +51,19 @@ x11-drivers/nvidia-drivers
 dev-libs/Ice
 dev-util/goland
 #
+# awefully long build time (the first 2 inherit a bundled copy of chromium)
+#
+app-editors/atom
+dev-util/electron
+www-client/chromium
+www-client/google-chrome
+#
 # 24 hour build time
 #
 sci-libs/tensorflow
+#
+# loong build time
+#
+dev-libs/aws-sdk-cpp
+dev-qt/qtwebengine
+dev-qt/qtwebkit

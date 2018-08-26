@@ -208,4 +208,5 @@ make: .* Error
 ^IOError:
 Could not find servlet-api.jar in
 .xml:.*Execute failed:
+Fatal Error:
 ERROR:
