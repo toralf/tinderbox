@@ -206,12 +206,16 @@ function UnpackStage3()  {
 }
 
 
-# configure 3 repositories and prepare 1 additional (foo)
-# the first 3 are synced outside of the image
-#
-# the local repository rules
+# configure 2 existing repositories: gentoo and tinderbox
+# in addition prepare 2 too: foo and local
 #
 function CompileRepoFiles()  {
+  mkdir -p                  ./usr/local/portage/{metadata,profiles}   || exit 5
+  echo 'masters = gentoo' > ./usr/local/portage/metadata/layout.conf
+  echo 'local'            > ./usr/local/portage/profiles/repo_name
+  chown -R portage:portage  ./usr/local/portage/
+  chmod g+s                 ./usr/local/portage/
+
   mkdir -p      ./etc/portage/repos.conf/
   cat << EOF >> ./etc/portage/repos.conf/default.conf
 [DEFAULT]
@@ -356,19 +360,17 @@ function CompilePortageFiles()  {
 
   echo "*/* $(cpuid2cpuflags)"    > ./etc/portage/package.use/00cpuflags
 
-  # force "test" for dedicated packages
-  #
-  echo 'FEATURES="test"'          > ./etc/portage/env/test
-
   # build w/o "test", useful if package specific test phase is known to be br0ken or takes too long
   #
   echo 'FEATURES="-test"'         > ./etc/portage/env/notest
+  echo "*/* notest"               > ./etc/portage/package.env/notest
 
   # at 2nd attempt to emerge a package do ignore the test phase result
   #
   echo 'FEATURES="test-fail-continue"'  > ./etc/portage/env/test-fail-continue
 
-  # breakage is forced in job.sh by the XDG_* variables
+  # breakage is forced by the XDG_* variables in job.sh
+  # retry affected packages  w/o sandbox'ing then
   #
   echo 'FEATURES="-sandbox"'      > ./etc/portage/env/nosandbox
 
@@ -516,32 +518,15 @@ EOF
   #
   echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc )" >> $backlog.1st
 
-  # the systemd stage4 would have this done for us
+  # the stage4 of systemd did this already
   #
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $backlog.1st
   fi
 
-  # sometimes Python is updated (b/c being a dep) during setup
+  # sometimes Python is updated (as dep of a newer portage) during setup
   #
   echo "%eselect python update" >> $backlog.1st
-}
-
-
-# portage releated files, DNS etc
-#
-function ConfigureImage()  {
-  mkdir -p                  ./usr/local/portage/{metadata,profiles}   || exit 5
-  echo 'masters = gentoo' > ./usr/local/portage/metadata/layout.conf
-  echo 'local'            > ./usr/local/portage/profiles/repo_name
-  chown -R portage:portage  ./usr/local/portage/
-  chmod g+s                 ./usr/local/portage/
-
-  CompileRepoFiles
-  CompileMakeConf
-  CompilePortageFiles
-  CompileMiscFiles
-  CreateBacklog
 }
 
 
@@ -598,8 +583,6 @@ emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-c
 
 if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
-else
-  sed -i -e 's/FEATURES="/FEATURES="-test /g' /etc/portage/make.conf
 fi
 
 # the very first @system must succeed
@@ -619,6 +602,8 @@ EOF
 #
 function EmergeMandatoryPackages() {
   cd /home/tinderbox/
+
+  echo " install mandatory packages ..."
 
   $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.sh.log'
   rc=$?
@@ -778,7 +763,7 @@ echo
 name="${name}_$(date +%Y%m%d-%H%M%S)"
 mkdir $name || exit 2
 
-# relative path to the HOME directory of the tinderbox user
+# relative path from the HOME directory of the tinderbox user
 #
 mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
 break
@@ -786,7 +771,7 @@ break
 echo " $mnt"
 echo
 
-# location of the stage3 file
+# used for stage3 file too
 #
 distfiles=/var/tmp/distfiles
 
@@ -795,10 +780,14 @@ distfiles=/var/tmp/distfiles
 wgethost=http://ftp.halifax.rwth-aachen.de/gentoo/
 wgetpath=/releases/amd64/autobuilds
 
-dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
-
 UnpackStage3
-ConfigureImage
+CompileRepoFiles
+CompileMakeConf
+CompilePortageFiles
+CompileMiscFiles
+CreateBacklog
+
+dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
 CreateSetupScript
 EmergeMandatoryPackages
 
