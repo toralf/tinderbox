@@ -512,8 +512,9 @@ EOF
   # upgrade GCC first
   #   %...  : bail out if that fails
   #   no --deep, that would result effectively in @system
+  #   avoid upgrading current stable slot, if a new major unstable version is available
   #
-  echo "%emerge -u sys-devel/gcc" >> $backlog.1st
+  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc )" >> $backlog.1st
 
   # the systemd stage4 would have this done for us
   #
