@@ -1157,11 +1157,12 @@ function WorkOnTask() {
     # "ok|NOT ok|<msg>" is used in check_history() of whatsup.sh
     # to display " ", "[SWP]" or "[swp]" respectively
     #
-    msg=$(grep -m 1 -e 'The following REQUIRED_USE flag constraints are unsatisfied:'               \
-                    -e 'The following update.* been skipped due to unsatisfied dependencies'        \
-                    -e 'WARNING: One or more updates/rebuilds'                                      \
-                    -e 'Multiple package instances within a single package slot have been pulled'   \
-                    -e 'The following USE changes are necessary to proceed:'                        \
+    msg=$(grep -m 1 \
+            -e 'The following USE changes are necessary to proceed:'                      \
+            -e 'The following REQUIRED_USE flag constraints are unsatisfied:'             \
+            -e 'The following update.* been skipped due to unsatisfied dependencies'      \
+            -e 'WARNING: One or more updates/rebuilds'                                    \
+            -e 'Multiple package instances within a single package slot have been pulled' \
         $bak)
 
     if [[ $rc -ne 0 ]]; then
