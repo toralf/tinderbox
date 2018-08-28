@@ -137,8 +137,7 @@ function CurrentTask()  {
     fi
 
     tsk=$i/tmp/task
-    let "delta = $ts - $(date +%s -r $tsk 2>/dev/null)" 2>/dev/null
-    if [[ $? -ne 0 ]]; then
+    if [[ ! -s $tsk ]]; then
       echo
       continue
     fi
@@ -148,6 +147,8 @@ function CurrentTask()  {
       echo
       continue
     fi
+
+    let "delta = $ts - $(date +%s -r $tsk 2>/dev/null)" 2>/dev/null
 
     if [[ $delta -ge 3600 ]]; then
       let "minutes = $delta / 60 % 60"
@@ -178,7 +179,12 @@ function LastEmergeOperation()  {
       continue
     fi
 
-    # catch the last eventually started emerge operation
+    if [[ ! -s $i/var/log/emerge.log ]]; then
+      echo
+      continue
+    fi
+
+    # catch the last *started* emerge operation
     #
     tac $i/var/log/emerge.log 2>/dev/null |\
     grep -m 1 -E -e '>>>|\*\*\* emerge' -e ' \*\*\* terminating.' -e '::: completed emerge' |\
@@ -212,6 +218,11 @@ function PackagesPerDay() {
   for i in $images
   do
     PrintImageName
+
+    if [[ ! -s $i/var/log/emerge.log ]]; then
+      echo
+      continue
+    fi
 
     grep '::: completed emerge' $i/var/log/emerge.log 2>/dev/null |\
     cut -f1 -d ':' -s |\
