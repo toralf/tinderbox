@@ -530,9 +530,10 @@ EOF
 }
 
 
-# - configure locale, timezone, MTA etc
+# - configure locale, timezone etc.
 # - install and configure tools used in job.sh:
 #     <package>                   <command/s>
+#     mail-*                      MTA + mailx
 #     app-arch/sharutils          uudecode
 #     app-portage/gentoolkit      equery eshowkw revdep-rebuild
 #     app-portage/portage-utils   qatom qdepends qlop
