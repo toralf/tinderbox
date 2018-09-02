@@ -857,11 +857,11 @@ function GotAnIssue()  {
   setWorkDir
   CollectIssueFiles
 
-  # get this before /etc/portage/package.*/* files might be altered
+  # do this before any /etc/portage/package.*/* file might be altered
   #
   emerge -qpv $short &> $issuedir/emerge-qpv
-  ClassifyIssue
 
+  ClassifyIssue
   CompileIssueMail
 
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $issuedir/title
@@ -898,12 +898,12 @@ EOF
 # helper of PostEmerge()
 #
 function BuildKernel()  {
-  echo "$FUNCNAME with $cfg" >> $log
+  echo "$FUNCNAME" >> $log
   (
     cd /usr/src/linux
     make distclean
     make defconfig
-    make
+    make -j1
   ) &>> $log
   return $?
 }
