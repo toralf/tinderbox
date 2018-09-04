@@ -491,6 +491,10 @@ EOF
     echo "media-libs/jpeg" >> $backlog.1st
   fi
 
+  # upgrade portage before @system or @world
+  #
+  echo "sys-apps/portage" >> $backlog.1st
+
   # switch to LibreSSL soon
   #
   if [[ "$libressl" = "y" ]]; then
