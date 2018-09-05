@@ -747,7 +747,7 @@ if [[ $? -eq 0 ]]; then
 fi
 
 grep -h "${name}_........-......" /proc/mounts 2>/dev/null
-if [[ $? -ne 0 ]]; then
+if [[ $? -eq 0 ]]; then
   exit 2
 fi
 
@@ -759,7 +759,6 @@ mkdir $name || exit 3
 # relative path from the HOME directory of the tinderbox user
 #
 mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
-break
 
 echo " $mnt"
 echo
