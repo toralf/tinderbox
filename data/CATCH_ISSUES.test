@@ -5,6 +5,7 @@ argparse.ArgumentError:
 ^E       .*
 ImportError:
 Need FEATURES=.* to run this testsuite
+^E: Failure
 : FAILED (.*:.*)
 ^ERROR:.*test
 Failing test(s):

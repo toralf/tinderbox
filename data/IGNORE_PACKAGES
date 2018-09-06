@@ -61,6 +61,7 @@ www-client/google-chrome
 # 24 hour build time
 #
 sci-libs/tensorflow
+sci-visualization/tensorboard
 #
 # loong build time
 #

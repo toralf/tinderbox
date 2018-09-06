@@ -51,7 +51,7 @@ FF_|CODEC_
 undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC
 # (qt-5.11) - Qt 5.11 porting
 653646
-invalid use of incomplete type class Q|no matching function for call to.*Q|Q.* was not declared in this scope|incomplete type Q.* used in|variable Q.* has initializer but|FindQt4.cmake|field .* has incomplete type Q| Q.* has not been declared|Q.* does not name a type
+invalid use of incomplete type class Q|no matching function for call to.*Q|Q.* was not declared in this scope|incomplete type Q.* used in|variable Q.* has initializer but|FindQt4.cmake|field .* has incomplete type Q| Q.* has not been declared|Q.* does not name a type|invalid use of incomplete type .* Q.*|Q.* Q.* should have been declared
 # [TRACKER] Issues with sys-libs/glibc-2.27 (directly and indirectly)
 637144
 lieee
