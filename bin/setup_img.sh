@@ -741,12 +741,12 @@ ComputeImageName
 # test that there's no similar image in ~/run
 #
 echo
-ls -l /home/tinderbox/run/${name}_????????-?????? 2>/dev/null
+ls -l /home/tinderbox/run/${name}_20??????-?????? 2>/dev/null
 if [[ $? -eq 0 ]]; then
   exit 2
 fi
 
-grep -h "${name}_........-......" /proc/mounts 2>/dev/null
+grep -h "${name}_20......-......" /proc/mounts 2>/dev/null
 if [[ $? -eq 0 ]]; then
   exit 2
 fi
