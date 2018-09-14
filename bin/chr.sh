@@ -121,6 +121,8 @@ rc2=$?
 
 if [[ $rc2 -eq 0 ]]; then
   rm $lock
+else
+  echo "rc2=$rc2" >> $lock
 fi
 
 let "rc = $rc1 + $rc2"
