@@ -66,11 +66,13 @@ function SetOptions() {
   # a "y" will yield into ABI_X86="32 64" in make.conf eventually
   #
   multilib="n"
-  if [[ ! $profile =~ "no-multilib" ]]; then
-    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
-      multilib="y"
-    fi
-  fi
+  # ignore 32bit till https://bugs.gentoo.org/656772 is solved
+  #
+#   if [[ ! $profile =~ "no-multilib" ]]; then
+#     if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+#       multilib="y"
+#     fi
+#   fi
 
   # optional: suffix of the image name
   #
