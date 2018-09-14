@@ -3,7 +3,7 @@
 
 # create a randomized package list from USE flags:
 #
-# for u in ... ; do quse -NC $u; done | cut -f1-2 -d'/' | sort -uR
+# for u in ... ; do quse -NC $u 2>/dev/null; done | cut -f1-2 -d'/' | sort -u -R
 #
 
 # these USE flags activates ffmpeg

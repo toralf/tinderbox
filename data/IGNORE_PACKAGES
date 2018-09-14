@@ -4,7 +4,7 @@
 #
 # this file MUST NOT have empty lines (except the last one)
 #
-# never explicitely emerge these categories
+# never explicitely emerge packages of these categories
 #
 app-eselect/
 dev-embedded/
@@ -62,9 +62,3 @@ www-client/google-chrome
 #
 sci-libs/tensorflow
 sci-visualization/tensorboard
-#
-# loong build time
-#
-dev-libs/aws-sdk-cpp
-dev-qt/qtwebengine
-dev-qt/qtwebkit
