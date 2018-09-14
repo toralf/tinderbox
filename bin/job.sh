@@ -836,7 +836,7 @@ function GotAnIssue()  {
           -e 'portage.exception.PortageKeyError: '  \
           $bak
   if [[ $? -eq 0 ]]; then
-    Mail "admin: catched a repo race"
+    Mail "admin: catched a repo race" $bak
     try_again=1
     KeepGoing
     sleep 60
