@@ -321,8 +321,7 @@ PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="root@localhost"
-# althought we do not use portages mail functionality currently
-# this variable is read by job.sh to derive the image name
+# this variable is used in job.sh to derive the image name
 #
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
@@ -470,6 +469,8 @@ function CreateBacklog()  {
   chown tinderbox:portage $backlog{,.1st,.upd}
 
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
+
+  echo "app-portage/pfl"  >> $backlog.1st
 
   if [[ -e $origin ]]; then
     # no replay of @sets or %commands, just of the tasks
