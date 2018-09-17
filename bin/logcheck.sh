@@ -2,8 +2,14 @@
 #
 # set -x
 
-# check that logs and nohup.out are empty
+# check that logs are empty
 #
+
+# works together with a crontab entry like:
+#
+# # clean logs; pre-fill cache, start the tinderbox and the log watch dog
+# #
+# @reboot    rm -f /home/tinderbox/logs/*.log; rm -f /home/tinderbox/run/*/tmp/{LOCK,STOP}; /opt/tb/bin/whatsup.sh -otlp &>/dev/null; sleep 240; /opt/tb/bin/start_img.sh; /opt/tb/bin/logcheck.sh
 
 mailto="tinderbox@zwiebeltoralf.de"
 
@@ -12,11 +18,6 @@ f=/tmp/$(basename $0).out
 while :
 do
   if [[ ! -f $f ]]; then
-    if [[ -s ~/nohup.out ]]; then
-      (ls -l ~/nohup.out; head -n 500 ~/nohup.out) | mail -s "nohup.out is NOT empty" $mailto
-      truncate -s 0 ~/nohup.out
-    fi
-
     if [[ -n "$(ls ~/logs/)" && "$(wc -c ~/logs/* 2>/dev/null | tail -n 1 | awk ' { print $1 } ')" != "0" ]]; then
       ls -l ~/logs/* >> $f
       head ~/logs/*  >> $f
@@ -26,5 +27,5 @@ do
     fi
   fi
 
-  sleep 15
+  sleep 5
 done

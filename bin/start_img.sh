@@ -61,7 +61,7 @@ do
   cp /opt/tb/bin/job.sh $mnt/tmp || continue
 
   echo " $(date) starting $mnt"
-  nohup nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
+  nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
   sleep 1
 
 done
