@@ -76,6 +76,11 @@ function cgroup() {
 #                                                                           #
 #############################################################################
 
+if [[ "$(whoami)" != "root" ]]; then
+  echo " you must be root !"
+  exit 1
+fi
+
 # the path to the chroot image
 #
 mnt=$1
@@ -85,11 +90,11 @@ if [[ ! -d $mnt ]]; then
   exit 1
 fi
 
-# remaining options are treated as a complete command line to be run within chroot
+# remaining options is treated as commands to be run within chroot
 #
 shift
 
-# 1st barrier to prevent starting the same chroot image twice: a lock file
+# 1st barrier to prevent starting the same chroot image twice
 #
 lock=$mnt/tmp/LOCK
 if [[ -f $lock ]]; then
@@ -99,8 +104,8 @@ fi
 touch $lock || exit 2
 chown tinderbox:tinderbox $lock
 
-# 2nd barrier to prevent starting the same chroot image twice: grep mount table
-# this is a weak condition b/c a mount could be made using a symlink name
+# 2nd barrier to prevent starting the same chroot image twice
+# this is a weak condition b/c a mount could be made using symlink names
 #
 grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
 
@@ -108,7 +113,7 @@ mountall || exit 4
 cgroup || exit 4
 
 if [[ $# -gt 0 ]]; then
-  # do "su - root" to double ensure to use the chroot image environment
+  # do "su - root" to double ensure to use root's chroot environment
   #
   /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
 else
