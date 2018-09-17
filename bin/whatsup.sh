@@ -148,7 +148,7 @@ function CurrentTask()  {
       continue
     fi
 
-    let "delta = $ts - $(date +%s -r $tsk 2>/dev/null)" 2>/dev/null
+    let "delta = $ts - $(stat -c%Y $tsk 2>/dev/null)" 2>/dev/null
 
     if [[ $delta -ge 3600 ]]; then
       let "minutes = $delta / 60 % 60"
