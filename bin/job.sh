@@ -1024,7 +1024,7 @@ function PostEmerge() {
   #   - update @world
   #
   if [[ ! -s $backlog ]]; then
-    let "diff = $(date +%s) - $(date +%s -r /tmp/@system.history)"
+    let "diff = $(date +%s) - $(stat -c%Y /tmp/@system.history)"
     if [[ $diff -gt 86400 ]]; then
       cat << EOF >> $backlog
 @world
