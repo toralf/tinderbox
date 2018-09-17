@@ -37,7 +37,7 @@ function ThrowUseFlags()  {
 
 
 # helper of main()
-# will be overwritten by command line parameter  if given
+# will be overwritten by command line parameter if given
 #
 function SetOptions() {
   autostart="y"               # start the image after setup
@@ -48,7 +48,7 @@ function SetOptions() {
   #
   profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' | sort --random-sort | head -n 1)
 
-  # be more restrict wert sandbox than the common user
+  # be more restrict wrt sandbox issues
   #
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
 
@@ -63,7 +63,7 @@ function SetOptions() {
     libressl="y"
   fi
 
-  # a "y" will yield into ABI_X86="32 64" in make.conf eventually
+  # a "y" yields to ABI_X86="32 64" being set in make.conf
   #
   multilib="n"
   # ignore 32bit till https://bugs.gentoo.org/656772 is solved
@@ -462,28 +462,28 @@ EOF
 # /tmp/backlog.1st : filled during setup, job.sh and retest.sh write to t
 #
 function CreateBacklog()  {
-  backlog=./tmp/backlog
+  bl=./tmp/backlog
 
-  truncate -s 0 $backlog{,.1st,.upd}            || exit 5
-  chmod ug+w    $backlog{,.1st,.upd}
-  chown tinderbox:portage $backlog{,.1st,.upd}
+  truncate -s 0 ${bl}{,.1st,.upd}            || exit 5
+  chmod ug+w    ${bl}{,.1st,.upd}
+  chown tinderbox:portage ${bl}{,.1st,.upd}
 
-  qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $backlog
+  qsearch --all --nocolor --name-only --quiet | sort --random-sort >> ${bl}
 
-  echo "app-portage/pfl"  >> $backlog.1st
+  echo "app-portage/pfl" >> ${bl}.1st
 
   if [[ -e $origin ]]; then
     # no replay of @sets or %commands, just of the tasks
     # we intentionally don't want to replay `qlist -ICv`
     #
-    echo "INFO finished replay of task history of $origin"    >> $backlog.1st
-    grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $backlog.1st
-    echo "INFO starting replay of task history of $origin"    >> $backlog.1st
+    echo "INFO finished replay of task history of $origin"    >> ${bl}.1st
+    grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> ${bl}.1st
+    echo "INFO starting replay of task history of $origin"    >> ${bl}.1st
   fi
 
   # last step: update @system and @world
   #
-  cat << EOF >> $backlog.1st
+  cat << EOF >> ${bl}.1st
 @world
 @system
 EOF
@@ -491,12 +491,12 @@ EOF
   # asturm: give media-libs/jpeg a fair chance
   #
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    echo "media-libs/jpeg" >> $backlog.1st
+    echo "media-libs/jpeg" >> ${bl}.1st
   fi
 
   # upgrade portage before @system or @world
   #
-  echo "sys-apps/portage" >> $backlog.1st
+  echo "sys-apps/portage" >> ${bl}.1st
 
   # switch to LibreSSL soon
   #
@@ -504,7 +504,7 @@ EOF
     # @preserved-rebuild will be scheduled by the unmerge of openssl
     # and will be added before "%emerge @preserved-rebuild" which must not fail eventually
     #
-    cat << EOF >> $backlog.1st
+    cat << EOF >> ${bl}.1st
 %emerge @preserved-rebuild
 %emerge -C openssl
 %emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
@@ -516,24 +516,24 @@ EOF
   #
   # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
   #
-  echo "%emerge -u sys-kernel/vanilla-sources" >> $backlog.1st
+  echo "%emerge -u sys-kernel/vanilla-sources" >> ${bl}.1st
 
   # upgrade GCC first
   #   %...  : bail out if that fails
   #   no --deep, that would result effectively in @system
   #   avoid upgrading current stable slot, if a new major unstable version is available
   #
-  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc )" >> $backlog.1st
+  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc )" >> ${bl}.1st
 
   # the stage4 of systemd did this already
   #
   if [[ $profile =~ "systemd" ]]; then
-    echo "%systemd-machine-id-setup" >> $backlog.1st
+    echo "%systemd-machine-id-setup" >> ${bl}.1st
   fi
 
   # sometimes Python is updated (as dep of a newer portage) during setup
   #
-  echo "%eselect python update" >> $backlog.1st
+  echo "%eselect python update" >> ${bl}.1st
 }
 
 
@@ -746,11 +746,15 @@ ComputeImageName
 echo
 ls -l /home/tinderbox/run/${name}_20??????-?????? 2>/dev/null
 if [[ $? -eq 0 ]]; then
+  echo
   exit 2
 fi
 
+# test that there's no similar image already/still mounted
+#
 grep -h "${name}_20......-......" /proc/mounts 2>/dev/null
 if [[ $? -eq 0 ]]; then
+  echo
   exit 2
 fi
 
