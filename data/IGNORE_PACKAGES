@@ -62,3 +62,7 @@ www-client/google-chrome
 #
 sci-libs/tensorflow
 sci-visualization/tensorboard
+#
+# looong build time
+#
+dev-libs/aws-sdk-cpp
