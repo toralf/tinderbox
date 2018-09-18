@@ -53,7 +53,7 @@ date
 echo "stopping ${i}"
 /opt/tb/bin/stop_img.sh ${i}
 
-# wait till it is stopped
+# wait till the old image is stopped
 #
 while :
 do
@@ -67,9 +67,28 @@ date
 echo "deleted  ${i}"
 echo
 
-# spin up a new one
+# spin up a new image
 #
+i=0
 while :
 do
-  sudo /opt/tb/bin/setup_img.sh && break
+  let "i = ${i} + 1"
+
+  # catch this output in a separate mail
+  #
+  tmpfile=$(mktemp /tmp/$(basename $0).XXXXXX)
+  sudo /opt/tb/bin/setup_img.sh &> ${tmpfile}
+  rc=$?
+  cat ${tmpfile} | mail -s "admin: $(basename $0): attempt ${i} has rc=${rc}" tinderbox@zwiebeltoralf.de
+  if [[ ${rc} -eq 0 ]]; then
+    break
+  fi
+  rm -f ${tmpfile}
+
+  if [[ ${i} -gt 10 ]]; then
+    echo "$(basename $0)" | mail -s "admin: ${i} attempts w/o success, going into deep sleep ..." tinderbox@zwiebeltoralf.de
+    # block next attempt till this sleep is killed
+    #
+    sleep 86400123
+  fi
 done
