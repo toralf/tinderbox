@@ -741,20 +741,9 @@ done
 CheckOptions
 ComputeImageName
 
-# test that there's no similar image in ~/run
-#
-echo
 ls -l /home/tinderbox/run/${name}_20??????-?????? 2>/dev/null
 if [[ $? -eq 0 ]]; then
-  echo
-  exit 2
-fi
-
-# test that there's no similar image already/still mounted
-#
-grep -h "${name}_20......-......" /proc/mounts 2>/dev/null
-if [[ $? -eq 0 ]]; then
-  echo
+  echo "there's a similar image in ~/run"
   exit 2
 fi
 
