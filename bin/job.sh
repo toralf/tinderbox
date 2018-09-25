@@ -549,7 +549,7 @@ function SearchForBlocker() {
 # put  b.g.o. findings+links into the email body
 #
 function SearchForAnAlreadyFiledBug() {
-  bsi=$issuedir/bugz_search_items     # easier handling by using a file
+  bsi=$issuedir/bugz_search_items     # easier handling later by putting this into a file
   cp $issuedir/title $bsi
 
   # get away line numbers, certain special terms and characters
@@ -682,9 +682,9 @@ EOF
   if [[ -s $issuedir/title ]]; then
     TrimTitle 200
     SearchForAnAlreadyFiledBug
-    AddBugzillaData
   fi
 
+  AddBugzillaData
   AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
   if [[ "$phase" = "test" ]]; then
