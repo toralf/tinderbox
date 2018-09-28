@@ -63,9 +63,8 @@ if [[ -e "${oimg}" ]]; then
     fi
     sleep 1
   done
-  rm ~/run/${oimg} ~/logs/${oimg}.log
-  date
-  echo "deleted  ${oimg}"
+  # delete the old image after a new one was setup
+  #
 fi
 
 # spin up a new image, more than 1 attempt might be needed
@@ -93,6 +92,11 @@ done
 cat ${tmpfile}
 rm -f ${tmpfile}
 
+if [[ -e "${oimg}" ]]; then
+  rm ~/run/${oimg} ~/logs/${oimg}.log
+  date
+  echo "deleted ${oimg}"
+fi
 
 echo
 date
