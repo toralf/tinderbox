@@ -22,7 +22,7 @@ function ThrowUseFlags()  {
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|pam_ssh|pax|prefix|qt4|tools|selinux|ssl|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|pam_ssh|pax|prefix|qt4|tools|selinux|ssl|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan|X' |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
   sort |\
