@@ -1306,6 +1306,10 @@ do
   #
   rm -rf /var/tmp/portage/*
 
+  if [[ -x /tmp/pretask.sh ]]; then
+    /tmp/pretask.sh &> /tmp/pretask.sh.log
+  fi
+
   setNextTask
 
   # it is not necessary that emerge even starts (b/c deps might not be fullfilled)
