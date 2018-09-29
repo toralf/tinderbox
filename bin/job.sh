@@ -1290,8 +1290,8 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# if non-empty (==failed) then retry the previous task
-# (caused eg. by termination due to a reboot -or- Finish() with rc != 0)
+# if task file is non-empty (eg. due to a reboot or Finish() with rc != 0)
+# then retry the previous task
 #
 if [[ -s $tsk ]]; then
   cat $tsk >> $backlog
@@ -1317,8 +1317,8 @@ do
 
   WorkOnTask
 
-  # hint: this line is not reached if Finish() is called in WorkOnTask()
-  # and so $tsk will be intentionally retried at next start
+  # this line is not reached if Finish() is called before
+  # therefore $tsk is intentionally retried at next start
   #
   rm $tsk
 
