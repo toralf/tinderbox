@@ -25,7 +25,7 @@ grep -v -f ~/tb/data/IGNORE_PACKAGES > $acmr
 # add latest changes to each backlog.upd
 #
 if [[ -s $acmr ]]; then
-  for i in $(ls ~/run)
+  for i in $(ls ~/run 2>/dev/null)
   do
     # randomizing lowers probability of parallel build of the same package
     #

@@ -29,7 +29,7 @@ do
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{nosandbox,nousersandbox,test-fail-continue} 2>/dev/null
 
-  for i in $(ls ~/run)
+  for i in $(ls ~/run 2>/dev/null)
   do
     # backlog.upd will be shuffled around by update_backlog.sh
     # so use backlog.1st but put our atom *after* any high-prio task

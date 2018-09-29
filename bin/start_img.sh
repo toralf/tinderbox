@@ -15,7 +15,7 @@ fi
 
 cd ~
 
-for mnt in ${@:-$(ls ~/run)}
+for mnt in ${@:-$(ls ~/run 2>/dev/null)}
 do
   # try to prepend ~/run if no path is given
   #

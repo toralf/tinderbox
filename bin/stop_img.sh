@@ -10,7 +10,7 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-for mnt in ${@:-$(ls ~/run)}
+for mnt in ${@:-$(ls ~/run 2>/dev/null)}
 do
   if [[ ! -d $mnt ]]; then
     tmp=$(ls -d /home/tinderbox/{run,img?}/$mnt 2>/dev/null | head -n 1)
