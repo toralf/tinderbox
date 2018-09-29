@@ -210,4 +210,4 @@ Could not find servlet-api.jar in
 .xml:.*Execute failed:
 Fatal Error:
  relocation target .* not defined
-ERROR:
+tput: unknown terminal

@@ -73,7 +73,6 @@ SyntaxError: .
 Resolve library did not return a fully qualified domain name.
 .* Tests in .* Category Failed
   *FAILED  ess
-^ERROR:.*:
 :Error:
 ^not ok [[:digit:]]*
 ^make.* Segmentation fault

@@ -36,5 +36,4 @@ configure in /.* failed
 Error: .
   configure failed
 error: setupterm:
-^ERROR: .
-\\* ERROR:
+bison: .* cannot open: Permission denied

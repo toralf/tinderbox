@@ -1,4 +1,5 @@
+cmake-utils_src_prepare has not been run
+dosym target omits basename:
 installs into paths that should be created at runtime
 python_prepare_all() didn't call distutils-r1_python_prepare_all
-dosym target omits basename:
-cmake-utils_src_prepare has not been run
+running automake in configure phase
