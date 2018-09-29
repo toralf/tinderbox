@@ -66,13 +66,11 @@ function SetOptions() {
   # a "y" yields to ABI_X86="32 64" being set in make.conf
   #
   multilib="n"
-  # ignore 32bit till https://bugs.gentoo.org/656772 is solved
-  #
-#   if [[ ! $profile =~ "no-multilib" ]]; then
-#     if [[ $(($RANDOM % 10)) -eq 0 ]]; then
-#       multilib="y"
-#     fi
-#   fi
+  if [[ ! $profile =~ "no-multilib" ]]; then
+    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+      multilib="y"
+    fi
+  fi
 
   # optional: suffix of the image name
   #
@@ -392,7 +390,7 @@ RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 EOF
 
-  echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
+  echo '*/* noconcurrent'           >> ./etc/portage/package.env/noconcurrent
 
   if [[ "$libressl" = "y" ]]; then
     # will be activated after GCC update
@@ -402,6 +400,16 @@ EOF
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 >=dev-qt/qtnetwork-5.11.1 -ssl
 EOF
+
+    echo 'dev-lang/python -bluetooth' >> ./etc/portage/package.use/python
+  fi
+
+  if [[ "profile" =~ '/desktop/' ]]; then
+    # spidermonkey and polkit need that
+    #
+    echo 'dev-lang/python sqlite'   >> ./etc/portage/package.use/python
+  else
+    echo 'media-fonts/encodings -X' >> ./etc/portage/package.use/encodings
   fi
 
   for d in package.{accept_keywords,env,mask,unmask,use}

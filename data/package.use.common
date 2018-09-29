@@ -19,30 +19,3 @@ net-misc/wget             ssl
 # https://bugs.gentoo.org/show_bug.cgi?id=624338
 #
 dev-java/icedtea-bin      -multilib
-
-# happens too often:
-#
-#(sys-libs/gpm-1.20.7-r2:0/0::gentoo, ebuild scheduled for merge) depends on
-# (sys-libs/ncurses-6.1-r2:0/6::gentoo, ebuild scheduled for merge) (buildtime_slot_op)
-#  (sys-libs/gpm-1.20.7-r2:0/0::gentoo, ebuild scheduled for merge) (buildtime)
-#
-sys-libs/ncurses          -gpm
-
-# happens during fetch of LibreSSL:
-#
-#(net-wireless/bluez-5.50:0/3::gentoo, ebuild scheduled for merge) depends on
-# (sys-apps/dbus-1.12.8:0/0::gentoo, ebuild scheduled for merge) (buildtime_slot_op)
-#  (x11-libs/libX11-1.6.5-r1:0/0::gentoo, ebuild scheduled for merge) (buildtime)
-#   (x11-libs/libxcb-1.13:0/1.12::gentoo, ebuild scheduled for merge) (buildtime)
-#    (dev-lang/python-3.6.5-r1:3.6/3.6m::gentoo, ebuild scheduled for merge) (buildtime)
-#     (net-wireless/bluez-5.50:0/3::gentoo, ebuild scheduled for merge) (buildtime)
-#
-dev-lang/python           -bluetooth
-
-# The following USE changes are necessary to proceed:
-# (see "package.use" in the portage(5) man page for more details)
-# required by dev-lang/spidermonkey-52.9.1_pre1::gentoo
-# required by sys-auth/polkit-0.115::gentoo
-# required by gnome-extra/polkit-gnome-0.105-r1::gentoo
-#
-dev-lang/python sqlite
