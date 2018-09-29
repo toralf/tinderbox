@@ -502,7 +502,7 @@ EOF
   #
   if [[ "$libressl" = "y" ]]; then
     # @preserved-rebuild will be scheduled by the unmerge of openssl
-    # and will be added before "%emerge @preserved-rebuild" which must not fail eventually
+    # and will be added before "%emerge @preserved-rebuild" (which itself must not fail therefore)
     #
     cat << EOF >> ${bl}.1st
 %emerge @preserved-rebuild
@@ -512,7 +512,7 @@ EOF
 EOF
   fi
 
-  # at least systemd and virtualbox needs kernel sources and would fail for @preserved-rebuild otherwise
+  # at least systemd and virtualbox needs kernel sources and would fail in @preserved-rebuild otherwise
   #
   # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
   #
@@ -521,11 +521,11 @@ EOF
   # upgrade GCC first
   #   %...  : bail out if that fails
   #   no --deep, that would result effectively in @system
-  #   avoid upgrading current stable slot, if a new major unstable version is available
+  #   avoid upgrading of the current stable slot, if a new major unstable version is visible
   #
   echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc )" >> ${bl}.1st
 
-  # the stage4 of systemd did this already
+  # the stage4 of a systemd ISO image got this already
   #
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> ${bl}.1st
@@ -694,7 +694,7 @@ do
         useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
         features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
-        if [[ -f /etc/portage/package.use/00libressl ]]; then
+        if [[ -f $origin/etc/portage/package.use/00libressl ]]; then
           libressl="y"
         else
           libressl="n"
