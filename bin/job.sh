@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # set -x
 
@@ -533,23 +533,25 @@ function SearchForBlocker() {
     return 0
   fi
 
+  # skip comments and bug id lines
+  #
   while read pattern
   do
     grep -q -E -e "$pattern" $issuedir/title
     if [[ $? -eq 0 ]]; then
-      # no grep -E here, instead -F
+      # no grep -E here, use -F, the BLOCKER file must not contain something like '\-'
       #
-      block="-b $(grep -m 1 -B 1 -F "$pattern" /tmp/tb/data/BLOCKER | head -n 1)"
+      block="-b "$( grep -m 1 -B 1 -F "${pattern}" /tmp/tb/data/BLOCKER | head -n 1 )
       break
     fi
-  done < <(grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER)     # skip comments and bug id lines
+  done < <(grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER)
 }
 
 
 # put  b.g.o. findings+links into the email body
 #
 function SearchForAnAlreadyFiledBug() {
-  bsi=$issuedir/bugz_search_items     # easier handling later by putting this into a file
+  bsi=$issuedir/bugz_search_items     # consider the title as a set of patterns separated by spaces
   cp $issuedir/title $bsi
 
   # get away line numbers, certain special terms and characters
