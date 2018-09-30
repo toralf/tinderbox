@@ -39,15 +39,14 @@ if [[ $age -lt $1 ]]; then
   exit 3
 fi
 
-# kick off the oldest image if there's one
+# kick off the oldest image if its age is greater than N days
+# otherwise stop
 #
 oimg=$( ls -1td ~/run/* 2>/dev/null | tail -n 1 | xargs -n 1 basename 2>/dev/null )
 if [[ -e "${oimg}" ]]; then
-  # bail out if its age is below N days
-  #
   let "age = $(date +%s) - $(stat -c%Y ~/run/${oimg})"
   let "age = $age / 86400"
-  if [[ $age -lt 8 ]]; then
+  if [[ $age -lt 11 ]]; then
     exit 4
   fi
 
