@@ -439,11 +439,10 @@ EOF
 }
 
 
-# configure DNS and vim (eg.: avoid interactive question)
+# use local DNS resolver
+# avoid interactive question in vim
 #
 function CompileMiscFiles()  {
-  # resolve hostname to "127.0.0.1" or "::1" respectively
-  #
   cat <<EOF >> ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
