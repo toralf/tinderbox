@@ -1150,9 +1150,9 @@ function WorkOnTask() {
   #
   if [[ $task = "@system" || $task = "@world" || $task = "@preserved-rebuild" ]]; then
     if [[ $task = "@system" ]]; then
-      opts="--update --newuse --changed-use --deep --changed-deps=y"
+      opts="--update --newuse --changed-use --deep --exclude sys-kernel/vanilla-sources --changed-deps=y"
     elif [[ $task = "@world" ]]; then
-      opts="--update --newuse --changed-use --deep"
+      opts="--update --newuse --changed-use --deep --exclude sys-kernel/vanilla-sources"
     else
       opts=""
     fi
