@@ -529,6 +529,10 @@ function ClassifyIssue() {
 #
 function SearchForBlocker() {
   block=""
+  if [[ ! -s $issuedir/title ]]; then
+    return 0
+  fi
+
   while read pattern
   do
     grep -q -E -e "$pattern" $issuedir/title
