@@ -461,6 +461,11 @@ set expandtab
 let g:session_autosave = 'no'
 autocmd BufEnter *.txt set textwidth=0
 EOF
+
+  # from leio via IRC
+  #
+  echo 'emerge -C dev-util/glib-utils' > ./tmp/pretask.sh
+  chmod a+x ./tmp/pretask.sh
 }
 
 
