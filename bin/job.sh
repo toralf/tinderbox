@@ -662,6 +662,14 @@ function CompileIssueMail() {
   cp $issuedir/issue $issuedir/body
   AddWhoamiToIssue
 
+  if [[ -n "$block" ]]; then
+    cat <<EOF >> $issuedir/issue
+
+  Please see the tracker bug for details.
+
+EOF
+  fi
+
   AddMetainfoToBody
 
   # report languages and compilers
