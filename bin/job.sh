@@ -514,10 +514,6 @@ function ClassifyIssue() {
             -e 's/; did you mean .* \?$//g'     \
             $issuedir/title
   fi
-
-  if [[ "$keyword" = "stable" ]]; then
-    echo -e "\n=== This is an issue at stable maybe due to gcc-7 ===\n" >> $issuedir/issue
-  fi
 }
 
 
