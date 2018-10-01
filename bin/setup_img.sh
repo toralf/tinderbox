@@ -404,7 +404,7 @@ EOF
     echo 'dev-lang/python -bluetooth' >> ./etc/portage/package.use/python
   fi
 
-  if [[ "profile" =~ '/desktop/' ]]; then
+  if [[ "${profile}" =~ '/desktop/' ]]; then
     # spidermonkey and polkit need that
     #
     echo 'dev-lang/python sqlite'   >> ./etc/portage/package.use/python
