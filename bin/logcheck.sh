@@ -18,12 +18,20 @@ f=/tmp/$(basename $0).out
 while :
 do
   if [[ ! -f $f ]]; then
-    if [[ -n "$(ls ~/logs/)" && "$(wc -c ~/logs/* 2>/dev/null | tail -n 1 | awk ' { print $1 } ')" != "0" ]]; then
-      ls -l ~/logs/* >> $f
-      head ~/logs/*  >> $f
-      echo -e "\n\n\nto re-activate this test again, do:\n\n   truncate -s 0 ~/logs/*; rm -f $f\n" >> $f
+    if [[ -n "$(ls ~/logs/)" ]]; then
+      if [[ "$(wc -c ~/logs/* 2>/dev/null | tail -n 1 | awk ' { print $1 } ')" != "0" ]]; then
+        (
+          ls -l ~/logs/*
+          echo
+          head ~/logs/*
+          echo
+          ls -l ~/run/*/tmp/mail.log
 
-      cat $f | mail -s "logs are non-empty" $mailto
+          echo -e "\n\n\nto re-activate this test again, do:\n\n   truncate -s 0 ~/logs/*; rm -f $f\n"
+        ) >> $f
+
+        cat $f | mail -s "logs are non-empty" $mailto
+      fi
     fi
   fi
 
