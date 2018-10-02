@@ -281,6 +281,43 @@ EOF
 }
 
 
+# helper of GotAnIssue()
+# guess the failed package and logfile name
+#
+function setFailedAndShort()  {
+  failed=$(grep -m 1 -F ' * Package: ' $log | awk ' { print $3 } ')
+  if [[ -z "$failed" ]]; then
+    failed="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)"
+  fi
+
+  failedlog=$(grep -m 1 "The complete build log is located at" $log | cut -f2 -d"'" -s)
+  if [[ -z "$failedlog" ]]; then
+    failedlog=$(grep -m 1 -A 1 "', Log file:" $log | tail -n 1 | cut -f2 -d"'" -s)
+    if [[ -z "$failedlog" ]]; then
+      failedlog=$(grep -m 1 "^>>>  '" $log | cut -f2 -d"'" -s)
+      if [[ -z "$failedlog" ]]; then
+        if [[ -n "$failed" ]]; then
+          failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+        fi
+      fi
+    fi
+  fi
+
+  if [[ -z "$failed" ]]; then
+    if [[ -n "$failedlog" ]]; then
+      failed=$(basename $failedlog | cut -f1-2 -d':' -s | tr ':' '/')
+    fi
+  fi
+
+  short=$(pn2p "$failed")
+  if [[ ! -d /usr/portage/$short ]]; then
+    failed=""
+    failedlog=""
+    short=""
+  fi
+}
+
+
 # get assignee and cc for the b.g.o. report
 #
 function GetAssigneeAndCc() {
@@ -332,7 +369,7 @@ function AttachFilesToBody()  {
 
 # query b.g.o. about same/similar bug reports
 #
-function AddMetainfoToBody() {
+function AddVersionAssigneeAndCC() {
   cat << EOF >> $issuedir/body
 
 --
@@ -650,8 +687,6 @@ function CompileIssueMail() {
   #
   sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' $issuedir/title
 
-  SearchForBlocker
-
   # the upper limit is 16 KB at b.g.o.
   #
   while [[ $(wc -c < $issuedir/issue) -gt 12000 ]]
@@ -664,17 +699,17 @@ function CompileIssueMail() {
   cp $issuedir/issue $issuedir/body
   AddWhoamiToIssue
 
+  SearchForBlocker
   if [[ -n "$block" ]]; then
     cat <<EOF >> $issuedir/issue
-
   Please see the tracker bug for details.
 
 EOF
   fi
 
-  AddMetainfoToBody
+  AddVersionAssigneeAndCC
 
-  # report languages and compilers
+  # used languages and compilers
   #
   cat << EOF >> $issuedir/issue
 gcc-config -l:
@@ -697,6 +732,8 @@ EOF
   AddBugzillaData
   AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
+  # prepend failed package
+  #
   if [[ "$phase" = "test" ]]; then
     sed -i -e "s,^,$failed : [TEST] ," $issuedir/title
   else
@@ -704,47 +741,10 @@ EOF
   fi
   TrimTitle
 
-  # grant write perms to the issue artefacts to "all"
+  # grant write permissions to all artefacts
   #
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
-}
-
-
-# helper of GotAnIssue()
-# guess the failed package and logfile name
-#
-function setFailedAndShort()  {
-  failed=$(grep -m 1 -F ' * Package: ' $log | awk ' { print $3 } ')
-  if [[ -z "$failed" ]]; then
-    failed="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)"
-  fi
-
-  failedlog=$(grep -m 1 "The complete build log is located at" $log | cut -f2 -d"'" -s)
-  if [[ -z "$failedlog" ]]; then
-    failedlog=$(grep -m 1 -A 1 "', Log file:" $log | tail -n 1 | cut -f2 -d"'" -s)
-    if [[ -z "$failedlog" ]]; then
-      failedlog=$(grep -m 1 "^>>>  '" $log | cut -f2 -d"'" -s)
-      if [[ -z "$failedlog" ]]; then
-        if [[ -n "$failed" ]]; then
-          failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
-        fi
-      fi
-    fi
-  fi
-
-  if [[ -z "$failed" ]]; then
-    if [[ -n "$failedlog" ]]; then
-      failed=$(basename $failedlog | cut -f1-2 -d':' -s | tr ':' '/')
-    fi
-  fi
-
-  short=$(pn2p "$failed")
-  if [[ ! -d /usr/portage/$short ]]; then
-    failed=""
-    failedlog=""
-    short=""
-  fi
 }
 
 
@@ -855,7 +855,7 @@ function GotAnIssue()  {
 
   setFailedAndShort
 
-  # generic emerge error, not package specific
+  # emerge error or somethign went wrong before
   #
   if [[ -z "$failed" ]]; then
     return
@@ -889,7 +889,7 @@ function GotAnIssue()  {
           -e "loadable library and perl binaries are mismatched"      \
           $bak
   if [[ $? -eq 0 ]]; then
-    try_again=1   # but clean Perl before
+    try_again=1   # cleanup Perl before $task can be repeated
     cat << EOF >> $backlog
 $task
 %perl-cleaner --all
@@ -1105,7 +1105,7 @@ function CheckQA() {
         SearchForBlocker
 
         grep -A 10 "$reason" $issuedir/issue > $issuedir/body
-        AddMetainfoToBody
+        AddVersionAssigneeAndCC
 
         echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
         id=$(timeout 300 bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
