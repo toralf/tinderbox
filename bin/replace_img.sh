@@ -46,7 +46,7 @@ oimg=$( ls -1td ~/run/* 2>/dev/null | tail -n 1 | xargs -n 1 basename 2>/dev/nul
 if [[ -e "${oimg}" ]]; then
   let "age = $(date +%s) - $(stat -c%Y ~/run/${oimg})"
   let "age = $age / 86400"
-  if [[ $age -lt 11 ]]; then
+  if [[ $age -lt 12 ]]; then
     exit 4
   fi
 
