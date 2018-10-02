@@ -37,3 +37,4 @@ Error: .
   configure failed
 error: setupterm:
 bison: .* cannot open: Permission denied
+meson_options.txt:.* Option name debug is reserved.

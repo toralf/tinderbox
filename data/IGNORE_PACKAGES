@@ -63,6 +63,6 @@ www-client/google-chrome
 sci-libs/tensorflow
 sci-visualization/tensorboard
 #
-# looong build time
+# doesn't build (at a hardened host?)
 #
-dev-libs/aws-sdk-cpp
+app-xemacs/xemacs

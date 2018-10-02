@@ -18,7 +18,7 @@ yy
 error: too many arguments to function .pScreen..BlockHandler
 # libressl-support
 561854
-EVP_MD_CTX|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_
+EVP_MD_CTX|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD
 #
 520404
 QA Notice: installs into paths that should be created at runtime
@@ -55,3 +55,6 @@ invalid use of incomplete type class Q|no matching function for call to.*Q|Q.* w
 # [TRACKER] Issues with sys-libs/glibc-2.27 (directly and indirectly)
 637144
 lieee
+# [TRACKER] glib-utils
+667324
+glib.*: command not found|--fhead|--template|GLIB_.*: command not found|marshal.*command not found|glib-marshal|glib-mk.* not found
