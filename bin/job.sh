@@ -24,6 +24,7 @@ function stresc() {
     s,\x02,,g;
     s,\x03,,g;
     s,,,g;
+    s,\x0f,,g;
     print;
   '
 }
