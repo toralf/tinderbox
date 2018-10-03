@@ -36,35 +36,37 @@ fi
 let "age = $(date +%s) - $(stat -c%Y ~/run/${nimg})"
 let "age = $age / 3600"
 if [[ $age -lt $1 ]]; then
-  exit 3
+  exit 2
 fi
 
 # kick off the oldest image if its age is greater than N days
 # otherwise stop
 #
 oimg=$( ls -1td ~/run/* 2>/dev/null | tail -n 1 | xargs -n 1 basename 2>/dev/null )
-if [[ -e "${oimg}" ]]; then
-  let "age = $(date +%s) - $(stat -c%Y ~/run/${oimg})"
-  let "age = $age / 86400"
-  if [[ $age -lt 12 ]]; then
-    exit 4
-  fi
-
-  echo
-  date
-  /opt/tb/bin/stop_img.sh ${oimg}
-  # wait till the old image is stopped
-  #
-  while :
-  do
-    if [[ ! -f ~/run/${oimg}/tmp/LOCK ]]; then
-      break
-    fi
-    sleep 1
-  done
-  # delete the old image after a new one was setup
-  #
+if [[ -z "${oimg}" ]]; then
+  echo "no oldest image found, exiting..."
+  exit 3
 fi
+
+let "age = $(date +%s) - $(stat -c%Y ~/run/${oimg})"
+let "age = $age / 86400"
+if [[ $age -lt 12 ]]; then
+  exit 3
+fi
+
+echo
+date
+/opt/tb/bin/stop_img.sh ${oimg}
+# wait till the old image is stopped
+# but delete it after a new one was setup
+#
+while :
+do
+  if [[ ! -f ~/run/${oimg}/tmp/LOCK ]]; then
+    break
+  fi
+  sleep 1
+done
 
 # spin up a new image, more than 1 attempt might be needed
 #
@@ -83,7 +85,7 @@ do
   fi
 
   if [[ ${i} -gt 10 ]]; then
-    # retry hourly
+    # after x attempts retry hourly maybe the tree is broken
     #
     sleep 3600
   fi
