@@ -1,6 +1,6 @@
 # entries in the package list matching a pattern here will be skipped
 # from being emerged directly but of course those are emerged as a
-# dependency of another package
+# dependency of another package or by @system or @world
 #
 # this file MUST NOT have empty lines (except the last one)
 #

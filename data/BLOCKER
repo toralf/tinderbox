@@ -57,4 +57,4 @@ invalid use of incomplete type class Q|no matching function for call to.*Q|Q.* w
 lieee
 # [TRACKER] glib-utils
 667324
-glib.*: command not found|--fhead|--template|GLIB_.*: command not found|marshal.*command not found|glib-marshal|glib-mk.* not found
+glib.*: command not found|--fhead|--template|--header|GLIB_.*: command not found|marshal.*command not found|glib-marshal|glib-mk.* not found|gconfmarshal.list: Permission denied
