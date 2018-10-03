@@ -393,7 +393,7 @@ EOF
   echo '*/* noconcurrent'           >> ./etc/portage/package.env/noconcurrent
 
   if [[ "$libressl" = "y" ]]; then
-    # will be activated after GCC update
+    # will be moved to its final destination after GCC update
     #
     cat << EOF > ./tmp/00libressl
 */*               libressl -gnutls -openssl
@@ -405,10 +405,12 @@ EOF
   fi
 
   if [[ "${profile}" =~ '/desktop/' ]]; then
-    # spidermonkey and polkit need that
+    # needed eg. by spidermonkey and polkit
     #
     echo 'dev-lang/python sqlite'   >> ./etc/portage/package.use/python
   else
+    # would pull in X otherwise in a non-desktop profile
+    #
     echo 'media-fonts/encodings -X' >> ./etc/portage/package.use/encodings
   fi
 
@@ -480,20 +482,24 @@ function CreateBacklog()  {
   chmod ug+w    ${bl}{,.1st,.upd}
   chown tinderbox:portage ${bl}{,.1st,.upd}
 
+  # all packages in a randomized order
+  #
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> ${bl}
 
+  # feed http://www.portagefilelist.de
+  #
   echo "app-portage/pfl" >> ${bl}.1st
 
   if [[ -e $origin ]]; then
-    # no replay of @sets or %commands, just of the tasks
-    # we intentionally don't want to replay `qlist -ICv`
+    # no replay of @sets or %commands
+    # a replay of 'qlist -ICv' is intentionally not wanted
     #
     echo "INFO finished replay of task history of $origin"    >> ${bl}.1st
     grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> ${bl}.1st
     echo "INFO starting replay of task history of $origin"    >> ${bl}.1st
   fi
 
-  # last step: update @system and @world
+  # update @system and @world
   #
   cat << EOF >> ${bl}.1st
 @world
@@ -543,7 +549,7 @@ EOF
     echo "%systemd-machine-id-setup" >> ${bl}.1st
   fi
 
-  # sometimes Python is updated (as dep of a newer portage) during setup
+  # needed if Python is updated (eg. as dep of a newer portage) during setup
   #
   echo "%eselect python update" >> ${bl}.1st
 }
