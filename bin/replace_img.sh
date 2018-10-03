@@ -2,14 +2,8 @@
 #
 # set -x
 
-# replace an tinderbox image with a new one
+# replace the oldest tinderbox image with a new one
 #
-# works together with a crontab entry like:
-#
-# # spin up a new tinderbox image after N hours
-# #
-# 1 * * * * cd ~/img2; /opt/tb/bin/replace_img.sh 24
-
 
 if [[ $# -ne 1 ]]; then
   echo "missing mandatory parameter1: <hours>, exiting..."
@@ -23,24 +17,21 @@ if [[ ${n} -ne 1 ]]; then
   exit 1
 fi
 
-# get the newest image
+# bail out if the age of the youngest image is below $1 hours
 #
-nimg=$( ls -1td ~/run/* 2>/dev/null | head -n 1 | xargs -n 1 basename 2>/dev/null )
-if [[ -z "${nimg}" ]]; then
+yimg=$( ls -1td ~/run/* 2>/dev/null | head -n 1 | xargs -n 1 basename 2>/dev/null )
+if [[ -z "${yimg}" ]]; then
   echo "no newest image found, exiting..."
   exit 2
 fi
 
-# bail out if its age is below $1 hours
-#
-let "age = $(date +%s) - $(stat -c%Y ~/run/${nimg})"
+let "age = $(date +%s) - $(stat -c%Y ~/run/${yimg})"
 let "age = $age / 3600"
 if [[ $age -lt $1 ]]; then
   exit 2
 fi
 
 # kick off the oldest image if its age is greater than N days
-# otherwise stop
 #
 oimg=$( ls -1td ~/run/* 2>/dev/null | tail -n 1 | xargs -n 1 basename 2>/dev/null )
 if [[ -z "${oimg}" ]]; then
@@ -54,12 +45,11 @@ if [[ $age -lt 12 ]]; then
   exit 3
 fi
 
+# wait till the old image is stopped but delete it after a new one was setup
+#
 echo
 date
 /opt/tb/bin/stop_img.sh ${oimg}
-# wait till the old image is stopped
-# but delete it after a new one was setup
-#
 while :
 do
   if [[ ! -f ~/run/${oimg}/tmp/LOCK ]]; then
@@ -69,6 +59,7 @@ do
 done
 
 # spin up a new image, more than 1 attempt might be needed
+# after x attempts (maybe due to a broken tree) retry just hourly
 #
 i=0
 tmpfile=$(mktemp /tmp/$(basename $0).XXXXXX)
@@ -85,19 +76,15 @@ do
   fi
 
   if [[ ${i} -gt 10 ]]; then
-    # after x attempts retry hourly maybe the tree is broken
-    #
     sleep 3600
   fi
 done
 cat ${tmpfile}
 rm -f ${tmpfile}
 
-if [[ -e "${oimg}" ]]; then
-  rm ~/run/${oimg} ~/logs/${oimg}.log
-  date
-  echo "deleted ${oimg}"
-fi
+rm ~/run/${oimg} ~/logs/${oimg}.log
+date
+echo "deleted ${oimg}"
 
 echo
 date
