@@ -23,7 +23,7 @@ function stresc() {
     s,\x01,,g;
     s,\x02,,g;
     s,\x03,,g;
-    s,,,g;
+    s,\x1b,,g;
     s,\x0f,,g;
     print;
   '
