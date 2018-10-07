@@ -77,6 +77,7 @@ The script *update_backlog.sh* feeds repository updates into the file *backlog.u
 Create the user *tinderbox*:
 
     useradd -m tinderbox
+    usermod -a -G portage tinderbox
 
 Run in */home/tinderbox*:
 
