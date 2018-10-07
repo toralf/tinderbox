@@ -53,7 +53,11 @@ function umountall()  {
 
 
 # CGroup based limitations to avoid oom-killer eg. for dev-perl/GD
-#
+# needs:
+# CONFIG_MEMCG=y
+# CONFIG_MEMCG_SWAP=y
+# CONFIG_MEMCG_SWAP_ENABLED=y
+
 function cgroup() {
   sysfsdir=/sys/fs/cgroup/memory/tinderbox-$(basename $mnt)
   if [[ ! -d $sysfsdir ]]; then
@@ -110,17 +114,17 @@ chown tinderbox:tinderbox $lock
 grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
 
 mountall || exit 4
-cgroup || exit 4
-
-if [[ $# -gt 0 ]]; then
-  # do "su - root" to double ensure to use root's chroot environment
-  #
-  /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
-else
-  /usr/bin/chroot $mnt /bin/bash -l
+cgroup
+if [[ $? -eq 0 ]]; then
+  if [[ $# -gt 0 ]]; then
+    # do "su - root" to double ensure to use root's chroot environment
+    #
+    /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
+  else
+    /usr/bin/chroot $mnt /bin/bash -l
+  fi
+  rc1=$?
 fi
-rc1=$?
-
 umountall
 rc2=$?
 
