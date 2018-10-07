@@ -66,7 +66,7 @@ function Overall() {
     fi
   done
   inrun=$(echo $images | wc -w)
-  overall=$(ls -1d ~/img?/* | wc -w)
+  overall=$(ls -1d ~/img?/* 2>/dev/null | wc -w)
 
   echo "compl fail  days backlog  upd  1st status  $running#$inrun images running ($overall at all)"
 
@@ -77,7 +77,7 @@ function Overall() {
     day=0
 
     log=$i/var/log/emerge.log
-    if [[ -f $log ]]; then
+    if [[ -r $log ]]; then
       compl=$(grep -c '::: completed emerge' $log)
       t1=$(head -n 1 $log | cut -c1-10)
       t2=$(date +%s)
