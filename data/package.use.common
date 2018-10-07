@@ -19,3 +19,9 @@ net-misc/wget             ssl
 # https://bugs.gentoo.org/show_bug.cgi?id=624338
 #
 dev-java/icedtea-bin      -multilib
+
+# too much hassle during setup
+#
+app-crypt/mit-krb5        -keyutils
+dev-lang/python           -bluetooth sqlite
+sys-libs/ncurses          -gpm

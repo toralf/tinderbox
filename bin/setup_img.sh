@@ -195,7 +195,7 @@ function UnpackStage3()  {
   # gpg --edit-key 0x9E6438C817072058
   # and set "trust" to 5 (==ultimately)
   #
-  # maybe: do the same for 0xBB572E0E2D182910
+  # do the same for 0xBB572E0E2D182910
   #
   gpg --quiet --verify $f.DIGESTS.asc || exit 4
   echo
@@ -400,18 +400,6 @@ EOF
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 >=dev-qt/qtnetwork-5.11.1 -ssl
 EOF
-
-    echo 'dev-lang/python -bluetooth' >> ./etc/portage/package.use/python
-  fi
-
-  if [[ "${profile}" =~ '/desktop/' ]]; then
-    # needed eg. by spidermonkey and polkit
-    #
-    echo 'dev-lang/python sqlite'   >> ./etc/portage/package.use/python
-  else
-    # would pull in X otherwise in a non-desktop profile
-    #
-    echo 'media-fonts/encodings -X' >> ./etc/portage/package.use/encodings
   fi
 
   for d in package.{accept_keywords,env,mask,unmask,use}
