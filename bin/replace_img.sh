@@ -41,7 +41,7 @@ fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/${oimg})"
 let "age = $age / 86400"
-if [[ $age -lt 12 ]]; then
+if [[ $age -lt 10 ]]; then
   exit 3
 fi
 
