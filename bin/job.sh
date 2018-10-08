@@ -721,8 +721,8 @@ $(eselect ruby    list 2>/dev/null)
 $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-available-vms --nocolor )
 $(eselect java-vm list 2>/dev/null)
 
-emerge -qpv $short
-$(head -n 1 $issuedir/emerge-qpv)
+emerge -qpvO $short
+$(head -n 1 $issuedir/emerge-qpvO)
 EOF
 
   if [[ -s $issuedir/title ]]; then
@@ -870,7 +870,7 @@ function GotAnIssue()  {
 
   # do this before any /etc/portage/package.*/* file might be altered
   #
-  emerge -qpv $short &> $issuedir/emerge-qpv
+  emerge -qpvO $short &> $issuedir/emerge-qpvO
 
   ClassifyIssue
   CompileIssueMail
