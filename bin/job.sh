@@ -263,6 +263,10 @@ EOF
       rm -f $f
     )
 
+    # additional cmake files
+    #
+    cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null
+
     # provide the whole temp dir if possible
     #
     (
