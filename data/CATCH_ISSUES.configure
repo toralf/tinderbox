@@ -38,3 +38,6 @@ Error: .
 error: setupterm:
 bison: .* cannot open: Permission denied
 meson_options.txt:.* Option name debug is reserved.
+glib-mk.* not found
+glib-genmarshal needs to be installed
+\\-\\-.*: command not found

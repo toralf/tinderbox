@@ -22,6 +22,8 @@ final link failed: Nonrepresentable section on output
 ld: cannot find
 file cannot create directory:
 Not in scope:
+ld: -r and -pie may not be used together
+ld returned .* exit status
 : error:
 Parse error .
 object has no attribute
@@ -88,6 +90,7 @@ Can't locate Locale/Messages.pm in @INC
 error: expected expression before
  error: narrowing conversion of
  error: implicit declaration of
+\\-\\-.*: command not found
 .* command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
 pushd.*No such file or directory
@@ -182,8 +185,6 @@ asciidoc: Command not found
 PermissionError:
 Package .* was not found in the pkg-config search path.
 missing separator.  Stop.
-ld: -r and -pie may not be used together
-ld returned .* exit status
 is not installed
 is illegal here
 fatal error: .*: No such file or directory

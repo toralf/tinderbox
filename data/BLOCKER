@@ -18,7 +18,7 @@ yy
 error: too many arguments to function .pScreen..BlockHandler
 # libressl-support
 561854
-EVP_MD_CTX|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD
+EVP_MD_CTX|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope
 #
 520404
 QA Notice: installs into paths that should be created at runtime
@@ -57,4 +57,4 @@ invalid use of incomplete type class Q|no matching function for call to.*Q|Q.* w
 lieee
 # [TRACKER] glib-utils
 667324
-glib.*: command not found|--fhead|--template|--header|GLIB_.*: command not found|marshal.*command not found|glib-marshal|glib-mk.* not found|gconfmarshal.list: Permission denied
+glib.*: command not found|--.*: command not found|GLIB_.*: command not found|marshal.*command not found|glib-marshal|glib-mk.* not found|gconfmarshal.list: Permission denied

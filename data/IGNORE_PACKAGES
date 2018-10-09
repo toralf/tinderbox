@@ -11,6 +11,7 @@ dev-embedded/
 java-virtuals/
 perl-core/
 sec-policy/
+sys-firmware/
 sys-kernel/
 virtual/
 #
@@ -62,7 +63,3 @@ www-client/google-chrome
 #
 sci-libs/tensorflow
 sci-visualization/tensorboard
-#
-# doesn't build (at a hardened host?)
-#
-app-xemacs/xemacs
