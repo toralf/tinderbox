@@ -20,7 +20,7 @@ if [[ $# -gt 0 ]]; then
   #
   /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
 else
-  /usr/bin/chroot $mnt /bin/bash -l
+  /usr/bin/chroot $mnt /bin/bash -l -c "su - root"
 fi
 
 exit $?
