@@ -94,7 +94,7 @@ if [[ ! -d $mnt ]]; then
   exit 1
 fi
 
-# remaining options is treated as commands to be run within chroot
+# remaining options is treated as command(s) to be run within chroot
 #
 shift
 
@@ -117,11 +117,11 @@ mountall || exit 4
 cgroup
 if [[ $? -eq 0 ]]; then
   if [[ $# -gt 0 ]]; then
-    # do "su - root" to double ensure to use root's chroot environment
+    # do "su - root" to use root's tinderbox image environment
     #
     /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
   else
-    /usr/bin/chroot $mnt /bin/bash -l
+    /usr/bin/chroot $mnt /bin/bash -l -c "su - root"
   fi
   rc1=$?
 fi
