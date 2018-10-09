@@ -696,9 +696,9 @@ function CompileIssueMail() {
   #
   sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' $issuedir/title
 
-  # the upper limit is 16 KB at b.g.o.
+  # shrink too long #comment0 (==issue), FWIWthe upper limit at b.g.o. is 16 KB
   #
-  while [[ $(wc -c < $issuedir/issue) -gt 12000 ]]
+  while [[ $(wc -c < $issuedir/issue) -gt 4000 ]]
   do
     sed -i '1d' $issuedir/issue
   done
