@@ -15,9 +15,9 @@ fi
 #
 shift
 
+# do "su - root" to use root's tinderbox image environment
+#
 if [[ $# -gt 0 ]]; then
-  # do "su - root" to double ensure to use the chroot image environment
-  #
   /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
 else
   /usr/bin/chroot $mnt /bin/bash -l -c "su - root"

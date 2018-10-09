@@ -116,9 +116,9 @@ grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
 mountall || exit 4
 cgroup
 if [[ $? -eq 0 ]]; then
+  # do "su - root" to use root's tinderbox image environment
+  #
   if [[ $# -gt 0 ]]; then
-    # do "su - root" to use root's tinderbox image environment
-    #
     /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
   else
     /usr/bin/chroot $mnt /bin/bash -l -c "su - root"
