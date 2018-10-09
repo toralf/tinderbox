@@ -586,12 +586,14 @@ source /etc/profile
 
 emerge mail-mta/ssmtp || exit 7
 emerge mail-client/mailx || exit 7
-# contains credentials
+
+# contains credentials for mail-mta/ssmtp
 #
 (cd /etc/ssmtp && ln -sf ../../tmp/tb/sdata/ssmtp.conf) || exit 7
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 8
-# contains credentials
+
+# contains credentials for www-client/pybugz
 #
 (cd /root && ln -s ../tmp/tb/sdata/.bugzrc) || exit 8
 
@@ -612,7 +614,7 @@ EOF
 }
 
 
-# MTA, bugz etc are needed
+# MTA, bugz et. al
 #
 function EmergeMandatoryPackages() {
   cd /home/tinderbox/
@@ -633,8 +635,7 @@ function EmergeMandatoryPackages() {
       cat $mnt/tmp/setup.log
     fi
 
-    # put out expected next commands for an easy copy+paste,
-    # assume that the caller is still in the same directory
+    # create commands, easy to copy+paste for ceonvenience
     #
     echo "
       view $mnt/tmp/dryrun.log
@@ -659,7 +660,7 @@ function EmergeMandatoryPackages() {
 #############################################################################
 echo " $0 started"
 if [[ $# -gt 0 ]]; then
-  echo " additional args: '${@}'"
+  echo " additional args given: '${@}'"
 fi
 echo
 
@@ -683,7 +684,7 @@ do
         ;;
     m)  multilib="$OPTARG"
         ;;
-    o)  # derive image properties from an older one
+    o)  # derive certian image configuration(s) from another one
         #
         origin="$OPTARG"
         if [[ ! -e $origin ]]; then
@@ -724,7 +725,7 @@ do
         ;;
     t)  testfeature="$OPTARG"
         ;;
-    u)  # USE flags are
+    u)  # USE flags are either
         # - defined in a file as USE="..."
         # - or listed in a plain file
         # - or given at the command line
@@ -753,7 +754,7 @@ if [[ $? -eq 0 ]]; then
   exit 2
 fi
 
-# append the timestamp onto the name
+# append the timestamp onto the image name
 #
 name="${name}_$(date +%Y%m%d-%H%M%S)"
 mkdir $name || exit 3
