@@ -590,9 +590,13 @@ function SearchForBlocker() {
 }
 
 
-# put  b.g.o. findings+links into the email body
+# enrich email body by b.g.o. findings+links
 #
 function SearchForAnAlreadyFiledBug() {
+  if [[ ! -s $issuedir/title ]]; then
+    return
+  fi
+
   bsi=$issuedir/bugz_search_items     # consider the title as a set of patterns separated by spaces
   cp $issuedir/title $bsi
 
