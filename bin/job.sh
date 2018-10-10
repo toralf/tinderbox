@@ -1322,7 +1322,7 @@ export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
 # if task file is non-empty (eg. due to a reboot or Finish() with rc != 0)
-# then retry the previous task
+# then retry it
 #
 if [[ -s $tsk ]]; then
   cat $tsk >> $backlog
@@ -1343,8 +1343,8 @@ do
 
   setNextTask
 
-  # it is not necessary that emerge even starts (b/c deps might not be fullfilled)
-  # the emerge attempt itself is sufficient to keep $task in its history file
+  # the attempt itself is sufficient to keep the task in its history
+  # this is *not* the emerge-history.txt file which is attached onto a bug
   #
   echo "$task" | tee -a $tsk.history > $tsk
   chmod g+w $tsk
@@ -1353,7 +1353,7 @@ do
   WorkOnTask
 
   # this line is not reached if Finish() is called before
-  # therefore $tsk is intentionally retried at next start
+  # therefore $tsk is (intentionally) retried at next start
   #
   rm $tsk
 
