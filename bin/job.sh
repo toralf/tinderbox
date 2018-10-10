@@ -1348,10 +1348,12 @@ do
   #
   rm $tsk
 
-  # catch a loop of @preserved-rebuild but just after first @world
+  # catch a loop but only after first @world call
   #
-  if [[ "$task" = "@preserved-rebuild" && -f /tmp/@world.history && $(tail -n 20 $tsk.history | grep -c "@preserved-rebuild") -ge 10 ]]; then
-    Finish 3 "@preserved-rebuild loop detected" $tmpfile
-  fi
-
+  for p in "@preserved-rebuild" "%perl-cleaner"
+  do
+    if [[ $task =~ $p && -f /tmp/@world.history && $(tail -n 20 $tsk.history | grep -c "$p") -ge 10 ]]; then
+      Finish 3 "$p loop detected" $tmpfile
+    fi
+  done
 done
