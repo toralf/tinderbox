@@ -115,6 +115,7 @@ grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
 
 mountall || exit 4
 cgroup
+rc0=$?
 if [[ $? -eq 0 ]]; then
   # do "su - root" to use root's tinderbox image environment
   #
@@ -134,6 +135,6 @@ else
   echo "rc2=$rc2" >> $lock
 fi
 
-let "rc = $rc1 + $rc2"
+let "rc = $rc0 + $rc1 + $rc2"
 
 exit $rc
