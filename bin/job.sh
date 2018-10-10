@@ -554,6 +554,7 @@ function ClassifyIssue() {
             -e 's/ \.\.\.*\./ /g'               \
             -e 's/___*/_/g'                     \
             -e 's/; did you mean .* \?$//g'     \
+            -e 's/(@INC contains:.*)/.../g'     \
             $issuedir/title
   fi
 }
@@ -712,6 +713,14 @@ function CompileIssueMail() {
   if [[ -n "$block" ]]; then
     cat <<EOF >> $issuedir/issue
   Please see the tracker bug for details.
+
+EOF
+  fi
+
+  grep -q -e "Can't locate .* in @INC" ${bak}
+  if [[ $? -eq 0 ]]; then
+    cat <<EOF >> $issuedir/issue
+  Please see https://wiki.gentoo.org/wiki/Project:Perl/Dot-In-INC-Removal#Counter_Balance
 
 EOF
   fi
@@ -893,7 +902,7 @@ function GotAnIssue()  {
   # https://bugs.gentoo.org/640866
   # https://bugs.gentoo.org/646698
   #
-  grep -q -e "Can't locate .* in @INC"                                \
+  grep -q \
           -e "configure: error: perl module Locale::gettext required" \
           -e "loadable library and perl binaries are mismatched"      \
           $bak
