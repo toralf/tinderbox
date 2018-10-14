@@ -5,8 +5,8 @@
 # replace the oldest tinderbox image with a new one
 #
 
-if [[ $# -ne 1 ]]; then
-  echo "missing mandatory parameter1: <hours>, exiting..."
+if [[ $# -ne 2 ]]; then
+  echo "help: '$0 <hour/s> day/s', exiting..."
   exit 1
 fi
 
@@ -41,7 +41,7 @@ fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/${oimg})"
 let "age = $age / 86400"
-if [[ $age -lt 10 ]]; then
+if [[ $age -lt $2 ]]; then
   exit 3
 fi
 
