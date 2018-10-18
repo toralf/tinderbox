@@ -46,7 +46,15 @@ function SetOptions() {
 
   # choose one of 17.0/*
   #
-  profile=$(eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.0" | cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' | sort --random-sort | head -n 1)
+  profile=$(
+    eselect profile list                                    |\
+    awk ' { print $2 } '                                    |\
+    grep -e "^default/linux/amd64/17.0"                     |\
+    cut -f4- -d'/' -s                                       |\
+    grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' |\
+    sort --random-sort                                      |\
+    head -n 1
+  )
 
   # be more restrict wrt sandbox issues
   #
