@@ -1359,8 +1359,10 @@ do
   #
   for p in "@preserved-rebuild" "%perl-cleaner"
   do
-    if [[ $task =~ $p && -f /tmp/@world.history && $(tail -n 20 $tsk.history | grep -c "$p") -ge 10 ]]; then
-      Finish 3 "$p loop detected" $tmpfile
+    # -eq <number>: send the email only once
+    #
+    if [[ $task =~ $p && -f /tmp/@world.history && $(tail -n 10 $tsk.history | grep -c "$p") -eq 5 ]]; then
+      Mail "$p loop detected"
     fi
   done
 done
