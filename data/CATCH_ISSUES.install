@@ -29,3 +29,4 @@ java.lang.NoSuchMethodError:
  : No such file or directory
 Failed to set XATTR_PAX markings
 Fatal error: .
+glib-mkenums: command not found

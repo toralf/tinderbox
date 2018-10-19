@@ -86,10 +86,12 @@ error adding symbols:
 pdflatex failed
 An exception has occurred in the compiler
 error in .* command
-Can't locate Locale/Messages.pm in @INC
+Can't locate .* in @INC
 error: expected expression before
  error: narrowing conversion of
  error: implicit declaration of
+ failed: .*glib-genmarshal
+error: signals-marshal.h: No such file or directory
 \\-\\-.*: command not found
 .* command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
@@ -212,3 +214,4 @@ Could not find servlet-api.jar in
 Fatal Error:
  relocation target .* not defined
 tput: unknown terminal
+marshal.list: Permission denied

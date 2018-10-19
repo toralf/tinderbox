@@ -35,22 +35,11 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# never-ending loop of "www-misc/vdradmin-am; %perl-cleaner --all"
-#
-www-misc/vdradmin-am
-x11-terms/rxvt-unicode
-x11-misc/urxvt-font-size
-#
 # too many old bugs open
 #
 sys-cluster/
 sys-fabric/ibutils
 x11-drivers/nvidia-drivers
-#
-# causes @preserved-rebuild infinite loop
-#
-dev-libs/Ice
-dev-util/goland
 #
 # awefully long build time (the first 2 inherit a bundled copy of chromium)
 #
@@ -63,3 +52,15 @@ www-client/google-chrome
 #
 sci-libs/tensorflow
 sci-visualization/tensorboard
+#
+# breaks @world or @preserved-rebuild too often
+#
+dev-perl/ZMQ
+dev-python/django
+dev-python/twisted
+dev-python/pycrypto
+net-libs/zmqpp
+#
+# deps on older clang etc.
+#
+dev-util/include-what-you-use
