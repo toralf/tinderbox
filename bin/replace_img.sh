@@ -67,6 +67,8 @@ while :
 do
   let "i = ${i} + 1"
 
+  echo
+  date
   sudo /opt/tb/bin/setup_img.sh &> ${tmpfile}
   rc=$?
   if [[ ${rc} -eq 0 ]]; then
