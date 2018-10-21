@@ -1154,9 +1154,6 @@ function RunAndCheck() {
   CheckQA
 
   if [[ $rc -ne 0 ]]; then
-    if [[ $rc -gt 127 ]]; then
-      Finish 1 "KILLED by a signal rc=$rc"
-    fi
     GotAnIssue
   fi
 
