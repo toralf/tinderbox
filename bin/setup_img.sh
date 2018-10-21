@@ -406,7 +406,6 @@ EOF
     cat << EOF > ./tmp/00libressl
 */*               libressl -gnutls -openssl
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
->=dev-qt/qtnetwork-5.11.1 -ssl
 EOF
   fi
 
