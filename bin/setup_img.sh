@@ -726,7 +726,7 @@ do
           multilib="y"
         fi
         ;;
-    p)  profile="$(echo $OPTARG | sed -e 's,^/*,,' -e 's,/*$,,')"  # trim leading + trailing "/"
+    p)  profile="$(echo $OPTARG | cut -f4- -d'/' -s)" # OPTARG is eg.: default/linux/amd64/17.0/desktop/gnome
         ;;
     s)  suffix="$OPTARG"
         ;;
