@@ -481,10 +481,6 @@ function CreateBacklog()  {
   #
   qsearch --all --nocolor --name-only --quiet | sort --random-sort >> ${bl}
 
-  # feed http://www.portagefilelist.de
-  #
-  echo "app-portage/pfl" >> ${bl}.1st
-
   if [[ -e $origin ]]; then
     # no replay of @sets or %commands
     # a replay of 'qlist -ICv' is intentionally not wanted
