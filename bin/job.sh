@@ -1365,7 +1365,7 @@ do
     # -eq <number>: send the email only once
     #
     if [[ $task =~ $p && -f /tmp/@world.history && $(tail -n 10 $tsk.history | grep -c "$p") -eq 5 ]]; then
-      Mail "$p loop detected"
+      Mail "$p loop detected" $bak
     fi
   done
 done
