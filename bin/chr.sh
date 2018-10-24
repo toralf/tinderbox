@@ -114,18 +114,20 @@ chown tinderbox:tinderbox $lock
 grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
 
 mountall || exit 4
+
+# this is a nice to have feature
+#
 cgroup
-rc0=$?
-if [[ $? -eq 0 ]]; then
-  # do "su - root" to use root's tinderbox image environment
-  #
-  if [[ $# -gt 0 ]]; then
-    /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
-  else
-    /usr/bin/chroot $mnt /bin/bash -l -c "su - root"
-  fi
-  rc1=$?
+
+# do "su - root" to use root's tinderbox image environment
+#
+if [[ $# -gt 0 ]]; then
+  /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
+else
+  /usr/bin/chroot $mnt /bin/bash -l -c "su - root"
 fi
+rc1=$?
+
 umountall
 rc2=$?
 
