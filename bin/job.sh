@@ -857,20 +857,6 @@ function GotAnIssue()  {
     Finish 1 "KILLED"
   fi
 
-  # the shared repository solution is racy: https://bugs.gentoo.org/639374
-  #
-  grep -q -e 'AssertionError: ebuild not found for' \
-          -e 'portage.exception.FileNotFound:'      \
-          -e 'portage.exception.PortageKeyError: '  \
-          $bak
-  if [[ $? -eq 0 ]]; then
-    Mail "admin: catched a repo race" $bak
-    try_again=1
-    KeepGoing
-    sleep 60
-    return
-  fi
-
   setFailedAndShort
 
   # emerge error or somethign went wrong before
@@ -1153,7 +1139,24 @@ function RunAndCheck() {
   PostEmerge
   CheckQA
 
-  if [[ $rc -ne 0 ]]; then
+  if [[ $rc -ge 128 ]]; then
+    let signal="$rc - 128"
+    Mail "killed by signal $signal" $bak
+
+    # the shared repository solution is racy: https://bugs.gentoo.org/639374
+    #
+    grep -q -e 'AssertionError: ebuild not found for' \
+            -e 'portage.exception.FileNotFound:'      \
+            -e 'portage.exception.PortageKeyError: '  \
+            $bak
+    if [[ $? -eq 0 ]]; then
+      Mail "admin: catched a repo race" $bak
+      try_again=1
+      KeepGoing
+      sleep 60
+    fi
+
+  elif [[ $rc -ne 0 ]]; then
     GotAnIssue
   fi
 
@@ -1164,7 +1167,10 @@ function RunAndCheck() {
 # this is the heart of the tinderbox
 #
 function WorkOnTask() {
-  try_again=0   # 1 with default environment values (if applicable)
+  try_again=0   # 1 usually means to retry with eg. "notest"
+  failed=""
+  failedlog=""
+  short=""
 
   # image update
   #
