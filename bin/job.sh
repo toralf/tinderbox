@@ -576,18 +576,21 @@ function SearchForBlocker() {
     return 0
   fi
 
-  # skip comments and bug id lines
+  # use < <(...) b/c $block is an outer variable
   #
-  while read pattern
+  while read line
   do
-    grep -q -E -e "$pattern" $issuedir/title
+    if [[ $line =~ ^[0-9].*$ ]]; then
+      bugno=$line
+      continue
+    fi
+
+    grep -q -E -e "$line" $issuedir/title
     if [[ $? -eq 0 ]]; then
-      # no grep -E here, use -F, the BLOCKER file must not contain something like '\-'
-      #
-      block="-b "$( grep -m 1 -B 1 -F "${pattern}" /tmp/tb/data/BLOCKER | head -n 1 )
+      block="-b $bugno"
       break
     fi
-  done < <(grep -v -e '^#' -e '^[1-9].*$' /tmp/tb/data/BLOCKER)
+  done < <(grep -v -e '^#' /tmp/tb/data/BLOCKER)
 }
 
 
