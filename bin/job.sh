@@ -1144,7 +1144,7 @@ function RunAndCheck() {
 
   if [[ $rc -ge 128 ]]; then
     let signal="$rc - 128"
-    Mail "killed by signal $signal" $bak
+    Mail "got signal $signal" $bak
 
     # the shared repository solution is racy: https://bugs.gentoo.org/639374
     #
