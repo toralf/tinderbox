@@ -59,6 +59,7 @@ dev-perl/ZMQ
 dev-python/django
 dev-python/twisted
 dev-python/pycrypto
+dev-util/ragel
 net-libs/zmqpp
 #
 # deps on older clang etc.

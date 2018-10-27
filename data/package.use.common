@@ -20,4 +20,5 @@ net-misc/wget             ssl
 #
 app-crypt/mit-krb5        -keyutils
 dev-lang/python           -bluetooth sqlite
+sys-fs/eudev              -introspection
 sys-libs/ncurses          -gpm

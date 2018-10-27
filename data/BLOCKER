@@ -6,10 +6,7 @@ mcs Not found|gmcs
 too few arguments to function .*DGif
 # XDG env
 567192
-XDG_xxx_DIR related
-# XDG env
-567192
-sandbox issue A: /root/
+XDG_xxx_DIR related|sandbox issue A: /root/
 # flex
 598186
 yy
@@ -18,31 +15,25 @@ yy
 error: too many arguments to function .pScreen..BlockHandler
 # libressl-support
 561854
-EVP_|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not declared in this scope|undefined reference to HMAC
+EVP_|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not declared in this scope|undefined reference to HMAC|OPENSSL_
 #
 520404
 QA Notice: installs into paths that should be created at runtime
 #
 379899
 QA Notice: dosym target omits basename:
-#
+# [TRACKER] Packages using configure.in
 530632
 This package has a configure.in file which has long been deprecated.
-# tracker
-381391
-rpc
 # [TRACKER] Packages failing with dev-util/scons and Python 3"
 635934
 SyntaxError: invalid syntax|SyntaxError: Missing parentheses in call to
 # Python 3.5 issues
 515060
 No module named setuptools
-# glibc-2.27
-#637144
-#ld: cannot find -lieee|static declaration of .* follows non-static declaration
 # attr/acl - Poly-C_atwork
 648864
-xattr.h|attr
+xattr.h
 # ffmpeg-4.0 Alexis Ballier <aballier@gentoo.org>
 653678
 FF_|CODEC_
@@ -58,3 +49,6 @@ lieee
 # [TRACKER] glib-utils
 667324
 glib.*: command not found|--.*: command not found|GLIB_.*: command not found|marshal.*command not found|glib-marshal|glib-mk.* not found|gconfmarshal.list: Permission denied|glib-genmarshal|marshal.list:
+# [TRACKER] Issues with sys-libs/glibc-2.28 (directly and indirectly)
+663916
+Please port gnulib .*.c to your platform|FILE.* has no member named _|xlocale.h: No such file or directory|conflicting declaration of C function

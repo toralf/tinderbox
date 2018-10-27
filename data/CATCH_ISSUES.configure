@@ -42,3 +42,4 @@ glib-mk.* not found
 glib-genmarshal needs to be installed
 glib-genmarshal: command not found
 \\-\\-.*: command not found
+./configure: line .*: syntax error near unexpected

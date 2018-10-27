@@ -3,6 +3,4 @@
 
 # please note that this file rules over /etc/portage/package.mask/*, especially over ./self
 
-# b-man
-#
-#~dev-libs/libressl-2.7.4
+~sys-libs/glibc-2.28
