@@ -71,7 +71,7 @@ Append package(s) to the package list in the following way:
 *STOP* can be used instead *INFO* to stop the image at that point, the following text will become the subject of an email.
 
 ### misc
-The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image. *retest.sh* is used to undo any package specific (mask) changes to portage files before it to schedules an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s).
+The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image. *retest.sh* is used to undo any package specific (mask) changes to portage files before it to schedules an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s). *replace_img.sh* stops the oldest image and spoins up a new image based on the age of the oldest and the age of the youngest image.
 
 ## installation
 Create the user *tinderbox*:
