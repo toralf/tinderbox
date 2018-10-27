@@ -1145,18 +1145,23 @@ function RunAndCheck() {
   if [[ $rc -ge 128 ]]; then
     let signal="$rc - 128"
     Mail "got signal $signal" $bak
+    try_again=1
 
-    # the shared repository solution is racy: https://bugs.gentoo.org/639374
+    # the tinderbox shared repository solution is racy and therefore calling for trouble
+    # (https://bugs.gentoo.org/639374)
     #
     grep -q -e 'AssertionError: ebuild not found for' \
             -e 'portage.exception.FileNotFound:'      \
             -e 'portage.exception.PortageKeyError: '  \
             $bak
     if [[ $? -eq 0 ]]; then
-      Mail "admin: catched a repo race" $bak
-      try_again=1
+      # repo update during @system, @world etc.
+      #
+      Mail "info: catched a repo race" $bak
       KeepGoing
-      sleep 60
+      # wait for "git pull" being finished
+      #
+      sleep 30
     fi
 
   elif [[ $rc -ne 0 ]]; then
