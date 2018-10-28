@@ -572,12 +572,14 @@ function ClassifyIssue() {
 #
 function SearchForBlocker() {
   block=""
+
   if [[ ! -s $issuedir/title ]]; then
     return 0
   fi
 
   # use < <(...) b/c $block is an outer variable
   #
+  bugno=""
   while read line
   do
     if [[ $line =~ ^[0-9].*$ ]]; then
@@ -585,12 +587,12 @@ function SearchForBlocker() {
       continue
     fi
 
-    grep -q -E -e "$line" $issuedir/title
+    grep -q -E "$line" $issuedir/title
     if [[ $? -eq 0 ]]; then
       block="-b $bugno"
       break
     fi
-  done < <(grep -v -e '^#' /tmp/tb/data/BLOCKER)
+  done < <(grep -v -e '^#' -e '^$' /tmp/tb/data/BLOCKER)
 }
 
 
