@@ -672,6 +672,11 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+if [[ $(pwd) = $HOME ]]; then
+  echo "you must not run this in the \$HOME directory"
+  exit 1
+fi
+
 SetOptions
 
 while getopts a:f:k:l:m:o:p:s:t:u: opt
