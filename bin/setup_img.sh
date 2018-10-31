@@ -67,7 +67,7 @@ function SetOptions() {
   # alternative SSL vendor: LibreSSL
   #
   libressl="n"
-  if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
     libressl="y"
   fi
 
