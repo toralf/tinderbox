@@ -16,7 +16,6 @@ must be installed to use
 Non type-variable argument
 too few arguments to function
 : redefining predefined macro
-Error 137
 Line indented less than expected
 final link failed: Nonrepresentable section on output
 ld: cannot find
@@ -157,7 +156,7 @@ gmcs: No such file or directory
 python_export called without a python implementation and EPYTHON is unset
 Discovering .* failed
 Usage: mmc
-make: .*: Command not found
+make.*Command not found
  (OTHER_FAULT)
 Errors while running
 Not supported in your configuration: ocamlopt
@@ -199,9 +198,7 @@ moc: could not find a Qt installation
 lrelease: could not exec
 loadable library and perl binaries are mismatched
 ModuleNotFoundError: No module named
-make.*Command not found
 Failed to get connection to xfconfd:
-Error .
 setup: can't find source for
 USE Flag .* not in IUSE
 :Error:
@@ -209,7 +206,8 @@ RuntimeError: maximum recursion depth exceeded while calling a Python object
 Unable to access the X Display, is $DISPLAY set properly?
 The variable KERN_DIR must be a kernel build folder
 ^fatal:
-make: .* Error
+Compiling .*.erl failed:
+Error .
 ^IOError:
 Could not find servlet-api.jar in
 .xml:.*Execute failed:
@@ -218,3 +216,4 @@ Fatal Error:
 tput: unknown terminal
 marshal.list: Permission denied
 Please port gnulib .* to your platform
+make: .* Error

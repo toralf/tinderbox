@@ -11,7 +11,6 @@ PostgreSQL slot must be set to one of:
 .* library not found, but required for .* module.
 error: Fortran 77 compiler
 error: fortran compiler does not work
-configure: error:
 CMake will exit
 You need build codec to run the tests
 Could not find a package configuration file provided by
@@ -41,5 +40,8 @@ meson_options.txt:.* Option name debug is reserved.
 glib-mk.* not found
 glib-genmarshal needs to be installed
 glib-genmarshal: command not found
+You must install glib-genmarshal
 \\-\\-.*: command not found
 ./configure: line .*: syntax error near unexpected
+You do not have the SDL/SDL_.* headers installed.
+configure: error:
