@@ -473,26 +473,26 @@ EOF
 function CreateBacklog()  {
   bl=./tmp/backlog
 
-  truncate -s 0 ${bl}{,.1st,.upd}            || exit 5
-  chmod ug+w    ${bl}{,.1st,.upd}
-  chown tinderbox:portage ${bl}{,.1st,.upd}
+  truncate -s 0 $bl{,.1st,.upd}            || exit 5
+  chmod ug+w    $bl{,.1st,.upd}
+  chown tinderbox:portage $bl{,.1st,.upd}
 
   # all packages in a randomized order
   #
-  qsearch --all --nocolor --name-only --quiet | sort --random-sort >> ${bl}
+  qsearch --all --nocolor --name-only --quiet | sort --random-sort >> $bl
 
   if [[ -e $origin ]]; then
     # no replay of @sets or %commands
     # a replay of 'qlist -ICv' is intentionally not wanted
     #
-    echo "INFO finished replay of task history of $origin"    >> ${bl}.1st
-    grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> ${bl}.1st
-    echo "INFO starting replay of task history of $origin"    >> ${bl}.1st
+    echo "INFO finished replay of task history of $origin"    >> $bl.1st
+    grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $bl.1st
+    echo "INFO starting replay of task history of $origin"    >> $bl.1st
   fi
 
-  # update @system and @world
+  # update @system and @world before working on any package list
   #
-  cat << EOF >> ${bl}.1st
+  cat << EOF >> $bl.1st
 @world
 @system
 EOF
@@ -500,12 +500,12 @@ EOF
   # asturm: give media-libs/jpeg a fair chance
   #
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    echo "media-libs/jpeg" >> ${bl}.1st
+    echo "media-libs/jpeg" >> $bl.1st
   fi
 
   # upgrade portage before @system or @world
   #
-  echo "sys-apps/portage" >> ${bl}.1st
+  echo "sys-apps/portage" >> $bl.1st
 
   # switch to LibreSSL soon
   #
@@ -513,7 +513,7 @@ EOF
     # @preserved-rebuild will be scheduled by the unmerge of openssl
     # and will be added before "%emerge @preserved-rebuild" (which itself must not fail therefore)
     #
-    cat << EOF >> ${bl}.1st
+    cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
 %emerge -C openssl
 %emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
@@ -525,24 +525,24 @@ EOF
   #
   # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
   #
-  echo "%emerge -u sys-kernel/vanilla-sources" >> ${bl}.1st
+  echo "%emerge -u sys-kernel/vanilla-sources" >> $bl.1st
 
   # upgrade GCC first
   #   %...  : bail out if that fails
   #   no --deep, that would result effectively in @system
   #   avoid upgrading of the current stable slot, if a new major unstable version is visible
   #
-  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc )" >> ${bl}.1st
+  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc )" >> $bl.1st
 
   # the stage4 of a systemd ISO image got this already
   #
   if [[ $profile =~ "systemd" ]]; then
-    echo "%systemd-machine-id-setup" >> ${bl}.1st
+    echo "%systemd-machine-id-setup" >> $bl.1st
   fi
 
   # needed if Python is updated (eg. as dep of a newer portage) during setup
   #
-  echo "%eselect python update" >> ${bl}.1st
+  echo "%eselect python update" >> $bl.1st
 }
 
 
