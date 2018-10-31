@@ -79,9 +79,17 @@ Create the user *tinderbox*:
     useradd -m tinderbox
     usermod -a -G portage tinderbox
 
-Run in */home/tinderbox*:
+Run as root:
+
+    mkdir /opt/tb
+    chmod 750 /opt/tb
+    chgrp tinderbox /opt/tb
+
+Run as user tinderbox in ~ :
 
     mkdir ~/img{1,2} ~/logs ~/run ~/tb
+
+to have 2 directories acting as mount points for a separate file system (mkfs is *much* more faster than deleting old images of few TB in size) to hold the chroot images. Use both file systems in a round robin manner.
 
 Clone the git repository.
 
