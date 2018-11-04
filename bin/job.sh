@@ -1344,17 +1344,19 @@ while :
 do
   date > $log
 
-  # auto-clean is deactivated to collect issue files
+  # auto-clean is deactivated (to collect issue files)
   #
   rm -rf /var/tmp/portage/*
 
+  # original implementation made for the glib-util tracker bug
+  #
   if [[ -x /tmp/pretask.sh ]]; then
     /tmp/pretask.sh &> /tmp/pretask.sh.log
   fi
 
   setNextTask
 
-  # the attempt itself is sufficient to keep the task in its history
+  # the attempt itself is sufficient to keep $task in the history
   # this is *not* the emerge-history.txt file which is attached onto a bug
   #
   echo "$task" | tee -a $tsk.history > $tsk
@@ -1363,19 +1365,23 @@ do
 
   WorkOnTask
 
-  # this line is not reached if Finish() is called before
-  # therefore $tsk is (intentionally) retried at next start
+  # this line is not reached if Finish() is called (before)
+  # therefore $task is intentionally retried at next start
   #
   rm $tsk
 
-  # catch a loop but only after first @world call
+  # catch a loop but only after the very first @world call
   #
-  for p in "@preserved-rebuild" "%perl-cleaner"
-  do
-    # -eq <number>: send the email only once
-    #
-    if [[ $task =~ $p && -f /tmp/@world.history && $(tail -n 10 $tsk.history | grep -c "$p") -eq 5 ]]; then
-      Mail "$p loop detected" $bak
-    fi
-  done
+  if [[ -f /tmp/@world.history ]]; then
+    for p in "@preserved-rebuild" "%perl-cleaner"
+    do
+      if [[ $task =~ $p ]]; then
+        # "-eq" <number>: send the email not too often
+        #
+        if [[ $(tail -n 10 $tsk.history | grep -c "$p") -eq 5 ]]; then
+          Mail "$p loop detected" $bak
+        fi
+      fi
+    done
+  fi
 done
