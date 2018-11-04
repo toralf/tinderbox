@@ -87,7 +87,7 @@ function SetOptions() {
   # FEATURES=test
   #
   testfeature="n"
-  if [[ $(($RANDOM % 5)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
     testfeature="y"
   fi
 }
