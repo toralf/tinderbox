@@ -239,9 +239,9 @@ function PackagesPerDay() {
         foreach my $i (0..$#p) {
           $p[$i] = 0 unless ($p[$i]);
 
-          # the first $d days usually have >1,000 completed emerge operations
+          # till the $d th day the number might be bigger than 1,000
           #
-          $d = 4;
+          $d = 5;
           if ($i < $d)  {
             printf "%5i", $p[$i]
           } else  {
