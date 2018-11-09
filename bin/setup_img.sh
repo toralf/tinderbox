@@ -406,6 +406,10 @@ EOF
     cat << EOF > ./tmp/00libressl
 */*               libressl -gnutls -openssl
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
+
+# otherwise @system and @world deps aren't satisfied
+#
+dev-qt/qtnetwork  -ssl
 EOF
   fi
 
