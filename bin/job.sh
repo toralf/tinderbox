@@ -73,25 +73,21 @@ function Finish()  {
   #
   local rc=$1
 
-  # although stresc() is called in Mail() run it here too b/c $2 might contain quotes
+  # although stresc() will be called in Mail() run it here b/c $2 might contain quotes
   #
   subject=$(echo "$2" | stresc | cut -c1-200 | tr '\n' ' ')
-
-  /usr/bin/pfl &> /dev/null
-
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
+    # retry $task for $rc > 0
+    #
+    rm -f $tsk
   else
     Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$log}
   fi
 
-  # if rc != 0 then keep $task in $tsk to retry it at the next start
-  # otherwise delete it
+  # pfl might not be installed
   #
-  if [[ $rc -eq 0 && -f $tsk ]]; then
-    rm $tsk
-  fi
-
+  /usr/bin/pfl &> /dev/null
   rm -f /tmp/STOP
 
   exit $rc
