@@ -490,7 +490,7 @@ function CreateBacklog()  {
     # a replay of 'qlist -ICv' is intentionally not wanted
     #
     echo "INFO finished replay of task history of $origin"    >> $bl.1st
-    grep -v -E "^(%|@)" $origin/tmp/task.history | tac | uniq >> $bl.1st
+    grep -v -E "^(%|@)" $origin/tmp/task.history | uniq | tac >> $bl.1st
     echo "INFO starting replay of task history of $origin"    >> $bl.1st
   fi
 
