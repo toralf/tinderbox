@@ -525,7 +525,7 @@ EOF
 EOF
   fi
 
-  # at least systemd and virtualbox needs kernel sources and would fail in @preserved-rebuild otherwise
+  # at least systemd and virtualbox need kernel sources and would fail in @preserved-rebuild otherwise
   #
   # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
   #
