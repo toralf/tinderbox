@@ -1206,6 +1206,10 @@ function WorkOnTask() {
     local rc=$?
 
     cp $log /tmp/$task.last.log
+
+    # run this here too and not only in Finish()
+    # b/c packages might vanish or upgraded before EOL
+    #
     /usr/bin/pfl &> /dev/null
 
     # "ok|NOT ok|<msg>" is used in check_history() of whatsup.sh
