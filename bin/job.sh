@@ -1390,10 +1390,14 @@ do
     for p in "@preserved-rebuild" "%perl-cleaner"
     do
       if [[ $task =~ $p ]]; then
-        # "-eq" <number>: send the email not too often
-        #
         if [[ $(tail -n 10 $tsk.history | grep -c "$p") -eq 5 ]]; then
-          Mail "$p loop detected" $bak
+          # no spam, only once
+          #
+          file=/tmp/$p.loop_detected
+          if [[ ! -f $file ]]; then
+            touch $file
+            Mail "$p loop, remove $file to activate this test again" $bak
+          fi
         fi
       fi
     done
