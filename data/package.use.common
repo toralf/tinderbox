@@ -23,3 +23,14 @@ dev-lang/python           -bluetooth sqlite
 media-libs/libjpeg-turbo  -java
 sys-fs/eudev              -introspection
 sys-libs/ncurses          -gpm
+
+# required by pybugz
+#
+dev-lang/python           readline
+
+# https://bugs.gentoo.org/670154
+# [11:59] <graaff> Ruby releases are always on Christmas.
+#
+# it is cumulative here
+#
+*/*                       RUBY_TARGETS: ruby24 ruby25 ruby26

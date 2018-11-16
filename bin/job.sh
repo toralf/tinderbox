@@ -1033,20 +1033,6 @@ function PostEmerge() {
     echo "%perl-cleaner --all" >> $backlog
   fi
 
-  # [11:59] <graaff> Ruby releases are always on Christmas.
-  # avoid bug https://bugs.gentoo.org/670154
-  #
-  grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $bak
-  if [[ $? -eq 0 ]]; then
-    # ruby pulls in its eselect module
-    #
-    targets=$( eselect ruby list 2>/dev/null | grep -v "^Available" | awk ' { print $2 } ' | xargs )
-    if [[ -n "$targets" ]]; then
-      sed -i -e "/^RUBY_TARGETS=/d"       /etc/portage/make.conf
-      echo "RUBY_TARGETS=\"$targets\"" >> /etc/portage/make.conf
-    fi
-  fi
-
   # if $backlog is empty then do 24 hours after the last @system finished in this order:
   #   - switch java VM
   #   - update @system
