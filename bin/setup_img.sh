@@ -415,24 +415,24 @@ EOF
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
-    cp /home/tinderbox/tb/data/$d.common                ./etc/portage/$d/common
+    cp  ~tinderbox/tb/data/$d.common                ./etc/portage/$d/common
   done
 
   for d in package.{accept_keywords,unmask}
   do
-    cp /home/tinderbox/tb/data/$d.$keyword              ./etc/portage/$d/$keyword
+    cp  ~tinderbox/tb/data/$d.$keyword              ./etc/portage/$d/$keyword
   done
 
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    cp /home/tinderbox/tb/data/package.use.ff-and-tb    ./etc/portage/package.use/ff-and-tb
+    cp  ~tinderbox/tb/data/package.use.ff-and-tb    ./etc/portage/package.use/ff-and-tb
   fi
 
   if [[ $(($RANDOM % 8)) -eq 0 ]]; then
-    cp /home/tinderbox/tb/data/package.use.ffmpeg       ./etc/portage/package.use/ffmpeg
+    cp  ~tinderbox/tb/data/package.use.ffmpeg       ./etc/portage/package.use/ffmpeg
   fi
 
   if [[ "$testfeature" = "y" ]]; then
-    cp /home/tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
+    cp  ~tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
   fi
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/*
@@ -505,6 +505,15 @@ EOF
   #
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
     echo "media-libs/jpeg" >> $bl.1st
+  fi
+
+  # whissi: https://bugs.gentoo.org/669216
+  # this is a mysql alternative engine, emerge it before @system or @world pulls the default (mysqld)
+  #
+  if [[ "$libressl" = "y" ]]; then
+    if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+      echo "dev-db/percona-server" >> $bl.1st
+    fi
   fi
 
   # upgrade portage before @system or @world
@@ -624,7 +633,7 @@ EOF
 # MTA, bugz et. al
 #
 function EmergeMandatoryPackages() {
-  cd /home/tinderbox/
+  cd  ~tinderbox/
 
   echo " install mandatory packages ..."
 
@@ -760,9 +769,11 @@ done
 CheckOptions
 ComputeImageName
 
-ls -l /home/tinderbox/run/${name}_20??????-?????? 2>/dev/null
+ls ~tinderbox/run/${name}_20??????-?????? 2>/dev/null
 if [[ $? -eq 0 ]]; then
-  echo "there's a similar image in ~/run"
+  set -x
+  echo "name=$name is already known:"
+  ls ~tinderbox/run
   exit 2
 fi
 
@@ -771,7 +782,7 @@ fi
 name="${name}_$(date +%Y%m%d-%H%M%S)"
 mkdir $name || exit 3
 
-# relative path from the HOME directory of the tinderbox user
+# relative path to ~tinderbox
 #
 mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
 
@@ -798,7 +809,7 @@ dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system -
 CreateSetupScript
 EmergeMandatoryPackages
 
-cd /home/tinderbox/run && ln -s ../$mnt || exit 11
+cd  ~tinderbox/run && ln -s ../$mnt || exit 11
 
 echo
 echo " setup OK"
