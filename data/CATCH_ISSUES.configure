@@ -45,3 +45,4 @@ You must install glib-genmarshal
 ./configure: line .*: syntax error near unexpected
 You do not have the SDL/SDL_.* headers installed.
 configure: error:
+Cargo package manager not found
