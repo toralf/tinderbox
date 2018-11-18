@@ -4,7 +4,7 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 ## usage
 ### create a new image
 
-    cd ~/img1; setup_img.sh
+    cd ~/img; setup_img.sh
 
 The current *stage3* file is downloaded, verified and unpacked, profile, keyword and USE flag are set.
 Mandatory portage config files will be compiled.
@@ -43,7 +43,7 @@ Simple wrapper of chroot with few checks, no hosts files are mounted. This can b
 
 ### removal of an image
 Stop the image and remove the symlink in *~/run*.
-The image itself will stay in the data dir, eg. in: *~/img2*.
+The image itself will stay in one of the data dirs till the next mkfs run.
 
 ### status of all images
 
@@ -87,11 +87,13 @@ Run as root:
 
 Run as user tinderbox in ~ :
 
-    mkdir ~/img{1,2} ~/logs ~/run ~/tb
+    mkdir img{1,2} logs run tb
 
-to have 2 directories acting as mount points for a separate file system (mkfs is *much* more faster than deleting old images of few TB in size) to hold the chroot images. Use both file systems in a round robin manner.
+to have 2 directories acting as mount points for 2 separate file systems (mkfs is *much* more faster than rm -rf) to hold the chroot images. Use both file systems in a round robin manner, start with the first, eg.:
 
-Clone the git repository.
+    ln -s img1 img
+
+Clone this git repository.
 
 Move *./data* and *./sdata* into *~/tb* as user *tinderbox*.
 Move *./bin* into */opt/tb* as user *root*.
