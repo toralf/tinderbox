@@ -736,6 +736,7 @@ $(gcc-config -l                   )
 $( [[ -x /usr/bin/llvm-config ]] && echo llvm-config: && llvm-config --version )
 $(eselect python  list 2>/dev/null)
 $(eselect ruby    list 2>/dev/null)
+$(eselect rust    list 2>/dev/null)
 $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-available-vms --nocolor )
 $(eselect java-vm list 2>/dev/null)
 
