@@ -6,7 +6,7 @@
 #
 # typical call:
 #
-# echo "cd ~/img2; sudo /opt/tb/bin/tbs.sh -p 17.0/desktop/gnome -l y -m n" | at now + 0 min
+# echo "cd ~/img && while :; do sudo /opt/tb/bin/setup_img.sh && break; done" | at now + 0 min
 
 #############################################################################
 #
@@ -769,10 +769,9 @@ done
 CheckOptions
 ComputeImageName
 
-ls ~tinderbox/run/${name}_20??????-?????? 2>/dev/null
+ls -ld ~tinderbox/run/${name}_20??????-?????? 2>/dev/null
 if [[ $? -eq 0 ]]; then
-  set -x
-  echo "name=$name is already known:"
+  echo "name=$name is already running:"
   ls ~tinderbox/run
   exit 2
 fi
