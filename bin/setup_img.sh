@@ -414,6 +414,16 @@ EOF
     echo 'dev-lang/python -bluetooth' >> ./etc/portage/package.use/python
   fi
 
+  if [[ "${profile}" =~ '/desktop/' ]]; then
+    # needed eg. by spidermonkey and polkit
+    #
+    echo 'dev-lang/python sqlite'   >> ./etc/portage/package.use/python
+  else
+    # would pull in X otherwise in a non-desktop profile
+    #
+    echo 'media-fonts/encodings -X' >> ./etc/portage/package.use/encodings
+  fi
+
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
     cp  ~tinderbox/tb/data/$d.common                ./etc/portage/$d/common
