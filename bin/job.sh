@@ -823,28 +823,7 @@ function setWorkDir() {
 }
 
 
-# helper of GotAnIssue()
-#
-function KeepGoing() {
-  if [[ $task =~ "revdep-rebuild" ]]; then
-    # don't repeat the whole rebuild list
-    # (eg. after a GCC upgrade it fails often just in the test phase)
-    #
-    echo "%emerge --resume" >> $backlog
-
-  else
-    # repeat $task instead of just resuming emerge because
-    # dependencies might be changed due to a now masked packages,
-    # an updated repository or by an altered package.env/* entry
-    #
-    if [[ "$(tail -n 1 $backlog)" != "$task" ]]; then
-      echo "$task" >> $backlog
-    fi
-  fi
-}
-
-
-# collect files, create (and maybe send out) an email
+# collect files and compile an email
 #
 function GotAnIssue()  {
   PutDepsIntoWorldFile
@@ -861,8 +840,6 @@ function GotAnIssue()  {
 
   setFailedAndShort
 
-  # emerge error or somethign went wrong before
-  #
   if [[ -z "$failed" ]]; then
     return
   fi
@@ -878,6 +855,7 @@ function GotAnIssue()  {
   emerge -qpvO $short &> $issuedir/emerge-qpvO
 
   ClassifyIssue
+
   CompileIssueMail
 
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $issuedir/title
@@ -904,9 +882,22 @@ EOF
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    KeepGoing
+    if [[ $task =~ "revdep-rebuild" ]]; then
+      # don't repeat the whole rebuild list
+      # (eg. after a GCC upgrade it fails often just in the test phase)
+      #
+      echo "%emerge --resume" >> $backlog
+    else
+      # dependencies might be changed due to a now masked packages,
+      # an update of the repository or by an altered package.env/* entry
+      #
+      echo "$task" >> $backlog
+    fi
   else
     echo "=$failed" >> /etc/portage/package.mask/self
+    if [[ $task =~ "@preserved-rebuild" ]]; then
+      echo "%emerge --resume --skip-first" >> $backlog
+    fi
   fi
 }
 
@@ -997,15 +988,17 @@ function PostEmerge() {
   # update the runtime environment
   #
   env-update &>/dev/null
-  source /etc/profile || Finish 2 "can't source /etc/profile"
+
+  source /etc/profile
+  if [[ $? -ne 0 ]]; then
+    Finish 2 "can't source /etc/profile"
+  fi
 
   # the very last step after an emerge
   #
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
-    if [[ "$(tail -n 1 $backlog)" != "@preserved-rebuild" ]]; then
-      echo "@preserved-rebuild" >> $backlog
-    fi
+    echo "@preserved-rebuild" >> $backlog
   fi
 
   # switch to the new kernel sources
@@ -1157,7 +1150,8 @@ function RunAndCheck() {
       # repo update during @system, @world etc.
       #
       Mail "info: catched a repo race" $bak
-      KeepGoing
+      echo "$task" >> $backlog
+
       # wait for "git pull" being finished
       #
       sleep 30
@@ -1349,7 +1343,7 @@ do
   #
   rm -rf /var/tmp/portage/*
 
-  # original implementation made for the glib-util tracker bug
+  # eg.: remove a package to catch a dependency issue
   #
   if [[ -x /tmp/pretask.sh ]]; then
     /tmp/pretask.sh &> /tmp/pretask.sh.log
@@ -1371,7 +1365,7 @@ do
   #
   rm $tsk
 
-  # catch a loop but only after the very first @world call
+  # catch a loop but only after the very first @world
   #
   if [[ -f /tmp/@world.history ]]; then
     for p in "@preserved-rebuild" "%perl-cleaner"
@@ -1383,6 +1377,7 @@ do
           file=/tmp/$p.loop_detected
           if [[ ! -f $file ]]; then
             touch $file
+            chmod a+w $file
             Mail "$p loop, remove $file to activate this test again" $bak
           fi
         fi
