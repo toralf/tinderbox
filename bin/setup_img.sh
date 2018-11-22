@@ -16,8 +16,8 @@
 # throw up to n-1 USE flags, up to m-1 of them are masked
 #
 function ThrowUseFlags()  {
-  n=80
-  m=20
+  n=40
+  m=15
 
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
