@@ -411,6 +411,7 @@ net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 #
 dev-qt/qtnetwork  -ssl
 EOF
+    echo 'dev-lang/python -bluetooth' >> ./etc/portage/package.use/python
   fi
 
   for d in package.{accept_keywords,env,mask,unmask,use}
