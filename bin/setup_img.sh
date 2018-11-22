@@ -6,7 +6,7 @@
 #
 # typical call:
 #
-# echo "cd ~/img && while :; do sudo /opt/tb/bin/setup_img.sh && break; done" | at now + 0 min
+# echo "cd ~/img && while :; do sudo /opt/tb/bin/setup_img.sh && break; done" | at now
 
 #############################################################################
 #
