@@ -111,9 +111,9 @@ function setNextTask() {
     # repository updates
     # updated regularly by update_backlog.sh
     #
-    # 1/3 probability - but only if no special action is in the common backlog (eg if cloned from an origin)
+    # 1/N probability if no special action is in common backlog (eg. if cloned from an origin)
     #
-    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 3)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
+    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 4)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
 
     # common backlog
