@@ -65,3 +65,11 @@ net-libs/zmqpp
 # deps on older clang etc.
 #
 dev-util/include-what-you-use
+#
+# loong build time
+#
+dev-libs/aws-sdk-cpp
+#
+# CMake -lpthread' error
+#
+dev-ros/*

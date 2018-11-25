@@ -18,7 +18,6 @@ Linux >= .* and <= .* required for userspace modules
 Linux .* is the latest supported version.
 mingw is needed
 MINITUBE_GOOGLE_API_KEY env variable not defined!
-needs multilib profile on amd64
 Need FEATURES=.* to run this testsuite
 Nonmodular kernel detected, will not build kernel modules
 No pathcc executable was installed, your hardware is unsupported most likely
@@ -38,7 +37,6 @@ Sorry, but this version does not yet support features
 Sorry, but you have to patch kernel sources with the following patch
 SYSVIPC not enabled in the kernel
 The HyperSpec cannot be redistributed.
-Unable to determine valid vm
 unreliable and an ATLAS install nonsensical.  Aborting.
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
@@ -46,4 +44,3 @@ You need to apply a patch to your kernel to compile and run the aufs4 module
 Your C compiler is too old for this package.
 Your kernel version is not yet tested with this version of phc-intel.
  \*   You need one of the following mpi implementations:
- \*   ada compiler not available

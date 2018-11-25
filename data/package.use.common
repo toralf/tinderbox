@@ -16,17 +16,18 @@ sys-apps/nix              -etc_profile
 #
 net-misc/wget             ssl
 
-# too much hassle during setup
+# otherwise virtual/w3m pulls www-client/w3m and then
+# a circular dependency issue does occur with sys-libs/ncurses
 #
-app-crypt/mit-krb5        -keyutils
-dev-lang/python           -bluetooth sqlite
-media-libs/libjpeg-turbo  -java
-sys-fs/eudev              -introspection
-sys-libs/ncurses          -gpm
+www-client/w3m            -gpm
 
 # required by pybugz
 #
 dev-lang/python           readline
+
+# needed eg. by spidermonkey and polkit
+#
+dev-lang/python           sqlite
 
 # https://bugs.gentoo.org/670154
 # [11:59] <graaff> Ruby releases are always on Christmas.
