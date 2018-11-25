@@ -66,9 +66,8 @@ function Overall() {
     fi
   done
   inrun=$(echo $images | wc -w)
-  overall=$(ls -1d ~/img?/* 2>/dev/null | wc -w)
 
-  echo "compl fail  days backlog  upd  1st status  $running#$inrun images running ($overall at all)"
+  echo "compl fail  days backlog  upd  1st status  $running#$inrun images are up"
 
   for i in $images
   do
