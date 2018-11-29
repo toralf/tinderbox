@@ -438,8 +438,10 @@ EOF
     cp  ~tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
   fi
 
-  chgrp portage ./etc/portage/package.*/* ./etc/portage/env/*
-  chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/*
+  touch ./tmp/task
+
+  chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./tmp/task
+  chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./tmp/task
 }
 
 

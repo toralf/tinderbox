@@ -1327,14 +1327,6 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# if task file is non-empty (eg. due to a reboot or Finish() with rc != 0)
-# then retry it
-#
-if [[ -s $tsk ]]; then
-  cat $tsk >> $backlog
-  rm $tsk
-fi
-
 while :
 do
   date > $log
@@ -1349,21 +1341,23 @@ do
     /tmp/pretask.sh &> /tmp/pretask.sh.log
   fi
 
-  setNextTask
-
-  # the attempt itself is sufficient to keep $task in the history
-  # this is *not* the emerge-history.txt file which is attached onto a bug
+  # if task file is non-empty then retry it
   #
-  echo "$task" | tee -a $tsk.history > $tsk
-  chmod g+w $tsk
-  chgrp portage $tsk
+  if [[ -s $tsk ]]; then
+    task=$( cat $tsk )
+  else
+    setNextTask
+    # the attempt itself is sufficient to keep it in the image history
+    #
+    echo "$task" | tee -a $tsk.history > $tsk
+  fi
 
   WorkOnTask
 
-  # this line is not reached if Finish() is called (before)
-  # therefore $task is intentionally retried at next start
+  # this line is not reached if Finish() is called before
+  # therefore $task will intentionally be retried at next image start
   #
-  rm $tsk
+  truncate -s0 $tsk
 
   # catch a loop but only after the very first @world
   #
