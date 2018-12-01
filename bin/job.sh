@@ -863,33 +863,15 @@ function GotAnIssue()  {
     SendoutIssueMail
   fi
 
-  # https://bugs.gentoo.org/463976
-  # https://bugs.gentoo.org/582046
-  # https://bugs.gentoo.org/640866
-  # https://bugs.gentoo.org/646698
-  #
-  grep -q \
-          -e "configure: error: perl module Locale::gettext required" \
-          -e "loadable library and perl binaries are mismatched"      \
-          $bak
-  if [[ $? -eq 0 ]]; then
-    try_again=1   # cleanup Perl before $task can be repeated
-    cat << EOF >> $backlog
-$task
-%perl-cleaner --all
-EOF
-    return
-  fi
-
   if [[ $try_again -eq 1 ]]; then
     if [[ $task =~ "revdep-rebuild" ]]; then
       # don't repeat the whole rebuild list
-      # (eg. after a GCC upgrade it fails often just in the test phase)
+      # (eg. after a GCC upgrade few packages do fail only in the test phase)
       #
       echo "%emerge --resume" >> $backlog
     else
-      # dependencies might be changed due to a now masked packages,
-      # an update of the repository or by an altered package.env/* entry
+      # dependency might be changed due to (in the meanwhile) masked package,
+      # an update of the repository or by an altered package.env/* file
       #
       echo "$task" >> $backlog
     fi
@@ -897,6 +879,23 @@ EOF
     echo "=$failed" >> /etc/portage/package.mask/self
     if [[ $task =~ "@preserved-rebuild" ]]; then
       echo "%emerge --resume --skip-first" >> $backlog
+    fi
+  fi
+
+  # https://bugs.gentoo.org/463976
+  # https://bugs.gentoo.org/582046
+  #
+  grep -q \
+          -e "configure: error: perl module Locale::gettext required" \
+          -e "loadable library and perl binaries are mismatched"      \
+          $bak
+  if [[ $? -eq 0 ]]; then
+    Mail "info: perl-cleaner needed" $bak
+    if [[ $try_again -eq 1 ]]; then
+      echo "%perl-cleaner --all" >> $backlog
+    else
+      try_again=1
+      echo -e "$task\n%perl-cleaner --all" >> $backlog
     fi
   fi
 }
