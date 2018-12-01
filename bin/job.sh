@@ -1136,7 +1136,6 @@ function RunAndCheck() {
 
   if [[ $rc -ge 128 ]]; then
     let signal="$rc - 128"
-    Mail "got signal $signal" $bak
     try_again=1
 
     # the tinderbox shared repository solution is racy and therefore calling for trouble
@@ -1155,6 +1154,9 @@ function RunAndCheck() {
       # wait for "git pull" being finished
       #
       sleep 30
+
+    elif [[ $signal -ne 15 ]]; then
+      Mail "got signal $signal" $bak
     fi
 
   elif [[ $rc -ne 0 ]]; then
