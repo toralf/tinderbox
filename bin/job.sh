@@ -1238,7 +1238,7 @@ function WorkOnTask() {
     else
       echo "$(date) ok $msg" >> /tmp/$task.history
 
-      # keep already installed packages if their deps changed in the meanwhile
+      # keep already installed packages which would be depclean'ed othherwise
       #
       PutDepsIntoWorldFile
     fi
@@ -1348,7 +1348,7 @@ do
     task=$( cat $tsk )
   else
     setNextTask
-    # the attempt itself is sufficient to keep it in the image history
+    # the attempt itself is sufficient to keep it in the image task history
     #
     echo "$task" | tee -a $tsk.history > $tsk
   fi
