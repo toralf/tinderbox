@@ -1360,16 +1360,14 @@ do
   #
   truncate -s0 $tsk
 
-  # catch a loop but only after the very first @world
+  # catch a loop but only after the very first @world happened
   #
   if [[ -f /tmp/@world.history ]]; then
     for p in "@preserved-rebuild" "%perl-cleaner"
     do
       if [[ $task =~ $p ]]; then
         if [[ $(tail -n 10 $tsk.history | grep -c "$p") -eq 5 ]]; then
-          # no spam, only once
-          #
-          file=/tmp/$p.loop_detected
+          file=/tmp/$p.loop_was_already_reported
           if [[ ! -f $file ]]; then
             touch $file
             chmod a+w $file
