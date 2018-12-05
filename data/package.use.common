@@ -16,8 +16,7 @@ sys-apps/nix              -etc_profile
 #
 net-misc/wget             ssl
 
-# otherwise virtual/w3m pulls www-client/w3m and then
-# a circular dependency issue does occur with sys-libs/ncurses
+# virtual/w3m pulls www-client/w3m -> circular dependency with sys-libs/ncurses
 #
 www-client/w3m            -gpm
 

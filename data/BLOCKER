@@ -15,7 +15,7 @@ yy
 # libressl-support
 #
 561854
-EVP_|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not  declared in this scope|undefined reference to HMAC|OPENSSL_|TLS1_3_VERSION
+EVP_|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not  declared in this scope|undefined reference to HMAC|OPENSSL_|TLS1_3_VERSION|undefined reference to SSL_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC
 
 # QA
 #
@@ -47,11 +47,6 @@ xattr.h
 653678
 FF_|CODEC_
 
-#   (libressl-2.7.0) - [TRACKER] packages breaking with >=dev-libs/libressl-2.7.0
-#
-651228
-undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC
-
 # [TRACKER] Issues with sys-libs/glibc-2.27 (directly and indirectly)
 #
 637144
@@ -70,4 +65,4 @@ Please port gnulib .*.c to your platform|FILE.* has no member named _|xlocale.h:
 # [TRACKER] Packages requiring porting to boost-1.67
 #
 671712
-from expression of type const boost|error: next is not a member of boost|error: no matching function for call to boost
+from expression of type const boost|.* is not a member of boost|no matching function for call to boost|error:.*boost::
