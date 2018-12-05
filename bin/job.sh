@@ -78,9 +78,6 @@ function Finish()  {
   subject=$(echo "$2" | stresc | cut -c1-200 | tr '\n' ' ')
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
-    # retry $task for $rc > 0
-    #
-    rm -f $tsk
   else
     Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$log}
   fi
