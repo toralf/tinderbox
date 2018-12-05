@@ -19,10 +19,14 @@ function ThrowUseFlags()  {
   n=40
   m=15
 
+  tmp=/tmp/useflags
+
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
   egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
+  tee $tmp |\
+  grep -v '^system-' |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
   sort |\
@@ -33,6 +37,19 @@ function ThrowUseFlags()  {
     fi
     echo -n "$flag "
   done
+
+  # separate deal with system-* to help to prefor system wide libs instead bundled as default
+  #
+  grep '^system-' $tmp |\
+  while read flag
+  do
+    if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+      echo -n "-"
+    fi
+    echo -n "$flag "
+  done
+
+  rm $tmp
 }
 
 
