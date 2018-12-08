@@ -34,3 +34,7 @@ dev-lang/python           sqlite
 # it is cumulative here
 #
 */*                       RUBY_TARGETS: ruby24 ruby25 ruby26
+
+# 2h less compile time
+#
+dev-lang/rust             system-llvm
