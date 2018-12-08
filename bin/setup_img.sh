@@ -567,7 +567,7 @@ EOF
   #   no --deep, that would result effectively in @system
   #   avoid upgrading of the current stable slot, if a new major unstable version is visible
   #
-  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc )" >> $bl.1st
+  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr " >> $bl.1st
 
   # the stage4 of a systemd ISO image got this already
   #
