@@ -38,15 +38,14 @@ function ThrowUseFlags()  {
     echo -n "$flag "
   done
 
-  # separate deal with system-* to help to prefor system wide libs instead bundled as default
+  # help to use system wide libs instead of the bundled once as default
   #
   grep '^system-' $tmp |\
   while read flag
   do
-    if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-      echo -n "-"
+    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+      echo -n "$flag "
     fi
-    echo -n "$flag "
   done
 
   rm $tmp
