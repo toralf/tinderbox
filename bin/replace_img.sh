@@ -69,21 +69,26 @@ do
 
   echo
   date
-  sudo /opt/tb/bin/setup_img.sh &> ${tmpfile}
+  sudo /opt/tb/bin/setup_img.sh &>> ${tmpfile}
   rc=$?
   if [[ ${rc} -eq 0 ]]; then
     break
-  else
-    cat ${tmpfile} | mail -s "admin: $(basename $0) attempt ${i} rc=${rc}" tinderbox@zwiebeltoralf.de
   fi
 
   if [[ ${i} -gt 10 ]]; then
+    cat ${tmpfile} | mail -s "admin: $(basename $0) attempt ${i} rc=${rc}" tinderbox@zwiebeltoralf.de
     sleep 3600
   fi
 done
-cat ${tmpfile}
-rm -f ${tmpfile}
 
+# catched eg by crontab
+#
+cat ${tmpfile}
+
+rm ${tmpfile}
+
+# delete artefacts of the old image
+#
 rm ~/run/${oimg} ~/logs/${oimg}.log
 date
 echo "deleted ${oimg}"
