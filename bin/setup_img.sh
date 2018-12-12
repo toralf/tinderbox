@@ -38,7 +38,7 @@ function ThrowUseFlags()  {
     echo -n "$flag "
   done
 
-  # help to use system wide libs instead of the bundled once as default
+  # prefer system libs over bundled
   #
   grep '^system-' $tmp |\
   while read flag
@@ -508,7 +508,7 @@ function CreateBacklog()  {
 
   if [[ -e $origin ]]; then
     # no replay of @sets or %commands
-    # a replay of 'qlist -ICv' is intentionally not wanted
+    # the replay of 'qlist -ICv' is intentionally not wanted
     #
     echo "INFO finished replay of task history of $origin"    >> $bl.1st
     grep -v -E "^(%|@)" $origin/tmp/task.history | uniq | tac >> $bl.1st
