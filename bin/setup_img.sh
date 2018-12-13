@@ -230,8 +230,7 @@ function UnpackStage3()  {
 }
 
 
-# configure 2 existing repositories: gentoo and tinderbox
-# in addition prepare 2 too: foo and local
+# define and configure repositories
 #
 function CompileRepoFiles()  {
   mkdir -p                  ./usr/local/portage/{metadata,profiles}   || exit 5
@@ -241,47 +240,60 @@ function CompileRepoFiles()  {
   chmod g+s                 ./usr/local/portage/
 
   mkdir -p      ./etc/portage/repos.conf/
+
+  cat << EOF >> ./etc/portage/repos.conf/gentoo.conf
+[gentoo]
+location  = /usr/portage
+
+EOF
+
+  cat << EOF >> ./etc/portage/repos.conf/tinderbox.conf
+[tinderbox]
+location  = /tmp/tb/data/portage
+
+EOF
+
+  cat << EOF >> ./etc/portage/repos.conf/local.conf
+[local]
+location  = /usr/local/portage
+
+EOF
+
   cat << EOF >> ./etc/portage/repos.conf/default.conf
 [DEFAULT]
 main-repo = gentoo
 auto-sync = no
 
 [gentoo]
-priority = 1
+priority = 10
 
 [tinderbox]
-priority = 2
-
-#[foo]
-#priority = 3
+priority = 30
 
 [local]
 priority = 99
+
 EOF
 
-  cat << EOF >> ./etc/portage/repos.conf/gentoo.conf
-[gentoo]
-location  = /usr/portage
-EOF
-
-  cat << EOF >> ./etc/portage/repos.conf/tinderbox.conf
-[tinderbox]
-location  = /tmp/tb/data/portage
-masters   = gentoo
-EOF
-
-  cat << EOF >> ./etc/portage/repos.conf/foo.conf
-#[foo]
-#location  = /usr/local/foo
-#sync-type = git
-#sync-uri  = https://anongit.gentoo.org/git/proj/foo.git
-EOF
-
-  cat << EOF >> ./etc/portage/repos.conf/local.conf
-[local]
-location  = /usr/local/portage
-masters   = gentoo
-EOF
+#   if [[ "$libressl" = "y" ]]; then
+#     if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+#       cat << EOF >> ./etc/portage/repos.conf/libressl.conf
+# [libressl]
+# location = /usr/local/libressl
+#
+# auto-sync = yes
+# sync-type = git
+# sync-uri  = https://github.com/gentoo/libressl
+#
+# EOF
+#
+#     cat << EOF >> ./etc/portage/repos.conf/default.conf
+# [libressl]
+# priority = 20
+#
+# EOF
+#     fi
+#   fi
 }
 
 
