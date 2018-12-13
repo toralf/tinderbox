@@ -38,3 +38,7 @@ dev-lang/python           sqlite
 # 2h less compile time
 #
 dev-lang/rust             system-llvm
+
+# shall speedup build time, eg for www-client/chromium
+#
+*/*                       jumbo-build
