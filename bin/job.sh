@@ -1121,7 +1121,7 @@ function CheckQA() {
 
 
 # helper of WorkOnTask()
-# run ($1) and act on issue if any
+# run ($1) and act on result
 #
 function RunAndCheck() {
   ($1) &>> $log
@@ -1130,11 +1130,8 @@ function RunAndCheck() {
   PostEmerge
   CheckQA
 
-  if [[ $rc -ge 128 ]]; then
-    let signal="$rc - 128"
-    try_again=1
-
-    # the tinderbox shared repository solution is racy and therefore calling for trouble
+  if [[ $rc -ne 0 ]]; then
+    # the tinderbox shared repository solution is racy
     # (https://bugs.gentoo.org/639374)
     #
     grep -q -e 'AssertionError: ebuild not found for' \
@@ -1150,13 +1147,18 @@ function RunAndCheck() {
       # wait for "git pull" being finished
       #
       sleep 30
-
-    elif [[ $signal -ne 15 ]]; then
-      Mail "got signal $signal" $bak
+      try_again=1
+    else
+      if [[ $rc -lt 128 ]]; then
+        GotAnIssue
+      else
+        let signal="$rc - 128"
+        if [[ $signal -ne 15 ]]; then
+          Mail "dead due to signal=$signal" $bak
+        fi
+        try_again=1
+      fi
     fi
-
-  elif [[ $rc -ne 0 ]]; then
-    GotAnIssue
   fi
 
   return $rc
