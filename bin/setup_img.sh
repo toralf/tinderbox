@@ -274,26 +274,6 @@ priority = 30
 priority = 99
 
 EOF
-
-#   if [[ "$libressl" = "y" ]]; then
-#     if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-#       cat << EOF >> ./etc/portage/repos.conf/libressl.conf
-# [libressl]
-# location = /usr/local/libressl
-#
-# auto-sync = yes
-# sync-type = git
-# sync-uri  = https://github.com/gentoo/libressl
-#
-# EOF
-#
-#     cat << EOF >> ./etc/portage/repos.conf/default.conf
-# [libressl]
-# priority = 20
-#
-# EOF
-#     fi
-#   fi
 }
 
 
