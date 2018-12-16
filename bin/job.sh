@@ -308,7 +308,7 @@ function setFailedAndShort()  {
   fi
 
   short=$(pn2p "$failed")
-  if [[ ! -d /usr/portage/$short ]]; then
+  if [[ ! -d /var/db/repos/gentoo/$short ]]; then
     failed=""
     failedlog=""
     short=""

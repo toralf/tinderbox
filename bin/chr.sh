@@ -11,7 +11,7 @@
 # mount the directories shared by the host
 #
 function mountall() {
-  # if a mount fails then bail out immediately
+  # if a mount fails then do not try further
   #
   # system dirs
   #
@@ -23,12 +23,12 @@ function mountall() {
   #
   # tinderbox data dir
   #
-  /bin/mount -o bind      /home/tinderbox/tb   $mnt/tmp/tb            &&\
+  /bin/mount -o bind      /home/tinderbox/tb   $mnt/tmp/tb              &&\
   #
   # host repo and more
   #
-  /bin/mount -o bind,ro   /var/db/repos/gentoo $mnt/usr/portage       &&\
-  /bin/mount -t tmpfs     tmpfs -o size=16G    $mnt/var/tmp/portage   &&\
+  /bin/mount -o bind,ro   /var/db/repos/gentoo $mnt/var/db/repos/gentoo &&\
+  /bin/mount -t tmpfs     tmpfs -o size=16G    $mnt/var/tmp/portage     &&\
   /bin/mount -o bind      /var/tmp/distfiles   $mnt/var/tmp/distfiles
 
   rc=$?

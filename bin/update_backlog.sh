@@ -14,7 +14,7 @@ fi
 #
 acmr=/tmp/$(basename $0).acmr
 
-cd /usr/portage/
+cd /var/db/repos/gentoo
 
 # add 2 hours to let mirrors be in sync
 #

@@ -21,7 +21,7 @@ function ThrowUseFlags()  {
 
   tmp=/tmp/useflags
 
-  grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /usr/portage/profiles/use{,.local}.desc |\
+  grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /var/db/repos/gentoo/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
   egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
@@ -112,7 +112,7 @@ function SetOptions() {
 # helper of main()
 #
 function CheckOptions() {
-  if [[ ! -d /usr/portage/profiles/default/linux/amd64/$profile ]]; then
+  if [[ ! -d /var/db/repos/gentoo/profiles/default/linux/amd64/$profile ]]; then
     echo " profile unknown: $profile"
     exit 2
   fi
@@ -237,13 +237,13 @@ function CompileRepoFiles()  {
 
   cat << EOF >> ./etc/portage/repos.conf/gentoo.conf
 [gentoo]
-location  = /usr/portage
+location = /var/db/repos/gentoo
 
 EOF
 
   cat << EOF >> ./etc/portage/repos.conf/tinderbox.conf
 [tinderbox]
-location  = /tmp/tb/data/portage
+location = /tmp/tb/data/portage
 
 EOF
 
@@ -253,7 +253,7 @@ EOF
 
   cat << EOF >> ./etc/portage/repos.conf/local.conf
 [local]
-location  = /var/db/repos/local
+location = /var/db/repos/local
 
 EOF
 
@@ -277,7 +277,7 @@ EOF
     mkdir /var/db/repos/libressl
     cat << EOF >> ./etc/portage/repos.conf/libressl.conf
 [libressl]
-location  = /var/db/repos/libressl
+location = /var/db/repos/libressl
 
 EOF
 
@@ -316,7 +316,7 @@ function CompileMakeConf()  {
   if [[ -n "$origin" && -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s | tr -d '"')
   else
-    l10n="$(grep -v -e '^$' -e '^#' /usr/portage/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
+    l10n="$(grep -v -e '^$' -e '^#' /var/db/repos/gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
   fi
 
   cat << EOF >> ./etc/portage/make.conf
@@ -369,7 +369,7 @@ EOF
 # /tmp/tb/data/<files> to the appropriate target dirs respectively
 #
 function CompilePortageFiles()  {
-  mkdir ./tmp/tb ./usr/portage ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
+  mkdir ./tmp/tb ./var/db/repos/gentoo ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
 
   for d in package.{accept_keywords,env,mask,unmask,use} env
   do
@@ -605,7 +605,7 @@ function CreateSetupScript()  {
 # eselect sometimes can't be used for new unstable profiles
 #
 cd /etc/portage
-ln -snf ../../usr/portage/profiles/default/linux/amd64/$profile make.profile || exit 6
+ln -snf ../../var/db/repos/gentoo/profiles/default/linux/amd64/$profile make.profile || exit 6
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data || exit 6
