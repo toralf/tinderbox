@@ -31,7 +31,16 @@ function mountall() {
   /bin/mount -t tmpfs     tmpfs -o size=16G    $mnt/var/tmp/portage   &&\
   /bin/mount -o bind      /var/tmp/distfiles   $mnt/var/tmp/distfiles
 
-  return $?
+  rc=$?
+
+  if [[ -d $mnt/var/db/repos/libressl ]]; then
+    if [[ $rc -eq 0 ]]; then
+      /bin/mount -o bind,ro /var/db/repos/libressl $mnt/var/db/repos/libressl
+      rc=$?
+    fi
+  fi
+
+  return $rc
 }
 
 
