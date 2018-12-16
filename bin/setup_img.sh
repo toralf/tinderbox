@@ -425,9 +425,6 @@ EOF
 */*               libressl -gnutls -openssl
 net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 
-# otherwise @system and @world deps aren't satisfied
-#
-dev-qt/qtnetwork  -ssl
 EOF
     echo 'dev-lang/python -bluetooth' >> ./etc/portage/package.use/python
   fi
