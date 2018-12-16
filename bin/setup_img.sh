@@ -369,7 +369,7 @@ EOF
 # /tmp/tb/data/<files> to the appropriate target dirs respectively
 #
 function CompilePortageFiles()  {
-  mkdir ./tmp/tb ./var/db/repos/gentoo ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
+  mkdir -p ./tmp/tb ./var/db/repos/gentoo ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
 
   for d in package.{accept_keywords,env,mask,unmask,use} env
   do
