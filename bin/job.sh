@@ -1355,7 +1355,7 @@ do
   WorkOnTask
 
   # this line is not reached if Finish() is called before
-  # therefore $task will intentionally be retried at next image start
+  # therefore $task is (intentionally) being retried at next image start
   #
   truncate -s0 $tsk
 
