@@ -233,12 +233,6 @@ function UnpackStage3()  {
 # define and configure repositories
 #
 function CompileRepoFiles()  {
-  mkdir -p                  ./usr/local/portage/{metadata,profiles}
-  echo 'masters = gentoo' > ./usr/local/portage/metadata/layout.conf
-  echo 'local'            > ./usr/local/portage/profiles/repo_name
-  chown -R portage:portage  ./usr/local/portage/
-  chmod g+s                 ./usr/local/portage/
-
   mkdir -p      ./etc/portage/repos.conf/
 
   cat << EOF >> ./etc/portage/repos.conf/gentoo.conf
@@ -253,9 +247,13 @@ location  = /tmp/tb/data/portage
 
 EOF
 
+  mkdir -p                  ./var/db/repos/local/{metadata,profiles}
+  echo 'masters = gentoo' > ./var/db/repos/local/metadata/layout.conf
+  echo 'local'            > ./var/db/repos/local/profiles/repo_name
+
   cat << EOF >> ./etc/portage/repos.conf/local.conf
 [local]
-location  = /usr/local/portage
+location  = /var/db/repos/local
 
 EOF
 
