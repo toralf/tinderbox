@@ -53,8 +53,12 @@ function umountall()  {
   /bin/umount -l $mnt/{sys,proc}                  || rc=$?
 
   /bin/umount    $mnt/tmp/tb                      || rc=$?
-  /bin/umount    $mnt/usr/portage                 || rc=$?
   /bin/umount -l $mnt/var/tmp/{distfiles,portage} || rc=$?
+
+  /bin/umount    $mnt/var/db/repos/gentoo         || rc=$?
+  if [[ -d $mnt/var/db/repos/libressl ]]; then
+    /bin/umount  $mnt/var/db/repos/libressl       || rc=$?
+  fi
 
   return $rc
 }
