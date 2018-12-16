@@ -108,9 +108,9 @@ touch $lock || exit 2
 chown tinderbox:tinderbox $lock
 
 # 2nd barrier to prevent starting the same chroot image twice
-# this is a weak condition b/c a mount could be made using symlink names
+# this is a weaker condition b/c a mount could be made using a symlink
 #
-grep -m 1 "$(basename $mnt)" /proc/mounts && exit 3
+grep -m 1 "/$(basename $mnt)/" /proc/mounts && exit 3
 
 mountall || exit 4
 
