@@ -112,7 +112,11 @@ chown tinderbox:tinderbox $lock
 #
 grep -m 1 "/$(basename $mnt)/" /proc/mounts && exit 3
 
-mountall || exit 4
+mountall
+if [[ $? -ne 0 ]]; then
+  umountall
+  exit 4
+fi
 
 # this is a nice to have feature
 #
