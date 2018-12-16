@@ -1147,16 +1147,15 @@ function RunAndCheck() {
       # wait for "git pull" being finished
       #
       sleep 30
-      try_again=1
     else
       if [[ $rc -lt 128 ]]; then
         GotAnIssue
       else
         let signal="$rc - 128"
         if [[ $signal -ne 15 ]]; then
-          Mail "dead due to signal=$signal" $bak
+          Mail "exit due to signal=$signal" $bak
         fi
-        try_again=1
+        echo "$task" >> $backlog
       fi
     fi
   fi
