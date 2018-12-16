@@ -13,7 +13,6 @@
 function mountall() {
   # if a mount fails then bail out immediately
   #
-
   # system dirs
   #
   /bin/mount -t proc       proc        $mnt/proc   &&\
@@ -24,13 +23,13 @@ function mountall() {
   #
   # tinderbox data dir
   #
-  /bin/mount -o bind      /home/tinderbox/tb  $mnt/tmp/tb             &&\
+  /bin/mount -o bind      /home/tinderbox/tb   $mnt/tmp/tb            &&\
   #
   # host repo and more
   #
-  /bin/mount -o bind,ro   /usr/portage        $mnt/usr/portage        &&\
-  /bin/mount -t tmpfs     tmpfs -o size=16G   $mnt/var/tmp/portage    &&\
-  /bin/mount -o bind      /var/tmp/distfiles  $mnt/var/tmp/distfiles
+  /bin/mount -o bind,ro   /var/db/repos/gentoo $mnt/usr/portage       &&\
+  /bin/mount -t tmpfs     tmpfs -o size=16G    $mnt/var/tmp/portage   &&\
+  /bin/mount -o bind      /var/tmp/distfiles   $mnt/var/tmp/distfiles
 
   return $?
 }
