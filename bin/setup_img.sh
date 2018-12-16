@@ -226,14 +226,14 @@ function UnpackStage3()  {
 
   cd $name || exit 4
   echo " untar'ing $f ..."
-  tar -xpf $f --xattrs --exclude='./dev/*' || exit 4
+  tar -xpf $f --xattrs --exclude='./dev/*' || exit 5
 }
 
 
 # define and configure repositories
 #
 function CompileRepoFiles()  {
-  mkdir -p                  ./usr/local/portage/{metadata,profiles}   || exit 5
+  mkdir -p                  ./usr/local/portage/{metadata,profiles}
   echo 'masters = gentoo' > ./usr/local/portage/metadata/layout.conf
   echo 'local'            > ./usr/local/portage/profiles/repo_name
   chown -R portage:portage  ./usr/local/portage/
@@ -484,8 +484,8 @@ EOF
 
 
 # /tmp/backlog.upd : update_backlog.sh writes to it
-# /tmp/backlog     : filled during setup
-# /tmp/backlog.1st : filled during setup, job.sh and retest.sh write to t
+# /tmp/backlog     : filled by setup_img.sh
+# /tmp/backlog.1st : filled by setup_img.sh, job.sh and retest.sh write to it
 #
 function CreateBacklog()  {
   bl=./tmp/backlog
@@ -507,7 +507,7 @@ function CreateBacklog()  {
     echo "INFO starting replay of task history of $origin"    >> $bl.1st
   fi
 
-  # update @system and @world before working on any package list
+  # update @system and @world before working on package lists
   #
   cat << EOF >> $bl.1st
 @world
@@ -536,8 +536,8 @@ EOF
   # switch to LibreSSL soon
   #
   if [[ "$libressl" = "y" ]]; then
-    # @preserved-rebuild will be scheduled by the unmerge of openssl
-    # and will be added before "%emerge @preserved-rebuild" (which itself must not fail therefore)
+    # @preserved-rebuild will be added to backlog.1st by unmerge of openssl
+    # therefore "%emerge @preserved-rebuild" must not fail eventually
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
@@ -554,19 +554,20 @@ EOF
   echo "%emerge -u sys-kernel/vanilla-sources" >> $bl.1st
 
   # upgrade GCC first
-  #   %...  : bail out if that fails
+  #   %...  : bail out if it fails
   #   no --deep, that would result effectively in @system
   #   avoid upgrading of the current stable slot, if a new major unstable version is visible
   #
   echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr " >> $bl.1st
 
-  # the stage4 of a systemd ISO image got this already
+  # the stage4 of a systemd ISO image ran it already
   #
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
   fi
 
-  # needed if Python is updated (eg. as dep of a newer portage) during setup
+  # needed if Python is updated (eg. as dep of a newer portage during setup)
+  # otherwise this is a no-op
   #
   echo "%eselect python update" >> $bl.1st
 }
@@ -580,7 +581,6 @@ EOF
 #     app-portage/gentoolkit      equery eshowkw revdep-rebuild
 #     app-portage/portage-utils   qatom qdepends qlop
 #     www-client/pybugz           bugz
-# - few attemps to auto-fix USE flags deps
 #
 function CreateSetupScript()  {
   cat << EOF >> ./tmp/setup.sh || exit 6
