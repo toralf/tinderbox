@@ -67,7 +67,7 @@ while :
 do
   let "i = ${i} + 1"
 
-  echo
+  echo "i=$i"
   date
   sudo /opt/tb/bin/setup_img.sh &>> ${tmpfile}
   rc=$?
@@ -81,7 +81,7 @@ do
   fi
 done
 
-# catched eg by crontab
+# output catched eg. by crontab
 #
 cat ${tmpfile}
 
