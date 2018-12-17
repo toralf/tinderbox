@@ -1152,9 +1152,7 @@ function RunAndCheck() {
         GotAnIssue
       else
         let signal="$rc - 128"
-        if [[ $signal -ne 15 ]]; then
-          Mail "exit due to signal=$signal" $bak
-        fi
+        Mail "exit due to signal=$signal" $bak
         echo "$task" >> $backlog
       fi
     fi
