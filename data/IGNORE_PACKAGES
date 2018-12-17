@@ -39,9 +39,8 @@ x11-drivers/nvidia-drivers
 #
 sys-cluster/
 sys-fabric/ibutils
-x11-drivers/nvidia-drivers
 #
-# awefully long build time (the first 2 inherit a bundled copy of chromium)
+# awefully long build time (due to inherit a bundled copy of chromium)
 #
 app-editors/atom
 dev-util/electron
@@ -53,7 +52,7 @@ www-client/google-chrome
 sci-libs/tensorflow
 sci-visualization/tensorboard
 #
-# breaks @world or @preserved-rebuild too often
+# breaks @world and/or @preserved-rebuild too often
 #
 dev-perl/ZMQ
 dev-python/django
@@ -72,4 +71,4 @@ dev-libs/aws-sdk-cpp
 #
 # CMake -lpthread' error
 #
-dev-ros/*
+dev-ros/
