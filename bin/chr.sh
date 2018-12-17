@@ -23,19 +23,19 @@ function mountall() {
   #
   # tinderbox data dir
   #
-  /bin/mount -o bind      /home/tinderbox/tb   $mnt/tmp/tb              &&\
+  /bin/mount -o bind      /home/tinderbox/tb  $mnt/tmp/tb              &&\
   #
   # host repo and more
   #
-  /bin/mount -o bind,ro   /var/db/repos/gentoo $mnt/var/db/repos/gentoo &&\
-  /bin/mount -t tmpfs     tmpfs -o size=16G    $mnt/var/tmp/portage     &&\
-  /bin/mount -o bind      /var/tmp/distfiles   $mnt/var/tmp/distfiles
+  /bin/mount -o bind,ro   $repo_path          $mnt/var/db/repos/gentoo &&\
+  /bin/mount -t tmpfs     tmpfs -o size=16G   $mnt/var/tmp/portage     &&\
+  /bin/mount -o bind      $distfiles          $mnt/var/tmp/distfiles
 
   rc=$?
 
   if [[ -d $mnt/var/db/repos/libressl ]]; then
     if [[ $rc -eq 0 ]]; then
-      /bin/mount -o bind,ro /var/db/repos/libressl $mnt/var/db/repos/libressl
+      /bin/mount -o bind,ro $( portageq get_repo_path / libressl ) $mnt/var/db/repos/libressl
       rc=$?
     fi
   fi
@@ -124,6 +124,9 @@ chown tinderbox:tinderbox $lock
 # this is a weaker condition b/c a mount could be made using a symlink
 #
 grep -m 1 "/$(basename $mnt)/" /proc/mounts && exit 3
+
+repo_path=$( portageq get_repo_path / gentoo )
+distfiles=$( portageq distdir )
 
 mountall
 if [[ $? -ne 0 ]]; then

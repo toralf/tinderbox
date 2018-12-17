@@ -308,7 +308,8 @@ function setFailedAndShort()  {
   fi
 
   short=$(pn2p "$failed")
-  if [[ ! -d /var/db/repos/gentoo/$short ]]; then
+  repo_path=$( portageq get_repo_path / gentoo )
+  if [[ ! -d $repo_path/$short ]]; then
     failed=""
     failedlog=""
     short=""

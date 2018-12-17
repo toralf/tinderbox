@@ -14,7 +14,8 @@ fi
 #
 acmr=/tmp/$(basename $0).acmr
 
-cd /var/db/repos/gentoo
+repo_path=$( portageq get_repo_path / gentoo ) || exit 2
+cd $repo_path
 
 # add 2 hours to let mirrors be in sync
 #

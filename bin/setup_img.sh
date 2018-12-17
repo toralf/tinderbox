@@ -21,7 +21,7 @@ function ThrowUseFlags()  {
 
   tmp=/tmp/useflags
 
-  grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' /var/db/repos/gentoo/profiles/use{,.local}.desc |\
+  grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' $repo_path/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
   egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
@@ -112,7 +112,7 @@ function SetOptions() {
 # helper of main()
 #
 function CheckOptions() {
-  if [[ ! -d /var/db/repos/gentoo/profiles/default/linux/amd64/$profile ]]; then
+  if [[ ! -d $repo_path/profiles/default/linux/amd64/$profile ]]; then
     echo " profile unknown: $profile"
     exit 2
   fi
@@ -316,7 +316,7 @@ function CompileMakeConf()  {
   if [[ -n "$origin" && -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s | tr -d '"')
   else
-    l10n="$(grep -v -e '^$' -e '^#' /var/db/repos/gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
+    l10n="$(grep -v -e '^$' -e '^#' $repo_path/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
   fi
 
   cat << EOF >> ./etc/portage/make.conf
@@ -365,8 +365,7 @@ EOF
 }
 
 
-# create portage directoriesa nd symlink or copy
-# /tmp/tb/data/<files> to the appropriate target dirs respectively
+# create portage directories and symlink /tmp/tb/data/<files> to the appropriate target dirs
 #
 function CompilePortageFiles()  {
   mkdir -p ./tmp/tb ./var/db/repos/gentoo ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
@@ -714,6 +713,8 @@ if [[ $(pwd) = $HOME ]]; then
   exit 1
 fi
 
+repo_path=$( portageq get_repo_path / gentoo )
+
 SetOptions
 
 while getopts a:f:k:l:m:o:p:s:t:u: opt
@@ -813,7 +814,7 @@ echo
 
 # used for stage3 file too
 #
-distfiles=/var/tmp/distfiles
+distfiles=$( portageq distdir )
 
 # the remote stage3 location
 #
