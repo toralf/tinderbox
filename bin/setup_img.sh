@@ -274,7 +274,7 @@ priority = 99
 EOF
 
   if [[ "$libressl" = "y" ]]; then
-    mkdir /var/db/repos/libressl
+    mkdir -p ./var/db/repos/libressl
     cat << EOF >> ./etc/portage/repos.conf/libressl.conf
 [libressl]
 location = /var/db/repos/libressl
