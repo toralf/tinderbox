@@ -11,8 +11,8 @@ if [[ $# -ne 2 ]]; then
 fi
 
 n=$( pgrep -c $(basename $0) )
-if [[ ${n} -ne 1 ]]; then
-  echo "found ${n} running instances (including me:$$), exiting..."
+if [[ $n -ne 1 ]]; then
+  echo "found $n running instances (including me:$$), exiting..."
   pgrep -a $(basename $0)
   exit 1
 fi
@@ -20,12 +20,12 @@ fi
 # bail out if the age of the youngest image is below $1 hours
 #
 yimg=$( ls -1td ~/run/* 2>/dev/null | head -n 1 | xargs -n 1 basename 2>/dev/null )
-if [[ -z "${yimg}" ]]; then
+if [[ -z "$yimg" ]]; then
   echo "no newest image found, exiting..."
   exit 2
 fi
 
-let "age = $(date +%s) - $(stat -c%Y ~/run/${yimg})"
+let "age = $(date +%s) - $(stat -c%Y ~/run/$yimg)"
 let "age = $age / 3600"
 if [[ $age -lt $1 ]]; then
   exit 2
@@ -34,12 +34,12 @@ fi
 # kick off the oldest image if its age is greater than N days
 #
 oimg=$( ls -1td ~/run/* 2>/dev/null | tail -n 1 | xargs -n 1 basename 2>/dev/null )
-if [[ -z "${oimg}" ]]; then
+if [[ -z "$oimg" ]]; then
   echo "no oldest image found, exiting..."
   exit 3
 fi
 
-let "age = $(date +%s) - $(stat -c%Y ~/run/${oimg})"
+let "age = $(date +%s) - $(stat -c%Y ~/run/$oimg)"
 let "age = $age / 86400"
 if [[ $age -lt $2 ]]; then
   exit 3
@@ -49,10 +49,10 @@ fi
 #
 echo
 date
-/opt/tb/bin/stop_img.sh ${oimg}
+/opt/tb/bin/stop_img.sh $oimg
 while :
 do
-  if [[ ! -f ~/run/${oimg}/tmp/LOCK ]]; then
+  if [[ ! -f ~/run/$oimg/tmp/LOCK ]]; then
     break
   fi
   sleep 1
@@ -62,37 +62,27 @@ done
 # after x attempts (maybe due to a broken tree) retry just hourly
 #
 i=0
-tmpfile=$(mktemp /tmp/$(basename $0).XXXXXX)
 while :
 do
-  let "i = ${i} + 1"
+  let "i = $i + 1"
 
-  echo "i=$i"
+  echo
+  echo "i=$i============================================================="
+  echo
   date
-  sudo /opt/tb/bin/setup_img.sh &>> ${tmpfile}
-  rc=$?
-  if [[ ${rc} -eq 0 ]]; then
-    break
-  fi
+  sudo /opt/tb/bin/setup_img.sh
 
-  if [[ ${i} -gt 10 ]]; then
-    cat ${tmpfile} | mail -s "admin: $(basename $0) attempt ${i} rc=${rc}" tinderbox@zwiebeltoralf.de
-    sleep 3600
+  if [[ $? -eq 0 ]]; then
+    break
   fi
 done
 
-# output catched eg. by crontab
-#
-cat ${tmpfile}
-
-rm ${tmpfile}
-
 # delete artefacts of the old image
 #
-rm ~/run/${oimg} ~/logs/${oimg}.log
+rm ~/run/$oimg ~/logs/$oimg.log
 date
-echo "deleted ${oimg}"
+echo "deleted $oimg"
 
 echo
 date
-echo "done, needed ${i} attempt(s)"
+echo "done, needed $i attempt(s)"
