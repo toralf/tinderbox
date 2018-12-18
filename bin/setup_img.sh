@@ -330,7 +330,6 @@ $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 "
 
 $( [[ ! $profile =~ "hardened" ]] && echo 'PAX_MARKINGS="none"' )
-
 $( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' )
 ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
 
@@ -356,7 +355,7 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 PORTAGE_GPG_DIR="/var/lib/gentoo/gkeys/keyrings/gentoo/release"
 PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
 
-GENTOO_MIRRORS="http://mirror.netcologne.de/gentoo/ http://ftp.halifax.rwth-aachen.de/gentoo/ http://ftp.uni-erlangen.de/pub/mirrors/gentoo http://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/"
+GENTOO_MIRRORS="http://ftp.halifax.rwth-aachen.de/gentoo/ http://gentoo.mirrors.ovh.net/gentoo-distfiles/ https://mirror.netcologne.de/gentoo/ http://ftp.fau.de/gentoo"
 
 QEMU_SOFTMMU_TARGETS="x86_64 i386"
 QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
