@@ -31,14 +31,8 @@ dev-lang/python           sqlite
 # https://bugs.gentoo.org/670154
 # [11:59] <graaff> Ruby releases are always on Christmas.
 #
-# it is cumulative here
-#
 */*                       RUBY_TARGETS: ruby24 ruby25 ruby26
 
 # 2h less compile time
 #
 dev-lang/rust             system-llvm
-
-# shall speedup build time, eg for www-client/chromium
-#
-*/*                       jumbo-build
