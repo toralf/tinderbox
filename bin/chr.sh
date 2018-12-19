@@ -23,13 +23,13 @@ function mountall() {
   #
   # tinderbox data dir
   #
-  /bin/mount -o bind      /home/tinderbox/tb  $mnt/tmp/tb              &&\
+  /bin/mount -o bind      ~tinderbox/tb     $mnt/tmp/tb               &&\
   #
   # host repo and more
   #
-  /bin/mount -o bind,ro   $repo_path          $mnt/var/db/repos/gentoo &&\
-  /bin/mount -t tmpfs     tmpfs -o size=16G   $mnt/var/tmp/portage     &&\
-  /bin/mount -o bind      $distfiles          $mnt/var/tmp/distfiles
+  /bin/mount -o bind,ro   $repo_path        $mnt/var/db/repos/gentoo  &&\
+  /bin/mount -t tmpfs     tmpfs -o size=16G $mnt/var/tmp/portage      &&\
+  /bin/mount -o bind      $distfiles        $mnt/var/tmp/distfiles
 
   rc=$?
 

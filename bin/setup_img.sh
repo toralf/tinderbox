@@ -697,20 +697,17 @@ function EmergeMandatoryPackages() {
 #
 #############################################################################
 echo " $0 started"
-if [[ $# -gt 0 ]]; then
-  echo " additional args given: '${@}'"
-fi
 echo
+if [[ $# -gt 0 ]]; then
+  echo "   additional args are given: '${@}'"
+fi
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
 fi
 
-if [[ $(pwd) = $HOME ]]; then
-  echo "you must not run this in the \$HOME directory"
-  exit 1
-fi
+cd ~tinderbox/img || exit 1
 
 repo_path=$( portageq get_repo_path / gentoo )
 

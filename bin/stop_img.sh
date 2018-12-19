@@ -13,7 +13,7 @@ fi
 for mnt in ${@:-$(ls ~/run 2>/dev/null)}
 do
   if [[ ! -d $mnt ]]; then
-    tmp=$(ls -d /home/tinderbox/{run,img?}/$mnt 2>/dev/null | head -n 1)
+    tmp=$(ls -d ~tinderbox/{run,img?}/$mnt 2>/dev/null | head -n 1)
     if [[ ! -d $tmp ]]; then
       echo "cannot guess the full path to the image $mnt"
       continue

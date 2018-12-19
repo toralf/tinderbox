@@ -2,14 +2,8 @@
 #
 # set -x
 
-# check that logs are empty
+# check if stdout/err of job.sh was made
 #
-
-# works together with a crontab entry like:
-#
-# # clean logs; pre-fill cache, start the tinderbox and the log watch dog
-# #
-# @reboot    rm -f /home/tinderbox/logs/*.log; rm -f /home/tinderbox/run/*/tmp/{LOCK,STOP}; /opt/tb/bin/whatsup.sh -otlp &>/dev/null; sleep 240; /opt/tb/bin/start_img.sh; /opt/tb/bin/logcheck.sh
 
 mailto="tinderbox@zwiebeltoralf.de"
 
