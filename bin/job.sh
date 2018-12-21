@@ -889,12 +889,11 @@ function GotAnIssue()  {
           $bak
   if [[ $? -eq 0 ]]; then
     Mail "info: perl-cleaner needed" $bak
-    if [[ $try_again -eq 1 ]]; then
-      echo "%perl-cleaner --all" >> $backlog
-    else
+    if [[ $try_again -eq 0 ]]; then
       try_again=1
-      echo -e "$task\n%perl-cleaner --all" >> $backlog
+      echo "$task"              >> $backlog
     fi
+    echo "%perl-cleaner --all"  >> $backlog
   fi
 }
 
