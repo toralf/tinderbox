@@ -239,6 +239,12 @@ function CompileRepoFiles()  {
 [gentoo]
 location = /var/db/repos/gentoo
 
+sync-type = git
+sync-uri = https://github.com/gentoo-mirror/gentoo.git
+sync-depth = 1
+sync-git-clone-extra-opts = -b master
+sync-git-verify-commit-signature = true
+
 EOF
 
   cat << EOF >> ./etc/portage/repos.conf/tinderbox.conf
