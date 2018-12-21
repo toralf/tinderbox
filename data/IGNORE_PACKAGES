@@ -72,3 +72,4 @@ dev-libs/aws-sdk-cpp
 # CMake -lpthread' error
 #
 dev-ros/
+ros-meta/
