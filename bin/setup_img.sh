@@ -226,7 +226,7 @@ function UnpackStage3()  {
 
   cd $name || exit 4
   echo " untar'ing $f ..."
-  tar -xpf $f --xattrs --exclude='./dev/*' || exit 5
+  tar -xf $f --xattrs --exclude='./dev/*' || exit 5
 }
 
 
@@ -243,7 +243,7 @@ sync-type = git
 sync-uri = https://github.com/gentoo-mirror/gentoo.git
 sync-depth = 1
 sync-git-clone-extra-opts = -b master
-sync-git-verify-commit-signature = true
+#sync-git-verify-commit-signature = true
 
 EOF
 
