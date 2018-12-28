@@ -31,7 +31,7 @@ dev-lang/python           sqlite
 # https://bugs.gentoo.org/670154
 # [11:59] <graaff> Ruby releases are always on Christmas.
 #
-*/*                       RUBY_TARGETS: ruby24 ruby25 ruby26
+*/*                       ruby_targets_ruby24 ruby_targets_ruby25 ruby_targets_ruby26
 
 # 2h less compile time
 #
