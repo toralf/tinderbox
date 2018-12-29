@@ -837,24 +837,37 @@ function GotAnIssue()  {
   fi
 
   setFailedAndShort
-
   if [[ -z "$failed" ]]; then
     return
   fi
 
   CreateIssueDir
+  emerge -qpvO $short &> $issuedir/emerge-qpvO
   GetAssigneeAndCc
   cp $bak $issuedir
   setWorkDir
   CollectIssueFiles
-
-  # do this before any /etc/portage/package.*/* file might be altered
-  #
-  emerge -qpvO $short &> $issuedir/emerge-qpvO
-
   ClassifyIssue
-
   CompileIssueMail
+
+  # a quirk to handle broken Perl deps ...
+  #
+  # https://bugs.gentoo.org/463976
+  # https://bugs.gentoo.org/582046
+  # https://bugs.gentoo.org/638914
+  #
+  grep -q \
+          -e "configure: error: perl module Locale::gettext required" \
+          -e "loadable library and perl binaries are mismatched"      \
+          $bak
+  if [[ $? -eq 0 ]]; then
+    if [[ $try_again -eq 0 ]]; then
+      try_again=1
+      echo "$task"              >> $backlog
+    fi
+    echo "%perl-cleaner --all"  >> $backlog
+    return
+  fi
 
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $issuedir/title
   if [[ $? -ne 0 ]]; then
@@ -878,22 +891,6 @@ function GotAnIssue()  {
     if [[ $task =~ "@preserved-rebuild" ]]; then
       echo "%emerge --resume --skip-first" >> $backlog
     fi
-  fi
-
-  # https://bugs.gentoo.org/463976
-  # https://bugs.gentoo.org/582046
-  #
-  grep -q \
-          -e "configure: error: perl module Locale::gettext required" \
-          -e "loadable library and perl binaries are mismatched"      \
-          $bak
-  if [[ $? -eq 0 ]]; then
-    Mail "info: perl-cleaner needed" $bak
-    if [[ $try_again -eq 0 ]]; then
-      try_again=1
-      echo "$task"              >> $backlog
-    fi
-    echo "%perl-cleaner --all"  >> $backlog
   fi
 }
 
