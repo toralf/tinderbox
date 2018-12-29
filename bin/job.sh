@@ -1135,6 +1135,7 @@ function RunAndCheck() {
     if [[ $? -eq 0 ]]; then
       # repo update during @system, @world etc.
       #
+      try_again=1
       Mail "info: catched a repo race" $bak
       echo "$task" >> $backlog
 
