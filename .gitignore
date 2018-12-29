@@ -1,4 +1,5 @@
 *.pdf
+.~lock*
 data/ALREADY_CATCHED
 data/portage/*-*/
 data/patches/*-*/
