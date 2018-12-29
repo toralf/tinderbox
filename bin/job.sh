@@ -1230,10 +1230,7 @@ function WorkOnTask() {
 
     else
       echo "$(date) ok $msg" >> /tmp/$task.history
-
-      # keep already installed packages which would be depclean'ed othherwise
-      #
-      PutDepsIntoWorldFile
+      echo "%emerge --depclean" >> $backlog
     fi
 
 
@@ -1260,7 +1257,7 @@ EOF
               Finish 3 "resume failed"
             fi
           fi
-        elif [[ $task =~ " --unmerge " || $task =~ " -C " || $task =~ "BuildKernel" ]]; then
+        elif [[ $task =~ " --unmerge " || $task =~ " --depclean" || $task =~ "BuildKernel" ]]; then
           :
         else
           Finish 3 "command: '$cmd'"
