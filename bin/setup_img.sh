@@ -691,7 +691,7 @@ function EmergeMandatoryPackages() {
 
       sudo $(dirname $0)/chr.sh $mnt ' $dryrun '
 
-      (cd ~/run && ln -s ../$mnt)
+      (cd ~tinderbox/run && ln -s ../$mnt)
       start_img.sh $name
 
 "
@@ -717,7 +717,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-cd ~tinderbox/img || exit 1
+cd $( readlink ~tinderbox/img ) || exit 1
 
 repo_path=$( portageq get_repo_path / gentoo )
 
