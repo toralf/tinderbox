@@ -19,7 +19,7 @@ fi
 
 # bail out if the age of the youngest image is below $1 hours
 #
-yimg=$( cd ~/run; ls -1 | xargs -n 1 readlink 2>/dev/null | xargs -I {} echo {}/tmp/setup.sh 2>/dev/null | xargs ls -1t | cut -f3 -d'/' | head -n 1 )
+yimg=$( cd ~/run; ls | xargs readlink | xargs -I {} echo {}/tmp/setup.sh | xargs ls -1t | cut -f3 -d'/' | head -n 1 ) 2>/dev/null
 if [[ -z "$yimg" ]]; then
   echo "no newest image found, exiting..."
   exit 2
@@ -33,7 +33,7 @@ fi
 
 # kick off the oldest image if its age is greater than N days
 #
-oimg=$( cd ~/run; ls -1 | xargs -n 1 readlink 2>/dev/null | xargs -I {} echo {}/tmp/setup.sh 2>/dev/null | xargs ls -1t | cut -f3 -d'/' | tail -n 1 )
+oimg=$( cd ~/run; ls | xargs readlink | xargs -I {} echo {}/tmp/setup.sh | xargs ls -1t | cut -f3 -d'/' | tail -n 1 ) 2>/dev/null
 if [[ -z "$oimg" ]]; then
   echo "no oldest image found, exiting..."
   exit 3
