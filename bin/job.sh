@@ -1033,6 +1033,11 @@ EOF
     fi
   fi
 
+  grep -q ">>> Installing .* sys-libs/glibc-[1-9]" $bak
+  if [[ $? -eq 0 ]]; then
+    echo "@system" >> $backlog
+  fi
+
   # switch to a new GCC first
   #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
