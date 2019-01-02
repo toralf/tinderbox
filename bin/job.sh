@@ -1141,12 +1141,12 @@ function RunAndCheck() {
       # repo update during @system, @world etc.
       #
       try_again=1
-      Mail "info: catched a repo race" $bak
+      Mail "info: catched a repo race for task=$task" $bak
       echo "$task" >> $backlog
 
       # wait for "git pull" being finished
       #
-      sleep 30
+      sleep 60
     else
       if [[ $rc -lt 128 ]]; then
         GotAnIssue
