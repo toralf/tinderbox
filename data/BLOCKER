@@ -17,6 +17,11 @@ yy
 561854
 EVP_|error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not  declared in this scope|undefined reference to HMAC|OPENSSL_|TLS1_3_VERSION|undefined reference to SSL_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC
 
+# OpenSSL 1.1
+#
+592438
+error: storage size of .* isn.t known|error: dereferencing pointer to incomplete type X509
+
 # QA
 #
 520404
