@@ -539,7 +539,7 @@ EOF
   # this is a mysql alternative engine, emerge it before @system or @world pulls the default (mysqld)
   #
   if [[ "$libressl" = "y" ]]; then
-    if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    if [[ $(($RANDOM % 8)) -eq 0 ]]; then
       echo "dev-db/percona-server" >> $bl.1st
     fi
   fi
