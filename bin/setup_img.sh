@@ -529,10 +529,6 @@ function CreateBacklog()  {
 @system
 EOF
 
-  # try a work around of the infamous Perl upgrade issue
-  #
-  echo "sys-apps/texinfo" >> $bl.1st
-
   # asturm: give media-libs/jpeg a fair chance
   #
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
