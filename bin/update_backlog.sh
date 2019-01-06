@@ -33,7 +33,7 @@ if [[ -s $pks ]]; then
     #
     bl=~/run/$i/tmp/backlog.upd
     sort --unique --random-sort $bl $pks > $bl.tmp
-    # use cp ...l rm instead of mv to keep perms of the origin
+    # use cp+rm instead of mv to keep permissions of $bl
     #
     cp $bl.tmp $bl
     rm $bl.tmp
