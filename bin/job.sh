@@ -1330,21 +1330,24 @@ do
   #
   rm -rf /var/tmp/portage/*
 
-  # eg.: remove a package to catch a dependency issue
-  #
-  if [[ -x /tmp/pretask.sh ]]; then
-    /tmp/pretask.sh &> /tmp/pretask.sh.log
-  fi
-
   # if task file is non-empty then retry it
   #
   if [[ -s $tsk ]]; then
     task=$( cat $tsk )
   else
+    # commonly this handles a STOP
+    #
     setNextTask
+
     # the attempt itself is sufficient to keep it in the image task history
     #
     echo "$task" | tee -a $tsk.history > $tsk
+  fi
+
+  # eg.: remove a package to catch a dependency issue
+  #
+  if [[ -x /tmp/pretask.sh ]]; then
+    /tmp/pretask.sh &> /tmp/pretask.sh.log
   fi
 
   WorkOnTask
