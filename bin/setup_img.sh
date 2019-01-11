@@ -113,7 +113,7 @@ function SetOptions() {
 #
 function CheckOptions() {
   if [[ ! -d $repo_path/profiles/default/linux/amd64/$profile ]]; then
-    echo " profile unknown: $profile"
+    echo " profile unknown: $profile in $repo_path"
     exit 2
   fi
 
