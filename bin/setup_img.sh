@@ -493,7 +493,7 @@ EOF
 
   # from leio via IRC
   #
-  echo 'emerge -C dev-util/glib-utils' > ./tmp/pretask.sh
+  echo 'emerge --unmerge dev-util/glib-utils' > ./tmp/pretask.sh
   chmod a+x ./tmp/pretask.sh
 }
 
@@ -551,13 +551,17 @@ EOF
   # switch to LibreSSL soon
   #
   if [[ "$libressl" = "y" ]]; then
-    # @preserved-rebuild will be added to backlog.1st by unmerge of openssl
-    # therefore "%emerge @preserved-rebuild" must not fail eventually
+    # fetch all mandatory packages which must either be (re-)build or have to act as a fallback
+    # wget is crucial b/c it is used by portage to fetch sources
+    #
+    # @preserved-rebuild will be added to backlog.1st by job.sh
+    # caused by the log message of the unmerge operation of openssl
+    # therefore "%emerge @preserved-rebuild" should never fail eventually
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
-%emerge -C openssl
-%emerge -f dev-libs/libressl net-misc/openssh mail-mta/ssmtp net-misc/wget dev-lang/python
+%emerge --unmerge openssl
+%emerge -f dev-libs/openssl dev-libs/libressl net-misc/openssh net-misc/wget dev-lang/python
 %mv /tmp/00libressl /etc/portage/package.use/
 EOF
   fi
