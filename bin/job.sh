@@ -859,6 +859,7 @@ function GotAnIssue()  {
   grep -q \
           -e "configure: error: perl module Locale::gettext required" \
           -e "loadable library and perl binaries are mismatched"      \
+          -e "Can't locate Locale/Messages.pm in @INC"                \
           $bak
   if [[ $? -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
