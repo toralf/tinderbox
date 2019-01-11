@@ -392,20 +392,16 @@ function CompilePortageFiles()  {
   # build w/o "test", useful if package specific test phase is known to be br0ken or takes too long
   #
   echo 'FEATURES="-test"'         > ./etc/portage/env/notest
-  echo "*/* notest"               > ./etc/portage/package.env/notest
 
   # at 2nd attempt to emerge a package do ignore the test phase result
   # but do still run the test phase (even it will fail) to have the same dep tree
   #
   echo 'FEATURES="test-fail-continue"'  > ./etc/portage/env/test-fail-continue
 
-  # breakage is forced by the XDG_* variables in job.sh
-  # retry affected packages  w/o sandbox'ing then
+  # certain types of sandbox issues are forced by the XDG_* settings in job.sh
+  # at 2nd attempt retry affected packages w/o sandbox'ing
   #
   echo 'FEATURES="-sandbox"'      > ./etc/portage/env/nosandbox
-
-  # dito
-  #
   echo 'FEATURES="-usersandbox"'  > ./etc/portage/env/nousersandbox
 
   # no parallel build
@@ -461,6 +457,8 @@ EOF
   if [[ "$testfeature" = "y" ]]; then
     cp  ~tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
     cp  ~tinderbox/tb/data/package.env.notest       ./etc/portage/package.env/notest
+  else
+    echo "*/* notest"                             > ./etc/portage/package.env/notest
   fi
 
   touch ./tmp/task
