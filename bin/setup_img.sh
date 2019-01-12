@@ -74,7 +74,7 @@ function SetOptions() {
 
   # be more restrict wrt sandbox issues
   #
-  features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news"
+  features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news protect-owned -collision-protect"
 
   # no automatic check of stable amd64
   #
