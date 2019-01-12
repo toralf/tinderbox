@@ -5,13 +5,9 @@ configure: error: Linux kernel in .* is version .*, but version newer than .* is
 Couldn't find .* to unmerge.
 emerge with binary use flag first
 Fetch instructions for
-gcc-5 is not yet supported
 gcc version .* found, expected gcc
 Incorrect kernel configuration options
-Kernel brk randomization detected
 kernel too new
-kernel does not exist
-ld: -r and -pie may not be used together
 License file not found!
 license setup failed
 Linux >= .* and <= .* required for userspace modules
@@ -24,7 +20,6 @@ No pathcc executable was installed, your hardware is unsupported most likely
 No support for external modules in
 OpenMP is not available in your current selected compiler
 pcmcia support is broken on kernels newer
-Please buy & download
 Please disable .* support in your kernel config and recompile your kernel
 Please switch your active compiler to gcc with
 Please use a supported ICD

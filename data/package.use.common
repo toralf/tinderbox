@@ -36,3 +36,7 @@ dev-lang/python           sqlite
 # 2h less compile time
 #
 dev-lang/rust             system-llvm
+
+# circ dep during setup
+#
+dev-util/cmake            -system-jsoncpp
