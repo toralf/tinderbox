@@ -8,6 +8,8 @@
 #
 # echo "cd ~/img && while :; do sudo /opt/tb/bin/setup_img.sh && break; done" | at now
 
+# an exit code of 1 is an unrecoverable error, 2 means try it again
+
 #############################################################################
 #
 # functions
@@ -114,27 +116,27 @@ function SetOptions() {
 function CheckOptions() {
   if [[ ! -d $repo_path/profiles/default/linux/amd64/$profile ]]; then
     echo " profile unknown: $profile in $repo_path"
-    exit 2
+    exit 1
   fi
 
   if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
     echo " wrong value for \$keyword: $keyword"
-    exit 2
+    exit 1
   fi
 
   if [[ "$libressl" != "y" && "$libressl" != "n" ]]; then
     echo " wrong value for \$libressl: $libressl"
-    exit 2
+    exit 1
   fi
 
   if [[ "$multilib" != "y" && "$multilib" != "n" ]]; then
     echo " wrong value for \$multilib $multilib"
-    exit 2
+    exit 1
   fi
 
   if [[ "$testfeature" != "y" && "$testfeature" != "n" ]]; then
     echo " wrong value for \$testfeature $testfeature"
-    exit 2
+    exit 1
   fi
 }
 
@@ -172,7 +174,7 @@ function ComputeImageName()  {
 #
 function UnpackStage3()  {
   latest=$distfiles/latest-stage3.txt
-  wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 4
+  wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 1
 
   case $profile in
     */no-multilib/hardened)
@@ -199,7 +201,7 @@ function UnpackStage3()  {
   stage3=$(echo $stage3 | cut -f1 -d' ' -s)
   if [[ -z "$stage3" ]]; then
     echo "can't get stage3 filename for profile '$profile'"
-    exit 4
+    exit 1
   fi
 
   f=$distfiles/$(basename $stage3)
@@ -209,7 +211,7 @@ function UnpackStage3()  {
     if [[ $rc -ne 0 ]]; then
       echo " can't download stage3 file '$stage3' of profile '$profile', rc=$rc"
       rm -f $f{,.DIGESTS.asc}
-      exit 4
+      exit 1
     fi
   fi
 
@@ -221,12 +223,12 @@ function UnpackStage3()  {
   #
   # do the same for 0xBB572E0E2D182910
   #
-  gpg --quiet --verify $f.DIGESTS.asc || exit 4
+  gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
-  cd $name || exit 4
+  cd $name || exit 1
   echo " untar'ing $f ..."
-  tar -xf $f --xattrs --exclude='./dev/*' || exit 5
+  tar -xf $f --xattrs --exclude='./dev/*' || exit 1
 }
 
 
@@ -505,7 +507,7 @@ EOF
 function CreateBacklog()  {
   bl=./tmp/backlog
 
-  truncate -s 0 $bl{,.1st,.upd}            || exit 5
+  truncate -s 0 $bl{,.1st,.upd}            || exit 1
   chmod ug+w    $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
@@ -602,7 +604,7 @@ EOF
 #     www-client/pybugz           bugz
 #
 function CreateSetupScript()  {
-  cat << EOF >> ./tmp/setup.sh || exit 6
+  cat << EOF >> ./tmp/setup.sh || exit 1
 #!/bin/sh
 #
 # set -x
@@ -610,10 +612,10 @@ function CreateSetupScript()  {
 # eselect sometimes can't be used for new unstable profiles
 #
 cd /etc/portage
-ln -snf ../../var/db/repos/gentoo/profiles/default/linux/amd64/$profile make.profile || exit 6
+ln -snf ../../var/db/repos/gentoo/profiles/default/linux/amd64/$profile make.profile || exit 1
 
 echo "Europe/Berlin" > /etc/timezone
-emerge --config sys-libs/timezone-data || exit 6
+emerge --config sys-libs/timezone-data || exit 1
 
 echo "
 en_US ISO-8859-1
@@ -622,8 +624,8 @@ de_DE ISO-8859-1
 de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
 " >> /etc/locale.gen
-locale-gen -j1 || exit 6
-eselect locale set en_US.UTF-8 || exit 6
+locale-gen -j1 || exit 1
+eselect locale set en_US.UTF-8 || exit 1
 
 if [[ $profile =~ "systemd" ]]; then
   echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
@@ -632,18 +634,18 @@ fi
 env-update
 source /etc/profile
 
-emerge mail-mta/ssmtp || exit 7
-emerge mail-client/mailx || exit 7
+emerge mail-mta/ssmtp || exit 1
+emerge mail-client/mailx || exit 1
 
 # contains credentials for mail-mta/ssmtp
 #
-(cd /etc/ssmtp && ln -sf ../../tmp/tb/sdata/ssmtp.conf) || exit 7
+(cd /etc/ssmtp && ln -sf ../../tmp/tb/sdata/ssmtp.conf) || exit 1
 
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 8
+emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
 
 # contains credentials for www-client/pybugz
 #
-(cd /root && ln -s ../tmp/tb/sdata/.bugzrc) || exit 8
+(cd /root && ln -s ../tmp/tb/sdata/.bugzrc) || exit 1
 
 if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
@@ -653,7 +655,7 @@ fi
 #
 $dryrun &> /tmp/dryrun.log
 if [[ \$? -ne 0 ]]; then
-  exit 9
+  exit 2
 fi
 
 exit 0
@@ -677,7 +679,7 @@ function EmergeMandatoryPackages() {
     echo " setup NOT successful (rc=$rc) @ $mnt"
     echo
 
-    if [[ $rc -eq 9 ]]; then
+    if [[ $rc -eq 2 ]]; then
       cat $mnt/tmp/dryrun.log
     else
       cat $mnt/tmp/setup.log
@@ -809,7 +811,7 @@ fi
 # append the timestamp onto the image name
 #
 name="${name}_$(date +%Y%m%d-%H%M%S)"
-mkdir $name || exit 3
+mkdir $name || exit 1
 
 # relative path to ~tinderbox
 #
@@ -838,7 +840,7 @@ dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system -
 CreateSetupScript
 EmergeMandatoryPackages
 
-cd  ~tinderbox/run && ln -s ../$mnt || exit 11
+cd  ~tinderbox/run && ln -s ../$mnt || exit 1
 
 echo
 echo " setup OK"

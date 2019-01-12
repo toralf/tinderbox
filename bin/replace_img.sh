@@ -74,6 +74,10 @@ do
 
   if [[ $? -eq 0 ]]; then
     break
+  elif [[ $? -eq 2 ]]; then
+    continue
+  else
+    exit 1
   fi
 done
 
