@@ -531,9 +531,11 @@ function CreateBacklog()  {
 @system
 EOF
 
-  # asturm: give media-libs/jpeg a fair chance
+  # asturm: give media-libs/jpeg a chance
   #
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+  # but there's a poppler issue: https://bugs.gentoo.org/670252
+  #
+  if [[ $(($RANDOM % 6)) -eq 0 ]]; then
     echo "media-libs/jpeg" >> $bl.1st
   fi
 
