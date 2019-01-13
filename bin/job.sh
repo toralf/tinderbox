@@ -995,8 +995,7 @@ function PostEmerge() {
     echo "@preserved-rebuild" >> $backlog
   fi
 
-  # switch to the new kernel sources
-  # build them asap!
+  # build new kernel sources asap
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
@@ -1021,23 +1020,6 @@ function PostEmerge() {
     echo "%perl-cleaner --all" >> $backlog
   fi
 
-  # if $backlog is empty schedule an update once a day
-  #
-  if [[ ! -s $backlog ]]; then
-    let "diff = $(date +%s) - $(stat -c%Y /tmp/@world.history)"
-    if [[ $diff -gt 86400 ]]; then
-      echo "@world" >> $backlog
-    fi
-
-    let "diff = $(date +%s) - $(stat -c%Y /tmp/@system.history)"
-    if [[ $diff -gt 86400 ]]; then
-      cat << EOF >> $backlog
-@system
-%SwitchJDK
-EOF
-    fi
-  fi
-
   grep -q ">>> Installing .* sys-libs/glibc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "@system" >> $backlog
@@ -1050,19 +1032,37 @@ EOF
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # switch to default Python
+  # set to a recent version for emerge
   #
   grep -q ">>> Installing .* dev-lang/python-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "%eselect python update" >> $backlog
   fi
 
-  # seems to be a false warning, but it doesn't harm
+  # if $backlog is empty schedule an update once a day
   #
-  grep -q 'Please run emaint --check world' $bak
-  if [[ $? -eq 0 ]]; then
-    echo "%emaint --check world" >> $backlog
+  if [[ ! -s $backlog ]]; then
+    # PostEmerge() is called before the first history file is made
+    #
+    if [[ -f /tmp/@world.history ]]; then
+      let "diff = $(date +%s) - $(stat -c%Y /tmp/@world.history)"
+      if [[ $diff -gt 86400 ]]; then
+        echo "@world" >> $backlog
+      fi
+    fi
+
+    # @system is not the last entry in $backlog after setup
+    # therefore no check is needed here
+    #
+    let "diff = $(date +%s) - $(stat -c%Y /tmp/@system.history)"
+    if [[ $diff -gt 86400 ]]; then
+      cat << EOF >> $backlog
+@system
+%SwitchJDK
+EOF
+    fi
   fi
+
 }
 
 
