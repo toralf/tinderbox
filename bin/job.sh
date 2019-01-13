@@ -1021,13 +1021,17 @@ function PostEmerge() {
     echo "%perl-cleaner --all" >> $backlog
   fi
 
-  # if $backlog is empty then do 24 hours after the last @system *finished*:
+  # if $backlog is empty schedule an update once a day
   #
   if [[ ! -s $backlog ]]; then
+    let "diff = $(date +%s) - $(stat -c%Y /tmp/@world.history)"
+    if [[ $diff -gt 86400 ]]; then
+      echo "@world" >> $backlog
+    fi
+
     let "diff = $(date +%s) - $(stat -c%Y /tmp/@system.history)"
     if [[ $diff -gt 86400 ]]; then
       cat << EOF >> $backlog
-@world
 @system
 %SwitchJDK
 EOF
