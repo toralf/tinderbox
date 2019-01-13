@@ -62,6 +62,9 @@ do
 
   echo " $(date) starting $mnt"
   nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
+
+  # avoid spurious trouble with mount in chr.sh
+  #
   sleep 1
 
 done
