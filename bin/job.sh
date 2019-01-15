@@ -1363,17 +1363,25 @@ do
   #
   truncate -s0 $tsk
 
-  # catch a loop
+  # detect a repeating task
   #
   for p in "@preserved-rebuild" "%perl-cleaner"
   do
     if [[ $task =~ $p ]]; then
-      if [[ $(tail -n 10 $tsk.history | grep -c "$p") -eq 5 ]]; then
+      if [[ $name =~ "test" ]]; then
+        min=13
+        max=30
+      else
+        min=5
+        max=10
+      fi
+
+      if [[ $(tail -n $max $tsk.history | grep -c "$p") -ge $min ]]; then
         file=/tmp/$p.loop_was_already_reported
         if [[ ! -f $file ]]; then
-          touch $file
+          tail -n $max $tsk.history > $file
           chmod a+w $file
-          Mail "$p loop, remove $file to activate this test again" $bak
+          Mail "$p $min x within last $max tasks, remove $file to activate this test again" $file
         fi
       fi
     fi
