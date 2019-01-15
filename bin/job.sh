@@ -1380,7 +1380,7 @@ do
         file=/tmp/$p.loop_was_already_reported
         if [[ ! -f $file ]]; then
           tail -n $max $tsk.history > $file
-          chmod a+w $file
+          chown tinderbox:tinderbox $file
           Mail "$p $min x within last $max tasks, remove $file to activate this test again" $file
         fi
       fi
