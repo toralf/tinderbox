@@ -21,7 +21,7 @@ do
           echo
           ls -l ~/run/*/tmp/mail.log
 
-          echo -e "\n\n\nto re-activate this test again, do:\n\n   truncate -s 0 ~/logs/*; rm -f $f\n"
+          echo -e "\nto re-activate this test again, do:\n\n   truncate -s 0 ~/logs/*; rm -f $f\n"
         ) >> $f
 
         cat $f | mail -s "logs are non-empty" $mailto
