@@ -474,10 +474,9 @@ EOF
 }
 
 
-# use local DNS resolver
-# avoid interactive question in vim
-#
 function CompileMiscFiles()  {
+  # use local DNS resolver
+  #
   cat <<EOF >> ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
@@ -489,6 +488,8 @@ EOF
 ::1       localhost $h.localdomain $h
 EOF
 
+  # avoid interactive question in vim
+  #
   cat << EOF > ./root/.vimrc
 set softtabstop=2
 set shiftwidth=2
@@ -498,6 +499,7 @@ autocmd BufEnter *.txt set textwidth=0
 EOF
 
   # from leio via IRC
+  # https://bugs.gentoo.org/667324
   #
   echo 'emerge --unmerge dev-util/glib-utils' > ./tmp/pretask.sh
   chmod a+x ./tmp/pretask.sh
