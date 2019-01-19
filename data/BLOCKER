@@ -20,7 +20,7 @@ error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type na
 # OpenSSL 1.1
 #
 592438
-error: storage size of .* isn.t known|error: dereferencing pointer to incomplete type X509|error: SSLv3_client_method was not declared in this scope|MD._DIGEST_LENGTH|error: dereferencing pointer to incomplete type|error: too few arguments to function CRYPTO_|error: invalid use of incomplete type|error: field ..*. has incomplete type
+error: storage size of .* isn.t known|error: dereferencing pointer to incomplete type X509|error: SSLv3_client_method was not declared in this scope|MD._DIGEST_LENGTH|error: dereferencing pointer to incomplete type|error: too few arguments to function CRYPTO_|error: invalid use of incomplete type|error: field ..*. has incomplete type|SSL_.* undeclared
 
 # QA
 #

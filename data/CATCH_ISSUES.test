@@ -97,6 +97,7 @@ Some packages may not be found
 UnicodeEncodeError:
 PluginValidationError:
 git: command not found
+ests failed .* python
 INTERNALERROR. AttributeError:
 INTERNALERROR
 error: The .* command requires the .* package
