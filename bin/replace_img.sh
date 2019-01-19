@@ -14,6 +14,8 @@ n=$( pgrep -c $(basename $0) )
 if [[ $n -ne 1 ]]; then
   echo "found $n running instances (including me:$$), exiting..."
   pgrep -a $(basename $0)
+  echo
+  $(dirname $0)/whatsup.sh -otl
   exit 1
 fi
 
