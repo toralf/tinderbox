@@ -15,9 +15,10 @@
 # functions
 #
 
-# throw up to n-1 USE flags, up to m-1 of them are masked
-#
 function ThrowUseFlags()  {
+  # 1st: throw up to n-1 USE flags, up to m-1 of them are masked
+  #      but exclude trouble makers et al.
+  #
   n=40
   m=15
 
@@ -26,9 +27,8 @@ function ThrowUseFlags()  {
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' $repo_path/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|^system-|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
   tee $tmp |\
-  grep -v '^system-' |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
   sort |\
@@ -40,7 +40,7 @@ function ThrowUseFlags()  {
     echo -n "$flag "
   done
 
-  # prefer system libs over bundled
+  # 2nd: prefer few system libs over their bundled once
   #
   grep '^system-' $tmp |\
   while read flag
