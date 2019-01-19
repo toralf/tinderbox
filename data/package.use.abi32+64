@@ -1,0 +1,7 @@
+# package.use/abi32+64
+#
+
+# circ dep otherwise
+# 
+sys-libs/ncurses -gpm
+
