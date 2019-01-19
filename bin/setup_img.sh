@@ -463,6 +463,10 @@ EOF
     echo "*/* notest"                             > ./etc/portage/package.env/notest
   fi
 
+  if [[ "$multilib" = "y" ]]; then
+    cp  ~tinderbox/tb/data/package.use.abi32+64     ./etc/portage/package.use/abi32+64
+  fi
+
   touch ./tmp/task
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./tmp/task
