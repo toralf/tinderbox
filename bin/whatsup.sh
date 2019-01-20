@@ -125,7 +125,7 @@ function Overall() {
 # desktop_20170218-203252                    1:11 h  games-emulation/sdlmame
 # desktop-libressl-abi32+64_20170215-18565   0:03 m  dev-ruby/stringex
 #
-function CurrentTask()  {
+function Tasks()  {
   ts=$(date +%s)
   for i in $images
   do
@@ -152,12 +152,17 @@ function CurrentTask()  {
     if [[ $delta -ge 3600 ]]; then
       let "minutes = $delta / 60 % 60"
       let "hours = $delta / 60 / 60"
-      printf " %3i:%02i h  " $hours $minutes
+      printf " %3i:%02i h " $hours $minutes
     else
       let "minutes = $delta / 60 % 60"
       let "seconds = $delta % 60 % 60"
-      printf " %3i:%02i m  " $minutes $seconds
+      printf " %3i:%02i m " $minutes $seconds
     fi
+
+    if [[ ! $task =~ "@" && ! $task =~ "%" ]]; then
+      echo -n " "
+    fi
+
     echo $task
   done
 }
@@ -273,7 +278,7 @@ do
         ;;
     p)  PackagesPerDay
         ;;
-    t)  CurrentTask
+    t)  Tasks
         ;;
     *)  echo "call: $(basename $0) [-l] [-o] [-p] [-t]"
         echo
