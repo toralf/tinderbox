@@ -71,21 +71,23 @@ function Overall() {
 
   for i in $images
   do
-    compl=0
-    fail=0
     day=0
+    f=$i/tmp/setup.sh
+    if [[ -f $f ]]; then
+      let "age = $(date +%s) - $(stat -c%Y $f)"
+      day=$( echo "scale=1; $age / 86400.0" | bc )
+    fi
 
-    log=$i/var/log/emerge.log
-    if [[ -r $log ]]; then
-      compl=$(grep -c '::: completed emerge' $log)
-      t1=$(head -n 1 $log | cut -c1-10)
-      t2=$(date +%s)
-      day=$(echo "scale=1; ($t2 - $t1) / 86400" | bc)
+    compl=0
+    f=$i/var/log/emerge.log
+    if [[ -f $f ]]; then
+      compl=$(grep -c '::: completed emerge' $f)
     fi
 
     # count emerge failures based on distinct package release
     # example of an issue directory name: 20170417-082345_app-misc_fsniper-1.3.1-r2
     #
+    fail=0
     if [[ -d $i/tmp/issues ]]; then
       fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename 2>/dev/null | cut -f2- -d'_' -s | sort -u | wc -w)
     fi
@@ -93,14 +95,10 @@ function Overall() {
     bl=$(wc -l 2>/dev/null < $i/tmp/backlog)
     bl1=$(wc -l 2>/dev/null < $i/tmp/backlog.1st)
     blu=$(wc -l 2>/dev/null < $i/tmp/backlog.upd)
-    ((bl=bl+0))
-    ((bl1=bl1+0))
-    ((blu=blu+0))
 
     flag=""
     [[ -f $i/tmp/LOCK ]] && flag="r$flag" || flag=" $flag"    # (r)unning
     [[ -f $i/tmp/STOP ]] && flag="f$flag" || flag=" $flag"    # (f)inishing
-
     flag=" $flag"
 
     # show result of last run of @system, @world and @preserved-rebuild respectively
@@ -111,6 +109,8 @@ function Overall() {
     check_history $i/tmp/@system.history             s
     check_history $i/tmp/@preserved-rebuild.history  p
 
+    # images during setup are not already symlinked to ~/running
+    #
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="run" || d=$(basename $(dirname $i))
 
