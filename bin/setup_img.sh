@@ -642,6 +642,10 @@ fi
 env-update
 source /etc/profile
 
+# needed at least in job.sh
+#
+useradd -u $(id -u tinderbox) tinderbox
+
 emerge mail-mta/ssmtp || exit 1
 emerge mail-client/mailx || exit 1
 
