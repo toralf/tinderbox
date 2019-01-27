@@ -59,7 +59,7 @@ function ThrowUseFlags()  {
 #
 function SetOptions() {
   autostart="y"               # start the image after setup
-  origin=""                   # derive settings from another image?
+  origin=""                   # derive settings from this image
   useflags=$(ThrowUseFlags)
 
   # choose one of 17.0/*
@@ -78,7 +78,7 @@ function SetOptions() {
   #
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news protect-owned -collision-protect"
 
-  # no automatic check of stable amd64
+  # check only unstable amd64 per default
   #
   keyword="unstable"
 
