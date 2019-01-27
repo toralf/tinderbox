@@ -5,53 +5,60 @@
 # replace the oldest tinderbox image with a new one
 #
 
+function Finish() {
+  rm -f $lck
+  exit $1
+}
+
+
+#######################################################################
+#
 if [[ $# -ne 2 ]]; then
-  echo "help: '$0 <hour/s> day/s', exiting..."
-  exit 1
+  echo "call: '$0 hour(s) day(s)'"
+  Finish 1
 fi
 
-n=$( pgrep -c $(basename $0) )
-if [[ $n -ne 1 ]]; then
-  echo "found $n running instances (including me:$$), exiting..."
-  pgrep -a $(basename $0)
-  echo
-  $(dirname $0)/whatsup.sh -otl
+lck=/tmp/$( basename $0 ).lck
+if [[ -f $lck ]]; then
+  echo "found lock file '$lck', content: $( cat $lck | xargs ), exiting ..."
   exit 1
 fi
+echo $$ >> $lck
 
 # bail out if the age of the youngest image is below $1 hours
 #
 yimg=$( cd ~/run; ls | xargs readlink | xargs -I {} echo {}/tmp/setup.sh | xargs ls -1t | cut -f3 -d'/' | head -n 1 ) 2>/dev/null
 if [[ -z "$yimg" ]]; then
-  echo "no newest image found, exiting..."
-  exit 2
+  echo "no newest image found, exiting ..."
+  Finish 2
 fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/$yimg/tmp/setup.sh)"
 let "age = $age / 3600"
 if [[ $age -lt $1 ]]; then
-  exit 2
+  Finish 0
 fi
 
 # kick off the oldest image if its age is greater than N days
 #
 oimg=$( cd ~/run; ls | xargs readlink | xargs -I {} echo {}/tmp/setup.sh | xargs ls -1t | cut -f3 -d'/' | tail -n 1 ) 2>/dev/null
 if [[ -z "$oimg" ]]; then
-  echo "no oldest image found, exiting..."
-  exit 3
+  echo "no oldest image found, exiting ..."
+  Finish 2
 fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/$oimg/tmp/setup.sh)"
 let "age = $age / 86400"
 if [[ $age -lt $2 ]]; then
-  exit 3
+  Finish 0
 fi
 
-# wait till the old image is stopped but delete it after a new one was setup
+# wait till the old image is stopped, delay delete till a new one is setup
 #
 echo
+echo " old image is $oimg"
 date
-/opt/tb/bin/stop_img.sh $oimg
+$(dirname $0)/stop_img.sh $oimg
 while :
 do
   if [[ ! -f ~/run/$oimg/tmp/LOCK ]]; then
@@ -72,23 +79,27 @@ do
   echo "i=$i============================================================="
   echo
   date
-  sudo /opt/tb/bin/setup_img.sh
+  sudo $(dirname $0)/setup_img.sh
+  rc=$?
 
-  if [[ $? -eq 0 ]]; then
+  if [[ $rc -eq 0 ]]; then
     break
-  elif [[ $? -eq 2 ]]; then
+  elif [[ $rc -eq 2 ]]; then
     continue
   else
-    exit 1
+    echo "rc=$rc, exiting ..."
+    Finish $rc
   fi
 done
 
-# delete artefacts of the old image
+# delete old image and its log file
 #
-rm ~/run/$oimg ~/logs/$oimg.log
 date
-echo "deleted $oimg"
+echo "delete $oimg"
+rm ~/run/$oimg ~/logs/$oimg.log
 
 echo
 date
 echo "done, needed $i attempt(s)"
+
+Finish 0
