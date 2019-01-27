@@ -973,6 +973,11 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     locale-gen > /dev/null
     rm /etc/._cfg????_locale.gen
+  else
+    grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $bak
+    if [[ $? -eq 0 ]]; then
+      locale-gen > /dev/null
+    fi
   fi
 
   # merge the remaining config files automatically
