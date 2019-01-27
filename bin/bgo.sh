@@ -42,7 +42,7 @@ fi
 
 id=""
 block=""
-comment="<unset>"
+comment=""
 issuedir=""
 severity="Normal"
 
@@ -90,7 +90,7 @@ rm -f bugz.{out,err}
 if [[ -n "$id" ]]; then
   # modify an existing bug report
   #
-  if [[ "$comment" = "<unset>" ]]; then
+  if [[ -z "$comment" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
   timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
@@ -121,6 +121,10 @@ else
     echo "empty bug id"
     echo
     Error 4
+  fi
+
+  if [[ -n "$comment" ]]; then
+    timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
   fi
 fi
 
