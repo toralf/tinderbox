@@ -77,3 +77,8 @@ ros-meta/
 # tinderbox ip address is blocked
 #
 app-text/master-pdf-editor
+#
+# https://bugs.gentoo.org/656966
+#
+net-analyzer/wireshark
+dev-ruby/asciidoctor

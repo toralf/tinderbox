@@ -3,5 +3,5 @@
 
 # circ dep otherwise
 # 
+sys-libs/libcap  -pam
 sys-libs/ncurses -gpm
-
