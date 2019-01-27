@@ -13,10 +13,12 @@ function Finish() {
 
 #######################################################################
 #
-if [[ $# -ne 2 ]]; then
+if [[ $# -gt 3 ]]; then
   echo "call: '$0 hour(s) day(s)'"
   Finish 1
 fi
+hours=${1:-4}
+days=${2:-6}
 
 lck=/tmp/$( basename $0 ).lck
 if [[ -f $lck ]]; then
@@ -35,7 +37,7 @@ fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/$yimg/tmp/setup.sh)"
 let "age = $age / 3600"
-if [[ $age -lt $1 ]]; then
+if [[ $age -lt $hours ]]; then
   Finish 0
 fi
 
@@ -49,7 +51,7 @@ fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/$oimg/tmp/setup.sh)"
 let "age = $age / 86400"
-if [[ $age -lt $2 ]]; then
+if [[ $age -lt $days ]]; then
   Finish 0
 fi
 
