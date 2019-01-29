@@ -14,15 +14,15 @@ function Finish() {
 #######################################################################
 #
 if [[ $# -gt 3 ]]; then
-  echo "call: '$0 hour(s) day(s)'"
+  echo "call: '$0 [day(s) [hour(s) ]]'"
   Finish 1
 fi
-hours=${1:-4}
-days=${2:-6}
+days=${1:-5}
+hours=${2:-12}
 
 lck=/tmp/$( basename $0 ).lck
 if [[ -f $lck ]]; then
-  echo "found lock file '$lck', content: $( cat $lck | xargs ), exiting ..."
+  # echo "found lock file '$lck', content: $( cat $lck | xargs ), exiting ..."
   exit 1
 fi
 echo $$ >> $lck
