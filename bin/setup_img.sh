@@ -583,11 +583,12 @@ EOF
   echo "%emerge -u sys-kernel/vanilla-sources" >> $bl.1st
 
   # upgrade GCC first
-  #   %...  : bail out if it fails
-  #   no --deep, that would result effectively in @system
-  #   avoid upgrading of the current stable slot, if a new major unstable version is visible
+  #   %...      : bail out if it fails
+  #   no --deep : that would result effectively in @system
+  #   =         : do not upgrade the current (slotted) version
+  # dev-libs/*  : avoid rebuild of GCC just due to an update of one of these
   #
-  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr " >> $bl.1st
+  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
   # the stage4 of a systemd ISO image ran it already
   #
@@ -610,6 +611,7 @@ EOF
 #     app-portage/gentoolkit      equery eshowkw revdep-rebuild
 #     app-portage/portage-utils   qatom qdepends qlop
 #     www-client/pybugz           bugz
+# - dry run of @system
 #
 function CreateSetupScript()  {
   cat << EOF >> ./tmp/setup.sh || exit 1
