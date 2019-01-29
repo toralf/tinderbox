@@ -27,8 +27,8 @@ function ThrowUseFlags()  {
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' $repo_path/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
+  tee $tmp  |\
   egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|^system-|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
-  tee $tmp |\
   sort -u --random-sort |\
   head -n $(($RANDOM % $n)) |\
   sort |\
@@ -40,7 +40,7 @@ function ThrowUseFlags()  {
     echo -n "$flag "
   done
 
-  # 2nd: prefer few system libs over their bundled once
+  # 2nd: prefer system libs over bundled ones
   #
   grep '^system-' $tmp |\
   while read flag
