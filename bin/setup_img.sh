@@ -586,7 +586,7 @@ EOF
   #   %...      : bail out if it fails
   #   no --deep : that would result effectively in @system
   #   =         : do not upgrade the current (slotted) version
-  # dev-libs/*  : avoid rebuild of GCC just due to an update of one of these
+  # dev-libs/*  : avoid a forced rebuild of GCC in @system
   #
   echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
