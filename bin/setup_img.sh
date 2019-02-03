@@ -62,12 +62,12 @@ function SetOptions() {
   origin=""                   # derive settings from this image
   useflags=$(ThrowUseFlags)
 
-  # choose one of 17.0/*
+  # throw a profile
   #
   profile=$(
     eselect profile list                                    |\
     awk ' { print $2 } '                                    |\
-    grep -e "^default/linux/amd64/17.0"                     |\
+    grep -e "^default/linux/amd64/17.[01]"                  |\
     cut -f4- -d'/' -s                                       |\
     grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' |\
     sort --random-sort                                      |\
