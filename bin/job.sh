@@ -1085,7 +1085,7 @@ function CheckQA() {
   fi
   mv $f.tmp $f
 
-  # process each QA issue independent from all others even for the same QA file
+  # process each QA issue separately (there might be more than 1 in the same elog file)
   #
   cat $f |\
   while read elogfile
@@ -1095,31 +1095,25 @@ function CheckQA() {
     do
       grep -q "$reason" $elogfile
       if [[ $? -eq 0 ]]; then
+        CreateIssueDir
+        grep "$reason" $elogfile > $issuedir/title
+
+        grep -B 1 -A 5 "$reason" $elogfile | tee $issuedir/body > $issuedir/issue
+        if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
+          cp $elogfile $issuedir/files/
+        fi
+        AddWhoamiToIssue
+        SearchForBlocker
         failed=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
         short=$(pn2p "$failed")
-
-        CreateIssueDir
-
         GetAssigneeAndCc
-
-        cp $elogfile $issuedir/issue
-        AddWhoamiToIssue
-
-        echo "$reason" > $issuedir/title
-        SearchForBlocker
-
-        grep -A 10 "$reason" $issuedir/issue > $issuedir/body
         AddVersionAssigneeAndCC
-
         echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
         id=$(timeout 300 bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
-
         collectPortageDir
-        AttachFilesToBody $issuedir/issue
-
         sed -i -e "s,^,$failed : [QA] ," $issuedir/title
         TrimTitle
-
+        AttachFilesToBody $issuedir/issue
         if [[ -z "$id" ]]; then
           SendoutIssueMail
         fi
