@@ -67,12 +67,19 @@ function SetOptions() {
   profile=$(
     eselect profile list                                    |\
     awk ' { print $2 } '                                    |\
-    grep -e "^default/linux/amd64/17.[01]"                  |\
+    grep -e "^default/linux/amd64/17.0"                     |\
     cut -f4- -d'/' -s                                       |\
     grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' |\
     sort --random-sort                                      |\
     head -n 1
   )
+
+  # switch to 17.1 profile
+  #
+  expprofile="n"
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    expprofile="y"
+  fi
 
   # be more restrict wrt sandbox issues
   #
@@ -119,6 +126,11 @@ function CheckOptions() {
     exit 1
   fi
 
+  if [[ "$expprofile" != "y" && "$expprofile" != "n" ]]; then
+    echo " wrong value for \$expprofile: $expprofile"
+    exit 1
+  fi
+
   if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
     echo " wrong value for \$keyword: $keyword"
     exit 1
@@ -145,6 +157,9 @@ function CheckOptions() {
 #
 function ComputeImageName()  {
   name="$(echo $profile | tr '/' '-')_"
+  if [[ "$expprofile" = "y" ]]; then
+    name=$( echo $name | sed -e 's/17.0/17.1/g' )
+  fi
 
   if [[ "$keyword" = "stable" ]]; then
     name="$name-stable"
@@ -582,13 +597,32 @@ EOF
   #
   echo "%emerge -u sys-kernel/vanilla-sources" >> $bl.1st
 
-  # upgrade GCC first
+  if [[ "$expprofile" = "y" ]]; then
+    if [[ ! $profile =~ "no-multilib" ]]; then
+      echo "%emerge -1 /lib32 /usr/lib32" >> $bl.1st
+    fi
+  fi
+
+  # upgrade GCC asap
   #   %...      : bail out if it fails
   #   no --deep : that would result effectively in @system
   #   =         : do not upgrade the current (slotted) version
   # dev-libs/*  : avoid a forced rebuild of GCC in @system
   #
   echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+
+  if [[ "$expprofile" = "y" ]]; then
+    cat << EOF >> $bl.1st
+%eselect profile set --force default/linux/amd64/$( echo $profile | sed 's/17.0/17.1/g' )
+%unsymlink-lib --finish
+%source /etc/profile
+%env-update
+%unsymlink-lib --migrate
+%unsymlink-lib --analyze
+%emerge app-portage/unsymlink-lib
+EOF
+  fi
+
 
   # the stage4 of a systemd ISO image ran it already
   #
@@ -739,10 +773,12 @@ repo_path=$( portageq get_repo_path / gentoo )
 
 SetOptions
 
-while getopts a:f:k:l:m:o:p:s:t:u: opt
+while getopts a:e:f:k:l:m:o:p:s:t:u: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
+        ;;
+    e)  expprofile="$OPTARG"
         ;;
     f)  features="$OPTARG"
         ;;
