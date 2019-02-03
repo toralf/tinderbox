@@ -4,7 +4,7 @@
 #
 # this file MUST NOT have empty lines (except the very last one)
 #
-# never explicitely emerge packages of these categories
+# never explicitely emerge these
 #
 app-eselect/
 dev-embedded/
@@ -15,7 +15,7 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# annoying behaviour
+# annoying behaviour at the command line
 #
 app-vim/c-support
 #
@@ -37,10 +37,9 @@ x11-drivers/nvidia-drivers
 #
 # too many old bugs open
 #
-sys-cluster/
 sys-fabric/ibutils
 #
-# awefully long build time (due to inherit a bundled copy of chromium)
+# awefully long build time (due to inheritance of a bundled copy of chromium)
 #
 app-editors/atom
 dev-util/electron
@@ -73,10 +72,6 @@ dev-libs/aws-sdk-cpp
 #
 dev-ros/
 ros-meta/
-#
-# tinderbox ip address is blocked
-#
-app-text/master-pdf-editor
 #
 # https://bugs.gentoo.org/656966
 #

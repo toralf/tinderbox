@@ -1,9 +1,10 @@
-Missing soname symlink(s)
-USE Flag .* not in IUSE for
 broken .png files found
 cmake-utils_src_prepare has not been run
 dosym target omits basename:
 econf called in .* instead of
-installs into paths that should be created at runtime
+Missing soname symlink(s)
 python_prepare_all() didn't call distutils-r1_python_prepare_all
 running automake in configure phase
+The ebuild is installing to one or more unexpected paths:
+This ebuild installs into paths that should be created at runtime.
+USE Flag .* not in IUSE for
