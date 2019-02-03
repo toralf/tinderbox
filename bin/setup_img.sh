@@ -130,12 +130,12 @@ function CheckOptions() {
   fi
 
   if [[ "$multilib" != "y" && "$multilib" != "n" ]]; then
-    echo " wrong value for \$multilib $multilib"
+    echo " wrong value for \$multilib: $multilib"
     exit 1
   fi
 
   if [[ "$testfeature" != "y" && "$testfeature" != "n" ]]; then
-    echo " wrong value for \$testfeature $testfeature"
+    echo " wrong value for \$testfeature: $testfeature"
     exit 1
   fi
 }
@@ -696,7 +696,7 @@ function EmergeMandatoryPackages() {
     if [[ $rc -eq 2 ]]; then
       cat $mnt/tmp/dryrun.log
     else
-      cat $mnt/tmp/setup.log
+      cat $mnt/tmp/setup.sh.log
     fi
 
     # create commands, easy to copy+paste for ceonvenience
