@@ -89,7 +89,7 @@ function Overall() {
     #
     fail=0
     if [[ -d $i/tmp/issues ]]; then
-      fail=$(ls -1 $i/tmp/issues | xargs -n 1 basename 2>/dev/null | cut -f2- -d'_' -s | sort -u | wc -w)
+      fail=$(ls -1 $i/tmp/issues | xargs --no-run-if-empty -n 1 basename 2>/dev/null | cut -f2- -d'_' -s | sort -u | wc -w)
     fi
 
     bl=$(wc -l 2>/dev/null < $i/tmp/backlog)

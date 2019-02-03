@@ -12,7 +12,7 @@ fi
 
 # split away version/revision if possible
 #
-echo $* | xargs -n 1 |\
+echo $* | xargs --no-run-if-empty -n 1 |\
 while read line
 do
   if [[ -z "$line" ]]; then
