@@ -1246,7 +1246,7 @@ function WorkOnTask() {
     else
       echo "$(date) ok $msg" >> /tmp/$task.history
       if [[ $task = "@world" ]]; then
-        echo "%emerge --depclean" >> $backlog
+        emerge --depclean --verbose &> /tmp/depclean.last.log
       fi
     fi
 
