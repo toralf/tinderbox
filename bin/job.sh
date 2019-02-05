@@ -82,9 +82,9 @@ function Finish()  {
     Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$log}
   fi
 
-  # pfl might not be installed
-  #
-  /usr/bin/pfl &> /dev/null
+  if [[ -x /usr/bin/pfl ]]; then
+    /usr/bin/pfl 1>/dev/null
+  fi
   rm -f /tmp/STOP
 
   exit $rc
@@ -1065,6 +1065,12 @@ function PostEmerge() {
 @system
 %SwitchJDK
 EOF
+      # after a while all deps of pfl should already be emerged
+      #
+      let "diff = ( $(date +%s) - $(stat -c%Y /tmp/setup.sh.log) ) / 86400"
+      if [[ $diff -gt 4 ]]; then
+        echo "app-portage/pfl" >> $backlog
+      fi
     fi
   fi
 
@@ -1192,7 +1198,9 @@ function WorkOnTask() {
     # run this here too and not only in Finish()
     # b/c packages might vanish or upgraded before EOL
     #
-    /usr/bin/pfl &> /dev/null
+    if [[ -x /usr/bin/pfl ]]; then
+      /usr/bin/pfl 1>/dev/null
+    fi
 
     # "ok|NOT ok|<msg>" is used in check_history() of whatsup.sh
     # to display " ", "[SWP]" or "[swp]" respectively
