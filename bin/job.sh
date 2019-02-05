@@ -1047,20 +1047,20 @@ function PostEmerge() {
   # if $backlog is empty schedule an update once a day
   #
   if [[ ! -s $backlog ]]; then
-    # PostEmerge() is called before the first history file is made
+    # PostEmerge() is called before the first @world history file was created
     #
     if [[ -f /tmp/@world.history ]]; then
-      let "diff = $(date +%s) - $(stat -c%Y /tmp/@world.history)"
-      if [[ $diff -gt 86400 ]]; then
+      let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@world.history) ) / 86400"
+      if [[ $diff -gt 1 ]]; then
         echo "@world" >> $backlog
       fi
     fi
 
     # @system is not the last entry in $backlog after setup
-    # therefore no check is needed here
+    # therefore no check is needed here b/c this history file should exist
     #
-    let "diff = $(date +%s) - $(stat -c%Y /tmp/@system.history)"
-    if [[ $diff -gt 86400 ]]; then
+    let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@system.history) ) / 86400"
+    if [[ $diff -gt 1 ]]; then
       cat << EOF >> $backlog
 @system
 %SwitchJDK
