@@ -20,10 +20,11 @@ fi
 days=${1:-5}
 hours=${2:-12}
 
+# error code 2 indicates: do not mail the output of the cronjob to the user
+#
 lck=/tmp/$( basename $0 ).lck
 if [[ -f $lck ]]; then
-  # echo "found lock file '$lck', content: $( cat $lck | xargs ), exiting ..."
-  exit 1
+  exit 2
 fi
 echo $$ >> $lck
 
@@ -32,13 +33,13 @@ echo $$ >> $lck
 yimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | head -n 1 )
 if [[ -z "$yimg" ]]; then
   echo "no newest image found, exiting ..."
-  Finish 2
+  Finish 3
 fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/$yimg/tmp/setup.sh)"
 let "age = $age / 3600"
 if [[ $age -lt $hours ]]; then
-  Finish 0
+  Finish 3
 fi
 
 # kick off the oldest image if its age is greater than N days
@@ -46,20 +47,19 @@ fi
 oimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | tail -n 1 )
 if [[ -z "$oimg" ]]; then
   echo "no oldest image found, exiting ..."
-  Finish 2
+  Finish 3
 fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/$oimg/tmp/setup.sh)"
 let "age = $age / 86400"
 if [[ $age -lt $days ]]; then
-  Finish 0
+  Finish 3
 fi
 
 # wait till the old image is stopped, delay delete till a new one is setup
 #
 echo
 echo " old image is $oimg"
-date
 $(dirname $0)/stop_img.sh $oimg
 while :
 do
@@ -90,7 +90,7 @@ do
     continue
   else
     echo "rc=$rc, exiting ..."
-    Finish $rc
+    Finish 4
   fi
 done
 
