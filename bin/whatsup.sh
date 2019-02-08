@@ -98,7 +98,21 @@ function Overall() {
 
     flag=""
     [[ -f $i/tmp/LOCK ]] && flag="r$flag" || flag=" $flag"    # (r)unning
-    [[ -f $i/tmp/STOP ]] && flag="f$flag" || flag=" $flag"    # (f)inishing
+
+    # (f)inishing
+    if [[ -f $i/tmp/STOP ]]; then
+      flag="f$flag"
+    else
+      grep -q ^STOP $i/tmp/backlog.1st
+      if [[ $? -eq 0 ]]; then
+        flag="F$flag"
+      else
+        flag=" $flag"
+      fi
+    fi
+
+    # just an additional space
+    #
     flag=" $flag"
 
     # show result of last run of @system, @world and @preserved-rebuild respectively
