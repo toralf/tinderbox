@@ -59,8 +59,13 @@ fi
 # wait till the old image is stopped, delay delete till a new one is setup
 #
 echo
-echo " old image is $oimg"
-$(dirname $0)/stop_img.sh $oimg
+echo " old image is $oimg, schedule pfl and stop it afterwards ..."
+echo << EOF >> $oimg/tmp/backlog.1st
+STOP
+%/usr/bin/pfl 1>/dev/null
+app-portage/pfl
+EOF
+
 while :
 do
   if [[ ! -f ~/run/$oimg/tmp/LOCK ]]; then
