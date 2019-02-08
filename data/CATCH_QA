@@ -5,5 +5,4 @@ econf called in .* instead of
 Missing soname symlink(s)
 python_prepare_all() didn't call distutils-r1_python_prepare_all
 running automake in configure phase
-This ebuild installs into paths that should be created at runtime.
 USE Flag .* not in IUSE for

@@ -55,8 +55,10 @@ sci-visualization/tensorboard
 #
 dev-perl/ZMQ
 dev-python/django
-dev-python/twisted
+dev-python/flake8
 dev-python/pycrypto
+dev-python/pyflakes
+dev-python/twisted
 dev-util/ragel
 net-libs/zmqpp
 #
@@ -68,12 +70,16 @@ dev-util/include-what-you-use
 #
 dev-libs/aws-sdk-cpp
 #
-# CMake -lpthread' error
+# CMake -lpthread error
 #
-dev-ros/
-ros-meta/
+#dev-ros/
+#ros-meta/
 #
 # https://bugs.gentoo.org/656966
 #
-net-analyzer/wireshark
 dev-ruby/asciidoctor
+net-analyzer/wireshark
+#
+# pulls in LLVM 6
+#
+sys-devel/byfl
