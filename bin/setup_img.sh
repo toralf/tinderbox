@@ -858,7 +858,7 @@ done
 CheckOptions
 ComputeImageName
 
-ls -d ~tinderbox/run/${name}_20??????-?????? 2>/dev/null
+ls -d ~tinderbox/run/$( $echo $name | sed -e 's/17../17.?/g' )_20??????-?????? 2>/dev/null
 if [[ $? -eq 0 ]]; then
   echo "name=$name is already running"
   exit 2
