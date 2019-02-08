@@ -1027,7 +1027,14 @@ function PostEmerge() {
 
   grep -q ">>> Installing .* sys-libs/glibc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
-    echo "@system" >> $backlog
+    # do not change the setup order of a new image
+    # eg. when rebuild the 32bit libs of a 17.1 profile
+    #
+    if [[ -s $backlog ]]; then
+      sed -i -e "1i @system" $backlog
+    else
+      echo "@system" >> $backlog
+    fi
   fi
 
   # switch to a new GCC first
