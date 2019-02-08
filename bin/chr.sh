@@ -23,41 +23,39 @@ function mountall() {
   #
   # tinderbox data dir
   #
-  /bin/mount -o bind      ~tinderbox/tb     $mnt/tmp/tb               &&\
+  /bin/mount -o bind      ~tinderbox/tb     $mnt/tmp/tb           &&\
   #
-  # host repo and more
+  # host repo(s) et. al.
   #
-  /bin/mount -o bind,ro   $repo_path        $mnt/var/db/repos/gentoo  &&\
-  /bin/mount -t tmpfs     tmpfs -o size=16G $mnt/var/tmp/portage      &&\
-  /bin/mount -o bind      $distfiles        $mnt/var/tmp/distfiles
+  /bin/mount -o bind,ro   $repo_gentoo      $mnt/$repo_gentoo     &&\
+  /bin/mount -t tmpfs     tmpfs -o size=16G $mnt/var/tmp/portage  &&\
+  /bin/mount -o bind      $distfiles        $mnt/$distfiles       &&\
+
+  if [[ -n "$repo_libressl" && -d $mnt/$repo_libressl ]]; then
+    /bin/mount -o bind,ro $repo_libressl $mnt/$repo_libressl
+  fi
 
   rc=$?
-
-  if [[ -d $mnt/var/db/repos/libressl ]]; then
-    if [[ $rc -eq 0 ]]; then
-      /bin/mount -o bind,ro $( portageq get_repo_path / libressl ) $mnt/var/db/repos/libressl
-      rc=$?
-    fi
-  fi
 
   return $rc
 }
 
 
 function umountall()  {
-  # if an umount fails then try to umount as much as possible
+  # try to umount as much as possible even if an umount fails
   #
   rc=0
 
-  /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}     || rc=$?
-  /bin/umount -l $mnt/{sys,proc}                  || rc=$?
+  /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
+  /bin/umount -l $mnt/{sys,proc}                    || rc=$?
 
-  /bin/umount    $mnt/tmp/tb                      || rc=$?
-  /bin/umount -l $mnt/var/tmp/{distfiles,portage} || rc=$?
+  /bin/umount    $mnt/tmp/tb                        || rc=$?
+  /bin/umount -l $mnt/$distfiles                    || rc=$?
+  /bin/umount -l $mnt/var/tmp/portage               || rc=$?
 
-  /bin/umount    $mnt/var/db/repos/gentoo         || rc=$?
-  if [[ -d $mnt/var/db/repos/libressl ]]; then
-    /bin/umount  $mnt/var/db/repos/libressl       || rc=$?
+  /bin/umount    $mnt/$repo_gentoo                  || rc=$?
+  if [[ -n "$repo_libressl" && -d $mnt/$repo_libressl ]]; then
+    /bin/umount $mnt/$repo_libressl                 || rc=$?
   fi
 
   return $rc
@@ -125,7 +123,8 @@ chown tinderbox:tinderbox $lock
 #
 grep -m 1 "/$(basename $mnt)/" /proc/mounts && exit 3
 
-repo_path=$( portageq get_repo_path / gentoo )
+repo_gentoo=$( portageq get_repo_path / gentoo )
+repo_libressl=$( portageq get_repo_path / libressl )
 distfiles=$( portageq distdir )
 
 mountall

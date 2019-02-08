@@ -24,7 +24,7 @@ function ThrowUseFlags()  {
 
   tmp=/tmp/useflags
 
-  grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' $repo_path/profiles/use{,.local}.desc |\
+  grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' $repo_gentoo/profiles/use{,.local}.desc |\
   cut -f2 -d ':' |\
   cut -f1 -d ' ' |\
   tee $tmp  |\
@@ -121,8 +121,8 @@ function SetOptions() {
 # helper of main()
 #
 function CheckOptions() {
-  if [[ ! -d $repo_path/profiles/default/linux/amd64/$profile ]]; then
-    echo " profile unknown: $profile in $repo_path"
+  if [[ ! -d $repo_gentoo/profiles/default/linux/amd64/$profile ]]; then
+    echo " profile unknown: $profile in $repo_gentoo"
     exit 1
   fi
 
@@ -254,7 +254,7 @@ function CompileRepoFiles()  {
 
   cat << EOF >> ./etc/portage/repos.conf/gentoo.conf
 [gentoo]
-location = /var/db/repos/gentoo
+location = $repo_gentoo
 
 sync-type = git
 sync-uri = https://github.com/gentoo-mirror/gentoo.git
@@ -270,13 +270,16 @@ location = /tmp/tb/data/portage
 
 EOF
 
-  mkdir -p                  ./var/db/repos/local/{metadata,profiles}
-  echo 'masters = gentoo' > ./var/db/repos/local/metadata/layout.conf
-  echo 'local'            > ./var/db/repos/local/profiles/repo_name
+  mkdir -p                  ./$repo_local/{metadata,profiles}
+  echo 'masters = gentoo' > ./$repo_local/metadata/layout.conf
+  echo 'local'            > ./$repo_local/profiles/repo_name
 
+  # this is image specific, not bind-mounted from the host
+  # nevertheless use the same location
+  #
   cat << EOF >> ./etc/portage/repos.conf/local.conf
 [local]
-location = /var/db/repos/local
+location = $repo_local
 
 EOF
 
@@ -297,10 +300,10 @@ priority = 99
 EOF
 
   if [[ "$libressl" = "y" ]]; then
-    mkdir -p ./var/db/repos/libressl
+    mkdir -p ./$repo_libressl
     cat << EOF >> ./etc/portage/repos.conf/libressl.conf
 [libressl]
-location = /var/db/repos/libressl
+location = $repo_libressl
 
 EOF
 
@@ -339,7 +342,7 @@ function CompileMakeConf()  {
   if [[ -n "$origin" && -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s | tr -d '"')
   else
-    l10n="$(grep -v -e '^$' -e '^#' $repo_path/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
+    l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | sort --random-sort | head -n $(($RANDOM % 10)) | sort | xargs)"
   fi
 
   cat << EOF >> ./etc/portage/make.conf
@@ -390,7 +393,7 @@ EOF
 # create portage directories and symlink /tmp/tb/data/<files> to the appropriate target dirs
 #
 function CompilePortageFiles()  {
-  mkdir -p ./tmp/tb ./var/db/repos/gentoo ./var/tmp/distfiles ./var/tmp/portage 2>/dev/null
+  mkdir -p ./tmp/tb ./$repo_gentoo ./$distfiles ./var/tmp/portage 2>/dev/null
 
   for d in package.{accept_keywords,env,mask,unmask,use} env
   do
@@ -656,7 +659,7 @@ function CreateSetupScript()  {
 # eselect sometimes can't be used for new unstable profiles
 #
 cd /etc/portage
-ln -snf ../../var/db/repos/gentoo/profiles/default/linux/amd64/$profile make.profile || exit 1
+ln -snf ../../$repo_gentoo/profiles/default/linux/amd64/$profile make.profile || exit 1
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data || exit 1
@@ -769,7 +772,10 @@ fi
 
 cd $( readlink ~tinderbox/img ) || exit 1
 
-repo_path=$( portageq get_repo_path / gentoo )
+repo_gentoo=$(   portageq get_repo_path / gentoo )
+repo_libressl=$( portageq get_repo_path / libressl )
+repo_local=$(    portageq get_repo_path / local )
+distfiles=$(     portageq distdir )
 
 SetOptions
 
@@ -869,10 +875,6 @@ mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
 
 echo " $mnt"
 echo
-
-# used for stage3 file too
-#
-distfiles=$( portageq distdir )
 
 # the remote stage3 location
 #
