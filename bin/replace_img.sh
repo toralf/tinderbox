@@ -15,7 +15,7 @@ function Finish() {
 #
 if [[ $# -gt 3 ]]; then
   echo "call: '$0 [day(s) [hour(s) ]]'"
-  Finish 1
+  exit 1
 fi
 days=${1:-5}
 hours=${2:-12}
@@ -59,12 +59,16 @@ fi
 # wait till the old image is stopped, delay delete till a new one is setup
 #
 echo
-echo " old image is $oimg, schedule pfl and stop it afterwards ..."
-echo << EOF >> $oimg/tmp/backlog.1st
+echo " old image is $oimg, will schedule pfl and stop afterwards ..."
+echo << EOF >> ~/run/$oimg/tmp/backlog.1st
 STOP
-%/usr/bin/pfl 1>/dev/null
+%/usr/bin/pfl
 app-portage/pfl
 EOF
+
+if [[ $? -ne 0 ]]; then
+  Finish 3
+fi
 
 while :
 do
