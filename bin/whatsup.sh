@@ -101,11 +101,11 @@ function Overall() {
 
     # (f)inishing
     if [[ -f $i/tmp/STOP ]]; then
-      flag="f$flag"
+      flag="F$flag"
     else
       grep -q ^STOP $i/tmp/backlog.1st
       if [[ $? -eq 0 ]]; then
-        flag="F$flag"
+        flag="f$flag"
       else
         flag=" $flag"
       fi
