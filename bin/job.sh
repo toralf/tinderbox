@@ -1237,7 +1237,7 @@ function WorkOnTask() {
     else
       echo "$(date) ok $msg" >> /tmp/$task.history
       if [[ $task = "@world" ]]; then
-        emerge --depclean --verbose &> /tmp/depclean.last.log
+        PutDepsIntoWorldFile
       fi
     fi
 
