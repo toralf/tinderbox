@@ -32,7 +32,7 @@ if [[ -s $pks ]]; then
     # shuffle around to lower the probability of a parallel build of the same package
     #
     bl=~/run/$i/tmp/backlog.upd
-    sort --unique --random-sort $bl $pks > $bl.tmp
+    sort --unique $bl $pks | shuf > $bl.tmp
     # use cp+rm instead of mv to keep permissions of $bl
     #
     cp $bl.tmp $bl

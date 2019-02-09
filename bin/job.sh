@@ -942,7 +942,7 @@ function SwitchJDK()  {
       grep -e ' oracle-jdk-[[:digit:]] ' -e ' icedtea[-bin]*-[[:digit:]] ' |\
       grep -v " icedtea-bin-[[:digit:]].*-x86 " |\
       grep -v ' system-vm' |\
-      awk ' { print $2 } ' | sort --random-sort | head -n 1
+      awk ' { print $2 } ' | shuf | head -n 1
     )
     if [[ -n "$new" && "$new" != "$old" ]]; then
       eselect java-vm set system $new 1>> $log
