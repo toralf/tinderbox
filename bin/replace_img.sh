@@ -60,7 +60,7 @@ fi
 #
 echo
 echo " old image is $oimg, will schedule pfl and stop afterwards ..."
-echo << EOF >> ~/run/$oimg/tmp/backlog.1st
+cat << EOF >> ~/run/$oimg/tmp/backlog.1st
 STOP
 %/usr/bin/pfl
 app-portage/pfl
