@@ -386,7 +386,7 @@ EOF
 }
 
 
-# create portage directories and symlink /tmp/tb/data/<files> to the appropriate target dirs
+# create portage directories + files + symlinks from /tmp/tb/data/... to appropriate target(s)
 #
 function CompilePortageFiles()  {
   mkdir -p ./tmp/tb ./$repo_gentoo ./$distfiles ./var/tmp/portage 2>/dev/null
@@ -433,7 +433,7 @@ RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 EOF
 
-  echo '*/* noconcurrent'           >> ./etc/portage/package.env/noconcurrent
+  echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
   if [[ "$libressl" = "y" ]]; then
     # will be moved to its final destination after GCC update
@@ -445,7 +445,7 @@ EOF
   if [[ ! "$profile" =~ '/desktop/' ]]; then
     # would pull in X otherwise in a non-desktop profile
     #
-    echo 'media-fonts/encodings -X' >> ./etc/portage/package.use/encodings
+    echo 'media-fonts/encodings -X'               > ./etc/portage/package.use/encodings
   fi
 
   for d in package.{accept_keywords,env,mask,unmask,use}
