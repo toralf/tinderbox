@@ -59,6 +59,7 @@ fi
 # wait till the old image is stopped, delay delete till a new one is setup
 #
 echo
+date
 echo " old image is $oimg, will schedule pfl and stop afterwards ..."
 cat << EOF >> ~/run/$oimg/tmp/backlog.1st
 STOP
