@@ -31,6 +31,7 @@ sci-mathematics/pari
 sys-apps/modutils
 sys-cluster/drbd-kernel
 sys-cluster/mvapich2
+sys-cluster/open-mx
 sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers

@@ -3,6 +3,7 @@ cmake-utils_src_prepare has not been run
 dosym target omits basename:
 econf called in .* instead of
 Missing soname symlink(s)
+One or more CMake variables were not used by the project
 python_prepare_all() didn't call distutils-r1_python_prepare_all
 running automake in configure phase
 USE Flag .* not in IUSE for

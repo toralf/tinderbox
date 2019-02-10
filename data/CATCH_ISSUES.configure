@@ -14,6 +14,7 @@ error: fortran compiler does not work
 CMake will exit
 You need build codec to run the tests
 Could not find a package configuration file provided by
+Project .rostime. tried to find library .-lpthread.
 CMake Error at
 Configuring incomplete, errors occurred
 extconf.rb:.* (RuntimeError)
