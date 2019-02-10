@@ -1,0 +1,7 @@
+# package.use/00libressl
+#
+
+/*                  libressl -gnutls -openssl
+net-misc/curl       curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
+
+kde-apps/kio-extras -sftp

@@ -438,12 +438,8 @@ EOF
   if [[ "$libressl" = "y" ]]; then
     # will be moved to its final destination after GCC update
     #
-    cat << EOF > ./tmp/00libressl
-*/*               libressl -gnutls -openssl
-net-misc/curl     curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
-
-EOF
-    echo 'dev-lang/python -bluetooth' >> ./etc/portage/package.use/python
+    cp  ~tinderbox/tb/data/package.use.00libressl   ./tmp/00libressl
+    echo 'dev-lang/python -bluetooth'             > ./etc/portage/package.use/python
   fi
 
   if [[ ! "$profile" =~ '/desktop/' ]]; then
