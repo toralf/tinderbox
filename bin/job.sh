@@ -30,7 +30,7 @@ function stresc() {
 }
 
 
-# send an email using mailx
+# send out a non-MIME-compliant email
 #
 function Mail() {
   # $1 (mandatory) is the subject,
@@ -38,11 +38,15 @@ function Mail() {
   #
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
 
+  # the Debian mailx automatically adds a MIME Header line to the mail since 2017.
+  # But uuencode is not MIME-compliant, therefore newer Thunderbird versions show
+  # any attachment as inline text only :-(
+  #
   opt=""
   if [[ -f $2 ]]; then
     grep -q "^begin 644 " $2
     if [[ $? -eq 0 ]]; then
-      opt='-a'       # uuencode is not MIME-compliant
+      opt='-a'
     fi
   fi
 
