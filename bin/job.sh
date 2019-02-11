@@ -1103,6 +1103,10 @@ function CheckQA() {
     do
       grep -q "$reason" $elogfile
       if [[ $? -eq 0 ]]; then
+        failed=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
+        short=$(pn2p "$failed")
+        failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+
         CreateIssueDir
         grep "$reason" $elogfile > $issuedir/title
 
@@ -1110,18 +1114,25 @@ function CheckQA() {
         if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
           cp $elogfile $issuedir/files/
         fi
+        cp $failedlog $issuedir/files/
+        bzip2 $issuedir/files/$failedlog
+
         AddWhoamiToIssue
         SearchForBlocker
-        failed=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
-        short=$(pn2p "$failed")
         GetAssigneeAndCc
         AddVersionAssigneeAndCC
         echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
-        id=$(timeout 300 bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body | sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' ')
+        id=$(
+          timeout 300 bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body |\
+          sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' '
+        )
         collectPortageDir
         sed -i -e "s,^,$failed : [QA] ," $issuedir/title
         TrimTitle
         AttachFilesToBody $issuedir/issue
+
+        chmod 777     $issuedir/
+        chmod -R a+rw $issuedir/
         if [[ -z "$id" ]]; then
           SendoutIssueMail
         fi
