@@ -218,3 +218,4 @@ marshal.list: Permission denied
 Please port gnulib .* to your platform
 make: .* Error
 ^command failed:
+NameError:
