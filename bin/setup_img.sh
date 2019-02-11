@@ -594,6 +594,8 @@ EOF
   #
   echo "%emerge -u sys-kernel/vanilla-sources" >> $bl.1st
 
+  # finalize 17.0->17.1 profile switch
+  #
   if [[ "$expprofile" = "y" ]]; then
     if [[ ! $profile =~ "no-multilib" ]]; then
       echo "%emerge -1 /lib32 /usr/lib32" >> $bl.1st
@@ -852,7 +854,7 @@ done
 CheckOptions
 ComputeImageName
 
-ls -d ~tinderbox/run/$( $echo $name | sed -e 's/17../17.?/g' )_20??????-?????? 2>/dev/null
+ls -d ~tinderbox/run/$( echo $name | sed -e 's/17../17.?/g' )_20??????-?????? 2>/dev/null
 if [[ $? -eq 0 ]]; then
   echo "name=$name is already running"
   exit 2
