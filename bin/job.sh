@@ -206,7 +206,7 @@ function collectPortageDir()  {
 # b.g.o. has a limit of 1 MB
 #
 function CompressIssueFiles()  {
-  for f in $issuedir/files/* $issuedir/_*
+  for f in $( ls $issuedir/files/* $issuedir/_* 2>/dev/null )
   do
     if [[ $(wc -c < $f) -gt 1000000 ]]; then
       bzip2 $f
