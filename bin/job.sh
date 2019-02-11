@@ -203,6 +203,18 @@ function collectPortageDir()  {
 }
 
 
+# b.g.o. has a limit of 1 MB
+#
+function CompressIssueFiles()  {
+  for f in $issuedir/files/* $issuedir/_*
+  do
+    if [[ $(wc -c < $f) -gt 1000000 ]]; then
+      bzip2 $f
+    fi
+  done
+}
+
+
 # helper of GotAnIssue()
 # gather together what's needed for the email and b.g.o.
 #
@@ -229,21 +241,14 @@ EOF
   sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $bak                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
   roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $bak | grep "/LastTest\.log" | awk ' { print $2 } ')
 
-  for f in $ehist $failedlog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
+  for f in $ehist $pkglog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
   do
     if [[ -f $f ]]; then
       stresc < $f > $issuedir/files/$(basename $f)
     fi
   done
 
-  # b.g.o. has a limit of 1 MB
-  #
-  for f in $issuedir/files/* $issuedir/_*
-  do
-    if [[ $(wc -c < $f) -gt 1000000 ]]; then
-      bzip2 $f
-    fi
-  done
+  CompressIssueFiles
 
   if [[ -d "$workdir" ]]; then
     # catch all log file(s)
@@ -283,37 +288,37 @@ EOF
 # helper of GotAnIssue()
 # guess the failed package and logfile name
 #
-function setFailedAndShort()  {
-  failed=$(grep -m 1 -F ' * Package: ' $log | awk ' { print $3 } ')
-  if [[ -z "$failed" ]]; then
-    failed="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)"
+function getPkgVarsFromIssuelog()  {
+  pkg=$(grep -m 1 -F ' * Package: ' $log | awk ' { print $3 } ')
+  if [[ -z "$pkg" ]]; then
+    pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)"
   fi
 
-  failedlog=$(grep -m 1 "The complete build log is located at" $log | cut -f2 -d"'" -s)
-  if [[ -z "$failedlog" ]]; then
-    failedlog=$(grep -m 1 -A 1 "', Log file:" $log | tail -n 1 | cut -f2 -d"'" -s)
-    if [[ -z "$failedlog" ]]; then
-      failedlog=$(grep -m 1 "^>>>  '" $log | cut -f2 -d"'" -s)
-      if [[ -z "$failedlog" ]]; then
-        if [[ -n "$failed" ]]; then
-          failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+  pkglog=$(grep -m 1 "The complete build log is located at" $log | cut -f2 -d"'" -s)
+  if [[ -z "$pkglog" ]]; then
+    pkglog=$(grep -m 1 -A 1 "', Log file:" $log | tail -n 1 | cut -f2 -d"'" -s)
+    if [[ -z "$pkglog" ]]; then
+      pkglog=$(grep -m 1 "^>>>  '" $log | cut -f2 -d"'" -s)
+      if [[ -z "$pkglog" ]]; then
+        if [[ -n "$pkg" ]]; then
+          pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
         fi
       fi
     fi
   fi
 
-  if [[ -z "$failed" ]]; then
-    if [[ -n "$failedlog" ]]; then
-      failed=$(basename $failedlog | cut -f1-2 -d':' -s | tr ':' '/')
+  if [[ -z "$pkg" ]]; then
+    if [[ -n "$pkglog" ]]; then
+      pkg=$(basename $pkglog | cut -f1-2 -d':' -s | tr ':' '/')
     fi
   fi
 
-  short=$(pn2p "$failed")
+  pkgname=$(pn2p "$pkg")
   repo_path=$( portageq get_repo_path / gentoo )
-  if [[ ! -d $repo_path/$short ]]; then
-    failed=""
-    failedlog=""
-    short=""
+  if [[ ! -d $repo_path/$pkgname ]]; then
+    pkg=""
+    pkglog=""
+    pkgname=""
   fi
 }
 
@@ -323,7 +328,7 @@ function setFailedAndShort()  {
 function GetAssigneeAndCc() {
   # all meta info
   #
-  m=$( equery meta -m $short | grep '@' | xargs )
+  m=$( equery meta -m $pkgname | grep '@' | xargs )
   if [[ -z "$m" ]]; then
     echo "maintainer-needed@gentoo.org" > $issuedir/assignee
   else
@@ -373,7 +378,7 @@ function AddVersionAssigneeAndCC() {
   cat << EOF >> $issuedir/body
 
 --
-versions: $(eshowkw -a amd64 $short | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' | xargs)
+versions: $(eshowkw -a amd64 $pkgname | grep -A 100 '^-' | grep -v '^-' | awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' | xargs)
 assignee: $(cat $issuedir/assignee)
 cc:       $(cat $issuedir/cc 2>/dev/null)
 --
@@ -390,10 +395,16 @@ function pn2p() {
 
 
 function CreateIssueDir() {
-  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $failed | tr '/' '_')
-  mkdir -p $issuedir/files
-  # permit external user to edit files before reporting the bug
+  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $pkg | tr '/' '_')
+
+  # a QA issue might be collected before for this package
   #
+  if [[ -d $issuedir ]]; then
+    sleep 1
+    issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $pkg | tr '/' '_')
+  fi
+
+  mkdir -p $issuedir/files
   chmod 777 $issuedir
 }
 
@@ -429,8 +440,8 @@ function foundCollisionIssue() {
 # helper of ClassifyIssue()
 #
 function foundSandboxIssue() {
-  echo "=$failed nosandbox"     >> /etc/portage/package.env/nosandbox
-  echo "=$failed nousersandbox" >> /etc/portage/package.env/nousersandbox
+  echo "=$pkg nosandbox"     >> /etc/portage/package.env/nosandbox
+  echo "=$pkg nousersandbox" >> /etc/portage/package.env/nousersandbox
   try_again=1
 
   p="$(grep -m 1 ^A: $sandb)"
@@ -455,9 +466,9 @@ EOF
 # helper of ClassifyIssue()
 #
 function collectTestIssueResults() {
-  grep -q "=$failed " /etc/portage/package.env/test-fail-continue 2>/dev/null
+  grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null
   if [[ $? -ne 0 ]]; then
-    echo "=$failed test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+    echo "=$pkg test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
   fi
 
@@ -622,7 +633,7 @@ function SearchForAnAlreadyFiledBug() {
   # search first for the same version, then for category/package name
   # take the highest bug id, but put the summary of the newest 10 bugs into the email body
   #
-  for i in $failed $short
+  for i in $pkg $pkgname
   do
     id=$(timeout 300 bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>> $issuedir/body | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
@@ -662,12 +673,12 @@ EOF
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'
 
-    echo "  OPEN:     ${h}&resolution=---&short_desc=${short}" >> $issuedir/body
-    timeout 300 bugz --columns 400 -q search --show-status      $short 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
+    echo "  OPEN:     $h&resolution=---&short_desc=$pkname"       >> $issuedir/body
+    timeout 300 bugz --columns 400 -q search --show-status      $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
 
     echo "" >> $issuedir/body
-    echo "  RESOLVED: ${h}&bug_status=RESOLVED&short_desc=${short}" >> $issuedir/body
-    timeout 300 bugz --columns 400 -q search --status RESOLVED  $short 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
+    echo "  RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkname"  >> $issuedir/body
+    timeout 300 bugz --columns 400 -q search --status RESOLVED  $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
   fi
 
   # this newline makes a manual copy+paste action more convenient
@@ -691,7 +702,7 @@ function TrimTitle()  {
 # create an email containing convenient links and a command line ready for copy+paste
 #
 function CompileIssueMail() {
-  emerge -p --info $short &> $issuedir/emerge-info.txt
+  emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
   # shrink too long error messages
   #
@@ -739,7 +750,7 @@ $(eselect rust    list 2>/dev/null)
 $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-available-vms --nocolor )
 $(eselect java-vm list 2>/dev/null)
 
-emerge -qpvO $short
+emerge -qpvO $pkgname
 $(head -n 1 $issuedir/emerge-qpvO)
 EOF
 
@@ -754,9 +765,9 @@ EOF
   # prepend failed package
   #
   if [[ "$phase" = "test" ]]; then
-    sed -i -e "s,^,$failed : [TEST] ," $issuedir/title
+    sed -i -e "s,^,$pkg : [TEST] ," $issuedir/title
   else
-    sed -i -e "s,^,$failed : ," $issuedir/title
+    sed -i -e "s,^,$pkg : ," $issuedir/title
   fi
   TrimTitle
 
@@ -813,7 +824,7 @@ function setWorkDir() {
   if [[ ! -d "$workdir" ]]; then
     workdir=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" " -s)
     if [[ ! -d "$workdir" ]]; then
-      workdir=/var/tmp/portage/$failed/work/$(basename $failed)
+      workdir=/var/tmp/portage/$pkg/work/$(basename $pkg)
       if [[ ! -d "$workdir" ]]; then
         workdir=""
       fi
@@ -837,13 +848,13 @@ function GotAnIssue()  {
     Finish 1 "KILLED"
   fi
 
-  setFailedAndShort
-  if [[ -z "$failed" ]]; then
+  getPkgVarsFromIssuelog
+  if [[ -z "$pkg" ]]; then
     return
   fi
 
   CreateIssueDir
-  emerge -qpvO $short &> $issuedir/emerge-qpvO
+  emerge -qpvO $pkgname &> $issuedir/emerge-qpvO
   GetAssigneeAndCc
   cp $bak $issuedir
   setWorkDir
@@ -889,7 +900,7 @@ function GotAnIssue()  {
       echo "$task" >> $backlog
     fi
   else
-    echo "=$failed" >> /etc/portage/package.mask/self
+    echo "=$pkg" >> /etc/portage/package.mask/self
     if [[ $task =~ "@preserved-rebuild" ]]; then
       echo "%emerge --resume --skip-first" >> $backlog
     fi
@@ -1103,9 +1114,9 @@ function CheckQA() {
     do
       grep -q "$reason" $elogfile
       if [[ $? -eq 0 ]]; then
-        failed=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
-        short=$(pn2p "$failed")
-        failedlog=$(ls -1t /var/log/portage/$(echo "$failed" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+        pkg=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
+        pkgname=$(pn2p "$pkg")
+        pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
 
         CreateIssueDir
         grep "$reason" $elogfile > $issuedir/title
@@ -1114,8 +1125,7 @@ function CheckQA() {
         if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
           cp $elogfile $issuedir/files/
         fi
-        cp $failedlog $issuedir/files/
-        bzip2 $issuedir/files/$failedlog
+        cp $pkglog $issuedir/files/
 
         AddWhoamiToIssue
         SearchForBlocker
@@ -1123,13 +1133,15 @@ function CheckQA() {
         AddVersionAssigneeAndCC
         echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
         id=$(
-          timeout 300 bugz -q --columns 400 search --show-status $short "$reason" 2>> $issuedir/body |\
+          timeout 300 bugz -q --columns 400 search --show-status $pkgname "$reason" 2>> $issuedir/body |\
           sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' '
         )
         collectPortageDir
-        sed -i -e "s,^,$failed : [QA] ," $issuedir/title
+        sed -i -e "s,^,$pkg : [QA] ," $issuedir/title
         TrimTitle
         AttachFilesToBody $issuedir/issue
+
+        CompressIssueFiles
 
         chmod 777     $issuedir/
         chmod -R a+rw $issuedir/
@@ -1189,9 +1201,9 @@ function RunAndCheck() {
 #
 function WorkOnTask() {
   try_again=0   # 1 usually means to retry with eg. "notest"
-  failed=""
-  failedlog=""
-  short=""
+  pkg=""
+  pkglog=""
+  pkgname=""
 
   # image update
   #
@@ -1220,8 +1232,8 @@ function WorkOnTask() {
         $bak)
 
     if [[ $rc -ne 0 ]]; then
-      if [[ -n "$failed" ]]; then
-        echo "$(date) $failed" >> /tmp/$task.history
+      if [[ -n "$pkg" ]]; then
+        echo "$(date) $pkg" >> /tmp/$task.history
       else
         echo "$(date) NOT ok $msg" >> /tmp/$task.history
       fi
@@ -1244,7 +1256,7 @@ function WorkOnTask() {
         echo "$task" >> $backlog
 
       elif [[ $try_again -eq 0 ]]; then
-        if [[ -n "$failed" ]]; then
+        if [[ -n "$pkg" ]]; then
           echo "%emerge --resume --skip-first" >> $backlog
         fi
       fi
@@ -1267,7 +1279,7 @@ function WorkOnTask() {
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
         if [[ $task =~ " --resume" ]]; then
-          if [[ -n "$failed" ]]; then
+          if [[ -n "$pkg" ]]; then
             echo "%emerge --resume --skip-first" >> $backlog
           else
             grep -q ' Invalid resume list:' $bak
