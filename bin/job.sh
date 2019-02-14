@@ -673,11 +673,11 @@ EOF
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'
 
-    echo "  OPEN:     $h&resolution=---&short_desc=$pkname"       >> $issuedir/body
+    echo "  OPEN:     $h&resolution=---&short_desc=$pkgname"      >> $issuedir/body
     timeout 300 bugz --columns 400 -q search --show-status      $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
 
     echo "" >> $issuedir/body
-    echo "  RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkname"  >> $issuedir/body
+    echo "  RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname" >> $issuedir/body
     timeout 300 bugz --columns 400 -q search --status RESOLVED  $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
   fi
 
