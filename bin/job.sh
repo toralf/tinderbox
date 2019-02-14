@@ -1123,7 +1123,9 @@ function CheckQA() {
 
         grep -B 1 -A 5 "$reason" $elogfile | tee $issuedir/body > $issuedir/issue
         if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
-          cp $elogfile $issuedir/files/
+          # rename it b/c the file name might be the same (incl. timestamp - sic!) as for the emerge log file
+          #
+          cp $elogfile $issuedir/files/elog-$( basename $elogfile )
         fi
         cp $pkglog $issuedir/files/
 
