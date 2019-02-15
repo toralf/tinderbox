@@ -207,6 +207,7 @@ Unable to access the X Display, is $DISPLAY set properly?
 The variable KERN_DIR must be a kernel build folder
 ^fatal:
 Compiling .*.erl failed:
+Need to define GLIB_MKENUMS
 Error .
 ^IOError:
 Could not find servlet-api.jar in

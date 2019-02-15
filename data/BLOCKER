@@ -60,7 +60,7 @@ lieee
 # [TRACKER] glib-utils
 #
 667324
-glib.*: command not found|--.*: command not found|GLIB_.*: command not found|marshal.*command not found|glib-marshal|glib-mk.* not found|gconfmarshal.list: Permission denied|glib-genmarshal|marshal.list:|GLIB2_MKENUMS-NOTFOUND
+glib.*: command not found|--.*: command not found|GLIB_.*: command not found|marshal.*command not found|glib-marshal|glib-mk.* not found|gconfmarshal.list: Permission denied|glib-genmarshal|marshal.list:|GLIB2_MKENUMS-NOTFOUND|Need to define|GLIB_MKENUMS|glib-mkenums
 
 # [TRACKER] Issues with sys-libs/glibc-2.28 (directly and indirectly)
 #
