@@ -25,7 +25,7 @@ function ThrowUseFlags()  {
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' $repo_gentoo/profiles/use{,.local}.desc |\
   cut -f2 -d ':' | cut -f1 -d ' ' |\
   egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
-  sort -u | shuf | head -n $(($RANDOM % $n)) | sort |\
+  sort -u | shuf -n $(($RANDOM % $n)) | sort |\
   while read flag
   do
     if [[ $(($RANDOM % $m)) -eq 0 ]]; then
@@ -52,8 +52,7 @@ function SetOptions() {
     grep -e "^default/linux/amd64/17.0"                     |\
     cut -f4- -d'/' -s                                       |\
     grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' |\
-    shuf                                                    |\
-    head -n 1
+    shuf -n 1
   )
 
   # switch to 17.1 profile
@@ -324,7 +323,7 @@ function CompileMakeConf()  {
   if [[ -n "$origin" && -e $origin/etc/portage/make.conf ]]; then
     l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s | tr -d '"')
   else
-    l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | shuf | head -n $(($RANDOM % 10)) | sort | xargs)"
+    l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | shuf -n $(($RANDOM % 10)) | sort | xargs)"
   fi
 
   cat << EOF >> ./etc/portage/make.conf
