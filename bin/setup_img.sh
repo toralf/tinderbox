@@ -22,11 +22,9 @@ function ThrowUseFlags()  {
   n=40
   m=15
 
-  tmp=/tmp/useflags
-
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' $repo_gentoo/profiles/use{,.local}.desc |\
-  cut -f2 -d ':' | cut -f1 -d ' ' | tee $tmp |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|^system-|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
+  cut -f2 -d ':' | cut -f1 -d ' ' |\
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
   sort -u | shuf | head -n $(($RANDOM % $n)) | sort |\
   while read flag
   do
@@ -35,18 +33,6 @@ function ThrowUseFlags()  {
     fi
     echo -n "$flag "
   done
-
-  # 2nd: prefer system libs over bundled ones
-  #
-  grep '^system-' $tmp |\
-  while read flag
-  do
-    if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-      echo -n "$flag "
-    fi
-  done
-
-  rm $tmp
 }
 
 
