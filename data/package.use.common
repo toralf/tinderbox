@@ -1,7 +1,7 @@
 # package.use/common
 #
 
-# mailer within a tinderbox image (note: portage has its own mailer implemented)
+# mailer in a tinderbox image (note: portage implements its own mailer)
 #
 mail-mta/ssmtp            mta ssl
 
@@ -35,6 +35,7 @@ dev-lang/python           sqlite
 #
 dev-lang/rust             system-llvm
 
-# circ dep during setup
+# avoid circular dependencies during setup
 #
 dev-util/cmake            -system-jsoncpp
+net-print/cups            -java
