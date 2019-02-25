@@ -663,7 +663,7 @@ function AddBugzillaData() {
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  bgo.sh -d ~/img?/$name/$issuedir $block -i $id -c 'got at the $keyword amd64 chroot image $name this : $(cat $issuedir/title)'
+  bgo.sh -d ~/img?/$name/$issuedir $block -i $id -c 'it is still an issue at $keyword amd64 tinderbox image $name'
 
 EOF
   else
