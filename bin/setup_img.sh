@@ -213,11 +213,9 @@ function UnpackStage3()  {
 
   # do this once before:
   #
-  # gpg --keyserver hkps.pool.sks-keyservers.net --recv-keys 0x9E6438C817072058
-  # gpg --edit-key 0x9E6438C817072058
+  # gpg --keyserver hkps.pool.sks-keyservers.net --recv-keys <key>
+  # gpg --edit-key <key>
   # and set "trust" to 5 (==ultimately)
-  #
-  # do the same for 0xBB572E0E2D182910
   #
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
