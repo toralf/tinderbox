@@ -20,7 +20,7 @@ fi
 days=${1:-5}
 hours=${2:-12}
 
-# error code 2 indicates: do not mail the output of the cronjob to the user
+# be silent here
 #
 lck=/tmp/$( basename $0 ).lck
 if [[ -f $lck ]]; then
@@ -56,31 +56,28 @@ if [[ $age -lt $days ]]; then
   Finish 3
 fi
 
-# wait till the old image is stopped, delay delete till a new one is setup
-#
 echo
 date
-echo " old image is $oimg, will schedule pfl and stop afterwards ..."
-cat << EOF >> ~/run/$oimg/tmp/backlog.1st
+echo " old image is $oimg"
+
+if [[ -f ~/run/$oimg/tmp/LOCK ]]; then
+  echo " will schedule pfl and stop afterwards ..."
+  cat << EOF >> ~/run/$oimg/tmp/backlog.1st
 STOP
 %/usr/bin/pfl
 app-portage/pfl
 EOF
 
-if [[ $? -ne 0 ]]; then
-  Finish 3
+  while :
+  do
+    if [[ ! -f ~/run/$oimg/tmp/LOCK ]]; then
+      break
+    fi
+    sleep 1
+  done
 fi
 
-while :
-do
-  if [[ ! -f ~/run/$oimg/tmp/LOCK ]]; then
-    break
-  fi
-  sleep 1
-done
-
-# spin up a new image, more than 1 attempt might be needed
-# after x attempts (maybe due to a broken tree) retry just hourly
+# setup up a new image
 #
 i=0
 while :
@@ -88,7 +85,7 @@ do
   let "i = $i + 1"
 
   echo
-  echo "i=$i============================================================="
+  echo "attempt $i ============================================================="
   echo
   date
   sudo $(dirname $0)/setup_img.sh
@@ -104,7 +101,7 @@ do
   fi
 done
 
-# delete old image and its log file
+# delete old image and its log file after a new image was setup
 #
 date
 echo "delete $oimg"
