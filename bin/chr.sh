@@ -144,17 +144,13 @@ if [[ $# -gt 0 ]]; then
 else
   /usr/bin/chroot $mnt /bin/bash -l -c "su - root"
 fi
-rc1=$?
+rc=$?
 
 umountall
-rc2=$?
-
-if [[ $rc2 -eq 0 ]]; then
-  rm $lock
-else
-  echo "rc2=$rc2" >> $lock
+if [[ $? -ne 0 ]]; then
+  exit 4
 fi
 
-let "rc = $rc0 + $rc1 + $rc2"
+rm $lock
 
 exit $rc
