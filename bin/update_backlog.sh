@@ -2,36 +2,33 @@
 #
 # set -x
 
-# pick up latest changed ebuilds and merge them into backlog.upd
+# pick up latest changed packages and merge them into backlog.upd
 #
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
-  echo "You must be the tinderbox user !"
+  echo "You are not tinderbox !"
   exit 1
 fi
-
-# list of package(s) to add
-#
-pks=/tmp/$(basename $0).txt
 
 repo_path=$( portageq get_repo_path / gentoo ) || exit 2
 cd $repo_path || exit 3
 
-# add 1 hour to let mirrors be in sync
+# list of updated package(s)
 #
-git diff --diff-filter=ACM --name-status "@{ ${1:-2} hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
-grep -F -e '/files/' -e '.ebuild' -e 'Manifest'                                                 |\
-cut -f2- -s | xargs --no-run-if-empty -n 1 | cut -f1-2 -d'/' -s | sort --unique |\
-grep -v -f ~/tb/data/IGNORE_PACKAGES > $pks
+pks=/tmp/$(basename $0).txt
 
-# add latest repo changes to each backlog.upd
+# default: 1 hour to let mirrors be synced
 #
+git diff --diff-filter=ACM --name-status "@{ ${1:-2} hour ago }".."@{ ${1:-1} hour ago }" 2>/dev/null |\
+grep -F -e '/files/' -e '.ebuild' -e 'Manifest'                                                 |\
+cut -f2- -s | xargs --no-run-if-empty -n 1 | cut -f1-2 -d'/' -s | sort --unique > $pks
+
 if [[ -s $pks ]]; then
   for i in $(ls ~/run 2>/dev/null)
   do
     bl=~/run/$i/tmp/backlog.upd
     sort --unique $bl $pks | shuf > $bl.tmp
-    # use cp+rm instead of mv to keep permissions of $bl
+    # no "mv" to keep file permissions
     #
     cp $bl.tmp $bl
     rm $bl.tmp
