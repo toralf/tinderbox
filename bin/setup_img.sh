@@ -593,6 +593,8 @@ EOF
   #
   echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
+  # switch to new 17.1 profile
+  #
   if [[ "$expprofile" = "y" ]]; then
     cat << EOF >> $bl.1st
 %eselect profile set --force default/linux/amd64/$( echo $profile | sed 's/17.0/17.1/g' )
@@ -605,8 +607,7 @@ EOF
 EOF
   fi
 
-
-  # the stage4 of a systemd ISO image ran it already
+  # the stage4 of a systemd ISO image would have this already done
   #
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
@@ -630,7 +631,7 @@ EOF
 # - dry run of @system
 #
 function CreateSetupScript()  {
-  cat << EOF >> ./tmp/setup.sh || exit 1
+  cat << EOF > ./tmp/setup.sh || exit 1
 #!/bin/sh
 #
 # set -x
