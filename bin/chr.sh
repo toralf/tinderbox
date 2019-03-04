@@ -6,7 +6,7 @@
 #
 # typical call:
 #
-# $> sudo /opt/tb/bin/chr.sh ~/run/plasma-unstable_20150811-144142
+#  sudo /opt/tb/bin/chr.sh run/17.1-desktop-plasma_20190304-154829
 
 # mount the directories shared by the host
 #
