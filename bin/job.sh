@@ -1018,10 +1018,11 @@ function PostEmerge() {
   #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
-    last=$(ls -1dt /usr/src/linux-* | head -n 1 | cut -f4 -d'/' -s)
-    link=$(eselect kernel show | tail -n 1 | sed -e 's/ //g' | cut -f4 -d'/' -s)
-    if [[ "$last" != "$link" ]]; then
-      eselect kernel set $last
+    current=$(eselect kernel show | cut -f4 -d'/' -s )
+    latest=$( eselect kernel list | tail -n 1 | awk ' { print $2 } ' )
+
+    if [[ "$current" != "$latest" ]]; then
+      eselect kernel set $latest
     fi
 
     if [[ ! -f /usr/src/linux/.config ]]; then
