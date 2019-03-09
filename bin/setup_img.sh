@@ -435,7 +435,7 @@ EOF
     cp  ~tinderbox/tb/data/$d.$keyword              ./etc/portage/$d/$keyword
   done
 
-  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
     cp  ~tinderbox/tb/data/package.use.ff-and-tb    ./etc/portage/package.use/ff-and-tb
   fi
 
