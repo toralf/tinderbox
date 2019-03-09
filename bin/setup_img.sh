@@ -318,7 +318,7 @@ function CompileMakeConf()  {
     l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | shuf -n $(($RANDOM % 10)) | sort | xargs)"
   fi
 
-  cat << EOF >> ./etc/portage/make.conf
+  cat << EOF > ./etc/portage/make.conf
 CFLAGS="-O2 -pipe -march=native"
 CXXFLAGS="\${CFLAGS}"
 
@@ -464,13 +464,13 @@ EOF
 function CompileMiscFiles()  {
   # use local DNS resolver
   #
-  cat <<EOF >> ./etc/resolv.conf
+  cat <<EOF > ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
 
   h=$(hostname)
-  cat <<EOF >> ./etc/hosts
+  cat <<EOF > ./etc/hosts
 127.0.0.1 localhost $h.localdomain $h
 ::1       localhost $h.localdomain $h
 EOF
