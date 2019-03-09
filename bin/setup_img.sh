@@ -231,19 +231,13 @@ function UnpackStage3()  {
 function CompileRepoFiles()  {
   mkdir -p      ./etc/portage/repos.conf/
 
-  cat << EOF >> ./etc/portage/repos.conf/gentoo.conf
+  cat << EOF > ./etc/portage/repos.conf/gentoo.conf
 [gentoo]
 location = $repo_gentoo
 
-sync-type = git
-sync-uri = https://github.com/gentoo-mirror/gentoo.git
-sync-depth = 1
-sync-git-clone-extra-opts = -b master
-#sync-git-verify-commit-signature = true
-
 EOF
 
-  cat << EOF >> ./etc/portage/repos.conf/tinderbox.conf
+  cat << EOF > ./etc/portage/repos.conf/tinderbox.conf
 [tinderbox]
 location = /tmp/tb/data/portage
 
@@ -256,13 +250,13 @@ EOF
   # this is image specific, not bind-mounted from the host
   # nevertheless use the same location
   #
-  cat << EOF >> ./etc/portage/repos.conf/local.conf
+  cat << EOF > ./etc/portage/repos.conf/local.conf
 [local]
 location = $repo_local
 
 EOF
 
-  cat << EOF >> ./etc/portage/repos.conf/default.conf
+  cat << EOF > ./etc/portage/repos.conf/default.conf
 [DEFAULT]
 main-repo = gentoo
 auto-sync = no
@@ -280,13 +274,13 @@ EOF
 
   if [[ "$libressl" = "y" ]]; then
     mkdir -p ./$repo_libressl
-    cat << EOF >> ./etc/portage/repos.conf/libressl.conf
+    cat << EOF > ./etc/portage/repos.conf/libressl.conf
 [libressl]
 location = $repo_libressl
 
 EOF
 
-  cat << EOF >> ./etc/portage/repos.conf/default.conf
+  cat << EOF > ./etc/portage/repos.conf/default.conf
 [libressl]
 priority = 20
 
