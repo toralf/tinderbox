@@ -1054,30 +1054,19 @@ function PostEmerge() {
     echo "%eselect python update" >> $backlog
   fi
 
-  # if $backlog is empty schedule an update once a day
+  # schedule an update once a day if $backlog is empty
   #
   if [[ ! -s $backlog ]]; then
-    # PostEmerge() is called before the first @world history file was created
-    #
-    if [[ -f /tmp/@world.history ]]; then
-      let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@world.history) ) / 86400"
+    if [[ -f /tmp/@system.history ]]; then
+      let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@system.history) ) / 86400"
       if [[ $diff -gt 1 ]]; then
-        echo "@world" >> $backlog
-      fi
-    fi
-
-    # @system is not the last entry in $backlog after setup
-    # therefore no check is needed here b/c this history file should exist
-    #
-    let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@system.history) ) / 86400"
-    if [[ $diff -gt 1 ]]; then
-      cat << EOF >> $backlog
+        cat << EOF >> $backlog
 @system
 %SwitchJDK
 EOF
+      fi
     fi
   fi
-
 }
 
 
