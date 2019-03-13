@@ -1376,6 +1376,7 @@ do
   #
   if [[ -s $tsk ]]; then
     task=$( cat $tsk )
+    touch $tsk    # don't foolish whatsup.sh
   else
     # commonly this handles a STOP
     #
