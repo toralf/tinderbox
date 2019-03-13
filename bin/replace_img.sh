@@ -13,18 +13,17 @@ function Finish() {
 
 #######################################################################
 #
-if [[ $# -gt 3 ]]; then
-  echo "call: '$0 [day(s) [hour(s) ]]'"
-  exit 1
-fi
 days=${1:-5}
 hours=${2:-12}
+shift 2
+setupargs="$@"
 
 # be silent here
 #
 lck=/tmp/$( basename $0 ).lck
 if [[ -f $lck ]]; then
-  exit 2
+  # no Finish() here !
+  exit 1
 fi
 echo $$ >> $lck
 
@@ -33,7 +32,7 @@ echo $$ >> $lck
 yimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | head -n 1 )
 if [[ -z "$yimg" ]]; then
   echo "no newest image found, exiting ..."
-  Finish 3
+  Finish 2
 fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/$yimg/tmp/setup.sh)"
@@ -47,13 +46,13 @@ fi
 oimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | tail -n 1 )
 if [[ -z "$oimg" ]]; then
   echo "no oldest image found, exiting ..."
-  Finish 3
+  Finish 4
 fi
 
 let "age = $(date +%s) - $(stat -c%Y ~/run/$oimg/tmp/setup.sh)"
 let "age = $age / 86400"
 if [[ $age -lt $days ]]; then
-  Finish 3
+  Finish 5
 fi
 
 echo
@@ -88,7 +87,7 @@ do
   echo "attempt $i ============================================================="
   echo
   date
-  sudo $(dirname $0)/setup_img.sh
+  sudo $(dirname $0)/setup_img.sh $setupargs
   rc=$?
 
   if [[ $rc -eq 0 ]]; then
@@ -97,7 +96,7 @@ do
     continue
   else
     echo "rc=$rc, exiting ..."
-    Finish 4
+    Finish 6
   fi
 done
 
