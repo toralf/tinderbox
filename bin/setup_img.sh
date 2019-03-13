@@ -2,13 +2,14 @@
 #
 # set -x
 
+
 # setup a new tinderbox image
+# an exit code of 1 is an unrecoverable error, 2 means try it again
 #
 # typical call:
 #
-# echo "cd ~/img && while :; do sudo /opt/tb/bin/setup_img.sh && break; done" | at now
+# echo "sudo /opt/tb/bin/setup_img.sh -t y -m n -l n -p 17.0/desktop -e y" | at now + 0 min
 
-# an exit code of 1 is an unrecoverable error, 2 means try it again
 
 #############################################################################
 #
@@ -102,8 +103,8 @@ function SetOptions() {
 # helper of main()
 #
 function CheckOptions() {
-  if [[ ! -d $repo_gentoo/profiles/default/linux/amd64/$profile ]]; then
-    echo " profile unknown: $profile in $repo_gentoo"
+  if [[ -z "$profile" || ! -d $repo_gentoo/profiles/default/linux/amd64/$profile ]]; then
+    echo " profile unknown: $profile under $repo_gentoo"
     exit 1
   fi
 
@@ -803,7 +804,7 @@ do
           multilib="y"
         fi
         ;;
-    p)  profile="$(echo $OPTARG | cut -f4- -d'/' -s)" # OPTARG is eg.: default/linux/amd64/17.0/desktop/gnome
+    p)  profile=$OPTARG
         ;;
     s)  suffix="$OPTARG"
         ;;
