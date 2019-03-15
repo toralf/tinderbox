@@ -838,7 +838,10 @@ function setWorkDir() {
 # collect files and compile an email
 #
 function GotAnIssue()  {
-  PutDepsIntoWorldFile
+  grep -q -F '^>>> Installing ' $bak
+  if [[ $? -eq 0 ]]; then
+    PutDepsIntoWorldFile
+  fi
 
   fatal=$(grep -m 1 -f /tmp/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
