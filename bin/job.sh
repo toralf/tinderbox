@@ -1244,9 +1244,6 @@ function WorkOnTask() {
 
     else
       echo "$(date) ok $msg" >> /tmp/$task.history
-      if [[ $task = "@world" ]]; then
-        PutDepsIntoWorldFile
-      fi
     fi
 
 
