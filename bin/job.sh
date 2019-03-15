@@ -1170,7 +1170,6 @@ function RunAndCheck() {
       else
         let signal="$rc - 128"
         Mail "exit due to signal=$signal" $bak
-        echo "$task" >> $backlog
       fi
     fi
   fi
