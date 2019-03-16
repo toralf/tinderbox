@@ -36,17 +36,18 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# awefully long build time (due to inheritance of a bundled copy of chromium)
+# loooooong build time
 #
 app-editors/atom
+dev-libs/aws-sdk-cpp
+dev-qt/qtwebengine
+dev-qt/qtwebkit
 dev-util/electron
-www-client/chromium
-www-client/google-chrome
-#
-# 24 hour build time
-#
 sci-libs/tensorflow
 sci-visualization/tensorboard
+sys-cluster/ceph
+www-client/chromium
+www-client/google-chrome
 #
 # breaks @world and/or @preserved-rebuild too often
 #
@@ -62,10 +63,6 @@ net-libs/zmqpp
 # deps on older clang etc.
 #
 dev-util/include-what-you-use
-#
-# loong build time
-#
-dev-libs/aws-sdk-cpp
 #
 # https://bugs.gentoo.org/656966
 #

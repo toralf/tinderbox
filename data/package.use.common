@@ -23,7 +23,6 @@ www-client/w3m            -gpm
 dev-lang/python           readline
 
 # needed eg. by spidermonkey and polkit
-#
 dev-lang/python           sqlite
 
 # https://bugs.gentoo.org/670154
@@ -39,3 +38,7 @@ dev-lang/rust             system-llvm
 #
 dev-util/cmake            -system-jsoncpp
 net-print/cups            -java
+
+# speed up build time
+#
+dev-qt/qtwebengine        jumbo-build

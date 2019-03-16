@@ -47,3 +47,6 @@ You must install glib-genmarshal
 You do not have the SDL/SDL_.* headers installed.
 configure: error:
 Cargo package manager not found
+The Motif libraries are not installed.
+flex: could not
+: error:

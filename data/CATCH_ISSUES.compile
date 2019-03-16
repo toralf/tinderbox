@@ -200,7 +200,6 @@ loadable library and perl binaries are mismatched
 ModuleNotFoundError: No module named
 Failed to get connection to xfconfd:
 setup: can't find source for
-USE Flag .* not in IUSE
 :Error:
 RuntimeError: maximum recursion depth exceeded while calling a Python object
 Unable to access the X Display, is $DISPLAY set properly?
@@ -208,7 +207,7 @@ The variable KERN_DIR must be a kernel build folder
 ^fatal:
 Compiling .*.erl failed:
 Need to define GLIB_MKENUMS
-Error .
+mkdir /root/cache: permission denied
 ^IOError:
 Could not find servlet-api.jar in
 .xml:.*Execute failed:
@@ -217,6 +216,17 @@ Fatal Error:
 tput: unknown terminal
 marshal.list: Permission denied
 Please port gnulib .* to your platform
-make: .* Error
 ^command failed:
 NameError:
+build cache is disabled by GOCACHE=off, but required as of Go
+error while opening .* for reading: No such file or directory
+Bad file descriptor, skipping file,
+: file not recognized: File format not recognized
+^Cannot open assembly
+^Makefile:.*.* does not exist.
+ValueError: Only strings are accepted for the license field, files are not accepted
+go: cannot find GOROOT directory:
+Metadata file .* could not be found
+  error:.*:
+make:.*Error
+Error .

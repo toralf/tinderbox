@@ -5,7 +5,7 @@
 # XDG env
 #
 567192
-XDG_xxx_DIR related|sandbox issue A: /root/
+XDG_xxx_DIR related|sandbox issue A: /root/|/root/cache|mkdir /.../cache: permission denied
 
 # flex
 #

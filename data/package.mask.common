@@ -44,3 +44,7 @@ dev-db/couchdb
 # https://bugs.gentoo.org/662396
 #
 sys-fs/static-dev
+
+# ignore (stable) v6.x for now and all of its rdep packages
+#
+<sys-devel/llvm-7.0.1

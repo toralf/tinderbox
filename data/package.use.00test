@@ -2,4 +2,5 @@
 #
 
 media-libs/tiff       jpeg
+net-nds/openldap      -minimal
 x11-base/xorg-server  xvfb
