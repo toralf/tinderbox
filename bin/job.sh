@@ -1366,20 +1366,17 @@ do
   #
   rm -rf /var/tmp/portage/*
 
-  # if task file is non-empty then retry it
+  # if task file is non-empty (after start) then retry it
   #
   if [[ -s $tsk ]]; then
     task=$( cat $tsk )
     touch $tsk    # don't foolish whatsup.sh
   else
-    # commonly this handles a STOP
-    #
     setNextTask
-
-    # the attempt itself is sufficient to keep it in the image task history
-    #
-    echo "$task" | tee -a $tsk.history > $tsk
+    echo "$task" > $tsk
   fi
+
+  echo "$task" >> $tsk.history
 
   # eg.: remove a package to catch a dependency issue
   #
@@ -1392,7 +1389,7 @@ do
   # this line is not reached if Finish() is called before
   # therefore $task is (intentionally) being retried at next image start
   #
-  truncate -s0 $tsk
+  truncate -s 0 $tsk
 
   DetectALoop
 done
