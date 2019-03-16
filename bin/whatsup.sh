@@ -81,7 +81,7 @@ function Overall() {
     compl=0
     f=$i/var/log/emerge.log
     if [[ -f $f ]]; then
-      compl=$(grep -c '::: completed emerge' $f)
+      compl=$(grep -c ' ::: completed emerge' $f)
     fi
 
     # count emerge failures based on distinct package release
@@ -205,7 +205,7 @@ function LastEmergeOperation()  {
     # catch the last *started* emerge operation
     #
     tac $i/var/log/emerge.log 2>/dev/null |\
-    grep -m 1 -E -e '>>>|\*\*\* emerge' -e ' \*\*\* terminating.' -e '::: completed emerge' |\
+    grep -m 1 -E -e ' >>>| \*\*\* emerge' -e ' \*\*\* terminating.' -e ' ::: completed emerge' |\
     sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
     perl -wane '
       chop ($F[0]);
@@ -242,7 +242,7 @@ function PackagesPerDay() {
       continue
     fi
 
-    grep '::: completed emerge' $i/var/log/emerge.log 2>/dev/null |\
+    grep ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null |\
     cut -f1 -d ':' -s |\
     perl -wane '
       BEGIN { @p = (0); $first = 0; }
