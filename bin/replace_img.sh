@@ -61,8 +61,9 @@ echo " old image is $oimg"
 
 if [[ -f ~/run/$oimg/tmp/LOCK ]]; then
   echo " will schedule pfl and stop afterwards ..."
+  compl=$(grep -c '::: completed emerge' ~/run/$oimg/var/log/emerge.log 2>/dev/null)
   cat << EOF >> ~/run/$oimg/tmp/backlog.1st
-STOP
+STOP (EOL) $compl completed emerge operations
 %/usr/bin/pfl
 app-portage/pfl
 EOF
