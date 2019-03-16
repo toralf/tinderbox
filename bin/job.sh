@@ -1158,10 +1158,8 @@ function RunAndCheck() {
             -e 'portage.exception.PortageKeyError: '  \
             $bak
     if [[ $? -eq 0 ]]; then
-      # repo update during @system, @world etc.
-      #
       try_again=1
-      Mail "info: catched a repo race for task=$task" $bak
+      Mail "info: catched a repo update rac, task=$task" $bak
       echo "$task" >> $backlog
 
       # wait for "git pull" being finished
@@ -1191,7 +1189,7 @@ function WorkOnTask() {
 
   # image update
   #
-  if [[ $task = "@system" || $task = "@world" || $task = "@preserved-rebuild" ]]; then
+  if [[ $task =~ ^@ ]]; then
     if [[ $task = "@system" ]]; then
       opts="--update --newuse --changed-use --deep --exclude sys-kernel/vanilla-sources --changed-deps=y"
     elif [[ $task = "@world" ]]; then
@@ -1265,10 +1263,7 @@ function WorkOnTask() {
           else
             grep -q ' Invalid resume list:' $bak
             if [[ $? -eq 0 ]]; then
-              cat << EOF >> $backlog
-@world
-@system
-EOF
+              echo "@system" >> $backlog
             else
               Finish 3 "resume failed"
             fi
