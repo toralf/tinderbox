@@ -50,7 +50,7 @@ function check_history()  {
   return
 }
 
-# gives sth. like:
+# whatsup.sh -o
 #
 # compl fail  days backlog  upd  1st status
 #  3735   41   3.6   16369    0    1   W  r  run/13.0-no-multilib_20170315-195201
@@ -133,7 +133,7 @@ function Overall() {
 }
 
 
-# gives sth. like:
+# whatsup.sh -t
 #
 # 13.0-abi32+64_20170216-202818              1:53 m  mail-filter/assp
 # desktop_20170218-203252                    1:11 h  games-emulation/sdlmame
@@ -182,7 +182,7 @@ function Tasks()  {
 }
 
 
-# gives sth. like:
+# whatsup.sh -l
 #
 # 13.0-abi32+64_20170216-202818              0:13 m  >>> (5 of 8) dev-perl/Email-MessageID-1.406.0
 # desktop_20170218-203252                    1:10 h  >>> (1 of 1) games-emulation/sdlmame-0.174
@@ -226,10 +226,10 @@ function LastEmergeOperation()  {
 }
 
 
-# gives sth. like:
+# whatsup.sh -p
 #
 # gnome-systemd_20170301-222559     793 1092  696  315
-# plasma-abi32+64_20170216-195507   454 1002  839  672 1111  864 691. 719 665 469 521 487 460 403  453 388 248
+# plasma-abi32+64_20170216-195507   454 1002  839  672 1111  864 691. 719 665 469 521 487 460 403. 453
 # plasma-abi32+64_20170228-094845   627  462 1111  718  546  182
 #
 function PackagesPerDay() {
