@@ -245,28 +245,31 @@ function PackagesPerDay() {
     grep ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null |\
     cut -f1 -d ':' -s |\
     perl -wane '
+      use POSIX qw(floor);
+
+      # @p contains the amount of emerge operations at day $i
       BEGIN { @p = (0); $first = 0; }
       {
         $cur = $F[0];
         $first = $cur if ($first == 0);
-        my $i = int (($cur-$first)/86400);
+        my $i = floor (($cur-$first)/86400);
         $p[$i]++;
       }
 
       END {
         foreach my $i (0..$#p) {
+          # fill missing days with zero
           $p[$i] = 0 unless ($p[$i]);
 
-          # till the $d th day the number might be bigger than 1,000
+          # till 4th day the value might be > 1,000
           #
-          $d = 5;
-          if ($i < $d)  {
+          if ($i < 4)  {
             printf "%5i", $p[$i]
           } else  {
             printf "%4i", $p[$i]
           }
 
-          # mark a 7-day period
+          # set a mark after a week
           #
           if ($i != $#p && $i % 7 == 6)  {
             print ".";
