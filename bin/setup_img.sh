@@ -227,10 +227,10 @@ function UnpackStage3()  {
 }
 
 
-# define and configure repositories
+# configure remote (bind mounted, see chr.sh) and image specific repositories
 #
 function CompileRepoFiles()  {
-  mkdir -p      ./etc/portage/repos.conf/
+  mkdir -p     ./etc/portage/repos.conf/
 
   cat << EOF > ./etc/portage/repos.conf/gentoo.conf
 [gentoo]
@@ -244,13 +244,13 @@ location = /tmp/tb/data/portage
 
 EOF
 
+  # this is an image specific repository
+  # nevertheless use the same location as at the host
+  #
   mkdir -p                  ./$repo_local/{metadata,profiles}
   echo 'masters = gentoo' > ./$repo_local/metadata/layout.conf
   echo 'local'            > ./$repo_local/profiles/repo_name
 
-  # this is image specific, not bind-mounted from the host
-  # nevertheless use the same location
-  #
   cat << EOF > ./etc/portage/repos.conf/local.conf
 [local]
 location = $repo_local
@@ -281,7 +281,7 @@ location = $repo_libressl
 
 EOF
 
-  cat << EOF > ./etc/portage/repos.conf/default.conf
+  cat << EOF >> ./etc/portage/repos.conf/default.conf
 [libressl]
 priority = 20
 
