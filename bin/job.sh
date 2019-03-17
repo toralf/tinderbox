@@ -809,12 +809,9 @@ function SendoutIssueMail()  {
 #
 function PutDepsIntoWorldFile() {
   emerge --depclean --pretend --verbose=n 2>/dev/null |\
-  grep "^All selected packages: " |\
-  cut -f2- -d':' -s |\
-  while read p
-  do
-    emerge -O --noreplace $p &>/dev/null
-  done
+  grep "^All selected packages: "                     |\
+  cut -f2- -d':' -s                                   |\
+  xargs --no-run-if-empty emerge -O --noreplace
 }
 
 
