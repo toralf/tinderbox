@@ -25,6 +25,9 @@ if [[ -f $lck ]]; then
   # no Finish() here !
   exit 1
 fi
+
+# the ">>" helps to catch an (unlikely) race
+#
 echo $$ >> $lck
 
 # bail out if the age of the youngest image is below $1 hours
