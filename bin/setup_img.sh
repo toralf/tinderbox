@@ -501,13 +501,13 @@ EOF
 function CreateBacklog()  {
   bl=./tmp/backlog
 
-  truncate -s 0 $bl{,.1st,.upd}            || exit 1
+  truncate -s 0 $bl{,.1st,.upd}
   chmod ug+w    $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  # all packages in a randomized order
+  # sort is needed due to multi repository approach
   #
-  qsearch --all --nocolor --name-only --quiet | shuf >> $bl
+  qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> $bl
 
   if [[ -e $origin ]]; then
     # no replay of @sets or %commands
