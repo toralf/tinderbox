@@ -413,9 +413,6 @@ EOF
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
   if [[ "$libressl" = "y" ]]; then
-    # will be moved to its final destination after GCC update
-    #
-    cp  ~tinderbox/tb/data/package.use.00libressl   ./tmp/00libressl
     echo 'dev-lang/python -bluetooth'             > ./etc/portage/package.use/python
   fi
 
@@ -561,7 +558,7 @@ EOF
 %emerge @preserved-rebuild
 %emerge --unmerge openssl
 %emerge -f dev-libs/openssl dev-libs/libressl net-misc/openssh net-misc/wget dev-lang/python
-%mv /tmp/00libressl /etc/portage/package.use/
+%cp /tmp/tb/data/package.use.00libressl /etc/portage/package.use/
 EOF
   fi
 
