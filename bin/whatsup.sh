@@ -9,9 +9,9 @@
 #
 function list_images() {
   (
-    for i in $(ls ~/run 2>/dev/null); do ls -d ~/img?/$i 2>/dev/null; done
+    for i in $( ls ~/run ); do ls -d ~/img?/$i; done
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
-  ) | sort -u -k 2 -t'-'
+  ) 2>/dev/null | sort -u -k 2 -t'-'
 }
 
 # ${n} should be the minimum length to distinguish abbreviated image names
