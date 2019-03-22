@@ -337,7 +337,6 @@ FEATURES="$features"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --color=n --nospinner --tree --quiet-build --with-bdeps=y --complete-graph=y --backtrack=500 --autounmask-keep-masks=y"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
-ACCEPT_LICENSE="@FREE"
 CLEAN_DELAY=0
 
 L10N="$l10n"
