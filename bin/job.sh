@@ -110,10 +110,9 @@ function setNextTask() {
 
     # repository updates
     # updated regularly by update_backlog.sh
-    #
     # 1/N probability if no special action is in common backlog (eg. if cloned from an origin)
     #
-    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 4)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
+    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 5)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
 
     # common backlog
@@ -131,7 +130,7 @@ function setNextTask() {
     #
     else
       n=$(qlist --installed | wc -l)
-      Finish 0 "empty backlogs, $n packages emerged"
+      Finish 0 "empty backlogs, $n packages installed"
     fi
 
     # splice last line from the winning backlog file
@@ -154,7 +153,7 @@ function setNextTask() {
       continue  # comment
 
     elif [[ $task =~ ^= || $task =~ ^@ || $task =~ ^% ]]; then
-      return  # work on a pinned version || @set || command
+      return  # work on either a pinned version || @set || command
 
     else
       # skip if $task matches any ignore patterns
