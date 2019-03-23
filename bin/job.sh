@@ -1118,7 +1118,7 @@ function CheckQA() {
           sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' '
         )
         collectPortageDir
-        sed -i -e "s,^,$pkg : [QA] ," $issuedir/title
+        sed -i -e "s,^,$pkg : ," $issuedir/title
         TrimTitle
         AttachFilesToBody $issuedir/issue
 
