@@ -82,7 +82,7 @@ function SetOptions() {
   #
   multilib="n"
   if [[ ! $profile =~ "no-multilib" ]]; then
-    if [[ $(($RANDOM % 10)) -eq 0 ]]; then
+    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       multilib="y"
     fi
   fi
@@ -94,7 +94,7 @@ function SetOptions() {
   # FEATURES=test
   #
   testfeature="n"
-  if [[ $(($RANDOM % 18)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     testfeature="y"
   fi
 }
@@ -434,11 +434,11 @@ EOF
     cp  ~tinderbox/tb/data/$d.$keyword              ./etc/portage/$d/$keyword
   done
 
-  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     cp  ~tinderbox/tb/data/package.use.ff-and-tb    ./etc/portage/package.use/ff-and-tb
   fi
 
-  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     cp  ~tinderbox/tb/data/package.use.ffmpeg       ./etc/portage/package.use/ffmpeg
   fi
 
@@ -531,7 +531,7 @@ EOF
   #
   # but there's a poppler issue: https://bugs.gentoo.org/670252
   #
-  if [[ $(($RANDOM % 6)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     echo "media-libs/jpeg" >> $bl.1st
   fi
 
@@ -539,7 +539,7 @@ EOF
   # this is a mysql alternative engine, emerge it before @system or @world pulls the default (mysqld)
   #
   if [[ "$libressl" = "y" ]]; then
-    if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       echo "dev-db/percona-server" >> $bl.1st
     fi
   fi
