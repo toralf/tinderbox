@@ -170,8 +170,12 @@ function ComputeImageName()  {
 # download, verify and unpack the stage3 file
 #
 function UnpackStage3()  {
+  # the remote stage3 location
+  #
+  wgeturl=http://ftp.halifax.rwth-aachen.de/gentoo/releases/amd64/autobuilds
+
   latest=$distfiles/latest-stage3.txt
-  wget --quiet $wgethost/$wgetpath/latest-stage3.txt --output-document=$latest || exit 1
+  wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest || exit 1
 
   case $profile in
     */no-multilib/hardened)
@@ -203,7 +207,7 @@ function UnpackStage3()  {
 
   f=$distfiles/$(basename $stage3)
   if [[ ! -s $f ]]; then
-    wget --quiet --no-clobber $wgethost/$wgetpath/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles
+    wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles
     rc=$?
     if [[ $rc -ne 0 ]]; then
       echo " can't download stage3 file '$stage3' of profile '$profile', rc=$rc"
@@ -846,11 +850,6 @@ mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
 
 echo " $mnt"
 echo
-
-# the remote stage3 location
-#
-wgethost=http://ftp.halifax.rwth-aachen.de/gentoo/
-wgetpath=/releases/amd64/autobuilds
 
 UnpackStage3
 CompileRepoFiles
