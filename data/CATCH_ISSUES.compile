@@ -227,6 +227,7 @@ Bad file descriptor, skipping file,
 ValueError: Only strings are accepted for the license field, files are not accepted
 go: cannot find GOROOT directory:
 Metadata file .* could not be found
+rl:.*: .* undefined
   error:.*:
 make:.*Error
 Error .

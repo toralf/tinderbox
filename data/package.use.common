@@ -42,3 +42,7 @@ net-print/cups            -java
 # speed up build time
 #
 dev-qt/qtwebengine        jumbo-build
+
+# would need +sasl otherwise
+#
+net-nds/openldap          -cxx

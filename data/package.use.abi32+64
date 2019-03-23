@@ -11,3 +11,7 @@ sys-libs/ncurses        -gpm
 # https://bugs.gentoo.org/616140 : with ABI_x86="32 64" @system dep tree broken after masking libX11
 #
 dev-libs/glib           -test
+
+# The following USE changes are necessary to proceed:
+#
+sys-apps/dbus           user-session

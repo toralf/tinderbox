@@ -88,6 +88,7 @@ make:.* test
 ^\?: .*
 Segmentation fault
 Test .* failed:
+Error:
 make.* Error 1
  FAILED (.*)
  FAILED .*
