@@ -490,7 +490,7 @@ EOF
   # https://bugs.gentoo.org/667324
   #
   echo 'qlist -IC dev-util/glib-utils >/dev/null && emerge --unmerge dev-util/glib-utils' > ./tmp/pretask.sh
-  chmod a+x ./tmp/pretask.sh
+  chmod go-w ./tmp/pretask.sh
 }
 
 
@@ -501,24 +501,24 @@ EOF
 function CreateBacklog()  {
   bl=./tmp/backlog
 
-  truncate -s 0 $bl{,.1st,.upd}
-  chmod ug+w    $bl{,.1st,.upd}
+  truncate -s 0           $bl{,.1st,.upd}
+  chmod ug+w              $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  # sort is needed due to multi repository approach
+  # sort is needed b/c more than one repository is configured
   #
   qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> $bl
 
   if [[ -e $origin ]]; then
     # no replay of @sets or %commands
-    # the replay of 'qlist -ICv' is intentionally not wanted
+    # a replay of 'qlist -ICv' is intentionally not wanted
     #
     echo "INFO finished replay of task history of $origin"    >> $bl.1st
     grep -v -E "^(%|@)" $origin/tmp/task.history | uniq | tac >> $bl.1st
     echo "INFO starting replay of task history of $origin"    >> $bl.1st
   fi
 
-  # update @system and @world before working on package lists
+  # update @system and @world before working on packages
   # this is the last time where depclean is run w/o "-p" (and have to work)
   #
   cat << EOF >> $bl.1st
@@ -862,7 +862,7 @@ dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system -
 CreateSetupScript
 EmergeMandatoryPackages
 
-cd  ~tinderbox/run && ln -s ../$mnt || exit 1
+cd ~tinderbox/run && ln -s ../$mnt || exit 1
 
 echo
 echo " setup OK"
