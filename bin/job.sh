@@ -1166,7 +1166,11 @@ function RunAndCheck() {
         GotAnIssue
       else
         let signal="$rc - 128"
-        Mail "exit due to signal=$signal" $bak
+        if [[ $signal -eq 9 ]]; then
+          Finish 0 "catched SIGKILL - exiting"
+        else
+          Mail "emerge exited due to signal $signal" $bak
+        fi
       fi
     fi
   fi
