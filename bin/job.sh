@@ -1219,24 +1219,13 @@ function WorkOnTask() {
         echo "$(date) NOT ok $msg" >> /tmp/$task.history
       fi
 
-      # set package specific USE flags as adviced and repeat @set
-      # this is needed *here* to achieve a consistent dep tree
-      #
-      msg="The following USE changes are necessary to proceed:"
-      grep -q "$msg" $bak
+      grep -q "The following USE changes are necessary to proceed:" $bak
       if [[ $? -eq 0 ]]; then
-        grep -A 10000 "$msg" $bak |\
-        while read line
-        do
-          if [[ $line =~ ">=" || $line =~ "=" ]]; then
-            echo "$line" >> /etc/portage/package.use/z_changed_use_flags
-          elif [[ -z "$line" ]]; then
-            break
-          fi
-        done
         echo "$task" >> $backlog
+        Finish 1 "$task failed due to USE flag constraints"
+      fi
 
-      elif [[ $try_again -eq 0 ]]; then
+      if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
           echo "%emerge --resume --skip-first" >> $backlog
         fi
