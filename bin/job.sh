@@ -802,9 +802,8 @@ function SendoutIssueMail()  {
 
 
 # helper of GotAnIssue()
-# add successfully emerged dependencies of $task to the world file
-# otherwise we'd need to use "--deep" unconditionally
-# (https://bugs.gentoo.org/show_bug.cgi?id=563482)
+# add successfully emerged packages to world (otherwise we'd need "--deep" unconditionally)
+# https://bugs.gentoo.org/show_bug.cgi?id=563482
 #
 function PutDepsIntoWorldFile() {
   emerge --depclean --pretend --verbose=n 2>/dev/null |\
@@ -1359,6 +1358,10 @@ export XDG_RUNTIME_DIR="/root/run"
 export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
+
+# needed here if a previous emerge operation with killed (eg. due to a reboot)
+#
+PutDepsIntoWorldFile
 
 while :
 do
