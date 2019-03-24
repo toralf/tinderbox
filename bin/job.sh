@@ -1264,7 +1264,7 @@ function WorkOnTask() {
       fi
     fi
 
-  # pinned version
+  # pinned package version
   #
   elif [[ $task =~ ^= ]]; then
     RunAndCheck "emerge $task"
@@ -1381,7 +1381,7 @@ do
   WorkOnTask
 
   # this line is not reached if Finish() is called before
-  # therefore $task is (intentionally) being retried at next image start
+  # by this $task is intentionally retried at next image start
   #
   truncate -s 0 $tsk
 
