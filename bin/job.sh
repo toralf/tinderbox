@@ -1189,12 +1189,9 @@ function WorkOnTask() {
   # image update
   #
   if [[ $task =~ ^@ ]]; then
-    if [[ $task = "@system" ]]; then
+    opts=""
+    if [[ $task = "@system" || $task = "@world" ]]; then
       opts="--update --newuse --changed-use --deep --exclude sys-kernel/vanilla-sources --changed-deps=y"
-    elif [[ $task = "@world" ]]; then
-      opts="--update --newuse --changed-use --deep --exclude sys-kernel/vanilla-sources"
-    else
-      opts=""
     fi
     RunAndCheck "emerge $opts $task"
     local rc=$?
