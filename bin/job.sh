@@ -1221,7 +1221,6 @@ function WorkOnTask() {
 
       grep -q "The following USE changes are necessary to proceed:" $bak
       if [[ $? -eq 0 ]]; then
-        echo "$task" >> $backlog
         Finish 1 "$task failed due to USE flag constraints"
       fi
 
