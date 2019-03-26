@@ -9,7 +9,7 @@
 # That's all.
 
 
-# strip away non-printable sequences
+# strip away non-printable chars
 #
 function stresc() {
   perl -MTerm::ANSIColor=colorstrip -nle '
@@ -809,7 +809,7 @@ function PutDepsIntoWorldFile() {
   emerge --depclean --pretend --verbose=n 2>/dev/null |\
   grep "^All selected packages: "                     |\
   cut -f2- -d':' -s                                   |\
-  xargs --no-run-if-empty emerge -O --noreplace
+  xargs --no-run-if-empty emerge -O --noreplace &>/dev/null
 }
 
 
@@ -1186,7 +1186,7 @@ function WorkOnTask() {
   pkglog=""
   pkgname=""
 
-  # image update
+  # @set
   #
   if [[ $task =~ ^@ ]]; then
     opts=""
@@ -1265,7 +1265,7 @@ function WorkOnTask() {
   elif [[ $task =~ ^= ]]; then
     RunAndCheck "emerge $task"
 
-  # straight package or a @set
+  # straight package name
   #
   else
     RunAndCheck "emerge --update $task"
