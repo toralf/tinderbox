@@ -7,3 +7,8 @@
 #
 ~dev-libs/boost-1.67.0
 ~dev-util/boost-build-1.67.0
+
+# [22:01] <dilfridge> how about a tinderbox run with glibc-2.29-r1?
+# [22:02] <dilfridge> it's unkeyworded still, I want to restore ~arch keywords soon
+#
+~sys-libs/glibc-2.29
