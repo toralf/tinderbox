@@ -21,7 +21,7 @@ pks=/tmp/$(basename $0).txt
 #
 git diff --diff-filter=ACM --name-status "@{ ${1:-2} hour ago }".."@{ ${1:-1} hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' -e 'Manifest'                                                 |\
-cut -f2- -s | xargs --no-run-if-empty -n 1 | cut -f1-2 -d'/' -s | sort --unique > $pks
+cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s | sort --unique > $pks
 
 if [[ -s $pks ]]; then
   for i in $(ls ~/run 2>/dev/null)

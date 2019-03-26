@@ -432,7 +432,7 @@ function foundCollisionIssue() {
     # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
     #
     if [[ -n "$cc" ]]; then
-      (cat $issuedir/cc 2>/dev/null; echo $cc) | xargs --no-run-if-empty -n 1 | sort -u | xargs > $issuedir/cc
+      (cat $issuedir/cc 2>/dev/null; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
     fi
   fi
 }

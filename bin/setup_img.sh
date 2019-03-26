@@ -328,7 +328,7 @@ CFLAGS="-O2 -pipe -march=native"
 CXXFLAGS="\${CFLAGS}"
 
 USE="
-$( echo $useflags | xargs --no-run-if-empty -s 78 | sed 's/^/  /g' )
+$( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 
   ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
