@@ -688,6 +688,11 @@ if [[ \$? -ne 0 ]]; then
   exit 2
 fi
 
+grep 'The following USE changes are necessary to proceed:' /tmp/dryrun.log
+if [[ \$? -eq 0 ]]; then
+  exit 2
+fi
+
 exit 0
 
 EOF
