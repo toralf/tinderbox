@@ -424,6 +424,10 @@ EOF
     echo 'media-fonts/encodings -X'               > ./etc/portage/package.use/encodings
   fi
 
+  if [[ $profile =~ '/systemd/' ]]; then
+    cp  ~tinderbox/tb/data/package.use.00systemd    ./etc/portage/package.use/00systemd
+  fi
+
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
     cp  ~tinderbox/tb/data/$d.common                ./etc/portage/$d/common
