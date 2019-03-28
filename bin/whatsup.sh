@@ -5,6 +5,7 @@
 # few tinderbox statistics
 #
 
+
 # watch all images either symlinked into ~/run or running
 #
 function list_images() {
@@ -13,6 +14,7 @@ function list_images() {
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
   ) 2>/dev/null | sort -u -k 2 -t'-'
 }
+
 
 # ${n} should be the minimum length to distinguish abbreviated image names
 #
@@ -29,16 +31,16 @@ function check_history()  {
   local lc=$2
 
   if [[ -s $file ]]; then
-    tail -n 1 $file | grep -q "20.. ok[ ]*$"
-    if [[ $? -eq 0 ]]; then
-      flag=" $flag"
-      return
-    fi
-
-    tail -n 1 $file | grep -q "20.. NOT ok"
+    tail -n 1 $file | grep -q " NOT ok[ ]*$"
     if [[ $? -eq 0 ]]; then
       local uc=$(echo $lc | tr '[:lower:]' '[:upper:]')
       flag="${uc}${flag}"
+      return
+    fi
+
+    tail -n 1 $file | grep -q " ok[ ]*$"
+    if [[ $? -eq 0 ]]; then
+      flag=" $flag"
       return
     fi
 
@@ -49,6 +51,7 @@ function check_history()  {
   flag=".$flag"
   return
 }
+
 
 # whatsup.sh -o
 #
