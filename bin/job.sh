@@ -782,10 +782,8 @@ EOF
 # helper of GotAnIssue() and CheckQA
 #
 function SendoutIssueMail()  {
-  # no matching pattern in CATCH_* == no title
-  #
   if [[ -s $issuedir/title ]]; then
-    # do not report the same issue again
+    # do not inform a known issue twice
     #
     grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
     if [[ $? -eq 0 ]]; then
@@ -794,9 +792,6 @@ function SendoutIssueMail()  {
 
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
   fi
-
-  # $issuedir/bgo_result might not exists
-  #
   Mail "$(cat $issuedir/bgo_result 2>/dev/null)$(cat $issuedir/title)" $issuedir/body
 }
 
@@ -809,7 +804,7 @@ function PutDepsIntoWorldFile() {
   emerge --depclean --pretend --verbose=n 2>/dev/null |\
   grep "^All selected packages: "                     |\
   cut -f2- -d':' -s                                   |\
-  xargs --no-run-if-empty emerge -O --noreplace &>/dev/null
+  xargs --no-run-if-empty emerge -O --noreplace 2>&1
 }
 
 
@@ -835,7 +830,7 @@ function setWorkDir() {
 function GotAnIssue()  {
   grep -q -F '^>>> Installing ' $bak
   if [[ $? -eq 0 ]]; then
-    PutDepsIntoWorldFile
+    PutDepsIntoWorldFile &>/dev/null
   fi
 
   fatal=$(grep -m 1 -f /tmp/tb/data/FATAL_ISSUES $bak)
@@ -1344,9 +1339,9 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# needed here if a previous emerge operation with killed (eg. due to a reboot)
+# needed here eg. if emerge was killed for a reboot
 #
-PutDepsIntoWorldFile
+PutDepsIntoWorldFile &>$log
 
 while :
 do
