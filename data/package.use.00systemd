@@ -1,4 +1,4 @@
-# package.use/00ystemd
+# package.use/00systemd
 #
 sys-apps/dbus           user-session
 

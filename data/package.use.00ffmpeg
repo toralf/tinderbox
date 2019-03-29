@@ -1,4 +1,4 @@
-# package.use file for ffmpeg
+# package.use/00ffmpeg
 #
 
 # create a randomized package list from USE flags:

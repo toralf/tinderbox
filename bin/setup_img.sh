@@ -415,13 +415,13 @@ EOF
   echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
 
   if [[ "$libressl" = "y" ]]; then
-    echo 'dev-lang/python -bluetooth'             > ./etc/portage/package.use/python
+    echo 'dev-lang/python -bluetooth'             > ./etc/portage/package.use/00python
   fi
 
   if [[ ! "$profile" =~ '/desktop/' ]]; then
     # would pull in X otherwise in a non-desktop profile
     #
-    echo 'media-fonts/encodings -X'               > ./etc/portage/package.use/encodings
+    echo 'media-fonts/encodings -X'               > ./etc/portage/package.use/00encodings
   fi
 
   if [[ $profile =~ '/systemd/' ]]; then
@@ -430,31 +430,31 @@ EOF
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
-    cp  ~tinderbox/tb/data/$d.common                ./etc/portage/$d/common
+    cp  ~tinderbox/tb/data/$d.00common              ./etc/portage/$d/00common
   done
 
   for d in package.{accept_keywords,unmask}
   do
-    cp  ~tinderbox/tb/data/$d.$keyword              ./etc/portage/$d/$keyword
+    cp  ~tinderbox/tb/data/$d.00$keyword            ./etc/portage/$d/00$keyword
   done
 
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    cp  ~tinderbox/tb/data/package.use.ff-and-tb    ./etc/portage/package.use/ff-and-tb
+    cp  ~tinderbox/tb/data/package.use.00ff-and-tb  ./etc/portage/package.use/00ff-and-tb
   fi
 
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    cp  ~tinderbox/tb/data/package.use.ffmpeg       ./etc/portage/package.use/ffmpeg
+    cp  ~tinderbox/tb/data/package.use.00ffmpeg     ./etc/portage/package.use/00ffmpeg
   fi
 
   if [[ "$testfeature" = "y" ]]; then
     cp  ~tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
-    cp  ~tinderbox/tb/data/package.env.notest       ./etc/portage/package.env/notest
+    cp  ~tinderbox/tb/data/package.env.00notest     ./etc/portage/package.env/00notest
   else
-    echo "*/* notest"                             > ./etc/portage/package.env/notest
+    echo "*/* notest"                             > ./etc/portage/package.env/00notest
   fi
 
   if [[ "$multilib" = "y" ]]; then
-    cp  ~tinderbox/tb/data/package.use.abi32+64     ./etc/portage/package.use/abi32+64
+    cp  ~tinderbox/tb/data/package.use.00abi32+64   ./etc/portage/package.use/00abi32+64
   fi
 
   touch ./tmp/task

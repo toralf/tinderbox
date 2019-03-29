@@ -1,4 +1,4 @@
-# package.mask/common
+# package.mask/00common
 #
 
 # broken
@@ -21,21 +21,9 @@ net-fs/openafs-kernel
 #
 dev-util/plan9port
 
-# Bug 601130 - www-client/w3mmee-0.3.2_p24-r9: hang during configure step (infinite loop in choosing a language)
-#
-www-client/w3mmee
-
-# https://bugs.gentoo.org/show_bug.cgi?id=647924  pytest-relaxed changes pytest behaviour in an incompatible way
-#
-dev-python/pytest-relaxed
-
 # https://github.com/mgorny/portage
 #
 sys-apps/portage-mgorny
-
-# https://bugs.gentoo.org/show_bug.cgi?id=660708
-#
-=net-misc/rabbitmq-server-3.7.3-r1
 
 # downgrades erlang
 #

@@ -1,4 +1,4 @@
-# package.use/common
+# package.use/00common
 #
 
 # mailer in a tinderbox image (note: portage implements its own mailer)

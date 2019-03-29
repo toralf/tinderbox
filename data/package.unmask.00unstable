@@ -1,4 +1,4 @@
-# package.unmask/unstable
+# package.unmask/00unstable
 #
 
 # please note that this file rules over /etc/portage/package.mask/*, especially over ./self
