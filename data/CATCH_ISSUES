@@ -8,3 +8,5 @@ ecompress-file failed
 ^ERROR:
  \\* ERROR: .* failed:
 ln: failed to create symbolic link .*: File exists
+make:.*Error
+Error .

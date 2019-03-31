@@ -229,5 +229,4 @@ go: cannot find GOROOT directory:
 Metadata file .* could not be found
 rl:.*: .* undefined
   error:.*:
-make:.*Error
-Error .
+Abnormal terminated

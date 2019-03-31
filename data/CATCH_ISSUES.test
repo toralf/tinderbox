@@ -110,3 +110,4 @@ PermissionError: .* Permission denied
 : py.test: command not found
 mkdir /root/cache: permission denied
 RuntimeError:
+error: invalid command
