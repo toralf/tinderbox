@@ -372,29 +372,32 @@ function CompilePortageFiles()  {
 
   for d in package.{accept_keywords,env,mask,unmask,use} env
   do
-    [[ ! -d ./etc/portage/$d ]] && mkdir ./etc/portage/$d
-    chmod 777 ./etc/portage/$d
+    if [[ ! -d ./etc/portage/$d ]]; then
+      mkdir       ./etc/portage/$d
+    fi
+    chmod 777     ./etc/portage/$d
     chgrp portage ./etc/portage/$d
   done
 
   (cd ./etc/portage; ln -s ../../tmp/tb/data/patches)
 
-  touch       ./etc/portage/package.mask/self     # contains failed package at this image
+  touch       ./etc/portage/package.mask/self     # contains failed packages of this image
   chmod a+rw  ./etc/portage/package.mask/self
 
   echo "*/* $(cpuid2cpuflags)"    > ./etc/portage/package.use/00cpuflags
 
-  # build w/o "test", useful if package specific test phase is known to be br0ken or takes too long
+  # useful if package specific test phase is known to be br0ken or takes too long
   #
   echo 'FEATURES="-test"'         > ./etc/portage/env/notest
 
-  # at 2nd attempt to emerge a package do ignore the test phase result
-  # but do still run the test phase (even it will fail) to have the same dep tree
+  # at the 2nd attempt to emerge of a package do still run the test phase (even it failed before)
+  # to preserve the same dep tree - but do ignore the test phase result
+  #
   #
   echo 'FEATURES="test-fail-continue"'  > ./etc/portage/env/test-fail-continue
 
   # certain types of sandbox issues are forced by the XDG_* settings in job.sh
-  # at 2nd attempt retry affected packages w/o sandbox'ing
+  # at 2nd attempt emerge affected packages w/o sandbox'ing
   #
   echo 'FEATURES="-sandbox"'      > ./etc/portage/env/nosandbox
   echo 'FEATURES="-usersandbox"'  > ./etc/portage/env/nousersandbox
