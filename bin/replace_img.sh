@@ -15,7 +15,8 @@ function Finish() {
 #
 days=${1:-5}
 hours=${2:-12}
-shift 2
+min_compl=${3:-3500}
+shift 3
 setupargs="$@"
 
 # be silent here
@@ -30,7 +31,7 @@ fi
 #
 echo $$ >> $lck
 
-# bail out if the age of the youngest image is below $1 hours
+# bail out if the age of the youngest image is below x hours
 #
 yimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | head -n 1 )
 if [[ -z "$yimg" ]]; then
@@ -44,7 +45,7 @@ if [[ $age -lt $hours ]]; then
   Finish 3
 fi
 
-# kick off the oldest image if its age is greater than N days
+# bail out if the age of the oldest image is below x days
 #
 oimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | tail -n 1 )
 if [[ -z "$oimg" ]]; then
@@ -58,13 +59,19 @@ if [[ $age -lt $days ]]; then
   Finish 5
 fi
 
+# bail out if less than x emerge operations were completed
+#
+compl=$(grep ' ::: completed emerge' ~/run/$oimg/var/log/emerge.log 2>/dev/null | wc -l)
+if [[ $compl -lt $min_compl ]]; then
+  Finish 6
+fi
+
 echo
 date
 echo " old image is $oimg"
 
 if [[ -f ~/run/$oimg/tmp/LOCK ]]; then
   echo " will schedule pfl and stop afterwards ..."
-  compl=$(grep -c ' ::: completed emerge' ~/run/$oimg/var/log/emerge.log 2>/dev/null)
   cat << EOF >> ~/run/$oimg/tmp/backlog.1st
 STOP (EOL) $compl completed emerge operations
 %/usr/bin/pfl
@@ -100,7 +107,7 @@ do
     continue
   else
     echo "rc=$rc, exiting ..."
-    Finish 6
+    Finish 23
   fi
 done
 
