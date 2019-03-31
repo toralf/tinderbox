@@ -412,7 +412,7 @@ RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 EOF
 
-  echo '*/* noconcurrent'         > ./etc/portage/package.env/noconcurrent
+  echo '*/* noconcurrent'         > ./etc/portage/package.env/00noconcurrent
 
   if [[ "$libressl" = "y" ]]; then
     echo 'dev-lang/python -bluetooth'             > ./etc/portage/package.use/00python
@@ -439,8 +439,8 @@ EOF
   done
 
   if [[ "$testfeature" = "y" ]]; then
-    cp  ~tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
     cp  ~tinderbox/tb/data/package.env.00notest     ./etc/portage/package.env/00notest
+    cp  ~tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
   else
     echo "*/* notest"                             > ./etc/portage/package.env/00notest
   fi
@@ -459,7 +459,7 @@ EOF
 function CompileMiscFiles()  {
   echo $name > ./tmp/name
 
-  # use local DNS resolver
+  # use local (==host) DNS resolver
   #
   cat <<EOF > ./etc/resolv.conf
 domain localdomain
@@ -540,7 +540,7 @@ EOF
     fi
   fi
 
-  # upgrade portage before @system or @world
+  # upgrade portage itself before @system or @world
   #
   echo "sys-apps/portage" >> $bl.1st
 
