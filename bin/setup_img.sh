@@ -439,10 +439,6 @@ EOF
   done
 
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    cp  ~tinderbox/tb/data/package.use.00ff-and-tb  ./etc/portage/package.use/00ff-and-tb
-  fi
-
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     cp  ~tinderbox/tb/data/package.use.00ffmpeg     ./etc/portage/package.use/00ffmpeg
   fi
 
