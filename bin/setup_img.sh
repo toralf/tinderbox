@@ -438,10 +438,6 @@ EOF
     cp  ~tinderbox/tb/data/$d.00$keyword            ./etc/portage/$d/00$keyword
   done
 
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    cp  ~tinderbox/tb/data/package.use.00ffmpeg     ./etc/portage/package.use/00ffmpeg
-  fi
-
   if [[ "$testfeature" = "y" ]]; then
     cp  ~tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
     cp  ~tinderbox/tb/data/package.env.00notest     ./etc/portage/package.env/00notest
