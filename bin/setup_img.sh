@@ -384,8 +384,6 @@ function CompilePortageFiles()  {
   touch       ./etc/portage/package.mask/self     # contains failed packages of this image
   chmod a+rw  ./etc/portage/package.mask/self
 
-  echo "*/* $(cpuid2cpuflags)"    > ./etc/portage/package.use/00cpuflags
-
   # useful if package specific test phase is known to be br0ken or takes too long
   #
   echo 'FEATURES="-test"'         > ./etc/portage/env/notest
@@ -416,6 +414,8 @@ RUST_TEST_TASKS=1
 EOF
 
   echo '*/* noconcurrent'         > ./etc/portage/package.env/00noconcurrent
+
+  echo "*/* $(cpuid2cpuflags)"    > ./etc/portage/package.use/00cpuflags
 
   if [[ ! "$profile" =~ '/desktop/' ]]; then
     # would pull in X otherwise in a non-desktop profile
