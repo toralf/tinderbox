@@ -13,25 +13,19 @@ function Finish() {
 
 #######################################################################
 #
-days=${1:-5}
-hours=${2:-12}
+min_days=${1:-5}
+min_hours=${2:-12}
 min_compl=${3:-3500}
 shift 3
 setupargs="$@"
 
-# be silent here
-#
 lck=/tmp/$( basename $0 ).lck
 if [[ -f $lck ]]; then
-  # no Finish() here !
-  exit 1
+  exit 1    # be silent and no Finish() here !
 fi
+echo $$ >> $lck   # the ">>" helps to catch an (unlikely) race
 
-# the ">>" helps to catch an (unlikely) race
-#
-echo $$ >> $lck
-
-# bail out if the age of the youngest image is below x hours
+# bail out if the age of the youngest image is below min_hours
 #
 yimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | head -n 1 )
 if [[ -z "$yimg" ]]; then
@@ -39,13 +33,12 @@ if [[ -z "$yimg" ]]; then
   Finish 2
 fi
 
-let "age = $(date +%s) - $(stat -c%Y ~/run/$yimg/tmp/setup.sh)"
-let "age = $age / 3600"
-if [[ $age -lt $hours ]]; then
+let "hours = ( $(date +%s) - $(stat -c%Y ~/run/$yimg/tmp/setup.sh) ) / 3600"
+if [[ $hours -lt $min_hours ]]; then
   Finish 3
 fi
 
-# bail out if the age of the oldest image is below x days
+# bail out if the age of the oldest image is below min_days
 #
 oimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | tail -n 1 )
 if [[ -z "$oimg" ]]; then
@@ -53,13 +46,12 @@ if [[ -z "$oimg" ]]; then
   Finish 4
 fi
 
-let "age = $(date +%s) - $(stat -c%Y ~/run/$oimg/tmp/setup.sh)"
-let "age = $age / 86400"
-if [[ $age -lt $days ]]; then
+let "days = ( $(date +%s) - $(stat -c%Y ~/run/$oimg/tmp/setup.sh) ) / 86400"
+if [[ $days -lt $min_days ]]; then
   Finish 5
 fi
 
-# bail out if less than x emerge operations were completed
+# bail out if less than x emerge operations were completed at oldest image
 #
 compl=$(grep ' ::: completed emerge' ~/run/$oimg/var/log/emerge.log 2>/dev/null | wc -l)
 if [[ $compl -lt $min_compl ]]; then
