@@ -414,10 +414,6 @@ EOF
 
   echo '*/* noconcurrent'         > ./etc/portage/package.env/00noconcurrent
 
-  if [[ "$libressl" = "y" ]]; then
-    echo 'dev-lang/python -bluetooth'             > ./etc/portage/package.use/00python
-  fi
-
   if [[ ! "$profile" =~ '/desktop/' ]]; then
     # would pull in X otherwise in a non-desktop profile
     #
