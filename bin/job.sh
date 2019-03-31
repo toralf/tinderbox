@@ -1114,7 +1114,7 @@ function CheckQA() {
         collectPortageDir
         sed -i -e "s,^,$pkg : ," $issuedir/title
         TrimTitle
-        AttachFilesToBody $issuedir/issue
+        AttachFilesToBody $issuedir/issue $issuedir/files/elog*
 
         CompressIssueFiles
 
