@@ -363,11 +363,13 @@ EOF
 function AttachFilesToBody()  {
   for f in $*
   do
-    s=$( wc -c < $f )
-    if [[ $s -gt 0 && $s -lt 1048576 ]]; then
-      echo >> $issuedir/body
-      uuencode $f $(basename $f) >> $issuedir/body
-      echo >> $issuedir/body
+    if [[ -f $f ]]; then
+      s=$( wc -c < $f )
+      if [[ $s -gt 0 && $s -lt 1048576 ]]; then
+        echo >> $issuedir/body
+        uuencode $f $(basename $f) >> $issuedir/body
+        echo >> $issuedir/body
+      fi
     fi
   done
 }
