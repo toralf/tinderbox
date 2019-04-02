@@ -25,46 +25,46 @@ if [[ -f $lck ]]; then
 fi
 echo $$ >> $lck   # the ">>" helps to catch an (unlikely) race
 
-# bail out if the age of the youngest image is below min_hours
+# bail out if the age of the latest image - if there's any - is younger than min_hours
 #
-yimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | head -n 1 )
-if [[ -z "$yimg" ]]; then
-  echo "no newest image found, exiting ..."
-  Finish 2
+img=$( cd ~/run; ls -1t */tmp/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s )
+if [[ -d ~/run/$img ]]; then
+  let "hours = ( $(date +%s) - $(stat -c%Y ~/run/$img/tmp/setup.sh) ) / 3600"
+  if [[ $hours -lt $min_hours ]]; then
+    Finish 3
+  fi
 fi
 
-let "hours = ( $(date +%s) - $(stat -c%Y ~/run/$yimg/tmp/setup.sh) ) / 3600"
-if [[ $hours -lt $min_hours ]]; then
-  Finish 3
-fi
-
-# bail out if the age of the oldest image is below min_days
+# bail out if no image matches the criteria
 #
-oimg=$( cd ~/run; ls | xargs --no-run-if-empty readlink | xargs --no-run-if-empty -I {} echo {}/tmp/setup.sh | xargs --no-run-if-empty ls -1t | cut -f3 -d'/' | tail -n 1 )
-if [[ -z "$oimg" ]]; then
-  echo "no oldest image found, exiting ..."
+img=""
+while read i
+do
+  let "days = ( $(date +%s) - $(stat -c%Y ~/run/$i/tmp/setup.sh) ) / 86400"
+  if [[ $days -lt $min_days ]]; then
+    continue
+  fi
+
+  compl=$( grep ' ::: completed emerge' ~/run/$i/var/log/emerge.log 2>/dev/null | wc -l )
+  if [[ $compl -lt $min_compl ]]; then
+    continue
+  fi
+
+  img=$i
+  break
+done < <( cd ~/run; ls -1t */tmp/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac )
+
+if [[ -z "$img" ]]; then
   Finish 4
-fi
-
-let "days = ( $(date +%s) - $(stat -c%Y ~/run/$oimg/tmp/setup.sh) ) / 86400"
-if [[ $days -lt $min_days ]]; then
-  Finish 5
-fi
-
-# bail out if less than x emerge operations were completed at oldest image
-#
-compl=$(grep ' ::: completed emerge' ~/run/$oimg/var/log/emerge.log 2>/dev/null | wc -l)
-if [[ $compl -lt $min_compl ]]; then
-  Finish 6
 fi
 
 echo
 date
-echo " old image is $oimg"
+echo " replace-able image is $img"
 
-if [[ -f ~/run/$oimg/tmp/LOCK ]]; then
+if [[ -f ~/run/$img/tmp/LOCK ]]; then
   echo " will schedule pfl and stop afterwards ..."
-  cat << EOF >> ~/run/$oimg/tmp/backlog.1st
+  cat << EOF >> ~/run/$img/tmp/backlog.1st
 STOP (EOL) $compl completed emerge operations
 %/usr/bin/pfl
 app-portage/pfl
@@ -72,7 +72,7 @@ EOF
 
   while :
   do
-    if [[ ! -f ~/run/$oimg/tmp/LOCK ]]; then
+    if [[ ! -f ~/run/$img/tmp/LOCK ]]; then
       break
     fi
     sleep 1
@@ -106,8 +106,8 @@ done
 # delete old image and its log file after a new image was setup
 #
 date
-echo "delete $oimg"
-rm ~/run/$oimg ~/logs/$oimg.log
+echo "delete $img"
+rm ~/run/$img ~/logs/$img.log
 
 echo
 date
