@@ -167,6 +167,25 @@ function ComputeImageName()  {
 }
 
 
+function CreateImageDir() {
+  ls -d ~tinderbox/run/$( echo $name | sed -e 's/17../17.?/g' )_20??????-?????? 2>/dev/null
+  if [[ $? -eq 0 ]]; then
+    echo "^^^ name=$name is already running"
+    exit 2
+  fi
+
+  name="${name}_$(date +%Y%m%d-%H%M%S)"
+  mkdir $name || exit 1
+
+  # relative path to ~tinderbox
+  #
+  mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
+
+  echo " $mnt"
+  echo
+}
+
+
 # download, verify and unpack the stage3 file
 #
 function UnpackStage3()  {
@@ -190,7 +209,7 @@ function UnpackStage3()  {
       stage3=$(grep "/stage3-amd64-nomultilib-20.*\.tar\." $latest)
       ;;
 
-    */systemd*)
+    */systemd)
       stage3=$(grep "/systemd/stage3-amd64-systemd-20.*\.tar\." $latest)
       ;;
 
@@ -225,7 +244,7 @@ function UnpackStage3()  {
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
-  cd $name || exit 1
+  cd $name
   echo " untar'ing $f ..."
   tar -xf $f --xattrs --exclude='./dev/*' || exit 1
 }
@@ -830,35 +849,17 @@ do
   esac
 done
 
+dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
+
 CheckOptions
 ComputeImageName
-
-ls -d ~tinderbox/run/$( echo $name | sed -e 's/17../17.?/g' )_20??????-?????? 2>/dev/null
-if [[ $? -eq 0 ]]; then
-  echo "^^^ name=$name is already running"
-  exit 2
-fi
-
-# append the timestamp onto the image name
-#
-name="${name}_$(date +%Y%m%d-%H%M%S)"
-mkdir $name || exit 1
-
-# relative path to ~tinderbox
-#
-mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
-
-echo " $mnt"
-echo
-
+CreateImageDir
 UnpackStage3
 CompileRepoFiles
 CompileMakeConf
 CompilePortageFiles
 CompileMiscFiles
 CreateBacklog
-
-dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
 CreateSetupScript
 EmergeMandatoryPackages
 
