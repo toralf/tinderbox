@@ -147,19 +147,10 @@ function Tasks()  {
   for i in $images
   do
     PrintImageName
-    if [[ ! -f $i/tmp/LOCK ]]; then
-      echo
-      continue
-    fi
 
     tsk=$i/tmp/task
-    if [[ ! -s $tsk ]]; then
-      echo
-      continue
-    fi
-
     task=$(cat $tsk 2>/dev/null)
-    if [[ -z "$task" ]]; then
+    if [[ ! -f $i/tmp/LOCK || ! -s $tsk || -z "$task" ]]; then
       echo
       continue
     fi
@@ -200,7 +191,7 @@ function LastEmergeOperation()  {
       continue
     fi
 
-    if [[ ! -s $i/var/log/emerge.log ]]; then
+    if [[ ! -s $i/var/log/emerge.log || ! -s $i/tmp/task ]]; then
       echo
       continue
     fi
