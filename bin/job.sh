@@ -806,7 +806,7 @@ function PutDepsIntoWorldFile() {
   emerge --depclean --pretend --verbose=n 2>/dev/null |\
   grep "^All selected packages: "                     |\
   cut -f2- -d':' -s                                   |\
-  xargs --no-run-if-empty emerge -O --noreplace 2>&1
+  xargs --no-run-if-empty emerge -O --noreplace
 }
 
 
