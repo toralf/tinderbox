@@ -5,14 +5,11 @@
 # chroot into an image either interactively -or- run a command and exit afterwards
 #
 # typical call:
-#
 #  sudo /opt/tb/bin/chr.sh run/17.1-desktop-plasma_20190304-154829
 
-# mount the directories shared by the host
+# if a mount fails then do not try further
 #
 function mountall() {
-  # if a mount fails then do not try further
-  #
   # system dirs
   #
   /bin/mount -t proc       proc        $mnt/proc   &&\
@@ -41,9 +38,9 @@ function mountall() {
 }
 
 
+# try to umount as much as possible even if an umount fails
+#
 function umountall()  {
-  # try to umount as much as possible even if an umount fails
-  #
   rc=0
 
   /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
@@ -104,7 +101,7 @@ if [[ ! -d $mnt ]]; then
   exit 1
 fi
 
-# remaining options is treated as command(s) to be run within chroot
+# treat remaining option(s) as command(s) to be run within chroot
 #
 shift
 
@@ -133,11 +130,11 @@ if [[ $? -ne 0 ]]; then
   exit 4
 fi
 
-# this is a nice to have feature
+# don't bail out if this fails, it is just a nice to have feature
 #
 cgroup
 
-# do "su - root" to use root's tinderbox image environment
+# "su - root" forces the use root's tinderbox image environment
 #
 if [[ $# -gt 0 ]]; then
   /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
