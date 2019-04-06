@@ -1,11 +1,18 @@
+.automake. called by src_prepare
+Automake "maintainer mode" detected:
 broken .png files found
 cmake-utils_src_prepare has not been run
 dosym target omits basename:
 econf called in .* instead of
+function is deprecated
+inherited illegally
+is deprecated, use .* instead
 Missing soname symlink(s)
 One or more CMake variables were not used by the project
-python_prepare_all() didn't call distutils-r1_python_prepare_all
+python_.*_all() didn't call
 running automake in configure phase
-/sbin/runscript is deprecated
-This ebuild installs into paths that should be created at runtime.
+Security Notice:
+This ebuild installs into
+Unrecognized configure options:
 USE Flag .* not in IUSE for
+warning: python_fix_shebang
