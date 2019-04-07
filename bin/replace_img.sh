@@ -65,7 +65,7 @@ echo " replace-able image is $img"
 if [[ -f ~/run/$img/tmp/LOCK ]]; then
   echo " will schedule pfl and stop afterwards ..."
   cat << EOF >> ~/run/$img/tmp/backlog.1st
-STOP (EOL) $compl completed emerge operations
+STOP (EOL) $compl completed emerge operations, $(wc -l < ~/run/$img/tmp/backlog) packages left in backlog
 %/usr/bin/pfl
 app-portage/pfl
 EOF
