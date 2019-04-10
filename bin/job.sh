@@ -404,7 +404,7 @@ function CreateIssueDir() {
   #
   if [[ -d $issuedir ]]; then
     sleep 1
-    issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $pkg | tr '/' '_')
+    issuedir=${issuedir}_a
   fi
 
   mkdir -p $issuedir/files
