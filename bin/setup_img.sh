@@ -711,7 +711,7 @@ function EmergeMandatoryPackages() {
 
   echo " install mandatory packages ..."
 
-  $(dirname $0)/chr.sh $mnt '/tmp/setup.sh &> tmp/setup.sh.log'
+  $(dirname $0)/chr.sh $mnt '/tmp/setup.sh &> /tmp/setup.sh.log'
   rc=$?
 
   echo
