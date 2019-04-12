@@ -1042,15 +1042,13 @@ function PostEmerge() {
 
   # daily subsequent image updates
   #
-  if [[ ! -s $backlog ]]; then
-    if [[ -f /tmp/@system.history ]]; then
-      let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@system.history) ) / 86400"
-      if [[ $diff -gt 1 ]]; then
-        cat << EOF >> $backlog
+  if [[ ! -s $backlog && -f /tmp/@system.history ]]; then
+    let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@system.history) ) / 86400"
+    if [[ $diff -gt 1 ]]; then
+      cat << EOF >> $backlog
 @system
 %SwitchJDK
 EOF
-      fi
     fi
   fi
 }
