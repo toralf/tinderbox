@@ -1281,7 +1281,7 @@ function DetectALoop() {
       if [[ ! -f $file ]]; then
         tail -n $max $tsk.history > $file
         chown tinderbox:tinderbox $file
-        Mail "$p $min x within last $max tasks, remove $file to activate this test again" $file
+        Finish 2  "$p ${min}x within last $max tasks, to activate this test again: rm $file" $file
       fi
     fi
   done
