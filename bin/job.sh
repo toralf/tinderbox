@@ -34,10 +34,10 @@ function stresc() {
 
 # send out a non-MIME-compliant email
 #
+# $1 (mandatory) is the subject,
+# $2 (optional) contains either the text of the body or a filename (with text)
+#
 function Mail() {
-  # $1 (mandatory) is the subject,
-  # $2 (optional) contains either the text of the body or a filename (with text)
-  #
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
 
   # the Debian mailx automatically adds a MIME Header line to the mail since 2017.
@@ -72,11 +72,11 @@ function Mail() {
 
 # clean up and exit
 #
+# $1: return code
+# $2: email Subject
+# $3: file to be attached
+#
 function Finish()  {
-  # $1: return code
-  # $2: email Subject
-  # $3: file to be attached
-  #
   local rc=$1
 
   # although stresc() will be called in Mail() run it here b/c $2 might contain quotes
@@ -139,10 +139,8 @@ function setNextTask() {
     sed -i -e '$d' $bl
 
     if [[ -z "$task" ]]; then
-      continue  # empty line
+      continue  # empty line is allowed
 
-    # INFO and STOP within the backlog are useful for debug purpose
-    #
     elif [[ $task =~ ^INFO ]]; then
       Mail "$task"
 
@@ -150,7 +148,7 @@ function setNextTask() {
       Finish 0 "$task"
 
     elif [[ $task =~ ^# ]]; then
-      continue  # comment
+      continue  # comment is allowed
 
     elif [[ $task =~ ^= || $task =~ ^@ || $task =~ ^% ]]; then
       return  # work on either a pinned version || @set || command
@@ -167,7 +165,7 @@ function setNextTask() {
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
 
-      # bail out if portage itself is broken (caused eg. by a buggy Python package)
+      # bail out if portage itself is broken (caused eg. by a buggy Python upgrade)
       #
       if [[ $? -ne 0 ]]; then
         if [[ "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
@@ -859,8 +857,6 @@ function GotAnIssue()  {
   ClassifyIssue
   CompileIssueMail
 
-  # a quirk to handle broken Perl deps ...
-  #
   # https://bugs.gentoo.org/463976
   # https://bugs.gentoo.org/582046
   # https://bugs.gentoo.org/638914
@@ -892,8 +888,8 @@ function GotAnIssue()  {
       #
       echo "%emerge --resume" >> $backlog
     else
-      # dependency might be changed due to (in the meanwhile) masked package,
-      # an update of the repository or by an altered package.env/* file
+      # dependency might be changed due to a (in the meanwhile) masked package
+      # or by an update of the repository or by an altered package.env/* file
       #
       echo "$task" >> $backlog
     fi
@@ -991,11 +987,9 @@ function PostEmerge() {
   fi
 
   # merge the remaining config files automatically
+  # and update the runtime environment
   #
   etc-update --automode -5 1>/dev/null
-
-  # update the runtime environment
-  #
   env-update &>/dev/null
 
   source /etc/profile
@@ -1012,8 +1006,6 @@ function PostEmerge() {
     fi
   fi
 
-  # build new kernel sources asap
-  #
   grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
   if [[ $? -eq 0 ]]; then
     current=$(eselect kernel show | cut -f4 -d'/' -s )
@@ -1038,21 +1030,17 @@ function PostEmerge() {
     echo "%perl-cleaner --all" >> $backlog
   fi
 
-  # switch to a new GCC first
-  #
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "%SwitchGCC" >> $backlog
   fi
 
-  # set to a recent version for emerge
-  #
   grep -q ">>> Installing .* dev-lang/python-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     echo "%eselect python update" >> $backlog
   fi
 
-  # schedule an update once a day if $backlog is empty
+  # daily subsequent image updates
   #
   if [[ ! -s $backlog ]]; then
     if [[ -f /tmp/@system.history ]]; then
