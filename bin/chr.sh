@@ -32,16 +32,14 @@ function mountall() {
     /bin/mount -o bind,ro $repo_libressl $mnt/$repo_libressl
   fi
 
-  rc=$?
-
-  return $rc
+  return $?
 }
 
 
-# try to umount as much as possible even if an umount fails
+# try to umount as much as possible even if a particular umount fails
 #
 function umountall()  {
-  rc=0
+  local rc=0
 
   /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
   /bin/umount -l $mnt/{sys,proc}                    || rc=$?
