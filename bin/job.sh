@@ -876,6 +876,7 @@ function GotAnIssue()  {
       echo "$task"              >> $backlog
     fi
     echo "%perl-cleaner --all"  >> $backlog
+    Mail "info: catched broken Perl deps, task=$task, failed=$failed" $bak
     return
   fi
 
