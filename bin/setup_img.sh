@@ -104,7 +104,7 @@ function SetOptions() {
 #
 function CheckOptions() {
   if [[ -z "$profile" || ! -d $repo_gentoo/profiles/default/linux/amd64/$profile ]]; then
-    echo " profile unknown: $profile under $repo_gentoo"
+    echo " profile unknown: $profile"
     exit 1
   fi
 
@@ -387,7 +387,7 @@ EOF
 # create portage directories + files + symlinks from /tmp/tb/data/... to appropriate target(s)
 #
 function CompilePortageFiles()  {
-  mkdir -p ./tmp/tb ./$repo_gentoo ./$distfiles ./var/tmp/portage 2>/dev/null
+  mkdir -p ./tmp/tb ./$repo_gentoo ./$distfiles ./var/tmp/portage
 
   for d in package.{accept_keywords,env,mask,unmask,use} env
   do
@@ -405,23 +405,23 @@ function CompilePortageFiles()  {
 
   # useful if package specific test phase is known to be br0ken or takes too long
   #
-  echo 'FEATURES="-test"'         > ./etc/portage/env/notest
+  echo 'FEATURES="-test"'                         > ./etc/portage/env/notest
 
   # at the 2nd attempt to emerge of a package do still run the test phase (even it failed before)
   # to preserve the same dep tree - but do ignore the test phase result
   #
   #
-  echo 'FEATURES="test-fail-continue"'  > ./etc/portage/env/test-fail-continue
+  echo 'FEATURES="test-fail-continue"'            > ./etc/portage/env/test-fail-continue
 
   # certain types of sandbox issues are forced by the XDG_* settings in job.sh
   # at 2nd attempt emerge affected packages w/o sandbox'ing
   #
-  echo 'FEATURES="-sandbox"'      > ./etc/portage/env/nosandbox
-  echo 'FEATURES="-usersandbox"'  > ./etc/portage/env/nousersandbox
+  echo 'FEATURES="-sandbox"'                      > ./etc/portage/env/nosandbox
+  echo 'FEATURES="-usersandbox"'                  > ./etc/portage/env/nousersandbox
 
   # no parallel build
   #
-  cat << EOF                      > ./etc/portage/env/noconcurrent
+  cat << EOF                                      > ./etc/portage/env/noconcurrent
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
 EGO_BUILD_FLAGS="-p 1"
@@ -432,9 +432,9 @@ RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 EOF
 
-  echo '*/* noconcurrent'         > ./etc/portage/package.env/00noconcurrent
+  echo '*/* noconcurrent'                         > ./etc/portage/package.env/00noconcurrent
 
-  echo "*/* $(cpuid2cpuflags)"    > ./etc/portage/package.use/00cpuflags
+  echo "*/* $(cpuid2cpuflags)"                    > ./etc/portage/package.use/00cpuflags
 
   if [[ ! "$profile" =~ '/desktop/' ]]; then
     # would pull in X otherwise in a non-desktop profile
@@ -442,29 +442,30 @@ EOF
     echo 'media-fonts/encodings -X'               > ./etc/portage/package.use/00encodings
   fi
 
-  if [[ $profile =~ '/systemd/' ]]; then
-    cp  ~tinderbox/tb/data/package.use.00systemd    ./etc/portage/package.use/00systemd
+  if [[ $profile =~ '/systemd' ]]; then
+    cp ~tinderbox/tb/data/package.env.00systemd     ./etc/portage/package.env/00systemd
+    cp ~tinderbox/tb/data/package.use.00systemd     ./etc/portage/package.use/00systemd
   fi
 
   for d in package.{accept_keywords,env,mask,unmask,use}
   do
-    cp  ~tinderbox/tb/data/$d.00common              ./etc/portage/$d/00common
+    cp ~tinderbox/tb/data/$d.00common               ./etc/portage/$d/00common
   done
 
   for d in package.{accept_keywords,unmask}
   do
-    cp  ~tinderbox/tb/data/$d.00$keyword            ./etc/portage/$d/00$keyword
+    cp ~tinderbox/tb/data/$d.00$keyword             ./etc/portage/$d/00$keyword
   done
 
   if [[ "$testfeature" = "y" ]]; then
-    cp  ~tinderbox/tb/data/package.env.00notest     ./etc/portage/package.env/00notest
-    cp  ~tinderbox/tb/data/package.use.00test       ./etc/portage/package.use/00test
+    cp ~tinderbox/tb/data/package.env.00notest      ./etc/portage/package.env/00notest
+    cp ~tinderbox/tb/data/package.use.00test        ./etc/portage/package.use/00test
   else
     echo "*/* notest"                             > ./etc/portage/package.env/00notest
   fi
 
   if [[ "$multilib" = "y" ]]; then
-    cp  ~tinderbox/tb/data/package.use.00abi32+64   ./etc/portage/package.use/00abi32+64
+    cp ~tinderbox/tb/data/package.use.00abi32+64    ./etc/portage/package.use/00abi32+64
   fi
 
   touch ./tmp/task
@@ -479,13 +480,13 @@ function CompileMiscFiles()  {
 
   # use local (==host) DNS resolver
   #
-  cat <<EOF > ./etc/resolv.conf
+  cat << EOF > ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
 
   h=$(hostname)
-  cat <<EOF > ./etc/hosts
+  cat << EOF > ./etc/hosts
 127.0.0.1 localhost $h.localdomain $h
 ::1       localhost $h.localdomain $h
 EOF
@@ -630,7 +631,7 @@ EOF
 
 
 # - configure locale, timezone etc.
-# - install and configure tools used in job.sh:
+# - install and configure tools needed by job.sh:
 #     <package>                   <command/s>
 #     mail-*                      MTA + mailx
 #     app-arch/sharutils          uudecode
@@ -645,7 +646,7 @@ function CreateSetupScript()  {
 #
 # set -x
 
-# eselect sometimes can't be used for new unstable profiles
+# eselect at unstable profiles is sometimes not reliable
 #
 cd /etc/portage
 ln -snf ../../$repo_gentoo/profiles/default/linux/amd64/$profile make.profile || exit 1
@@ -670,12 +671,11 @@ fi
 env-update
 source /etc/profile
 
-# needed at least in job.sh
-#
 useradd -u $(id -u tinderbox) tinderbox
 
-emerge mail-mta/ssmtp || exit 1
-emerge mail-client/mailx || exit 1
+# separate steps to avoid that mailx implicitely pulls another - as default marked - MTA
+emerge mail-mta/ssmtp     || exit 1
+emerge mail-client/mailx  || exit 1
 
 # contains credentials for mail-mta/ssmtp
 #
@@ -693,34 +693,29 @@ fi
 
 # the very first @system must succeed
 #
-$dryrun &> /tmp/dryrun.log
-if [[ \$? -ne 0 ]]; then
-  exit 2
-fi
-
-grep 'The following USE changes are necessary to proceed:' /tmp/dryrun.log
-if [[ \$? -eq 0 ]]; then
-  exit 2
-fi
+$dryrun &> /tmp/dryrun.log || exit 2
+grep -A 32 'The following USE changes are necessary to proceed:' /tmp/dryrun.log && exit 2
 
 exit 0
 
 EOF
+
+  chmod u+x ./tmp/setup.sh
 }
 
 
 # MTA, bugz et. al
 #
 function EmergeMandatoryPackages() {
-  cd  ~tinderbox/
+  cd ~tinderbox/
 
   echo " install mandatory packages ..."
 
-  $(dirname $0)/chr.sh $mnt '/bin/bash /tmp/setup.sh &> /tmp/setup.sh.log'
+  $(dirname $0)/chr.sh $mnt '/tmp/setup.sh &> tmp/setup.sh.log'
   rc=$?
 
+  echo
   if [[ $rc -ne 0 ]]; then
-    echo
     echo " setup NOT successful (rc=$rc) @ $mnt"
     echo
 
@@ -730,8 +725,6 @@ function EmergeMandatoryPackages() {
       cat $mnt/tmp/setup.sh.log
     fi
 
-    # create commands, easy to copy+paste for ceonvenience
-    #
     echo "
       view $mnt/tmp/dryrun.log
       echo '' >> $mnt/etc/portage/package.use/setup
@@ -742,8 +735,10 @@ function EmergeMandatoryPackages() {
       start_img.sh $name
 
 "
-
     exit $rc
+
+  else
+    echo " setup OK"
   fi
 }
 
@@ -854,6 +849,7 @@ dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system -
 CheckOptions
 ComputeImageName
 CreateImageDir
+date
 UnpackStage3
 CompileRepoFiles
 CompileMakeConf
@@ -861,12 +857,11 @@ CompilePortageFiles
 CompileMiscFiles
 CreateBacklog
 CreateSetupScript
+date
 EmergeMandatoryPackages
 
-cd ~tinderbox/run && ln -s ../$mnt || exit 1
-
-echo
-echo " setup OK"
+cd ~tinderbox/run || exit 1
+ln -s ../$mnt     || exit 1
 
 if [[ "$autostart" = "y" ]]; then
   echo

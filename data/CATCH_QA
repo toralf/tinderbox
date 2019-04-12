@@ -11,7 +11,6 @@ Missing soname symlink(s)
 One or more CMake variables were not used by the project
 python_.*_all() didn't call
 running automake in configure phase
-Security Notice:
 This ebuild installs into
 Unrecognized configure options:
 USE Flag .* not in IUSE for
