@@ -161,13 +161,12 @@ function setNextTask() {
         continue
       fi
 
-      # skip if there's no visible version (eg. $task is masked, keyworded etc.)
+      # skip if $task is masked, keyworded etc.
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
-
-      # bail out if portage itself is broken (caused eg. by a buggy Python upgrade)
-      #
       if [[ $? -ne 0 ]]; then
+        # bail out if portage itself is broken (eg. caused by a Python upgrade)
+        #
         if [[ "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
           Finish 1 "FATAL: portageq broken" /tmp/portageq.err
         fi
