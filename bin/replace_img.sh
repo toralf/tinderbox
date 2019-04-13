@@ -16,9 +16,7 @@ function Finish() {
 min_days=${1:-5}
 min_hours=${2:-12}
 min_compl=${3:-3500}
-shift
-shift
-shift
+shift "$(( $# < 3 ? $# : 3 ))"
 setupargs="$@"
 
 lck=/tmp/$( basename $0 ).lck
