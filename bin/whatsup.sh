@@ -149,8 +149,7 @@ function Tasks()  {
     PrintImageName
 
     tsk=$i/tmp/task
-    task=$(cat $tsk 2>/dev/null)
-    if [[ ! -f $i/tmp/LOCK || ! -s $tsk || -z "$task" ]]; then
+    if [[ ! -f $i/tmp/LOCK || ! -s $tsk ]]; then
       echo
       continue
     fi
@@ -167,10 +166,10 @@ function Tasks()  {
       printf " %3i:%02i m " $minutes $seconds
     fi
 
+    task=$(cat $tsk)
     if [[ ! $task =~ "@" && ! $task =~ "%" ]]; then
       echo -n " "
     fi
-
     echo $task
   done
 }
