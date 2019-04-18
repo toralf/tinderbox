@@ -1280,7 +1280,7 @@ function DetectALoop() {
       if [[ ! -f $file ]]; then
         tail -n $max $tsk.history > $file
         chown tinderbox:tinderbox $file
-        Finish 2  "$p ${min}x within last $max tasks, to activate this test again: rm $file" $file
+        Mail  "$p ${min}x within last $max tasks, to activate this test again: rm $file" $file
       fi
     fi
   done
@@ -1329,40 +1329,31 @@ export XDG_CONFIG_HOME="/root/config"
 export XDG_CACHE_HOME="/root/cache"
 export XDG_DATA_HOME="/root/share"
 
-# needed here eg. if emerge was killed for a reboot
+# if task file is non-empty (eg emerge was terminated by a reboot) then retry it
 #
-PutDepsIntoWorldFile &>$log
+if [[ -s $tsk ]]; then
+  cat $tsk >> $backlog
+  truncate -s 0 $tsk
+fi
 
 while :
 do
   date > $log
 
-  # auto-clean is deactivated (to collect issue files)
+  # auto-clean is deactivated to collect issue files
   #
   rm -rf /var/tmp/portage/*
 
-  # if task file is non-empty (after start) then retry it
-  #
-  if [[ -s $tsk ]]; then
-    task=$( cat $tsk )
-    touch $tsk    # don't foolish whatsup.sh
-  else
-    setNextTask
-    echo "$task" > $tsk
-  fi
+  setNextTask
+  echo "$task" | tee -a $tsk.history > $tsk
 
-  echo "$task" >> $tsk.history
-
-  # eg.: remove a package to catch a dependency issue
-  #
   if [[ -x /tmp/pretask.sh ]]; then
     /tmp/pretask.sh &> /tmp/pretask.sh.log
   fi
 
   WorkOnTask
 
-  # this line is not reached if Finish() is called before
-  # by this $task is intentionally retried at next image start
+  # $task will intentionally be retried at next image start if Finish() was called
   #
   truncate -s 0 $tsk
 
