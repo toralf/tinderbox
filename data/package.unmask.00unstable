@@ -1,14 +1,5 @@
 # package.unmask/00unstable
 #
 
-# please note that this file rules over /etc/portage/package.mask/*, especially over ./self
-
-# [23:25] <slyfox> toralf: WDYT of tinderboxing masked boost-1.67.0? c++ team is quiet about the plan
-#
-~dev-libs/boost-1.67.0
-~dev-util/boost-build-1.67.0
-
-# [22:01] <dilfridge> how about a tinderbox run with glibc-2.29-r1?
-# [22:02] <dilfridge> it's unkeyworded still, I want to restore ~arch keywords soon
-#
-~sys-libs/glibc-2.29
+~dev-libs/boost-1.70.0
+~dev-util/boost-build-1.70.0

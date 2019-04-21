@@ -67,6 +67,11 @@ glib.*: command not found|--.*: command not found|GLIB_.*: command not found|mar
 663916
 Please port gnulib .*.c to your platform|FILE.* has no member named _|xlocale.h: No such file or directory|conflicting declaration of C function|statx
 
+# [TRACKER] Packages requiring porting to boost-1.70
+#
+671712
+boost::asio|boost::python|boost/signal.*No such file or directory
+
 # [TRACKER] Packages requiring porting to boost-1.67
 #
 671712

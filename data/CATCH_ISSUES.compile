@@ -230,3 +230,4 @@ Metadata file .* could not be found
 rl:.*: .* undefined
   error:.*:
 Abnormal terminated
+.go:.*:.*: undefined:
