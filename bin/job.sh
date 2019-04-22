@@ -1209,13 +1209,15 @@ function WorkOnTask() {
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
           echo "%emerge --resume --skip-first" >> $backlog
+        else
+          # expecially qt packages yields to blocker with @system only
+          echo "@world" >> $backlog
         fi
       fi
 
     else
       echo "$(date) ok $msg" >> /tmp/$task.history
     fi
-
 
   # %<command>
   #
@@ -1237,9 +1239,7 @@ function WorkOnTask() {
               Finish 3 "resume failed"
             fi
           fi
-        elif [[ $task =~ " --unmerge " || $task =~ " --depclean" || $task =~ "BuildKernel" ]]; then
-          :
-        else
+        elif [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" && ! $task =~ "BuildKernel" ]]; then
           Finish 3 "command: '$cmd'"
         fi
       fi
@@ -1280,7 +1280,7 @@ function DetectALoop() {
       if [[ ! -f $file ]]; then
         tail -n $max $tsk.history > $file
         chown tinderbox:tinderbox $file
-        Mail  "$p ${min}x within last $max tasks, to activate this test again: rm $file" $file
+        Mail  "$p ${min}x within last $max tasks, re-activate this test: rm $file" $file
       fi
     fi
   done
