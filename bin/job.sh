@@ -35,7 +35,7 @@ function stresc() {
 # send out a non-MIME-compliant email
 #
 # $1 (mandatory) is the subject,
-# $2 (optional) contains either the text of the body or a filename (with text)
+# $2 (optionally) contains either the body itself or a text file
 #
 function Mail() {
   subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
@@ -103,20 +103,20 @@ function setNextTask() {
       Finish 0 "catched STOP file" /tmp/STOP
     fi
 
-    # 1st prio backlog rules
+    # 1st prio backlog rules always
     #
     if [[ -s $backlog ]]; then
       bl=$backlog
 
-    # repository updates
-    # updated regularly by update_backlog.sh
+    # Gentoo repository changes
+    # backlog is updated regularly by update_backlog.sh
     # 1/N probability if no special action is in common backlog (eg. if cloned from an origin)
     #
     elif [[ -s /tmp/backlog.upd && $(($RANDOM % 5)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
       bl=/tmp/backlog.upd
 
     # common backlog
-    # filled up at image setup and will only decrease
+    # backlog is filled up at image setup and will only decrease
     #
     elif [[ -s /tmp/backlog ]]; then
       bl=/tmp/backlog
@@ -1313,7 +1313,7 @@ if [[ $? -eq 0 ]]; then
   keyword="unstable"
 fi
 
-# if task file is non-empty (eg emerge was terminated by a reboot) then retry it
+# if task file is non-empty (eg. if emerge was terminated due to a reboot) then retry it
 #
 if [[ -s $tsk ]]; then
   cat $tsk >> $backlog
@@ -1324,7 +1324,7 @@ while :
 do
   date > $log
 
-  # auto-clean is deactivated to collect issue files
+  # auto-clean is deactivated in favour to collect issue files first
   #
   rm -rf /var/tmp/portage/*
 
@@ -1337,7 +1337,7 @@ do
 
   WorkOnTask
 
-  # $task will intentionally be retried at next image start if Finish() was called
+  # $task will intentionally be retried at next start if Finish() was called
   #
   truncate -s 0 $tsk
 
