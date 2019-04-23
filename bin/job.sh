@@ -141,10 +141,6 @@ function getNextTask() {
   do
     setTask
 
-    if [[ -f /tmp/STOP ]]; then
-      Finish 0 "catched STOP file" /tmp/STOP
-    fi
-
     if [[ -z "$task" ]]; then
       continue  # empty line is allowed
 
@@ -1338,6 +1334,10 @@ do
 
   if [[ -x /tmp/pretask.sh ]]; then
     /tmp/pretask.sh &> /tmp/pretask.sh.log
+  fi
+
+  if [[ -f /tmp/STOP ]]; then
+    Finish 0 "catched STOP file" /tmp/STOP
   fi
 
   echo "$task" | tee -a $tsk.history > $tsk
