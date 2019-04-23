@@ -1,16 +1,6 @@
-# This file contains pairs of lines (bug number + pattern) to automate addign of a blocker bug id.
+# This file contains pairs of lines (bug number + pattern) to automate adding a blocker bug id to b.g.o.
 # Empty and comment lines are ignored.
 #
-
-# XDG env
-#
-567192
-XDG_xxx_DIR related|sandbox issue A: /root/|/root/cache|mkdir /.../cache: permission denied
-
-# flex
-#
-598186
-yy
 
 # libressl-support
 #
@@ -52,11 +42,6 @@ xattr.h
 653678
 FF_|CODEC_
 
-# [TRACKER] Issues with sys-libs/glibc-2.27 (directly and indirectly)
-#
-637144
-lieee
-
 # [TRACKER] glib-utils
 #
 667324
@@ -71,8 +56,3 @@ Please port gnulib .*.c to your platform|FILE.* has no member named _|xlocale.h:
 #
 671712
 boost::asio|boost::python|boost/signal.*No such file or directory
-
-# [TRACKER] Packages requiring porting to boost-1.67
-#
-671712
-from expression of type const boost|.* is not a member of boost|no matching function for call to boost|error:.*boost::
