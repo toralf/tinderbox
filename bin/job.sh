@@ -96,47 +96,54 @@ function Finish()  {
 
 # move next item of the appropriate backlog into $task
 #
-function setNextTask() {
+function setTask()  {
+  # 1st prio backlog rules always
+  #
+  if [[ -s $backlog ]]; then
+    bl=$backlog
+
+  # Gentoo repository changes
+  # backlog is updated regularly by update_backlog.sh
+  # 1/N probability if no special action is in common backlog (eg. if cloned from an origin)
+  #
+  elif [[ -s /tmp/backlog.upd && $(($RANDOM % 5)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
+    bl=/tmp/backlog.upd
+
+  # common backlog
+  # backlog is filled up at image setup and will only decrease
+  #
+  elif [[ -s /tmp/backlog ]]; then
+    bl=/tmp/backlog
+
+  # last chance for updated packages
+  #
+  elif [[ -s /tmp/backlog.upd ]]; then
+    bl=/tmp/backlog.upd
+
+  # this is the end, my friend, the end ...
+  #
+  else
+    n=$(qlist --installed | wc -l)
+    Finish 0 "empty backlogs, $n packages installed"
+  fi
+
+  # splice last line from the winning backlog file
+  #
+  task=$(tail -n 1 $bl)
+  sed -i -e '$d' $bl
+}
+
+
+# verify/parse $task accordingly to the needs of the tinderbox
+#
+function getNextTask() {
   while :
   do
+    setTask
+
     if [[ -f /tmp/STOP ]]; then
       Finish 0 "catched STOP file" /tmp/STOP
     fi
-
-    # 1st prio backlog rules always
-    #
-    if [[ -s $backlog ]]; then
-      bl=$backlog
-
-    # Gentoo repository changes
-    # backlog is updated regularly by update_backlog.sh
-    # 1/N probability if no special action is in common backlog (eg. if cloned from an origin)
-    #
-    elif [[ -s /tmp/backlog.upd && $(($RANDOM % 5)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
-      bl=/tmp/backlog.upd
-
-    # common backlog
-    # backlog is filled up at image setup and will only decrease
-    #
-    elif [[ -s /tmp/backlog ]]; then
-      bl=/tmp/backlog
-
-    # last chance for updated packages
-    #
-    elif [[ -s /tmp/backlog.upd ]]; then
-      bl=/tmp/backlog.upd
-
-    # this is the end, my friend, the end ...
-    #
-    else
-      n=$(qlist --installed | wc -l)
-      Finish 0 "empty backlogs, $n packages installed"
-    fi
-
-    # splice last line from the winning backlog file
-    #
-    task=$(tail -n 1 $bl)
-    sed -i -e '$d' $bl
 
     if [[ -z "$task" ]]; then
       continue  # empty line is allowed
@@ -939,7 +946,6 @@ function SwitchGCC() {
 }
 
 
-# helper of setNextTask()
 # choose an arbitrary system java engine
 #
 function SwitchJDK()  {
@@ -1328,13 +1334,13 @@ do
   #
   rm -rf /var/tmp/portage/*
 
-  setNextTask
-  echo "$task" | tee -a $tsk.history > $tsk
+  getNextTask
 
   if [[ -x /tmp/pretask.sh ]]; then
     /tmp/pretask.sh &> /tmp/pretask.sh.log
   fi
 
+  echo "$task" | tee -a $tsk.history > $tsk
   WorkOnTask
 
   # $task will intentionally be retried at next start if Finish() was called
