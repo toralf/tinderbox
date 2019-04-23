@@ -1313,22 +1313,6 @@ if [[ $? -eq 0 ]]; then
   keyword="unstable"
 fi
 
-# https://bugs.gentoo.org/show_bug.cgi?id=567192
-#
-export XDG_DESKTOP_DIR="/root/Desktop"
-export XDG_DOCUMENTS_DIR="/root/Documents"
-export XDG_DOWNLOAD_DIR="/root/Downloads"
-export XDG_MUSIC_DIR="/root/Music"
-export XDG_PICTURES_DIR="/root/Pictures"
-export XDG_PUBLICSHARE_DIR="/root/Public"
-export XDG_TEMPLATES_DIR="/root/Templates"
-export XDG_VIDEOS_DIR="/root/Videos"
-
-export XDG_RUNTIME_DIR="/root/run"
-export XDG_CONFIG_HOME="/root/config"
-export XDG_CACHE_HOME="/root/cache"
-export XDG_DATA_HOME="/root/share"
-
 # if task file is non-empty (eg emerge was terminated by a reboot) then retry it
 #
 if [[ -s $tsk ]]; then
