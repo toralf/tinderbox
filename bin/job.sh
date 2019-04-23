@@ -1301,14 +1301,9 @@ backlog=/tmp/backlog.1st            # this is the high prio backlog
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"
 
-if [[ ! -f /tmp/name ]]; then
-  name=$(grep '^PORTAGE_ELOG_MAILFROM="' /etc/portage/make.conf | cut -f2 -d '"' -s | cut -f1 -d ' ')
-  echo $name > /tmp/name
-fi
-name=$( cat /tmp/name )
-
-# needed for the b.g.o. comment #0
+# needed eg. for the b.g.o. comment #0
 #
+name=$( cat /tmp/name )
 keyword="stable"
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 0 ]]; then
