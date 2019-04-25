@@ -1211,8 +1211,8 @@ function WorkOnTask() {
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
           echo "%emerge --resume --skip-first" >> $backlog
-        else
-          # expecially qt packages yields to blocker with @system only
+        elif [[ $task = "@system" ]]; then
+          # expecially QT upgrade yields to blocker with @system only
           echo "@world" >> $backlog
         fi
       fi
