@@ -49,8 +49,8 @@ function LookForAnImage()  {
 
 
 function StopOldImage() {
-  if [[ ! -f ~/run/$oldimg/tmp/LOCK ]]; then
-    echo " schedule pfl and STOP ..."
+  if [[ -f ~/run/$oldimg/tmp/LOCK && ! -f ~/run/$oldimg/tmp/STOP ]]; then
+    echo " schedule pfl and stop afterwards ..."
     cat << EOF >> ~/run/$oldimg/tmp/backlog.1st
 STOP (EOL) $compl completed, $(wc -l < ~/run/$oldimg/tmp/backlog) left
 %/usr/bin/pfl
