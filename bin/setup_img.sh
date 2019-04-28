@@ -168,12 +168,6 @@ function ComputeImageName()  {
 
 
 function CreateImageDir() {
-  ls -d ~tinderbox/run/$( echo $name | sed -e 's/17../17.?/g' )_20??????-?????? 2>/dev/null
-  if [[ $? -eq 0 ]]; then
-    echo "^^^ name=$name is already running"
-    exit 2
-  fi
-
   name="${name}_$(date +%Y%m%d-%H%M%S)"
   mkdir $name || exit 1
 
@@ -858,6 +852,15 @@ dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system -
 
 CheckOptions
 ComputeImageName
+
+if [[ -z "$origin" ]]; then
+  ls -d ~tinderbox/run/$( echo $name | sed -e 's/17../17.?/g' )_20??????-?????? 2>/dev/null
+  if [[ $? -eq 0 ]]; then
+    echo "^^^ name=$name is already running"
+    exit 2
+  fi
+fi
+
 CreateImageDir
 date
 UnpackStage3
