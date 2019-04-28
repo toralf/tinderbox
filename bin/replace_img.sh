@@ -2,8 +2,9 @@
 #
 # set -x
 
-# replace the oldest tinderbox image with a new one
+# replace an tinderbox image in ~/run with a newer one
 #
+
 
 function Finish() {
   rm -f $lck
@@ -11,102 +12,119 @@ function Finish() {
 }
 
 
-#######################################################################
-#
-min_days=${1:-6}
-min_hours=${2:-17}
-min_compl=${3:-4000}
-shift "$(( $# < 3 ? $# : 3 ))"
-setupargs="$@"
-
-lck=/tmp/$( basename $0 ).lck
-if [[ -f $lck ]]; then
-  exit 1    # be silent and no Finish() here !
-fi
-echo $$ >> $lck   # the ">>" helps to catch an (unlikely) race
-
-# bail out if the age of the latest image - if there's any - is younger than min_hours
-#
-name=$( cd ~/run; ls -1t */tmp/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s )
-if [[ -d ~/run/$name ]]; then
-  let "hours = ( $(date +%s) - $(stat -c%Y ~/run/$name/tmp/setup.sh) ) / 3600"
-  if [[ $hours -lt $min_hours ]]; then
-    Finish 3
-  fi
-fi
-
-# bail out if no image matches the criteria
-#
-name=""
-while read i
-do
-  let "days = ( $(date +%s) - $(stat -c%Y ~/run/$i/tmp/setup.sh) ) / 86400"
-  if [[ $days -lt $min_days ]]; then
-    continue
+function LookForAnImage()  {
+  # wait time between 2 images
+  #
+  oldimg=$(cd ~/run; ls -1t */tmp/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
+  if [[ -d ~/run/$oldimg ]]; then
+    let "hours = ( $(date +%s) - $(stat -c%Y ~/run/$oldimg/tmp/setup.sh) ) / 3600"
+    if [[ $hours -lt $min_hours ]]; then
+      Finish 3
+    fi
   fi
 
-  compl=$( grep ' ::: completed emerge' ~/run/$i/var/log/emerge.log 2>/dev/null | wc -l )
-  if [[ $compl -lt $min_compl ]]; then
-    continue
+  # look for an image being old enough and having emerged enough
+  #
+  oldimg=""
+  while read i
+  do
+    let "days = ( $(date +%s) - $(stat -c%Y ~/run/$i/tmp/setup.sh) ) / 86400"
+    if [[ $days -lt $min_days ]]; then
+      continue
+    fi
+
+    compl=$(grep ' ::: completed emerge' ~/run/$i/var/log/emerge.log 2>/dev/null | wc -l)
+    if [[ $compl -lt $min_compl ]]; then
+      continue
+    fi
+
+    oldimg=$i
+    break
+  done < <( cd ~/run; ls -1t */tmp/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac )
+
+  if [[ -z "$oldimg" ]]; then
+    Finish 4
   fi
+}
 
-  name=$i
-  break
-done < <( cd ~/run; ls -1t */tmp/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac )
 
-if [[ -z "$name" ]]; then
-  Finish 4
-fi
-
-echo
-date
-echo " replace-able image is $name"
-
-if [[ -f ~/run/$name/tmp/LOCK ]]; then
-  echo " will schedule pfl and stop afterwards ..."
-  cat << EOF >> ~/run/$name/tmp/backlog.1st
-STOP (EOL) $compl completed, $(wc -l < ~/run/$name/tmp/backlog) left
+function StopOldImage() {
+  if [[ ! -f ~/run/$oldimg/tmp/LOCK ]]; then
+    echo " schedule pfl and STOP ..."
+    cat << EOF >> ~/run/$oldimg/tmp/backlog.1st
+STOP (EOL) $compl completed, $(wc -l < ~/run/$oldimg/tmp/backlog) left
 %/usr/bin/pfl
 app-portage/pfl
 EOF
 
-  while [[ -f ~/run/$name/tmp/LOCK ]]; do
-    sleep 1
+    while [[ -f ~/run/$oldimg/tmp/LOCK ]]; do
+      sleep 1
+    done
+  fi
+}
+
+
+function SetupANewImage()  {
+  i=0
+  while :
+  do
+    let "i = $i + 1"
+
+    echo
+    echo "attempt $i ============================================================="
+    echo
+    date
+    sudo $(dirname $0)/setup_img.sh $setupargs
+    rc=$?
+
+    if [[ $rc -eq 0 ]]; then
+      break
+    elif [[ $rc -eq 2 ]]; then
+      continue
+    else
+      echo "rc=$rc, exiting ..."
+      Finish 23
+    fi
   done
-fi
 
-# setup up a new image
-#
-i=0
-while :
-do
-  let "i = $i + 1"
-
-  echo
-  echo "attempt $i ============================================================="
   echo
   date
-  sudo $(dirname $0)/setup_img.sh $setupargs
-  rc=$?
+  echo "done, needed $i attempt(s)"
+}
 
-  if [[ $rc -eq 0 ]]; then
-    break
-  elif [[ $rc -eq 2 ]]; then
-    continue
-  else
-    echo "rc=$rc, exiting ..."
-    Finish 23
-  fi
-done
 
-# delete old image and its log file after a new image was setup
+#######################################################################
 #
-date
-echo "delete $name"
-rm ~/run/$name ~/logs/$name.log
+#
+lck=/tmp/$(basename $0).lck
+if [[ -f $lck ]]; then
+  exit 1    # be silent, no Finish() here !
+fi
+echo $$ >> $lck   # ">>" helps detecting an (unlikely) race
+
+oldimg=$(basename $1 2>/dev/null)
+if [[ ! -e ~/run/$oldimg ]]; then
+  min_days=${1:-6}
+  min_hours=${2:-17}
+  min_compl=${3:-4000}
+  shift "$(( $# < 3 ? $# : 3 ))"
+
+  LookForAnImage
+else
+  shift
+fi
+setupargs="$@"
+
 
 echo
 date
-echo "done, needed $i attempt(s)"
+echo " replacing image $oldimg ..."
+
+StopOldImage
+SetupANewImage
+
+date
+echo "delete $oldimg"
+rm ~/run/$oldimg ~/logs/$oldimg.log
 
 Finish 0
