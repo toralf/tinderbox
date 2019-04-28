@@ -181,7 +181,8 @@ function CreateImageDir() {
   #
   mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
 
-  echo " $mnt"
+  echo
+  echo " new image: $mnt"
   echo
 }
 
@@ -752,6 +753,7 @@ echo " $0 started"
 echo
 if [[ $# -gt 0 ]]; then
   echo "   additional args are given: '${@}'"
+  echo
 fi
 
 if [[ "$(whoami)" != "root" ]]; then
@@ -797,10 +799,16 @@ do
           exit 1
         fi
 
+        if [[ $origin =~ "17.1" ]]; then
+          expprofile="y"
+        else
+          expprofile="n"
+        fi
+
         useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
         features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
-        if [[ -f $origin/etc/portage/package.use/00libressl ]]; then
+        if [[ $origin =~ "libressl" ]]; then
           libressl="y"
         else
           libressl="n"
@@ -816,6 +824,8 @@ do
         grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           multilib="y"
+        else
+          multilib="n"
         fi
         ;;
     p)  profile=$OPTARG
