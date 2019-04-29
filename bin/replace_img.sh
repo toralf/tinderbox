@@ -96,11 +96,17 @@ function SetupANewImage()  {
 #######################################################################
 #
 #
+
+# do not run this script in parallel
+#
 lck=/tmp/$(basename $0).lck
-if [[ -f $lck ]]; then
-  exit 1    # be silent, no Finish() here !
+if [[ -s $lck ]]; then
+  kill -0 $(cat $lck) 2>/dev/null
+  if [[ $? -eq 0 ]]; then
+    exit 1    # be silent, no Finish() here !
+  fi
 fi
-echo $$ >> $lck   # ">>" helps detecting an (unlikely) race
+echo $$ > $lck
 
 oldimg=$(basename $1 2>/dev/null)
 if [[ ! -e ~/run/$oldimg ]]; then
