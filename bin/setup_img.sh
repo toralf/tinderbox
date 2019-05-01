@@ -580,7 +580,7 @@ EOF
   #
   # use "%..." b/c IGNORE_PACKAGES contains sys-kernel/*
   #
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 2)) -eq 0 || $keyword = "stable" ]]; then
     echo "%emerge -u sys-kernel/gentoo-sources"   >> $bl.1st
   else
     echo "%emerge -u sys-kernel/vanilla-sources"  >> $bl.1st
