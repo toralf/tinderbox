@@ -35,7 +35,7 @@ SyntaxError: invalid syntax|SyntaxError: Missing parentheses in call to
 # attr/acl - Poly-C_atwork
 #
 648864
-xattr.h
+xattr.h|AttributeError: module object has no attribute ignore
 
 # ffmpeg-4.0 Alexis Ballier <aballier@gentoo.org>
 #

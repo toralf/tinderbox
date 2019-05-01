@@ -9,4 +9,4 @@ net-misc/curl       curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
 sys-apps/kmod       -ssl
 
 dev-lang/python     -bluetooth
-
+sys-apps/dbus       -user-session

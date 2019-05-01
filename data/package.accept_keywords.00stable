@@ -1,2 +1,6 @@
 # package.accept_keywords/00stable
 #
+
+# by asturm
+#
+~dev-util/cmake-3.14.3

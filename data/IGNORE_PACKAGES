@@ -64,11 +64,6 @@ net-libs/zmqpp
 #
 dev-util/include-what-you-use
 #
-# https://bugs.gentoo.org/656966
-#
-dev-ruby/asciidoctor
-net-analyzer/wireshark
-#
 # pulls in LLVM 6
 #
 sys-devel/byfl
