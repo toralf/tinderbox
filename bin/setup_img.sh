@@ -577,7 +577,6 @@ EOF
   fi
 
   # at least systemd and virtualbox need (compiled) kernel sources and would fail in @preserved-rebuild otherwise
-  #
   # use "%..." b/c IGNORE_PACKAGES contains sys-kernel/*
   #
   if [[ $(($RANDOM % 2)) -eq 0 || $keyword = "stable" ]]; then
@@ -600,14 +599,14 @@ EOF
     #   %...      : bail out if it fails
     #   no --deep : that would result effectively in @system
     #   =         : do not upgrade the current (slotted) version
-    # dev-libs/*  : avoid a forced rebuild of GCC in @system
+    # dev-libs/...: avoid a forced rebuild of GCC in @system
     #
     echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
     echo "sys-devel/gcc" >> $bl.1st
   fi
 
-  # switch to new 17.1 profile
+  # switch to 17.1 profile
   #
   if [[ "$expprofile" = "y" ]]; then
     cat << EOF >> $bl.1st
@@ -621,7 +620,7 @@ EOF
 EOF
   fi
 
-  # the stage4 of a systemd ISO image would have this already done
+  # the stage4 of a systemd image would have this already done
   #
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
@@ -635,7 +634,7 @@ EOF
 
 
 # - configure locale, timezone etc.
-# - install and configure tools needed by job.sh:
+# - install and configure tools called in job.sh:
 #     <package>                   <command/s>
 #     mail-*                      MTA + mailx
 #     app-arch/sharutils          uudecode
