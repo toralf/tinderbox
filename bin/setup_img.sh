@@ -842,11 +842,15 @@ do
         # - or listed in a plain file
         # - or given at the command line
         #
+        # "x" is a place holder for an empty USE flag set
+        #
         if [[ -f "$OPTARG" ]] ; then
           useflags="$(source $OPTARG; echo $USE)"
           if [[ -z "$useflags" ]]; then
             useflags="$(cat $OPTARG)"
           fi
+        elif [[ "$OPTARG" -eq "x" ]]; then
+          useflags=""
         else
           useflags="$OPTARG"
         fi
