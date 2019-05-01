@@ -1178,7 +1178,7 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
-      opts="--update --newuse --changed-use --deep --exclude sys-kernel/vanilla-sources --changed-deps=y"
+      opts="--update --newuse --changed-use --deep --exclude 'sys-kernel/*' --changed-deps=y"
     fi
     RunAndCheck "emerge $opts $task"
     local rc=$?

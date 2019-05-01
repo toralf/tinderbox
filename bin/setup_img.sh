@@ -576,11 +576,15 @@ EOF
 EOF
   fi
 
-  # at least systemd and virtualbox need kernel sources and would fail in @preserved-rebuild otherwise
+  # at least systemd and virtualbox need (compiled) kernel sources and would fail in @preserved-rebuild otherwise
   #
-  # use % here b/c IGNORE_PACKAGES contains sys-kernel/*
+  # use "%..." b/c IGNORE_PACKAGES contains sys-kernel/*
   #
-  echo "%emerge -u sys-kernel/vanilla-sources" >> $bl.1st
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    echo "%emerge -u sys-kernel/gentoo-sources"   >> $bl.1st
+  else
+    echo "%emerge -u sys-kernel/vanilla-sources"  >> $bl.1st
+  fi
 
   # finalize 17.0->17.1 profile switch
   #
