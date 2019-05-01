@@ -595,12 +595,17 @@ EOF
   fi
 
   # upgrade GCC asap
-  #   %...      : bail out if it fails
-  #   no --deep : that would result effectively in @system
-  #   =         : do not upgrade the current (slotted) version
-  # dev-libs/*  : avoid a forced rebuild of GCC in @system
   #
-  echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+  if [[ $keyword = "unstable" ]]; then
+    #   %...      : bail out if it fails
+    #   no --deep : that would result effectively in @system
+    #   =         : do not upgrade the current (slotted) version
+    # dev-libs/*  : avoid a forced rebuild of GCC in @system
+    #
+    echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+  else
+    echo "sys-devel/gcc" >> $bl.1st
+  fi
 
   # switch to new 17.1 profile
   #
