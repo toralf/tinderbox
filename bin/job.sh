@@ -1129,7 +1129,11 @@ function RunAndCheck() {
   local rc=$?
 
   PostEmerge
-  CheckQA
+  # stable packages won't be changed wrt a QA issue
+  #
+  if [[ $keyword = "unstable" ]]; then
+    CheckQA
+  fi
 
   if [[ $rc -ne 0 ]]; then
     # the tinderbox shared repository solution is racy
