@@ -1182,7 +1182,14 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
-      opts="--update --newuse --changed-use --deep --exclude sys-kernel/gentoo-sources sys-kernel/vanilla-sources --changed-deps=y"
+      # "--exclude sys-kernel/*" would open the quoting hell
+      #
+      if [[ -n "$(portageq best_version / sys-kernel/vanilla-sources)" ]]; then
+        src="sys-kernel/vanilla-sources"
+      else
+        src="sys-kernel/gentoo-sources"
+      fi
+      opts="--update --newuse --changed-use --deep --exclude $src --changed-deps=y"
     fi
     RunAndCheck "emerge $opts $task"
     local rc=$?
