@@ -8,7 +8,7 @@
 #
 # typical call:
 #
-# echo "sudo /opt/tb/bin/setup_img.sh -t y -m n -l n -p 17.0/desktop -e y" | at now + 0 min
+# echo "sudo /opt/tb/bin/setup_img.sh -t y -m n -l n -p 17.0/desktop -e y" | at now
 
 
 #############################################################################
