@@ -28,19 +28,18 @@ function LookForAnImage()  {
   oldimg=""
   while read i
   do
-    let "days = ( $(date +%s) - $(stat -c%Y ~/run/$i/tmp/setup.sh) ) / 86400"
-    if [[ $days -lt $min_days ]]; then
+    if [[ ! -f ~/run/$i/var/log/emerge.log ]]; then
       continue
     fi
 
-    compl=$(grep ' ::: completed emerge' ~/run/$i/var/log/emerge.log 2>/dev/null | wc -l)
+    compl=$(grep -c ' ::: completed emerge' ~/run/$i/var/log/emerge.log)
     if [[ $compl -lt $min_compl ]]; then
       continue
     fi
 
     oldimg=$i
     break
-  done < <( cd ~/run; ls -1t */tmp/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac )
+  done < <(cd ~/run; find ./*/tmp -maxdepth 1 -mtime +$min_days -name setup.sh | cut -f2 -d'/' -s | tac)
 
   if [[ -z "$oldimg" ]]; then
     Finish 4
