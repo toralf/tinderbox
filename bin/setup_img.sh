@@ -4,7 +4,7 @@
 
 
 # setup a new tinderbox image
-# an exit code of 1 is an unrecoverable error, 2 means try it again
+# an exit code of 2 means to the caller: try it again
 #
 # typical call:
 #
@@ -188,7 +188,7 @@ function UnpackStage3()  {
   #
   wgeturl=http://ftp.halifax.rwth-aachen.de/gentoo/releases/amd64/autobuilds
 
-  latest=$distfiles/latest-stage3.txt
+  latest=$distdir/latest-stage3.txt
   wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest || exit 1
 
   case $profile in
@@ -219,9 +219,9 @@ function UnpackStage3()  {
     exit 1
   fi
 
-  f=$distfiles/$(basename $stage3)
+  f=$distdir/$(basename $stage3)
   if [[ ! -s $f ]]; then
-    wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$distfiles
+    wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$distdir
     rc=$?
     if [[ $rc -ne 0 ]]; then
       echo " can't download stage3 file '$stage3' of profile '$profile', rc=$rc"
@@ -360,7 +360,7 @@ CLEAN_DELAY=0
 L10N="$l10n"
 VIDEO_CARDS=""
 
-DISTDIR="$distfiles"
+DISTDIR="$distdir"
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
@@ -382,7 +382,7 @@ EOF
 # create portage directories + files + symlinks from /tmp/tb/data/... to appropriate target(s)
 #
 function CompilePortageFiles()  {
-  mkdir -p ./tmp/tb ./$repo_gentoo ./$distfiles ./var/tmp/portage
+  mkdir -p ./tmp/tb ./$repo_gentoo ./$distdir ./var/tmp/portage
 
   for d in package.{accept_keywords,env,mask,unmask,use} env
   do
@@ -768,7 +768,7 @@ cd $( readlink ~tinderbox/img ) || exit 1
 repo_gentoo=$(   portageq get_repo_path / gentoo )
 repo_libressl=$( portageq get_repo_path / libressl )
 repo_local=$(    portageq get_repo_path / local )
-distfiles=$(     portageq distdir )
+distdir=$(       portageq distdir )
 
 SetOptions
 
