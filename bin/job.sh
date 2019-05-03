@@ -1182,14 +1182,12 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
-      # "--exclude sys-kernel/*" would open the quoting hell
-      #
-      if [[ -n "$(portageq best_version / sys-kernel/vanilla-sources)" ]]; then
-        src="sys-kernel/vanilla-sources"
-      else
-        src="sys-kernel/gentoo-sources"
+      excl=""
+      src=$(qatom $(qlop -l | grep sys-kernel/ | head -n 1 | awk ' { print $7 } ') | cut -f1-2 -d' ' | tr ' ' '/') 2>/dev/null
+      if [[ -n "$src" ]]; then
+        excl="--exclude $src"
       fi
-      opts="--update --newuse --changed-use --deep --exclude $src --changed-deps=y"
+      opts="--update --newuse --changed-use --deep $excl --changed-deps=y"
     fi
     RunAndCheck "emerge $opts $task"
     local rc=$?
