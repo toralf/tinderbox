@@ -445,22 +445,7 @@ function foundCollisionIssue() {
 function foundSandboxIssue() {
   echo "=$pkg nosandbox nousersandbox" >> /etc/portage/package.env/nosandbox
   try_again=1
-
-  p="$(grep -m 1 ^A: $sandb)"
-  echo "$p" | grep -q "A: /root/"
-  if [[ $? -eq 0 ]]; then
-    cat << EOF >> $issuedir/issue
-This issue is forced at the tinderbox (pls see bug #567192 too) by setting:
-
-$(grep '^export XDG_' /tmp/job.sh)
-
-sandbox output:
-
-EOF
-    echo "sandbox issue (XDG_xxx_DIR related)" > $issuedir/title
-  else
-    echo "sandbox issue" > $issuedir/title
-  fi
+  echo "sandbox issue" > $issuedir/title
   head -n 10 $sandb >> $issuedir/issue
 }
 
