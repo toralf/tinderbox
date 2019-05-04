@@ -429,12 +429,6 @@ EOF
 
   echo "*/* $(cpuid2cpuflags)"                    > ./etc/portage/package.use/00cpuflags
 
-  if [[ ! "$profile" =~ '/desktop/' ]]; then
-    # would pull in X otherwise in a non-desktop profile
-    #
-    echo 'media-fonts/encodings -X'               > ./etc/portage/package.use/00encodings
-  fi
-
   if [[ $profile =~ '/systemd' ]]; then
     cp ~tinderbox/tb/data/package.env.00systemd     ./etc/portage/package.env/00systemd
     cp ~tinderbox/tb/data/package.use.00systemd     ./etc/portage/package.use/00systemd
@@ -454,6 +448,8 @@ EOF
     cp ~tinderbox/tb/data/package.env.00notest      ./etc/portage/package.env/00notest
     cp ~tinderbox/tb/data/package.use.00test        ./etc/portage/package.use/00test
   else
+    # squash any (unusual) attempt to run a test phase
+    #
     echo "*/* notest"                             > ./etc/portage/package.env/00notest
   fi
 
