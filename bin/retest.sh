@@ -27,7 +27,7 @@ do
   sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
     ~/tb/data/ALREADY_CATCHED                   \
     ~/run/*/etc/portage/package.mask/self       \
-    ~/run/*/etc/portage/package.env/{nosandbox,nousersandbox,test-fail-continue} 2>/dev/null
+    ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue} 2>/dev/null
 
   for i in $(ls ~/run 2>/dev/null)
   do
