@@ -443,8 +443,7 @@ function foundCollisionIssue() {
 # helper of ClassifyIssue()
 #
 function foundSandboxIssue() {
-  echo "=$pkg nosandbox"     >> /etc/portage/package.env/nosandbox
-  echo "=$pkg nousersandbox" >> /etc/portage/package.env/nousersandbox
+  echo "=$pkg nosandbox nousersandbox" >> /etc/portage/package.env/nosandbox
   try_again=1
 
   p="$(grep -m 1 ^A: $sandb)"

@@ -408,11 +408,9 @@ function CompilePortageFiles()  {
   #
   echo 'FEATURES="test-fail-continue"'            > ./etc/portage/env/test-fail-continue
 
-  # certain types of sandbox issues are forced by the XDG_* settings in job.sh
-  # at 2nd attempt emerge affected packages w/o sandbox'ing
+  # re-try failing packages w/o sandbox'ing
   #
-  echo 'FEATURES="-sandbox"'                      > ./etc/portage/env/nosandbox
-  echo 'FEATURES="-usersandbox"'                  > ./etc/portage/env/nousersandbox
+  echo 'FEATURES="-sandbox -usersandbox"'         > ./etc/portage/env/nosandbox
 
   # no parallel build
   #
