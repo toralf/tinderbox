@@ -3,10 +3,3 @@
 
 */*                 libressl -gnutls -openssl
 net-misc/curl       curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
-
-# https://bugs.gentoo.org/677960
-#
-sys-apps/kmod       -ssl
-
-dev-lang/python     -bluetooth
-sys-apps/dbus       -user-session
