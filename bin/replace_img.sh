@@ -120,14 +120,13 @@ else
 fi
 setupargs="$@"
 
-
 echo
 date
 echo " replacing image $oldimg ..."
-
 StopOldImage
 SetupANewImage
 
+echo
 date
 echo "delete $oldimg"
 rm ~/run/$oldimg ~/logs/$oldimg.log
