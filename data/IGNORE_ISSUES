@@ -1,4 +1,3 @@
-asciidoctor
 Cannot build with randomized sbrk. Your options
 code model kernel not supported in the 32 bit mode
 CONFIG_SYSFS_DEPRECATED_V2 support detected!

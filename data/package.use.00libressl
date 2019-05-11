@@ -3,3 +3,6 @@
 
 */*                 libressl -gnutls -openssl
 net-misc/curl       curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
+
+dev-lang/python     -bluetooth
+net-wireless/bluez  -user-session
