@@ -71,10 +71,10 @@ function cgroup() {
 
   echo "$$" > $sysfsdir/tasks
 
-  mbytes="$(echo " 8 * 2^30" | bc)"
+  mbytes=$(echo " 8 * 2^30" | bc)
   echo $mbytes > $sysfsdir/memory.limit_in_bytes
 
-  vbytes="$(echo "16 * 2^30" | bc)"
+  vbytes=$(echo "16 * 2^30" | bc)
   echo $vbytes > $sysfsdir/memory.memsw.limit_in_bytes
 }
 
@@ -128,7 +128,7 @@ if [[ $? -ne 0 ]]; then
   exit 4
 fi
 
-# don't bail out if this fails, it is just a nice to have feature
+# it is just a nice to have feature, so do not bail out if this fails
 #
 cgroup
 
