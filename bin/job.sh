@@ -1025,6 +1025,16 @@ function PostEmerge() {
     echo "%eselect python update" >> $backlog
   fi
 
+  grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $bak
+  if [[ $? -eq 0 ]]; then
+    current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
+    latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
+
+    if [[ "$current" != "$latest" ]]; then
+      echo "%eselect ruby set $latest" >> $backlog
+    fi
+  fi
+
   # daily subsequent image updates
   #
   if [[ ! -s $backlog && -f /tmp/@system.history ]]; then
