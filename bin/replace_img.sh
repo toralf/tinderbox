@@ -16,16 +16,17 @@ function LookForAnImage()  {
   # wait time between 2 images
   #
   oldimg=$(cd ~/run; ls -1t */tmp/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
-  if [[ -d ~/run/$oldimg ]]; then
+  if [[ -n "$oldimg" ]]; then
     let "hours = ( $(date +%s) - $(stat -c%Y ~/run/$oldimg/tmp/setup.sh) ) / 3600"
     if [[ $hours -lt $min_hours ]]; then
       Finish 3
     fi
+  else
+    Finish 3
   fi
 
-  # look for an image being old enough and having emerged enough
+  # look for an image being old enough and having enough emerge operations completed
   #
-  oldimg=""
   while read i
   do
     if [[ ! -f ~/run/$i/var/log/emerge.log ]]; then
@@ -38,12 +39,9 @@ function LookForAnImage()  {
     fi
 
     oldimg=$i
-    break
+    return
   done < <(cd ~/run; find ./*/tmp -maxdepth 1 -mtime +$min_days -name setup.sh | cut -f2 -d'/' -s | tac)
-
-  if [[ -z "$oldimg" ]]; then
-    Finish 4
-  fi
+  Finish 3
 }
 
 
