@@ -154,16 +154,16 @@ function Tasks()  {
       continue
     fi
 
-    let "delta = $ts - $(stat -c%Y $tsk 2>/dev/null)" 2>/dev/null
+    let "delta = $ts - $(stat -c%Y $tsk)" 2>/dev/null
 
-    if [[ $delta -ge 3600 ]]; then
-      let "minutes = $delta / 60 % 60"
-      let "hours = $delta / 60 / 60"
-      printf " %3i:%02i h " $hours $minutes
-    else
+    if [[ $delta -lt 3600 ]]; then
       let "minutes = $delta / 60 % 60"
       let "seconds = $delta % 60 % 60"
       printf " %3i:%02i m " $minutes $seconds
+    else
+      let "hours = $delta / 60 / 60"
+      let "minutes = $delta / 60 % 60"
+      printf " %3i:%02i h " $hours $minutes
     fi
 
     task=$(cat $tsk)
@@ -202,18 +202,17 @@ function LastEmergeOperation()  {
     sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
     perl -wane '
       chop ($F[0]);
-
       my $delta = time() - $F[0];
-      if ($delta >= 3600) {
-        $minutes = $delta / 60 % 60;
-        $hours = $delta / 60 / 60;
-        printf (" %3i:%02i h ", $hours, $minutes);
-      } else  {
+      if ($delta < 3600) {
         $minutes = $delta / 60 % 60;
         $seconds = $delta % 60 % 60;
-        printf (" %3i:%02i m ", $minutes, $seconds);
+        printf (" %3i:%02i m", $minutes, $seconds);
+      } else  {
+        $hours = $delta / 60 / 60;
+        $minutes = $delta / 60 % 60;
+        printf (" %3i:%02i h", $hours, $minutes);
       }
-      printf (" %s\n", join (" ", @F[1..$#F]));
+      print join (" ", " ", @F[1..$#F]), "\n";
     '
   done
 }
@@ -235,17 +234,17 @@ function PackagesPerDay() {
       continue
     fi
 
-    grep ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null |\
-    cut -f1 -d ':' -s |\
-    perl -wane '
-      use POSIX qw(floor);
-
+    grep ' ::: completed emerge' $i/var/log/emerge.log |\
+    perl -F: -wane '
       # @p contains the amount of emerge operations at day $i
-      BEGIN { @p = (0); $first = 0; }
+      BEGIN {
+        @p = (0);
+        $first = 0;
+      }
       {
         $cur = $F[0];
-        $first = $cur if ($first == 0);
-        my $i = floor (($cur-$first)/86400);
+        $first = $cur unless ($first);
+        my $i = ($cur-$first) / 86400;
         $p[$i]++;
       }
 
