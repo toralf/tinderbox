@@ -1139,7 +1139,7 @@ function RunAndCheck() {
             $bak
     if [[ $? -eq 0 ]]; then
       try_again=1
-      Mail "info: catched a repo update rac, task=$task" $bak
+      Mail "info: catched a repo update race, task=$task" $bak
       echo "$task" >> $backlog
 
       # wait for "git pull" being finished
@@ -1181,7 +1181,7 @@ function WorkOnTask() {
       if [[ -n "$src" ]]; then
         excl="--exclude $src"
       fi
-      opts="--update --newuse --changed-use --deep $excl --changed-deps=y"
+      opts="--update --newuse --changed-use --deep $excl"
     fi
     RunAndCheck "emerge $opts $task"
     local rc=$?
