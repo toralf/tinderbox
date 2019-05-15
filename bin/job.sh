@@ -1181,7 +1181,7 @@ function WorkOnTask() {
       if [[ -n "$src" ]]; then
         excl="--exclude $src"
       fi
-      opts="--update --newuse --changed-use --deep $excl"
+      opts="--update --changed-use --deep $excl"
     fi
     RunAndCheck "emerge $opts $task"
     local rc=$?
