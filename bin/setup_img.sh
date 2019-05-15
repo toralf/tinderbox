@@ -341,6 +341,8 @@ function CompileMakeConf()  {
 CFLAGS="-O2 -pipe -march=native"
 CXXFLAGS="\${CFLAGS}"
 
+RUSTFLAGS="-Ctarget-cpu=native -v"
+
 USE="
 $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
 
@@ -420,7 +422,6 @@ NINJAFLAGS="-j1"
 EGO_BUILD_FLAGS="-p 1"
 GOMAXPROCS="1"
 GO19CONCURRENTCOMPILATION=0
-RUSTFLAGS="-C codegen-units=1"
 RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 EOF
