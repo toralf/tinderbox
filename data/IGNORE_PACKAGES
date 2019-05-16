@@ -63,7 +63,3 @@ net-libs/zmqpp
 # deps on older clang etc.
 #
 dev-util/include-what-you-use
-#
-# pulls in LLVM 6
-#
-sys-devel/byfl

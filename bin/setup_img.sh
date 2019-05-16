@@ -341,7 +341,7 @@ function CompileMakeConf()  {
 CFLAGS="-O2 -pipe -march=native"
 CXXFLAGS="\${CFLAGS}"
 
-RUSTFLAGS="-Ctarget-cpu=native -v"
+RUSTFLAGS="-C target-cpu=native -v -C codegen-units=1"
 
 USE="
 $( echo $useflags | xargs -s 78 | sed 's/^/  /g' )

@@ -56,3 +56,8 @@ Please port gnulib .*.c to your platform|FILE.* has no member named _|xlocale.h:
 #
 671712
 boost::asio|boost::python|boost/signal.*No such file or directory
+
+# (gcc-9) - [TRACKER] sys-devel/gcc-9 porting
+#
+685044
+possibly undefined macro:|friend declaration of|taking address of packed member of|not specified in enclosing parallel|reinterpret_cast is not a constant expression|non-local lambda expression cannot have|exception cleanup for this placement new selects non-placement operator| implicitly-declared .* is deprecated|_builtin_strncpy specified bound|%s directive argument is null|cannot bind packed field
