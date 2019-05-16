@@ -1176,14 +1176,13 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
-      excl=""
       src=$(qatom $(qlop -l | grep sys-kernel/ | head -n 1 | awk ' { print $7 } ') | cut -f1-2 -d' ' | tr ' ' '/') 2>/dev/null
       if [[ -n "$src" ]]; then
-        excl="--exclude $src"
+        src="--exclude $src"
       fi
-      opts="--update --changed-use --deep $excl"
+      opts="--update --changed-use --deep $src"
     fi
-    RunAndCheck "emerge $opts $task"
+    RunAndCheck "emerge $task $opts"
     local rc=$?
 
     cp $log /tmp/$task.last.log
@@ -1324,7 +1323,7 @@ while :
 do
   date > $log
 
-  # auto-clean is deactivated in favour to collect issue files first
+  # auto-clean is deactivated in favour to collect issue files
   #
   rm -rf /var/tmp/portage/*
 
@@ -1341,7 +1340,8 @@ do
   echo "$task" | tee -a $tsk.history > $tsk
   WorkOnTask
 
-  # $task will intentionally be retried at next start if Finish() was called
+  # this linw isn't reached if Finish() is called
+  # so $task will intentionally be retried at next start
   #
   truncate -s 0 $tsk
 
