@@ -190,7 +190,7 @@ function LastEmergeOperation()  {
       continue
     fi
 
-    if [[ ! -s $i/var/log/emerge.log || ! -s $i/tmp/task ]]; then
+    if [[ ! -s $i/var/log/emerge.log ]]; then
       echo
       continue
     fi
@@ -276,6 +276,7 @@ function PackagesPerDay() {
 
 #######################################################################
 #
+unset LC_TIME
 images=$(list_images)
 
 while getopts hlopt\? opt
