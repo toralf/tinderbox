@@ -15,9 +15,9 @@ function Finish() {
 function LookForAnImage()  {
   # wait time between 2 images
   #
-  oldimg=$(cd ~/run; ls -1t */tmp/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
-  if [[ -n "$oldimg" ]]; then
-    let "hours = ( $(date +%s) - $(stat -c%Y ~/run/$oldimg/tmp/setup.sh) ) / 3600"
+  latest=$(cd ~/run; ls -t */tmp/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
+  if [[ -n "$latest" ]]; then
+    let "hours = ( $(date +%s) - $(stat -c%Y ~/run/$latest/tmp/setup.sh) ) / 3600"
     if [[ $hours -lt $min_hours ]]; then
       Finish 3
     fi
@@ -29,10 +29,14 @@ function LookForAnImage()  {
   #
   while read i
   do
+    let "days = ( $(date +%s) - $(stat -c%Y ~/run/$i/tmp/setup.sh) ) / 3600 / 24"
+    if [[ $days -lt $min_days ]]; then
+      break
+    fi
+
     if [[ ! -f ~/run/$i/var/log/emerge.log ]]; then
       continue
     fi
-
     compl=$(grep -c ' ::: completed emerge' ~/run/$i/var/log/emerge.log)
     if [[ $compl -lt $min_compl ]]; then
       continue
@@ -40,7 +44,8 @@ function LookForAnImage()  {
 
     oldimg=$i
     return
-  done < <(cd ~/run; find ./*/tmp -maxdepth 1 -mtime +$min_days -name setup.sh | cut -f2 -d'/' -s | tac)
+
+  done < <(cd ~/run; ls -t */tmp/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
   Finish 3
 }
 
@@ -121,6 +126,7 @@ setupargs="$@"
 echo
 date
 echo " replacing image $oldimg ..."
+
 StopOldImage
 SetupANewImage
 
