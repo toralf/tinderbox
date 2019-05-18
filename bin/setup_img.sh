@@ -221,10 +221,12 @@ function UnpackStage3()  {
 
   f=$distdir/$(basename $stage3)
   if [[ ! -s $f ]]; then
+    date
+    echo "downloading $stage3 ..."
     wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$distdir
     rc=$?
     if [[ $rc -ne 0 ]]; then
-      echo " can't download stage3 file '$stage3' of profile '$profile', rc=$rc"
+      echo " can't download stage3 file '$stage3', rc=$rc"
       rm -f $f{,.DIGESTS.asc}
       exit 1
     fi
@@ -239,6 +241,7 @@ function UnpackStage3()  {
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
+  date
   cd $name
   echo " untar'ing $f ..."
   tar -xf $f --xattrs --exclude='./dev/*' || exit 1
@@ -705,9 +708,9 @@ EOF
 # MTA, bugz et. al
 #
 function EmergeMandatoryPackages() {
-  cd ~tinderbox/
-
+  date
   echo " install mandatory packages ..."
+  cd ~tinderbox/
 
   $(dirname $0)/chr.sh $mnt '/tmp/setup.sh &> /tmp/setup.sh.log'
   rc=$?
@@ -869,7 +872,6 @@ if [[ -z "$origin" ]]; then
 fi
 
 CreateImageDir
-date
 UnpackStage3
 CompileRepoFiles
 CompileMakeConf
@@ -877,7 +879,6 @@ CompilePortageFiles
 CompileMiscFiles
 CreateBacklog
 CreateSetupScript
-date
 EmergeMandatoryPackages
 
 cd ~tinderbox/run || exit 1
