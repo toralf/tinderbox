@@ -28,6 +28,10 @@ sort --unique > $pks
 if [[ -s $pks ]]; then
   for i in $(ls ~/run 2>/dev/null)
   do
+    if [[ ! -e ~/run/$i/tmp/ ]]; then
+      continue
+    fi
+
     bl=~/run/$i/tmp/backlog.upd
     sort --unique $bl $pks | shuf > $bl.tmp
     # no "mv" to keep file permissions
