@@ -8,7 +8,7 @@
 #
 # typical call:
 #
-# echo "sudo /opt/tb/bin/setup_img.sh -t y -m n -l n -p 17.0/desktop -e y" | at now
+# echo "sudo /opt/tb/bin/setup_img.sh -t y -m n -l n -p 17.1/desktop -e y" | at now
 
 
 #############################################################################
@@ -50,18 +50,11 @@ function SetOptions() {
   profile=$(
     eselect profile list                                    |\
     awk ' { print $2 } '                                    |\
-    grep -e "^default/linux/amd64/17.0"                     |\
+    grep -e "^default/linux/amd64/17.1"                     |\
     cut -f4- -d'/' -s                                       |\
     grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' |\
     shuf -n 1
   )
-
-  # switch to 17.1 profile
-  #
-  expprofile="n"
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    expprofile="y"
-  fi
 
   # be more restrict wrt sandbox issues
   #
@@ -108,11 +101,6 @@ function CheckOptions() {
     exit 1
   fi
 
-  if [[ "$expprofile" != "y" && "$expprofile" != "n" ]]; then
-    echo " wrong value for \$expprofile: $expprofile"
-    exit 1
-  fi
-
   if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
     echo " wrong value for \$keyword: $keyword"
     exit 1
@@ -139,9 +127,6 @@ function CheckOptions() {
 #
 function ComputeImageName()  {
   name="$(echo $profile | tr '/' '-')_"
-  if [[ "$expprofile" = "y" ]]; then
-    name=$( echo $name | sed -e 's/17.0/17.1/g' )
-  fi
 
   if [[ "$keyword" = "stable" ]]; then
     name="$name-stable"
@@ -238,6 +223,8 @@ function UnpackStage3()  {
   # gpg --edit-key <key>
   # and set "trust" to 5 (==ultimately)
   #
+  echo
+  date
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
@@ -347,14 +334,17 @@ CXXFLAGS="\${CFLAGS}"
 RUSTFLAGS="-C target-cpu=native -v -C codegen-units=1"
 
 USE="
-$( echo $useflags | xargs -s 78 | sed 's/^/  /g' )
+$(echo $useflags | xargs -s 78 | sed 's/^/  /g')
 
   ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
 
-$( [[ ! $profile =~ "hardened" ]] && echo 'PAX_MARKINGS="none"' )
-$( [[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"' )
-ACCEPT_KEYWORDS=$( [[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"' )
+$([[ ! $profile =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
+$([[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"')
+ACCEPT_KEYWORDS=$([[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"')
+
+# this is a tinderbox
+ACCEPT_LICENSE="* -@EULA"
 
 FEATURES="$features"
 EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --backtrack=500 --verbose --color=n --autounmask=n"
@@ -583,9 +573,13 @@ EOF
     echo "%emerge -u sys-kernel/vanilla-sources"  >> $bl.1st
   fi
 
-  # finalize 17.0->17.1 profile switch
-  #
-  if [[ "$expprofile" = "y" ]]; then
+  switch_profile="n"
+  readlink ./etc/portage/make.profile | grep -q "/17.0"
+  if [[ $? -eq 0 ]]; then
+    switch_profile="y"
+  fi
+
+  if [[ "$switch_profile" = "y" ]]; then
     if [[ ! $profile =~ "no-multilib" ]]; then
       echo "%emerge -1 /lib32 /usr/lib32" >> $bl.1st
     fi
@@ -599,16 +593,16 @@ EOF
     #   =         : do not upgrade the current (slotted) version
     # dev-libs/...: avoid a forced rebuild of GCC in @system
     #
-    echo "%emerge -u =$( ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc ) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+    echo "%emerge -u =$(ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
     echo "sys-devel/gcc" >> $bl.1st
   fi
 
   # switch to 17.1 profile
   #
-  if [[ "$expprofile" = "y" ]]; then
+  if [[ "$switch_profile" = "y" ]]; then
     cat << EOF >> $bl.1st
-%eselect profile set --force default/linux/amd64/$( echo $profile | sed 's/17.0/17.1/g' )
+%eselect profile set --force default/linux/amd64/${profile}
 %unsymlink-lib --finish
 %source /etc/profile
 %env-update
@@ -647,10 +641,9 @@ function CreateSetupScript()  {
 #
 # set -x
 
-# eselect at unstable profiles is sometimes not reliable
+# the 17.x quirk will be removed soon
 #
-cd /etc/portage
-ln -snf ../../$repo_gentoo/profiles/default/linux/amd64/$profile make.profile || exit 1
+eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/') || exit 1
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data || exit 1
@@ -674,7 +667,8 @@ source /etc/profile
 
 useradd -u $(id -u tinderbox) tinderbox
 
-# separate steps to avoid that mailx implicitely pulls another - as default marked - MTA
+# separate steps to avoid that mailx implicitely pulls another MTA than ssmtp
+#
 emerge mail-mta/ssmtp     || exit 1
 emerge mail-client/mailx  || exit 1
 
@@ -749,6 +743,7 @@ function EmergeMandatoryPackages() {
 # main
 #
 #############################################################################
+date
 echo " $0 started"
 echo
 if [[ $# -gt 0 ]]; then
@@ -761,21 +756,19 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-cd $( readlink ~tinderbox/img ) || exit 1
+cd $(readlink ~tinderbox/img) || exit 1
 
-repo_gentoo=$(   portageq get_repo_path / gentoo )
-repo_libressl=$( portageq get_repo_path / libressl )
-repo_local=$(    portageq get_repo_path / local )
-distdir=$(       portageq distdir )
+repo_gentoo=$(  portageq get_repo_path / gentoo)
+repo_libressl=$(portageq get_repo_path / libressl)
+repo_local=$(   portageq get_repo_path / local)
+distdir=$(      portageq distdir)
 
 SetOptions
 
-while getopts a:e:f:k:l:m:o:p:s:t:u: opt
+while getopts a:f:k:l:m:o:p:s:t:u: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
-        ;;
-    e)  expprofile="$OPTARG"
         ;;
     f)  features="$OPTARG"
         ;;
@@ -793,16 +786,10 @@ do
           exit 1
         fi
 
-        profile=$(cd $origin && readlink ./etc/portage/make.profile | sed 's,.*/profiles/,,' | cut -f4- -d'/' -s)
+        profile=$(cd $origin && readlink ./etc/portage/make.profile | sed -e 's,.*/profiles/,,' -e 's/17.0/17.1/' | cut -f4- -d'/' -s)
         if [[ -z "$profile" ]]; then
           echo " can't derive \$profile from '$origin'"
           exit 1
-        fi
-
-        if [[ $origin =~ "17.1" ]]; then
-          expprofile="y"
-        else
-          expprofile="n"
         fi
 
         useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
@@ -864,7 +851,7 @@ CheckOptions
 ComputeImageName
 
 if [[ -z "$origin" ]]; then
-  ls -d ~tinderbox/run/$( echo $name | sed -e 's/17../17.?/g' )_20??????-?????? 2>/dev/null
+  ls -d ~tinderbox/run/${name}_20??????-?????? 2>/dev/null
   if [[ $? -eq 0 ]]; then
     echo "^^^ name=$name is already running"
     exit 2
