@@ -338,12 +338,12 @@ $(echo $useflags | xargs -s 78 | sed 's/^/  /g')
   ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
 
+# for the sake of a tinderbox this should work
+ACCEPT_LICENSE="* -@EULA"
+
 $([[ ! $profile =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
 $([[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"')
 ACCEPT_KEYWORDS=$([[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"')
-
-# this is a tinderbox
-ACCEPT_LICENSE="* -@EULA"
 
 FEATURES="$features"
 EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --backtrack=500 --verbose --color=n --autounmask=n"
