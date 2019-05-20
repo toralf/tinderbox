@@ -72,10 +72,9 @@ function SetupANewImage()  {
   do
     let "i = $i + 1"
 
-    echo
+    date
     echo "attempt $i ============================================================="
     echo
-    date
     sudo $(dirname $0)/setup_img.sh $setupargs
     rc=$?
 

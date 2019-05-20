@@ -160,7 +160,6 @@ function CreateImageDir() {
   #
   mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
 
-  echo
   echo " new image: $mnt"
   echo
 }
@@ -223,7 +222,6 @@ function UnpackStage3()  {
   # gpg --edit-key <key>
   # and set "trust" to 5 (==ultimately)
   #
-  echo
   date
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
@@ -232,6 +230,7 @@ function UnpackStage3()  {
   cd $name
   echo " untar'ing $f ..."
   tar -xf $f --xattrs --exclude='./dev/*' || exit 1
+  echo
 }
 
 
@@ -507,7 +506,7 @@ function CreateBacklog()  {
   #
   qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> $bl
 
-  if [[ -e $origin ]]; then
+  if [[ -e $origin && -s $origin/tmp/task.history ]]; then
     # no replay of @sets or %commands
     # a replay of 'qlist -ICv' is intentionally not wanted
     #
