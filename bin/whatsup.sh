@@ -242,30 +242,17 @@ function PackagesPerDay() {
         $first = 0;
       }
       {
-        $cur = $F[0];
-        $first = $cur unless ($first);
-        my $i = ($cur-$first) / 86400;
+        $curr = $F[0];
+        $first = $curr unless ($first);
+        my $i = ($curr-$first) / 86400;
         $p[$i]++;
       }
 
       END {
         foreach my $i (0..$#p) {
-          # fill missing days with zero
-          $p[$i] = 0 unless ($p[$i]);
-
-          # till 4th day the value might be > 1,000
-          #
-          if ($i < 4)  {
-            printf "%5i", $p[$i]
-          } else  {
-            printf "%4i", $p[$i]
-          }
-
-          # set a mark after a week
-          #
-          if ($i != $#p && $i % 7 == 6)  {
-            print ".";
-          }
+          $p[$i] = 0 unless ($p[$i]);               # set missing value to zero
+          printf "%5i", $p[$i];
+          print "." if ($i != $#p && $i % 7 == 6);  # mark a week
         }
         print "\n";
       }
