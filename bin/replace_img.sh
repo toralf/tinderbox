@@ -72,6 +72,7 @@ function SetupANewImage()  {
   do
     let "i = $i + 1"
 
+    echo
     date
     echo "attempt $i ============================================================="
     echo
@@ -113,7 +114,7 @@ oldimg=$(basename $1 2>/dev/null)
 if [[ -z "$oldimg" || ! -e ~/run/$oldimg ]]; then
   min_days=${1:-5}
   min_hours=${2:-17}
-  min_compl=${3:-4500}
+  min_compl=${3:-5000}
   shift "$(( $# < 3 ? $# : 3 ))"
 
   LookForAnImage
