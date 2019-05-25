@@ -364,7 +364,7 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 PORTAGE_GPG_DIR="/var/lib/gentoo/gkeys/keyrings/gentoo/release"
 PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
 
-GENTOO_MIRRORS="http://ftp.halifax.rwth-aachen.de/gentoo/ http://gentoo.mirrors.ovh.net/gentoo-distfiles/ https://mirror.netcologne.de/gentoo/ http://ftp.fau.de/gentoo"
+GENTOO_MIRRORS="https://104.19.137.75/gentoo/ https://104.19.139.75/gentoo/ https://104.19.138.75/gentoo/ rsync://ftp-stud.hs-esslingen.de/gentoo/ http://mirror.netcologne.de/gentoo/"
 
 QEMU_SOFTMMU_TARGETS="x86_64 i386"
 QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
@@ -526,14 +526,11 @@ EOF
 
   # asturm: give media-libs/jpeg a chance
   #
-  # but there's a poppler issue: https://bugs.gentoo.org/670252
-  #
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     echo "media-libs/jpeg" >> $bl.1st
   fi
 
-  # whissi: https://bugs.gentoo.org/669216
-  # this is a mysql alternative engine, emerge it before @system or @world pulls the default (mysqld)
+  # whissi: this is a mysql alternative engine
   #
   if [[ "$libressl" = "y" ]]; then
     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
@@ -541,7 +538,7 @@ EOF
     fi
   fi
 
-  # upgrade portage itself before @system or @world
+  # upgrade portage itself before @system or @world or str8 packages
   #
   echo "sys-apps/portage" >> $bl.1st
 
@@ -594,10 +591,12 @@ EOF
     #
     echo "%emerge -u =$(ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
+    # unlikely, but happens rarely
+    #
     echo "sys-devel/gcc" >> $bl.1st
   fi
 
-  # switch to 17.1 profile
+  # 17.1 profile
   #
   if [[ "$switch_profile" = "y" ]]; then
     cat << EOF >> $bl.1st
@@ -611,14 +610,13 @@ EOF
 EOF
   fi
 
-  # the stage4 of a systemd image would have this already done
+  # a stage4 of a systemd image would have this already
   #
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
   fi
 
-  # needed if Python is updated (eg. as dep of a newer portage during setup)
-  # otherwise this is a no-op
+  # this is a no-op if Python does not needed an update (eg. as a dep of a newer portage during setup)
   #
   echo "%eselect python update" >> $bl.1st
 }
