@@ -532,17 +532,15 @@ EOF
 
   # whissi: this is a mysql alternative engine
   #
-  if [[ "$libressl" = "y" ]]; then
-    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-      echo "dev-db/percona-server" >> $bl.1st
-    fi
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+    echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  # upgrade portage itself before @system or @world or other packages
+  # upgrade portage itself before @system, @world or any other package
   #
   echo "sys-apps/portage" >> $bl.1st
 
-  # switch to LibreSSL soon
+  # switch to LibreSSL
   #
   if [[ "$libressl" = "y" ]]; then
     # fetch all mandatory packages which must either be (re-)build or have to act as a fallback
