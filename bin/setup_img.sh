@@ -538,7 +538,7 @@ EOF
     fi
   fi
 
-  # upgrade portage itself before @system or @world or str8 packages
+  # upgrade portage itself before @system or @world or other packages
   #
   echo "sys-apps/portage" >> $bl.1st
 
@@ -559,11 +559,7 @@ EOF
   # at least systemd and virtualbox need (compiled) kernel sources and would fail in @preserved-rebuild otherwise
   # use "%..." b/c IGNORE_PACKAGES contains sys-kernel/*
   #
-  if [[ $(($RANDOM % 2)) -eq 0 || $keyword = "stable" ]]; then
-    echo "%emerge -u sys-kernel/gentoo-sources"   >> $bl.1st
-  else
-    echo "%emerge -u sys-kernel/vanilla-sources"  >> $bl.1st
-  fi
+  echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
   switch_profile="n"
   readlink ./etc/portage/make.profile | grep -q "/17.0"
