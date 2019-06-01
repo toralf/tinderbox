@@ -548,10 +548,6 @@ EOF
     # fetch all mandatory packages which must either be (re-)build or have to act as a fallback
     # wget is crucial b/c it is used by portage to fetch sources
     #
-    # @preserved-rebuild will be added to backlog.1st by job.sh
-    # caused by the log message of the unmerge operation of openssl
-    # therefore "%emerge @preserved-rebuild" should never fail eventually
-    #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
 %emerge --unmerge openssl

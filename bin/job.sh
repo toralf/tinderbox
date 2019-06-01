@@ -987,7 +987,7 @@ function PostEmerge() {
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
     if [[ ! $task =~ "@preserved-rebuild" || $try_again -eq 0 ]]; then
-      echo "@preserved-rebuild" >> $backlog
+      sed -i -e "1i @preserved-rebuild" $backlog
     fi
   fi
 
