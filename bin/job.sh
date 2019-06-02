@@ -863,7 +863,9 @@ function GotAnIssue()  {
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    echo "$task" >> $backlog
+    if [[ ! "$(tail -n 1 $backlog)" = "$task" ]]; then
+      echo "$task" >> $backlog
+    fi
   else
     echo "=$pkg" >> /etc/portage/package.mask/self
   fi
