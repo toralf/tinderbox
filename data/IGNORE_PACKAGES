@@ -18,6 +18,7 @@ virtual/
 # annoying behaviour at the command line
 #
 app-vim/c-support
+app-vim/curcmdmode
 #
 # outdated, br0ken, breaks revdep-rebuild, ...
 #
@@ -30,6 +31,7 @@ sci-libs/linux-gpib
 sci-mathematics/pari
 sys-apps/modutils
 sys-cluster/drbd-kernel
+sys-cluster/openmpi
 sys-cluster/mvapich2
 sys-cluster/open-mx
 sys-fs/loop-aes
@@ -56,6 +58,7 @@ dev-python/django
 dev-python/flake8
 dev-python/pycrypto
 dev-python/pyflakes
+dev-python/pygsl
 dev-python/twisted
 dev-util/ragel
 net-libs/zmqpp

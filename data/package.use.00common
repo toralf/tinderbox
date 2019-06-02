@@ -1,7 +1,7 @@
 # package.use/00common
 #
 
-# mailer in a tinderbox image (note: portage implements its own mailer)
+# mailer for job.sh
 #
 mail-mta/ssmtp            mta ssl
 
@@ -10,14 +10,6 @@ mail-mta/ssmtp            mta ssl
 #
 sys-apps/nix              -etc_profile
 
-# https://bugs.gentoo.org/show_bug.cgi?id=611072
-#
-net-misc/wget             ssl
-
-# virtual/w3m pulls www-client/w3m which has circular dependency with sys-libs/ncurses
-#
-www-client/w3m            -gpm
-
 # required by pybugz
 #
 dev-lang/python           readline
@@ -25,24 +17,16 @@ dev-lang/python           readline
 # needed eg. by spidermonkey and polkit
 dev-lang/python           sqlite
 
-# https://bugs.gentoo.org/670154
-# [11:59] <graaff> Ruby releases are always on Christmas.
-#
-*/*                       RUBY_TARGETS: -ruby23 ruby24 ruby25 ruby26
-
 # 2h less compile time
 #
 dev-lang/rust             system-llvm
 
-# avoid circular dependencies during setup
+# circular dependencies during tinderbox image setup
 #
-dev-util/cmake            -system-jsoncpp
+media-libs/freetype       -harfbuzz
 net-print/cups            -java
+www-client/w3m            -gpm
 
 # speed up build time
 #
 dev-qt/qtwebengine        jumbo-build
-
-# would need +sasl otherwise
-#
-net-nds/openldap          -cxx

@@ -32,6 +32,7 @@ Sorry, but this version does not yet support features
 Sorry, but you have to patch kernel sources with the following patch
 SYSVIPC not enabled in the kernel
 The HyperSpec cannot be redistributed.
+Tried to use too new gcc.
 unreliable and an ATLAS install nonsensical.  Aborting.
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
