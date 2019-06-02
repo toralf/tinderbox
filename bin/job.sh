@@ -868,17 +868,7 @@ function GotAnIssue()  {
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    if [[ $task =~ "revdep-rebuild" ]]; then
-      # don't repeat the whole rebuild list
-      # (eg. after a GCC upgrade few packages do fail only in the test phase)
-      #
-      echo "%emerge --resume" >> $backlog
-    else
-      # dependency might be changed due to a (in the meanwhile) masked package
-      # or by an update of the repository or by an altered package.env/* file
-      #
-      echo "$task" >> $backlog
-    fi
+    echo "$task" >> $backlog
   else
     echo "=$pkg" >> /etc/portage/package.mask/self
     if [[ $task =~ "@preserved-rebuild" ]]; then
