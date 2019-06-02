@@ -25,7 +25,7 @@ function ThrowUseFlags()  {
 
   grep -h -v -e '^$' -e '^#' -e 'internal use only' -e 'DO NOT USE THIS' $repo_gentoo/profiles/use{,.local}.desc |\
   cut -f2 -d ':' | cut -f1 -d ' ' |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hostname|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hostname|ithreads|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
   sort -u | shuf -n $(($RANDOM % $n)) | sort |\
   while read flag
   do
