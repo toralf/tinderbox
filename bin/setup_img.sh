@@ -438,8 +438,10 @@ EOF
   done
 
   if [[ "$testfeature" = "y" ]]; then
-    cp ~tinderbox/tb/data/package.env.00notest      ./etc/portage/package.env/00notest
-    cp ~tinderbox/tb/data/package.use.00test        ./etc/portage/package.use/00test
+    for d in env use
+    do
+      cp ~tinderbox/tb/data/package.$d.00notest      ./etc/portage/package.$d/00notest
+    done
   else
     # squash any (unusual) attempt to run a test phase
     #
@@ -448,6 +450,13 @@ EOF
 
   if [[ "$multilib" = "y" ]]; then
     cp ~tinderbox/tb/data/package.use.00abi32+64    ./etc/portage/package.use/00abi32+64
+  fi
+
+  if [[ "$libressl" = "y" ]]; then
+    for d in env use
+    do
+      cp ~tinderbox/tb/data/package.$d.00libressl      ./etc/portage/package.$d/00libressl
+    done
   fi
 
   touch ./tmp/task
