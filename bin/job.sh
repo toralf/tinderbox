@@ -1114,39 +1114,38 @@ function RunAndCheck() {
   local rc=$?
 
   PostEmerge
-  # stable packages won't be changed wrt a QA issue
-  #
-  if [[ $keyword = "unstable" ]]; then
+
+  if [[ ! $keyword = "stable" ]]; then
     CheckQA
   fi
 
-  if [[ $rc -ne 0 ]]; then
-    # the tinderbox shared repository solution is racy
-    # (https://bugs.gentoo.org/639374)
-    #
-    grep -q -e 'AssertionError: ebuild not found for' \
-            -e 'portage.exception.FileNotFound:'      \
-            -e 'portage.exception.PortageKeyError: '  \
-            $bak
-    if [[ $? -eq 0 ]]; then
-      try_again=1
-      Mail "info: catched a repo update race, task=$task" $bak
-      echo "$task" >> $backlog
+  if [[ $rc -eq 0 ]]; then
+    return $rc
+  fi
 
-      # wait for "git pull" being finished
-      #
-      sleep 60
+  # the shared repository solution is racy wrt "git pull"
+  # (https://bugs.gentoo.org/639374)
+  #
+  grep -q -e 'AssertionError: ebuild not found for' \
+          -e 'portage.exception.FileNotFound:'      \
+          -e 'portage.exception.PortageKeyError: '  \
+          $bak
+  if [[ $? -eq 0 ]]; then
+    try_again=1
+    echo "$task" >> $backlog    # needed here
+    Mail "info: catched a repo update race, task=$task" $bak
+    sleep 60
+    return $rc
+  fi
+
+  if [[ $rc -lt 128 ]]; then
+    GotAnIssue
+  else
+    let signal="$rc - 128"
+    if [[ $signal -eq 9 ]]; then
+      Finish 0 "catched SIGKILL - exiting"
     else
-      if [[ $rc -lt 128 ]]; then
-        GotAnIssue
-      else
-        let signal="$rc - 128"
-        if [[ $signal -eq 9 ]]; then
-          Finish 0 "catched SIGKILL - exiting"
-        else
-          Mail "emerge exited due to signal $signal" $bak
-        fi
-      fi
+      Mail "emerge exited due to signal $signal" $bak
     fi
   fi
 
