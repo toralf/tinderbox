@@ -558,7 +558,6 @@ EOF
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
-@preserved-rebuild
 %emerge --unmerge openssl
 %emerge -f dev-libs/openssl dev-libs/libressl net-misc/openssh net-misc/wget dev-lang/python
 %cp /tmp/tb/data/package.use.00libressl /etc/portage/package.use/
