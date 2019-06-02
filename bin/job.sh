@@ -1323,8 +1323,8 @@ do
   echo "$task" | tee -a $tsk.history > $tsk
   WorkOnTask
 
-  # this linw isn't reached if Finish() is called
-  # so $task will intentionally be retried at next start
+  # this line isn't reached if Finish() is called
+  # which intentionally retries $task at next start
   #
   truncate -s 0 $tsk
 
