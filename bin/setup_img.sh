@@ -375,7 +375,7 @@ EOF
 
 # helper of CompilePortageFiles()
 #
-function () cpconf{
+function cpconf() {
   for f in $*
   do
     # eg.: .../package.unmask.00stable -> package.unmask/00stable
