@@ -811,6 +811,13 @@ function setWorkDir() {
 }
 
 
+function add2backlog()  {
+  if [[ ! "$(tail -n 1 $backlog)" = "$1" ]]; then
+    echo "$*" >> $backlog
+  fi
+}
+
+
 # collect files and compile an email
 #
 function GotAnIssue()  {
@@ -843,10 +850,6 @@ function GotAnIssue()  {
   ClassifyIssue
   CompileIssueMail
 
-  # https://bugs.gentoo.org/463976
-  # https://bugs.gentoo.org/582046
-  # https://bugs.gentoo.org/638914
-  #
   grep -q \
           -e "configure: error: perl module Locale::gettext required" \
           -e "Can't locate Locale/Messages.pm in @INC"                \
@@ -854,17 +857,15 @@ function GotAnIssue()  {
   if [[ $? -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
       try_again=1
-      echo "$task"              >> $backlog
+      add2backlog "$task"
     fi
-    echo "%perl-cleaner --all"  >> $backlog
+    add2backlog "%perl-cleaner --all"
     Mail "info: catched broken Perl deps, task=$task, failed=$failed" $bak
     return
   fi
 
   if [[ $try_again -eq 1 ]]; then
-    if [[ ! "$(tail -n 1 $backlog)" = "$task" ]]; then
-      echo "$task" >> $backlog
-    fi
+    add2backlog "$task"
   else
     echo "=$pkg" >> /etc/portage/package.mask/self
   fi
@@ -905,11 +906,11 @@ function SwitchGCC() {
 
     # bug https://bugs.gentoo.org/459038
     #
-    echo "%revdep-rebuild" >> $backlog
+    add2backlog "%revdep-rebuild"
 
     # force catching issues of using old GCC installation artefacts
     #
-    echo "%emerge --unmerge sys-devel/gcc:$verold" >> $backlog
+    add2backlog "%emerge --unmerge sys-devel/gcc:$verold"
   fi
 }
 
@@ -975,9 +976,7 @@ function PostEmerge() {
   grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $bak
   if [[ $? -eq 0 ]]; then
     if [[ ! $task =~ "@preserved-rebuild" || $try_again -eq 0 ]]; then
-      if [[ ! "$(tail -n 1 $backlog)" = "@preserved-rebuild" ]]; then
-        echo "@preserved-rebuild" >> $backlog
-      fi
+      add2backlog "@preserved-rebuild"
     fi
   fi
 
@@ -991,28 +990,28 @@ function PostEmerge() {
     fi
 
     if [[ ! -f /usr/src/linux/.config ]]; then
-      echo "%BuildKernel" >> $backlog
+      add2backlog "%BuildKernel"
     fi
   fi
 
   grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%haskell-updater" >> $backlog
+    add2backlog "%haskell-updater"
   fi
 
   grep -q ">>> Installing .* sys-lang/perl-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%perl-cleaner --all" >> $backlog
+    add2backlog "%perl-cleaner --all"
   fi
 
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%SwitchGCC" >> $backlog
+    add2backlog "%SwitchGCC"
   fi
 
   grep -q ">>> Installing .* dev-lang/python-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
-    echo "%eselect python update" >> $backlog
+    add2backlog "%eselect python update"
   fi
 
   grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $bak
@@ -1021,7 +1020,7 @@ function PostEmerge() {
     latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
 
     if [[ "$current" != "$latest" ]]; then
-      echo "%eselect ruby set $latest" >> $backlog
+      add2backlog "%eselect ruby set $latest"
     fi
   fi
 
@@ -1030,10 +1029,8 @@ function PostEmerge() {
   if [[ ! -s $backlog && -f /tmp/@system.history ]]; then
     let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@system.history) ) / 86400"
     if [[ $diff -gt 1 ]]; then
-      cat << EOF >> $backlog
-@system
-%SwitchJDK
-EOF
+      add2backlog "@system"
+      add2backlog "%SwitchJDK"
     fi
   fi
 }
@@ -1131,7 +1128,7 @@ function RunAndCheck() {
           $bak
   if [[ $? -eq 0 ]]; then
     try_again=1
-    echo "$task" >> $backlog    # needed here
+    add2backlog "$task"    # needed here
     Mail "info: catched a repo update race, task=$task" $bak
     sleep 60
     return $rc
@@ -1203,10 +1200,10 @@ function WorkOnTask() {
 
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
-          echo "%emerge --resume --skip-first" >> $backlog
+          add2backlog "%emerge --resume --skip-first"
         elif [[ $task = "@system" ]]; then
           # expecially QT upgrade yields to blocker with @system only
-          echo "@world" >> $backlog
+          add2backlog "@world"
         fi
       fi
 
@@ -1225,11 +1222,11 @@ function WorkOnTask() {
       if [[ $try_again -eq 0 ]]; then
         if [[ $task =~ " --resume" ]]; then
           if [[ -n "$pkg" ]]; then
-            echo "%emerge --resume --skip-first" >> $backlog
+            add2backlog "%emerge --resume --skip-first"
           else
             grep -q ' Invalid resume list:' $bak
             if [[ $? -eq 0 ]]; then
-              echo "@system" >> $backlog
+              add2backlog "@system"
             else
               Finish 3 "resume failed"
             fi
@@ -1301,7 +1298,7 @@ fi
 # if task file is non-empty (eg. if emerge was terminated due to a reboot) then retry it
 #
 if [[ -s $tsk ]]; then
-  cat $tsk >> $backlog
+  add2backlog "$tsk"
   truncate -s 0 $tsk
 fi
 
