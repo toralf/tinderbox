@@ -862,11 +862,6 @@ function GotAnIssue()  {
     return
   fi
 
-  grep -q -f /tmp/tb/data/IGNORE_ISSUES $issuedir/title
-  if [[ $? -ne 0 ]]; then
-    SendoutIssueMail
-  fi
-
   if [[ $try_again -eq 1 ]]; then
     echo "$task" >> $backlog
   else
@@ -874,6 +869,11 @@ function GotAnIssue()  {
     if [[ $task =~ "@preserved-rebuild" ]]; then
       echo "%emerge --resume --skip-first" >> $backlog
     fi
+  fi
+
+  grep -q -f /tmp/tb/data/IGNORE_ISSUES $issuedir/title
+  if [[ $? -ne 0 ]]; then
+    SendoutIssueMail
   fi
 }
 
