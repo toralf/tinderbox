@@ -866,9 +866,6 @@ function GotAnIssue()  {
     echo "$task" >> $backlog
   else
     echo "=$pkg" >> /etc/portage/package.mask/self
-    if [[ $task =~ "@preserved-rebuild" ]]; then
-      echo "%emerge --resume --skip-first" >> $backlog
-    fi
   fi
 
   grep -q -f /tmp/tb/data/IGNORE_ISSUES $issuedir/title
@@ -1158,7 +1155,7 @@ function RunAndCheck() {
 # this is the heart of the tinderbox
 #
 function WorkOnTask() {
-  try_again=0   # 1 usually means to retry with eg. "notest"
+  try_again=0   # 1 usually means to retry task, but eg. with "test-fail-continue"
   pkg=""
   pkglog=""
   pkgname=""
@@ -1168,6 +1165,8 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
+      # exclude installed kernel sources
+      #
       src=$(qatom $(qlop -l | grep sys-kernel/ | head -n 1 | awk ' { print $7 } ') | cut -f1-2 -d' ' | tr ' ' '/') 2>/dev/null
       if [[ -n "$src" ]]; then
         src="--exclude $src"
