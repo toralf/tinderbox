@@ -373,7 +373,19 @@ EOF
 }
 
 
-# create portage directories + files + symlinks from /tmp/tb/data/... to appropriate target(s)
+# helper of CompilePortageFiles()
+#
+function () cpconf{
+  for f in $*
+  do
+    # eg.: .../package.unmask.00stable -> package.unmask/00stable
+    to=$(echo $(basename $f) | sed 's,.00,/00,')
+    cp $f ./etc/portage/$to
+  done
+}
+
+
+# create portage directories + files and create symlinks from /tmp/tb/data/... to their target(s)
 #
 function CompilePortageFiles()  {
   mkdir -p ./tmp/tb ./$repo_gentoo ./$distdir ./var/tmp/portage
@@ -418,45 +430,30 @@ RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 EOF
 
-  echo '*/* noconcurrent'                         > ./etc/portage/package.env/00noconcurrent
-
-  echo "*/* $(cpuid2cpuflags)"                    > ./etc/portage/package.use/00cpuflags
+  echo '*/* noconcurrent'       > ./etc/portage/package.env/00noconcurrent
+  echo "*/* $(cpuid2cpuflags)"  > ./etc/portage/package.use/00cpuflags
 
   if [[ $profile =~ '/systemd' ]]; then
-    cp ~tinderbox/tb/data/package.env.00systemd     ./etc/portage/package.env/00systemd
-    cp ~tinderbox/tb/data/package.use.00systemd     ./etc/portage/package.use/00systemd
+    cpconf ~tinderbox/tb/data/package.*.00systemd
   fi
 
-  for d in package.{accept_keywords,env,mask,unmask,use}
-  do
-    cp ~tinderbox/tb/data/$d.00common               ./etc/portage/$d/00common
-  done
+  cpconf ~tinderbox/tb/data/package.*.00common
+  cpconf ~tinderbox/tb/data/package.*.00$keyword
 
-  for d in package.{accept_keywords,unmask}
-  do
-    cp ~tinderbox/tb/data/$d.00$keyword             ./etc/portage/$d/00$keyword
-  done
-
-  if [[ "$testfeature" = "y" ]]; then
-    for d in env use
-    do
-      cp ~tinderbox/tb/data/package.$d.00notest      ./etc/portage/package.$d/00notest
-    done
-  else
-    # squash any (unusual) attempt to run a test phase
-    #
-    echo "*/* notest"                             > ./etc/portage/package.env/00notest
+  if [[ "$libressl" = "y" ]]; then
+    cpconf ~tinderbox/tb/data/package.*.00libressl
   fi
 
   if [[ "$multilib" = "y" ]]; then
-    cp ~tinderbox/tb/data/package.use.00abi32+64    ./etc/portage/package.use/00abi32+64
+    cpconf ~tinderbox/tb/data/package.*.00abi32+64
   fi
 
-  if [[ "$libressl" = "y" ]]; then
-    for d in env use
-    do
-      cp ~tinderbox/tb/data/package.$d.00libressl   ./etc/portage/package.$d/00libressl
-    done
+  if [[ "$testfeature" = "y" ]]; then
+    cpconf ~tinderbox/tb/data/package.*.00*test
+  else
+    # squash IUSE=+test
+    #
+    echo "*/* notest" > ./etc/portage/package.env/00notest
   fi
 
   touch ./tmp/task
