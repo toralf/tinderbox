@@ -1280,12 +1280,7 @@ function DetectALoop() {
     fi
 
     if [[ $(tail -n $max $tsk.history | grep -c "$p") -ge $min ]]; then
-      file=/tmp/$p.loop_was_already_reported
-      if [[ ! -f $file ]]; then
-        tail -n $max $tsk.history > $file
-        chown tinderbox:tinderbox $file
-        Mail  "$p ${min}x within last $max tasks, re-activate this test: rm $file" $file
-      fi
+      Finish  "$p ${min}x within last $max tasks"
     fi
   done
 }
