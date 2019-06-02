@@ -1304,6 +1304,10 @@ fi
 
 while :
 do
+  if [[ -f /tmp/STOP ]]; then
+    Finish 0 "catched STOP file" /tmp/STOP
+  fi
+
   date > $log
 
   # auto-clean is deactivated in favour to collect issue files
@@ -1314,10 +1318,6 @@ do
 
   if [[ -x /tmp/pretask.sh ]]; then
     /tmp/pretask.sh &> /tmp/pretask.sh.log
-  fi
-
-  if [[ -f /tmp/STOP ]]; then
-    Finish 0 "catched STOP file" /tmp/STOP
   fi
 
   echo "$task" | tee -a $tsk.history > $tsk
