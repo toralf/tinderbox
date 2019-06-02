@@ -543,11 +543,13 @@ EOF
   # switch to LibreSSL
   #
   if [[ "$libressl" = "y" ]]; then
-    # fetch all mandatory packages which must either be (re-)build or have to act as a fallback
+    # fetch all mandatory packages which either must be (re-)build or have to act as a fallback
     # wget is crucial b/c it is used by portage to fetch sources
+    # the final @preserved-rebuild must not fail
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
+@preserved-rebuild
 %emerge --unmerge openssl
 %emerge -f dev-libs/openssl dev-libs/libressl net-misc/openssh net-misc/wget dev-lang/python
 %cp /tmp/tb/data/package.use.00libressl /etc/portage/package.use/
