@@ -455,7 +455,7 @@ EOF
   if [[ "$libressl" = "y" ]]; then
     for d in env use
     do
-      cp ~tinderbox/tb/data/package.$d.00libressl      ./etc/portage/package.$d/00libressl
+      cp ~tinderbox/tb/data/package.$d.00libressl   ./etc/portage/package.$d/00libressl
     done
   fi
 
