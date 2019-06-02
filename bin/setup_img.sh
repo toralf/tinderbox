@@ -441,7 +441,7 @@ EOF
   cpconf ~tinderbox/tb/data/package.*.00$keyword
 
   if [[ "$libressl" = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.*.00libressl
+    cpconf ~tinderbox/tb/data/package.env.00libressl
   fi
 
   if [[ "$multilib" = "y" ]]; then
@@ -809,7 +809,7 @@ do
           multilib="n"
         fi
 
-        grep -q grep 'FEATURES="test' $origin/etc/portage/make.conf
+        grep -q 'FEATURES="test' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           testfeature="y"
         else
