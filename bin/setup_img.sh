@@ -608,7 +608,7 @@ EOF
     echo "%systemd-machine-id-setup" >> $bl.1st
   fi
 
-  # this is a no-op if Python does not needed an update (eg. as a dep of a newer portage during setup)
+  # sometimes Python was updated as a dep of a newer portage during setup
   #
   echo "%eselect python update" >> $bl.1st
 }
@@ -784,17 +784,17 @@ do
         useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
         features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
-        if [[ $origin =~ "libressl" ]]; then
-          libressl="y"
-        else
-          libressl="n"
-        fi
-
         grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
         if [[ $? -eq 0 ]]; then
           keyword="unstable"
         else
           keyword="stable"
+        fi
+
+        if [[ $origin =~ "libressl" ]]; then
+          libressl="y"
+        else
+          libressl="n"
         fi
 
         grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
@@ -803,6 +803,14 @@ do
         else
           multilib="n"
         fi
+
+        grep -q grep 'FEATURES="test' $origin/etc/portage/make.conf
+        if [[ $? -eq 0 ]]; then
+          testfeature="y"
+        else
+          testfeature="n"
+        fi
+
         ;;
     p)  profile=$OPTARG
         ;;
