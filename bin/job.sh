@@ -85,7 +85,7 @@ function Finish()  {
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
   else
-    Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$log}
+    Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$logfile}
   fi
 
   rm -f /tmp/STOP
@@ -290,16 +290,16 @@ EOF
 # guess the failed package and logfile name
 #
 function getPkgVarsFromIssuelog()  {
-  pkg=$(grep -m 1 -F ' * Package: ' $log | awk ' { print $3 } ')
+  pkg=$(grep -m 1 -F ' * Package: ' $logfile | awk ' { print $3 } ')
   if [[ -z "$pkg" ]]; then
     pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)"
   fi
 
-  pkglog=$(grep -m 1 "The complete build log is located at" $log | cut -f2 -d"'" -s)
+  pkglog=$(grep -m 1 "The complete build log is located at" $logfile | cut -f2 -d"'" -s)
   if [[ -z "$pkglog" ]]; then
-    pkglog=$(grep -m 1 -A 1 "', Log file:" $log | tail -n 1 | cut -f2 -d"'" -s)
+    pkglog=$(grep -m 1 -A 1 "', Log file:" $logfile | tail -n 1 | cut -f2 -d"'" -s)
     if [[ -z "$pkglog" ]]; then
-      pkglog=$(grep -m 1 "^>>>  '" $log | cut -f2 -d"'" -s)
+      pkglog=$(grep -m 1 "^>>>  '" $logfile | cut -f2 -d"'" -s)
       if [[ -z "$pkglog" ]]; then
         if [[ -n "$pkg" ]]; then
           pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
@@ -880,13 +880,13 @@ function GotAnIssue()  {
 # helper of PostEmerge()
 #
 function BuildKernel()  {
-  echo "$FUNCNAME" >> $log
+  echo "$FUNCNAME" >> $logfile
   (
     cd /usr/src/linux
     make distclean
     make defconfig
     make -j1
-  ) &>> $log
+  ) &>> $logfile
   return $?
 }
 
@@ -901,7 +901,7 @@ function SwitchGCC() {
   if [[ $? -eq 1 ]]; then
     verold=$(gcc -dumpversion)
 
-    gcc-config --nocolor $latest &>> $log
+    gcc-config --nocolor $latest &>> $logfile
     source /etc/profile
 
     # bug https://bugs.gentoo.org/459038
@@ -928,7 +928,7 @@ function SwitchJDK()  {
       awk ' { print $2 } ' | shuf -n 1
     )
     if [[ -n "$new" && "$new" != "$old" ]]; then
-      eselect java-vm set system $new 1>> $log
+      eselect java-vm set system $new 1>> $logfile
     fi
   fi
 }
@@ -941,7 +941,7 @@ function PostEmerge() {
   # prefix our log backup file with "_" to distinguish it from portages log file
   #
   bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
-  stresc < $log > $bak
+  stresc < $logfile > $bak
 
   # don't change these config files after image setup
   #
@@ -1106,7 +1106,7 @@ function CheckQA() {
 # run ($1) and act on result
 #
 function RunAndCheck() {
-  ($1) &>> $log
+  ($1) &>> $logfile
   local rc=$?
 
   PostEmerge
@@ -1173,7 +1173,7 @@ function WorkOnTask() {
     RunAndCheck "emerge $task $opts"
     local rc=$?
 
-    cp $log /tmp/$task.last.log
+    cp $logfile /tmp/$task.last.log
 
     # "ok|NOT ok|<msg>" is used in check_history() of whatsup.sh
     # to display " ", "[SWP]" or "[swp]" respectively
@@ -1277,8 +1277,8 @@ function DetectALoop() {
 #       main
 #
 mailto="tinderbox@zwiebeltoralf.de"
-taskfile=/tmp/task                       # holds the current task
-log=$taskfile.log                        # holds always output of the running task command
+taskfile=/tmp/task                  # holds the current task
+logfile=$taskfile.log               # holds always output of the running task command
 backlog=/tmp/backlog.1st            # this is the high prio backlog
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
@@ -1306,7 +1306,7 @@ do
     Finish 0 "catched STOP file" /tmp/STOP
   fi
 
-  date > $log
+  date > $logfile
 
   # auto-clean is deactivated in favour to collect issue files
   #
