@@ -1226,7 +1226,7 @@ function WorkOnTask() {
           else
             grep -q ' Invalid resume list:' $bak
             if [[ $? -eq 0 ]]; then
-              add2backlog "$(tac $tsk.history | grep -m 1 '^@')"
+              add2backlog "$(tac $taskfile.history | grep -m 1 '^@')"
             fi
           fi
         elif [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" && ! $task =~ "BuildKernel" ]]; then
@@ -1265,7 +1265,7 @@ function DetectALoop() {
       max=10
     fi
 
-    if [[ $(tail -n $max $tsk.history | grep -c "$p") -ge $min ]]; then
+    if [[ $(tail -n $max $taskfile.history | grep -c "$p") -ge $min ]]; then
       Finish  "$p ${min}x within last $max tasks"
     fi
   done
@@ -1277,8 +1277,8 @@ function DetectALoop() {
 #       main
 #
 mailto="tinderbox@zwiebeltoralf.de"
-tsk=/tmp/task                       # holds the current task
-log=$tsk.log                        # holds always output of the running task command
+taskfile=/tmp/task                       # holds the current task
+log=$taskfile.log                        # holds always output of the running task command
 backlog=/tmp/backlog.1st            # this is the high prio backlog
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
@@ -1295,9 +1295,9 @@ fi
 
 # if task file is non-empty (eg. if emerge was terminated due to a reboot) then retry it
 #
-if [[ -s $tsk ]]; then
-  add2backlog "$tsk"
-  truncate -s 0 $tsk
+if [[ -s $taskfile ]]; then
+  add2backlog "$taskfile"
+  truncate -s 0 $taskfile
 fi
 
 while :
@@ -1318,13 +1318,13 @@ do
     /tmp/pretask.sh &> /tmp/pretask.sh.log
   fi
 
-  echo "$task" | tee -a $tsk.history > $tsk
+  echo "$task" | tee -a $taskfile.history > $taskfile
   WorkOnTask
 
   # this line isn't reached if Finish() is called
   # what intentionally retries $task at next start
   #
-  truncate -s 0 $tsk
+  truncate -s 0 $taskfile
 
   DetectALoop
 done
