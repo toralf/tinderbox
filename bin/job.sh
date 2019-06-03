@@ -1322,7 +1322,7 @@ do
   WorkOnTask
 
   # this line isn't reached if Finish() is called
-  # what intentionally retries $task at next start
+  # therefore $task intentionally is retried at next start
   #
   truncate -s 0 $taskfile
 
