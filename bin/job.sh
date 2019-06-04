@@ -1141,7 +1141,7 @@ function RunAndCheck() {
     if [[ $signal -eq 9 ]]; then
       Finish 0 "catched SIGKILL - exiting"
     else
-      Mail "emerge exited due to signal $signal" $bak
+      Mail "INFO: emerge got signal $signal" $bak
     fi
   fi
 
