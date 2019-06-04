@@ -167,7 +167,7 @@ function getNextTask() {
       # skip if $task is masked, keyworded etc.
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
-      if [[ $? -ne 0 ]]; then
+      if [[ -z "$best_visible" || $? -ne 0 ]]; then
         # bail out if portage itself is broken (eg. caused by a Python upgrade)
         #
         if [[ "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
@@ -1164,7 +1164,7 @@ function WorkOnTask() {
     if [[ $task = "@system" || $task = "@world" ]]; then
       # exclude installed kernel sources
       #
-      src=$(qatom $(qlop -l | grep sys-kernel/ | head -n 1 | awk ' { print $7 } ') | cut -f1-2 -d' ' | tr ' ' '/') 2>/dev/null
+      src=$(qatom $(qlop -l | grep sys-kernel/ | head -n 1 | awk ' { print $7 } ') | cut -f1-2 -d' ' -s | tr ' ' '/') 2>/dev/null
       if [[ -n "$src" ]]; then
         src="--exclude $src"
       fi
