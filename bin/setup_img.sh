@@ -389,7 +389,7 @@ function CompilePortageFiles()  {
     if [[ ! -d ./etc/portage/$d ]]; then
       mkdir       ./etc/portage/$d
     fi
-    chmod 777     ./etc/portage/$d
+    chmod 775     ./etc/portage/$d
     chgrp portage ./etc/portage/$d
   done
 
