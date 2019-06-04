@@ -30,3 +30,7 @@ www-client/w3m            -gpm
 # speed up build time
 #
 dev-qt/qtwebengine        jumbo-build
+
+# deps on X11 and QT otherwise
+#
+app-portage/portage-utils   -qmanifest

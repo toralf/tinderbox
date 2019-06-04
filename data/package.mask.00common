@@ -28,3 +28,7 @@ sys-apps/portage-mgorny
 # https://bugs.gentoo.org/662396
 #
 sys-fs/static-dev
+
+# fails
+#
+=app-portage/portage-utils-0.80_pre20190530
