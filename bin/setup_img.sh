@@ -404,13 +404,10 @@ function CompilePortageFiles()  {
   touch       ./etc/portage/package.mask/self     # contains failed packages of this image
   chmod a+rw  ./etc/portage/package.mask/self
 
-  # useful if package specific test phase is known to be br0ken or takes too long
-  #
+  echo 'FEATURES="test"'                          > ./etc/portage/env/test
   echo 'FEATURES="-test"'                         > ./etc/portage/env/notest
 
-  # at the 2nd attempt to emerge of a package do still run the test phase (even it failed before)
-  # to preserve the same dep tree - but do ignore the test phase result
-  #
+  # to preserve the same dep tree re-try a failed package with +test again but ignore the test error
   #
   echo 'FEATURES="test-fail-continue"'            > ./etc/portage/env/test-fail-continue
 
