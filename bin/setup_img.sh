@@ -332,12 +332,6 @@ CXXFLAGS="\${CFLAGS}"
 
 RUSTFLAGS="-C target-cpu=native -v -C codegen-units=1"
 
-USE="
-$(echo $useflags | xargs -s 78 | sed 's/^/  /g')
-
-  ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
-"
-
 # for the sake of a tinderbox this should work
 ACCEPT_LICENSE="* -@EULA"
 
@@ -633,10 +627,6 @@ function CreateSetupScript()  {
 #
 # set -x
 
-# the 17.x quirk will be removed soon
-#
-eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/') || exit 1
-
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data || exit 1
 
@@ -678,12 +668,23 @@ if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
+eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/') || exit 1
+
+cat << 2EOF >> /etc/portage/make.conf
+USE="
+$(echo $useflags | xargs -s 78 | sed 's/^/  /g')
+
+  ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
+"
+2EOF
+
 # the very first @system must succeed
 #
 $dryrun &> /tmp/dryrun.log || exit 2
 grep -A 32  -e 'The following USE changes are necessary to proceed:'                \
             -e 'One of the following packages is required to complete your request' \
             /tmp/dryrun.log && exit 2
+
 exit 0
 
 EOF
