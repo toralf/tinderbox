@@ -622,7 +622,7 @@ EOF
 #     mail-*                      MTA + mailx
 #     app-arch/sharutils          uudecode
 #     app-portage/gentoolkit      equery eshowkw revdep-rebuild
-#     app-portage/portage-utils   qatom qdepends qlop
+#     app-portage/portage-utils   qatom qlop
 #     www-client/pybugz           bugz
 # - dry run of @system
 #
