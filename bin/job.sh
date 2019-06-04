@@ -167,7 +167,7 @@ function getNextTask() {
       # skip if $task is masked, keyworded etc.
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
-      if [[ -z "$best_visible" || $? -ne 0 ]]; then
+      if [[ $? -ne 0 ]]; then
         # bail out if portage itself is broken (eg. caused by a Python upgrade)
         #
         if [[ "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
@@ -221,18 +221,15 @@ function CompressIssueFiles()  {
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
-  local cmd="qlop --nocolor --gauge --human --list --unlist"
+  local cmd="qlop --nocolor --human --list --unlist 2>/dev/null || qlop --nocolor --merge --unmerge"
 
   cat << EOF > $ehist
 # This file contains the emerge history got with:
 # $cmd
 #
 EOF
-  $cmd >> $ehist
+  ($cmd) &> $ehist
 
-  # collect few more build files, strip away escape sequences
-  # and compress files bigger than 1 MiByte
-  #
   apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"          | cut -f5 -d' ' -s)
   cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
   cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $bak | sed  "s/txt./txt/"    | cut -f8 -d' ' -s)
@@ -393,7 +390,7 @@ EOF
 # strip away the version (get $PN from $P)
 #
 function pn2p() {
-  qatom -q "$1" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' | tr ' ' '/'
+  qatom --quiet "$1" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' | tr ' ' '/'
 }
 
 
@@ -483,10 +480,6 @@ function collectTestIssueResults() {
 #
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
-
-  # test", "compile" etc.
-  #
-  phase=""
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
     foundCollisionIssue
@@ -847,6 +840,8 @@ function GotAnIssue()  {
   cp $bak $issuedir
   setWorkDir
   CollectIssueFiles
+
+  phase=""          # test", "compile" etc.
   ClassifyIssue
   CompileIssueMail
 
@@ -1001,6 +996,7 @@ function PostEmerge() {
 
   grep -q ">>> Installing .* sys-lang/perl-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
+    add2backlog "sys-apps/texinfo"    # https://bugs.gentoo.org/687356
     add2backlog "%perl-cleaner --all"
   fi
 
@@ -1028,7 +1024,7 @@ function PostEmerge() {
   #
   if [[ ! -s $backlog && -f /tmp/@system.history ]]; then
     let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@system.history) ) / 86400"
-    if [[ $diff -gt 1 ]]; then
+    if [[ $diff -ge 1 ]]; then
       add2backlog "@system"
       add2backlog "%SwitchJDK"
     fi
@@ -1119,6 +1115,8 @@ function RunAndCheck() {
     return $rc
   fi
 
+  let signal="$rc - 128"
+
   # the shared repository solution is racy wrt "git pull"
   # (https://bugs.gentoo.org/639374)
   #
@@ -1128,8 +1126,8 @@ function RunAndCheck() {
           $bak
   if [[ $? -eq 0 ]]; then
     try_again=1
-    add2backlog "$task"    # needed here
-    Mail "info: catched a repo update race, task=$task" $bak
+    add2backlog "$task"
+    Mail "INFO: repo update collision, task=$task, signal=$signal" $bak
     sleep 60
     return $rc
   fi
@@ -1137,9 +1135,8 @@ function RunAndCheck() {
   if [[ $rc -lt 128 ]]; then
     GotAnIssue
   else
-    let signal="$rc - 128"
     if [[ $signal -eq 9 ]]; then
-      Finish 0 "catched SIGKILL - exiting"
+      Finish 0 "catched signal $signal - exiting"
     else
       Mail "INFO: emerge got signal $signal" $bak
     fi
@@ -1162,13 +1159,7 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
-      # exclude installed kernel sources
-      #
-      src=$(qatom $(qlop -l | grep sys-kernel/ | head -n 1 | awk ' { print $7 } ') | cut -f1-2 -d' ' -s | tr ' ' '/') 2>/dev/null
-      if [[ -n "$src" ]]; then
-        src="--exclude $src"
-      fi
-      opts="--update --changed-use --deep $src"
+      opts="--update --changed-use --deep --exclude kernel/gentoo-sources"
     fi
     RunAndCheck "emerge $task $opts"
     local rc=$?
