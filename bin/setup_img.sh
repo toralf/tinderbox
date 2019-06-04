@@ -554,6 +554,7 @@ EOF
 %emerge @preserved-rebuild
 %emerge --unmerge openssl
 %emerge -f dev-libs/openssl dev-libs/libressl net-misc/openssh net-misc/wget dev-lang/python
+%chgrp portage /etc/portage/package.use/00libressl
 %cp /tmp/tb/data/package.use.00libressl /etc/portage/package.use/00libressl
 EOF
   fi
@@ -680,8 +681,9 @@ fi
 # the very first @system must succeed
 #
 $dryrun &> /tmp/dryrun.log || exit 2
-grep -A 32 'The following USE changes are necessary to proceed:' /tmp/dryrun.log && exit 2
-
+grep -A 32  -e 'The following USE changes are necessary to proceed:'                \
+            -e 'One of the following packages is required to complete your request' \
+            /tmp/dryrun.log && exit 2
 exit 0
 
 EOF
