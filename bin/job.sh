@@ -996,7 +996,6 @@ function PostEmerge() {
 
   grep -q ">>> Installing .* sys-lang/perl-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
-    add2backlog "sys-apps/texinfo"    # https://bugs.gentoo.org/687356
     add2backlog "%perl-cleaner --all"
   fi
 
