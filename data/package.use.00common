@@ -15,6 +15,7 @@ sys-apps/nix              -etc_profile
 dev-lang/python           readline
 
 # needed eg. by spidermonkey and polkit
+#
 dev-lang/python           sqlite
 
 # 2h less compile time
@@ -27,10 +28,10 @@ media-libs/freetype       -harfbuzz
 net-print/cups            -java
 www-client/w3m            -gpm
 
-# speed up build time
+# 2x faster compile
 #
 dev-qt/qtwebengine        jumbo-build
 
-# deps on X11 and QT otherwise
+# pulls X11 and QT otherwise
 #
-app-portage/portage-utils   -qmanifest
+app-portage/portage-utils -qmanifest

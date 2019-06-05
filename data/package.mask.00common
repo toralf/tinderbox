@@ -5,7 +5,7 @@
 #
 dev-util/pkgconfig-openbsd
 
-# turns /etc/resolv.conf into a symlink: https://bugs.gentoo.org/show_bug.cgi?id=555694
+# turns /etc/resolv.conf into a symlink: https://bugs.gentoo.org/555694
 #
 net-dns/resolvconf-symlink
 
@@ -13,7 +13,7 @@ net-dns/resolvconf-symlink
 #
 app-office/openoffice-bin
 
-# doesn't build with newer kernels: https://bugs.gentoo.org/show_bug.cgi?id=574016
+# doesn't build with newer kernels: https://bugs.gentoo.org/574016
 #
 net-fs/openafs-kernel
 
@@ -28,7 +28,3 @@ sys-apps/portage-mgorny
 # https://bugs.gentoo.org/662396
 #
 sys-fs/static-dev
-
-# fails
-#
-=app-portage/portage-utils-0.80_pre20190530
