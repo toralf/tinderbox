@@ -559,12 +559,8 @@ EOF
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
   switch_profile="n"
-  readlink ./etc/portage/make.profile | grep -q "/17.0"
-  if [[ $? -eq 0 ]]; then
+  if [[ -d ./usr/lib32 || -d ./lib32 ]]; then
     switch_profile="y"
-  fi
-
-  if [[ "$switch_profile" = "y" ]]; then
     if [[ ! $profile =~ "no-multilib" ]]; then
       echo "%emerge -1 /lib32 /usr/lib32" >> $bl.1st
     fi
@@ -627,6 +623,12 @@ function CreateSetupScript()  {
 #
 # set -x
 
+if [[ "$switch_profile" = "y" ]]; then
+  eselect profile set --force default/linux/amd64/17.0  || exit 1
+else
+  eselect profile set --force default/linux/amd64/17.1  || exit 1
+fi
+
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data || exit 1
 
@@ -669,9 +671,9 @@ if [[ "$testfeature" = "y" ]]; then
 fi
 
 if [[ "$switch_profile" = "y" ]]; then
-  eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/') || exit 1
+  eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/')  || exit 1
 else
-  eselect profile set --force default/linux/amd64/$profile || exit 1
+  eselect profile set --force default/linux/amd64/$profile                                  || exit 1
 fi
 
 cat << 2EOF >> /etc/portage/make.conf
