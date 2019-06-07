@@ -668,7 +668,11 @@ if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
-eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/') || exit 1
+if [[ "$switch_profile" = "y" ]]; then
+  eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/') || exit 1
+else
+  eselect profile set --force default/linux/amd64/$profile || exit 1
+fi
 
 cat << 2EOF >> /etc/portage/make.conf
 USE="
