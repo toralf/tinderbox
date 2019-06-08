@@ -559,9 +559,12 @@ EOF
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
   switch_profile="n"
-  if [[ -d ./usr/lib32 || -d ./lib32 ]]; then
+  if [[ -L ./lib ]]; then
     switch_profile="y"
-    if [[ ! $profile =~ "no-multilib" ]]; then
+  fi
+
+  if [[ "$switch_profile" = "y" ]]; then
+      if [[ ! $profile =~ "no-multilib" ]]; then
       echo "%emerge -1 /lib32 /usr/lib32" >> $bl.1st
     fi
   fi
@@ -576,13 +579,9 @@ EOF
     #
     echo "%emerge -u =$(ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
-    # unlikely, but happens rarely
-    #
     echo "sys-devel/gcc" >> $bl.1st
   fi
 
-  # 17.1 profile
-  #
   if [[ "$switch_profile" = "y" ]]; then
     cat << EOF >> $bl.1st
 %eselect profile set --force default/linux/amd64/${profile}
@@ -595,8 +594,6 @@ EOF
 EOF
   fi
 
-  # a stage4 of a systemd image would have this already
-  #
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
   fi
