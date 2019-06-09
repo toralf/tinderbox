@@ -17,9 +17,11 @@ do
         (
           ls -l ~/logs/*
           echo
-          head ~/logs/*
+          head -v ~/logs/*
           echo
           ls -l ~/run/*/tmp/mail.log
+          echo
+          head -v ~/run/*/tmp/mail.log
 
           echo -e "\nto re-activate this test again, do:\n\n   tail -v ~/logs/*; truncate -s 0 ~/logs/*; rm -f $f\n"
         ) >> $f

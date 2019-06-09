@@ -65,7 +65,7 @@ function Mail() {
   if [[ $rc -ne 0 ]]; then
     # direct this both to stdout (could be catched eg. by logcheck.sh) and to an image specific logfile
     #
-    echo "$(date) mail failed with rc=$rc issuedir=$issuedir" | tee -a /tmp/mail.log
+    echo "$(date) mail failed, rc=$rc, bgo.sh ~/img/$name/$issuedir" | tee -a /tmp/mail.log
   fi
 }
 
