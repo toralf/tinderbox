@@ -113,7 +113,7 @@ echo $$ > $lck
 oldimg=$(basename $1 2>/dev/null)
 if [[ -z "$oldimg" || ! -e ~/run/$oldimg ]]; then
   min_days=${1:-6}
-  min_hours=${2:-7}
+  min_hours=${2:-11}
   min_compl=${3:-4500}
   shift "$(( $# < 3 ? $# : 3 ))"
 
