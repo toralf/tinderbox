@@ -28,13 +28,14 @@ sort --unique > $pks
 if [[ -s $pks ]]; then
   for i in $(ls ~/run 2>/dev/null)
   do
+    # fs is not (yet) mounted)?
     if [[ ! -e ~/run/$i/tmp/ ]]; then
       continue
     fi
 
     bl=~/run/$i/tmp/backlog.upd
     sort --unique $bl $pks | shuf > $bl.tmp
-    # no "mv" to keep file permissions
+    # "mv" overwrites file permissions
     #
     cp $bl.tmp $bl
     rm $bl.tmp
