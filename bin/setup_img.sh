@@ -419,6 +419,7 @@ GOMAXPROCS="1"
 GO19CONCURRENTCOMPILATION=0
 RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
+
 EOF
 
   echo '*/* noconcurrent'       > ./etc/portage/package.env/00noconcurrent
@@ -462,12 +463,14 @@ function CompileMiscFiles()  {
   cat << EOF > ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
+
 EOF
 
   h=$(hostname)
   cat << EOF > ./etc/hosts
 127.0.0.1 localhost $h.localdomain $h
 ::1       localhost $h.localdomain $h
+
 EOF
 
   # avoid interactive question in vim
@@ -478,6 +481,7 @@ set shiftwidth=2
 set expandtab
 let g:session_autosave = 'no'
 autocmd BufEnter *.txt set textwidth=0
+
 EOF
 }
 
