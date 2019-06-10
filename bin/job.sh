@@ -1256,7 +1256,7 @@ function DetectALoop() {
     fi
 
     if [[ $(tail -n $max $taskfile.history | grep -c "$p") -ge $min ]]; then
-      Finish  "$p ${min}x within last $max tasks"
+      Finish 1 "${min}x $p among last $max tasks"
     fi
   done
 }
