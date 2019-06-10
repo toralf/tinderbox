@@ -479,12 +479,6 @@ set expandtab
 let g:session_autosave = 'no'
 autocmd BufEnter *.txt set textwidth=0
 EOF
-
-  # from leio
-  # https://bugs.gentoo.org/667324
-  #
-  echo 'qlist -IC dev-util/glib-utils >/dev/null && emerge --unmerge dev-util/glib-utils' > ./tmp/pretask.sh
-  chmod go-w ./tmp/pretask.sh
 }
 
 
