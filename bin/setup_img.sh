@@ -562,7 +562,7 @@ EOF
   fi
 
   if [[ "$switch_profile" = "y" ]]; then
-      if [[ ! $profile =~ "no-multilib" ]]; then
+    if [[ ! $profile =~ "no-multilib" ]]; then
       echo "%emerge -1 /lib32 /usr/lib32" >> $bl.1st
     fi
   fi
@@ -603,14 +603,14 @@ EOF
 
 
 # - configure locale, timezone etc.
-# - install and configure tools called in job.sh:
+# - install and configure tools called in job.sh using the "minimal" profile:
 #     <package>                   <command/s>
 #     mail-*                      MTA + mailx
 #     app-arch/sharutils          uudecode
 #     app-portage/gentoolkit      equery eshowkw revdep-rebuild
 #     app-portage/portage-utils   qatom qlop
 #     www-client/pybugz           bugz
-# - dry run of @system
+# - dry run of @system using the desired profile
 #
 function CreateSetupScript()  {
   cat << EOF > ./tmp/setup.sh || exit 1
