@@ -1286,7 +1286,7 @@ fi
 # if task file is non-empty (eg. if emerge was terminated due to a reboot) then retry it
 #
 if [[ -s $taskfile ]]; then
-  add2backlog "$taskfile"
+  add2backlog "$(cat $taskfile)"
   truncate -s 0 $taskfile
 fi
 
