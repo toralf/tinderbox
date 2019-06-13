@@ -1256,6 +1256,9 @@ function DetectALoop() {
     fi
 
     if [[ $(tail -n $max $taskfile.history | grep -c "$p") -ge $min ]]; then
+      for i in $(seq 1 $max); do
+        echo "#" >> $taskfile.history
+      done
       Finish 1 "${min}x $p among last $max tasks"
     fi
   done
@@ -1289,9 +1292,6 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
   truncate -s 0 $taskfile
 fi
-
-touch $taskfile.history
-chmod a+w $taskfile.history
 
 while :
 do
