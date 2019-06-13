@@ -1290,6 +1290,9 @@ if [[ -s $taskfile ]]; then
   truncate -s 0 $taskfile
 fi
 
+touch $taskfile.history
+chmod a+w $taskfile.history
+
 while :
 do
   if [[ -f /tmp/STOP ]]; then
