@@ -228,7 +228,7 @@ function CollectIssueFiles() {
 # $cmd
 #
 EOF
-  ($cmd) &> $ehist
+  ($cmd) &>> $ehist
 
   apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $bak | grep "\.out"          | cut -f5 -d' ' -s)
   cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $bak | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
