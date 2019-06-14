@@ -221,7 +221,7 @@ function CompressIssueFiles()  {
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/portage/emerge-history.txt
-  local cmd="qlop --nocolor --merge --unmerge"
+  local cmd="qlop --nocolor --verbose --merge --unmerge"
 
   cat << EOF > $ehist
 # This file contains the emerge history got with:
