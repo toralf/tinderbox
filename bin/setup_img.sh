@@ -301,23 +301,6 @@ EOF
 # compile make.conf
 #
 function CompileMakeConf()  {
-  # strip away the following lines
-  #
-  sed -i  -e '/^CFLAGS="/d'       \
-          -e '/^CXXFLAGS=/d'      \
-          -e '/^CPU_FLAGS_X86=/d' \
-          -e '/^USE=/d'           \
-          -e '/^PORTDIR=/d'       \
-          -e '/^PKGDIR=/d'        \
-          -e '/^#/d'              \
-          -e '/^DISTDIR=/d'       \
-          ./etc/portage/make.conf
-
-  # the "tinderbox" user have to be put in group "portage" to make this effective
-  #
-  chgrp portage ./etc/portage/make.conf
-  chmod g+w ./etc/portage/make.conf
-
   # throw up to 10 languages
   #
   if [[ -n "$origin" && -e $origin/etc/portage/make.conf ]]; then
@@ -327,12 +310,16 @@ function CompileMakeConf()  {
   fi
 
   cat << EOF > ./etc/portage/make.conf
-CFLAGS="-O2 -pipe -march=native"
-CXXFLAGS="\${CFLAGS}"
+LC_MESSAGES=C
+
+COMMON_FLAGS="-O2 -pipe -march=native"
+CFLAGS="\${COMMON_FLAGS}"
+CXXFLAGS="\${COMMON_FLAGS}"
+FCFLAGS="\${COMMON_FLAGS}"
+FFLAGS="\${COMMON_FLAGS}"
 
 RUSTFLAGS="-C target-cpu=native -v -C codegen-units=1"
 
-# for the sake of a tinderbox this should work
 ACCEPT_LICENSE="* -@EULA"
 
 $([[ ! $profile =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
@@ -364,6 +351,10 @@ QEMU_SOFTMMU_TARGETS="x86_64 i386"
 QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
 
 EOF
+  # the "tinderbox" user have to be put in group "portage" to make this effective
+  #
+  chgrp portage ./etc/portage/make.conf
+  chmod g+w ./etc/portage/make.conf
 }
 
 
