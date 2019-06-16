@@ -670,7 +670,8 @@ $(echo $useflags | xargs -s 78 | sed 's/^/  /g')
 "
 2EOF
 
-# the very first @system must succeed
+# the very first @system must succeed otherwise exit here with "2"
+# to tell the caller to retry an image setup with another set of parameters
 #
 $dryrun &> /tmp/dryrun.log || exit 2
 grep -A 32  -e 'The following USE changes are necessary to proceed:'                \
