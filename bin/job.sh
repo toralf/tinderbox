@@ -764,11 +764,10 @@ function SendoutIssueMail()  {
   if [[ -s $issuedir/title ]]; then
     # do not inform a known issue twice
     #
-    grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED
+    grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED 2>/dev/null
     if [[ $? -eq 0 ]]; then
       return
     fi
-
     cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
   fi
   Mail "$(cat $issuedir/bgo_result 2>/dev/null)$(cat $issuedir/title)" $issuedir/body
