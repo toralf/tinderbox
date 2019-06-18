@@ -743,7 +743,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-cd $(readlink ~tinderbox/img) || exit 1
+cd ~tinderbox/$(readlink ~tinderbox/img) || exit 1
 
 repo_gentoo=$(  portageq get_repo_path / gentoo)
 repo_libressl=$(portageq get_repo_path / libressl)
