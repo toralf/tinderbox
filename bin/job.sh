@@ -157,11 +157,11 @@ function getNextTask() {
       return  # work on either a pinned version || @set || command
 
     else
-      # skip if $task matches any ignore patterns
-      #
-      echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
-      if [[ $? -eq 0 ]]; then
-        continue
+      if [[ ! "$bl" = "/tmp/backlog.1st" ]]; then
+        echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
+        if [[ $? -eq 0 ]]; then
+          continue
+        fi
       fi
 
       # skip if $task is masked, keyworded etc.

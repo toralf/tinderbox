@@ -543,7 +543,6 @@ EOF
   fi
 
   # at least systemd and virtualbox need (compiled) kernel sources and would fail in @preserved-rebuild otherwise
-  # use "%..." b/c IGNORE_PACKAGES contains sys-kernel/*
   #
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
