@@ -746,12 +746,12 @@ fi
 set -e
 cd ~tinderbox
 cd $(readlink ~tinderbox/img)
+set +e
 
 repo_gentoo=$(  portageq get_repo_path / gentoo)
 repo_libressl=$(portageq get_repo_path / libressl)
 repo_local=$(   portageq get_repo_path / local)
 distdir=$(      portageq distdir)
-set +x
 
 SetOptions
 
