@@ -269,7 +269,7 @@ EOF
     (
       cd "$workdir"/../.. &&\
       [[ -d ./temp ]]     &&\
-      tar -cjpf $issuedir/files/temp.tbz2 --dereference --warning='no-file-removed' --warning='no-file-ignored' ./temp
+      tar -cjpf $issuedir/files/temp.tbz2 --dereference --warning='no-file-removed' --warning='no-file-ignored' --exclude='*/kerneldir/*' ./temp
     )
 
     # ICE of GCC ?
