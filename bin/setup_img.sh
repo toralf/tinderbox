@@ -557,17 +557,16 @@ EOF
     fi
   fi
 
-  # upgrade GCC asap
+  # upgrade GCC asap, but do not rebuild the existing one
   #
   if [[ $keyword = "unstable" ]]; then
     #   %...      : bail out if it fails
-    #   no --deep : that would result effectively in @system
     #   =         : do not upgrade the current (slotted) version
-    # dev-libs/...: avoid a forced rebuild of GCC in @system
+    # dev-libs/*  : avoid a rebuild of GCC later in @system
     #
     echo "%emerge -u =$(ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
-    echo "sys-devel/gcc" >> $bl.1st
+    echo "sys-devel/gcc" >> $bl.1st     # unlikely but possible
   fi
 
   if [[ "$switch_profile" = "y" ]]; then
