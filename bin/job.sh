@@ -1250,28 +1250,30 @@ function WorkOnTask() {
 }
 
 
-# detect repeating (group of) tasks
+# detect a loop
 #
 function DetectALoop() {
-  for p in "@preserved-rebuild" "%perl-cleaner"
+  for t in "@preserved-rebuild" "%perl-cleaner"
   do
-    if [[ ! $task =~ $p ]]; then
+    if [[ ! $task =~ $t ]]; then
       continue
     fi
 
     if [[ $name =~ "test" ]]; then
-      min=13
-      max=30
+      x=15
+      y=30
     else
-      min=5
-      max=10
+      x=5
+      y=10
     fi
 
-    if [[ $(tail -n $max $taskfile.history | grep -c "$p") -ge $min ]]; then
-      for i in $(seq 1 $max); do
+    n=$(tail -n $y $taskfile.history | grep -c "$t")
+
+    if [[ $n -ge $x ]]; then
+      for i in $(seq 1 $y); do
         echo "#" >> $taskfile.history
       done
-      Finish 1 "${min}x $p among last $max tasks"
+      Finish 1 "${n}x $t among last $y tasks"
     fi
   done
 }
