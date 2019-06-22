@@ -844,6 +844,19 @@ function GotAnIssue()  {
   ClassifyIssue
   CompileIssueMail
 
+  # https://bugs.gentoo.org/687226
+  #
+  grep -q -e "MiscXS.c: loadable library and perl binaries are mismatched" $bak
+  if [[ $? -eq 0 ]]; then
+    try_again=1
+    add2backlog "$task"
+    add2backlog "%emerge -1 sys-apps/texinfo"
+    Mail "info: catched broken sys-apps/texinfo, task=$task, failed=$failed" $bak
+    return
+  fi
+
+  # this seems to be fixed
+  #
   grep -q \
           -e "configure: error: perl module Locale::gettext required" \
           -e "Can't locate Locale/Messages.pm in @INC"                \
