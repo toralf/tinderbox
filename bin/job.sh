@@ -103,8 +103,8 @@ function setTask()  {
     bl=$backlog
 
   # Gentoo repository changes
-  # backlog is updated regularly by update_backlog.sh
-  # 1/N probability if no special action is in common backlog (eg. if cloned from an origin)
+  # backlog.upd is updated regularly by update_backlog.sh
+  # 1/N probability if no special action is in common backlog (whcih might happen by cloning from an origin)
   #
   elif [[ -s /tmp/backlog.upd && $(($RANDOM % 5)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
     bl=/tmp/backlog.upd
@@ -164,11 +164,11 @@ function getNextTask() {
         fi
       fi
 
-      # skip if $task is masked, keyworded etc.
+      # skip if $task is masked, keyworded eor just invalid
       #
       best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
       if [[ $? -ne 0 ]]; then
-        # bail out if portage itself is broken (eg. caused by a Python upgrade)
+        # bail out if portage itself is broken (eg. after by a Python upgrade)
         #
         if [[ "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
           Finish 1 "FATAL: portageq broken" /tmp/portageq.err
