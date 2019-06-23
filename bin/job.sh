@@ -1009,7 +1009,7 @@ function PostEmerge() {
     add2backlog "%haskell-updater"
   fi
 
-  grep -q ">>> Installing .* sys-lang/perl-[1-9]" $bak
+  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     add2backlog "%perl-cleaner --all"
   fi
