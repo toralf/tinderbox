@@ -804,8 +804,8 @@ function setWorkDir() {
 
 
 function add2backlog()  {
-  if [[ ! "$(tail -n 1 $backlog)" = "$1" ]]; then
-    echo "$*" >> $backlog
+  if [[ ! "$(tail -n 1 $backlog)" = "${@}" ]]; then
+    echo "${@}" >> $backlog
   fi
 }
 
