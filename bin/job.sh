@@ -269,7 +269,10 @@ EOF
     (
       cd "$workdir"/../.. &&\
       [[ -d ./temp ]]     &&\
-      tar -cjpf $issuedir/files/temp.tbz2 --dereference --warning='no-file-removed' --warning='no-file-ignored' --exclude='*/kerneldir/*' ./temp
+      tar -cjpf $issuedir/files/temp.tbz2 \
+          --dereference --warning='no-file-removed' --warning='no-file-ignored'  \
+          --exclude='*/kerneldir/*' --exclude='*/var-tests/*' --exclude='*/go-build[0-9]*/*' \
+          ./temp
     )
 
     # ICE of GCC ?
