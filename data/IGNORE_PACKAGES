@@ -15,7 +15,7 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# annoying behaviour at the command line
+# annoying behaviour at the command line if used in the chroot image
 #
 app-vim/c-support
 app-vim/curcmdmode
@@ -38,6 +38,18 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
+# breaks @world and/or @preserved-rebuild too often
+#
+dev-perl/ZMQ
+dev-python/django
+dev-python/flake8
+dev-python/pycrypto
+dev-python/pyflakes
+dev-python/pygsl
+dev-python/twisted
+dev-util/ragel
+net-libs/zmqpp
+#
 # loooooong build time
 #
 app-editors/atom
@@ -51,18 +63,15 @@ sys-cluster/ceph
 www-client/chromium
 www-client/google-chrome
 #
-# breaks @world and/or @preserved-rebuild too often
+# looong build time
 #
-dev-perl/ZMQ
-dev-python/django
-dev-python/flake8
-dev-python/pycrypto
-dev-python/pyflakes
-dev-python/pygsl
-dev-python/twisted
-dev-util/ragel
-net-libs/zmqpp
-#
-# deps on older clang etc.
-#
+app-office/libreoffice
+app-office/ooextras
+app-officeext/
+dev-ada/
+dev-lang/
+dev-ros/
 dev-util/include-what-you-use
+ros-meta/
+sys-cluster/
+sys-devel/byfl

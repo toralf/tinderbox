@@ -1,5 +1,5 @@
-# This file contains pairs of lines (bug number + pattern) to automate adding a blocker bug id to b.g.o.
-# Empty and comment lines are ignored.
+# This file contains pairs of lines (bug number & pattern) to automate the adding of a b.g.o bug blocker id
+# Empty lines and comments are ignored.
 #
 
 # libressl-support
@@ -15,7 +15,7 @@ error: storage size of .* isn.t known|error: dereferencing pointer to incomplete
 # QA
 #
 520404
-QA Notice: installs into paths that should be created at runtime
+installs into paths that should be created at runtime
 
 # [TRACKER] Packages using configure.in
 #

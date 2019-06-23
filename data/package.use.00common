@@ -5,8 +5,7 @@
 #
 mail-mta/ssmtp            mta ssl
 
-# from slyfox:
-# As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
+# from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
 #
 sys-apps/nix              -etc_profile
 
@@ -25,13 +24,15 @@ dev-lang/rust             system-llvm
 # circular dependencies during tinderbox image setup
 #
 media-libs/freetype       -harfbuzz
-net-print/cups            -java
-www-client/w3m            -gpm
 
 # 2x faster compile
 #
 dev-qt/qtwebengine        jumbo-build
 
-# pulls X11 and QT otherwise
+# pulls X11 + QT otherwise, which would reduce our test coverage
 #
 app-portage/portage-utils -qmanifest
+#
+# @preserved-rebuild issues
+#
+sys-cluster/legion        -hwloc

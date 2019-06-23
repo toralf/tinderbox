@@ -3,11 +3,8 @@
 
 # circ dep otherwise
 # 
+dev-util/meson          -test
 dev-util/pkgconfig      internal-glib
 sys-fs/eudev            -introspection
 sys-libs/libcap         -pam
 sys-libs/ncurses        -gpm
-
-# https://bugs.gentoo.org/616140 : with ABI_x86="32 64" @system dep tree broken after masking libX11
-#
-dev-libs/glib           -test
