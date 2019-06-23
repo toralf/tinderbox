@@ -505,28 +505,31 @@ function ClassifyIssue() {
       collectTestIssueResults
     fi
 
-    # try to guess a better title & issue based on pattern files
-    # the pattern order within the file is important therefore "grep -f" can't be used
+    # catch the issue and guess a better title based on it
+    # the order of the pattern rules
     #
-    cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null |\
-    while read c
-    do
-      grep -a -m 1 -B 2 -A 3 "$c" $bak > $issuedir/issue.tmp
-      if [[ $? -eq 0 ]]; then
-        mv $issuedir/issue.tmp $issuedir/issue
-        # take 3rd line for the (new) title
-        #
-        sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’"`], ,g' > $issuedir/title
+    (
+      cd /tmp
+      cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES | split --lines=1 --suffix-length=2
+      for x in x??
+      do
+        grep -a -m 1 -B 2 -A 3 -f $x $bak > issue
+        if [[ $? -eq 0 ]]; then
+          mv issue $issuedir
+          # take 3rd line (-A 3) as the new title, strip quotes before
+          #
+          sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’"`], ,g' > $issuedir/title
 
-        # if the issue is too big, then delete 1st line
-        #
-        if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
-          sed -i -e "1d" $issuedir/issue
+          # if the issue file is too big, then delete at least the 1st line
+          #
+          if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
+            sed -i -e "1d" $issuedir/issue
+          fi
+          break
         fi
-        break
-      fi
-    done
-    rm -f $issuedir/issue.tmp
+      done
+      rm /tmp/x??
+    )
 
     # kick off hex addresses, line and time numbers and other stuff
     #

@@ -1,6 +1,6 @@
 newinitd:.* does not exist
-\ \\* .* is not a valid file/directory
-\ !!! .* does not exist
+ \* .* is not a valid file/directory
+ !!! .* does not exist
 chown: invalid user
 ERROR:root
 install: cannot stat .*: No such file or directory
@@ -25,7 +25,7 @@ install: cannot create regular file
 environment: line .*: cd: .* No such file or directory
 mv: cannot stat .* No such file or directory
 java.lang.NoSuchMethodError:
-\ : No such file or directory
+ : No such file or directory
 Failed to set XATTR_PAX markings
 Fatal error: .
 glib-mkenums: command not found

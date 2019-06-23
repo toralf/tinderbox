@@ -9,19 +9,19 @@ Need FEATURES=.* to run this testsuite
 : FAILED (.*:.*)
 ^ERROR:.*test
 Failing test(s):
-\ (Failed)
+ (Failed)
 #   Failed test
-\ \\.\\.\\. ERROR
+ \.\.\. ERROR
 FAILED: .*
 FAILED .*test
 Failed tests:
 ^FAIL .*
-^FAIL\\\\t.*
+^FAIL\t.*
 ^FAIL: .*
 ^Failure:
-\ FAIL .*
-\ \\*\\*\\*Failed
-\ \\*\\*\\*Exception:
+ FAIL .*
+ \*\*\*Failed
+ \*\*\*Exception:
 : FAILED:
 Failed .* tests, .*% okay, .* tests skipped.
 testsuite: .* failed
@@ -30,13 +30,13 @@ Test suite test-threads: FAIL
 .* tests executed, .* failures
 ERROR: test(s) failed in
 Failed test
-\\\.\\\.\\\. FAILED
+\.\.\. FAILED
 ERROR: ld.so: object
 sudo: no tty present and no askpass program specified
 /bin/sh: cppcheck: command not found
 Line .* failed
-\\-\\- FAIL:
-\\[  FAILED  \\]
+\-\- FAIL:
+\[  FAILED  \]
 .*:.*: exit status 1
 missing separator
 Can.t locate .* in @INC
@@ -65,21 +65,21 @@ AssertionError
 make.* No rule to make target
 : Command not found
 assertion .* failed
-\ NOT ok
+ NOT ok
 ocamlc: unknown option
 failed conch
 ^FAILED: .
 SyntaxError: .
 Resolve library did not return a fully qualified domain name.
 .* Tests in .* Category Failed
-\ \ *FAILED  ess
+  *FAILED  ess
 :Error:
 ^not ok [[:digit:]]*
 ^make.* Segmentation fault
 test in .* failed
 /bin/bash: docker: command not found
-\\.\\.\\.\\.\\.\\.\\. no
-\ \\.\\. Failed .* subtests
+\.\.\.\.\.\.\. no
+ \.\. Failed .* subtests
 ==== Testing .* failed
 t/.*.t.* module .* not found:
 t/.*.t.* Dubious,
@@ -90,11 +90,11 @@ Segmentation fault
 Test .* failed:
 Error:
 make.* Error 1
-\ FAILED (.*)
-\ FAILED .*
+ FAILED (.*)
+ FAILED .*
 Missing /
 Some packages may not be found
-\ failed: Cannot create directory
+ failed: Cannot create directory
 UnicodeEncodeError:
 PluginValidationError:
 git: command not found

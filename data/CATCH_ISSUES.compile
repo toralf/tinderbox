@@ -40,7 +40,7 @@ include called with wrong number of arguments
 : fatal error: .*
 internal error in relocate
 Failure:
-\ A duplicate ELSE command was found inside an IF block.
+ A duplicate ELSE command was found inside an IF block.
 Failed to load interface for
 ImportError:
 The .* distribution was not found and is required by
@@ -87,11 +87,11 @@ An exception has occurred in the compiler
 error in .* command
 Can't locate .* in @INC
 error: expected expression before
-\ error: narrowing conversion of
-\ error: implicit declaration of
-\ failed: .*glib-genmarshal
+ error: narrowing conversion of
+ error: implicit declaration of
+ failed: .*glib-genmarshal
 error: signals-marshal.h: No such file or directory
-\\-\\-.*: command not found
+\-\-.*: command not found
 gck-marshal.list: Permission denied
 .* command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
@@ -157,7 +157,7 @@ python_export called without a python implementation and EPYTHON is unset
 Discovering .* failed
 Usage: mmc
 make.*Command not found
-\ (OTHER_FAULT)
+ (OTHER_FAULT)
 Errors while running
 Not supported in your configuration: ocamlopt
 : Analysis failed with error:
@@ -167,20 +167,20 @@ RuntimeError: failed to run:
 error: static declaration of
 Not in scope:
 error: .
--\ Segmentation fault
+- Segmentation fault
 sh: .* No such file or directory
 /bin/sh: .* Not a directory
 Could NOT find .* (missing: .*)
-\ (RuntimeError)
-\ API requires the .* utility to be installed
-\ : No such file or directory - git (Errno::.*)
-\  unbound variable:
+ (RuntimeError)
+ API requires the .* utility to be installed
+ : No such file or directory - git (Errno::.*)
+  unbound variable:
 fatal: Not a git repository (or any parent up to mount point /var/tmp)
 rm: cannot remove 'libsrtp.a': No such file or directory
-\ Performing Test .* - Failed
+ Performing Test .* - Failed
 OTP release .* does not match required regex
 Can't open heap image file
-\\[ERROR\\]
+\[ERROR\]
 Relocatable linking .* is not supported
 Makefile.* Terminated
 asciidoc: Command not found
@@ -191,7 +191,7 @@ Extension error:
 is illegal here
 fatal error: .*: No such file or directory
 IOError: Unable to
-\ OSError:
+ OSError:
 Error: Could not find suitable distribution for Requirement
 TypeError:
 moc: could not find a Qt installation
@@ -212,7 +212,7 @@ mkdir /root/cache: permission denied
 Could not find servlet-api.jar in
 .xml:.*Execute failed:
 Fatal Error:
-\ relocation target .* not defined
+ relocation target .* not defined
 tput: unknown terminal
 marshal.list: Permission denied
 Please port gnulib .* to your platform
@@ -228,6 +228,6 @@ ValueError: Only strings are accepted for the license field, files are not accep
 go: cannot find GOROOT directory:
 Metadata file .* could not be found
 rl:.*: .* undefined
-\ error:.*:
+ error:.*:
 Abnormal terminated
 .go:.*:.*: undefined:
