@@ -510,7 +510,7 @@ function ClassifyIssue() {
     #
     (
       cd /tmp
-      cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES | split --lines=1 --suffix-length=2
+      cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
       for x in x??
       do
         grep -a -m 1 -B 2 -A 3 -f $x $bak > issue
