@@ -168,16 +168,17 @@ function CreateImageDir() {
 # download, verify and unpack the stage3 file
 #
 function UnpackStage3()  {
-  # the remote stage3 location
-  #
-  wgeturl="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds"
   latest="$distdir/latest-stage3.txt"
 
-  wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest
-  if [[ $? -ne 0 ]]; then
-    echo "failed to fetch $latest !"
-    exit 1
-  fi
+  for mirror in $(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf)
+  do
+    wgeturl="$mirror/releases/amd64/autobuilds"
+    wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest
+    if [[ $? -eq 0 ]]; then
+      break
+    fi
+    echo "mirror failed: $mirror"
+  done
 
   case $profile in
     */no-multilib/hardened)
