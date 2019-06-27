@@ -170,10 +170,14 @@ function CreateImageDir() {
 function UnpackStage3()  {
   # the remote stage3 location
   #
-  wgeturl=http://ftp.halifax.rwth-aachen.de/gentoo/releases/amd64/autobuilds
+  wgeturl="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds"
+  latest="$distdir/latest-stage3.txt"
 
-  latest=$distdir/latest-stage3.txt
-  wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest || exit 1
+  wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest
+  if [[ $? -ne 0 ]]; then
+    echo "failed to fetch $latest !"
+    exit 1
+  fi
 
   case $profile in
     */no-multilib/hardened)
@@ -345,7 +349,7 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 PORTAGE_GPG_DIR="/var/lib/gentoo/gkeys/keyrings/gentoo/release"
 PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
 
-GENTOO_MIRRORS="https://104.19.137.75/gentoo/ https://104.19.139.75/gentoo/ https://104.19.138.75/gentoo/ rsync://ftp-stud.hs-esslingen.de/gentoo/ http://mirror.netcologne.de/gentoo/"
+GENTOO_MIRRORS="https://mirror.netcologne.de/gentoo/ https://ftp.fau.de/gentoo http://mirrors.evowise.com/gentoo/ http://[2606:4700:1::6813:894b]/gentoo/ https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/"
 
 QEMU_SOFTMMU_TARGETS="x86_64 i386"
 QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
