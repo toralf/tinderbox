@@ -170,7 +170,7 @@ function CreateImageDir() {
 function UnpackStage3()  {
   latest="$distdir/latest-stage3.txt"
 
-  for mirror in $(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf)
+  for mirror in $gentoo_mirrors
   do
     wgeturl="$mirror/releases/amd64/autobuilds"
     wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest
@@ -350,7 +350,7 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 PORTAGE_GPG_DIR="/var/lib/gentoo/gkeys/keyrings/gentoo/release"
 PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
 
-GENTOO_MIRRORS="https://mirror.netcologne.de/gentoo/ https://ftp.fau.de/gentoo http://mirrors.evowise.com/gentoo/ http://[2606:4700:1::6813:894b]/gentoo/ https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/"
+GENTOO_MIRRORS="$gentoo_mirrors"
 
 QEMU_SOFTMMU_TARGETS="x86_64 i386"
 QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
@@ -755,6 +755,7 @@ repo_gentoo=$(  portageq get_repo_path / gentoo)
 repo_libressl=$(portageq get_repo_path / libressl)
 repo_local=$(   portageq get_repo_path / local)
 distdir=$(      portageq distdir)
+gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf)
 
 SetOptions
 
