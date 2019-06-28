@@ -596,7 +596,7 @@ function SearchForAnAlreadyFiledBug() {
   fi
 
   bsi=$issuedir/bugz_search_items     # consider the title as a set of patterns separated by spaces
-  cp $issuedir/title $bsi
+  cat $issuedir/title | sed -e 's/QA .*:[ ]*//g' > $bsi
 
   # get away line numbers, certain special terms and characters
   #
