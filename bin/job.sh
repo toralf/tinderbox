@@ -1054,19 +1054,13 @@ function PostEmerge() {
 #
 function CheckQA() {
   f=/tmp/qafilenames
-
-  # process all elog files created after the last call of this function
-  #
-  if [[ -f $f ]]; then
-    find /var/log/portage/elog -name '*.log' -newer $f  > $f.tmp
-  else
-    find /var/log/portage/elog -name '*.log'            > $f.tmp
+  if [[ ! -f ]]; then
+    touch $f
   fi
-  mv $f.tmp $f
 
   # process each QA issue separately (there might be more than 1 in the same elog file)
   #
-  cat $f |\
+  find /var/log/portage/elog -name '*.log' -newer $f |\
   while read elogfile
   do
     cat /tmp/tb/data/CATCH_QA |\
@@ -1108,6 +1102,8 @@ function CheckQA() {
         fi
       fi
     done
+
+    mv $elogfile $elogfile.reported
   done
 }
 
