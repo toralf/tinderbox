@@ -1075,9 +1075,9 @@ function CheckQA() {
         CreateIssueDir
         grep -a -f $x $elogfile > $issuedir/title
         grep -a -f $x $elogfile -B 1 -A 5 $elogfile | tee $issuedir/body > $issuedir/issue
+        # if it contains more than 6 lines then attach it too
+        #
         if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
-          # rename it b/c the file name might be the same (incl. timestamp - sic!) as for the emerge log file
-          #
           cp $elogfile $issuedir/files/elog-$( basename $elogfile )
         fi
         cp $pkglog $issuedir/files/
