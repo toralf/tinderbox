@@ -1093,16 +1093,12 @@ function CheckQA() {
         SearchForBlocker
         GetAssigneeAndCc
         AddVersionAssigneeAndCC
-        echo -e "\nbgo.sh -d ~/img?/$name/$issuedir -s QA $block\n" >> $issuedir/body
-        id=$(
-          timeout 300 bugz -q --columns 400 search --show-status $pkgname "$reason" 2>> $issuedir/body |\
-          sort -u -n | tail -n 1 | tee -a $issuedir/body | cut -f1 -d ' '
-        )
+        SearchForAnAlreadyFiledBug
+        AddBugzillaData
         collectPortageDir
         sed -i -e "s,^,$pkg : ," $issuedir/title
         TrimTitle
         AttachFilesToBody $issuedir/files/elog*
-
         CompressIssueFiles
 
         chmod 777     $issuedir/
