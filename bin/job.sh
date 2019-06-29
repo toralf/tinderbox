@@ -1052,16 +1052,11 @@ function PostEmerge() {
 function CheckQA() {
   pushd /tmp 1>/dev/null
 
-  f=/tmp/qafilenames
-  if [[ ! -f $f ]]; then
-    touch $f
-  fi
-
   # process each QA issue separately (there might be more than 1 in the same elog file)
   #
   split --lines=1 --suffix-length=2 /tmp/tb/data/CATCH_QA
 
-  find /var/log/portage/elog -name '*.log' -newer $f |\
+  find /var/log/portage/elog -name '*.log' |\
   while read elogfile
   do
     pkg=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
@@ -1102,7 +1097,7 @@ function CheckQA() {
       fi
     done
 
-    mv $elogfile $elogfile.reported
+    mv $elogfile $elogfile.checked
   done
 
   rm x??
