@@ -1060,51 +1060,57 @@ function CheckQA() {
 
   # process each QA issue separately (there might be more than 1 in the same elog file)
   #
-  find /var/log/portage/elog -name '*.log' -newer $f |\
-  while read elogfile
-  do
-    cat /tmp/tb/data/CATCH_QA |\
-    while read reason
+  (
+    cd /tmp
+    split --lines=1 --suffix-length=2 /tmp/tb/data/CATCH_QA
+
+    find /var/log/portage/elog -name '*.log' -newer $f |\
+    while read elogfile
     do
-      grep -q "$reason" $elogfile
-      if [[ $? -eq 0 ]]; then
-        pkg=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
-        pkgname=$(pn2p "$pkg")
-        pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+      for x in x??
+      do
+        grep -q -a -f $x $elogfile
+        if [[ $? -eq 0 ]]; then
+          pkg=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
+          pkgname=$(pn2p "$pkg")
+          pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
 
-        CreateIssueDir
-        grep "$reason" $elogfile > $issuedir/title
+          CreateIssueDir
+          grep "$reason" $elogfile > $issuedir/title
 
-        grep -B 1 -A 5 "$reason" $elogfile | tee $issuedir/body > $issuedir/issue
-        if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
-          # rename it b/c the file name might be the same (incl. timestamp - sic!) as for the emerge log file
-          #
-          cp $elogfile $issuedir/files/elog-$( basename $elogfile )
+          grep -B 1 -A 5 "$reason" $elogfile | tee $issuedir/body > $issuedir/issue
+          if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
+            # rename it b/c the file name might be the same (incl. timestamp - sic!) as for the emerge log file
+            #
+            cp $elogfile $issuedir/files/elog-$( basename $elogfile )
+          fi
+          cp $pkglog $issuedir/files/
+
+          AddWhoamiToIssue
+          SearchForBlocker
+          GetAssigneeAndCc
+          AddVersionAssigneeAndCC
+          SearchForAnAlreadyFiledBug
+          AddBugzillaData
+          collectPortageDir
+          sed -i -e "s,^,$pkg : ," $issuedir/title
+          TrimTitle
+          AttachFilesToBody $issuedir/files/elog*
+          CompressIssueFiles
+
+          chmod 777     $issuedir/
+          chmod -R a+rw $issuedir/
+          if [[ -z "$id" ]]; then
+            SendoutIssueMail
+          fi
         fi
-        cp $pkglog $issuedir/files/
+      done
 
-        AddWhoamiToIssue
-        SearchForBlocker
-        GetAssigneeAndCc
-        AddVersionAssigneeAndCC
-        SearchForAnAlreadyFiledBug
-        AddBugzillaData
-        collectPortageDir
-        sed -i -e "s,^,$pkg : ," $issuedir/title
-        TrimTitle
-        AttachFilesToBody $issuedir/files/elog*
-        CompressIssueFiles
-
-        chmod 777     $issuedir/
-        chmod -R a+rw $issuedir/
-        if [[ -z "$id" ]]; then
-          SendoutIssueMail
-        fi
-      fi
+      mv $elogfile $elogfile.reported
     done
 
-    mv $elogfile $elogfile.reported
-  done
+    rm x??
+  )
 }
 
 
