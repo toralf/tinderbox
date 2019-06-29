@@ -197,10 +197,9 @@ function getNextTask() {
 # helper of CollectIssueFiles
 #
 function collectPortageDir()  {
-  (
-    cd /
-    tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage
-  )
+  pushd /
+  tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage
+  popd
 }
 
 
@@ -460,20 +459,19 @@ function collectTestIssueResults() {
     try_again=1
   fi
 
-  (
-    cd "$workdir"
-    # tar returns an error if it can't find at least one directory
-    # therefore feed only existing dirs to it
-    #
-    dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
-    if [[ -n "$dirs" ]]; then
-      tar -cjpf $issuedir/files/tests.tbz2 \
-        --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
-        --exclude='*.o' --exclude="*/symlinktest/*" \
-        --dereference --sparse --one-file-system --warning='no-file-ignored' \
-        $dirs
-    fi
-  )
+  # tar returns an error if it can't find at least one directory
+  # therefore feed only existing dirs to it
+  #
+  pushd "$workdir"
+  dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
+  if [[ -n "$dirs" ]]; then
+    tar -cjpf $issuedir/files/tests.tbz2 \
+      --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
+      --exclude='*.o' --exclude="*/symlinktest/*" \
+      --dereference --sparse --one-file-system --warning='no-file-ignored' \
+      $dirs
+  fi
+  popd
 }
 
 
@@ -509,28 +507,27 @@ function ClassifyIssue() {
     # catch the issue and guess a better title based on it
     # the order of the pattern rules
     #
-    (
-      cd /tmp
-      cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
-      for x in x??
-      do
-        grep -a -m 1 -B 2 -A 3 -f $x $bak > issue
-        if [[ $? -eq 0 ]]; then
-          mv issue $issuedir
-          # take 3rd line (-A 3) as the new title, strip quotes before
-          #
-          sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’"`], ,g' > $issuedir/title
+    pushd /tmp
+    cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
+    for x in x??
+    do
+      grep -a -m 1 -B 2 -A 3 -f $x $bak > issue
+      if [[ $? -eq 0 ]]; then
+        mv issue $issuedir
+        # take 3rd line (-A 3) as the new title, strip quotes before
+        #
+        sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’"`], ,g' > $issuedir/title
 
-          # if the issue file is too big, then delete at least the 1st line
-          #
-          if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
-            sed -i -e "1d" $issuedir/issue
-          fi
-          break
+        # if the issue file is too big, then delete at least the 1st line
+        #
+        if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
+          sed -i -e "1d" $issuedir/issue
         fi
-      done
-      rm /tmp/x??
-    )
+        break
+      fi
+    done
+    rm /tmp/x??
+    popd
 
     # kick off hex addresses, line and time numbers and other stuff
     #
@@ -1053,6 +1050,8 @@ function PostEmerge() {
 # helper of RunAndCheck()
 #
 function CheckQA() {
+  pushd /tmp
+
   f=/tmp/qafilenames
   if [[ ! -f ]]; then
     touch $f
@@ -1060,57 +1059,56 @@ function CheckQA() {
 
   # process each QA issue separately (there might be more than 1 in the same elog file)
   #
-  (
-    cd /tmp
-    split --lines=1 --suffix-length=2 /tmp/tb/data/CATCH_QA
+  split --lines=1 --suffix-length=2 /tmp/tb/data/CATCH_QA
 
-    find /var/log/portage/elog -name '*.log' -newer $f |\
-    while read elogfile
+  find /var/log/portage/elog -name '*.log' -newer $f |\
+  while read elogfile
+  do
+    for x in x??
     do
-      for x in x??
-      do
-        grep -q -a -f $x $elogfile
-        if [[ $? -eq 0 ]]; then
-          pkg=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
-          pkgname=$(pn2p "$pkg")
-          pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+      grep -q -a -f $x $elogfile
+      if [[ $? -eq 0 ]]; then
+        pkg=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
+        pkgname=$(pn2p "$pkg")
+        pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
 
-          CreateIssueDir
-          grep "$reason" $elogfile > $issuedir/title
+        CreateIssueDir
+        grep "$reason" $elogfile > $issuedir/title
 
-          grep -B 1 -A 5 "$reason" $elogfile | tee $issuedir/body > $issuedir/issue
-          if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
-            # rename it b/c the file name might be the same (incl. timestamp - sic!) as for the emerge log file
-            #
-            cp $elogfile $issuedir/files/elog-$( basename $elogfile )
-          fi
-          cp $pkglog $issuedir/files/
-
-          AddWhoamiToIssue
-          SearchForBlocker
-          GetAssigneeAndCc
-          AddVersionAssigneeAndCC
-          SearchForAnAlreadyFiledBug
-          AddBugzillaData
-          collectPortageDir
-          sed -i -e "s,^,$pkg : ," $issuedir/title
-          TrimTitle
-          AttachFilesToBody $issuedir/files/elog*
-          CompressIssueFiles
-
-          chmod 777     $issuedir/
-          chmod -R a+rw $issuedir/
-          if [[ -z "$id" ]]; then
-            SendoutIssueMail
-          fi
+        grep -B 1 -A 5 "$reason" $elogfile | tee $issuedir/body > $issuedir/issue
+        if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
+          # rename it b/c the file name might be the same (incl. timestamp - sic!) as for the emerge log file
+          #
+          cp $elogfile $issuedir/files/elog-$( basename $elogfile )
         fi
-      done
+        cp $pkglog $issuedir/files/
 
-      mv $elogfile $elogfile.reported
+        AddWhoamiToIssue
+        SearchForBlocker
+        GetAssigneeAndCc
+        AddVersionAssigneeAndCC
+        SearchForAnAlreadyFiledBug
+        AddBugzillaData
+        collectPortageDir
+        sed -i -e "s,^,$pkg : ," $issuedir/title
+        TrimTitle
+        AttachFilesToBody $issuedir/files/elog*
+        CompressIssueFiles
+
+        chmod 777     $issuedir/
+        chmod -R a+rw $issuedir/
+        if [[ -z "$id" ]]; then
+          SendoutIssueMail
+        fi
+      fi
     done
 
-    rm x??
-  )
+    mv $elogfile $elogfile.reported
+  done
+
+  rm x??
+
+  popd
 }
 
 
