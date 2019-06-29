@@ -1073,9 +1073,8 @@ function CheckQA() {
         pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
 
         CreateIssueDir
-        grep "$reason" $elogfile > $issuedir/title
-
-        grep -B 1 -A 5 "$reason" $elogfile | tee $issuedir/body > $issuedir/issue
+        grep -a -f $x $elogfile > $issuedir/title
+        grep -a -f $x $elogfile -B 1 -A 5 $elogfile | tee $issuedir/body > $issuedir/issue
         if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
           # rename it b/c the file name might be the same (incl. timestamp - sic!) as for the emerge log file
           #
