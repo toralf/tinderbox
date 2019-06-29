@@ -1053,7 +1053,7 @@ function CheckQA() {
   pushd /tmp
 
   f=/tmp/qafilenames
-  if [[ ! -f ]]; then
+  if [[ ! -f $f ]]; then
     touch $f
   fi
 
