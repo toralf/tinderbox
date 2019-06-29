@@ -197,9 +197,9 @@ function getNextTask() {
 # helper of CollectIssueFiles
 #
 function collectPortageDir()  {
-  pushd /
+  pushd / 1>/dev/null
   tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage
-  popd
+  popd 1>/dev/null
 }
 
 
@@ -462,7 +462,7 @@ function collectTestIssueResults() {
   # tar returns an error if it can't find at least one directory
   # therefore feed only existing dirs to it
   #
-  pushd "$workdir"
+  pushd "$workdir" 1>/dev/null
   dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
   if [[ -n "$dirs" ]]; then
     tar -cjpf $issuedir/files/tests.tbz2 \
@@ -471,7 +471,7 @@ function collectTestIssueResults() {
       --dereference --sparse --one-file-system --warning='no-file-ignored' \
       $dirs
   fi
-  popd
+  popd 1>/dev/null
 }
 
 
@@ -507,7 +507,7 @@ function ClassifyIssue() {
     # catch the issue and guess a better title based on it
     # the order of the pattern rules
     #
-    pushd /tmp
+    pushd /tmp 1>/dev/null
     cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
     for x in x??
     do
@@ -527,7 +527,7 @@ function ClassifyIssue() {
       fi
     done
     rm /tmp/x??
-    popd
+    popd 1>/dev/null
 
     # kick off hex addresses, line and time numbers and other stuff
     #
@@ -1050,7 +1050,7 @@ function PostEmerge() {
 # helper of RunAndCheck()
 #
 function CheckQA() {
-  pushd /tmp
+  pushd /tmp 1>/dev/null
 
   f=/tmp/qafilenames
   if [[ ! -f $f ]]; then
@@ -1108,7 +1108,7 @@ function CheckQA() {
 
   rm x??
 
-  popd
+  popd 1>/dev/null
 }
 
 
