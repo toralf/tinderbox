@@ -269,9 +269,10 @@ EOF
     (
       cd "$workdir"/../.. &&\
       [[ -d ./temp ]]     &&\
-      tar -cjpf $issuedir/files/temp.tbz2 \
+      timeout -s 15 180 tar -cjpf $issuedir/files/temp.tbz2 \
           --dereference --warning='no-file-removed' --warning='no-file-ignored'  \
           --exclude='*/kerneldir/*' --exclude='*/var-tests/*' --exclude='*/go-build[0-9]*/*' \
+          --exclude='*/testdirsymlink/*' \
           ./temp
     )
 
