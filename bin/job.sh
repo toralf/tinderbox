@@ -1064,14 +1064,14 @@ function CheckQA() {
   find /var/log/portage/elog -name '*.log' -newer $f |\
   while read elogfile
   do
+    pkg=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
+    pkgname=$(pn2p "$pkg")
+    pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
+
     for x in x??
     do
       grep -q -a -f $x $elogfile
       if [[ $? -eq 0 ]]; then
-        pkg=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
-        pkgname=$(pn2p "$pkg")
-        pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
-
         CreateIssueDir
         grep -a -f $x $elogfile > $issuedir/title
         grep -a -f $x $elogfile -B 1 -A 5 $elogfile | tee $issuedir/body > $issuedir/issue
