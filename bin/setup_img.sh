@@ -17,14 +17,14 @@
 #
 
 function ThrowUseFlags()  {
-  # throw up to n-1 USE flags, about 1/m of them being masked
-  # exclude trouble makers et al.
+  # throw up to n-1 USE flags but exclude trouble makers et al.
+  # mask about 1/m of them
   #
   n=40
   m=15
 
   grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
-  cut -f1 -d ' ' |\
+  cut -f1 -d ' ' -s |\
   egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hostname|ithreads|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
   shuf -n $(($RANDOM % $n)) | sort |\
   while read flag
