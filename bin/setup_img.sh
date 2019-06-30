@@ -22,6 +22,11 @@ function FilterUseFlag()  {
 }
 
 
+function PrintUseFlag() {
+  xargs -s 78 | sed 's/^/  /g'
+}
+
+
 function ThrowUseFlags()  {
   # throw up to n-1 local USE flags
   #
@@ -31,7 +36,7 @@ function ThrowUseFlags()  {
   cut -f2 -d'"' -s | sort -u |\
   FilterUseFlag |\
   shuf -n $(($RANDOM % $n)) | sort |\
-  xargs -s 78 | sed 's/^/  /g'
+  PrintUseFlag
 
   echo
 
@@ -51,7 +56,7 @@ function ThrowUseFlags()  {
     fi
     echo -n "$flag "
   done |\
-  xargs -s 78 | sed 's/^/  /g'
+  PrintUseFlag
 }
 
 
@@ -802,7 +807,7 @@ do
           exit 1
         fi
 
-        useflags="$(source $origin/etc/portage/make.conf && echo $USE)"
+        useflags="$(source $origin/etc/portage/make.conf && echo $USE | PrintUseFlag)"
         features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
         grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
@@ -839,23 +844,7 @@ do
         ;;
     t)  testfeature="$OPTARG"
         ;;
-    u)  # USE flags are either
-        # - defined in a file as USE="..."
-        # - or listed in a plain file
-        # - or given at the command line
-        #
-        # "x" is a place holder for an empty USE flag set
-        #
-        if [[ -f "$OPTARG" ]] ; then
-          useflags="$(source $OPTARG; echo $USE)"
-          if [[ -z "$useflags" ]]; then
-            useflags="$(cat $OPTARG)"
-          fi
-        elif [[ "$OPTARG" -eq "x" ]]; then
-          useflags=""
-        else
-          useflags="$OPTARG"
-        fi
+    u)  useflags="$(echo $OPTARG | PrintUseFlag)"
         ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 1
