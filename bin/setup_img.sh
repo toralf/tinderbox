@@ -113,6 +113,18 @@ function SetOptions() {
 }
 
 
+# helper of CheckOptions()
+#
+function checkBool()  {
+  read -r var val <<< ${@}
+
+  if [[ "$val" != "y" && "$val" != "n" ]]; then
+    echo " wrong value for \$$var: $val"
+    exit 1
+  fi
+}
+
+
 # helper of main()
 #
 function CheckOptions() {
@@ -126,20 +138,10 @@ function CheckOptions() {
     exit 1
   fi
 
-  if [[ "$libressl" != "y" && "$libressl" != "n" ]]; then
-    echo " wrong value for \$libressl: $libressl"
-    exit 1
-  fi
-
-  if [[ "$multilib" != "y" && "$multilib" != "n" ]]; then
-    echo " wrong value for \$multilib: $multilib"
-    exit 1
-  fi
-
-  if [[ "$testfeature" != "y" && "$testfeature" != "n" ]]; then
-    echo " wrong value for \$testfeature: $testfeature"
-    exit 1
-  fi
+  checkBool "autostart"   $autostart
+  checkBool "libressl"    $libressl
+  checkBool "multilib"    $multilib
+  checkBool "testfeature" $testfeature
 }
 
 
