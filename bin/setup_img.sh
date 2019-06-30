@@ -31,7 +31,9 @@ function ThrowUseFlags()  {
   cut -f2 -d'"' -s | sort -u |\
   FilterUseFlag |\
   shuf -n $(($RANDOM % $n)) | sort |\
-  xargs
+  xargs -s 78 | sed 's/^/  /g'
+
+  echo
 
   # throw up to n-1 global USE flags and mask about 1/m of them
   #
@@ -48,7 +50,8 @@ function ThrowUseFlags()  {
       echo -n "-"
     fi
     echo -n "$flag "
-  done
+  done |\
+  xargs -s 78 | sed 's/^/  /g'
 }
 
 
@@ -680,7 +683,7 @@ fi
 
 cat << 2EOF >> /etc/portage/make.conf
 USE="
-$(echo $useflags | xargs -s 78 | sed 's/^/  /g')
+$useflags
 
   ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
