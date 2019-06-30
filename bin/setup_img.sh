@@ -68,16 +68,13 @@ function SetOptions() {
   origin=""                   # derive settings from this image
   useflags=$(ThrowUseFlags)
 
-  # throw a profile
+  # throw a profile, prefer a non-running
   #
-  profile=$(
-    eselect profile list                                    |\
-    awk ' { print $2 } '                                    |\
-    grep -e "^default/linux/amd64/17.1"                     |\
-    cut -f4- -d'/' -s                                       |\
-    grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' |\
-    shuf -n 1
-  )
+  while read profile
+  do
+    ls -d ~tinderbox/run/${profile}_* &>/dev/null || break
+  done < <( eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.1" |\
+            cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' | shuf)
 
   # be more restrict wrt sandbox issues
   #
