@@ -656,18 +656,18 @@ source /etc/profile
 
 useradd -u $(id -u tinderbox) tinderbox
 
-# separate steps to avoid that mailx implicitely pulls another MTA than ssmtp
+# separate steps to avoid that mailx pulls in a different MTA than ssmtp
 #
 emerge mail-mta/ssmtp     || exit 1
 emerge mail-client/mailx  || exit 1
 
-# contains credentials for mail-mta/ssmtp
+# credentials for mail-mta/ssmtp
 #
 (cd /etc/ssmtp && ln -sf ../../tmp/tb/sdata/ssmtp.conf) || exit 1
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
 
-# contains credentials for www-client/pybugz
+# credentials for www-client/pybugz
 #
 (cd /root && ln -s ../tmp/tb/sdata/.bugzrc) || exit 1
 
@@ -676,9 +676,9 @@ if [[ "$testfeature" = "y" ]]; then
 fi
 
 if [[ "$switch_profile" = "y" ]]; then
-  eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/')  || exit 1
+  eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/') || exit 1
 else
-  eselect profile set --force default/linux/amd64/$profile                                  || exit 1
+  eselect profile set --force default/linux/amd64/$profile || exit 1
 fi
 
 cat << 2EOF >> /etc/portage/make.conf
