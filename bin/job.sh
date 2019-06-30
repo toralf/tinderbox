@@ -1067,8 +1067,8 @@ function CheckQA() {
       grep -q -a -f $x $elogfile
       if [[ $? -eq 0 ]]; then
         CreateIssueDir
-        grep -a -f $x $elogfile > $issuedir/title
-        grep -a -f $x $elogfile -B 1 -A 5 $elogfile | tee $issuedir/body > $issuedir/issue
+        grep -a -f $x           $elogfile > $issuedir/title
+        grep -a -f $x -B 1 -A 5 $elogfile | tee $issuedir/body > $issuedir/issue
         # if it contains more than 6 lines then attach it too
         #
         if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
