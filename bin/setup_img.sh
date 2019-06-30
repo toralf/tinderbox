@@ -322,19 +322,17 @@ CFLAGS="\${COMMON_FLAGS}"
 CXXFLAGS="\${COMMON_FLAGS}"
 FCFLAGS="\${COMMON_FLAGS}"
 FFLAGS="\${COMMON_FLAGS}"
-
 RUSTFLAGS="-C target-cpu=native -v -C codegen-units=1"
-
-ACCEPT_LICENSE="* -@EULA"
 
 $([[ ! $profile =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
 $([[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"')
 ACCEPT_KEYWORDS=$([[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"')
+ACCEPT_LICENSE="* -@EULA"
+ACCEPT_PROPERTIES="-interactive"
+ACCEPT_RESTRICT="-fetch"
 
 FEATURES="$features"
 EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --verbose --color=n --autounmask=n"
-ACCEPT_PROPERTIES="-interactive"
-ACCEPT_RESTRICT="-fetch"
 CLEAN_DELAY=0
 
 L10N="$l10n"
