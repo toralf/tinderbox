@@ -691,14 +691,14 @@ function CompileIssueMail() {
   #
   sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' $issuedir/title
 
-  # shrink too long #comment0 (==issue), FWIWthe upper limit at b.g.o. is 16 KB
+  # shrink a too long #comment0
   #
   while [[ $(wc -c < $issuedir/issue) -gt 4000 ]]
   do
     sed -i '1d' $issuedir/issue
   done
 
-  # copy issue to the email body before enhancing it further to become comment#0
+  # copy issue to the email body before enhancing the issue file further to become comment#0 eventually
   #
   cp $issuedir/issue $issuedir/body
   AddWhoamiToIssue
