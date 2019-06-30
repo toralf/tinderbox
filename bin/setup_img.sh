@@ -849,7 +849,7 @@ do
   esac
 done
 
-dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --pretend"
+dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --backtrack=30 --pretend"
 
 CheckOptions
 ComputeImageName
