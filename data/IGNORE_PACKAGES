@@ -1,10 +1,7 @@
-# entries in the package list matching a pattern here will be skipped
-# from being emerged directly but of course those are emerged as a
-# dependency of another package or by @system or @world
-#
+# tasks matching a pattern here will usually be skipped
 # this file MUST NOT have empty lines (except the very last one)
 #
-# never explicitely emerge these
+# never explicitely run emerge with:
 #
 app-eselect/
 dev-embedded/
@@ -14,6 +11,11 @@ sec-policy/
 sys-firmware/
 sys-kernel/
 virtual/
+#
+# no rebuild please
+#
+media-libs/jpeg
+media-libs/libjpeg-turbo
 #
 # annoying behaviour at the command line if used in the chroot image
 #
