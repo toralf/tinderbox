@@ -14,18 +14,33 @@
 #############################################################################
 #
 # functions
+
+# helper of ThrowUseFlags()
 #
+function FilterUseFlag()  {
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hostname|ithreads|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan'
+}
+
 
 function ThrowUseFlags()  {
-  # throw up to n-1 USE flags but exclude trouble makers et al.
-  # mask about 1/m of them
+  # throw up to n-1 local USE flags
+  #
+  n=30
+
+  grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
+  cut -f2 -d'"' -s | sort -u |\
+  FilterUseFlag |\
+  shuf -n $(($RANDOM % $n)) | sort |\
+  xargs
+
+  # throw up to n-1 global USE flags and mask about 1/m of them
   #
   n=40
   m=15
 
   grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
   cut -f1 -d ' ' -s |\
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hostname|ithreads|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan' |\
+  FilterUseFlag |\
   shuf -n $(($RANDOM % $n)) | sort |\
   while read flag
   do
