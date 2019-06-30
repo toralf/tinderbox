@@ -3,7 +3,6 @@
 
 # circ dep otherwise
 # 
-dev-util/meson          -test
 dev-util/pkgconfig      internal-glib
 sys-fs/eudev            -introspection
 sys-libs/libcap         -pam

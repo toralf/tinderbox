@@ -1,4 +1,2 @@
 # package.unmask/00common
 #
-
-# please note that this file rules over /etc/portage/package.mask/self

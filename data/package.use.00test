@@ -1,6 +1,8 @@
 # package.use/00test
 #
 
+# if FEATURES=test activated then these USE flags are needed
+
 media-libs/tiff       jpeg
 net-nds/openldap      -minimal
 x11-base/xorg-server  xvfb

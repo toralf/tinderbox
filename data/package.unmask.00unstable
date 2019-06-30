@@ -1,5 +1,2 @@
 # package.unmask/00unstable
 #
-
-~dev-libs/boost-1.70.0
-~dev-util/boost-build-1.70.0
