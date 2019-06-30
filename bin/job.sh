@@ -398,17 +398,16 @@ function pn2p() {
 
 
 function CreateIssueDir() {
-  issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $pkg | tr '/' '_')
-
-  # a QA issue might be collected before for this package
-  #
-  if [[ -d $issuedir ]]; then
+  while [[ : ]]; do
+    issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $pkg | tr '/' '_')
+    if [[ ! -d $issuedir ]]; then
+      break
+    fi
     sleep 1
-    issuedir=${issuedir}_a
-  fi
+  done
 
   mkdir -p $issuedir/files
-  chmod 777 $issuedir
+  chmod 777 $issuedir # to edit title, issue etc
 }
 
 
