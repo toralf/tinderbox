@@ -52,7 +52,7 @@ function LookForAnImage()  {
 
 function StopOldImage() {
   cat << EOF >> ~/run/$oldimg/tmp/backlog.1st
-STOP (EOL) $compl completed, $(wc -l < ~/run/$oldimg/tmp/backlog) left
+STOP EOL initiated at $(date), $compl completed, $(wc -l < ~/run/$oldimg/tmp/backlog) left
 %/usr/bin/pfl
 app-portage/pfl
 EOF
@@ -70,7 +70,7 @@ function SetupANewImage()  {
   i=0
   while :
   do
-    let "i = $i + 1"
+    let "i=$i+1"
 
     echo
     date
@@ -113,7 +113,7 @@ echo $$ > $lck
 oldimg=$(basename $1 2>/dev/null)
 if [[ -z "$oldimg" || ! -e ~/run/$oldimg ]]; then
   min_days=${1:-5}
-  min_hours=${2:-15}
+  min_hours=${2:-16}      # effectively this yields into n+1 hours
   min_compl=${3:-4500}
   shift "$(( $# < 3 ? $# : 3 ))"
 
@@ -125,7 +125,7 @@ setupargs="$@"
 
 echo
 date
-echo " replacing image $oldimg ..."
+echo "replacing image $oldimg ..."
 
 StopOldImage
 SetupANewImage
