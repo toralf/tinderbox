@@ -72,7 +72,7 @@ function SetOptions() {
   #
   while read profile
   do
-    ls -d ~tinderbox/run/${profile}_* &>/dev/null || break
+    ls -d ~tinderbox/run/$(echo $profile | tr '/' '-')_* &>/dev/null || break
   done < <( eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.1" |\
             cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' | shuf)
 
