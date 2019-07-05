@@ -72,7 +72,7 @@ function SetOptions() {
   #
   while read profile
   do
-    ls -d ~tinderbox/run/$(echo $profile | tr '/' '-')_* &>/dev/null || break
+    ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
   done < <( eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.1" |\
             cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' | shuf)
 
@@ -148,34 +148,34 @@ function CheckOptions() {
 # helper of UnpackStage3()
 #
 function ComputeImageName()  {
-  name="$(echo $profile | tr '/' '-')_"
+  name="$(echo $profile | tr '/' '_')-"
 
   if [[ "$keyword" = "stable" ]]; then
-    name="$name-stable"
+    name="${name}_stable"
   fi
 
   if [[ "$libressl" = "y" ]]; then
-    name="$name-libressl"
+    name="${name}_libressl"
   fi
 
   if [[ "$multilib" = "y" ]]; then
-    name="$name-abi32+64"
+    name="${name}_abi32+64"
   fi
 
   if [[ "$testfeature" = "y" ]]; then
-    name="$name-test"
+    name="${name}_test"
   fi
 
   if [[ -n "$suffix" ]]; then
-    name="$name-$suffix"
+    name="${name}_${suffix}"
   fi
 
-  name="$(echo $name | sed -e 's/_[-_]/_/g' -e 's/_$//')"
+  name="$(echo $name | sed -e 's/-[_-]/-/g' -e 's/-$//')"
 }
 
 
 function CreateImageDir() {
-  name="${name}_$(date +%Y%m%d-%H%M%S)"
+  name="${name}-$(date +%Y%m%d-%H%M%S)"
   mkdir $name || exit 1
 
   # relative path to ~tinderbox
@@ -857,7 +857,7 @@ CheckOptions
 ComputeImageName
 
 if [[ -z "$origin" ]]; then
-  ls -d ~tinderbox/run/${name}_20??????-?????? 2>/dev/null
+  ls -d ~tinderbox/run/${name}-20??????-?????? 2>/dev/null
   if [[ $? -eq 0 ]]; then
     echo "^^^ name=$name is already running"
     exit 2
