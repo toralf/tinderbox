@@ -231,14 +231,14 @@ function UnpackStage3()  {
   fi
 
   f=$distdir/$(basename $stage3)
-  if [[ ! -s $f ]]; then
+  if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo "downloading $stage3 ..."
     wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$distdir
     rc=$?
     if [[ $rc -ne 0 ]]; then
       echo " can't download stage3 file '$stage3', rc=$rc"
-      rm -f $f{,.DIGESTS.asc}
+      rm $f{,.DIGESTS.asc}
       exit 1
     fi
   fi
