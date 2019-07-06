@@ -48,15 +48,15 @@ severity="Normal"
 
 newbug=1    # if set to 1 then do neither change To: nor Cc:
 
-while getopts a:b:c:d:i:s: opt
+while getopts b:c:d:i:s: opt
 do
   case $opt in
-    i)  id="$OPTARG"            # (i)d of an existing bug
-        newbug=0
-        ;;
     b)  block="$OPTARG";;       # (b)lock that bug (id or alias)
     c)  comment="$OPTARG";;     # (c)omment, used with -a
     d)  issuedir="$OPTARG";;    # (d)irectory with all files
+    i)  id="$OPTARG"            # (i)d of an existing bug
+        newbug=0
+        ;;
     s)  severity="$OPTARG";;    # "normal", "QA" and so on
     *)  echo " not implemented !"; exit 1;;
   esac
