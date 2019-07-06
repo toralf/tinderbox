@@ -12,7 +12,7 @@ function list_images() {
   (
     for i in $( ls ~/run ); do ls -d ~/img?/$i; done
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
-  ) 2>/dev/null | sort -u -k 2 -t'-'
+  ) 2>/dev/null | sort -u
 }
 
 
