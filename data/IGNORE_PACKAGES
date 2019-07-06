@@ -12,11 +12,6 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# no rebuild please
-#
-media-libs/jpeg
-media-libs/libjpeg-turbo
-#
 # annoying behaviour at the command line if used in the chroot image
 #
 app-vim/c-support

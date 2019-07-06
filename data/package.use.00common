@@ -21,10 +21,6 @@ dev-lang/python           sqlite
 #
 dev-lang/rust             system-llvm
 
-# circular dependencies during tinderbox image setup
-#
-media-libs/freetype       -harfbuzz
-
 # 2x faster compile
 #
 dev-qt/qtwebengine        jumbo-build
