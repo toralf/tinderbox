@@ -399,7 +399,7 @@ function pn2p() {
 
 function CreateIssueDir() {
   while [[ : ]]; do
-    issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)_$(echo $pkg | tr '/' '_')
+    issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)-$(echo $pkg | tr '/' '_')
     if [[ ! -d $issuedir ]]; then
       break
     fi
@@ -950,7 +950,7 @@ function SwitchJDK()  {
 function PostEmerge() {
   # prefix our log backup file with "_" to distinguish it from portages log file
   #
-  bak=/var/log/portage/_emerge_$(date +%Y%m%d-%H%M%S).log
+  bak=/var/log/portage/_emerge-$(date +%Y%m%d-%H%M%S).log
   stresc < $logfile > $bak
 
   # don't change these config files after image setup
