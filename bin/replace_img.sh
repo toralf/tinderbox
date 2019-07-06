@@ -17,8 +17,8 @@ function LookForAnImage()  {
   #
   latest=$(cd ~/run; ls -t */tmp/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
   if [[ -n "$latest" ]]; then
-    let "hours = ( $(date +%s) - $(stat -c%Y ~/run/$latest/tmp/setup.sh) ) / 3600"
-    if [[ $hours -lt $min_hours ]]; then
+    let "h = ( $(date +%s) - $(stat -c%Y ~/run/$latest/tmp/setup.sh) ) / 3600"
+    if [[ $h -lt $hours ]]; then
       Finish 3
     fi
   else
@@ -29,30 +29,30 @@ function LookForAnImage()  {
   #
   while read i
   do
-    let "days = ( $(date +%s) - $(stat -c%Y ~/run/$i/tmp/setup.sh) ) / 3600 / 24"
-    if [[ $days -lt $min_days ]]; then
+    let "d = ( $(date +%s) - $(stat -c%Y ~/run/$i/tmp/setup.sh) ) / 3600 / 24"
+    if [[ $d -lt $days ]]; then
       break
     fi
 
     if [[ ! -f ~/run/$i/var/log/emerge.log ]]; then
       continue
     fi
-    compl=$(grep -c ' ::: completed emerge' ~/run/$i/var/log/emerge.log)
-    if [[ $compl -lt $min_compl ]]; then
+    c=$(grep -c ' ::: completed emerge' ~/run/$i/var/log/emerge.log)
+    if [[ $c -lt $compl ]]; then
       continue
     fi
 
     oldimg=$i
     return
-
   done < <(cd ~/run; ls -t */tmp/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
+
   Finish 3
 }
 
 
 function StopOldImage() {
   cat << EOF >> ~/run/$oldimg/tmp/backlog.1st
-STOP EOL initiated at $(date), $compl completed, $(wc -l < ~/run/$oldimg/tmp/backlog) left
+STOP EOL at $(date), $compl completed, $(wc -l < ~/run/$oldimg/tmp/backlog) left
 %/usr/bin/pfl
 app-portage/pfl
 EOF
@@ -110,29 +110,50 @@ if [[ -s $lck ]]; then
 fi
 echo $$ > $lck
 
-oldimg=$(basename $1 2>/dev/null)
-if [[ -z "$oldimg" || ! -e ~/run/$oldimg ]]; then
-  min_days=${1:-5}
-  min_hours=${2:-16}      # effectively this yields into n+1 hours
-  min_compl=${3:-4500}
-  shift "$(( $# < 3 ? $# : 3 ))"
+compl=4500    # emerge operations
+days=5
+hours=19      # effectively this yields into n+1 hours
+oldimg=""     # if empty choose the oldest one
+setupargs=""  # pss thru to setup_img.sh
 
+while getopts c:d:h:o:s: opt
+do
+  case $opt in
+    c)  compl=$OPTARG         ;;
+    d)  days=$OPTARG          ;;
+    h)  hours=$OPTARG         ;;
+    o)  oldimg=${OPTARG##*/}  ;;
+    s)  setupargs="$OPTARG"   ;;
+    *)  echo " not implemented !"; exit 1;;
+  esac
+done
+
+if [[ -z "$oldimg" ]]; then
   LookForAnImage
-else
-  shift
 fi
-setupargs="$@"
+
+if [[ -n "$oldimg" ]]; then
+  echo
+  date
+  if [[ -e ~/run/$oldimg ]]; then
+    echo "replace $oldimg ..."
+    StopOldImage
+  else
+    echo "error, not found: $oldimg ..."
+    Finish 1
+  fi
+fi
 
 echo
 date
-echo "replacing image $oldimg ..."
-
-StopOldImage
+echo "setup a new image ..."
 SetupANewImage
 
-echo
-date
-echo "delete $oldimg"
-rm ~/run/$oldimg ~/logs/$oldimg.log
+if [[ -n "$oldimg" ]]; then
+  echo
+  date
+  echo "delete $oldimg ..."
+  rm ~/run/$oldimg ~/logs/$oldimg.log
+fi
 
 Finish 0
