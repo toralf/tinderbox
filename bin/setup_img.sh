@@ -646,7 +646,7 @@ locale-gen -j1 || exit 1
 eselect locale set en_US.UTF-8 || exit 1
 
 if [[ $profile =~ "systemd" ]]; then
-  echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
+  eselect locale set en_US.UTF-8
 fi
 
 env-update
