@@ -12,7 +12,7 @@ fi
 
 for mnt in ${@:-$(ls ~/run 2>/dev/null)}
 do
-  echo -n "$(date) "
+  echo -n "$(date +%R) "
 
   # try to prepend ~/run if no path is given
   #
@@ -40,7 +40,7 @@ do
   fi
 
   if [[ -f $mnt/var/tmp/tb/STOP ]]; then
-    echo " STOP marker already set: $mnt"
+    echo " is stopping: $mnt"
     continue
   fi
 

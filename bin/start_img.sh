@@ -12,7 +12,7 @@ fi
 
 for mnt in ${@:-$(ls ~/run 2>/dev/null)}
 do
-  echo -n "$(date) "
+  echo -n "$(date +%R) "
 
   # try to prepend ~/run if no path is given
   #
@@ -35,7 +35,7 @@ do
   fi
   
   if [[ -f $mnt/var/tmp/tb/LOCK ]]; then
-    echo " is running: $mnt"
+    echo " is running:  $mnt"
     continue
   fi
 
