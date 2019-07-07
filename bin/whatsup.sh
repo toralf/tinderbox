@@ -2,27 +2,25 @@
 #
 # set -x
 
-# few tinderbox statistics
-#
+# print tinderbox statistics
 
 
-# watch all images either symlinked into ~/run or running
+# watch all images either runnign or at least symlinked into ~/run
 #
 function list_images() {
-  (
+  {
     for i in $( ls ~/run ); do ls -d ~/img?/$i; done
     df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
-  ) 2>/dev/null | sort -u
+  } 2>/dev/null | sort -u
 }
 
 
-# ${n} should be the minimum length to distinguish abbreviated image names
+# ${n} should be the minimum length to clearly distinguish the images
 #
 function PrintImageName()  {
-  n=36
+  n=32
 
-  string="$(basename $i | cut -c1-$n)"
-  printf "%-${n}s" $string
+  printf "%-${n}s " $(cut -c-$n <<< ${i##*/})
 }
 
 
@@ -68,7 +66,7 @@ function Overall() {
       let "running = running + 1"
     fi
   done
-  inrun=$(echo $images | wc -w)
+  inrun=$(wc -w <<< $images)
 
   echo "compl fail  days backlog  upd  1st state  $running#$inrun images are up"
 
@@ -78,7 +76,7 @@ function Overall() {
     f=$i/tmp/setup.sh
     if [[ -f $f ]]; then
       let "age = $(date +%s) - $(stat -c%Y $f)"
-      day=$( echo "scale=1; $age / 86400.0" | bc )
+      day=$( echo "scale=2; $age / 86400.0" | bc )
     fi
 
     compl=0
@@ -126,9 +124,9 @@ function Overall() {
     check_history $i/tmp/@system.history             s
     check_history $i/tmp/@preserved-rebuild.history  p
 
-    # images during setup are not already symlinked to ~/running
+    # images during setup are not already symlinked to ~/run, print so that the position of / is fixed
     #
-    b=$(basename $i)
+    b=${i##*/}
     [[ -e ~/run/$b ]] && d="run" || d=$(basename $(dirname $i))
 
     printf "%5i %4i %5.1f %7i %4i %4i %5s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b"
@@ -159,11 +157,11 @@ function Tasks()  {
     if [[ $delta -lt 3600 ]]; then
       let "minutes = $delta / 60 % 60"
       let "seconds = $delta % 60 % 60"
-      printf " %3i:%02i m " $minutes $seconds
+      printf "%3i:%02i m " $minutes $seconds
     else
       let "hours = $delta / 60 / 60"
       let "minutes = $delta / 60 % 60"
-      printf " %3i:%02i h " $hours $minutes
+      printf "%3i:%02i h " $hours $minutes
     fi
 
     task=$(cat $tsk)
@@ -206,11 +204,11 @@ function LastEmergeOperation()  {
       if ($delta < 3600) {
         $minutes = $delta / 60 % 60;
         $seconds = $delta % 60 % 60;
-        printf (" %3i:%02i m", $minutes, $seconds);
+        printf ("%3i:%02i m", $minutes, $seconds);
       } else  {
         $hours = $delta / 60 / 60;
         $minutes = $delta / 60 % 60;
-        printf (" %3i:%02i h", $hours, $minutes);
+        printf ("%3i:%02i h", $hours, $minutes);
       }
       print join (" ", " ", @F[1..$#F]), "\n";
     '
@@ -234,14 +232,14 @@ function PackagesPerDay() {
       continue
     fi
 
-    grep ' ::: completed emerge' $i/var/log/emerge.log |\
     perl -F: -wane '
-      # @p contains the amount of emerge operations at day $i
+      # @p helds the amount of emerge operations of day $i
       BEGIN {
         @p = (0);
         $first = 0;
       }
       {
+        next unless (m/::: completed emerge/);
         $curr = $F[0];
         $first = $curr unless ($first);
         my $i = ($curr-$first) / 86400;
@@ -256,7 +254,7 @@ function PackagesPerDay() {
         }
         print "\n";
       }
-    '
+    ' $i/var/log/emerge.log
   done
 }
 
@@ -277,7 +275,7 @@ do
         ;;
     t)  Tasks
         ;;
-    *)  echo "call: $(basename $0) [-l] [-o] [-p] [-t]"
+    *)  echo "call: ${0##*/} [-l] [-o] [-p] [-t]"
         echo
         exit 0
         ;;
