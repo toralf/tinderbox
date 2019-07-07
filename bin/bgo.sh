@@ -5,11 +5,6 @@
 # create or modify a bug report at http://bugzilla.gentoo.org
 #
 
-# typical call:
-#
-#  bgo.sh -d ~/run/desktop-unstable_20160916-100730/tmp/issues/20160918-113424_sci-chemistry_reduce-3.16.111118 -b 582084
-
-
 function Warn() {
   rc=$1
 
@@ -32,13 +27,6 @@ function Error() {
 
 #######################################################################
 #
-
-# work around a DNS issue
-#
-host bugs.gentoo.org 2>/dev/null | grep -q 'has address'
-if [[ $? -ne 0 ]]; then
-  Error "DNS issue appeared"
-fi
 
 id=""
 block=""
@@ -74,16 +62,18 @@ if [[ $? -ne 0 ]]; then
 fi
 
 if [[ -f ./.reported ]]; then
-  echo "already reported ! remove $issuedir/.reported before retrying !"
+  echo "already reported! Do:  rm $issuedir/.reported"
   exit 3
 fi
 
+# check if the fir contains expected data
+#
 if [[ ! -f ./issue ]]; then
   echo "did not found ./issue !"
   exit 4
 fi
 
-# pick up after from a previous call
+# cleanup of a previous run
 #
 rm -f bugz.{out,err}
 
@@ -168,15 +158,12 @@ if [[ $? -eq 0 ]]; then
   timeout 60 bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
-# set assignee and cc as the last step (requested by prometheanfire via IRC)
-# to reduce the bot email amount to the only one email sent out
-# when all data are attached to the report
-# but only if we opened the bug
+# set assignee and cc as the last step to reduce the amount of emails created by a change
 #
 if [[ $newbug -eq 1 ]]; then
   a="-a $(cat ./assignee)"
   if [[ -s ./cc ]]; then
-    # entries in cc are space separated and have to be prefixed with --add-cc each
+    # entries in cc are space separated and each has to be prefixed with --add-cc
     #
     c="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
   fi
