@@ -3,7 +3,8 @@
 
 # if FEATURES=test activated then these USE flags are needed
 
-media-gfx/imagemagick corefonts
-media-libs/tiff       jpeg
-net-nds/openldap      -minimal
-x11-base/xorg-server  xvfb
+media-gfx/imagemagick     corefonts
+media-libs/gd             png
+media-libs/tiff           jpeg
+net-nds/openldap          -minimal
+x11-base/xorg-server      xvfb

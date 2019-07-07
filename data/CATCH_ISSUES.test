@@ -113,3 +113,5 @@ mkdir /root/cache: permission denied
 RuntimeError:
 error: invalid command
 Can't use 'defined
+FAILED (.*)
+FAIL\t.* \[.*\]
