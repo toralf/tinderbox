@@ -3,9 +3,6 @@
 # set -x
 
 # chroot into an image either interactively -or- run a command and exit afterwards
-#
-# typical call:
-#  sudo /opt/tb/bin/chr.sh run/17.1-desktop-plasma_20190304-154829
 
 # if a mount fails then do not try further
 #
@@ -20,7 +17,7 @@ function mountall() {
   #
   # tinderbox data dir
   #
-  /bin/mount -o bind      ~tinderbox/tb     $mnt/tmp/tb           &&\
+  /bin/mount -o bind      ~tinderbox/tb     $mnt/mnt/tb           &&\
   #
   # host repo(s) et. al.
   #
@@ -41,17 +38,17 @@ function mountall() {
 function umountall()  {
   local rc=0
 
-  /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
-  /bin/umount -l $mnt/{sys,proc}                    || rc=$?
-
-  /bin/umount    $mnt/tmp/tb                        || rc=$?
-  /bin/umount -l $mnt/$distfiles                    || rc=$?
-  /bin/umount -l $mnt/var/tmp/portage               || rc=$?
-
-  /bin/umount    $mnt/$repo_gentoo                  || rc=$?
   if [[ -n "$repo_libressl" && -d $mnt/$repo_libressl ]]; then
     /bin/umount $mnt/$repo_libressl                 || rc=$?
   fi
+
+  /bin/umount -l $mnt/$distfiles                    || rc=$?
+  /bin/umount -l $mnt/var/tmp/portage               || rc=$?
+  /bin/umount    $mnt/$repo_gentoo                  || rc=$?
+
+  /bin/umount    $mnt/mnt/tb                        || rc=$?
+  /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
+  /bin/umount -l $mnt/{sys,proc}                    || rc=$?
 
   return $rc
 }
@@ -64,7 +61,7 @@ function umountall()  {
 # CONFIG_MEMCG_SWAP_ENABLED=y
 
 function cgroup() {
-  sysfsdir=/sys/fs/cgroup/memory/tinderbox-$(basename $mnt)
+  sysfsdir=/sys/fs/cgroup/memory/tinderbox-${mnt##*/})
   if [[ ! -d $sysfsdir ]]; then
     mkdir -p $sysfsdir
   fi
@@ -105,7 +102,7 @@ shift
 
 # 1st barrier to prevent starting the same chroot image twice
 #
-lock=$mnt/tmp/LOCK
+lock=$mnt/var/tmp/tb/LOCK
 if [[ -f $lock ]]; then
   echo "found lock file $lock"
   exit 1
@@ -114,13 +111,12 @@ touch $lock || exit 2
 chown tinderbox:tinderbox $lock
 
 # 2nd barrier to prevent starting the same chroot image twice
-# this is a weaker condition b/c a mount could be made using a symlink
 #
-grep -m 1 "/$(basename $mnt)/" /proc/mounts && exit 3
+grep -m 1 "/${mnt##*/}/" /proc/mounts && exit 3
 
-repo_gentoo=$( portageq get_repo_path / gentoo )
-repo_libressl=$( portageq get_repo_path / libressl )
-distfiles=$( portageq distdir )
+repo_gentoo=$(  portageq get_repo_path / gentoo)
+repo_libressl=$(portageq get_repo_path / libressl)
+distfiles=$(    portageq distdir)
 
 mountall
 if [[ $? -ne 0 ]]; then
@@ -128,8 +124,6 @@ if [[ $? -ne 0 ]]; then
   exit 4
 fi
 
-# it is just a nice to have feature, so do not bail out if this fails
-#
 cgroup
 
 # "su - root" forces the use root's tinderbox image environment

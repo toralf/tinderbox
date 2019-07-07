@@ -29,6 +29,8 @@ fi
 
 for mnt in $images
 do
+  echo -n "$(date) "
+
   if [[ -L $mnt && ! -e $mnt ]]; then
     echo "broken symlink: $mnt"
     continue
@@ -39,16 +41,16 @@ do
     continue
   fi
 
-  if [[ ! -f $mnt/tmp/LOCK ]]; then
+  if [[ ! -f $mnt/var/tmp/tb/LOCK ]]; then
     echo " image is not running: $mnt"
     continue
   fi
 
-  if [[ -f $mnt/tmp/STOP ]]; then
+  if [[ -f $mnt/var/tmp/tb/STOP ]]; then
     echo " STOP marker already set: $mnt"
     continue
   fi
 
-  echo " $(date) stopping $mnt"
-  touch $mnt/tmp/STOP
+  echo " stopping     $mnt"
+  touch $mnt/var/tmp/tb/STOP
 done

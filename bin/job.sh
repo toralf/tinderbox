@@ -58,14 +58,14 @@ function Mail() {
     else
       echo "${2:-<no body>}"
     fi
-  ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt "" &>> /tmp/mail.log # the "" belongs to $opt but doesn't hurt here and let the mail body be looking less ugly
+  ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt "" &>> /var/tmp/tb/mail.log # the "" belongs to $opt but doesn't hurt here and let the mail body be looking less ugly
 
   local rc=$?
 
   if [[ $rc -ne 0 ]]; then
     # direct this both to stdout (could be catched eg. by logcheck.sh) and to an image specific logfile
     #
-    echo "$(date) mail failed, rc=$rc, bgo.sh ~/img/$name/$issuedir" | tee -a /tmp/mail.log
+    echo "$(date) mail failed, rc=$rc, bgo.sh ~/img/$name/$issuedir" | tee -a /var/tmp/tb/mail.log
   fi
 }
 
@@ -88,7 +88,7 @@ function Finish()  {
     Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$logfile}
   fi
 
-  rm -f /tmp/STOP
+  rm -f /var/tmp/tb/STOP
 
   exit $rc
 }
@@ -106,19 +106,19 @@ function setTask()  {
   # backlog.upd is updated regularly by update_backlog.sh
   # 1/N probability if no special action is in common backlog (whcih might happen by cloning from an origin)
   #
-  elif [[ -s /tmp/backlog.upd && $(($RANDOM % 5)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /tmp/backlog)" ]]; then
-    bl=/tmp/backlog.upd
+  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 5)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog)" ]]; then
+    bl=/var/tmp/tb/backlog.upd
 
   # common backlog
   # backlog is filled up at image setup and will only decrease
   #
-  elif [[ -s /tmp/backlog ]]; then
-    bl=/tmp/backlog
+  elif [[ -s /var/tmp/tb/backlog ]]; then
+    bl=/var/tmp/tb/backlog
 
   # last chance for updated packages
   #
-  elif [[ -s /tmp/backlog.upd ]]; then
-    bl=/tmp/backlog.upd
+  elif [[ -s /var/tmp/tb/backlog.upd ]]; then
+    bl=/var/tmp/tb/backlog.upd
 
   # this is the end, my friend, the end ...
   #
@@ -157,8 +157,8 @@ function getNextTask() {
       return  # work on either a pinned version || @set || command
 
     else
-      if [[ ! "$bl" = "/tmp/backlog.1st" ]]; then
-        echo "$task" | grep -q -f /tmp/tb/data/IGNORE_PACKAGES
+      if [[ ! "$bl" = "/var/tmp/tb/backlog.1st" ]]; then
+        echo "$task" | grep -q -f /mnt/tb/data/IGNORE_PACKAGES
         if [[ $? -eq 0 ]]; then
           continue
         fi
@@ -166,12 +166,12 @@ function getNextTask() {
 
       # skip if $task is masked, keyworded eor just invalid
       #
-      best_visible=$(portageq best_visible / $task 2>/tmp/portageq.err)
+      best_visible=$(portageq best_visible / $task 2>/var/tmp/tb/err.tmp)
       if [[ $? -ne 0 ]]; then
         # bail out if portage itself is broken (eg. after by a Python upgrade)
         #
-        if [[ "$(grep -ch 'Traceback' /tmp/portageq.err)" -ne "0" ]]; then
-          Finish 1 "FATAL: portageq broken" /tmp/portageq.err
+        if [[ "$(grep -ch 'Traceback' /var/tmp/tb/err.tmp)" -ne "0" ]]; then
+          Finish 1 "FATAL: portageq broken" /var/tmp/tb/err.tmp
         fi
         continue
       fi
@@ -219,7 +219,7 @@ function CompressIssueFiles()  {
 # gather together what's needed for the email and b.g.o.
 #
 function CollectIssueFiles() {
-  ehist=/var/tmp/portage/emerge-history.txt
+  ehist=/var/tmp/tb/emerge-history.txt
   local cmd="qlop --nocolor --verbose --merge --unmerge"
 
   cat << EOF > $ehist
@@ -251,7 +251,7 @@ EOF
     # catch all log file(s)
     #
     (
-      f=/tmp/files
+      f=/var/tmp/tb/files
       cd "$workdir/.." &&\
       find ./ -name "*.log" -o -name "testlog.*" > $f &&\
       [[ -s $f ]] &&\
@@ -399,7 +399,7 @@ function pn2p() {
 
 function CreateIssueDir() {
   while [[ : ]]; do
-    issuedir=/tmp/issues/$(date +%Y%m%d-%H%M%S)-$(echo $pkg | tr '/' '_')
+    issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(echo $pkg | tr '/' '_')
     if [[ ! -d $issuedir ]]; then
       break
     fi
@@ -507,7 +507,7 @@ function ClassifyIssue() {
     # the order of the pattern rules
     #
     pushd /tmp 1>/dev/null
-    cat /tmp/tb/data/CATCH_ISSUES.$phase /tmp/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
+    cat /mnt/tb/data/CATCH_ISSUES.$phase /mnt/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
     for x in x??
     do
       grep -a -m 1 -B 2 -A 3 -f $x $bak > issue
@@ -525,7 +525,7 @@ function ClassifyIssue() {
         break
       fi
     done
-    rm /tmp/x??
+    rm /var/tmp/tb/x??
     popd 1>/dev/null
 
     # kick off hex addresses, line and time numbers and other stuff
@@ -581,7 +581,7 @@ function SearchForBlocker() {
       block="-b $bugno"
       break
     fi
-  done < <(grep -v -e '^#' -e '^$' /tmp/tb/data/BLOCKER)
+  done < <(grep -v -e '^#' -e '^$' /mnt/tb/data/BLOCKER)
 }
 
 
@@ -767,11 +767,11 @@ function SendoutIssueMail()  {
   if [[ -s $issuedir/title ]]; then
     # do not inform a known issue twice
     #
-    grep -F -q -f $issuedir/title /tmp/tb/data/ALREADY_CATCHED 2>/dev/null
+    grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED 2>/dev/null
     if [[ $? -eq 0 ]]; then
       return
     fi
-    cat $issuedir/title >> /tmp/tb/data/ALREADY_CATCHED
+    cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
   fi
   Mail "$(cat $issuedir/bgo_result 2>/dev/null)$(cat $issuedir/title)" $issuedir/body
 }
@@ -821,7 +821,7 @@ function GotAnIssue()  {
     PutDepsIntoWorldFile &>/dev/null
   fi
 
-  fatal=$(grep -m 1 -f /tmp/tb/data/FATAL_ISSUES $bak)
+  fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $bak)
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
   fi
@@ -880,7 +880,7 @@ function GotAnIssue()  {
     echo "=$pkg" >> /etc/portage/package.mask/self
   fi
 
-  grep -q -f /tmp/tb/data/IGNORE_ISSUES $issuedir/title
+  grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title
   if [[ $? -ne 0 ]]; then
     SendoutIssueMail
   fi
@@ -1036,8 +1036,8 @@ function PostEmerge() {
 
   # daily subsequent image updates
   #
-  if [[ ! -s $backlog && -f /tmp/@system.history ]]; then
-    let "diff = ( $(date +%s) - $(stat -c%Y /tmp/@system.history) ) / 86400"
+  if [[ ! -s $backlog && -f /var/tmp/tb/@system.history ]]; then
+    let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
     if [[ $diff -ge 1 ]]; then
       add2backlog "@system"
       add2backlog "%SwitchJDK"
@@ -1053,7 +1053,7 @@ function CheckQA() {
 
   # process each QA issue separately (there might be more than 1 in the same elog file)
   #
-  split --lines=1 --suffix-length=2 /tmp/tb/data/CATCH_QA
+  split --lines=1 --suffix-length=2 /mnt/tb/data/CATCH_QA
 
   find /var/log/portage/elog -name '*.log' |\
   while read elogfile
@@ -1171,7 +1171,7 @@ function WorkOnTask() {
     RunAndCheck "emerge $task $opts"
     local rc=$?
 
-    cp $logfile /tmp/$task.last.log
+    cp $logfile /var/tmp/tb/$task.last.log
 
     # "ok|NOT ok|<msg>" is used in check_history() of whatsup.sh
     # to display " ", "[SWP]" or "[swp]" respectively
@@ -1186,9 +1186,9 @@ function WorkOnTask() {
 
     if [[ $rc -ne 0 ]]; then
       if [[ -n "$pkg" ]]; then
-        echo "$(date) $pkg" >> /tmp/$task.history
+        echo "$(date) $pkg" >> /var/tmp/tb/$task.history
       else
-        echo "$(date) NOT ok $msg" >> /tmp/$task.history
+        echo "$(date) NOT ok $msg" >> /var/tmp/tb/$task.history
       fi
 
       grep -q "The following USE changes are necessary to proceed:" $bak
@@ -1206,7 +1206,7 @@ function WorkOnTask() {
       fi
 
     else
-      echo "$(date) ok $msg" >> /tmp/$task.history
+      echo "$(date) ok $msg" >> /var/tmp/tb/$task.history
     fi
 
   # %<command>
@@ -1280,16 +1280,16 @@ function DetectALoop() {
 #       main
 #
 mailto="tinderbox@zwiebeltoralf.de"
-taskfile=/tmp/task                  # holds the current task
+taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds always output of the running task command
-backlog=/tmp/backlog.1st            # this is the high prio backlog
+backlog=/var/tmp/tb/backlog.1st     # this is the high prio backlog
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"
 
 # needed eg. for the b.g.o. comment #0
 #
-name=$( cat /tmp/name )
+name=$( cat /var/tmp/tb/name )
 keyword="stable"
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 0 ]]; then
@@ -1305,8 +1305,8 @@ fi
 
 while :
 do
-  if [[ -f /tmp/STOP ]]; then
-    Finish 0 "catched STOP file" /tmp/STOP
+  if [[ -f /var/tmp/tb/STOP ]]; then
+    Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
   date > $logfile
@@ -1317,8 +1317,8 @@ do
 
   getNextTask
 
-  if [[ -x /tmp/pretask.sh ]]; then
-    /tmp/pretask.sh &> /tmp/pretask.sh.log
+  if [[ -x /var/tmp/tb/pretask.sh ]]; then
+    /var/tmp/tb/pretask.sh &> /var/tmp/tb/pretask.sh.log
   fi
 
   echo "$task" | tee -a $taskfile.history > $taskfile

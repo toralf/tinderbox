@@ -14,6 +14,8 @@ cd ~
 
 for mnt in ${@:-$(ls ~/run 2>/dev/null)}
 do
+  echo -n "$(date) "
+
   # try to prepend ~/run if no path is given
   #
   if [[ ! -e $mnt && ! $mnt =~ '/' ]]; then
@@ -34,32 +36,31 @@ do
     continue
   fi
   
-  if [[ -f $mnt/tmp/LOCK ]]; then
+  if [[ -f $mnt/var/tmp/tb/LOCK ]]; then
     echo " image is not running: $mnt"
     continue
   fi
 
-  if [[ -f $mnt/tmp/STOP ]]; then
+  if [[ -f $mnt/var/tmp/tb/STOP ]]; then
     echo " image is not stopping: $mnt"
     continue
   fi
 
-  if [[ $(cat $mnt/tmp/backlog* /tmp/task 2>/dev/null | wc -l) -eq 0 ]]; then
+  if [[ $(cat $mnt/var/tmp/tb/backlog* /var/tmp/tb/task 2>/dev/null | wc -l) -eq 0 ]]; then
     echo " all backlogs are empty: $mnt"
     continue
   fi
 
-  cp /opt/tb/bin/job.sh $mnt/tmp || continue
+  cp /opt/tb/bin/job.sh $mnt/var/tmp/tb || continue
 
-  echo " $(date) starting $mnt"
-  nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /tmp/job.sh" &> ~/logs/$(basename $mnt).log &
+  echo " starting     $mnt"
+  nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/$(basename $mnt).log &
 
-  # avoid spurious trouble with mount in chr.sh
+  # avoid spurious trouble with mountall() in chr.sh
   #
   sleep 1
-
 done
 
-# avoid a non-visible prompt
+# avoid a invisible prompt
 #
 echo

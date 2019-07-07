@@ -9,14 +9,14 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 The current *stage3* file is downloaded, verified and unpacked, profile, keyword and USE flag are set.
 Mandatory portage config files will be compiled.
 Few required packages (*ssmtp*, *pybugz* etc.) will be installed.
-A backlog is filled up with all available package in a randomized order (*/tmp/backlog*).
+A backlog is filled up with all available package in a randomized order (*/var/tmp/tb/backlog*).
 A symlink is made into *~/run* and the image is started.
 
 ### start an image
     
     start_img.sh <image>
 
-The file */tmp/LOCK* is created within that image to avoid 2 running instances of the same image.
+The file */var/tmp/tb/LOCK* is created within that image to avoid 2 running instances of the same image.
 The wrapper *chr.sh* handles all chroot related actions and gives control to *job.sh*.
 That script is the heart of the tinderbox.
 
@@ -26,8 +26,8 @@ Without any arguments all symlinks in *~/run* are processed.
 
     stop_img.sh <image>
 
-A marker file */tmp/STOP* is created in that image.
-The current emerge operation will be finished before *job.sh* removes */tmp/{LOCK,STOP}* and exits.
+A marker file */var/tmp/tb/STOP* is created in that image.
+The current emerge operation will be finished before *job.sh* removes */var/tmp/tb/{LOCK,STOP}* and exits.
 
 ### chroot into a stopped image
     
@@ -63,7 +63,7 @@ Bugs can be filed using *bgo.sh* - a comand line ready for copy+paste is in the 
 ### unattended test of package/s
 Append package(s) to the package list in the following way:
     
-    cat << EOF >> ~/run/[image]/tmp/backlog.1st
+    cat << EOF >> ~/run/[image]/var/tmp/tb/backlog.1st
     INFO net-p2p/bitcoind ok ? https://bugs.gentoo.org/show_bug.cgi?id=642934
     net-p2p/bitcoind
     EOF
@@ -95,8 +95,8 @@ to have 2 directories acting as mount points for 2 separate file systems (mkfs i
 
 Clone this git repository.
 
-Move *./data* and *./sdata* into *~/tb* as user *tinderbox*.
-Move *./bin* into */opt/tb* as user *root*.
+Move *./data* and *./sdata* into *~/tb/ as user *tinderbox*.
+Move *./bin* into */opt/tb/ as user *root*.
 The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
 The user *tinderbox* must have write permissions for files in *~/tb/data*.
 Edit the credentials in *~/sdata* and strip away the suffix *.sample*.
@@ -106,4 +106,3 @@ Grant sudo rights to the user *tinderbox*:
 
 ## (few) more info
 https://www.zwiebeltoralf.de/tinderbox.html
-

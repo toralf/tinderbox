@@ -62,18 +62,18 @@ function Overall() {
   running=0
   for i in $images
   do
-    if [[ -f $i/tmp/LOCK ]]; then
+    if [[ -f $i/var/tmp/tb/LOCK ]]; then
       let "running = running + 1"
     fi
   done
   inrun=$(wc -w <<< $images)
 
-  echo "compl fail  days backlog  upd  1st state  $running#$inrun images are up"
+  echo "compl fail  days backlog  upd  1st state  $running ($inrun in ~/run) runnign"
 
   for i in $images
   do
     day=0
-    f=$i/tmp/setup.sh
+    f=$i/var/tmp/tb/setup.sh
     if [[ -f $f ]]; then
       let "age = $(date +%s) - $(stat -c%Y $f)"
       day=$( echo "scale=2; $age / 86400.0" | bc )
@@ -89,22 +89,22 @@ function Overall() {
     # example of an issue directory name: 20170417-082345_app-misc_fsniper-1.3.1-r2
     #
     fail=0
-    if [[ -d $i/tmp/issues ]]; then
-      fail=$(ls -1 $i/tmp/issues | xargs --no-run-if-empty -n 1 basename | cut -f2- -d'_' -s | sort -u | wc -w)
+    if [[ -d $i/var/tmp/tb/issues ]]; then
+      fail=$(ls -1 $i/var/tmp/tb/issues | xargs --no-run-if-empty -n 1 basename | cut -f2- -d'_' -s | sort -u | wc -w)
     fi
 
-    bl=$(wc -l 2>/dev/null < $i/tmp/backlog)
-    bl1=$(wc -l 2>/dev/null < $i/tmp/backlog.1st)
-    blu=$(wc -l 2>/dev/null < $i/tmp/backlog.upd)
+    bl=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog)
+    bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st)
+    blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd)
 
     flag=""
-    [[ -f $i/tmp/LOCK ]] && flag="r$flag" || flag=" $flag"    # (r)unning
+    [[ -f $i/var/tmp/tb/LOCK ]] && flag="r$flag" || flag=" $flag"    # (r)unning
 
     # (f)inishing
-    if [[ -f $i/tmp/STOP ]]; then
+    if [[ -f $i/var/tmp/tb/STOP ]]; then
       flag="F$flag"
     else
-      grep -q ^STOP $i/tmp/backlog.1st
+      grep -q ^STOP $i/var/tmp/tb/backlog.1st
       if [[ $? -eq 0 ]]; then
         flag="f$flag"
       else
@@ -120,9 +120,9 @@ function Overall() {
     # upper case: an error occurred, lower case: a warning occurred
     # a "." means was not run yet and a space, that it was fully ok
     #
-    check_history $i/tmp/@world.history              w
-    check_history $i/tmp/@system.history             s
-    check_history $i/tmp/@preserved-rebuild.history  p
+    check_history $i/var/tmp/tb/@world.history              w
+    check_history $i/var/tmp/tb/@system.history             s
+    check_history $i/var/tmp/tb/@preserved-rebuild.history  p
 
     # images during setup are not already symlinked to ~/run, print so that the position of / is fixed
     #
@@ -146,8 +146,8 @@ function Tasks()  {
   do
     PrintImageName
 
-    tsk=$i/tmp/task
-    if [[ ! -f $i/tmp/LOCK || ! -s $tsk ]]; then
+    tsk=$i/var/tmp/tb/task
+    if [[ ! -f $i/var/tmp/tb/LOCK || ! -s $tsk ]]; then
       echo
       continue
     fi
@@ -183,7 +183,7 @@ function LastEmergeOperation()  {
   for i in $images
   do
     PrintImageName
-    if [[ ! -f $i/tmp/LOCK ]]; then
+    if [[ ! -f $i/var/tmp/tb/LOCK ]]; then
       echo
       continue
     fi

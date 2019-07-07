@@ -268,7 +268,7 @@ EOF
 
   cat << EOF > ./etc/portage/repos.conf/tinderbox.conf
 [tinderbox]
-location = /tmp/tb/data/portage
+location = /mnt/tb/data/portage
 
 EOF
 
@@ -389,10 +389,12 @@ function cpconf() {
 }
 
 
-# create portage directories + files and create symlinks from /tmp/tb/data/... to their target(s)
+# create portage + tinderbox directories + files and symlinks
 #
 function CompilePortageFiles()  {
-  mkdir -p ./tmp/tb ./$repo_gentoo ./$distdir ./var/tmp/portage
+  mkdir -p ./mnt/tb ./var/tmp/tb ./$repo_gentoo ./$distdir ./var/tmp/portage
+  chgrp portage ./var/tmp/tb
+  chmod ug+rwx  ./var/tmp/tb
 
   for d in package.{accept_keywords,env,mask,unmask,use} env
   do
@@ -403,7 +405,7 @@ function CompilePortageFiles()  {
     chgrp portage ./etc/portage/$d
   done
 
-  (cd ./etc/portage; ln -s ../../tmp/tb/data/patches)
+  (cd ./etc/portage; ln -s ../../mnt/tb/data/patches)
 
   touch       ./etc/portage/package.mask/self     # contains failed packages of this image
   chmod a+rw  ./etc/portage/package.mask/self
@@ -557,7 +559,7 @@ EOF
 %emerge --unmerge openssl
 %emerge -f dev-libs/openssl dev-libs/libressl net-misc/openssh net-misc/wget dev-lang/python
 %chgrp portage /etc/portage/package.use/00libressl
-%cp /tmp/tb/data/package.use.00libressl /etc/portage/package.use/00libressl
+%cp /mnt/tb/data/package.use.00libressl /etc/portage/package.use/00libressl
 EOF
   fi
 
@@ -661,13 +663,13 @@ emerge mail-client/mailx  || exit 1
 
 # credentials for mail-mta/ssmtp
 #
-(cd /etc/ssmtp && ln -sf ../../tmp/tb/sdata/ssmtp.conf) || exit 1
+(cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf) || exit 1
 
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
 
 # credentials for www-client/pybugz
 #
-(cd /root && ln -s ../tmp/tb/sdata/.bugzrc) || exit 1
+(cd /root && ln -s ../mnt/tb/sdata/.bugzrc) || exit 1
 
 if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
