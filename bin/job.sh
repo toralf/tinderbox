@@ -506,7 +506,7 @@ function ClassifyIssue() {
     # catch the issue and guess a better title based on it
     # the order of the pattern rules
     #
-    pushd /tmp 1>/dev/null
+    pushd /var/tmp/tb 1>/dev/null
     cat /mnt/tb/data/CATCH_ISSUES.$phase /mnt/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
     for x in x??
     do
