@@ -1311,7 +1311,7 @@ do
 
   date > $logfile
 
-  # auto-clean is deactivated in favour to collect issue files
+  # auto-clean is deactivated in FEATURES to collect issue files
   #
   rm -rf /var/tmp/portage/*
 
