@@ -2,9 +2,10 @@
 #
 
 # if FEATURES=test activated then these USE flags are needed
-
+#
+dev-libs/glib              -gtk-doc
 media-gfx/imagemagick     corefonts
 media-libs/gd             png
 media-libs/tiff           jpeg
-net-nds/openldap          -minimal
+net-nds/openldap          -minimal -cxx
 x11-base/xorg-server      xvfb
