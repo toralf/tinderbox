@@ -518,9 +518,9 @@ function CreateBacklog()  {
     # no replay of @sets or %commands
     # a replay of 'qlist -ICv' is intentionally not wanted
     #
-    echo "INFO finished replay of task history of $origin"    >> $bl.1st
-    grep -v -E "^(%|@)" $origin/var/tmp/tb/task.history | uniq | tac >> $bl.1st
-    echo "INFO starting replay of task history of $origin"    >> $bl.1st
+    echo "INFO finished replay of task history of $origin"            >> $bl.1st
+    grep -v -E "^(%|@)" $origin/var/tmp/tb/task.history | uniq | tac  >> $bl.1st
+    echo "INFO starting replay of task history of $origin"            >> $bl.1st
   fi
 
   # update @system and @world before working on packages
