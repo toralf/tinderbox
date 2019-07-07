@@ -10,17 +10,25 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-for mnt in ${@:-$(ls ~/run 2>/dev/null)}
-do
-  if [[ ! -d $mnt ]]; then
-    tmp=$(ls -d ~tinderbox/{run,img?}/$mnt 2>/dev/null | head -n 1)
-    if [[ ! -d $tmp ]]; then
-      echo "cannot guess the full path to the image $mnt"
-      continue
+if [[ $# -eq 0 ]]; then
+  images=$(ls ~/run 2>/dev/null)
+else
+  images=""
+  for mnt in ${@}
+  do
+    if [[ ! -d $mnt ]]; then
+      i=$(ls -d ~/run/$mnt ~/img/$mnt ~/img?/$mnt 2>/dev/null | head -n 1)
+      if [[ ! -d $mnt ]]; then
+        echo "cannot guess the full path to the image $mnt"
+        continue
+      fi
     fi
-    mnt=$tmp
-  fi
+    images="$images $mnt"
+  done
+fi
 
+for mnt in $images
+do
   # $mnt must not be a broken symlink
   #
   if [[ -L $mnt && ! -e $mnt ]]; then
@@ -51,5 +59,4 @@ do
 
   echo " $(date) stopping $mnt"
   touch $mnt/tmp/STOP
-
 done
