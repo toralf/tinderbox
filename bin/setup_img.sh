@@ -2,14 +2,7 @@
 #
 # set -x
 
-
 # setup a new tinderbox image
-# an exit code of 2 means to the caller: try it again
-#
-# typical call:
-#
-# echo "sudo /opt/tb/bin/setup_img.sh -t y -m n -l n -p 17.1/desktop -e y" | at now
-
 
 #############################################################################
 #
@@ -116,7 +109,8 @@ function SetOptions() {
 # helper of CheckOptions()
 #
 function checkBool()  {
-  read -r var val <<< ${@}
+  var=$1
+  val=$(eval echo \$$1)
 
   if [[ "$val" != "y" && "$val" != "n" ]]; then
     echo " wrong value for \$$var: $val"
@@ -138,10 +132,10 @@ function CheckOptions() {
     exit 1
   fi
 
-  checkBool "autostart"   $autostart
-  checkBool "libressl"    $libressl
-  checkBool "multilib"    $multilib
-  checkBool "testfeature" $testfeature
+  checkBool "autostart"
+  checkBool "libressl"
+  checkBool "multilib"
+  checkBool "testfeature"
 }
 
 
@@ -856,6 +850,8 @@ dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system -
 CheckOptions
 ComputeImageName
 
+# an exit code of 2 means to the caller: try it again
+#
 if [[ -z "$origin" ]]; then
   ls -d ~tinderbox/run/${name}-20??????-?????? 2>/dev/null
   if [[ $? -eq 0 ]]; then
