@@ -15,9 +15,9 @@ function Finish() {
 function LookForAnImage()  {
   # wait time between 2 images
   #
-  latest=$(cd ~/run; ls -t */tmp/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
+  latest=$(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
   if [[ -n "$latest" ]]; then
-    let "h = ( $(date +%s) - $(stat -c%Y ~/run/$latest/tmp/setup.sh) ) / 3600"
+    let "h = ( $(date +%s) - $(stat -c%Y ~/run/$latest/var/tmp/tb/setup.sh) ) / 3600"
     if [[ $h -lt $hours ]]; then
       Finish 3
     fi
@@ -29,7 +29,7 @@ function LookForAnImage()  {
   #
   while read i
   do
-    let "d = ( $(date +%s) - $(stat -c%Y ~/run/$i/tmp/setup.sh) ) / 3600 / 24"
+    let "d = ( $(date +%s) - $(stat -c%Y ~/run/$i/var/tmp/tb/setup.sh) ) / 3600 / 24"
     if [[ $d -lt $days ]]; then
       break
     fi
@@ -44,22 +44,22 @@ function LookForAnImage()  {
 
     oldimg=$i
     return
-  done < <(cd ~/run; ls -t */tmp/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
+  done < <(cd ~/run; ls -t */var/tmp/tb/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
 
   Finish 3
 }
 
 
 function StopOldImage() {
-  cat << EOF >> ~/run/$oldimg/tmp/backlog.1st
-STOP EOL at $(date), $compl completed, $(wc -l < ~/run/$oldimg/tmp/backlog) left
+  cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
+STOP EOL at $(date), $compl completed, $(wc -l < ~/run/$oldimg/var/tmp/tb/backlog) left
 %/usr/bin/pfl
 app-portage/pfl
 EOF
 
-  if [[ -f ~/run/$oldimg/tmp/LOCK ]]; then
+  if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
     echo " wait for stop ..."
-    while [[ -f ~/run/$oldimg/tmp/LOCK ]]; do
+    while [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; do
       sleep 1
     done
   fi
@@ -76,7 +76,7 @@ function SetupANewImage()  {
     date
     echo "attempt $i ============================================================="
     echo
-    sudo ${0%%/*}/setup_img.sh $setupargs
+    sudo ${0%/*}/setup_img.sh $setupargs
     rc=$?
 
     if [[ $rc -eq 0 ]]; then

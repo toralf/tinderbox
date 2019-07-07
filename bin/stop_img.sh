@@ -10,29 +10,22 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-if [[ $# -eq 0 ]]; then
-  images=$(ls -d ~/run/* 2>/dev/null)
-else
-  images=""
-  for mnt in ${@}
-  do
-    if [[ ! -d $mnt ]]; then
-      i=$(ls -d ~/run/$mnt ~/img/$mnt ~/img?/$mnt 2>/dev/null | head -n 1)
-      if [[ ! -d $mnt ]]; then
-        echo "cannot guess the full path to $mnt"
-        continue
-      fi
-    fi
-    images="$images $mnt"
-  done
-fi
-
-for mnt in $images
+for mnt in ${@:-$(ls ~/run 2>/dev/null)}
 do
   echo -n "$(date) "
 
-  if [[ -L $mnt && ! -e $mnt ]]; then
-    echo "broken symlink: $mnt"
+  # try to prepend ~/run if no path is given
+  #
+  if [[ ! -e $mnt && ! $mnt =~ '/' ]]; then
+    mnt=~/run/$mnt
+  fi
+
+  if [[ ! -e $mnt ]]; then
+    if [[ -L $mnt ]]; then
+      echo "broken symlink: $mnt"
+    else
+      echo "vanished/invalid: $mnt"
+    fi
     continue
   fi
 
@@ -42,7 +35,7 @@ do
   fi
 
   if [[ ! -f $mnt/var/tmp/tb/LOCK ]]; then
-    echo " not running: $mnt"
+    echo " is not running: $mnt"
     continue
   fi
 

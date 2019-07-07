@@ -461,15 +461,15 @@ EOF
     echo "*/* notest" > ./etc/portage/package.env/00notest
   fi
 
-  touch ./tmp/task
+  touch ./var/tmp/tb/task
 
-  chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./tmp/task
-  chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./tmp/task
+  chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
+  chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
 }
 
 
 function CompileMiscFiles()  {
-  echo $name > ./tmp/name
+  echo $name > ./var/tmp/tb/name
 
   # use local (==host) DNS resolver
   #
@@ -499,12 +499,12 @@ EOF
 }
 
 
-# /tmp/backlog.upd : update_backlog.sh writes to it
-# /tmp/backlog     : filled by setup_img.sh
-# /tmp/backlog.1st : filled by setup_img.sh, job.sh and retest.sh write to it
+# /var/tmp/tb/backlog.upd : update_backlog.sh writes to it
+# /var/tmp/tb/backlog     : filled by setup_img.sh
+# /var/tmp/tb/backlog.1st : filled by setup_img.sh, job.sh and retest.sh write to it
 #
 function CreateBacklog()  {
-  bl=./tmp/backlog
+  bl=./var/tmp/tb/backlog
 
   truncate -s 0           $bl{,.1st,.upd}
   chmod ug+w              $bl{,.1st,.upd}
@@ -514,12 +514,12 @@ function CreateBacklog()  {
   #
   qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> $bl
 
-  if [[ -e $origin && -s $origin/tmp/task.history ]]; then
+  if [[ -e $origin && -s $origin/var/tmp/tb/task.history ]]; then
     # no replay of @sets or %commands
     # a replay of 'qlist -ICv' is intentionally not wanted
     #
     echo "INFO finished replay of task history of $origin"    >> $bl.1st
-    grep -v -E "^(%|@)" $origin/tmp/task.history | uniq | tac >> $bl.1st
+    grep -v -E "^(%|@)" $origin/var/tmp/tb/task.history | uniq | tac >> $bl.1st
     echo "INFO starting replay of task history of $origin"    >> $bl.1st
   fi
 
@@ -624,7 +624,7 @@ EOF
 # - dry run of @system using the desired profile
 #
 function CreateSetupScript()  {
-  cat << EOF > ./tmp/setup.sh || exit 1
+  cat << EOF > ./var/tmp/tb/setup.sh || exit 1
 #!/bin/sh
 #
 # set -x
@@ -693,16 +693,16 @@ $useflags
 # the very first @system must succeed otherwise exit here with "2"
 # to tell the caller to retry an image setup with another set of parameters
 #
-$dryrun &> /tmp/dryrun.log || exit 2
+$dryrun &> /var/tmp/tb/dryrun.log || exit 2
 grep -A 32  -e 'The following USE changes are necessary to proceed:'                \
             -e 'One of the following packages is required to complete your request' \
-            /tmp/dryrun.log && exit 2
+            /var/tmp/tb/dryrun.log && exit 2
 
 exit 0
 
 EOF
 
-  chmod u+x ./tmp/setup.sh
+  chmod u+x ./var/tmp/tb/setup.sh
 }
 
 
@@ -713,7 +713,7 @@ function EmergeMandatoryPackages() {
   echo " install mandatory packages ..."
   cd ~tinderbox/
 
-  ${0%%/*}/chr.sh $mnt '/tmp/setup.sh &> /tmp/setup.sh.log'
+  ${0%/*}/chr.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
   rc=$?
 
   echo
@@ -722,16 +722,16 @@ function EmergeMandatoryPackages() {
     echo
 
     if [[ $rc -eq 2 ]]; then
-      cat $mnt/tmp/dryrun.log
+      cat $mnt/var/tmp/tb/dryrun.log
     else
-      cat $mnt/tmp/setup.sh.log
+      cat $mnt/var/tmp/tb/setup.sh.log
     fi
 
     echo "
-      view $mnt/tmp/dryrun.log
+      view $mnt/var/tmp/tb/dryrun.log
       echo '' >> $mnt/etc/portage/package.use/setup
 
-      sudo ${0%%/*}/chr.sh $mnt ' $dryrun '
+      sudo ${0%/*}/chr.sh $mnt ' $dryrun '
 
       (cd ~tinderbox/run && ln -s ../$mnt)
       start_img.sh $name
@@ -878,7 +878,7 @@ ln -s ../$mnt     || exit 1
 
 if [[ "$autostart" = "y" ]]; then
   echo
-  su - tinderbox -c "${0%%/*}/start_img.sh $name"
+  su - tinderbox -c "${0%/*}/start_img.sh $name"
 fi
 
 exit 0

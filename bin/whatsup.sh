@@ -93,7 +93,7 @@ function Overall() {
       fail=$(ls -1 $i/var/tmp/tb/issues | xargs --no-run-if-empty -n 1 basename | cut -f2- -d'_' -s | sort -u | wc -w)
     fi
 
-    bl=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog)
+    bl=$(wc -l  2>/dev/null < $i/var/tmp/tb/backlog)
     bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st)
     blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd)
 
@@ -104,7 +104,7 @@ function Overall() {
     if [[ -f $i/var/tmp/tb/STOP ]]; then
       flag="F$flag"
     else
-      grep -q ^STOP $i/var/tmp/tb/backlog.1st
+      grep -q ^STOP $i/var/tmp/tb/backlog.1st 2>/dev/null
       if [[ $? -eq 0 ]]; then
         flag="f$flag"
       else
@@ -127,9 +127,9 @@ function Overall() {
     # images during setup are not already symlinked to ~/run, print so that the position of / is fixed
     #
     b=${i##*/}
-    [[ -e ~/run/$b ]] && d="run" || d=${${i%%/*}##*/}
+    [[ -e ~/run/$b ]] && d="run" || d=$(basename ${i%/*})
 
-    printf "%5i %4i %5.1f %7i %4i %4i %5s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b"
+    printf "%5i %4i %5.1f %7i %4i %4i %5s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
   done
 }
 

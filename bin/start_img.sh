@@ -10,8 +10,6 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-cd ~
-
 for mnt in ${@:-$(ls ~/run 2>/dev/null)}
 do
   echo -n "$(date) "
@@ -37,12 +35,12 @@ do
   fi
   
   if [[ -f $mnt/var/tmp/tb/LOCK ]]; then
-    echo " not running: $mnt"
+    echo " is running: $mnt"
     continue
   fi
 
   if [[ -f $mnt/var/tmp/tb/STOP ]]; then
-    echo " not stopping: $mnt"
+    echo " is stopping: $mnt"
     continue
   fi
 

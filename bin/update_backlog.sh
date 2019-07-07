@@ -29,11 +29,11 @@ if [[ -s $pks ]]; then
   for i in $(ls ~/run 2>/dev/null)
   do
     # fs is not (yet) mounted)?
-    if [[ ! -e ~/run/$i/tmp/ ]]; then
+    if [[ ! -e ~/run/$i/var/tmp/tb/ ]]; then
       continue
     fi
 
-    bl=~/run/$i/tmp/backlog.upd
+    bl=~/run/$i/var/tmp/tb/backlog.upd
     sort --unique $bl $pks | shuf > $bl.tmp
     # "mv" overwrites file permissions
     #
