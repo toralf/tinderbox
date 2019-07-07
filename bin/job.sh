@@ -241,7 +241,7 @@ EOF
   for f in $ehist $pkglog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
   do
     if [[ -f $f ]]; then
-      stresc < $f > $issuedir/files/$(basename $f)
+      stresc < $f > $issuedir/files/${f##*/}
     fi
   done
 
@@ -310,7 +310,7 @@ function getPkgVarsFromIssuelog()  {
 
   if [[ -z "$pkg" ]]; then
     if [[ -n "$pkglog" ]]; then
-      pkg=$(basename $pkglog | cut -f1-2 -d':' -s | tr ':' '/')
+      pkg=$(cut -f1-2 -d':' -s <<< ${pkglog##*/} | tr ':' '/')
     fi
   fi
 
@@ -367,7 +367,7 @@ function AttachFilesToBody()  {
       s=$( wc -c < $f )
       if [[ $s -gt 0 && $s -lt 1048576 ]]; then
         echo >> $issuedir/body
-        uuencode $f $(basename $f) >> $issuedir/body
+        uuencode $f ${f##*/} >> $issuedir/body
         echo >> $issuedir/body
       fi
     fi
@@ -797,7 +797,7 @@ function setWorkDir() {
   if [[ ! -d "$workdir" ]]; then
     workdir=$(fgrep -m 1 ">>> Source unpacked in " $bak | cut -f5 -d" " -s)
     if [[ ! -d "$workdir" ]]; then
-      workdir=/var/tmp/portage/$pkg/work/$(basename $pkg)
+      workdir=/var/tmp/portage/$pkg/work/${pkg##*/}
       if [[ ! -d "$workdir" ]]; then
         workdir=""
       fi
@@ -1058,7 +1058,7 @@ function CheckQA() {
   find /var/log/portage/elog -name '*.log' |\
   while read elogfile
   do
-    pkg=$(basename $elogfile | cut -f1-2 -d':' -s | tr ':' '/')
+    pkg=$(cut -f1-2 -d':' -s <<< ${elogfile##*/} | tr ':' '/')
     pkgname=$(pn2p "$pkg")
     pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
 
@@ -1072,7 +1072,7 @@ function CheckQA() {
         # if it contains more than 6 lines then attach it too
         #
         if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
-          cp $elogfile $issuedir/files/elog-$( basename $elogfile )
+          cp $elogfile $issuedir/files/elog-${elogfile##*/}
         fi
         cp $pkglog $issuedir/files/
 

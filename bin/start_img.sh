@@ -37,12 +37,12 @@ do
   fi
   
   if [[ -f $mnt/var/tmp/tb/LOCK ]]; then
-    echo " image is not running: $mnt"
+    echo " not running: $mnt"
     continue
   fi
 
   if [[ -f $mnt/var/tmp/tb/STOP ]]; then
-    echo " image is not stopping: $mnt"
+    echo " not stopping: $mnt"
     continue
   fi
 
@@ -54,13 +54,13 @@ do
   cp /opt/tb/bin/job.sh $mnt/var/tmp/tb || continue
 
   echo " starting     $mnt"
-  nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/$(basename $mnt).log &
+  nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
 
   # avoid spurious trouble with mountall() in chr.sh
   #
   sleep 1
 done
 
-# avoid a invisible prompt
+# avoid an invisible prompt
 #
 echo

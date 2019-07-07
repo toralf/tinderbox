@@ -76,7 +76,7 @@ function SetupANewImage()  {
     date
     echo "attempt $i ============================================================="
     echo
-    sudo $(dirname $0)/setup_img.sh $setupargs
+    sudo ${0%%/*}/setup_img.sh $setupargs
     rc=$?
 
     if [[ $rc -eq 0 ]]; then
@@ -101,7 +101,7 @@ function SetupANewImage()  {
 
 # do not run this script in parallel
 #
-lck=/tmp/$(basename $0).lck
+lck=/tmp/${0##*/}.lck
 if [[ -s $lck ]]; then
   kill -0 $(cat $lck) 2>/dev/null
   if [[ $? -eq 0 ]]; then

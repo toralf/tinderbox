@@ -7,7 +7,7 @@
 
 mailto="tinderbox@zwiebeltoralf.de"
 
-f=/tmp/$(basename $0).out
+f=/tmp/${0##*/}.out
 
 while :
 do

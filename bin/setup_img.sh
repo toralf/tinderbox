@@ -224,7 +224,7 @@ function UnpackStage3()  {
     exit 1
   fi
 
-  f=$distdir/$(basename $stage3)
+  f=$distdir/${stage3##*/}
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo "downloading $stage3 ..."
@@ -383,7 +383,8 @@ function cpconf() {
   for f in $*
   do
     # eg.: .../package.unmask.00stable -> package.unmask/00stable
-    to=$(echo $(basename $f) | sed 's,.00,/00,')
+    #
+    to=$(sed 's,.00,/00,' <<< ${f##*/})
     cp $f ./etc/portage/$to
   done
 }
@@ -712,7 +713,7 @@ function EmergeMandatoryPackages() {
   echo " install mandatory packages ..."
   cd ~tinderbox/
 
-  $(dirname $0)/chr.sh $mnt '/tmp/setup.sh &> /tmp/setup.sh.log'
+  ${0%%/*}/chr.sh $mnt '/tmp/setup.sh &> /tmp/setup.sh.log'
   rc=$?
 
   echo
@@ -730,7 +731,7 @@ function EmergeMandatoryPackages() {
       view $mnt/tmp/dryrun.log
       echo '' >> $mnt/etc/portage/package.use/setup
 
-      sudo $(dirname $0)/chr.sh $mnt ' $dryrun '
+      sudo ${0%%/*}/chr.sh $mnt ' $dryrun '
 
       (cd ~tinderbox/run && ln -s ../$mnt)
       start_img.sh $name
@@ -877,7 +878,7 @@ ln -s ../$mnt     || exit 1
 
 if [[ "$autostart" = "y" ]]; then
   echo
-  su - tinderbox -c "$(dirname $0)/start_img.sh $name"
+  su - tinderbox -c "${0%%/*}/start_img.sh $name"
 fi
 
 exit 0

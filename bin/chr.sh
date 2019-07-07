@@ -61,7 +61,7 @@ function umountall()  {
 # CONFIG_MEMCG_SWAP_ENABLED=y
 
 function cgroup() {
-  sysfsdir=/sys/fs/cgroup/memory/tinderbox-${mnt##*/})
+  sysfsdir=/sys/fs/cgroup/memory/tinderbox-${mnt##*/}
   if [[ ! -d $sysfsdir ]]; then
     mkdir -p $sysfsdir
   fi

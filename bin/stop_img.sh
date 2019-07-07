@@ -19,7 +19,7 @@ else
     if [[ ! -d $mnt ]]; then
       i=$(ls -d ~/run/$mnt ~/img/$mnt ~/img?/$mnt 2>/dev/null | head -n 1)
       if [[ ! -d $mnt ]]; then
-        echo "cannot guess the full path to the image $mnt"
+        echo "cannot guess the full path to $mnt"
         continue
       fi
     fi
@@ -42,7 +42,7 @@ do
   fi
 
   if [[ ! -f $mnt/var/tmp/tb/LOCK ]]; then
-    echo " image is not running: $mnt"
+    echo " not running: $mnt"
     continue
   fi
 

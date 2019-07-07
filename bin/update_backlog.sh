@@ -15,7 +15,7 @@ cd $repo_path || exit 3
 
 # list of updated package(s)
 #
-pks=/tmp/$(basename $0).txt
+pks=/tmp/${0##*/}.txt
 
 # default: 1 hour to let mirrors be synced
 #
