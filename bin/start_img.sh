@@ -4,10 +4,7 @@
 
 # start tinderbox chroot image/s
 #
-# typcial call:
-#
-# $> start_img.sh desktop-libressl_20170224-103028
-#
+
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " $0: wrong user $USER"
   exit 1
@@ -37,22 +34,16 @@ do
     continue
   fi
   
-  # image must not be running
-  #
   if [[ -f $mnt/tmp/LOCK ]]; then
-    echo " found LOCK: $mnt"
+    echo " image is not running: $mnt"
     continue
   fi
 
-  # image must not be stopping
-  #
   if [[ -f $mnt/tmp/STOP ]]; then
-    echo " found STOP: $mnt"
+    echo " image is not stopping: $mnt"
     continue
   fi
 
-  # at least one non-empty backlog or the last (unfinished) task is required
-  #
   if [[ $(cat $mnt/tmp/backlog* /tmp/task 2>/dev/null | wc -l) -eq 0 ]]; then
     echo " all backlogs are empty: $mnt"
     continue
