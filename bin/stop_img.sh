@@ -11,7 +11,7 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
 fi
 
 if [[ $# -eq 0 ]]; then
-  images=$(ls ~/run 2>/dev/null)
+  images=$(ls -d ~/run/* 2>/dev/null)
 else
   images=""
   for mnt in ${@}
