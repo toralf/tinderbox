@@ -1019,6 +1019,16 @@ function PostEmerge() {
     add2backlog "%SwitchGCC"
   fi
 
+  # daily subsequent image updates
+  #
+  if [[ ! -s $backlog && -f /var/tmp/tb/@system.history ]]; then
+    let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
+    if [[ $diff -ge 1 ]]; then
+      add2backlog "@system"
+      add2backlog "%SwitchJDK"
+    fi
+  fi
+
   grep -q ">>> Installing .* dev-lang/python-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     add2backlog "%eselect python update"
@@ -1031,16 +1041,6 @@ function PostEmerge() {
 
     if [[ "$current" != "$latest" ]]; then
       add2backlog "%eselect ruby set $latest"
-    fi
-  fi
-
-  # daily subsequent image updates
-  #
-  if [[ ! -s $backlog && -f /var/tmp/tb/@system.history ]]; then
-    let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
-    if [[ $diff -ge 1 ]]; then
-      add2backlog "@system"
-      add2backlog "%SwitchJDK"
     fi
   fi
 }
