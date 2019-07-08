@@ -503,10 +503,11 @@ function ClassifyIssue() {
       collectTestIssueResults
     fi
 
+    pushd /var/tmp/tb 1>/dev/null
+
     # catch the issue and guess a better title based on it
     # the order of the pattern rules
     #
-    pushd /var/tmp/tb 1>/dev/null
     cat /mnt/tb/data/CATCH_ISSUES.$phase /mnt/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
     for x in x??
     do
@@ -525,7 +526,9 @@ function ClassifyIssue() {
         break
       fi
     done
-    rm /var/tmp/tb/x??
+
+    rm x??
+
     popd 1>/dev/null
 
     # kick off hex addresses, line and time numbers and other stuff
@@ -1049,7 +1052,7 @@ function PostEmerge() {
 # helper of RunAndCheck()
 #
 function CheckQA() {
-  pushd /tmp 1>/dev/null
+  pushd /var/tmp/tb 1>/dev/null
 
   # process each QA issue separately (there might be more than 1 in the same elog file)
   #
