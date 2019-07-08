@@ -12,7 +12,7 @@ fi
 
 for mnt in ${@:-$(ls ~/run 2>/dev/null)}
 do
-  echo -n "$(date +%R) "
+  echo -n "$(date +%X) "
 
   # try to prepend ~/run if no path is given
   #
