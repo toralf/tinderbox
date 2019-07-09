@@ -112,7 +112,7 @@ echo $$ > $lck
 
 compl=4500    # emerge operations
 days=5        # min runtime
-hours=19      # distamce to the last image, effectively this yields into n+1 hours
+hours=16      # distamce to the last image, effectively this yields into n+1 hours
 oldimg=""     # if not given choose one
 setupargs=""  # pass thru to setup_img.sh
 
