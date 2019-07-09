@@ -52,7 +52,7 @@ function LookForAnImage()  {
 
 function StopOldImage() {
   cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
-STOP EOL at $(date), $compl completed, $(wc -l < ~/run/$oldimg/var/tmp/tb/backlog) left
+STOP EOL at $(date +%R), $c completed, $(wc -l < ~/run/$oldimg/var/tmp/tb/backlog) left
 %/usr/bin/pfl
 app-portage/pfl
 EOF
