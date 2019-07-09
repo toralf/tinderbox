@@ -338,6 +338,7 @@ CFLAGS="\${COMMON_FLAGS}"
 CXXFLAGS="\${COMMON_FLAGS}"
 FCFLAGS="\${COMMON_FLAGS}"
 FFLAGS="\${COMMON_FLAGS}"
+
 RUSTFLAGS="-C target-cpu=native -v -C codegen-units=1"
 
 $([[ ! $profile =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
@@ -425,11 +426,13 @@ function CompilePortageFiles()  {
   # no parallel build
   #
   cat << EOF                                      > ./etc/portage/env/noconcurrent
+EGO_BUILD_FLAGS="-p 1"
+GO19CONCURRENTCOMPILATION=0
+GOMAXPROCS="1"
 MAKEOPTS="-j1"
 NINJAFLAGS="-j1"
-EGO_BUILD_FLAGS="-p 1"
-GOMAXPROCS="1"
-GO19CONCURRENTCOMPILATION=0
+OMP_NUM_THREAD=1
+# RUSTFLAGS is set in make.conf
 RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 
