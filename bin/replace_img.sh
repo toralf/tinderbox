@@ -44,7 +44,7 @@ function LookForAnImage()  {
 
     oldimg=$i
     return
-  done < <(cd ~/run; ls -t */var/tmp/tb/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
+  done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
 
   Finish 3
 }
