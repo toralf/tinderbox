@@ -7,6 +7,7 @@ ImportError:
 Need FEATURES=.* to run this testsuite
 ^E: Failure
 : FAILED (.*:.*)
+.* failed unexpectedly.
 ^ERROR:.*test
 Failing test(s):
  (Failed)

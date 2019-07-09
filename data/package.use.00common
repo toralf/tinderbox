@@ -25,7 +25,7 @@ dev-lang/rust             system-llvm
 #
 dev-qt/qtwebengine        jumbo-build
 
-# pulls X11 + QT otherwise, which would reduce our test coverage
+# pulls X11 + QT otherwise unconditionally
 #
 app-portage/portage-utils -qmanifest
 #
