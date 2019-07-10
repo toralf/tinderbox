@@ -35,6 +35,10 @@ do
     # so use backlog.1st but put our atom *after* any high-prio task
     #
     bl=~/run/$i/var/tmp/tb/backlog.1st
+    if [[ "$(head -n 1 $bl)" = "$p" ]]; then
+      continue
+    fi
+
     if [[ -s $bl ]]; then
       sed -i -e "1i $p" $bl
     else
