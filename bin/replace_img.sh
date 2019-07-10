@@ -111,10 +111,10 @@ fi
 echo $$ > $lck
 
 compl=4500    # emerge operations
-days=5        # min runtime
-hours=16      # distamce to the last image, effectively this yields into n+1 hours
-oldimg=""     # if not given choose one
-setupargs=""  # pass thru to setup_img.sh
+days=5        # min. runtime of an image
+hours=16      # min. distance to the previous image, effectively this yields into n+1 hours
+oldimg=""     # if not given selects one
+setupargs=""  # passed to setup_img.sh
 
 while getopts c:d:h:o:s: opt
 do
