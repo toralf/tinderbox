@@ -11,7 +11,7 @@
 # helper of ThrowUseFlags()
 #
 function FilterUseFlag()  {
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hostname|ithreads|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan'
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan'
 }
 
 
