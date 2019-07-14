@@ -466,6 +466,12 @@ EOF
     echo "*/* notest" > ./etc/portage/package.env/00notest
   fi
 
+  # needed at least by spidermonkey and polkit, and not (yet) in the profile itself
+  #
+  if [[ $profile =~ '/desktop' ]]; then
+    echo "dev-lang/python sqlite" > ./etc/portage/package.use/00python
+  fi
+
   touch ./var/tmp/tb/task
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
