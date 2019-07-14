@@ -93,10 +93,6 @@ function SetOptions() {
     fi
   fi
 
-  # optional: suffix of the image name
-  #
-  suffix=""
-
   # FEATURES=test
   #
   testfeature="n"
@@ -158,10 +154,6 @@ function ComputeImageName()  {
 
   if [[ "$testfeature" = "y" ]]; then
     name="${name}_test"
-  fi
-
-  if [[ -n "$suffix" ]]; then
-    name="${name}_${suffix}"
   fi
 
   name="$(echo $name | sed -e 's/-[_-]/-/g' -e 's/-$//')"
@@ -788,7 +780,7 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 SetOptions
 
-while getopts a:f:k:l:m:o:p:s:t:u: opt
+while getopts a:f:k:l:m:o:p:t:u: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -847,8 +839,6 @@ do
 
         ;;
     p)  profile=$OPTARG
-        ;;
-    s)  suffix="$OPTARG"
         ;;
     t)  testfeature="$OPTARG"
         ;;
