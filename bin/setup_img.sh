@@ -563,15 +563,16 @@ EOF
   #
   if [[ "$libressl" = "y" ]]; then
     # fetch all mandatory packages which either must be (re-)build or have to act as a fallback
-    # wget is crucial b/c it is used by portage to fetch sources
-    # the final @preserved-rebuild must not fail
+    # wget is crucial to fetch sources, unmerge triggers @preserved-rebuild,
+    # nevertheless the final @preserved-rebuild must not fail, therefore "% ..."
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
 %emerge --unmerge openssl
-%emerge -f dev-libs/openssl dev-libs/libressl net-misc/openssh net-misc/wget dev-lang/python
+%emerge -f dev-libs/libressl net-misc/openssh net-misc/wget
 %chgrp portage /etc/portage/package.use/00libressl
 %cp /mnt/tb/data/package.use.00libressl /etc/portage/package.use/00libressl
+%emerge -f dev-libs/openssl
 EOF
   fi
 
