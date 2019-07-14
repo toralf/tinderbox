@@ -87,7 +87,7 @@ function SetOptions() {
   # a "y" yields to ABI_X86="32 64" being set in make.conf
   #
   multilib="n"
-  if [[ ! $profile =~ "no-multilib" ]]; then
+  if [[ ! $profile =~ "/no-multilib" ]]; then
     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       multilib="y"
     fi
