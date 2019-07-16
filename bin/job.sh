@@ -1235,7 +1235,7 @@ function WorkOnTask() {
           else
             grep -q ' Invalid resume list:' $bak
             if [[ $? -eq 0 ]]; then
-              add2backlog "$(tac $taskfile.history | grep -m 1 '^@')"
+              add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
             fi
           fi
         elif [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" && ! $task =~ "BuildKernel" ]]; then
