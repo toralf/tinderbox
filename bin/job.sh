@@ -1183,6 +1183,11 @@ function WorkOnTask() {
         echo "$(date) NOT ok" >> /var/tmp/tb/$task.history
       fi
 
+      grep -q "The following USE changes are necessary to proceed:" $bak
+      if [[ $? -eq 0 ]]; then
+        Finish 1 "$task failed due to USE flag constraints"
+      fi
+
       masked=$(
           grep -A 100 'One of the following masked packages is required to complete your request:' $bak |\
           grep -B 100 -m 1 '^$' | grep '^\- .*::gentoo (masked by: package.mask)' |\
@@ -1190,11 +1195,6 @@ function WorkOnTask() {
           xargs
       )
       add2backlog "%emerge -C $masked"
-
-      grep -q "The following USE changes are necessary to proceed:" $bak
-      if [[ $? -eq 0 ]]; then
-        Finish 1 "$task failed due to USE flag constraints"
-      fi
 
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
