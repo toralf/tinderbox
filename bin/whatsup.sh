@@ -28,15 +28,22 @@ function check_history()  {
   local file=$1
   local lc=$2
 
+  # eg. for @system:
+  #
+  # S = failed at all
+  # s = failed for a package
+  # . = never run before
+  #   = no issues
+  #
   if [[ -s $file ]]; then
-    tail -n 1 $file | grep -q " NOT ok "
+    tail -n 1 $file | grep -q " NOT ok"
     if [[ $? -eq 0 ]]; then
       local uc=$(echo $lc | tr '[:lower:]' '[:upper:]')
       flag="${uc}${flag}"
       return
     fi
 
-    tail -n 1 $file | grep -q " ok "
+    tail -n 1 $file | grep -q " ok"
     if [[ $? -eq 0 ]]; then
       flag=" $flag"
       return

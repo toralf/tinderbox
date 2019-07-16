@@ -1176,22 +1176,11 @@ function WorkOnTask() {
 
     cp $logfile /var/tmp/tb/$task.last.log
 
-    # "ok|NOT ok|<msg>" is used in check_history() of whatsup.sh
-    # to display " ", "[SWP]" or "[swp]" respectively
-    #
-    msg=$(grep -m 1 \
-            -e 'The following USE changes are necessary to proceed:'                      \
-            -e 'The following REQUIRED_USE flag constraints are unsatisfied:'             \
-            -e 'The following update.* been skipped due to unsatisfied dependencies'      \
-            -e 'WARNING: One or more updates/rebuilds have been skipped due to a'         \
-            -e 'Multiple package instances within a single package slot have been pulled' \
-        $bak)
-
     if [[ $rc -ne 0 ]]; then
       if [[ -n "$pkg" ]]; then
         echo "$(date) $pkg" >> /var/tmp/tb/$task.history
       else
-        echo "$(date) NOT ok $msg" >> /var/tmp/tb/$task.history
+        echo "$(date) NOT ok" >> /var/tmp/tb/$task.history
       fi
 
       masked=$(
@@ -1217,7 +1206,7 @@ function WorkOnTask() {
       fi
 
     else
-      echo "$(date) ok $msg" >> /var/tmp/tb/$task.history
+      echo "$(date) ok" >> /var/tmp/tb/$task.history
     fi
 
   # %<command>
