@@ -1200,7 +1200,7 @@ function WorkOnTask() {
         if [[ -n "$pkg" ]]; then
           add2backlog "%emerge --resume --skip-first"
         elif [[ $task = "@system" ]]; then
-          # expecially QT upgrade yields to blocker with @system only
+          # especially a QT upgrade yield into blocker for @system
           add2backlog "@world"
         fi
       fi
