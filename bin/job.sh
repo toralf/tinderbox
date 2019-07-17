@@ -1194,7 +1194,9 @@ function WorkOnTask() {
           sed -e 's,^- ,=,' -e 's,::.*,,' |\
           xargs
       )
-      add2backlog "%emerge -C $masked"
+      if [[ -n "$masked" ]]; then
+        add2backlog "%emerge -C $masked"
+      fi
 
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
