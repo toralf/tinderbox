@@ -642,15 +642,18 @@ fi
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data || exit 1
 
-echo "
+cat << 2EOF >> /etc/locale.gen
+
+# by $0
 en_US ISO-8859-1
 en_US.UTF-8 UTF-8
 de_DE ISO-8859-1
 de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
-" >> /etc/locale.gen
+
+2EOF
+
 locale-gen -j1 || exit 1
-eselect locale set en_US.UTF-8 || exit 1
 
 if [[ $profile =~ "systemd" ]]; then
   eselect locale set en_US.UTF-8
