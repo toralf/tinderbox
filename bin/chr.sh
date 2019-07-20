@@ -19,15 +19,11 @@ function mountall() {
   #
   /bin/mount -o bind      ~tinderbox/tb     $mnt/mnt/tb           &&\
   #
-  # host repo(s) et. al.
+  # portage dirs
   #
-  /bin/mount -o bind,ro   $repo_gentoo      $mnt/$repo_gentoo     &&\
+  /bin/mount -o bind,ro   /var/db/repos     $mnt/mnt/repos        &&\
   /bin/mount -t tmpfs     tmpfs -o size=16G $mnt/var/tmp/portage  &&\
   /bin/mount -o bind      $distfiles        $mnt/$distfiles       &&\
-
-  if [[ -n "$repo_libressl" && -d $mnt/$repo_libressl ]]; then
-    /bin/mount -o bind,ro $repo_libressl $mnt/$repo_libressl
-  fi
 
   return $?
 }
@@ -38,15 +34,12 @@ function mountall() {
 function umountall()  {
   local rc=0
 
-  if [[ -n "$repo_libressl" && -d $mnt/$repo_libressl ]]; then
-    /bin/umount $mnt/$repo_libressl                 || rc=$?
-  fi
-
   /bin/umount -l $mnt/$distfiles                    || rc=$?
   /bin/umount -l $mnt/var/tmp/portage               || rc=$?
-  /bin/umount    $mnt/$repo_gentoo                  || rc=$?
+  /bin/umount    $mnt/mnt/repos                     || rc=$?
 
   /bin/umount    $mnt/mnt/tb                        || rc=$?
+
   /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
   /bin/umount -l $mnt/{sys,proc}                    || rc=$?
 
@@ -114,8 +107,6 @@ chown tinderbox:tinderbox $lock
 #
 grep -m 1 "/${mnt##*/}/" /proc/mounts && exit 3
 
-repo_gentoo=$(  portageq get_repo_path / gentoo)
-repo_libressl=$(portageq get_repo_path / libressl)
 distfiles=$(    portageq distdir)
 
 mountall

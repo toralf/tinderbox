@@ -1125,26 +1125,10 @@ function RunAndCheck() {
     return $rc
   fi
 
-  let signal="$rc - 128"
-
-  # the shared repository solution is racy wrt "git pull"
-  # (https://bugs.gentoo.org/639374)
-  #
-  grep -q -e 'AssertionError: ebuild not found for' \
-          -e 'portage.exception.FileNotFound:'      \
-          -e 'portage.exception.PortageKeyError: '  \
-          $bak
-  if [[ $? -eq 0 ]]; then
-    try_again=1
-    add2backlog "$task"
-    Mail "INFO: repo update collision, task=$task, signal=$signal" $bak
-    sleep 60
-    return $rc
-  fi
-
   if [[ $rc -lt 128 ]]; then
     GotAnIssue
   else
+    let signal="$rc - 128"
     if [[ $signal -eq 9 ]]; then
       Finish 0 "catched signal $signal - exiting"
     else
@@ -1277,6 +1261,28 @@ function DetectALoop() {
 }
 
 
+function syncRepo() {
+  tsMnt=$(cat /mnt/repos/gentoo/metadata/timestamp.chk    2>/dev/null)
+  tsImg=$(cat /var/db/repos/gentoo/metadata/timestamp.chk 2>/dev/null)
+
+  if [[  "$tsMnt" = "$tsImg" ]]; then
+    return 0
+  fi
+
+  while [[ -f /mnt/repos/gentoo/.git/index.lock ]]; do
+    sleep 1
+  done
+
+  rsync -aC /mnt/repos/gentoo /var/db/repos/
+
+  if [[ -d /var/db/repos/libressl ]]; then
+    rsync -aC /mnt/repos/libressl /var/db/repos/
+  fi
+
+  return 1
+}
+
+
 #############################################################################
 #
 #       main
@@ -1312,6 +1318,10 @@ do
   fi
 
   date > $logfile
+
+  # very unlikely but a race might happen
+  #
+  syncRepo || syncRepo
 
   # auto-clean is deactivated in FEATURES to collect issue files
   #

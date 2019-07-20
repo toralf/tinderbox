@@ -386,7 +386,7 @@ function cpconf() {
 # create portage + tinderbox directories + files and symlinks
 #
 function CompilePortageFiles()  {
-  mkdir -p ./mnt/tb ./var/tmp/tb ./$repo_gentoo ./$distdir ./var/tmp/portage
+  mkdir -p ./mnt/tb ./mnt/repos ./var/tmp/tb ./$repo_gentoo ./$distdir ./var/tmp/portage
   chgrp portage ./var/tmp/tb
   chmod ug+rwx  ./var/tmp/tb
 
