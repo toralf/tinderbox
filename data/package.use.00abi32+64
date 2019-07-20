@@ -1,7 +1,7 @@
 # package.use/00abi32+64
 #
 
-# circ dep otherwise
+# circ dep
 # 
 dev-util/pkgconfig      internal-glib
 sys-fs/eudev            -introspection

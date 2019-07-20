@@ -13,10 +13,6 @@ sys-apps/nix              -etc_profile
 #
 dev-lang/python           readline
 
-# needed eg. by spidermonkey and polkit
-#
-dev-lang/python           sqlite
-
 # 2h less compile time
 #
 dev-lang/rust             system-llvm
@@ -25,10 +21,18 @@ dev-lang/rust             system-llvm
 #
 dev-qt/qtwebengine        jumbo-build
 
-# pulls X11 + QT otherwise unconditionally
+# pulls X11 + QT
 #
 app-portage/portage-utils -qmanifest
 #
 # @preserved-rebuild issues
 #
 sys-cluster/legion        -hwloc
+
+# circ dep during image setup
+#
+net-dns/avahi             -gtk
+
+# pam ( !static )
+#
+sys-apps/busybox          -pam
