@@ -460,7 +460,7 @@ EOF
 
   # needed at least by spidermonkey and polkit, and not (yet) in the profile itself
   #
-  if [[ $profile =~ '/desktop' ]]; then
+  if [[ $profile =~ '/desktop' || $profile =~ '/developer' ]]; then
     echo "dev-lang/python sqlite" > ./etc/portage/package.use/00python
   fi
 
