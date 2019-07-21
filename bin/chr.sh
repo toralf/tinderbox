@@ -2,12 +2,10 @@
 #
 # set -x
 
-# chroot into an image either interactively -or- run a command and exit afterwards
+# chroot into an image either interactively -or- run a command
 
-# if a mount fails then do not try further
-#
 function mountall() {
-  # system dirs
+  # if a mount fails then do not try further
   #
   /bin/mount -t proc       proc        $mnt/proc   &&\
   /bin/mount --rbind       /sys        $mnt/sys    &&\
@@ -15,11 +13,7 @@ function mountall() {
   /bin/mount --rbind       /dev        $mnt/dev    &&\
   /bin/mount --make-rslave             $mnt/dev    &&\
   #
-  # tinderbox data dir
-  #
   /bin/mount -o bind      ~tinderbox/tb     $mnt/mnt/tb           &&\
-  #
-  # portage dirs
   #
   /bin/mount -o bind,ro   /var/db/repos     $mnt/mnt/repos        &&\
   /bin/mount -t tmpfs     tmpfs -o size=16G $mnt/var/tmp/portage  &&\
@@ -29,9 +23,9 @@ function mountall() {
 }
 
 
-# try to umount as much as possible even if a particular umount fails
-#
 function umountall()  {
+  # try to umount as much as possible even if a particular umount fails
+  #
   local rc=0
 
   /bin/umount -l $mnt/$distfiles                    || rc=$?
@@ -43,6 +37,10 @@ function umountall()  {
   /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
   /bin/umount -l $mnt/{sys,proc}                    || rc=$?
 
+  if [[ $rc -eq 0 ]]; then
+    rm $lock
+  fi
+
   return $rc
 }
 
@@ -52,19 +50,18 @@ function umountall()  {
 # CONFIG_MEMCG=y
 # CONFIG_MEMCG_SWAP=y
 # CONFIG_MEMCG_SWAP_ENABLED=y
-
 function cgroup() {
-  sysfsdir=/sys/fs/cgroup/memory/tinderbox-${mnt##*/}
+  local sysfsdir=/sys/fs/cgroup/memory/tinderbox-${mnt##*/}
   if [[ ! -d $sysfsdir ]]; then
     mkdir -p $sysfsdir
   fi
 
   echo "$$" > $sysfsdir/tasks
 
-  mbytes=$(echo " 8 * 2^30" | bc)
+  local mbytes=$(echo " 8 * 2^30" | bc)
   echo $mbytes > $sysfsdir/memory.limit_in_bytes
 
-  vbytes=$(echo "16 * 2^30" | bc)
+  local vbytes=$(echo "16 * 2^30" | bc)
   echo $vbytes > $sysfsdir/memory.memsw.limit_in_bytes
 }
 
@@ -74,6 +71,7 @@ function cgroup() {
 # main                                                                      #
 #                                                                           #
 #############################################################################
+trap umountall EXIT
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
@@ -89,7 +87,7 @@ if [[ ! -d $mnt ]]; then
   exit 1
 fi
 
-# treat remaining option(s) as command(s) to be run within chroot
+# treat remaining option(s) as a command line to be run within chroot
 #
 shift
 
@@ -103,11 +101,15 @@ fi
 touch $lock || exit 2
 chown tinderbox:tinderbox $lock
 
-# 2nd barrier to prevent starting the same chroot image twice
+# 2nd barrier to prevent running the same image twice
 #
-grep -m 1 "/${mnt##*/}/" /proc/mounts && exit 3
+grep -m 1 "/${mnt##*/}/" /proc/mounts
+if [[ $? -eq 0 ]]; then
+  echo "^^^^^ found (stale?) mounts of $mnt"
+  exit 3
+fi
 
-distfiles=$(    portageq distdir)
+distfiles=$(portageq distdir)
 
 mountall
 if [[ $? -ne 0 ]]; then
@@ -126,11 +128,6 @@ else
 fi
 rc=$?
 
-umountall
-if [[ $? -ne 0 ]]; then
-  exit 4
-fi
-
-rm $lock
+umountall || exit 5
 
 exit $rc
