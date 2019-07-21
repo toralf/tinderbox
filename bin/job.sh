@@ -220,7 +220,13 @@ function CompressIssueFiles()  {
 #
 function CollectIssueFiles() {
   ehist=/var/tmp/tb/emerge-history.txt
-  local cmd="qlop --nocolor --verbose --merge --unmerge"
+
+  qlop -V | grep -q "portage-utils-0.74"
+  if [[ $? -eq 0 ]]; then
+    local cmd="qlop --nocolor --verbose --gauge --human --time"
+  else
+    local cmd="qlop --nocolor --verbose --merge --unmerge"
+  fi
 
   cat << EOF > $ehist
 # This file contains the emerge history got with:
