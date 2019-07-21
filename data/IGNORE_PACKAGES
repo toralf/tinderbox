@@ -28,8 +28,8 @@ sci-libs/linux-gpib
 sci-mathematics/pari
 sys-apps/modutils
 sys-cluster/drbd-kernel
-sys-cluster/openmpi
 sys-cluster/mvapich2
+sys-cluster/openmpi
 sys-cluster/open-mx
 sys-fs/loop-aes
 sys-fs/vhba
@@ -47,7 +47,7 @@ dev-python/twisted
 dev-util/ragel
 net-libs/zmqpp
 #
-# loooooong build time
+# looooooooong build time
 #
 app-editors/atom
 dev-libs/aws-sdk-cpp
@@ -67,12 +67,12 @@ app-office/ooextras
 app-officeext/
 dev-ada/
 dev-lang/
-dev-ros/
 dev-util/include-what-you-use
 ros-meta/
 sys-cluster/
 sys-devel/byfl
 #
-# pulls old clang
+# pulls old clang/llvm
 #
 dev-util/creduce
+www-plugins/lightspark
