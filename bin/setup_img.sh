@@ -294,7 +294,6 @@ priority = 99
 EOF
 
   if [[ "$libressl" = "y" ]]; then
-    mkdir -p ./$repo_libressl
     cat << EOF > ./etc/portage/repos.conf/libressl.conf
 [libressl]
 location = $repo_libressl
@@ -386,7 +385,7 @@ function cpconf() {
 # create portage + tinderbox directories + files and symlinks
 #
 function CompilePortageFiles()  {
-  mkdir -p ./mnt/tb ./mnt/repos ./var/tmp/tb ./$repo_gentoo ./$distdir ./var/tmp/portage
+  mkdir -p ./mnt/{repos,tb} ./var/tmp/{portage,tb} ./$distdir
   chgrp portage ./var/tmp/tb
   chmod ug+rwx  ./var/tmp/tb
 
