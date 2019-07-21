@@ -1262,14 +1262,16 @@ function DetectALoop() {
 
 
 function syncRepo() {
-  tsMnt=$(cat /mnt/repos/gentoo/metadata/timestamp.chk    2>/dev/null)
-  tsImg=$(cat /var/db/repos/gentoo/metadata/timestamp.chk 2>/dev/null)
+  ts=gentoo/metadata/timestamp.chk
+  tsMnt=$(cat /mnt/repos/$ts    2>/dev/null)
+  tsImg=$(cat /var/db/repos/$ts 2>/dev/null)
+  gitlck=/mnt/repos/gentoo/.git/index.lock
 
-  if [[  "$tsMnt" = "$tsImg" ]]; then
+  if [[  "$tsMnt" = "$tsImg" && ! -e $gitlck && -e /var/db/repos/$ts ]]; then
     return 0
   fi
 
-  while [[ -f /mnt/repos/gentoo/.git/index.lock ]]; do
+  while [[ -f $gitlck ]]; do
     sleep 1
   done
 
@@ -1279,7 +1281,9 @@ function syncRepo() {
     rsync -aC /mnt/repos/libressl /var/db/repos/
   fi
 
-  return 1
+  # handle a possible race condition
+  sleep 10
+  syncRepo
 }
 
 
@@ -1319,9 +1323,7 @@ do
 
   date > $logfile
 
-  # very unlikely but a race might happen
-  #
-  syncRepo || syncRepo
+  syncRepo
 
   # auto-clean is deactivated in FEATURES to collect issue files
   #

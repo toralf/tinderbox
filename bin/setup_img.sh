@@ -633,6 +633,11 @@ function CreateSetupScript()  {
 #
 # set -x
 
+rsync -aC /mnt/repos/gentoo /var/db/repos/
+if [[ "$libressl" = "y" ]]; then
+  rsync -aC /mnt/repos/libressl /var/db/repos/
+fi
+
 if [[ "$switch_profile" = "y" ]]; then
   eselect profile set --force default/linux/amd64/17.0  || exit 1
 else
