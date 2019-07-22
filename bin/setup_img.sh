@@ -738,12 +738,15 @@ function EmergeMandatoryPackages() {
 function Dryrun() {
   local rc=0
 
-  local dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --backtrack=30 --pretend"
-  sudo ${0%/*}/chr.sh $mnt "$dryrun" || rc=$?
+  local dryrun=""
+  sudo ${0%/*}/chr.sh $mnt 'emerge --update --newuse --changed-use --changed-deps=y --deep @system --backtrack=30 --pretend &> /var/tmp/tb/dryrun.log'
+  rc=$?
 
-  grep -A 32  -e 'The following USE changes are necessary to proceed:'                \
-              -e 'One of the following packages is required to complete your request' \
-              $mnt/var/tmp/tb/dryrun.log && rc=1
+  if [[ $rc -eq 0 ]]; then
+    grep -A 32  -e 'The following USE changes are necessary to proceed:'                \
+                -e 'One of the following packages is required to complete your request' \
+                $mnt/var/tmp/tb/dryrun.log && rc=1
+  fi
 
   if [[ $rc -ne 0 ]]; then
     echo " Dryrun was NOT successful (rc=$rc) @ $mnt"
