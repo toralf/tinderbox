@@ -718,8 +718,6 @@ function EmergeMandatoryPackages() {
   sudo ${0%/*}/chr.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
   rc=$?
 
-  echo
-
   if [[ $rc -ne 0 ]]; then
     echo " setup was NOT successful (rc=$rc) @ $mnt"
     echo
@@ -728,24 +726,23 @@ function EmergeMandatoryPackages() {
     exit $rc
   fi
 
-  echo " setup OK"
+  echo
 }
 
 
-# the very first @system must succeed otherwise exit here with "2"
-# to tell the caller to retry an image setup with another set of parameters
+# the very first @system must succeed
 #
-function Dryrun() {
-  local rc=0
+function DryrunHelper() {
+  date
+  echo " dryrun ..."
 
-  local dryrun=""
   sudo ${0%/*}/chr.sh $mnt 'emerge --update --newuse --changed-use --changed-deps=y --deep @system --backtrack=30 --pretend &> /var/tmp/tb/dryrun.log'
-  rc=$?
+  local rc=$?
 
   if [[ $rc -eq 0 ]]; then
-    grep -A 32  -e 'The following USE changes are necessary to proceed:'                \
-                -e 'One of the following packages is required to complete your request' \
-                $mnt/var/tmp/tb/dryrun.log && rc=1
+    grep -H -A 32 -e 'The following USE changes are necessary to proceed:'                \
+                  -e 'One of the following packages is required to complete your request' \
+                  $mnt/var/tmp/tb/dryrun.log && rc=12
   fi
 
   if [[ $rc -ne 0 ]]; then
@@ -753,10 +750,40 @@ function Dryrun() {
     echo
     tail -v -n 1000 $mnt/var/tmp/tb/dryrun.log
     echo
-    return $rc
   fi
 
-  return 0
+  return $rc
+}
+
+
+function Dryrun() {
+  if [[ "$useflags" = "ThrowUseFlags" ]]; then
+    i=0
+    while :; do
+      ((i=i+1))
+      cat << EOF > $mnt/etc/portage/make.conf.USE
+USE="
+$(ThrowUseFlags)
+"
+EOF
+      DryrunHelper && break
+      echo
+      echo "i=$i==========================================================="
+      echo
+    done
+  else
+    cat << EOF > $mnt/etc/portage/make.conf.USE
+USE="
+${useflags}
+"
+EOF
+
+    DryrunHelper || exit $?
+  fi
+
+  echo
+  date
+  echo "  setup OK"
 }
 
 
@@ -864,8 +891,6 @@ done
 CheckOptions
 ComputeImageName
 
-# an exit code of 2 means to the caller: try it again
-#
 if [[ -z "$origin" ]]; then
   ls -d ~tinderbox/run/${name}-20??????-?????? 2>/dev/null
   if [[ $? -eq 0 ]]; then
@@ -883,30 +908,7 @@ CompileMiscFiles
 CreateBacklog
 CreateSetupScript
 EmergeMandatoryPackages
-
-if [[ "$useflags" = "ThrowUseFlags" ]]; then
-  i=0
-  while :; do
-    ((i=i+1))
-    cat << EOF > $mnt/etc/portage/make.conf.USE
-USE="
-$(ThrowUseFlags)
-"
-EOF
-    Dryrun && break
-    echo
-    echo "i=$i============================================================="
-    echo
-  done
-else
-  cat << EOF > $mnt/etc/portage/make.conf.USE
-USE="
-${useflags}
-"
-EOF
-
-  Dryrun || exit $?
-fi
+Dryrun
 
 cd ~tinderbox/run || exit 1
 ln -s ../$mnt     || exit 1
