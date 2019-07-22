@@ -127,4 +127,5 @@ if [[ -n "$oldimg" ]]; then
   rm ~/run/$oldimg ~/logs/$oldimg.log
 fi
 
+echo
 Finish 0
