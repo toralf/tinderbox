@@ -59,7 +59,7 @@ function ThrowUseFlags()  {
 function SetOptions() {
   autostart="y"               # start the image after setup
   origin=""                   # derive settings from this image
-  useflags=$(ThrowUseFlags)
+  useflags="ThrowUseFlags"
 
   # throw a profile, prefer a non-running
   #
@@ -331,6 +331,12 @@ FCFLAGS="\${COMMON_FLAGS}"
 FFLAGS="\${COMMON_FLAGS}"
 
 RUSTFLAGS="-C target-cpu=native -v -C codegen-units=1"
+
+source /etc/portage/make.conf.USE
+USE="\${USE}
+
+  ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
+"
 
 $([[ ! $profile =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
 $([[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"')
@@ -693,22 +699,6 @@ else
   eselect profile set --force default/linux/amd64/$profile || exit 1
 fi
 
-cat << 2EOF >> /etc/portage/make.conf
-USE="
-$useflags
-
-  ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
-"
-2EOF
-
-# the very first @system must succeed otherwise exit here with "2"
-# to tell the caller to retry an image setup with another set of parameters
-#
-$dryrun &> /var/tmp/tb/dryrun.log || exit 2
-grep -A 32  -e 'The following USE changes are necessary to proceed:'                \
-            -e 'One of the following packages is required to complete your request' \
-            /var/tmp/tb/dryrun.log && exit 2
-
 exit 0
 
 EOF
@@ -724,35 +714,45 @@ function EmergeMandatoryPackages() {
   echo " install mandatory packages ..."
   cd ~tinderbox/
 
-  ${0%/*}/chr.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
+  sudo ${0%/*}/chr.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
   rc=$?
 
   echo
+
   if [[ $rc -ne 0 ]]; then
-    echo " setup NOT successful (rc=$rc) @ $mnt"
+    echo " setup was NOT successful (rc=$rc) @ $mnt"
     echo
-
-    if [[ $rc -eq 2 ]]; then
-      cat $mnt/var/tmp/tb/dryrun.log
-    else
-      cat $mnt/var/tmp/tb/setup.sh.log
-    fi
-
-    echo "
-      view $mnt/var/tmp/tb/dryrun.log
-      echo '' >> $mnt/etc/portage/package.use/setup
-
-      sudo ${0%/*}/chr.sh $mnt ' $dryrun '
-
-      (cd ~tinderbox/run && ln -s ../$mnt)
-      start_img.sh $name
-
-"
+    tail -v -n 1000 $mnt/var/tmp/tb/setup.sh.log
+    echo
     exit $rc
-
-  else
-    echo " setup OK"
   fi
+
+  echo " setup OK"
+}
+
+
+# the very first @system must succeed otherwise exit here with "2"
+# to tell the caller to retry an image setup with another set of parameters
+#
+function Dryrun() {
+  local rc=0
+
+  local dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --backtrack=30 --pretend"
+  sudo ${0%/*}/chr.sh $mnt "$dryrun" || rc=$?
+
+  grep -A 32  -e 'The following USE changes are necessary to proceed:'                \
+              -e 'One of the following packages is required to complete your request' \
+              $mnt/var/tmp/tb/dryrun.log && rc=1
+
+  if [[ $rc -ne 0 ]]; then
+    echo " Dryrun was NOT successful (rc=$rc) @ $mnt"
+    echo
+    tail -v -n 1000 $mnt/var/tmp/tb/dryrun.log
+    echo
+    return $rc
+  fi
+
+  return 0
 }
 
 
@@ -857,8 +857,6 @@ do
   esac
 done
 
-dryrun="emerge --update --newuse --changed-use --changed-deps=y --deep @system --backtrack=30 --pretend"
-
 CheckOptions
 ComputeImageName
 
@@ -881,6 +879,30 @@ CompileMiscFiles
 CreateBacklog
 CreateSetupScript
 EmergeMandatoryPackages
+
+if [[ "$useflags" = "ThrowUseFlags" ]]; then
+  i=0
+  while :; do
+    ((i=i+1))
+    cat << EOF > $mnt/etc/portage/make.conf.USE
+USE="
+$(ThrowUseFlags)
+"
+EOF
+    Dryrun && break
+    echo
+    echo "i=$i============================================================="
+    echo
+  done
+else
+  cat << EOF > $mnt/etc/portage/make.conf.USE
+USE="
+${useflags}
+"
+EOF
+
+  Dryrun || exit $?
+fi
 
 cd ~tinderbox/run || exit 1
 ln -s ../$mnt     || exit 1
