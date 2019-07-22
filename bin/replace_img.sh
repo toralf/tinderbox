@@ -66,35 +66,6 @@ EOF
 }
 
 
-function SetupANewImage()  {
-  i=0
-  while :
-  do
-    let "i=$i+1"
-
-    echo
-    date
-    echo "attempt $i ============================================================="
-    echo
-    sudo ${0%/*}/setup_img.sh $setupargs
-    rc=$?
-
-    if [[ $rc -eq 0 ]]; then
-      break
-    elif [[ $rc -eq 2 ]]; then
-      continue
-    else
-      echo "rc=$rc, exiting ..."
-      Finish 23
-    fi
-  done
-
-  echo
-  date
-  echo "done, needed $i attempt(s)"
-}
-
-
 #######################################################################
 #
 #
@@ -147,7 +118,7 @@ fi
 echo
 date
 echo "setup a new image ..."
-SetupANewImage
+sudo ${0%/*}/setup_img.sh $setupargs || Finish $?
 
 if [[ -n "$oldimg" ]]; then
   echo
