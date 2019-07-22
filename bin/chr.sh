@@ -71,7 +71,7 @@ function cgroup() {
 # main                                                                      #
 #                                                                           #
 #############################################################################
-trap umountall EXIT
+trap umountall QUIT TERM KILL
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
@@ -87,7 +87,7 @@ if [[ ! -d $mnt ]]; then
   exit 1
 fi
 
-# treat remaining option(s) as a command line to be run within chroot
+# treat remaining option/s as the command line to be run
 #
 shift
 
