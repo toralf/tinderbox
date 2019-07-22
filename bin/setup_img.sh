@@ -321,6 +321,7 @@ function CompileMakeConf()  {
     l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | shuf -n $(($RANDOM % 10)) | sort | xargs)"
   fi
 
+  truncate -s 0 ./etc/portage/make.conf.USE
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 
