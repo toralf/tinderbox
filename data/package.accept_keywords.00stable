@@ -1,6 +1,7 @@
 # package.accept_keywords/00stable
 #
 
-# by asturm
+# (boost-1.70-stable) - [Tracker] https://bugs.gentoo.org/689032
 #
-~dev-util/cmake-3.14.3
+~dev-libs/boost-1.70.0
+~dev-util/boost-build-1.70.0
