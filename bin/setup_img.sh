@@ -109,7 +109,7 @@ function checkBool()  {
   val=$(eval echo \$$1)
 
   if [[ "$val" != "y" && "$val" != "n" ]]; then
-    echo " wrong value for \$$var: $val"
+    echo " wrong value for \$$var: >>$val<<"
     exit 1
   fi
 }
@@ -119,12 +119,12 @@ function checkBool()  {
 #
 function CheckOptions() {
   if [[ -z "$profile" || ! -d $repo_gentoo/profiles/default/linux/amd64/$profile ]]; then
-    echo " profile unknown: $profile"
+    echo " profile unknown: >>$profile<<"
     exit 1
   fi
 
   if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
-    echo " wrong value for \$keyword: $keyword"
+    echo " wrong value for \$keyword: >>$keyword<<"
     exit 1
   fi
 
