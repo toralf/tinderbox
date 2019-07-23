@@ -80,8 +80,10 @@ function SetOptions() {
   # alternative SSL vendor: LibreSSL
   #
   libressl="n"
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    libressl="y"
+  if [[ "$keyword" = "unstable" ]]; then
+    if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+      libressl="y"
+    fi
   fi
 
   # a "y" yields to ABI_X86="32 64" being set in make.conf
@@ -96,8 +98,10 @@ function SetOptions() {
   # FEATURES=test
   #
   testfeature="n"
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    testfeature="y"
+  if [[ "$keyword" = "unstable" ]]; then
+    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+      testfeature="y"
+    fi
   fi
 }
 
@@ -795,14 +799,14 @@ EOF
 date
 echo " $0 started"
 echo
-if [[ $# -gt 0 ]]; then
-  echo "   additional args are given: '${@}'"
-  echo
-fi
-
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
+fi
+
+if [[ $# -gt 0 ]]; then
+  echo "   additional args are given: '${@}'"
+  echo
 fi
 
 set -e
@@ -826,6 +830,10 @@ do
     f)  features="$OPTARG"
         ;;
     k)  keyword="$OPTARG"
+        if [[ "$keyword" = "stable" ]]; then
+          libressl="n"
+          testfeature="n"
+        fi
         ;;
     l)  libressl="$OPTARG"
         ;;
