@@ -1178,15 +1178,15 @@ function WorkOnTask() {
         Finish 1 "$task failed due to USE flag constraints"
       fi
 
-      masked=$(
-          grep -A 100 'One of the following masked packages is required to complete your request:' $bak |\
-          grep -B 100 -m 1 '^$' | grep '^\- .*::gentoo (masked by: package.mask)' |\
-          sed -e 's,^- ,=,' -e 's,::.*,,' |\
-          xargs
-      )
-      if [[ -n "$masked" ]]; then
-        add2backlog "%emerge -C $masked"
-      fi
+#       masked=$(
+#           grep -A 100 'One of the following masked packages is required to complete your request:' $bak |\
+#           grep -B 100 -m 1 '^$' | grep '^\- .*::gentoo (masked by: package.mask)' |\
+#           sed -e 's,^- ,=,' -e 's,::.*,,' |\
+#           xargs
+#       )
+#       if [[ -n "$masked" ]]; then
+#         add2backlog "%emerge -C $masked"
+#       fi
 
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
