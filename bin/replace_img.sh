@@ -70,6 +70,11 @@ EOF
 #
 #
 
+if [[ ! "$(whoami)" = "tinderbox" ]]; then
+  echo "You are not tinderbox !"
+  exit 1
+fi
+
 # do not run this script in parallel
 #
 lck=/tmp/${0##*/}.lck
