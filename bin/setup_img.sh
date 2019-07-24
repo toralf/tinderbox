@@ -73,11 +73,14 @@ function SetOptions() {
   #
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news protect-owned -collision-protect"
 
-  # check only unstable amd64 per default
+  # check almost unstable
   #
   keyword="unstable"
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+    keyword="stable"
+  fi
 
-  # alternative SSL vendor: LibreSSL
+  # alternative SSL vendor LibreSSL
   #
   libressl="n"
   if [[ "$keyword" = "unstable" ]]; then
