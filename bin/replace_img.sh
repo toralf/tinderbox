@@ -71,7 +71,7 @@ EOF
 #
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
-  echo "You are not tinderbox !"
+  echo " You are not tinderbox !"
   exit 1
 fi
 
@@ -112,23 +112,23 @@ if [[ -n "$oldimg" ]]; then
   echo
   date
   if [[ -e ~/run/$oldimg ]]; then
-    echo "replace $oldimg ..."
+    echo " replace $oldimg ..."
     StopOldImage
   else
-    echo "error, not found: $oldimg ..."
+    echo " error, not found: $oldimg ..."
     Finish 1
   fi
 fi
 
 echo
 date
-echo "setup a new image ..."
+echo " setup a new image ..."
 sudo ${0%/*}/setup_img.sh $setupargs || Finish $?
 
 if [[ -n "$oldimg" ]]; then
   echo
   date
-  echo "delete $oldimg ..."
+  echo " delete $oldimg ..."
   rm ~/run/$oldimg ~/logs/$oldimg.log
 fi
 
