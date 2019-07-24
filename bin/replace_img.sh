@@ -51,8 +51,11 @@ function LookForAnImage()  {
 
 
 function StopOldImage() {
+  local c=$(grep -c ' ::: completed emerge' ~/run/$oldimg/var/log/emerge.log)
+  local l=$(wc -l < ~/run/$oldimg/var/tmp/tb/backlog)
+
   cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
-STOP EOL at $(date +%R), $c completed, $(wc -l < ~/run/$oldimg/var/tmp/tb/backlog) left
+STOP EOL at $(date +%R), $c completed, $l left
 %/usr/bin/pfl
 app-portage/pfl
 EOF
