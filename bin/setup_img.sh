@@ -526,7 +526,10 @@ function CreateBacklog()  {
   chmod ug+w              $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  # sort is needed b/c more than one repository is configured
+  # the very last action
+  echo "%/usr/bin/pfl" >> $bl
+
+  # sort is needed if more than one repository is configured
   #
   qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> $bl
 
@@ -672,10 +675,7 @@ de_DE.UTF-8@euro UTF-8
 2EOF
 
 locale-gen -j1 || exit 1
-
-if [[ $profile =~ "systemd" ]]; then
-  eselect locale set en_US.UTF-8
-fi
+eselect locale set en_US.UTF-8
 
 env-update
 source /etc/profile
@@ -753,7 +753,7 @@ function DryrunHelper() {
   fi
 
   if [[ $rc -ne 0 ]]; then
-    echo " Dryrun was NOT successful (rc=$rc) @ $mnt"
+    echo " dryrun was NOT successful (rc=$rc) @ $mnt"
     echo
     tail -v -n 1000 $mnt/var/tmp/tb/dryrun.log
     echo
@@ -768,15 +768,16 @@ function Dryrun() {
     i=0
     while :; do
       ((i=i+1))
+      echo
+      date
+      echo "i=$i==========================================================="
+      echo
       cat << EOF > $mnt/etc/portage/make.conf.USE
 USE="
 $(ThrowUseFlags)
 "
 EOF
       DryrunHelper && break
-      echo
-      echo "i=$i==========================================================="
-      echo
     done
   else
     cat << EOF > $mnt/etc/portage/make.conf.USE
