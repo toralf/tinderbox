@@ -37,8 +37,13 @@ net-dns/avahi             -gtk
 #
 sys-apps/busybox          -pam
 
+# requires sys-apps/util-linux[caps]
+#
+app-portage/pfl           -network-cron
+
+
 # [10:34:16 pm] <@Soap__> asturm: likely most people dont have USE=python enabled by default
 # [10:34:42 pm] <@asturm> Soap__: is it time to ask toralf for a stable run then?
 # [10:35:11 pm] <@Soap__> asturm: go ahead
 #
-*/*                       python
+*/*                       python boost

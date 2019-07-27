@@ -40,7 +40,7 @@ glib.*: command not found|--.*: command not found|GLIB_.*: command not found|mar
 # [TRACKER] Packages requiring porting to boost-1.70
 #
 671712
-boost::asio|boost::python|boost/signal.*No such file or directory
+boost::asio|boost::python|boost/signal.*No such file or directory|cannot find -lboost_|FindBoost.cmake
 
 # (gcc-9) - [TRACKER] sys-devel/gcc-9 porting
 #
