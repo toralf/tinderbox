@@ -137,14 +137,16 @@ if [[ -d ./files ]]; then
   echo
   for f in ./files/*
   do
-    # max. size from b.g.o. is 1 MB
+    # max. size from b.g.o. is 1000 KB
     #
-    if [[ $(wc -c < $f) -lt 1048576 ]]; then
-      # this matches both *.bz2 and *.tbz2
+    if [[ $(wc -c < $f) -lt 1000000 ]]; then
+      # x-bzip matches both *.bz2 and *.tbz2
       #
       echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
       echo "  $f"
       timeout 60 bugz attach --content-type "$ct" --description "" $id $f 1>bugz.out 2>bugz.err || Warn $?
+    else
+      echo "skiped too fat file: $f"
     fi
   done
 fi
