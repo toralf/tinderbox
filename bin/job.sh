@@ -1319,8 +1319,6 @@ do
 
   date > $logfile
 
-  syncRepo
-
   # auto-clean is deactivated in FEATURES to collect issue files
   #
   rm -rf /var/tmp/portage/*
@@ -1340,4 +1338,8 @@ do
   truncate -s 0 $taskfile
 
   DetectALoop
+
+  # do at at the end of this loop to avoid a rsync storm after reboot
+  #
+  syncRepo
 done
