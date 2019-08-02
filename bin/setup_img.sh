@@ -329,6 +329,7 @@ function CompileMakeConf()  {
   fi
 
   truncate -s 0 ./etc/portage/make.conf.USE
+
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 
@@ -378,8 +379,8 @@ QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
 EOF
   # the "tinderbox" user have to be put in group "portage" to make this effective
   #
-  chgrp portage ./etc/portage/make.conf
-  chmod g+w ./etc/portage/make.conf
+  chgrp portage ./etc/portage/make.conf{,.USE}
+  chmod g+w ./etc/portage/make.conf{,.USE}
 }
 
 
