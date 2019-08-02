@@ -23,7 +23,7 @@ function PrintUseFlag() {
 function ThrowUseFlags()  {
   # throw up to n-1 local USE flags
   #
-  n=30
+  n=50
 
   grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
   cut -f2 -d'"' -s | sort -u |\
