@@ -55,7 +55,7 @@ function StopOldImage() {
   local l=$(wc -l < ~/run/$oldimg/var/tmp/tb/backlog)
 
   cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
-STOP EOL at $(date +%R), $c completed, $l left
+STOP stopp scheduled at $(date +%R), $c completed, $l left
 %/usr/bin/pfl
 app-portage/pfl
 EOF
