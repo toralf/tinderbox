@@ -76,8 +76,10 @@ function SetOptions() {
   # check almost unstable
   #
   keyword="unstable"
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    keyword="stable"
+  if [[ -z "$(ls -d ~tinderbox/run/*stable*)" ]]; then
+    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+      keyword="stable"
+    fi
   fi
 
   # alternative SSL vendor LibreSSL
@@ -102,8 +104,10 @@ function SetOptions() {
   #
   testfeature="n"
   if [[ "$keyword" = "unstable" ]]; then
-    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-      testfeature="y"
+    if [[ -z "$(ls -d ~tinderbox/run/*test*)" ]]; then
+      if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+        testfeature="y"
+      fi
     fi
   fi
 }
