@@ -5,13 +5,13 @@
 # print tinderbox statistics
 
 
-# watch all images either runnign or at least symlinked into ~/run
+# watch any images either mounted or symlinked into ~/run
 #
 function list_images() {
   {
     for i in $( ls ~/run ); do ls -d ~/img?/$i; done
-    df -h | grep '/home/tinderbox/img./' | cut -f4-5 -d'/' -s | sed "s,^,/home/tinderbox/,g"
-  } 2>/dev/null | LANG=C sort -u
+    df -h | grep '/home/tinderbox/img./' | cut -f1-5 -d'/' -s | awk ' { print $6 } '
+  } 2>/dev/null | LANG=C sort -u -k 5 -t'/'
 }
 
 
