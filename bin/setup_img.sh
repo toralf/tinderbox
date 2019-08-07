@@ -76,7 +76,7 @@ function SetOptions() {
   # check almost unstable
   #
   keyword="unstable"
-  if [[ -z "$(ls -d ~tinderbox/run/*stable*)" ]]; then
+  if [[ -z "$(ls -d ~tinderbox/run/*stable* 2>/dev/null)" ]]; then
     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       keyword="stable"
     fi
@@ -104,7 +104,7 @@ function SetOptions() {
   #
   testfeature="n"
   if [[ "$keyword" = "unstable" ]]; then
-    if [[ -z "$(ls -d ~tinderbox/run/*test*)" ]]; then
+    if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
       if [[ $(($RANDOM % 16)) -eq 0 ]]; then
         testfeature="y"
       fi
