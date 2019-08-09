@@ -481,9 +481,7 @@ function collectTestIssueResults() {
 
 
 # helper of GotAnIssue()
-# get the issue
-# get an descriptive title from the most meaningful lines of the issue
-# if needed: change package.env/...  to re-try failed with defaults settings
+# get the issue and a descriptive title
 #
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
@@ -511,8 +509,7 @@ function ClassifyIssue() {
 
     pushd /var/tmp/tb 1>/dev/null
 
-    # catch the issue and guess a better title based on it
-    # the order of the pattern rules
+    # catch the issue and guess a better title based on manual collected pattern
     #
     cat /mnt/tb/data/CATCH_ISSUES.$phase /mnt/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
     for x in x??
@@ -520,7 +517,7 @@ function ClassifyIssue() {
       grep -a -m 1 -B 2 -A 3 -f $x $bak > issue
       if [[ $? -eq 0 ]]; then
         mv issue $issuedir
-        # take 3rd line (-A 3) as the new title, strip quotes before
+        # take 3rd line (therefore -A 3) as the new title, strip quotes before
         #
         sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’"`], ,g' > $issuedir/title
 
@@ -537,7 +534,7 @@ function ClassifyIssue() {
 
     popd 1>/dev/null
 
-    # kick off hex addresses, line and time numbers and other stuff
+    # strip away hex addresses, line and time numbers and other stuff
     #
     sed -i  -e 's/0x[0-9a-f]*/<snip>/g'         \
             -e 's/: line [0-9]*:/:line <snip>:/g' \
@@ -558,12 +555,12 @@ function ClassifyIssue() {
 }
 
 
-# try to match title to a tracker bug
-# the BLOCKER file contains 3-line-paragraphs like:
+# test title against known blocker
+# the BLOCKER file contains paragraphs like:
 #
 #   # comment
 #   <bug id>
-#   <pattern>
+#   <pattern string ready for grep -E>
 #   ...
 #
 # if <pattern> is defined more than once then the first makes it
@@ -594,14 +591,14 @@ function SearchForBlocker() {
 }
 
 
-# enrich email body by b.g.o. findings+links
+# enrich email body by b.g.o. findings and links
 #
 function SearchForAnAlreadyFiledBug() {
   if [[ ! -s $issuedir/title ]]; then
     return
   fi
 
-  bsi=$issuedir/bugz_search_items     # consider the title as a set of patterns separated by spaces
+  bsi=$issuedir/bugz_search_items     # the title acts as a set of space separated patterns
   cp $issuedir/title $bsi
 
   # get away line numbers, certain special terms and characters
@@ -615,15 +612,15 @@ function SearchForAnAlreadyFiledBug() {
           -e 's,[\(\)], ,g'           \
           $bsi
 
-  # for the file collision case: remove the package version (from the installed package)
+  # for the file collision case: remove the package version from the installed package
   #
   grep -q "file collision" $bsi
   if [[ $? -eq 0 ]]; then
     sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
   fi
 
-  # search first for the same version, then for category/package name
-  # take the highest bug id, but put the summary of the newest 10 bugs into the email body
+  # search first for the same version, second for category/package name
+  # take the highest bug id and put the summary of the next (newest) 10 bugs into the email body
   #
   for i in $pkg $pkgname
   do
@@ -673,13 +670,13 @@ EOF
     timeout 300 bugz --columns 400 -q search --status RESOLVED  $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
   fi
 
-  # this newline makes a manual copy+paste action more convenient
+  # a newline makes copy+paste more convenient
   #
   echo >> $issuedir/body
 }
 
 
-# b.g.o. has a limit for "Summary" of 255 chars
+# b.g.o. limits "Summary"
 #
 function TrimTitle()  {
   n=${1:-255}
@@ -691,7 +688,7 @@ function TrimTitle()  {
 
 
 # helper of GotAnIssue()
-# create an email containing convenient links and a command line ready for copy+paste
+# creates an email containing convenient links and a command line ready for copy+paste
 #
 function CompileIssueMail() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
