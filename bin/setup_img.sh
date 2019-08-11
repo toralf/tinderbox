@@ -731,7 +731,10 @@ function EmergeMandatoryPackages() {
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
+    date
     echo " setup was NOT successful (rc=$rc) @ $mnt"
+    echo
+    tail -v -n 1000 $mnt/etc/portage/make.conf.USE
     echo
     tail -v -n 1000 $mnt/var/tmp/tb/setup.sh.log
     echo
