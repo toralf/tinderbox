@@ -1,4 +1,4 @@
-# This file contains pairs of lines (bug number & pattern) to automate the adding of a b.g.o bug blocker id
+# This file contains pairs of lines (bug number & pattern) to automate the adding of a b.g.o bug blocker id.
 # Empty lines and comments are ignored.
 #
 
@@ -22,39 +22,17 @@ installs into paths that should be created at runtime
 530632
 This package has a configure.in file which has long been deprecated.
 
-# attr/acl - Poly-C_atwork
-#
-648864
-xattr.h|AttributeError: module object has no attribute ignore
-
-# ffmpeg-4.0 Alexis Ballier <aballier@gentoo.org>
-#
-653678
-FF_|CODEC_
-
-# [TRACKER] glib-utils
-#
-667324
-glib.*: command not found|--.*: command not found|GLIB_.*: command not found|marshal.*command not found|glib-marshal|glib-mk.* not found|gconfmarshal.list: Permission denied|glib-genmarshal|marshal.list:|GLIB2_MKENUMS-NOTFOUND|Need to define|GLIB_MKENUMS|glib-mkenums
-
 # [TRACKER] Packages requiring porting to boost-1.70
 #
 671712
-boost::asio|boost::python|boost/signal.*No such file or directory|cannot find -lboost_|FindBoost.cmake
+boost::asio|boost::python|boost/signal.*No such file or directory|cannot find -lboost_|FindBoost.cmake|invalid value: boost_major_version=
 
 # (gcc-9) - [TRACKER] sys-devel/gcc-9 porting
 #
 685044
-possibly undefined macro:|friend declaration of|taking address of packed member of|not specified in enclosing parallel| is not a constant expression|non-local lambda expression cannot have|exception cleanup for this placement new selects non-placement operator| implicitly-declared .* is deprecated|_builtin_strncpy specified bound|%s directive argument is null|cannot bind packed field| does not name a type
+possibly undefined macro:|friend declaration of|taking address of packed member of|not specified in enclosing parallel| is not a constant expression|non-local lambda expression cannot have|exception cleanup for this placement new selects non-placement operator| implicitly-declared .* is deprecated|_builtin_strncpy specified bound|%s directive argument is null|cannot bind packed field
 
-# (gettext-0.20) - [tracker] Packages that fail with =sys-devel/gettext-0.20*
+# (glibc-2.30) - [TRACKER] Issues with sys-libs/glibc-2.30 (directly and indirectly)
 #
-#[21:55] <Arfrever> toralf: I have a suggestion about tinderbox-generated bugs.
-#[21:56] <Arfrever> toralf: If autoconf.out contains the following string, then the bug should block bug #686072.
-#[21:56] <willikins> Arfrever: https://bugs.gentoo.org/686072 "[tracker] Packages that fail with =sys-devel/gettext-0.20*"; Gentoo #Linux, Current packages; CONF; polynomial-c:base-system
-#[21:56] <Arfrever> toralf: "ERROR: Use of AM_GNU_GETTEXT without [external] argument is no longer supported."
-#[21:57] <Arfrever> toralf: If you use grep, you will need to escape [ and ].
-#[22:01] <Arfrever> toralf: Also "error: possibly undefined macro: AM_LANGINFO_CODESET"
-#
-686072
-Failed Running autoconf
+691846
+stropts.h|ambiguating new declaration of.*long int gettid|implicit declaration of function.*gettid|static declaration of .gettid. follows non-static declaration|conflicting types for gint

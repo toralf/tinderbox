@@ -1,5 +1,6 @@
 # package.accept_keywords/00unstable
 #
 
-~dev-libs/boost-1.70.0        **
-~dev-util/boost-build-1.70.0  **
+# request by dilfridge
+#
+~sys-libs/glibc-2.30 **

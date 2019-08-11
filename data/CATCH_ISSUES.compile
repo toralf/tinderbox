@@ -22,6 +22,7 @@ ld: cannot find
 file cannot create directory:
 Not in scope:
 ld: -r and -pie may not be used together
+.so: error adding symbols:
 ld returned .* exit status
 : error:
 Parse error .
@@ -231,3 +232,5 @@ rl:.*: .* undefined
  error:.*:
 Abnormal terminated
 .go:.*:.*: undefined:
+: cannot open linker script
+go: error loading module requirements

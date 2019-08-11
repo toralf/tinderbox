@@ -1,2 +1,5 @@
 # package.unmask/00unstable
 #
+
+# request by dilfridge
+~sys-libs/glibc-2.30
