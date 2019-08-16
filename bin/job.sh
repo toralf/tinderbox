@@ -550,6 +550,7 @@ function ClassifyIssue() {
             -e 's/___*/_/g'                     \
             -e 's/; did you mean .* \?$//g'     \
             -e 's/(@INC contains:.*)/.../g'     \
+            -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
             $issuedir/title
   fi
 }
