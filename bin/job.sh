@@ -865,7 +865,7 @@ function GotAnIssue()  {
     return
   fi
 
-  # this seems to be fixed
+  # still seen
   #
   grep -q \
           -e "configure: error: perl module Locale::gettext required" \
@@ -1001,7 +1001,6 @@ function PostEmerge() {
   if [[ $? -eq 0 ]]; then
     current=$(eselect kernel show | cut -f4 -d'/' -s )
     latest=$( eselect kernel list | tail -n 1 | awk ' { print $2 } ' )
-
     if [[ "$current" != "$latest" ]]; then
       eselect kernel set $latest
     fi
@@ -1180,7 +1179,7 @@ function WorkOnTask() {
         if [[ -n "$pkg" ]]; then
           add2backlog "%emerge --resume --skip-first"
         elif [[ $task = "@system" ]]; then
-          # especially a QT upgrade yield into blocker for @system
+          # especially a QT upgrade yields into blocker for @system
           add2backlog "@world"
         fi
       fi
@@ -1229,22 +1228,19 @@ function WorkOnTask() {
 # detect a loop
 #
 function DetectALoop() {
+  x=5
+  if [[ $name =~ "test" ]]; then
+    let "x = x * 3"
+  fi
+  let "y = x * 2"
+
   for t in "@preserved-rebuild" "%perl-cleaner"
   do
     if [[ ! $task =~ $t ]]; then
       continue
     fi
 
-    if [[ $name =~ "test" ]]; then
-      x=15
-      y=30
-    else
-      x=5
-      y=10
-    fi
-
     n=$(tail -n $y $taskfile.history | grep -c "$t")
-
     if [[ $n -ge $x ]]; then
       for i in $(seq 1 $y); do
         echo "#" >> $taskfile.history
