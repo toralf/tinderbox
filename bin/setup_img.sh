@@ -531,9 +531,6 @@ function CreateBacklog()  {
   chmod ug+w              $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  # the very last action
-  echo "%/usr/bin/pfl" >> $bl
-
   # sort is needed if more than one repository is configured
   #
   qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> $bl

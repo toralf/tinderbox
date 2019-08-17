@@ -56,8 +56,6 @@ function StopOldImage() {
 
   cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP stop scheduled at $(date +%R), $c completed, $l left
-%/usr/bin/pfl
-app-portage/pfl
 EOF
 
   if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
