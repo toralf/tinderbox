@@ -547,13 +547,12 @@ function CreateBacklog()  {
     echo "INFO starting replay of task history of $origin"            >> $bl.1st
   fi
 
-  # update @system and @world before working on packages
+  # @world before working on arbitrarily choosen packages
   # this is the last time where depclean is run w/o "-p" (and have to work)
   #
   cat << EOF >> $bl.1st
 %emerge --depclean
 @world
-@system
 EOF
 
   # asturm: give media-libs/jpeg a chance
