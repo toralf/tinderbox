@@ -29,7 +29,7 @@ app-portage/portage-utils -qmanifest
 #
 sys-cluster/legion        -hwloc
 
-# pam ( !static )
+# is compiled statically per default
 #
 sys-apps/busybox          -pam
 
@@ -37,3 +37,6 @@ sys-apps/busybox          -pam
 #
 app-portage/pfl           -network-cron
 
+# too much setup breakage: doc (latex)
+#
+app-doc/doxygen           -doc
