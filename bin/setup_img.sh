@@ -730,8 +730,6 @@ function EmergeMandatoryPackages() {
     date
     echo " setup was NOT successful (rc=$rc) @ $mnt"
     echo
-    tail -v -n 1000 $mnt/etc/portage/make.conf.USE
-    echo
     tail -v -n 1000 $mnt/var/tmp/tb/setup.sh.log
     echo
     exit $rc
@@ -758,6 +756,8 @@ function DryrunHelper() {
 
   if [[ $rc -ne 0 ]]; then
     echo " dryrun was NOT successful (rc=$rc) @ $mnt"
+    echo
+    tail -v -n 1000 $mnt/etc/portage/make.conf.USE
     echo
     tail -v -n 1000 $mnt/var/tmp/tb/dryrun.log
     echo
