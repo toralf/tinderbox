@@ -55,7 +55,7 @@ function StopOldImage() {
   local l=$(wc -l < ~/run/$oldimg/var/tmp/tb/backlog)
 
   cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
-STOP stop scheduled at $(date +%R), $c completed, $l left
+STOP stop scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left
 EOF
 
   if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
