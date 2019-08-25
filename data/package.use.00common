@@ -40,3 +40,7 @@ app-portage/pfl           -network-cron
 # too much setup breakage: doc (latex)
 #
 app-doc/doxygen           -doc
+
+# needed at least by spidermonkey and polkit, and not (yet) in the profile itself
+#
+dev-lang/python           sqlite
