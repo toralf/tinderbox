@@ -584,16 +584,6 @@ EOF
   #
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
-  # still 17.0 or already 17.1 ?
-  #
-  if [[ -L ./lib ]] && switch_profile="y" || switch_profile="n"
-
-  if [[ "$switch_profile" = "y" ]]; then
-    if [[ ! $profile =~ "no-multilib" ]]; then
-      echo "%emerge -1 /lib32 /usr/lib32" >> $bl.1st
-    fi
-  fi
-
   # upgrade GCC asap, but do not rebuild the existing one
   #
   if [[ $keyword = "unstable" ]]; then
@@ -604,18 +594,6 @@ EOF
     echo "%emerge -u =$(ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
     echo "sys-devel/gcc" >> $bl.1st     # unlikely but possible
-  fi
-
-  if [[ "$switch_profile" = "y" ]]; then
-    cat << EOF >> $bl.1st
-%eselect profile set --force default/linux/amd64/$profile
-%unsymlink-lib --finish
-%source /etc/profile
-%env-update
-%unsymlink-lib --migrate
-%unsymlink-lib --analyze
-%emerge app-portage/unsymlink-lib
-EOF
   fi
 
   if [[ $profile =~ "systemd" ]]; then
@@ -649,11 +627,9 @@ if [[ "$libressl" = "y" ]]; then
   rsync -aC /mnt/repos/libressl /var/db/repos/
 fi
 
-if [[ "$switch_profile" = "y" ]]; then
-  eselect profile set --force default/linux/amd64/17.0  || exit 1
-else
-  eselect profile set --force default/linux/amd64/17.1  || exit 1
-fi
+# use the base profile for mandatory packages to minimize dep graph
+#
+eselect profile set --force default/linux/amd64/17.1 || exit 1
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data || exit 1
@@ -696,11 +672,9 @@ if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
-if [[ "$switch_profile" = "y" ]]; then
-  eselect profile set --force default/linux/amd64/$(echo $profile | sed -e 's/17.1/17.0/') || exit 1
-else
-  eselect profile set --force default/linux/amd64/$profile || exit 1
-fi
+# now switch to the final profile
+#
+eselect profile set --force default/linux/amd64/$profile || exit 1
 
 exit 0
 
