@@ -269,14 +269,15 @@ location = $repo_gentoo
 
 EOF
 
+  # this is used directly and not rsynced b/c rarely changed
+  #
   cat << EOF > ./etc/portage/repos.conf/tinderbox.conf
 [tinderbox]
 location = /mnt/tb/data/portage
 
 EOF
 
-  # this is an image specific repository
-  # nevertheless use the same location as at the host
+  # this is an image specific local repository using the same location as at the host
   #
   mkdir -p                  ./$repo_local/{metadata,profiles}
   echo 'masters = gentoo' > ./$repo_local/metadata/layout.conf
@@ -583,10 +584,9 @@ EOF
   #
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
-  switch_profile="n"
-  if [[ -L ./lib ]]; then
-    switch_profile="y"
-  fi
+  # still 17.0 or already 17.1 ?
+  #
+  if [[ -L ./lib ]] && switch_profile="y" || switch_profile="n"
 
   if [[ "$switch_profile" = "y" ]]; then
     if [[ ! $profile =~ "no-multilib" ]]; then
@@ -608,7 +608,7 @@ EOF
 
   if [[ "$switch_profile" = "y" ]]; then
     cat << EOF >> $bl.1st
-%eselect profile set --force default/linux/amd64/${profile}
+%eselect profile set --force default/linux/amd64/$profile
 %unsymlink-lib --finish
 %source /etc/profile
 %env-update
@@ -858,32 +858,10 @@ do
         useflags="$(source $origin/etc/portage/make.conf && echo $USE | PrintUseFlag)"
         features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
-        grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          keyword="unstable"
-        else
-          keyword="stable"
-        fi
-
-        if [[ $origin =~ "libressl" ]]; then
-          libressl="y"
-        else
-          libressl="n"
-        fi
-
-        grep -q 'ABI_X86="32 64"' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          multilib="y"
-        else
-          multilib="n"
-        fi
-
-        grep -q 'FEATURES="test' $origin/etc/portage/make.conf
-        if [[ $? -eq 0 ]]; then
-          testfeature="y"
-        else
-          testfeature="n"
-        fi
+        grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf && keyword="unstable" || keyword="stable"
+        grep -q 'ABI_X86="32 64"'           $origin/etc/portage/make.conf && multilib="y"       || multilib="n"
+        grep -q 'FEATURES="test'            $origin/etc/portage/make.conf && testfeature="y"    || testfeature="n"
+        [[ $origin =~ "libressl" ]] && libressl="y" || libressl="n"
 
         ;;
     p)  profile=$OPTARG
