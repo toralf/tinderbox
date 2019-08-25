@@ -740,6 +740,10 @@ $(eselect rust    list 2>/dev/null)
 $( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-available-vms --nocolor )
 $(eselect java-vm list 2>/dev/null)
 
+repository timestamp:
+
+$(tail -v /var/db/repos/*/metadata/timestamp*)
+
 emerge -qpvO $pkgname
 $(head -n 1 $issuedir/emerge-qpvO)
 EOF
