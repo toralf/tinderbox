@@ -35,4 +35,14 @@ possibly undefined macro:|friend declaration of|taking address of packed member 
 # (glibc-2.30) - [TRACKER] Issues with sys-libs/glibc-2.30 (directly and indirectly)
 #
 691846
-stropts.h|ambiguating new declaration of.*long int gettid|implicit declaration of function.*gettid|static declaration of .gettid. follows non-static declaration|conflicting types for gint
+stropts.h|ambiguating new declaration of.*long int gettid|implicit declaration of function.*gettid|static declaration of.*gettid.*follows non-static declaration|conflicting types for gint
+
+# (linux-headers-5.2) - linux-headers-5.2 porting
+#
+690296
+SIOCGSTAMP
+
+# (mysql-8) - [TRACKER] Packages failing with >=dev-db/mysql-connector-c-8.0.1
+#
+692570
+unknown type name.*my_bool|my_bool.*was not declared
