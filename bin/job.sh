@@ -1255,14 +1255,18 @@ function DetectALoop() {
 }
 
 
-function syncRepo() {
+# sync all repositories with the one of of the host system
+#
+function syncRepos() {
   ts=gentoo/metadata/timestamp.chk
-  tsMnt=$(cat /mnt/repos/$ts    2>/dev/null)
-  tsImg=$(cat /var/db/repos/$ts 2>/dev/null)
   gitlck=/mnt/repos/gentoo/.git/index.lock
 
-  if [[  "$tsMnt" = "$tsImg" && ! -e $gitlck && -e /var/db/repos/$ts ]]; then
-    return 0
+  if [[ -f /var/db/repos/$ts ]]; then
+    tsMnt=$(cat /mnt/repos/$ts)
+    tsImg=$(cat /var/db/repos/$ts)
+    if [[ "$tsMnt" = "$tsImg" && ! -f $gitlck ]]; then
+      return 0
+    fi
   fi
 
   while [[ -f $gitlck ]]; do
@@ -1275,9 +1279,9 @@ function syncRepo() {
     rsync -aC /mnt/repos/libressl /var/db/repos/
   fi
 
-  # handle a possible race condition
+  # catch a (unlikely) race condition
   sleep 10
-  syncRepo
+  syncRepos
 }
 
 
@@ -1337,7 +1341,7 @@ do
 
   DetectALoop
 
-  # do at at the end of this loop to avoid a rsync storm after reboot
+  # do it at the end of the loop to avoid a rsync storm after reboot
   #
-  syncRepo
+  syncRepos
 done
