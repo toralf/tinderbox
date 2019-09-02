@@ -6,6 +6,7 @@ Couldn't find .* to unmerge.
 emerge with binary use flag first
 Fetch instructions for
 gcc version .* found, expected gcc
+Incompatible gcc version found
 Incorrect kernel configuration options
 kernel too new
 License file not found!

@@ -44,3 +44,8 @@ app-doc/doxygen           -doc
 # needed at least by spidermonkey and polkit, and not (yet) in the profile itself
 #
 dev-lang/python           sqlite
+
+# common image setup issues
+#
+dev-java/icedtea-bin      -gtk
+dev-libs/libpcre2         -libedit
