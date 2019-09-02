@@ -1273,10 +1273,12 @@ function syncRepos() {
     sleep 1
   done
 
-  rsync -aC /mnt/repos/gentoo /var/db/repos/
+  opts="--archive --cvs-exclude --delete"
+
+  rsync $opts /mnt/repos/gentoo /var/db/repos/
 
   if [[ -d /var/db/repos/libressl ]]; then
-    rsync -aC /mnt/repos/libressl /var/db/repos/
+    rsync $opts /mnt/repos/libressl /var/db/repos/
   fi
 
   # catch a (unlikely) race condition
