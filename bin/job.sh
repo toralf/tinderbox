@@ -1325,6 +1325,10 @@ do
   #
   rm -rf /var/tmp/portage/*
 
+  # ensure that the repo is synced (eg. after a longer downtime)
+  #
+  syncRepos
+
   getNextTask
 
   if [[ -x /var/tmp/tb/pretask.sh ]]; then
@@ -1340,8 +1344,4 @@ do
   truncate -s 0 $taskfile
 
   DetectALoop
-
-  # do it at the end of the loop to avoid a rsync storm after reboot
-  #
-  syncRepos
 done
