@@ -1331,10 +1331,6 @@ do
 
   getNextTask
 
-  if [[ -x /var/tmp/tb/pretask.sh ]]; then
-    /var/tmp/tb/pretask.sh &> /var/tmp/tb/pretask.sh.log
-  fi
-
   echo "$task" | tee -a $taskfile.history > $taskfile
   WorkOnTask
 
