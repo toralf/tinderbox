@@ -255,9 +255,7 @@ function PackagesPerDay() {
 
       END {
         foreach my $i (0..$#p) {
-          $p[$i] = 0 unless ($p[$i]);               # set missing value to zero
-          printf "%5i", $p[$i];
-          print "." if ($i != $#p && $i % 7 == 6);  # mark a week
+          (exists $p[$i]) ? printf "%5i", $p[$i] : printf "    -";
         }
         print "\n";
       }
