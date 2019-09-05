@@ -29,7 +29,7 @@ app-portage/portage-utils -qmanifest
 #
 sys-cluster/legion        -hwloc
 
-# is compiled statically per default
+# compiled statically per default
 #
 sys-apps/busybox          -pam
 
@@ -39,9 +39,9 @@ app-portage/pfl           -network-cron
 
 # too much setup breakage: doc (latex)
 #
-app-doc/doxygen           -doc
+app-doc/doxygen           -doc +dot
 
-# needed at least by spidermonkey and polkit, and not (yet) in the profile itself
+# needed at least by spidermonkey and polkit, and is not (yet) in the profile
 #
 dev-lang/python           sqlite
 
@@ -49,3 +49,7 @@ dev-lang/python           sqlite
 #
 dev-java/icedtea-bin      -gtk
 dev-libs/libpcre2         -libedit
+
+# "cswchs/s" value and "runq-sz" increased by a magnitude
+#
+dev-lisp/sbcl             -threads
