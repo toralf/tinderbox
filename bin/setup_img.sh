@@ -82,7 +82,7 @@ function SetOptions() {
 #     fi
 #   fi
 
-  # alternative SSL vendor LibreSSL
+  # alternative SSL vendor
   #
   libressl="n"
   if [[ "$keyword" = "unstable" ]]; then
@@ -91,12 +91,14 @@ function SetOptions() {
     fi
   fi
 
-  # a "y" yields to ABI_X86="32 64" being set in make.conf
+  # a "y" sets ABI_X86="32 64" in make.conf
   #
   multilib="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
-    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-      multilib="y"
+    if [[ -z "$(ls -d ~tinderbox/run/*abi32+64* 2>/dev/null)" ]]; then
+      if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+        multilib="y"
+      fi
     fi
   fi
 
