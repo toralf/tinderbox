@@ -881,7 +881,7 @@ function GotAnIssue()  {
       add2backlog "$task"
     fi
     add2backlog "%perl-cleaner --all"
-    Mail "info: catched broken Perl deps, task=$task, failed=$failed" $bak
+#     Mail "info: catched broken Perl deps, task=$task, failed=$failed" $bak
     return
   fi
 
