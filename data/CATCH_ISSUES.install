@@ -30,3 +30,4 @@ Failed to set XATTR_PAX markings
 Fatal error: .
 glib-mkenums: command not found
 AttributeError:
+error: unknown target

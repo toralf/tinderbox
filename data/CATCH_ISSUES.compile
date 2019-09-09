@@ -234,3 +234,5 @@ Abnormal terminated
 .go:.*:.*: undefined:
 : cannot open linker script
 go: error loading module requirements
+dial tcp: lookup proxy.golang.org
+go:.* read: connection refused

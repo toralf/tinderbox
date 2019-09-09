@@ -117,3 +117,4 @@ Can't use 'defined
 FAILED (.*)
 ^vet: .*
 FAIL.* \[.*\]
+Errors while running CTest

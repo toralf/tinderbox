@@ -46,3 +46,8 @@ SIOCGSTAMP
 #
 692570
 unknown type name.*my_bool|my_bool.*was not declared
+
+# (go-1.13-sandbox) - [tracker] packages that do not build with dev-lang/go-1.13 due to the network-sandbox
+#
+693574
+dial tcp: lookup proxy.golang.org|read: connection refused

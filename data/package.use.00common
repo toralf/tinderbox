@@ -48,7 +48,9 @@ dev-lang/python           sqlite
 # common image setup issues
 #
 dev-java/icedtea-bin      -gtk
+dev-libs/glib             -gtk-doc
 dev-libs/libpcre2         -libedit
+dev-util/cmake            -qt5
 
 # "cswchs/s" value and "runq-sz" increased by a magnitude
 #
