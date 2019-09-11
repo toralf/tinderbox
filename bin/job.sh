@@ -865,12 +865,10 @@ function GotAnIssue()  {
     try_again=1
     add2backlog "$task"
     add2backlog "%emerge -1 sys-apps/texinfo"
-    Mail "info: catched broken sys-apps/texinfo, task=$task, failed=$failed" $bak
+#     Mail "info: catched broken sys-apps/texinfo, task=$task, failed=$failed" $bak
     return
   fi
 
-  # still seen
-  #
   grep -q \
           -e "configure: error: perl module Locale::gettext required" \
           -e "Can't locate Locale/Messages.pm in @INC"                \
