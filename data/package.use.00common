@@ -49,8 +49,10 @@ dev-lang/python           sqlite
 #
 dev-java/icedtea-bin      -gtk
 dev-libs/glib             -gtk-doc
-dev-libs/libpcre2         -libedit
+dev-libs/libpcre2         -libedit readline
 dev-util/cmake            -qt5
+dev-util/ninja            -emacs
+media-libs/libjpeg-turbo  -java
 
 # "cswchs/s" value and "runq-sz" increased by a magnitude
 #

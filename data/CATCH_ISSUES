@@ -1,3 +1,5 @@
+dial tcp: lookup proxy.golang.org
+go:.* read: connection refused
 Fetched file: .* VERIFY FAILED!
 :Reason: Filesize does not match recorded size
 Couldn't download .* Aborting.
