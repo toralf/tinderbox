@@ -53,6 +53,18 @@ function ThrowUseFlags()  {
 }
 
 
+# helper of SetOptions()
+#
+function ShuffleProfile() {
+  eselect profile list |\
+  awk ' { print $2 } ' |\
+  grep -e "^default/linux/amd64/17.1" |\
+  cut -f4- -d'/' -s |\
+  grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' |\
+  shuf
+}
+
+
 # helper of main()
 # will be overwritten by command line parameter if given
 #
@@ -66,8 +78,10 @@ function SetOptions() {
   while read profile
   do
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
-  done < <( eselect profile list | awk ' { print $2 } ' | grep -e "^default/linux/amd64/17.1" |\
-            cut -f4- -d'/' -s | grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' | shuf)
+  done < <(ShuffleProfile)
+  if [[ -z "$profile" ]]; then
+    profile=$(ShuffleProfile | head -n 1)
+  fi
 
   # be more restrict wrt sandbox issues
   #
@@ -131,7 +145,12 @@ function checkBool()  {
 # helper of main()
 #
 function CheckOptions() {
-  if [[ -z "$profile" || ! -d $repo_gentoo/profiles/default/linux/amd64/$profile ]]; then
+  if [[ -z "$profile" ]]; then
+    echo " profile empty!"
+    exit 1
+  fi
+
+  if [[ ! -d $repo_gentoo/profiles/default/linux/amd64/$profile ]]; then
     echo " profile unknown: >>$profile<<"
     exit 1
   fi
