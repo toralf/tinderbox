@@ -26,15 +26,8 @@ grep -v -f ~/tb/data/IGNORE_PACKAGES            |\
 sort -u > $pks
 
 if [[ -s $pks ]]; then
-  for i in $(ls ~/run 2>/dev/null)
+  for bl in $(ls ~/run/*/var/tmp/tb/backlog.upd 2>/dev/null)
   do
-    # is ~/img? file system mounted?
-    #
-    if [[ ! -e ~/run/$i/var/tmp/tb/ ]]; then
-      continue
-    fi
-
-    bl=~/run/$i/var/tmp/tb/backlog.upd
     sort -u $bl $pks | shuf > $bl.tmp
     # no "mv", that overwrites file permissions
     #
