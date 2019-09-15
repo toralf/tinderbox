@@ -219,8 +219,7 @@ function CompressIssueFiles()  {
 # gather together what's needed for the email and b.g.o.
 #
 function CollectIssueFiles() {
-  ehist=/var/tmp/tb/emerge-history.txt
-
+  local ehist=/var/tmp/tb/emerge-history.txt
   local cmd="qlop --nocolor --verbose --merge --unmerge"
 
   cat << EOF > $ehist
