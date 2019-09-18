@@ -1224,7 +1224,7 @@ function WorkOnTask() {
 # detect a loop
 #
 function DetectALoop() {
-  x=5
+  x=6
   if [[ $name =~ "test" ]]; then
     let "x = x * 3"
   fi
