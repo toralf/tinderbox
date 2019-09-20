@@ -869,7 +869,6 @@ function GotAnIssue()  {
     try_again=1
     add2backlog "$task"
     add2backlog "%emerge -1 sys-apps/texinfo"
-#     Mail "info: catched broken sys-apps/texinfo, task=$task, failed=$failed" $bak
     return
   fi
 
@@ -883,7 +882,6 @@ function GotAnIssue()  {
       add2backlog "$task"
     fi
     add2backlog "%perl-cleaner --all"
-#     Mail "info: catched broken Perl deps, task=$task, failed=$failed" $bak
     return
   fi
 
