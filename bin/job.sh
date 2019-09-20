@@ -1158,9 +1158,9 @@ function WorkOnTask() {
   # @set
   #
   if [[ $task =~ ^@ ]]; then
-    opts="--changed-use --deep --backtrack=30"
+    opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
-      opts="$opts --update --exclude kernel/gentoo-sources"
+      opts="--update --deep --changed-use --backtrack=30 --exclude kernel/gentoo-sources"
     fi
     RunAndCheck "emerge $task $opts"
     local rc=$?
