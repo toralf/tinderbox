@@ -852,6 +852,16 @@ function GotAnIssue()  {
   ClassifyIssue
   CompileIssueMail
 
+  # https://bugs.gentoo.org/596664
+  #
+  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
+  if [[ $? -eq 0 ]]; then
+    try_again=1
+    add2backlog "$task"
+    add2backlog "%emerge -1 dev-perl/XML-Parser"
+    return
+  fi
+
   # https://bugs.gentoo.org/687226
   #
   grep -q -e "MiscXS.c: loadable library and perl binaries are mismatched" $bak
