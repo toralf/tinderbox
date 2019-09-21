@@ -589,9 +589,9 @@ EOF
   # switch to LibreSSL
   #
   if [[ "$libressl" = "y" ]]; then
-    # fetch all mandatory packages which either must be (re-)build or have to act as a fallback
-    # wget is crucial to fetch sources, unmerge triggers @preserved-rebuild,
-    # nevertheless the final @preserved-rebuild must not fail, therefore "% ..."
+    # fetch crucial packages which must either be (re-)build or act as a fallback;
+    # unmerge already schedules a @preserved-rebuild but nevertheless:
+    # the final @preserved-rebuild must not fail, therefore "% ..."
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
