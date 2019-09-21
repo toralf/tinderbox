@@ -51,3 +51,8 @@ unknown type name.*my_bool|my_bool.*was not declared
 #
 693574
 dial tcp: lookup proxy.golang.org|read: connection refused
+
+# media-libs/freeglut-3.2.0 installs /usr/lib/cmake/FreeGLUT/FreeGLUTTargets-gentoo.cmake with ABI-specific content
+#
+694774
+GL/glut.h:

@@ -31,3 +31,4 @@ Fatal error: .
 glib-mkenums: command not found
 AttributeError:
 error: unknown target
+error: .* No such file or directory
