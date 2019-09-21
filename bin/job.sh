@@ -920,18 +920,18 @@ function SwitchGCC() {
 
   gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
   if [[ $? -eq 1 ]]; then
-    verold=$(gcc -dumpversion)
+    current=$(gcc -dumpversion)
 
     gcc-config --nocolor $latest &>> $logfile
     source /etc/profile
 
-    # bug https://bugs.gentoo.org/459038
+    # https://bugs.gentoo.org/459038
     #
     add2backlog "%revdep-rebuild"
 
-    # force catching issues of using old GCC installation artefacts
+    # kick off old GCC installation artefacts to force catching related issues/missing links
     #
-    add2backlog "%emerge --unmerge sys-devel/gcc:$verold"
+    add2backlog "%emerge --unmerge sys-devel/gcc:$current"
   fi
 }
 
