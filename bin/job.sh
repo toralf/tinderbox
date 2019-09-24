@@ -650,7 +650,8 @@ function AddBugzillaData() {
 EOF
 
   else
-    # SearchForAnAlreadyFiledBug() was unsuccessful, so look here for for the latest open/closed reports
+    # SearchForAnAlreadyFiledBug() was unsuccessful, so look here for the latest open/closed reports
+    # as a hint, whether the bgo.sh command line should be fired up or not
     #
     cat << EOF >> $issuedir/body
 
