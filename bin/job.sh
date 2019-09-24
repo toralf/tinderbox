@@ -726,16 +726,17 @@ EOF
   #
   cat << EOF >> $issuedir/issue
 gcc-config -l:
-$(gcc-config -l                   )
-$( [[ -x /usr/bin/llvm-config ]] && echo llvm-config: && llvm-config --version )
+$(gcc-config -l)
+
+$(which clang &>/dev/null && echo "clang:" && clang --version)
+$(which llvm-config &>/dev/null && echo "llvm:" && llvm-config --version)
 $(eselect python  list 2>/dev/null)
 $(eselect ruby    list 2>/dev/null)
 $(eselect rust    list 2>/dev/null)
-$( [[ -x /usr/bin/java-config ]] && echo java-config: && java-config --list-available-vms --nocolor )
+$([[ -x /usr/bin/java-config ]] && echo "java-config:" && java-config --list-available-vms --nocolor)
 $(eselect java-vm list 2>/dev/null)
 
-repository timestamp:
-
+repository:
 $(tail -v /var/db/repos/*/metadata/timestamp*)
 
 emerge -qpvO $pkgname
