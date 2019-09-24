@@ -648,7 +648,10 @@ function AddBugzillaData() {
   bgo.sh -d ~/img?/$name/$issuedir $block -i $id -c 'it is still an issue at $keyword amd64 tinderbox image $name'
 
 EOF
+
   else
+    # SearchForAnAlreadyFiledBug() was unsuccessful, so look here for for the latest open/closed reports
+    #
     cat << EOF >> $issuedir/body
 
   bgo.sh -d ~/img?/$name/$issuedir $block
@@ -657,12 +660,18 @@ EOF
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'
 
-    echo "  OPEN:     $h&resolution=---&short_desc=$pkgname"      >> $issuedir/body
-    timeout 300 bugz --columns 400 -q search --show-status      $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
+    echo "  OPEN:     $h&resolution=---&short_desc=$pkgname" >> $issuedir/body
+    timeout 300 bugz --columns 400 -q search --show-status $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
+
+    if [[ $keyword = "stable" ]]; then
+      echo "" >> $issuedir/body
+      timeout 300 bugz --columns 400 -q search --show-status --component "Stabilization"   $pkgname &>> $issuedir/body
+      timeout 300 bugz --columns 400 -q search --show-status --component "Vulnerabilities" $pkgname &>> $issuedir/body
+    fi
 
     echo "" >> $issuedir/body
     echo "  RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname" >> $issuedir/body
-    timeout 300 bugz --columns 400 -q search --status RESOLVED  $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
+    timeout 300 bugz --columns 400 -q search --status RESOLVED $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
   fi
 
   # a newline makes copy+paste more convenient
