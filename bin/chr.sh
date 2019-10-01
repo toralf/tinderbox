@@ -25,18 +25,18 @@ function mountall() {
 
 
 function umountall()  {
-  # try to umount as much as possible even if a particular umount fails
+#   # umount in the reverse order as much as possible despite errors
   #
   local rc=0
 
-  /bin/umount -l $mnt/$distfiles                    || rc=$?
-  /bin/umount -l $mnt/var/tmp/portage               || rc=$?
-  /bin/umount -l $mnt/mnt/repos                     || rc=$?
+  /bin/umount -l $mnt/$distfiles              || rc=$?
+  /bin/umount -l $mnt/var/tmp/portage         || rc=$?
+  /bin/umount -l $mnt/mnt/repos               || rc=$?
 
-  /bin/umount -l $mnt/mnt/tb/{sdata,data}           || rc=$?
+  /bin/umount -l $mnt/mnt/tb/{sdata,data}     || rc=$?
 
-  /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
-  /bin/umount -l $mnt/{sys,proc}                    || rc=$?
+  /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,} || rc=$?
+  /bin/umount -l $mnt/{sys,proc}              || rc=$?
 
   if [[ $rc -eq 0 ]]; then
     rm $lock
@@ -114,6 +114,7 @@ distfiles=$(portageq distdir)
 
 mountall
 if [[ $? -ne 0 ]]; then
+  echo "something went wrong during mount!"
   umountall
   exit 4
 fi
@@ -129,6 +130,10 @@ else
 fi
 rc=$?
 
-umountall || exit 5
+umountall
+if [[ $? -ne 0 ]]; then
+  echo "something went wrong during umount, previous rc was: $rc"
+  exit 5
+fi
 
 exit $rc
