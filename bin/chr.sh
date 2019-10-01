@@ -31,9 +31,9 @@ function umountall()  {
 
   /bin/umount -l $mnt/$distfiles                    || rc=$?
   /bin/umount -l $mnt/var/tmp/portage               || rc=$?
-  /bin/umount    $mnt/mnt/repos                     || rc=$?
+  /bin/umount -l $mnt/mnt/repos                     || rc=$?
 
-  /bin/umount    $mnt/mnt/tb/{data,sdata}           || rc=$?
+  /bin/umount -l $mnt/mnt/tb/{sdata,data}           || rc=$?
 
   /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
   /bin/umount -l $mnt/{sys,proc}                    || rc=$?
