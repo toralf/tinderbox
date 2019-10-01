@@ -102,7 +102,7 @@ Move *./data* and *./sdata* into *~/tb/* as user *tinderbox*.
 Move *./bin* into */opt/tb/ as user *root*.
 The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
 The user *tinderbox* must have write permissions for files in *~/tb/data*.
-Edit the credentials in *~/sdata* and strip away the suffix *.sample*, set this subdirectory to 700 for user *root*.
+Edit the credentials in *~/sdata* and strip away the suffix *.sample*, set ownership/rwx-access of this subdirectory and its files to user *root* only.
 Grant sudo rights to the user *tinderbox*:
 
     tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/setup_img.sh
