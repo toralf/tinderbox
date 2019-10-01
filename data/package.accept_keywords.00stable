@@ -1,12 +1,13 @@
 # package.accept_keywords/00stable
 #
 
-# (boost-1.70-stable) - [Tracker] https://bugs.gentoo.org/689032
+# requested by Soap
 #
-~dev-libs/boost-1.70.0
-~dev-util/boost-build-1.70.0
+~dev-libs/boost-1.71.0
+~dev-util/boost-build-1.71.0
 
-# <@leio> toralf: could you preemptively check for issues in stable tree that would happen if vala:0.44 were stabled? Unlike 0.42, 0.44 is a LTS release series of vala, so would like to get this stable within 15 days now, but unsure how much stuff still fails in stable tree with it
+# requested by leio
 #
-~dev-lang/vala-0.44.7
-~dev-libs/vala-common-0.44.7
+~dev-lang/vala-0.44.8
+~dev-libs/vala-common-0.44.8
+~xfce-extra/xfce4-vala-4.10.3

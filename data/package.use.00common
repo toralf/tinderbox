@@ -33,23 +33,16 @@ sys-cluster/legion        -hwloc
 #
 sys-apps/busybox          -pam
 
-# requires sys-apps/util-linux[caps]
-#
-app-portage/pfl           -network-cron
-
-# too much setup breakage: doc (latex)
-#
-app-doc/doxygen           -doc +dot
-
 # needed at least by spidermonkey and polkit, and is not (yet) in the profile
 #
 dev-lang/python           sqlite
 
 # common image setup issues
 #
+app-arch/libarchive       -lz4
+app-doc/doxygen           -doc dot
 dev-java/icedtea-bin      -gtk
 dev-libs/glib             -gtk-doc
-dev-libs/libpcre2         -libedit readline
 dev-util/cmake            -qt5
 dev-util/ninja            -emacs
 media-libs/libjpeg-turbo  -java

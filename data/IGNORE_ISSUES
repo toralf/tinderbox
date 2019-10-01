@@ -12,8 +12,10 @@ Linux >= .* and <= .* required for userspace modules
 Linux .* is the latest supported version
 mingw is needed
 Nonmodular kernel detected, will not build kernel modules
+No LLVM slot <= .* found installed!
 No pathcc executable was installed, your hardware is unsupported most likely
 No support for external modules in
+OTP release .* does not match required regex
 pcmcia support is broken on kernels newer
 Please disable .* support in your kernel config and recompile your kernel
 Please use a supported ICD

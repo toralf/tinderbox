@@ -5,7 +5,7 @@
 # libressl-support
 #
 561854
-error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not  declared in this scope|undefined reference to HMAC|OPENSSL_|TLS1_._VERSION|undefined reference to SSL_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC
+error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not  declared in this scope|undefined reference to HMAC|OPENSSL_|TLS1_._VERSION|undefined reference to SSL_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC|HMAC_CTX_
 
 # OpenSSL 1.1
 #
@@ -22,10 +22,10 @@ installs into paths that should be created at runtime
 530632
 This package has a configure.in file which has long been deprecated.
 
-# [TRACKER] Packages requiring porting to boost-1.70
+# [TRACKER] Packages requiring porting to boost-1.71
 #
 671712
-boost::asio|boost::python|boost/signal.*No such file or directory|cannot find -lboost_|FindBoost.cmake|invalid value: boost_major_version=|Could NOT find Boost
+boost::asio|boost::python|boost/signal.*No such file or directory|cannot find -lboost_|FindBoost.cmake|invalid value: boost_major_version=|Could NOT find Boost|could not convert boost
 
 # (gcc-9) - [TRACKER] sys-devel/gcc-9 porting
 #
@@ -45,7 +45,7 @@ SIOCGSTAMP
 # (mysql-8) - [TRACKER] Packages failing with >=dev-db/mysql-connector-c-8.0.1
 #
 692570
-unknown type name.*my_bool|my_bool.*was not declared
+unknown type name.*my_bool|my_bool.*was not declared|my_bool undeclared
 
 # (go-1.13-sandbox) - [tracker] packages that do not build with dev-lang/go-1.13 due to the network-sandbox
 #

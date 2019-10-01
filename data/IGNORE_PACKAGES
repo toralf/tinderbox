@@ -67,10 +67,12 @@ app-office/ooextras
 app-officeext/
 dev-ada/
 dev-lang/
+dev-libs/rocm
 dev-util/include-what-you-use
 ros-meta/
 sys-cluster/
 sys-devel/byfl
+sys-devel/llvm-roc
 #
 # pulls old clang/llvm
 #

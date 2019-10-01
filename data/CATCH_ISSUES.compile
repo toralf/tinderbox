@@ -235,3 +235,5 @@ Abnormal terminated
 .go:.*:.*: undefined:
 : cannot open linker script
 go: error loading module requirements
+utf8 .* does not map to Unicode
+flag provided but not defined
