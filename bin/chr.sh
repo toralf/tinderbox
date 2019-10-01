@@ -13,7 +13,8 @@ function mountall() {
   /bin/mount --rbind       /dev        $mnt/dev    &&\
   /bin/mount --make-rslave             $mnt/dev    &&\
   #
-  /bin/mount -o bind      ~tinderbox/tb     $mnt/mnt/tb           &&\
+  /bin/mount -o bind      ~tinderbox/tb/data  $mnt/mnt/tb/data    &&\
+  /bin/mount -o bind      ~tinderbox/tb/sdata $mnt/mnt/tb/sdata   &&\
   #
   /bin/mount -o bind,ro   /var/db/repos     $mnt/mnt/repos        &&\
   /bin/mount -t tmpfs     tmpfs -o size=16G $mnt/var/tmp/portage  &&\
@@ -32,7 +33,7 @@ function umountall()  {
   /bin/umount -l $mnt/var/tmp/portage               || rc=$?
   /bin/umount    $mnt/mnt/repos                     || rc=$?
 
-  /bin/umount    $mnt/mnt/tb                        || rc=$?
+  /bin/umount    $mnt/mnt/tb/{data,sdata}           || rc=$?
 
   /bin/umount -l $mnt/dev{/pts,/shm,/mqueue,}       || rc=$?
   /bin/umount -l $mnt/{sys,proc}                    || rc=$?

@@ -71,7 +71,10 @@ Append package(s) to the package list in the following way:
 *STOP* can be used instead *INFO* to stop the image at that point, the following text will become the subject of an email.
 
 ### misc
-The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image. *retest.sh* is used to undo any package specific (mask) changes to portage files before it to schedules an emerge of the package afterwards. *logcheck.sh* is a helper to notify about non-empty log file(s). *replace_img.sh* stops the oldest image and spins up a new image based on the age of the oldest and the age of the youngest image.
+The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image.
+*retest.sh* is used to undo any package specific (mask) changes to portage files before it to schedules an emerge of the package afterwards.
+*logcheck.sh* is a helper to notify about non-empty log file(s).
+*replace_img.sh* stops an older and spins up a new image based on age and amount of installed packages.
 
 ## installation
 Create the user *tinderbox*:
@@ -79,13 +82,13 @@ Create the user *tinderbox*:
     useradd -m tinderbox
     usermod -a -G portage tinderbox
 
-Run as root:
+Run as *root*:
 
     mkdir /opt/tb
     chmod 750 /opt/tb
     chgrp tinderbox /opt/tb
 
-Run as user tinderbox in ~ :
+Run as user *tinderbox* in ~ :
 
     mkdir img{1,2} logs run tb
 
@@ -99,7 +102,7 @@ Move *./data* and *./sdata* into *~/tb/ as user *tinderbox*.
 Move *./bin* into */opt/tb/ as user *root*.
 The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
 The user *tinderbox* must have write permissions for files in *~/tb/data*.
-Edit the credentials in *~/sdata* and strip away the suffix *.sample*.
+Edit the credentials in *~/sdata* and strip away the suffix *.sample*, set this subdirectory to 700 for user *root*.
 Grant sudo rights to the user *tinderbox*:
 
     tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/setup_img.sh

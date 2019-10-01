@@ -428,7 +428,8 @@ function cpconf() {
 # create portage + tinderbox directories + files and symlinks
 #
 function CompilePortageFiles()  {
-  mkdir -p ./mnt/{repos,tb} ./var/tmp/{portage,tb} ./$distdir
+  mkdir -p ./mnt/{repos,tb/data,tb/sdata} ./var/tmp/{portage,tb} ./$distdir
+
   chgrp portage ./var/tmp/tb
   chmod ug+rwx  ./var/tmp/tb
 
