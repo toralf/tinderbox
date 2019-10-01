@@ -98,7 +98,7 @@ to have 2 directories acting as mount points for 2 separate file systems (mkfs i
 
 Clone this git repository.
 
-Move *./data* and *./sdata* into *~/tb/ as user *tinderbox*.
+Move *./data* and *./sdata* into *~/tb/* as user *tinderbox*.
 Move *./bin* into */opt/tb/ as user *root*.
 The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
 The user *tinderbox* must have write permissions for files in *~/tb/data*.
