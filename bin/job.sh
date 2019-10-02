@@ -647,6 +647,7 @@ function AddBugzillaData() {
 
   bgo.sh -d ~/img?/$name/$issuedir $block -i $id -c 'it is still an issue at $keyword amd64 tinderbox image $name'
 
+
 EOF
 
   else
@@ -656,6 +657,7 @@ EOF
     cat << EOF >> $issuedir/body
 
   bgo.sh -d ~/img?/$name/$issuedir $block
+
 
 EOF
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
