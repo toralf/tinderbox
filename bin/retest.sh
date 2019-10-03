@@ -11,7 +11,8 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
 fi
 
 echo $* | xargs -n 1 |\
-uniq |\ # no sort -u
+# no sort -u
+uniq |\
 while read line
 do
   if [[ -z "$line" ]]; then
