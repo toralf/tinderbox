@@ -640,7 +640,7 @@ function SearchForAnAlreadyFiledBug() {
 # compile a command line ready for copy+paste to file a bug
 # and add the top 20 b.g.o. search results too
 #
-function AddBugzillaData() {
+function AddBgoCommandLine() {
   if [[ -n "$id" ]]; then
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
@@ -760,7 +760,7 @@ EOF
     SearchForAnAlreadyFiledBug
   fi
 
-  AddBugzillaData
+  AddBgoCommandLine
   AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
 
   # prepend failed package
@@ -1104,7 +1104,7 @@ function CheckQA() {
         GetAssigneeAndCc
         AddVersionAssigneeAndCC
         SearchForAnAlreadyFiledBug
-        AddBugzillaData
+        AddBgoCommandLine
         collectPortageDir
         sed -i -e "s,^,$pkg : ," $issuedir/title
         TrimTitle
