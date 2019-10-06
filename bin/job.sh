@@ -1137,6 +1137,10 @@ function RunAndCheck() {
 
   PostEmerge
 
+  # the b.g.o. id of a bug if already filed
+  #
+  id=""
+
   if [[ ! $keyword = "stable" ]]; then
     CheckQA
   fi
