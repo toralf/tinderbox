@@ -73,8 +73,3 @@ ros-meta/
 sys-cluster/
 sys-devel/byfl
 sys-devel/llvm-roc
-#
-# pulls old clang/llvm
-#
-dev-util/creduce
-www-plugins/lightspark

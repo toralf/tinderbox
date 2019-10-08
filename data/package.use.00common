@@ -43,6 +43,7 @@ app-arch/libarchive       -lz4
 app-doc/doxygen           -doc dot
 dev-java/icedtea-bin      -gtk
 dev-libs/glib             -gtk-doc
+dev-libs/libpcre*         -libedit
 dev-util/cmake            -qt5
 dev-util/ninja            -emacs
 media-libs/libjpeg-turbo  -java
