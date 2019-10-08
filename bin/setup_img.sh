@@ -254,6 +254,7 @@ function UnpackStage3()  {
     echo "downloading $stage3 ..."
     wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$distdir
     rc=$?
+    echo
     if [[ $rc -ne 0 ]]; then
       echo " can't download stage3 file '$stage3', rc=$rc"
       rm $f{,.DIGESTS.asc}
