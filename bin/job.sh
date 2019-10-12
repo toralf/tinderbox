@@ -1340,21 +1340,17 @@ do
 
   date > $logfile
 
-  # auto-clean is deactivated in FEATURES to collect issue files
+  # pick up after ourself b/c auto-clean is deactivated in FEATURES to collect issue files
   #
   rm -rf /var/tmp/portage/*
 
-  # ensure that the repo is synced (eg. after a longer downtime)
-  #
   syncRepos
-
   getNextTask
-
   echo "$task" | tee -a $taskfile.history > $taskfile
   WorkOnTask
 
-  # this line isn't reached if Finish() is called
-  # therefore $task intentionally is retried at next start
+  # this line is intentionally not reached if Finish() is called before
+  # so $task is retried at next start
   #
   truncate -s 0 $taskfile
 
