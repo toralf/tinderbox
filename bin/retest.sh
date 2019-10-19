@@ -10,9 +10,13 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
+# list of package(s) to be retested
+#
+pks=/tmp/${0##*/}.txt
+truncate -s 0 $pks
+
 echo $* | xargs -n 1 |\
-# no sort -u
-uniq |\
+sort -u |\
 while read line
 do
   if [[ -z "$line" ]]; then
@@ -26,27 +30,25 @@ do
     p=$line
   fi
 
+  # delete package from various pattern files
+  #
   sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
     ~/tb/data/ALREADY_CATCHED                   \
     ~/run/*/etc/portage/package.mask/self       \
     ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue} 2>/dev/null
 
-  for i in $(ls ~/run 2>/dev/null)
-  do
-    # high prio but schedule it after existing entries -> put it on top of that file
-    #
-    bl=~/run/$i/var/tmp/tb/backlog.1st
-    if [[ "$(head -n 1 $bl)" = "$p" ]]; then
-      continue
-    fi
-
-    if [[ -s $bl ]]; then
-      sed -i -e "1i $p" $bl
-    else
-      echo "$p" >> $bl
-    fi
-  done
-
+  echo $p >> $pks
 done
+
+if [[ -s $pks ]]; then
+  for bl in $(ls ~/run/*/var/tmp/tb/backlog.1st 2>/dev/null)
+  do
+    (uniq $pks | shuf; cat $bl) > $bl.tmp
+    # no "mv", that overwrites file permissions
+    #
+    cp $bl.tmp $bl
+    rm $bl.tmp
+  done
+fi
 
 exit 0
