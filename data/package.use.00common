@@ -25,10 +25,6 @@ dev-qt/qtwebengine        jumbo-build
 #
 app-portage/portage-utils -qmanifest
 
-# @preserved-rebuild issues
-#
-sys-cluster/legion        -hwloc
-
 # compiled statically per default
 #
 sys-apps/busybox          -pam
@@ -36,17 +32,6 @@ sys-apps/busybox          -pam
 # needed at least by spidermonkey and polkit, and is not (yet) in the profile
 #
 dev-lang/python           sqlite
-
-# common image setup issues
-#
-app-arch/libarchive       -lz4
-app-doc/doxygen           -doc dot
-dev-java/icedtea-bin      -gtk
-dev-libs/glib             -gtk-doc
-dev-libs/libpcre*         -libedit
-dev-util/cmake            -qt5
-dev-util/ninja            -emacs
-media-libs/libjpeg-turbo  -java
 
 # "cswchs/s" value and "runq-sz" increased by a magnitude
 #

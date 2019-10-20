@@ -10,7 +10,7 @@ error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type na
 # OpenSSL 1.1
 #
 592438
-error: storage size of .* isn.t known|error: dereferencing pointer to incomplete type X509|error: SSLv._client_method was not declared in this scope|MD._DIGEST_LENGTH|error: dereferencing pointer to incomplete type|error: too few arguments to function CRYPTO_|error: invalid use of incomplete type|SSL_.* undeclared|SLv._client_method was not declared|incomplete type SSL|undefined reference to .SSLv._client_method.|.HMAC_CTX_init. was not declared in this scope|undefined reference to SSLv._
+error: storage size of .* isn.t known|error: dereferencing pointer to incomplete type X509|error: SSLv._client_method was not declared in this scope|MD._DIGEST_LENGTH|error: dereferencing pointer to incomplete type|error: too few arguments to function CRYPTO_|SSL_.* undeclared|SLv._client_method was not declared|incomplete type SSL|undefined reference to .SSLv._client_method.|.HMAC_CTX_init. was not declared in this scope|undefined reference to SSLv._
 
 # QA
 #
@@ -56,3 +56,8 @@ dial tcp: lookup proxy.golang.org|read: connection refused
 #
 694774
 GL/glut.h:
+
+# [Tracker] Missing @documentencoding in texinfo files (seen with sys-apps/texinfo-6.7)
+#
+697606
+utf8 .* does not map to Unicode

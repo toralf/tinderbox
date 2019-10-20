@@ -237,3 +237,4 @@ Abnormal terminated
 go: error loading module requirements
 utf8 .* does not map to Unicode
 flag provided but not defined
+build flag .* only valid when using modules
