@@ -737,6 +737,8 @@ function EmergeMandatoryPackages() {
 function DryrunHelper() {
   date
   echo " dryrun ..."
+  tail -v -n 1000 $mnt/etc/portage/make.conf.USE
+  echo
 
   sudo ${0%/*}/chr.sh $mnt 'emerge --update --newuse --changed-use --changed-deps=y --deep @system --backtrack=30 --pretend &> /var/tmp/tb/dryrun.log'
   local rc=$?
@@ -748,12 +750,12 @@ function DryrunHelper() {
   fi
 
   if [[ $rc -ne 0 ]]; then
-    echo " dryrun was NOT successful (rc=$rc) @ $mnt"
-    echo
-    tail -v -n 1000 $mnt/etc/portage/make.conf.USE
+    echo " ... was NOT successful (rc=$rc):"
     echo
     tail -v -n 1000 $mnt/var/tmp/tb/dryrun.log
     echo
+  else
+    echo " ... succeeded"
   fi
 
   return $rc
