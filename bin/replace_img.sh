@@ -42,6 +42,10 @@ function LookForAnImage()  {
       continue
     fi
 
+    if [[ -f ~/run/$i/var/tmp/tb/KEEP ]]; then
+      continue
+    fi
+
     oldimg=$i
     return
   done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
