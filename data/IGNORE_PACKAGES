@@ -3,6 +3,7 @@
 #
 # never explicitely run emerge with:
 #
+acct-*/
 app-eselect/
 dev-embedded/
 java-virtuals/
