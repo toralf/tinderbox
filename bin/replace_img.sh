@@ -16,12 +16,12 @@ function LookForAnImage()  {
   # wait time between 2 images
   #
   latest=$(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
-  if [[ -n "$latest" ]]; then
-    let "h = ( $(date +%s) - $(stat -c%Y ~/run/$latest/var/tmp/tb/setup.sh) ) / 3600"
-    if [[ $h -lt $hours ]]; then
-      Finish 3
-    fi
-  else
+  if [[ -z "$latest" ]]; then
+    Finish 3
+  fi
+
+  let "h = ( $(date +%s) - $(stat -c%Y ~/run/$latest/var/tmp/tb/setup.sh) ) / 3600"
+  if [[ $h -lt $hours ]]; then
     Finish 3
   fi
 
@@ -29,20 +29,26 @@ function LookForAnImage()  {
   #
   while read i
   do
-    let "d = ( $(date +%s) - $(stat -c%Y ~/run/$i/var/tmp/tb/setup.sh) ) / 3600 / 24"
-    if [[ $d -lt $days ]]; then
-      break
+    if [[ -f ~/run/$i/var/tmp/tb/KEEP ]]; then
+      continue
     fi
 
     if [[ ! -f ~/run/$i/var/log/emerge.log ]]; then
       continue
     fi
+
+    let "d = ( $(date +%s) - $(stat -c%Y ~/run/$i/var/tmp/tb/setup.sh) ) / 3600 / 24"
+    if [[ $d -lt $days ]]; then
+      break
+    fi
+
     c=$(grep -c ' ::: completed emerge' ~/run/$i/var/log/emerge.log)
     if [[ $c -lt $compl ]]; then
       continue
     fi
 
-    if [[ -f ~/run/$i/var/tmp/tb/KEEP ]]; then
+    l=$(wc -l < ~/run/$i/var/tmp/tb/backlog)
+    if [[ $l -gt $left ]]; then
       continue
     fi
 
@@ -55,9 +61,6 @@ function LookForAnImage()  {
 
 
 function StopOldImage() {
-  local c=$(grep -c ' ::: completed emerge' ~/run/$oldimg/var/log/emerge.log)
-  local l=$(wc -l < ~/run/$oldimg/var/tmp/tb/backlog)
-
   cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP stop scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left
 EOF
@@ -94,15 +97,17 @@ echo $$ > $lck
 compl=4500    # emerge operations
 days=5        # min. runtime of an image
 hours=15      # min. distance to the previous image, effectively this yields into n+1 hours
+left=17400    # left entries in the backlog
 oldimg=""     # if not given selects one
 setupargs=""  # passed to setup_img.sh
 
-while getopts c:d:h:o:s: opt
+while getopts c:d:h:l:o:s: opt
 do
   case $opt in
     c)  compl=$OPTARG         ;;
     d)  days=$OPTARG          ;;
     h)  hours=$OPTARG         ;;
+    l)  left=$OPTARG          ;;
     o)  oldimg=${OPTARG##*/}  ;;
     s)  setupargs="$OPTARG"   ;;
     *)  echo " not implemented !"; exit 1;;
