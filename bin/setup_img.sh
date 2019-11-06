@@ -10,8 +10,8 @@
 
 # helper of ThrowUseFlags()
 #
-function FilterUseFlag()  {
-  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan'
+function DropUseFlags()  {
+  egrep -v -e '32|64|^armv|bindist|build|cdinstall|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libressl|linguas|make-symlinks|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openssl|pax|prefix|tools|selinux|split-usr|static|symlink|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan'
 }
 
 
@@ -27,7 +27,7 @@ function ThrowUseFlags()  {
 
   grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
   cut -f2 -d'"' -s | sort -u |\
-  FilterUseFlag |\
+  DropUseFlags |\
   shuf -n $(($RANDOM % $n)) | sort |\
   PrintUseFlag
 
@@ -40,7 +40,7 @@ function ThrowUseFlags()  {
 
   grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
   cut -f1 -d ' ' -s |\
-  FilterUseFlag |\
+  DropUseFlags |\
   shuf -n $(($RANDOM % $n)) | sort |\
   while read flag
   do
