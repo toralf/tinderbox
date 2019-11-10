@@ -772,7 +772,7 @@ EOF
   fi
   TrimTitle
 
-  # grant write permissions to all artefacts
+  # grant write permissions to all artifacts
   #
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
@@ -942,7 +942,7 @@ function SwitchGCC() {
     #
     add2backlog "%revdep-rebuild"
 
-    # kick off old GCC installation artefacts to force catching related issues/missing links
+    # kick off old GCC installation artifacts to force catching related issues/missing links
     #
     add2backlog "%emerge --unmerge sys-devel/gcc:$current"
   fi
