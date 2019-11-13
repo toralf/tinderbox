@@ -863,7 +863,7 @@ function GotAnIssue()  {
 
   phase=""          # test", "compile" etc.
   ClassifyIssue
-  CompileIssueMail
+  CompileIssueMail  # do it here so that the infamous Perl issues could be later sent manually
 
   # https://bugs.gentoo.org/596664
   #
