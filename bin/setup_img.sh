@@ -564,12 +564,14 @@ function CreateBacklog()  {
     echo "INFO starting replay of task history of $origin"            >> $bl.1st
   fi
 
-  # @world before working on arbitrarily choosen packages
+  # update @world before working on arbitrarily choosen packages
+  # re-build GCC if its USE flag changed before @world
   # this is the last time where depclean is run w/o "-p" (and have to work)
   #
   cat << EOF >> $bl.1st
 %emerge --depclean
 @world
+%emerge --update --changed-use sys-devel/gcc
 EOF
 
   # asturm: give media-libs/jpeg a chance
