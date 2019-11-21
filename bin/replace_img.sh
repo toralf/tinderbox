@@ -12,6 +12,14 @@ function Finish() {
 }
 
 
+function GetCompl() {
+  grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log
+}
+
+function GetLeft()  {
+  wc -l < ~/run/$1/var/tmp/tb/backlog
+}
+
 function LookForAnImage()  {
   # wait time between 2 images
   #
@@ -42,12 +50,12 @@ function LookForAnImage()  {
       break
     fi
 
-    c=$(grep -c ' ::: completed emerge' ~/run/$i/var/log/emerge.log)
+    c=$(GetCompl $i)
     if [[ $c -lt $compl ]]; then
       continue
     fi
 
-    l=$(wc -l < ~/run/$i/var/tmp/tb/backlog)
+    l=$(GetLeft $i)
     if [[ $l -gt $left ]]; then
       continue
     fi
@@ -61,6 +69,11 @@ function LookForAnImage()  {
 
 
 function StopOldImage() {
+  if [[ -z "$c" || -z "$l" ]]; then
+    c=$(GetCompl $oldimg)
+    l=$(GetLeft $oldimg)
+  fi
+
   cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP stop scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left
 EOF
