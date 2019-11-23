@@ -1316,6 +1316,12 @@ backlog=/var/tmp/tb/backlog.1st     # this is the high prio backlog
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"
 
+# https://stackoverflow.com/questions/9485699/setupterm-could-not-find-terminal-in-python-program-using-curses
+# https://bugs.gentoo.org/683118
+#
+export TERM=linux
+export TERMINFO=/etc/terminfo
+
 # needed eg. for the b.g.o. comment #0
 #
 name=$( cat /var/tmp/tb/name )
