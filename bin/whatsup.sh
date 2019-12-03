@@ -246,16 +246,20 @@ function PackagesPerDay() {
       BEGIN {
         @p = (0);
         $first = 0;
+        $i = 0;
       }
       {
-        next unless (m/::: completed emerge/);
+        # calculate these values for the case that current emerge runs longer than 1 day
         $curr = $F[0];
         $first = $curr unless ($first);
         my $i = ($curr-$first) / 86400;
+
+        next unless (m/::: completed emerge/);
         $p[$i]++;
       }
 
       END {
+        $p[$i] += 0;    # set end date nevertheless whether the emerge operations finished or not
         foreach my $i (0..$#p) {
           (exists $p[$i]) ? printf "%5i", $p[$i] : printf "    -";
         }
