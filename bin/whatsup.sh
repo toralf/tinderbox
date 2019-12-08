@@ -75,7 +75,7 @@ function Overall() {
   done
   inrun=$(wc -w <<< $images)
 
-  echo "compl fail  days backlog  upd  1st status  $running#$inrun running"
+  echo "compl fail days backlog  upd  1st status  $running#$inrun running"
 
   for i in $images
   do
@@ -138,7 +138,7 @@ function Overall() {
     b=${i##*/}
     [[ -e ~/run/$b ]] && d="run" || d=$(basename ${i%/*})
 
-    printf "%5i %4i %5.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
+    printf "%5i %4i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
   done
 }
 
