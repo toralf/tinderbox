@@ -107,10 +107,10 @@ if [[ -s $lck ]]; then
 fi
 echo $$ > $lck
 
-compl=4500    # emerge operations
+compl=4600    # emerge operations
 days=5        # min. runtime of an image
-hours=15      # min. distance to the previous image, effectively this yields into n+1 hours
-left=17400    # left entries in the backlog
+hours=16      # min. distance to the previous image, effectively this yields into n+1 hours
+left=17300    # left entries in the backlog
 oldimg=""     # if not given selects one
 setupargs=""  # passed to setup_img.sh
 
