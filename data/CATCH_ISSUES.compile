@@ -26,6 +26,7 @@ ld: -r and -pie may not be used together
 ld returned .* exit status
 : error:
 Parse error .
+ Segmentation fault
 object has no attribute
 .*.texinfo:.*: unknown command
 reference to Parameter is ambiguous
@@ -169,7 +170,6 @@ RuntimeError: failed to run:
 error: static declaration of
 Not in scope:
 error: .
-- Segmentation fault
 sh: .* No such file or directory
 /bin/sh: .* Not a directory
 Could NOT find .* (missing: .*)
@@ -238,3 +238,7 @@ go: error loading module requirements
 utf8 .* does not map to Unicode
 flag provided but not defined
 build flag .* only valid when using modules
+Exception: ERROR: cannot find a valid pkg-config entry
+unlink: .* Permission denied
+RuntimeError: ERROR: Your setuptools version is too old
+python.*: can't open file .*] No such file or directory

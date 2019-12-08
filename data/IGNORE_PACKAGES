@@ -18,11 +18,12 @@ virtual/
 app-vim/c-support
 app-vim/curcmdmode
 #
-# outdated, br0ken, breaks revdep-rebuild, ...
+# outdated, br0ken, breaks revdep-rebuild, needs special kernel config, ...
 #
 /s6
 app-emacs/jde
 dev-perl/Math-Pari
+media-tv/v4l-dvb-saa716x
 net-analyzer/openvas
 net-analyzer/snips
 sci-libs/linux-gpib

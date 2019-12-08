@@ -3,16 +3,18 @@ code model kernel not supported in the 32 bit mode
 CONFIG_SYSFS_DEPRECATED_V2 support detected!
 configure: error: Linux kernel in .* is version .*, but version newer than .* is not supported
 Couldn't find .* to unmerge.
+dev-python/pypy.* needs to be installed for USE=low-memory
 Fetch instructions for
 gcc version .* found, expected gcc
 Incompatible gcc version found
 Incorrect kernel configuration options
+INTERNALERROR
 kernel too new
 Linux >= .* and <= .* required for userspace modules
 Linux .* is the latest supported version
 mingw is needed
-Nonmodular kernel detected, will not build kernel modules
 No LLVM slot <= .* found installed!
+Nonmodular kernel detected, will not build kernel modules
 No pathcc executable was installed, your hardware is unsupported most likely
 No support for external modules in
 OTP release .* does not match required regex
@@ -20,17 +22,18 @@ pcmcia support is broken on kernels newer
 Please disable .* support in your kernel config and recompile your kernel
 Please use a supported ICD
 PostgreSQL slot must be set to one of:
-some Java tools are not available on some VMs on some architectures
+proxy.golang.org
 Select exactly one database type out of these:
+some Java tools are not available on some VMs on some architectures
 Sorry, but this version does not yet support features
 Sorry, but you have to patch kernel sources with the following patch
 SYSVIPC not enabled in the kernel
 The HyperSpec cannot be redistributed.
+There is NOT at least .* disk space at
 Tried to use too new gcc.
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
+ \*   You need one of the following mpi implementations:
 You need to apply a patch to your kernel to compile and run the aufs4 module
 Your C compiler is too old for this package.
 Your kernel version is not yet tested with this version of phc-intel.
- \*   You need one of the following mpi implementations:
-proxy.golang.org

@@ -54,3 +54,4 @@ flex: could not
 asciidoctor:.*cannot load such file
 : error:
 ERROR: unable to find
+Package .*, required by .* not found

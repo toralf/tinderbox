@@ -9,9 +9,10 @@ mail-mta/ssmtp            mta ssl
 #
 sys-apps/nix              -etc_profile
 
-# required by pybugz
+# "readline" is required by pybugz, but this flag clashes with the other
 #
 dev-lang/python           readline
+dev-libs/libpcre*         -libedit
 
 # 2h less compile time
 #
@@ -36,3 +37,7 @@ dev-lang/python           sqlite
 # "cswchs/s" value and "runq-sz" increased by a magnitude
 #
 dev-lisp/sbcl             -threads
+
+# requires "latex" too
+#
+app-doc/doxygen           -doc
