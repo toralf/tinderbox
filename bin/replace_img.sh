@@ -110,7 +110,7 @@ echo $$ > $lck
 compl=4600    # emerge operations
 days=5        # min. runtime of an image
 hours=16      # min. distance to the previous image, effectively this yields into n+1 hours
-left=17300    # left entries in the backlog
+left=17000    # left entries in the backlog
 oldimg=""     # if not given selects one
 setupargs=""  # passed to setup_img.sh
 
