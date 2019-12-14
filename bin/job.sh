@@ -99,8 +99,8 @@ function Finish()  {
 function setTask()  {
   # 1st prio backlog rules always
   #
-  if [[ -s $backlog ]]; then
-    bl=$backlog
+  if [[ -s $backlog1st ]]; then
+    bl=$backlog1st
 
   # Gentoo repository changes
   # backlog.upd is updated regularly by update_backlog.sh
@@ -157,7 +157,7 @@ function getNextTask() {
       return  # work on either a pinned version || @set || command
 
     else
-      if [[ ! "$bl" = "/var/tmp/tb/backlog.1st" ]]; then
+      if [[ ! "$bl" = $backlog1st ]]; then
         echo "$task" | grep -q -f /mnt/tb/data/IGNORE_PACKAGES
         if [[ $? -eq 0 ]]; then
           continue
@@ -825,8 +825,8 @@ function setWorkDir() {
 
 
 function add2backlog()  {
-  if [[ ! "$(tail -n 1 $backlog)" = "${@}" ]]; then
-    echo "${@}" >> $backlog
+  if [[ ! "$(tail -n 1 $backlog1st)" = "${@}" ]]; then
+    echo "${@}" >> $backlog1st
   fi
 }
 
@@ -1044,7 +1044,7 @@ function PostEmerge() {
 
   # daily subsequent image updates
   #
-  if [[ ! -s $backlog && -f /var/tmp/tb/@system.history ]]; then
+  if [[ ! -s $backlog1st && -f /var/tmp/tb/@system.history ]]; then
     let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
     if [[ $diff -ge 1 ]]; then
       add2backlog "@system"
@@ -1311,7 +1311,7 @@ function syncRepos() {
 mailto="tinderbox@zwiebeltoralf.de"
 taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds always output of the running task command
-backlog=/var/tmp/tb/backlog.1st     # this is the high prio backlog
+backlog1st=/var/tmp/tb/backlog.1st  # this is the high prio backlog
 
 export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
 export GREP_COLORS="never"
