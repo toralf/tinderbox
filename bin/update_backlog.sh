@@ -10,14 +10,14 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-repo_path=$( portageq get_repo_path / gentoo ) || exit 2
+repo_path=$(portageq get_repo_path / gentoo) || exit 2
 cd $repo_path || exit 3
 
-# list of updated package(s)
+# hold updated package(s) here
 #
 pks=/tmp/${0##*/}.txt
 
-# default: 1 hour to let mirrors be synced
+# if called hourly then add delay of 1 hour to let mirrors be synced before
 #
 git diff --diff-filter=ACM --name-status "@{ 2 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
 grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
@@ -29,7 +29,7 @@ if [[ -s $pks ]]; then
   for bl in $(ls ~/run/*/var/tmp/tb/backlog.upd 2>/dev/null)
   do
     sort -u $bl $pks | shuf > $bl.tmp
-    # no "mv", that overwrites file permissions
+    # prefer cp+rm over "mv", b/c mv overwrites file permissions
     #
     cp $bl.tmp $bl
     rm $bl.tmp
