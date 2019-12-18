@@ -90,7 +90,7 @@ Run as *root*:
 
 Run as user *tinderbox* in ~ :
 
-    mkdir img{1,2} logs run tb
+    mkdir distfiles img{1,2} logs run tb
 
 to have 2 directories acting as mount points for 2 separate file systems (mkfs is *much* more faster than rm -rf) to hold the chroot images. Use both file systems in a round robin manner, start with the first, eg.:
 

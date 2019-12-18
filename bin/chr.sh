@@ -16,9 +16,9 @@ function mountall() {
   /bin/mount -o bind      ~tinderbox/tb/data  $mnt/mnt/tb/data    &&\
   /bin/mount -o bind      ~tinderbox/tb/sdata $mnt/mnt/tb/sdata   &&\
   #
-  /bin/mount -o bind,ro   /var/db/repos     $mnt/mnt/repos        &&\
-  /bin/mount -t tmpfs     tmpfs -o size=16G $mnt/var/tmp/portage  &&\
-  /bin/mount -o bind      $distfiles        $mnt/$distfiles       &&\
+  /bin/mount -o bind,ro   /var/db/repos         $mnt/mnt/repos            &&\
+  /bin/mount -t tmpfs     tmpfs -o size=16G     $mnt/var/tmp/portage      &&\
+  /bin/mount -o bind      ~tinderbox/distfiles  $mnt/var/cache/distfiles  &&\
 
   return $?
 }
@@ -29,7 +29,7 @@ function umountall()  {
   #
   local rc=0
 
-  /bin/umount -l $mnt/$distfiles              || rc=$?
+  /bin/umount -l $mnt/var/cache/distfiles     || rc=$?
   /bin/umount -l $mnt/var/tmp/portage         || rc=$?
   /bin/umount -l $mnt/mnt/repos               || rc=$?
 
@@ -109,8 +109,6 @@ if [[ $? -eq 0 ]]; then
   echo "^^^^^ found (stale?) mounts of $mnt"
   exit 3
 fi
-
-distfiles=$(portageq distdir)
 
 mountall
 if [[ $? -ne 0 ]]; then

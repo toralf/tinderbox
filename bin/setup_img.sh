@@ -208,7 +208,7 @@ function CreateImageDir() {
 # download, verify and unpack the stage3 file
 #
 function UnpackStage3()  {
-  latest="$distdir/latest-stage3.txt"
+  latest="$tbdistdir/latest-stage3.txt"
 
   for mirror in $gentoo_mirrors
   do
@@ -248,11 +248,11 @@ function UnpackStage3()  {
     exit 1
   fi
 
-  f=$distdir/${stage3##*/}
+  f=$tbdistdir/${stage3##*/}
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo "downloading $stage3 ..."
-    wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$distdir
+    wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir
     rc=$?
     echo
     if [[ $rc -ne 0 ]]; then
@@ -390,7 +390,7 @@ CLEAN_DELAY=0
 L10N="$l10n"
 VIDEO_CARDS=""
 
-DISTDIR="$distdir"
+DISTDIR="/var/cache/distfiles"
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
@@ -429,7 +429,7 @@ function cpconf() {
 # create portage + tinderbox directories + files and symlinks
 #
 function CompilePortageFiles()  {
-  mkdir -p ./mnt/{repos,tb/data,tb/sdata} ./var/tmp/{portage,tb} ./$distdir
+  mkdir -p ./mnt/{repos,tb/data,tb/sdata} ./var/tmp/{portage,tb} ./var/cache/distfiles
 
   chgrp portage ./var/tmp/tb
   chmod ug+rwx  ./var/tmp/tb
@@ -822,7 +822,7 @@ set +e
 repo_gentoo=$(  portageq get_repo_path / gentoo)
 repo_libressl=$(portageq get_repo_path / libressl)
 repo_local=$(   portageq get_repo_path / local)
-distdir=$(      portageq distdir)
+tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
 
 SetOptions
