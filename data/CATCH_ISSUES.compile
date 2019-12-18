@@ -139,6 +139,7 @@ parser error : .* not defined
 make: invalid option
 This BEAM file was compiled for a later version of the run-time system than
 Uncaught error in
+Project ERROR: .* package not found
 ^Error:
 : Error:
 recipe for target .* failed

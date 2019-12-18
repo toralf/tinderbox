@@ -20,6 +20,7 @@ No support for external modules in
 OTP release .* does not match required regex
 pcmcia support is broken on kernels newer
 Please disable .* support in your kernel config and recompile your kernel
+Please, run haskell-updater
 Please use a supported ICD
 PostgreSQL slot must be set to one of:
 proxy.golang.org

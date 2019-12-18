@@ -23,31 +23,17 @@ app-vim/curcmdmode
 /s6
 app-emacs/jde
 dev-perl/Math-Pari
+dev-util/google-perftools
 media-tv/v4l-dvb-saa716x
 net-analyzer/openvas
-net-analyzer/snips
 sci-libs/linux-gpib
 sci-mathematics/pari
 sys-apps/modutils
-sys-cluster/drbd-kernel
 sys-cluster/mvapich2
 sys-cluster/openmpi
-sys-cluster/open-mx
 sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
-#
-# breaks @world and/or @preserved-rebuild too often
-#
-dev-perl/ZMQ
-dev-python/django
-dev-python/flake8
-dev-python/pycrypto
-dev-python/pyflakes
-dev-python/pygsl
-dev-python/twisted
-dev-util/ragel
-net-libs/zmqpp
 #
 # looooooooong build time
 #
@@ -64,6 +50,7 @@ www-client/google-chrome
 #
 # looong build time
 #
+app-office/
 app-office/libreoffice
 app-office/ooextras
 app-officeext/
@@ -76,6 +63,22 @@ sys-cluster/
 sys-devel/byfl
 sys-devel/llvm-roc
 #
-# breaks @preserved-rebuild
+# depends at old llvm
 #
-dev-util/google-perftools
+dev-libs/opencl-clang
+dev-python/numba
+dev-util/intel-graphics-compiler
+dev-util/spirv-llvm-translator
+#
+# blocked unix processes
+#
+dev-lang/mlton
+sci-mathematics/twelf
+#
+# ModuleNotFoundError: No module named 'ament_package'
+#
+dev-ros/
+#
+# somehow broken in Dec 2019
+#
+dev-haskell/

@@ -25,11 +25,11 @@ install: cannot create regular file
 environment: line .*: cd: .* No such file or directory
 mv: cannot stat .* No such file or directory
 java.lang.NoSuchMethodError:
- : No such file or directory
+: No such file or directory
 Failed to set XATTR_PAX markings
 Fatal error: .
 glib-mkenums: command not found
 AttributeError:
 error: unknown target
-error: .* No such file or directory
 FileNotFoundError: .* No such file or directory:
+.* failed to

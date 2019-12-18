@@ -22,16 +22,6 @@ installs into paths that should be created at runtime
 530632
 This package has a configure.in file which has long been deprecated.
 
-# [TRACKER] Packages requiring porting to boost-1.71
-#
-671712
-boost::asio|boost::python|boost/signal.*No such file or directory|cannot find -lboost_|FindBoost.cmake|invalid value: boost_major_version=|Could NOT find Boost|could not convert boost
-
-# (gcc-9) - [TRACKER] sys-devel/gcc-9 porting
-#
-685044
-possibly undefined macro:|friend declaration of|taking address of packed member of|not specified in enclosing parallel| is not a constant expression|non-local lambda expression cannot have|exception cleanup for this placement new selects non-placement operator| implicitly-declared .* is deprecated|_builtin_strncpy specified bound|%s directive argument is null|cannot bind packed field
-
 # (glibc-2.30) - [TRACKER] Issues with sys-libs/glibc-2.30 (directly and indirectly)
 #
 691846
@@ -61,3 +51,8 @@ GL/glut.h:
 #
 697606
 utf8 .* does not map to Unicode
+
+# (boost-1.72) - [TRACKER] Packages requiring porting to boost-1.72
+#
+703042
+error: no type named executor_type in struct

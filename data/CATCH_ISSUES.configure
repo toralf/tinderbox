@@ -16,6 +16,7 @@ You need build codec to run the tests
 Could not find a package configuration file provided by
 Project .rostime. tried to find library .-lpthread.
 Could NOT find Boost
+ was not found.
 CMake Error at
 Configuring incomplete, errors occurred
 extconf.rb:.* (RuntimeError)
@@ -35,6 +36,8 @@ meson.build.*ERROR:.*
 USE Flag .* not in IUSE for
 configure in /.* failed
 Error: .
+Please, run .haskell-updater
+Detected broken packages:
  configure failed
 error: unsupported
 error: setupterm:
@@ -55,3 +58,4 @@ asciidoctor:.*cannot load such file
 : error:
 ERROR: unable to find
 Package .*, required by .* not found
+.* requires .* install the dependency

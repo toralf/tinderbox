@@ -1,7 +1,7 @@
 # package.use/00test
 #
 
-# if FEATURES=test activated then these USE flags are needed
+# if FEATURES=test is set then these USE flags are mandatory
 #
 dev-libs/glib             -gtk-doc
 media-gfx/imagemagick     corefonts truetype
