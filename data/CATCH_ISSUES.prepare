@@ -11,3 +11,5 @@ Please disable .* support in your kernel config and recompile your kernel
 : No such file or directory
 possibly undefined macro:
 Could not find gem
+sed: .* unterminated .* command
+can't find file to patch at input

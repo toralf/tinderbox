@@ -41,3 +41,7 @@ dev-lisp/sbcl             -threads
 # requires "latex" too
 #
 app-doc/doxygen           -doc
+
+# dev-util/google-perftools blocker in @preserved-rebuild: "sys-libs/libunwind" is blocking sys-libs/llvm-libunwind-9.0.1
+#
+*/*                       -jmalloc -tcmalloc

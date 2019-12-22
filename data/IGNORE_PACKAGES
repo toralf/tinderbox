@@ -66,6 +66,7 @@ sys-devel/llvm-roc
 # depends at old llvm
 #
 dev-libs/opencl-clang
+dev-python/llvmlite
 dev-python/numba
 dev-util/intel-graphics-compiler
 dev-util/spirv-llvm-translator
@@ -82,3 +83,9 @@ dev-ros/
 # somehow broken in Dec 2019
 #
 dev-haskell/
+ghc
+x11-misc/xmobar
+#
+# produced blocker at @preserved-rebuild : "sys-libs/libunwind" is blocking sys-libs/llvm-libunwind-9.0.1
+#
+dev-util/google-perftools

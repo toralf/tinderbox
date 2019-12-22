@@ -1,4 +1,4 @@
-# This file contains pairs of lines (bug number & pattern) to automate the adding of a b.g.o bug blocker id.
+# This file contains pairs of lines (bug number + pattern) to automate the adding of a b.g.o bug blocker id.
 # Empty lines and comments are ignored.
 #
 
@@ -6,11 +6,6 @@
 #
 561854
 error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not  declared in this scope|undefined reference to HMAC|OPENSSL_|TLS1_._VERSION|undefined reference to SSL_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC|HMAC_CTX_
-
-# OpenSSL 1.1
-#
-592438
-error: storage size of .* isn.t known|error: dereferencing pointer to incomplete type X509|error: SSLv._client_method was not declared in this scope|MD._DIGEST_LENGTH|error: dereferencing pointer to incomplete type|error: too few arguments to function CRYPTO_|SSL_.* undeclared|SLv._client_method was not declared|incomplete type SSL|undefined reference to .SSLv._client_method.|.HMAC_CTX_init. was not declared in this scope|undefined reference to SSLv._
 
 # QA
 #
@@ -55,4 +50,4 @@ utf8 .* does not map to Unicode
 # (boost-1.72) - [TRACKER] Packages requiring porting to boost-1.72
 #
 703042
-error: no type named executor_type in struct
+no type named executor_type in struct|expected ‘;’ at end of member declaration
