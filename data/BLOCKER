@@ -51,3 +51,8 @@ utf8 .* does not map to Unicode
 #
 703042
 no type named executor_type in struct|expected ‘;’ at end of member declaration
+
+#  [Tracker] media-plugins/vdr-* broken by update to media-video/vdr-2.4.x
+#
+703944
+error: .Channels. was not declared in this scope;|error: .Timers. was not declared in this scope|error: .Recordings. was not declared in this scope|error: .Schedules. is not a member of .cSchedules.
