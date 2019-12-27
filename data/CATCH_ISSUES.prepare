@@ -13,3 +13,5 @@ possibly undefined macro:
 Could not find gem
 sed: .* unterminated .* command
 can't find file to patch at input
+LoadError:
+.*: command not found

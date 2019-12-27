@@ -17,15 +17,15 @@ installs into paths that should be created at runtime
 530632
 This package has a configure.in file which has long been deprecated.
 
-# (glibc-2.30) - [TRACKER] Issues with sys-libs/glibc-2.30 (directly and indirectly)
-#
-691846
-stropts.h|ambiguating new declaration of.*long int gettid|implicit declaration of function.*gettid|static declaration of.*gettid.*follows non-static declaration|conflicting types for gint
-
 # (linux-headers-5.2) - linux-headers-5.2 porting
 #
 690296
 SIOCGSTAMP
+
+# (glibc-2.30) - [TRACKER] Issues with sys-libs/glibc-2.30 (directly and indirectly)
+#
+691846
+stropts.h|ambiguating new declaration of.*long int gettid|implicit declaration of function.*gettid|static declaration of.*gettid.*follows non-static declaration|conflicting types for gint
 
 # (mysql-8) - [TRACKER] Packages failing with >=dev-db/mysql-connector-c-8.0.1
 #
@@ -52,7 +52,12 @@ utf8 .* does not map to Unicode
 703042
 no type named executor_type in struct|expected ‘;’ at end of member declaration
 
+# [Tracker] Packages broken with Qt 5.14
+#
+703574
+Namespace declaration lacks Q_NAMESPACE macro.
+
 #  [Tracker] media-plugins/vdr-* broken by update to media-video/vdr-2.4.x
 #
 703944
-error: .Channels. was not declared in this scope;|error: .Timers. was not declared in this scope|error: .Recordings. was not declared in this scope|error: .Schedules. is not a member of .cSchedules.
+: .* was not declared in this scope|Channels was not declared in this scope|Recordings was not declared in this scope|Timers was not declared in this scope|cSchedulesLock does not name a type|use of deleted function cTask

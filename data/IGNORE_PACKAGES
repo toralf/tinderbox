@@ -1,4 +1,4 @@
-# tasks matching a pattern here will usually be skipped
+# tasks matching a pattern here will be skipped (except for being in backlog.1st)
 # this file MUST NOT have empty lines (except the very last one)
 #
 # never explicitely run emerge with:
@@ -71,21 +71,15 @@ dev-python/numba
 dev-util/intel-graphics-compiler
 dev-util/spirv-llvm-translator
 #
-# blocked unix processes
+# too many unix processes in blocking state
 #
 dev-lang/mlton
 sci-mathematics/twelf
 #
-# ModuleNotFoundError: No module named 'ament_package'
-#
-dev-ros/
-#
-# somehow broken in Dec 2019
-#
-dev-haskell/
-ghc
-x11-misc/xmobar
-#
 # produced blocker at @preserved-rebuild : "sys-libs/libunwind" is blocking sys-libs/llvm-libunwind-9.0.1
 #
 dev-util/google-perftools
+#
+# mass issues like: CMake Error at cmake/.../ament_package_xml.cmake
+#
+dev-ros/

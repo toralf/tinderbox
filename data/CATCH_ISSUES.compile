@@ -34,6 +34,7 @@ Unknown M68KMAKE directive
 was not declared in this scope
 error: .* has not been declared
 ModuleNotFoundError: No module named
+.:.*: Error:
 ninja: build stopped:
 : undefined method
 make inconsistent assumptions over
