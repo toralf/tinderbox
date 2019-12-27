@@ -1014,10 +1014,12 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q ">>> Installing .* sys-kernel/.*-sources" $bak
+  # ignore any other kernel
+  #
+  grep -q ">>> Installing .* sys-kernel/gentoo-sources" $bak
   if [[ $? -eq 0 ]]; then
-    current=$(eselect kernel show | cut -f4 -d'/' -s )
-    latest=$( eselect kernel list | tail -n 1 | awk ' { print $2 } ' )
+    current=$(eselect kernel show | grep "gentoo" | cut -f4 -d'/' -s)
+    latest=$(eselect kernel list | grep "gentoo" | tail -n 1 | awk ' { print $2 } ')
     if [[ "$current" != "$latest" ]]; then
       eselect kernel set $latest
     fi
