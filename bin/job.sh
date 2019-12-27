@@ -1047,11 +1047,7 @@ function PostEmerge() {
   # daily image update if 1st prio backlog is empty
   #
   if [[ ! -s $backlog1st ]]; then
-    if [[ -f /var/tmp/tb/@system.history ]]; then
-      let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
-    else
-      let "diff = ( $(date +%s) - $(stat -c%Y $backlog1st) ) / 86400"
-    fi
+    let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
     if [[ $diff -ge 1 ]]; then
       add2backlog "@system"
       add2backlog "%SwitchJDK"
