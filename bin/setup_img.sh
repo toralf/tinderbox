@@ -565,7 +565,8 @@ function CreateBacklog()  {
   fi
 
   # update @world before working on arbitrarily choosen packages
-  # @system is needed b/c @world only sometimes failes with a "python [bluetooth]" USE flag dep-cycle issue
+  # @system is needed b/c that is tested during dry-run
+  # (and @world only does sometimes faile with a "python [bluetooth]" USE flag dep-cycle issue)
   # re-build GCC if its USE flag changed before @world
   # this is the last time where depclean is run w/o "-p" (and must work)
   #
