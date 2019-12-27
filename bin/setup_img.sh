@@ -565,12 +565,14 @@ function CreateBacklog()  {
   fi
 
   # update @world before working on arbitrarily choosen packages
+  # @system is needed b/c @world only sometimes failes with a "python [bluetooth]" USE flag dep-cycle issue
   # re-build GCC if its USE flag changed before @world
-  # this is the last time where depclean is run w/o "-p" (and have to work)
+  # this is the last time where depclean is run w/o "-p" (and must work)
   #
   cat << EOF >> $bl.1st
 %emerge --depclean
 @world
+@system
 %emerge --update --changed-use sys-devel/gcc
 EOF
 
