@@ -368,10 +368,6 @@ CXXFLAGS="\${COMMON_FLAGS}"
 FCFLAGS="\${COMMON_FLAGS}"
 FFLAGS="\${COMMON_FLAGS}"
 
-#<@gyakovlev> toralf: yeah, we discussed it with you, codegen units is not very safe for general use, but fine for your usecase on tinderbox.
-#
-RUSTFLAGS="-C target-cpu=native -v -C codegen-units=1"
-
 source /etc/portage/make.conf.USE
 USE="\${USE}
 
@@ -473,7 +469,7 @@ NINJAFLAGS="-j1"
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
 OMP_NUM_THREADS=1
-# RUSTFLAGS is set in make.conf (contains more than just -j1)
+RUSTFLAGS="-v -C codegen-units=1"
 RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 
