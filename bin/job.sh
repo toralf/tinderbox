@@ -645,7 +645,7 @@ function AddBgoCommandLine() {
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$id
 
-  bgo.sh -d ~/img?/$name/$issuedir $block -c 'it is still an issue at $keyword amd64 tinderbox image $name (see bug $id) '    -i $id
+  bgo.sh -d ~/img?/$name/$issuedir $block -c 'it is still an issue at $keyword amd64 tinderbox image $name (see bug $id)'
 
 
 EOF
