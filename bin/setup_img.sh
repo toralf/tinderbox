@@ -744,7 +744,9 @@ function DryrunHelper() {
   tail -v -n 1000 $mnt/etc/portage/make.conf.USE
   echo
 
-  sudo ${0%/*}/chr.sh $mnt 'emerge --update --newuse --changed-use --changed-deps=y --deep @system --backtrack=30 --pretend &> /var/tmp/tb/dryrun.log'
+  # this should match the one in job.sh
+  #
+  sudo ${0%/*}/chr.sh $mnt 'emerge --update --deep --changed-use --backtrack=30 --pretend @system &> /var/tmp/tb/dryrun.log'
   local rc=$?
 
   if [[ $rc -eq 0 ]]; then
