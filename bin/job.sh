@@ -1180,7 +1180,7 @@ function WorkOnTask() {
 
   # @set
   #
-  if [[ $task =~ ^@ ]]; then
+  if [[ $task =~ ^@ && ! task =~ ' ' ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
       opts="--update --deep --changed-use --backtrack=30 --exclude kernel/gentoo-sources"
