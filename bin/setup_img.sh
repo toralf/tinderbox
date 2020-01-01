@@ -576,12 +576,6 @@ function CreateBacklog()  {
 %emerge --update --changed-use sys-devel/gcc
 EOF
 
-  # asturm: give media-libs/jpeg a chance
-  #
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    echo "media-libs/jpeg" >> $bl.1st
-  fi
-
   # whissi: this is a mysql alternative engine
   #
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
