@@ -573,7 +573,6 @@ function CreateBacklog()  {
 %emerge --depclean
 @world
 @system
-%emerge --update --changed-use sys-devel/gcc
 EOF
 
   # whissi: this is a mysql alternative engine
