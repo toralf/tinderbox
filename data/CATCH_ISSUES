@@ -8,7 +8,8 @@ Fetch failed for
 The ebuild phase .* has exited unexpectedly. This type of
 ecompress-file failed
 ^ERROR:
- \* ERROR: .* failed:
+Unsupported EAPI
+\* ERROR: .* failed:
 ln: failed to create symbolic link .*: File exists
-make:.*Error
+^Error:
 Error .

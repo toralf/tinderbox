@@ -141,7 +141,6 @@ make: invalid option
 This BEAM file was compiled for a later version of the run-time system than
 Uncaught error in
 Project ERROR: .* package not found
-^Error:
 : Error:
 recipe for target .* failed
 backend requires .* - aborting
@@ -244,3 +243,6 @@ Exception: ERROR: cannot find a valid pkg-config entry
 unlink: .* Permission denied
 RuntimeError: ERROR: Your setuptools version is too old
 python.*: can't open file .*] No such file or directory
+Variable .* not found in the output
+ocamlfind: Package .* not found
+This expression has type .* but an expression was expected

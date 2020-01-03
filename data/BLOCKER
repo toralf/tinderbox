@@ -55,7 +55,7 @@ no type named executor_type in struct|expected ‘;’ at end of member declarat
 # [Tracker] Packages broken with Qt 5.14
 #
 703574
-Namespace declaration lacks Q_NAMESPACE macro.
+Namespace declaration lacks Q_NAMESPACE macro.|invalid use of incomplete type class VGObjec
 
 #  [Tracker] media-plugins/vdr-* broken by update to media-video/vdr-2.4.x
 #

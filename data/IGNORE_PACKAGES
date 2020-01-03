@@ -65,6 +65,7 @@ sys-devel/llvm-roc
 #
 # depends at old llvm
 #
+dev-libs/intel-neo
 dev-libs/opencl-clang
 dev-python/llvmlite
 dev-python/numba
@@ -80,6 +81,11 @@ sci-mathematics/twelf
 #
 dev-util/google-perftools
 #
-# mass issues like: CMake Error at cmake/.../ament_package_xml.cmake
+# CMake Error at cmake/.../ament_package_xml.cmake
 #
 dev-ros/
+#
+# Error: This expression has type string but an expression was expected of type
+#
+dev-ml/
+/*ocaml
