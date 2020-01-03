@@ -563,15 +563,11 @@ function CreateBacklog()  {
     echo "INFO starting replay of task history of $origin"            >> $bl.1st
   fi
 
-  # @system is needed b/c that is tested during dry-run
-  # (and @world without @system before fails sometimes, eg. with a "python [bluetooth]" USE flag dep-cycle issue)
-  # update @world before working on the arbitrarily choosen package list
-  # the finally @system just should clean up the failure flag if set
-  # this is the last time where depclean is run w/o "-p" (and must work forced by "%")
+  # update @system, then @world before working on the arbitrarily choosen package list
+  # this is the last time where depclean is run w/o "-p" (and must succeeded)
   #
   cat << EOF >> $bl.1st
 %emerge --depclean
-@system
 @world
 @system
 EOF
@@ -734,7 +730,7 @@ function EmergeMandatoryPackages() {
 #
 function DryrunHelper() {
   date
-  echo " dryrun ..."
+  echo " dry run ..."
   tail -v -n 1000 $mnt/etc/portage/make.conf.USE
   echo
 
