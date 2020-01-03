@@ -578,10 +578,6 @@ EOF
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  # upgrade portage itself before @system, @world or any other package
-  #
-  echo "sys-apps/portage" >> $bl.1st
-
   # switch to LibreSSL
   #
   if [[ "$libressl" = "y" ]]; then
@@ -691,7 +687,9 @@ if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
-# now switch to the final profile
+emerge sys-apps/portage || exit 1
+
+# now switch to the selected profile
 #
 eselect profile set --force default/linux/amd64/$profile || exit 1
 
