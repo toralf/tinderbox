@@ -3,7 +3,7 @@
 #
 # never explicitely run emerge with:
 #
-acct-*/
+acct-.*/
 app-eselect/
 dev-embedded/
 java-virtuals/
@@ -85,7 +85,7 @@ dev-util/google-perftools
 #
 dev-ros/
 #
-# Error: This expression has type string but an expression was expected of type
+# https://bugs.gentoo.org/704304
 #
 dev-ml/
-/*ocaml
+/.*ocaml
