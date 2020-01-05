@@ -825,6 +825,8 @@ function setWorkDir() {
 
 
 function add2backlog()  {
+  # no duplicates
+  #
   if [[ ! "$(tail -n 1 $backlog1st)" = "${@}" ]]; then
     echo "${@}" >> $backlog1st
   fi
@@ -1233,7 +1235,7 @@ function WorkOnTask() {
               add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
             fi
           fi
-        elif [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" && ! $task =~ "BuildKernel" && ! $task =~ "emerge -C" ]]; then
+        elif [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" && ! $task =~ "BuildKernel" ]]; then
           Finish 3 "command: '$cmd'"
         fi
       fi

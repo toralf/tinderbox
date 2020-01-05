@@ -588,10 +588,10 @@ EOF
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
 %emerge --unmerge openssl
-%emerge -f dev-libs/libressl net-misc/openssh net-misc/wget
+%emerge --fetchonly dev-libs/libressl net-misc/openssh net-misc/wget
 %chgrp portage /etc/portage/package.use/00libressl
 %cp /mnt/tb/data/package.use.00libressl /etc/portage/package.use/00libressl
-%emerge -f dev-libs/openssl
+%emerge --fetchonly dev-libs/openssl
 EOF
   fi
 
