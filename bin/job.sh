@@ -1254,12 +1254,12 @@ function WorkOnTask() {
 }
 
 
-# detect a loop
+# heuristic:
 #
 function DetectALoop() {
-  x=6
+  x=7
   if [[ $name =~ "test" ]]; then
-    let "x = x * 3"
+    x=18
   fi
   let "y = x * 2"
 
