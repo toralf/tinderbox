@@ -15,41 +15,48 @@ function DropUseFlags()  {
 }
 
 
-function PrintUseFlag() {
+function SelectUseFlags() {
+  n=${1:-1}
+  m=${2:-0}
+
+  # throw up to n-1
+  #
+  shuf -n $(($RANDOM % $n)) | sort |\
+  while read flag
+  do
+    # mask about 1/m
+    #
+    if [[ $m -gt 0 && $(($RANDOM % $m)) -eq 0 ]]; then
+      echo -n "-"
+    fi
+    echo -n "$flag "
+  done
+}
+
+
+function PrintUseFlags() {
   xargs -s 78 | sed 's/^/  /g'
 }
 
 
 function ThrowUseFlags()  {
-  # throw up to n-1 local USE flags
+  # local USE flags
   #
-  n=50
-
   grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
   cut -f2 -d'"' -s | sort -u |\
   DropUseFlags |\
-  shuf -n $(($RANDOM % $n)) | sort |\
-  PrintUseFlag
+  SelectUseFlags 50 10 |\
+  PrintUseFlags
 
   echo
 
-  # throw up to n-1 global USE flags and mask about 1/m of them
+  # global USE flags
   #
-  n=40
-  m=15
-
   grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
   cut -f1 -d ' ' -s |\
   DropUseFlags |\
-  shuf -n $(($RANDOM % $n)) | sort |\
-  while read flag
-  do
-    if [[ $(($RANDOM % $m)) -eq 0 ]]; then
-      echo -n "-"
-    fi
-    echo -n "$flag "
-  done |\
-  PrintUseFlag
+  SelectUseFlags 40 10 |\
+  PrintUseFlags
 }
 
 
@@ -850,7 +857,7 @@ do
           exit 1
         fi
 
-        useflags="$(source $origin/etc/portage/make.conf && echo $USE | PrintUseFlag)"
+        useflags="$(source $origin/etc/portage/make.conf && echo $USE | PrintUseFlags)"
         features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
         grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf && keyword="unstable" || keyword="stable"
@@ -863,7 +870,7 @@ do
         ;;
     t)  testfeature="$OPTARG"
         ;;
-    u)  useflags="$(echo $OPTARG | PrintUseFlag)"
+    u)  useflags="$(echo $OPTARG | PrintUseFlags)"
         ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 1
