@@ -3,5 +3,3 @@
 
 */*                 libressl openssl -gnutls
 net-misc/curl       curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
-
-sys-auth/pambase    -pam_ssh

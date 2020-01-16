@@ -85,7 +85,8 @@ dev-util/google-perftools
 #
 dev-ros/
 #
-# https://bugs.gentoo.org/704304
+# OCAML is b0rken https://bugs.gentoo.org/704304
 #
 dev-ml/
 /.*ocaml
+net-misc/unison

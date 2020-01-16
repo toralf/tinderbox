@@ -12,6 +12,7 @@ INTERNALERROR
 kernel too new
 Linux >= .* and <= .* required for userspace modules
 Linux .* is the latest supported version
+meson.*Unable to determine dynamic linker
 mingw is needed
 No LLVM slot <= .* found installed!
 Nonmodular kernel detected, will not build kernel modules
@@ -20,7 +21,6 @@ No support for external modules in
 OTP release .* does not match required regex
 pcmcia support is broken on kernels newer
 Please disable .* support in your kernel config and recompile your kernel
-Please, run haskell-updater
 Please use a supported ICD
 PostgreSQL slot must be set to one of:
 proxy.golang.org
@@ -30,7 +30,6 @@ Sorry, but this version does not yet support features
 Sorry, but you have to patch kernel sources with the following patch
 SYSVIPC not enabled in the kernel
 The HyperSpec cannot be redistributed.
-There is NOT at least .* disk space at
 Tried to use too new gcc.
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
