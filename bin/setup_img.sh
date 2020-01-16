@@ -269,13 +269,14 @@ function UnpackStage3()  {
     fi
   fi
 
-  # do this once before:
+  # do this once before for each key:
   #
   # gpg --keyserver hkps.pool.sks-keyservers.net --recv-keys <key>
   # gpg --edit-key <key>
   # and set "trust" to 5 (==ultimately)
   #
   date
+  gpg --refresh-keys releng@gentoo.org
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
