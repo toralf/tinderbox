@@ -86,9 +86,6 @@ function SetOptions() {
   do
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
   done < <(ShuffleProfile)
-  if [[ -z "$profile" ]]; then
-    profile=$(ShuffleProfile | head -n 1)
-  fi
 
   # be more restrict wrt sandbox issues
   #
