@@ -1363,10 +1363,10 @@ do
   echo "$task" | tee -a $taskfile.history > $taskfile
   WorkOnTask
 
+  DetectALoop
+
   # this line is intentionally not reached if Finish() is called before
   # so $task is retried at next start
   #
   truncate -s 0 $taskfile
-
-  DetectALoop
 done
