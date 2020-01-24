@@ -445,7 +445,7 @@ function foundSandboxIssue() {
   echo "=$pkg nosandbox" >> /etc/portage/package.env/nosandbox
   try_again=1
   echo "sandbox issue" > $issuedir/title
-  head -n 10 $sandb >> $issuedir/issue
+  head -n 10 $sandb 2>&1 >> $issuedir/issue
 }
 
 
@@ -483,7 +483,7 @@ function ClassifyIssue() {
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
     foundCollisionIssue
 
-  elif [[ -f $sandb ]]; then
+  elif [[ -n $sandb ]]; then # no -f b/c it might not be exist
     foundSandboxIssue
 
   else
