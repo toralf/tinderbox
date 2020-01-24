@@ -442,8 +442,12 @@ function foundCollisionIssue() {
 # helper of ClassifyIssue()
 #
 function foundSandboxIssue() {
-  echo "=$pkg nosandbox" >> /etc/portage/package.env/nosandbox
-  try_again=1
+  grep -q "=$pkg " /etc/portage/package.env/nosandbox 2>/dev/null
+  if [[ $? -ne 0 ]]; then
+    echo "=$pkg nosandbox" >> /etc/portage/package.env/nosandbox
+    try_again=1
+  fi
+
   echo "sandbox issue" > $issuedir/title
   head -n 10 $sandb 2>&1 >> $issuedir/issue
 }
