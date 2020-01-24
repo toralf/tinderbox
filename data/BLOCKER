@@ -5,7 +5,7 @@
 # libressl-support
 #
 561854
-error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not  declared in this scope|undefined reference to HMAC|OPENSSL_|TLS1_._VERSION|undefined reference to SSL_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC|HMAC_CTX_
+error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not  declared in this scope|undefined reference to HMAC|OPENSSL_|TLS1_._VERSION|undefined reference to SSL_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC|HMAC_CTX_|unknown type name SSL_CONF_CTX
 
 # QA
 #
@@ -57,7 +57,7 @@ no type named executor_type in struct|expected ‘;’ at end of member declarat
 703574
 Namespace declaration lacks Q_NAMESPACE macro.|invalid use of incomplete type class VGObjec
 
-#  [Tracker] media-plugins/vdr-* broken by update to media-video/vdr-2.4.x
+# [Tracker] (-fno-common) - Packages failing with -fno-common
 #
-703944
-: .* was not declared in this scope|Channels was not declared in this scope|Recordings was not declared in this scope|Timers was not declared in this scope|cSchedulesLock does not name a type|use of deleted function cTask
+705764
+: first defined here
