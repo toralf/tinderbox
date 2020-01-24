@@ -451,7 +451,7 @@ function foundSandboxIssue() {
 
 # helper of ClassifyIssue()
 #
-function collectTestIssueResults() {
+function foundTestIssue() {
   grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null
   if [[ $? -ne 0 ]]; then
     echo "=$pkg test-fail-continue" >> /etc/portage/package.env/test-fail-continue
@@ -498,7 +498,7 @@ function ClassifyIssue() {
     head -n 2 $issuedir/issue | tail -n 1 > $issuedir/title
 
     if [[ "$phase" = "test" ]]; then
-      collectTestIssueResults
+      foundTestIssue
     fi
 
     pushd /var/tmp/tb 1>/dev/null
