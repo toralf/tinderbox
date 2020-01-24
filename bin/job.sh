@@ -478,6 +478,19 @@ function foundTestIssue() {
 }
 
 
+# helper of ClassifyIssue()
+#
+function foundCflagsIssue() {
+  grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null
+  if [[ $? -ne 0 ]]; then
+    echo "=$pkg cflags_default" >> /etc/portage/package.env/cflags_default
+    try_again=1
+  fi
+
+  sed -i -e 's/^/(-fno-common) /' $issuedir/title
+}
+
+
 # helper of GotAnIssue()
 # get the issue and a descriptive title
 #
@@ -489,6 +502,9 @@ function ClassifyIssue() {
 
   elif [[ -n $sandb ]]; then # no -f b/c it might not be exist
     foundSandboxIssue
+
+  elif [[ -n "$(grep -m 1 'ld:.* multiple definition of .*: first defined here' $bak)" ]]; then
+    foundCflagsIssue
 
   else
     phase=$(

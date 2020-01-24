@@ -367,7 +367,7 @@ function CompileMakeConf()  {
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 
-COMMON_FLAGS="-O2 -pipe -march=native"
+COMMON_FLAGS="-O2 -pipe -march=native -fno-common"  # test gcc-10
 CFLAGS="\${COMMON_FLAGS}"
 CXXFLAGS="\${COMMON_FLAGS}"
 FCFLAGS="\${COMMON_FLAGS}"
@@ -462,6 +462,17 @@ function CompilePortageFiles()  {
   # re-try failing packages w/o sandbox'ing
   #
   echo 'FEATURES="-sandbox -usersandbox"'         > ./etc/portage/env/nosandbox
+
+  # re-try failing packages w/o CFLAGS quirk
+  #
+  cat <<EOF                                       > ./etc/portage/env/cflags_default
+COMMON_FLAGS="-O2 -pipe -march=native"
+CFLAGS="\${COMMON_FLAGS}"
+CXXFLAGS="\${COMMON_FLAGS}"
+FCFLAGS="\${COMMON_FLAGS}"
+FFLAGS="\${COMMON_FLAGS}"
+
+EOF
 
   # no parallel build
   #

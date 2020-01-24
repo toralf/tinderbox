@@ -1,3 +1,4 @@
+ld:.* multiple definition of .*: first defined here
 Fatal error:
 fatal error:
 : internal compiler error:
@@ -23,7 +24,6 @@ file cannot create directory:
 Not in scope:
 ld: -r and -pie may not be used together
 .so: error adding symbols:
-ld:.* multiple definition of .*: first defined here
 ld returned .* exit status
 : error:
 Parse error .
