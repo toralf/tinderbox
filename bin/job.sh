@@ -449,7 +449,7 @@ function foundSandboxIssue() {
   fi
 
   echo "sandbox issue" > $issuedir/title
-  head -n 10 $sandb 2>&1 >> $issuedir/issue
+  head -n 10 $sandb >> $issuedir/issue  2>&1
 }
 
 
