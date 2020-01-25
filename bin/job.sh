@@ -501,7 +501,7 @@ function ClassifyIssue() {
   elif [[ -n $sandb ]]; then # no -f b/c it might not be exist
     foundSandboxIssue
 
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 'ld:.*: first defined here' $bak | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*: first defined here' $bak | tee $issuedir/issue)" ]]; then
     foundCflagsIssue
 
   else

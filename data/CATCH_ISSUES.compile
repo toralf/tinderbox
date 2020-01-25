@@ -1,4 +1,4 @@
-ld:.*: first defined here
+: multiple definition of.*: first defined here
 .atal error:
 : internal compiler error:
 undefined reference to .yy
