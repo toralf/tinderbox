@@ -416,7 +416,7 @@ function CreateIssueDir() {
 function foundCollisionIssue() {
   grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' >> $issuedir/issue
 
-  # get package name+version of the sibbling package
+  # get package (name+version) of the sibbling package
   #
   s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $bak | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
 
@@ -485,6 +485,7 @@ function foundCflagsIssue() {
   fi
 
   echo 'fails to build with -fno-common or gcc-10' > $issuedir/title
+  # $issuedir/issue is already written
 }
 
 
