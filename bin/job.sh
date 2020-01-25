@@ -426,13 +426,10 @@ function foundCollisionIssue() {
   else
     echo "file collision with $s" > $issuedir/title
 
-    # strip away version+release of the sibbling package
-    # b/c the repository might be updated in the meanwhile
-    #
     cc=$(equery meta -m $(pn2p "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
-    # sort -u guarantees, that the file $issuedir/cc is completely read in before it will be overwritten
-    #
     if [[ -n "$cc" ]]; then
+      # sort -u guarantees, that the file $issuedir/cc is read in before it will be overwritten
+      #
       (cat $issuedir/cc 2>/dev/null; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
     fi
   fi
