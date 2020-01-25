@@ -449,7 +449,7 @@ function foundSandboxIssue() {
   fi
 
   echo "sandbox issue" > $issuedir/title
-  head -n 10 $sandb >> $issuedir/issue  2>&1
+  head -n 10 $sandb >> $issuedir/issue 2>&1
 }
 
 
@@ -487,7 +487,7 @@ function foundCflagsIssue() {
     try_again=1
   fi
 
-  sed -i -e 's/^/(-fno-common) /' $issuedir/title
+  echo 'fails to build with -fno-common or gcc-10' > $issuedir/title
 }
 
 
@@ -503,7 +503,7 @@ function ClassifyIssue() {
   elif [[ -n $sandb ]]; then # no -f b/c it might not be exist
     foundSandboxIssue
 
-  elif [[ -n "$(grep -m 1 'ld:.* multiple definition of .*: first defined here' $bak)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 'ld:.*: first defined here' $bak | tee $issuedir/issue)" ]]; then
     foundCflagsIssue
 
   else

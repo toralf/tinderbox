@@ -1,6 +1,5 @@
-ld:.* multiple definition of .*: first defined here
-Fatal error:
-fatal error:
+ld:.*: first defined here
+.atal error:
 : internal compiler error:
 undefined reference to .yy
 Can't read
@@ -248,3 +247,4 @@ python.*: can't open file .*] No such file or directory
 Variable .* not found in the output
 ocamlfind: Package .* not found
 This expression has type .* but an expression was expected
+Makefile.* is required .*.*Stop
