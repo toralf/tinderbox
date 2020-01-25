@@ -12,9 +12,9 @@ function Warn() {
   *
   failed with error code $rc
   *
-
   "
   tail -v bugz.*
+  echo "--------------"
 }
 
 
@@ -83,14 +83,14 @@ if [[ -n "$id" ]]; then
   if [[ -z "$comment" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
-  timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
+  timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
 
-  grep -q "fails with FEATURES=test" $issuedir/title && timeout 60 bugz modify --set-keywords TESTFAILURE $id
+  grep -q "fails with FEATURES=test" $issuedir/title && timeout 120 bugz modify --set-keywords TESTFAILURE $id
 
 else
   # create a new bug report
   #
-  timeout 60 bugz post \
+  timeout 120 bugz post \
     --product "Gentoo Linux"          \
     --component "Current packages"    \
     --version "unspecified"           \
@@ -114,7 +114,7 @@ else
   fi
 
   if [[ -n "$comment" ]]; then
-    timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
+    timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
   fi
 fi
 
@@ -130,7 +130,7 @@ if [[ -s bugz.err ]]; then
 fi
 
 if [[ -f emerge-info.txt ]]; then
-  timeout 60 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bugz.out 2>bugz.err || Warn $?
+  timeout 120 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 if [[ -d ./files ]]; then
@@ -144,7 +144,7 @@ if [[ -d ./files ]]; then
       #
       echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
       echo "  $f"
-      timeout 60 bugz attach --content-type "$ct" --description "" $id $f 1>bugz.out 2>bugz.err || Warn $?
+      timeout 120 bugz attach --content-type "$ct" --description "" $id $f 1>bugz.out 2>bugz.err || Warn $?
     else
       echo "skiped too fat file: $f"
     fi
@@ -152,12 +152,12 @@ if [[ -d ./files ]]; then
 fi
 
 if [[ -n "$block" ]]; then
-  timeout 60 bugz modify --add-blocked "$block" $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 120 bugz modify --add-blocked "$block" $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 bzgrep -q " \* ERROR:.* failed (test phase):" $issuedir/_emerge_* 2>/dev/null
 if [[ $? -eq 0 ]]; then
-  timeout 60 bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 120 bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 # set assignee and cc as the last step to reduce the amount of emails created by a change
@@ -169,7 +169,7 @@ if [[ $newbug -eq 1 ]]; then
     #
     c="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
   fi
-  timeout 60 bugz modify $a $c $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 120 bugz modify $a $c $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 echo
