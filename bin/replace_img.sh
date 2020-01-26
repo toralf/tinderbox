@@ -83,6 +83,8 @@ EOF
     while [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; do
       sleep 1
     done
+  else
+    echo " image is already not locked"
   fi
 }
 
