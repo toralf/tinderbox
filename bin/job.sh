@@ -452,6 +452,20 @@ function foundSandboxIssue() {
 
 # helper of ClassifyIssue()
 #
+function foundCflagsIssue() {
+  grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null
+  if [[ $? -ne 0 ]]; then
+    echo "=$pkg cflags_default" >> /etc/portage/package.env/cflags_default
+    try_again=1
+  fi
+
+  echo 'fails to build with -fno-common or gcc-10' > $issuedir/title
+  # $issuedir/issue is already written
+}
+
+
+# helper of ClassifyIssue()
+#
 function foundTestIssue() {
   grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null
   if [[ $? -ne 0 ]]; then
@@ -472,20 +486,6 @@ function foundTestIssue() {
       $dirs
   fi
   popd 1>/dev/null
-}
-
-
-# helper of ClassifyIssue()
-#
-function foundCflagsIssue() {
-  grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null
-  if [[ $? -ne 0 ]]; then
-    echo "=$pkg cflags_default" >> /etc/portage/package.env/cflags_default
-    try_again=1
-  fi
-
-  echo 'fails to build with -fno-common or gcc-10' > $issuedir/title
-  # $issuedir/issue is already written
 }
 
 
