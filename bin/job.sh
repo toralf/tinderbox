@@ -498,7 +498,7 @@ function ClassifyIssue() {
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
     foundCollisionIssue
 
-  elif [[ -n $sandb ]]; then # no -f b/c it might not be exist
+  elif [[ -n $sandb ]]; then # no test at "-f" b/c it might not be allowed to be written
     foundSandboxIssue
 
   elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*: first defined here' $bak | tee $issuedir/issue)" ]]; then
