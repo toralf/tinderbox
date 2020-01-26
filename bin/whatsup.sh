@@ -107,7 +107,7 @@ function Overall() {
     flag=""
     [[ -f $i/var/tmp/tb/LOCK ]] && flag="r$flag" || flag=" $flag"    # (r)unning
 
-    # (f)inishing
+    # F=STOP file, f=STOP in backlog
     if [[ -f $i/var/tmp/tb/STOP ]]; then
       flag="F$flag"
     else
