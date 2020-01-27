@@ -26,13 +26,6 @@ grep -v -f ~/tb/data/IGNORE_PACKAGES            |\
 sort -u > $pks
 
 if [[ -s $pks ]]; then
-  lines=$(wc -l < $pks)
-  # skip mass bumps
-  #
-  if [[ $lines -gt 200 ]]; then
-    exit 0
-  fi
-
   for bl in $(ls ~/run/*/var/tmp/tb/backlog.upd 2>/dev/null)
   do
     sort -u $bl $pks | shuf > $bl
