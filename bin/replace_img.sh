@@ -111,9 +111,9 @@ echo $$ > $lck
 
 compl=4600    # emerge operations
 days=5        # min. runtime of an image
-hours=11      # min. distance to the previous image, effectively this yields into n+1 hours
-left=17000    # left entries in the backlog
-oldimg=""     # if not given selects one
+hours=7       # min. distance to the previous image, effectively this yields into n+1 hours
+left=16500    # left entries in the backlog
+oldimg=""     # if not given then choose the oldest one
 setupargs=""  # passed to setup_img.sh
 
 while getopts c:d:h:l:o:s: opt
