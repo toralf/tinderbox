@@ -35,10 +35,6 @@ if [[ -s $pks ]]; then
 
   for bl in $(ls ~/run/*/var/tmp/tb/backlog.upd 2>/dev/null)
   do
-    sort -u $bl $pks | shuf > $bl.tmp
-    # prefer cp+rm over "mv", b/c mv overwrites file permissions
-    #
-    cp $bl.tmp $bl
-    rm $bl.tmp
+    sort -u $bl $pks | shuf > $bl
   done
 fi
