@@ -765,6 +765,7 @@ $(eselect ruby    list 2>/dev/null)
 $(eselect rust    list 2>/dev/null)
 $([[ -x /usr/bin/java-config ]] && echo "java-config:" && java-config --list-available-vms --nocolor)
 $(eselect java-vm list 2>/dev/null)
+$(which ghc &>/dev/null && echo "ghc:" && ghc --version)
 
 repository:
 $(tail -v /var/db/repos/*/metadata/timestamp*)
