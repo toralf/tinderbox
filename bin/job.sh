@@ -919,6 +919,17 @@ function GotAnIssue()  {
     return
   fi
 
+  grep -q -e 'ld: -r and -pie may not be used together' $bak
+  if [[ $? -eq 0 ]]; then
+    if [[ $try_again -eq 0 ]]; then
+      try_again=1
+      add2backlog "$task"
+    fi
+    add2backlog "%emerge -1 dev-lang/ghc"
+    return
+  fi
+
+
   if [[ $try_again -eq 1 ]]; then
     add2backlog "$task"
   else
