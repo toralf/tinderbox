@@ -270,12 +270,24 @@ function PackagesPerDay() {
 }
 
 
+# whatsup.sh -c
+#
+# overall=20916 unique=10091
+#
+function CountPackages()  {
+  overall=$(cd ~/run; for i in *; do qlist -IC --root $i 2>/dev/null; done           | wc -l)
+  unique=$( cd ~/run; for i in *; do qlist -IC --root $i 2>/dev/null; done | sort -u | wc -l)
+
+  echo "overall: $overall     unique: $unique"
+}
+
+
 #######################################################################
 #
 unset LC_TIME
 images=$(list_images)
 
-while getopts hlopt\? opt
+while getopts chlopt\? opt
 do
   case $opt in
     l)  LastEmergeOperation
@@ -286,7 +298,9 @@ do
         ;;
     t)  Tasks
         ;;
-    *)  echo "call: ${0##*/} [-l] [-o] [-p] [-t]"
+    c)  CountPackages
+        ;;
+    *)  echo "call: ${0##*/} [-c] [-l] [-o] [-p] [-t]"
         echo
         exit 0
         ;;
