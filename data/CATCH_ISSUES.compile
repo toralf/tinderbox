@@ -248,3 +248,4 @@ Variable .* not found in the output
 ocamlfind: Package .* not found
 This expression has type .* but an expression was expected
 Makefile.* is required .*.*Stop
+ghc: unrecognised flag:

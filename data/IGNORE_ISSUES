@@ -10,6 +10,7 @@ Incompatible gcc version found
 Incorrect kernel configuration options
 INTERNALERROR
 kernel too new
+ld: -r and -pie may not be used together
 Linux >= .* and <= .* required for userspace modules
 Linux .* is the latest supported version
 meson.*Unable to determine dynamic linker
@@ -29,6 +30,7 @@ Select exactly one database type out of these:
 some Java tools are not available on some VMs on some architectures
 Sorry, but this version does not yet support features
 Sorry, but you have to patch kernel sources with the following patch
+Space constraints set in the ebuild were not met
 SYSVIPC not enabled in the kernel
 The HyperSpec cannot be redistributed.
 Tried to use too new gcc.

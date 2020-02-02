@@ -61,3 +61,8 @@ Namespace declaration lacks Q_NAMESPACE macro.|invalid use of incomplete type cl
 #
 705764
 fails to build with -fno-common or gcc-10
+
+# (binutils-2.34) - binutils-2.34 porting
+#
+707898
+bfd_get_section
