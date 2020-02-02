@@ -28,6 +28,10 @@ sort -u > $pks
 if [[ -s $pks ]]; then
   for bl in $(ls ~/run/*/var/tmp/tb/backlog.upd 2>/dev/null)
   do
-    sort -u $bl $pks | shuf > $bl
+    (uniq $pks | shuf; cat $bl) > $bl.tmp
+    # no "mv", that overwrites file permissions
+    #
+    cp $bl.tmp $bl
+    rm $bl.tmp
   done
 fi
