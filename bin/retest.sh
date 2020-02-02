@@ -43,7 +43,11 @@ done
 if [[ -s $pks ]]; then
   for bl in $(ls ~/run/*/var/tmp/tb/backlog.1st 2>/dev/null)
   do
-    (uniq $pks; cat $bl) | shuf > $bl
+    (uniq $pks | shuf; cat $bl) > $bl.tmp
+    # no "mv", that overwrites file permissions
+    #
+    cp $bl.tmp $bl
+    rm $bl.tmp
   done
 fi
 
