@@ -83,7 +83,7 @@ function Overall() {
     f=$i/var/tmp/tb/setup.sh
     if [[ -f $f ]]; then
       let "age = $(date +%s) - $(stat -c%Y $f)"
-      day=$( echo "scale=2; $age / 86400.0" | bc )
+      day=$( echo "scale=1; $age / 86400.0" | bc )
     fi
 
     compl=0
