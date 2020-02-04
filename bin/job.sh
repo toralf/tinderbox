@@ -104,9 +104,9 @@ function setTask()  {
 
   # Gentoo repository changes
   # backlog.upd is updated regularly by update_backlog.sh
-  # 1/N probability if no special action is in common backlog (which might happen by cloning from an origin)
+  # 1/8 probability if no special action is in common backlog (which might happen by cloning from an origin)
   #
-  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 5)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog)" ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 8)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog)" ]]; then
     bl=/var/tmp/tb/backlog.upd
 
   # common backlog
