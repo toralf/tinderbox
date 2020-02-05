@@ -125,7 +125,7 @@ function SetOptions() {
   testfeature="n"
   if [[ "$keyword" = "unstable" ]]; then
     if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
-      if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+      if [[ $(($RANDOM % 4)) -eq 0 ]]; then
         testfeature="y"
       fi
     fi
