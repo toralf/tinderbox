@@ -1,2 +1,6 @@
 # package.accept_keywords/00unstable
 #
+
+# [4:25:01 am] <+[Arfrever]> toralf: Could you test glibc-2.31 in tinderbox?
+#
+=sys-libs/glibc-2.31* **

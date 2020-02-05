@@ -66,3 +66,8 @@ fails to build with -fno-common or gcc-10
 #
 707898
 bfd_get_section
+
+# (glibc-2.31) - glibc-2.31 porting
+#
+708318
+tobedefined

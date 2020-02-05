@@ -48,20 +48,23 @@ sys-cluster/ceph
 www-client/chromium
 www-client/google-chrome
 #
-# looong build time
+# looong build time (either directly or its deps)
 #
 app-office/
 app-office/libreoffice
 app-office/ooextras
 app-officeext/
+app-text/bibus
 dev-ada/
 dev-lang/
 dev-libs/rocm
 dev-util/include-what-you-use
+gnome-extra/sushi
 ros-meta/
 sys-cluster/
 sys-devel/byfl
 sys-devel/llvm-roc
+x11-misc/mugshot
 #
 # depends at old llvm
 #
