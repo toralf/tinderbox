@@ -15,6 +15,7 @@ Linux >= .* and <= .* required for userspace modules
 Linux .* is the latest supported version
 meson.*Unable to determine dynamic linker
 mingw is needed
+Need FEATURES=-userpriv to run this testsuite
 No LLVM slot <= .* found installed!
 Nonmodular kernel detected, will not build kernel modules
 No pathcc executable was installed, your hardware is unsupported most likely
