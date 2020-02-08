@@ -275,20 +275,16 @@ function PackagesPerDay() {
 function CountPackages()  {
   for i in $images
   do
-    # fast
-    qlist --installed --verbose --nocolor --root $i
-
-    # exact
-#     qlop --merge --verbose --nocolor --logfile $i/var/log/emerge.log | cut -f3 -d' ' -s
+    grep ' ::: completed emerge' $i/var/log/emerge.log
   done |\
-  perl -wae '
+  perl -wane '
     BEGIN {
       my %All = ();
       my $all = 0;
     }
 
     chomp();
-    $All{$_}++;
+    $All{$F[7]}++;
     $all++;
 
     END {
