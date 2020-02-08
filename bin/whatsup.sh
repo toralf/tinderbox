@@ -246,17 +246,15 @@ function PackagesPerDay() {
       BEGIN {
         @p = (0);
         $first = 0;
-        $i = 0;
       }
-      {
-        # calculate these values for the case that current emerge runs longer than 1 day
-        $curr = $F[0];
-        $first = $curr unless ($first);
-        my $i = ($curr-$first) / 86400;
 
-        next unless (m/::: completed emerge/);
-        $p[$i]++;
-      }
+      # calculate these values for the case that current emerge runs longer than 1 day
+      my $curr = $F[0];
+      $first = $curr unless ($first);
+      my $i = ($curr-$first) / 86400;
+
+      next unless (m/::: completed emerge/);
+      $p[$i]++;
 
       END {
         $p[$i] += 0;    # set end date nevertheless whether the emerge operations finished or not
@@ -272,13 +270,44 @@ function PackagesPerDay() {
 
 # whatsup.sh -c
 #
-# overall=20916 unique=10091
+# 1x: 4800   2x: 2199   3x: 1037   4x: 765   5x: 562   6x: 525   7x: 537   8x: 125
 #
 function CountPackages()  {
-  overall=$(cd ~/run; for i in *; do qlist -IC --root $i 2>/dev/null; done           | wc -l)
-  unique=$( cd ~/run; for i in *; do qlist -IC --root $i 2>/dev/null; done | sort -u | wc -l)
+  for i in $images
+  do
+    # fast
+    qlist --installed --verbose --nocolor --root $i
 
-  echo "overall: $overall     unique: $unique"
+    # exact
+#     qlop --merge --verbose --nocolor --logfile $i/var/log/emerge.log | cut -f3 -d' ' -s
+  done |\
+  perl -wae '
+    BEGIN {
+      my %All = ();
+      my $all = 0;
+    }
+
+    chomp();
+    $All{$_}++;
+    $all++;
+
+    END {
+      my %h = ();
+
+      for my $value (values %All)  {
+        $h{$value}++;
+      }
+
+      my $unique = 0;
+      for my $key (sort { $a <=> $b } keys %h)  {
+        $value = $h{$key};
+        printf "%i%s %i  ", $key, "x", $value;
+        $unique += $value;
+      }
+
+      print "\nunique = $unique    all = $all\n";
+    }
+  '
 }
 
 
