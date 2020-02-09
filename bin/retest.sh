@@ -40,15 +40,17 @@ do
   echo $p >> $pks
 done
 
-if [[ -s $pks ]]; then
-  for bl in $(ls ~/run/*/var/tmp/tb/backlog.1st 2>/dev/null)
-  do
-    (uniq $pks | shuf; cat $bl) > $bl.tmp
-    # no "mv", that overwrites file permissions
-    #
-    cp $bl.tmp $bl
-    rm $bl.tmp
-  done
+if [[ ! -s $pks ]]; then
+  exit 0
 fi
 
-exit 0
+for bl in $(ls ~/run/*/var/tmp/tb/backlog.1st 2>/dev/null)
+do
+  # use high prio backlog but schedule package(s) after existing entries and avoid dups
+  #
+  (uniq $pks | grep -v -f $bl | shuf; cat $bl) > $bl.tmp
+  # no "mv", that overwrites file permissions
+  #
+  cp $bl.tmp $bl
+  rm $bl.tmp
+done
