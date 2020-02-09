@@ -25,13 +25,15 @@ cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s   |\
 grep -v -f ~/tb/data/IGNORE_PACKAGES            |\
 sort -u > $pks
 
-if [[ -s $pks ]]; then
-  for bl in $(ls ~/run/*/var/tmp/tb/backlog.upd 2>/dev/null)
-  do
-    (uniq $pks | shuf; cat $bl) > $bl.tmp
-    # no "mv", that overwrites file permissions
-    #
-    cp $bl.tmp $bl
-    rm $bl.tmp
-  done
+if [[ ! -s $pks ]]; then
+  exit 0
 fi
+
+for bl in $(ls ~/run/*/var/tmp/tb/backlog.upd 2>/dev/null)
+do
+  (uniq $pks | shuf; cat $bl) > $bl.tmp
+  # no "mv", that overwrites file permissions
+  #
+  cp $bl.tmp $bl
+  rm $bl.tmp
+done
