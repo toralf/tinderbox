@@ -197,11 +197,6 @@ function LastEmergeOperation()  {
       continue
     fi
 
-    if [[ ! -s $i/var/log/emerge.log ]]; then
-      echo
-      continue
-    fi
-
     # catch the last *started* emerge operation
     #
     tac $i/var/log/emerge.log 2>/dev/null |\
@@ -219,8 +214,9 @@ function LastEmergeOperation()  {
         $minutes = $delta / 60 % 60;
         printf ("%3i:%02i h", $hours, $minutes);
       }
-      print join (" ", " ", @F[1..$#F]), "\n";
+      print join (" ", " ", @F[1..$#F]);
     '
+    echo
   done
 }
 
@@ -235,11 +231,6 @@ function PackagesPerDay() {
   for i in $images
   do
     PrintImageName
-
-    if [[ ! -s $i/var/log/emerge.log ]]; then
-      echo
-      continue
-    fi
 
     perl -F: -wane '
       # @p helds the amount of emerge operations of day $i
@@ -263,7 +254,7 @@ function PackagesPerDay() {
         }
         print "\n";
       }
-    ' $i/var/log/emerge.log
+    ' $i/var/log/emerge.log 2>/dev/null
   done
 }
 
@@ -275,7 +266,7 @@ function PackagesPerDay() {
 function CountPackages()  {
   for i in $images
   do
-    grep ' ::: completed emerge' $i/var/log/emerge.log
+    grep ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null
   done |\
   perl -wane '
     BEGIN {
