@@ -787,6 +787,17 @@ $(ThrowUseFlags)
 "
 EOF
       DryrunHelper && break
+
+      # after a given amount of attempts hold for a while to hope that the portage tree will be healed ...
+      if [[ $(($i % 250)) = 0 ]]; then
+        echo -e "\n\n TOO MUCH ATTEMPTS, WILL WAIT 10 HOURS ...\n\n"
+        sleep 36000
+
+      elif [[ $(($i % 50)) = 0 ]]; then
+        echo -e "\n\n TOO MUCH ATTEMPTS, WILL WAIT 1 HOUR ...\n\n"
+        sleep 3600
+      fi
+
     done
   else
     cat << EOF > $mnt/etc/portage/make.conf.USE
