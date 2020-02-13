@@ -705,6 +705,11 @@ fi
 
 emerge sys-apps/portage || exit 1
 
+# quirk for Python 3.8 + crypt
+#
+emerge -1 virtual/libcrypt || exit 1
+locale-gen > /dev/null
+
 # now switch to the selected profile
 #
 eselect profile set --force default/linux/amd64/$profile || exit 1
