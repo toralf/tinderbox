@@ -710,8 +710,12 @@ emerge sys-apps/portage || exit 1
 
 # quirk for Python 3.8 + crypt
 #
-emerge -1 virtual/libcrypt || exit 1
+emerge -1u virtual/libcrypt || exit 1
+
+# no-op if glibc was not updated before
+#
 locale-gen > /dev/null
+rm /etc/._cfg????_locale.gen
 
 # finally switch to the choosen profile
 #
