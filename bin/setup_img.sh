@@ -521,6 +521,28 @@ EOF
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
+
+  cat << EOF > ./var/tmp/tb/switch_to_libxcrypt.sh
+#!/bin/sh
+set -e
+
+cd /
+
+#  testing sys-libs/libxcrypt[system]
+#
+echo '=virtual/libcrypt-2*'         >> ./etc/portage/package.unmask/libxcrypt
+
+echo '
+sys-libs/glibc      -crypt
+sys-libs/libxcrypt  compat static-libs system
+virtual/libcrypt    static-libs
+'                                   >> ./etc/portage/package.use/libxcrypt
+
+echo 'sys-libs/glibc     -crypt'    >> ./etc/portage/make.profile/package.use.force
+echo 'sys-libs/libxcrypt -system'   >> ./etc/portage/make.profile/package.use.mask
+
+EOF
+  chmod a+x ./var/tmp/tb/switch_to_libxcrypt.sh
 }
 
 
