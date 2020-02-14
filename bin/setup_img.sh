@@ -659,7 +659,11 @@ fi
 
 # use the base profile for mandatory packages to minimize dep graph
 #
-eselect profile set --force default/linux/amd64/17.1 || exit 1
+if [[ $profile =~ "/no-multilib" ]]; then
+  eselect profile set --force default/linux/amd64/17.1/no-multilib  || exit 1
+else
+  eselect profile set --force default/linux/amd64/17.1              || exit 1
+fi
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data || exit 1
