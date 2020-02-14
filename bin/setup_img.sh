@@ -620,7 +620,7 @@ EOF
   #
   if [[ "$libressl" = "y" ]]; then
     # fetch crucial packages which must either be (re-)build or do act as a fallback;
-    # hiont: unmerge already schedules a @preserved-rebuild but nevertheless
+    # hint: unmerge already schedules a @preserved-rebuild but nevertheless
     # the final @preserved-rebuild must not fail, therefore "% ..."
     #
     cat << EOF >> $bl.1st
@@ -629,7 +629,6 @@ EOF
 %emerge --fetchonly dev-libs/libressl net-misc/openssh net-misc/wget
 %chgrp portage /etc/portage/package.use/00libressl
 %cp /mnt/tb/data/package.use.00libressl /etc/portage/package.use/00libressl
-%emerge --fetchonly dev-libs/openssl
 EOF
   fi
 
