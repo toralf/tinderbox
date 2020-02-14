@@ -614,7 +614,6 @@ EOF
   # at least systemd and virtualbox need (compiled) kernel sources and would fail in @preserved-rebuild otherwise
   #
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
-
   # upgrade GCC asap, but do not rebuild the existing one
   #
   if [[ $keyword = "unstable" ]]; then
@@ -710,7 +709,7 @@ emerge sys-apps/portage || exit 1
 emerge -1 virtual/libcrypt || exit 1
 locale-gen > /dev/null
 
-# now switch to the selected profile
+# finally switch to the choosen profile
 #
 eselect profile set --force default/linux/amd64/$profile || exit 1
 
