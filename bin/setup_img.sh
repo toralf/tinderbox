@@ -733,7 +733,7 @@ if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   /var/tmp/tb/switch_to_libxcrypt.sh
 fi
 
-# quirk for Python 3.8 + crypt
+# work around for Python 3.8.1+libcrypt+glibc circ dep setup issue
 #
 emerge -1u virtual/libcrypt || exit 1
 
@@ -826,11 +826,7 @@ EOF
       DryrunHelper && break
 
       # after a given amount of attempts hold for a while to hope that the portage tree will be healed ...
-      if [[ $(($i % 250)) = 0 ]]; then
-        echo -e "\n\n TOO MUCH ATTEMPTS, WILL WAIT 10 HOURS ...\n\n"
-        sleep 36000
-
-      elif [[ $(($i % 50)) = 0 ]]; then
+      if [[ $(($i % 30)) = 0 ]]; then
         echo -e "\n\n TOO MUCH ATTEMPTS, WILL WAIT 1 HOUR ...\n\n"
         sleep 3600
       fi
