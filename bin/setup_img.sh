@@ -739,7 +739,7 @@ emerge -1u virtual/libcrypt || exit 1
 
 # no-op if glibc was not updated before
 #
-locale-gen > /dev/null
+locale-gen -j1 || exit 1
 rm /etc/._cfg????_locale.gen
 
 # finally switch to the choosen profile
