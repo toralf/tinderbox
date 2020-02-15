@@ -23,6 +23,7 @@ file cannot create directory:
 Not in scope:
 ld: -r and -pie may not be used together
 .so: error adding symbols:
+recompile with -fPIE
 ld returned .* exit status
 : error:
 Parse error .
@@ -249,3 +250,4 @@ ocamlfind: Package .* not found
 This expression has type .* but an expression was expected
 Makefile.* is required .*.*Stop
 ghc: unrecognised flag:
+trying to run .* on Elixir .* but
