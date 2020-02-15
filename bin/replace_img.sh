@@ -148,7 +148,7 @@ fi
 echo
 date
 echo " setup a new image ..."
-nice sudo ${0%/*}/setup_img.sh $setupargs || Finish $?
+sudo ${0%/*}/setup_img.sh $setupargs || Finish $?
 
 if [[ -n "$oldimg" ]]; then
   echo
