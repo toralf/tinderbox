@@ -729,6 +729,10 @@ fi
 
 emerge sys-apps/portage || exit 1
 
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  /var/tmp/tb/switch_to_libxcrypt.sh
+fi
+
 # quirk for Python 3.8 + crypt
 #
 emerge -1u virtual/libcrypt || exit 1
