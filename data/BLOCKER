@@ -37,20 +37,10 @@ unknown type name.*my_bool|my_bool.*was not declared|my_bool undeclared
 693574
 dial tcp: lookup proxy.golang.org|read: connection refused
 
-# media-libs/freeglut-3.2.0 installs /usr/lib/cmake/FreeGLUT/FreeGLUTTargets-gentoo.cmake with ABI-specific content
-#
-694774
-GL/glut.h:
-
 # [Tracker] Missing @documentencoding in texinfo files (seen with sys-apps/texinfo-6.7)
 #
 697606
 utf8 .* does not map to Unicode
-
-# (boost-1.72) - [TRACKER] Packages requiring porting to boost-1.72
-#
-703042
-no type named executor_type in struct|expected ‘;’ at end of member declaration
 
 # [Tracker] Packages broken with Qt 5.14
 #
@@ -70,4 +60,4 @@ bfd_get_section
 # (glibc-2.31) - glibc-2.31 porting
 #
 708318
- stime
+ stime|RES_

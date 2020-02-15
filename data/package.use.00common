@@ -51,3 +51,7 @@ app-doc/doxygen           -doc
 dev-db/sqlite             -icu
 dev-lang/python           -bluetooth
 net-wireless/bluez        -cups
+
+# work around for glibc.2.31
+#
+sys-devel/gcc             -sanitize
