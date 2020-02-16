@@ -1346,6 +1346,8 @@ function syncRepos() {
 #
 #       main
 #
+export LANG=C
+
 mailto="tinderbox@zwiebeltoralf.de"
 taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds always output of the running task command

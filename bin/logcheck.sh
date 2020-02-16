@@ -2,6 +2,8 @@
 #
 # set -x
 
+export LANG=C
+
 # check if stdout/err of job.sh was made
 #
 

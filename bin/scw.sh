@@ -2,6 +2,8 @@
 #
 # set -x
 
+export LANG=C
+
 # this is a (s)imple (c)hroot (w)rapper into a running tinderbox image
 # for a stopped image chr.sh is the better choice
 

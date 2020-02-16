@@ -2,6 +2,8 @@
 #
 # set -x
 
+export LANG=C
+
 # stop tinderbox chroot image/s
 #
 

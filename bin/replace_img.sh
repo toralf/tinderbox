@@ -2,9 +2,10 @@
 #
 # set -x
 
+export LANG=C
+
 # replace an tinderbox image in ~/run with a newer one
 #
-
 
 function Finish() {
   rm -f $lck

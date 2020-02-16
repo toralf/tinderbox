@@ -2,6 +2,8 @@
 #
 # set -x
 
+export LANG=C
+
 # create or modify a bug report at http://bugzilla.gentoo.org
 #
 

@@ -2,6 +2,8 @@
 #
 # set -x
 
+export LANG=C
+
 # chroot into an image either interactively -or- run a command
 
 function mountall() {

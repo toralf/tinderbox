@@ -5,6 +5,8 @@
 # pick up latest changed packages and merge them into backlog.upd
 #
 
+export LANG=C
+
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo "You are not tinderbox !"
   exit 1

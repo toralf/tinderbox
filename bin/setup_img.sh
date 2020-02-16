@@ -737,10 +737,10 @@ fi
 #
 emerge -1u virtual/libcrypt || exit 1
 
-# no-op if glibc was not updated before
+# no-op if glibc was not updated (as a dep in the step before)
 #
 locale-gen -j1 || exit 1
-rm /etc/._cfg????_locale.gen
+rm /etc/._cfg????_locale.gen 2>/dev/null
 
 # finally switch to the choosen profile
 #
@@ -853,6 +853,8 @@ EOF
 # main
 #
 #############################################################################
+export LANG=C
+
 date
 echo " $0 started"
 echo

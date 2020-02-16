@@ -5,6 +5,8 @@
 # retest package(s)
 #
 
+export LANG=C
+
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo "You must be the tinderbox user !"
   exit 1
