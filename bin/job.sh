@@ -883,8 +883,9 @@ function GotAnIssue()  {
   CollectIssueFiles
 
   phase=""          # test", "compile" etc.
+  echo "<err: no title guessed from logs>" > $issuedir/tile
   ClassifyIssue
-  CompileIssueMail  # do it here so that the infamous Perl issues could be later sent manually
+  CompileIssueMail  # do it here so that the infamous Perl issues could be still sent manually if needed
 
   # https://bugs.gentoo.org/596664
   #
