@@ -38,10 +38,6 @@ dev-lang/python           sqlite
 #
 dev-lisp/sbcl             -threads
 
-# requires "latex" too otherwise
-#
-app-doc/doxygen           -doc
-
 # dev-util/google-perftools blocker in @preserved-rebuild: "sys-libs/libunwind" is blocking sys-libs/llvm-libunwind-9.0.1
 #
 */*                       -jmalloc -tcmalloc
@@ -50,8 +46,3 @@ app-doc/doxygen           -doc
 #
 dev-db/sqlite             -icu
 dev-lang/python           -bluetooth
-net-wireless/bluez        -cups
-
-# work around for glibc.2.31
-#
-sys-devel/gcc             -sanitize
