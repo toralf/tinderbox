@@ -27,6 +27,8 @@ function stresc() {
     s,\x0f,,g;
     s,\xc0,,g;
     s,\xdf,,g;
+    s,\xe2,,g;
+
     print;
   '
 }
@@ -883,7 +885,7 @@ function GotAnIssue()  {
   CollectIssueFiles
 
   phase=""          # test", "compile" etc.
-  echo "<err: no title guessed from logs>" > $issuedir/tile
+  echo "<err: no title guessed from logs>" > $issuedir/title
   ClassifyIssue
   CompileIssueMail  # do it here so that the infamous Perl issues could be still sent manually if needed
 
