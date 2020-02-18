@@ -601,13 +601,13 @@ function CreateBacklog()  {
     echo "INFO starting replay of task history of $origin"            >> $bl.1st
   fi
 
-  # update @system, then @world before working on the arbitrarily choosen package list
+  # update @world (@system is a no-op if @world directly succeeded) before working on the arbitrarily choosen package list
   # this is the last time where depclean is run w/o "-p" (and must succeeded)
   #
   cat << EOF >> $bl.1st
 %emerge --depclean
-@world
 @system
+@world
 EOF
 
   # whissi: this is a mysql alternative engine
@@ -777,17 +777,15 @@ function EmergeMandatoryPackages() {
 }
 
 
-# the very first @system must succeed
-#
 function DryrunHelper() {
   date
   echo " dry run ..."
   tail -v -n 1000 $mnt/etc/portage/make.conf.USE
   echo
 
-  # this should match the one in job.sh
+  # check that the thrown USE flags do not yield into circular or other non-resolvable dependencies
   #
-  sudo ${0%/*}/chr.sh $mnt 'emerge --update --deep --changed-use --backtrack=30 --pretend @system &> /var/tmp/tb/dryrun.log'
+  sudo ${0%/*}/chr.sh $mnt 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log'
   local rc=$?
 
   if [[ $rc -eq 0 ]]; then
