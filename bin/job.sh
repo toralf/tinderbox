@@ -27,7 +27,8 @@ function stresc() {
     s,\x0f,,g;
     s,\xc0,,g;
     s,\xdf,,g;
-    s,\xe2,,g;
+    s,\xe2\x80\x98,,g;
+    s,\xe2\x80\x99,,g;
 
     print;
   '
