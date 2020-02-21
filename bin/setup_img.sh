@@ -367,7 +367,7 @@ function CompileMakeConf()  {
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 
-COMMON_FLAGS="-O2 -pipe -march=native -fno-common"  # test gcc-10
+COMMON_FLAGS="-O2 -pipe -march=native -fno-common -falign-functions=32:25:16"  # test gcc-10 + bug 685160
 CFLAGS="\${COMMON_FLAGS}"
 CXXFLAGS="\${COMMON_FLAGS}"
 FCFLAGS="\${COMMON_FLAGS}"
@@ -521,28 +521,6 @@ EOF
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
-
-  cat << EOF > ./var/tmp/tb/switch_to_libxcrypt.sh
-#!/bin/sh
-set -e
-
-cd /
-
-#  testing sys-libs/libxcrypt[system]
-#
-echo '=virtual/libcrypt-2*'         >> ./etc/portage/package.unmask/libxcrypt
-
-echo '
-sys-libs/glibc      -crypt
-sys-libs/libxcrypt  compat static-libs system
-virtual/libcrypt    static-libs
-'                                   >> ./etc/portage/package.use/libxcrypt
-
-echo 'sys-libs/glibc     -crypt'    >> ./etc/portage/make.profile/package.use.force
-echo 'sys-libs/libxcrypt -system'   >> ./etc/portage/make.profile/package.use.mask
-
-EOF
-  chmod a+x ./var/tmp/tb/switch_to_libxcrypt.sh
 }
 
 
@@ -691,7 +669,8 @@ emerge --config sys-libs/timezone-data || exit 1
 
 cat << 2EOF >> /etc/locale.gen
 
-# by $0
+# by $0 at $(date)
+#
 en_US ISO-8859-1
 en_US.UTF-8 UTF-8
 de_DE ISO-8859-1
@@ -730,15 +709,23 @@ fi
 emerge sys-apps/portage || exit 1
 
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-  /var/tmp/tb/switch_to_libxcrypt.sh
+  # testing sys-libs/libxcrypt[system]
+  #
+  echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/libxcrypt
+
+  echo '
+  sys-libs/glibc      -crypt
+  sys-libs/libxcrypt  compat static-libs system
+  virtual/libcrypt    static-libs
+  '                                   >> /etc/portage/package.use/libxcrypt
+
+  echo 'sys-libs/glibc     -crypt'    >> /etc/portage/make.profile/package.use.force
+  echo 'sys-libs/libxcrypt -system'   >> /etc/portage/make.profile/package.use.mask
 fi
 
-# work around for Python 3.8.1+libcrypt+glibc circ dep setup issue
+# glibc-2.31 + python-3 dep issue
 #
 emerge -1u virtual/libcrypt || exit 1
-
-# no-op if glibc was not updated (as a dep in the step before)
-#
 locale-gen -j1 || exit 1
 rm /etc/._cfg????_locale.gen 2>/dev/null
 
