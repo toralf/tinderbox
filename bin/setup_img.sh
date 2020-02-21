@@ -748,7 +748,7 @@ function EmergeMandatoryPackages() {
   echo " install mandatory packages ..."
   cd ~tinderbox/
 
-  sudo ${0%/*}/chr.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
+  nice sudo ${0%/*}/chr.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
@@ -772,7 +772,7 @@ function DryrunHelper() {
 
   # check that the thrown USE flags do not yield into circular or other non-resolvable dependencies
   #
-  sudo ${0%/*}/chr.sh $mnt 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log'
+  nice sudo ${0%/*}/chr.sh $mnt 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log'
   local rc=$?
 
   if [[ $rc -eq 0 ]]; then
