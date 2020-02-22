@@ -172,7 +172,7 @@ env.*No such file or directory
 RuntimeError: failed to run:
 error: static declaration of
 Not in scope:
-error: .
+error\[.*\]:
 sh: .* No such file or directory
 /bin/sh: .* Not a directory
 Could NOT find .* (missing: .*)

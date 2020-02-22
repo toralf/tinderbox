@@ -61,3 +61,8 @@ bfd_get_section
 #
 708318
  stime|RES_
+
+#  (colon-in-CFLAGS) - (TRACKER) ebuilds using colon (:) as a sed delimiter break on CFLAGS=-falign-functions=32:25:16
+#
+685160
+sed.*failed|sed:.*expression.*unknown option|error:.*falign-functions=32:25:16
