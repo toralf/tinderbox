@@ -14,6 +14,7 @@
 function stresc() {
   perl -MTerm::ANSIColor=colorstrip -nle '
     $_ = colorstrip($_);
+
     s,\r,\n,g;
     s,\x00,,g;
     s,\x08,,g;
