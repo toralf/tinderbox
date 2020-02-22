@@ -2,8 +2,8 @@
 #
 # set -x
 
-# pick up latest changed packages -or- retest packages given at the command line
-#  and merge them into appropriate backlog files
+# pick up latest changed package(s) -or- retest package(s) given at the command line
+# and merge them into appropriate backlog file(s)
 #
 
 export LANG=C
@@ -24,16 +24,15 @@ if [[ $# -eq 0 ]]; then
   repo_path=$(portageq get_repo_path / gentoo) || exit 2
   cd $repo_path || exit 3
 
-  # if called hourly then add delay of 1 hour to let mirrors be synced before
+  # add a delay to let Gentoo mirrors be synced already
   #
   git diff --diff-filter=ACM --name-status "@{ 2 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
-  cut -f2- -s | xargs -n 1 | cut -f1-2 -d'/' -s   |\
-  grep -v -f ~/tb/data/IGNORE_PACKAGES            |\
-  sort -u > $pks
+  cut -f2- -s | cut -f1-2 -d'/' -s | uniq |\
+  grep -v -f ~/tb/data/IGNORE_PACKAGES > $pks
 
 else
-  # use high prio backlog but schedule package(s) after existing entries and avoid dups
+  # use high prio backlog but schedule package(s) after existing entries
   #
   target="1st"
 
@@ -42,8 +41,10 @@ else
   do
     # split away version/revision if possible
     #
+    [[ -z "$line" ]] && continue
     p=$(qatom "$line" | grep -F -v '<unset>' | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
     [[ -z "$p" ]] && p=$line
+    echo $p >> $pks
 
     # delete package from various pattern files
     #
@@ -51,8 +52,6 @@ else
       ~/tb/data/ALREADY_CATCHED                   \
       ~/run/*/etc/portage/package.mask/self       \
       ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue} 2>/dev/null
-
-    echo $p >> $pks
   done
 fi
 
@@ -62,6 +61,8 @@ fi
 
 for bl in $(ls ~/run/*/var/tmp/tb/backlog.$target 2>/dev/null)
 do
+  # avoid dups in backlog file
+  #
   (uniq $pks | grep -v -f $bl | shuf; cat $bl) > $bl.tmp
   # no "mv", that overwrites file permissions
   #
