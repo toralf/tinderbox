@@ -69,12 +69,18 @@ function cgroup() {
 }
 
 
+function BailOut()  {
+  umountall
+  exit 1
+}
+
+
 #############################################################################
 #                                                                           #
 # main                                                                      #
 #                                                                           #
 #############################################################################
-trap umountall QUIT TERM KILL
+trap BailOut QUIT TERM KILL
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
