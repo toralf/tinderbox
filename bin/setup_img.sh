@@ -656,7 +656,7 @@ if [[ "$libressl" = "y" ]]; then
   rsync -aC /mnt/repos/libressl /var/db/repos/
 fi
 
-# use the base profile for mandatory packages to minimize dep graph
+# use the base profile for mandatory packages to minimize dep graph during setup
 #
 if [[ $profile =~ "/no-multilib" ]]; then
   eselect profile set --force default/linux/amd64/17.1/no-multilib  || exit 1
@@ -682,31 +682,20 @@ de_DE.UTF-8@euro UTF-8
 locale-gen -j1 || exit 1
 eselect locale set en_US.UTF-8
 
+echo "$name" > /etc/conf.d/hostname
+
 env-update
 source /etc/profile
 
 useradd -u $(id -u tinderbox) tinderbox
 
-# separate steps to avoid that mailx pulls in a different MTA than ssmtp
+# ssmtp first to avoid that mailx pulls in another MTA
 #
 emerge mail-mta/ssmtp     || exit 1
 emerge mail-client/mailx  || exit 1
 
-# credentials for mail-mta/ssmtp
-#
-(cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf) || exit 1
-
+emerge sys-apps/portage   || exit 1
 emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
-
-# credentials for www-client/pybugz
-#
-(cd /root && ln -s ../mnt/tb/sdata/.bugzrc) || exit 1
-
-if [[ "$testfeature" = "y" ]]; then
-  sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
-fi
-
-emerge sys-apps/portage || exit 1
 
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   # testing sys-libs/libxcrypt[system]
@@ -726,12 +715,15 @@ fi
 # glibc-2.31 + python-3 dep issue
 #
 emerge -1u virtual/libcrypt || exit 1
-locale-gen -j1 || exit 1
-rm /etc/._cfg????_locale.gen 2>/dev/null
 
-# finally switch to the choosen profile
+# finally switch to the choosen profile and set credentials for mail-mta/ssmtp and www-client/pybugz
 #
 eselect profile set --force default/linux/amd64/$profile || exit 1
+if [[ "$testfeature" = "y" ]]; then
+  sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
+fi
+(cd /root && ln -s ../mnt/tb/sdata/.bugzrc) || exit 1
+(cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf) || exit 1
 
 exit 0
 
@@ -745,7 +737,7 @@ EOF
 #
 function EmergeMandatoryPackages() {
   date
-  echo " install mandatory packages ..."
+  echo " run setup script ..."
   cd ~tinderbox/
 
   nice sudo ${0%/*}/chr.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
@@ -811,7 +803,7 @@ EOF
       DryrunHelper && break
 
       # after a given amount of attempts hold for a while to hope that the portage tree will be healed ...
-      if [[ $(($i % 30)) = 0 ]]; then
+      if [[ $(($i % 60)) = 0 ]]; then
         echo -e "\n\n TOO MUCH ATTEMPTS, WILL WAIT 1 HOUR ...\n\n"
         sleep 3600
       fi
@@ -924,7 +916,7 @@ ComputeImageName
 if [[ -z "$origin" ]]; then
   ls -d ~tinderbox/run/${name}-20??????-?????? 2>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo "^^^ name=$name is already running"
+    echo "^^^ name '$name' is already running"
     exit 2
   fi
 fi
