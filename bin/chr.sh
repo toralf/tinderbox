@@ -61,7 +61,7 @@ function cgroup() {
 
   echo "$$" > $sysfsdir/tasks
 
-  local mbytes=$(echo " 8 * 2^30" | bc)
+  local mbytes=$(echo "12 * 2^30" | bc)
   echo $mbytes > $sysfsdir/memory.limit_in_bytes
 
   local vbytes=$(echo "16 * 2^30" | bc)
