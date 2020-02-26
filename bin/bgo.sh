@@ -68,13 +68,6 @@ if [[ -f ./.reported ]]; then
   exit 3
 fi
 
-# check if the fir contains expected data
-#
-if [[ ! -f ./issue ]]; then
-  echo "did not found ./issue !"
-  exit 4
-fi
-
 # cleanup of a previous run
 #
 rm -f bugz.{out,err}
@@ -102,7 +95,7 @@ else
     --priority "Normal"               \
     --severity "$severity"            \
     --alias ""                        \
-    --description-from "./issue"      \
+    --description-from "./comment0"   \
     --batch                           \
     --default-confirm n               \
     1>bugz.out 2>bugz.err || Error $?
