@@ -75,10 +75,9 @@ function StopOldImage() {
     l=$(GetLeft $oldimg)
   fi
 
-  ${0%/*}/stop_img.sh ~/run/$oldimg
   # prevent any aside-restart-logic
   #
-  echo "STOP scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left" >> ~/run/$oldimg/var/tmp/tb/backlog.1st
+  echo -e "STOP\nSTOP\nSTOP scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left" >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 
   if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
     echo " wait for stop ..."
