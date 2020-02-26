@@ -291,39 +291,29 @@ EOF
 
 
 # helper of GotAnIssue()
-# guess the failed package and logfile name
+# get failed package and logfile names
 #
 function getPkgVarsFromIssuelog()  {
-  pkg=$(grep -m 1 -F ' * Package: ' $logfile | awk ' { print $3 } ')
+  pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
   if [[ -z "$pkg" ]]; then
-    pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)"
-  fi
-
-  pkglog=$(grep -m 1 "The complete build log is located at" $logfile | cut -f2 -d"'" -s)
-  if [[ -z "$pkglog" ]]; then
-    pkglog=$(grep -m 1 -A 1 "', Log file:" $logfile | tail -n 1 | cut -f2 -d"'" -s)
-    if [[ -z "$pkglog" ]]; then
-      pkglog=$(grep -m 1 "^>>>  '" $logfile | cut -f2 -d"'" -s)
-      if [[ -z "$pkglog" ]]; then
-        if [[ -n "$pkg" ]]; then
-          pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
-        fi
-      fi
-    fi
-  fi
-
-  if [[ -z "$pkg" ]]; then
-    if [[ -n "$pkglog" ]]; then
-      pkg=$(cut -f1-2 -d':' -s <<< ${pkglog##*/} | tr ':' '/')
-    fi
+    pkg=$(grep -m 1 -F ' * Package: ' $bak | awk ' { print $3 } ')
+    Mail "INFO: $FUNCNAME grep'ed $bak in $task for package name" $bak
   fi
 
   pkgname=$(pn2p "$pkg")
+
   repo_path=$( portageq get_repo_path / gentoo )
   if [[ ! -d $repo_path/$pkgname ]]; then
     pkg=""
     pkglog=""
     pkgname=""
+    Mail "INFO: $FUNCNAME failed for $task" $bak
+  else
+    pkglog=$(
+      grep ".*/var/log/portage/$(echo $pkgname | tr '/' ':').*.log" $bak |\
+      sed -e 's,^.*\(/var/log/portage/.*\.log\).*$,\1,' |\
+      head -n 1
+      )
   fi
 }
 
@@ -347,8 +337,8 @@ function GetAssigneeAndCc() {
 
 # add this eg. to #comment0 of an b.g.o. record
 #
-function AddWhoamiToIssue() {
-  cat << EOF >> $issuedir/issue
+function AddWhoamiToComment0() {
+  cat << EOF >> $issuedir/comment0
 
   -------------------------------------------------------------------
 
@@ -418,7 +408,7 @@ function CreateIssueDir() {
 # helper of ClassifyIssue()
 #
 function foundCollisionIssue() {
-  grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' >> $issuedir/issue
+  grep -m 1 -A 20 ' * Detected file collision(s):' $bak | grep -B 15 ' * Package .* NOT' > $issuedir/issue
 
   # get package (name+version) of the sibbling package
   #
@@ -450,7 +440,7 @@ function foundSandboxIssue() {
   fi
 
   echo "sandbox issue" > $issuedir/title
-  head -n 10 $sandb >> $issuedir/issue 2>&1
+  head -n 10 $sandb > $issuedir/issue 2>&1
 }
 
 
@@ -464,7 +454,6 @@ function foundCflagsIssue() {
   fi
 
   echo 'fails to build with -fno-common or gcc-10' > $issuedir/title
-  # $issuedir/issue is already written
 }
 
 
@@ -722,25 +711,27 @@ function TrimTitle()  {
 function CompileIssueMail() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
-  # shrink too long error messages
+  # shrink loong path names and :lineno:columno: pattern
   #
-  sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' $issuedir/title
+  sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' $issuedir/title
 
-  # shrink a too long #comment0
+  cp $issuedir/issue $issuedir/comment0
+
+  # cut a too long #comment0
   #
-  while [[ $(wc -c < $issuedir/issue) -gt 4000 ]]
+  while [[ $(wc -c < $issuedir/comment0) -gt 4000 ]]
   do
-    sed -i '1d' $issuedir/issue
+    sed -i '1d' $issuedir/comment0
   done
 
-  # copy issue to the email body before enhancing the issue file further to become comment#0 eventually
+  # copy it to the email body before enriching it
   #
-  cp $issuedir/issue $issuedir/body
-  AddWhoamiToIssue
+  cp $issuedir/comment0 $issuedir/body
+  AddWhoamiToComment0
 
   SearchForBlocker
   if [[ -n "$block" ]]; then
-    cat <<EOF >> $issuedir/issue
+    cat <<EOF >> $issuedir/comment0
   Please see the tracker bug for details.
 
 EOF
@@ -748,7 +739,7 @@ EOF
 
   grep -q -e "Can't locate .* in @INC" ${bak}
   if [[ $? -eq 0 ]]; then
-    cat <<EOF >> $issuedir/issue
+    cat <<EOF >> $issuedir/comment0
   Please see https://wiki.gentoo.org/wiki/Project:Perl/Dot-In-INC-Removal#Counter_Balance
 
 EOF
@@ -758,7 +749,7 @@ EOF
 
   # used languages and compilers
   #
-  cat << EOF >> $issuedir/issue
+  cat << EOF >> $issuedir/comment0
 gcc-config -l:
 $(gcc-config -l)
 
@@ -1008,11 +999,6 @@ function SwitchJDK()  {
 # it schedules follow-ups from the last emerge operation
 #
 function PostEmerge() {
-  # prefix our log backup file with "_" to distinguish it from portages log file
-  #
-  bak=/var/log/portage/_emerge-$(date +%Y%m%d-%H%M%S).log
-  stresc < $logfile > $bak
-
   # don't change these config files after image setup
   #
   rm -f /etc/._cfg????_{hosts,resolv.conf}
@@ -1141,7 +1127,7 @@ function CheckQA() {
         fi
         cp $pkglog $issuedir/files/
 
-        AddWhoamiToIssue
+        AddWhoamiToComment0
         SearchForBlocker
         GetAssigneeAndCc
         AddVersionAssigneeAndCC
@@ -1177,17 +1163,33 @@ function RunAndCheck() {
   ($1) &>> $logfile
   local rc=$?
 
+  # prefix our log backup file with "_" to distinguish it from portages log file
+  #
+  bak=/var/log/portage/_emerge-$(date +%Y%m%d-%H%M%S).log
+  stresc < $logfile > $bak
+
   PostEmerge
 
-  # the b.g.o. id of a bug if already filed
-  #
-  id=""
+  id="" # # initializing needed for the b.g.o. id of a bug possible containing a similar issue
 
   if [[ ! $keyword = "stable" ]]; then
     CheckQA
   fi
 
   if [[ $rc -eq 0 ]]; then
+    return $rc
+  fi
+
+  grep -q -e 'emerge: there are no ebuilds built with USE flags to satisfy' \
+          -e 'emerge: there are no ebuilds to satisfy' \
+          -e 'The following REQUIRED_USE flag constraints are unsatisfied:' \
+          -e '!!! One of the following masked packages is required to complete your request:' \
+          -e '!! All ebuilds that could satisfy ".*" have been masked.' \
+          -e '* Error: The above package list contains packages which cannot be' \
+          -e '* Error: circular dependencies:' \
+          -e 'It may be possible to solve this problem by using package.mask to' \
+          $bak
+  if [[ $? -eq 0 ]]; then
     return $rc
   fi
 
@@ -1231,11 +1233,6 @@ function WorkOnTask() {
         echo "$(date) $pkg" >> /var/tmp/tb/$task.history
       else
         echo "$(date) NOT ok" >> /var/tmp/tb/$task.history
-      fi
-
-      grep -q "The following USE changes are necessary to proceed:" $bak
-      if [[ $? -eq 0 ]]; then
-        Finish 1 "$task failed due to USE flag constraints"
       fi
 
       if [[ $try_again -eq 0 ]]; then
