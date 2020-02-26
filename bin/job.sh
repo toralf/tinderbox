@@ -446,7 +446,7 @@ function foundSandboxIssue() {
 
 # helper of ClassifyIssue()
 #
-function foundCflagsIssue() {
+function foundCflagsGcc10Issue() {
   grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null
   if [[ $? -ne 0 ]]; then
     echo "=$pkg cflags_default" >> /etc/portage/package.env/cflags_default
@@ -454,6 +454,19 @@ function foundCflagsIssue() {
   fi
 
   echo 'fails to build with -fno-common or gcc-10' > $issuedir/title
+}
+
+
+# helper of ClassifyIssue()
+#
+function foundCflagsSedIssue() {
+  grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null
+  if [[ $? -ne 0 ]]; then
+    echo "=$pkg cflags_default" >> /etc/portage/package.env/cflags_default
+    try_again=1
+  fi
+
+  echo "ebuild uses colon (:) as a sed delimiter" > $issuedir/title
 }
 
 
@@ -495,7 +508,10 @@ function ClassifyIssue() {
     foundSandboxIssue
 
   elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*: first defined here' $bak | tee $issuedir/issue)" ]]; then
-    foundCflagsIssue
+    foundCflagsGcc10Issue
+
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $bak | tee $issuedir/issue)" ]]; then
+    foundCflagsSedIssue
 
   else
     phase=$(
@@ -697,7 +713,7 @@ EOF
 # b.g.o. limits "Summary"
 #
 function TrimTitle()  {
-  n=${1:-255}
+  n=${1:-155}
 
   if [[ $(wc -c < $issuedir/title) -gt $n ]]; then
     truncate -s $n $issuedir/title
