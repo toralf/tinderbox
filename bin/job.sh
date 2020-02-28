@@ -295,9 +295,8 @@ EOF
 #
 function getPkgVarsFromIssuelog()  {
   pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
-  if [[ -z "$pkg" ]]; then
+  if [[ -z "$pkg" ]]; then # eg. in postinst phase
     pkg=$(grep -m 1 -F ' * Package: ' $bak | awk ' { print $3 } ')
-    Mail "INFO: $FUNCNAME grep'ed $bak in $task for package name" $bak
   fi
 
   pkgname=$(pn2p "$pkg")
