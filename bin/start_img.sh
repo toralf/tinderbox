@@ -54,7 +54,10 @@ do
   cp /opt/tb/bin/job.sh $mnt/var/tmp/tb || continue
 
   echo " starting     $mnt"
-  sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
+
+  # nice -n 1 helps to analyze/interpret the SVG graphics of sysstat better
+  #
+  nice -n 1 sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
 
   # avoid spurious trouble with mountall() in chr.sh
   #
