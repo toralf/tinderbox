@@ -699,7 +699,7 @@ EOF
 # b.g.o. limits "Summary"
 #
 function TrimTitle()  {
-  n=${1:-120}
+  n=${1:-130}
 
   if [[ $(wc -c < $issuedir/title) -gt $n ]]; then
     truncate -s $n $issuedir/title
