@@ -1365,16 +1365,14 @@ export GREP_COLORS="never"
 export TERM=linux
 export TERMINFO=/etc/terminfo
 
-# needed eg. for the b.g.o. comment #0
-#
-name=$( cat /var/tmp/tb/name )
+name=$( cat /var/tmp/tb/name )      # needed eg. for b.g.o. comment #0
 keyword="stable"
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 0 ]]; then
   keyword="unstable"
 fi
 
-# if task file is non-empty (eg. if emerge was terminated due to a reboot) then retry it
+# retry $task if task file is non-empty (eg. after a terminated emerge)
 #
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
