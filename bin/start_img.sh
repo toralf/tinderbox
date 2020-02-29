@@ -54,7 +54,7 @@ do
   cp /opt/tb/bin/job.sh $mnt/var/tmp/tb || continue
 
   echo " starting     $mnt"
-  nice sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
+  sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
 
   # avoid spurious trouble with mountall() in chr.sh
   #

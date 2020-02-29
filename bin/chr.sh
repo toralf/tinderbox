@@ -48,12 +48,14 @@ function umountall()  {
 }
 
 
-# CGroup based limitations to avoid oom-killer eg. for dev-perl/GD
-# needs:
+# CGroup based limitations
+# needs at least:
 # CONFIG_MEMCG=y
 # CONFIG_MEMCG_SWAP=y
 # CONFIG_MEMCG_SWAP_ENABLED=y
 function cgroup() {
+  # restrict memory to avoid oom-killer eg. for dev-perl/GD
+  #
   local sysfsdir=/sys/fs/cgroup/memory/tinderbox-${mnt##*/}
   if [[ ! -d $sysfsdir ]]; then
     mkdir -p $sysfsdir
@@ -66,12 +68,21 @@ function cgroup() {
 
   local vbytes=$(echo "16 * 2^30" | bc)
   echo $vbytes > $sysfsdir/memory.memsw.limit_in_bytes
+
+  # restrict blast radius if -j1 for make processes is ignored
+  #
+  local sysfsdir=/sys/fs/cgroup/cpu/tinderbox-${mnt##*/}
+  if [[ ! -d $sysfsdir ]]; then
+    mkdir -p $sysfsdir
+  fi
+
+  echo "$$" > $sysfsdir/tasks
 }
 
 
 function BailOut()  {
   umountall
-  exit 1
+  exit ${1:-1}
 }
 
 
@@ -121,8 +132,7 @@ fi
 mountall
 if [[ $? -ne 0 ]]; then
   echo "something went wrong during mount!"
-  umountall
-  exit 4
+  BailOut 4
 fi
 
 cgroup
