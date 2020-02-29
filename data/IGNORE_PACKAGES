@@ -3,7 +3,6 @@
 #
 # never explicitely run emerge with:
 #
-acct-.*/
 app-eselect/
 dev-embedded/
 java-virtuals/
@@ -13,21 +12,13 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# annoying behaviour at the command line if used in the chroot image
-#
-app-vim/c-support
-app-vim/curcmdmode
-#
 # outdated, br0ken, breaks revdep-rebuild, needs special kernel config, ...
 #
 /s6
 app-emacs/jde
-dev-perl/Math-Pari
-dev-util/google-perftools
 media-tv/v4l-dvb-saa716x
 net-analyzer/openvas
 sci-libs/linux-gpib
-sci-mathematics/pari
 sys-apps/modutils
 sys-cluster/mvapich2
 sys-cluster/openmpi
@@ -38,6 +29,7 @@ x11-drivers/nvidia-drivers
 # looooooooong build time
 #
 app-editors/atom
+dev-haskell/language-python
 dev-libs/aws-sdk-cpp
 dev-qt/qtwebengine
 dev-qt/qtwebkit
@@ -79,17 +71,3 @@ dev-util/spirv-llvm-translator
 #
 dev-lang/mlton
 sci-mathematics/twelf
-#
-# produced blocker at @preserved-rebuild : "sys-libs/libunwind" is blocking sys-libs/llvm-libunwind-9.0.1
-#
-dev-util/google-perftools
-#
-# CMake Error at cmake/.../ament_package_xml.cmake
-#
-dev-ros/
-#
-# OCAML is b0rken https://bugs.gentoo.org/704304
-#
-dev-ml/
-/.*ocaml
-net-misc/unison

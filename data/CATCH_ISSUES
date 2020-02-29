@@ -14,5 +14,5 @@ ln: failed to create symbolic link .*: File exists
 ^Error:
 Error .
 error: .
-sed.*failed
 sed:.*expression.*unknown option
+sed.*failed
