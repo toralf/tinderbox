@@ -80,27 +80,22 @@ function SetOptions() {
   origin=""                   # derive settings from this image
   useflags="ThrowUseFlags"
 
-  # throw a profile, prefer a non-running
+  # throw a profile, prefer a non-running, but the last in the list will make it eventually
   #
   while read profile
   do
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
   done < <(ShuffleProfile)
 
-  # be more restrict wrt sandbox issues
+  # test whatever sandbox is there
   #
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news protect-owned -collision-protect"
 
   # check almost unstable
   #
   keyword="unstable"
-#   if [[ -z "$(ls -d ~tinderbox/run/*stable* 2>/dev/null)" ]]; then
-#     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-#       keyword="stable"
-#     fi
-#   fi
 
-  # alternative SSL vendor
+  # OpenSSL : LibreSSL = 1:1
   #
   libressl="n"
   if [[ "$keyword" = "unstable" ]]; then
@@ -109,7 +104,7 @@ function SetOptions() {
     fi
   fi
 
-  # a "y" sets ABI_X86="32 64" in make.conf
+  # a "y" vields to ABI_X86="32 64" in make.conf
   #
   multilib="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
@@ -120,7 +115,7 @@ function SetOptions() {
     fi
   fi
 
-  # FEATURES=test
+  # run FEATURES=test for at most 1 images at a a time
   #
   testfeature="n"
   if [[ "$keyword" = "unstable" ]]; then
