@@ -30,6 +30,7 @@ function stresc() {
     s,\xdf,,g;
     s,\xe2\x80\x98,,g;
     s,\xe2\x80\x99,,g;
+    s,\xe2\x80\xa2,,g;
 
     print;
   '
@@ -297,6 +298,9 @@ function getPkgVarsFromIssuelog()  {
   pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
   if [[ -z "$pkg" ]]; then # eg. in postinst phase
     pkg=$(grep -m 1 -F ' * Package: ' $bak | awk ' { print $3 } ')
+    if [[ -z "$pkg" ]]; then
+      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $bak | cut -f5 -d' ' -s | cut -f1 -d ',' -s)
+    fi
   fi
 
   pkgname=$(pn2p "$pkg")
@@ -1190,6 +1194,8 @@ function RunAndCheck() {
           -e '* Error: The above package list contains packages which cannot be' \
           -e '* Error: circular dependencies:' \
           -e 'It may be possible to solve this problem by using package.mask to' \
+          -e '* Invalid resume list:' \
+          -e 'Dependencies could not be completely resolved due to' \
           $bak
   if [[ $? -eq 0 ]]; then
     return $rc
