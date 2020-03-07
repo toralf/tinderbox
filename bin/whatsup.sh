@@ -293,7 +293,7 @@ function CountPackages()  {
       my $unique = 0; # packages
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};
-        printf "%i%s %i  ", $key, "x", $value;
+        printf "%i%s%i  ", $value, "x", $key;
         $unique += $value;
       }
 
