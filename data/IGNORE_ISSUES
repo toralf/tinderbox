@@ -6,6 +6,7 @@ Couldn't find .* to unmerge.
 dev-python/pypy.* needs to be installed for USE=low-memory
 Fetch instructions for
 gcc version .* found, expected gcc
+get https:/.*.mod: Get https
 Incompatible gcc version found
 Incorrect kernel configuration options
 INTERNALERROR

@@ -98,6 +98,7 @@ error: expected expression before
 error: signals-marshal.h: No such file or directory
 \-\-.*: command not found
 gck-marshal.list: Permission denied
+This expression has type .* but an expression
 .* command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
 pushd.*No such file or directory
