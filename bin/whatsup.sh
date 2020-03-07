@@ -270,24 +270,29 @@ function CountPackages()  {
   done |\
   perl -wane '
     BEGIN {
-      my %All = ();
-      my $all = 0;
+      my %All = ();   # emerges per package
+      my $all = 0;    # emerge operations
     }
 
     chomp();
-    $All{$F[7]}++;
+
+    my $package = $F[7];
+    $All{$package}++;
     $all++;
 
     END {
       my %h = ();
 
-      for my $value (values %All)  {
+      # count the "amount of emerge" values
+      for my $key (keys %All)  {
+        my $value = $All{$key};
         $h{$value}++;
+#         print $value, "\t", $key, "\n" if ($value > 10);
       }
 
-      my $unique = 0;
+      my $unique = 0; # packages
       for my $key (sort { $a <=> $b } keys %h)  {
-        $value = $h{$key};
+        my $value = $h{$key};
         printf "%i%s %i  ", $key, "x", $value;
         $unique += $value;
       }

@@ -55,7 +55,7 @@ do
 
   echo " starting     $mnt"
 
-  # nice -n 1 helps to analyze/interpret the SVG graphics of sysstat better
+  # nice -n 1 helps to analyze the SVG graphics of sysstat better
   #
   nice -n 1 sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
 
