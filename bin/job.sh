@@ -312,11 +312,7 @@ function getPkgVarsFromIssuelog()  {
     pkgname=""
     Mail "INFO: $FUNCNAME failed for $task" $bak
   else
-    pkglog=$(
-      grep ".*/var/log/portage/$(echo $pkgname | tr '/' ':').*.log" $bak |\
-      sed -e 's,^.*\(/var/log/portage/.*\.log\).*$,\1,' |\
-      head -n 1
-      )
+    pkglog=$(grep -E -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $bak)
   fi
 }
 
@@ -491,21 +487,21 @@ function foundTestIssue() {
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
-  if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $bak)" ]]; then
+  if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $pkglog)" ]]; then
     foundCollisionIssue
 
   elif [[ -n $sandb ]]; then # no test at "-f" b/c it might not be allowed to be written
     foundSandboxIssue
 
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*: first defined here' $bak | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*: first defined here' $pkglog | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'fails to build with -fno-common or gcc-10'
 
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $bak | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
   else
     phase=$(
-      grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $bak |\
+      grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog |\
       tee $issuedir/issue                                   |\
       head -n 1                                             |\
       sed -e 's/.* failed \(.* phase\)/\1/g'                |\
@@ -525,7 +521,7 @@ function ClassifyIssue() {
     cat /mnt/tb/data/CATCH_ISSUES.$phase /mnt/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
     for x in x??
     do
-      grep -a -m 1 -B 2 -A 3 -f $x $bak > issue
+      grep -a -m 1 -B 2 -A 3 -f $x $pkglog > issue
       if [[ $? -eq 0 ]]; then
         mv issue $issuedir
         # take 3rd line (therefore -A 3) as the new title, strip quotes before
@@ -890,7 +886,7 @@ function GotAnIssue()  {
 
   # https://bugs.gentoo.org/596664
   #
-  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $bak
+  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $pkglog
   if [[ $? -eq 0 ]]; then
     try_again=1
     add2backlog "$task"
@@ -900,7 +896,7 @@ function GotAnIssue()  {
 
   # https://bugs.gentoo.org/687226
   #
-  grep -q -e "MiscXS.c: loadable library and perl binaries are mismatched" $bak
+  grep -q -e "MiscXS.c: loadable library and perl binaries are mismatched" $pkglog
   if [[ $? -eq 0 ]]; then
     try_again=1
     add2backlog "$task"
@@ -911,7 +907,7 @@ function GotAnIssue()  {
   grep -q \
           -e "configure: error: perl module Locale::gettext required" \
           -e "Can't locate Locale/Messages.pm in @INC"                \
-          $bak
+          $pkglog
   if [[ $? -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
       try_again=1
@@ -920,16 +916,6 @@ function GotAnIssue()  {
     add2backlog "%perl-cleaner --all"
     return
   fi
-
-#   grep -q -e 'ld: -r and -pie may not be used together' $bak
-#   if [[ $? -eq 0 ]]; then
-#     if [[ $try_again -eq 0 ]]; then
-#       try_again=1
-#       add2backlog "$task"
-#     fi
-#     add2backlog "%emerge -1 dev-lang/ghc"
-#     return
-#   fi
 
   if [[ $try_again -eq 1 ]]; then
     add2backlog "$task"
