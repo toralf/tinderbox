@@ -132,10 +132,10 @@ function SetOptions() {
 #
 function checkBool()  {
   var=$1
-  val=$(eval echo \$$1)
+  val=$(eval echo \$${var})
 
   if [[ "$val" != "y" && "$val" != "n" ]]; then
-    echo " wrong value for \$$var: >>$val<<"
+    echo " wrong value for variable \$$var: >>$val<<"
     exit 1
   fi
 }
@@ -192,12 +192,13 @@ function ComputeImageName()  {
 
 
 function CreateImageDir() {
+  cd $(readlink ~tinderbox/img) || exit 1
   name="${name}-$(date +%Y%m%d-%H%M%S)"
   mkdir $name || exit 1
 
-  # relative path to ~tinderbox
+  # relative path (eg ./img1) to ~tinderbox
   #
-  mnt=$(pwd | sed 's,/home/tinderbox/,,g')/$name
+  mnt=$(readlink ../img)/$name
 
   echo " new image: $mnt"
   echo
@@ -212,11 +213,8 @@ function UnpackStage3()  {
   for mirror in $gentoo_mirrors
   do
     wgeturl="$mirror/releases/amd64/autobuilds"
-    wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest
-    if [[ $? -eq 0 ]]; then
-      break
-    fi
-    echo "mirror failed: $mirror"
+    wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest && break
+    echo "mirror failed: $mirror, trying next ..."
   done
 
   case $profile in
@@ -240,10 +238,10 @@ function UnpackStage3()  {
       stage3=$(grep "/stage3-amd64-20.*\.tar\." $latest)
       ;;
   esac
-
   stage3=$(echo $stage3 | cut -f1 -d' ' -s)
+
   if [[ -z "$stage3" ]]; then
-    echo "can't get stage3 filename for profile '$profile'"
+    echo "can't get stage3 filename for profile '$profile' in $latest"
     exit 1
   fi
 
@@ -283,7 +281,7 @@ function UnpackStage3()  {
 # configure remote (bind mounted, see chr.sh) and image specific repositories
 #
 function CompileRepoFiles()  {
-  mkdir -p     ./etc/portage/repos.conf/
+  mkdir -p ./etc/portage/repos.conf/
 
   # this is synced explicitely in job.sh via a rsync call to the local host directory
   #
@@ -357,7 +355,7 @@ function CompileMakeConf()  {
     l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | shuf -n $(($RANDOM % 10)) | sort | xargs)"
   fi
 
-  truncate -s 0 ./etc/portage/make.conf.USE
+  touch ./etc/portage/make.conf.USE
 
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
@@ -452,7 +450,7 @@ function CompilePortageFiles()  {
   echo 'FEATURES="test"'                          > ./etc/portage/env/test
   echo 'FEATURES="-test"'                         > ./etc/portage/env/notest
 
-  # to preserve the same dep tree re-try a failed package with +test again but ignore the test error
+  # to preserve the same dep tree re-try a failed package with +test again but ignore the test result in the 2nd run
   #
   echo 'FEATURES="test-fail-continue"'            > ./etc/portage/env/test-fail-continue
 
@@ -524,7 +522,7 @@ EOF
 function CompileMiscFiles()  {
   echo $name > ./var/tmp/tb/name
 
-  # use local (==host) DNS resolver
+  # use local host DNS resolver
   #
   cat << EOF > ./etc/resolv.conf
 domain localdomain
@@ -576,7 +574,8 @@ function CreateBacklog()  {
     echo "INFO starting replay of task history of $origin"            >> $bl.1st
   fi
 
-  # update @world (@system is a no-op if @world directly succeeded) before working on the arbitrarily choosen package list
+  # update @world before working on the arbitrarily choosen package list
+  # @system is just a fall back if @world stucks or takes too long
   # this is the last time where depclean is run w/o "-p" (and must succeeded)
   #
   cat << EOF >> $bl.1st
@@ -619,14 +618,14 @@ EOF
     #
     echo "%emerge -u =$(ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
-    echo "sys-devel/gcc" >> $bl.1st     # unlikely but possible
+    echo "sys-devel/gcc" >> $bl.1st     # unlikely but possible to hae a new version in the mean while
   fi
 
   if [[ $profile =~ "systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
   fi
 
-  # sometimes Python was updated as a dep of a newer portage during setup
+  # sometimes Python was updated as a dep during setup
   #
   echo "%eselect python update" >> $bl.1st
 }
@@ -713,7 +712,7 @@ fi
 #
 emerge -1u virtual/libcrypt || exit 1
 
-# finally switch to the choosen profile and set credentials for mail-mta/ssmtp and www-client/pybugz
+# finally switch to the choosen profile and symlink credential files for mail-mta/ssmtp and www-client/pybugz
 #
 eselect profile set --force default/linux/amd64/$profile || exit 1
 if [[ "$testfeature" = "y" ]]; then
@@ -732,7 +731,7 @@ EOF
 
 # MTA, bugz et. al
 #
-function EmergeMandatoryPackages() {
+function RunSetupScript() {
   date
   echo " run setup script ..."
   cd ~tinderbox/
@@ -756,7 +755,7 @@ function EmergeMandatoryPackages() {
 function DryrunHelper() {
   date
   echo " dry run ..."
-  tail -v -n 1000 $mnt/etc/portage/make.conf.USE
+  tail -v -n 100 $mnt/etc/portage/make.conf.USE
   echo
 
   # check that the thrown USE flags do not yield into circular or other non-resolvable dependencies
@@ -842,11 +841,6 @@ if [[ $# -gt 0 ]]; then
   echo
 fi
 
-set -e
-cd ~tinderbox
-cd $(readlink ~tinderbox/img)
-set +e
-
 repo_gentoo=$(  portageq get_repo_path / gentoo)
 repo_libressl=$(portageq get_repo_path / libressl)
 repo_local=$(   portageq get_repo_path / local)
@@ -872,7 +866,7 @@ do
         ;;
     m)  multilib="$OPTARG"
         ;;
-    o)  # derive certian image configuration(s) from another one
+    o)  # derive certain image configuration(s) from a given origin
         #
         origin="$OPTARG"
         if [[ ! -e $origin ]]; then
@@ -880,13 +874,13 @@ do
           exit 1
         fi
 
-        profile=$(cd $origin && readlink ./etc/portage/make.profile | sed -e 's,.*/profiles/,,' -e 's/17.0/17.1/' | cut -f4- -d'/' -s)
+        profile=$(cd $origin && readlink ./etc/portage/make.profile | sed -e 's,.*/profiles/,,' | cut -f4- -d'/' -s)
         if [[ -z "$profile" ]]; then
           echo " can't derive \$profile from '$origin'"
           exit 1
         fi
 
-        useflags="$(source $origin/etc/portage/make.conf && echo $USE | PrintUseFlags)"
+        useflags="$(cat $origin/etc/portage/make.conf.USE)"
         features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
 
         grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf && keyword="unstable" || keyword="stable"
@@ -909,15 +903,6 @@ done
 
 CheckOptions
 ComputeImageName
-
-if [[ -z "$origin" ]]; then
-  ls -d ~tinderbox/run/${name}-20??????-?????? 2>/dev/null
-  if [[ $? -eq 0 ]]; then
-    echo "^^^ name '$name' is already running"
-    exit 2
-  fi
-fi
-
 CreateImageDir
 UnpackStage3
 CompileRepoFiles
@@ -926,11 +911,11 @@ CompilePortageFiles
 CompileMiscFiles
 CreateBacklog
 CreateSetupScript
-EmergeMandatoryPackages
+RunSetupScript
 Dryrun
 
-cd ~tinderbox/run || exit 1
-ln -s ../$mnt     || exit 1
+cd ~tinderbox/run
+ln -s ../$mnt
 
 if [[ "$autostart" = "y" ]]; then
   echo
