@@ -46,11 +46,6 @@ function LookForAnImage()  {
       continue
     fi
 
-    let "d = ( $(date +%s) - $(stat -c%Y ~/run/$i/var/tmp/tb/setup.sh) ) / 3600 / 24"
-    if [[ $d -lt $days ]]; then
-      break
-    fi
-
     c=$(GetCompl $i)
     if [[ $c -lt $compl ]]; then
       continue
@@ -111,17 +106,15 @@ fi
 echo $$ > $lck
 
 compl=4600    # completed emerge operations
-days=5        # min. runtime of an image
 hours=5       # min. distance to the previous image, effectively this yields into n+1 hours
 left=16000    # left entries in the backlog
 oldimg=""     # optional: image to be replaced
 setupargs=""  # optional: passed to setup_img.sh
 
-while getopts c:d:h:l:o:s: opt
+while getopts c:h:l:o:s: opt
 do
   case $opt in
     c)  compl=$OPTARG         ;;
-    d)  days=$OPTARG          ;;
     h)  hours=$OPTARG         ;;
     l)  left=$OPTARG          ;;
     o)  oldimg=${OPTARG##*/}  ;;
