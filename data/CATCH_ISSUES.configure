@@ -17,6 +17,7 @@ Could not find a package configuration file provided by
 Project .rostime. tried to find library .-lpthread.
 Could NOT find Boost
  was not found.
+Unable to find clang libraries
 CMake Error at
 Configuring incomplete, errors occurred
 extconf.rb:.* (RuntimeError)

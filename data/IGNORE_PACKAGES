@@ -3,7 +3,6 @@
 #
 # never explicitely run emerge with:
 #
-app-eselect/
 dev-embedded/
 java-virtuals/
 perl-core/
@@ -48,7 +47,6 @@ app-office/ooextras
 app-officeext/
 app-text/bibus
 dev-ada/
-dev-lang/
 dev-libs/rocm
 dev-util/include-what-you-use
 gnome-extra/sushi
@@ -57,15 +55,6 @@ sys-cluster/
 sys-devel/byfl
 sys-devel/llvm-roc
 x11-misc/mugshot
-#
-# depends at old llvm
-#
-dev-libs/intel-neo
-dev-libs/opencl-clang
-dev-python/llvmlite
-dev-python/numba
-dev-util/intel-graphics-compiler
-dev-util/spirv-llvm-translator
 #
 # too many unix processes in blocking state
 #
