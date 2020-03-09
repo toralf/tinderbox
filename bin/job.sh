@@ -130,6 +130,7 @@ function setTask()  {
   # this is the end, my friend, the end ...
   #
   else
+    rm -f /var/tmp/tb/KEEP
     n=$(qlist --installed | wc -l)
     Finish 0 "empty backlogs, $n packages installed"
   fi
