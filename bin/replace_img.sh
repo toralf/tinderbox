@@ -38,6 +38,8 @@ function LookForAnImage()  {
   #
   while read i
   do
+    oldimg=$i
+
     if [[ -f ~/run/$i/var/tmp/tb/KEEP ]]; then
       continue
     fi
@@ -48,7 +50,6 @@ function LookForAnImage()  {
 
     n=$(wc -l < <(cat ~/run/$i/var/tmp/tb/backlog*))
     if [[ $? -eq 0 && $n -eq 0 ]]; then
-      oldimg=$i
       return
     fi
 
@@ -62,7 +63,6 @@ function LookForAnImage()  {
       continue
     fi
 
-    oldimg=$i
     return
   done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
 
