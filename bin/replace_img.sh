@@ -46,6 +46,12 @@ function LookForAnImage()  {
       continue
     fi
 
+    n=$(wc -l < <(cat ~/run/$i/var/tmp/tb/backlog*))
+    if [[ $? -eq 0 && $n -eq 0 ]]; then
+      oldimg=$i
+      return
+    fi
+
     c=$(GetCompl $i)
     if [[ $c -lt $compl ]]; then
       continue
