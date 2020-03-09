@@ -16,16 +16,18 @@ function stresc() {
     $_ = colorstrip($_);
 
     s,\r,\n,g;
-    s,\x00,,g;
-    s,\x08,,g;
     s,\b,,g;
-    s,\x1b\x28\x42,,g;
-    s,\x1b\x5b\x4b,,g;
+    s,\x00,,g;
     s,\x01,,g;
     s,\x02,,g;
     s,\x03,,g;
-    s,\x1b,,g;
+    s,\x08,,g;
     s,\x0f,,g;
+    s,\x1b\x28\x42,,g;
+    s,\x1b\x5b\x30\x6d,,g;
+    s,\x1b\x5b\x31\x6d,,g;
+    s,\x1b\x5b\x4b,,g;
+    s,\x3b\x33\x35\x6d,,g;
     s,\xc0,,g;
     s,\xdf,,g;
     s,\xe2\x80\x98,,g;
@@ -500,6 +502,8 @@ function ClassifyIssue() {
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
   else
+    # set generix issue and title based on the generix error message
+    #
     phase=$(
       grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog |\
       tee $issuedir/issue                                   |\
@@ -516,17 +520,17 @@ function ClassifyIssue() {
 
     pushd /var/tmp/tb 1>/dev/null
 
-    # catch the issue and guess a better title based on manual collected pattern
+    # run over manually collected pattern in the order they do appear in the appropriate pattern file
+    # as an attempt to get the real issue
     #
     cat /mnt/tb/data/CATCH_ISSUES.$phase /mnt/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
+
     for x in x??
     do
       grep -a -m 1 -B 2 -A 3 -f $x $pkglog > issue
       if [[ $? -eq 0 ]]; then
         mv issue $issuedir
-        # take 3rd line (therefore -A 3) as the new title, strip quotes before
-        #
-        sed -n '3p' < $issuedir/issue | sed -e 's,['\''‘’"`], ,g' > $issuedir/title
+        sed -n '3p' < $issuedir/issue > $issuedir/title # 3rd line (matches -A 3)
 
         # if the issue file is too big, then delete at least the 1st line
         #
@@ -558,6 +562,7 @@ function ClassifyIssue() {
             -e 's/; did you mean .* \?$//g'     \
             -e 's/(@INC contains:.*)/.../g'     \
             -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
+            -e 's,['\''‘’"`], ,g'               \
             $issuedir/title
   fi
 }
@@ -1348,8 +1353,9 @@ taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds always output of the running task command
 backlog1st=/var/tmp/tb/backlog.1st  # this is the high prio backlog
 
-export GCC_COLORS=""                # suppress colour output of gcc-4.9 and above
+export GCC_COLORS=""
 export GREP_COLORS="never"
+export OCAML_COLOR="never"
 
 # https://stackoverflow.com/questions/9485699/setupterm-could-not-find-terminal-in-python-program-using-curses
 # https://bugs.gentoo.org/683118
