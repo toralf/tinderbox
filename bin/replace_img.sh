@@ -36,29 +36,23 @@ function LookForAnImage()  {
 
   # look for an image being old enough and having enough emerge operations completed
   #
-  while read i
+  while read oldimg
   do
-    oldimg=$i
-
-    if [[ -f ~/run/$i/var/tmp/tb/KEEP ]]; then
-      continue
-    fi
-
-    if [[ ! -f ~/run/$i/var/log/emerge.log ]]; then
-      continue
-    fi
-
-    n=$(wc -l < <(cat ~/run/$i/var/tmp/tb/backlog*))
+    n=$(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog*))
     if [[ $? -eq 0 && $n -eq 0 ]]; then
       return
     fi
 
-    c=$(GetCompl $i)
+    if [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]]; then
+      continue
+    fi
+
+    c=$(GetCompl $oldimg)
     if [[ $c -lt $compl ]]; then
       continue
     fi
 
-    l=$(GetLeft $i)
+    l=$(GetLeft $oldimg)
     if [[ $l -gt $left ]]; then
       continue
     fi
