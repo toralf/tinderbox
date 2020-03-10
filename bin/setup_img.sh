@@ -712,12 +712,20 @@ fi
 #
 emerge -1u virtual/libcrypt || exit 1
 
-# finally switch to the choosen profile and symlink credential files for mail-mta/ssmtp and www-client/pybugz
+# finally switch to the choosen profile
 #
 eselect profile set --force default/linux/amd64/$profile || exit 1
+
 if [[ "$testfeature" = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
+
+if [[ "$testfeature" = "y" || "$multilib" = "y" ]]; then
+  touch /var/tmp/tb/KEEP
+fi
+
+# symlink credential files of mail-mta/ssmtp and www-client/pybugz
+#
 (cd /root && ln -s ../mnt/tb/sdata/.bugzrc) || exit 1
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf) || exit 1
 
