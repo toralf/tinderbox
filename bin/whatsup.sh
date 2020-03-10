@@ -270,22 +270,22 @@ function CountPackages()  {
   done |\
   perl -wane '
     BEGIN {
-      my %All = ();   # emerges per package
-      my $all = 0;    # emerge operations
+      my %EmergeOpsPerPackage = ();     # emerges per package
+      my $emops = 0;                    # total amount of emerge operations
     }
 
     chomp();
 
     my $package = $F[7];
-    $All{$package}++;
-    $all++;
+    $EmergeOpsPerPackage{$package}++;
+    $emops++;
 
     END {
       my %h = ();
 
       # count the "amount of emerge" values
-      for my $key (keys %All)  {
-        my $value = $All{$key};
+      for my $key (keys %EmergeOpsPerPackage)  {
+        my $value = $EmergeOpsPerPackage{$key};
         $h{$value}++;
 #         print $value, "\t", $key, "\n" if ($value > 10);
       }
@@ -297,7 +297,7 @@ function CountPackages()  {
         $unique += $value;
       }
 
-      print "\nunique = $unique    all = $all\n";
+      print "\nunique = $unique    emerge operations = $emops\n";
     }
   '
 }
