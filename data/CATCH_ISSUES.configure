@@ -36,7 +36,7 @@ This version of Camlp4 is for OCaml
 meson.build.*ERROR:.*
 USE Flag .* not in IUSE for
 configure in /.* failed
-Error: .
+This expression has type .* but an expression was
 Please, run .haskell-updater
 Detected broken packages:
  configure failed

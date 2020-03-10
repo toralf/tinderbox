@@ -3,9 +3,7 @@
 
 # if FEATURES=test is set then these USE flags are mandatory
 #
-dev-libs/glib             -gtk-doc
-media-gfx/imagemagick     corefonts truetype
-media-libs/gd             png
-media-libs/tiff           jpeg
-net-nds/openldap          -cxx -minimal
+*/*                       -libglvnd
+
+sys-libs/db               tcl
 x11-base/xorg-server      xvfb

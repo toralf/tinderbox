@@ -7,7 +7,6 @@ Fetch failed for
  \*   multilib-strict check failed!
 The ebuild phase .* has exited unexpectedly. This type of
 ecompress-file failed
-^ERROR:
 Unsupported EAPI
 \* ERROR: .* failed:
 ln: failed to create symbolic link .*: File exists
@@ -16,3 +15,4 @@ Error .
 error: .
 sed:.*expression.*unknown option
 sed.*failed
+^ERROR:
