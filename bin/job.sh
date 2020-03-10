@@ -9,28 +9,18 @@
 # That's all.
 
 
-# strip away non-printable chars
+# strip away quotes
 #
-function stresc() {
+function stripQuotesAndMore() {
+  sed -e 's,['\''‘’"`],,g'
+}
+
+
+# strip away colour sequences
+#
+function stripEscapeSequences() {
   perl -MTerm::ANSIColor=colorstrip -nle '
     $_ = colorstrip($_);
-
-    s,\r,\n,g;
-    s,\b,,g;
-    s,\x00,,g;
-    s,\x01,,g;
-    s,\x02,,g;
-    s,\x03,,g;
-    s,\x08,,g;
-    s,\x0f,,g;
-    s,\x1b\x28\x42,,g;
-    s,\x1b\x5b.\x6d,,g;
-    s,\x1b\x5b\x4b,,g;
-    s,\x3b\x33.\x6d,,g;
-    s,\xc0,,g;
-    s,\xdf,,g;
-    s,\xe2\x80.,,g;
-
     print;
   '
 }
@@ -42,7 +32,7 @@ function stresc() {
 # $2 (optionally) contains either the body itself or a text file
 #
 function Mail() {
-  subject=$(echo "$1" | stresc | cut -c1-200 | tr '\n' ' ')
+  subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
 
   # the Debian mailx automatically adds a MIME Header line to the mail since 2017.
   # But uuencode is not MIME-compliant, therefore newer Thunderbird versions show
@@ -58,7 +48,7 @@ function Mail() {
 
   (
     if [[ -f $2 ]]; then
-      stresc < $2
+      cat $2
     else
       echo "${2:-<no body>}"
     fi
@@ -83,9 +73,9 @@ function Mail() {
 function Finish()  {
   local rc=$1
 
-  # although stresc() will be called in Mail() run it here b/c $2 might contain quotes
+  # although stripQuotesAndMore() will be called in Mail() run it here b/c $2 might contain quotes
   #
-  subject=$(echo "$2" | stresc | cut -c1-200 | tr '\n' ' ')
+  subject=$(echo "$2" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
   else
@@ -246,7 +236,7 @@ EOF
   for f in $ehist $pkglog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
   do
     if [[ -f $f ]]; then
-      stresc < $f > $issuedir/files/${f##*/}
+      cp $f $issuedir/files
     fi
   done
 
@@ -510,7 +500,7 @@ function ClassifyIssue() {
       cut -f2 -d'('                                         |\
       cut -f1 -d' '
     )
-    head -n 2 $issuedir/issue | tail -n 1 > $issuedir/title
+    head -n 2 $issuedir/issue | tail -n 1 | stripQuotesAndMore > $issuedir/title
 
     if [[ "$phase" = "test" ]]; then
       foundTestIssue
@@ -523,12 +513,14 @@ function ClassifyIssue() {
     #
     cat /mnt/tb/data/CATCH_ISSUES.$phase /mnt/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
 
+    cat $pkglog | stripEscapeSequences | stripQuotesAndMore > stripped_pkglog
+
     for x in x??
     do
-      grep -a -m 1 -B 2 -A 3 -f $x $pkglog > issue
+      grep -a -m 1 -B 2 -A 3 -f $x stripped_pkglog > issue
       if [[ $? -eq 0 ]]; then
         mv issue $issuedir
-        sed -n '3p' < $issuedir/issue > $issuedir/title # 3rd line (matches -A 3)
+        sed -n '3p' < $issuedir/issue | stripQuotesAndMore > $issuedir/title # 3rd line (matches -A 3)
 
         # if the issue file is too big, then delete at least the 1st line
         #
@@ -539,7 +531,7 @@ function ClassifyIssue() {
       fi
     done
 
-    rm x??
+    rm -f x?? stripped_pkglog issue
 
     popd 1>/dev/null
 
@@ -560,7 +552,6 @@ function ClassifyIssue() {
             -e 's/; did you mean .* \?$//g'     \
             -e 's/(@INC contains:.*)/.../g'     \
             -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
-            -e 's,['\''‘’"`], ,g'               \
             $issuedir/title
   fi
 }
@@ -720,7 +711,7 @@ function CompileIssueMail() {
   #
   sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' $issuedir/title
 
-  cp $issuedir/issue $issuedir/comment0
+  cat $issuedir/issue | stripQuotesAndMore > $issuedir/comment0
 
   # cut a too long #comment0
   #
@@ -1161,7 +1152,7 @@ function RunAndCheck() {
   # prefix our log backup file with "_" to distinguish it from portages log file
   #
   bak=/var/log/portage/_emerge-$(date +%Y%m%d-%H%M%S).log
-  stresc < $logfile > $bak
+  stripEscapeSequences < $logfile > $bak
 
   PostEmerge
 
