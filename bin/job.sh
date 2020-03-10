@@ -24,15 +24,12 @@ function stresc() {
     s,\x08,,g;
     s,\x0f,,g;
     s,\x1b\x28\x42,,g;
-    s,\x1b\x5b\x30\x6d,,g;
-    s,\x1b\x5b\x31\x6d,,g;
+    s,\x1b\x5b.\x6d,,g;
     s,\x1b\x5b\x4b,,g;
-    s,\x3b\x33\x35\x6d,,g;
+    s,\x3b\x33.\x6d,,g;
     s,\xc0,,g;
     s,\xdf,,g;
-    s,\xe2\x80\x98,,g;
-    s,\xe2\x80\x99,,g;
-    s,\xe2\x80\xa2,,g;
+    s,\xe2\x80.,,g;
 
     print;
   '
