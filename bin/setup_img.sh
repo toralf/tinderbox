@@ -11,7 +11,7 @@
 # helper of ThrowUseFlags()
 #
 function DropUseFlags()  {
-  egrep -v -e '32|64|^armv|bindist|bootstrap|build|cdinstall|compile-locales|debug|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|make-symlinks|malloc|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|pax|perftools|prefix|tools|selinux|split-usr|static|symlink|system|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan'
+  egrep -v -e '32|64|^armv|bindist|bootstrap|build|cdinstall|compile-locales|consolekit|debug|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|make-symlinks|malloc|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|pax|perftools|prefix|tools|selinux|split-usr|static|symlink|system|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan'
 }
 
 
@@ -385,7 +385,7 @@ CLEAN_DELAY=0
 NOCOLOR=yes
 
 L10N="$l10n"
-VIDEO_CARDS=""
+VIDEO_CARDS="dummy"
 
 DISTDIR="/var/cache/distfiles"
 PORT_LOGDIR="/var/log/portage"
@@ -799,7 +799,8 @@ EOF
       DryrunHelper && break
 
       # after a given amount of attempts hold for a while to hope that the portage tree will be healed ...
-      if [[ $(($i % 60)) = 0 ]]; then
+      #
+      if [[ $(($i % 20)) = 0 ]]; then
         echo -e "\n\n TOO MUCH ATTEMPTS, WILL WAIT 1 HOUR ...\n\n"
         sleep 3600
       fi
