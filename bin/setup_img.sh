@@ -95,7 +95,7 @@ function SetOptions() {
   #
   keyword="unstable"
 
-  # OpenSSL : LibreSSL = 1:1
+  # parity: OpenSSL : LibreSSL = 1:1
   #
   libressl="n"
   if [[ "$keyword" = "unstable" ]]; then
@@ -108,6 +108,8 @@ function SetOptions() {
   #
   multilib="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
+    # run at most 1 image at a a time
+    #
     if [[ -z "$(ls -d ~tinderbox/run/*abi32+64* 2>/dev/null)" ]]; then
       if [[ $(($RANDOM % 16)) -eq 0 ]]; then
         multilib="y"
@@ -115,10 +117,12 @@ function SetOptions() {
     fi
   fi
 
-  # run FEATURES=test for at most 1 images at a a time
+  #  FEATURES=test
   #
   testfeature="n"
   if [[ "$keyword" = "unstable" ]]; then
+    # run at most 1 image at a a time
+    #
     if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
       if [[ $(($RANDOM % 4)) -eq 0 ]]; then
         testfeature="y"
