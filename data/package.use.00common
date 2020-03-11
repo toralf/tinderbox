@@ -44,3 +44,7 @@ app-doc/doxygen           dot
 dev-db/sqlite             -icu
 dev-lang/python           -bluetooth
 net-dns/avahi             -gtk
+
+# Bug 665338 - net-misc/networkmanager - libnm-glib removal
+#
+net-misc/networkmanager   -libnm-glib
