@@ -65,9 +65,9 @@ function ThrowUseFlags()  {
 function ShuffleProfile() {
   eselect profile list |\
   awk ' { print $2 } ' |\
-  grep -e "^default/linux/amd64/17.1" |\
+  grep -e "^default/linux/amd64/17.1" -e "^default/linux/amd64/17.0/musl" |\
   cut -f4- -d'/' -s |\
-  grep -v -e '/x32' -e '/musl' -e '/selinux' -e '/uclibc' |\
+  grep -v -e '/x32' -e '/selinux' -e '/uclibc' |\
   shuf
 }
 
@@ -129,6 +129,17 @@ function SetOptions() {
       fi
     fi
   fi
+
+  musl="n"
+  if [[ $profile =~ "/musl" ]]; then
+    musl="y"
+
+    keyword="unstable"
+    libressl="n"
+    multilib="n"
+    testfeature="n"
+  fi
+
 }
 
 
@@ -167,6 +178,7 @@ function CheckOptions() {
   checkBool "libressl"
   checkBool "multilib"
   checkBool "testfeature"
+  checkBool "musl"
 }
 
 
@@ -189,6 +201,10 @@ function ComputeImageName()  {
 
   if [[ "$testfeature" = "y" ]]; then
     name="${name}_test"
+  fi
+
+  if [[ "$musl" = "y" ]]; then
+    name="${name}_musl"
   fi
 
   name="$(echo $name | sed -e 's/-[_-]/-/g' -e 's/-$//')"
@@ -236,6 +252,14 @@ function UnpackStage3()  {
 
     */systemd)
       stage3=$(grep "/systemd/stage3-amd64-systemd-20.*\.tar\." $latest)
+      ;;
+
+    */musl/hardened)
+      stage3=$(grep "/musl/stage3-amd64-musl-hardened-20.*\.tar\." $latest)
+      ;;
+
+    */musl)
+      stage3=$(grep "/musl/stage3-amd64-musl-vanilla-20.*\.tar\." $latest)
       ;;
 
     *)
@@ -344,6 +368,19 @@ priority = 20
 
 EOF
 
+  fi
+
+  if [[ "$musl" = "y" ]]; then
+    cat << EOF > ./etc/portage/repos.conf/musl.conf
+[musl]
+location = $repo_musl
+
+EOF
+  cat << EOF >> ./etc/portage/repos.conf/default.conf
+[musl]
+priority = 30
+
+EOF
   fi
 }
 
@@ -615,7 +652,7 @@ EOF
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
   # upgrade GCC asap, but do not rebuild the existing one
   #
-  if [[ $keyword = "unstable" ]]; then
+  if [[ $musl = "n" && $keyword = "unstable" ]]; then
     #   %...      : bail out if it fails
     #   =         : do not upgrade the current (slotted) version
     # dev-libs/*  : avoid a rebuild of GCC later in @system
@@ -655,11 +692,16 @@ rsync -aC /mnt/repos/gentoo /var/db/repos/
 if [[ "$libressl" = "y" ]]; then
   rsync -aC /mnt/repos/libressl /var/db/repos/
 fi
+if [[ "$musl" = "y" ]]; then
+  rsync -aC /mnt/repos/musl /var/db/repos/
+fi
 
 # use the base profile for mandatory packages to minimize dep graph during setup
 #
 if [[ $profile =~ "/no-multilib" ]]; then
   eselect profile set --force default/linux/amd64/17.1/no-multilib  || exit 1
+elif [[ $musl = "y" ]]; then
+  eselect profile set --force default/linux/amd64/17.0/musl         || exit 1
 else
   eselect profile set --force default/linux/amd64/17.1              || exit 1
 fi
@@ -679,8 +721,10 @@ de_DE.UTF-8@euro UTF-8
 
 2EOF
 
-locale-gen -j1 || exit 1
-eselect locale set en_US.UTF-8
+if [[ ! $musl = "y" ]]; then
+  locale-gen -j1 || exit 1
+  eselect locale set en_US.UTF-8
+fi
 
 echo "$name" > /etc/conf.d/hostname
 
@@ -697,24 +741,26 @@ emerge -u mail-client/mailx  || exit 1
 emerge -u sys-apps/portage   || exit 1
 emerge -u app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
 
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-  # testing sys-libs/libxcrypt[system]
+if [[ ! $musl = "y" ]]; then
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    # testing sys-libs/libxcrypt[system]
+    #
+    echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/libxcrypt
+
+    echo '
+    sys-libs/glibc      -crypt
+    sys-libs/libxcrypt  compat static-libs system
+    virtual/libcrypt    static-libs
+    '                                   >> /etc/portage/package.use/libxcrypt
+
+    echo 'sys-libs/glibc     -crypt'    >> /etc/portage/make.profile/package.use.force
+    echo 'sys-libs/libxcrypt -system'   >> /etc/portage/make.profile/package.use.mask
+  fi
+
+  # glibc-2.31 + python-3 dep issue
   #
-  echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/libxcrypt
-
-  echo '
-  sys-libs/glibc      -crypt
-  sys-libs/libxcrypt  compat static-libs system
-  virtual/libcrypt    static-libs
-  '                                   >> /etc/portage/package.use/libxcrypt
-
-  echo 'sys-libs/glibc     -crypt'    >> /etc/portage/make.profile/package.use.force
-  echo 'sys-libs/libxcrypt -system'   >> /etc/portage/make.profile/package.use.mask
+  emerge -1u virtual/libcrypt || exit 1
 fi
-
-# glibc-2.31 + python-3 dep issue
-#
-emerge -1u virtual/libcrypt || exit 1
 
 # finally switch to the choosen profile
 #
@@ -857,6 +903,8 @@ fi
 repo_gentoo=$(  portageq get_repo_path / gentoo)
 repo_libressl=$(portageq get_repo_path / libressl)
 repo_local=$(   portageq get_repo_path / local)
+repo_musl=$(    portageq get_repo_path / musl)
+
 tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
 
@@ -900,6 +948,7 @@ do
         grep -q 'ABI_X86="32 64"'           $origin/etc/portage/make.conf && multilib="y"       || multilib="n"
         grep -q 'FEATURES="test'            $origin/etc/portage/make.conf && testfeature="y"    || testfeature="n"
         [[ $origin =~ "libressl" ]] && libressl="y" || libressl="n"
+        [[ $profile =~ "/musl" ]]   && musl="y"     || musl="n"
 
         ;;
     p)  profile=$OPTARG
