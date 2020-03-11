@@ -324,7 +324,7 @@ auto-sync = no
 priority = 10
 
 [tinderbox]
-priority = 30
+priority = 90
 
 [local]
 priority = 99
@@ -622,7 +622,7 @@ EOF
     #
     echo "%emerge -u =$(ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
-    echo "sys-devel/gcc" >> $bl.1st     # unlikely but possible to hae a new version in the mean while
+    echo "sys-devel/gcc" >> $bl.1st     # rarely but possible to have a newer GCC version than the stage3 does have
   fi
 
   if [[ $profile =~ "systemd" ]]; then
@@ -691,11 +691,11 @@ useradd -u $(id -u tinderbox) tinderbox
 
 # ssmtp first to avoid that mailx pulls in another MTA
 #
-emerge mail-mta/ssmtp     || exit 1
-emerge mail-client/mailx  || exit 1
+emerge -u mail-mta/ssmtp     || exit 1
+emerge -u mail-client/mailx  || exit 1
 
-emerge sys-apps/portage   || exit 1
-emerge app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
+emerge -u sys-apps/portage   || exit 1
+emerge -u app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
 
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   # testing sys-libs/libxcrypt[system]
