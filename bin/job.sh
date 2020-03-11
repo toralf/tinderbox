@@ -34,9 +34,12 @@ function stripEscapeSequences() {
 function Mail() {
   subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
 
-  # the Debian mailx automatically adds a MIME Header line to the mail since 2017.
+  # the Debian mailx automatically adds a MIME Header line to the mail smtp header
   # But uuencode is not MIME-compliant, therefore newer Thunderbird versions show
   # any attachment as inline text only :-(
+  #
+  # a workaround is to insert an empty line before that header line to invalidate it
+  # if we found uuencoded attachments -> -a ""
   #
   opt=""
   if [[ -f $2 ]]; then
@@ -52,7 +55,7 @@ function Mail() {
     else
       echo "${2:-<no body>}"
     fi
-  ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt "" &>> /var/tmp/tb/mail.log # the "" belongs to $opt but doesn't hurt here and let the mail body be looking less ugly
+  ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt "" &>> /var/tmp/tb/mail.log # the "" belongs to $opt but doesn't hurt if $opt is unset
 
   local rc=$?
 
