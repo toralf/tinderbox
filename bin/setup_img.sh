@@ -65,9 +65,9 @@ function ThrowUseFlags()  {
 function ShuffleProfile() {
   eselect profile list |\
   awk ' { print $2 } ' |\
-  grep -e "^default/linux/amd64/17.1" -e "^default/linux/amd64/17.0/musl" |\
-  cut -f4- -d'/' -s |\
+  grep -e "^default/linux/amd64/17\.1" -e "^default/linux/amd64/17\../musl" |\
   grep -v -e '/x32' -e '/selinux' -e '/uclibc' |\
+  cut -f4- -d'/' -s |\
   shuf
 }
 
@@ -80,15 +80,13 @@ function SetOptions() {
   origin=""                   # derive settings from this image
   useflags="ThrowUseFlags"
 
-  # throw a profile, prefer a non-running, but the last in the list will make it eventually
+  # throw a profile and prefer a non-running one, but the last entry in input will make it eventually
   #
   while read profile
   do
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
   done < <(ShuffleProfile)
 
-  # test whatever sandbox is there
-  #
   features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news protect-owned -collision-protect"
 
   # check almost unstable
@@ -689,21 +687,23 @@ function CreateSetupScript()  {
 # set -x
 
 rsync -aC /mnt/repos/gentoo /var/db/repos/
-if [[ "$libressl" = "y" ]]; then
+if [[ $libressl = "y" ]]; then
   rsync -aC /mnt/repos/libressl /var/db/repos/
 fi
-if [[ "$musl" = "y" ]]; then
+if [[ $musl = "y" ]]; then
   rsync -aC /mnt/repos/musl /var/db/repos/
 fi
 
-# use the base profile for mandatory packages to minimize dep graph during setup
-#
-if [[ $profile =~ "/no-multilib" ]]; then
-  eselect profile set --force default/linux/amd64/17.1/no-multilib  || exit 1
-elif [[ $musl = "y" ]]; then
-  eselect profile set --force default/linux/amd64/17.0/musl         || exit 1
+if [[ $musl = "y" ]]; then
+  eselect profile set --force default/linux/amd64/$profile            || exit 1
 else
-  eselect profile set --force default/linux/amd64/17.1              || exit 1
+  # use the base profile during setup to minimize dep graph
+  #
+  if [[ $profile =~ "/no-multilib" ]]; then
+    eselect profile set --force default/linux/amd64/17.1/no-multilib  || exit 1
+  else
+    eselect profile set --force default/linux/amd64/17.1              || exit 1
+  fi
 fi
 
 echo "Europe/Berlin" > /etc/timezone
@@ -741,7 +741,9 @@ emerge -u mail-client/mailx  || exit 1
 emerge -u sys-apps/portage   || exit 1
 emerge -u app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
 
-if [[ ! $musl = "y" ]]; then
+if [[ $musl = "y" ]]; then
+  cd /usr/lib && ln -s ../../usr/lib64/liblockfile.so.1       # needed for mailx to work
+else
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
     # testing sys-libs/libxcrypt[system]
     #
@@ -766,11 +768,13 @@ fi
 #
 eselect profile set --force default/linux/amd64/$profile || exit 1
 
-if [[ "$testfeature" = "y" ]]; then
+if [[ $testfeature = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
-if [[ "$testfeature" = "y" || "$multilib" = "y" ]]; then
+# prefer compile/build tests over dep issue catching etc.
+#
+if [[ $testfeature = "y" || $multilib = "y" || $musl = "y" ]]; then
   touch /var/tmp/tb/KEEP
 fi
 
