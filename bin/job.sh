@@ -313,6 +313,11 @@ function getPkgVarsFromIssuelog()  {
 # get assignee and cc for the b.g.o. report
 #
 function GetAssigneeAndCc() {
+  if [[ $name =~ "_musl" ]]; then
+    echo "musl@gentoo.org" > $issuedir/assignee
+    return
+  fi
+
   # all meta info
   #
   m=$( equery meta -m $pkgname | grep '@' | xargs )
