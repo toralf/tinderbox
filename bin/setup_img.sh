@@ -519,7 +519,7 @@ NINJAFLAGS="-j1"
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
 OMP_NUM_THREADS=1
-RUSTFLAGS="-C codegen-units=1"
+RUSTFLAGS="-C codegen-units=1$([[ $musl = "y" && echo " -C target-feature=-crt-static")"
 RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 
