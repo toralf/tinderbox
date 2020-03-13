@@ -38,30 +38,13 @@ function Mail() {
   # But uuencode is not MIME-compliant, therefore newer Thunderbird versions shows
   # any attachment as inline text only :-(
   #
-  # a workaround is to insert an empty line before that smtp header line to invalidate it being a smtp header line
-  # but do this only if there're uuencoded attachments -> -a ""
+  # a workaround is to insert an empty smtp header line before that smtp header line to invalidate it being a smtp header line
+  # but do this only if there're uuencoded attachments
   #
-  opt=""
-  if [[ -f $2 ]]; then
-    grep -q "^begin 644 " $2
-    if [[ $? -eq 0 ]]; then
-      opt='-a'
-    fi
-  fi
-
-  (
-    if [[ -f $2 ]]; then
-      cat $2
-    else
-      echo "${2:-<no body>}"
-    fi
-  ) | timeout 120 mail -s "$subject    @ $name" $mailto $opt "" &>> /var/tmp/tb/mail.log # the "" belongs to $opt but doesn't hurt if $opt is unset
-
-  local rc=$?
-
-  if [[ $rc -ne 0 ]]; then
-    # direct this both to stdout (could be catched eg. by logcheck.sh) and to an image specific logfile
-    #
+  dummy=""
+  [[ -f $2 ]] && grep -q "^begin 644 " $2 && dummy='-a ""'
+  ([[ -f $2 ]] && cat $2 echo "${2:-<no body>}") | timeout 120 mail $dummy -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
+  if [[ $? -ne 0 ]]; then
     echo "$(date) mail failed, rc=$rc, subject=$subject" | tee -a /var/tmp/tb/mail.log
   fi
 }
