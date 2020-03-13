@@ -60,11 +60,11 @@ function check_history()  {
 
 # whatsup.sh -o
 #
-# compl fail days backlog  upd  1st status
-#  3735   41  3.6   16369    0    1 pS  r   run/13.0-no-multilib_20170315-195201
-#  6956   75  9.6   13285    0    0   wfr   run/13.0-systemd_20170309-190652
-#  10      0  0.0   19301    2    8 ...    img2/13.0-systemd-libressl_20170316-210316
-#
+# compl fail days backlog  upd  1st status  8#8 running
+#   764   31  1.8   18847  153    0    r K  run/17.0_musl-20200311-204810
+#  3415   92  3.1   15925  114    0    r    run/17.1-libressl-20200310-153510
+#   271   13  3.4   19037  546   18 ..wrSK  run/17.1_desktop-test-20200310-081612
+#  2934   74  4.8   17974  535    0    r    run/17.1_desktop_plasma-libressl-20200308-224459
 function Overall() {
   running=0
   for i in $images
@@ -92,12 +92,12 @@ function Overall() {
       compl=$(grep -c ' ::: completed emerge' $f)
     fi
 
-    # count emerge failures based on distinct package release
-    # example of an issue directory name: 20170417-082345_app-misc_fsniper-1.3.1-r2
+    # count emerge failures based on distinct package name+version+release
+    # example of an issue directory name: 20200313-044024-net-analyzer_iptraf-ng-1.1.4-r3
     #
     fail=0
     if [[ -d $i/var/tmp/tb/issues ]]; then
-      fail=$(ls -1 $i/var/tmp/tb/issues | xargs --no-run-if-empty -n 1 basename | cut -f2- -d'_' -s | sort -u | wc -w)
+      fail=$(ls -1 $i/var/tmp/tb/issues | xargs --no-run-if-empty -n 1 basename | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
     bl=$(wc -l  2>/dev/null < $i/var/tmp/tb/backlog)
@@ -105,25 +105,17 @@ function Overall() {
     blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd)
 
     flag=""
-    [[ -f $i/var/tmp/tb/LOCK ]] && flag="r$flag" || flag=" $flag"    # (r)unning
+
+    [[ -f $i/var/tmp/tb/LOCK ]] && flag="${flag}r" || flag="$flag "    # (r)unning or not?
 
     # F=STOP file, f=STOP in backlog
     if [[ -f $i/var/tmp/tb/STOP ]]; then
-      flag="F$flag"
+      flag="${flag}S"
     else
-      grep -q ^STOP $i/var/tmp/tb/backlog.1st 2>/dev/null
-      if [[ $? -eq 0 ]]; then
-        flag="f$flag"
-      else
-        flag=" $flag"
-      fi
+      grep -q ^STOP $i/var/tmp/tb/backlog.1st && flag="${flag}s" || flag="$flag "
     fi
 
-    if [[ -f $i/var/tmp/tb/KEEP ]]; then
-      flag="${flag}k"
-    else
-      flag="${flag} "
-    fi
+    [[ -f $i/var/tmp/tb/KEEP ]] && flag="${flag}K" || flag="$flag "
 
     # show result of last run of @system, @world and @preserved-rebuild respectively
     # upper case: an error occurred, lower case: a warning occurred
