@@ -34,12 +34,12 @@ function stripEscapeSequences() {
 function Mail() {
   subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
 
-  # the Debian mailx automatically adds a MIME Header line to the mail smtp header
-  # But uuencode is not MIME-compliant, therefore newer Thunderbird versions show
+  # the Debian mailx automatically adds a MIME smtp header line
+  # But uuencode is not MIME-compliant, therefore newer Thunderbird versions shows
   # any attachment as inline text only :-(
   #
-  # a workaround is to insert an empty line before that header line to invalidate it
-  # if we found uuencoded attachments -> -a ""
+  # a workaround is to insert an empty line before that smtp header line to invalidate it being a smtp header line
+  # but do this only if there're uuencoded attachments -> -a ""
   #
   opt=""
   if [[ -f $2 ]]; then
@@ -62,7 +62,7 @@ function Mail() {
   if [[ $rc -ne 0 ]]; then
     # direct this both to stdout (could be catched eg. by logcheck.sh) and to an image specific logfile
     #
-    echo "$(date) mail failed, rc=$rc, bgo.sh ~/img/$name/$issuedir" | tee -a /var/tmp/tb/mail.log
+    echo "$(date) mail failed, rc=$rc, subject=$subject" | tee -a /var/tmp/tb/mail.log
   fi
 }
 
@@ -751,27 +751,26 @@ EOF
 
   AddVersionAssigneeAndCC
 
-  # used languages and compilers
-  #
-  cat << EOF >> $issuedir/comment0
-gcc-config -l:
-$(gcc-config -l)
+  (
+    echo "gcc-config -l:"
+    gcc-config -l
 
-$(which clang &>/dev/null && echo "clang:" && clang --version)
-$(which llvm-config &>/dev/null && echo "llvm:" && llvm-config --version)
-$(eselect python  list 2>/dev/null)
-$(eselect ruby    list 2>/dev/null)
-$(eselect rust    list 2>/dev/null)
-$([[ -x /usr/bin/java-config ]] && echo "java-config:" && java-config --list-available-vms --nocolor)
-$(eselect java-vm list 2>/dev/null)
-$(which ghc &>/dev/null && echo "ghc:" && ghc --version)
+    clang --version
+    llvm-config --prefix --version
+    eselect python  list
+    eselect ruby    list
+    eselect rust    list
+    java-config --list-available-vms --nocolor
+    eselect java-vm list
+    ghc --version
 
-repository:
-$(tail -v /var/db/repos/*/metadata/timestamp*)
+    echo
+    echo "repository:"
+    tail -v /var/db/repos/*/metadata/timestamp*
 
-emerge -qpvO $pkgname
-$(head -n 1 $issuedir/emerge-qpvO)
-EOF
+    echo "emerge -qpvO $pkgname"
+    head -n 1 $issuedir/emerge-qpvO
+  ) >> $issuedir/comment0 2>/dev/null
 
   if [[ -s $issuedir/title ]]; then
     TrimTitle 200
@@ -1235,7 +1234,7 @@ function WorkOnTask() {
         if [[ -n "$pkg" ]]; then
           add2backlog "%emerge --resume --skip-first"
         elif [[ $task = "@system" ]]; then
-          # especially a QT upgrade yields into blocker for @system
+          # a QT of gcc upgrade yields into blocker for @system but not for @world
           add2backlog "@world"
         fi
       fi
