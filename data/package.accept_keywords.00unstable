@@ -1,6 +1,10 @@
 # package.accept_keywords/00unstable
 #
 
-# [4:25:01 am] <+[Arfrever]> toralf: Could you test glibc-2.31 in tinderbox?
+# Arfrever
 #
 =sys-libs/glibc-2.31* **
+
+# mattst88, leio https://bugs.gentoo.org/665338
+#
+~net-misc/networkmanager-1.22.*   **
