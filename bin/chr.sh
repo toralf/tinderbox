@@ -4,7 +4,7 @@
 
 export LANG=C.utf8
 
-# chroot into an image either interactively -or- run a command
+# chroot into an image interactively - or - run a command
 
 function mountall() {
   # if a mount fails then do not try further
