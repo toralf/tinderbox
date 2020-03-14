@@ -2,7 +2,7 @@
 #
 # set -x
 
-export LANG=C
+export LANG=C.utf8
 
 # replace an tinderbox image in ~/run with a newer one
 #

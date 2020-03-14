@@ -2,7 +2,7 @@
 #
 # set -x
 
-export LANG=C
+export LANG=C.utf8
 
 # create or modify a bug report at http://bugzilla.gentoo.org
 #

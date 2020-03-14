@@ -297,7 +297,7 @@ function CountPackages()  {
 
 #######################################################################
 #
-export LANG=C
+export LANG=C.utf8
 unset LC_TIME
 images=$(list_images)
 

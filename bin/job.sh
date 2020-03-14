@@ -1318,7 +1318,7 @@ function syncRepos() {
 #
 #       main
 #
-export LANG=C
+export LANG=C.utf8
 
 mailto="tinderbox@zwiebeltoralf.de"
 taskfile=/var/tmp/tb/task           # holds the current task

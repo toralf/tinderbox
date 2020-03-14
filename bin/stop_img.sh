@@ -2,7 +2,7 @@
 #
 # set -x
 
-export LANG=C
+export LANG=C.utf8
 
 # stop tinderbox chroot image/s
 #

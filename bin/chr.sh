@@ -2,7 +2,7 @@
 #
 # set -x
 
-export LANG=C
+export LANG=C.utf8
 
 # chroot into an image either interactively -or- run a command
 

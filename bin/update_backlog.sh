@@ -6,7 +6,7 @@
 # and merge them into appropriate backlog file(s)
 #
 
-export LANG=C
+export LANG=C.utf8
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo "You are not tinderbox !"

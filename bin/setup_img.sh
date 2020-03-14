@@ -889,7 +889,7 @@ EOF
 # main
 #
 #############################################################################
-export LANG=C
+export LANG=C.utf8
 
 date
 echo " $0 started"

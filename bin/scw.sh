@@ -2,7 +2,7 @@
 #
 # set -x
 
-export LANG=C
+export LANG=C.utf8
 
 # this is a (s)imple (c)hroot (w)rapper into a running tinderbox image
 # for a stopped image chr.sh is the better choice
