@@ -15,7 +15,7 @@ function Warn() {
   failed with error code $rc
   *
   "
-  tail -v bugz.*
+  tail -v bgo.sh.*
   echo "--------------"
 }
 
@@ -70,7 +70,7 @@ fi
 
 # cleanup of a previous run
 #
-rm -f bugz.{out,err}
+rm -f bgo.sh.{out,err}
 
 if [[ -n "$id" ]]; then
   # modify an existing bug report
@@ -78,7 +78,7 @@ if [[ -n "$id" ]]; then
   if [[ -z "$comment" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
-  timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
+  timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err || Error $?
 
   grep -q "fails with FEATURES=test" $issuedir/title && timeout 120 bugz modify --set-keywords TESTFAILURE $id
 
@@ -98,9 +98,9 @@ else
     --description-from "./comment0"   \
     --batch                           \
     --default-confirm n               \
-    1>bugz.out 2>bugz.err || Error $?
+    1>bgo.sh.out 2>bgo.sh.err || Error $?
 
-  id=$(grep ' * Bug .* submitted' bugz.out | sed 's/[^0-9]//g')
+  id=$(grep ' * Bug .* submitted' bgo.sh.out | sed 's/[^0-9]//g')
   if [[ -z "$id" ]]; then
     echo
     echo "empty bug id"
@@ -109,7 +109,7 @@ else
   fi
 
   if [[ -n "$comment" ]]; then
-    timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bugz.out 2>bugz.err || Error $?
+    timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err || Error $?
   fi
 fi
 
@@ -120,12 +120,12 @@ touch ./.reported
 echo
 echo "https://bugs.gentoo.org/show_bug.cgi?id=$id"
 
-if [[ -s bugz.err ]]; then
+if [[ -s bgo.sh.err ]]; then
   Error 5
 fi
 
 if [[ -f emerge-info.txt ]]; then
-  timeout 120 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bugz.out 2>bugz.err || Warn $?
+  timeout 120 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
 if [[ -d ./files ]]; then
@@ -139,7 +139,7 @@ if [[ -d ./files ]]; then
       #
       echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
       echo "  $f"
-      timeout 120 bugz attach --content-type "$ct" --description "" $id $f 1>bugz.out 2>bugz.err || Warn $?
+      timeout 120 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn $?
     else
       echo "skiped too fat file: $f"
     fi
@@ -147,12 +147,12 @@ if [[ -d ./files ]]; then
 fi
 
 if [[ -n "$block" ]]; then
-  timeout 120 bugz modify --add-blocked "$block" $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 120 bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
 bzgrep -q " \* ERROR:.* failed (test phase):" $issuedir/_emerge_* 2>/dev/null
 if [[ $? -eq 0 ]]; then
-  timeout 120 bugz modify --set-keywords TESTFAILURE $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 120 bugz modify --set-keywords TESTFAILURE $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
 # set assignee and cc as the last step to reduce the amount of emails created by a change
@@ -162,7 +162,7 @@ if [[ $newbug -eq 1 ]]; then
   if [[ -s ./cc ]]; then
     Cc="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
   fi
-  timeout 120 bugz modify $assignee $Cc $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 120 bugz modify $assignee $Cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
 echo
