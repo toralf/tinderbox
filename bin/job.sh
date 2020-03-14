@@ -42,8 +42,8 @@ function Mail() {
   # but do this only if there're uuencoded attachments
   #
   dummy=""
-  [[ -f $2 ]] && grep -q "^begin 644 " $2 && dummy='-a ""'
-  ([[ -f $2 ]] && cat $2 echo "${2:-<no body>}") | timeout 120 mail $dummy -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
+  [[ -f $2 ]] && grep -q "^begin 644 " $2 && dummy='-a <dummy line>'
+  ([[ -f $2 ]] && cat $2 || echo "${2:-<no body>}") | timeout 120 mail $dummy -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
   if [[ $? -ne 0 ]]; then
     echo "$(date) mail failed, rc=$rc, subject=$subject" | tee -a /var/tmp/tb/mail.log
   fi
