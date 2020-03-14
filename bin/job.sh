@@ -752,7 +752,7 @@ EOF
   fi
 
   AddBgoCommandLine
-  AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_*
+  AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_* $issuedir/bugz.*
 
   # prepend failed package
   #
