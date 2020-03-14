@@ -26,38 +26,40 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# looooooooong build time
+# way too long emerge time
 #
 app-editors/atom
+app-office/
+app-officeext/
+app-office/libreoffice
+app-office/ooextras
+app-text/bibus
+dev-ada/
 dev-haskell/language-python
 dev-libs/aws-sdk-cpp
+dev-libs/rocm
 dev-qt/qtwebengine
 dev-qt/qtwebkit
 dev-util/electron
-sci-libs/tensorflow
-sci-visualization/tensorboard
-sys-cluster/ceph
-www-client/chromium
-www-client/google-chrome
-#
-# looong build time (either directly or its deps)
-#
-app-office/
-app-office/libreoffice
-app-office/ooextras
-app-officeext/
-app-text/bibus
-dev-ada/
-dev-libs/rocm
 dev-util/include-what-you-use
 gnome-extra/sushi
 ros-meta/
+sci-libs/tensorflow
+sci-visualization/tensorboard
 sys-cluster/
+sys-cluster/ceph
 sys-devel/byfl
 sys-devel/llvm-roc
+www-client/chromium
+www-client/google-chrome
 x11-misc/mugshot
 #
 # too many unix processes in blocking state
 #
 dev-lang/mlton
 sci-mathematics/twelf
+#
+#
+# known issues
+#
+sys-libs/compiler-rt-sanitizers
