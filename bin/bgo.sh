@@ -158,13 +158,11 @@ fi
 # set assignee and cc as the last step to reduce the amount of emails created by a change
 #
 if [[ $newbug -eq 1 ]]; then
-  a="-a $(cat ./assignee)"
+  assignee="-a $(cat ./assignee)"
   if [[ -s ./cc ]]; then
-    # entries in cc are space separated and each has to be prefixed with --add-cc
-    #
-    c="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
+    Cc="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
   fi
-  timeout 120 bugz modify $a $c $id 1>bugz.out 2>bugz.err || Warn $?
+  timeout 120 bugz modify $assignee $Cc $id 1>bugz.out 2>bugz.err || Warn $?
 fi
 
 echo
