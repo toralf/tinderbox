@@ -596,7 +596,7 @@ function SearchForAnAlreadyFiledBug() {
   bsi=$issuedir/bugz_search_items     # the title acts as a set of space separated patterns
   # get away line numbers, certain special terms et al
   #
-#   stripQuotesAndMore < $issuedir/title |\
+  stripQuotesAndMore < $issuedir/title |\
   sed -e 's,&<[[:alnum:]].*>,,g'  \
       -e 's,/\.\.\./, ,'          \
       -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
