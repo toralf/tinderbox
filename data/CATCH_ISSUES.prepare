@@ -16,3 +16,4 @@ can't find file to patch at input
 LoadError:
 .*: command not found
 Project ERROR: Unknown module
+iconv: unrecognized option:
