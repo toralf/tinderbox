@@ -606,17 +606,14 @@ function SearchForAnAlreadyFiledBug() {
 
   # for the file collision case: remove the package version from the installed package
   #
-  grep -q "file collision" $bsi
-  if [[ $? -eq 0 ]]; then
-    sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
-  fi
+  grep -q "file collision" $bsi && sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
 
   # search first for the same version, second for category/package name
   # take the highest bug id and put the summary of the next (newest) 10 bugs into the email body
   #
   for i in $pkg $pkgname
   do
-    id=$(timeout 300 bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>> $issuedir/body | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+    id=$(timeout 300 bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
     if [[ -n "$id" ]]; then
       echo "CONFIRMED " >> $issuedir/bgo_result
       break
@@ -624,7 +621,7 @@ function SearchForAnAlreadyFiledBug() {
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED $i "$(cat $bsi)" 2>> $issuedir/body | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+      id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
       if [[ -n "$id" ]]; then
         echo "$s " >> $issuedir/bgo_result  # keep a trailing space
         break 2
@@ -661,17 +658,12 @@ EOF
     g='stabilize|Bump| keyword| bump'
 
     echo "  OPEN:     $h&resolution=---&short_desc=$pkgname" >> $issuedir/body
-    timeout 300 bugz --columns 400 -q search --show-status     $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
-
-    if [[ $keyword = "stable" ]]; then
-      echo "" >> $issuedir/body
-      timeout 300 bugz --columns 400 -q search --show-status --component "Stabilization"   $pkgname &>> $issuedir/body
-      timeout 300 bugz --columns 400 -q search --show-status --component "Vulnerabilities" $pkgname &>> $issuedir/body
-    fi
+    timeout 300 bugz -q --columns 400 search --show-status     $pkgname 2>>$issuedir/bugz.err | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
 
     echo "" >> $issuedir/body
+
     echo "  RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname" >> $issuedir/body
-    timeout 300 bugz --columns 400 -q search --status RESOLVED $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
+    timeout 300 bugz -q --columns 400 search --status RESOLVED $pkgname 2>>$issuedir/bugz.err | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
   fi
 
   # append a newline to make copy+paste from Thunderbird message window more convenient
