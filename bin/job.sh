@@ -12,7 +12,8 @@
 # strip away quotes
 #
 function stripQuotesAndMore() {
-  sed -e 's,['\''‘’"`],,g'
+  sed -e 's,['\''‘’"`],,g' |\
+  sed -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
 }
 
 
@@ -43,7 +44,7 @@ function Mail() {
   #
   dummy=""
   [[ -f $2 ]] && grep -q "^begin 644 " $2 && dummy='-a dummy_header_line'
-  ([[ -f $2 ]] && cat $2 || echo "${2:-_no_body_given_}") | timeout 120 mail $dummy -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
+  ([[ -f $2 ]] && cat $2 || echo "${2:-empty_mail_body}") | timeout 120 mail $dummy -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
   if [[ $? -ne 0 ]]; then
     echo "$(date) mail failed, rc=$rc, subject=$subject" | tee -a /var/tmp/tb/mail.log
   fi
@@ -593,18 +594,15 @@ function SearchForAnAlreadyFiledBug() {
   fi
 
   bsi=$issuedir/bugz_search_items     # the title acts as a set of space separated patterns
-  cp $issuedir/title $bsi
-
-  # get away line numbers, certain special terms and characters
+  # get away line numbers, certain special terms et al
   #
-  sed -i  -e 's,&<[[:alnum:]].*>,,g'  \
-          -e 's,['\''‘’"`], ,g'       \
-          -e 's,/\.\.\./, ,'          \
-          -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
-          -e 's,.* : ,,'              \
-          -e 's,[<>&\*\?], ,g'        \
-          -e 's,[\(\)], ,g'           \
-          $bsi
+#   stripQuotesAndMore < $issuedir/title |\
+  sed -e 's,&<[[:alnum:]].*>,,g'  \
+      -e 's,/\.\.\./, ,'          \
+      -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
+      -e 's,.* : ,,'              \
+      -e 's,[<>&\*\?], ,g'        \
+      -e 's,[\(\)], ,g' > $bsi
 
   # for the file collision case: remove the package version from the installed package
   #
@@ -626,9 +624,9 @@ function SearchForAnAlreadyFiledBug() {
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution "$s" --status RESOLVED $i "$(cat $bsi)" 2>> $issuedir/body | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+      id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED $i "$(cat $bsi)" 2>> $issuedir/body | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
       if [[ -n "$id" ]]; then
-        echo "$s " >> $issuedir/bgo_result
+        echo "$s " >> $issuedir/bgo_result  # keep a trailing space
         break 2
       fi
     done
@@ -663,7 +661,7 @@ EOF
     g='stabilize|Bump| keyword| bump'
 
     echo "  OPEN:     $h&resolution=---&short_desc=$pkgname" >> $issuedir/body
-    timeout 300 bugz --columns 400 -q search --show-status $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
+    timeout 300 bugz --columns 400 -q search --show-status     $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
 
     if [[ $keyword = "stable" ]]; then
       echo "" >> $issuedir/body
@@ -673,10 +671,10 @@ EOF
 
     echo "" >> $issuedir/body
     echo "  RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname" >> $issuedir/body
-    timeout 300 bugz --columns 400 -q search --status RESOLVED $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20  >> $issuedir/body
+    timeout 300 bugz --columns 400 -q search --status RESOLVED $pkgname 2>> $issuedir/body | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
   fi
 
-  # a newline makes copy+paste more convenient
+  # append a newline to make copy+paste from Thunderbird message window more convenient
   #
   echo >> $issuedir/body
 }
@@ -1046,7 +1044,7 @@ function PostEmerge() {
   # image update a day after the last one finished if 1st prio backlog is empty
   #
   if [[ ! -s $backlog1st ]]; then
-    if [[ -f /var/tmp/tb/@world.history ]]; then
+    if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history && /var/tmp/tb/@world.history -nt /var/tmp/tb/@system.history ]]; then
       let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@world.history) ) / 86400"
     elif [[ -f /var/tmp/tb/@system.history ]]; then
       let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
