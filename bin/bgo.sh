@@ -158,9 +158,9 @@ fi
 # set assignee and cc as the last step to reduce the amount of emails created by a change
 #
 if [[ $newbug -eq 1 ]]; then
-  assignee="-a $(cat ./assignee)"
+  assignee="-a $(cat ./assignee)"   # we expect only 1 entry here
   if [[ -s ./cc ]]; then
-    Cc="--add-cc $(cat ./cc | sed 's/ / --add-cc /g')"
+    Cc="--add-cc $(cat ./cc | xargs | sed 's/ / --add-cc /g')"
   fi
   timeout 120 bugz modify $assignee $Cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
