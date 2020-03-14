@@ -1043,13 +1043,15 @@ function PostEmerge() {
     add2backlog "%SwitchGCC"
   fi
 
-  # daily image update if 1st prio backlog is empty
+  # image update a day after the last one finished if 1st prio backlog is empty
   #
   if [[ ! -s $backlog1st ]]; then
-    if [[ -f /var/tmp/tb/@system.history ]]; then
+    if [[ -f /var/tmp/tb/@world.history ]]; then
+      let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@world.history) ) / 86400"
+    elif [[ -f /var/tmp/tb/@system.history ]]; then
       let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
     else
-      diff=1
+      diff=0
     fi
     if [[ $diff -ge 1 ]]; then
       add2backlog "@system"
