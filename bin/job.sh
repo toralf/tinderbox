@@ -942,25 +942,6 @@ function SwitchGCC() {
 }
 
 
-# choose an arbitrary system java engine
-#
-function SwitchJDK()  {
-  old=$(eselect java-vm show system 2>/dev/null | tail -n 1 | xargs)
-  if [[ -n "$old" ]]; then
-    new=$(
-      eselect java-vm list 2>/dev/null |\
-      grep -e ' oracle-jdk-[[:digit:]] ' -e ' icedtea[-bin]*-[[:digit:]] ' |\
-      grep -v " icedtea-bin-[[:digit:]].*-x86 " |\
-      grep -v ' system-vm' |\
-      awk ' { print $2 } ' | shuf -n 1
-    )
-    if [[ -n "$new" && "$new" != "$old" ]]; then
-      eselect java-vm set system $new 1>> $logfile
-    fi
-  fi
-}
-
-
 # helper of RunAndCheck()
 # it schedules follow-ups from the last emerge operation
 #
@@ -1044,7 +1025,6 @@ function PostEmerge() {
     fi
     if [[ $diff -ge 1 ]]; then
       add2backlog "@system"
-      add2backlog "%SwitchJDK"
     fi
   fi
 
