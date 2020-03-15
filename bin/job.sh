@@ -482,7 +482,7 @@ function ClassifyIssue() {
 
   else
     # set generix issue and title based on the generix error message
-    #
+    # issue will become part of b.g.o. commment0 and should be ASCII (at least certain UTF-8 chars makes trouble)
     phase=$(
       grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog |\
       tee $issuedir/issue                                   |\
@@ -952,7 +952,7 @@ function PostEmerge() {
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
-  # aif eg a new (g)libc was installed then regen the locales
+  # if eg. a new glibc was installed then rebuild the locales
   ls /etc/._cfg????_locale.gen &>/dev/null
   if [[ $? -eq 0 ]]; then
     locale-gen > /dev/null
