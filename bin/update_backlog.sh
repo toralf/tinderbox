@@ -39,14 +39,14 @@ else
   echo $* | xargs -n 1 | sort -u |\
   while read line
   do
+    [[ -z "$line" ]] && continue
     # split away version/revision if possible
     #
-    [[ -z "$line" ]] && continue
     p=$(qatom "$line" | grep -F -v '<unset>' | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
     [[ -z "$p" ]] && p=$line
     echo $p >> $pks
 
-    # delete package from various pattern files
+    # delete package from global and various image specific files
     #
     sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
       ~/tb/data/ALREADY_CATCHED                   \
