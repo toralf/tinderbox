@@ -87,7 +87,7 @@ function SetOptions() {
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
   done < <(ShuffleProfile)
 
-  features="xattr preserve-libs parallel-fetch ipc-sandbox network-sandbox cgroup -news protect-owned -collision-protect"
+  features="xattr cgroup -news -collision-protect"
 
   # check almost unstable
   #
@@ -102,11 +102,11 @@ function SetOptions() {
     fi
   fi
 
-  # a "y" vields to ABI_X86="32 64" in make.conf
+  # a "y" yields to ABI_X86="32 64" in make.conf
   #
   multilib="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
-    # run at most 1 image at a a time
+    # run at most 1 image
     #
     if [[ -z "$(ls -d ~tinderbox/run/*abi32+64* 2>/dev/null)" ]]; then
       if [[ $(($RANDOM % 16)) -eq 0 ]]; then
@@ -119,7 +119,7 @@ function SetOptions() {
   #
   testfeature="n"
   if [[ "$keyword" = "unstable" ]]; then
-    # run at most 1 image at a a time
+    # run at most 1 image
     #
     if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
       if [[ $(($RANDOM % 4)) -eq 0 ]]; then
@@ -137,7 +137,6 @@ function SetOptions() {
     multilib="n"
     testfeature="n"
   fi
-
 }
 
 
@@ -508,7 +507,7 @@ FFLAGS="\${COMMON_FLAGS}"
 
 EOF
 
-  # no parallel build
+  # no parallel build, prefer 1 thread in N running images over up to N running threads in 1 image
   #
   cat << EOF                                      > ./etc/portage/env/noconcurrent
 EGO_BUILD_FLAGS="-p 1"
@@ -519,7 +518,7 @@ NINJAFLAGS="-j1"
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
 OMP_NUM_THREADS=1
-RUSTFLAGS="-C codegen-units=1$([[ $musl = "y" && echo " -C target-feature=-crt-static")"
+RUSTFLAGS="-C codegen-units=1$([[ $musl = "y" ]] && echo " -C target-feature=-crt-static")"
 RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 
