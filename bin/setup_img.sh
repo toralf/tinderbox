@@ -600,21 +600,24 @@ function CreateBacklog()  {
   chmod 664               $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  # sort is needed if more than one repository is configured
-  #
-  qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> $bl
+  qsearch --all --nocolor --name-only --quiet |\
+  if [[ $musl = "y" ]]; then
+    grep -E -v -e 'ada|dotnet|emacs|erlang|games|haskell|java|kde|media|office|qt|ros|sci|dev-tex'
+  fi |\
+  sort -u |     # sort is needed if more than one repository is configured
+  shuf >> $bl
 
+  # no replay of @sets or %commands + no simple replay of 'qlist -ICv'
+  #
   if [[ -e $origin && -s $origin/var/tmp/tb/task.history ]]; then
-    # no replay of @sets or %commands
-    # a replay of 'qlist -ICv' is intentionally not wanted
-    #
     echo "INFO finished replay of task history of $origin"            >> $bl.1st
     grep -v -E "^(%|@)" $origin/var/tmp/tb/task.history | uniq | tac  >> $bl.1st
     echo "INFO starting replay of task history of $origin"            >> $bl.1st
   fi
 
   # update @world before working on the arbitrarily choosen package list
-  # @system is just a fall back if @world stucks or takes too long
+  # @system is just a fall back for @world failure or if it takes very long
+  #
   # this is the last time where depclean is run w/o "-p" (and must succeeded)
   #
   cat << EOF >> $bl.1st
