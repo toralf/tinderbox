@@ -60,3 +60,4 @@ asciidoctor:.*cannot load such file
 ERROR: unable to find
 Package .*, required by .* not found
 .* requires .* install the dependency
+SyntaxError:
