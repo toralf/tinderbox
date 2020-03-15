@@ -931,7 +931,7 @@ function SwitchGCC() {
     gcc-config --nocolor $latest &>> $logfile
     source /etc/profile
 
-    # https://bugs.gentoo.org/459038
+    # https://bugs.gentoo.org/459038 and https://bugs.gentoo.org/639886
     #
     add2backlog "%revdep-rebuild"
 
@@ -952,27 +952,21 @@ function PostEmerge() {
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
+  # aif eg a new (g)libc was installed then regen the locales
   ls /etc/._cfg????_locale.gen &>/dev/null
   if [[ $? -eq 0 ]]; then
     locale-gen > /dev/null
     rm /etc/._cfg????_locale.gen
   else
-    grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $bak
-    if [[ $? -eq 0 ]]; then
-      locale-gen > /dev/null
-    fi
+    grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $bak && locale-gen > /dev/null
   fi
 
-  # merge the remaining config files automatically
-  # and update the runtime environment
+  # merge the remaining config files automatically and update the runtime environment
   #
   etc-update --automode -5 1>/dev/null
   env-update &>/dev/null
 
-  source /etc/profile
-  if [[ $? -ne 0 ]]; then
-    Finish 2 "can't source /etc/profile"
-  fi
+  source /etc/profile || Finish 2 "can't source /etc/profile"
 
   # the very last step after an emerge
   #
@@ -988,7 +982,7 @@ function PostEmerge() {
   grep -q ">>> Installing .* sys-kernel/gentoo-sources" $bak
   if [[ $? -eq 0 ]]; then
     current=$(eselect kernel show | grep "gentoo" | cut -f4 -d'/' -s)
-    latest=$(eselect kernel list | grep "gentoo" | tail -n 1 | awk ' { print $2 } ')
+    latest=$( eselect kernel list | grep "gentoo" | tail -n 1 | awk ' { print $2 } ')
     if [[ "$current" != "$latest" ]]; then
       eselect kernel set $latest
     fi
@@ -998,20 +992,9 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $bak
-  if [[ $? -eq 0 ]]; then
-    add2backlog "%haskell-updater"
-  fi
-
-  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $bak
-  if [[ $? -eq 0 ]]; then
-    add2backlog "%perl-cleaner --all"
-  fi
-
-  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak
-  if [[ $? -eq 0 ]]; then
-    add2backlog "%SwitchGCC"
-  fi
+  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $bak && add2backlog "%haskell-updater"
+  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $bak && add2backlog "%perl-cleaner --all"
+  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak && add2backlog "%SwitchGCC"
 
   # image update a day after the last one finished if 1st prio backlog is empty
   #
@@ -1023,15 +1006,12 @@ function PostEmerge() {
     else
       diff=0
     fi
-    if [[ $diff -ge 1 ]]; then
+    if [[ $diff -gt 0 ]]; then
       add2backlog "@system"
     fi
   fi
 
-  grep -q ">>> Installing .* dev-lang/python-[1-9]" $bak
-  if [[ $? -eq 0 ]]; then
-    add2backlog "%eselect python update"
-  fi
+  grep -q ">>> Installing .* dev-lang/python-[1-9]" $bak && add2backlog "%eselect python update"
 
   grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
