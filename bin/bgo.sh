@@ -132,17 +132,24 @@ if [[ -d ./files ]]; then
   echo
   for f in ./files/*
   do
+    bytes=$(wc --bytes < $f)
+    if [[ $bytes -eq 0 ]]; then
+      echo "skiped empty file: $f"
+      continue
+    fi
+
     # max. size from b.g.o. is 1000 KB
     #
-    if [[ $(wc -c < $f) -lt 1000000 ]]; then
-      # x-bzip matches both *.bz2 and *.tbz2
-      #
-      echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
-      echo "  $f"
-      timeout 120 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn $?
-    else
+    if [[ $bytes -gt 1000000 ]]; then
       echo "skiped too fat file: $f"
+      continue
     fi
+
+    # x-bzip matches both *.bz2 and *.tbz2
+    #
+    echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
+    echo "  $f"
+    timeout 120 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn $?
   done
 fi
 
