@@ -622,7 +622,7 @@ function SearchForAnAlreadyFiledBug() {
     do
       id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
       if [[ -n "$id" ]]; then
-        echo "$s " >> $issuedir/bgo_result  # keep a trailing space
+        echo "$s " >> $issuedir/bgo_result  # trailing space is intentionally
         break 2
       fi
     done
@@ -773,12 +773,9 @@ EOF
 #
 function SendoutIssueMail()  {
   if [[ -s $issuedir/title ]]; then
-    # do not inform a known issue twice
+    # do not inform about a known issue twice
     #
-    grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED 2>/dev/null
-    if [[ $? -eq 0 ]]; then
-      return
-    fi
+    grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED 2>/dev/null && return
     cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
   fi
   Mail "$(cat $issuedir/bgo_result 2>/dev/null)$(cat $issuedir/title)" $issuedir/body
@@ -854,7 +851,7 @@ function GotAnIssue()  {
   CollectIssueFiles
 
   phase=""          # test", "compile" etc.
-  echo "<err: no title guessed from logs>" > $issuedir/title
+  echo "internal failure: no title guessed from tinderbox logs" > $issuedir/title
   ClassifyIssue
   CompileIssueMail  # do it here so that the infamous Perl issues could be still sent manually if needed
 
@@ -977,6 +974,8 @@ function PostEmerge() {
     fi
   fi
 
+  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $bak && add2backlog "%haskell-updater"
+
   # ignore any other kernel
   #
   grep -q ">>> Installing .* sys-kernel/gentoo-sources" $bak
@@ -992,7 +991,6 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $bak && add2backlog "%haskell-updater"
   grep -q ">>> Installing .* dev-lang/perl-[1-9]" $bak && add2backlog "%perl-cleaner --all"
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $bak && add2backlog "%SwitchGCC"
 
@@ -1011,8 +1009,6 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q ">>> Installing .* dev-lang/python-[1-9]" $bak && add2backlog "%eselect python update"
-
   grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $bak
   if [[ $? -eq 0 ]]; then
     current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
@@ -1022,6 +1018,8 @@ function PostEmerge() {
       add2backlog "%eselect ruby set $latest"
     fi
   fi
+
+  grep -q ">>> Installing .* dev-lang/python-[1-9]" $bak && add2backlog "%eselect python update"
 }
 
 
