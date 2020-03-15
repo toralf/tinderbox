@@ -29,17 +29,17 @@ function stripEscapeSequences() {
 
 # send out a non-MIME-compliant email
 #
-# $1 (mandatory) is the subject,
-# $2 (optionally) contains either the body itself or a text file
+# $1 (mandatory) is the SMTP subject,
+# $2 (optionally) contains either the message or a file (maybe containing MIME encoded parts)
 #
 function Mail() {
   subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
 
-  # the Debian mailx automatically adds a MIME smtp header line
+  # the Debian mailx automatically adds a MIME SMTP header line
   # But uuencode is not MIME-compliant, therefore newer Thunderbird versions shows
   # any attachment as inline text only :-(
   #
-  # a workaround is to insert an empty smtp header line before that smtp header line to invalidate it being a smtp header line
+  # a workaround is to insert an empty SMTP header line before that SMTP header line to invalidate its special meaning
   # but do this only if there're uuencoded attachments
   #
   dummy=""
@@ -59,10 +59,8 @@ function Mail() {
 #
 function Finish()  {
   local rc=$1
+  subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
-  # although stripQuotesAndMore() will be called in Mail() run it here b/c $2 might contain quotes
-  #
-  subject=$(echo "$2" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject"
   else
@@ -545,6 +543,7 @@ function ClassifyIssue() {
             -e 's/; did you mean .* \?$//g'     \
             -e 's/(@INC contains:.*)/.../g'     \
             -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
+            -e 's,target /.*/,target <snip>/,g' \
             $issuedir/title
   fi
 }
@@ -1352,7 +1351,7 @@ fi
 while :
 do
   if [[ -f /var/tmp/tb/STOP ]]; then
-    Finish 0 "catched STOP file" /var/tmp/tb/STOP
+    Finish 0 "catched STOP file"
   fi
 
   date > $logfile
