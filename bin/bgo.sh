@@ -160,7 +160,7 @@ fi
 if [[ $newbug -eq 1 ]]; then
   assignee="-a $(cat ./assignee)"   # we expect only 1 entry here
   if [[ -s ./cc ]]; then
-    Cc="--add-cc $(cat ./cc | xargs | sed 's/ / --add-cc /g')"
+    Cc="--add-cc $(cat ./cc | grep -v -f ./assignee | xargs | sed 's/ / --add-cc /g')"    # grep is need if eg for musl the assignee was overwritten manually
   fi
   timeout 120 bugz modify $assignee $Cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
