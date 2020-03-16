@@ -1086,7 +1086,7 @@ function CheckQA() {
 # run ($1) and act on result
 #
 function RunAndCheck() {
-  ($1) &>> $logfile
+  (eval $@) &>> $logfile
   local rc=$?
 
   # prefix our log backup file with "_" to distinguish it from portages log file

@@ -200,10 +200,6 @@ function ComputeImageName()  {
     name="${name}_test"
   fi
 
-  if [[ "$musl" = "y" ]]; then
-    name="${name}_musl"
-  fi
-
   name="$(echo $name | sed -e 's/-[_-]/-/g' -e 's/-$//')"
 }
 
@@ -601,7 +597,7 @@ function CreateBacklog()  {
 
   qsearch --all --nocolor --name-only --quiet |\
   if [[ $musl = "y" ]]; then
-    grep -E -v -e 'ada|dotnet|emacs|erlang|games|haskell|java|kde|media|office|qt|ros|sci|dev-tex'
+    grep -E -v -e 'ada|dotnet|emacs|erlang|games|haskell|java|kde|ros|sci'
   fi |\
   sort -u |     # sort is needed if more than one repository is configured
   shuf >> $bl
@@ -652,12 +648,12 @@ EOF
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
   # upgrade GCC asap, but do not rebuild the existing one
   #
-  if [[ $musl = "n" && $keyword = "unstable" ]]; then
+  if [[ $keyword = "unstable" ]]; then
     #   %...      : bail out if it fails
     #   =         : do not upgrade the current (slotted) version
     # dev-libs/*  : avoid a rebuild of GCC later in @system
     #
-    echo "%emerge -u =$(ACCEPT_KEYWORDS="~amd64" portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+    echo "%emerge -u =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
     echo "sys-devel/gcc" >> $bl.1st     # rarely but possible to have a newer GCC version than the stage3 does have
   fi
@@ -906,10 +902,12 @@ if [[ $# -gt 0 ]]; then
   echo
 fi
 
-repo_gentoo=$(  portageq get_repo_path / gentoo)
-repo_libressl=$(portageq get_repo_path / libressl)
-repo_local=$(   portageq get_repo_path / local)
-repo_musl=$(    portageq get_repo_path / musl)
+# at least "portageq get_repo_path / musl" fails b/c it is not used at the host
+#
+repo_gentoo=/var/db/repos/gentoo
+repo_libressl=/var/db/repos/libressl
+repo_musl=/var/db/repos/musl
+repo_local=/var/db/repos/local
 
 tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
@@ -948,7 +946,7 @@ do
         fi
 
         useflags="$(cat $origin/etc/portage/make.conf.USE)"
-        features="$(source $origin/etc/portage/make.conf && echo $FEATURES)"
+        features="$(source $origin/etc/portage/make.conf 2>/dev/null && echo $FEATURES)"
 
         grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf && keyword="unstable" || keyword="stable"
         grep -q 'ABI_X86="32 64"'           $origin/etc/portage/make.conf && multilib="y"       || multilib="n"
