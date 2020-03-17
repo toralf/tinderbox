@@ -266,6 +266,13 @@ EOF
 }
 
 
+# strip away the version (get $PN from $P)
+#
+function pn2p() {
+  qatom --quiet "$1" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' | tr ' ' '/'
+}
+
+
 # helper of GotAnIssue()
 # get failed package and logfile names
 #
@@ -361,13 +368,6 @@ cc:       $(cat $issuedir/cc 2>/dev/null)
 --
 
 EOF
-}
-
-
-# strip away the version (get $PN from $P)
-#
-function pn2p() {
-  qatom --quiet "$1" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' | tr ' ' '/'
 }
 
 
