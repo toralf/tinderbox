@@ -132,6 +132,7 @@ function SetOptions() {
   if [[ $profile =~ "/musl" ]]; then
     musl="y"
 
+    useflags=""
     keyword="unstable"
     libressl="n"
     multilib="n"
@@ -599,7 +600,8 @@ function CreateBacklog()  {
   if [[ $musl = "y" ]]; then
     grep -E -v -e 'ada|dotnet|emacs|erlang|games|haskell|java|kde|ros|sci'
   fi |\
-  sort -u |     # sort is needed if more than one repository is configured
+  # sort is needed if more than one repository is configured
+  sort -u |\
   shuf >> $bl
 
   # no replay of @sets or %commands + no simple replay of 'qlist -ICv'
@@ -651,11 +653,11 @@ EOF
   if [[ $keyword = "unstable" ]]; then
     #   %...      : bail out if it fails
     #   =         : do not upgrade the current (slotted) version
-    # dev-libs/*  : avoid a rebuild of GCC later in @system
+    # dev-libs/*  : avoid an immediate rebuild of GCC later in @world due to an upgrade of these deps
     #
     echo "%emerge -u =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
-    echo "sys-devel/gcc" >> $bl.1st     # rarely but possible to have a newer GCC version than the stage3 does have
+    echo "sys-devel/gcc" >> $bl.1st     # rarely but possible to have a newer GCC version in the tree than the stage3 had during its built
   fi
 
   if [[ $profile =~ "systemd" ]]; then
@@ -684,13 +686,19 @@ function CreateSetupScript()  {
 #
 # set -x
 
-rsync -aC /mnt/repos/gentoo /var/db/repos/
+rsync   --archive --cvs-exclude /mnt/repos/gentoo   /var/db/repos/
 if [[ $libressl = "y" ]]; then
-  rsync -aC /mnt/repos/libressl /var/db/repos/
+  rsync --archive --cvs-exclude /mnt/repos/libressl /var/db/repos/
 fi
 if [[ $musl = "y" ]]; then
-  rsync -aC /mnt/repos/musl /var/db/repos/
+  rsync --archive --cvs-exclude /mnt/repos/musl     /var/db/repos/
 fi
+
+echo "$name" > /etc/conf.d/hostname
+useradd -u $(id -u tinderbox) tinderbox
+
+echo "Europe/Berlin" > /etc/timezone
+emerge --config sys-libs/timezone-data || exit 1
 
 if [[ $musl = "y" ]]; then
   eselect profile set --force default/linux/amd64/$profile            || exit 1
@@ -702,13 +710,8 @@ else
   else
     eselect profile set --force default/linux/amd64/17.1              || exit 1
   fi
-fi
 
-echo "Europe/Berlin" > /etc/timezone
-emerge --config sys-libs/timezone-data || exit 1
-
-cat << 2EOF >> /etc/locale.gen
-
+  cat << 2EOF >> /etc/locale.gen
 # by $0 at $(date)
 #
 en_US ISO-8859-1
@@ -719,19 +722,14 @@ de_DE.UTF-8@euro UTF-8
 
 2EOF
 
-if [[ ! $musl = "y" ]]; then
   locale-gen -j1 || exit 1
   eselect locale set en_US.UTF-8
 fi
 
-echo "$name" > /etc/conf.d/hostname
-
 env-update
 source /etc/profile
 
-useradd -u $(id -u tinderbox) tinderbox
-
-# ssmtp first to avoid that mailx pulls in another MTA
+# emerge ssmtp before mailx to avoid that mailx pulls in the ebuild default (==another) MTA
 #
 emerge -u mail-mta/ssmtp     || exit 1
 emerge -u mail-client/mailx  || exit 1
@@ -740,7 +738,7 @@ emerge -u sys-apps/portage   || exit 1
 emerge -u app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
 
 if [[ $musl = "y" ]]; then
-  cd /usr/lib && ln -s ../../usr/lib64/liblockfile.so.1       # needed for mailx to work
+  cd /usr/lib && ln -s ../../usr/lib64/liblockfile.so.1 || exit 1      # needed for mailx to work
 else
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
     # testing sys-libs/libxcrypt[system]
@@ -760,14 +758,14 @@ else
   # glibc-2.31 + python-3 dep issue
   #
   emerge -1u virtual/libcrypt || exit 1
+
+  # finally switch to the choosen profile
+  #
+  eselect profile set --force default/linux/amd64/$profile || exit 1
 fi
 
-# finally switch to the choosen profile
-#
-eselect profile set --force default/linux/amd64/$profile || exit 1
-
 if [[ $testfeature = "y" ]]; then
-  sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
+  sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf || exit 1
 fi
 
 # prefer compile/build tests over dep issue catching etc.
