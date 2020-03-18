@@ -1237,56 +1237,33 @@ function DetectALoop() {
 }
 
 
-function rsyncRepoIfNeeded() {
-  repo=$1
-
-  ts=$repo/metadata/timestamp.chk
-  gitlck=/mnt/repos/$repo/.git/index.lock
-
-  if [[ -f /var/db/repos/$ts ]]; then
-    tsMnt=$(cat /mnt/repos/$ts)
-    tsImg=$(cat /var/db/repos/$ts)
-    if [[ "$tsMnt" = "$tsImg" && ! -f $gitlck ]]; then
-      return 0  # no update needed
-    fi
-  fi
-
-  # wait till a runnig git pull finished
-  #
-  while [[ -f $gitlck ]]; do
-    sleep 1
-  done
-
-  rsync --archive --cvs-exclude --delete /mnt/repos/$repo /var/db/repos/
-
-  return 1  # an update was made
-}
-
-
 # sync all repositories with the one(s) of the host system
+# idea: keep an image specific timestamp of last sync
 #
 function updateAllRepos() {
-  udpates=0
+  cur_time=$(date -u +%s)
+  for repo in gentoo libressl musl; do
+    if [[ ! -d /var/db/repos/$repo ]]; then
+      continue
+    fi
 
-  rsyncRepoIfNeeded gentoo
-  ((updates = updates + $?))
+    rsync_timestamp=/var/tmp/tb/rsync_timestamp.$repo
+    git_timestamp=/var/db/repos/$repo/timestamp.git
 
-  if [[ -d /var/db/repos/libressl ]]; then
-    rsyncRepoIfNeeded libressl
-    ((updates = updates + $?))
-  fi
-
-  if [[ $name =~ "_musl" ]]; then
-    rsyncRepoIfNeeded musl
-    ((updates = updates + $?))
-  fi
-
-  # catch a (unlikely) race condition
-  #
-  if [[ $updates -gt 0 ]]; then
-    sleep 10
-    updateAllRepos
-  fi
+    # "-nt" does not work b/c the git timestamp file is (re-)created after every run of /root/sync_repo.sh
+    #
+    if [[ ! -f $rsync_timestamp || ! -f $git_timestamp || $(cat $rsync_timestamp) -le $(cat $git_timestamp) ]]; then
+      # wait until a (very unlikely) running external git pull finished
+      #
+      while [[ -f /mnt/repos/$repo/.git/index.lock ]]; do
+        sleep 1
+      done
+      rsync --archive --cvs-exclude --delete /mnt/repos/$repo /var/db/repos/
+      if [[ $? -eq 0 ]]; then
+        echo $cur_time > $rsync_timestamp
+      fi
+    fi
+  done
 }
 
 
@@ -1304,6 +1281,7 @@ backlog1st=/var/tmp/tb/backlog.1st  # this is the high prio backlog
 export GCC_COLORS=""
 export GREP_COLORS="never"
 export OCAML_COLOR="never"
+export CARGO_TERM_COLOR="never"
 
 # https://stackoverflow.com/questions/9485699/setupterm-could-not-find-terminal-in-python-program-using-curses
 # https://bugs.gentoo.org/683118

@@ -300,13 +300,11 @@ function UnpackStage3()  {
 }
 
 
-# configure remote (bind mounted, see chr.sh) and image specific repositories
+# configure image specific repositories (bind mounted by chr.sh or local)
 #
 function CompileRepoFiles()  {
   mkdir -p ./etc/portage/repos.conf/
 
-  # teh repos are synced explicitely in job.sh via a rsync except for "local" and "tinderbox"
-  #
   cat << EOF > ./etc/portage/repos.conf/gentoo.conf
 [gentoo]
 location = $repo_gentoo
