@@ -299,11 +299,9 @@ function getPkgVarsFromIssuelog()  {
 }
 
 
-# get assignee and cc for the b.g.o. report
+# get assignee and cc for the b.g.o. record
 #
 function GetAssigneeAndCc() {
-  # all meta info
-  #
   m=$( equery meta -m $pkgname | grep '@' | xargs )
   if [[ -z "$m" ]]; then
     echo "maintainer-needed@gentoo.org" > $issuedir/assignee
@@ -1239,35 +1237,56 @@ function DetectALoop() {
 }
 
 
-# sync all repositories with the one of of the host system
-#
-function syncRepos() {
-  ts=gentoo/metadata/timestamp.chk
-  gitlck=/mnt/repos/gentoo/.git/index.lock
+function rsyncRepoIfNeeded() {
+  repo=$1
+
+  ts=$repo/metadata/timestamp.chk
+  gitlck=/mnt/repos/$repo/.git/index.lock
 
   if [[ -f /var/db/repos/$ts ]]; then
     tsMnt=$(cat /mnt/repos/$ts)
     tsImg=$(cat /var/db/repos/$ts)
     if [[ "$tsMnt" = "$tsImg" && ! -f $gitlck ]]; then
-      return 0
+      return 0  # no update needed
     fi
   fi
 
+  # wait till a runnig git pull finished
+  #
   while [[ -f $gitlck ]]; do
     sleep 1
   done
 
-  opts="--archive --cvs-exclude --delete"
+  rsync --archive --cvs-exclude --delete /mnt/repos/$repo /var/db/repos/
 
-  rsync $opts /mnt/repos/gentoo /var/db/repos/
+  return 1  # an update was made
+}
+
+
+# sync all repositories with the one(s) of the host system
+#
+function updateAllRepos() {
+  udpates=0
+
+  rsyncRepoIfNeeded gentoo
+  ((updates = updates + $?))
 
   if [[ -d /var/db/repos/libressl ]]; then
-    rsync $opts /mnt/repos/libressl /var/db/repos/
+    rsyncRepoIfNeeded libressl
+    ((updates = updates + $?))
+  fi
+
+  if [[ $name =~ "_musl" ]]; then
+    rsyncRepoIfNeeded musl
+    ((updates = updates + $?))
   fi
 
   # catch a (unlikely) race condition
-  sleep 10
-  syncRepos
+  #
+  if [[ $updates -gt 0 ]]; then
+    sleep 10
+    updateAllRepos
+  fi
 }
 
 
@@ -1318,7 +1337,7 @@ do
   #
   rm -rf /var/tmp/portage/*
 
-  syncRepos
+  updateAllRepos
   getNextTask
   echo "$task" | tee -a $taskfile.history > $taskfile
   WorkOnTask

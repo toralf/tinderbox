@@ -305,7 +305,7 @@ function UnpackStage3()  {
 function CompileRepoFiles()  {
   mkdir -p ./etc/portage/repos.conf/
 
-  # this is synced explicitely in job.sh via a rsync call to the local host directory
+  # teh repos are synced explicitely in job.sh via a rsync except for "local" and "tinderbox"
   #
   cat << EOF > ./etc/portage/repos.conf/gentoo.conf
 [gentoo]
@@ -313,16 +313,12 @@ location = $repo_gentoo
 
 EOF
 
-  # this is used directly and not rsynced
-  #
   cat << EOF > ./etc/portage/repos.conf/tinderbox.conf
 [tinderbox]
 location = /mnt/tb/data/portage
 
 EOF
 
-  # this is an image specific rarely used local repository
-  #
   mkdir -p                  ./$repo_local/{metadata,profiles}
   echo 'masters = gentoo' > ./$repo_local/metadata/layout.conf
   echo 'local'            > ./$repo_local/profiles/repo_name
