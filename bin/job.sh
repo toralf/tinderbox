@@ -269,7 +269,7 @@ EOF
 # strip away the version (get $PN from $P)
 #
 function pn2p() {
-  qatom --quiet "$1" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' | tr ' ' '/'
+  qatom --quiet "$1" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/'
 }
 
 
