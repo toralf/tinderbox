@@ -61,3 +61,4 @@ ERROR: unable to find
 Package .*, required by .* not found
 .* requires .* install the dependency
 SyntaxError:
+but please install the FUSE libraries and headers to build this module

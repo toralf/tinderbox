@@ -86,7 +86,7 @@ t/.*.t.* module .* not found:
 t/.*.t.* Dubious,
 Unescaped left brace in regex is illegal here
 .. \[fail\]
-make:.* test
+Error: This expression has type .* but an expression was expected
 ^\?: .*
 Segmentation fault
 Test .* failed:
@@ -117,3 +117,4 @@ FAILED (.*)
 ^vet: .*
 FAIL.* \[.*\]
 Errors while running CTest
+make:.* test

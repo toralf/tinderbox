@@ -252,3 +252,4 @@ Makefile.* is required .*.*Stop
 ghc: unrecognised flag:
 trying to run .* on Elixir .* but
 This .* might be unmatched
+iconv:.*Invalid argument
