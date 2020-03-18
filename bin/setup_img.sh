@@ -411,7 +411,7 @@ ACCEPT_RESTRICT="-fetch"
 FEATURES="$features"
 EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --verbose --color=n --autounmask=n"
 CLEAN_DELAY=0
-NOCOLOR=yes
+NOCOLOR=true
 
 L10N="$l10n"
 VIDEO_CARDS="dummy"
