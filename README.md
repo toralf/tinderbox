@@ -105,7 +105,7 @@ The user *tinderbox* must have write permissions for files in *~/tb/data*.
 Edit the credentials in *~/sdata* and strip away the suffix *.sample*, set ownership/rwx-access of this subdirectory and its files to user *root* only.
 Grant sudo rights to the user *tinderbox*:
 
-    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/setup_img.sh
+    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/chr.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/sync_repo.sh
 
 ## (few) more info
 https://www.zwiebeltoralf.de/tinderbox.html
