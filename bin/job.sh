@@ -737,7 +737,8 @@ EOF
 
     echo
     echo "timestamp of HEAD at this tinderbox image:"
-    for i in /var/db/repos/*/timestamp.git; do
+    for i in /var/db/repos/*/timestamp.git
+    do
       echo -e "$(dirname $i)\t$(date -u -d @$(cat $i))"
     done
 
@@ -1231,7 +1232,8 @@ function DetectALoop() {
 
     n=$(tail -n $y $taskfile.history | grep -c "$t")
     if [[ $n -ge $x ]]; then
-      for i in $(seq 1 $y); do
+      for i in $(seq 1 $y)
+      do
         echo "#" >> $taskfile.history
       done
       Finish 1 "${n}x $t among last $y tasks"
@@ -1245,7 +1247,8 @@ function DetectALoop() {
 #
 function updateAllRepos() {
   cur_time=$(date +%s)
-  for repo in gentoo libressl musl; do
+  for repo in gentoo libressl musl
+  do
     if [[ ! -d /var/db/repos/$repo ]]; then
       continue
     fi
