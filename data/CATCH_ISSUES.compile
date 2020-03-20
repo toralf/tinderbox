@@ -233,6 +233,7 @@ ValueError: Only strings are accepted for the license field, files are not accep
 go: cannot find GOROOT directory:
 Metadata file .* could not be found
 rl:.*: .* undefined
+This crate is only compatible with
  error:.*:
 Abnormal terminated
 .go:.*:.*: undefined:
