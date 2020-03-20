@@ -62,7 +62,7 @@ function Finish()  {
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
   if [[ $rc -eq 0 ]]; then
-    Mail "Finish ok: $subject" ${3:-$logfile}
+    Mail "Finish ok: $subject"
   else
     Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$logfile}
   fi
@@ -728,23 +728,20 @@ EOF
 
     clang --version
     llvm-config --prefix --version
-    eselect python  list
-    eselect ruby    list
-    eselect rust    list
+    eselect python list
+    eselect ruby list
+    eselect rust list
     java-config --list-available-vms --nocolor
     eselect java-vm list
     ghc --version
 
     echo
-    echo "timestamp of the main tree"
-    tail -v /var/db/repos/*/metadata/timestamp*
-
-    echo
-    echo "git HEAD for repositories of this tinderbox image:"
+    echo "timestamp of HEAD at this tinderbox image:"
     for i in /var/db/repos/*/timestamp.git; do
-      echo -e "$i\t$(date -u -d @$(cat $i))"
+      echo -e "$(dirname $i)\t$(date -u -d @$(cat $i))"
     done
 
+    echo
     echo "emerge -qpvO $pkgname"
     head -n 1 $issuedir/emerge-qpvO
   ) >> $issuedir/comment0 2>/dev/null
@@ -1244,7 +1241,7 @@ function DetectALoop() {
 
 
 # sync all repositories with the one(s) of the host system
-# idea: keep an image specific timestamp of last sync
+# the timestamp.git is created by sync_repo.sh
 #
 function updateAllRepos() {
   cur_time=$(date +%s)
@@ -1253,21 +1250,16 @@ function updateAllRepos() {
       continue
     fi
 
-    rsync_timestamp=/var/tmp/tb/rsync_timestamp.$repo
-    git_timestamp=/mnt/repos/$repo/timestamp.git
+    host_repo=/mnt/repos/$repo
+    image_repo=/var/db/repos/$repo
 
-    # the more easier "-nt" would not work b/c the git timestamp file is (re-)created after every run of sync_repo.sh
-    #
-    if [[ ! -f $rsync_timestamp || ! -f $git_timestamp || $(cat $rsync_timestamp) -le $(cat $git_timestamp) ]]; then
-      # wait until a (very unlikely) running git pull (at the host) finished
+    if [[ ! -f $image_repo/timestamp.git || $(cat $image_repo/timestamp.git) != $(cat $host_repo/timestamp.git) ]]; then
+      # very unlikely: wait until a git pull at the host finished
       #
-      while [[ -f /mnt/repos/$repo/.git/index.lock ]]; do
+      while [[ -f $host_repo/.git/index.lock ]]; do
         sleep 1
       done
-      rsync --archive --cvs-exclude --delete /mnt/repos/$repo /var/db/repos/
-      if [[ $? -eq 0 ]]; then
-        echo $cur_time > $rsync_timestamp
-      fi
+      rsync --archive --cvs-exclude --delete $host_repo /var/db/repos/
     fi
   done
 }

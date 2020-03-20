@@ -23,7 +23,8 @@ cd /var/db/repos/musl/ && git pull &>> $log
 rc2=$?
 date      >> $log
 
-# update the timestamp file for each repos, used later in job.sh to decide inn each image whether to sync or not
+# set the timestamp here (used later in job.sh to decide if sync is needed)
+# b/c at the image git might not be emerged yet
 #
 for repo in gentoo libressl musl
 do
@@ -40,8 +41,9 @@ date  >> $log
 
 grep -q "warning: There are too many unreachable loose objects; run 'git prune' to remove them." $log
 if [[ $? -eq 0 ]]; then
-  cd $( portageq get_repo_path / gentoo   ) && git prune &>> $log
-  cd $( portageq get_repo_path / libressl ) && git prune &>> $log
-  cd /var/db/repos/musl/                    && git prune &>> $log
+  for repo in gentoo libressl musl
+  do
+    cd /var/db/repos/$repo && git prune &>> $log
+  done
 fi
 
