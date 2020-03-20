@@ -736,8 +736,14 @@ EOF
     ghc --version
 
     echo
-    echo "repository:"
+    echo "timestamp of the main tree"
     tail -v /var/db/repos/*/metadata/timestamp*
+
+    echo
+    echo "git HEAD for repositories of this tinderbox image:"
+    for i in /var/db/repos/*/timestamp.git; do
+      echo -e "$i\t$(date -u -d @$(cat $i))"
+    done
 
     echo "emerge -qpvO $pkgname"
     head -n 1 $issuedir/emerge-qpvO
