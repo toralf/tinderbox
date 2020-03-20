@@ -62,7 +62,7 @@ function Finish()  {
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
   if [[ $rc -eq 0 ]]; then
-    Mail "Finish ok: $subject"
+    Mail "Finish ok: $subject" ${3:-$logfile}
   else
     Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$logfile}
   fi
@@ -104,7 +104,7 @@ function setTask()  {
   else
     rm -f /var/tmp/tb/KEEP
     n=$(qlist --installed | wc -l)
-    Finish 0 "empty backlogs, $n packages installed"
+    Finish 0 "backlogs are EMPTY, $n packages installed"
   fi
 
   # splice last line from the winning backlog file
@@ -1241,7 +1241,7 @@ function DetectALoop() {
 # idea: keep an image specific timestamp of last sync
 #
 function updateAllRepos() {
-  cur_time=$(date -u +%s)
+  cur_time=$(date +%s)
   for repo in gentoo libressl musl; do
     if [[ ! -d /var/db/repos/$repo ]]; then
       continue
@@ -1250,10 +1250,10 @@ function updateAllRepos() {
     rsync_timestamp=/var/tmp/tb/rsync_timestamp.$repo
     git_timestamp=/mnt/repos/$repo/timestamp.git
 
-    # "-nt" does not work b/c the git timestamp file is (re-)created after every run of /root/sync_repo.sh
+    # the more easier "-nt" would not work b/c the git timestamp file is (re-)created after every run of sync_repo.sh
     #
     if [[ ! -f $rsync_timestamp || ! -f $git_timestamp || $(cat $rsync_timestamp) -le $(cat $git_timestamp) ]]; then
-      # wait until a (very unlikely) running external git pull finished
+      # wait until a (very unlikely) running git pull (at the host) finished
       #
       while [[ -f /mnt/repos/$repo/.git/index.lock ]]; do
         sleep 1
@@ -1290,7 +1290,7 @@ export TERM=vt100                   # maybe this makes the individual COLOR vari
 # export TERM=linux
 export TERMINFO=/etc/terminfo
 
-name=$( cat /var/tmp/tb/name )      # needed eg. for b.g.o. comment #0
+name=$(cat /var/tmp/tb/name)
 keyword="stable"
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
 if [[ $? -eq 0 ]]; then
