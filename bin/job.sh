@@ -1248,7 +1248,7 @@ function updateAllRepos() {
     fi
 
     rsync_timestamp=/var/tmp/tb/rsync_timestamp.$repo
-    git_timestamp=/var/db/repos/$repo/timestamp.git
+    git_timestamp=/mnt/repos/$repo/timestamp.git
 
     # "-nt" does not work b/c the git timestamp file is (re-)created after every run of /root/sync_repo.sh
     #
