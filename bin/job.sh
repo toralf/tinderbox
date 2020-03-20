@@ -1282,11 +1282,12 @@ export GCC_COLORS=""
 export GREP_COLORS="never"
 export OCAML_COLOR="never"
 export CARGO_TERM_COLOR="never"
+export TERM=vt100                   # maybe this makes the individual COLOR variables obsolete?
 
 # https://stackoverflow.com/questions/9485699/setupterm-could-not-find-terminal-in-python-program-using-curses
 # https://bugs.gentoo.org/683118
 #
-export TERM=linux
+# export TERM=linux
 export TERMINFO=/etc/terminfo
 
 name=$( cat /var/tmp/tb/name )      # needed eg. for b.g.o. comment #0
