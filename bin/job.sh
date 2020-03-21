@@ -506,25 +506,25 @@ function ClassifyIssue() {
     #
     cat /mnt/tb/data/CATCH_ISSUES.$phase /mnt/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
 
-    cat $pkglog | stripEscapeSequences | stripQuotesAndMore > stripped_pkglog
+    cat $pkglog | stripEscapeSequences | stripQuotesAndMore > ./stripped_pkglog
 
-    for x in x??
+    for x in ./x??
     do
-      grep -a -m 1 -B 2 -A 3 -f $x stripped_pkglog > issue
+      grep -a -m 1 -B 2 -A 3 -f $x ./stripped_pkglog > ./issue
       if [[ $? -eq 0 ]]; then
-        mv issue $issuedir
+        mv ./issue $issuedir
         sed -n '3p' < $issuedir/issue | stripQuotesAndMore > $issuedir/title # 3rd line (matches -A 3)
 
-        # if the issue file is too big, then delete at least the 1st line
+        # if the issue file is too big, then delete always the 1st line
         #
-        if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
+        while [[ $(wc -c < $issuedir/issue) -gt 1024 && $(wc -l < $issuedir/issue) -gt 1 ]]; do
           sed -i -e "1d" $issuedir/issue
-        fi
+        done
         break
       fi
     done
 
-    rm -f x?? stripped_pkglog issue
+    rm -f ./x?? ./stripped_pkglog ./issue
 
     popd 1>/dev/null
 
@@ -557,7 +557,6 @@ function ClassifyIssue() {
 #   # comment
 #   <bug id>
 #   <pattern string ready for grep -E>
-#   ...
 #
 # if <pattern> is defined more than once then the first makes it
 #
