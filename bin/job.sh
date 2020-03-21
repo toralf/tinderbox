@@ -295,6 +295,9 @@ function getPkgVarsFromIssuelog()  {
     Mail "INFO: $FUNCNAME failed for $task" $bak
   else
     pkglog=$(grep -E -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $bak)
+    if [[ ! -f $pkglog ]]; then
+      Mail "INFO: $FUNCNAME failed for $task to get $pkglog" $bak
+    fi
   fi
 }
 
@@ -472,10 +475,10 @@ function ClassifyIssue() {
   elif [[ -n $sandb ]]; then # no test at "-f" b/c it might not be allowed to be written
     foundSandboxIssue
 
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*: first defined here' $pkglog | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*: first defined here' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'fails to build with -fno-common or gcc-10'
 
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
   else
@@ -483,6 +486,7 @@ function ClassifyIssue() {
     # issue will become part of b.g.o. commment0 and should be ASCII (at least certain UTF-8 chars makes trouble)
     phase=$(
       grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog |\
+      stripEscapeSequences                                  |\
       tee $issuedir/issue                                   |\
       head -n 1                                             |\
       sed -e 's/.* failed \(.* phase\)/\1/g'                |\
