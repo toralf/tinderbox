@@ -162,7 +162,7 @@ if [[ $? -eq 0 ]]; then
   timeout 120 bugz modify --set-keywords TESTFAILURE $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
-# set assignee and cc as the last step to reduce the amount of emails created by a change
+# set assignee and cc as the last step to reduce the amount of emails sent out by bugzilla for each change at a bug report
 #
 if [[ $newbug -eq 1 ]]; then
   assignee="-a $(cat ./assignee)"   # we expect only 1 entry here
