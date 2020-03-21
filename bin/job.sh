@@ -294,9 +294,9 @@ function getPkgVarsFromIssuelog()  {
     pkgname=""
     Mail "INFO: $FUNCNAME failed for $task" $bak
   else
-    pkglog=$(grep -E -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $bak)
+    pkglog=$(grep -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $bak)
     if [[ ! -f $pkglog ]]; then
-      Mail "INFO: $FUNCNAME failed for $task to get $pkglog" $bak
+      Mail "INFO: $FUNCNAME failed for $task to get log file for $pkgname " $bak
     fi
   fi
 }
