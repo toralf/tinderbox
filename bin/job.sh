@@ -546,6 +546,9 @@ function ClassifyIssue() {
   elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
+  elif [[ -n "$(grep -m 1 -B 3 -A 0 ': error:.*.-Werror=format-security.' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
+    foundCflagsIssue "$(tail -n 1 $issuedir/issue)"
+
   else
     foundGenericIssue
   fi
