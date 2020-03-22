@@ -111,13 +111,13 @@ left=16000    # left entries in the backlog
 oldimg=""     # optional: image to be replaced
 setupargs=""  # args passed thru to setup_img.sh
 
-while getopts c:h:l:o:s: opt
+while getopts c:h:l:r:s: opt
 do
   case $opt in
     c)  compl=$OPTARG         ;;
     h)  hours=$OPTARG         ;;
     l)  left=$OPTARG          ;;
-    o)  oldimg=${OPTARG##*/}  ;;
+    r)  oldimg=${OPTARG##*/}  ;;
     s)  setupargs="$OPTARG"   ;;
     *)  echo " not implemented !"; exit 1;;
   esac
