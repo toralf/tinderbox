@@ -438,7 +438,7 @@ function foundCflagsIssue() {
 }
 
 
-# helper of ClassifyIssue()
+# helper of foundGenericIssue()
 #
 function foundTestIssue() {
   grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null
@@ -466,16 +466,10 @@ function foundTestIssue() {
 # helper of ClassifyIssue()
 #
 function foundGenericIssue() {
-    # set generic issue and title based on the error message
-    # issue will become part of b.g.o. commment0 and should be ASCII mostly (at least certain UTF-8 chars makes trouble for bugz)
     phase=$(
       grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog |\
-      stripEscapeSequences                                  |\
-      tee $issuedir/issue                                   |\
-      head -n 1                                             |\
-      sed -e 's/.* failed \(.* phase\)/\1/g'                |\
-      cut -f2 -d'('                                         |\
-      cut -f1 -d' '
+      stripEscapeSequences | tee $issuedir/issue |\
+      head -n 1  | sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' '
     )
     head -n 2 $issuedir/issue | tail -n 1 | stripQuotesAndMore > $issuedir/title
 
