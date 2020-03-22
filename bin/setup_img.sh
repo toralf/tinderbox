@@ -288,8 +288,8 @@ function UnpackStage3()  {
   # and set "trust" to 5 (==ultimately)
   #
   date
-  gpg --quiet --refresh-keys releng@gentoo.org
-  gpg --quiet --verify $f.DIGESTS.asc || exit 1
+  gpg --quiet --refresh-keys releng@gentoo.org  || exit 1
+  gpg --quiet --verify $f.DIGESTS.asc           || exit 1
   echo
 
   date
@@ -699,9 +699,6 @@ fi
 echo "$name" > /etc/conf.d/hostname
 useradd -u $(id -u tinderbox) tinderbox
 
-echo "Europe/Berlin" > /etc/timezone
-emerge --config sys-libs/timezone-data || exit 1
-
 if [[ $musl = "y" ]]; then
   eselect profile set --force default/linux/amd64/$profile            || exit 1
 else
@@ -709,8 +706,8 @@ else
   #
   if [[ $profile =~ "/no-multilib" ]]; then
     eselect profile set --force default/linux/amd64/17.1/no-multilib  || exit 1
-  else
-    eselect profile set --force default/linux/amd64/17.1              || exit 1
+  elif [[ $profile =~ "/systemd" ]]; then
+    eselect profile set --force default/linux/amd64/17.1/systemd      || exit 1
   fi
 
   cat << 2EOF >> /etc/locale.gen
@@ -730,6 +727,9 @@ fi
 
 env-update
 source /etc/profile
+
+echo "Europe/Berlin" > /etc/timezone
+emerge --config sys-libs/timezone-data || exit 1
 
 # emerge ssmtp before mailx to avoid that mailx pulls in the ebuild default (==another) MTA
 #
