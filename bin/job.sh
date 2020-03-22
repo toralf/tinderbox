@@ -76,28 +76,28 @@ function Finish()  {
 # move next item of the appropriate backlog into $task
 #
 function setTask()  {
-  # 1st prio backlog rules always
+  # 1st prio backlog rules always, filled up by setup_img.sh and by job.sh
   #
   if [[ -s $backlog1st ]]; then
     bl=$backlog1st
 
-  # Gentoo repository changes
   # backlog.upd is updated regularly by update_backlog.sh
-  # 1/8 probability if no special action is in common backlog (which might happen by cloning from an origin)
   #
-  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 8)) -eq 0 && -z "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog)" ]]; then
-    bl=/var/tmp/tb/backlog.upd
+  elif [[ -s /var/tmp/tb/backlog.upd ]]; then
+    if   [[ -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog.upd)" ]]; then
+      bl=/var/tmp/tb/backlog.upd
+    elif [[ -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog)" ]]; then
+      bl=/var/tmp/tb/backlog
+    elif [[ $(($RANDOM % 8)) -eq 0 ]]; then
+      bl=/var/tmp/tb/backlog.upd
+    else
+      bl=/var/tmp/tb/backlog
+    fi
 
-  # common backlog
-  # backlog is filled up at image setup and will only decrease
+  # common backlog is filled up by setup_img.sh and will only decrease
   #
   elif [[ -s /var/tmp/tb/backlog ]]; then
     bl=/var/tmp/tb/backlog
-
-  # last chance for updated packages
-  #
-  elif [[ -s /var/tmp/tb/backlog.upd ]]; then
-    bl=/var/tmp/tb/backlog.upd
 
   # this is the end, my friend, the end ...
   #
