@@ -127,7 +127,7 @@ if [[ -z "$oldimg" ]]; then
   LookForAnImage
 fi
 
-if [[ -n "$oldimg" ]]; then
+if [[ -n "$oldimg" && "$oldimg" != "-" ]]; then
   echo
   date
   if [[ -e ~/run/$oldimg ]]; then
