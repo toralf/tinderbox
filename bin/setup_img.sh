@@ -732,7 +732,7 @@ emerge -u sys-apps/portage   || exit 1
 emerge -u app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
 
 if [[ $musl = "y" ]]; then
-  cd /usr/lib && ln -s ../../usr/lib64/liblockfile.so.1 || exit 1      # needed for mailx to work
+  :
 else
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
     # testing sys-libs/libxcrypt[system]
