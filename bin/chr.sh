@@ -77,6 +77,8 @@ function cgroup() {
   fi
 
   echo "$$" > $sysfsdir/tasks
+
+  echo "1000000" > $sysfsdir/cpu.cfs_quota_us
 }
 
 
