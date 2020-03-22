@@ -16,3 +16,7 @@ sys-apps/portage-mgorny
 # https://bugs.gentoo.org/662396
 #
 sys-fs/static-dev
+
+# compiler hang https://bugs.gentoo.org/711098
+#
+=dev-scheme/racket-7.3

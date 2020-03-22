@@ -62,3 +62,5 @@ Package .*, required by .* not found
 .* requires .* install the dependency
 SyntaxError:
 but please install the FUSE libraries and headers to build this module
+Failed to find a unicode locale
+: fatal error:.*No such file or directory

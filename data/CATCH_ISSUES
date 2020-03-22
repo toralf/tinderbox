@@ -4,7 +4,7 @@ Fetched file: .* VERIFY FAILED!
 :Reason: Filesize does not match recorded size
 Couldn't download .* Aborting.
 Fetch failed for
- \*   multilib-strict check failed!
+ \* multilib-strict check failed!
 The ebuild phase .* has exited unexpectedly. This type of
 ecompress-file failed
 Unsupported EAPI
@@ -16,3 +16,5 @@ error: .
 sed:.*expression.*unknown option
 sed.*failed
 ^ERROR:
+.:.*: Error:
+ \* emake failed

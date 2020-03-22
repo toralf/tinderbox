@@ -2,6 +2,11 @@
 # Empty lines and comments are ignored.
 #
 
+# [tracker] packages that do not respect LDFLAGS
+#
+#331933
+#
+
 # libressl-support
 #
 561854
@@ -66,3 +71,13 @@ bfd_get_section
 #
 685160
 ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
+
+# (missing-musl-includes) - [Tracker]: missing includes for musl
+#
+713786
+: error: .* undeclared (first use in this function)|: error: .* was not declared|\.h: error:|\.h: No such file or directory
+
+#[TRACKER] packages that fail to build with format-security
+#
+713576
+: error:.*.-Werror=format-security.

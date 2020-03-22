@@ -58,8 +58,3 @@ x11-misc/mugshot
 #
 dev-lang/mlton
 sci-mathematics/twelf
-#
-#
-# known issues
-#
-sys-libs/compiler-rt-sanitizers
