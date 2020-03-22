@@ -402,6 +402,8 @@ CXXFLAGS="\${CFLAGS}"
 FCFLAGS="-O2 -pipe -march=native"
 FFLAGS="\${FCFLAGS}"
 
+LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
+
 source /etc/portage/make.conf.USE
 USE="\${USE}
 
