@@ -33,8 +33,8 @@ function check_history()  {
 
   # eg. for @system:
   #
-  # S = failed at all
-  # s = failed for a package
+  # X = @x failed at all to start
+  # x = @x failed due to a package issue
   # . = never run before
   #   = no issues
   #
