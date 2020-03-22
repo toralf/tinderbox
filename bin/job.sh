@@ -463,27 +463,11 @@ function foundTestIssue() {
 }
 
 
-# helper of GotAnIssue()
-# get the issue and a descriptive title
+# helper of ClassifyIssue()
 #
-function ClassifyIssue() {
-  touch $issuedir/{issue,title}
-
-  if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $pkglog)" ]]; then
-    foundCollisionIssue
-
-  elif [[ -n $sandb ]]; then # no test at "-f" b/c it might not be allowed to be written
-    foundSandboxIssue
-
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*: first defined here' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
-    foundCflagsIssue 'fails to build with -fno-common or gcc-10'
-
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
-    foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
-
-  else
-    # set generix issue and title based on the generix error message
-    # issue will become part of b.g.o. commment0 and should be ASCII (at least certain UTF-8 chars makes trouble)
+function foundGenericIssue() {
+    # set generic issue and title based on the error message
+    # issue will become part of b.g.o. commment0 and should be ASCII mostly (at least certain UTF-8 chars makes trouble for bugz)
     phase=$(
       grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog |\
       stripEscapeSequences                                  |\
@@ -547,6 +531,29 @@ function ClassifyIssue() {
             -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
             -e 's,target /.*/,target <snip>/,g' \
             $issuedir/title
+}
+
+
+# helper of GotAnIssue()
+# get the issue and a descriptive title
+#
+function ClassifyIssue() {
+  touch $issuedir/{issue,title}
+
+  if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $pkglog)" ]]; then
+    foundCollisionIssue
+
+  elif [[ -n $sandb ]]; then # no test at "-f" b/c it might not be allowed to be written
+    foundSandboxIssue
+
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*: first defined here' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
+    foundCflagsIssue 'fails to build with -fno-common or gcc-10'
+
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
+    foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
+
+  else
+    foundGenericIssue
   fi
 }
 
