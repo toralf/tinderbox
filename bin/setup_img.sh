@@ -66,7 +66,7 @@ function ShuffleProfile() {
   eselect profile list |\
   awk ' { print $2 } ' |\
   grep -e "^default/linux/amd64/17\.1" -e "^default/linux/amd64/17\../musl" |\
-  grep -v -e '/x32' -e '/selinux' -e '/uclibc' |\
+  grep -v -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl/hardened' |\
   cut -f4- -d'/' -s |\
   shuf
 }
