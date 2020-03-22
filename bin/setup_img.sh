@@ -410,7 +410,7 @@ USE="\${USE}
   ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
 
-$([[ ! $profile =~ "hardened" ]] && echo 'PAX_MARKINGS="none"')
+$([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"')
 $([[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"')
 ACCEPT_KEYWORDS=$([[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"')
 ACCEPT_LICENSE="* -@EULA"
@@ -662,7 +662,7 @@ EOF
     echo "sys-devel/gcc" >> $bl.1st     # rarely but possible to have a newer GCC version in the tree than the stage3 had during its built
   fi
 
-  if [[ $profile =~ "systemd" ]]; then
+  if [[ $profile =~ "/systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
   fi
 
