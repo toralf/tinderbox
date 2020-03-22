@@ -386,14 +386,21 @@ function CompileMakeConf()  {
 
   touch ./etc/portage/make.conf.USE
 
+  cflags=""
+  cflags="$cflags -falign-functions=32:25:16"   # 685160 colon-in-CFLAGS
+  cflags="$cflags -fno-common"                  # 705764 gcc-10
+  cflags="$cflags -Werror=format-security"      # 713576 by ago
+
+  # TODO:
+  # LDFLAGS="${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"  bug 331933
+
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 
-COMMON_FLAGS="-O2 -pipe -march=native -fno-common -falign-functions=32:25:16"  # test gcc-10 + bug 685160
-CFLAGS="\${COMMON_FLAGS}"
-CXXFLAGS="\${COMMON_FLAGS}"
-FCFLAGS="\${COMMON_FLAGS}"
-FFLAGS="\${COMMON_FLAGS}"
+CFLAGS="-O2 -pipe -march=native $cflags"
+CXXFLAGS="\${CFLAGS}"
+FCFLAGS="-O2 -pipe -march=native"
+FFLAGS="\${FCFLAGS}"
 
 source /etc/portage/make.conf.USE
 USE="\${USE}
@@ -490,11 +497,10 @@ function CompilePortageFiles()  {
   # re-try failing packages w/o CFLAGS quirk
   #
   cat <<EOF                                       > ./etc/portage/env/cflags_default
-COMMON_FLAGS="-O2 -pipe -march=native"
-CFLAGS="\${COMMON_FLAGS}"
-CXXFLAGS="\${COMMON_FLAGS}"
-FCFLAGS="\${COMMON_FLAGS}"
-FFLAGS="\${COMMON_FLAGS}"
+CFLAGS="-O2 -pipe -march=native"
+CXXFLAGS="\${CFLAGS}"
+FCFLAGS="\${CFLAGS}"
+FFLAGS="\${CFLAGS}"
 
 EOF
 
