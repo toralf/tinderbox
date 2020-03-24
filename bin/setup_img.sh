@@ -66,7 +66,7 @@ function ShuffleProfile() {
   eselect profile list |\
   awk ' { print $2 } ' |\
   grep -e "^default/linux/amd64/17\.1" -e "^default/linux/amd64/17\../musl" |\
-  grep -v -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl/hardened' |\
+  grep -v -e '/x32' -e '/selinux' -e '/uclibc' |\
   cut -f4- -d'/' -s |\
   shuf
 }
@@ -236,6 +236,10 @@ function UnpackStage3()  {
       stage3=$(grep "/hardened/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest)
       ;;
 
+    */musl/hardened)
+      stage3=$(grep "/musl/stage3-amd64-musl-hardened-20.*\.tar\." $latest)
+      ;;
+
     */hardened)
       stage3=$(grep "/hardened/stage3-amd64-hardened-20.*\.tar\." $latest)
       ;;
@@ -246,10 +250,6 @@ function UnpackStage3()  {
 
     */systemd)
       stage3=$(grep "/systemd/stage3-amd64-systemd-20.*\.tar\." $latest)
-      ;;
-
-    */musl/hardened)
-      stage3=$(grep "/musl/stage3-amd64-musl-hardened-20.*\.tar\." $latest)
       ;;
 
     */musl)
