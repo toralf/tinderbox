@@ -389,7 +389,7 @@ function CompileMakeConf()  {
   cflags=""
   cflags="$cflags -falign-functions=32:25:16"   # 685160 colon-in-CFLAGS
   cflags="$cflags -fno-common"                  # 705764 gcc-10
-  cflags="$cflags -Werror=format-security"      # 713576 by ago
+  cflags="$cflags -Wformat -Werror=format-security"      # 713576 by ago
 
   # TODO:
   # LDFLAGS="${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"  bug 331933
