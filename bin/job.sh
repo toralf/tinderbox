@@ -75,7 +75,7 @@ function Finish()  {
 
 # move next item of the appropriate backlog into $task
 #
-function setTask()  {
+function setTaskAndBacklog()  {
   # 1st prio backlog rules always, filled up by setup_img.sh and by job.sh
   #
   if [[ -s $backlog1st ]]; then
@@ -83,16 +83,8 @@ function setTask()  {
 
   # backlog.upd is updated regularly by update_backlog.sh
   #
-  elif [[ -s /var/tmp/tb/backlog.upd ]]; then
-    if   [[ -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog.upd)" ]]; then
-      bl=/var/tmp/tb/backlog.upd
-    elif [[ -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog)" ]]; then
-      bl=/var/tmp/tb/backlog
-    elif [[ $(($RANDOM % 8)) -eq 0 ]]; then
-      bl=/var/tmp/tb/backlog.upd
-    else
-      bl=/var/tmp/tb/backlog
-    fi
+  elif [[ -s /var/tmp/tb/backlog.upd ]] && [[ $(($RANDOM % 8)) -eq 0 || -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog.upd)" ]]; then
+    bl=/var/tmp/tb/backlog.upd
 
   # common backlog is filled up by setup_img.sh and will only decrease
   #
@@ -117,15 +109,15 @@ function setTask()  {
 # verify/parse $task accordingly to the needs of the tinderbox
 #
 function getNextTask() {
-  while :
-  do
-    setTask
+  while [[ : ]]; do
+    setTaskAndBacklog
 
     if [[ -z "$task" ]]; then
-      continue  # empty line is allowed
+      continue  # empty line is ok
 
     elif [[ $task =~ ^INFO ]]; then
       Mail "$task"
+      continue
 
     elif [[ $task =~ ^STOP ]]; then
       Finish 0 "$task"
@@ -134,7 +126,7 @@ function getNextTask() {
       continue  # comment is allowed
 
     elif [[ $task =~ ^= || $task =~ ^@ || $task =~ ^% ]]; then
-      return  # work on either a pinned version || @set || command
+      return  # work on either a pinned version || @set || %command
 
     else
       if [[ ! "$bl" = $backlog1st ]]; then
@@ -144,19 +136,14 @@ function getNextTask() {
         fi
       fi
 
-      # skip if $task is masked, keyworded eor just invalid
+      # skip if $task is masked, keyworded or just an invalid atom
       #
       best_visible=$(portageq best_visible / $task 2>/var/tmp/tb/err.tmp)
       if [[ $? -ne 0 ]]; then
-        # bail out if portage itself is broken (eg. after by a Python upgrade)
-        #
-        if [[ "$(grep -ch 'Traceback' /var/tmp/tb/err.tmp)" -ne "0" ]]; then
-          Finish 1 "FATAL: portageq broken" /var/tmp/tb/err.tmp
-        fi
         continue
       fi
 
-      # skip if $task is already installed and would be downgraded
+      # skip if $task is installed and would be downgraded
       #
       installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
