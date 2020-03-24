@@ -386,10 +386,10 @@ function CompileMakeConf()  {
 
   touch ./etc/portage/make.conf.USE
 
-  cflags=""
-  cflags="$cflags -falign-functions=32:25:16"   # 685160 colon-in-CFLAGS
-  cflags="$cflags -fno-common"                  # 705764 gcc-10
-  cflags="$cflags -Wformat -Werror=format-security"      # 713576 by ago
+  cflags="-O2 -pipe -march=native"
+  cflags="$cflags -falign-functions=32:25:16"         # 685160 colon-in-CFLAGS
+  cflags="$cflags -fno-common"                        # 705764 gcc-10
+  cflags="$cflags -Wformat -Werror=format-security"   # 713576 by ago
 
   # TODO:
   # LDFLAGS="${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"  bug 331933
@@ -397,7 +397,7 @@ function CompileMakeConf()  {
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 
-CFLAGS="-O2 -pipe -march=native $cflags"
+CFLAGS="$cflags"
 CXXFLAGS="\${CFLAGS}"
 FCFLAGS="-O2 -pipe -march=native"
 FFLAGS="\${FCFLAGS}"
