@@ -104,7 +104,7 @@ function setTask()  {
   else
     rm -f /var/tmp/tb/KEEP
     n=$(qlist --installed | wc -l)
-    Finish 0 "backlogs are EMPTY, $n packages installed"
+    Finish 0 "all backlogs are EMPTY, $n packages installed"
   fi
 
   # splice last line from the winning backlog file
