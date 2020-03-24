@@ -73,26 +73,27 @@ function Finish()  {
 }
 
 
-# move next item of the appropriate backlog into $task
+# move next item of one of the appropriate backlog into $task or Finish()
 #
 function setTaskAndBacklog()  {
-  # 1st prio backlog rules always, filled up by setup_img.sh and by job.sh
-  #
   if [[ -s $backlog1st ]]; then
     bl=$backlog1st
 
-  # backlog.upd is updated regularly by update_backlog.sh
-  #
-  elif [[ -s /var/tmp/tb/backlog.upd ]] && [[ $(($RANDOM % 8)) -eq 0 || -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog.upd)" ]]; then
+  elif [[ -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog.upd)" ]]; then
     bl=/var/tmp/tb/backlog.upd
 
-  # common backlog is filled up by setup_img.sh and will only decrease
-  #
+  elif [[ -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog)" ]]; then
+    bl=/var/tmp/tb/backlog
+
+  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 8)) -eq 0 ]]; then
+    bl=/var/tmp/tb/backlog.upd
+
   elif [[ -s /var/tmp/tb/backlog ]]; then
     bl=/var/tmp/tb/backlog
 
-  # this is the end, my friend, the end ...
-  #
+  elif [[ -s /var/tmp/tb/backlog.upd ]]; then
+    bl=/var/tmp/tb/backlog.upd
+
   else
     rm -f /var/tmp/tb/KEEP
     n=$(qlist --installed | wc -l)
