@@ -595,14 +595,6 @@ function CreateBacklog()  {
   chmod 664               $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  qsearch --all --nocolor --name-only --quiet |\
-  if [[ $musl = "y" ]]; then
-    grep -E -v -e 'ada|dotnet|emacs|erlang|games|haskell|java|kde|ros|sci'
-  fi |\
-  # sort is needed if more than one repository is configured
-  sort -u |\
-  shuf >> $bl
-
   # no replay of @sets or %commands + no simple replay of 'qlist -ICv'
   #
   if [[ -e $origin && -s $origin/var/tmp/tb/task.history ]]; then
@@ -772,6 +764,10 @@ fi
 if [[ $testfeature = "y" || $multilib = "y" || $musl = "y" ]]; then
   touch /var/tmp/tb/KEEP
 fi
+
+# sort -u is needed if more than one non-empty repository is configured
+#
+qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
 
 # symlink credential files of mail-mta/ssmtp and www-client/pybugz
 #
