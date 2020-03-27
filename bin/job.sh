@@ -481,12 +481,6 @@ function foundGenericIssue() {
       if [[ $? -eq 0 ]]; then
         mv ./issue $issuedir
         sed -n '3p' < $issuedir/issue | stripQuotesAndMore > $issuedir/title # 3rd line (matches -A 3)
-
-        # if the issue file is too big, then delete always the 1st line
-        #
-        while [[ $(wc -c < $issuedir/issue) -gt 1024 && $(wc -l < $issuedir/issue) -gt 1 ]]; do
-          sed -i -e "1d" $issuedir/issue
-        done
         break
       fi
     done
@@ -541,6 +535,12 @@ function ClassifyIssue() {
   else
     foundGenericIssue
   fi
+
+  # if the issue file is too big, then delete always the 1st line
+  #
+  while [[ $(wc -c < $issuedir/issue) -gt 1024 && $(wc -l < $issuedir/issue) -gt 1 ]]; do
+    sed -i -e "1d" $issuedir/issue
+  done
 }
 
 
