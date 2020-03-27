@@ -70,9 +70,10 @@ function StopOldImage() {
     l=$(GetLeft $oldimg)
   fi
 
-  # prevent any aside-restart-logic
+  # prevent a restart-logic
   #
-  echo -e "STOP\nSTOP\nSTOP scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left" >> ~/run/$oldimg/var/tmp/tb/backlog.1st
+  echo -e "STOP scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left" |\
+  tee ~/run/$oldimg/var/tmp/tb/STOP >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 
   if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
     echo " wait for stop ..."
@@ -105,9 +106,9 @@ if [[ -s $lck ]]; then
 fi
 echo $$ > $lck
 
-compl=4800    # completed emerge operations
+compl=5000    # min, completed emerge operations
 hours=5       # min. distance to the previous image, effectively this yields into n+1 hours
-left=16000    # left entries in the backlog
+left=16000    # max. left entries in the backlog
 oldimg=""     # optional: image to be replaced
 setupargs=""  # args passed thru to setup_img.sh
 
