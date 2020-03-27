@@ -17,11 +17,12 @@ function stripQuotesAndMore() {
 }
 
 
-# strip away colour sequences
+# strip away escape sequences, eg. colours et al.
 #
 function stripEscapeSequences() {
   perl -MTerm::ANSIColor=colorstrip -nle '
     $_ = colorstrip($_);
+    s,\x1B...,,g;
     print;
   '
 }
