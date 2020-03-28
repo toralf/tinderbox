@@ -51,12 +51,10 @@ You must install glib-genmarshal
 \-\-.*: command not found
 ./configure: line .*: syntax error near unexpected
 You do not have the SDL/SDL_.* headers installed.
-configure: error:
 Cargo package manager not found
 The Motif libraries are not installed.
 flex: could not
 asciidoctor:.*cannot load such file
-: error:
 ERROR: unable to find
 Package .*, required by .* not found
 .* requires .* install the dependency
@@ -64,3 +62,4 @@ SyntaxError:
 but please install the FUSE libraries and headers to build this module
 Failed to find a unicode locale
 : fatal error:.*No such file or directory
+C compiler cannot create executables

@@ -12,6 +12,7 @@ Unsupported EAPI
 ln: failed to create symbolic link .*: File exists
 ^Error:
 Error .
+: error:
 error: .
 sed:.*expression.*unknown option
 sed.*failed

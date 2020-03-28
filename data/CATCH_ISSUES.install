@@ -36,3 +36,4 @@ FileNotFoundError: .* No such file or directory:
 .* failed to
 : Permission denied
  note: each undeclared identifier is reported only once for each function it appears in
+Segmentation fault
