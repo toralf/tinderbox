@@ -45,7 +45,7 @@ function ThrowUseFlags()  {
   grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
   cut -f2 -d'"' -s | sort -u |\
   DropUseFlags |\
-  SelectUseFlags 50 7 |\
+  SelectUseFlags 60 7 |\
   PrintUseFlags
 
   echo
@@ -55,7 +55,7 @@ function ThrowUseFlags()  {
   grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
   cut -f1 -d ' ' -s |\
   DropUseFlags |\
-  SelectUseFlags 40 7 |\
+  SelectUseFlags 30 7 |\
   PrintUseFlags
 }
 
@@ -631,6 +631,7 @@ EOF
 %emerge @preserved-rebuild
 %emerge --unmerge openssl
 %emerge --fetchonly dev-libs/libressl net-misc/openssh net-misc/wget
+%chmod g+w     /etc/portage/package.use/00libressl
 %chgrp portage /etc/portage/package.use/00libressl
 %cp /mnt/tb/data/package.use.00libressl /etc/portage/package.use/00libressl
 EOF
