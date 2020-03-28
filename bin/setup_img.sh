@@ -53,7 +53,7 @@ function ThrowUseFlags()  {
   # global USE flags
   #
   grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
-  cut -f1 -d ' ' -s |\
+  cut -f1 -d' ' -s |\
   DropUseFlags |\
   SelectUseFlags 30 7 |\
   PrintUseFlags

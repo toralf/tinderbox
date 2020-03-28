@@ -270,7 +270,7 @@ function getPkgVarsFromIssuelog()  {
   if [[ -z "$pkg" ]]; then # eg. in postinst phase
     pkg=$(grep -m 1 -F ' * Package: ' $bak | awk ' { print $3 } ')
     if [[ -z "$pkg" ]]; then
-      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $bak | cut -f5 -d' ' -s | cut -f1 -d ',' -s)
+      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $bak | cut -f5 -d' ' -s | cut -f1 -d',' -s)
     fi
   fi
 
@@ -606,7 +606,7 @@ function SearchForAnAlreadyFiledBug() {
   #
   for i in $pkg $pkgname
   do
-    id=$(timeout 300 bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+    id=$(timeout 300 bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
     if [[ -n "$id" ]]; then
       echo "CONFIRMED " >> $issuedir/bgo_result
       break
@@ -614,7 +614,7 @@ function SearchForAnAlreadyFiledBug() {
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d ' ')
+      id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
       if [[ -n "$id" ]]; then
         echo "$s " >> $issuedir/bgo_result  # trailing space is intentionally
         break 2
