@@ -222,9 +222,11 @@ EOF
     (
       f=/var/tmp/tb/files
       cd "$workdir/.." &&\
-      find ./ -name "*.log" -o -name "testlog.*" > $f &&\
+      find ./ -name "*.log" -o -name "testlog.*" -o -wholename '*/elf/*.out' > $f &&\
       [[ -s $f ]] &&\
-      tar -cjpf $issuedir/files/logs.tbz2 --files-from $f --warning='no-file-ignored'
+      tar -cjpf $issuedir/files/logs.tbz2 \
+        --dereference --warning='no-file-removed' --warning='no-file-ignored' \
+        --files-from $f
       rm -f $f
     )
 
@@ -235,7 +237,7 @@ EOF
     # provide the whole temp dir if possible
     #
     (
-      cd "$workdir"/../.. &&\
+      cd "$workdir/../.." &&\
       [[ -d ./temp ]]     &&\
       timeout -s 15 180 tar -cjpf $issuedir/files/temp.tbz2 \
           --dereference --warning='no-file-removed' --warning='no-file-ignored'  \
