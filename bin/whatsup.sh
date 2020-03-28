@@ -21,7 +21,7 @@ function list_images() {
 # ${n} should be the minimum length to clearly distinguish the images
 #
 function PrintImageName()  {
-  n=32
+  n=23
 
   printf "%-${n}s " $(cut -c-$n <<< ${i##*/})
 }
