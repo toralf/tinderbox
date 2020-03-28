@@ -46,12 +46,12 @@ else
     [[ -z "$p" ]] && p=$line
     echo $p >> $pks
 
-    # delete package from global and various image specific files
+    # delete package from global tinderbox and from image specific portage files
     #
     sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
       ~/tb/data/ALREADY_CATCHED                   \
       ~/run/*/etc/portage/package.mask/self       \
-      ~/run/*/etc/portage/package.env/{nosandbox,test-fail-continue} 2>/dev/null
+      ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null
   done
 fi
 
