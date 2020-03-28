@@ -389,7 +389,7 @@ function CompileMakeConf()  {
   cflags="-O2 -pipe -march=native"
   cflags="$cflags -falign-functions=32:25:16"         # 685160 colon-in-CFLAGS
   cflags="$cflags -fno-common"                        # 705764 gcc-10
-  cflags="$cflags -Werror=format-security"            # 713576 by ago, but too much noise (jer, ulm)
+  cflags="$cflags -Wformat -Werror=format-security"   # 713576 by ago, but too much noise (jer, ulm)
 
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
