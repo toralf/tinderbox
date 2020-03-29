@@ -87,6 +87,11 @@ function SetOptions() {
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
   done < <(ShuffleProfile)
 
+  cflags="-O2 -pipe -march=native"
+  cflags="$cflags -falign-functions=32:25:16"         # 685160 colon-in-CFLAGS
+  cflags="$cflags -fno-common"                        # 705764 gcc-10
+  cflags="$cflags -Wformat -Werror=format-security"   # 713576 by ago, but too much noise (jer, ulm)
+
   features="xattr cgroup -news -collision-protect"
 
   # check almost unstable
@@ -133,6 +138,7 @@ function SetOptions() {
     musl="y"
 
     useflags=""
+    cflags="-O2 -pipe -march=native"
     keyword="unstable"
     libressl="n"
     multilib="n"
@@ -385,11 +391,6 @@ function CompileMakeConf()  {
   fi
 
   touch ./etc/portage/make.conf.USE
-
-  cflags="-O2 -pipe -march=native"
-  cflags="$cflags -falign-functions=32:25:16"         # 685160 colon-in-CFLAGS
-  cflags="$cflags -fno-common"                        # 705764 gcc-10
-  cflags="$cflags -Wformat -Werror=format-security"   # 713576 by ago, but too much noise (jer, ulm)
 
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
@@ -908,10 +909,12 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 SetOptions
 
-while getopts a:f:k:l:m:o:p:t:u: opt
+while getopts a:c:f:k:l:m:o:p:t:u: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
+        ;;
+    c)  cflags="$OPTARG"
         ;;
     f)  features="$OPTARG"
         ;;
@@ -939,12 +942,13 @@ do
           exit 1
         fi
 
-        useflags="$(cat $origin/etc/portage/make.conf.USE)"
+        useflags="$(source $origin/etc/portage/make.conf 2>/dev/null && echo $USE)"
+        cflags="  $(source $origin/etc/portage/make.conf 2>/dev/null && echo $CFLAGS)"
         features="$(source $origin/etc/portage/make.conf 2>/dev/null && echo $FEATURES)"
 
         grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf && keyword="unstable" || keyword="stable"
-        grep -q 'ABI_X86="32 64"'           $origin/etc/portage/make.conf && multilib="y"       || multilib="n"
-        grep -q 'FEATURES="test'            $origin/etc/portage/make.conf && testfeature="y"    || testfeature="n"
+        grep -q '^ABI_X86="32 64"'          $origin/etc/portage/make.conf && multilib="y"       || multilib="n"
+        grep -q '^FEATURES=".*test'         $origin/etc/portage/make.conf && testfeature="y"    || testfeature="n"
         [[ $origin =~ "libressl" ]] && libressl="y" || libressl="n"
         [[ $profile =~ "/musl" ]]   && musl="y"     || musl="n"
 
