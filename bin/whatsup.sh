@@ -18,12 +18,11 @@ function list_images() {
 }
 
 
-# ${n} should be the minimum length to clearly distinguish the images
+# ${n} is the minimum length to distinguish image names
 #
 function PrintImageName()  {
-  n=23
-
-  printf "%-${n}s " $(cut -c-$n <<< ${i##*/})
+  n=22
+  printf "%-${n}s " $(cut -c-$n <<< ${1##*/})
 }
 
 
@@ -148,7 +147,7 @@ function Tasks()  {
   ts=$(date +%s)
   for i in $images
   do
-    PrintImageName
+    PrintImageName $i
 
     tsk=$i/var/tmp/tb/task
     if [[ ! -f $i/var/tmp/tb/LOCK || ! -s $tsk ]]; then
@@ -186,7 +185,7 @@ function Tasks()  {
 function LastEmergeOperation()  {
   for i in $images
   do
-    PrintImageName
+    PrintImageName $i
     if [[ ! -f $i/var/tmp/tb/LOCK ]]; then
       echo
       continue
@@ -225,7 +224,7 @@ function LastEmergeOperation()  {
 function PackagesPerDay() {
   for i in $images
   do
-    PrintImageName
+    PrintImageName $i
 
     perl -F: -wane '
       # @p helds the amount of emerge operations of day $i
@@ -265,15 +264,15 @@ function CountPackages()  {
   done |\
   perl -wane '
     BEGIN {
-      my %EmergeOpsPerPackage = ();     # emerges per package
-      my $emops = 0;                    # total amount of emerge operations
+      my %EmergeOpsPerPackage = ();     # how much time each package was emerged
+      my $total_emerges = 0;            # total amount of emerge operations
     }
 
     chomp();
 
     my $package = $F[7];
     $EmergeOpsPerPackage{$package}++;
-    $emops++;
+    $total_emerges++;
 
     END {
       my %h = ();
@@ -282,17 +281,16 @@ function CountPackages()  {
       for my $key (keys %EmergeOpsPerPackage)  {
         my $value = $EmergeOpsPerPackage{$key};
         $h{$value}++;
-#         print $value, "\t", $key, "\n" if ($value > 10);
       }
 
       my $unique = 0; # packages
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};
-        printf "%i%s%i  ", $value, "x", $key;
+        printf "%i%s%i  ", $value, "x", $key;   # "amount of packages" "x" "which were emerged N times"
         $unique += $value;
       }
 
-      print "\nunique = $unique    emerge operations = $emops\n";
+      print "\nunique = $unique    emerge operations = $total_emerges\n";
     }
   '
 }
