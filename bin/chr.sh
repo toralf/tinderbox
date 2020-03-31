@@ -7,7 +7,7 @@ export LANG=C.utf8
 # chroot into an image interactively - or - run a command
 
 function mountall() {
-  # if a mount fails then do not try further
+  # if a mount fails then bail out immediately
   #
   /bin/mount -t proc       proc        $mnt/proc   &&\
   /bin/mount --rbind       /sys        $mnt/sys    &&\
@@ -27,7 +27,7 @@ function mountall() {
 
 
 function umountall()  {
-#   # umount in the reverse order as much as possible despite errors
+  # umount in the reverse order as much as possible despite errors
   #
   local rc=0
 
