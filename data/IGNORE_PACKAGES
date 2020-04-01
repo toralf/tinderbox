@@ -18,6 +18,7 @@ app-emacs/jde
 media-tv/v4l-dvb-saa716x
 net-analyzer/openvas
 net-fs/openafs
+net-libs/zeromq
 sci-libs/linux-gpib
 sys-apps/modutils
 sys-cluster/mvapich2

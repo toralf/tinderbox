@@ -7,6 +7,7 @@ configure: error: Linux kernel in .* is version .*, but version newer than .* is
 Couldn't find .* to unmerge.
 dev-python/pypy.* needs to be installed for USE=low-memory
 error: format not a string literal and no format arguments
+.-Wformat-security. ignored without .-Wformat.
 .et https:
 Fetch instructions for
 gcc version .* found, expected gcc
