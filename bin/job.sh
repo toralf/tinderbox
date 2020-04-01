@@ -24,6 +24,7 @@ function stripEscapeSequences() {
     $_ = colorstrip($_);
     s,\x1B...,,g;
     s,\x1B\x5B\x4B,,g;
+    s,\x00,\n,g;
     s,\r,\n,g;
     print;
   '
