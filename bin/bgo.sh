@@ -12,7 +12,7 @@ function Warn() {
 
   echo "
   *
-  failed with error code $rc
+  failed with error code $rc in $issuedir
   *
   "
   tail -v bgo.sh.*
@@ -64,7 +64,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 if [[ -f ./.reported ]]; then
-  echo "already reported! Do:  rm $issuedir/.reported"
+  echo "already reported - do :    rm $issuedir/.reported"
   exit 3
 fi
 
