@@ -317,6 +317,10 @@ function GetAssigneeAndCc() {
   if [[ $name =~ "_musl" ]]; then
     cat $issuedir/assignee >> $issuedir/cc
     echo "musl@gentoo.org" > $issuedir/assignee
+  
+  elif [[ $name =~ "_libressl" ]]; then
+    cat $issuedir/assignee >> $issuedir/cc
+    echo "libressl@gentoo.org" > $issuedir/assignee
   fi
 
 }
