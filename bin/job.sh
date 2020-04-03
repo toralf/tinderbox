@@ -276,22 +276,27 @@ function getPkgVarsFromIssuelog()  {
     pkg=$(grep -m 1 -F ' * Package: ' $logfile_striped | awk ' { print $3 } ')
     if [[ -z "$pkg" ]]; then
       pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $logfile_striped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
+      if [[ -z "$pkg" ]]; then
+        pkg=$(grep -F ' * Fetch failed' $logfile_striped | grep -o "'.*'" | sed "s,',,g")
+      fi
     fi
   fi
 
   pkgname=$(pn2p "$pkg")
 
-  repo_path=$( portageq get_repo_path / gentoo )
+  # double check that the values are ok
+  #
+  repo=$(portageq metadata / ebuild $pkg repository)
+  repo_path=$(portageq get_repo_path / $repo)
   if [[ ! -d $repo_path/$pkgname ]]; then
-    pkg=""
-    pkglog=""
-    pkgname=""
-    Mail "INFO: $FUNCNAME failed for $task" $logfile_striped
-  else
-    pkglog=$(grep -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $logfile_striped)
-    if [[ ! -f $pkglog ]]; then
-      Mail "INFO: $FUNCNAME failed for $task to get log file for $pkgname " $logfile_striped
-    fi
+    Mail "INFO: $FUNCNAME failed to get repo path:  >$pkg<  >$pkglog<  >$pkgname<  >$task<  >$logfile_striped<" $logfile_striped
+    return 1
+  fi
+  
+  pkglog=$(grep -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $logfile_striped)
+  if [[ ! -f $pkglog ]]; then
+    Mail "INFO: $FUNCNAME failed to get log file name:  >$pkg<  >$pkglog<  >$pkgname<  >$task<  >$logfile_striped<" $logfile_striped
+    return 1
   fi
 }
 
@@ -841,10 +846,7 @@ function GotAnIssue()  {
     Finish 1 "KILLED"
   fi
 
-  getPkgVarsFromIssuelog
-  if [[ -z "$pkg" ]]; then
-    return
-  fi
+  getPkgVarsFromIssuelog || return
 
   CreateIssueDir
   emerge -qpvO $pkgname &> $issuedir/emerge-qpvO
