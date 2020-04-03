@@ -313,16 +313,6 @@ function GetAssigneeAndCc() {
       echo "$m" | cut -f2- -d' ' > $issuedir/cc
     fi
   fi
-
-  if [[ $name =~ "_musl" ]]; then
-    cat $issuedir/assignee >> $issuedir/cc
-    echo "musl@gentoo.org" > $issuedir/assignee
-  
-  elif [[ $name =~ "_libressl" ]]; then
-    cat $issuedir/assignee >> $issuedir/cc
-    echo "libressl@gentoo.org" > $issuedir/assignee
-  fi
-
 }
 
 
@@ -620,16 +610,16 @@ function SearchForAnAlreadyFiledBug() {
   #
   for i in $pkg $pkgname
   do
-    id=$(timeout 300 bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
-    if [[ -n "$id" ]]; then
+    blocker_id=$(timeout 300 bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
+    if [[ -n "$blocker_id" ]]; then
       echo "CONFIRMED " >> $issuedir/bgo_result
       break
     fi
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
-      if [[ -n "$id" ]]; then
+      blocker_id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
+      if [[ -n "$blocker_id" ]]; then
         echo "$s " >> $issuedir/bgo_result  # trailing space is intentionally
         break 2
       fi
@@ -642,11 +632,11 @@ function SearchForAnAlreadyFiledBug() {
 # and add the top 20 b.g.o. search results too
 #
 function AddBgoCommandLine() {
-  if [[ -n "$id" ]]; then
+  if [[ -n "$blocker_id" ]]; then
     cat << EOF >> $issuedir/body
-  https://bugs.gentoo.org/show_bug.cgi?id=$id
+  https://bugs.gentoo.org/show_bug.cgi?id=$blocker_id
 
-  bgo.sh -d ~/img?/$name/$issuedir $block -c 'there is still a similar issue at $keyword amd64 tinderbox image $name (see bug $id)'
+  bgo.sh -d ~/img?/$name/$issuedir $block -c 'there is still a similar issue at $keyword amd64 tinderbox image $name (see bug $blocker_id)'
 
 
 EOF
@@ -714,7 +704,6 @@ function CompileIssueMail() {
   cp $issuedir/comment0 $issuedir/body
   AddWhoamiToComment0
 
-  SearchForBlocker
   if [[ -n "$block" ]]; then
     cat <<EOF >> $issuedir/comment0
   Please see the tracker bug for details.
@@ -862,7 +851,22 @@ function GotAnIssue()  {
   phase=""          # test", "compile" etc.
   echo "internal failure: no title guessed from tinderbox logs" > $issuedir/title
   ClassifyIssue
-  CompileIssueMail  # do it here so that the infamous Perl issues could be still sent manually if needed
+  SearchForBlocker
+
+  # special quirks
+  #
+  if [[ ! "$(cat $issuedir/assignee)" = "maintainer-needed@gentoo.org" ]]; then
+    if [[ "$blocker_id" = "561854" ]]; then
+      cat $issuedir/assignee >> $issuedir/cc
+      echo "libressl@gentoo.org" > $issuedir/assignee
+
+    elif [[ $name =~ "_musl" ]]; then
+      cat $issuedir/assignee >> $issuedir/cc
+      echo "musl@gentoo.org" > $issuedir/assignee
+    fi
+  fi
+  
+  CompileIssueMail  # do it before we might return so that the issue could be still sent manually at any time later
 
   # https://bugs.gentoo.org/596664
   #
@@ -1063,8 +1067,8 @@ function CheckQA() {
         cp $pkglog $issuedir/files/
 
         AddWhoamiToComment0
-        SearchForBlocker
         GetAssigneeAndCc
+        SearchForBlocker
         AddVersionAssigneeAndCC
         SearchForAnAlreadyFiledBug
         AddBgoCommandLine
@@ -1076,7 +1080,7 @@ function CheckQA() {
 
         chmod 777     $issuedir/
         chmod -R a+rw $issuedir/
-        if [[ -z "$id" ]]; then
+        if [[ -z "$blocker_id" ]]; then
           SendoutIssueMail
         fi
       fi
@@ -1103,7 +1107,7 @@ function RunAndCheck() {
 
   PostEmerge
 
-  id="" # # initializing needed for the b.g.o. id of a bug possible containing a similar issue
+  blocker_id="" # # initializing needed for the b.g.o. id of a bug possible containing a similar issue
 
   if [[ ! $keyword = "stable" ]]; then
     CheckQA
