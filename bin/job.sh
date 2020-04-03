@@ -700,7 +700,7 @@ function CompileIssueMail() {
   #
   sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' $issuedir/title
 
-  cat $issuedir/issue | stripQuotesAndMore > $issuedir/comment0
+  cat $issuedir/issue | stripEscapeSequences > $issuedir/comment0
 
   # cut a too long #comment0
   #
