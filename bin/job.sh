@@ -117,8 +117,8 @@ function getNextTask() {
   while [[ : ]]; do
     setTaskAndBacklog
 
-    if [[ -z "$task" ]]; then
-      continue  # empty line is ok
+    if [[ -z "$task" ||  $task =~ ^# ]]; then
+      continue  # empty line or comment
 
     elif [[ $task =~ ^INFO ]]; then
       Mail "$task"
@@ -127,42 +127,33 @@ function getNextTask() {
     elif [[ $task =~ ^STOP ]]; then
       Finish 0 "$task"
 
-    elif [[ $task =~ ^# ]]; then
-      continue  # comment is allowed
-
     elif [[ $task =~ ^= || $task =~ ^@ || $task =~ ^% ]]; then
-      return  # work on either a pinned version || @set || %command
+      break  # pinned version || @set || %command
 
     else
       if [[ ! "$bl" = $backlog1st ]]; then
-        echo "$task" | grep -q -f /mnt/tb/data/IGNORE_PACKAGES
-        if [[ $? -eq 0 ]]; then
-          continue
-        fi
+        echo "$task" | grep -q -f /mnt/tb/data/IGNORE_PACKAGES && continue
       fi
 
       # skip if $task is masked, keyworded or just an invalid atom
       #
-      best_visible=$(portageq best_visible / $task 2>/var/tmp/tb/err.tmp)
-      if [[ $? -ne 0 ]]; then
-        continue
-      fi
+      best_visible=$(portageq best_visible / $task 2>/var/tmp/tb/err.tmp) || continue
 
       # skip if $task is installed and would be downgraded
       #
       installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
-        qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '
-        if [[ $? -eq 0 ]]; then
-          continue
-        fi
+        qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > ' && continue
       fi
 
-      # $task seems to be valid, work on it
+      # $task is valid
       #
-      return
+      break
     fi
   done
+  
+  echo "tinderbox task $task" >> $logfile
+  echo "$task" | tee -a $taskfile.history > $taskfile
 }
 
 
@@ -178,7 +169,7 @@ function collectPortageDir()  {
 # b.g.o. has a limit of 1 MB
 #
 function CompressIssueFiles()  {
-  for f in $( ls $issuedir/files/* $issuedir/_* 2>/dev/null )
+  for f in $( ls $issuedir/task.log $issuedir/files/* 2>/dev/null )
   do
     if [[ $(wc -c < $f) -gt 1000000 ]]; then
       bzip2 $f
@@ -752,7 +743,7 @@ EOF
   fi
 
   AddBgoCommandLine
-  AttachFilesToBody $issuedir/emerge-info.txt $issuedir/files/* $issuedir/_* $issuedir/bugz.*
+  AttachFilesToBody $issuedir/bugz.* $issuedir/emerge-info.txt $issuedir/task.log $issuedir/files/*
 
   # prepend failed package
   #
@@ -1326,7 +1317,6 @@ do
 
   updateAllRepos
   getNextTask
-  echo "$task" | tee -a $taskfile.history > $taskfile
   WorkOnTask
 
   DetectALoop
