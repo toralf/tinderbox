@@ -18,7 +18,7 @@ Project .rostime. tried to find library .-lpthread.
 Could NOT find Boost
  was not found.
 Unable to find clang libraries
-CMake Error at
+  Could NOT find 
 Configuring incomplete, errors occurred
 extconf.rb:.* (RuntimeError)
 \-\- Could NOT find
@@ -63,3 +63,4 @@ but please install the FUSE libraries and headers to build this module
 Failed to find a unicode locale
 : fatal error:.*No such file or directory
 C compiler cannot create executables
+CMake Error at
