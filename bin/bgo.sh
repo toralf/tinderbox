@@ -157,7 +157,7 @@ if [[ -n "$block" ]]; then
   timeout 120 bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
-bzgrep -q " \* ERROR:.* failed (test phase):" $issuedir/_emerge_* 2>/dev/null
+bzgrep -q " \* ERROR:.* failed (test phase):" $issuedir/task.log 2>/dev/null
 if [[ $? -eq 0 ]]; then
   timeout 120 bugz modify --set-keywords TESTFAILURE $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
