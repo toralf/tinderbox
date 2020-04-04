@@ -72,7 +72,7 @@ function StopOldImage() {
 
   # prevent a restart-logic
   #
-  echo -e "STOP scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left" |\
+  echo -e "STOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left" |\
   tee ~/run/$oldimg/var/tmp/tb/STOP >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 
   if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
