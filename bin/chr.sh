@@ -78,7 +78,8 @@ function cgroup() {
 
   echo "$$" > $sysfsdir/tasks
 
-  echo "1000000" > $sysfsdir/cpu.cfs_quota_us
+  echo "100000" > $sysfsdir/cpu.cfs_quota_us
+  echo "100000" > $sysfsdir/cpu.cfs_period_us
 }
 
 
