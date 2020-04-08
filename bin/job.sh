@@ -1257,7 +1257,7 @@ function updateAllRepos() {
     image_repo=/var/db/repos/$repo
 
     if [[ ! -f $image_repo/timestamp.git || $(cat $image_repo/timestamp.git) != $(cat $host_repo/timestamp.git) ]]; then
-      # very unlikely: wait until a git pull at the host finished
+      # very unlikely but wait if a git pull at the host is running
       #
       while [[ -f $host_repo/.git/index.lock ]]; do
         sleep 1
