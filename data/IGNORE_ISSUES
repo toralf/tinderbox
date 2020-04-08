@@ -2,6 +2,7 @@ but please install the FUSE libraries and headers to build this module
 Cannot build with randomized sbrk. Your options
 code model kernel not supported in the 32 bit mode
  \* *CONFIG_.*is not set when it should be
+ \*   atlas needs all cpu set to performance
 CONFIG_SYSFS_DEPRECATED_V2 support detected!
 configure: error: Linux kernel in .* is version .*, but version newer than .* is not supported
 Couldn't find .* to unmerge.

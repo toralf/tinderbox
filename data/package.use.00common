@@ -22,10 +22,6 @@ dev-lang/rust             system-llvm
 #
 dev-qt/qtwebengine        jumbo-build
 
-# pulls X11 + QT
-#
-app-portage/portage-utils -qmanifest
-
 # compiled statically per default
 #
 sys-apps/busybox          -pam
