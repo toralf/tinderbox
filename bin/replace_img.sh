@@ -39,25 +39,12 @@ function LookForAnImage()  {
   while read oldimg
   do
     n=$(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog*))
-    if [[ $? -eq 0 && $n -eq 0 ]]; then
-      return
-    fi
+    [[ $? -eq 0 && $n -eq 0 ]]              && return
+    [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]]  && continue
+    [[ $(GetCompl $oldimg) -lt $compl ]]    && continue
+    [[ $(GetLeft $oldimg) -gt $left ]]      && continue
 
-    if [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]]; then
-      continue
-    fi
-
-    c=$(GetCompl $oldimg)
-    if [[ $c -lt $compl ]]; then
-      continue
-    fi
-
-    l=$(GetLeft $oldimg)
-    if [[ $l -gt $left ]]; then
-      continue
-    fi
-
-    return
+    return    # the last will made it unconditionally
   done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
 
   Finish 3
@@ -65,15 +52,10 @@ function LookForAnImage()  {
 
 
 function StopOldImage() {
-  if [[ -z "$c" || -z "$l" ]]; then
-    c=$(GetCompl $oldimg)
-    l=$(GetLeft $oldimg)
-  fi
-
   # prevent a restart-logic
   #
-  echo -e "STOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP scheduled at $(LC_TIME=de_DE.utf8 date +%R), $c completed, $l left" |\
-  tee ~/run/$oldimg/var/tmp/tb/STOP >> ~/run/$oldimg/var/tmp/tb/backlog.1st
+  echo -e "STOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP scheduled at $(LC_TIME=de_DE.utf8 date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left" |\
+  tee -a ~/run/$oldimg/var/tmp/tb/STOP >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 
   if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
     echo " wait for stop ..."
@@ -108,7 +90,7 @@ echo $$ > $lck
 
 compl=5000    # min, completed emerge operations
 hours=5       # min. distance to the previous image, effectively this yields into n+1 hours
-left=16000    # max. left entries in the backlog
+left=15000    # max. left entries in the backlog
 oldimg=""     # optional: image to be replaced
 setupargs=""  # args passed thru to setup_img.sh
 
@@ -145,12 +127,9 @@ date
 echo " setup a new image ..."
 sudo ${0%/*}/setup_img.sh $setupargs || Finish $?
 
-if [[ -n "$oldimg" ]]; then
-  echo
-  date
-  echo " delete $oldimg ..."
-  rm ~/run/$oldimg ~/logs/$oldimg.log
-fi
+rm -r ~/run/$oldimg ~/logs/$oldimg.log
 
 echo
+date
+echo " finished"
 Finish 0
