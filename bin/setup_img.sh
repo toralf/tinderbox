@@ -73,6 +73,26 @@ function ShuffleProfile() {
 }
 
 
+function ThrowCflags()  {
+  cflags="-O2 -pipe -march=native"
+
+  # 685160 colon-in-CFLAGS
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    cflags="$cflags -falign-functions=32:25:16"
+  fi
+
+  # 705764 gcc-10
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    cflags="$cflags -fno-common"
+  fi
+
+  # 713576 by ago, but too much noise (jer, ulm)
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    cflags="$cflags -Wformat -Werror=format-security"
+  fi
+}
+
+
 # helper of main()
 # will be overwritten by command line parameter if given
 #
@@ -88,11 +108,7 @@ function SetOptions() {
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
   done < <(ShuffleProfile)
 
-  cflags="-O2 -pipe -march=native"
-  cflags="$cflags -falign-functions=32:25:16"         # 685160 colon-in-CFLAGS
-  cflags="$cflags -fno-common"                        # 705764 gcc-10
-  cflags="$cflags -Wformat -Werror=format-security"   # 713576 by ago, but too much noise (jer, ulm)
-
+  ThrowCflags
   features="xattr cgroup -news -collision-protect"
 
   # check almost unstable
@@ -128,7 +144,7 @@ function SetOptions() {
     # run at most 1 image
     #
     if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
-      if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+      if [[ $(($RANDOM % 16)) -eq 0 ]]; then
         testfeature="y"
       fi
     fi
@@ -597,12 +613,14 @@ function CreateBacklog()  {
   chmod 664               $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  # no replay of @sets or %commands + no simple replay of 'qlist -ICv'
+  # no replay of @sets or %commands and no simple replay of 'qlist -ICv'
   #
   if [[ -e $origin && -s $origin/var/tmp/tb/task.history ]]; then
-    echo "INFO finished replay of task history of $origin"            >> $bl.1st
-    grep -v -E "^(%|@)" $origin/var/tmp/tb/task.history | uniq | tac  >> $bl.1st
-    echo "INFO starting replay of task history of $origin"            >> $bl.1st
+    (
+      echo "INFO finished replay of task history of $origin"
+      grep -v -E "^(%|@)" $origin/var/tmp/tb/task.history | uniq | tac
+      echo "INFO starting replay of task history of $origin"
+    ) >> $bl.1st
   fi
 
   # update @world before working on the arbitrarily choosen package list
@@ -616,7 +634,7 @@ function CreateBacklog()  {
 @world
 EOF
 
-  # whissi: this is a mysql alternative engine
+  # requested by Whissi, this is an alternative mysql engine
   #
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     echo "dev-db/percona-server" >> $bl.1st
@@ -625,9 +643,9 @@ EOF
   # switch to LibreSSL
   #
   if [[ "$libressl" = "y" ]]; then
-    # fetch crucial packages which must either be (re-)build or do act as a fallback;
-    # hint: unmerge already schedules a @preserved-rebuild but nevertheless
-    # the final @preserved-rebuild must not fail, therefore "% ..."
+    # fetch crucial packages which must either be (re-)build or do act as a fallback
+    #
+    # albeit unmerge already schedules @preserved-rebuild the final @preserved-rebuild must not fail, therefore "% ..."
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
@@ -642,23 +660,26 @@ EOF
   # at least systemd and virtualbox need (compiled) kernel sources and would fail in @preserved-rebuild otherwise
   #
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
-  # upgrade GCC asap, but do not rebuild the existing one
-  #
+
   if [[ $keyword = "unstable" ]]; then
+    # upgrade GCC asap, and avoid to rebuild the existing one (b/c the old version will be unmerged soon)
+    #
     #   %...      : bail out if it fails
     #   =         : do not upgrade the current (slotted) version
     # dev-libs/*  : avoid an immediate rebuild of GCC later in @world due to an upgrade of these deps
     #
     echo "%emerge -u =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
-    echo "sys-devel/gcc" >> $bl.1st     # rarely but possible to have a newer GCC version in the tree than the stage3 had during its built
+    # rarely but possible to have a newer GCC version in the tree than the stage3 has
+    #
+    echo "sys-devel/gcc" >> $bl.1st
   fi
 
   if [[ $profile =~ "/systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
   fi
 
-  # sometimes Python was updated as a dep during setup
+  # no-op except Python was updated during setup
   #
   echo "%eselect python update" >> $bl.1st
 }
@@ -670,7 +691,6 @@ EOF
 #     mail-*                      MTA + mailx
 #     app-arch/sharutils          uudecode
 #     app-portage/gentoolkit      equery eshowkw revdep-rebuild
-#     app-portage/portage-utils   qatom qlop
 #     www-client/pybugz           bugz
 # - dry run of @system using the desired profile
 #
@@ -725,11 +745,11 @@ emerge --config sys-libs/timezone-data || exit 1
 
 # emerge ssmtp before mailx to avoid that mailx pulls in the ebuild default (==another) MTA
 #
-emerge -u mail-mta/ssmtp     || exit 1
-emerge -u mail-client/mailx  || exit 1
+emerge mail-mta/ssmtp     || exit 1
+emerge mail-client/mailx  || exit 1
 
 emerge -u sys-apps/portage   || exit 1
-emerge -u app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz || exit 1
+emerge app-arch/sharutils app-portage/gentoolkit www-client/pybugz || exit 1
 
 if [[ $musl = "y" ]]; then
   :
@@ -737,13 +757,13 @@ else
   if [[ $(($RANDOM % 4)) -eq 0 ]]; then
     # testing sys-libs/libxcrypt[system]
     #
-    echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/libxcrypt
+    echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/00libxcrypt
 
     echo '
     sys-libs/glibc      -crypt
     sys-libs/libxcrypt  compat static-libs system
     virtual/libcrypt    static-libs
-    '                                   >> /etc/portage/package.use/libxcrypt
+    '                                   >> /etc/portage/package.use/00libxcrypt
 
     echo 'sys-libs/glibc     -crypt'    >> /etc/portage/make.profile/package.use.force
     echo 'sys-libs/libxcrypt -system'   >> /etc/portage/make.profile/package.use.mask
