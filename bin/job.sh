@@ -66,13 +66,12 @@ function Finish()  {
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
   if [[ $rc -eq 0 ]]; then
-    Mail "Finish ok: $subject"
+    Mail "Finish ok: $subject" $3
   else
     Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$logfile}
   fi
 
   rm -f /var/tmp/tb/STOP
-
   exit $rc
 }
 
@@ -99,8 +98,8 @@ function setTaskAndBacklog()  {
     bl=/var/tmp/tb/backlog.upd
 
   else
-    rm -f /var/tmp/tb/KEEP
     n=$(qlist --installed | wc -l)
+    rm -f /var/tmp/tb/KEEP
     Finish 0 "all backlogs are EMPTY, $n packages installed"
   fi
 
@@ -998,10 +997,16 @@ function PostEmerge() {
   grep -q ">>> Installing .* dev-lang/perl-[1-9]" $logfile_striped && add2backlog "%perl-cleaner --all"
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $logfile_striped && add2backlog "%SwitchGCC"
 
-  # image update a day after the last one finished if 1st prio backlog is empty
+  # if 1st prio backlog is empty then update the image one day after the last run
   #
   if [[ ! -s $backlog1st ]]; then
-    if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history && /var/tmp/tb/@world.history -nt /var/tmp/tb/@system.history ]]; then
+    if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history ]]; then
+      if [[ /var/tmp/tb/@world.history -nt /var/tmp/tb/@system.history ]]; then
+        let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@world.history) ) / 86400"
+      else
+        let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
+      fi
+    elif [[ -f /var/tmp/tb/@world.history ]]; then
       let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@world.history) ) / 86400"
     elif [[ -f /var/tmp/tb/@system.history ]]; then
       let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
