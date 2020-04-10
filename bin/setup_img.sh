@@ -140,15 +140,15 @@ function SetOptions() {
   #  FEATURES=test
   #
   testfeature="n"
-  if [[ "$keyword" = "unstable" ]]; then
-    # run at most 1 image
-    #
-    if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
-      if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-        testfeature="y"
-      fi
-    fi
-  fi
+#   if [[ "$keyword" = "unstable" ]]; then
+#     # run at most 1 image
+#     #
+#     if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
+#       if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+#         testfeature="y"
+#       fi
+#     fi
+#   fi
 
   musl="n"
   if [[ $profile =~ "/musl" ]]; then
