@@ -116,7 +116,7 @@ function getNextTask() {
   while [[ : ]]; do
     setTaskAndBacklog
 
-    if [[ -z "$task" ||  $task =~ ^# ]]; then
+    if [[ -z "$task" || $task =~ ^# ]]; then
       continue  # empty line or comment
 
     elif [[ $task =~ ^INFO ]]; then
@@ -136,7 +136,7 @@ function getNextTask() {
 
       # skip if $task is masked, keyworded or just an invalid atom
       #
-      best_visible=$(portageq best_visible / $task 2>/var/tmp/tb/err.tmp) || continue
+      best_visible=$(portageq best_visible / $task 2>/dev/null) || continue
 
       # skip if $task is installed and would be downgraded
       #
@@ -151,17 +151,14 @@ function getNextTask() {
     fi
   done
   
-  echo "tinderbox task $task" >> $logfile
-  echo "$task" | tee -a $taskfile.history > $taskfile
+  echo "$task" | tee -a $taskfile.history $logfile > $taskfile
 }
 
 
 # helper of CollectIssueFiles
 #
 function collectPortageDir()  {
-  pushd / 1>/dev/null
-  tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage
-  popd 1>/dev/null
+  (cd / && tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage)
 }
 
 
