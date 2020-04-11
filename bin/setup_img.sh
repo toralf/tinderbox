@@ -613,7 +613,7 @@ function CreateBacklog()  {
   chmod 664               $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  # no replay of @sets or %commands and no simple replay of 'qlist -ICv'
+  # no replay of 'qlist -ICv', @set or %command
   #
   if [[ -e $origin && -s $origin/var/tmp/tb/task.history ]]; then
     (
@@ -621,6 +621,12 @@ function CreateBacklog()  {
       grep -v -E "^(%|@)" $origin/var/tmp/tb/task.history | uniq | tac
       echo "INFO starting replay of task history of $origin"
     ) >> $bl.1st
+  fi
+
+  # requested by Whissi, this is an alternative mysql engine
+  #
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+    echo "dev-db/percona-server" >> $bl.1st
   fi
 
   # update @world before working on the arbitrarily choosen package list
@@ -634,17 +640,9 @@ function CreateBacklog()  {
 @world
 EOF
 
-  # requested by Whissi, this is an alternative mysql engine
-  #
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    echo "dev-db/percona-server" >> $bl.1st
-  fi
-
   # switch to LibreSSL
   #
   if [[ "$libressl" = "y" ]]; then
-    # fetch crucial packages which must either be (re-)build or do act as a fallback
-    #
     # albeit unmerge already schedules @preserved-rebuild the final @preserved-rebuild must not fail, therefore "% ..."
     #
     cat << EOF >> $bl.1st
