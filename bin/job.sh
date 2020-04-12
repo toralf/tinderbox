@@ -464,7 +464,10 @@ function foundGenericIssue() {
     # run over manually collected pattern in the order they do appear in the appropriate pattern file
     # as an attempt to get the real issue
     #
-    cat /mnt/tb/data/CATCH_ISSUES.$phase /mnt/tb/data/CATCH_ISSUES 2>/dev/null | split --lines=1 --suffix-length=2
+    (
+      [[ -n "$phase" ]] && cat /mnt/tb/data/CATCH_ISSUES.$phase
+      cat /mnt/tb/data/CATCH_ISSUES
+    ) | split --lines=1 --suffix-length=2
 
     cat $pkglog | stripEscapeSequences | stripQuotesAndMore > ./stripped_pkglog
 
