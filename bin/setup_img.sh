@@ -45,7 +45,7 @@ function ThrowUseFlags()  {
   grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
   cut -f2 -d'"' -s | sort -u |\
   DropUseFlags |\
-  SelectUseFlags 60 7 |\
+  SelectUseFlags 80 5 |\
   PrintUseFlags
 
   echo
@@ -55,7 +55,7 @@ function ThrowUseFlags()  {
   grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
   cut -f1 -d' ' -s |\
   DropUseFlags |\
-  SelectUseFlags 30 7 |\
+  SelectUseFlags 20 5 |\
   PrintUseFlags
 }
 
