@@ -440,6 +440,8 @@ function foundTestIssue() {
       $dirs
   fi
   popd 1>/dev/null
+
+  echo "TESTFAILURE" >> $issuedir/keywords
 }
 
 

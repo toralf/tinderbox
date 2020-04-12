@@ -80,8 +80,6 @@ if [[ -n "$id" ]]; then
   fi
   timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err || Error $?
 
-  grep -q "fails with FEATURES=test" $issuedir/title && timeout 120 bugz modify --set-keywords TESTFAILURE $id
-
 else
   # create a new bug report
   #
@@ -110,6 +108,14 @@ else
 
   if [[ -n "$comment" ]]; then
     timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err || Error $?
+  fi
+
+  if [[ -f $issuedir/keywords ]]; then
+    xargs -n 1 < $issuedir/keywords |\
+    while read i
+    do
+      timeout 120 bugz modify --set-keywords $i $id || Warn $?
+    done
   fi
 fi
 
