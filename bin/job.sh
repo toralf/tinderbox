@@ -291,7 +291,7 @@ function getPkgVarsFromIssuelog()  {
 # get assignee and cc for the b.g.o. record
 #
 function GetAssigneeAndCc() {
-  m=$( equery meta -m $pkgname | grep '@' | xargs )
+  m=$(equery meta -m $pkgname 2>/dev/null | grep '@' | xargs)
   if [[ -z "$m" ]]; then
     echo "maintainer-needed@gentoo.org" > $issuedir/assignee
   else
@@ -381,7 +381,7 @@ function foundCollisionIssue() {
   else
     echo "file collision with $s" > $issuedir/title
 
-    cc=$(equery meta -m $(pn2p "$s") | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
+    cc=$(equery meta -m $(pn2p "$s") 2>/dev/null | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
     if [[ -n "$cc" ]]; then
       # sort -u guarantees, that the file $issuedir/cc is read in before it will be overwritten
       #
