@@ -39,5 +39,6 @@ dev-lisp/sbcl             -threads
 app-doc/doxygen           dot
 dev-db/sqlite             -icu
 dev-lang/python           -bluetooth
+media-libs/libjpeg-turbo  -java
 media-libs/libwebp        -tiff
 net-dns/avahi             -gtk
