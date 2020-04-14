@@ -236,7 +236,7 @@ function PackagesPerDay() {
       # calculate these values for the case that current emerge runs longer than 1 day
       my $curr = $F[0];
       $first = $curr unless ($first);
-      my $i = ($curr-$first) / 86400;
+      my $i = ($curr - $first) / 86400;
 
       next unless (m/::: completed emerge/);
       $p[$i]++;
