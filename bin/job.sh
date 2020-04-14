@@ -469,7 +469,8 @@ function foundGenericIssue() {
       cat /mnt/tb/data/CATCH_ISSUES
     ) | split --lines=1 --suffix-length=2
 
-    cat $pkglog | stripEscapeSequences | stripQuotesAndMore > ./stripped_pkglog
+    # the # of echos matches -B 2 in the grep below
+    (echo; echo; cat $pkglog) | stripEscapeSequences | stripQuotesAndMore > ./stripped_pkglog
 
     for x in ./x??
     do
