@@ -10,21 +10,21 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-mailto=tor-relay@zwiebeltoralf.de
+mailto="tor-relay@zwiebeltoralf.de"
 
 log=/tmp/${0##*/}.log
 
-date       > $log
+date > $log
 eix-sync &>> $log
 rc1=$?
-# musl is not a repo used at the tinderbox host therefore eix-sync won't care for it
+
+# musl repo is not configured at the tinderbox host so eix-sync can't care for it
 #
 cd /var/db/repos/musl/ && git pull &>> $log
 rc2=$?
-date      >> $log
+date >> $log
 
-# set the timestamp here (used later in job.sh to decide if sync is needed)
-# b/c at the image git might not be emerged yet
+# set the timestamp here b/c not in each image might git already be emerged
 #
 for repo in gentoo libressl musl
 do
