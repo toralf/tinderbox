@@ -1254,18 +1254,17 @@ function DetectALoop() {
 # the timestamp.git is created by sync_repo.sh
 #
 function updateAllRepos() {
-  cur_time=$(date +%s)
   for repo in gentoo libressl musl
   do
-    if [[ ! -d /var/db/repos/$repo ]]; then
-      continue
-    fi
-
     host_repo=/mnt/repos/$repo
     image_repo=/var/db/repos/$repo
 
+    if [[ ! -d $host_repo || ! -d $image_repo ]]; then
+      continue
+    fi
+
     if [[ ! -f $image_repo/timestamp.git || $(cat $image_repo/timestamp.git) != $(cat $host_repo/timestamp.git) ]]; then
-      # very unlikely but wait if a git pull at the host is running
+      # very unlikely but if a git pull at the host is running thenw wait till it finished
       #
       while [[ -f $host_repo/.git/index.lock ]]; do
         sleep 1
