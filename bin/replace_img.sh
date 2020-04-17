@@ -38,11 +38,12 @@ function LookForAnImage()  {
   #
   while read oldimg
   do
-    n=$(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog*))
-    [[ $? -eq 0 && $n -eq 0 ]]              && return
     [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]]  && continue
+    [[ $(GetLeft $oldimg)  -gt $left  ]]    && continue
     [[ $(GetCompl $oldimg) -lt $compl ]]    && continue
-    [[ $(GetLeft $oldimg) -gt $left ]]      && continue
+
+    n=$(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog*))
+    [[ $? -eq 0 && $n -eq 0 ]] && return
 
     return    # the last will made it unconditionally
   done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
@@ -54,7 +55,7 @@ function LookForAnImage()  {
 function StopOldImage() {
   # prevent a restart-logic
   #
-  echo -e "STOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP scheduled at $(LC_TIME=de_DE.utf8 date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left" |\
+  echo -e "STOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP scheduled at $(unset LC_TIME; date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left" |\
   tee -a ~/run/$oldimg/var/tmp/tb/STOP >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 
   if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
@@ -63,7 +64,7 @@ function StopOldImage() {
       sleep 1
     done
   else
-    echo " image is already not locked"
+    echo " image is not locked"
   fi
 }
 
