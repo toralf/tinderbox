@@ -455,8 +455,6 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 QEMU_SOFTMMU_TARGETS="x86_64 i386"
 QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
 
-LLVM_TARGETS="X86"
-
 EOF
   # the "tinderbox" user have to be put in group "portage" to make this effective
   #
