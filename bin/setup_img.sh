@@ -311,8 +311,8 @@ function UnpackStage3()  {
   # and set "trust" to 5 (==ultimately)
   #
   date
-  gpg --quiet --refresh-keys releng@gentoo.org  || exit 1
-  gpg --quiet --verify $f.DIGESTS.asc           || exit 1
+  gpg --quiet --refresh-keys releng@gentoo.org
+  gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
   date
