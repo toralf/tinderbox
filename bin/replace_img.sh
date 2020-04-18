@@ -89,11 +89,11 @@ if [[ -s $lck ]]; then
 fi
 echo $$ > $lck
 
-compl=5000    # min, completed emerge operations
-hours=5       # min. distance to the previous image, effectively this yields into n+1 hours
+compl=5500    # min. completed emerge operations
+hours=6       # min. distance to the previous image, effectively this yields into n+1 hours
 left=15000    # max. left entries in the backlog
-oldimg=""     # optional: image to be replaced
-setupargs=""  # args passed thru to setup_img.sh
+oldimg=""     # optional: image to be replaced ("-" to skip this step)
+setupargs=""  # args passed to call of setup_img.sh
 
 while getopts c:h:l:r:s: opt
 do
