@@ -98,9 +98,8 @@ function setTaskAndBacklog()  {
     bl=/var/tmp/tb/backlog.upd
 
   else
-    n=$(qlist --installed | wc -l)
     rm -f /var/tmp/tb/KEEP
-    Finish 0 "all backlogs are EMPTY, $n packages installed"
+    Finish 0 "all backlogs are EMPTY, $(qlist --installed | wc -l) packages installed"
   fi
 
   # splice last line from the winning backlog file
@@ -603,7 +602,7 @@ function SearchForAnAlreadyFiledBug() {
   #
   for i in $pkg $pkgname
   do
-    blocker_id=$(timeout 300 bugz -q --columns 400 search --show-status $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
+    blocker_id=$(timeout 300 bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
     if [[ -n "$blocker_id" ]]; then
       echo "CONFIRMED " >> $issuedir/bgo_result
       break
@@ -611,7 +610,7 @@ function SearchForAnAlreadyFiledBug() {
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      blocker_id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
+      blocker_id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
       if [[ -n "$blocker_id" ]]; then
         echo "$s " >> $issuedir/bgo_result  # trailing space is intentionally
         break 2
