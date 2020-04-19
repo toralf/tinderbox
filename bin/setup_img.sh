@@ -229,11 +229,11 @@ function ComputeImageName()  {
 
 
 function CreateImageDir() {
-  cd $(readlink ~tinderbox/img) || exit 1
+  cd ~tinderbox/$(readlink ~tinderbox/img) || exit 1
   name="${name}-$(date +%Y%m%d-%H%M%S)"
   mkdir $name || exit 1
 
-  # relative path (eg ./img1) to ~tinderbox
+  # relative path (eg ./img1) from ~tinderbox
   #
   mnt=$(readlink ../img)/$name
 
