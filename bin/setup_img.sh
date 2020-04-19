@@ -641,7 +641,7 @@ EOF
   # switch to LibreSSL
   #
   if [[ "$libressl" = "y" ]]; then
-    # albeit unmerge already schedules @preserved-rebuild the final @preserved-rebuild must not fail, therefore "% ..."
+    # --unmerge already schedules @preserved-rebuild eventually but the final @preserved-rebuild should not fail, therefore "% ..."
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
@@ -653,7 +653,7 @@ EOF
 EOF
   fi
 
-  # at least systemd and virtualbox need (compiled) kernel sources and would fail in @preserved-rebuild otherwise
+  # at least systemd and virtualbox need (even more compiled?) kernel sources and would fail in @preserved-rebuild otherwise
   #
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
@@ -661,8 +661,8 @@ EOF
     # upgrade GCC asap, and avoid to rebuild the existing one (b/c the old version will be unmerged soon)
     #
     #   %...      : bail out if it fails
-    #   =         : do not upgrade the current (slotted) version
-    # dev-libs/*  : avoid an immediate rebuild of GCC later in @world due to an upgrade of these deps
+    #   =         : do not upgrade the current (slotted) version b/c we remove them immediately afterwards
+    # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of these deps
     #
     echo "%emerge -u =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
