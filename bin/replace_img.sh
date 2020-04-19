@@ -2,8 +2,6 @@
 #
 # set -x
 
-export LANG=C.utf8
-
 # replace an tinderbox image in ~/run with a newer one
 #
 
@@ -17,38 +15,47 @@ function GetCompl() {
   grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log
 }
 
+
 function GetLeft()  {
   wc -l < ~/run/$1/var/tmp/tb/backlog
 }
 
-function LookForAnImage()  {
+
+function LookForEmptyBacklogs()  {
+  while read oldimg
+  do
+    n=$(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog{,.1st})) # ignore update, it is filled hourly
+    [[ $? -eq 0 && $n -eq 0 ]] && return 0
+  done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
+
+  return 1
+}
+
+
+# look for an image being old enough and having enough emerge operations completed
+#
+function LookForAnOldEnoughImage()  {
   # wait time between 2 images
   #
   latest=$(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
   if [[ -z "$latest" ]]; then
-    Finish 3
+    return 1
   fi
 
   let "h = ( $(date +%s) - $(stat -c%Y ~/run/$latest/var/tmp/tb/setup.sh) ) / 3600"
   if [[ $h -lt $hours ]]; then
-    Finish 3
+    return 1
   fi
 
-  # look for an image being old enough and having enough emerge operations completed
-  #
   while read oldimg
   do
-    [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]]  && continue
-    [[ $(GetLeft $oldimg)  -gt $left  ]]    && continue
-    [[ $(GetCompl $oldimg) -lt $compl ]]    && continue
-
-    n=$(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog*))
-    [[ $? -eq 0 && $n -eq 0 ]] && return
-
-    return    # the last will made it unconditionally
+    [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]] && continue
+    [[ $(GetLeft $oldimg)  -gt $left    ]] && continue
+    [[ $(GetCompl $oldimg) -lt $compl   ]] && continue
+    return 0  # matches all conditions
   done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
 
-  Finish 3
+  return 1
 }
 
 
@@ -72,6 +79,7 @@ function StopOldImage() {
 #######################################################################
 #
 #
+export LANG=C.utf8
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " You are not tinderbox !"
@@ -108,7 +116,10 @@ do
 done
 
 if [[ -z "$oldimg" ]]; then
-  LookForAnImage
+  LookForEmptyBacklogs
+  if [[ $? -ne 0 ]]; then
+    LookForAnOldEnoughImage || Finish 3
+  fi
 fi
 
 if [[ -n "$oldimg" && "$oldimg" != "-" ]]; then
