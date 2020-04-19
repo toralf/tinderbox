@@ -645,7 +645,7 @@ EOF
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
-%emerge --unmerge openssl
+%emerge --unmerge dev-libs/openssl
 %emerge --fetchonly dev-libs/libressl net-misc/openssh net-misc/wget
 %chmod g+w     /etc/portage/package.use/00libressl
 %chgrp portage /etc/portage/package.use/00libressl
