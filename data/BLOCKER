@@ -2,10 +2,6 @@
 # Empty lines and comments are ignored.
 #
 
-# [tracker] packages that do not respect LDFLAGS
-#
-#331933
-#
 
 # libressl-support
 #
@@ -22,11 +18,6 @@ installs into paths that should be created at runtime
 530632
 This package has a configure.in file which has long been deprecated.
 
-# (linux-headers-5.2) - linux-headers-5.2 porting
-#
-690296
-SIOCGSTAMP
-
 # (glibc-2.30) - [TRACKER] Issues with sys-libs/glibc-2.30 (directly and indirectly)
 #
 691846
@@ -36,11 +27,6 @@ stropts.h|ambiguating new declaration of.*long int gettid|implicit declaration o
 #
 692570
 unknown type name.*my_bool|my_bool.*was not declared|my_bool undeclared
-
-# (go-1.13-sandbox) - [tracker] packages that do not build with dev-lang/go-1.13 due to the network-sandbox
-#
-693574
-dial tcp: lookup proxy.golang.org|read: connection refused
 
 # [Tracker] Missing @documentencoding in texinfo files (seen with sys-apps/texinfo-6.7)
 #
@@ -67,17 +53,12 @@ bfd_get_section
 708318
  stime|RES_
 
-#  (colon-in-CFLAGS) - (TRACKER) ebuilds using colon (:) as a sed delimiter break on CFLAGS=-falign-functions=32:25:16
+# (colon-in-CFLAGS) - (TRACKER) ebuilds using colon (:) as a sed delimiter break on CFLAGS=-falign-functions=32:25:16
 #
 685160
 ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 
-# (missing-musl-includes) - [Tracker]: missing includes for musl
-#
-713786
-: error: .* undeclared .first use in this function.|: error: .* was not declared|\.h: error:|\.h: No such file or directory
-
-#[TRACKER] packages that fail to build with format-security
+# [TRACKER] packages that fail to build with format-security
 #
 713576
 : error:.*.-Werror=format-security.
