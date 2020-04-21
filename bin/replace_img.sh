@@ -139,7 +139,7 @@ date
 echo " setup a new image ..."
 sudo ${0%/*}/setup_img.sh $setupargs || Finish $?
 
-rm -r ~/run/$oldimg ~/logs/$oldimg.log
+rm -f ~/run/$oldimg ~/logs/$oldimg.log
 
 echo
 date
