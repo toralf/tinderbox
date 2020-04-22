@@ -418,15 +418,15 @@ FCFLAGS="-O2 -pipe -march=native"
 FFLAGS="\${FCFLAGS}"
 
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
+$([[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"')
 
 source /etc/portage/make.conf.USE
 USE="\${USE}
 
   ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
 "
-
 $([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"')
-$([[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"')
+
 ACCEPT_KEYWORDS=$([[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"')
 ACCEPT_LICENSE="* -@EULA"
 ACCEPT_PROPERTIES="-interactive"
@@ -440,7 +440,6 @@ NOCOLOR=true
 L10N="$l10n"
 VIDEO_CARDS="dummy"
 
-DISTDIR="/var/cache/distfiles"
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
@@ -650,6 +649,7 @@ EOF
 %chmod g+w     /etc/portage/package.use/00libressl
 %chgrp portage /etc/portage/package.use/00libressl
 %cp /mnt/tb/data/package.use.00libressl /etc/portage/package.use/00libressl
+%emerge --fetchonly dev-libs/openssl
 EOF
   fi
 
@@ -664,7 +664,7 @@ EOF
     #   =         : do not upgrade the current (slotted) version b/c we remove them immediately afterwards
     # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of these deps
     #
-    echo "%emerge -u =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+    echo "%emerge -u --changed-use =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
     # rarely but possible to have a newer GCC version in the tree than the stage3 has
     #
