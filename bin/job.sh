@@ -400,7 +400,11 @@ function foundSandboxIssue() {
   fi
 
   echo "sandbox issue" > $issuedir/title
-  head -n 10 $sandb > $issuedir/issue 2>&1
+  if [[ -f $sandb ]]; then
+    head -n 10 $sandb > $issuedir/issue 2>&1
+  else
+    echo "Bummer; sandbox file does not exists: $sandb" > $issuedir/issue
+  fi
 }
 
 
