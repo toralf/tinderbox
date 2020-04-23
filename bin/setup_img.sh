@@ -15,7 +15,17 @@ function DropUseFlags()  {
 }
 
 
-function SelectUseFlags() {
+function PrintUseFlags() {
+  xargs -s 73 | sed -e "s,^,*/*  ,g"
+}
+
+
+function FixedUseFlag() {
+  echo "ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink"
+}
+
+
+function ThrowUseFlags() {
   n=${1:-1}
   m=${2:-0}
 
@@ -31,32 +41,6 @@ function SelectUseFlags() {
     fi
     echo -n "$flag "
   done
-}
-
-
-function PrintUseFlags() {
-  xargs -s 78 | sed 's/^/  /g'
-}
-
-
-function ThrowUseFlags()  {
-  # local USE flags
-  #
-  grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
-  cut -f2 -d'"' -s | sort -u |\
-  DropUseFlags |\
-  SelectUseFlags 80 5 |\
-  PrintUseFlags
-
-  echo
-
-  # global USE flags
-  #
-  grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
-  cut -f1 -d' ' -s |\
-  DropUseFlags |\
-  SelectUseFlags 20 5 |\
-  PrintUseFlags
 }
 
 
@@ -98,7 +82,6 @@ function ThrowCflags()  {
 #
 function SetOptions() {
   autostart="y"               # start the image after setup
-  origin=""                   # derive settings from this image
   useflags="ThrowUseFlags"
 
   # throw a profile and prefer a non-running one, but the last entry in input will make it eventually
@@ -124,7 +107,7 @@ function SetOptions() {
     fi
   fi
 
-  # a "y" yields to ABI_X86="32 64" in make.conf
+  # an "y" yields to ABI_X86="32 64" in make.conf
   #
   multilib="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
@@ -399,15 +382,9 @@ EOF
 # compile make.conf
 #
 function CompileMakeConf()  {
-  # throw up to 10 languages
+  # throw languages
   #
-  if [[ -n "$origin" && -e $origin/etc/portage/make.conf ]]; then
-    l10n=$(grep "^L10N=" $origin/etc/portage/make.conf | cut -f2- -d'=' -s | tr -d '"')
-  else
-    l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | shuf -n $(($RANDOM % 10)) | sort | xargs)"
-  fi
-
-  touch ./etc/portage/make.conf.USE
+  l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | shuf -n $(($RANDOM % 10)) | sort | xargs)"
 
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
@@ -419,12 +396,6 @@ FFLAGS="\${FCFLAGS}"
 
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 $([[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"')
-
-source /etc/portage/make.conf.USE
-USE="\${USE}
-
-  ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
-"
 $([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS=$([[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"')
@@ -455,10 +426,10 @@ QEMU_SOFTMMU_TARGETS="x86_64 i386"
 QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
 
 EOF
-  # the "tinderbox" user have to be put in group "portage" to make this effective
+#   # the "tinderbox" user needs to be in group "portage" for this being helpful
   #
-  chgrp portage ./etc/portage/make.conf{,.USE}
-  chmod g+w ./etc/portage/make.conf{,.USE}
+  chgrp portage ./etc/portage/make.conf
+  chmod g+w ./etc/portage/make.conf
 }
 
 
@@ -556,10 +527,12 @@ EOF
   if [[ "$testfeature" = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.*.00*test
   else
-    # squash IUSE=+test
+    # overwrite IUSE=+test as set in few ebuilds
     #
     echo "*/* notest" > ./etc/portage/package.env/00notest
   fi
+
+  FixedUseFlag | PrintUseFlags > ./etc/portage/package.use/00fixed
 
   touch ./var/tmp/tb/task
 
@@ -609,16 +582,6 @@ function CreateBacklog()  {
   truncate -s 0           $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
-
-  # no replay of 'qlist -ICv', @set or %command
-  #
-  if [[ -e $origin && -s $origin/var/tmp/tb/task.history ]]; then
-    (
-      echo "INFO finished replay of task history of $origin"
-      grep -v -E "^(%|@)" $origin/var/tmp/tb/task.history | uniq | tac
-      echo "INFO starting replay of task history of $origin"
-    ) >> $bl.1st
-  fi
 
   # requested by Whissi, this is an alternative mysql engine
   #
@@ -824,14 +787,14 @@ function RunSetupScript() {
 }
 
 
+# check that the USE flags do not yield to circular or other non-resolvable dependencies
+#
 function DryrunHelper() {
   date
   echo " dry run ..."
-  tail -v -n 100 $mnt/etc/portage/make.conf.USE
+  tail -v -n 1000 $mnt/etc/portage/package.use/00thrown*
   echo
 
-  # check that the thrown USE flags do not yield into circular or other non-resolvable dependencies
-  #
   nice -n 1 sudo ${0%/*}/chr.sh $mnt 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log'
   local rc=$?
 
@@ -863,14 +826,22 @@ function Dryrun() {
       date
       echo "i=$i==========================================================="
       echo
-      cat << EOF > $mnt/etc/portage/make.conf.USE
-USE="
-$(ThrowUseFlags)
-"
-EOF
+
+      grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
+      cut -f2 -d'"' -s | sort -u |\
+      DropUseFlags |\
+      ThrowUseFlags 80 5 |\
+      PrintUseFlags > $mnt/etc/portage/package.use/00thrown_from_metadata
+
+      grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
+      cut -f1 -d' ' -s |\
+      DropUseFlags |\
+      ThrowUseFlags 20 5 |\
+      PrintUseFlags > $mnt/etc/portage/package.use/00thrown_from_profile
+
       DryrunHelper && break
 
-      # after a given amount of attempts hold for a while to hope that the portage tree will be healed ...
+      # hold on in the hope that the portage tree is healed afterwards ...
       #
       if [[ $(($i % 20)) = 0 ]]; then
         echo -e "\n\n TOO MUCH ATTEMPTS, WILL WAIT 1 HOUR ...\n\n"
@@ -879,12 +850,7 @@ EOF
 
     done
   else
-    cat << EOF > $mnt/etc/portage/make.conf.USE
-USE="
-${useflags}
-"
-EOF
-
+    echo ${useflags} | PrintUseFlags > $mnt/etc/portage/package.use/00given_at_setup
     DryrunHelper || exit $?
   fi
 
@@ -926,7 +892,7 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 SetOptions
 
-while getopts a:c:f:k:l:m:o:p:t:u: opt
+while getopts a:c:f:k:l:m:p:t:u: opt
 do
   case $opt in
     a)  autostart="$OPTARG"
@@ -945,36 +911,11 @@ do
         ;;
     m)  multilib="$OPTARG"
         ;;
-    o)  # derive certain image configuration(s) from a given origin
-        #
-        origin="$OPTARG"
-        if [[ ! -e $origin ]]; then
-          echo " \$origin '$origin' doesn't exist"
-          exit 1
-        fi
-
-        profile=$(cd $origin && readlink ./etc/portage/make.profile | sed -e 's,.*/profiles/,,' | cut -f4- -d'/' -s)
-        if [[ -z "$profile" ]]; then
-          echo " can't derive \$profile from '$origin'"
-          exit 1
-        fi
-
-        useflags="$(source $origin/etc/portage/make.conf 2>/dev/null && echo $USE)"
-        cflags="  $(source $origin/etc/portage/make.conf 2>/dev/null && echo $CFLAGS)"
-        features="$(source $origin/etc/portage/make.conf 2>/dev/null && echo $FEATURES)"
-
-        grep -q '^ACCEPT_KEYWORDS=.*~amd64' $origin/etc/portage/make.conf && keyword="unstable" || keyword="stable"
-        grep -q '^ABI_X86="32 64"'          $origin/etc/portage/make.conf && multilib="y"       || multilib="n"
-        grep -q '^FEATURES=".*test'         $origin/etc/portage/make.conf && testfeature="y"    || testfeature="n"
-        [[ $origin =~ "libressl" ]] && libressl="y" || libressl="n"
-        [[ $profile =~ "/musl" ]]   && musl="y"     || musl="n"
-
-        ;;
     p)  profile=$OPTARG
         ;;
     t)  testfeature="$OPTARG"
         ;;
-    u)  useflags="$(echo $OPTARG | PrintUseFlags)"
+    u)  useflags="$OPTARG"
         ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 1
