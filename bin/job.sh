@@ -187,14 +187,14 @@ function CollectIssueFiles() {
 EOF
   ($cmd) &>> $ehist
 
-  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $logfile_striped | grep "\.out"          | cut -f5 -d' ' -s)
-  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $logfile_striped | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
-  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $logfile_striped | sed  "s/txt./txt/"    | cut -f8 -d' ' -s)
-  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $logfile_striped | grep "\.log"          | cut -f2 -d' ' -s)
-  envir=$(grep -m 1      'The ebuild environment file is located at'                 $logfile_striped                         | cut -f2 -d"'" -s)
-  salso=$(grep -m 1 -A 2 ' See also'                                                 $logfile_striped | grep "\.log"          | awk '{ print $1 }' )
-  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $logfile_striped                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
-  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $logfile_striped | grep "/LastTest\.log" | awk ' { print $2 } ')
+  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $logfile_stripped | grep "\.out"          | cut -f5 -d' ' -s)
+  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $logfile_stripped | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
+  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $logfile_stripped | sed  "s/txt./txt/"    | cut -f8 -d' ' -s)
+  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $logfile_stripped | grep "\.log"          | cut -f2 -d' ' -s)
+  envir=$(grep -m 1      'The ebuild environment file is located at'                 $logfile_stripped                         | cut -f2 -d"'" -s)
+  salso=$(grep -m 1 -A 2 ' See also'                                                 $logfile_stripped | grep "\.log"          | awk '{ print $1 }' )
+  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $logfile_stripped                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
+  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $logfile_stripped | grep "/LastTest\.log" | awk ' { print $2 } ')
 
   for f in $ehist $pkglog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
   do
@@ -259,11 +259,11 @@ function pn2p() {
 function getPkgVarsFromIssuelog()  {
   pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
   if [[ -z "$pkg" ]]; then # eg. in postinst phase
-    pkg=$(grep -m 1 -F ' * Package: ' $logfile_striped | awk ' { print $3 } ')
+    pkg=$(grep -m 1 -F ' * Package: ' $logfile_stripped | awk ' { print $3 } ')
     if [[ -z "$pkg" ]]; then
-      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $logfile_striped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
+      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $logfile_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
       if [[ -z "$pkg" ]]; then
-        pkg=$(grep -F ' * Fetch failed' $logfile_striped | grep -o "'.*'" | sed "s,',,g")
+        pkg=$(grep -F ' * Fetch failed' $logfile_stripped | grep -o "'.*'" | sed "s,',,g")
       fi
     fi
   fi
@@ -275,13 +275,13 @@ function getPkgVarsFromIssuelog()  {
   repo=$(portageq metadata / ebuild $pkg repository)
   repo_path=$(portageq get_repo_path / $repo)
   if [[ ! -d $repo_path/$pkgname ]]; then
-    Mail "INFO: $FUNCNAME failed to get repo path:  >$pkg<  >$pkglog<  >$pkgname<  >$task<  >$logfile_striped<" $logfile_striped
+    Mail "INFO: $FUNCNAME failed to get repo path:  >$pkg<  >$pkglog<  >$pkgname<  >$task<  >$logfile_stripped<" $logfile_stripped
     return 1
   fi
   
-  pkglog=$(grep -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $logfile_striped)
+  pkglog=$(grep -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $logfile_stripped)
   if [[ ! -f $pkglog ]]; then
-    Mail "INFO: $FUNCNAME failed to get log file name:  >$pkg<  >$pkglog<  >$pkgname<  >$task<  >$logfile_striped<" $logfile_striped
+    Mail "INFO: $FUNCNAME failed to get log file name:  >$pkg<  >$pkglog<  >$pkgname<  >$task<  >$logfile_stripped<" $logfile_stripped
     return 1
   fi
 }
@@ -368,11 +368,11 @@ function CreateIssueDir() {
 # helper of ClassifyIssue()
 #
 function foundCollisionIssue() {
-  grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_striped | grep -B 15 ' * Package .* NOT' > $issuedir/issue
+  grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_stripped | grep -B 15 ' * Package .* NOT' > $issuedir/issue
 
   # get package (name+version) of the sibbling package
   #
-  s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_striped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
+  s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_stripped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
 
   if [[ -z "$s" ]]; then
     echo "file collision" > $issuedir/title
@@ -795,9 +795,9 @@ function PutDepsIntoWorldFile() {
 # for ABI_X86="32 64" we have two ./work directories in /var/tmp/portage/<category>/<name>
 #
 function setWorkDir() {
-  workdir=$(fgrep -m 1 " * Working directory: '" $logfile_striped | cut -f2 -d"'" -s)
+  workdir=$(fgrep -m 1 " * Working directory: '" $logfile_stripped | cut -f2 -d"'" -s)
   if [[ ! -d "$workdir" ]]; then
-    workdir=$(fgrep -m 1 ">>> Source unpacked in " $logfile_striped | cut -f5 -d" " -s)
+    workdir=$(fgrep -m 1 ">>> Source unpacked in " $logfile_stripped | cut -f5 -d" " -s)
     if [[ ! -d "$workdir" ]]; then
       workdir=/var/tmp/portage/$pkg/work/${pkg##*/}
       if [[ ! -d "$workdir" ]]; then
@@ -820,17 +820,17 @@ function add2backlog()  {
 # collect files and compile an email
 #
 function GotAnIssue()  {
-  grep -q -F '^>>> Installing ' $logfile_striped
+  grep -q -F '^>>> Installing ' $logfile_stripped
   if [[ $? -eq 0 ]]; then
     PutDepsIntoWorldFile &>/dev/null
   fi
 
-  fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $logfile_striped)
+  fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $logfile_stripped)
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
   fi
 
-  grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $logfile_striped
+  grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $logfile_stripped
   if [[ $? -eq 0 ]]; then
     Finish 1 "KILLED"
   fi
@@ -964,7 +964,7 @@ function PostEmerge() {
     locale-gen > /dev/null
     rm /etc/._cfg????_locale.gen
   else
-    grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $logfile_striped && locale-gen > /dev/null
+    grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $logfile_stripped && locale-gen > /dev/null
   fi
 
   # merge the remaining config files automatically and update the runtime environment
@@ -976,18 +976,18 @@ function PostEmerge() {
 
   # the very last step after an emerge
   #
-  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $logfile_striped
+  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $logfile_stripped
   if [[ $? -eq 0 ]]; then
     if [[ ! $task =~ "@preserved-rebuild" || $try_again -eq 0 ]]; then
       add2backlog "@preserved-rebuild"
     fi
   fi
 
-  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $logfile_striped && add2backlog "%haskell-updater"
+  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $logfile_stripped && add2backlog "%haskell-updater"
 
   # ignore any other kernel
   #
-  grep -q ">>> Installing .* sys-kernel/gentoo-sources" $logfile_striped
+  grep -q ">>> Installing .* sys-kernel/gentoo-sources" $logfile_stripped
   if [[ $? -eq 0 ]]; then
     current=$(eselect kernel show | grep "gentoo" | cut -f4 -d'/' -s)
     latest=$( eselect kernel list | grep "gentoo" | tail -n 1 | awk ' { print $2 } ')
@@ -1000,8 +1000,8 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $logfile_striped && add2backlog "%perl-cleaner --all"
-  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $logfile_striped && add2backlog "%SwitchGCC"
+  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $logfile_stripped && add2backlog "%perl-cleaner --all"
+  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $logfile_stripped && add2backlog "%SwitchGCC"
 
   # if 1st prio backlog is empty then update the image one day after the last run
   #
@@ -1024,7 +1024,7 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $logfile_striped
+  grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $logfile_stripped
   if [[ $? -eq 0 ]]; then
     current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
     latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
@@ -1034,7 +1034,7 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q ">>> Installing .* dev-lang/python-[1-9]" $logfile_striped && add2backlog "%eselect python update"
+  grep -q ">>> Installing .* dev-lang/python-[1-9]" $logfile_stripped && add2backlog "%eselect python update"
 }
 
 
@@ -1104,8 +1104,8 @@ function RunAndCheck() {
   (eval $@) &>> $logfile
   local rc=$?
 
-  logfile_striped=/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).log
-  stripEscapeSequences < $logfile > $logfile_striped
+  logfile_stripped=/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).log
+  stripEscapeSequences < $logfile > $logfile_stripped
 
   PostEmerge
 
@@ -1129,7 +1129,7 @@ function RunAndCheck() {
           -e 'It may be possible to solve this problem by using package.mask to' \
           -e '* Invalid resume list:' \
           -e 'Dependencies could not be completely resolved due to' \
-          $logfile_striped
+          $logfile_stripped
   if [[ $? -eq 0 ]]; then
     return $rc
   fi
@@ -1141,7 +1141,7 @@ function RunAndCheck() {
     if [[ $signal -eq 9 ]]; then
       Finish 0 "catched signal $signal - exiting"
     else
-      Mail "INFO: emerge got signal $signal" $logfile_striped
+      Mail "INFO: emerge got signal $signal" $logfile_stripped
     fi
   fi
 
@@ -1202,7 +1202,7 @@ function WorkOnTask() {
           if [[ -n "$pkg" ]]; then
             add2backlog "%emerge --resume --skip-first"
           else
-            grep -q ' Invalid resume list:' $logfile_striped
+            grep -q ' Invalid resume list:' $logfile_stripped
             if [[ $? -eq 0 ]]; then
               add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
             fi
