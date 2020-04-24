@@ -596,6 +596,7 @@ function CreateBacklog()  {
   #
   cat << EOF >> $bl.1st
 %emerge --depclean
+@world
 @system
 @world
 EOF
@@ -603,7 +604,7 @@ EOF
   # switch to LibreSSL
   #
   if [[ "$libressl" = "y" ]]; then
-    # --unmerge already schedules @preserved-rebuild eventually but the final @preserved-rebuild should not fail, therefore "% ..."
+    # --unmerge already schedules @preserved-rebuild but the final @preserved-rebuild should not fail, therefore "% ..."
     #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
