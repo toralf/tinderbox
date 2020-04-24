@@ -82,12 +82,6 @@ function setTaskAndBacklog()  {
   if [[ -s $backlog1st ]]; then
     bl=$backlog1st
 
-  elif [[ -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog.upd)" ]]; then
-    bl=/var/tmp/tb/backlog.upd
-
-  elif [[ -n "$(grep -E '^(INFO|STOP|@|%)' /var/tmp/tb/backlog)" ]]; then
-    bl=/var/tmp/tb/backlog
-
   elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 4)) -eq 0 ]]; then
     bl=/var/tmp/tb/backlog.upd
 
