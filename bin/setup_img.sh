@@ -11,7 +11,7 @@
 # helper of ThrowUseFlags()
 #
 function DropUseFlags()  {
-  egrep -v -e '32|64|^armv|bindist|bootstrap|build|cdinstall|compile-locales|consolekit|debug|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|make-symlinks|malloc|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|pax|perftools|prefix|tools|selinux|split-usr|static|symlink|system|systemd|test|uclibc|vaapi|vdpau|vim-syntax|vulkan'
+  egrep -v -e '32|64|^armv|bindist|bootstrap|build|cdinstall|compile-locales|consolekit|debug|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|make-symlinks|malloc|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|vaapi|valgrind|vdpau|vim-syntax|vulkan'
 }
 
 
@@ -127,17 +127,11 @@ function SetOptions() {
 #     fi
 #   fi
 
-  musl="n"
-  if [[ $profile =~ "/musl" ]]; then
-    musl="y"
+  # throw languages (make.conf)
+  #
+  l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' -s | shuf -n $(($RANDOM % 10)) | sort | xargs)"
 
-    useflags=""
-    cflags="-O2 -pipe -march=native"
-    keyword="unstable"
-    libressl="n"
-    multilib="n"
-    testfeature="n"
-  fi
+  musl="n"
 }
 
 
@@ -170,6 +164,23 @@ function CheckOptions() {
   if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
     echo " wrong value for \$keyword: >>$keyword<<"
     exit 1
+  fi
+
+  if [[ "$keyword" = "stable" ]]; then
+    libressl="n"
+    testfeature="n"
+  fi
+
+  if [[ $profile =~ "/musl" ]]; then
+    musl="y"
+
+    useflags=""
+    cflags="-O2 -pipe -march=native"
+    keyword="unstable"
+    libressl="n"
+    multilib="n"
+    testfeature="n"
+    l10n=""
   fi
 
   checkBool "autostart"
@@ -376,10 +387,6 @@ EOF
 # compile make.conf
 #
 function CompileMakeConf()  {
-  # throw languages
-  #
-  l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' | shuf -n $(($RANDOM % 10)) | sort | xargs)"
-
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 
@@ -654,6 +661,9 @@ function CreateSetupScript()  {
 #
 # set -x
 
+echo
+echo "rsync ..."
+
 rsync   --archive --cvs-exclude /mnt/repos/gentoo   /var/db/repos/
 if [[ $libressl = "y" ]]; then
   rsync --archive --cvs-exclude /mnt/repos/libressl /var/db/repos/
@@ -661,6 +671,8 @@ fi
 if [[ $musl = "y" ]]; then
   rsync --archive --cvs-exclude /mnt/repos/musl     /var/db/repos/
 fi
+
+echo "done."
 
 echo "$name" > /etc/conf.d/hostname
 useradd -u $(id -u tinderbox) tinderbox
@@ -787,7 +799,7 @@ function RunSetupScript() {
 function DryrunHelper() {
   date
   echo " dry run ..."
-  tail -v -n 1000 $mnt/etc/portage/package.use/00thrown*
+  tail -v -n 1000 $mnt/etc/portage/package.use/00thrown* 2>/dev/null
   echo
 
   nice -n 1 sudo ${0%/*}/chr.sh $mnt 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log'
@@ -862,6 +874,9 @@ function Dryrun() {
 #############################################################################
 export LANG=C.utf8
 
+export GCC_COLORS=""
+export GREP_COLORS="never"
+
 date
 echo " $0 started"
 echo
@@ -897,10 +912,6 @@ do
     f)  features="$OPTARG"
         ;;
     k)  keyword="$OPTARG"
-        if [[ "$keyword" = "stable" ]]; then
-          libressl="n"
-          testfeature="n"
-        fi
         ;;
     l)  libressl="$OPTARG"
         ;;
