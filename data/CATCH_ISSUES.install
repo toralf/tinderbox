@@ -28,7 +28,7 @@ mv: cannot stat .* No such file or directory
 java.lang.NoSuchMethodError:
 : No such file or directory
 Failed to set XATTR_PAX markings
-Fatal error: .
+Fatal error .
 glib-mkenums: command not found
 AttributeError:
 error: unknown target
