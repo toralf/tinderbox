@@ -46,14 +46,12 @@ function ThrowUseFlags() {
 
 # helper of SetOptions()
 #
-function ShuffleProfile() {
+function GetProfiles() {
   eselect profile list |\
   awk ' { print $2 } ' |\
-  grep -e "^default/linux/amd64/17\.1" |\
-#   grep -e "^default/linux/amd64/17\.1" -e "^default/linux/amd64/17\../musl" |\
+  grep -e "^default/linux/amd64/17\.1" -e "^default/linux/amd64/17\../musl" |\
   grep -v -e '/x32' -e '/selinux' -e '/uclibc' |\
-  cut -f4- -d'/' -s |\
-  shuf
+  cut -f4- -d'/' -s
 }
 
 
@@ -89,7 +87,7 @@ function SetOptions() {
   while read profile
   do
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
-  done < <(ShuffleProfile)
+  done < <(GetProfiles | shuf)
 
   ThrowCflags
   features="xattr cgroup -news -collision-protect"
