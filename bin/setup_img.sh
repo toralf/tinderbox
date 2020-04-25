@@ -109,12 +109,8 @@ function SetOptions() {
   #
   multilib="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
-    # run at most 1 image
-    #
-    if [[ -z "$(ls -d ~tinderbox/run/*abi32+64* 2>/dev/null)" ]]; then
-      if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-        multilib="y"
-      fi
+    if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+      multilib="y"
     fi
   fi
 
