@@ -20,21 +20,21 @@ rc1=$?
 
 # musl repo is not configured at the tinderbox host so eix-sync can't care for it
 #
+date >> $log
 cd /var/db/repos/musl/ && git pull &>> $log
 rc2=$?
-date >> $log
-
-# set the timestamp here b/c not in each image might git already be emerged
-#
-for repo in gentoo libressl musl
-do
-  cd /var/db/repos/$repo && git show -s --format="%ct" HEAD > timestamp.git
-done
 
 if [[ $rc1 -ne 0 || $rc2 -ne 0 || -n "$(grep 'git pull error' $log)" ]]; then
   mail -s "${0##*/}: rc=$rc" $mailto < $log
   exit 1
 fi
+
+# timestamp can't be derived from within an image b/c git isn't part of stage3
+#
+for repo in gentoo libressl musl
+do
+  cd /var/db/repos/$repo && git show -s --format="%ct" HEAD > timestamp.git
+done
 
 echo  >> $log
 date  >> $log
