@@ -137,11 +137,21 @@ fi
 echo
 date
 echo " setup a new image ..."
-sudo ${0%/*}/setup_img.sh $setupargs || Finish $?
-
-rm -f ~/run/$oldimg ~/logs/$oldimg.log
+while [[ : ]]
+do
+  sudo ${0%/*}/setup_img.sh $setupargs
+  rc=$?
+  if [[ $rc -eq 0 ]]; then
+    break
+  elif [[ $rc -eq 2 ]]; then
+    continue
+  else
+    Finish $rc
+  fi
+done
 
 echo
 date
 echo " finished"
+rm -f ~/run/$oldimg ~/logs/$oldimg.log
 Finish 0

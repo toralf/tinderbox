@@ -661,7 +661,10 @@ function CreateSetupScript()  {
 #
 # set -x
 
-echo
+export GCC_COLORS=""
+export GREP_COLORS="never"
+
+\$(date)
 echo "rsync ..."
 
 rsync   --archive --cvs-exclude /mnt/repos/gentoo   /var/db/repos/
@@ -672,6 +675,7 @@ if [[ $musl = "y" ]]; then
   rsync --archive --cvs-exclude /mnt/repos/musl     /var/db/repos/
 fi
 
+\$(date)
 echo "done."
 
 echo "$name" > /etc/conf.d/hostname
@@ -746,12 +750,6 @@ fi
 
 if [[ $testfeature = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf || exit 1
-fi
-
-# prefer compile/build tests over dep issue catching etc.
-#
-if [[ $testfeature = "y" || $multilib = "y" || $musl = "y" ]]; then
-  touch /var/tmp/tb/KEEP
 fi
 
 # sort -u is needed if more than one non-empty repository is configured
@@ -858,7 +856,7 @@ function Dryrun() {
     done
   else
     echo ${useflags} | PrintUseFlags > $mnt/etc/portage/package.use/00given_at_setup
-    DryrunHelper || exit $?
+    DryrunHelper || exit 2
   fi
 
   echo
@@ -873,9 +871,6 @@ function Dryrun() {
 #
 #############################################################################
 export LANG=C.utf8
-
-export GCC_COLORS=""
-export GREP_COLORS="never"
 
 date
 echo " $0 started"
