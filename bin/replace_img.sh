@@ -134,16 +134,17 @@ if [[ -n "$oldimg" && "$oldimg" != "-" ]]; then
   fi
 fi
 
-echo
-date
-echo " setup a new image ..."
 while [[ : ]]
 do
+  echo
+  date
+  echo " setup a new image ..."
+
   sudo ${0%/*}/setup_img.sh $setupargs
   rc=$?
   if [[ $rc -eq 0 ]]; then
     break
-  elif [[ $rc -eq 2 ]]; then
+  elif [[ $rc -eq 3 ]]; then
     continue
   else
     Finish $rc

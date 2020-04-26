@@ -1,6 +1,8 @@
 # package.use/00common
 #
 
+*/* VIDEO_CARDS: dummy
+
 # mailer for job.sh
 #
 mail-mta/ssmtp            mta ssl

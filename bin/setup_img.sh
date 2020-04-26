@@ -92,11 +92,11 @@ function SetOptions() {
   ThrowCflags
   features="xattr cgroup -news -collision-protect"
 
-  # check almost unstable
+  # check unstable
   #
   keyword="unstable"
 
-  # parity: OpenSSL : LibreSSL = 1:1
+  # parity OpenSSL : LibreSSL = 1:1
   #
   libressl="n"
   if [[ "$keyword" = "unstable" ]]; then
@@ -105,7 +105,7 @@ function SetOptions() {
     fi
   fi
 
-  # an "y" yields to ABI_X86="32 64" in make.conf
+  # an "y" yields to ABI_X86: 32 64
   #
   multilib="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
@@ -127,11 +127,11 @@ function SetOptions() {
 #     fi
 #   fi
 
-  # throw languages (make.conf)
+  # throw languages
   #
   l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' -s | shuf -n $(($RANDOM % 10)) | sort | xargs)"
 
-  musl="n"
+  musl="n"  # handled in CheckOptions()
 }
 
 
@@ -171,7 +171,7 @@ function CheckOptions() {
     testfeature="n"
   fi
 
-  if [[ $profile =~ "/musl" ]]; then
+  if [[ $profile =~ "/musl" || $musl = "y" ]]; then
     musl="y"
 
     useflags=""
@@ -396,7 +396,6 @@ FCFLAGS="-O2 -pipe -march=native"
 FFLAGS="\${FCFLAGS}"
 
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
-$([[ "$multilib" = "y" ]] && echo 'ABI_X86="32 64"')
 $([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS=$([[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"')
@@ -408,9 +407,6 @@ FEATURES="$features"
 EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --verbose --color=n --autounmask=n"
 CLEAN_DELAY=0
 NOCOLOR=true
-
-L10N="$l10n"
-VIDEO_CARDS="dummy"
 
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
@@ -534,6 +530,14 @@ EOF
   fi
 
   FixedUseFlag | PrintUseFlags > ./etc/portage/package.use/00fixed
+
+  if [[ -n "$l10n" ]]; then
+    echo "*/* L10N: $l10n" > ./etc/portage/package.use/00thrown_l10n
+  fi
+
+  if [[ $multilib = "y" ]]; then
+    echo '*/* ABI_X86: 32 64' > ./etc/portage/package.use/00abi_x86
+  fi
 
   touch ./var/tmp/tb/task
 
@@ -795,8 +799,7 @@ function RunSetupScript() {
 # check that the USE flags do not yield to circular or other non-resolvable dependencies
 #
 function DryrunHelper() {
-  date
-  echo " dry run ..."
+  echo
   tail -v -n 1000 $mnt/etc/portage/package.use/00thrown* 2>/dev/null
   echo
 
@@ -856,7 +859,7 @@ function Dryrun() {
     done
   else
     echo ${useflags} | PrintUseFlags > $mnt/etc/portage/package.use/00given_at_setup
-    DryrunHelper || exit 2
+    DryrunHelper || exit 3
   fi
 
   echo
