@@ -18,11 +18,6 @@ installs into paths that should be created at runtime
 530632
 This package has a configure.in file which has long been deprecated.
 
-# (glibc-2.30) - [TRACKER] Issues with sys-libs/glibc-2.30 (directly and indirectly)
-#
-691846
-stropts.h|ambiguating new declaration of.*long int gettid|implicit declaration of function.*gettid|static declaration of.*gettid.*follows non-static declaration|conflicting types for gint
-
 # (mysql-8) - [TRACKER] Packages failing with >=dev-db/mysql-connector-c-8.0.1
 #
 692570
