@@ -110,11 +110,11 @@ else
     timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err || Error $?
   fi
 
-  if [[ -f $issuedir/keywords ]]; then
-    xargs -n 1 < $issuedir/keywords |\
+  if [[ -s $issuedir/keywords ]]; then
+    cat $issuedir/keywords |\
     while read i
     do
-      timeout 120 bugz modify --set-keywords $i $id || Warn $?
+      timeout 120 bugz modify --set-keywords "$i" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
     done
   fi
 fi
@@ -140,14 +140,14 @@ if [[ -d ./files ]]; then
   do
     bytes=$(wc --bytes < $f)
     if [[ $bytes -eq 0 ]]; then
-      echo "skiped empty file: $f"
+      echo "skipped empty file: $f"
       continue
     fi
 
     # max. size from b.g.o. is 1000 KB
     #
     if [[ $bytes -gt 1000000 ]]; then
-      echo "skiped too fat file: $f"
+      echo "skipped too fat file: $f"
       continue
     fi
 
@@ -161,11 +161,6 @@ fi
 
 if [[ -n "$block" ]]; then
   timeout 120 bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
-fi
-
-bzgrep -q " \* ERROR:.* failed (test phase):" $issuedir/task.log 2>/dev/null
-if [[ $? -eq 0 ]]; then
-  timeout 120 bugz modify --set-keywords TESTFAILURE $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
 # set assignee and cc as the last step to reduce the amount of emails sent out by bugzilla for each change at a bug report

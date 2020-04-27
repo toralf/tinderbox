@@ -1073,6 +1073,7 @@ function CheckQA() {
         TrimTitle
         AttachFilesToBody $issuedir/files/elog*
         CompressIssueFiles
+        echo "QAglobalscope" >> $issuedir/keywords
 
         chmod 777     $issuedir/
         chmod -R a+rw $issuedir/
