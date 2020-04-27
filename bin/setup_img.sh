@@ -76,7 +76,7 @@ function ThrowCflags()  {
 
 
 # helper of main()
-# will be overwritten by command line parameter if given
+# options can be overwritten by command line parameter
 #
 function SetOptions() {
   autostart="y"               # start the image after setup
@@ -87,7 +87,7 @@ function SetOptions() {
   while read profile
   do
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
-  done < <(GetProfiles | shuf)
+  done < <(GetProfiles | grep -v "musl" | shuf)
 
   ThrowCflags
   features="xattr cgroup -news -collision-protect"
@@ -668,7 +668,7 @@ function CreateSetupScript()  {
 export GCC_COLORS=""
 export GREP_COLORS="never"
 
-\$(date)
+date
 echo "rsync ..."
 
 rsync   --archive --cvs-exclude /mnt/repos/gentoo   /var/db/repos/
@@ -679,7 +679,7 @@ if [[ $musl = "y" ]]; then
   rsync --archive --cvs-exclude /mnt/repos/musl     /var/db/repos/
 fi
 
-\$(date)
+date
 echo "done."
 
 echo "$name" > /etc/conf.d/hostname
@@ -789,7 +789,7 @@ function RunSetupScript() {
     echo
     tail -v -n 1000 $mnt/var/tmp/tb/setup.sh.log
     echo
-    exit $rc
+    exit 2
   fi
 
   echo
