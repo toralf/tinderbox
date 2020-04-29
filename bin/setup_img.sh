@@ -20,11 +20,6 @@ function PrintUseFlags() {
 }
 
 
-function FixedUseFlag() {
-  echo "ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink"
-}
-
-
 function ThrowUseFlags() {
   n=${1:-1}
   m=${2:-0}
@@ -56,8 +51,6 @@ function GetProfiles() {
 
 
 function ThrowCflags()  {
-  cflags="-O2 -pipe -march=native"
-
   # 685160 colon-in-CFLAGS
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
     cflags="$cflags -falign-functions=32:25:16"
@@ -68,7 +61,7 @@ function ThrowCflags()  {
     cflags="$cflags -fno-common"
   fi
 
-  # 713576 by ago, but too much noise (jer, ulm)
+  # 713576 by ago, but much noise (jer, ulm)
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
     cflags="$cflags -Wformat -Werror=format-security"
   fi
@@ -79,10 +72,12 @@ function ThrowCflags()  {
 # options can be overwritten by command line parameter
 #
 function SetOptions() {
-  autostart="y"               # start the image after setup
+  autostart="y"
   useflags="ThrowUseFlags"
+  cflags_fixed="-O2 -pipe -march=native"
+  cflags=""
 
-  # throw a profile and prefer a non-running one, but the last entry in input will make it eventually
+  # throw a profile and prefer a non-running one, nevertheless the last entry will make it eventually
   #
   while read profile
   do
@@ -390,9 +385,10 @@ function CompileMakeConf()  {
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 
-CFLAGS="$cflags"
+CFLAGS="$cflags_fixed $cflags"
 CXXFLAGS="\${CFLAGS}"
-FCFLAGS="-O2 -pipe -march=native"
+
+FCFLAGS="$cflags_fixed"
 FFLAGS="\${FCFLAGS}"
 
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
@@ -405,6 +401,7 @@ ACCEPT_RESTRICT="-fetch"
 
 FEATURES="$features"
 EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --verbose --color=n --autounmask=n"
+
 CLEAN_DELAY=0
 NOCOLOR=true
 
@@ -418,9 +415,6 @@ PORTAGE_GPG_DIR="/var/lib/gentoo/gkeys/keyrings/gentoo/release"
 PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
 
 GENTOO_MIRRORS="$gentoo_mirrors"
-
-QEMU_SOFTMMU_TARGETS="x86_64 i386"
-QEMU_USER_TARGETS="\$QEMU_SOFTMMU_TARGETS"
 
 EOF
 #   # the "tinderbox" user needs to be in group "portage" for this being helpful
@@ -478,7 +472,7 @@ function CompilePortageFiles()  {
 
   # re-try failing packages w/o CFLAGS quirk
   #
-  cat <<EOF                                       > ./etc/portage/env/cflags_default
+  cat <<EOF                                       > ./etc/portage/env/cflags_fixed
 CFLAGS="-O2 -pipe -march=native"
 CXXFLAGS="\${CFLAGS}"
 FCFLAGS="\${CFLAGS}"
@@ -503,8 +497,7 @@ RUST_TEST_TASKS=1
 
 EOF
 
-  echo '*/* noconcurrent'       > ./etc/portage/package.env/00noconcurrent
-  echo "*/* $(cpuid2cpuflags)"  > ./etc/portage/package.use/00cpuflags
+  echo '*/*  noconcurrent' > ./etc/portage/package.env/00noconcurrent
 
   if [[ $profile =~ '/systemd' ]]; then
     cpconf ~tinderbox/tb/data/package.*.00systemd
@@ -526,17 +519,16 @@ EOF
   else
     # overwrite IUSE=+test as set in few ebuilds
     #
-    echo "*/* notest" > ./etc/portage/package.env/00notest
+    echo "*/*  notest" > ./etc/portage/package.env/00notest
   fi
 
-  FixedUseFlag | PrintUseFlags > ./etc/portage/package.use/00fixed
-
+  echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
+  echo "ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink" | PrintUseFlags > ./etc/portage/package.use/00fixed
   if [[ -n "$l10n" ]]; then
-    echo "*/* L10N: $l10n" > ./etc/portage/package.use/00thrown_l10n
+    echo "*/*  L10N: -* $l10n" > ./etc/portage/package.use/00thrown_l10n
   fi
-
   if [[ $multilib = "y" ]]; then
-    echo '*/* ABI_X86: 32 64' > ./etc/portage/package.use/00abi_x86
+    echo '*/*  ABI_X86: -* 32 64' > ./etc/portage/package.use/00abi_x86
   fi
 
   touch ./var/tmp/tb/task

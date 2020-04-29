@@ -1,7 +1,9 @@
 # package.use/00common
 #
 
-*/* VIDEO_CARDS: dummy
+*/*  QEMU_SOFTMMU_TARGETS: -* x86_64 i386
+*/*  QEMU_USER_TARGETS: -* x86_64 i386
+*/*  VIDEO_CARDS: -* dummy
 
 # mailer for job.sh
 #
