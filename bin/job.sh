@@ -849,10 +849,6 @@ function GotAnIssue()  {
     if [[ "$blocker_id" = "561854" ]]; then
       cat $issuedir/assignee >> $issuedir/cc
       echo "libressl@gentoo.org" > $issuedir/assignee
-
-    elif [[ $name =~ "_musl" ]]; then
-      cat $issuedir/assignee >> $issuedir/cc
-      echo "musl@gentoo.org" > $issuedir/assignee
     fi
   fi
   
