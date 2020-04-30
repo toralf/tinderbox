@@ -286,7 +286,7 @@ function CountPackages()  {
       my $unique = 0; # packages
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};
-        printf "%i%s%i  ", $value, "x", $key;   # "amount of packages" "x" "which were emerged N times"
+        printf "%i%s%i  ", $key, "x", $value;   # "amount of packages" "x" "which were emerged N times"
         $unique += $value;
       }
 
