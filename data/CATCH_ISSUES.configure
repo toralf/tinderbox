@@ -19,7 +19,6 @@ Could NOT find Boost
  was not found.
 Unable to find clang libraries
   Could NOT find 
-Configuring incomplete, errors occurred
 extconf.rb:.* (RuntimeError)
 \-\- Could NOT find
 \-\- Could not find
@@ -64,3 +63,4 @@ Failed to find a unicode locale
 : fatal error:.*No such file or directory
 C compiler cannot create executables
 CMake Error at
+Configuring incomplete
