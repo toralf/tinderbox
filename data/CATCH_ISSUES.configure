@@ -22,7 +22,6 @@ Unable to find clang libraries
 extconf.rb:.* (RuntimeError)
 \-\- Could NOT find
 \-\- Could not find
-cmake failed
 bad option:
 Meson encountered an error
 Invalid option:
@@ -64,3 +63,4 @@ Failed to find a unicode locale
 C compiler cannot create executables
 CMake Error at
 Configuring incomplete
+cmake failed
