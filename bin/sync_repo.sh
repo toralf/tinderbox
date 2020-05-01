@@ -25,7 +25,7 @@ cd /var/db/repos/musl/ && git pull &>> $log
 rc2=$?
 
 if [[ $rc1 -ne 0 || $rc2 -ne 0 || -n "$(grep 'git pull error' $log)" ]]; then
-  mail -s "${0##*/}: rc=$rc" $mailto < $log
+  mail -s "${0##*/}: rc1/2=$rc1/$rc2" $mailto < $log
   exit 1
 fi
 
