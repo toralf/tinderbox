@@ -300,6 +300,10 @@ function SetAssigneeAndCc() {
     assignee="$repo@gentoo.org"
     cc="$m"
 
+  elif [[ $name =~ "musl" ]]; then
+    assignee="musl@gentoo.org"
+    cc="$m"
+
   else
     assignee=$(echo "$m" | cut -f1 -d' ')
     cc=$(echo "$m" | cut -f2- -d' ' -s)
