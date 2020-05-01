@@ -1238,8 +1238,8 @@ function DetectALoop() {
 }
 
 
-# sync all repositories with the one(s) of the host system
-# the timestamp.git is created by sync_repo.sh
+# sync all repositories with the one(s) at the host system
+# the file "timestamp.git" is created by sync_repo.sh
 #
 function updateAllRepos() {
   for repo in gentoo libressl musl

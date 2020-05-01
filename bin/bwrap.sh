@@ -93,8 +93,4 @@ else
 fi
 rc=$?
 
-if [[ $rc -eq 0 ]]; then
-  rm $lock
-fi
-
 exit $rc
