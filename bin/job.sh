@@ -1029,7 +1029,11 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q ">>> Installing .* dev-lang/python-[1-9]" $logfile_stripped && add2backlog "%eselect python update"
+  grep -q ">>> Installing .* dev-lang/python-[1-9]" $logfile_stripped
+  if [[ $? -eq 0 ]]; then
+    add2backlog "%eselect python cleanup"
+    add2backlog "%eselect python update --if-unset"
+  fi
 }
 
 
