@@ -281,18 +281,25 @@ function getPkgVarsFromIssuelog()  {
 }
 
 
-# get assignee and cc for the b.g.o. record
+# set assignee and cc for the b.g.o. record
 #
-function GetAssigneeAndCc() {
+function SetAssigneeAndCc() {
   m=$(equery meta -m $pkgname 2>/dev/null | grep '@' | xargs)
+
   if [[ -z "$m" ]]; then
-    echo "maintainer-needed@gentoo.org" > $issuedir/assignee
+    assignee="maintainer-needed@gentoo.org"
+    cc=""
+
+  elif [[ $repo = "libressl" || $repo = "musl" ]]; then
+    assignee="$repo@gentoo.org"
+    cc="$m"
   else
-    echo "$m" | cut -f1 -d' ' > $issuedir/assignee
-    if [[ "$m" =~ " " ]]; then
-      echo "$m" | cut -f2- -d' ' > $issuedir/cc
-    fi
+    assignee=$(echo "$m" | cut -f1 -d' ')
+    cc=$(echo "$m" | cut -f2- -d' ' -s)
   fi
+
+  echo "$assignee" > $issuedir/assignee
+  echo "$cc" > $issuedir/cc
 }
 
 
@@ -833,7 +840,7 @@ function GotAnIssue()  {
 
   CreateIssueDir
   emerge -qpvO $pkgname &> $issuedir/emerge-qpvO
-  GetAssigneeAndCc
+  SetAssigneeAndCc
   cp $logfile $issuedir
   setWorkDir
   CollectIssueFiles
@@ -1059,7 +1066,7 @@ function CheckQA() {
         cp $pkglog $issuedir/files/
 
         AddWhoamiToComment0
-        GetAssigneeAndCc
+        SetAssigneeAndCc
         SearchForBlocker
         AddVersionAssigneeAndCC
         SearchForAnAlreadyFiledBug
