@@ -55,13 +55,9 @@ do
 
   echo " starting     $mnt"
 
-  # nice make understood of sysstat output easier
+  # nice makes reading of sysstat numbers easier
   #
-  nice -n 1 sudo /opt/tb/bin/chr.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
-
-  # avoid spurious trouble with mountall() in chr.sh
-  #
-  sleep 1
+  nice -n 1 sudo /opt/tb/bin/bwrap.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
 done
 
 # avoid an invisible prompt
