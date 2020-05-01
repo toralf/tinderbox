@@ -284,15 +284,22 @@ function getPkgVarsFromIssuelog()  {
 # set assignee and cc for the b.g.o. record
 #
 function SetAssigneeAndCc() {
-  m=$(equery meta -m $pkgname 2>/dev/null | grep '@' | xargs)
+  local m=$(equery meta -m $pkgname 2>/dev/null | grep '@' | xargs)
+  local assignee
+  local cc
 
   if [[ -z "$m" ]]; then
     assignee="maintainer-needed@gentoo.org"
     cc=""
 
+  elif [[ "$blocker_id" = "561854" ]]; then
+    assignee="libressl@gentoo.org"
+    cc="$m"
+
   elif [[ $repo = "libressl" || $repo = "musl" ]]; then
     assignee="$repo@gentoo.org"
     cc="$m"
+
   else
     assignee=$(echo "$m" | cut -f1 -d' ')
     cc=$(echo "$m" | cut -f2- -d' ' -s)
@@ -840,7 +847,6 @@ function GotAnIssue()  {
 
   CreateIssueDir
   emerge -qpvO $pkgname &> $issuedir/emerge-qpvO
-  SetAssigneeAndCc
   cp $logfile $issuedir
   setWorkDir
   CollectIssueFiles
@@ -849,16 +855,8 @@ function GotAnIssue()  {
   echo "internal failure: no title guessed from tinderbox logs" > $issuedir/title
   ClassifyIssue
   SearchForBlocker
+  SetAssigneeAndCc
 
-  # special quirks
-  #
-  if [[ ! "$(cat $issuedir/assignee)" = "maintainer-needed@gentoo.org" ]]; then
-    if [[ "$blocker_id" = "561854" ]]; then
-      cat $issuedir/assignee >> $issuedir/cc
-      echo "libressl@gentoo.org" > $issuedir/assignee
-    fi
-  fi
-  
   CompileIssueMail  # do it before we might return so that the issue could be still sent manually at any time later
 
   # https://bugs.gentoo.org/596664
@@ -1066,7 +1064,6 @@ function CheckQA() {
         cp $pkglog $issuedir/files/
 
         AddWhoamiToComment0
-        SetAssigneeAndCc
         SearchForBlocker
         AddVersionAssigneeAndCC
         SearchForAnAlreadyFiledBug
@@ -1077,6 +1074,7 @@ function CheckQA() {
         AttachFilesToBody $issuedir/files/elog*
         CompressIssueFiles
         echo "QAglobalscope" >> $issuedir/keywords
+        SetAssigneeAndCc
 
         chmod 777     $issuedir/
         chmod -R a+rw $issuedir/
