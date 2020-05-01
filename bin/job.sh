@@ -638,7 +638,7 @@ EOF
   bgo.sh -d ~/img?/$name/$issuedir $block
 EOF
 
-    echo "" >> >> $issuedir/body
+    echo "" >> $issuedir/body
 
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'
