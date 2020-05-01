@@ -337,7 +337,7 @@ function AttachFilesToBody()  {
   for f in $*
   do
     if [[ -f $f ]]; then
-      s=$( wc -c < $f )
+      local s=$( wc -c < $f )
       if [[ $s -gt 0 && $s -lt 1048576 ]]; then
         echo >> $issuedir/body
         uuencode $f ${f##*/} >> $issuedir/body
@@ -364,16 +364,9 @@ EOF
 
 
 function CreateIssueDir() {
-  while [[ : ]]; do
-    issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(echo $pkg | tr '/' '_')
-    if [[ ! -d $issuedir ]]; then
-      break
-    fi
-    sleep 1
-  done
-
+  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(echo $pkg | tr '/' '_')
   mkdir -p $issuedir/files
-  chmod 777 $issuedir # to edit title, issue etc
+  chmod 777 $issuedir # to manually edit title, issue etc.
 }
 
 
@@ -382,23 +375,10 @@ function CreateIssueDir() {
 function foundCollisionIssue() {
   grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_stripped | grep -B 15 ' * Package .* NOT' > $issuedir/issue
 
-  # get package (name+version) of the sibbling package
+  # get package (name+version) of the colliding package
   #
-  s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_stripped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
-
-  if [[ -z "$s" ]]; then
-    echo "file collision" > $issuedir/title
-
-  else
-    echo "file collision with $s" > $issuedir/title
-
-    cc=$(equery meta -m $(pn2p "$s") 2>/dev/null | grep '@' | grep -v "$(cat $issuedir/assignee)" | xargs)
-    if [[ -n "$cc" ]]; then
-      # sort -u guarantees, that the file $issuedir/cc is read in before it will be overwritten
-      #
-      (cat $issuedir/cc 2>/dev/null; echo $cc) | xargs -n 1 | sort -u | xargs > $issuedir/cc
-    fi
-  fi
+  local s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_stripped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
+  echo "file collision with $s" > $issuedir/title
 }
 
 
@@ -415,7 +395,7 @@ function foundSandboxIssue() {
   if [[ -f $sandb ]]; then
     head -n 10 $sandb > $issuedir/issue 2>&1
   else
-    echo "Bummer; sandbox file does not exists: $sandb" > $issuedir/issue
+    echo "Bummer, sandbox file does not exist: $sandb" > $issuedir/issue
   fi
 }
 
@@ -1073,6 +1053,7 @@ function CheckQA() {
 
         AddWhoamiToComment0
         SearchForBlocker
+        SetAssigneeAndCc
         AddVersionAssigneeAndCC
         SearchForAnAlreadyFiledBug
         AddBgoCommandLine
@@ -1082,7 +1063,6 @@ function CheckQA() {
         AttachFilesToBody $issuedir/files/elog*
         CompressIssueFiles
         echo "QAglobalscope" >> $issuedir/keywords
-        SetAssigneeAndCc
 
         chmod 777     $issuedir/
         chmod -R a+rw $issuedir/
