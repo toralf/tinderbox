@@ -292,7 +292,7 @@ function SetAssigneeAndCc() {
     assignee="maintainer-needed@gentoo.org"
     cc=""
 
-  elif [[ "$blocker_id" = "561854" ]]; then
+  elif [[ "$blocker_bug_no" = "561854" ]]; then
     assignee="libressl@gentoo.org"
     cc="$m"
 
@@ -552,19 +552,16 @@ function SearchForBlocker() {
     return 0
   fi
 
-  # use < <(...) b/c $block is an outer variable
-  #
-  bugno=""
+  blocker_bug_no=""
   while read line
   do
     if [[ $line =~ ^[0-9].*$ ]]; then
-      bugno=$line
+      blocker_bug_no=$line
       continue
     fi
 
     grep -q -E "$line" $issuedir/title
     if [[ $? -eq 0 ]]; then
-      block="-b $bugno"
       break
     fi
   done < <(grep -v -e '^#' -e '^$' /mnt/tb/data/BLOCKER)
@@ -598,16 +595,16 @@ function SearchForAnAlreadyFiledBug() {
   #
   for i in $pkg $pkgname
   do
-    blocker_id=$(timeout 300 bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
-    if [[ -n "$blocker_id" ]]; then
+    similar_bug_no=$(timeout 300 bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
+    if [[ -n "$similar_bug_no" ]]; then
       echo "CONFIRMED " >> $issuedir/bgo_result
       break
     fi
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      blocker_id=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
-      if [[ -n "$blocker_id" ]]; then
+      similar_bug_no=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
+      if [[ -n "$similar_bug_no" ]]; then
         echo "$s " >> $issuedir/bgo_result  # trailing space is intentionally
         break 2
       fi
@@ -620,13 +617,16 @@ function SearchForAnAlreadyFiledBug() {
 # and add the top 20 b.g.o. search results too
 #
 function AddBgoCommandLine() {
-  if [[ -n "$blocker_id" ]]; then
+  local block=""
+  if [[ -n "$blocker_bug_no" ]]; then
+    block="-b $blocker_bug_no"
+  fi
+
+  if [[ -n "$similar_bug_no" ]]; then
     cat << EOF >> $issuedir/body
-  https://bugs.gentoo.org/show_bug.cgi?id=$blocker_id
+  https://bugs.gentoo.org/show_bug.cgi?id=$similar_bug_no
 
-  bgo.sh -d ~/img?/$name/$issuedir $block -c 'there is still a similar issue at $keyword amd64 tinderbox image $name (see bug $blocker_id)'
-
-
+  bgo.sh -d ~/img?/$name/$issuedir $block -c 'there is still a similar issue at $keyword amd64 tinderbox image $name (see bug $similar_bug_no)'
 EOF
 
   else
@@ -636,9 +636,10 @@ EOF
     cat << EOF >> $issuedir/body
 
   bgo.sh -d ~/img?/$name/$issuedir $block
-
-
 EOF
+
+    echo "" >> >> $issuedir/body
+
     h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     g='stabilize|Bump| keyword| bump'
 
@@ -1066,7 +1067,7 @@ function CheckQA() {
 
         chmod 777     $issuedir/
         chmod -R a+rw $issuedir/
-        if [[ -z "$blocker_id" ]]; then
+        if [[ -z "$similar_bug_no" ]]; then
           SendoutIssueMail
         fi
       fi
@@ -1093,7 +1094,7 @@ function RunAndCheck() {
 
   PostEmerge
 
-  blocker_id="" # # initializing needed for the b.g.o. id of a bug possible containing a similar issue
+  similar_bug_no=""
 
   if [[ ! $keyword = "stable" ]]; then
     CheckQA
