@@ -1002,7 +1002,7 @@ function PostEmerge() {
     else
       diff=0
     fi
-    if [[ -n $last && ( $(date +%s) - $(stat -c%Y $last) ) -gt 86400 ]]; then
+    if [[ -n $last && $(( $(date +%s) - $(stat -c%Y $last) )) -gt 86400 ]]; then
       add2backlog "@system"
     fi
   fi

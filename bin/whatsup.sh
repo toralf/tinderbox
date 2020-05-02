@@ -7,7 +7,10 @@
 # watch any images either mounted or symlinked into ~/run
 #
 function list_images() {
-  pgrep -a bwrap.sh | cut -f4 -d' ' -s |\
+  (
+    ls ~tinderbox/run/
+    pgrep -a bwrap.sh | cut -f4 -d' ' -s
+  ) |\
   while read i
   do
     b=$(basename $i)
@@ -18,7 +21,7 @@ function list_images() {
       echo "$d/$b"
     fi
   done |\
-  sort -k 2 -t'/'
+  sort -u -k 2 -t'/'
 }
 
 
