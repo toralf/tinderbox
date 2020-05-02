@@ -982,23 +982,24 @@ function PostEmerge() {
   grep -q ">>> Installing .* dev-lang/perl-[1-9]" $logfile_stripped && add2backlog "%perl-cleaner --all"
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $logfile_stripped && add2backlog "%SwitchGCC"
 
-  # if 1st prio backlog is empty then update the image one day after the last run
+  # update the image one day after the last run
   #
   if [[ ! -s $backlog1st ]]; then
+    local last=""
     if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history ]]; then
       if [[ /var/tmp/tb/@world.history -nt /var/tmp/tb/@system.history ]]; then
-        let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@world.history) ) / 86400"
+        last=/var/tmp/tb/@world.history
       else
-        let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
+        last=/var/tmp/tb/@system.history
       fi
     elif [[ -f /var/tmp/tb/@world.history ]]; then
-      let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@world.history) ) / 86400"
+      last=/var/tmp/tb/@world.history
     elif [[ -f /var/tmp/tb/@system.history ]]; then
-      let "diff = ( $(date +%s) - $(stat -c%Y /var/tmp/tb/@system.history) ) / 86400"
+      last=/var/tmp/tb/@system.history
     else
       diff=0
     fi
-    if [[ $diff -gt 0 ]]; then
+    if [[ -n $last && ( $(date +%s) - $(stat -c%Y $last) ) -gt 86400 ]]; then
       add2backlog "@system"
     fi
   fi
