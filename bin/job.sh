@@ -284,9 +284,10 @@ function getPkgVarsFromIssuelog()  {
 # set assignee and cc for the b.g.o. record
 #
 function SetAssigneeAndCc() {
-  local m=$(equery meta -m $pkgname 2>/dev/null | grep '@' | xargs)
   local assignee
   local cc
+
+  local m=$(equery meta -m $pkgname 2>/dev/null | grep '@' | xargs)
 
   if [[ -z "$m" ]]; then
     assignee="maintainer-needed@gentoo.org"
@@ -310,7 +311,9 @@ function SetAssigneeAndCc() {
   fi
 
   echo "$assignee" > $issuedir/assignee
-  echo "$cc" > $issuedir/cc
+  if [[ -n "$cc" ]]; then
+    echo "$cc" > $issuedir/cc
+  fi
 }
 
 
