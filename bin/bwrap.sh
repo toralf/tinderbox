@@ -66,7 +66,7 @@ if [[ -f $lock ]]; then
   echo "found lock file $lock"
   exit 1
 fi
-touch $lock || exit 2
+touch $lock || exit 2 # no write perms ?!?
 chown tinderbox:tinderbox $lock
 
 cgroup
@@ -80,17 +80,19 @@ sandbox="/usr/bin/bwrap
     --tmpfs                             /var/tmp/portage
     --tmpfs /dev/shm
     --dev /dev --proc /proc
-    --die-with-parent
     --unshare-ipc --unshare-uts --unshare-pid
-    --hostname BWRAP-${mnt##*/}
+    --hostname BWRAP-$(basename $mnt | sed -e 's,[\.],_,g' | cut -c-58)
     --chdir /
+    --die-with-parent
      /bin/bash -l
 "
+
 if [[ $# -gt 0 ]]; then
-  $sandbox -c "$@"
+  $sandbox -c 'chmod 1777 /dev/shm && /var/tmp/tb/job.sh'
 else
   $sandbox
 fi
-rc=$?
 
-exit $rc
+rm $lock
+
+exit $?

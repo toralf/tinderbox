@@ -52,6 +52,7 @@ do
   fi
 
   cp /opt/tb/bin/job.sh $mnt/var/tmp/tb || continue
+  chmod u+x $mnt/var/tmp/tb/job.sh
 
   echo " starting     $mnt"
 
