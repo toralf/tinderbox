@@ -297,7 +297,7 @@ function SetAssigneeAndCc() {
     assignee="libressl@gentoo.org"
     cc="$m"
 
-  elif [[ $repo = "libressl" || $repo = "musl" ]]; then
+  elif [[ ! $repo = "gentoo" ]]; then # usually "libressl" or "musl"
     assignee="$repo@gentoo.org"
     cc="$m"
 
