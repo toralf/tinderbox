@@ -7,13 +7,14 @@
 # watch any images either mounted or symlinked into ~/run
 #
 function list_images() {
-  {
-    for i in $(ls ~/run)
-    do
-      ls -d ~/img?/$i
-    done
-    df -h | grep '/home/tinderbox/img./' | cut -f1-5 -d'/' -s | awk ' { print $6 } '
-  } 2>/dev/null | sort -u -k 5 -t'/'
+  pgrep -a bwrap.sh | cut -f4 -d' ' -s |\
+  while read i
+  do
+    b=$(basename $i)
+    d=$(basename $(dirname $i))
+    echo "$d/$b"
+  done |\
+  sort -k 2 -t'/'
 }
 
 
