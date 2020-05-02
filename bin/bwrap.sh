@@ -36,6 +36,12 @@ function cgroup() {
 }
 
 
+function BailOut()  {
+  rm $lock
+  exit ${1:-1}
+}
+
+
 #############################################################################
 #                                                                           #
 # main                                                                      #
@@ -80,8 +86,9 @@ sandbox="/usr/bin/bwrap
     --tmpfs                             /var/tmp/portage
     --tmpfs /dev/shm
     --dev /dev --proc /proc
-    --unshare-ipc --unshare-uts --unshare-pid
-    --hostname BWRAP-$(basename $mnt | sed -e 's,[\.],_,g' | cut -c-58)
+    --mqueue /dev/mqueue
+    --unshare-ipc --unshare-pid --unshare-uts
+    --hostname BWRAP-$(basename $mnt | sed -e 's,[\.],_,g' | cut -c-57)
     --chdir /
     --die-with-parent
      /bin/bash -l
@@ -93,6 +100,4 @@ else
   $sandbox
 fi
 
-rm $lock
-
-exit $?
+BailOut $?
