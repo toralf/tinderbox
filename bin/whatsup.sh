@@ -11,8 +11,12 @@ function list_images() {
   while read i
   do
     b=$(basename $i)
-    d=$(basename $(dirname $i))
-    echo "$d/$b"
+    if [[ -d ~tinderbox/run/$i ]]; then
+      echo "run/$b"
+    else
+      d=$(basename $(dirname ~tinderbox/img?/$b))
+      echo "$d/$b"
+    fi
   done |\
   sort -k 2 -t'/'
 }
