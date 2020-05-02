@@ -2,8 +2,6 @@
 #
 # set -x
 
-export LANG=C.utf8
-
 # bubblewrap into an image interactively - or - run a command
 
 function cgroup() {
@@ -47,6 +45,10 @@ function Exit()  {
 # main                                                                      #
 #                                                                           #
 #############################################################################
+export LANG=C.utf8
+
+set -uf
+
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
