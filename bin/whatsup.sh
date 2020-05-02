@@ -4,7 +4,6 @@
 
 # print tinderbox statistics
 
-
 # watch any images either mounted or symlinked into ~/run
 #
 function list_images() {

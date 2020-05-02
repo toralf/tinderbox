@@ -58,7 +58,7 @@ do
 
   # nice makes reading of sysstat numbers easier
   #
-  nice -n 1 sudo /opt/tb/bin/bwrap.sh $mnt "/bin/bash /var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
+  nice -n 1 sudo /opt/tb/bin/bwrap.sh $mnt "/var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
 done
 
 # avoid an invisible prompt

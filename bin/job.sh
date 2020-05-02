@@ -552,7 +552,6 @@ function SearchForBlocker() {
     return 0
   fi
 
-  blocker_bug_no=""
   while read line
   do
     if [[ $line =~ ^[0-9].*$ ]]; then
@@ -1094,6 +1093,7 @@ function RunAndCheck() {
 
   PostEmerge
 
+  blocker_bug_no=""
   similar_bug_no=""
 
   if [[ ! $keyword = "stable" ]]; then
@@ -1114,6 +1114,7 @@ function RunAndCheck() {
           -e 'It may be possible to solve this problem by using package.mask to' \
           -e '* Invalid resume list:' \
           -e 'Dependencies could not be completely resolved due to' \
+          -e "Couldn't find .* to unmerge." \
           $logfile_stripped
   if [[ $? -eq 0 ]]; then
     return $rc

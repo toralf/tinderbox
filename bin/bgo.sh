@@ -36,7 +36,7 @@ comment=""
 issuedir=""
 severity="Normal"
 
-newbug=1    # if set to 1 then do neither change To: nor Cc:
+newbug=1    # if set to 1 then do neither change To: nor cc:
 
 while getopts b:c:d:i:s: opt
 do
@@ -168,9 +168,12 @@ fi
 if [[ $newbug -eq 1 ]]; then
   assignee="-a $(cat ./assignee)"   # we expect only 1 entry here
   if [[ -s ./cc ]]; then
-    Cc="--add-cc $(cat ./cc | grep -v -f ./assignee | xargs | sed 's/ / --add-cc /g')"    # grep is need if eg for musl the assignee was overwritten manually
+    cc="$(cat ./cc | grep -v -f ./assignee | xargs | sed 's/ / --add-cc /g')"    # grep is need if eg for musl the assignee was overwritten manually
+    if [[ -n "$cc" ]]; then
+      cc="--add-cc $cc"
+    fi
   fi
-  timeout 120 bugz modify $assignee $Cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+  timeout 120 bugz modify $assignee $cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
 echo

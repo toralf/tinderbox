@@ -74,7 +74,7 @@ function ThrowCflags()  {
 function SetOptions() {
   autostart="y"
   useflags="ThrowUseFlags"
-  cflags_fixed="-O2 -pipe -march=native"
+  cflags_default="-O2 -pipe -march=native"
   cflags=""
 
   # throw a profile and prefer a non-running one, nevertheless the last entry will make it eventually
@@ -306,7 +306,7 @@ function UnpackStage3()  {
 }
 
 
-# configure image specific repositories (bind mounted by chr.sh or local)
+# configure image specific repositories (either being bind mounted or local)
 #
 function CompileRepoFiles()  {
   mkdir -p ./etc/portage/repos.conf/
@@ -385,10 +385,10 @@ function CompileMakeConf()  {
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 
-CFLAGS="$cflags_fixed $cflags"
+CFLAGS="$cflags_default $cflags"
 CXXFLAGS="\${CFLAGS}"
 
-FCFLAGS="$cflags_fixed"
+FCFLAGS="$cflags_default"
 FFLAGS="\${FCFLAGS}"
 
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
@@ -472,7 +472,7 @@ function CompilePortageFiles()  {
 
   # re-try failing packages w/o CFLAGS quirk
   #
-  cat <<EOF                                       > ./etc/portage/env/cflags_fixed
+  cat <<EOF                                       > ./etc/portage/env/cflags_default
 CFLAGS="-O2 -pipe -march=native"
 CXXFLAGS="\${CFLAGS}"
 FCFLAGS="\${CFLAGS}"
@@ -773,7 +773,7 @@ function RunSetupScript() {
   echo " run setup script ..."
   cd ~tinderbox/
 
-  nice -n 1 sudo ${0%/*}/chr.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
+  nice -n 1 sudo ${0%/*}/bwrap.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
@@ -796,7 +796,7 @@ function DryrunHelper() {
   tail -v -n 1000 $mnt/etc/portage/package.use/00thrown* 2>/dev/null
   echo
 
-  nice -n 1 sudo ${0%/*}/chr.sh $mnt 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log'
+  nice -n 1 sudo ${0%/*}/bwrap.sh $mnt 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log'
   local rc=$?
 
   if [[ $rc -eq 0 ]]; then

@@ -36,7 +36,7 @@ function cgroup() {
 }
 
 
-function BailOut()  {
+function Exit()  {
   rm $lock
   exit ${1:-1}
 }
@@ -95,9 +95,9 @@ sandbox="/usr/bin/bwrap
 "
 
 if [[ $# -gt 0 ]]; then
-  $sandbox -c 'chmod 1777 /dev/shm && /var/tmp/tb/job.sh'
+  $sandbox -c "chmod 1777 /dev/shm && ${@}"
 else
   $sandbox
 fi
 
-BailOut $?
+Exit $?
