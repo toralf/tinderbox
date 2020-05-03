@@ -13,7 +13,9 @@ function list_images() {
   ) |\
   while read i
   do
-    echo ~tinderbox/img?/${i##*/}
+    set +f
+    ls -d ~tinderbox/img?/${i##*/} 2>/dev/null
+    set -f
   done |\
   sort -u -k 2 -t'/'
 }
@@ -100,7 +102,7 @@ function Overall() {
     #
     fail=0
     if [[ -d $i/var/tmp/tb/issues ]]; then
-      fail=$(ls -1 $i/var/tmp/tb/issues | xargs --no-run-if-empty -n 1 basename | cut -f3- -d'-' -s | sort -u | wc -w)
+      fail=$(ls -1 $i/var/tmp/tb/issues | while read i; do echo ${i##/*}; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
     bl=$(wc -l  2>/dev/null < $i/var/tmp/tb/backlog)
@@ -131,7 +133,7 @@ function Overall() {
     # images during setup are not already symlinked to ~/run, print so that the position of / is fixed
     #
     b=${i##*/}
-    [[ -e ~/run/$b ]] && d="run" || d=$(basename ${i%/*})
+    [[ -e ~/run/$b ]] && d="run" || d=${${i%/*}##/*}
 
     printf "%5i %4i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
   done
@@ -297,8 +299,10 @@ function CountPackages()  {
 
 #######################################################################
 #
+set -uf
 export LANG=C.utf8
 unset LC_TIME
+
 images=$(list_images)
 
 while getopts chlopt\? opt

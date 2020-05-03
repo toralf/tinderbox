@@ -729,7 +729,7 @@ EOF
     echo "  timestamp(s) of HEAD at this tinderbox image:"
     for i in /var/db/repos/*/timestamp.git
     do
-      echo -e "$(dirname $i)\t$(date -u -d @$(cat $i))"
+      echo -e "${i%/*}\t$(date -u -d @$(cat $i))"
     done
 
     echo
