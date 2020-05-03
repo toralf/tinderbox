@@ -142,7 +142,7 @@ do
   date
   echo " setup a new image ..."
 
-  ${0%/*}/setup_img.sh "$setupargs"
+  sudo ${0%/*}/setup_img.sh "$setupargs"
   rc=$?
   if [[ $rc -eq 0 ]]; then
     break
@@ -156,5 +156,7 @@ done
 echo
 date
 echo " finished"
-rm -f -- "~/run/$oldimg" "~/logs/$oldimg.log"
+if [[ -e ~/run/$oldimg ]]
+  rm -- ~/run/$oldimg ~/logs/$oldimg.log
+fi
 Finish 0
