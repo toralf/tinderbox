@@ -14,11 +14,8 @@ function cgroup() {
 
   echo "$$" > $sysfsdir/tasks
 
-  local mbytes=$(echo "12 * 2^30" | bc)
-  echo $mbytes > $sysfsdir/memory.limit_in_bytes
-
-  local vbytes=$(echo "16 * 2^30" | bc)
-  echo $vbytes > $sysfsdir/memory.memsw.limit_in_bytes
+  echo "12 * 2^30" | bc > $sysfsdir/memory.limit_in_bytes
+  echo "16 * 2^30" | bc > $sysfsdir/memory.memsw.limit_in_bytes
 
   # restrict blast radius if -j1 for make processes is ignored
   #
