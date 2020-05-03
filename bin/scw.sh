@@ -8,7 +8,7 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-mnt=$1
+mnt="$(ls -d ~tinderbox/img{1,2}/${1##*/} 2>/dev/null || true)"
 
 if [[ ! -d "$mnt" ]]; then
   echo "not a valid mount point: '$mnt'"

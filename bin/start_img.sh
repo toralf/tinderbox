@@ -2,40 +2,30 @@
 #
 # set -x
 
-export LANG=C.utf8
 
 # start tinderbox chroot image/s
 #
+
+set -euf
+export LANG=C.utf8
+
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " $0: wrong user $USER"
   exit 1
 fi
 
-for mnt in ${@:-$(ls ~/run 2>/dev/null)}
+for i in ${@:-$(ls ~/run 2>/dev/null)}
 do
   echo -n "$(date +%X) "
 
-  # try to prepend ~/run if no path is given
-  #
-  if [[ ! -e $mnt && ! $mnt =~ '/' ]]; then
-    mnt=~/run/$mnt
+  mnt="$(ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null || true)"
+
+  if [[ ! -d "$mnt" ]]; then
+    echo "not a valid mount point: '$mnt'"
+    exit 1
   fi
 
-  if [[ ! -e $mnt ]]; then
-    if [[ -L $mnt ]]; then
-      echo "broken symlink: $mnt"
-    else
-      echo "vanished/invalid: $mnt"
-    fi
-    continue
-  fi
-
-  if [[ ! -d $mnt ]]; then
-    echo "not a valid dir: $mnt"
-    continue
-  fi
-  
   if [[ -f $mnt/var/tmp/tb/LOCK ]]; then
     echo " is running:  $mnt"
     continue
@@ -58,7 +48,7 @@ do
 
   # nice makes reading of sysstat numbers easier
   #
-  nice -n 1 sudo /opt/tb/bin/bwrap.sh $mnt "/var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
+  nice -n 1 sudo /opt/tb/bin/bwrap.sh "$mnt" "/var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
 done
 
 # avoid an invisible prompt

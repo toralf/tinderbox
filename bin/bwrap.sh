@@ -53,9 +53,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-# the path to the image
-#
-mnt="$1"
+mnt="$(ls -d ~tinderbox/img{1,2}/${1##*/} 2>/dev/null || true)"
 
 if [[ ! -d "$mnt" ]]; then
   echo "not a valid mount point: '$mnt'"
