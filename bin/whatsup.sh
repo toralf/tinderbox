@@ -13,13 +13,7 @@ function list_images() {
   ) |\
   while read i
   do
-    b=$(basename $i)
-    if [[ -d ~tinderbox/run/$i ]]; then
-      echo "run/$b"
-    else
-      d=$(basename $(dirname ~tinderbox/img?/$b))
-      echo "$d/$b"
-    fi
+    echo ~tinderbox/img?/${i##*/}
   done |\
   sort -u -k 2 -t'/'
 }
@@ -34,8 +28,8 @@ function PrintImageName()  {
 
 
 function check_history()  {
-  local file=$1
-  local lc=$2
+  file=$1
+  lc=$2
 
   # eg. for @system:
   #
@@ -47,7 +41,7 @@ function check_history()  {
   if [[ -s $file ]]; then
     tail -n 1 $file | grep -q " NOT ok"
     if [[ $? -eq 0 ]]; then
-      local uc=$(echo $lc | tr '[:lower:]' '[:upper:]')
+      uc=$(echo $lc | tr '[:lower:]' '[:upper:]')
       flag="${uc}${flag}"
       return
     fi
@@ -121,7 +115,7 @@ function Overall() {
     if [[ -f $i/var/tmp/tb/STOP ]]; then
       flag="${flag}S"
     else
-      grep -q ^STOP $i/var/tmp/tb/backlog.1st && flag="${flag}s" || flag="$flag "
+      grep -q "^STOP" $i/var/tmp/tb/backlog.1st && flag="${flag}s" || flag="$flag "
     fi
 
     [[ -f $i/var/tmp/tb/KEEP ]] && flag="${flag}K" || flag="$flag "
@@ -267,26 +261,24 @@ function PackagesPerDay() {
 function CountPackages()  {
   for i in $images
   do
-    grep ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null
+    grep -F ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null | cut -f9 -d' ' -s
   done |\
-  perl -wane '
+  perl -wne '
     BEGIN {
-      my %EmergeOpsPerPackage = ();     # how much time each package was emerged
-      my $total_emerges = 0;            # total amount of emerge operations
+      my %EmergesPerPackage = ();     # how often a particular package was emerged
+      my $total = 0;                  # total amount of emerge operations
     }
 
     chomp();
-
-    my $package = $F[7];
-    $EmergeOpsPerPackage{$package}++;
-    $total_emerges++;
+    $EmergesPerPackage{$_}++;
+    $total++;
 
     END {
       my %h = ();
 
       # count the "amount of emerge" values
-      for my $key (keys %EmergeOpsPerPackage)  {
-        my $value = $EmergeOpsPerPackage{$key};
+      for my $key (keys %EmergesPerPackage)  {
+        my $value = $EmergesPerPackage{$key};
         $h{$value}++;
       }
 
@@ -297,7 +289,7 @@ function CountPackages()  {
         $unique += $value;
       }
 
-      print "\nunique = $unique    emerge operations = $total_emerges\n";
+      print "\nunique = $unique    emerge operations = $total\n";
     }
   '
 }
