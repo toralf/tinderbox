@@ -45,9 +45,10 @@ function Exit()  {
 # main                                                                      #
 #                                                                           #
 #############################################################################
-export LANG=C.utf8
-
+trap Exit QUIT TERM KILL
 set -uf
+
+export LANG=C.utf8
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
