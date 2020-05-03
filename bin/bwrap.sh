@@ -82,7 +82,7 @@ sandbox="env -i
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
     HOME=/root
     SHELL=/bin/bash
-    TERM="${TERM}"
+    TERM=linux
     /usr/bin/bwrap
     --bind $mnt                         /
     --bind /home/tinderbox/tb/data      /mnt/tb/data
@@ -94,7 +94,7 @@ sandbox="env -i
     --dev /dev --proc /proc
     --mqueue /dev/mqueue
     --unshare-ipc --unshare-pid --unshare-uts
-    --hostname BWRAP-$(basename $mnt | sed -e 's,[\.],_,g' | cut -c-57)
+    --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[\.],_,g' | cut -c-57)"
     --chdir /
     --die-with-parent
      /bin/bash -l
