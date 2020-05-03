@@ -549,21 +549,21 @@ function ClassifyIssue() {
 # if <pattern> is defined more than once then the first makes it
 #
 function SearchForBlocker() {
-  block=""
-
   if [[ ! -s $issuedir/title ]]; then
     return 0
   fi
 
+  local number=""
   while read line
   do
     if [[ $line =~ ^[0-9].*$ ]]; then
-      blocker_bug_no=$line
+      number=$line
       continue
     fi
 
     grep -q -E "$line" $issuedir/title
     if [[ $? -eq 0 ]]; then
+      blocker_bug_no=$number
       break
     fi
   done < <(grep -v -e '^#' -e '^$' /mnt/tb/data/BLOCKER)
