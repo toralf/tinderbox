@@ -32,7 +32,6 @@ function cgroup() {
 
 
 function Exit()  {
-  rm "$lock"
   exit ${1:-1}
 }
 
@@ -53,6 +52,11 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  echo " wrong opt(s)!"
+  exit 1
+fi
+
 mnt="$(ls -d ~tinderbox/img{1,2}/${1##*/} 2>/dev/null || true)"
 
 if [[ ! -d "$mnt" ]]; then
@@ -60,21 +64,31 @@ if [[ ! -d "$mnt" ]]; then
   exit 1
 fi
 
-# treat remaining option/s as the command line to be run within the image
-#
-shift
-
-# simple barrier to prevent running the same image twice
+# 1st barrier to prevent running the same image twice
 #
 lock="$mnt/var/tmp/tb/LOCK"
 if [[ -f "$lock" ]]; then
   echo "found lock file $lock"
   exit 1
 fi
+
+# 2nd barrier
+#
+result=$(pgrep -a bwrap | grep "bwrap .* $mnt") || true
+if [[ -n "$result" ]]; then
+  echo -e " the image is already running:\n $result"
+  exit 1
+fi
+
 touch "$lock"
 chown tinderbox:tinderbox "$lock"
 
-cgroup
+rm -f "$mnt/entrypoint"
+
+if [[ $# -eq 2 && -f $2 ]]; then
+  cp "$2"   $mnt/entrypoint
+  chmod 744 $mnt/entrypoint
+fi
 
 sandbox="env -i
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
@@ -98,10 +112,13 @@ sandbox="env -i
      /bin/bash -l
 "
 
-if [[ $# -gt 0 ]]; then
-  $sandbox -c "chmod 1777 /dev/shm && ${@}"
+cgroup
+
+if [[ -x "$mnt/entrypoint" ]]; then
+  $sandbox -c "chmod 1777 /dev/shm && /entrypoint"
 else
   $sandbox
 fi
 
+rm "$lock"
 Exit $?

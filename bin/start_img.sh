@@ -6,6 +6,7 @@
 # start tinderbox chroot image/s
 #
 
+
 set -euf
 export LANG=C.utf8
 
@@ -36,19 +37,16 @@ do
     continue
   fi
 
-  if [[ $(cat $mnt/var/tmp/tb/backlog* /var/tmp/tb/task 2>/dev/null | wc -l) -eq 0 ]]; then
+  if [[ $(cat $mnt/var/tmp/tb/backlog{,,1st,.upd} /var/tmp/tb/task 2>/dev/null | wc -l) -eq 0 ]]; then
     echo " all backlogs are empty: $mnt"
     continue
   fi
-
-  cp /opt/tb/bin/job.sh $mnt/var/tmp/tb || continue
-  chmod u+x $mnt/var/tmp/tb/job.sh
 
   echo " starting     $mnt"
 
   # nice makes reading of sysstat numbers easier
   #
-  nice -n 1 sudo /opt/tb/bin/bwrap.sh "$mnt" "/var/tmp/tb/job.sh" &> ~/logs/${mnt##*/}.log &
+  nice -n 1 sudo /opt/tb/bin/bwrap.sh "$mnt" "/opt/tb/bin/job.sh" &> ~/logs/${mnt##*/}.log &
 done
 
 # avoid an invisible prompt
