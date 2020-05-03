@@ -42,6 +42,7 @@ function Exit()  {
 # main                                                                      #
 #                                                                           #
 #############################################################################
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 trap Exit QUIT TERM KILL
@@ -77,7 +78,11 @@ chown tinderbox:tinderbox "$lock"
 
 cgroup
 
-sandbox="
+sandbox="env -i
+    PATH='/usr/sbin:/usr/bin:/sbin:/bin'
+    HOME='/root'
+    SHELL='/bin/bash'
+    TERM="${TERM}"
     /usr/bin/bwrap
     --bind $mnt                         /
     --bind /home/tinderbox/tb/data      /mnt/tb/data
