@@ -156,7 +156,7 @@ done
 echo
 date
 echo " finished"
-if [[ -e ~/run/$oldimg ]]
+if [[ -e ~/run/$oldimg ]]; then
   rm -- ~/run/$oldimg ~/logs/$oldimg.log
 fi
 Finish 0
