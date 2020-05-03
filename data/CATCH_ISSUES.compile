@@ -255,3 +255,4 @@ This .* might be unmatched
 iconv:.*Invalid argument
 : fatal error:.*No such file or directory
 Please install it manually.(pip .*
+error: invalid integral value
