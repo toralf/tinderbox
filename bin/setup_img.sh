@@ -287,11 +287,8 @@ function UnpackStage3()  {
     fi
   fi
 
-  # do this once before for each key:
-  #
-  # gpg --keyserver hkps.pool.sks-keyservers.net --recv-keys <key>
-  # gpg --edit-key <key>
-  # and set "trust" to 5 (==ultimately)
+  # do sth like this once before
+  # gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
   #
   date
   gpg --quiet --refresh-keys releng@gentoo.org
@@ -301,7 +298,7 @@ function UnpackStage3()  {
   date
   cd $name
   echo " untar'ing $f ..."
-  tar -xf $f --xattrs --exclude='./dev/*' || exit 1
+  tar -xpf $f --same-owner --xattrs --exclude='./dev/*' || exit 1
   echo
 }
 
@@ -773,7 +770,7 @@ function RunSetupScript() {
   echo " run setup script ..."
   cd ~tinderbox/
 
-  nice -n 1 sudo ${0%/*}/bwrap.sh $mnt '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
+  nice -n 1 sudo ${0%/*}/bwrap.sh "$mnt" '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log'
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
@@ -866,7 +863,6 @@ function Dryrun() {
 # main
 #
 #############################################################################
-set -uf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 

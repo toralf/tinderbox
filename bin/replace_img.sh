@@ -79,6 +79,8 @@ function StopOldImage() {
 #######################################################################
 #
 #
+set -uf
+
 export LANG=C.utf8
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
@@ -88,14 +90,14 @@ fi
 
 # do not run this script in parallel
 #
-lck=/tmp/${0##*/}.lck
-if [[ -s $lck ]]; then
+lck="/tmp/${0##*/}.lck"
+if [[ -s "$lck" ]]; then
   kill -0 $(cat $lck) 2>/dev/null
   if [[ $? -eq 0 ]]; then
     exit 1    # be silent, no Finish() here !
   fi
 fi
-echo $$ > $lck
+echo $$ > "$lck" || exit 1
 
 compl=5500    # min. completed emerge operations
 hours=6       # min. distance to the previous image, effectively this yields into n+1 hours
@@ -105,13 +107,13 @@ setupargs=""  # args passed to call of setup_img.sh
 
 while getopts c:h:l:r:s: opt
 do
-  case $opt in
-    c)  compl=$OPTARG         ;;
-    h)  hours=$OPTARG         ;;
-    l)  left=$OPTARG          ;;
-    r)  oldimg=${OPTARG##*/}  ;;
-    s)  setupargs="$OPTARG"   ;;
-    *)  echo " not implemented !"; exit 1;;
+  case "$opt" in
+    c)  compl="$OPTARG"         ;;
+    h)  hours="$OPTARG"         ;;
+    l)  left="$OPTARG"          ;;
+    r)  oldimg="${OPTARG##*/}"  ;;
+    s)  setupargs="$OPTARG"     ;;
+    *)  echo " opt not implemented: '$opt'"; exit 1;;
   esac
 done
 
@@ -140,7 +142,7 @@ do
   date
   echo " setup a new image ..."
 
-  sudo ${0%/*}/setup_img.sh $setupargs
+  ${0%/*}/setup_img.sh "$setupargs"
   rc=$?
   if [[ $rc -eq 0 ]]; then
     break
@@ -154,5 +156,5 @@ done
 echo
 date
 echo " finished"
-rm -f ~/run/$oldimg ~/logs/$oldimg.log
+rm -f -- "~/run/$oldimg" "~/logs/$oldimg.log"
 Finish 0
