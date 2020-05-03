@@ -277,18 +277,10 @@ function UnpackStage3()  {
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo "downloading $stage3 ..."
-    wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir
-    rc=$?
-    echo
-    if [[ $rc -ne 0 ]]; then
-      echo " can't download stage3 file '$stage3', rc=$rc"
-      rm $f{,.DIGESTS.asc}
-      exit 1
-    fi
+    wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
   fi
 
-  # do sth like this once before
-  # gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
+  # do sth like this once before:    gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
   #
   date
   gpg --quiet --refresh-keys releng@gentoo.org
