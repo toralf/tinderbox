@@ -212,13 +212,20 @@ function ComputeImageName()  {
 
 
 function CreateImageDir() {
-  cd ~tinderbox/$(readlink ~tinderbox/img) || exit 1
+  local l=$(readlink ~tinderbox/img)
+  if [[ ! -d ~tinderbox/"$l" ]]; then
+    echo "unexpected readlink result '$l'"
+    exit 1
+  fi
+
+  cd ~tinderbox/$l || exit 1
+
   name="${name}-$(date +%Y%m%d-%H%M%S)"
   mkdir $name || exit 1
 
   # relative path (eg ./img1) from ~tinderbox
   #
-  mnt=$(readlink ../img)/$name
+  mnt=$l/$name
 
   echo " new image: $mnt"
   echo
@@ -232,9 +239,7 @@ function UnpackStage3()  {
 
   for mirror in $gentoo_mirrors
   do
-    wgeturl="$mirror/releases/amd64/autobuilds"
-    wget --quiet $wgeturl/latest-stage3.txt --output-document=$latest && break
-    echo "mirror failed: $mirror, trying next ..."
+    wget --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest && break
   done
 
   case $profile in
@@ -269,20 +274,21 @@ function UnpackStage3()  {
   stage3=$(echo $stage3 | cut -f1 -d' ' -s)
 
   if [[ -z "$stage3" ]]; then
-    echo "can't get stage3 filename for profile '$profile' in $latest"
+    echo " can't get stage3 filename for profile '$profile' in $latest"
     exit 1
   fi
 
   f=$tbdistdir/${stage3##*/}
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
-    echo "downloading $stage3 ..."
+    echo " downloading $stage3 ..."
     wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
   fi
 
   # do sth like this once before:    gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
   #
   date
+  echo " verifying $f ..."
   gpg --quiet --refresh-keys releng@gentoo.org
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
@@ -647,6 +653,8 @@ function CreateSetupScript()  {
 #
 # set -x
 
+set -e
+
 export GCC_COLORS=""
 export GREP_COLORS="never"
 
@@ -668,18 +676,18 @@ echo "$name" > /etc/conf.d/hostname
 useradd -u $(id -u tinderbox) tinderbox
 
 if [[ $musl = "y" ]]; then
-  eselect profile set --force default/linux/amd64/$profile            || exit 1
+  eselect profile set --force default/linux/amd64/$profile
 else
   # use the base profile during setup to minimize dep graph
   #
   if [[ $profile =~ "/no-multilib" ]]; then
-    eselect profile set --force default/linux/amd64/17.1/no-multilib  || exit 1
+    eselect profile set --force default/linux/amd64/17.1/no-multilib
   elif [[ $profile =~ "/systemd" ]]; then
-    eselect profile set --force default/linux/amd64/17.1/systemd      || exit 1
+    eselect profile set --force default/linux/amd64/17.1/systemd
   fi
 
   cat << 2EOF >> /etc/locale.gen
-# by $0 at $(date)
+# by \$0 at \$(date)
 #
 en_US ISO-8859-1
 en_US.UTF-8 UTF-8
@@ -689,7 +697,7 @@ de_DE.UTF-8@euro UTF-8
 
 2EOF
 
-  locale-gen -j1 || exit 1
+  locale-gen -j1
   eselect locale set en_US.UTF-8
 fi
 
@@ -697,45 +705,41 @@ env-update
 source /etc/profile
 
 echo "Europe/Berlin" > /etc/timezone
-emerge --config sys-libs/timezone-data || exit 1
+emerge --config sys-libs/timezone-data
 
 # emerge ssmtp before mailx to avoid that mailx pulls in the ebuild default (==another) MTA
 #
-emerge mail-mta/ssmtp     || exit 1
-emerge mail-client/mailx  || exit 1
+emerge mail-mta/ssmtp
+emerge mail-client/mailx
 
-emerge -u sys-apps/portage   || exit 1
-emerge app-arch/sharutils app-portage/gentoolkit www-client/pybugz || exit 1
+emerge -u sys-apps/portage
+emerge app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
-if [[ $musl = "y" ]]; then
-  :
-else
-  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    # testing sys-libs/libxcrypt[system]
-    #
-    echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/00libxcrypt
-
-    echo '
-    sys-libs/glibc      -crypt
-    sys-libs/libxcrypt  compat static-libs system
-    virtual/libcrypt    static-libs
-    '                                   >> /etc/portage/package.use/00libxcrypt
-
-    echo 'sys-libs/glibc     -crypt'    >> /etc/portage/make.profile/package.use.force
-    echo 'sys-libs/libxcrypt -system'   >> /etc/portage/make.profile/package.use.mask
-  fi
-
-  # glibc-2.31 + python-3 dep issue
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+  # testing sys-libs/libxcrypt[system]
   #
-  emerge -1u virtual/libcrypt || exit 1
+  echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/00libxcrypt
 
-  # finally switch to the choosen profile
-  #
-  eselect profile set --force default/linux/amd64/$profile || exit 1
+  echo '
+  sys-libs/glibc      -crypt
+  sys-libs/libxcrypt  compat static-libs system
+  virtual/libcrypt    static-libs
+  '                                   >> /etc/portage/package.use/00libxcrypt
+
+  echo 'sys-libs/glibc     -crypt'    >> /etc/portage/make.profile/package.use.force
+  echo 'sys-libs/libxcrypt -system'   >> /etc/portage/make.profile/package.use.mask
 fi
 
+# glibc-2.31 + python-3 dep issue
+#
+emerge -1u virtual/libcrypt
+
+# finally switch to the choosen profile
+#
+eselect profile set --force default/linux/amd64/$profile
+
 if [[ $testfeature = "y" ]]; then
-  sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf || exit 1
+  sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
 # sort -u is needed if more than one non-empty repository is configured
@@ -744,10 +748,8 @@ qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backl
 
 # symlink credential files of mail-mta/ssmtp and www-client/pybugz
 #
-(cd /root && ln -s ../mnt/tb/sdata/.bugzrc) || exit 1
-(cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf) || exit 1
-
-exit 0
+(cd /root && ln -s ../mnt/tb/sdata/.bugzrc)
+(cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
 EOF
 
@@ -901,7 +903,7 @@ do
         ;;
     m)  multilib="$OPTARG"
         ;;
-    p)  profile=$OPTARG
+    p)  profile="$OPTARG"
         ;;
     t)  testfeature="$OPTARG"
         ;;
