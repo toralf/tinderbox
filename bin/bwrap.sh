@@ -79,9 +79,9 @@ chown tinderbox:tinderbox "$lock"
 cgroup
 
 sandbox="env -i
-    PATH='/usr/sbin:/usr/bin:/sbin:/bin'
-    HOME='/root'
-    SHELL='/bin/bash'
+    PATH=/usr/sbin:/usr/bin:/sbin:/bin
+    HOME=/root
+    SHELL=/bin/bash
     TERM="${TERM}"
     /usr/bin/bwrap
     --bind $mnt                         /
