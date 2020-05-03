@@ -43,7 +43,7 @@ function Exit()  {
 #                                                                           #
 #############################################################################
 trap Exit QUIT TERM KILL
-set -uf
+set -euf
 
 export LANG=C.utf8
 
