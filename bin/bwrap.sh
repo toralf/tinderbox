@@ -7,24 +7,24 @@
 function cgroup() {
   # avoid oom-killer eg. while emerging dev-perl/GD
   #
-  local sysfsdir=/sys/fs/cgroup/memory/tinderbox-${mnt##*/}
-  if [[ ! -d $sysfsdir ]]; then
-    mkdir -p $sysfsdir
+  local sysfsdir="/sys/fs/cgroup/memory/tinderbox-${mnt##*/}"
+  if [[ ! -d "$sysfsdir" ]]; then
+    mkdir -p "$sysfsdir"
   fi
 
-  echo "$$" > $sysfsdir/tasks
+  echo "$$" > "$sysfsdir/tasks"
 
   echo "12 * 2^30" | bc > $sysfsdir/memory.limit_in_bytes
   echo "16 * 2^30" | bc > $sysfsdir/memory.memsw.limit_in_bytes
 
   # restrict blast radius if -j1 for make processes is ignored
   #
-  local sysfsdir=/sys/fs/cgroup/cpu/tinderbox-${mnt##*/}
-  if [[ ! -d $sysfsdir ]]; then
-    mkdir -p $sysfsdir
+  local sysfsdir="/sys/fs/cgroup/cpu/tinderbox-${mnt##*/}"
+  if [[ ! -d "$sysfsdir" ]]; then
+    mkdir -p "$sysfsdir"
   fi
 
-  echo "$$" > $sysfsdir/tasks
+  echo "$$" > "$sysfsdir/tasks"
 
   echo "100000" > $sysfsdir/cpu.cfs_quota_us
   echo "100000" > $sysfsdir/cpu.cfs_period_us
@@ -32,7 +32,7 @@ function cgroup() {
 
 
 function Exit()  {
-  rm $lock
+  rm "$lock"
   exit ${1:-1}
 }
 
@@ -42,10 +42,10 @@ function Exit()  {
 # main                                                                      #
 #                                                                           #
 #############################################################################
+export LANG=C.utf8
+
 trap Exit QUIT TERM KILL
 set -euf
-
-export LANG=C.utf8
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
@@ -54,9 +54,9 @@ fi
 
 # the path to the image
 #
-mnt=$1
+mnt="$1"
 
-if [[ ! -d $mnt ]]; then
+if [[ ! -d "$mnt" ]]; then
   echo "not a valid mount point: '$mnt'"
   exit 1
 fi
@@ -67,17 +67,18 @@ shift
 
 # simple barrier to prevent running the same image twice
 #
-lock=$mnt/var/tmp/tb/LOCK
-if [[ -f $lock ]]; then
+lock="$mnt/var/tmp/tb/LOCK"
+if [[ -f "$lock" ]]; then
   echo "found lock file $lock"
   exit 1
 fi
-touch $lock || exit 2 # no write perms ?!?
-chown tinderbox:tinderbox $lock
+touch "$lock"
+chown tinderbox:tinderbox "$lock"
 
 cgroup
 
-sandbox="/usr/bin/bwrap
+sandbox="
+    /usr/bin/bwrap
     --bind $mnt                         /
     --bind /home/tinderbox/tb/data      /mnt/tb/data
     --bind /home/tinderbox/distfiles    /var/cache/distfiles
