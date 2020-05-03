@@ -42,11 +42,11 @@ function Exit()  {
 # main                                                                      #
 #                                                                           #
 #############################################################################
+set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 trap Exit QUIT TERM KILL
-set -euf
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"

@@ -2,14 +2,15 @@
 #
 # set -x
 
-export LANG=C.utf8
+# this is a (s)imple (c)hroot (w)rapper into a tinderbox image
 
-# this is a (s)imple (c)hroot (w)rapper into a running tinderbox image
-# for a stopped image chr.sh is the better choice
+set -euf
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+export LANG=C.utf8
 
 mnt=$1
 
-if [[ ! -d $mnt ]]; then
+if [[ ! -d "$mnt" ]]; then
   echo "not a valid mount point: '$mnt'"
   exit 1
 fi
@@ -18,12 +19,12 @@ fi
 #
 shift
 
-# do "su - root" to use root's tinderbox image environment
+# do "su - root" to source root's tinderbox image environment
 #
 if [[ $# -gt 0 ]]; then
-  /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c '$@'"
+  /usr/bin/chroot "$mnt" /bin/bash -l -c "su - root -c '${@}'"
 else
-  /usr/bin/chroot $mnt /bin/bash -l -c "su - root"
+  /usr/bin/chroot "$mnt" /bin/bash -l -c "su - root"
 fi
 
-exit $?
+exit 0

@@ -2,7 +2,8 @@
 #
 #set -x
 
-
+set -uf
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 if [[ "$(whoami)" != "root" ]]; then
@@ -12,9 +13,9 @@ fi
 
 mailto="tor-relay@zwiebeltoralf.de"
 
-log=/tmp/${0##*/}.log
+log="/tmp/${0##*/}.log"
 
-date > $log
+date > "$log" || exit 1
 eix-sync &>> $log
 rc1=$?
 

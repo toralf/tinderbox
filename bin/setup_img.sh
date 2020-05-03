@@ -866,11 +866,14 @@ function Dryrun() {
 # main
 #
 #############################################################################
+set -uf
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 date
 echo " $0 started"
 echo
+
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
