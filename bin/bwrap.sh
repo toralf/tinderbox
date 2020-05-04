@@ -84,7 +84,7 @@ trap Exit QUIT TERM
 
 # 2nd barrier
 #
-pgrep -af "/usr/bin/bwrap .*$(echo ${mnt##*/} | sed "s,+,.,g")" && exit 1
+pgrep -af "/usr/bin/bwrap .*$(echo ${mnt##*/} | sed 's,+,.,g')" && exit 1
 
 if [[ -L "$mnt/entrypoint" ]]; then
   echo " invalid entrypoint link found"
