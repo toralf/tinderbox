@@ -28,7 +28,7 @@ do
   mnt="$(ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null || true)"
 
   if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
-    echo "not a valid mount point: '$mnt'"
+    echo "no valid mount point for: '$i'"
     continue
   fi
 
