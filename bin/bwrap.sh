@@ -59,9 +59,9 @@ fi
 
 i=$1
 
-if [[ "$i" =~ ".." || "$i" =~ "//" || "$i" =~ [[:space:]] ]]; then
+if [[ "$i" =~ ".." || "$i" =~ "//" || "$i" =~ [[:space:]] || "$i" =~ '\' ]]; then
   echo "illegal character(s) in parameter '$i'"
-  continue
+  exit 1
 fi
 
 mnt="$(ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null || true)"

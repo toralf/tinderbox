@@ -19,7 +19,7 @@ for i in ${@:-$(ls ~/run 2>/dev/null)}
 do
   echo -n "$(date +%X) "
 
-  if [[ "$i" =~ ".." || "$i" =~ "//" || "$i" =~ [[:space:]] ]]; then
+  if [[ "$i" =~ ".." || "$i" =~ "//" || "$i" =~ [[:space:]] || "$i" =~ '\' ]]; then
     echo "illegal character(s) in parameter '$i'"
     continue
   fi
