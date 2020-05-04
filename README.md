@@ -34,12 +34,6 @@ The current emerge operation will be finished before *job.sh* removes */var/tmp/
 
 This uses bibblewrap to sandbox the image. Without any argument an interactive login is made afterwards. Otherwise the argument(s) are treated as command(s) to be run within that image.
 
-### go into a running image
-
-    sudo /opt/tb/bin/scw.sh <image>
-
-Simple wrapper of chroot with few checks. This can be made if an image is already running and *bwrap.sh* can't be used. This script is useful to inspect log files and to run commands like *eix*, *qlop* etc.
-
 ### removal of an image
 
 Stop the image and remove the symlink in *~/run*.
@@ -108,7 +102,7 @@ The user *tinderbox* must have write permissions for files in *~tinderbox/tb/dat
 Edit the credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, set ownership/rwx-access of this subdirectory and its files to user *root* only.
 Grant sudo rights to the user *tinderbox*:
 
-    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/scw.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/sync_repo.sh
+    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/sync_repo.sh
 
 ## link(s)
 

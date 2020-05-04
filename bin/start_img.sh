@@ -8,8 +8,8 @@
 
 
 set -euf
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
-
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " $0: wrong user $USER"
@@ -20,11 +20,16 @@ for i in ${@:-$(ls ~/run 2>/dev/null)}
 do
   echo -n "$(date +%X) "
 
+  if [[ "$i" =~ ".." || "$i" =~ "//" || "$i" =~ [[:space:]] ]]; then
+    echo "illegal character(s) in parameter '$i'"
+    continue
+  fi
+
   mnt="$(ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null || true)"
 
-  if [[ ! -d "$mnt" ]]; then
+  if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
     echo "not a valid mount point: '$mnt'"
-    exit 1
+    continue
   fi
 
   if [[ -f $mnt/var/tmp/tb/LOCK ]]; then

@@ -3,6 +3,7 @@
 # set -x
 
 # bubblewrap into an image interactively - or - run a command
+# https://forums.gentoo.org/viewtopic.php?p=8452922
 
 function cgroup() {
   # avoid oom-killer eg. while emerging dev-perl/GD
@@ -32,6 +33,7 @@ function cgroup() {
 
 
 function Exit()  {
+  rm "$lock"
   exit ${1:-1}
 }
 
@@ -45,8 +47,6 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-trap Exit QUIT TERM KILL
-
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root !"
   exit 1
@@ -57,9 +57,16 @@ if [[ $# -lt 1 || $# -gt 2 ]]; then
   exit 1
 fi
 
-mnt="$(ls -d ~tinderbox/img{1,2}/${1##*/} 2>/dev/null || true)"
+i=$1
 
-if [[ ! -d "$mnt" ]]; then
+if [[ "$i" =~ ".." || "$i" =~ "//" || "$i" =~ [[:space:]] ]]; then
+  echo "illegal character(s) in parameter '$i'"
+  continue
+fi
+
+mnt="$(ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null || true)"
+
+if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
   echo "not a valid mount point: '$mnt'"
   exit 1
 fi
@@ -83,6 +90,8 @@ fi
 touch "$lock"
 chown tinderbox:tinderbox "$lock"
 
+trap Exit QUIT TERM
+
 rm -f "$mnt/entrypoint"
 
 if [[ $# -eq 2 && -f $2 ]]; then
@@ -90,7 +99,7 @@ if [[ $# -eq 2 && -f $2 ]]; then
   chmod 744 $mnt/entrypoint
 fi
 
-sandbox="env -i
+sandbox=(env -i
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
     HOME=/root
     SHELL=/bin/bash
@@ -110,15 +119,14 @@ sandbox="env -i
     --chdir /
     --die-with-parent
      /bin/bash -l
-"
+)
 
 cgroup
 
 if [[ -x "$mnt/entrypoint" ]]; then
-  $sandbox -c "chmod 1777 /dev/shm && /entrypoint"
+  (${sandbox[@]} -c "chmod 1777 /dev/shm && /entrypoint")
 else
-  $sandbox
+  (${sandbox[@]})
 fi
 
-rm "$lock"
 Exit $?
