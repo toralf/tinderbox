@@ -80,11 +80,11 @@ fi
 touch "$lock"
 chown tinderbox:tinderbox "$lock"
 
-trap Exit QUIT TERM
-
 # 2nd barrier
 #
 pgrep -af "/usr/bin/bwrap .*$(echo ${mnt##*/} | sed 's,+,.,g')" && exit 1
+
+trap Exit QUIT TERM
 
 if [[ -L "$mnt/entrypoint" ]]; then
   echo " invalid entrypoint link found"
