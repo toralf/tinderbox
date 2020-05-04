@@ -79,21 +79,32 @@ if [[ -f "$lock" || -L "$lock" ]]; then
   exit 1
 fi
 
-# 2nd barrier
-#
-pgrep -af "/usr/bin/bwrap .*$(echo ${mnt##*/} | sed "s,+,.,g")" && exit 1
-
 touch "$lock"
 chown tinderbox:tinderbox "$lock"
 
 trap Exit QUIT TERM
 
-rm -f "$mnt/entrypoint"
+# 2nd barrier
+#
+pgrep -af "/usr/bin/bwrap .*$(echo ${mnt##*/} | sed "s,+,.,g")" && exit 1
 
-if [[ $# -eq 2 && -f $2 ]]; then
-  cp "$2"   $mnt/entrypoint
-  chmod 744 $mnt/entrypoint
+if [[ -L "$mnt/entrypoint" ]]; then
+  echo " invalid entrypoint link found"
+  exit 1
 fi
+rm -f "$mnt/entrypoint"
+if [[ $# -eq 2 ]]; then
+  if [[ -f $2 ]]; then
+    touch     "$mnt/entrypoint"
+    chmod 744 "$mnt/entrypoint"
+    cp "$2"   "$mnt/entrypoint"
+  else
+    echo "no valid entry point script given"
+    exit 1
+  fi
+fi
+
+sandbox_hostname="BWRAP-"$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)
 
 sandbox=(env -i
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
@@ -101,7 +112,7 @@ sandbox=(env -i
     SHELL=/bin/bash
     TERM=linux
     /usr/bin/bwrap
-    --bind $mnt                         /
+    --bind "$mnt"                       /
     --bind /home/tinderbox/tb/data      /mnt/tb/data
     --bind /home/tinderbox/distfiles    /var/cache/distfiles
     --ro-bind /home/tinderbox/tb/sdata  /mnt/tb/sdata
@@ -111,7 +122,7 @@ sandbox=(env -i
     --dev /dev --proc /proc
     --mqueue /dev/mqueue
     --unshare-ipc --unshare-pid --unshare-uts
-    --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
+    --hostname "$sandbox_hostname"
     --chdir /
     --die-with-parent
      /bin/bash -l
