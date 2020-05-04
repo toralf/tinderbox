@@ -74,7 +74,7 @@ fi
 # 1st barrier to prevent running the same image twice
 #
 lock="$mnt/var/tmp/tb/LOCK"
-if [[ -f "$lock" ]]; then
+if [[ -f "$lock" || -L "$lock" ]]; then
   echo "found lock file $lock"
   exit 1
 fi
