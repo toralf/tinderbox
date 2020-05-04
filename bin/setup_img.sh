@@ -861,6 +861,8 @@ function Dryrun() {
 #############################################################################
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
+export GREP_COLOR="never"
+export GREP_COLORS="never"
 
 date
 echo " $0 started"

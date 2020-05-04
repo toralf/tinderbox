@@ -1280,6 +1280,7 @@ logfile=$taskfile.log               # holds output of the current task
 backlog1st=/var/tmp/tb/backlog.1st  # the high prio backlog
 
 export GCC_COLORS=""
+export GREP_COLOR="never"
 export GREP_COLORS="never"
 export OCAML_COLOR="never"
 export CARGO_TERM_COLOR="never"

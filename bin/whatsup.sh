@@ -301,6 +301,8 @@ function CountPackages()  {
 #
 set -uf
 export LANG=C.utf8
+export GREP_COLOR="never"
+export GREP_COLORS="never"
 unset LC_TIME
 
 images=$(list_images)

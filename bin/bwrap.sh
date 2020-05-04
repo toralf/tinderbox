@@ -46,6 +46,8 @@ function Exit()  {
 set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
+export GREP_COLOR="never"
+export GREP_COLORS="never"
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
@@ -79,11 +81,7 @@ fi
 
 # 2nd barrier
 #
-result=$(pgrep -a bwrap | grep "bwrap .* $mnt") || true
-if [[ -n "$result" ]]; then
-  echo -e " the image is already running:\n $result"
-  exit 1
-fi
+pgrep -af "/usr/bin/bwrap .*$(echo ${mnt##*/} | sed "s,+,.,g")" && exit 1
 
 touch "$lock"
 chown tinderbox:tinderbox "$lock"
@@ -113,7 +111,7 @@ sandbox=(env -i
     --dev /dev --proc /proc
     --mqueue /dev/mqueue
     --unshare-ipc --unshare-pid --unshare-uts
-    --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[\.],_,g' | cut -c-57)"
+    --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
     --chdir /
     --die-with-parent
      /bin/bash -l

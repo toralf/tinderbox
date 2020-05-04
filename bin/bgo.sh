@@ -2,8 +2,6 @@
 #
 # set -x
 
-export LANG=C.utf8
-
 # create or modify a bug report at http://bugzilla.gentoo.org
 #
 
@@ -29,6 +27,10 @@ function Error() {
 
 #######################################################################
 #
+
+export LANG=C.utf8
+export GREP_COLOR="never"
+export GREP_COLORS="never"
 
 id=""
 block=""
