@@ -867,7 +867,7 @@ echo " $0 started"
 echo
 
 if [[ "$(whoami)" != "root" ]]; then
-  echo " you must be root !"
+  echo " you must be root"
   exit 1
 fi
 

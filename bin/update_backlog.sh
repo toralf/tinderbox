@@ -9,7 +9,7 @@
 export LANG=C.utf8
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
-  echo "You are not tinderbox !"
+  echo " you must be tinderbox"
   exit 1
 fi
 
