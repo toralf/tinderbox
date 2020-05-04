@@ -7,8 +7,6 @@
 #
 
 export LANG=C.utf8
-export GREP_COLOR="never"
-export GREP_COLORS="never"
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " you must be tinderbox"

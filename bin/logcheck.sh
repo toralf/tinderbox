@@ -3,8 +3,6 @@
 # set -x
 
 export LANG=C.utf8
-export GREP_COLOR="never"
-export GREP_COLORS="never"
 
 # check if stdout/err of job.sh was made
 #

@@ -29,8 +29,6 @@ function Error() {
 #
 
 export LANG=C.utf8
-export GREP_COLOR="never"
-export GREP_COLORS="never"
 
 id=""
 block=""

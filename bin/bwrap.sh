@@ -46,8 +46,6 @@ function Exit()  {
 set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
-export GREP_COLOR="never"
-export GREP_COLORS="never"
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
