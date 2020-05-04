@@ -57,17 +57,15 @@ if [[ $# -lt 1 || $# -gt 2 ]]; then
   exit 1
 fi
 
-i=$1
+mnt="$(ls -d ~tinderbox/img{1,2}/${1##*/} 2>/dev/null || true)"
 
-if [[ "$i" =~ ".." || "$i" =~ "//" || "$i" =~ [[:space:]] || "$i" =~ '\' ]]; then
-  echo "illegal character(s) in parameter '$i'"
+if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
+  echo "no valid mount point found"
   exit 1
 fi
 
-mnt="$(ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null || true)"
-
-if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
-  echo "no valid mount point for: '$i'"
+if [[ "$mnt" =~ ".." || "$mnt" =~ "//" || "$mnt" =~ [[:space:]] || "$mnt" =~ '\' ]]; then
+  echo "illegal character(s) in mount point"
   exit 1
 fi
 

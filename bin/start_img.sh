@@ -20,15 +20,15 @@ for i in ${@:-$(ls ~/run 2>/dev/null)}
 do
   echo -n "$(date +%X) "
 
-  if [[ "$i" =~ ".." || "$i" =~ "//" || "$i" =~ [[:space:]] || "$i" =~ '\' ]]; then
-    echo "illegal character(s) in parameter '$i'"
-    continue
-  fi
-
   mnt="$(ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null || true)"
 
   if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
-    echo "no valid mount point for: '$i'"
+    echo "no valid mount point found"
+    continue
+  fi
+
+  if [[ "$mnt" =~ ".." || "$mnt" =~ "//" || "$mnt" =~ [[:space:]] || "$mnt" =~ '\' ]]; then
+    echo "illegal character(s) in mount point"
     continue
   fi
 
