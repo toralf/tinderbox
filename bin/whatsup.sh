@@ -133,7 +133,12 @@ function Overall() {
     # images during setup are not already symlinked to ~/run, print so that the position of / is fixed
     #
     b=${i##*/}
-    [[ -e ~/run/$b ]] && d="run" || d=${${i%/*}##/*}
+    if [[ -e ~/run/$b ]]; then
+      d="run"
+    else
+      d=${i%/*}
+      d=${d##*/}
+    fi
 
     printf "%5i %4i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
   done
