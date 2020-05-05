@@ -79,7 +79,7 @@ function StopOldImage() {
 #######################################################################
 #
 #
-set -uf
+set -u
 
 export LANG=C.utf8
 
