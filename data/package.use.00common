@@ -41,6 +41,7 @@ dev-lisp/sbcl             -threads
 # image setup issues
 #
 app-doc/doxygen           dot
+app-portage/pfl           -network-cron
 app-text/xmlto            -latex
 dev-db/sqlite             -icu
 dev-lang/python           -bluetooth
