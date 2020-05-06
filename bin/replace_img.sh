@@ -62,8 +62,15 @@ function LookForAnOldEnoughImage()  {
 function StopOldImage() {
   # prevent a restart-logic
   #
-  echo -e "STOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP\nSTOP scheduled at $(unset LC_TIME; date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left" |\
-  tee -a ~/run/$oldimg/var/tmp/tb/STOP >> ~/run/$oldimg/var/tmp/tb/backlog.1st
+  echo -e "
+STOP
+STOP
+STOP
+STOP
+STOP scheduled at $(unset LC_TIME; date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left
+%/usr/bin/pfl || true
+app-portage/pfl
+" | tee -a ~/run/$oldimg/var/tmp/tb/STOP >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 
   if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
     echo " wait for stop ..."

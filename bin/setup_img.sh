@@ -741,9 +741,15 @@ if [[ $testfeature = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
-# sort -u is needed if more than one non-empty repository is configured
+# last action: feed https://portagefilelist.de
 #
-qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
+echo "%/usr/bin/pfl || true
+app-portage/pfl" > /var/tmp/tb/backlog
+
+# fill the backlog with all package mathicng this profile
+# hint: sort -u is needed if more than one non-empty repository is configured
+#
+qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/backlog
 
 # symlink credential files of mail-mta/ssmtp and www-client/pybugz
 #
@@ -784,7 +790,7 @@ function RunSetupScript() {
 #
 function DryrunHelper() {
   echo
-  tail -v -n 1000 $mnt/etc/portage/package.use/00thrown* 2>/dev/null
+  tail -v -n 1000 $mnt/etc/portage/package.use/00thrown*
   echo
 
   echo 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
@@ -794,7 +800,7 @@ function DryrunHelper() {
   if [[ $rc -eq 0 ]]; then
     grep -H -A 32 -e 'The following USE changes are necessary to proceed:'                \
                   -e 'One of the following packages is required to complete your request' \
-                  $mnt/var/tmp/tb/dryrun.log && rc=12
+                  $mnt/var/tmp/tb/dryrun.log && rc=2
   fi
 
   if [[ $rc -ne 0 ]]; then
@@ -836,9 +842,9 @@ function Dryrun() {
 
       # hold on in the hope that the portage tree is healed afterwards ...
       #
-      if [[ $(($i % 20)) = 0 ]]; then
-        echo -e "\n\n TOO MUCH ATTEMPTS, WILL WAIT 1 HOUR ...\n\n"
-        sleep 3600
+      if [[ $(($i % 20)) -eq 0 ]]; then
+        echo -e "\n\n too much attempts, giving up\n\n"
+        exit 2
       fi
 
     done
