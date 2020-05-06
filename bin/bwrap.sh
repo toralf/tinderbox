@@ -13,11 +13,8 @@ function cgroup() {
   local sysfsdir="/sys/fs/cgroup/memory/tinderbox-${mnt##*/}"
   if [[ ! -d "$sysfsdir" ]]; then
     mkdir -p "$sysfsdir"
-  fi
-
-  if [[ $(wc -l < "$sysfsdir/tasks") -gt 0 ]]; then
-    echo " process(es) are already running:"
-    tail -n 100 "$sysfsdir/tasks"
+  elif [[ $(wc -l < "$sysfsdir/tasks") -gt 0 ]]; then
+    echo " cgroup memory has pid(s):"
     exit 1
   fi
 
@@ -31,6 +28,9 @@ function cgroup() {
   local sysfsdir="/sys/fs/cgroup/cpu/tinderbox-${mnt##*/}"
   if [[ ! -d "$sysfsdir" ]]; then
     mkdir -p "$sysfsdir"
+  elif [[ $(wc -l < "$sysfsdir/tasks") -gt 0 ]]; then
+    echo " cgroup cpu has pid(s):"
+    exit 1
   fi
 
   echo "$$" > "$sysfsdir/tasks"
