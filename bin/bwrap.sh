@@ -2,15 +2,23 @@
 #
 # set -x
 
+
 # bubblewrap into an image interactively - or - run a command
 # https://forums.gentoo.org/viewtopic.php?p=8452922
 
+
 function cgroup() {
-  # avoid oom-killer eg. while emerging dev-perl/GD
+  # avoid oom-killer eg. at emerging dev-perl/GD
   #
   local sysfsdir="/sys/fs/cgroup/memory/tinderbox-${mnt##*/}"
   if [[ ! -d "$sysfsdir" ]]; then
     mkdir -p "$sysfsdir"
+  fi
+
+  if [[ $(wc -l < "$sysfsdir/tasks") -gt 0 ]]; then
+    echo " process(es) are already running:"
+    tail -n 100 "$sysfsdir/tasks"
+    exit 1
   fi
 
   echo "$$" > "$sysfsdir/tasks"
@@ -33,7 +41,6 @@ function cgroup() {
 
 
 function Exit()  {
-  rm "$lock"
   exit ${1:-1}
 }
 
@@ -47,6 +54,8 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
+trap Exit QUIT TERM
+
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
   exit 1
@@ -57,15 +66,25 @@ if [[ $# -lt 1 || $# -gt 2 ]]; then
   exit 1
 fi
 
-mnt="$(ls -d ~tinderbox/img{1,2}/${1##*/} 2>/dev/null || true)"
 
-if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
+if [[ "$1" =~ ".." || "$1" =~ "//" || "$1" =~ [[:space:]] || "$1" =~ '\' ]]; then
+  echo "illegal character(s) in mount point"
+  exit 1
+fi
+
+if [[ -d /home/tinderbox/img1/"${1##*/}" ]]; then
+  mnt=/home/tinderbox/img1/"${1##*/}"
+
+elif [[ -d /home/tinderbox/img2/"${1##*/}" ]]; then
+  mnt=/home/tinderbox/img2/"${1##*/}"
+
+else
   echo "no valid mount point found"
   exit 1
 fi
 
-if [[ "$mnt" =~ ".." || "$mnt" =~ "//" || "$mnt" =~ [[:space:]] || "$mnt" =~ '\' ]]; then
-  echo "illegal character(s) in mount point"
+if [[ "$mnt" = "/home/tinderbox/img1/" || "$mnt" = "/home/tinderbox/img2/" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
+  echo "mount point not accepted"
   exit 1
 fi
 
@@ -73,26 +92,27 @@ fi
 #
 lock="$mnt/var/tmp/tb/LOCK"
 if [[ -f "$lock" || -L "$lock" ]]; then
-  echo "found lock file $lock"
+  echo "found lock"
   exit 1
 fi
-
 touch "$lock"
+if [[ -L "$lock" ]]; then
+  echo "found symlinked lock"
+  exit 1
+fi
 chown tinderbox:tinderbox "$lock"
 
 # 2nd barrier
 #
 pgrep -af "/usr/bin/bwrap .*$(echo ${mnt##*/} | sed 's,+,.,g')" && exit 1
 
-trap Exit QUIT TERM
+# 3rd barrier
+#
+cgroup
 
-if [[ -L "$mnt/entrypoint" ]]; then
-  echo " invalid entrypoint link found"
-  exit 1
-fi
 rm -f "$mnt/entrypoint"
 if [[ $# -eq 2 ]]; then
-  if [[ -f $2 ]]; then
+  if [[ -f "$2" ]]; then
     touch     "$mnt/entrypoint"
     chmod 744 "$mnt/entrypoint"
     cp "$2"   "$mnt/entrypoint"
@@ -102,7 +122,7 @@ if [[ $# -eq 2 ]]; then
   fi
 fi
 
-sandbox_hostname="BWRAP-"$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)
+sandbox_hostname="BWRAP-$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
 
 sandbox=(env -i
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
@@ -126,12 +146,13 @@ sandbox=(env -i
      /bin/bash -l
 )
 
-cgroup
-
 if [[ -x "$mnt/entrypoint" ]]; then
-  (${sandbox[@]} -c "chmod 1777 /dev/shm && /entrypoint")
+  ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
 else
-  (${sandbox[@]})
+  ("${sandbox[@]}")
 fi
+rc=$?
 
-Exit $?
+rm "$lock"
+
+Exit $rc
