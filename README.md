@@ -30,9 +30,9 @@ The current emerge operation will be finished before *job.sh* removes */var/tmp/
 
 ### go into a stopped image
 
-    sudo /opt/tb/bin/bwrap.sh <image>
+    sudo /opt/tb/bin/bwrap.sh <image> [entrypoint script]
 
-This uses bibblewrap to sandbox the image. Without any argument an interactive login is made afterwards. Otherwise the argument(s) are treated as command(s) to be run within that image.
+This uses bubblewrap as a better chroot sandbox. Without a 2nd argument an interactive login is made afterwards. Otherwise the file the 2nd argument points to is copied to *<image>/entrypoint* and run within the image. 
 
 ### removal of an image
 
@@ -89,11 +89,11 @@ Run as user *tinderbox* in ~tinderbox :
 
     mkdir distfiles img{1,2} logs run tb
 
-to have 2 directories acting as mount points for 2 separate file systems (mkfs is *much* more faster than rm -rf) to hold the chroot images. Use both file systems in a round robin manner, start with the first, eg.:
+to have 2 directories acting as mount points for 2 separate file systems holding the images. Use both file systems in a round robin manner, start with the first, eg.:
 
-    ln -s img1 img
+    ln -sf ./img1 ./img
 
-Clone this git repository.
+Clone this Git repository.
 
 Move *./data* and *./sdata* into *~tinderbox/tb/*.
 Move *./bin* into */opt/tb/ as user *root*.
