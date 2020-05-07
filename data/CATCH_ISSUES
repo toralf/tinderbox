@@ -20,3 +20,4 @@ sed.*failed
 ^ERROR:
 .:.*: Error:
  \* emake failed
+Please fix the ebuild to use correct FHS/Gentoo policy paths
