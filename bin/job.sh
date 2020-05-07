@@ -518,7 +518,7 @@ function ClassifyIssue() {
   elif [[ -n $sandb ]]; then # no test at "-f" b/c it might not be allowed to be written
     foundSandboxIssue
 
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of.*:' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of ' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'fails to build with -fno-common or gcc-10'
 
   elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
