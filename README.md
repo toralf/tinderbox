@@ -58,12 +58,9 @@ Bugs are be filed using *bgo.sh* - a command line ready for copy+paste is compil
 
 ### unattended test of package/s
 
-Append package(s) to the package list in the following way:
+Add package(s) to be tested (goes into */var/tmp/tb/backlog.upd* of each image):
     
-    cat << EOF >> ~/run/[image]/var/tmp/tb/backlog.1st
-    INFO net-p2p/bitcoind ok -> then look into https://bugs.gentoo.org/show_bug.cgi?id=642934
-    net-p2p/bitcoind
-    EOF
+    update_backlog.sh @system app-portage/pfl
 
 *STOP* can be used instead *INFO* to stop the image at that point, the following text will become the subject of an email.
 
