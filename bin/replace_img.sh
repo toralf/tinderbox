@@ -70,7 +70,7 @@ STOP
 STOP scheduled at $(unset LC_TIME; date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left
 %/usr/bin/pfl || true
 app-portage/pfl
-" | tee -a ~/run/$oldimg/var/tmp/tb/STOP >> ~/run/$oldimg/var/tmp/tb/backlog.1st
+" > ~/run/$oldimg/var/tmp/tb/backlog.1st
 
   if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
     echo " wait for stop ..."
