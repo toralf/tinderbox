@@ -6,6 +6,9 @@
 #
 
 function Finish() {
+  echo
+  date
+  echo " finished with rc=$1"
   rm -f $lck
   exit $1
 }
@@ -60,9 +63,9 @@ function LookForAnOldEnoughImage()  {
 
 
 function StopOldImage() {
-  # prevent a restart-logic
+  # beat against a restart-logic
   #
-  echo -e "
+  echo -e "STOP
 STOP
 STOP
 STOP
@@ -152,18 +155,13 @@ do
   sudo ${0%/*}/setup_img.sh "$setupargs"
   rc=$?
   if [[ $rc -eq 0 ]]; then
-    break
+    if [[ -e ~/run/$oldimg ]]; then
+      rm -- ~/run/$oldimg ~/logs/$oldimg.log
+    fi
+    Finish 0
   elif [[ $rc -eq 3 ]]; then
     continue
   else
     Finish $rc
   fi
 done
-
-echo
-date
-echo " finished"
-if [[ -e ~/run/$oldimg ]]; then
-  rm -- ~/run/$oldimg ~/logs/$oldimg.log
-fi
-Finish 0
