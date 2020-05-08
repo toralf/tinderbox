@@ -1197,7 +1197,7 @@ function WorkOnTask() {
               add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
             fi
           fi
-        elif [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" && ! $task =~ "BuildKernel" ]]; then
+        elif [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C" && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" && ! $task =~ "BuildKernel" ]]; then
           Finish 3 "command: '$cmd'"
         fi
       fi
