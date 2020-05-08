@@ -298,6 +298,8 @@ function UnpackStage3()  {
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
+  CreateImageDir
+
   date
   cd $name
   echo " untar'ing $f ..."
@@ -927,7 +929,6 @@ done
 
 CheckOptions
 ComputeImageName
-CreateImageDir
 UnpackStage3
 CompileRepoFiles
 CompileMakeConf
