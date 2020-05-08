@@ -290,7 +290,7 @@ function UnpackStage3()  {
     wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
   fi
 
-  # do sth like this once before:    gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
+  # do this before if needed:    gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
   #
   date
   echo " verifying $f ..."
