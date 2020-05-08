@@ -711,7 +711,7 @@ emerge --config sys-libs/timezone-data
 emerge mail-mta/ssmtp
 emerge mail-client/mailx
 
-emerge -u sys-apps/portage
+# mandatory tools by job.sh
 emerge app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
