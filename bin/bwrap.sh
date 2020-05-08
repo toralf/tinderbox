@@ -146,6 +146,7 @@ sandbox=(env -i
      /bin/bash -l
 )
 
+set +e
 if [[ -x "$mnt/entrypoint" ]]; then
   ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
 else
