@@ -23,12 +23,12 @@ do
   mnt="$(ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null || true)"
 
   if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
-    echo "no valid mount point found"
+    echo "no valid mount point found for $i"
     continue
   fi
 
   if [[ "$mnt" =~ ".." || "$mnt" =~ "//" || "$mnt" =~ [[:space:]] || "$mnt" =~ '\' ]]; then
-    echo "illegal character(s) in mount point"
+    echo "illegal character(s) in mount point $mnt"
     continue
   fi
 
