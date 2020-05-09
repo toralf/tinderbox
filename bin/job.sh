@@ -919,9 +919,8 @@ function SwitchGCC() {
     gcc-config --nocolor $latest &>> $logfile
     source /etc/profile
 
-    # https://bugs.gentoo.org/459038 and https://bugs.gentoo.org/639886
-    #
-    add2backlog "%revdep-rebuild"
+    # must not fail
+    add2backlog "%preserved-rebuild"
 
     # kick off old GCC installation artifacts to force catching related issues/missing links
     #
