@@ -56,11 +56,6 @@ function ThrowCflags()  {
     cflags="$cflags -falign-functions=32:25:16"
   fi
 
-  # 705764 gcc-10
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    cflags="$cflags -fno-common"
-  fi
-
   # 713576 by ago, but much noise (jer, ulm)
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
     cflags="$cflags -Wformat -Werror=format-security"
