@@ -14,12 +14,12 @@ function cgroup() {
   local sysfsdir="/sys/fs/cgroup/memory/tinderbox-${mnt##*/}"
   if [[ ! -d "$sysfsdir" ]]; then
     mkdir -p "$sysfsdir"
-  elif [[ $(wc -l < "$sysfsdir/tasks") -gt 0 ]]; then
+  elif [[ $(wc -l < "$sysfsdir/cgroup.procs") -gt 0 ]]; then
     echo " cgroup memory has pid(s)"
     exit 1
   fi
 
-  echo "$$" > "$sysfsdir/tasks"
+  echo "$$" > "$sysfsdir/cgroup.procs"
 
   echo "16G" > $sysfsdir/memory.limit_in_bytes
   echo "24G" > $sysfsdir/memory.memsw.limit_in_bytes
@@ -27,12 +27,12 @@ function cgroup() {
   local sysfsdir="/sys/fs/cgroup/cpu/tinderbox-${mnt##*/}"
   if [[ ! -d "$sysfsdir" ]]; then
     mkdir -p "$sysfsdir"
-  elif [[ $(wc -l < "$sysfsdir/tasks") -gt 0 ]]; then
+  elif [[ $(wc -l < "$sysfsdir/cgroup.procs") -gt 0 ]]; then
     echo " cgroup cpu has pid(s)"
     exit 1
   fi
 
-  echo "$$" > "$sysfsdir/tasks"
+  echo "$$" > "$sysfsdir/cgroup.procs"
 
   echo "100000" > $sysfsdir/cpu.cfs_quota_us
   echo "100000" > $sysfsdir/cpu.cfs_period_us
