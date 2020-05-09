@@ -646,13 +646,13 @@ EOF
 
 
 # - configure locale, timezone etc.
-# - install and configure tools called in job.sh using the "minimal" profile:
+# - install and configure tools called in job.sh using a basic profile
 #     <package>                   <command/s>
-#     mail-*                      MTA + mailx
+#     mail-*                      ssmtp, mail
 #     app-arch/sharutils          uudecode
-#     app-portage/gentoolkit      equery eshowkw revdep-rebuild
+#     app-portage/gentoolkit      equery, eshowkw
 #     www-client/pybugz           bugz
-# - dry run of @system using the desired profile
+# - dry run of @world using the desired profile
 #
 function CreateSetupScript()  {
   cat << EOF > ./var/tmp/tb/setup.sh || exit 1
