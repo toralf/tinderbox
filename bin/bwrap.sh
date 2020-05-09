@@ -34,8 +34,8 @@ function cgroup() {
 
   echo "$$" > "$sysfsdir/cgroup.procs"
 
-  echo "100000" > $sysfsdir/cpu.cfs_quota_us
-  echo "100000" > $sysfsdir/cpu.cfs_period_us
+  echo "1000000" > $sysfsdir/cpu.cfs_quota_us
+  echo "1000000" > $sysfsdir/cpu.cfs_period_us
 }
 
 
