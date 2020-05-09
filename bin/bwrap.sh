@@ -71,8 +71,8 @@ if [[ $# -lt 1 || $# -gt 2 ]]; then
   exit 1
 fi
 
-if [[ "$1" =~ ".." || "$1" =~ "//" || "$1" =~ [[:space:]] || "$1" =~ '\' ]]; then
-  echo "illegal character(s) in $1"
+if [[ "$1" =~ ".." || "$1" =~ "//" || "$1" =~ [[:space:]] || "$1" =~ '\' || "${1##*/}" = "" ]]; then
+  echo "arg1 not accepted: $1"
   exit 2
 fi
 
@@ -87,7 +87,7 @@ else
   exit 2
 fi
 
-if [[ "$mnt" = "/home/tinderbox/img1/" || "$mnt" = "/home/tinderbox/img2/" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
+if [[ ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(realpath $mnt)" || ! "$mnt" =~ "/home/tinderbox/img" ]]; then
   echo "mount point not accepted"
   exit 2
 fi
@@ -142,11 +142,12 @@ sandbox=(env -i
     --dev /dev
     --proc /proc
     --mqueue /dev/mqueue
-    --unshare-ipc --unshare-pid --unshare-uts
+    --unshare-ipc
+    --unshare-pid
+    --unshare-uts
     --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
     --chdir /
     --die-with-parent
-    --lock-file $lock
      /bin/bash -l
 )
 
