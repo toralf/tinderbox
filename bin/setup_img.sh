@@ -247,6 +247,8 @@ function UnpackStage3()  {
     exit 1
   fi
 
+  wgeturl="$mirror/releases/amd64/autobuilds"
+
   case $profile in
     */no-multilib/hardened)
       stage3=$(grep "/hardened/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest)
