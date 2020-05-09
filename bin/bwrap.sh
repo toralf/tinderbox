@@ -139,12 +139,14 @@ sandbox=(env -i
     --ro-bind /var/db/repos             /mnt/repos
     --tmpfs                             /var/tmp/portage
     --tmpfs /dev/shm
-    --dev /dev --proc /proc
+    --dev /dev
+    --proc /proc
     --mqueue /dev/mqueue
     --unshare-ipc --unshare-pid --unshare-uts
     --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
     --chdir /
     --die-with-parent
+    --lock-file $lock
      /bin/bash -l
 )
 
