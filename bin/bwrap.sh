@@ -7,40 +7,32 @@
 # https://forums.gentoo.org/viewtopic.php?p=8452922
 
 
-# avoid oom-killer eg. at emerging dev-perl/GD
-# and restrict blast radius if -j1 for make processes is ignored
-function cgroup() {
+function Cgroup() {
+  if [[ ! -d "$cgroup_tinderbox_dir" ]]; then
+    mkdir "$cgroup_tinderbox_dir"
 
-  local sysfsdir="/sys/fs/cgroup/memory/tinderbox-${mnt##*/}"
-  if [[ ! -d "$sysfsdir" ]]; then
-    mkdir -p "$sysfsdir"
-  elif [[ $(wc -l < "$sysfsdir/cgroup.procs") -gt 0 ]]; then
-    echo " cgroup memory has pid(s)"
-    exit 1
+    # avoid oom-killer eg. at emerging dev-perl/GD
+    echo "16G" > $cgroup_tinderbox_dir/memory.limit_in_bytes
+    echo "24G" > $cgroup_tinderbox_dir/memory.memsw.limit_in_bytes
+
+    # restrict blast radius if -j1 for make is ignored
+    echo "1000000" > $cgroup_tinderbox_dir/cpu.cfs_quota_us
+    echo "1000000" > $cgroup_tinderbox_dir/cpu.cfs_period_us
   fi
 
-  echo "$$" > "$sysfsdir/cgroup.procs"
-
-  echo "16G" > $sysfsdir/memory.limit_in_bytes
-  echo "24G" > $sysfsdir/memory.memsw.limit_in_bytes
-
-  local sysfsdir="/sys/fs/cgroup/cpu/tinderbox-${mnt##*/}"
-  if [[ ! -d "$sysfsdir" ]]; then
-    mkdir -p "$sysfsdir"
-  elif [[ $(wc -l < "$sysfsdir/cgroup.procs") -gt 0 ]]; then
-    echo " cgroup cpu has pid(s)"
+  if [[ ! -d "$cgroup_image_dir" ]]; then
+    mkdir "$cgroup_image_dir"
+  fi
+  if [[ -f "$cgroup_image_dir/cgroup.procs" && $(wc -l < "$cgroup_image_dir/cgroup.procs") -gt 0 ]]; then
+    echo " cgroup has pid(s)"
     exit 1
   fi
-
-  echo "$$" > "$sysfsdir/cgroup.procs"
-
-  echo "1000000" > $sysfsdir/cpu.cfs_quota_us
-  echo "1000000" > $sysfsdir/cpu.cfs_period_us
+  echo "$$" > "$cgroup_image_dir/cgroup.procs"
 }
 
 
 function UnlockAndExit()  {
-  rm "$lock"
+  rm "$lock" "$cgroup_image_dir/cgroup.procs"
   exit ${1:-1}
 }
 
@@ -109,7 +101,9 @@ chown tinderbox:tinderbox "$lock"
 pgrep -af "^/usr/bin/bwrap --bind /home/tinderbox/img[12]/$(echo ${mnt##*/} | sed 's,+,.,g')" && exit 3
 
 # 3rd barrier
-cgroup
+cgroup_tinderbox_dir="/sys/fs/cgroup/tinderbox"
+cgroup_image_dir="$cgroup_tinderbox_dir/${mnt##*/}"
+Cgroup
 
 # if now an error occurred then it is safe to remove the lock
 trap UnlockAndExit QUIT TERM
