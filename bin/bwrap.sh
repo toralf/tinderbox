@@ -8,33 +8,28 @@
 
 
 function Cgroup() {
-  if [[ ! -d "$cgroup_tinderbox_dir" ]]; then
-    mkdir "$cgroup_tinderbox_dir"
+  # this replaces the former lock file mechanism
+  # TODO: might be this should hold the cpu and memory settings (see below) too?
+  mkdir -p "$cgroup_image_dir"
 
-    echo "1" > $cgroup_tinderbox_dir/cgroup.clone_children
+  # force an oom-killer early enough eg. at emerging dev-perl/GD or spidermonkey
+  local cgdir="/sys/fs/cgroup/memory/tinderbox-${mnt##*/}"
+  [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
+  echo "12G" > "$cgdir/memory.limit_in_bytes"
+  echo "20G" > "$cgdir/memory.memsw.limit_in_bytes"
+  echo "$$"  > "$cgdir/tasks"
 
-    # avoid oom-killer eg. at emerging dev-perl/GD
-    echo "16G" > $cgroup_tinderbox_dir/memory.limit_in_bytes
-    echo "24G" > $cgroup_tinderbox_dir/memory.memsw.limit_in_bytes
-
-    # restrict blast radius if -j1 for make is ignored
-    echo "100000" > $cgroup_tinderbox_dir/cpu.cfs_quota_us
-    echo "100000" > $cgroup_tinderbox_dir/cpu.cfs_period_us
-  fi
-
-  if [[ -d "$cgroup_image_dir" ]]; then
-    echo "found a cgroup $cgroup_image_dir"
-    exit 3
-  else
-    mkdir "$cgroup_image_dir"
-  fi
-
-  echo "$$" > "$cgroup_image_dir/tasks"
+  # restrict blast radius if -j1 is ignored
+  local cgdir="/sys/fs/cgroup/cpu/tinderbox-${mnt##*/}"
+  [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
+  echo "100000" > "$cgdir/cpu.cfs_quota_us"
+  echo "100000" > "$cgdir/cpu.cfs_period_us"
+  echo "$$"     > "$cgdir/tasks"
 }
 
 
 function CleanupAndExit()  {
-  rm "$cgroup_image_dir/tasks"
+  # TODO: how to remove /sys/fs/cgroup/{cpu,memory}/tinderbox-${mnt##*/} ?
   rmdir "$cgroup_image_dir" && exit $1 || exit $?
 }
 
@@ -86,8 +81,12 @@ if [[ ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(
   exit 2
 fi
 
-cgroup_tinderbox_dir="/sys/fs/cgroup/tinderbox"
-cgroup_image_dir="$cgroup_tinderbox_dir/${mnt##*/}"
+cgroup_dir="/sys/fs/cgroup/"
+cgroup_image_dir="$cgroup_dir/tinderbox/${mnt##*/}"
+if [[ -d "$cgroup_image_dir" ]]; then
+  echo "found a cgroup $cgroup_image_dir"
+  exit 3
+fi
 Cgroup
 
 trap CleanupAndExit QUIT TERM

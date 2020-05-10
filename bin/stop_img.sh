@@ -6,9 +6,15 @@
 # stop tinderbox chroot image/s
 #
 
+
+function __is_running() {
+  [[ -d "/sys/fs/cgroup/tinderbox/${1##*/}" ]]
+  return $?
+}
+
+
 set -euf
 export LANG=C.utf8
-
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " you must be tinderbox"
@@ -31,7 +37,8 @@ do
     continue
   fi
 
-  if [[ ! -f $mnt.lock ]]; then
+
+  if ! __is_running "$mnt" ; then
     echo " is not running: $mnt"
     continue
   fi

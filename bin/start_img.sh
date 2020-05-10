@@ -7,9 +7,16 @@
 #
 
 
+function __is_running() {
+  [[ -d "/sys/fs/cgroup/tinderbox/${1##*/}" ]]
+  return $?
+}
+
+
 set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
+
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " you must be tinderbox"
@@ -32,7 +39,7 @@ do
     continue
   fi
 
-  if [[ -f $mnt.lock ]]; then
+  if __is_running "$mnt" ; then
     echo " is running:  $mnt"
     continue
   fi
