@@ -14,7 +14,7 @@ function list_images() {
   while read i
   do
     set +f
-    ls -d ~tinderbox/img?/${i##*/} 2>/dev/null
+    ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null
     set -f
   done |\
   sort -u -k 2 -t'/'

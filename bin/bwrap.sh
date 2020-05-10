@@ -34,7 +34,7 @@ function Cgroup() {
 function CleanupAndExit()  {
   rm "$lock" "$cgroup_image_dir/cgroup.procs"
   rmdir "$cgroup_image_dir"
-  exit $?
+  exit $1
 }
 
 
@@ -153,4 +153,4 @@ else
   ("${sandbox[@]}")
 fi
 
-CleanupAndExit
+CleanupAndExit $?
