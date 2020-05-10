@@ -29,34 +29,40 @@ function LookForEmptyBacklogs()  {
   do
     n=$(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog{,.1st})) # ignore update, it is filled hourly
     [[ $? -eq 0 && $n -eq 0 ]] && return 0
-  done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
+  done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)
 
   return 1
 }
 
 
-# look for an image being old enough and having enough emerge operations completed
+# look for an image satisfying the conditions
 #
 function LookForAnOldEnoughImage()  {
+  local current_time=$(date +%s)
   # wait time between 2 images
   #
-  latest=$(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
-  if [[ -z "$latest" ]]; then
-    return 1
+  latest=$(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
+  if [[ -s "$latest" ]]; then
+    let "runtime = ( $current_time - $(stat -c%Y ~/run/$latest/var/tmp/tb/name) ) / 3600"
+    if [[ $runtime -lt $condition_distance ]]; then
+      return 1
+    fi
   fi
 
-  let "h = ( $(date +%s) - $(stat -c%Y ~/run/$latest/var/tmp/tb/setup.sh) ) / 3600"
-  if [[ $h -lt $condition_hours ]]; then
-    return 1
-  fi
-
+  # int: this sets the global variable "oldimg"
   while read oldimg
   do
     [[ -f ~/run/$oldimg/var/tmp/tb/KEEP             ]] && continue
-    [[ $(GetLeft $oldimg)  -gt $condition_left      ]] && continue
+
+    let "runtime = ( $current_time - $(stat -c%Y ~/run/$oldimg/var/tmp/tb/name) ) / 3600"
+    if [[ $runtime -gt $condition_runtime ]]; then
+      [[ $(GetLeft $oldimg) -lt $condition_backlog || $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
+    fi
+
+    [[ $(GetLeft $oldimg)  -gt $condition_backlog   ]] && continue
     [[ $(GetCompl $oldimg) -lt $condition_completed ]] && continue
     return 0  # matches all conditions
-  done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
+  done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)
 
   return 1
 }
@@ -110,10 +116,11 @@ fi
 echo $$ > "$lck" || exit 1
 
 
+condition_distance=6        # min. distance in hours to the previous image, effectively this yields into n+1 hours
+condition_runtime=288       # max age in hours for an image (efficiency drops down after that time)
+condition_backlog=15000     # max. left entries in the backlog
 condition_completed=5500    # min. completed emerge operations
-condition_hours=6           # min. distance to the previous image, effectively this yields into n+1 hours
-condition_left=15000        # max. left entries in the backlog
-oldimg=""                   # optional: image to be replaced ("-" to skip this step)
+oldimg=""                   # optional: image to be replaced ("-" to just spin up a new one)
 setupargs=""                # args passed to call of setup_img.sh
 
 while getopts c:h:l:r:s: opt
