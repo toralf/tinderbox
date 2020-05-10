@@ -80,7 +80,7 @@ function Overall() {
   done
   inrun=$(wc -w <<< $images)
 
-  echo "compl fail days backlog  upd  1st status  $running#$inrun running"
+  echo "compl fail days backlog .upd .1st status  $running#$inrun running"
 
   for i in $images
   do
