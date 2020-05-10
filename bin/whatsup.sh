@@ -9,21 +9,18 @@
 function list_images() {
   (
     ls ~tinderbox/run/
-    ls -d /sys/fs/cgroup/tinderbox/17.* 2>/dev/null | cut -f6 -d'/' -s
+    ls /run/tinderbox/
   ) |\
   while read i
   do
-    set +f
-    ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null
-    set -f
+    ls -d ~tinderbox/img{1,2}/${i} 2>/dev/null
   done |\
   sort -u -k 2 -t'/'
 }
 
 
 function __is_running() {
-  [[ -d "/sys/fs/cgroup/tinderbox/${1##*/}" ]]
-  return $?
+  [[ -f "/run/tinderbox/${1##*/}" ]]
 }
 
 

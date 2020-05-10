@@ -8,8 +8,7 @@
 
 
 function __is_running() {
-  [[ -d "/sys/fs/cgroup/tinderbox/${1##*/}" ]]
-  return $?
+  [[ -f "/run/tinderbox/${1##*/}" ]]
 }
 
 
@@ -40,7 +39,7 @@ do
   fi
 
   if __is_running "$mnt" ; then
-    echo " is running:  $mnt"
+    echo " image is locked:  $mnt"
     continue
   fi
 

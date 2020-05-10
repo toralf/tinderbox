@@ -8,10 +8,6 @@
 
 
 function Cgroup() {
-  # this replaces the former lock file mechanism
-  # TODO: might be this should hold the cpu and memory settings (see below) too?
-  mkdir -p "$cgroup_image_dir"
-
   # force an oom-killer early enough eg. at emerging dev-perl/GD or spidermonkey
   local cgdir="/sys/fs/cgroup/memory/tinderbox-${mnt##*/}"
   [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
@@ -29,8 +25,7 @@ function Cgroup() {
 
 
 function CleanupAndExit()  {
-  # TODO: how to remove /sys/fs/cgroup/{cpu,memory}/tinderbox-${mnt##*/} ?
-  rmdir "$cgroup_image_dir" && exit $1 || exit $?
+  rm "$lock_file" && exit $1 || exit $?
 }
 
 
@@ -65,11 +60,11 @@ if [[ "$1" =~ ".." || "$1" =~ "//" || "$1" =~ [[:space:]] || "$1" =~ '\' || "${1
   exit 2
 fi
 
-if [[ -d /home/tinderbox/img1/"${1##*/}" ]]; then
-  mnt=/home/tinderbox/img1/"${1##*/}"
+if [[ -d "/home/tinderbox/img1/${1##*/}" ]]; then
+  mnt="/home/tinderbox/img1/${1##*/}"
 
-elif [[ -d /home/tinderbox/img2/"${1##*/}" ]]; then
-  mnt=/home/tinderbox/img2/"${1##*/}"
+elif [[ -d "/home/tinderbox/img2/${1##*/}" ]]; then
+  mnt="/home/tinderbox/img2/${1##*/}"
 
 else
   echo "no valid mount point found for $1"
@@ -81,21 +76,25 @@ if [[ ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(
   exit 2
 fi
 
-cgroup_dir="/sys/fs/cgroup/"
-cgroup_image_dir="$cgroup_dir/tinderbox/${mnt##*/}"
-if [[ -d "$cgroup_image_dir" ]]; then
-  echo "found a cgroup $cgroup_image_dir"
-  exit 3
+# a basic lock file mechanism
+if [[ ! -d /run/tinderbox ]]; then
+  mkdir /run/tinderbox
 fi
-Cgroup
+lock_file="/run/tinderbox/${mnt##*/}"
+if [[ -f "$lock_file" ]]; then
+  echo "image is locked: $lock_file"
+fi
+touch "$lock_file"
 
 trap CleanupAndExit QUIT TERM
+
+Cgroup
 
 if [[ -L "$mnt/entrypoint" ]]; then
   echo "found symlinked $mnt/entrypoint"
   CleanupAndExit 4
 fi
-rm -f     "$mnt/entrypoint"
+rm -f "$mnt/entrypoint"
 if [[ $# -eq 2 ]]; then
   if [[ ! -f "$2" ]]; then
     echo "no valid entry point script given: $2"
