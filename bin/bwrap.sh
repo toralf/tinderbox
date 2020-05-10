@@ -31,15 +31,16 @@ function Cgroup() {
 }
 
 
-function UnlockAndExit()  {
+function CleanupAndExit()  {
   rm "$lock" "$cgroup_image_dir/cgroup.procs"
   rmdir "$cgroup_image_dir"
-  exit ${1:-1}
+  [[ $? -ne 0 ]] && rc=1 || rc=$1
+  exit $rc
 }
 
 
 function Exit()  {
-  exit ${1:-1}
+  exit 1
 }
 
 
@@ -107,7 +108,7 @@ cgroup_image_dir="$cgroup_tinderbox_dir/${mnt##*/}"
 Cgroup
 
 # if now an error occurred then it is safe to remove the lock
-trap UnlockAndExit QUIT TERM
+trap CleanupAndExit QUIT TERM
 
 rm -f "$mnt/entrypoint"
 if [[ $# -eq 2 ]]; then
@@ -152,4 +153,4 @@ else
   ("${sandbox[@]}")
 fi
 
-UnlockAndExit $?
+CleanupAndExit $?
