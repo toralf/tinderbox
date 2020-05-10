@@ -9,7 +9,7 @@
 function list_images() {
   (
     ls ~tinderbox/run/
-    pgrep -a bwrap.sh | cut -f4 -d' ' -s
+    wc -l /sys/fs/cgroup/tinderbox/17*/cgroup.procs | grep -v '^[ ]*0 ' | grep -v ' total' | cut -f6 -d'/' -s
   ) |\
   while read i
   do
@@ -65,22 +65,15 @@ function check_history()  {
 
 # whatsup.sh -o
 #
-# compl fail days backlog  upd  1st status  8#8 running
-#   764   31  1.8   18847  153    0    r K  run/17.0_musl-20200311-204810
-#  3415   92  3.1   15925  114    0    r    run/17.1-libressl-20200310-153510
-#   271   13  3.4   19037  546   18 ..wrSK  run/17.1_desktop-test-20200310-081612
-#  2934   74  4.8   17974  535    0    r    run/17.1_desktop_plasma-libressl-20200308-224459
+# compl fail days backlog  upd  1st status  8#8 locked
+#   764   31  1.8   18847  153    0    l K  run/17.0_musl-20200311-204810
+#  3415   92  3.1   15925  114    0    ls   run/17.1-libressl-20200310-153510
+#   271   13  3.4   19037  546   18 ..wlS   run/17.1_desktop-test-20200310-081612
+#  2934   74  4.8   17974  535    0         run/17.1_desktop_plasma-libressl-20200308-224459
 function Overall() {
-  running=0
-  for i in $images
-  do
-    if [[ -f $i/var/tmp/tb/LOCK ]]; then
-      let "running = running + 1"
-    fi
-  done
-  inrun=$(wc -w <<< $images)
-
-  echo "compl fail days backlog .upd .1st status  $running#$inrun running"
+  running=$(wc -l /sys/fs/cgroup/tinderbox/17*/cgroup.procs | grep -v '^[ ]*0 ' | grep -v ' total' | wc -l)
+  all=$(wc -w <<< $images)
+  echo "compl fail days backlog .upd .1st status  $running#$all running"
 
   for i in $images
   do
@@ -111,7 +104,7 @@ function Overall() {
 
     flag=""
 
-    [[ -f $i/var/tmp/tb/LOCK ]] && flag="${flag}r" || flag="$flag "    # (r)unning or not?
+    [[ -f $i/var/tmp/tb/LOCK ]] && flag="${flag}l" || flag="$flag "    # (l)locked?
 
     # F=STOP file, f=STOP in backlog
     if [[ -f $i/var/tmp/tb/STOP ]]; then
@@ -304,7 +297,7 @@ function CountPackages()  {
 
 #######################################################################
 #
-set -uf
+set -u
 export LANG=C.utf8
 unset LC_TIME
 
