@@ -24,7 +24,7 @@ function Cgroup() {
     mkdir "$cgroup_image_dir"
   fi
   if [[ -f "$cgroup_image_dir/cgroup.procs" && $(wc -l < "$cgroup_image_dir/cgroup.procs") -gt 0 ]]; then
-    echo " cgroup has pid(s)"
+    tail -v "$cgroup_image_dir/cgroup.procs"
     exit 1
   fi
   echo "$$" > "$cgroup_image_dir/cgroup.procs"
@@ -140,7 +140,7 @@ sandbox=(env -i
     --unshare-pid
     --unshare-uts
     --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
-    --chdir /
+    --chdir /var/tmp/tb
     --die-with-parent
      /bin/bash -l
 )
