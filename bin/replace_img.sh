@@ -46,15 +46,15 @@ function LookForAnOldEnoughImage()  {
   fi
 
   let "h = ( $(date +%s) - $(stat -c%Y ~/run/$latest/var/tmp/tb/setup.sh) ) / 3600"
-  if [[ $h -lt $hours ]]; then
+  if [[ $h -lt $condition_hours ]]; then
     return 1
   fi
 
   while read oldimg
   do
-    [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]] && continue
-    [[ $(GetLeft $oldimg)  -gt $left    ]] && continue
-    [[ $(GetCompl $oldimg) -lt $compl   ]] && continue
+    [[ -f ~/run/$oldimg/var/tmp/tb/KEEP             ]] && continue
+    [[ $(GetLeft $oldimg)  -gt $condition_left      ]] && continue
+    [[ $(GetCompl $oldimg) -lt $condition_completed ]] && continue
     return 0  # matches all conditions
   done < <(cd ~/run; ls -t */var/tmp/tb/setup.sh 2>/dev/null | cut -f1 -d'/' -s | tac)
 
@@ -109,11 +109,12 @@ if [[ -s "$lck" ]]; then
 fi
 echo $$ > "$lck" || exit 1
 
-compl=5500    # min. completed emerge operations
-hours=6       # min. distance to the previous image, effectively this yields into n+1 hours
-left=15000    # max. left entries in the backlog
-oldimg=""     # optional: image to be replaced ("-" to skip this step)
-setupargs=""  # args passed to call of setup_img.sh
+
+condition_completed=5500    # min. completed emerge operations
+condition_hours=6           # min. distance to the previous image, effectively this yields into n+1 hours
+condition_left=15000        # max. left entries in the backlog
+oldimg=""                   # optional: image to be replaced ("-" to skip this step)
+setupargs=""                # args passed to call of setup_img.sh
 
 while getopts c:h:l:r:s: opt
 do
