@@ -39,6 +39,7 @@ function LookForEmptyBacklogs()  {
 #
 function LookForAnOldEnoughImage()  {
   local current_time=$(date +%s)
+
   # wait time between 2 images
   #
   latest=$(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
@@ -49,19 +50,17 @@ function LookForAnOldEnoughImage()  {
     fi
   fi
 
-  # int: this sets the global variable "oldimg"
+  # hint: hereby sets the global variable "oldimg"
   while read oldimg
   do
-    [[ -f ~/run/$oldimg/var/tmp/tb/KEEP             ]] && continue
+    [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]] && continue
 
     let "runtime = ( $current_time - $(stat -c%Y ~/run/$oldimg/var/tmp/tb/name) ) / 3600"
     if [[ $runtime -gt $condition_runtime ]]; then
       [[ $(GetLeft $oldimg) -lt $condition_backlog || $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
+    else
+      [[ $(GetLeft $oldimg) -lt $condition_backlog && $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
     fi
-
-    [[ $(GetLeft $oldimg)  -gt $condition_backlog   ]] && continue
-    [[ $(GetCompl $oldimg) -lt $condition_completed ]] && continue
-    return 0  # matches all conditions
   done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)
 
   return 1
