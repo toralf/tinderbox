@@ -36,7 +36,7 @@ Namespace declaration lacks Q_NAMESPACE macro.|invalid use of incomplete type cl
 # [Tracker] (-fno-common) - Packages failing with -fno-common
 #
 705764
-fails to build with -fno-common or gcc-10
+fails to build with -fno-common or gcc-10|: multiple definition of.*: first defined here
 
 # (binutils-2.34) - binutils-2.34 porting
 #
