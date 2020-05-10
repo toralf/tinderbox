@@ -81,9 +81,9 @@ STOP scheduled at $(unset LC_TIME; date +%R), $(GetCompl $oldimg) completed, $(G
 app-portage/pfl
 " > ~/run/$oldimg/var/tmp/tb/backlog.1st
 
-  if [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; then
+  if [[ -f ~/run/$oldimg.lock ]]; then
     echo " wait for stop ..."
-    while [[ -f ~/run/$oldimg/var/tmp/tb/LOCK ]]; do
+    while [[ -f ~/run/$oldimg.lock ]]; do
       sleep 1
     done
   else

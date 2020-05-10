@@ -16,7 +16,6 @@ A symlink is made into *~/run* and the image is started.
     
     start_img.sh <image>
 
-The file */var/tmp/tb/LOCK* is created within that image to avoid 2 running instances of the same image.
 The wrapper *bwrap.sh* handles all sandbox related actions and gives control to *job.sh* which is the heart of the tinderbox.
 
 Without any arguments all symlinks in *~/run* are processed.
@@ -26,7 +25,7 @@ Without any arguments all symlinks in *~/run* are processed.
     stop_img.sh <image>
 
 A marker file */var/tmp/tb/STOP* is created in that image.
-The current emerge operation will be finished before *job.sh* removes */var/tmp/tb/{LOCK,STOP}* and exits.
+The current emerge operation will be finished before *job.sh* removes the marker file and exits.
 
 ### go into a stopped image
 

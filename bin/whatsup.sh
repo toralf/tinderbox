@@ -104,7 +104,7 @@ function Overall() {
 
     flag=""
 
-    [[ -f $i/var/tmp/tb/LOCK ]] && flag="${flag}l" || flag="$flag "    # (l)locked?
+    [[ -f $i.lock ]] && flag="${flag}l" || flag="$flag "    # (l)locked?
 
     # F=STOP file, f=STOP in backlog
     if [[ -f $i/var/tmp/tb/STOP ]]; then
@@ -151,10 +151,11 @@ function Tasks()  {
     PrintImageName $i
 
     tsk=$i/var/tmp/tb/task
-    if [[ ! -f $i/var/tmp/tb/LOCK || ! -s $tsk ]]; then
+    if [[ ! -s $tsk ]]; then
       echo
       continue
     fi
+    task=$(cat $tsk)
 
     let "delta = $ts - $(stat -c%Y $tsk)" 2>/dev/null
 
@@ -168,7 +169,6 @@ function Tasks()  {
       printf "%3i:%02i h " $hours $minutes
     fi
 
-    task=$(cat $tsk)
     if [[ ! $task =~ "@" && ! $task =~ "%" ]]; then
       echo -n " "
     fi
@@ -187,10 +187,6 @@ function LastEmergeOperation()  {
   for i in $images
   do
     PrintImageName $i
-    if [[ ! -f $i/var/tmp/tb/LOCK ]]; then
-      echo
-      continue
-    fi
 
     # catch the last *started* emerge operation
     #
@@ -198,8 +194,11 @@ function LastEmergeOperation()  {
     grep -m 1 -E -e ' >>>| \*\*\* emerge' -e ' \*\*\* terminating.' -e ' ::: completed emerge' |\
     sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
     perl -wane '
+      next if (scalar @F < 2);
+
       chop ($F[0]);
       my $delta = time() - $F[0];
+
       if ($delta < 3600) {
         $minutes = $delta / 60 % 60;
         $seconds = $delta % 60 % 60;

@@ -31,7 +31,7 @@ do
     continue
   fi
 
-  if [[ ! -f $mnt/var/tmp/tb/LOCK ]]; then
+  if [[ ! -f $mnt.lock ]]; then
     echo " is not running: $mnt"
     continue
   fi
