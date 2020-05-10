@@ -25,11 +25,12 @@ function Cgroup() {
 
 
 function CleanupAndExit()  {
-  rm "$lock_file" && exit $1 || exit $?
+  rmdir "$lock_dir" && exit $1 || exit $?
 }
 
 
 function Exit()  {
+  echo "bail out ..."
   exit 1
 }
 
@@ -80,11 +81,10 @@ fi
 if [[ ! -d /run/tinderbox ]]; then
   mkdir /run/tinderbox
 fi
-lock_file="/run/tinderbox/${mnt##*/}"
-if [[ -f "$lock_file" ]]; then
-  echo "image is locked: $lock_file"
-fi
-touch "$lock_file"
+
+# a lock-file is convenient but only mkdir is atomic
+lock_dir="/run/tinderbox/${mnt##*/}.lock"
+mkdir "$lock_dir"
 
 trap CleanupAndExit QUIT TERM
 
@@ -124,6 +124,8 @@ sandbox=(env -i
     --unshare-ipc
     --unshare-pid
     --unshare-uts
+    --unshare-cgroup
+    --unshare-user-try
     --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
     --chdir /var/tmp/tb
     --die-with-parent

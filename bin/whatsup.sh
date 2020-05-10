@@ -20,7 +20,7 @@ function list_images() {
 
 
 function __is_running() {
-  [[ -f "/run/tinderbox/${1##*/}" ]]
+  [[ -d "/run/tinderbox/${1##*/}.lock" ]]
 }
 
 
