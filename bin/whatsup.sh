@@ -9,7 +9,7 @@
 function list_images() {
   (
     ls ~tinderbox/run/
-    ls -d /sys/fs/cgroup/tinderbox/17.* | cut -f6 -d'/' -s
+    ls -d /sys/fs/cgroup/tinderbox/17.* 2>/dev/null | cut -f6 -d'/' -s
   ) |\
   while read i
   do
@@ -18,6 +18,12 @@ function list_images() {
     set -f
   done |\
   sort -u -k 2 -t'/'
+}
+
+
+function __is_running() {
+  [[ -d "/sys/fs/cgroup/tinderbox/${1##*/}" ]]
+  return $?
 }
 
 
@@ -71,7 +77,7 @@ function check_history()  {
 #   271   13  3.4   19037  546   18 ..wlS   run/17.1_desktop-test-20200310-081612
 #  2934   74  4.8   17974  535    0         run/17.1_desktop_plasma-libressl-20200308-224459
 function Overall() {
-  running=$(ls -d /sys/fs/cgroup/tinderbox/17.* | wc -l)
+  running=$(ls -d /sys/fs/cgroup/tinderbox/17.* 2>/dev/null | wc -l)
   all=$(wc -w <<< $images)
   echo "compl fail days backlog .upd .1st status  $running#$all running"
 
@@ -103,8 +109,11 @@ function Overall() {
     blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd)
 
     flag=""
-
-    [[ -f $i.lock ]] && flag="${flag}l" || flag="$flag "    # (l)locked?
+    if __is_running $i ; then
+      flag="${flag}r"
+    else
+      flag="$flag "
+    fi
 
     # F=STOP file, f=STOP in backlog
     if [[ -f $i/var/tmp/tb/STOP ]]; then
@@ -149,6 +158,10 @@ function Tasks()  {
   for i in $images
   do
     PrintImageName $i
+    if ! __is_running $i ; then
+      echo
+      continue
+    fi
 
     tsk=$i/var/tmp/tb/task
     if [[ ! -s $tsk ]]; then
@@ -187,6 +200,10 @@ function LastEmergeOperation()  {
   for i in $images
   do
     PrintImageName $i
+    if ! __is_running $i ; then
+      echo
+      continue
+    fi
 
     # catch the last *started* emerge operation
     #
