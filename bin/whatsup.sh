@@ -9,7 +9,7 @@
 function list_images() {
   (
     ls ~tinderbox/run/
-    wc -l /sys/fs/cgroup/tinderbox/17*/cgroup.procs | grep -v '^[ ]*0 ' | grep -v ' total' | cut -f6 -d'/' -s
+    ls -d /sys/fs/cgroup/tinderbox/17.* | cut -f6 -d'/' -s
   ) |\
   while read i
   do
@@ -71,7 +71,7 @@ function check_history()  {
 #   271   13  3.4   19037  546   18 ..wlS   run/17.1_desktop-test-20200310-081612
 #  2934   74  4.8   17974  535    0         run/17.1_desktop_plasma-libressl-20200308-224459
 function Overall() {
-  running=$(wc -l /sys/fs/cgroup/tinderbox/17*/cgroup.procs | grep -v '^[ ]*0 ' | grep -v ' total' | wc -l)
+  running=$(ls -d /sys/fs/cgroup/tinderbox/17.* | wc -l)
   all=$(wc -w <<< $images)
   echo "compl fail days backlog .upd .1st status  $running#$all running"
 

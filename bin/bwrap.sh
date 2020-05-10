@@ -33,6 +33,7 @@ function Cgroup() {
 
 function UnlockAndExit()  {
   rm "$lock" "$cgroup_image_dir/cgroup.procs"
+  rmdir "$cgroup_image_dir"
   exit ${1:-1}
 }
 
