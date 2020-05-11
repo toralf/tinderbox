@@ -47,6 +47,6 @@ do
     continue
   fi
 
-  echo " stopping     $mnt"
+  echo " stopping: $mnt"
   touch "$mnt/var/tmp/tb/STOP"
 done

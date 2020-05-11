@@ -53,7 +53,7 @@ do
     continue
   fi
 
-  echo " starting     $mnt"
+  echo " starting: $mnt"
 
   # nice makes reading of sysstat numbers easier
   #
