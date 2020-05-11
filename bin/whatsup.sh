@@ -9,7 +9,7 @@
 function list_images() {
   (
     ls ~tinderbox/run/
-    ls /run/tinderbox/
+    ls /run/tinderbox/ | sed 's,.lock,,g'
   ) |\
   while read i
   do
@@ -74,7 +74,7 @@ function check_history()  {
 #   271   13  3.4   19037  546   18 ..wlS   run/17.1_desktop-test-20200310-081612
 #  2934   74  4.8   17974  535    0         run/17.1_desktop_plasma-libressl-20200308-224459
 function Overall() {
-  running=$(ls -d /sys/fs/cgroup/tinderbox/17.* 2>/dev/null | wc -l)
+  running=$(ls -d /run/tinderbox/*.lock 2>/dev/null | wc -l)
   all=$(wc -w <<< $images)
   echo "compl fail days backlog .upd .1st status  $running#$all running"
 
