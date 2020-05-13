@@ -43,9 +43,9 @@ function LookForAnOldEnoughImage()  {
   # wait time between 2 images
   #
   latest=$(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
-  if [[ -s "$latest" ]]; then
-    let "runtime = ( $current_time - $(stat -c%Y ~/run/$latest/var/tmp/tb/name) ) / 3600"
-    if [[ $runtime -lt $condition_distance ]]; then
+  if [[ -n "$latest" ]]; then
+    let "distance = ( $current_time - $(stat -c%Y ~/run/$latest/var/tmp/tb/name) ) / 3600"
+    if [[ $distance -lt $condition_distance ]]; then
       return 1
     fi
   fi
@@ -137,14 +137,14 @@ done
 if [[ -z "$oldimg" ]]; then
   LookForEmptyBacklogs
   if [[ $? -ne 0 ]]; then
-    LookForAnOldEnoughImage || Finish 3
+    LookForAnOldEnoughImage || exit 0
   fi
 fi
 
 if [[ -n "$oldimg" && "$oldimg" != "-" ]]; then
   echo
   date
-  if [[ -e ~/run/$oldimg ]]; then
+  if [[ -e ~/run/"$oldimg" ]]; then
     echo " replace $oldimg ..."
     StopOldImage
   else
@@ -162,7 +162,7 @@ do
   sudo ${0%/*}/setup_img.sh "$setupargs"
   rc=$?
   if [[ $rc -eq 0 ]]; then
-    if [[ -e ~/run/$oldimg ]]; then
+    if [[ -e ~/run/"$oldimg" ]]; then
       rm -- ~/run/$oldimg ~/logs/$oldimg.log
     fi
     Finish 0
