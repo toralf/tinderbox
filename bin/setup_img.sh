@@ -16,7 +16,7 @@ function DropUseFlags()  {
 
 
 function PrintUseFlags() {
-  xargs -s 73 | sed -e "s,^,*/*  ,g"
+  xargs -s 73 | sed -e '/^$/d' | sed -e "s,^,*/*  ,g"
 }
 
 
@@ -79,7 +79,7 @@ function SetOptions() {
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
   done < <(GetProfiles | grep -v "musl" | shuf)
 
-  ThrowCflags
+#   ThrowCflags
   features="xattr cgroup -news -collision-protect"
 
   # check unstable
@@ -392,7 +392,6 @@ FFLAGS="\${FCFLAGS}"
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 $([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"')
 
-ACCEPT_KEYWORDS=$([[ "$keyword" = "unstable" ]] && echo '"~amd64"' || echo '"amd64"')
 ACCEPT_LICENSE="* -@EULA"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
@@ -672,7 +671,7 @@ if [[ $musl = "y" ]]; then
 fi
 
 date
-echo "done."
+echo "configure ..."
 
 echo "$name" > /etc/conf.d/hostname
 useradd -u $(id -u tinderbox) tinderbox
@@ -699,7 +698,7 @@ de_DE.UTF-8@euro UTF-8
 
 2EOF
 
-  locale-gen -j1
+  locale-gen
   eselect locale set en_US.UTF-8
 fi
 
@@ -709,13 +708,30 @@ source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
-# emerge ssmtp before mailx to avoid that mailx pulls in the ebuild default (==another) MTA
+(
+  date
+  echo "@world ..."
+
+  emerge -u --deep --changed-use --newuse @world --keep-going=y
+  locale-gen
+  emerge --depclean
+  eselect python update --if-unset
+) || true
+
+if [[ $keyword = "unstable" ]]; then
+  echo 'ACCEPT_KEYWORDS="~amd64"' >> /etc/portage/make.conf
+fi
+
+date
+echo "tools ..."
+
+# emerge ssmtp before mailx otherwise mailx pulls its ebuild default MTA instead ssmtp
 #
-emerge mail-mta/ssmtp
-emerge mail-client/mailx
+emerge -u mail-mta/ssmtp
+emerge -u mail-client/mailx
 
 # mandatory tools by job.sh
-emerge app-arch/sharutils app-portage/gentoolkit www-client/pybugz
+emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   # testing sys-libs/libxcrypt[system]
@@ -758,6 +774,9 @@ qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/back
 #
 (cd /root && ln -s ../mnt/tb/sdata/.bugzrc)
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
+
+date
+echo "done."
 
 EOF
 
@@ -879,8 +898,8 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-if [[ $# -gt 0 ]]; then
-  echo "   additional args are given: '${@}'"
+if [[ -n "$1" ]]; then
+  echo "   $# additional args are given: '${@}'"
   echo
 fi
 
