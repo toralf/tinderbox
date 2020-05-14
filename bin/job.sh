@@ -637,7 +637,7 @@ EOF
     #
     cat << EOF >> $issuedir/body
 
-  bgo.sh -d ~/img{1,2}/$name/$issuedir $block
+  bgo.sh -d ~/img?/$name/$issuedir $block
 EOF
 
     echo "" >> $issuedir/body
