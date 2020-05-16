@@ -660,7 +660,7 @@ set -e
 export GCC_COLORS=""
 
 date
-echo "rsync ..."
+echo "# setup: rsync" | tee /var/tmp/tb/task
 
 rsync   --archive --cvs-exclude /mnt/repos/gentoo   /var/db/repos/
 if [[ $libressl = "y" ]]; then
@@ -671,7 +671,7 @@ if [[ $musl = "y" ]]; then
 fi
 
 date
-echo "configure ..."
+echo "# setup: configure" | tee /var/tmp/tb/task
 
 echo "$name" > /etc/conf.d/hostname
 useradd -u $(id -u tinderbox) tinderbox
@@ -687,7 +687,7 @@ else
     eselect profile set --force default/linux/amd64/17.1/systemd
   fi
 
-  cat << 2EOF >> /etc/locale.gen
+  cat << EOF2 >> /etc/locale.gen
 # by \$0 at \$(date)
 #
 en_US ISO-8859-1
@@ -696,9 +696,9 @@ de_DE ISO-8859-1
 de_DE@euro ISO-8859-15
 de_DE.UTF-8@euro UTF-8
 
-2EOF
+EOF2
 
-  locale-gen
+  locale-gen -j1
   eselect locale set en_US.UTF-8
 fi
 
@@ -708,25 +708,25 @@ source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
-(
-  date
-  echo "@world ..."
+if [[ 1 -eq 0 ]]; then
+  (
+    date
+    echo "# setup: @world" | tee /var/tmp/tb/task
 
-  emerge -u --deep --changed-use --newuse @world --keep-going=y
-  locale-gen
-  emerge --depclean
-  eselect python update --if-unset
-) || true
+    emerge -u --deep --changed-use --newuse @world --keep-going=y
+    locale-gen -j1
+    emerge --depclean
+    eselect python update --if-unset
+  ) || true
+fi
 
 if [[ $keyword = "unstable" ]]; then
   echo 'ACCEPT_KEYWORDS="~amd64"' >> /etc/portage/make.conf
 fi
 
-date
-echo "tools ..."
-
 # emerge ssmtp before mailx otherwise mailx pulls its ebuild default MTA instead ssmtp
-#
+date
+echo "# setup: MTA + tools" | tee /var/tmp/tb/task
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
 
@@ -734,15 +734,15 @@ emerge -u mail-client/mailx
 emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-  # testing sys-libs/libxcrypt[system]
-  #
-  echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/00libxcrypt
+  date
+  echo "# setup: MTA + tools" | tee /var/tmp/tb/task
 
-  echo '
-  sys-libs/glibc      -crypt
-  sys-libs/libxcrypt  compat static-libs system
-  virtual/libcrypt    static-libs
-  '                                   >> /etc/portage/package.use/00libxcrypt
+  echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/00libxcrypt
+  cat <<EOF2                          >> /etc/portage/package.use/00libxcrypt
+sys-libs/glibc      -crypt
+sys-libs/libxcrypt  compat static-libs system
+virtual/libcrypt    static-libs
+EOF2
 
   echo 'sys-libs/glibc     -crypt'    >> /etc/portage/make.profile/package.use.force
   echo 'sys-libs/libxcrypt -system'   >> /etc/portage/make.profile/package.use.mask
@@ -760,7 +760,7 @@ if [[ $testfeature = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
-# last action: feed https://portagefilelist.de
+# very last action: feed https://portagefilelist.de
 #
 echo "%/usr/bin/pfl || true
 app-portage/pfl" > /var/tmp/tb/backlog
@@ -776,7 +776,7 @@ qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/back
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
 date
-echo "done."
+echo "# setup: done" | tee /var/tmp/tb/task
 
 EOF
 
@@ -815,6 +815,7 @@ function DryrunHelper() {
   tail -v -n 1000 $mnt/etc/portage/package.use/00thrown*
   echo
 
+  echo "# setup: dryrun" | tee $mnt/var/tmp/tb/task
   echo 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
   nice -n 1 sudo ${0%/*}/bwrap.sh "$mnt" "$mnt/var/tmp/tb/dryrun_wrapper.sh"
   local rc=$?
