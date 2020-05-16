@@ -4,18 +4,18 @@
 
 # print tinderbox statistics
 
-# watch any images either mounted or symlinked into ~/run
-#
+
 function list_images() {
   (
     ls ~tinderbox/run/
     ls /run/tinderbox/ | sed 's,.lock,,g'
   ) |\
+  sort -u |\
   while read i
   do
     ls -d ~tinderbox/img{1,2}/${i} 2>/dev/null
   done |\
-  sort -u -k 2 -t'/'
+  sort -k 5 -t'/'
 }
 
 
