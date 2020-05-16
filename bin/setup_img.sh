@@ -283,7 +283,8 @@ function UnpackStage3()  {
   f=$tbdistdir/${stage3##*/}
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
-    wget --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
+    echo " downloading $f ..."
+    wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
   fi
 
   # do this before if needed:    gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
