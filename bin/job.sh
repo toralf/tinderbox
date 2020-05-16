@@ -965,13 +965,13 @@ function PostEmerge() {
 
   grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $logfile_stripped && add2backlog "%haskell-updater"
 
-  # ignore any other kernel
+  # compile the Gentoo kernel (but only once)
   #
   grep -q ">>> Installing .* sys-kernel/gentoo-sources" $logfile_stripped
   if [[ $? -eq 0 ]]; then
     current=$(eselect kernel show | grep "gentoo" | cut -f4 -d'/' -s)
-    latest=$( eselect kernel list | grep "gentoo" | tail -n 1 | awk ' { print $2 } ')
-    if [[ "$current" != "$latest" ]]; then
+    if [[ -z "$current" ]]; then
+      latest=$(eselect kernel list | grep "gentoo" | tail -n 1 | awk ' { print $2 } ')
       eselect kernel set $latest
     fi
 
