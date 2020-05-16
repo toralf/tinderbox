@@ -35,20 +35,33 @@ function LookForEmptyBacklogs()  {
 }
 
 
+function list_images() {
+  (
+    ls ~tinderbox/run/
+    ls /run/tinderbox/ | sed 's,.lock,,g'
+  ) |\
+  sort -u |\
+  while read i
+  do
+    ls -d ~tinderbox/img{1,2}/${i} 2>/dev/null
+  done |\
+  sort -k 5 -t'/'
+}
+
+
 # look for an image satisfying the conditions
 #
 function LookForAnOldEnoughImage()  {
   local current_time=$(date +%s)
 
-  # wait time between 2 images
-  #
-  latest=$(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | head -n 1 | cut -f1 -d'/' -s)
-  if [[ -n "$latest" ]]; then
-    let "distance = ( $current_time - $(stat -c%Y ~/run/$latest/var/tmp/tb/name) ) / 3600"
+  last=$(ls -t $(list_images | sed 's,$,/var/tmp/tb/name,g') 2>/dev/null | head -n 1)
+  if [[ -n "$last" ]]; then
+    let "distance = ( $current_time - $(stat -c%Y $last) ) / 3600"
     if [[ $distance -lt $condition_distance ]]; then
       return 1
     fi
   fi
+
 
   # hint: hereby sets the global variable "oldimg"
   while read oldimg
