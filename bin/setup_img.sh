@@ -709,7 +709,7 @@ source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
-if [[ 1 -eq 0 ]]; then
+if [[ 1 -eq 1 ]]; then
   (
     date
     echo "# setup: @world" | tee /var/tmp/tb/task
