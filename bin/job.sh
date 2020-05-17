@@ -1168,7 +1168,7 @@ function WorkOnTask() {
         if [[ -n "$pkg" ]]; then
           add2backlog "%emerge --resume --skip-first"
         elif [[ $task = "@system" ]]; then
-          # a QT of gcc upgrade yields into blocker for @system but not for @world
+          # eg. QT of gcc upgrade yields to blockers for @system but not for @world
           add2backlog "@world"
         fi
       fi
