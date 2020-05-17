@@ -179,7 +179,7 @@ function Tasks()  {
       printf "%3i:%02i h " $hours $minutes
     fi
 
-    if [[ ! $task =~ "@" && ! $task =~ "%" ]]; then
+    if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
       echo -n " "
     fi
     echo $task
