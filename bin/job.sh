@@ -1002,6 +1002,7 @@ function PostEmerge() {
     fi
     if [[ -n $last && $(( $(date +%s) - $(stat -c%Y $last) )) -gt 86400 ]]; then
       add2backlog "@system"
+      [[ -x /usr/bin/pfl ]] && add2backlog "%/usr/bin/pfl || true"    # send data of installed packages before they are updated
     fi
   fi
 
