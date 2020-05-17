@@ -1,12 +1,11 @@
 : multiple definition of.*: first defined here
 .atal error:
 : internal compiler error:
-undefined reference to .yy
+undefined reference to
 Can't read
 class file .* not found
 error: redefinition of
 has incomplete type
-: undefined reference to
 undefined symbol:
 exited with code: 1.
 I can't find the format file
