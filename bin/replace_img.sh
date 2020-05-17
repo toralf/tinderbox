@@ -2,15 +2,26 @@
 #
 # set -x
 
-# replace an tinderbox image in ~/run with a newer one
+# replace an older tinderbox image with a newer one
 #
 
+
 function Finish() {
-  echo
-  date
-  echo " finished with rc=$1"
-  rm -f $lck
-  exit $1
+  local rc=$1
+  local pid=$$
+
+  if [[ $rc -ne 0 ]]; then
+    echo
+    date
+    echo " finished $pid with rc=$rc"
+  fi
+
+  sed -i -e "/^${pid}$/d" $lck
+  if [[ ! -s $lck ]]; then
+    rm $lck
+  fi
+
+  exit $rc
 }
 
 
@@ -116,18 +127,6 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-# do not run this script in parallel
-#
-lck="/tmp/${0##*/}.lck"
-if [[ -s "$lck" ]]; then
-  kill -0 $(cat $lck) 2>/dev/null
-  if [[ $? -eq 0 ]]; then
-    exit 1    # be silent, no Finish() here !
-  fi
-fi
-echo $$ > "$lck" || exit 1
-
-
 condition_distance=6        # min. distance in hours to the previous image, effectively this yields into n+1 hours
 condition_runtime=288       # max age in hours for an image (efficiency drops down after that time)
 condition_backlog=15000     # max. left entries in the backlog
@@ -147,10 +146,21 @@ do
   esac
 done
 
+# do not run this script in parallel
+#
+lck="/tmp/${0##*/}.lck"
+if [[ -s "$lck" ]]; then
+  kill -0 $(cat $lck) 2>/dev/null
+  if [[ $? -eq 0 ]]; then
+    exit 1    # process is running
+  fi
+fi
+echo $$ >> "$lck" || Finish 1
+
 if [[ -z "$oldimg" ]]; then
   LookForEmptyBacklogs
   if [[ $? -ne 0 ]]; then
-    LookForAnOldEnoughImage || exit 0
+    LookForAnOldEnoughImage || Finish 0
   fi
 fi
 
