@@ -79,7 +79,7 @@ function SetOptions() {
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
   done < <(GetProfiles | grep -v "musl" | shuf)
 
-#   ThrowCflags
+  ThrowCflags
   features="xattr cgroup -news -collision-protect"
 
   # check unstable
