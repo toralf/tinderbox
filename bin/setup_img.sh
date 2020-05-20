@@ -77,7 +77,7 @@ function SetOptions() {
   while read profile
   do
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
-  done < <(GetProfiles | shuf)
+  done < <(GetProfiles | grep -v "musl" | shuf)
 
   ThrowCflags
   features="xattr cgroup -news -collision-protect"
@@ -300,7 +300,7 @@ function UnpackStage3()  {
   date
   cd $name
   echo " untar'ing $f ..."
-  tar -xpf $f --same-owner --xattrs --exclude='./dev/*' || exit 1
+  tar -xpf $f --same-owner --xattrs || exit 1
   echo
 }
 
@@ -593,8 +593,6 @@ function CreateBacklog()  {
 %emerge --depclean
 @world
 @system
-@world
-@system
 EOF
 
   # switch to LibreSSL
@@ -682,10 +680,14 @@ if [[ $musl = "y" ]]; then
 else
   # use the base profile during setup to minimize dep graph
   #
-  if [[ $profile =~ "/no-multilib" ]]; then
+  if [[ $profile =~ "/no-multilib/hardened" ]]; then
+    eselect profile set --force default/linux/amd64/17.1/no-multilib/hardened
+  elif [[ $profile =~ "/no-multilib" ]]; then
     eselect profile set --force default/linux/amd64/17.1/no-multilib
   elif [[ $profile =~ "/systemd" ]]; then
     eselect profile set --force default/linux/amd64/17.1/systemd
+  else
+    eselect profile set --force default/linux/amd64/17.1
   fi
 
   cat << EOF2 >> /etc/locale.gen
@@ -709,20 +711,11 @@ source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
-# emerge ssmtp before mailx b/c mailx would pull its ebuild default MTA rather than ssmtp
-date
-echo "# setup: MTA + tools" | tee /var/tmp/tb/task
-emerge -u mail-mta/ssmtp
-emerge -u mail-client/mailx
-
-# mandatory tools by job.sh
-emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
-
 if [[ 1 -eq 1 ]]; then
   date
   echo "# setup: @world" | tee /var/tmp/tb/task
 
-  emerge -u --deep --changed-use --newuse @world --keep-going=y
+  emerge -u --deep --changed-use --newuse @world --keep-going=y --exclude sys-devel/gcc
   locale-gen -j1
   eselect python update --if-unset
   emerge --depclean
@@ -731,6 +724,15 @@ fi
 if [[ $keyword = "unstable" ]]; then
   echo 'ACCEPT_KEYWORDS="~amd64"' >> /etc/portage/make.conf
 fi
+
+# emerge ssmtp before mailx b/c mailx would pull its ebuild default MTA rather than ssmtp
+date
+echo "# setup: MTA + tools" | tee /var/tmp/tb/task
+emerge -u mail-mta/ssmtp
+emerge -u mail-client/mailx
+
+# mandatory tools by job.sh
+emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   date
