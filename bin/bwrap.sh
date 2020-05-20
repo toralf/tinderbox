@@ -56,7 +56,7 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-trap Exit EXIT QUIT TERM
+trap Exit QUIT TERM
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
@@ -98,7 +98,7 @@ fi
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
 
-trap CleanupAndExit EXIT QUIT TERM
+trap CleanupAndExit QUIT TERM
 
 Cgroup
 
@@ -144,11 +144,12 @@ sandbox=(env -i
      /bin/bash -l
 )
 
-# be relax wrt (eg. job.sh) exit code != 0
+set +e
+
 if [[ -x "$mnt/entrypoint" ]]; then
-  ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint") || true
+  ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
 else
-  ("${sandbox[@]}") || true
+  ("${sandbox[@]}")
 fi
 
 CleanupAndExit $?
