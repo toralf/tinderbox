@@ -4,19 +4,31 @@
 
 
 # bubblewrap into an image interactively - or - run an entrypoint script
-# https://forums.gentoo.org/viewtopic.php?p=8452922
 
 
+# a cleanup hook is not mandatory b/c we do reboot often
 function Cgroup() {
-  # force an oom-killer early enough eg. at emerging dev-perl/GD or spidermonkey
-  local cgdir="/sys/fs/cgroup/memory/tinderbox-${mnt##*/}"
+  for i in memory cpu
+  do
+    d="/sys/fs/cgroup/$i/tinderbox"
+    [[ ! -d "$d" ]] && mkdir "$d"
+  done
+
+  # upper limit for all images
+  local cgdir="/sys/fs/cgroup/memory/tinderbox"
+  echo "112G" > "$cgdir/memory.limit_in_bytes"
+  echo "140G" > "$cgdir/memory.memsw.limit_in_bytes"
+  echo "$$"   > "$cgdir/tasks"
+
+  # force an oom-killer before the kernel does it, eg. for dev-perl/GD or spidermonkey
+  local cgdir="/sys/fs/cgroup/memory/tinderbox/${mnt##*/}"
   [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
   echo "12G" > "$cgdir/memory.limit_in_bytes"
   echo "20G" > "$cgdir/memory.memsw.limit_in_bytes"
   echo "$$"  > "$cgdir/tasks"
 
-  # restrict blast radius if -j1 is ignored
-  local cgdir="/sys/fs/cgroup/cpu/tinderbox-${mnt##*/}"
+  # restrict blast radius if -j1 is ignored (use period = 0.1 sec)
+  local cgdir="/sys/fs/cgroup/cpu/tinderbox/${mnt##*/}"
   [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
   echo "100000" > "$cgdir/cpu.cfs_quota_us"
   echo "100000" > "$cgdir/cpu.cfs_period_us"
@@ -44,7 +56,7 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-trap Exit QUIT TERM
+trap Exit EXIT QUIT TERM
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
@@ -77,16 +89,16 @@ if [[ ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(
   exit 2
 fi
 
-# a basic lock file mechanism
+# a basic lock mechanism
 if [[ ! -d /run/tinderbox ]]; then
   mkdir /run/tinderbox
 fi
 
-# a lock-file is convenient but only mkdir is atomic
+# a file operation might be racy, only mkdir is an atomic kernel file system operation
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
 
-trap CleanupAndExit QUIT TERM
+trap CleanupAndExit EXIT QUIT TERM
 
 Cgroup
 
@@ -132,12 +144,11 @@ sandbox=(env -i
      /bin/bash -l
 )
 
-set +e  # be relax wrt job.sh exit code
-
+# be relax wrt (eg. job.sh) exit code != 0
 if [[ -x "$mnt/entrypoint" ]]; then
-  ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
+  ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint") || true
 else
-  ("${sandbox[@]}")
+  ("${sandbox[@]}") || true
 fi
 
 CleanupAndExit $?
