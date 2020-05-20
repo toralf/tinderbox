@@ -77,7 +77,7 @@ function SetOptions() {
   while read profile
   do
     ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
-  done < <(GetProfiles | grep -v "musl" | shuf)
+  done < <(GetProfiles | shuf)
 
   ThrowCflags
   features="xattr cgroup -news -collision-protect"
@@ -709,23 +709,7 @@ source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
-if [[ 1 -eq 1 ]]; then
-  (
-    date
-    echo "# setup: @world" | tee /var/tmp/tb/task
-
-    emerge -u --deep --changed-use --newuse @world --keep-going=y
-    locale-gen -j1
-    emerge --depclean
-    eselect python update --if-unset
-  ) || true
-fi
-
-if [[ $keyword = "unstable" ]]; then
-  echo 'ACCEPT_KEYWORDS="~amd64"' >> /etc/portage/make.conf
-fi
-
-# emerge ssmtp before mailx otherwise mailx pulls its ebuild default MTA instead ssmtp
+# emerge ssmtp before mailx b/c mailx would pull its ebuild default MTA rather than ssmtp
 date
 echo "# setup: MTA + tools" | tee /var/tmp/tb/task
 emerge -u mail-mta/ssmtp
@@ -733,6 +717,20 @@ emerge -u mail-client/mailx
 
 # mandatory tools by job.sh
 emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
+
+if [[ 1 -eq 1 ]]; then
+  date
+  echo "# setup: @world" | tee /var/tmp/tb/task
+
+  emerge -u --deep --changed-use --newuse @world --keep-going=y
+  locale-gen -j1
+  eselect python update --if-unset
+  emerge --depclean
+fi
+
+if [[ $keyword = "unstable" ]]; then
+  echo 'ACCEPT_KEYWORDS="~amd64"' >> /etc/portage/make.conf
+fi
 
 if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   date
@@ -827,6 +825,8 @@ function DryrunHelper() {
                   $mnt/var/tmp/tb/dryrun.log && rc=2
   fi
 
+  echo
+  date
   if [[ $rc -ne 0 ]]; then
     echo " ... was NOT successful (rc=$rc):"
     echo
