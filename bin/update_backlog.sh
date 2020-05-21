@@ -1,25 +1,10 @@
 #!/bin/bash
-#
-# set -x
 
-# pick up latest changed package(s) -or- retest package(s) given at the command line
-# and merge them into appropriate backlog file(s)
 
-export LANG=C.utf8
+# merge tree changes or certain packages into appropriate backlogs
 
-if [[ ! "$(whoami)" = "tinderbox" ]]; then
-  echo " you must be tinderbox"
-  exit 1
-fi
 
-# hold updated package(s) here, do not delete them for debug purpose
-pks=/tmp/${0##*/}.txt
-truncate -s 0 $pks
-
-if [[ $# -eq 0 ]]; then
-  # use update backlog for new and updated portage tree entries
-  target="upd"
-
+function updateBacklogs() {
   repo_path=$(portageq get_repo_path / gentoo) || exit 2
   cd $repo_path || exit 2
 
@@ -27,12 +12,11 @@ if [[ $# -eq 0 ]]; then
   git diff --diff-filter=ACM --name-status "@{ 2 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s | cut -f1-2 -d'/' -s | uniq |\
-  grep -v -f ~/tb/data/IGNORE_PACKAGES > $pks
+  grep -v -f ~/tb/data/IGNORE_PACKAGES > $result
+}
 
-else
-  # use high prio backlog for eg. retest(s)
-  target="1st"
 
+function retestPackages() {
   echo $* | xargs -n 1 | sort -u |\
   while read line
   do
@@ -41,7 +25,7 @@ else
     # split away version/revision if possible
     p=$(qatom "$line" | grep -F -v '<unset>' | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
     [[ -z "$p" ]] && p=$line
-    echo $p >> $pks
+    echo $p >> $result
 
     # delete package both from global tinderbox and from image specific portage files
     sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
@@ -49,17 +33,40 @@ else
       ~/run/*/etc/portage/package.mask/self       \
       ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null
   done
+}
+
+
+#######################################################################
+#
+export LANG=C.utf8
+
+if [[ ! "$(whoami)" = "tinderbox" ]]; then
+  echo " you must be tinderbox"
+  exit 1
 fi
 
-if [[ -s $pks ]]; then
+result=/tmp/${0##*/}.txt
+truncate -s 0 $result
+
+if [[ $# -eq 0 ]]; then
+  # use update backlog for new and updated portage tree entries
+  target="upd"
+  updateBacklogs
+else
+  # use high prio backlog for retest of package(s)
+  target="1st"
+  retestPackages $*
+fi
+
+if [[ -s $result ]]; then
   for bl in $(ls ~/run/*/var/tmp/tb/backlog.$target 2>/dev/null)
   do
     if [[ $target = "upd" ]]; then
       # re-mix them
-      cat $pks $bl | uniq | shuf > $bl.tmp
+      cat $result $bl | sort -u | shuf > $bl.tmp
     elif [[ $target = "1st" ]]; then
-      # avoid dups, schedule new data after existing entries
-      (uniq $pks | grep -v -f $bl | shuf; cat $bl) > $bl.tmp
+      # schedule shuffled new data after existing entries, sort out dups before
+      (sort -u $result | grep -v -f $bl | shuf; cat $bl) > $bl.tmp
     fi
 
     # no "mv", that overwrites file permissions
