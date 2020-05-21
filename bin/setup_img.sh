@@ -415,8 +415,8 @@ PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
 GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
-#   # the "tinderbox" user needs to be in group "portage" for this being helpful
-  #
+
+  # the "tinderbox" user have to be in group "portage"
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
 }
