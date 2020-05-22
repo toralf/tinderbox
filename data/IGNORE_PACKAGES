@@ -1,7 +1,7 @@
 # tasks matching a pattern here will be skipped (except for being in backlog.1st)
 # this file MUST NOT have empty lines (except the very last one)
 #
-# never explicitely run emerge with:
+# never explicitly run emerge with:
 #
 dev-embedded/
 java-virtuals/
@@ -32,8 +32,6 @@ x11-drivers/nvidia-drivers
 app-editors/atom
 app-office/
 app-officeext/
-app-office/libreoffice
-app-office/ooextras
 app-text/bibus
 dev-ada/
 dev-haskell/language-python
@@ -48,7 +46,6 @@ ros-meta/
 sci-libs/tensorflow
 sci-visualization/tensorboard
 sys-cluster/
-sys-cluster/ceph
 sys-devel/byfl
 sys-devel/llvm-roc
 www-client/chromium
