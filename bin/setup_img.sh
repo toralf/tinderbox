@@ -393,7 +393,7 @@ FFLAGS="\${FCFLAGS}"
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 $([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"')
 
-ACCEPT_LICENSE="* -@EULA"
+ACCEPT_LICENSE="-* @FREE @BINARY-REDISTRIBUTABLE"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
@@ -675,21 +675,7 @@ echo "# setup: configure" | tee /var/tmp/tb/task
 echo "$name" > /etc/conf.d/hostname
 useradd -u $(id -u tinderbox) tinderbox
 
-if [[ $musl = "y" ]]; then
-  eselect profile set --force default/linux/amd64/$profile
-else
-  # use the base profile during setup to minimize dep graph
-  #
-  if [[ $profile =~ "/no-multilib/hardened" ]]; then
-    eselect profile set --force default/linux/amd64/17.1/no-multilib/hardened
-  elif [[ $profile =~ "/no-multilib" ]]; then
-    eselect profile set --force default/linux/amd64/17.1/no-multilib
-  elif [[ $profile =~ "/systemd" ]]; then
-    eselect profile set --force default/linux/amd64/17.1/systemd
-  else
-    eselect profile set --force default/linux/amd64/17.1
-  fi
-
+if [[ ! $musl = "y" ]]; then
   cat << EOF2 >> /etc/locale.gen
 # by \$0 at \$(date)
 #
@@ -753,16 +739,13 @@ fi
 #
 emerge -1u virtual/libcrypt
 
-# finally switch to the choosen profile
-#
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
-# very last action: feed https://portagefilelist.de
-#
+# unlikely that the backlog is emptied but ...
 echo "%/usr/bin/pfl || true
 app-portage/pfl" > /var/tmp/tb/backlog
 
