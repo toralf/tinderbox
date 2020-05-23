@@ -1030,8 +1030,7 @@ function PostEmerge() {
 function CheckQA() {
   pushd /var/tmp/tb 1>/dev/null
 
-  # process each QA issue separately (there might be more than 1 in the same elog file)
-  #
+  # prefer "grep -f <file>" over "grep -e <pattern>"
   split --lines=1 --suffix-length=2 /mnt/tb/data/CATCH_QA
 
   find /var/log/portage/elog -name '*.log' |\
@@ -1041,6 +1040,8 @@ function CheckQA() {
     pkgname=$(pn2p "$pkg")
     pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
 
+    # process each QA issue separately (there might be more than 1 in the same elog file)
+    #
     for x in x??
     do
       grep -a -f $x $elogfile > $issuedir/title
@@ -1050,7 +1051,7 @@ function CheckQA() {
         cp $issuedir/issue $issuedir/comment0
         cp $issuedir/issue $issuedir/body
 
-        cp $pkglog $issuedir/files/
+        [[ -f $pkglog ]] && cp $pkglog $issuedir/files/
         # if QA elog contains more than 7 lines (1 before, 5 after) then attach it too
         if [[ $( wc -l < $elogfile ) -gt 7 ]]; then
           cp $elogfile $issuedir/files/elog-${elogfile##*/}
