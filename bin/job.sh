@@ -1043,20 +1043,22 @@ function CheckQA() {
 
     for x in x??
     do
-      grep -q -a -f $x $elogfile
+      grep -a -f $x $elogfile > $issuedir/title
       if [[ $? -eq 0 ]]; then
         CreateIssueDir
-        grep -a -f $x           $elogfile > $issuedir/title
-        grep -a -f $x -B 1 -A 5 $elogfile | tee $issuedir/body > $issuedir/issue
-        # if it contains more than 6 lines then attach it too
-        #
-        if [[ $( wc -l < $elogfile ) -gt 6 ]]; then
+        grep -a -f $x -B 1 -A 5 $elogfile > $issuedir/issue
+        cp $issuedir/issue $issuedir/comment0
+        cp $issuedir/issue $issuedir/body
+
+        cp $pkglog $issuedir/files/
+        # if QA elog contains more than 7 lines (1 before, 5 after) then attach it too
+        if [[ $( wc -l < $elogfile ) -gt 7 ]]; then
           cp $elogfile $issuedir/files/elog-${elogfile##*/}
         fi
-        cp $pkglog $issuedir/files/
 
         AddWhoamiToComment0
         SearchForBlocker
+        repo=$(portageq metadata / ebuild $pkg repository)
         SetAssigneeAndCc
         AddVersionAssigneeAndCC
         SearchForAnAlreadyFiledBug
