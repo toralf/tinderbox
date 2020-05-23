@@ -76,13 +76,15 @@ function Finish()  {
 }
 
 
-# move next item of one of the appropriate backlog into $task or Finish()
+# get next task from one of the backlogs
 #
 function setTaskAndBacklog()  {
+  local bl
+
   if [[ -s $backlog1st ]]; then
     bl=$backlog1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 4)) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 3)) -eq 0 ]]; then
     bl=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
@@ -96,8 +98,7 @@ function setTaskAndBacklog()  {
     Finish 0 "all backlogs are EMPTY, $(qlist --installed | wc -l) packages installed"
   fi
 
-  # splice last line from the winning backlog file
-  #
+  # copy the last line to $task and splice that line from the backlog
   task=$(tail -n 1 $bl)
   sed -i -e '$d' $bl
 }
