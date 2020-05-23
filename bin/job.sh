@@ -1044,10 +1044,11 @@ function CheckQA() {
     #
     for x in x??
     do
-      grep -a -f $x $elogfile > $issuedir/title
-      if [[ $? -eq 0 ]]; then
+      grep -a -f $x $elogfile > title
+      if [[ -s title ]]; then
         CreateIssueDir
-        grep -a -f $x -B 1 -A 5 $elogfile > $issuedir/issue
+        mv title $issuedir/title
+        grep -a -f $issuedir/title -B 1 -A 5 $elogfile > $issuedir/issue
         cp $issuedir/issue $issuedir/comment0
         cp $issuedir/issue $issuedir/body
 
@@ -1082,7 +1083,7 @@ function CheckQA() {
     mv $elogfile $elogfile.checked
   done
 
-  rm x??
+  rm x?? title
 
   popd 1>/dev/null
 }
