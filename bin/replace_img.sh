@@ -132,10 +132,10 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
 fi
 
 condition_distance=6        # min. distance in hours to the previous image, effectively this yields into n+1 hours
-condition_runtime=288       # max age in hours for an image (efficiency drops down after that time)
-condition_backlog=15000     # max. left entries in the backlog
-condition_completed=5500    # min. completed emerge operations
-oldimg=""                   # optional: image to be replaced ("-" to just spin up a new one)
+condition_runtime=288       # max. age in hours for an image, emerge efficiency drops down after 12 days
+condition_backlog=15000     # max. entries left in the backlog
+condition_completed=5500    # min. amount of completed emerge operations
+oldimg=""                   # optional: image name to be replaced ("-" to just spin up a new one)
 setupargs=""                # args passed to call of setup_img.sh
 
 while getopts c:h:l:r:s: opt
@@ -171,7 +171,7 @@ fi
 if [[ -n "$oldimg" && "$oldimg" != "-" ]]; then
   echo
   date
-  if [[ -e ~/run/"$oldimg" ]]; then
+  if [[ -e ~/run/$oldimg ]]; then
     echo " replace $oldimg ..."
     StopOldImage
   else
@@ -189,7 +189,7 @@ do
   sudo ${0%/*}/setup_img.sh "$setupargs"
   rc=$?
   if [[ $rc -eq 0 ]]; then
-    if [[ -e ~/run/"$oldimg" ]]; then
+    if [[ -e ~/run/$oldimg ]]; then
       rm -- ~/run/$oldimg ~/logs/$oldimg.log
     fi
     Finish 0
