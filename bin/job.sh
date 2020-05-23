@@ -1083,7 +1083,7 @@ function CheckQA() {
     mv $elogfile $elogfile.checked
   done
 
-  rm x?? title
+  rm -f x?? title
 
   popd 1>/dev/null
 }
