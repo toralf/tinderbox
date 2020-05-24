@@ -633,9 +633,8 @@ EOF
     echo "%systemd-machine-id-setup" >> $bl.1st
   fi
 
-  # no-op except Python was updated during setup
-  #
-  echo "%eselect python update" >> $bl.1st
+  echo "%eselect python cleanup" >> $bl.1st
+  echo "%eselect python update --if-unset" >> $bl.1st
 }
 
 
@@ -720,9 +719,9 @@ emerge -u mail-client/mailx
 # mandatory tools by job.sh
 emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   date
-  echo "# setup: MTA + tools" | tee /var/tmp/tb/task
+  echo "# setup: glibc[-crypt]" | tee /var/tmp/tb/task
 
   echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/00libxcrypt
   cat <<EOF2                          >> /etc/portage/package.use/00libxcrypt
@@ -745,11 +744,11 @@ if [[ $testfeature = "y" ]]; then
   sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
 fi
 
-# unlikely that the backlog is emptied but ...
+# unlikely that the backlog is emptied but if then ...
 echo "%/usr/bin/pfl || true
 app-portage/pfl" > /var/tmp/tb/backlog
 
-# fill the backlog with all package mathicng this profile
+# fill the backlog with all package valid for this profile
 # hint: sort -u is needed if more than one non-empty repository is configured
 #
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/backlog
