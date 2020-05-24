@@ -104,7 +104,7 @@ function SetOptions() {
     fi
   fi
 
-  #  FEATURES=test
+  # sets FEATURES=test eventually
   #
   testfeature="n"
   if [[ "$keyword" = "unstable" ]]; then
@@ -721,7 +721,7 @@ emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   date
-  echo "# setup: glibc[-crypt]" | tee /var/tmp/tb/task
+  echo "# setup: glibc[-crypt] libxcrypt" | tee /var/tmp/tb/task
 
   echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/00libxcrypt
   cat <<EOF2                          >> /etc/portage/package.use/00libxcrypt
@@ -741,7 +741,7 @@ emerge -1u virtual/libcrypt
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
-  sed -i -e 's/FEATURES="/FEATURES="test /g' /etc/portage/make.conf
+  echo "*/*  test" >> /etc/portage/package.env/00test
 fi
 
 # unlikely that the backlog is emptied but if then ...
