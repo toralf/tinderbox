@@ -741,7 +741,7 @@ emerge -1u virtual/libcrypt
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
-  echo "*/*  test" >> /etc/portage/package.env/00test
+  echo "*/*  test" >> /etc/portage/package.env/000test  # intentionally 3 zeros to be ordered lexicographically before "00notest"
 fi
 
 # unlikely that the backlog is emptied but if then ...
