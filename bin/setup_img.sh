@@ -703,7 +703,6 @@ if [[ 1 -eq 1 ]]; then
   emerge -u --deep --changed-use --newuse @world --keep-going=y --exclude sys-devel/gcc
   locale-gen -j1
   eselect python update --if-unset
-  emerge --depclean
 fi
 
 if [[ $keyword = "unstable" ]]; then
