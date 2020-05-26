@@ -139,11 +139,11 @@ sandbox=(env -i
     --dev /dev
     --proc /proc
     --mqueue /dev/mqueue
+    --unshare-cgroup
     --unshare-ipc
     --unshare-pid
-    --unshare-uts
-    --unshare-cgroup
     --unshare-user-try
+    --unshare-uts
     --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
     --chdir /var/tmp/tb
     --die-with-parent
