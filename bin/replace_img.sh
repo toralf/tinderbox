@@ -73,8 +73,7 @@ function LookForAnOldEnoughImage()  {
     fi
   fi
 
-
-  # hint: hereby sets the global variable "oldimg"
+  # hint: hereby the variable "oldimg" is set globally
   while read oldimg
   do
     [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]] && continue
@@ -92,7 +91,7 @@ function LookForAnOldEnoughImage()  {
 
 
 function StopOldImage() {
-  # fight against an external restart-logic
+  # absorb external restart-logic
   #
   echo -e "STOP
 STOP
@@ -186,7 +185,7 @@ do
   date
   echo " setup a new image ..."
 
-  sudo ${0%/*}/setup_img.sh "$setupargs"
+  sudo ${0%/*}/setup_img.sh $setupargs
   rc=$?
   if [[ $rc -eq 0 ]]; then
     if [[ -e ~/run/$oldimg ]]; then
