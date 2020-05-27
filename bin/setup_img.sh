@@ -246,15 +246,15 @@ function UnpackStage3()  {
 
   case $profile in
     */no-multilib/hardened)
-      stage3=$(grep "/hardened/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest)
+      stage3=$(grep "/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest)
       ;;
 
     */musl/hardened)
-      stage3=$(grep "/musl/stage3-amd64-musl-hardened-20.*\.tar\." $latest)
+      stage3=$(grep "/stage3-amd64-musl-hardened-20.*\.tar\." $latest)
       ;;
 
     */hardened)
-      stage3=$(grep "/hardened/stage3-amd64-hardened-20.*\.tar\." $latest)
+      stage3=$(grep "/stage3-amd64-hardened-20.*\.tar\." $latest)
       ;;
 
     */no-multilib)
@@ -262,11 +262,11 @@ function UnpackStage3()  {
       ;;
 
     */systemd)
-      stage3=$(grep "/systemd/stage3-amd64-systemd-20.*\.tar\." $latest)
+      stage3=$(grep "/stage3-amd64-systemd-20.*\.tar\." $latest)
       ;;
 
     */musl)
-      stage3=$(grep "/musl/stage3-amd64-musl-vanilla-20.*\.tar\." $latest)
+      stage3=$(grep "/stage3-amd64-musl-vanilla-20.*\.tar\." $latest)
       ;;
 
     *)
@@ -275,7 +275,7 @@ function UnpackStage3()  {
   esac
   stage3=$(echo $stage3 | cut -f1 -d' ' -s)
 
-  if [[ -z "$stage3" ]]; then
+  if [[ -z "$stage3" || "$stage3" =~ [[:space:]] ]]; then
     echo " can't get stage3 filename for profile '$profile' in $latest"
     exit 1
   fi
@@ -287,11 +287,10 @@ function UnpackStage3()  {
     wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
   fi
 
-  # do this before if needed:    gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
+  # do this once before:    gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
   #
   date
   echo " verifying $f ..."
-  gpg --quiet --refresh-keys releng@gentoo.org
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
@@ -658,7 +657,7 @@ set -e
 export GCC_COLORS=""
 
 date
-echo "# setup: rsync" | tee /var/tmp/tb/task
+echo "#setup rsync" | tee /var/tmp/tb/task
 
 rsync   --archive --cvs-exclude /mnt/repos/gentoo   /var/db/repos/
 if [[ $libressl = "y" ]]; then
@@ -669,7 +668,7 @@ if [[ $musl = "y" ]]; then
 fi
 
 date
-echo "# setup: configure" | tee /var/tmp/tb/task
+echo "#setup configure" | tee /var/tmp/tb/task
 
 echo "$name" > /etc/conf.d/hostname
 useradd -u $(id -u tinderbox) tinderbox
@@ -698,11 +697,14 @@ emerge --config sys-libs/timezone-data
 
 if [[ 1 -eq 1 ]]; then
   date
-  echo "# setup: @world" | tee /var/tmp/tb/task
+  echo "#setup update stable image" | tee /var/tmp/tb/task
 
-  emerge -u --deep --changed-use --newuse @world --keep-going=y --exclude sys-devel/gcc
+  emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc
   locale-gen -j1
   eselect python update --if-unset
+
+  env-update
+  source /etc/profile
 fi
 
 if [[ $keyword = "unstable" ]]; then
@@ -711,7 +713,7 @@ fi
 
 # emerge ssmtp before mailx b/c mailx would pull its ebuild default MTA rather than ssmtp
 date
-echo "# setup: MTA + tools" | tee /var/tmp/tb/task
+echo "#setup tools" | tee /var/tmp/tb/task
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
 
@@ -720,7 +722,7 @@ emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   date
-  echo "# setup: glibc[-crypt] libxcrypt" | tee /var/tmp/tb/task
+  echo "#setup glibc[-crypt] libxcrypt" | tee /var/tmp/tb/task
 
   echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/00libxcrypt
   cat <<EOF2                          >> /etc/portage/package.use/00libxcrypt
@@ -758,7 +760,7 @@ qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/back
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
 date
-echo "# setup: done" | tee /var/tmp/tb/task
+echo "#setup done" | tee /var/tmp/tb/task
 
 EOF
 
@@ -797,7 +799,7 @@ function DryrunHelper() {
   tail -v -n 1000 $mnt/etc/portage/package.use/00thrown*
   echo
 
-  echo "# setup: dryrun" | tee $mnt/var/tmp/tb/task
+  echo "#setup dryrun" | tee $mnt/var/tmp/tb/task
   echo 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
   nice -n 1 sudo ${0%/*}/bwrap.sh "$mnt" "$mnt/var/tmp/tb/dryrun_wrapper.sh"
   local rc=$?
@@ -888,8 +890,6 @@ if [[ -n "$1" ]]; then
   echo
 fi
 
-# at least "portageq get_repo_path / musl" fails b/c it is not used at the host
-#
 repo_gentoo=/var/db/repos/gentoo
 repo_libressl=/var/db/repos/libressl
 repo_musl=/var/db/repos/musl
