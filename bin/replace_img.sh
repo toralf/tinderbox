@@ -79,7 +79,7 @@ function LookForAnOldEnoughImage()  {
   do
     [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]] && continue
 
-    let "runtime = ( $current_time - $(stat -c%Y ~/run/$oldimg/var/tmp/tb/name) ) / 3600"
+    let "runtime = ( $current_time - $(stat -c%Y ~/run/$oldimg/var/tmp/tb/name) ) / 3600 / 24"
     if [[ $runtime -gt $condition_runtime ]]; then
       [[ $(GetLeft $oldimg) -lt $condition_backlog || $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
     else
@@ -132,7 +132,7 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
 fi
 
 condition_distance=6        # min. distance in hours to the previous image, effectively this yields into n+1 hours
-condition_runtime=288       # max. age in hours for an image, emerge efficiency drops down after 12 days
+condition_runtime=12        # max. age in hours for an image, emerge efficiency drops down after that time
 condition_backlog=15000     # max. entries left in the backlog
 condition_completed=5500    # min. amount of completed emerge operations
 oldimg=""                   # optional: image name to be replaced ("-" to just spin up a new one)
