@@ -760,7 +760,7 @@ qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/back
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
 date
-echo "#setup done" | tee /var/tmp/tb/task
+echo "#setup.sh done" | tee /var/tmp/tb/task
 
 EOF
 
