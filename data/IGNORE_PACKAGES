@@ -27,7 +27,7 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# way too long emerge time
+# way too long emerge time either direct or due to its deps
 #
 app-editors/atom
 app-office/
@@ -39,6 +39,7 @@ dev-libs/aws-sdk-cpp
 dev-libs/rocm
 dev-qt/qtwebengine
 dev-qt/qtwebkit
+dev-qt/qtwebview
 dev-util/electron
 dev-util/include-what-you-use
 gnome-extra/sushi
