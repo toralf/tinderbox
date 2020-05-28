@@ -621,7 +621,7 @@ EOF
     #   =         : do not upgrade the current (slotted) version b/c we remove them immediately afterwards
     # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of these deps
     #
-    echo "%emerge -u --changed-use =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+    echo "%emerge -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
   else
     # rarely but possible to have a newer GCC version in the tree than the stage3 has
     #
