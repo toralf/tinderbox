@@ -984,7 +984,7 @@ function PostEmerge() {
   grep -q ">>> Installing .* dev-lang/perl-[1-9]" $logfile_stripped && add2backlog "%perl-cleaner --all"
   grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $logfile_stripped && add2backlog "%SwitchGCC"
 
-  # update the image one day after the last run
+  # update the image once a day if nothing 1st prio is scheduled
   #
   if [[ ! -s $backlog1st ]]; then
     local last=""
@@ -998,12 +998,11 @@ function PostEmerge() {
       last=/var/tmp/tb/@world.history
     elif [[ -f /var/tmp/tb/@system.history ]]; then
       last=/var/tmp/tb/@system.history
-    else
-      diff=0
     fi
+
     if [[ -n $last && $(( $(date +%s) - $(stat -c%Y $last) )) -gt 86400 ]]; then
       add2backlog "@system"
-      [[ -x /usr/bin/pfl ]] && add2backlog "%/usr/bin/pfl || true"    # send data of installed packages before they are updated
+      [[ -x /usr/bin/pfl ]] && add2backlog "%/usr/bin/pfl || true"    # send data of installed packages before they might be updated
     fi
   fi
 
