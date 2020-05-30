@@ -807,6 +807,7 @@ function DryrunHelper() {
   if [[ $rc -eq 0 ]]; then
     grep -H -A 32 -e 'The following USE changes are necessary to proceed:'                \
                   -e 'One of the following packages is required to complete your request' \
+                  -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:'  \
                   $mnt/var/tmp/tb/dryrun.log && rc=2
   fi
 
