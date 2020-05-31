@@ -14,16 +14,19 @@ function Cgroup() {
     [[ ! -d "$d" ]] && mkdir "$d"
   done
 
-  # upper limit for all images (usually 9)
+  # upper limits for all images (usually 9)
+
   local cgdir="/sys/fs/cgroup/memory/tinderbox"
-  echo "108G" > "$cgdir/memory.limit_in_bytes"
-  echo "130G" > "$cgdir/memory.memsw.limit_in_bytes"
+  echo "100G" > "$cgdir/memory.limit_in_bytes"
+  echo "120G" > "$cgdir/memory.memsw.limit_in_bytes"
   echo "$$"   > "$cgdir/tasks"
 
   local cgdir="/sys/fs/cgroup/cpu/tinderbox"
   echo "900000" > "$cgdir/cpu.cfs_quota_us"
   echo "100000" > "$cgdir/cpu.cfs_period_us"
   echo "$$"     > "$cgdir/tasks"
+
+  # image specific limits
 
   # force an oom-killer before the kernel does it, eg. for dev-perl/GD or dev-lang/spidermonkey
   local cgdir="/sys/fs/cgroup/memory/tinderbox/${mnt##*/}"
