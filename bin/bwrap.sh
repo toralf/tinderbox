@@ -17,8 +17,8 @@ function Cgroup() {
   # upper limits for all images (usually 9)
 
   local cgdir="/sys/fs/cgroup/memory/tinderbox"
-  echo "120G" > "$cgdir/memory.memsw.limit_in_bytes"
   echo "100G" > "$cgdir/memory.limit_in_bytes"
+  echo "120G" > "$cgdir/memory.memsw.limit_in_bytes"
   echo "$$"   > "$cgdir/tasks"
 
   local cgdir="/sys/fs/cgroup/cpu/tinderbox"
@@ -31,8 +31,8 @@ function Cgroup() {
   # force an oom-killer before the kernel does it, eg. for dev-perl/GD or dev-lang/spidermonkey
   local cgdir="/sys/fs/cgroup/memory/tinderbox/${mnt##*/}"
   [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
-  echo "20G" > "$cgdir/memory.memsw.limit_in_bytes"
   echo "12G" > "$cgdir/memory.limit_in_bytes"
+  echo "20G" > "$cgdir/memory.memsw.limit_in_bytes"
   echo "$$"  > "$cgdir/tasks"
 
   # restrict blast radius if -j1 is ignored
