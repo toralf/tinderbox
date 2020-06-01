@@ -44,7 +44,7 @@ do
   fi
 
   if [[ -f $mnt/var/tmp/tb/STOP ]]; then
-    echo " is stopping: $mnt"
+    echo " has STOP file: $mnt"
     continue
   fi
 
