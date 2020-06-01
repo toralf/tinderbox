@@ -46,9 +46,20 @@ function Mail() {
   # a workaround is to insert an empty SMTP header line before that SMTP header line to invalidate its special meaning
   # but do this only if there're uuencoded attachments
   #
-  dummy=""
-  [[ -f $2 ]] && grep -q "^begin 644 " $2 && dummy='-a dummy_header_line'
-  ([[ -f $2 ]] && cat $2 || echo "${2:-empty_mail_body}") | timeout 120 mail $dummy -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
+  [[ -f $2 ]] && grep -q "^begin 644 " $2 && dummy='-a dummy_header_line' || dummy=""
+
+  (
+    if [[ -f $2 ]]; then
+      if [[ -s $2 ]]; then
+        cat $2
+      else
+        ls -l $2
+      fi
+    else
+      echo "${2:-empty_mail_body}"
+    fi
+  ) | timeout 120 mail $dummy -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
+
   if [[ $? -ne 0 ]]; then
     echo "$(date) mail failed, rc=$rc, subject=$subject" | tee -a /var/tmp/tb/mail.log
   fi
