@@ -6,37 +6,16 @@
 # bubblewrap into an image interactively - or - run an entrypoint script
 
 
-# a cleanup hook is not mandatory b/c we do reboot rather often
 function Cgroup() {
-  for i in memory cpu
-  do
-    d="/sys/fs/cgroup/$i/tinderbox"
-    [[ ! -d "$d" ]] && mkdir "$d"
-  done
-
-  # upper limits for all images (usually 9)
-
-  local cgdir="/sys/fs/cgroup/memory/tinderbox"
-  echo "100G" > "$cgdir/memory.limit_in_bytes"
-  echo "120G" > "$cgdir/memory.memsw.limit_in_bytes"
-  echo "$$"   > "$cgdir/tasks"
-
-  local cgdir="/sys/fs/cgroup/cpu/tinderbox"
-  echo "900000" > "$cgdir/cpu.cfs_quota_us"
-  echo "100000" > "$cgdir/cpu.cfs_period_us"
-  echo "$$"     > "$cgdir/tasks"
-
-  # image specific limits
-
   # force an oom-killer before the kernel does it, eg. for dev-perl/GD or dev-lang/spidermonkey
-  local cgdir="/sys/fs/cgroup/memory/tinderbox/${mnt##*/}"
+  local cgdir="/sys/fs/cgroup/memory/local/${mnt##*/}"
   [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
   echo "12G" > "$cgdir/memory.limit_in_bytes"
   echo "20G" > "$cgdir/memory.memsw.limit_in_bytes"
   echo "$$"  > "$cgdir/tasks"
 
   # restrict blast radius if -j1 is ignored
-  local cgdir="/sys/fs/cgroup/cpu/tinderbox/${mnt##*/}"
+  local cgdir="/sys/fs/cgroup/cpu/local/${mnt##*/}"
   [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
   echo "100000" > "$cgdir/cpu.cfs_quota_us"
   echo "100000" > "$cgdir/cpu.cfs_period_us"
