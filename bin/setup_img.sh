@@ -69,7 +69,7 @@ function ThrowCflags()  {
 function SetOptions() {
   autostart="y"
   useflags="ThrowUseFlags"
-  cflags_default="-O2 -pipe -march=native"
+  cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=""
 
   # throw a profile and prefer a non-running one, nevertheless the last entry will make it eventually
@@ -382,6 +382,9 @@ EOF
 function CompileMakeConf()  {
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
+NOCOLOR="true"
+GCC_COLORS=""
+PORTAGE_TMPFS="/dev/shm"
 
 CFLAGS="$cflags_default $cflags"
 CXXFLAGS="\${CFLAGS}"
