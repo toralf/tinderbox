@@ -45,14 +45,14 @@ function Cgroup() {
 
 
 function CleanupAndExit()  {
-  rc=$?
-  rmdir "$lock_dir" && exit ${1:-$rc} || exit $?
+  rc=${1:-$?}
+  echo "clean up and exit ..."
+  rmdir "$lock_dir" && exit $rc || exit $?
 }
 
 
 function Exit()  {
   echo "bail out ..."
-  exit 1
 }
 
 
@@ -65,7 +65,7 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-trap Exit QUIT TERM
+trap Exit EXIT QUIT TERM
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
@@ -77,7 +77,7 @@ if [[ $# -lt 1 || $# -gt 2 ]]; then
   exit 1
 fi
 
-if [[ "$1" =~ ".." || "$1" =~ "//" || "$1" =~ [[:space:]] || "$1" =~ '\' || "${1##*/}" = "" ]]; then
+if [[ "$1" =~ [[:space:]] || "$1" =~ '\' || "${1##*/}" = "" ]]; then
   echo "arg1 not accepted: $1"
   exit 2
 fi
@@ -107,7 +107,7 @@ fi
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
 
-trap CleanupAndExit QUIT TERM
+trap CleanupAndExit EXIT QUIT TERM
 
 Cgroup
 
@@ -153,12 +153,8 @@ sandbox=(env -i
      /bin/bash -l
 )
 
-set +e
-
 if [[ -x "$mnt/entrypoint" ]]; then
   ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
 else
   ("${sandbox[@]}")
 fi
-
-CleanupAndExit $?
