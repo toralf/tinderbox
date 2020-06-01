@@ -50,11 +50,8 @@ function Mail() {
 
   (
     if [[ -f $2 ]]; then
-      if [[ -s $2 ]]; then
-        cat $2
-      else
-        ls -l $2
-      fi
+      ls -l $2
+      cat $2
     else
       echo "${2:-empty_mail_body}"
     fi
