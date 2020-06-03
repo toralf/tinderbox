@@ -34,7 +34,7 @@ Unknown M68KMAKE directive
 was not declared in this scope
 error: .* has not been declared
 ModuleNotFoundError: No module named
-ninja: build stopped:
+Invalid C declaration:
 : undefined method
 make inconsistent assumptions over
 file was not found

@@ -57,3 +57,7 @@ ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 #
 713576
 : error:.*.-Werror=format-security.
+
+#  (qt-5.15) - [Tracker] Packages broken with Qt 5.15
+726178
+QPainterPath
