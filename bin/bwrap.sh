@@ -9,29 +9,33 @@
 function Cgroup() {
   # force an oom-killer before the kernel does it, eg. for dev-perl/GD or dev-lang/spidermonkey
   local cgdir="/sys/fs/cgroup/memory/local/${mnt##*/}"
-  [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
+  if [[ ! -d "$cgdir" ]]; then
+    mkdir "$cgdir"
+  fi
   echo "12G" > "$cgdir/memory.limit_in_bytes"
   echo "20G" > "$cgdir/memory.memsw.limit_in_bytes"
   echo "$$"  > "$cgdir/tasks"
 
   # restrict blast radius if -j1 is ignored
   local cgdir="/sys/fs/cgroup/cpu/local/${mnt##*/}"
-  [[ ! -d "$cgdir" ]] && mkdir "$cgdir"
-  echo "100000" > "$cgdir/cpu.cfs_quota_us"
+  if [[ ! -d "$cgdir" ]]; then
+    mkdir "$cgdir"
+  fi
+  echo "150000" > "$cgdir/cpu.cfs_quota_us"
   echo "100000" > "$cgdir/cpu.cfs_period_us"
   echo "$$"     > "$cgdir/tasks"
 }
 
 
-function CleanupAndExit()  {
+function Cleanup()  {
   rc=${1:-$?}
-  echo "clean up and exit ..."
+  echo "clean up ..."
   rmdir "$lock_dir" && exit $rc || exit $?
 }
 
 
 function Exit()  {
-  echo "bail out ..."
+  echo "exiting ..."
 }
 
 
@@ -77,28 +81,23 @@ if [[ ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(
   exit 2
 fi
 
-# a basic lock mechanism
-if [[ ! -d /run/tinderbox ]]; then
-  mkdir /run/tinderbox
-fi
-
-# a file operation might be racy, only mkdir is an atomic kernel file system operation
+# a basic lock mechanism: only mkdir is an atomic kernel file system operation
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
 
-trap CleanupAndExit EXIT QUIT TERM
+trap Cleanup EXIT QUIT TERM
 
 Cgroup
 
 if [[ -L "$mnt/entrypoint" ]]; then
   echo "found symlinked $mnt/entrypoint"
-  CleanupAndExit 4
+  Cleanup 4
 fi
 rm -f "$mnt/entrypoint"
 if [[ $# -eq 2 ]]; then
   if [[ ! -f "$2" ]]; then
     echo "no valid entry point script given: $2"
-    CleanupAndExit 4
+    Cleanup 4
   fi
   touch     "$mnt/entrypoint"
   chmod 744 "$mnt/entrypoint"
