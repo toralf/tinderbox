@@ -12,6 +12,8 @@ function Cgroup() {
   if [[ ! -d "$cgdir" ]]; then
     mkdir "$cgdir"
   fi
+
+  echo "1"   > "$cgdir/memory.use_hierarchy"
   echo "12G" > "$cgdir/memory.limit_in_bytes"
   echo "20G" > "$cgdir/memory.memsw.limit_in_bytes"
   echo "$$"  > "$cgdir/tasks"

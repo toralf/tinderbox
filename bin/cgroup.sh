@@ -1,20 +1,24 @@
 #!/bin/sh
 #set -x
 
-# global upper limits for all fuzzers, tinderboxes etc.
+# global upper limits for tinderboxes et.a l.
 
 set -e
 
-# needed by tinderbox
+# locking mechanism used by the tinderbox
 mkdir /run/tinderbox
 
 cgdir="/sys/fs/cgroup/memory/local"
-mkdir $cgdir
+if [[ ! -d "$cgdir" ]]; then
+  mkdir "$cgdir"
+fi
+echo "1"    > $cgdir/memory.use_hierarchy
 echo "120G" > $cgdir/memory.limit_in_bytes
 echo "140G" > $cgdir/memory.memsw.limit_in_bytes
 
 cgdir="/sys/fs/cgroup/cpu/local"
-mkdir $cgdir
+if [[ ! -d "$cgdir" ]]; then
+  mkdir "$cgdir"
+fi
 echo "900000" > $cgdir/cpu.cfs_quota_us
 echo "100000" > $cgdir/cpu.cfs_period_us
-
