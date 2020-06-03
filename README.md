@@ -98,7 +98,40 @@ The user *tinderbox* must have write permissions for files in *~tinderbox/tb/dat
 Edit the credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, set ownership/rwx-access of this subdirectory and its files to user *root* only.
 Grant sudo rights to the user *tinderbox*:
 
-    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/sync_repo.sh
+    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/sync_repo.sh,/opt/tb/bin/cgroup.sh
+
+
+A boot script under Gentoo might be something like this:
+
+```bash
+# cat /etc/local.d/tinderbox.start
+#/bin/bash
+#
+#set -x
+
+(
+  mount ~tinderbox/distfiles
+  mount ~tinderbox/img1
+  mount ~tinderbox/img2
+
+  echo
+  date
+  /opt/tb/bin/cgroup.sh
+
+  echo "sync repo"
+  /opt/tb/bin/sync_repo.sh
+
+  echo
+  date
+  rm -f ~tinderbox/logs/*.log ~tinderbox/img{1,2}/*/var/tmp/tb/STOP /tmp/logcheck.sh.out
+  sudo -u tinderbox /bin/bash -c "/opt/tb/bin/logcheck.sh &"
+  sudo -u tinderbox /bin/bash -c "/opt/tb/bin/whatsup.sh -op"
+  date
+  sudo -u tinderbox /bin/bash -c "/opt/tb/bin/start_img.sh"
+  echo
+  echo "finished"
+) &> /tmp/${0##*/}.log &
+```
 
 ## link(s)
 
