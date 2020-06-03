@@ -25,7 +25,7 @@ do
           echo
           head -v ~/run/*/var/tmp/tb/mail.log
 
-          echo -e "\nto re-activate this test again, do:\n\n   tail -v ~/logs/*; truncate -s 0 ~/logs/*; rm -f $f\n"
+          echo -e "\nto re-activate this test again, do:\n\n   tail -v ~tinderbox/logs/*; truncate -s 0 ~tinderbox/logs/*; rm -f $f\n"
         ) >> $f
 
         cat $f | mail -s "logs are non-empty" $mailto
