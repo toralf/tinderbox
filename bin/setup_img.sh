@@ -234,7 +234,7 @@ function UnpackStage3()  {
 
   for mirror in $gentoo_mirrors
   do
-    wget --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest && break
+    wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest && break
   done
 
   if [[ ! -s $latest ]]; then
@@ -284,7 +284,7 @@ function UnpackStage3()  {
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo " downloading $f ..."
-    wget --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
+    wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
   fi
 
   # do this once before:    gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
