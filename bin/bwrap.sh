@@ -31,13 +31,12 @@ function Cgroup() {
 
 function Cleanup()  {
   rc=${1:-$?}
-  echo "clean up ..."
   rmdir "$lock_dir" && exit $rc || exit $?
 }
 
 
 function Exit()  {
-  echo "exiting ..."
+  echo "bailing out ..."
 }
 
 
