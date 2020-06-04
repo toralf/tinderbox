@@ -58,7 +58,7 @@ function Mail() {
   ) | timeout 120 mail $dummy -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
 
   if [[ $? -ne 0 ]]; then
-    echo "$(date) mail failed, rc=$rc, subject=$subject" | tee -a /var/tmp/tb/mail.log
+    echo "$(date) mail failed, \$rc=$rc, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
   fi
 }
 
