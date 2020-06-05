@@ -114,10 +114,6 @@ function SetOptions() {
     fi
   fi
 
-  # throw languages
-  #
-  l10n="$(grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc | cut -f1 -d' ' -s | shuf -n $(($RANDOM % 10)) | sort | xargs)"
-
   musl="n"  # handled in CheckOptions()
 }
 
@@ -167,7 +163,6 @@ function CheckOptions() {
     libressl="n"
     multilib="n"
     testfeature="n"
-    l10n=""
   fi
 
   checkBool "autostart"
@@ -521,9 +516,6 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
   echo "ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink" | PrintUseFlags > ./etc/portage/package.use/00fixed
-  if [[ -n "$l10n" ]]; then
-    echo "*/*  L10N: -* $l10n" > ./etc/portage/package.use/00thrown_l10n
-  fi
   if [[ $multilib = "y" ]]; then
     echo '*/*  ABI_X86: -* 32 64' > ./etc/portage/package.use/00abi_x86
   fi
@@ -840,26 +832,32 @@ function Dryrun() {
       cut -f2 -d'"' -s | sort -u |\
       DropUseFlags |\
       ThrowUseFlags 80 5 |\
-      PrintUseFlags > $mnt/etc/portage/package.use/00thrown_from_metadata
+      PrintUseFlags > $mnt/etc/portage/package.use/00thrown_use_flags_from_metadata
 
       grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
       cut -f1 -d' ' -s |\
       DropUseFlags |\
       ThrowUseFlags 20 5 |\
-      PrintUseFlags > $mnt/etc/portage/package.use/00thrown_from_profile
+      PrintUseFlags > $mnt/etc/portage/package.use/00thrown_use_flags_from_profile
+
+      l10n="$(
+        grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc |\
+        cut -f1 -d' ' -s | shuf -n $(($RANDOM % 10)) | sort | xargs
+      )"
+      if [[ -n "$l10n" ]]; then
+        echo "*/*  L10N: -* $l10n" > $mnt/etc/portage/package.use/00thrown_l10n_from_profile
+      fi
 
       DryrunHelper && break
 
-      # hold on in the hope that the portage tree is healed afterwards ...
-      #
-      if [[ $(($i % 20)) -eq 0 ]]; then
+      if [[ $i -ge 20 ]]; then
         echo -e "\n\n too much attempts, giving up\n\n"
         exit 2
       fi
 
     done
   else
-    echo ${useflags} | PrintUseFlags > $mnt/etc/portage/package.use/00given_at_setup
+    echo ${useflags} | PrintUseFlags > $mnt/etc/portage/package.use/00given_use_flags
     DryrunHelper || exit 3
   fi
 
