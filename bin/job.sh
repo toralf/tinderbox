@@ -672,11 +672,7 @@ EOF
 # b.g.o. limits "Summary"
 #
 function TrimTitle()  {
-  n=${1:-130}
-
-  if [[ $(wc -c < $issuedir/title) -gt $n ]]; then
-    truncate -s $n $issuedir/title
-  fi
+  truncate -s "<${1:-130}" $issuedir/title
 }
 
 
@@ -1130,6 +1126,7 @@ function RunAndCheck() {
           -e '* Invalid resume list:' \
           -e 'Dependencies could not be completely resolved due to' \
           -e "Couldn't find .* to unmerge." \
+          -e "emerge: There are no sets to satisfy" \
           $logfile_stripped
   if [[ $? -eq 0 ]]; then
     return $rc
