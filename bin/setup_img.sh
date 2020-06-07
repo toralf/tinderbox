@@ -42,7 +42,7 @@ function GetProfiles() {
   eselect profile list |\
   awk ' { print $2 } ' |\
   grep -e "^default/linux/amd64/17\.1" -e "^default/linux/amd64/17\../musl" |\
-  grep -v -e '/x32' -e '/selinux' -e '/uclibc' |\
+  grep -v -e '/x32' -e '/selinux' -e '/uclibc' -e 'musl' |\
   cut -f4- -d'/' -s
 }
 
@@ -73,8 +73,10 @@ function SetOptions() {
   #
   while read profile
   do
-    ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* &>/dev/null || break
-  done < <(GetProfiles | grep -v "musl" | shuf)
+    if [[ -z "$(ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* /run/tinderbox/$(echo $profile | tr '/' '_')-*.lock 2>/dev/null)" ]]; then
+      break
+    fi
+  done < <(GetProfiles | shuf)
 
   ThrowCflags
   features="xattr cgroup -news -collision-protect"
@@ -787,11 +789,9 @@ function RunSetupScript() {
 # check that the USE flags do not yield to circular or other non-resolvable dependencies
 #
 function DryrunHelper() {
-  echo
   tail -v -n 1000 $mnt/etc/portage/package.use/00thrown*
   echo
 
-  echo "#setup dryrun" | tee $mnt/var/tmp/tb/task
   echo 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
   nice -n 1 sudo ${0%/*}/bwrap.sh "$mnt" "$mnt/var/tmp/tb/dryrun_wrapper.sh"
   local rc=$?
@@ -823,10 +823,10 @@ function Dryrun() {
     i=0
     while :; do
       ((i=i+1))
-      echo
       date
       echo "i=$i==========================================================="
       echo
+      echo "#setup dryrun #$i" | tee $mnt/var/tmp/tb/task
 
       grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
       cut -f2 -d'"' -s | sort -u |\
@@ -849,9 +849,11 @@ function Dryrun() {
       fi
 
       DryrunHelper && break
+      echo
 
-      if [[ $i -ge 20 ]]; then
-        echo -e "\n\n too much attempts, giving up\n\n"
+      if [[ $i -ge 30 ]]; then
+        echo " too much attempts, giving up"
+        echo
         exit 2
       fi
 
