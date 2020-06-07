@@ -18,10 +18,6 @@ sys-apps/nix              -etc_profile
 dev-lang/python           readline
 dev-libs/libpcre*         -libedit
 
-# 2h less compile time
-#
-dev-lang/rust             system-llvm
-
 # 2x faster compile
 #
 dev-qt/qtwebengine        jumbo-build
@@ -38,16 +34,13 @@ dev-lisp/sbcl             -threads
 #
 */*                       -jmalloc -tcmalloc
 
-# image setup issues
+# image setup dependency issues
 #
-app-arch/libarchive       -lz4
-app-doc/doxygen           dot
 app-portage/pfl           -network-cron
-app-text/xmlto            -latex
 dev-db/sqlite             -icu
 dev-lang/python           -bluetooth
 dev-libs/libxml2          python
-dev-libs/nettle           gmp
-media-libs/libjpeg-turbo  -java
-media-libs/libwebp        -tiff
-net-dns/avahi             -gtk
+
+# buggy
+#
+*/*                       -audit

@@ -1,4 +1,2 @@
 # package.use/00systemd
 #
-
-net-wireless/bluez  -user-session
