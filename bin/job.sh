@@ -1005,6 +1005,7 @@ function PostEmerge() {
     fi
 
     if [[ -n $last && $(( $(date +%s) - $(stat -c%Y $last) )) -gt 86400 ]]; then
+      add2backlog "@world"
       add2backlog "@system"
       [[ -x /usr/bin/pfl ]] && add2backlog "%/usr/bin/pfl || true"    # send data of installed packages before they might be updated
     fi
@@ -1177,9 +1178,6 @@ function WorkOnTask() {
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
           add2backlog "%emerge --resume --skip-first"
-        elif [[ $task = "@system" ]]; then
-          # eg. QT of gcc upgrade yields to blockers for @system but not for @world
-          add2backlog "@world"
         fi
       fi
 
