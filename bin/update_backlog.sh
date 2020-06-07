@@ -1,10 +1,11 @@
 #!/bin/bash
+# set -x
 
 
 # merge tree changes or certain packages into appropriate backlogs
 
 
-function updateBacklogs() {
+function ScanTreeForChanges() {
   repo_path=$(portageq get_repo_path / gentoo) || exit 2
   cd $repo_path || exit 2
 
@@ -13,6 +14,8 @@ function updateBacklogs() {
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s | cut -f1-2 -d'/' -s | uniq |\
   grep -v -f ~/tb/data/IGNORE_PACKAGES > $result
+
+  [[ -s $result ]] && return 0 || return 1
 }
 
 
@@ -33,6 +36,28 @@ function retestPackages() {
       ~/run/*/etc/portage/package.mask/self       \
       ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null
   done
+
+  [[ -s $result ]] && return 0 || return 1
+}
+
+
+function updateBacklog()  {
+  target=$1
+
+  for bl in $(ls ~/run/*/var/tmp/tb/backlog.$target 2>/dev/null)
+  do
+    if [[ $target = "upd" ]]; then
+      # re-mix them
+      cat $result $bl | sort -u | shuf > $bl.tmp
+    elif [[ $target = "1st" ]]; then
+      # schedule shuffled new data after existing entries, sort out dups before
+      (sort -u $result | grep -v -f $bl | shuf; cat $bl) > $bl.tmp
+    fi
+
+    # no "mv", that overwrites file permissions
+    cp $bl.tmp $bl
+    rm $bl.tmp
+  done
 }
 
 
@@ -48,29 +73,10 @@ fi
 result=/tmp/${0##*/}.txt
 truncate -s 0 $result
 
+# use update backlog for new and updated portage tree entries
+# but high prio backlog to retest package(s)
 if [[ $# -eq 0 ]]; then
-  # use update backlog for new and updated portage tree entries
-  target="upd"
-  updateBacklogs
+  ScanTreeForChanges && updateBacklog "upd"
 else
-  # use high prio backlog for retest of package(s)
-  target="1st"
-  retestPackages $*
-fi
-
-if [[ -s $result ]]; then
-  for bl in $(ls ~/run/*/var/tmp/tb/backlog.$target 2>/dev/null)
-  do
-    if [[ $target = "upd" ]]; then
-      # re-mix them
-      cat $result $bl | sort -u | shuf > $bl.tmp
-    elif [[ $target = "1st" ]]; then
-      # schedule shuffled new data after existing entries, sort out dups before
-      (sort -u $result | grep -v -f $bl | shuf; cat $bl) > $bl.tmp
-    fi
-
-    # no "mv", that overwrites file permissions
-    cp $bl.tmp $bl
-    rm $bl.tmp
-  done
+  retestPackages $*  && updateBacklog "1st"
 fi
