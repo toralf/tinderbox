@@ -3,9 +3,7 @@
 
 # circ dep
 # 
-#app-portage/portage-utils   qmanifest
 dev-util/pkgconfig          internal-glib
 sys-fs/eudev                -introspection
 sys-libs/libcap             -pam
 sys-libs/ncurses            -gpm
-#x11-libs/libxcb             xkb

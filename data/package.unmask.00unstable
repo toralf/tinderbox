@@ -1,6 +1,2 @@
 # package.unmask/00unstable
 #
-
-# mattst88, leio https://bugs.gentoo.org/665338
-#
-=net-misc/networkmanager-1.22*

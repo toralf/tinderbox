@@ -3,7 +3,6 @@
 
 # if FEATURES=test is set then these USE flags are mandatory
 #
-*/*                       -libglvnd
 
 sys-libs/db               tcl
 x11-base/xorg-server      xvfb

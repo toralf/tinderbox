@@ -1,13 +1,2 @@
 # package.accept_keywords/00stable
 #
-
-# requested by Soap
-#
-~dev-libs/boost-1.71.0
-~dev-util/boost-build-1.71.0
-
-# requested by leio
-#
-~dev-lang/vala-0.44.8
-~dev-libs/vala-common-0.44.8
-~xfce-extra/xfce4-vala-4.10.3
