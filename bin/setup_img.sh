@@ -517,7 +517,7 @@ EOF
   fi
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
-  echo "ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink" | PrintUseFlags > ./etc/portage/package.use/00fixed
+  echo "ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink" | PrintUseFlags > ./etc/portage/package.use/99fixed
   if [[ $multilib = "y" ]]; then
     echo '*/*  ABI_X86: -* 32 64' > ./etc/portage/package.use/00abi_x86
   fi
@@ -736,7 +736,7 @@ emerge -1u virtual/libcrypt
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
-  echo "*/*  test" >> /etc/portage/package.env/000test  # intentionally 3 zeros to be ordered lexicographically before "00notest"
+  echo "*/*  test" >> /etc/portage/package.env/00dotest  # must be lexicographically ordered before "00notest"
 fi
 
 # unlikely that the backlog is emptied but if then ...
