@@ -1,5 +1,5 @@
 # package.use/00libressl
 #
 
-*/*                 libressl openssl -gnutls
-net-misc/curl       curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
+*/*   libressl openssl -gnutls
+*/*   curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl

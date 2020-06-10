@@ -15,6 +15,7 @@ gcc version .* found, expected gcc
 Incompatible gcc version found
 Incorrect kernel configuration options
 INTERNALERROR
+Kernel not configured; no .config found in
 kernel too new
 ld: -r and -pie may not be used together
 Linux >= .* and <= .* required for userspace modules
