@@ -111,7 +111,7 @@ app-portage/pfl
       sleep 1
     done
     date
-    echo "unlocked."
+    echo " unlocked."
   else
     echo " image is not locked"
   fi
