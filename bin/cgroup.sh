@@ -3,7 +3,7 @@
 
 # global upper limits for tinderboxes et.a l.
 
-set -e
+set -euf
 
 # locking mechanism used by the tinderbox
 mkdir /run/tinderbox
