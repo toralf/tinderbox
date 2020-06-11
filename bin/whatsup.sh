@@ -302,7 +302,7 @@ function CountPackages()  {
         $unique += $value;
       }
 
-      print "\nunique = $unique    emerge operations = $total\n";
+      print "\nemerged = $total  unique = $unique\n";
     }
   '
 }
