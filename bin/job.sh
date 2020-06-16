@@ -1311,6 +1311,8 @@ fi
 while :
 do
   if [[ -f /var/tmp/tb/STOP ]]; then
+    echo "%pfl" > $taskfile
+    /usr/bin/pfl &> $logfile
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 

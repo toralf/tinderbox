@@ -738,10 +738,6 @@ if [[ $testfeature = "y" ]]; then
   echo "*/*  test" >> /etc/portage/package.env/00dotest  # must be lexicographically ordered before "00notest"
 fi
 
-# unlikely that the backlog is emptied but if then ...
-echo "%/usr/bin/pfl || true
-app-portage/pfl" > /var/tmp/tb/backlog
-
 # fill the backlog with all package valid for this profile
 # hint: sort -u is needed if more than one non-empty repository is configured
 #
