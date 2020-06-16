@@ -450,25 +450,24 @@ function CompilePortageFiles()  {
 
   (cd ./etc/portage; ln -s ../../mnt/tb/data/patches)
 
-  touch       ./etc/portage/package.mask/self     # contains failed packages of this image
+  touch       ./etc/portage/package.mask/self     # holds failed packages of this image
   chmod a+rw  ./etc/portage/package.mask/self
 
   echo 'FEATURES="test"'                          > ./etc/portage/env/test
   echo 'FEATURES="-test"'                         > ./etc/portage/env/notest
 
-  # to preserve the same dep tree re-try a failed package with +test again but ignore the test result in the 2nd run
+  # to preserve the same dep tree: re-try a failed package with "test" again but ignore now the test results
   #
   echo 'FEATURES="test-fail-continue"'            > ./etc/portage/env/test-fail-continue
 
-  # re-try failing packages w/o sandbox'ing
+  # re-try w/o sandbox'ing
   #
   echo 'FEATURES="-sandbox -usersandbox"'         > ./etc/portage/env/nosandbox
 
-  # re-try failing packages w/o CFLAGS quirk
-  #
   cat <<EOF                                       > ./etc/portage/env/cflags_default
-CFLAGS="-O2 -pipe -march=native"
+CFLAGS="$cflags_default"
 CXXFLAGS="\${CFLAGS}"
+
 FCFLAGS="\${CFLAGS}"
 FFLAGS="\${CFLAGS}"
 
@@ -689,11 +688,11 @@ source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
-if [[ 1 -eq 1 ]]; then
+if [[ 0 -eq 1 ]]; then
   date
-  echo "#setup update stable image" | tee /var/tmp/tb/task
+  echo "#setup update stage3" | tee /var/tmp/tb/task
 
-  emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc
+  emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
   locale-gen -j1
   eselect python update --if-unset
 
@@ -820,13 +819,14 @@ function DryrunHelper() {
 
 function Dryrun() {
   if [[ "$useflags" = "ThrowUseFlags" ]]; then
-    i=0
+    attempt=0
+    max_attempts=30
     while :; do
-      ((i=i+1))
+      ((attempt=attempt+1))
       date
-      echo "i=$i==========================================================="
+      echo "i=$attempt==========================================================="
       echo
-      echo "#setup dryrun #$i" | tee $mnt/var/tmp/tb/task
+      echo "#setup dryrun $attempt#$max_attempts" | tee $mnt/var/tmp/tb/task
 
       grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
       cut -f2 -d'"' -s | sort -u |\
@@ -851,7 +851,7 @@ function Dryrun() {
       DryrunHelper && break
       echo
 
-      if [[ $i -ge 30 ]]; then
+      if [[ $attempt -ge $max_attempts ]]; then
         echo " too much attempts, giving up"
         echo
         exit 2
@@ -859,7 +859,7 @@ function Dryrun() {
 
     done
   else
-    echo ${useflags} | PrintUseFlags > $mnt/etc/portage/package.use/00given_use_flags
+    echo $useflags | PrintUseFlags > $mnt/etc/portage/package.use/00given_use_flags
     DryrunHelper || exit 3
   fi
 
