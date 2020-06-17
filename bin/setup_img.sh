@@ -464,6 +464,8 @@ function CompilePortageFiles()  {
   #
   echo 'FEATURES="-sandbox -usersandbox"'         > ./etc/portage/env/nosandbox
 
+  # save CPU cycles with a cron job like:
+  # @hourly  sort -u ~tinderbox/run/*/etc/portage/package.env/cflags_default 2>/dev/null > /tmp/cflagsknown2fail; for i in ~/run/*/etc/portage/package.env/; do cp /tmp/cflagsknown2fail $i; done
   cat <<EOF                                       > ./etc/portage/env/cflags_default
 CFLAGS="$cflags_default"
 CXXFLAGS="\${CFLAGS}"
