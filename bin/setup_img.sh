@@ -197,9 +197,12 @@ function ComputeImageName()  {
   fi
 
   name="$(echo $name | sed -e 's/-[_-]/-/g' -e 's/-$//')"
+  name="${name}-$(date +%Y%m%d-%H%M%S)"
 }
 
 
+# helper of UnpackStage3()
+#
 function CreateImageDir() {
   local l=$(readlink ~tinderbox/img)
   if [[ ! -d ~tinderbox/"$l" ]]; then
@@ -209,7 +212,6 @@ function CreateImageDir() {
 
   cd ~tinderbox/$l || exit 1
 
-  name="${name}-$(date +%Y%m%d-%H%M%S)"
   mkdir $name || exit 1
 
   # relative path (eg ./img1) from ~tinderbox
@@ -288,6 +290,7 @@ function UnpackStage3()  {
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
+  ComputeImageName
   CreateImageDir
 
   date
@@ -926,7 +929,6 @@ do
 done
 
 CheckOptions
-ComputeImageName
 UnpackStage3
 CompileRepoFiles
 CompileMakeConf
