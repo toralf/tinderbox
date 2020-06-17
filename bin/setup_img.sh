@@ -518,10 +518,8 @@ EOF
   fi
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
-  echo "ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink" | PrintUseFlags > ./etc/portage/package.use/99fixed
-  if [[ $multilib = "y" ]]; then
-    echo '*/*  ABI_X86: -* 32 64' > ./etc/portage/package.use/00abi_x86
-  fi
+
+  echo "ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink" | PrintUseFlags > ./etc/portage/package.use/99static
 
   touch ./var/tmp/tb/task
 
