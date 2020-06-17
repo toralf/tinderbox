@@ -84,22 +84,20 @@ function Finish()  {
 }
 
 
-# get next task from one of the backlogs
+# helper of getNextTask()
 #
 function setTaskAndBacklog()  {
-  local bl
-
   if [[ -s $backlog1st ]]; then
-    bl=$backlog1st
+    backlog=$backlog1st
 
   elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 3)) -eq 0 ]]; then
-    bl=/var/tmp/tb/backlog.upd
+    backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
-    bl=/var/tmp/tb/backlog
+    backlog=/var/tmp/tb/backlog
 
   elif [[ -s /var/tmp/tb/backlog.upd ]]; then
-    bl=/var/tmp/tb/backlog.upd
+    backlog=/var/tmp/tb/backlog.upd
 
   else
     rm -f /var/tmp/tb/KEEP
@@ -107,8 +105,8 @@ function setTaskAndBacklog()  {
   fi
 
   # copy the last line to $task and splice that line from the backlog
-  task=$(tail -n 1 $bl)
-  sed -i -e '$d' $bl
+  task=$(tail -n 1 $backlog)
+  sed -i -e '$d' $backlog
 }
 
 
@@ -132,7 +130,7 @@ function getNextTask() {
       break  # pinned version || @set || %command
 
     else
-      if [[ ! "$bl" = $backlog1st ]]; then
+      if [[ ! "$backlog" = $backlog1st ]]; then
         echo "$task" | grep -q -f /mnt/tb/data/IGNORE_PACKAGES && continue
       fi
 
@@ -302,7 +300,7 @@ function SetAssigneeAndCc() {
     assignee="maintainer-needed@gentoo.org"
     cc=""
 
-  elif [[ "$blocker_bug_no" = "561854" ]]; then
+  elif [[ "$backlogocker_bug_no" = "561854" ]]; then
     assignee="libressl@gentoo.org"
     cc="$m"
 
@@ -629,15 +627,15 @@ function SearchForAnAlreadyFiledBug() {
 #
 function AddBgoCommandLine() {
   local block=""
-  if [[ -n "$blocker_bug_no" ]]; then
-    block="-b $blocker_bug_no"
+  if [[ -n "$backlogocker_bug_no" ]]; then
+    block="-b $backlogocker_bug_no"
   fi
 
   if [[ -n "$similar_bug_no" ]]; then
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$similar_bug_no
 
-  bgo.sh -d ~/img?/$name/$issuedir $block -c 'there is still a similar issue at $keyword amd64 tinderbox image $name (see bug $similar_bug_no)'
+  bgo.sh -d ~/img?/$name/$issuedir $backlogock -c 'there is still a similar issue at $keyword amd64 tinderbox image $name (see bug $similar_bug_no)'
 EOF
 
   else
@@ -646,7 +644,7 @@ EOF
     #
     cat << EOF >> $issuedir/body
 
-  bgo.sh -d ~/img?/$name/$issuedir $block
+  bgo.sh -d ~/img?/$name/$issuedir $backlogock
 EOF
 
     echo "" >> $issuedir/body
@@ -700,7 +698,7 @@ function CompileIssueMail() {
   cp $issuedir/comment0 $issuedir/body
   AddWhoamiToComment0
 
-  if [[ -n "$block" ]]; then
+  if [[ -n "$backlogock" ]]; then
     cat <<EOF >> $issuedir/comment0
   Please see the tracker bug for details.
 
@@ -1305,30 +1303,25 @@ fi
 #
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
-  truncate -s 0 $taskfile
 fi
 
-while :
+while [[ : ]]
 do
-  if [[ -f /var/tmp/tb/STOP ]]; then
-    /usr/bin/pfl &> $logfile
-    Finish 0 "catched STOP file" /var/tmp/tb/STOP
-  fi
-
+  truncate -s 0 $taskfile
   date > $logfile
 
-  # pick up after ourself b/c auto-clean is deactivated in FEATURES to collect issue files
+  # pick up after ourself b/c "auto-clean" in FEATURES is deactivated to collect issue files
   #
   rm -rf /var/tmp/portage/*
+
+  if [[ -f /var/tmp/tb/STOP ]]; then
+    /usr/bin/pfl &>> $logfile
+    Finish 0 "catched STOP file" /var/tmp/tb/STOP
+  fi
 
   updateAllRepos
   getNextTask
   WorkOnTask
 
   DetectALoop
-
-  # this line is intentionally not reached if Finish() is called before
-  # so $task is retried at next start
-  #
-  truncate -s 0 $taskfile
 done
