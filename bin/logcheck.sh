@@ -11,7 +11,7 @@ mailto="tinderbox@zwiebeltoralf.de"
 
 f=/tmp/${0##*/}.out
 
-while :
+while [[ : ]]
 do
   if [[ ! -f $f ]]; then
     if [[ -n "$(ls ~/logs/)" ]]; then

@@ -817,7 +817,8 @@ function Dryrun() {
   if [[ "$useflags" = "ThrowUseFlags" ]]; then
     attempt=0
     max_attempts=30
-    while :; do
+    while [[ : ]]
+    do
       ((attempt=attempt+1))
       date
       echo "i=$attempt==========================================================="
