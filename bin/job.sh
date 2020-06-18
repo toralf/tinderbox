@@ -74,6 +74,7 @@ function Finish()  {
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
   if [[ $rc -eq 0 ]]; then
+    /usr/bin/pfl &>> $logfile
     Mail "Finish ok: $subject" $3
   else
     Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$logfile}
@@ -1315,7 +1316,6 @@ do
   rm -rf /var/tmp/portage/*
 
   if [[ -f /var/tmp/tb/STOP ]]; then
-    /usr/bin/pfl &>> $logfile
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
