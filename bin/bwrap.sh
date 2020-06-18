@@ -70,7 +70,7 @@ do
     c)
         Cgroup
         ;;
-    h|?)
+    h|\?)
         Help
         ;;
     m)
