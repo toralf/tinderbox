@@ -6,13 +6,13 @@
 # bubblewrap into an image interactively - or - run an entrypoint script
 
 
-
 function Help() {
   echo
   echo "  call: $(basename $0) [-c] -m mountpoint [-s <entrypoint script>]"
   echo "  -c = put under Cgroup control"
   echo
 }
+
 
 function Cgroup() {
   # force an oom-killer before the kernel does it, eg. for dev-perl/GD or dev-lang/spidermonkey
@@ -64,11 +64,13 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+do_cgroup="no"
+mnt=""
+entrypoint=""
 while getopts cm:s:h\? opt
 do
   case $opt in
-    c)
-        Cgroup
+    c)  do_cgroup="yes"
         ;;
     h|\?)
         Help
@@ -79,37 +81,48 @@ do
           exit 2
         fi
 
-        mnt=$(ls -d /home/tinderbox/img{1,2}/${OPTARG##*/} 2>/dev/null)
+        mnt=$(ls -d /home/tinderbox/img{1,2}/${OPTARG##*/} 2>/dev/null) || true
 
-        if [[ ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(realpath $mnt)" || ! "$mnt" =~ "/home/tinderbox/img" ]]; then
+        if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(realpath $mnt)" || ! "$mnt" =~ "/home/tinderbox/img" ]]; then
           echo "mount point not accepted"
           exit 2
         fi
         ;;
     s)
-        if [[ -L "$mnt/entrypoint" ]]; then
-          echo "found symlinked $mnt/entrypoint"
-          exit 4
-        fi
-
         if [[ ! -f "$OPTARG" ]]; then
           echo "no valid entry point script given: $OPTARG"
-          exit 4
+          exit 3
         fi
 
-        rm -f         "$mnt/entrypoint"
-        touch         "$mnt/entrypoint"
-        chmod 744     "$mnt/entrypoint"
-        cp "$OPTARG"  "$mnt/entrypoint"
+        entrypoint="$OPTARG"
         ;;
   esac
 done
+
+if [[ -z "$mnt" ]]; then
+  echo "no mnt given!"
+  exit 4
+fi
 
 # a basic lock mechanism: only mkdir is an atomic kernel file system operation
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
 
 trap Cleanup EXIT QUIT TERM
+
+if [[ -n "$entrypoint" ]]; then
+  if [[ -L "$mnt/entrypoint" ]]; then
+    echo "found symlinked $mnt/entrypoint"
+    exit 4
+  fi
+
+  if [[ -e "$mnt/entrypoint" ]]; then
+    rm -f "$mnt/entrypoint"
+  fi
+  touch             "$mnt/entrypoint"
+  chmod 744         "$mnt/entrypoint"
+  cp "$entrypoint"  "$mnt/entrypoint"
+fi
 
 sandbox=(env -i
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
@@ -138,7 +151,11 @@ sandbox=(env -i
      /bin/bash -l
 )
 
-if [[ -x "$mnt/entrypoint" ]]; then
+if [[ $do_cgroup = "yes" ]]; then
+  Cgroup
+fi
+
+if [[ -n "$entrypoint" ]]; then
   ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
 else
   ("${sandbox[@]}")
