@@ -768,7 +768,7 @@ function RunSetupScript() {
   cd ~tinderbox/
 
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > $mnt/var/tmp/tb/setup_wrapper.sh
-  nice -n 1 sudo ${0%/*}/bwrap.sh "$mnt" "$mnt/var/tmp/tb/setup_wrapper.sh"
+  nice -n 1 sudo ${0%/*}/bwrap.sh -c -m "$mnt" -s "$mnt/var/tmp/tb/setup_wrapper.sh"
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
@@ -791,7 +791,7 @@ function DryrunHelper() {
   echo
 
   echo 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
-  nice -n 1 sudo ${0%/*}/bwrap.sh "$mnt" "$mnt/var/tmp/tb/dryrun_wrapper.sh"
+  nice -n 1 sudo ${0%/*}/bwrap.sh -c -m "$mnt" -s "$mnt/var/tmp/tb/dryrun_wrapper.sh"
   local rc=$?
 
   if [[ $rc -eq 0 ]]; then
@@ -801,15 +801,13 @@ function DryrunHelper() {
                   $mnt/var/tmp/tb/dryrun.log && rc=2
   fi
 
-  echo
-  date
   if [[ $rc -ne 0 ]]; then
-    echo " ... was NOT successful (rc=$rc):"
+    echo
+    date
+    echo " dry run was NOT successful (rc=$rc):"
     echo
     tail -v -n 1000 $mnt/var/tmp/tb/dryrun.log
     echo
-  else
-    echo " ... succeeded"
   fi
 
   return $rc
@@ -852,6 +850,8 @@ function Dryrun() {
       echo
 
       if [[ $attempt -ge $max_attempts ]]; then
+        echo
+        date
         echo " too much attempts, giving up"
         echo
         exit 2

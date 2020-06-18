@@ -29,14 +29,14 @@ The current emerge operation will be finished before *job.sh* removes the marker
 
 ### go into a stopped image
 
-    sudo /opt/tb/bin/bwrap.sh <image> [entrypoint script]
+    sudo /opt/tb/bin/bwrap.sh -m <mount point>
 
-This uses bubblewrap as a better chroot sandbox. Without a 2nd argument an interactive login is made afterwards. Otherwise the file the 2nd argument points to is copied to *<image>/entrypoint* and run within the image. 
+This uses bubblewrap (an enhanced chroot).
 
 ### removal of an image
 
 Stop the image and remove the symlink in *~/run*.
-The image itself will stay in its data dir till that is cleanud up.
+The image itself will stay in its data dir till it is cleanud up.
 
 ### status of all images
 

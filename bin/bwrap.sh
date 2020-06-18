@@ -6,6 +6,14 @@
 # bubblewrap into an image interactively - or - run an entrypoint script
 
 
+
+function Help() {
+  echo
+  echo "  call: $(basename $0) [-c] -m mountpoint [-s <entrypoint script>]"
+  echo "  -c = put under Cgroup control"
+  echo
+}
+
 function Cgroup() {
   # force an oom-killer before the kernel does it, eg. for dev-perl/GD or dev-lang/spidermonkey
   local cgdir="/sys/fs/cgroup/memory/local/${mnt##*/}"
@@ -56,54 +64,52 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-if [[ $# -lt 1 || $# -gt 2 ]]; then
-  echo " wrong # of args"
-  exit 1
-fi
+while getopts cm:s:h\? opt
+do
+  case $opt in
+    c)
+        Cgroup
+        ;;
+    h|?)
+        Help
+        ;;
+    m)
+        if [[ "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ '\' || "${OPTARG##*/}" = "" ]]; then
+          echo "mnt not accepted"
+          exit 2
+        fi
 
-if [[ "$1" =~ [[:space:]] || "$1" =~ '\' || "${1##*/}" = "" ]]; then
-  echo "arg1 not accepted: $1"
-  exit 2
-fi
+        mnt=$(ls -d /home/tinderbox/img{1,2}/${OPTARG##*/} 2>/dev/null)
 
-if [[ -d "/home/tinderbox/img1/${1##*/}" ]]; then
-  mnt="/home/tinderbox/img1/${1##*/}"
+        if [[ ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(realpath $mnt)" || ! "$mnt" =~ "/home/tinderbox/img" ]]; then
+          echo "mount point not accepted"
+          exit 2
+        fi
+        ;;
+    s)
+        if [[ -L "$mnt/entrypoint" ]]; then
+          echo "found symlinked $mnt/entrypoint"
+          exit 4
+        fi
 
-elif [[ -d "/home/tinderbox/img2/${1##*/}" ]]; then
-  mnt="/home/tinderbox/img2/${1##*/}"
+        if [[ ! -f "$OPTARG" ]]; then
+          echo "no valid entry point script given: $OPTARG"
+          exit 4
+        fi
 
-else
-  echo "no valid mount point found for $1"
-  exit 2
-fi
-
-if [[ ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(realpath $mnt)" || ! "$mnt" =~ "/home/tinderbox/img" ]]; then
-  echo "mount point not accepted"
-  exit 2
-fi
+        rm -f         "$mnt/entrypoint"
+        touch         "$mnt/entrypoint"
+        chmod 744     "$mnt/entrypoint"
+        cp "$OPTARG"  "$mnt/entrypoint"
+        ;;
+  esac
+done
 
 # a basic lock mechanism: only mkdir is an atomic kernel file system operation
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
 
 trap Cleanup EXIT QUIT TERM
-
-Cgroup
-
-if [[ -L "$mnt/entrypoint" ]]; then
-  echo "found symlinked $mnt/entrypoint"
-  Cleanup 4
-fi
-rm -f "$mnt/entrypoint"
-if [[ $# -eq 2 ]]; then
-  if [[ ! -f "$2" ]]; then
-    echo "no valid entry point script given: $2"
-    Cleanup 4
-  fi
-  touch     "$mnt/entrypoint"
-  chmod 744 "$mnt/entrypoint"
-  cp "$2"   "$mnt/entrypoint"
-fi
 
 sandbox=(env -i
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
