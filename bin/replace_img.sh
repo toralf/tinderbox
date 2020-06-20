@@ -99,6 +99,7 @@ STOP
 STOP
 STOP
 STOP scheduled at $(unset LC_TIME; date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left
+%/usr/bin/pfl || true
 " > ~/run/$oldimg/var/tmp/tb/backlog.1st
 
   local lock_dir=/run/tinderbox/$oldimg.lock
