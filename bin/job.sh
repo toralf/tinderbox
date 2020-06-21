@@ -454,8 +454,6 @@ function foundTestIssue() {
 # helper of ClassifyIssue()
 #
 function foundGenericIssue() {
-    head -n 2 $issuedir/issue | tail -n 1 | stripQuotesAndMore > $issuedir/title
-
     pushd /var/tmp/tb 1>/dev/null
 
     # run over manually collected pattern in the order they do appear in the appropriate pattern file
@@ -512,9 +510,9 @@ function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
   phase=$(
-    grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog |\
-    stripEscapeSequences | tee $issuedir/issue |\
-    head -n 1  | sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' '
+    grep " \* ERROR:.* failed (.* phase):" $pkglog |\
+    stripEscapeSequences |\
+    sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' '
   )
 
   if [[ "$phase" = "test" ]]; then
@@ -537,6 +535,8 @@ function ClassifyIssue() {
     foundCflagsIssue "$(tail -n 1 $issuedir/issue)"
 
   else
+    grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog | stripEscapeSequences | tee $issuedir/issue |\
+    head -n 2 | tail -n 1 | stripQuotesAndMore > $issuedir/title
     foundGenericIssue
   fi
 
