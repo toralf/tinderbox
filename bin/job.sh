@@ -454,16 +454,7 @@ function foundTestIssue() {
 # helper of ClassifyIssue()
 #
 function foundGenericIssue() {
-    phase=$(
-      grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog |\
-      stripEscapeSequences | tee $issuedir/issue |\
-      head -n 1  | sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' '
-    )
     head -n 2 $issuedir/issue | tail -n 1 | stripQuotesAndMore > $issuedir/title
-
-    if [[ "$phase" = "test" ]]; then
-      foundTestIssue
-    fi
 
     pushd /var/tmp/tb 1>/dev/null
 
@@ -519,6 +510,16 @@ function foundGenericIssue() {
 #
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
+
+  phase=$(
+    grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog |\
+    stripEscapeSequences | tee $issuedir/issue |\
+    head -n 1  | sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' '
+  )
+
+  if [[ "$phase" = "test" ]]; then
+    foundTestIssue
+  fi
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $pkglog)" ]]; then
     foundCollisionIssue
