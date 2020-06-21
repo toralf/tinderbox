@@ -3,6 +3,8 @@
 
 # if FEATURES=test is set then these USE flags are mandatory
 #
-
+#media-libs/gd             png
+media-libs/harfbuzz       icu
+media-libs/tiff           jpeg
 sys-libs/db               tcl
 x11-base/xorg-server      xvfb
