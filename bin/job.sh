@@ -426,7 +426,7 @@ function foundCflagsIssue() {
 
 # helper of foundGenericIssue()
 #
-function foundTestIssue() {
+function handleTestPhase() {
   grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null
   if [[ $? -ne 0 ]]; then
     printf "%-50s %s\n" "=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
@@ -516,7 +516,7 @@ function ClassifyIssue() {
   )
 
   if [[ "$phase" = "test" ]]; then
-    foundTestIssue
+    handleTestPhase
   fi
 
   if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $pkglog)" ]]; then
