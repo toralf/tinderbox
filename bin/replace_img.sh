@@ -64,27 +64,28 @@ function list_images() {
 #
 function LookForAnOldEnoughImage()  {
   local current_time=$(date +%s)
+  local distance
+  local newest=$(ls -t $(list_images | sed 's,$,/var/tmp/tb/name,g') 2>/dev/null | head -n 1)
 
-  last=$(ls -t $(list_images | sed 's,$,/var/tmp/tb/name,g') 2>/dev/null | head -n 1)
-  if [[ -n "$last" ]]; then
-    let "distance = ( $current_time - $(stat -c%Y $last) ) / 3600"
+  if [[ -n "$newest" ]]; then
+    let "distance = ($current_time - $(stat -c%Y $newest)) / 3600"
     if [[ $distance -lt $condition_distance ]]; then
       return 1
     fi
+
+    # hint: hereby the variable "oldimg" is set globally
+    while read oldimg
+    do
+      [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]] && continue
+
+      let "runtime = ($current_time - $(stat -c%Y ~/run/$oldimg/var/tmp/tb/name)) / 3600 / 24"
+      if [[ $runtime -gt $condition_runtime ]]; then
+        [[ $(GetLeft $oldimg) -lt $condition_backlog || $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
+      else
+        [[ $(GetLeft $oldimg) -lt $condition_backlog && $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
+      fi
+    done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)  # from oldest to newest
   fi
-
-  # hint: hereby the variable "oldimg" is set globally
-  while read oldimg
-  do
-    [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]] && continue
-
-    let "runtime = ( $current_time - $(stat -c%Y ~/run/$oldimg/var/tmp/tb/name) ) / 3600 / 24"
-    if [[ $runtime -gt $condition_runtime ]]; then
-      [[ $(GetLeft $oldimg) -lt $condition_backlog || $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
-    else
-      [[ $(GetLeft $oldimg) -lt $condition_backlog && $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
-    fi
-  done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)
 
   return 1
 }
