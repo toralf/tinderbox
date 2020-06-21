@@ -790,7 +790,7 @@ function DryrunHelper() {
   tail -v -n 1000 $mnt/etc/portage/package.use/00thrown*
   echo
 
-  echo 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+  echo 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &>> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
   nice -n 1 sudo ${0%/*}/bwrap.sh -c -m "$mnt" -s "$mnt/var/tmp/tb/dryrun_wrapper.sh"
   local rc=$?
 
