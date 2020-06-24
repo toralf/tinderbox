@@ -439,11 +439,13 @@ function handleTestPhase() {
   pushd "$workdir" 1>/dev/null
   dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
   if [[ -n "$dirs" ]]; then
+    # the tar here is know to spew things like the obe below so ignore errors
+    # tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
     tar -cjpf $issuedir/files/tests.tbz2 \
       --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
       --exclude='*.o' --exclude="*/symlinktest/*" \
       --dereference --sparse --one-file-system --warning='no-file-ignored' \
-      $dirs
+      $dirs 2>/dev/null
   fi
   popd 1>/dev/null
 
