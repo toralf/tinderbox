@@ -127,8 +127,12 @@ function getNextTask() {
     elif [[ $task =~ ^STOP ]]; then
       Finish 0 "$task"
 
-    elif [[ $task =~ ^= || $task =~ ^@ || $task =~ ^% ]]; then
-      break  # pinned version || @set || %command
+    elif [[ $task =~ ^@ || $task =~ ^% ]]; then
+      break  # @set or %command
+
+    elif [[ $task =~ ^= ]]; then
+      # pinned version, but check validity
+      portageq best_visible / $task &>/dev/null && break
 
     else
       if [[ ! "$backlog" = $backlog1st ]]; then
