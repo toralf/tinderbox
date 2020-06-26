@@ -822,9 +822,9 @@ function Dryrun() {
     do
       ((attempt=attempt+1))
       date
-      echo "i=$attempt==========================================================="
+      echo "dryrun $attempt#$max_attempts ==========================================================="
       echo
-      echo "#setup dryrun $attempt#$max_attempts" | tee $mnt/var/tmp/tb/task
+      echo "#setup dryrun $attempt#$max_attempts" > $mnt/var/tmp/tb/task
 
       grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
       cut -f2 -d'"' -s | sort -u |\
