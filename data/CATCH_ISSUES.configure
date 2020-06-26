@@ -16,7 +16,7 @@ You need build codec to run the tests
 Could not find a package configuration file provided by
 Project .rostime. tried to find library .-lpthread.
 Could NOT find Boost
- was not found.
+Cannot execute 32-bit applications
 Unable to find clang libraries
   Could NOT find 
 extconf.rb:.* (RuntimeError)
@@ -66,3 +66,4 @@ Configuring incomplete
 cmake failed
 : No such file or directory
 .* will not be built.
+ was not found.
