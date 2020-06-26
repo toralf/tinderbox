@@ -644,7 +644,7 @@ function AddBgoCommandLine() {
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$similar_bug_no
 
-  bgo.sh -d ~/img?/$name/$issuedir $backlogock -c 'there is still a similar issue at $keyword amd64 tinderbox image $name (see bug $similar_bug_no)'
+  bgo.sh -d ~/img?/$name/$issuedir $backlogock -c 'this seems to be either still an issue or a similarity to the one reported in bug $similar_bug_no'
 EOF
 
   else
