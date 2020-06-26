@@ -281,13 +281,13 @@ function getPkgVarsFromIssuelog()  {
   repo=$(portageq metadata / ebuild $pkg repository)
   repo_path=$(portageq get_repo_path / $repo)
   if [[ ! -d $repo_path/$pkgname ]]; then
-    Mail "INFO: $FUNCNAME failed to get repo path:  >$pkg<  >$pkglog<  >$pkgname<  >$task<  >$logfile_stripped<" $logfile_stripped
+    Mail "INFO: $FUNCNAME failed to get repo path for:  >$pkg<  >$pkgname<  >$task<" $logfile_stripped
     return 1
   fi
   
   pkglog=$(grep -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $logfile_stripped)
   if [[ ! -f $pkglog ]]; then
-    Mail "INFO: $FUNCNAME failed to get log file name:  >$pkg<  >$pkglog<  >$pkgname<  >$task<  >$logfile_stripped<" $logfile_stripped
+    Mail "INFO: $FUNCNAME failed to get package log file:  >$pkg<  >$pkgname<  >$task<  >$pkglog<" $logfile_stripped
     return 1
   fi
 }
@@ -470,15 +470,17 @@ function foundGenericIssue() {
       cat /mnt/tb/data/CATCH_ISSUES
     ) | split --lines=1 --suffix-length=2
 
-    # the # of echos matches -B 2 in the grep below
-    (echo; echo; cat $pkglog) | stripEscapeSequences | stripQuotesAndMore > ./stripped_pkglog
+    # the amount of echos must match the argument of -B 2 in the grep in the for-loop
+    echo                  >  ./stripped_pkglog
+    echo                  >> ./stripped_pkglog
+    cat $pkglog_stripped  >> ./stripped_pkglog
 
     for x in ./x??
     do
       grep -a -m 1 -B 2 -A 3 -f $x ./stripped_pkglog > ./issue
       if [[ $? -eq 0 ]]; then
         mv ./issue $issuedir
-        sed -n '3p' < $issuedir/issue | stripQuotesAndMore > $issuedir/title # 3rd line (matches -A 3)
+        sed -n '3p' < $issuedir/issue | stripQuotesAndMore > $issuedir/title # 3p == 3rd line == matches -A 3
         break
       fi
     done
@@ -516,8 +518,7 @@ function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
   phase=$(
-    grep " \* ERROR:.* failed (.* phase):" $pkglog |\
-    stripEscapeSequences |\
+    grep " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
     sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' '
   )
 
@@ -525,28 +526,28 @@ function ClassifyIssue() {
     handleTestPhase
   fi
 
-  if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $pkglog)" ]]; then
+  if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $pkglog_stripped)" ]]; then
     foundCollisionIssue
 
   elif [[ -n $sandb ]]; then # no test at "-f" b/c it might not be allowed to be written
     foundSandboxIssue
 
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of ' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 ': multiple definition of ' $pkglog_stripped | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'fails to build with -fno-common or gcc-10'
 
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog_stripped | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
-  elif [[ -n "$(grep -m 1 -B 3 -A 0 ': error:.*.-Werror=format-security.' $pkglog | stripEscapeSequences | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 3 -A 0 ': error:.*.-Werror=format-security.' $pkglog_stripped | tee $issuedir/issue)" ]]; then
     foundCflagsIssue "$(tail -n 1 $issuedir/issue)"
 
   else
-    grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog | stripEscapeSequences | tee $issuedir/issue |\
-    head -n 2 | tail -n 1 | stripQuotesAndMore > $issuedir/title
+    grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog_stripped | tee $issuedir/issue |\
+    head -n 2 | tail -n 1 > $issuedir/title
     foundGenericIssue
   fi
 
-  # if the issue file is too big, then delete always the 1st line
+  # if the issue file is too big, then delete in each loop the 1st line as long as needed
   #
   while [[ $(wc -c < $issuedir/issue) -gt 1024 && $(wc -l < $issuedir/issue) -gt 1 ]]; do
     sed -i -e "1d" $issuedir/issue
@@ -592,16 +593,16 @@ function SearchForAnAlreadyFiledBug() {
     return
   fi
 
-  bsi=$issuedir/bugz_search_items     # the title acts as a set of space separated patterns
+  bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search patterns
+
   # get away line numbers, certain special terms et al
-  #
-  stripQuotesAndMore < $issuedir/title |\
   sed -e 's,&<[[:alnum:]].*>,,g'  \
       -e 's,/\.\.\./, ,'          \
       -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
       -e 's,.* : ,,'              \
       -e 's,[<>&\*\?], ,g'        \
-      -e 's,[\(\)], ,g' > $bsi
+      -e 's,[\(\)], ,g' > $bsi    \
+      $issuedir/title
 
   # for the file collision case: remove the package version from the installed package
   #
@@ -842,14 +843,17 @@ function GotAnIssue()  {
   fi
 
   getPkgVarsFromIssuelog || return
-
   CreateIssueDir
+  pkglog_stripped=$issuedir/$(basename $pkglog)
+  stripEscapeSequences < $pkglog > $pkglog_stripped
+
   emerge -qpvO $pkgname &> $issuedir/emerge-qpvO
+
   cp $logfile $issuedir
+
   setWorkDir
   CollectIssueFiles
 
-  phase=""          # test", "compile" etc.
   echo "internal failure: no title guessed from tinderbox logs" > $issuedir/title
   ClassifyIssue
   SearchForBlocker
@@ -859,7 +863,7 @@ function GotAnIssue()  {
 
   # https://bugs.gentoo.org/596664
   #
-  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $pkglog
+  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $pkglog_stripped
   if [[ $? -eq 0 ]]; then
     try_again=1
     add2backlog "$task"
@@ -869,7 +873,7 @@ function GotAnIssue()  {
 
   # https://bugs.gentoo.org/687226
   #
-  grep -q -e "MiscXS.c: loadable library and perl binaries are mismatched" $pkglog
+  grep -q -e "MiscXS.c: loadable library and perl binaries are mismatched" $pkglog_stripped
   if [[ $? -eq 0 ]]; then
     try_again=1
     add2backlog "$task"
@@ -880,7 +884,7 @@ function GotAnIssue()  {
   grep -q \
           -e "configure: error: perl module Locale::gettext required" \
           -e "Can't locate Locale/Messages.pm in @INC"                \
-          $pkglog
+          $pkglog_stripped
   if [[ $? -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
       try_again=1
@@ -1057,12 +1061,14 @@ function CheckQA() {
       grep -a -f $x $elogfile > title
       if [[ -s title ]]; then
         CreateIssueDir
+        pkglog_stripped=$issuedir/$(basename $pkglog)
+        stripEscapeSequences < $pkglog > $pkglog_stripped
+
         mv title $issuedir/title
         grep -a -f $issuedir/title -B 1 -A 5 $elogfile > $issuedir/issue
         cp $issuedir/issue $issuedir/comment0
         cp $issuedir/issue $issuedir/body
 
-        [[ -f $pkglog ]] && cp $pkglog $issuedir/files/
         # if QA elog contains more than 7 lines (1 before, 5 after) then attach it too
         if [[ $( wc -l < $elogfile ) -gt 7 ]]; then
           cp $elogfile $issuedir/files/elog-${elogfile##*/}
@@ -1160,6 +1166,7 @@ function WorkOnTask() {
   try_again=0   # 1 usually means to retry task, but eg. with "test-fail-continue"
   pkg=""
   pkglog=""
+  pkglog_stripped=""
   pkgname=""
 
   # @set
