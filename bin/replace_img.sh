@@ -130,10 +130,10 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-condition_backlog=14000     # max. entries left in the backlog
-condition_completed=5500    # min. amount of completed emerge operations
-condition_distance=6        # min. distance in hours to the previous image, effectively this yields into n+1 hours
-condition_runtime=13        # max. age in hours for an image, emerge efficiency drops down after that time
+condition_backlog=15000     # max. entries left in the backlog
+condition_completed=6000    # min. amount of completed emerge operations
+condition_distance=6        # min. distance in hours to the previous image
+condition_runtime=13        # max. age in days for an image (where emerge efficiency drops down)
 oldimg=""                   # optional: image name to be replaced ("-" to just spin up a new one)
 setupargs=""                # args passed to call of setup_img.sh
 
