@@ -1,6 +1,11 @@
 # tinderbox
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
+**side note**:
+I started with 2-3 dozen lines of one or two shell scripts.
+Unfortunately I missed the point of no return when I added additional 2-3 KLOC.
+Whilst it works and will be maintained I do not plan to add additional functionality to it.
+
 ## usage
 ### create a new image
 
