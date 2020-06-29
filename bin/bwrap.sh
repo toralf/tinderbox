@@ -33,12 +33,16 @@ function CgroupCreate() {
 }
 
 
-function Cleanup()  {
-  rc=${1:-$?}
 
+function CgroupDelete() {
   cgdelete -g cpu:/local/$mnt
   cgdelete -g memory:/local/$mnt
+}
 
+
+function Cleanup()  {
+  rc=${1:-$?}
+  CgroupDelete
   rmdir "$lock_dir" && exit $rc || exit $?
 }
 
@@ -155,9 +159,9 @@ sandbox=(env -i
 )
 
 CgroupCreate
-
 if [[ -n "$entrypoint" ]]; then
   ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
 else
   ("${sandbox[@]}")
 fi
+CgroupDelete
