@@ -73,8 +73,10 @@ function Finish()  {
   local rc=$1
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
+  echo "# pfl" > $taskfile
+  /usr/bin/pfl &>> $logfile
+
   if [[ $rc -eq 0 ]]; then
-    /usr/bin/pfl &>> $logfile
     Mail "Finish ok: $subject" $3
   else
     Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$logfile}
@@ -213,7 +215,6 @@ EOF
 
   if [[ -d "$workdir" ]]; then
     # catch all log file(s)
-    #
     (
       f=/var/tmp/tb/files
       cd "$workdir/.." &&\
@@ -221,7 +222,7 @@ EOF
       [[ -s $f ]] &&\
       tar -cjpf $issuedir/files/logs.tbz2 \
         --dereference --warning='no-file-removed' --warning='no-file-ignored' \
-        --files-from $f
+        --files-from $f 2>/dev/null
       rm -f $f
     )
 
@@ -1174,7 +1175,7 @@ function WorkOnTask() {
   if [[ $task =~ ^@ && ! task =~ ' ' ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
-      opts="--update --deep --changed-use --backtrack=30 --exclude kernel/gentoo-sources"
+      opts="--update --deep --changed-use --backtrack=300 --exclude kernel/gentoo-sources"
     fi
     RunAndCheck "emerge $task $opts"
     local rc=$?
