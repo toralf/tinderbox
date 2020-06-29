@@ -768,7 +768,7 @@ function RunSetupScript() {
   cd ~tinderbox/
 
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > $mnt/var/tmp/tb/setup_wrapper.sh
-  nice -n 1 sudo ${0%/*}/bwrap.sh -c -m "$mnt" -s "$mnt/var/tmp/tb/setup_wrapper.sh"
+  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s "$mnt/var/tmp/tb/setup_wrapper.sh"
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
@@ -791,7 +791,7 @@ function DryrunHelper() {
   echo
 
   echo 'emerge --update --deep --changed-use --backtrack=300 --pretend @world &>> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
-  nice -n 1 sudo ${0%/*}/bwrap.sh -c -m "$mnt" -s "$mnt/var/tmp/tb/dryrun_wrapper.sh"
+  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s "$mnt/var/tmp/tb/dryrun_wrapper.sh"
   local rc=$?
 
   if [[ $rc -eq 0 ]]; then

@@ -3,23 +3,21 @@
 # set -x
 
 
-# bubblewrap into an image interactively - or - run an entrypoint script
+# bubblewrap (better chroot) into an image interactively - or - run an entrypoint script
 
 
 function Help() {
   echo
   echo "  call: $(basename $0) [-c] -m mountpoint [-s <entrypoint script>]"
-  echo "  -c = put under Cgroup control"
+  echo "  -c = put under CgroupCreate control"
   echo
 }
 
 
-function Cgroup() {
-  # force an oom-killer before the kernel does it, eg. for dev-perl/GD or dev-lang/spidermonkey
+function CgroupCreate() {
+  # force an oom-killer before the kernel gets into trouble
   local cgdir="/sys/fs/cgroup/memory/local/${mnt##*/}"
-  if [[ ! -d "$cgdir" ]]; then
-    mkdir "$cgdir"
-  fi
+  cgcreate -g memory:/local/$mnt
 
   echo "1"   > "$cgdir/memory.use_hierarchy"
   echo "20G" > "$cgdir/memory.limit_in_bytes"
@@ -28,9 +26,8 @@ function Cgroup() {
 
   # restrict blast radius if -j1 is ignored
   local cgdir="/sys/fs/cgroup/cpu/local/${mnt##*/}"
-  if [[ ! -d "$cgdir" ]]; then
-    mkdir "$cgdir"
-  fi
+  cgcreate -g cpu:/local/$mnt
+
   echo "150000" > "$cgdir/cpu.cfs_quota_us"
   echo "100000" > "$cgdir/cpu.cfs_period_us"
   echo "$$"     > "$cgdir/tasks"
@@ -39,6 +36,10 @@ function Cgroup() {
 
 function Cleanup()  {
   rc=${1:-$?}
+
+  cgdelete -g cpu:/local/$mnt
+  cgdelete -g memory:/local/$mnt
+
   rmdir "$lock_dir" && exit $rc || exit $?
 }
 
@@ -64,14 +65,11 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-do_cgroup="no"
 mnt=""
 entrypoint=""
-while getopts cm:s:h\? opt
+while getopts h\?m:s: opt
 do
   case $opt in
-    c)  do_cgroup="yes"
-        ;;
     h|\?)
         Help
         ;;
@@ -157,9 +155,7 @@ sandbox=(env -i
      /bin/bash -l
 )
 
-if [[ $do_cgroup = "yes" ]]; then
-  Cgroup
-fi
+CgroupCreate
 
 if [[ -n "$entrypoint" ]]; then
   ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
