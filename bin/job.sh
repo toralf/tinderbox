@@ -403,7 +403,7 @@ function foundCollisionIssue() {
 function foundSandboxIssue() {
   grep -q "=$pkg " /etc/portage/package.env/nosandbox 2>/dev/null
   if [[ $? -ne 0 ]]; then
-    printf "%-50s %s\n" "=$pkg" "nosandbox" >> /etc/portage/package.env/nosandbox
+    printf "%-50s %s\n" "<=$pkg" "nosandbox" >> /etc/portage/package.env/nosandbox
     try_again=1
   fi
 
@@ -421,7 +421,7 @@ function foundSandboxIssue() {
 function foundCflagsIssue() {
   grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null
   if [[ $? -ne 0 ]]; then
-    printf "%-50s %s\n" "=$pkg" "cflags_default" >> /etc/portage/package.env/cflags_default
+    printf "%-50s %s\n" "<=$pkg" "cflags_default" >> /etc/portage/package.env/cflags_default
     try_again=1
   fi
 
@@ -434,7 +434,7 @@ function foundCflagsIssue() {
 function handleTestPhase() {
   grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null
   if [[ $? -ne 0 ]]; then
-    printf "%-50s %s\n" "=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+    printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
   fi
 
