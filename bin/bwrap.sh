@@ -8,8 +8,7 @@
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-c] -m mountpoint [-s <entrypoint script>]"
-  echo "  -c = put under CgroupCreate control"
+  echo "  call: $(basename $0) -m mountpoint [-s <entrypoint script>]"
   echo
 }
 
