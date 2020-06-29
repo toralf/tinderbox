@@ -77,13 +77,19 @@ do
         ;;
     m)
         if [[ "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ '\' || "${OPTARG##*/}" = "" ]]; then
-          echo "mnt not accepted"
+          echo "argument not accepted"
           exit 2
         fi
 
-        mnt=$(ls -d /home/tinderbox/img{1,2}/${OPTARG##*/} 2>/dev/null) || true
+        for i in 1 2
+        do
+          mnt=/home/tinderbox/img${i}/${OPTARG##*/}
+          if [[ -d "$mnt" ]]; then
+            break
+          fi
+        done
 
-        if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(realpath $mnt)" || ! "$mnt" =~ "/home/tinderbox/img" ]]; then
+        if [[ -z "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(realpath $mnt)" ]]; then
           echo "mount point not accepted"
           exit 2
         fi
