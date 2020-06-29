@@ -23,6 +23,7 @@ Not in scope:
 ld: -r and -pie may not be used together
 .so: error adding symbols:
 recompile with -fPIE
+: syntax error in
 ld returned .* exit status
 : error:
 Parse error .
