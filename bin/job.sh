@@ -75,6 +75,7 @@ function Finish()  {
 
   echo "# pfl" > $taskfile
   /usr/bin/pfl &>> $logfile
+  truncate -s 0 $taskfile
 
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject" $3
@@ -1175,7 +1176,8 @@ function WorkOnTask() {
   if [[ $task =~ ^@ && ! task =~ ' ' ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
-      opts="--update --deep --changed-use --backtrack=300 --exclude kernel/gentoo-sources"
+      # --backtrack=300 forces @world to run for hours
+      opts="--update --deep --changed-use --backtrack=30 --exclude kernel/gentoo-sources"
     fi
     RunAndCheck "emerge $task $opts"
     local rc=$?
@@ -1282,9 +1284,11 @@ function updateAllRepos() {
       while [[ -f $host_repo/.git/index.lock ]]; do
         sleep 1
       done
+      echo "# rsync $host_repo" > $taskfile
       rsync --archive --cvs-exclude --delete $host_repo /var/db/repos/
     fi
   done
+  truncate -s 0 $taskfile
 }
 
 
