@@ -16,7 +16,7 @@ function Help() {
 function CgroupCreate() {
   # force an oom-killer before the kernel gets into trouble
   local cgdir="/sys/fs/cgroup/memory/local/${mnt##*/}"
-  cgcreate -g memory:/local/$mnt
+  cgcreate -g memory:/local/${mnt##*/}
 
   echo "1"   > "$cgdir/memory.use_hierarchy"
   echo "20G" > "$cgdir/memory.limit_in_bytes"
@@ -25,7 +25,7 @@ function CgroupCreate() {
 
   # restrict blast radius if -j1 is ignored
   local cgdir="/sys/fs/cgroup/cpu/local/${mnt##*/}"
-  cgcreate -g cpu:/local/$mnt
+  cgcreate -g cpu:/local/${mnt##*/}
 
   echo "150000" > "$cgdir/cpu.cfs_quota_us"
   echo "100000" > "$cgdir/cpu.cfs_period_us"
@@ -35,8 +35,8 @@ function CgroupCreate() {
 
 
 function CgroupDelete() {
-  cgdelete -g cpu:/local/$mnt
-  cgdelete -g memory:/local/$mnt
+  cgdelete -g cpu:/local/${mnt##*/}
+  cgdelete -g memory:/local/{mnt##*/}
 }
 
 
