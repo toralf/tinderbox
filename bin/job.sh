@@ -306,7 +306,7 @@ function SetAssigneeAndCc() {
     assignee="maintainer-needed@gentoo.org"
     cc=""
 
-  elif [[ "$backlogocker_bug_no" = "561854" ]]; then
+  elif [[ "$blocker_bug_no" = "561854" ]]; then
     assignee="libressl@gentoo.org"
     cc="$m"
 
@@ -637,15 +637,15 @@ function SearchForAnAlreadyFiledBug() {
 #
 function AddBgoCommandLine() {
   local block=""
-  if [[ -n "$backlogocker_bug_no" ]]; then
-    block="-b $backlogocker_bug_no"
+  if [[ -n "$blocker_bug_no" ]]; then
+    block="-b $blocker_bug_no"
   fi
 
   if [[ -n "$similar_bug_no" ]]; then
     cat << EOF >> $issuedir/body
   https://bugs.gentoo.org/show_bug.cgi?id=$similar_bug_no
 
-  bgo.sh -d ~/img?/$name/$issuedir $backlogock -c 'this seems to be either still an issue or a similarity to the one reported in bug $similar_bug_no'
+  bgo.sh -d ~/img?/$name/$issuedir $block -c 'this seems to be either still an issue or a similarity to the one reported in bug $similar_bug_no'
 EOF
 
   else
@@ -654,7 +654,7 @@ EOF
     #
     cat << EOF >> $issuedir/body
 
-  bgo.sh -d ~/img?/$name/$issuedir $backlogock
+  bgo.sh -d ~/img?/$name/$issuedir $block
 EOF
 
     echo "" >> $issuedir/body
@@ -708,7 +708,7 @@ function CompileIssueMail() {
   cp $issuedir/comment0 $issuedir/body
   AddWhoamiToComment0
 
-  if [[ -n "$backlogock" ]]; then
+  if [[ -n "$block" ]]; then
     cat <<EOF >> $issuedir/comment0
   Please see the tracker bug for details.
 
