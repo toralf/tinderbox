@@ -14,26 +14,33 @@ function Help() {
 
 
 function CgroupCreate() {
+  local name=${mnt##*/}
+
   # force an oom-killer before the kernel decides what to kill
-  cgcreate -g memory:/local/${mnt##*/}
-  cgset -r memory.use_hierarchy=1 -r memory.limit_in_bytes=20G -r memory.memsw.limit_in_bytes=30G -r memory.tasks=$$ ${mnt##*/}
+  cgcreate -g memory:/local/$name
+  cgset -r memory.use_hierarchy=1 -r memory.limit_in_bytes=20G -r memory.memsw.limit_in_bytes=30G -r memory.tasks=$$ $name
 
   # restrict blast radius if -j1 is ignored
-  cgcreate -g cpu:/local/${mnt##*/}
-  cgset -r cpu.cfs_quota_us=150000 -r cpu.cfs_period_us=100000 -r cpu.tasks=$$ ${mnt##*/}
+  cgcreate -g cpu:/local/$name
+  cgset -r cpu.cfs_quota_us=150000 -r cpu.cfs_period_us=100000 -r cpu.tasks=$$ $name
 }
 
 
 function CgroupDelete() {
-  cgdelete -g cpu:/local/${mnt##*/}
-  cgdelete -g memory:/local/${mnt##*/}
+  local name=${mnt##*/}
+
+  cgdelete -g cpu:/local/$name
+  cgdelete -g memory:/local/$name
 }
 
 
 function Cleanup()  {
-  rc=${1:-$?}
-  CgroupDelete
-  rmdir "$lock_dir" && exit $rc || exit $?
+  local rc=$?
+
+  CgroupDelete || true  # exits with 1 for some reason
+  rmdir "$lock_dir"
+
+  exit $rc
 }
 
 
@@ -149,6 +156,7 @@ sandbox=(env -i
 )
 
 CgroupCreate
+
 if [[ -n "$entrypoint" ]]; then
   ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
 else
