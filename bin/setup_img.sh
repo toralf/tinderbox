@@ -791,13 +791,13 @@ function DryrunHelper() {
   echo
 
   echo 'emerge --update --deep --changed-use --backtrack=300 --pretend @world &>> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
-  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s "$mnt/var/tmp/tb/dryrun_wrapper.sh"
+  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh
   local rc=$?
 
   if [[ $rc -eq 0 ]]; then
     grep -H -A 32 -e 'The following USE changes are necessary to proceed:'                \
                   -e 'One of the following packages is required to complete your request' \
-                  -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:'  \
+                  -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
                   $mnt/var/tmp/tb/dryrun.log && rc=2
   fi
 
@@ -817,7 +817,7 @@ function DryrunHelper() {
 function Dryrun() {
   if [[ "$useflags" = "ThrowUseFlags" ]]; then
     attempt=0
-    max_attempts=30
+    max_attempts=20
     while [[ : ]]
     do
       ((attempt=attempt+1))
