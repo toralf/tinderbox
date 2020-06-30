@@ -10,6 +10,7 @@ ecompress-file failed
 Unsupported EAPI
 Files matching a file type that is not allowed:
 \* ERROR: .* failed:
+: No such file or directory.  Stop.
 ln: failed to create symbolic link .*: File exists
 ^Error:
 Error .
