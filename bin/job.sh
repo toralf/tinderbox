@@ -73,7 +73,7 @@ function Finish()  {
   local rc=$1
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
-  echo "# pfl" > $taskfile
+  echo "#pfl" > $taskfile
   /usr/bin/pfl &>> $logfile
   truncate -s 0 $taskfile
 
@@ -1284,7 +1284,7 @@ function updateAllRepos() {
       while [[ -f $host_repo/.git/index.lock ]]; do
         sleep 1
       done
-      echo "# rsync $host_repo" > $taskfile
+      echo "#rsync $host_repo" > $taskfile
       rsync --archive --cvs-exclude --delete $host_repo /var/db/repos/
     fi
   done
