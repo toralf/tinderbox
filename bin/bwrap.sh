@@ -15,32 +15,29 @@ function Help() {
 
 function CgroupCreate() {
   local name=/local/${mnt##*/}
+  local pid=$$
 
   # force an oom-killer before the kernel decides what to kill and restrict blast radius if -j1 is ignored
-  cgcreate -g memory:$name -g cpu:$name
+  cgcreate -g cpu,memory:$name
+
+  cgset -r cpu.cfs_quota_us=150000  $name
+  cgset -r cpu.cfs_period_us=100000 $name
 
   cgset -r memory.use_hierarchy=1           $name
   cgset -r memory.limit_in_bytes=20G        $name
   cgset -r memory.memsw.limit_in_bytes=30G  $name
-  echo "$$" > /sys/fs/cgroup/memory/$name/tasks
 
-  cgset -r cpu.cfs_quota_us=150000  $name
-  cgset -r cpu.cfs_period_us=100000 $name
-  echo "$$" > /sys/fs/cgroup/cpu/$name/tasks
-}
+  echo 1 > /sys/fs/cgroup/cpu/$name/notify_on_release
+  echo 1 > /sys/fs/cgroup/memory/$name/notify_on_release
 
-
-function CgroupDelete() {
-  local name=/local/${mnt##*/}
-
-  cgdelete -g memory:$name -g cpu:$name
+  echo "$pid" > /sys/fs/cgroup/cpu/$name/tasks
+  echo "$pid" > /sys/fs/cgroup/memory/$name/tasks
 }
 
 
 function Cleanup()  {
   local rc=$?
 
-  CgroupDelete || echo "ignored cgroup return code $?"
   rmdir "$lock_dir"
 
   exit $rc

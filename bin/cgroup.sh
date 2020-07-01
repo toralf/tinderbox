@@ -1,24 +1,26 @@
 #!/bin/sh
-#set -x
+set -x
 
 # global upper limits for tinderboxes et.a l.
 
-set -euf
+# set -euf
 
-# locking mechanism used by the tinderbox
+# hold lockdir names, the locking mechanism used by the tinderbox script bwrap.sh
 mkdir /run/tinderbox
 
-cgdir="/sys/fs/cgroup/memory/local"
-if [[ ! -d "$cgdir" ]]; then
-  mkdir "$cgdir"
-fi
-echo "1"    > $cgdir/memory.use_hierarchy
-echo "120G" > $cgdir/memory.limit_in_bytes
-echo "140G" > $cgdir/memory.memsw.limit_in_bytes
+name=/local
 
-cgdir="/sys/fs/cgroup/cpu/local"
-if [[ ! -d "$cgdir" ]]; then
-  mkdir "$cgdir"
-fi
-echo "900000" > $cgdir/cpu.cfs_quota_us
-echo "100000" > $cgdir/cpu.cfs_period_us
+cgcreate -g cpu,memory:$name
+
+cgset -r cpu.cfs_quota_us=900000  $name
+cgset -r cpu.cfs_period_us=100000 $name
+
+cgset -r memory.use_hierarchy=1           $name
+cgset -r memory.limit_in_bytes=120G       $name
+cgset -r memory.memsw.limit_in_bytes=140G $name
+
+echo "/opt/tb/bin/cgroup-release-agent.sh" > /sys/fs/cgroup/cpu/release_agent
+echo "/opt/tb/bin/cgroup-release-agent.sh" > /sys/fs/cgroup/memory/release_agent
+
+echo 1 > /sys/fs/cgroup/cpu/$name/notify_on_release
+echo 1 > /sys/fs/cgroup/memory/$name/notify_on_release
