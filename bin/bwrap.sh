@@ -14,30 +14,33 @@ function Help() {
 
 
 function CgroupCreate() {
-  local name=${mnt##*/}
+  local name=/local/${mnt##*/}
 
-  # force an oom-killer before the kernel decides what to kill
-  cgcreate -g memory:/local/$name
-  cgset -r memory.use_hierarchy=1 -r memory.limit_in_bytes=20G -r memory.memsw.limit_in_bytes=30G -r memory.tasks=$$ $name
+  # force an oom-killer before the kernel decides what to kill and restrict blast radius if -j1 is ignored
+  cgcreate -g memory:$name -g cpu:$name
 
-  # restrict blast radius if -j1 is ignored
-  cgcreate -g cpu:/local/$name
-  cgset -r cpu.cfs_quota_us=150000 -r cpu.cfs_period_us=100000 -r cpu.tasks=$$ $name
+  cgset -r memory.use_hierarchy=1           $name
+  cgset -r memory.limit_in_bytes=20G        $name
+  cgset -r memory.memsw.limit_in_bytes=30G  $name
+  echo "$$" > /sys/fs/cgroup/memory/$name/tasks
+
+  cgset -r cpu.cfs_quota_us=150000  $name
+  cgset -r cpu.cfs_period_us=100000 $name
+  echo "$$" > /sys/fs/cgroup/cpu/$name/tasks
 }
 
 
 function CgroupDelete() {
-  local name=${mnt##*/}
+  local name=/local/${mnt##*/}
 
-  cgdelete -g cpu:/local/$name
-  cgdelete -g memory:/local/$name
+  cgdelete -g memory:$name -g cpu:$name
 }
 
 
 function Cleanup()  {
   local rc=$?
 
-  CgroupDelete || true  # exits with 1 for some reason
+  CgroupDelete || echo "ignored cgroup return code $?"
   rmdir "$lock_dir"
 
   exit $rc
