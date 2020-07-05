@@ -5,6 +5,19 @@
 */*  QEMU_USER_TARGETS: -* x86_64 i386
 */*  VIDEO_CARDS: -* dummy
 
+# dependency issues at image setup
+#
+app-portage/pfl           -network-cron
+dev-db/sqlite             -icu
+dev-lang/python           -bluetooth
+dev-libs/libxml2          python
+
+*/*                       ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
+
+# currently broken
+#
+*/*                       -audit
+
 # mailer for job.sh
 #
 mail-mta/ssmtp            mta ssl
@@ -33,14 +46,3 @@ dev-lisp/sbcl             -threads
 # dev-util/google-perftools blocker in @preserved-rebuild: "sys-libs/libunwind" is blocking sys-libs/llvm-libunwind-9.0.1
 #
 */*                       -jmalloc -tcmalloc
-
-# image setup dependency issues
-#
-app-portage/pfl           -network-cron
-dev-db/sqlite             -icu
-dev-lang/python           -bluetooth
-dev-libs/libxml2          python
-
-# buggy
-#
-*/*                       -audit
