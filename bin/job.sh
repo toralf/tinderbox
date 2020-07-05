@@ -1165,11 +1165,11 @@ function RunAndCheck() {
 # this is the heart of the tinderbox
 #
 function WorkOnTask() {
-  try_again=0   # 1 usually means to retry task, but eg. with "test-fail-continue"
-  pkg=""
-  pkglog=""
-  pkglog_stripped=""
-  pkgname=""
+  try_again=0           # 1 usually means to retry task, but eg. with "test-fail-continue"
+  pkg=""                # eg. app-portage/eix-0.33.11
+  pkglog=""             # logfile
+  pkglog_stripped=""    # stripped escape sequences and more from it
+  pkgname=""            # eg. app-portage/eix
 
   # @set
   #
@@ -1177,7 +1177,7 @@ function WorkOnTask() {
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
       # --backtrack=300 forces @world to run for hours
-      opts="--update --deep --changed-use --backtrack=30 --exclude kernel/gentoo-sources"
+      opts="--update --deep --newuse --changed-use --backtrack=30 --exclude kernel/gentoo-sources"
     fi
     RunAndCheck "emerge $task $opts"
     local rc=$?
