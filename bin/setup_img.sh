@@ -790,17 +790,15 @@ function DryrunHelper() {
 
   nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh
   local rc=$?
+  echo
+  date
 
   if [[ $rc -eq 0 ]]; then
-    grep -H -A 16 -e 'The following USE changes are necessary to proceed:'                \
+    grep -H -A 99 -e 'The following USE changes are necessary to proceed:'                \
                   -e 'One of the following packages is required to complete your request' \
                   -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
-                  $mnt/var/tmp/tb/dryrun.log && rc=11
-  fi
-
-  if [[ $rc -ne 0 ]]; then
-    echo
-    date
+                  $mnt/var/tmp/tb/dryrun.log && return 11
+  else
     echo " dry run was NOT successful (rc=$rc):"
     echo
     tail -v -n 1000 $mnt/var/tmp/tb/dryrun.log
