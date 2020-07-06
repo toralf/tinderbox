@@ -1176,7 +1176,6 @@ function WorkOnTask() {
   if [[ $task =~ ^@ && ! task =~ ' ' ]]; then
     opts=""
     if [[ $task = "@system" || $task = "@world" ]]; then
-      # --backtrack=300 forces @world to run for hours
       opts="--update --deep --newuse --changed-use --backtrack=30 --exclude kernel/gentoo-sources"
     fi
     RunAndCheck "emerge $task $opts"
