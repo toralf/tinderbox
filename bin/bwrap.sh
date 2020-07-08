@@ -91,9 +91,10 @@ do
           echo "mount point not accepted"
           exit 2
         fi
+
         ;;
     s)
-        if [[ ! -f "$OPTARG" ]]; then
+        if [[ ! -s "$OPTARG" ]]; then
           echo "no valid entry point script given: $OPTARG"
           exit 3
         fi
