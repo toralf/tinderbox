@@ -737,6 +737,7 @@ eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
   echo "*/*  test" >> /etc/portage/package.env/00dotest  # must be lexicographically ordered before "00notest"
+  echo "media-fonts/corefonts   MSttfEULA" >> /etc/portage/package.license # dep of imagemagick
 fi
 
 # fill the backlog with all package valid for this profile
@@ -811,7 +812,7 @@ function DryrunHelper() {
 
 function Dryrun() {
   if [[ "$useflags" = "ThrowUseFlags" ]]; then
-    echo 'emerge --update --deep --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+    echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 
     attempt=0
     max_attempts=20

@@ -3,8 +3,18 @@
 
 # if FEATURES=test is set then these USE flags are mandatory
 #
-#media-libs/gd             png
-media-libs/harfbuzz       icu
-media-libs/tiff           jpeg
-sys-libs/db               tcl
-x11-base/xorg-server      xvfb
+
+app-arch/brotli             python
+dev-lang/python             sqlite
+dev-libs/libpcre2           pcre32
+media-gfx/imagemagick       jpeg png svg corefonts truetype xml
+media-libs/gd               jpeg png
+media-libs/harfbuzz         icu
+media-libs/libglvnd         X
+media-libs/tiff             jpeg
+net-misc/curl               http2
+sys-auth/pambase            elogind
+sys-auth/polkit             elogind
+sys-libs/db                 tcl
+virtual/imagemagick-tools   jpeg png svg
+x11-base/xorg-server        xvfb
