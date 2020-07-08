@@ -159,7 +159,7 @@ sandbox=(env -i
 CgroupCreate
 
 if [[ -n "$entrypoint" ]]; then
-  ("${sandbox[@]}" -c "chmod 1777 /dev/shm && /entrypoint")
+  ("${sandbox[@]}" -c "/entrypoint")
 else
   ("${sandbox[@]}")
 fi
