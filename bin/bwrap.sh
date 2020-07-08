@@ -74,7 +74,7 @@ do
         Help
         ;;
     m)
-        if [[ "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ '\' || "${OPTARG##*/}" = "" ]]; then
+        if [[ -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
           echo "argument not accepted"
           exit 2
         fi
@@ -87,7 +87,7 @@ do
           fi
         done
 
-        if [[ -z "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 || ! "$mnt" = "$(realpath $mnt)" ]]; then
+        if [[ -z "$mnt" || -L "$mnt" || ! $(stat -c '%u' "$mnt") = "0" || ! "$mnt" = "$(realpath -e $mnt)" ]]; then
           echo "mount point not accepted"
           exit 2
         fi
