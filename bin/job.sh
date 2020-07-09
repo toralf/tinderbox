@@ -73,9 +73,11 @@ function Finish()  {
   local rc=$1
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
-  echo "#pfl" > $taskfile
-  /usr/bin/pfl &>> $logfile
-  truncate -s 0 $taskfile
+  if [[ -x /usr/bin/pfl ]]; then
+    echo "#pfl" > $taskfile
+    /usr/bin/pfl &>> $logfile
+    truncate -s 0 $taskfile
+  fi
 
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject" $3
