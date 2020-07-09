@@ -158,6 +158,9 @@ sandbox=(env -i
 
 CgroupCreate
 
+# prevent "Broken sem_open function (bug 496328)"
+echo "chmod 1777 /dev/shm " > "$mnt/etc/profile.d/99_bwrap.sh"
+
 if [[ -n "$entrypoint" ]]; then
   ("${sandbox[@]}" -c "/entrypoint")
 else
