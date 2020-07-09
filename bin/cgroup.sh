@@ -1,5 +1,5 @@
 #!/bin/sh
-set -x
+# set -x
 
 # global upper limits for tinderboxes et.a l.
 
