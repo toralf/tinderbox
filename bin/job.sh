@@ -521,8 +521,9 @@ function foundGenericIssue() {
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
+  # for phase "install" grep might return > 1 matches ("doins failed" and "newins failed")
   phase=$(
-    grep " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
+    grep -m 1 " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
     sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' '
   )
 
