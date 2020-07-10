@@ -1173,31 +1173,27 @@ function WorkOnTask() {
   pkglog_stripped=""    # stripped escape sequences and more from it
   pkgname=""            # eg. app-portage/eix
 
+  local rc
+
   # @set
   #
-  if [[ $task =~ ^@ && ! task =~ ' ' ]]; then
-    opts=""
+  if [[ $task = "@system" || $task = "@world" || $task = "@preserved-rebuild" ]]; then
     if [[ $task = "@system" || $task = "@world" ]]; then
       opts="--update --deep --newuse --changed-use --backtrack=30 --exclude kernel/gentoo-sources"
+    else
+      opts=""
     fi
     RunAndCheck "emerge $task $opts"
-    local rc=$?
-
+    rc=$?
     cp $logfile /var/tmp/tb/$task.last.log
 
     if [[ $rc -ne 0 ]]; then
-      if [[ -n "$pkg" ]]; then
-        echo "$(date) $pkg" >> /var/tmp/tb/$task.history
-      else
-        echo "$(date) NOT ok" >> /var/tmp/tb/$task.history
-      fi
-
+     echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
           add2backlog "%emerge --resume --skip-first"
         fi
       fi
-
     else
       echo "$(date) ok" >> /var/tmp/tb/$task.history
     fi
@@ -1207,7 +1203,7 @@ function WorkOnTask() {
   elif [[ $task =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
     RunAndCheck "$cmd"
-    local rc=$?
+    rc=$?
 
     if [[ $rc -ne 0 ]]; then
       if [[ $try_again -eq 0 ]]; then
@@ -1220,7 +1216,7 @@ function WorkOnTask() {
               add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
             fi
           fi
-        elif [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C" && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" && ! $task =~ "BuildKernel" ]]; then
+        elif [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" && ! $task =~ "BuildKernel" ]]; then
           Finish 3 "command: '$cmd'"
         fi
       fi
@@ -1231,7 +1227,7 @@ function WorkOnTask() {
   elif [[ $task =~ ^= ]]; then
     RunAndCheck "emerge $task"
 
-  # straight package name
+  # anything else
   #
   else
     RunAndCheck "emerge --update $task"
