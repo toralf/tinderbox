@@ -14,21 +14,21 @@ function Help() {
 
 
 function CgroupCreate() {
-  local name=/local/${mnt##*/}
-  local pid=$$
+  local name=$1
+  local pid=$2
 
-  # force an oom-killer before the kernel decides what to kill and restrict blast radius if -j1 is ignored
+  # restrict blast radius if -j1 is ignored + force an oom-killer before the kernel chosoes a process to kill
   cgcreate -g cpu,memory:$name
 
+  cgset -r cpu.use_hierarchy=1      $name
   cgset -r cpu.cfs_quota_us=150000  $name
   cgset -r cpu.cfs_period_us=100000 $name
+  cgset -r cpu.notify_on_release=1  $name
 
   cgset -r memory.use_hierarchy=1           $name
   cgset -r memory.limit_in_bytes=20G        $name
   cgset -r memory.memsw.limit_in_bytes=30G  $name
-
-  echo 1 > /sys/fs/cgroup/cpu/$name/notify_on_release
-  echo 1 > /sys/fs/cgroup/memory/$name/notify_on_release
+  cgset -r memory.notify_on_release=1       $name
 
   echo "$pid" > /sys/fs/cgroup/cpu/$name/tasks
   echo "$pid" > /sys/fs/cgroup/memory/$name/tasks
@@ -156,10 +156,10 @@ sandbox=(env -i
      /bin/bash -l
 )
 
-CgroupCreate
+CgroupCreate local/${mnt##*/} $$
 
 # prevent "Broken sem_open function (bug 496328)"
-echo "chmod 1777 /dev/shm " > "$mnt/etc/profile.d/99_bwrap.sh"
+echo "chmod 1777 /dev/shm" > "$mnt/etc/profile.d/99_bwrap.sh"
 
 if [[ -n "$entrypoint" ]]; then
   ("${sandbox[@]}" -c "/entrypoint")
