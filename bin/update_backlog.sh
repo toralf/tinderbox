@@ -14,8 +14,6 @@ function ScanTreeForChanges() {
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s | cut -f1-2 -d'/' -s | uniq |\
   grep -v -f ~/tb/data/IGNORE_PACKAGES > $result
-
-  [[ -s $result ]] && return 0 || return 1
 }
 
 
@@ -36,13 +34,13 @@ function retestPackages() {
       ~/run/*/etc/portage/package.mask/self       \
       ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null
   done
-
-  [[ -s $result ]] && return 0 || return 1
 }
 
 
 function updateBacklog()  {
   target=$1
+
+  [[ -s $result ]] || return
 
   for bl in $(ls ~/run/*/var/tmp/tb/backlog.$target 2>/dev/null)
   do
@@ -73,10 +71,11 @@ fi
 result=/tmp/${0##*/}.txt
 truncate -s 0 $result
 
-# use update backlog for new and updated portage tree entries
-# but high prio backlog to retest package(s)
+# use update backlog for new and updated portage tree entries and high prio backlog to retest package(s)
 if [[ $# -eq 0 ]]; then
-  ScanTreeForChanges && updateBacklog "upd"
+  ScanTreeForChanges
+  updateBacklog "upd"
 else
-  retestPackages $*  && updateBacklog "1st"
+  retestPackages $*
+  updateBacklog "1st"
 fi
