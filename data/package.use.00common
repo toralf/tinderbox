@@ -12,8 +12,6 @@ dev-db/sqlite             -icu
 dev-lang/python           -bluetooth
 dev-libs/libxml2          python
 
-*/*                       ssp -cdinstall -oci8 -pax_kernel -valgrind -symlink
-
 # currently broken
 #
 */*                       -audit
@@ -26,7 +24,7 @@ mail-mta/ssmtp            mta ssl
 #
 sys-apps/nix              -etc_profile
 
-# "readline" is required by pybugz, and it is xor'ed to "libedit" in pcre libs
+# "readline" is required by pybugz, unfortunately it is xor'ed in libs
 #
 dev-lang/python           readline
 dev-libs/libpcre*         -libedit
@@ -43,6 +41,10 @@ sys-apps/busybox          -pam
 #
 dev-lisp/sbcl             -threads
 
-# dev-util/google-perftools blocker in @preserved-rebuild: "sys-libs/libunwind" is blocking sys-libs/llvm-libunwind-9.0.1
+# dev-util/google-perftools blocker in @preserved-rebuild
 #
 */*                       -jmalloc -tcmalloc
+
+# can't/won't be tested at all
+#
+*/*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind

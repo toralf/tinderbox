@@ -15,7 +15,6 @@ virtual/
 #
 /s6
 app-emacs/jde
-media-tv/v4l-dvb-saa716x
 net-analyzer/openvas
 net-fs/openafs
 net-libs/zeromq
@@ -37,9 +36,7 @@ dev-ada/
 dev-haskell/language-python
 dev-libs/aws-sdk-cpp
 dev-libs/rocm
-dev-qt/qtwebengine
-dev-qt/qtwebkit
-dev-qt/qtwebview
+dev-qt/qtweb*
 dev-util/electron
 dev-util/include-what-you-use
 gnome-extra/sushi
