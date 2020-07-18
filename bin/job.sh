@@ -1179,10 +1179,9 @@ function WorkOnTask() {
   # @set
   #
   if [[ $task = "@system" || $task = "@world" || $task = "@preserved-rebuild" ]]; then
+    opts=" --deep --backtrack=30"
     if [[ $task = "@system" || $task = "@world" ]]; then
-      opts="--update --deep --newuse --changed-use --backtrack=30 --exclude kernel/gentoo-sources"
-    else
-      opts=""
+      opts="$opts --update --newuse --changed-use --exclude kernel/gentoo-sources"
     fi
     RunAndCheck "emerge $task $opts"
     rc=$?
