@@ -815,7 +815,7 @@ function Dryrun() {
     echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 
     attempt=0
-    max_attempts=20
+    max_attempts=50
     while [[ : ]]
     do
       ((attempt=attempt+1))
