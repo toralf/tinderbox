@@ -789,7 +789,7 @@ function RunSetupScript() {
 # check that the USE flags do not yield to circular or other non-resolvable dependencies
 #
 function DryrunHelper() {
-  tail -v -n 1000 $mnt/etc/portage/package.use/000thrown*
+  head -v -n 20 $mnt/etc/portage/package.use/00?thrown*
   echo
 
   nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh
@@ -828,20 +828,41 @@ function Dryrun() {
       echo "#setup dryrun $attempt#$max_attempts" > $mnt/var/tmp/tb/task
 
       grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
-      cut -f2 -d'"' -s | sort -u |\
+      cut -f2 -d'"' -s |\
+      sort -u |\
       DropUseFlags |\
       ThrowUseFlags 80 5 |\
-      PrintUseFlags > $mnt/etc/portage/package.use/000thrown_use_flags_from_metadata
+      PrintUseFlags > $mnt/etc/portage/package.use/002thrown_global_use_flags_from_metadata
+
+      grep -Hl 'flag name="' $repo_gentoo/*/*/metadata.xml |\
+      shuf -n $(($RANDOM % 500)) |\
+      while read file
+      do
+        pkg=$(echo $file | cut -f6-7 -d'/')
+        flags=$(
+          grep -h 'flag name="' $file |\
+          cut -f2 -d'"' -s |\
+          DropUseFlags |\
+          ThrowUseFlags 10 3 |\
+          xargs
+        )
+        if [[ -n "$flags" ]]; then
+          printf "%-50s %s\n" "$pkg" "$flags"
+        fi
+      done > $mnt/etc/portage/package.use/003thrown_package_use_flags
 
       grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
       cut -f1 -d' ' -s |\
       DropUseFlags |\
       ThrowUseFlags 20 5 |\
-      PrintUseFlags > $mnt/etc/portage/package.use/000thrown_use_flags_from_profile
+      PrintUseFlags > $mnt/etc/portage/package.use/001thrown_global_use_flags_from_profile
 
       l10n="$(
         grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc |\
-        cut -f1 -d' ' -s | shuf -n $(($RANDOM % 10)) | sort | xargs
+        cut -f1 -d' ' -s |\
+        shuf -n $(($RANDOM % 10)) |\
+        sort |\
+        xargs
       )"
       if [[ -n "$l10n" ]]; then
         echo "*/*  L10N: -* $l10n" > $mnt/etc/portage/package.use/000thrown_l10n_from_profile
