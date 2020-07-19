@@ -283,8 +283,11 @@ function UnpackStage3()  {
     wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
   fi
 
-  # do this once before:    gpg --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D
-  #
+  date
+  echo " getting signing key ..."
+  # use the Gentoo key server, but be relaxed if it doesn't answer
+  gpg --keyserver hkps://keys.gentoo.org --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D || true
+
   date
   echo " verifying $f ..."
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
