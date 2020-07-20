@@ -1,4 +1,4 @@
-# package.use/00abi32+64
+# package.use/40abi32+64
 #
 
 */*  ABI_X86: -* 32 64

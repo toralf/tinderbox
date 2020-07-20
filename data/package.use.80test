@@ -1,4 +1,4 @@
-# package.use/00test
+# package.use/80test
 #
 
 # if FEATURES=test is set then these USE flags are mandatory

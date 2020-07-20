@@ -429,10 +429,9 @@ EOF
 function cpconf() {
   for f in $*
   do
-    # eg.: .../package.unmask.00stable -> package.unmask/00stable
-    #
-    to=$(sed 's,.00,/00,' <<< ${f##*/})
-    cp $f ./etc/portage/$to
+    # eg.: .../package.unmask.?0stable -> package.unmask/?0stable
+    read -r a b c <<<$(echo ${f##*/} | tr '.' ' ')
+    cp $f ./etc/portage/"$a.$b/$c"
   done
 }
 
@@ -501,29 +500,29 @@ EOF
   echo '*/*  noconcurrent' > ./etc/portage/package.env/00noconcurrent
 
   if [[ $profile =~ '/systemd' ]]; then
-    cpconf ~tinderbox/tb/data/package.*.00systemd
+    cpconf ~tinderbox/tb/data/package.*.?0systemd
   fi
 
-  cpconf ~tinderbox/tb/data/package.*.00common
-  cpconf ~tinderbox/tb/data/package.*.00$keyword
+  cpconf ~tinderbox/tb/data/package.*.?0common
+  cpconf ~tinderbox/tb/data/package.*.?0$keyword
 
   if [[ "$libressl" = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.env.00libressl
+    cpconf ~tinderbox/tb/data/package.env.?0libressl
   fi
 
   if [[ "$multilib" = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.*.00abi32+64
+    cpconf ~tinderbox/tb/data/package.*.?0abi32+64
   fi
 
   if [[ "$testfeature" = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.*.00*test
+    cpconf ~tinderbox/tb/data/package.*.?0*test
   else
     # overwrite IUSE=+test as set in few ebuilds
     #
     echo "*/*  notest" > ./etc/portage/package.env/00notest
   fi
 
-  echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/00cpuflags
+  echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/90cpuflags
 
   touch ./var/tmp/tb/task
 
@@ -600,9 +599,9 @@ EOF
 %emerge @preserved-rebuild
 %emerge --unmerge dev-libs/openssl
 %emerge --fetchonly dev-libs/libressl net-misc/openssh net-misc/wget
-%chmod g+w     /etc/portage/package.use/00libressl
-%chgrp portage /etc/portage/package.use/00libressl
-%cp /mnt/tb/data/package.use.00libressl /etc/portage/package.use/00libressl
+%chmod g+w     /etc/portage/package.use/?0libressl
+%chgrp portage /etc/portage/package.use/?0libressl
+%cp /mnt/tb/data/package.use.?0libressl /etc/portage/package.use/
 %emerge --fetchonly dev-libs/openssl
 EOF
   fi
@@ -721,8 +720,8 @@ if [[ $(($RANDOM % 3)) -eq 0 ]]; then
   date
   echo "#setup glibc[-crypt] libxcrypt" | tee /var/tmp/tb/task
 
-  echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/00libxcrypt
-  cat <<EOF2                          >> /etc/portage/package.use/00libxcrypt
+  echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/30libxcrypt
+  cat <<EOF2                          >> /etc/portage/package.use/30libxcrypt
 sys-libs/glibc      -crypt
 sys-libs/libxcrypt  compat static-libs system
 virtual/libcrypt    static-libs
@@ -789,7 +788,7 @@ function RunSetupScript() {
 # check that the USE flags do not yield to circular or other non-resolvable dependencies
 #
 function DryrunHelper() {
-  head -v -n 20 $mnt/etc/portage/package.use/00?thrown*
+  head -v -n 20 $mnt/etc/portage/package.use/?0thrown*
   echo
 
   nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh
@@ -832,7 +831,7 @@ function Dryrun() {
       sort -u |\
       DropUseFlags |\
       ThrowUseFlags 80 5 |\
-      PrintUseFlags > $mnt/etc/portage/package.use/002thrown_global_use_flags_from_metadata
+      PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
       grep -Hl 'flag name="' $repo_gentoo/*/*/metadata.xml |\
       shuf -n $(($RANDOM % 500)) |\
@@ -849,13 +848,13 @@ function Dryrun() {
         if [[ -n "$flags" ]]; then
           printf "%-50s %s\n" "$pkg" "$flags"
         fi
-      done > $mnt/etc/portage/package.use/003thrown_package_use_flags
+      done > $mnt/etc/portage/package.use/24thrown_package_use_flags
 
       grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
       cut -f1 -d' ' -s |\
       DropUseFlags |\
       ThrowUseFlags 20 5 |\
-      PrintUseFlags > $mnt/etc/portage/package.use/001thrown_global_use_flags_from_profile
+      PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
 
       l10n="$(
         grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc |\
@@ -865,7 +864,7 @@ function Dryrun() {
         xargs
       )"
       if [[ -n "$l10n" ]]; then
-        echo "*/*  L10N: -* $l10n" > $mnt/etc/portage/package.use/000thrown_l10n_from_profile
+        echo "*/*  L10N: -* $l10n" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
       fi
 
       DryrunHelper && break
@@ -881,7 +880,7 @@ function Dryrun() {
 
     done
   else
-    echo $useflags | PrintUseFlags > $mnt/etc/portage/package.use/00given_use_flags
+    echo $useflags | PrintUseFlags > $mnt/etc/portage/package.use/20given_use_flags
     DryrunHelper || exit 3
   fi
 
