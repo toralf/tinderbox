@@ -788,7 +788,7 @@ function RunSetupScript() {
 # check that the USE flags do not yield to circular or other non-resolvable dependencies
 #
 function DryrunHelper() {
-  head -v -n 20 $mnt/etc/portage/package.use/?0thrown*
+  head -v -n 20 $mnt/etc/portage/package.use/??thrown*
   echo
 
   nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh
@@ -804,7 +804,7 @@ function DryrunHelper() {
   else
     echo " dry run was NOT successful (rc=$rc):"
     echo
-    tail -v -n 1000 $mnt/var/tmp/tb/dryrun.log
+    tail -v -n 500 $mnt/var/tmp/tb/dryrun.log
     echo
   fi
 
