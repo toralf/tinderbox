@@ -863,9 +863,7 @@ function Dryrun() {
         sort |\
         xargs
       )"
-      if [[ -n "$l10n" ]]; then
-        echo "*/*  L10N: -* $l10n" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
-      fi
+      echo "*/*  L10N: -* $l10n" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
 
       DryrunHelper && break
       echo
