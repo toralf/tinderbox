@@ -517,9 +517,9 @@ EOF
   if [[ "$testfeature" = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.*.?0*test
   else
-    # overwrite IUSE=+test as set in few ebuilds
+    # overrule any IUSE=+test
     #
-    echo "*/*  notest" > ./etc/portage/package.env/00notest
+    echo "*/*  notest" > ./etc/portage/package.env/12notest
   fi
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/90cpuflags
@@ -742,7 +742,7 @@ emerge -1u virtual/libcrypt
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
-  echo "*/*  test" >> /etc/portage/package.env/00dotest  # must be lexicographically ordered before "00notest"
+  echo "*/*  test" >> /etc/portage/package.env/11dotest
   echo "media-fonts/corefonts   MSttfEULA" >> /etc/portage/package.license # dep of imagemagick
 fi
 
