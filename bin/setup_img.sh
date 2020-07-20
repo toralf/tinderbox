@@ -524,6 +524,10 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/90cpuflags
 
+  if [[ ! $(($RANDOM % 16)) -eq 0 ]]; then
+    cpconf ~tinderbox/tb/data/package.use.30misc
+  fi
+
   touch ./var/tmp/tb/task
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
