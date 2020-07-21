@@ -603,9 +603,9 @@ EOF
 %emerge @preserved-rebuild
 %emerge --unmerge dev-libs/openssl
 %emerge --fetchonly dev-libs/libressl net-misc/openssh net-misc/wget
-%chmod g+w     /etc/portage/package.use/?0libressl
-%chgrp portage /etc/portage/package.use/?0libressl
-%cp /mnt/tb/data/package.use.?0libressl /etc/portage/package.use/
+%chmod g+w     /etc/portage/package.use/??libressl
+%chgrp portage /etc/portage/package.use/??libressl
+%f=/mnt/tb/data/package.use.??libressl cp \$f /etc/portage/package.use/\${f##*.}
 %emerge --fetchonly dev-libs/openssl
 EOF
   fi
