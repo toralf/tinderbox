@@ -939,8 +939,8 @@ function SwitchGCC() {
     gcc-config --nocolor $latest &>> $logfile
     source /etc/profile
 
-    # must not fail
-    add2backlog "%emerge @preserved-rebuild"
+    add2backlog "%emerge @preserved-rebuild"      # must not fail
+    add2backlog "%emerge -1 sys-devel/libtool"    # should be rebuild
 
     # kick off old GCC installation artifacts to force catching related issues/missing links
     add2backlog "%emerge --unmerge sys-devel/gcc:$current"
