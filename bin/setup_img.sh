@@ -429,7 +429,7 @@ EOF
 function cpconf() {
   for f in $*
   do
-    # eg.: .../package.unmask.?0stable -> package.unmask/?0stable
+    # eg.: .../package.unmask.??stable -> package.unmask/??stable
     read -r a b c <<<$(echo ${f##*/} | tr '.' ' ')
     cp $f ./etc/portage/"$a.$b/$c"
   done
@@ -500,22 +500,22 @@ EOF
   echo '*/*  noconcurrent' > ./etc/portage/package.env/00noconcurrent
 
   if [[ $profile =~ '/systemd' ]]; then
-    cpconf ~tinderbox/tb/data/package.*.?0systemd
+    cpconf ~tinderbox/tb/data/package.*.??systemd
   fi
 
-  cpconf ~tinderbox/tb/data/package.*.?0common
-  cpconf ~tinderbox/tb/data/package.*.?0$keyword
+  cpconf ~tinderbox/tb/data/package.*.??common
+  cpconf ~tinderbox/tb/data/package.*.??$keyword
 
   if [[ "$libressl" = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.env.?0libressl
+    cpconf ~tinderbox/tb/data/package.env.??libressl  # *.use.* will be copied after GCC update
   fi
 
   if [[ "$multilib" = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.*.?0abi32+64
+    cpconf ~tinderbox/tb/data/package.*.??abi32+64
   fi
 
   if [[ "$testfeature" = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.*.?0*test
+    cpconf ~tinderbox/tb/data/package.*.*test
   else
     # overrule any IUSE=+test
     #
