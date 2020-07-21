@@ -96,10 +96,10 @@ function SetOptions() {
 
   # an "y" yields to ABI_X86: 32 64
   #
-  multilib="n"
+  multiabi="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
     if [[ $(($RANDOM % 8)) -eq 0 ]]; then
-      multilib="y"
+      multiabi="y"
     fi
   fi
 
@@ -163,13 +163,13 @@ function CheckOptions() {
     cflags="-O2 -pipe -march=native"
     keyword="unstable"
     libressl="n"
-    multilib="n"
+    multiabi="n"
     testfeature="n"
   fi
 
   checkBool "autostart"
   checkBool "libressl"
-  checkBool "multilib"
+  checkBool "multiabi"
   checkBool "testfeature"
   checkBool "musl"
 }
@@ -188,7 +188,7 @@ function ComputeImageName()  {
     name="${name}_libressl"
   fi
 
-  if [[ "$multilib" = "y" ]]; then
+  if [[ "$multiabi" = "y" ]]; then
     name="${name}_abi32+64"
   fi
 
@@ -510,7 +510,7 @@ EOF
     cpconf ~tinderbox/tb/data/package.env.??libressl  # *.use.* will be copied after GCC update
   fi
 
-  if [[ "$multilib" = "y" ]]; then
+  if [[ "$multiabi" = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.*.??abi32+64
   fi
 
@@ -941,7 +941,7 @@ do
         ;;
     l)  libressl="$OPTARG"
         ;;
-    m)  multilib="$OPTARG"
+    m)  multiabi="$OPTARG"
         ;;
     p)  profile="$OPTARG"
         ;;
@@ -969,9 +969,7 @@ Dryrun
 cd ~tinderbox/run
 ln -s ../$mnt
 
-if [[ "$autostart" = "y" ]]; then
-  echo
-  su - tinderbox -c "${0%/*}/start_img.sh $name"
-fi
+echo
+su - tinderbox -c "${0%/*}/start_img.sh $name"
 
 exit 0
