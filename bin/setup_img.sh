@@ -803,12 +803,18 @@ function DryrunHelper() {
   if [[ $rc -eq 0 ]]; then
     grep -H -A 99 -e 'The following USE changes are necessary to proceed:'                \
                   -e 'One of the following packages is required to complete your request' \
-                  -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' \
-                  $mnt/var/tmp/tb/dryrun.log && return 11
+                  $mnt/var/tmp/tb/dryrun.log
+    if [[ $? -eq 0 ]]; then
+      echo
+      echo " dry run was NOT successful due to ^^^"
+      echo
+      return 11
+    fi
   else
+    echo
     echo " dry run was NOT successful (rc=$rc):"
     echo
-    tail -v -n 500 $mnt/var/tmp/tb/dryrun.log
+    tail -v -n 200 $mnt/var/tmp/tb/dryrun.log
     echo
   fi
 
