@@ -796,8 +796,6 @@ function RunSetupScript() {
 function DryrunHelper() {
   nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh
   local rc=$?
-  echo
-  date
 
   if [[ $rc -eq 0 ]]; then
     grep -H -A 99 -e 'The following USE changes are necessary to proceed:'                \
@@ -805,12 +803,14 @@ function DryrunHelper() {
                   $mnt/var/tmp/tb/dryrun.log
     if [[ $? -eq 0 ]]; then
       echo
+      date
       echo " dry run was NOT successful due to ^^^"
       echo
       return 11
     fi
   else
     echo
+    date
     echo " dry run was NOT successful (rc=$rc):"
     echo
     tail -v -n 200 $mnt/var/tmp/tb/dryrun.log
