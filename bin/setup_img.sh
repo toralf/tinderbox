@@ -923,8 +923,8 @@ fi
 
 repo_gentoo=/var/db/repos/gentoo
 repo_libressl=/var/db/repos/libressl
-repo_musl=/var/db/repos/musl
 repo_local=/var/db/repos/local
+repo_musl=/var/db/repos/musl
 
 tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
