@@ -69,11 +69,22 @@ function SetOptions() {
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=""
 
-  # throw a profile and prefer a non-running one, nevertheless the last entry will make it eventually
+  # an "y" yields to ABI_X86: 32 64
+  multiabi="n"
+  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+    multiabi="y"
+  fi
+
+  # throw a new and non-running profile, but nevertheless the last entry would make it eventually
   #
   while read profile
   do
-    if [[ -z "$(ls -d ~tinderbox/run/$(echo $profile | tr '/' '_')-* /run/tinderbox/$(echo $profile | tr '/' '_')-*.lock 2>/dev/null)" ]]; then
+    if [[ "$multiabi" = "y" && $profile =~ "/no-multilib" ]]; then
+      continue
+    fi
+
+    local p=$(echo $profile | tr '/' '_')
+    if [[ -z "$(ls -d ~tinderbox/run/$p-* /run/tinderbox/$p-*.lock 2>/dev/null)" ]]; then
       break
     fi
   done < <(GetProfiles | shuf)
@@ -91,15 +102,6 @@ function SetOptions() {
   if [[ "$keyword" = "unstable" ]]; then
     if [[ $(($RANDOM % 2)) -eq 0 ]]; then
       libressl="y"
-    fi
-  fi
-
-  # an "y" yields to ABI_X86: 32 64
-  #
-  multiabi="n"
-  if [[ ! $profile =~ "/no-multilib" ]]; then
-    if [[ $(($RANDOM % 8)) -eq 0 ]]; then
-      multiabi="y"
     fi
   fi
 
