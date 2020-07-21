@@ -845,6 +845,7 @@ function Dryrun() {
 
       grep -Hl 'flag name="' $repo_gentoo/*/*/metadata.xml |\
       shuf -n $(($RANDOM % 500)) |\
+      sort |\
       while read file
       do
         pkg=$(echo $file | cut -f6-7 -d'/')
