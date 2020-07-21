@@ -13,6 +13,7 @@ media-libs/harfbuzz         icu
 media-libs/libglvnd         X
 media-libs/tiff             jpeg
 net-misc/curl               http2
+net-nds/openldap            -minimal
 sys-auth/pambase            elogind
 sys-auth/polkit             elogind
 sys-libs/db                 tcl
