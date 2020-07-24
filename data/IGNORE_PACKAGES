@@ -54,3 +54,6 @@ x11-misc/mugshot
 #
 dev-lang/mlton
 sci-mathematics/twelf
+#
+# downgrades rust
+dev-util/cargo
