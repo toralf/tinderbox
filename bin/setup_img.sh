@@ -607,7 +607,7 @@ EOF
 %emerge --fetchonly dev-libs/libressl net-misc/openssh net-misc/wget
 %chmod g+w     /etc/portage/package.use/??libressl
 %chgrp portage /etc/portage/package.use/??libressl
-%f=\$(echo /mnt/tb/data/package.use.??libressl) cp \$f /etc/portage/package.use/\${f##*.}
+%f=\$(echo /mnt/tb/data/package.use.??libressl); cp \$f /etc/portage/package.use/\${f##*.}
 %emerge --fetchonly dev-libs/openssl
 EOF
   fi
