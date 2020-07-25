@@ -150,7 +150,7 @@ sandbox=(env -i
     --unshare-pid
     --unshare-user-try
     --unshare-uts
-    --hostname "BWRAP-$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
+    --hostname "$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
     --chdir /var/tmp/tb
     --die-with-parent
      /bin/bash -l
