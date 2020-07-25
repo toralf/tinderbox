@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 # set -x
 
 # setup a new tinderbox image
@@ -64,7 +63,6 @@ function ThrowCflags()  {
 # options can be overwritten by command line parameter
 #
 function SetOptions() {
-  autostart="y"
   useflags="ThrowUseFlags"
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=""
@@ -169,7 +167,6 @@ function CheckOptions() {
     testfeature="n"
   fi
 
-  checkBool "autostart"
   checkBool "libressl"
   checkBool "multiabi"
   checkBool "testfeature"
@@ -931,11 +928,9 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 SetOptions
 
-while getopts a:c:f:k:l:m:p:t:u: opt
+while getopts c:f:k:l:m:p:t:u: opt
 do
   case $opt in
-    a)  autostart="$OPTARG"
-        ;;
     c)  cflags="$OPTARG"
         ;;
     f)  features="$OPTARG"
