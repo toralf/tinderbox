@@ -5,9 +5,6 @@
 
 set -euf
 
-# hold lockdir names, the locking mechanism used by the tinderbox script bwrap.sh
-mkdir /run/tinderbox
-
 echo "/opt/tb/bin/cgroup-release-agent.sh" > /sys/fs/cgroup/cpu/release_agent
 echo "/opt/tb/bin/cgroup-release-agent.sh" > /sys/fs/cgroup/memory/release_agent
 

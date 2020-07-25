@@ -109,10 +109,10 @@ if [[ -z "$mnt" ]]; then
   exit 4
 fi
 
-# a basic lock mechanism: only mkdir is an atomic kernel file system operation
+# only mkdir is an atomic file system operation in the Linux kernel
+[[ ! -d /run/tinderbox ]] && mkdir /run/tinderbox
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
-
 trap Cleanup EXIT QUIT TERM
 
 if [[ -n "$entrypoint" ]]; then
