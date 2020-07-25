@@ -1,10 +1,12 @@
 # package.use/80test
 #
 
-# if FEATURES=test is set then these USE flags are mandatory
+# if FEATURES=test is set then these USE flags may help to solve blocker
 #
 
 app-arch/brotli             python
+app-crypt/gcr               gtk
+app-crypt/pinentry          gnome-keyring
 dev-lang/python             sqlite
 dev-libs/libpcre2           pcre32
 media-gfx/imagemagick       jpeg png svg corefonts truetype xml
@@ -14,8 +16,10 @@ media-libs/libglvnd         X
 media-libs/tiff             jpeg
 net-misc/curl               http2
 net-nds/openldap            -minimal
+net-wireless/wpa_supplicant dbus
 sys-auth/pambase            elogind
 sys-auth/polkit             elogind
 sys-libs/db                 tcl
 virtual/imagemagick-tools   jpeg png svg
 x11-base/xorg-server        xvfb
+x11-libs/gdk-pixbuf         jpeg

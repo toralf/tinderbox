@@ -18,7 +18,7 @@ dev-libs/libxml2          python
 
 # mailer for job.sh
 #
-mail-mta/ssmtp            mta ssl
+mail-mta/ssmtp            -gnutls mta ssl
 
 # from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
 #
