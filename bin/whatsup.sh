@@ -220,7 +220,7 @@ function LastEmergeOperation()  {
       } else  {
         $hours = $delta / 60 / 60;
         $minutes = $delta / 60 % 60;
-        printf ("%3i:%02i h", $hours, $minutes);
+        printf ("%3i:%02i %sh", $hours, $minutes, $hours < 6 ? "" : "!!");
       }
       print join (" ", " ", @F[1..$#F]);
     '
