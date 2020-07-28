@@ -1304,6 +1304,8 @@ backlog1st=/var/tmp/tb/backlog.1st  # the high prio backlog
 export GCC_COLORS=""
 export OCAML_COLOR="never"
 export CARGO_TERM_COLOR="never"
+export PYTEST_ADDOPTS="--color=no"
+export PY_FORCE_COLOR="0"
 
 # https://bugs.gentoo.org/683118
 #
