@@ -51,6 +51,7 @@ function Mail() {
   (
     if [[ -f $2 ]]; then
       ls -l $2
+      echo
       cat $2
     else
       echo "${2:-empty_mail_body}"
@@ -106,7 +107,6 @@ function setTaskAndBacklog()  {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    rm -f /var/tmp/tb/KEEP
     Finish 0 "all backlogs are EMPTY, $(qlist --installed | wc -l) packages installed"
   fi
 
@@ -1141,11 +1141,11 @@ function RunAndCheck() {
           -e '!! All ebuilds that could satisfy ".*" have been masked.' \
           -e '* Error: The above package list contains packages which cannot be' \
           -e '* Error: circular dependencies:' \
-          -e 'It may be possible to solve this problem by using package.mask to' \
+          -e 'It may be possible to solve this' \
           -e '* Invalid resume list:' \
           -e 'Dependencies could not be completely resolved due to' \
           -e "Couldn't find .* to unmerge." \
-          -e "emerge: There are no sets to satisfy" \
+          -e 'emerge: There are no sets to satisfy' \
           $logfile_stripped
   if [[ $? -eq 0 ]]; then
     return $rc
