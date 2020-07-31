@@ -110,7 +110,6 @@ if [[ -z "$mnt" ]]; then
 fi
 
 # only mkdir is an atomic file system operation in the Linux kernel
-[[ ! -d /run/tinderbox ]] && mkdir /run/tinderbox
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
 trap Cleanup EXIT QUIT TERM
