@@ -7,7 +7,7 @@
 # helper of ThrowUseFlags()
 #
 function DropUseFlags()  {
-  egrep -v -e '32|64|^armv|bindist|bootstrap|build|cdinstall|compile-locales|consolekit|debug|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|livecd|make-symlinks|malloc|minimal|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|vaapi|valgrind|vdpau|vim-syntax|vulkan'
+  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|build|cdinstall|compile-locales|consolekit|debug|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|livecd|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|vaapi|valgrind|vdpau|vim-syntax|vulkan'
 }
 
 
