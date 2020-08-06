@@ -824,7 +824,7 @@ function Dryrun() {
     echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 
     attempt=0
-    max_attempts=50
+    max_attempts=100
     while [[ : ]]
     do
       ((attempt=attempt+1))
@@ -841,7 +841,7 @@ function Dryrun() {
       PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
       grep -Hl 'flag name="' $repo_gentoo/*/*/metadata.xml |\
-      shuf -n $(($RANDOM % 500)) |\
+      shuf -n $(($RANDOM % 1000)) |\
       sort |\
       while read file
       do
