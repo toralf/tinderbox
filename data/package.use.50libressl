@@ -1,5 +1,6 @@
 # package.use/50libressl
 #
 
-*/*   libressl openssl -gnutls
-*/*   curl_ssl_libressl -curl_ssl_gnutls -curl_ssl_openssl
+*/*                           libressl  openssl -gnutls -winssl
+*/*             CURL_SSL: -*  libressl -openssl
+net-misc/curl                 libressl -openssl -gnutls -winssl
