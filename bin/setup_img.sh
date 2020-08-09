@@ -523,8 +523,8 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/90cpuflags
 
-  # give FF, TB et al. a chance
-  if [[ ! $(($RANDOM % 8)) -eq 0 ]]; then
+  # give FF and TB a chance
+  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
 
