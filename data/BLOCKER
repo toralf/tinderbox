@@ -61,3 +61,7 @@ ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 #  (qt-5.15) - [Tracker] Packages broken with Qt 5.15
 726178
 QPainterPath
+
+#  (glibc-2.32) - [Tracker] glibc-2.32 porting
+736174
+fatal error: sys/sysctl.h: No such file or director

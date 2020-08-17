@@ -32,15 +32,13 @@ app-editors/atom
 app-office/
 app-officeext/
 app-text/bibus
-dev-ada/
 dev-haskell/language-python
 dev-libs/aws-sdk-cpp
 dev-libs/rocm
-dev-qt/qtweb*
+dev-qt/qtweb
 dev-util/electron
 dev-util/include-what-you-use
 gnome-extra/sushi
-ros-meta/
 sci-libs/tensorflow
 sci-visualization/tensorboard
 sys-cluster/
@@ -48,12 +46,12 @@ sys-devel/byfl
 sys-devel/llvm-roc
 www-client/chromium
 www-client/google-chrome
-x11-misc/mugshot
 #
 # too many unix processes in blocking state
 #
 dev-lang/mlton
 sci-mathematics/twelf
 #
-# downgrades rust
-dev-util/cargo
+# too much issues in moment
+#
+dev-haskell/

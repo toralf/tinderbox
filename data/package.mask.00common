@@ -9,10 +9,6 @@ net-dns/resolvconf-symlink
 #
 dev-util/plan9port
 
-# https://github.com/mgorny/portage
-#
-sys-apps/portage-mgorny
-
 # https://bugs.gentoo.org/662396
 #
 sys-fs/static-dev

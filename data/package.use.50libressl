@@ -1,6 +1,9 @@
 # package.use/50libressl
 #
 
-*/*                           libressl  openssl -gnutls -winssl
+*/*                           libressl  openssl -gnutls -mbedtls -nss
 */*             CURL_SSL: -*  libressl -openssl
-net-misc/curl                 libressl -openssl -gnutls -winssl
+
+net-libs/gnutls               -openssl
+net-libs/nodejs               -inspector -npm -ssl -system-ssl
+sys-auth/pambase              -pam_ssh

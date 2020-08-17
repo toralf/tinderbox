@@ -14,7 +14,6 @@ media-libs/gd               jpeg png
 media-libs/harfbuzz         icu
 media-libs/libglvnd         X
 media-libs/tiff             jpeg
-net-misc/curl               http2
 net-nds/openldap            -minimal
 net-wireless/wpa_supplicant dbus
 sys-auth/pambase            elogind

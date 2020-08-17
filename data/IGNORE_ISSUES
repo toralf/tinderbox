@@ -31,6 +31,7 @@ No support for external modules in
 OTP release .* does not match required regex
 pcmcia support is broken on kernels newer
 Please disable .* support in your kernel config and recompile your kernel
+Please switch to a gcc version built with USE=graphite
 Please use a supported ICD
 PostgreSQL slot must be set to one of:
 proxy.golang.org
