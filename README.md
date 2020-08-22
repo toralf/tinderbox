@@ -9,8 +9,9 @@ Whilst it works and will be maintained I do not plan to add additional functiona
 ## usage
 ### create a new image
 
-    setup_img.sh
-
+```bash
+setup_img.sh
+```
 The current *stage3* file is downloaded, verified and unpacked, profile, keyword and USE flag are set.
 Mandatory portage config files will be compiled.
 Few required packages (*ssmtp*, *pybugz* etc.) will be installed.
@@ -18,39 +19,43 @@ A backlog is filled up with all available package in a randomized order (*/var/t
 A symlink is made into *~/run* and the image is started.
 
 ### start an image
-    
-    start_img.sh <image>
 
+```bash
+start_img.sh <image>
+```
 The wrapper *bwrap.sh* handles all sandbox related actions and gives control to *job.sh* which is the heart of the tinderbox.
 
 Without any arguments all symlinks in *~/run* are processed.
 
 ### stop an image
 
-    stop_img.sh <image>
-
+```bash
+stop_img.sh <image>
+```
 A marker file */var/tmp/tb/STOP* is created in that image.
 The current emerge operation will be finished before *job.sh* removes the marker file and exits.
 
 ### go into a stopped image
 
-    sudo /opt/tb/bin/bwrap.sh -m <mount point>
-
-This uses bubblewrap (an enhanced chroot).
+```bash
+sudo /opt/tb/bin/bwrap.sh -m <mount point>
+```
+This uses bubblewrap (a better chroot, see https://github.com/containers/bubblewrap).
 
 ### removal of an image
 
 Stop the image and remove the symlink in *~/run*.
-The image itself will stay in its data dir till it is cleanud up.
+The image itself will stay in its data dir till that is cleanud up.
 
 ### status of all images
 
-    whatsup.sh -otlpc
-
+```bash
+whatsup.sh -otlpc
+```
 ### report findings
 
 New findings are send via email to the user specified in the variable *mailto*.
-Bugs are be filed using *bgo.sh* - a command line ready for copy+paste is compiled in the bug email.
+Bugs are be filed using *bgo.sh*. A copy+paste ready command line is included in the bug email.
 
 ### manually bug hunting within an image
 
@@ -63,9 +68,10 @@ Bugs are be filed using *bgo.sh* - a command line ready for copy+paste is compil
 ### unattended test of package/s
 
 Add package(s) to be tested (goes into */var/tmp/tb/backlog.upd* of each image):
-    
-    update_backlog.sh @system app-portage/pfl
 
+```bash
+update_backlog.sh @system app-portage/pfl
+```
 *STOP* can be used instead *INFO* to stop the image at that point, the following text will become the subject of an email.
 
 ### misc
@@ -77,22 +83,27 @@ And it is used too to retest an emerge of given package(s).
 ## installation
 Create the user *tinderbox*:
 
-    useradd -m tinderbox
-    usermod -a -G portage tinderbox
-
+```bash
+useradd -m tinderbox
+usermod -a -G portage tinderbox
+```
 Run as *root*:
 
-    mkdir /opt/tb
-    chmod 750 /opt/tb
-    chgrp tinderbox /opt/tb
-
+```bash
+mkdir /opt/tb
+chmod 750 /opt/tb
+chgrp tinderbox /opt/tb
+```
 Run as user *tinderbox* in ~tinderbox :
 
-    mkdir distfiles img{1,2} logs run tb
-
+```bash
+mkdir distfiles img{1,2} logs run tb
+```
 to have 2 directories acting as mount points for 2 separate file systems holding the images. Use both file systems in a round robin manner, start with the first, eg.:
 
-    ln -sf ./img1 ./img
+```bash
+ln -sf ./img1 ./img
+```
 
 Clone this Git repository.
 
@@ -103,41 +114,9 @@ The user *tinderbox* must have write permissions for files in *~tinderbox/tb/dat
 Edit the credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, set ownership/rwx-access of this subdirectory and its files to user *root* only.
 Grant sudo rights to the user *tinderbox*:
 
-    tinderbox ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/sync_repo.sh,/opt/tb/bin/cgroup.sh
-
-
-A boot script under Gentoo might be something like this:
-
 ```bash
-# cat /etc/local.d/tinderbox.start
-#/bin/bash
-#
-#set -x
-
-(
-  mount ~tinderbox/distfiles
-  mount ~tinderbox/img1
-  mount ~tinderbox/img2
-
-  echo
-  date
-  /opt/tb/bin/cgroup.sh
-
-  echo "sync repo"
-  /opt/tb/bin/sync_repo.sh
-
-  echo
-  date
-  rm -f ~tinderbox/logs/*.log ~tinderbox/img{1,2}/*/var/tmp/tb/STOP /tmp/logcheck.sh.out
-  sudo -u tinderbox /bin/bash -c "/opt/tb/bin/logcheck.sh &"
-  sudo -u tinderbox /bin/bash -c "/opt/tb/bin/whatsup.sh -op"
-  date
-  sudo -u tinderbox /bin/bash -c "/opt/tb/bin/start_img.sh"
-  echo
-  echo "finished"
-) &> /tmp/${0##*/}.log &
+tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/sync_repo.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/cgroup.sh
 ```
-
 ## link(s)
 
 https://www.zwiebeltoralf.de/tinderbox.html
