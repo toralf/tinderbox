@@ -26,7 +26,7 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 #
-# way too long emerge time either direct or due to its deps
+# way too long emerge time either itself or due to its deps
 #
 app-editors/atom
 app-office/
