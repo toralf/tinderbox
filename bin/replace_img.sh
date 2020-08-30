@@ -130,12 +130,12 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-condition_backlog=15000     # max. entries left in the backlog
-condition_completed=6000    # min. amount of completed emerge operations
-condition_distance=6        # min. distance in hours to the previous image
-condition_runtime=13        # max. age in days for an image (efficiency drops down after that)
-oldimg=""                   # optional: image name to be replaced ("-" to just spin up a new one)
-setupargs=""                # args passed to call of setup_img.sh
+condition_backlog=13000     # max. entries left in the backlog
+condition_completed=6500    # min. amount of completed emerge operations
+condition_distance=4        # min. distance in hours to the previous image
+condition_runtime=11        # max. age in days for an image
+oldimg=""                   # optional: image name to be replaced ("-" to add a new one)
+setupargs=""                # arguments passed thru to setup_img.sh
 
 while getopts b:c:d:o:r:s: opt
 do
@@ -144,8 +144,8 @@ do
     c)  condition_completed="$OPTARG" ;;
     d)  condition_distance="$OPTARG"  ;;
     o)  oldimg="${OPTARG##*/}"        ;;
-    s)  setupargs="$OPTARG"           ;;
     r)  condition_runtime="$OPTARG"   ;;
+    s)  setupargs="$OPTARG"           ;;
     *)  echo " opt not implemented: '$opt'"; exit 1;;
   esac
 done
