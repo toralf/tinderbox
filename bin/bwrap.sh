@@ -17,7 +17,7 @@ function CgroupCreate() {
   local name=$1
   local pid=$2
 
-  # restrict blast radius if -j1 is ignored + force an oom-killer before the kernel chosoes a process to kill
+  # bail out before the kernel oom-killer chooses another victim process to kill if -j1 of emerge is ignored
   cgcreate -g cpu,memory:$name
 
   cgset -r cpu.use_hierarchy=1      $name
