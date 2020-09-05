@@ -1145,6 +1145,7 @@ function RunAndCheck() {
           -e 'Dependencies could not be completely resolved due to' \
           -e "Couldn't find .* to unmerge." \
           -e 'emerge: There are no sets to satisfy' \
+          -e '!!! Multiple package instances within a single package slot have been pulled' \
           $logfile_stripped
   if [[ $? -eq 0 ]]; then
     return $rc
