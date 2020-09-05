@@ -130,7 +130,7 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-condition_backlog=13000     # max. entries left in the backlog
+condition_backlog=14000     # max. entries left in the backlog
 condition_completed=6500    # min. amount of completed emerge operations
 condition_distance=4        # min. distance in hours to the previous image
 condition_runtime=11        # max. age in days for an image
