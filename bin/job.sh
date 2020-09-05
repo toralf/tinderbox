@@ -1282,11 +1282,10 @@ function updateAllRepos() {
       while [[ -f $host_repo/.git/index.lock ]]; do
         sleep 1
       done
-      echo "#rsync $host_repo" > $taskfile
+
       rsync --archive --cvs-exclude --delete $host_repo /var/db/repos/
     fi
   done
-  truncate -s 0 $taskfile
 }
 
 
@@ -1338,7 +1337,9 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
+  echo "#rsync repos" > $taskfile
   updateAllRepos
+
   getNextTask
   WorkOnTask
 
