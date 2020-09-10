@@ -79,10 +79,10 @@ function LookForAnOldEnoughImage()  {
       [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]] && continue
 
       let "runtime = ($current_time - $(stat -c%Y ~/run/$oldimg/var/tmp/tb/name)) / 3600 / 24"
-      if [[ $runtime -gt $condition_runtime ]]; then
-        [[ $(GetLeft $oldimg) -lt $condition_backlog || $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
+      if [[ $runtime -ge $condition_runtime ]]; then
+        [[ $(GetLeft $oldimg) -le $condition_backlog || $(GetCompl $oldimg) -ge $condition_completed ]] && return 0
       else
-        [[ $(GetLeft $oldimg) -lt $condition_backlog && $(GetCompl $oldimg) -gt $condition_completed ]] && return 0
+        [[ $(GetLeft $oldimg) -le $condition_backlog && $(GetCompl $oldimg) -ge $condition_completed ]] && return 0
       fi
     done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)  # from oldest to newest
   fi
