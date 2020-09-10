@@ -2,7 +2,8 @@
 #
 #set -x
 
-set -f
+set -uf
+
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
@@ -26,11 +27,11 @@ cd /var/db/repos/musl/ && git pull &>> $log
 rc2=$?
 
 if [[ $rc1 -ne 0 || $rc2 -ne 0 || -n "$(grep 'git pull error' $log)" ]]; then
-  mail -s "${0##*/}: rc1/2=$rc1/$rc2" $mailto < $log
+  mail -s "${0##*/}: return codes: eix=$rc1 musl=$rc2" $mailto < $log
   exit 1
 fi
 
-# timestamp can't be derived from within an image b/c git isn't part of stage3
+# timestamp can't be queried within an image b/c git isn't part of stage3 and might not yet be installed
 #
 for repo in gentoo libressl musl
 do
