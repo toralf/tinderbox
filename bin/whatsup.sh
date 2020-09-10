@@ -216,13 +216,13 @@ function LastEmergeOperation()  {
       if ($delta < 3600) {
         $minutes = $delta / 60 % 60;
         $seconds = $delta % 60 % 60;
-        printf ("%3i:%02i m", $minutes, $seconds);
+        printf ("%3i:%02i m  ", $minutes, $seconds);
       } else  {
         $hours = $delta / 60 / 60;
         $minutes = $delta / 60 % 60;
-        printf ("%3i:%02i %sh", $hours, $minutes, $hours < 6 ? "" : "!!");
+        printf ("%3i:%02i h%s ", $hours, $minutes, $hours < 6 ? " " : "!");
       }
-      print join (" ", " ", @F[1..$#F]);
+      print join (" ", @F[1..$#F]);
     '
     echo
   done
