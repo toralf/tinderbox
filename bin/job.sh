@@ -1180,13 +1180,12 @@ function WorkOnTask() {
   # @set
   #
   if [[ $task = "@system" || $task = "@world" || $task = "@preserved-rebuild" ]]; then
-    opts=" --deep --backtrack=30"
+    opts="--deep --backtrack=30"
     if [[ $task = "@system" || $task = "@world" ]]; then
       opts="$opts --update --newuse --changed-use --exclude kernel/gentoo-sources"
     fi
     RunAndCheck "emerge $task $opts"
     rc=$?
-    cp $logfile /var/tmp/tb/$task.last.log
 
     if [[ $rc -ne 0 ]]; then
      echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
@@ -1199,6 +1198,7 @@ function WorkOnTask() {
       echo "$(date) ok" >> /var/tmp/tb/$task.history
     fi
 
+    cp $logfile /var/tmp/tb/$task.last.log
   # %<command>
   #
   elif [[ $task =~ ^% ]]; then
