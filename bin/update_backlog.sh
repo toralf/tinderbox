@@ -18,17 +18,15 @@ function ScanTreeForChanges() {
 
 
 function retestPackages() {
-  echo $* | xargs -n 1 | sort -u |\
+  echo ${@} | xargs -n 1 | sort -u |\
   while read line
   do
     [[ -z "$line" ]] && continue
+    p=$(qatom "$line" | cut -f1-2 -d' ' -s | grep -F -v '<unset>' | tr ' ' '/')
+    [[ -n "$p" ]] || continue
+    echo "$p" >> $result
 
-    # split away version/revision if possible
-    p=$(qatom "$line" | grep -F -v '<unset>' | sed 's/[ ]*(null)[ ]*//g' | cut -f1-2 -d' ' -s | tr ' ' '/')
-    [[ -z "$p" ]] && p=$line
-    echo $p >> $result
-
-    # delete package both from global tinderbox and from image specific portage files
+    # delete p both from global tinderbox and from image specific portage files
     sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
       ~/tb/data/ALREADY_CATCHED                   \
       ~/run/*/etc/portage/package.mask/self       \
@@ -48,8 +46,8 @@ function updateBacklog()  {
       # re-mix them
       cat $result $bl | sort -u | shuf > $bl.tmp
     elif [[ $target = "1st" ]]; then
-      # schedule shuffled new data after existing entries, sort out dups before
-      (sort -u $result | grep -v -f $bl | shuf; cat $bl) > $bl.tmp
+      # shuffle new data after existing entries, sort out dups before
+      (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     fi
 
     # no "mv", that overwrites file permissions
@@ -71,11 +69,12 @@ fi
 result=/tmp/${0##*/}.txt
 truncate -s 0 $result
 
-# use update backlog for new and updated portage tree entries and high prio backlog to retest package(s)
+# use update backlog for new and updated portage tree entries
+# and high prio backlog to retest package(s)
 if [[ $# -eq 0 ]]; then
   ScanTreeForChanges
   updateBacklog "upd"
 else
-  retestPackages $*
+  retestPackages ${@}
   updateBacklog "1st"
 fi
