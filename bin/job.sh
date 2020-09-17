@@ -75,9 +75,7 @@ function Finish()  {
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
   if [[ -x /usr/bin/pfl ]]; then
-    echo "#pfl" > $taskfile
     /usr/bin/pfl &>> $logfile
-    truncate -s 0 $taskfile
   fi
 
   if [[ $rc -eq 0 ]]; then
@@ -1326,7 +1324,7 @@ fi
 
 while [[ : ]]
 do
-  truncate -s 0 $taskfile
+  echo "#init" > $taskfile
   date > $logfile
 
   # pick up after ourself b/c "auto-clean" in FEATURES is deactivated to collect issue files
@@ -1337,9 +1335,10 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  echo "#rsync repos" > $taskfile
+  echo "#rsync" > $taskfile
   updateAllRepos
 
+  echo "#task" > $taskfile
   getNextTask
   WorkOnTask
 
