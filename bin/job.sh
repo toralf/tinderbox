@@ -604,12 +604,19 @@ function SearchForAnAlreadyFiledBug() {
       -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
       -e 's,.* : ,,'              \
       -e 's,[<>&\*\?], ,g'        \
-      -e 's,[\(\)], ,g' > $bsi    \
-      $issuedir/title
+      -e 's,[\(\)], ,g'           \
+      -e 's,  *, ,g'              \
+      $issuedir/title > $bsi
 
   # for the file collision case: remove the package version from the installed package
   #
   grep -q "file collision" $bsi && sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
+
+  # truncation accordingly to the b.g.o. title length limit, the used number here is heuristic
+  # b/c we don't take the package name length here into account
+  if [[ $(wc -c < $bsi) -gt 90 ]]; then
+    truncate -s 90 $bsi
+  fi
 
   # search first for the same version, second for category/package name
   # take the highest bug id and put the summary of the next (newest) 10 bugs into the email body
