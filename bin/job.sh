@@ -75,7 +75,7 @@ function Finish()  {
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
   if [[ -x /usr/bin/pfl ]]; then
-    /usr/bin/pfl &>> $logfile
+    /usr/bin/pfl 1>/dev/null
   fi
 
   if [[ $rc -eq 0 ]]; then
@@ -128,6 +128,7 @@ function getNextTask() {
       continue
 
     elif [[ $task =~ ^STOP ]]; then
+      echo "#stopping" > $taskfile
       Finish 0 "$task"
 
     elif [[ $task =~ ^@ || $task =~ ^% ]]; then
