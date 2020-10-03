@@ -65,3 +65,7 @@ QPainterPath
 #  (glibc-2.32) - [Tracker] glibc-2.32 porting
 736174
 fatal error: sys/sysctl.h: No such file or director
+
+# [TRACKER] >=dev-java/javatoolkit-0.6.1
+699102
+eant failed

@@ -4,6 +4,7 @@
 */*  QEMU_SOFTMMU_TARGETS: -* x86_64 i386
 */*  QEMU_USER_TARGETS: -* x86_64 i386
 */*  VIDEO_CARDS: -* dummy
+*/*  RUBY_TARGETS: ruby27
 
 # dependency issues at image setup
 #
@@ -24,7 +25,7 @@ mail-mta/ssmtp            -gnutls mta ssl
 #
 sys-apps/nix              -etc_profile
 
-# "readline" is required by pybugz, unfortunately it is xor'ed in libs
+# "readline" is required by pybugz and is xor'ed in 2 libs
 #
 dev-lang/python           readline
 dev-libs/libpcre*         -libedit
@@ -36,10 +37,6 @@ dev-qt/qtwebengine        jumbo-build
 # compiled statically per default
 #
 sys-apps/busybox          -pam
-
-# "cswchs/s" value and "runq-sz" increased by a magnitude
-#
-dev-lisp/sbcl             -threads
 
 # dev-util/google-perftools blocker in @preserved-rebuild
 #

@@ -16,3 +16,8 @@ sys-fs/static-dev
 # compile hang https://bugs.gentoo.org/711098
 #
 dev-scheme/racket
+
+# deprecated
+#
+dev-qt/qtwebkit
+net-libs/webkit-gtk
