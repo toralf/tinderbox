@@ -92,22 +92,23 @@ function LookForAnOldEnoughImage()  {
 
 
 function StopOldImage() {
-  # absorb external restart-logic
-  #
-  echo -e "STOP
+  # kick off current entries and absorb external restart-logic
+  cat << EOF > ~/run/$oldimg/var/tmp/tb/backlog.1st
+STOP
 STOP
 STOP
 STOP
 STOP
 STOP scheduled at $(unset LC_TIME; date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left
 app-portage/pfl
-" > ~/run/$oldimg/var/tmp/tb/backlog.1st
+EOF
 
   local lock_dir=/run/tinderbox/$oldimg.lock
   if [[ -d $lock_dir ]]; then
     date
     echo " waiting for unlock ..."
-    while [[ -d $lock_dir ]]; do
+    while [[ -d $lock_dir ]]
+    do
       sleep 1
     done
     date
