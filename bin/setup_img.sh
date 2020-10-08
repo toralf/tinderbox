@@ -116,7 +116,7 @@ function SetOptions() {
     fi
   fi
 
-  musl="n"  # handled in CheckOptions()
+  musl="n"  # only explicitly being set
 }
 
 
@@ -695,25 +695,24 @@ source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
-if [[ 0 -eq 1 ]]; then
-  date
-  echo "#setup update stage3" | tee /var/tmp/tb/task
+date
+echo "#setup update stage3" | tee /var/tmp/tb/task
 
-  emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
-  locale-gen -j1
-  eselect python update --if-unset
+emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
+locale-gen -j1
+eselect python update --if-unset
 
-  env-update
-  source /etc/profile
-fi
+env-update
+source /etc/profile
 
 if [[ $keyword = "unstable" ]]; then
   echo 'ACCEPT_KEYWORDS="~amd64"' >> /etc/portage/make.conf
 fi
 
-# emerge ssmtp before mailx b/c mailx would pull its ebuild default MTA rather than ssmtp
 date
-echo "#setup tools" | tee /var/tmp/tb/task
+echo "#setup install tools" | tee /var/tmp/tb/task
+
+# emerge ssmtp before mailx b/c mailx would pull its ebuild default MTA rather than ssmtp
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
 
@@ -721,9 +720,6 @@ emerge -u mail-client/mailx
 emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
 if [[ $(($RANDOM % 3)) -eq 0 ]]; then
-  date
-  echo "#setup glibc[-crypt] libxcrypt" | tee /var/tmp/tb/task
-
   echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/30libxcrypt
   cat <<EOF2                          >> /etc/portage/package.use/30libxcrypt
 sys-libs/glibc      -crypt
@@ -735,10 +731,6 @@ EOF2
   echo 'sys-libs/libxcrypt -system'   >> /etc/portage/make.profile/package.use.mask
 fi
 
-# glibc-2.31 + python-3 dep issue
-#
-emerge -1u virtual/libcrypt
-
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
@@ -746,18 +738,15 @@ if [[ $testfeature = "y" ]]; then
   echo "media-fonts/corefonts   MSttfEULA" >> /etc/portage/package.license # dep of imagemagick
 fi
 
-# fill the backlog with all package valid for this profile
-# hint: sort -u is needed if more than one non-empty repository is configured
-#
+date
+echo "#setup fill backlog" | tee /var/tmp/tb/task
+
+# sort -u is needed if more than one repository is non-empty
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/backlog
 
-# symlink credential files of mail-mta/ssmtp and www-client/pybugz
-#
+# create symlinks to appropriate credential files
 (cd /root && ln -s ../mnt/tb/sdata/.bugzrc)
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
-
-date
-echo "#setup.sh done" | tee /var/tmp/tb/task
 
 EOF
 
