@@ -702,6 +702,7 @@ emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --
 locale-gen -j1
 eselect python update --if-unset
 
+date
 env-update
 source /etc/profile
 
