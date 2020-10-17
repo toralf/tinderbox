@@ -159,7 +159,7 @@ function getNextTask() {
       break
     fi
   done
-  
+
   echo "$task" | tee -a $taskfile.history $logfile > $taskfile
 }
 
@@ -287,7 +287,7 @@ function getPkgVarsFromIssuelog()  {
     Mail "INFO: $FUNCNAME failed to get repo path for:  >$pkg<  >$pkgname<  >$task<" $logfile_stripped
     return 1
   fi
-  
+
   pkglog=$(grep -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $logfile_stripped)
   if [[ ! -f $pkglog ]]; then
     Mail "INFO: $FUNCNAME failed to get package log file:  >$pkg<  >$pkgname<  >$task<  >$pkglog<" $logfile_stripped
@@ -1287,12 +1287,12 @@ function updateAllRepos() {
     fi
 
     if [[ ! -f $image_repo/timestamp.git || $(cat $image_repo/timestamp.git) != $(cat $host_repo/timestamp.git) ]]; then
+      echo "#rsync $image_repo" > $taskfile
       # very unlikely but if a git pull at the host is running then wait till it finished
-      #
-      while [[ -f $host_repo/.git/index.lock ]]; do
+      while [[ -f $host_repo/.git/index.lock ]]
+      do
         sleep 1
       done
-
       rsync --archive --cvs-exclude --delete $host_repo /var/db/repos/
     fi
   done
@@ -1344,10 +1344,10 @@ do
   rm -rf /var/tmp/portage/*
 
   if [[ -f /var/tmp/tb/STOP ]]; then
+    echo "#stopping" > $taskfile
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  echo "#rsync" > $taskfile
   updateAllRepos
 
   echo "#task" > $taskfile
