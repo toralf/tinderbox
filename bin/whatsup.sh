@@ -220,7 +220,8 @@ function LastEmergeOperation()  {
       } else  {
         $hours = $delta / 60 / 60;
         $minutes = $delta / 60 % 60;
-        printf ("%3i:%02i h%s ", $hours, $minutes, $hours < 6 ? " " : "!");
+        # note long runtimes
+        printf ("%3i:%02i h%s ", $hours, $minutes, $hours < 5 ? " " : "!");
       }
       print join (" ", @F[1..$#F]);
     '
