@@ -3,3 +3,4 @@
 
 # by Polynomial-C https://bugs.gentoo.org/732648
 ~sys-devel/autoconf-2.70_beta2  **
+~sys-devel/autoconf-wrapper-14_pre1 **
