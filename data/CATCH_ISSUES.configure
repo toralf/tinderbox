@@ -18,8 +18,9 @@ Project .rostime. tried to find library .-lpthread.
 Could NOT find Boost
 Cannot execute 32-bit applications
 Unable to find clang libraries
-  Could NOT find 
+  Could NOT find
 extconf.rb:.* (RuntimeError)
+The .* version in .* must be updated.
 \-\- Could NOT find
 \-\- Could not find
 bad option:

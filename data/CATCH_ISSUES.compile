@@ -257,3 +257,5 @@ iconv:.*Invalid argument
 Please install it manually.(pip .*
 error: invalid integral value
 DISTUTILS_USE_SETUPTOOLS value is probably incorrect
+ragel:
+.*: No such file or directory

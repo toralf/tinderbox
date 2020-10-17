@@ -11,39 +11,29 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# outdated, br0ken, breaks revdep-rebuild, needs special kernel config, ...
-#
-/s6
-app-emacs/jde
-net-analyzer/openvas
-net-fs/openafs
-net-libs/zeromq
-sci-libs/linux-gpib
-sys-apps/modutils
-sys-cluster/mvapich2
-sys-cluster/openmpi
-sys-fs/loop-aes
-sys-fs/vhba
-x11-drivers/nvidia-drivers
-#
-# way too long emerge time either itself or due to its deps
+# looong emerge time either itself or due to its deps
 #
 app-editors/atom
 app-office/
 app-officeext/
 app-text/bibus
 dev-haskell/language-python
+dev-lang/ghc
+dev-lang/rust
 dev-libs/aws-sdk-cpp
 dev-libs/rocm
 dev-qt/qtweb
 dev-util/electron
 dev-util/include-what-you-use
 gnome-extra/sushi
+net-libs/nodejs
 sci-libs/tensorflow
 sci-visualization/tensorboard
 sys-cluster/
 sys-devel/byfl
-sys-devel/llvm-roc
+sys-devel/clang
+sys-devel/llvm
+sci-libs/libint
 www-client/chromium
 www-client/google-chrome
 #

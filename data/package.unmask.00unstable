@@ -1,2 +1,5 @@
 # package.unmask/00unstable
 #
+
+# by Polynomial-C https://bugs.gentoo.org/732648
+~sys-devel/autoconf-2.70_beta2
