@@ -17,17 +17,15 @@ function PrintUseFlags() {
 
 
 function ThrowUseFlags() {
-  n=${1:-1}
-  m=${2:-0}
+  n=${1?:amount is mandatory}
+  m=5       #  == 20%
 
   # throw up to n-1
-  #
   shuf -n $(($RANDOM % $n)) | sort |\
   while read flag
   do
     # mask about 1/m
-    #
-    if [[ $m -gt 0 && $(($RANDOM % $m)) -eq 0 ]]; then
+    if [[ $(($RANDOM % $m)) -eq 0 ]]; then
       echo -n "-"
     fi
     echo -n "$flag "
@@ -827,11 +825,11 @@ function Dryrun() {
       cut -f2 -d'"' -s |\
       sort -u |\
       DropUseFlags |\
-      ThrowUseFlags 80 5 |\
+      ThrowUseFlags 80 |\
       PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
       grep -Hl 'flag name="' $repo_gentoo/*/*/metadata.xml |\
-      shuf -n $(($RANDOM % 1000)) |\
+      shuf -n $(($RANDOM % 2000)) |\
       sort |\
       while read file
       do
@@ -840,7 +838,7 @@ function Dryrun() {
           grep -h 'flag name="' $file |\
           cut -f2 -d'"' -s |\
           DropUseFlags |\
-          ThrowUseFlags 10 3 |\
+          ThrowUseFlags 15 |\
           xargs
         )
         if [[ -n "$flags" ]]; then
@@ -851,7 +849,7 @@ function Dryrun() {
       grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
       cut -f1 -d' ' -s |\
       DropUseFlags |\
-      ThrowUseFlags 20 5 |\
+      ThrowUseFlags 25 |\
       PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
 
       l10n="$(
