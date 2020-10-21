@@ -28,7 +28,7 @@ net-libs/webkit-gtk
 #
 # outdated, br0ken, breaks revdep-rebuild, needs special kernel config, ...
 #
-/s6
+*/s6
 app-emacs/jde
 net-analyzer/openvas
 net-fs/openafs

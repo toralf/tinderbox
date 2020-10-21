@@ -33,6 +33,7 @@ sys-cluster/
 sys-devel/byfl
 sys-devel/clang
 sys-devel/llvm
+sci-libs/atlas
 sci-libs/libint
 www-client/chromium
 www-client/google-chrome

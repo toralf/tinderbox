@@ -28,11 +28,6 @@ unknown type name.*my_bool|my_bool.*was not declared|my_bool undeclared
 697606
 utf8 .* does not map to Unicode
 
-# [Tracker] Packages broken with Qt 5.14
-#
-703574
-Namespace declaration lacks Q_NAMESPACE macro.|invalid use of incomplete type class VGObjec
-
 # [Tracker] (-fno-common) - Packages failing with -fno-common
 #
 705764
@@ -42,11 +37,6 @@ fails to build with -fno-common or gcc-10|: multiple definition of.*: first defi
 #
 707898
 bfd_get_section
-
-# (glibc-2.31) - glibc-2.31 porting
-#
-708318
- stime|RES_
 
 # (colon-in-CFLAGS) - (TRACKER) ebuilds using colon (:) as a sed delimiter break on CFLAGS=-falign-functions=32:25:16
 #
@@ -69,3 +59,7 @@ fatal error: sys/sysctl.h: No such file or director
 # [TRACKER] >=dev-java/javatoolkit-0.6.1
 699102
 eant failed
+
+# (autoconf-2.70_beta) - sys-devel/autoconf-2.69c: new beta version
+732648
+Failed Running aclocal|configure: error: C compiler cannot create executables|configure: error: cannot find install-sh|Failed Running autoconf|configure: error:|./configure:|./config.h: error:|DHAVE_CONFIG_H: command not found

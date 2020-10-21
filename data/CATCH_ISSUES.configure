@@ -65,6 +65,7 @@ C compiler cannot create executables
 CMake Error at
 Configuring incomplete
 cmake failed
+configure: error:
 : No such file or directory
 .* will not be built.
  was not found.

@@ -16,6 +16,7 @@ gcc version .* found, expected gcc
 Incompatible gcc version found
 Incorrect kernel configuration options
 INTERNALERROR
+is not a compiled interface for this version of OCaml
 Kernel not configured; no .config found in
 kernel too new
 ld: -r and -pie may not be used together
