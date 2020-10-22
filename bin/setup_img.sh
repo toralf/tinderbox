@@ -725,8 +725,8 @@ if [[ $(($RANDOM % 2)) -eq 0 ]]; then
   echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/30libxcrypt
   cat <<EOF2                          >> /etc/portage/package.use/30libxcrypt
 sys-libs/glibc      -crypt
-sys-libs/libxcrypt  compat static-libs system
-virtual/libcrypt    static-libs
+sys-libs/libxcrypt  compat -static-libs system
+virtual/libcrypt    -static-libs
 EOF2
 
   echo 'sys-libs/glibc     -crypt'    >> /etc/portage/make.profile/package.use.force
