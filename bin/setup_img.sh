@@ -392,7 +392,10 @@ FFLAGS="\${FCFLAGS}"
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 $([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"')
 
-ACCEPT_LICENSE="-* @FREE @BINARY-REDISTRIBUTABLE"
+# no re-distribution nor any "usage", just QA
+ACCEPT_LICENSE="*"
+
+# just tinderboxing, no manual interaction
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
@@ -734,7 +737,6 @@ eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
   echo "*/*  test" >> /etc/portage/package.env/11dotest
-  echo "media-fonts/corefonts   MSttfEULA" >> /etc/portage/package.license # dep of imagemagick
 fi
 
 date
