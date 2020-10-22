@@ -721,7 +721,7 @@ emerge -u mail-client/mailx
 # mandatory tools by job.sh
 emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
 
-if [[ $(($RANDOM % 3)) -eq 0 ]]; then
+if [[ $(($RANDOM % 2)) -eq 0 ]]; then
   echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/30libxcrypt
   cat <<EOF2                          >> /etc/portage/package.use/30libxcrypt
 sys-libs/glibc      -crypt
