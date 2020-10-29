@@ -74,9 +74,7 @@ function Finish()  {
   local rc=$1
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
 
-  if [[ -x /usr/bin/pfl ]]; then
-    /usr/bin/pfl 1>/dev/null
-  fi
+  /usr/bin/pfl &>/dev/null
 
   if [[ $rc -eq 0 ]]; then
     Mail "Finish ok: $subject" $3
@@ -1028,7 +1026,7 @@ function PostEmerge() {
     if [[ -n $last && $(( $(date +%s) - $(stat -c%Y $last) )) -gt 86400 ]]; then
       add2backlog "@world"
       add2backlog "@system"
-      [[ -x /usr/bin/pfl ]] && add2backlog "%/usr/bin/pfl || true"    # send data of installed packages before they might be updated
+      add2backlog "%/usr/bin/pfl || true"    # gather data of installed packages before being updated/lost
     fi
   fi
 
