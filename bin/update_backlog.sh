@@ -21,19 +21,16 @@ function retestPackages() {
   echo ${@} | xargs -n 1 | sort -u |\
   while read line
   do
-    if [[ -z "$line" || $line =~ ^# ]]; then
-      continue
-    elif [[ $line =~ ^@ || $line =~ ^% ]]; then
+    if [[ -n "$line" && ! $line =~ ^# ]]; then
       echo "$line" >> $result
-    else
       p=$(qatom "$line" | cut -f1-2 -d' ' -s | grep -F -v '<unset>' | tr ' ' '/')
-      [[ -n "$p" ]] || continue
-      echo "$p" >> $result
-      # delete p both from global tinderbox and from image specific portage files
-      sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
-        ~/tb/data/ALREADY_CATCHED                   \
-        ~/run/*/etc/portage/package.mask/self       \
-        ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null
+      if [[ -n "$p" ]]; then
+        # delete p both from global tinderbox and from image specific portage files
+        sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
+          ~/tb/data/ALREADY_CATCHED                   \
+          ~/run/*/etc/portage/package.mask/self       \
+          ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null
+      fi
     fi
   done
 }
