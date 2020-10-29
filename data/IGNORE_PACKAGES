@@ -27,7 +27,10 @@ dev-util/electron
 dev-util/include-what-you-use
 gnome-extra/sushi
 net-libs/nodejs
+oci8
+sci-chemistry/psi
 sci-libs/tensorflow
+>sci-libs/libint-2.6.0-r1
 sci-visualization/tensorboard
 sys-cluster/
 sys-devel/byfl

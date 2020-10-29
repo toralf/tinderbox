@@ -22,9 +22,6 @@ dev-scheme/racket
 dev-qt/qtwebkit
 net-libs/webkit-gtk
 
-# compiles tooo long
->sci-libs/libint-2.6.0-r1
-
 #
 # outdated, br0ken, breaks revdep-rebuild, needs special kernel config, ...
 #
@@ -35,7 +32,6 @@ net-fs/openafs
 net-libs/zeromq
 sci-libs/linux-gpib
 sys-apps/modutils
-sys-cluster/mvapich2
 sys-cluster/openmpi
 sys-fs/loop-aes
 sys-fs/vhba

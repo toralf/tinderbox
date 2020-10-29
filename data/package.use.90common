@@ -12,6 +12,8 @@ app-portage/pfl           -network-cron
 dev-db/sqlite             -icu
 dev-lang/python           -bluetooth
 dev-libs/libxml2          python
+sys-apps/busybox          -pam
+sys-apps/shadow           -cracklib
 
 # currently broken
 #
@@ -25,7 +27,7 @@ mail-mta/ssmtp            -gnutls mta ssl
 #
 sys-apps/nix              -etc_profile
 
-# "readline" is required by pybugz and is xor'ed in 2 libs
+# "readline" is required by pybugz and is xor'ed to libedit
 #
 dev-lang/python           readline
 dev-libs/libpcre*         -libedit
@@ -34,10 +36,6 @@ dev-libs/libpcre*         -libedit
 #
 dev-qt/qtwebengine        jumbo-build
 
-# compiled statically per default
-#
-sys-apps/busybox          -pam
-
 # dev-util/google-perftools blocker in @preserved-rebuild
 #
 */*                       -jmalloc -tcmalloc
@@ -45,3 +43,4 @@ sys-apps/busybox          -pam
 # can't/won't be tested at all
 #
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind
+
