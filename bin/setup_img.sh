@@ -7,7 +7,7 @@
 # helper of ThrowUseFlags()
 #
 function DropUseFlags()  {
-  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|livecd|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|vaapi|valgrind|vdpau|vim-syntax|vulkan'
+  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|doc|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|livecd|lto|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|passwdqc|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|udev|vaapi|valgrind|vdpau|vim-syntax|vulkan|webkit'
 }
 
 
@@ -17,17 +17,14 @@ function PrintUseFlags() {
 
 
 function ThrowUseFlags() {
-  n=${1?:amount is mandatory}
-  m=5       #  == 20%
+  n=$1  # pass: about 1 of n
+  m=5   # mask: about 20%
 
-  # throw up to n-1
-  shuf -n $(($RANDOM % $n)) | sort |\
+  shuf | sort |\
   while read flag
   do
-    # mask about 1/m
-    if [[ $(($RANDOM % $m)) -eq 0 ]]; then
-      echo -n "-"
-    fi
+    [[ $(($RANDOM % $n)) -eq 0 ]] || continue
+    [[ $(($RANDOM % $m)) -eq 0 ]] && echo -n "-"
     echo -n "$flag "
   done
 }
@@ -61,7 +58,6 @@ function ThrowCflags()  {
 # options can be overwritten by command line parameter
 #
 function SetOptions() {
-  useflags="ThrowUseFlags"
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=""
 
@@ -101,20 +97,24 @@ function SetOptions() {
     fi
   fi
 
-  # sets FEATURES=test eventually
-  #
+  randomuseflags="y"
+  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+    randomuseflags="n"
+  fi
+
   testfeature="n"
   if [[ "$keyword" = "unstable" ]]; then
-    # run at most 1 image
-    #
+    # run at most 1 image with enabled "test" FEATURE
     if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
       if [[ $(($RANDOM % 32)) -eq 0 ]]; then
+        # sets FEATURES=test eventually
         testfeature="y"
       fi
     fi
   fi
 
-  musl="n"  # only explicitly being set
+  # Musl is not yet ready for regular scheduling
+  musl="n"
 }
 
 
@@ -157,11 +157,11 @@ function CheckOptions() {
   if [[ $profile =~ "/musl" || $musl = "y" ]]; then
     musl="y"
 
-    useflags=""
     cflags="-O2 -pipe -march=native"
     keyword="unstable"
     libressl="n"
     multiabi="n"
+    randomuseflags="n"
     testfeature="n"
   fi
 
@@ -169,6 +169,7 @@ function CheckOptions() {
   checkBool "multiabi"
   checkBool "testfeature"
   checkBool "musl"
+  checkBool "randomuseflags"
 }
 
 
@@ -590,6 +591,7 @@ function CreateBacklog()  {
   # this is the last time where depclean is run w/o "-p" (and must succeeded)
   #
   cat << EOF >> $bl.1st
+app-portage/pfl
 %emerge --depclean
 @world
 @system
@@ -696,12 +698,11 @@ source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
-date
-echo "#setup update stage3" | tee /var/tmp/tb/task
-
-emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
-locale-gen -j1
-eselect python update --if-unset
+# date
+# echo "#setup update stage3" | tee /var/tmp/tb/task
+# emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
+# locale-gen -j1
+# eselect python update --if-unset
 
 date
 env-update
@@ -720,18 +721,6 @@ emerge -u mail-client/mailx
 
 # mandatory tools by job.sh
 emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
-
-if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-  echo '=virtual/libcrypt-2*'         >> /etc/portage/package.unmask/30libxcrypt
-  cat <<EOF2                          >> /etc/portage/package.use/30libxcrypt
-sys-libs/glibc      -crypt
-sys-libs/libxcrypt  compat -static-libs system
-virtual/libcrypt    -static-libs
-EOF2
-
-  echo 'sys-libs/glibc     -crypt'    >> /etc/portage/make.profile/package.use.force
-  echo 'sys-libs/libxcrypt -system'   >> /etc/portage/make.profile/package.use.mask
-fi
 
 eselect profile set --force default/linux/amd64/$profile
 
@@ -767,9 +756,7 @@ function RunSetupScript() {
   rc=$?
 
   if [[ $rc -ne 0 ]]; then
-    date
-    echo " setup was NOT successful (rc=$rc) @ $mnt"
-    echo
+    echo -e "$(date)\n setup was NOT successful (rc=$rc) @ $mnt\n"
     tail -v -n 1000 $mnt/var/tmp/tb/setup.sh.log
     echo
     exit 2
@@ -790,17 +777,11 @@ function DryrunHelper() {
                   -e 'One of the following packages is required to complete your request' \
                   $mnt/var/tmp/tb/dryrun.log
     if [[ $? -eq 0 ]]; then
-      echo
-      date
-      echo " dry run was NOT successful due to ^^^"
-      echo
+      echo -e "\n$(date)\n dry run was NOT successful due to ^^^\n"
       return 11
     fi
   else
-    echo
-    date
-    echo " dry run was NOT successful (rc=$rc):"
-    echo
+    echo -e "\n$(date)\n dry run was NOT successful (rc=$rc):\n"
     tail -v -n 200 $mnt/var/tmp/tb/dryrun.log
     echo
   fi
@@ -810,11 +791,11 @@ function DryrunHelper() {
 
 
 function Dryrun() {
-  if [[ "$useflags" = "ThrowUseFlags" ]]; then
-    echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+  echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 
+  if [[ "$randomuseflags" = "y" ]]; then
     attempt=0
-    max_attempts=100
+    max_attempts=30
     while [[ : ]]
     do
       ((attempt=attempt+1))
@@ -827,62 +808,50 @@ function Dryrun() {
       cut -f2 -d'"' -s |\
       sort -u |\
       DropUseFlags |\
-      ThrowUseFlags 80 |\
+      ThrowUseFlags 100 |\
       PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
       grep -Hl 'flag name="' $repo_gentoo/*/*/metadata.xml |\
-      shuf -n $(($RANDOM % 2000)) |\
+      shuf -n $(($RANDOM % 500)) |\
       sort |\
       while read file
       do
         pkg=$(echo $file | cut -f6-7 -d'/')
-        flags=$(
-          grep -h 'flag name="' $file |\
-          cut -f2 -d'"' -s |\
-          DropUseFlags |\
-          ThrowUseFlags 15 |\
-          xargs
-        )
-        if [[ -n "$flags" ]]; then
-          printf "%-50s %s\n" "$pkg" "$flags"
-        fi
+        grep -h 'flag name="' $file |\
+        cut -f2 -d'"' -s |\
+        DropUseFlags |\
+        ThrowUseFlags 10 |\
+        xargs |\
+        xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
       done > $mnt/etc/portage/package.use/24thrown_package_use_flags
 
       grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
       cut -f1 -d' ' -s |\
       DropUseFlags |\
-      ThrowUseFlags 25 |\
+      ThrowUseFlags 10 |\
       PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
 
-      l10n="$(
-        grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc |\
-        cut -f1 -d' ' -s |\
-        shuf -n $(($RANDOM % 10)) |\
-        sort |\
-        xargs
-      )"
-      echo "*/*  L10N: -* $l10n" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
+      grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc |\
+      cut -f1 -d' ' -s |\
+      shuf -n $(($RANDOM % 20)) |\
+      sort |\
+      xargs |\
+      xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
 
       DryrunHelper && break
       echo
 
       if [[ $attempt -ge $max_attempts ]]; then
-        echo
-        date
-        echo " too much attempts, giving up"
-        echo
+        echo -e "\n$(date)\ntoo much attempts, giving up\n"
         exit 2
       fi
 
     done
   else
-    echo $useflags | PrintUseFlags > $mnt/etc/portage/package.use/20given_use_flags
-    DryrunHelper || exit 3
+    DryrunHelper || exit 2
   fi
 
-  echo
-  date
-  echo "  setup OK"
+  echo -e "\n$(date)\n  setup OK"
 }
 
 
@@ -918,7 +887,7 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 SetOptions
 
-while getopts c:f:k:l:m:p:t:u: opt
+while getopts c:f:k:l:m:p:r:t: opt
 do
   case $opt in
     c)  cflags="$OPTARG"
@@ -933,9 +902,9 @@ do
         ;;
     p)  profile="$OPTARG"
         ;;
-    t)  testfeature="$OPTARG"
+    r)  randomuseflags="$OPTARG"
         ;;
-    u)  useflags="$OPTARG"
+    t)  testfeature="$OPTARG"
         ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 1
