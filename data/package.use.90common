@@ -44,3 +44,6 @@ dev-qt/qtwebengine        jumbo-build
 #
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind
 
+# https://bugs.gentoo.org/749591.
+#
+sys-libs/timezone-data    zic-slim
