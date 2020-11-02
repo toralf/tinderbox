@@ -63,11 +63,11 @@ function SetOptions() {
 
   # an "y" yields to ABI_X86: 32 64
   multiabi="n"
-  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     multiabi="y"
   fi
 
-  # throw a new and non-running profile, but nevertheless the last entry would make it eventually
+  # prefer a non-running profile, but if no one was found, the last entry would make it eventually
   #
   while read profile
   do
@@ -84,32 +84,26 @@ function SetOptions() {
   ThrowCflags
   features="xattr cgroup -news -collision-protect"
 
-  # check unstable
-  #
-  keyword="unstable"
-
   # parity OpenSSL : LibreSSL = 1:1
   #
   libressl="n"
-  if [[ "$keyword" = "unstable" ]]; then
-    if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-      libressl="y"
-    fi
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    libressl="y"
   fi
 
+  # run every n-th image with Gentoo default set
   randomuseflags="y"
   if [[ $(($RANDOM % 8)) -eq 0 ]]; then
     randomuseflags="n"
   fi
 
+  # test takes looong time and deps are a PITA
   testfeature="n"
-  if [[ "$keyword" = "unstable" ]]; then
-    # run at most 1 image with enabled "test" FEATURE
-    if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
-      if [[ $(($RANDOM % 32)) -eq 0 ]]; then
-        # sets FEATURES=test eventually
-        testfeature="y"
-      fi
+  # run at most 1 image with enabled "test" FEATURE
+  if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
+    if [[ $(($RANDOM % 32)) -eq 0 ]]; then
+      # sets FEATURES=test eventually
+      testfeature="y"
     fi
   fi
 
@@ -144,21 +138,10 @@ function CheckOptions() {
     exit 1
   fi
 
-  if [[ "$keyword" != "stable" && "$keyword" != "unstable" ]]; then
-    echo " wrong value for \$keyword: >>$keyword<<"
-    exit 1
-  fi
-
-  if [[ "$keyword" = "stable" ]]; then
-    libressl="n"
-    testfeature="n"
-  fi
-
   if [[ $profile =~ "/musl" || $musl = "y" ]]; then
     musl="y"
 
     cflags="-O2 -pipe -march=native"
-    keyword="unstable"
     libressl="n"
     multiabi="n"
     randomuseflags="n"
@@ -177,10 +160,6 @@ function CheckOptions() {
 #
 function ComputeImageName()  {
   name="$(echo $profile | tr '/' '_')-"
-
-  if [[ "$keyword" = "stable" ]]; then
-    name="${name}_stable"
-  fi
 
   if [[ "$libressl" = "y" ]]; then
     name="${name}_libressl"
@@ -393,6 +372,8 @@ FFLAGS="\${FCFLAGS}"
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 $([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"')
 
+ACCEPT_KEYWORDS="~amd64"
+
 # no re-distribution nor any "usage", just QA
 ACCEPT_LICENSE="*"
 
@@ -430,7 +411,7 @@ EOF
 function cpconf() {
   for f in $*
   do
-    # eg.: .../package.unmask.??stable -> package.unmask/??stable
+    # eg.: .../package.unmask.??common -> package.unmask/??common
     read -r a b c <<<$(echo ${f##*/} | tr '.' ' ')
     cp $f ./etc/portage/"$a.$b/$c"
   done
@@ -505,7 +486,6 @@ EOF
   fi
 
   cpconf ~tinderbox/tb/data/package.*.??common
-  cpconf ~tinderbox/tb/data/package.*.??$keyword
 
   if [[ "$libressl" = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.env.??libressl  # *.use.* will be copied after GCC update
@@ -617,19 +597,13 @@ EOF
   #
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
-  if [[ $keyword = "unstable" ]]; then
-    # upgrade GCC asap, and avoid to rebuild the existing one (b/c the old version will be unmerged soon)
-    #
-    #   %...      : bail out if it fails
-    #   =         : do not upgrade the current (slotted) version b/c we remove them immediately afterwards
-    # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of these deps
-    #
-    echo "%emerge -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
-  else
-    # rarely but possible to have a newer GCC version in the tree than the stage3 has
-    #
-    echo "sys-devel/gcc" >> $bl.1st
-  fi
+  # upgrade GCC asap, and avoid to rebuild the existing one (b/c the old version will be unmerged soon)
+  #
+  #   %...      : bail out if it fails
+  #   =         : do not upgrade the current (slotted) version b/c we remove them immediately afterwards
+  # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of these deps
+  #
+  echo "%emerge -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
   if [[ $profile =~ "/systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
@@ -707,10 +681,6 @@ emerge --config sys-libs/timezone-data
 date
 env-update
 source /etc/profile
-
-if [[ $keyword = "unstable" ]]; then
-  echo 'ACCEPT_KEYWORDS="~amd64"' >> /etc/portage/make.conf
-fi
 
 date
 echo "#setup install tools" | tee /var/tmp/tb/task
@@ -839,7 +809,9 @@ function Dryrun() {
       xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
 
       DryrunHelper && break
+
       echo
+      tail -v -n 2000 $mnt/etc/portage/package.use/2?thrown*
 
       if [[ $attempt -ge $max_attempts ]]; then
         echo -e "\n$(date)\ntoo much attempts, giving up\n"
@@ -887,14 +859,12 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 SetOptions
 
-while getopts c:f:k:l:m:p:r:t: opt
+while getopts c:f:l:m:p:r:t: opt
 do
   case $opt in
     c)  cflags="$OPTARG"
         ;;
     f)  features="$OPTARG"
-        ;;
-    k)  keyword="$OPTARG"
         ;;
     l)  libressl="$OPTARG"
         ;;
