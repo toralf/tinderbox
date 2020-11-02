@@ -63,3 +63,7 @@ eant failed
 # (autoconf-2.70_beta) - sys-devel/autoconf-2.69c: new beta version
 732648
 Failed Running aclocal|configure: error: C compiler cannot create executables|configure: error: cannot find install-sh|Failed Running autoconf|configure: error:|./configure:|./config.h: error:|DHAVE_CONFIG_H: command not found
+
+# asciidoctor
+744385
+:in load: cannot load such file -- /usr/lib64/ruby/gems/2.7

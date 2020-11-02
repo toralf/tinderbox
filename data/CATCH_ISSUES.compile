@@ -261,3 +261,4 @@ DISTUTILS_USE_SETUPTOOLS value is probably incorrect
 ragel:
 .*: No such file or directory
 AssertionError: Need at least
+AttributeError:
