@@ -45,9 +45,9 @@ function updateBacklog()  {
   do
     if [[ $target = "upd" ]]; then
       # re-mix them
-      cat $result $bl | sort -u | shuf > $bl.tmp
+      sort -u $result $bl | shuf > $bl.tmp
     elif [[ $target = "1st" ]]; then
-      # shuffle new data after existing entries, sort out dups before
+      # put shuffled new data (sort out dups before) after existing entries
       (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     fi
 
