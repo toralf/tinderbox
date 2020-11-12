@@ -7,43 +7,29 @@
 */*  RUBY_TARGETS: ruby27
 
 # dependency issues at image setup
-#
 app-portage/pfl           -network-cron
 dev-db/sqlite             -icu
-dev-lang/python           -bluetooth
-dev-libs/libxml2          python
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
 
-# currently broken
-#
-*/*                       -audit
-
 # mailer for job.sh
-#
 mail-mta/ssmtp            -gnutls mta ssl
 
 # from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
-#
 sys-apps/nix              -etc_profile
 
 # "readline" is required by pybugz and is xor'ed to libedit
-#
 dev-lang/python           readline
 dev-libs/libpcre*         -libedit
 
 # 2x faster compile
-#
 dev-qt/qtwebengine        jumbo-build
 
 # dev-util/google-perftools blocker in @preserved-rebuild
-#
 */*                       -jmalloc -tcmalloc
 
 # can't/won't be tested at all
-#
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind
 
 # https://bugs.gentoo.org/749591.
-#
 sys-libs/timezone-data    zic-slim

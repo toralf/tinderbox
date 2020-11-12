@@ -1,2 +1,6 @@
 # package.accept_keywords/00common
 #
+
+# request by leio
+~dev-lang/vala-0.50.1             **
+~dev-libs/vala-common-0.50.1      **
