@@ -7,7 +7,7 @@
 # helper of ThrowUseFlags()
 #
 function DropUseFlags()  {
-  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|doc|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|livecd|lto|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|passwdqc|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|udev|vaapi|valgrind|vdpau|video_cards_|vim-syntax|vulkan|webkit|zink'
+  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|doc|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|livecd|lto|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|passwdqc|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|udev|user-session|vaapi|valgrind|vdpau|video_cards_|vim-syntax|vulkan|webkit|zink'
 }
 
 
@@ -91,18 +91,18 @@ function SetOptions() {
     libressl="y"
   fi
 
-  # run every n-th image with Gentoo default set
-  randomuseflags="y"
-  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
-    randomuseflags="n"
+  # check profile default USE flag set
+  defaultuseflags="n"
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+    defaultuseflags="y"
   fi
 
-  # test takes looong time and deps are a PITA
+  # yields to FEATURES=test if set
   testfeature="n"
   # run at most 1 image with enabled "test" FEATURE
   if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
-    if [[ $(($RANDOM % 32)) -eq 0 ]]; then
-      # sets FEATURES=test eventually
+    # test takes looong time and deps are a PITA
+    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       testfeature="y"
     fi
   fi
@@ -144,7 +144,7 @@ function CheckOptions() {
     cflags="-O2 -pipe -march=native"
     libressl="n"
     multiabi="n"
-    randomuseflags="n"
+    defaultuseflags="y"
     testfeature="n"
   fi
 
@@ -152,7 +152,7 @@ function CheckOptions() {
   checkBool "multiabi"
   checkBool "testfeature"
   checkBool "musl"
-  checkBool "randomuseflags"
+  checkBool "defaultuseflags"
 }
 
 
@@ -503,7 +503,7 @@ EOF
     echo "*/*  notest" > ./etc/portage/package.env/12notest
   fi
 
-  echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/90cpuflags
+  echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
   # give FF and TB a chance
   if [[ $(($RANDOM % 8)) -eq 0 ]]; then
@@ -700,9 +700,9 @@ fi
 
 date
 echo "#setup fill backlog" | tee /var/tmp/tb/task
-
 # sort -u is needed if more than one repository is non-empty
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/backlog
+truncate -s 0 /var/tmp/tb/task
 
 # create symlinks to appropriate credential files
 (cd /root && ln -s ../mnt/tb/sdata/.bugzrc)
@@ -729,7 +729,7 @@ function RunSetupScript() {
     echo -e "$(date)\n setup was NOT successful (rc=$rc) @ $mnt\n"
     tail -v -n 1000 $mnt/var/tmp/tb/setup.sh.log
     echo
-    exit 2
+    exit 3 # 3 triggers another dryrun in replace-image.sh
   fi
 
   echo
@@ -763,7 +763,9 @@ function DryrunHelper() {
 function Dryrun() {
   echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 
-  if [[ "$randomuseflags" = "y" ]]; then
+  if [[ "$defaultuseflags" = "y" ]]; then
+    DryrunHelper || exit 2
+  else
     attempt=0
     max_attempts=30
     while [[ : ]]
@@ -774,6 +776,19 @@ function Dryrun() {
       echo
       echo "#setup dryrun $attempt#$max_attempts" > $mnt/var/tmp/tb/task
 
+      grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc |\
+      cut -f1 -d' ' -s |\
+      shuf -n $(($RANDOM % 20)) |\
+      sort |\
+      xargs |\
+      xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
+
+      grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
+      cut -f1 -d' ' -s |\
+      DropUseFlags |\
+      ThrowUseFlags 10 |\
+      PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
+
       grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
       cut -f2 -d'"' -s |\
       sort -u |\
@@ -782,8 +797,7 @@ function Dryrun() {
       PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
       grep -Hl 'flag name="' $repo_gentoo/*/*/metadata.xml |\
-      shuf -n $(($RANDOM % 500)) |\
-      sort |\
+      shuf -n $(($RANDOM % 400)) |\
       while read file
       do
         pkg=$(echo $file | cut -f6-7 -d'/')
@@ -793,20 +807,8 @@ function Dryrun() {
         ThrowUseFlags 10 |\
         xargs |\
         xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
-      done > $mnt/etc/portage/package.use/24thrown_package_use_flags
-
-      grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
-      cut -f1 -d' ' -s |\
-      DropUseFlags |\
-      ThrowUseFlags 10 |\
-      PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
-
-      grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc |\
-      cut -f1 -d' ' -s |\
-      shuf -n $(($RANDOM % 20)) |\
-      sort |\
-      xargs |\
-      xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
+      done |\
+      sort > $mnt/etc/portage/package.use/24thrown_package_use_flags
 
       DryrunHelper && break
 
@@ -819,8 +821,6 @@ function Dryrun() {
       fi
 
     done
-  else
-    DryrunHelper || exit 2
   fi
 
   echo -e "\n$(date)\n  setup OK"
@@ -872,7 +872,7 @@ do
         ;;
     p)  profile="$OPTARG"
         ;;
-    r)  randomuseflags="$OPTARG"
+    r)  defaultuseflags="$OPTARG"
         ;;
     t)  testfeature="$OPTARG"
         ;;
