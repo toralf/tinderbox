@@ -134,7 +134,7 @@ fi
 condition_backlog=13000     # max. entries left in the backlog
 condition_completed=7000    # min. amount of completed emerge operations
 condition_distance=0        # min. distance in hours to the previous image
-condition_runtime=16        # max. age in days for an image
+condition_runtime=21        # max. age in days for an image
 oldimg=""                   # optional: image name to be replaced ("-" to add a new one)
 setupargs=""                # arguments passed thru to setup_img.sh
 
@@ -173,7 +173,7 @@ if [[ -n "$oldimg" && "$oldimg" != "-" ]]; then
   echo
   date
   if [[ -e ~/run/$oldimg ]]; then
-    echo " replace $oldimg ..."
+    echo " finish $oldimg ..."
     StopOldImage
   else
     echo " error, not found: $oldimg ..."
@@ -189,14 +189,10 @@ do
 
   sudo ${0%/*}/setup_img.sh $setupargs
   rc=$?
-  if [[ $rc -eq 0 ]]; then
-    if [[ -e ~/run/$oldimg ]]; then
-      rm -- ~/run/$oldimg ~/logs/$oldimg.log
-    fi
-    Finish 0
-  elif [[ $rc -eq 3 ]]; then
+  if [[ $rc -eq 3 ]]; then
     continue
-  else
-    Finish $rc
+  elif [[ $rc -eq 0 ]]; then
+    [[  -n "$oldimg" && -e ~/run/$oldimg ]] && rm -- ~/run/$oldimg ~/logs/$oldimg.log
   fi
+  Finish $rc
 done
