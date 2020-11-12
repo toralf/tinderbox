@@ -324,8 +324,13 @@ function SetAssigneeAndCc() {
   fi
 
   echo "$assignee" > $issuedir/assignee
+
+  # non-empty eg. at a file collision case
+  if [[ -s $issuedir/cc ]]; then
+    cc="$cc $(cat $issuedir/cc)"
+  fi
   if [[ -n "$cc" ]]; then
-    echo "$cc" > $issuedir/cc
+    echo "$cc" | xargs > $issuedir/cc
   fi
 }
 
@@ -392,9 +397,11 @@ function foundCollisionIssue() {
   grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_stripped | grep -B 15 ' * Package .* NOT' > $issuedir/issue
 
   # get package (name+version) of the colliding package
-  #
   local s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_stripped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
   echo "file collision with $s" > $issuedir/title
+
+  # inform both parties of the collision
+  equery meta -m $s 2>/dev/null | grep '@' | xargs > $issuedir/cc
 }
 
 
@@ -922,10 +929,13 @@ function GotAnIssue()  {
 function BuildKernel()  {
   echo "$FUNCNAME" >> $logfile
   (
+    set -e
     cd /usr/src/linux
     make distclean
     make defconfig
     make -j1
+    make modules_install
+    make install
   ) &>> $logfile
   return $?
 }
@@ -1330,11 +1340,11 @@ fi
 #
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
+  truncate -s 0 $taskfile
 fi
 
 while [[ : ]]
 do
-  echo "#init" > $taskfile
   date > $logfile
 
   # pick up after ourself b/c "auto-clean" in FEATURES is deactivated to collect issue files
@@ -1348,9 +1358,10 @@ do
 
   updateAllRepos
 
-  echo "#task" > $taskfile
+  truncate -s0 $taskfile
   getNextTask
   WorkOnTask
+  truncate -s 0 $taskfile
 
   DetectALoop
 done
