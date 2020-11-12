@@ -18,19 +18,17 @@ function ScanTreeForChanges() {
 
 
 function retestPackages() {
-  echo ${@} | xargs -n 1 | sort -u |\
-  while read line
+  echo ${@} | xargs -n 1 --no-run-if-empty | sort -u |\
+  while read word
   do
-    if [[ -n "$line" && ! $line =~ ^# ]]; then
-      echo "$line" >> $result
-      p=$(qatom "$line" | cut -f1-2 -d' ' -s | grep -F -v '<unset>' | tr ' ' '/')
-      if [[ -n "$p" ]]; then
-        # delete p both from global tinderbox and from image specific portage files
-        sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
-          ~/tb/data/ALREADY_CATCHED                   \
-          ~/run/*/etc/portage/package.mask/self       \
-          ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null
-      fi
+    echo "$word" >> $result
+    p=$(qatom "$word" | cut -f1-2 -d' ' -s | grep -F -v '<unset>' | tr ' ' '/')
+    if [[ -n "$p" ]]; then
+      # delete package both from tinderbox data and from image specific portage files
+      sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
+        ~/tb/data/ALREADY_CATCHED                   \
+        ~/run/*/etc/portage/package.mask/self       \
+        ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null
     fi
   done
 }
@@ -44,10 +42,10 @@ function updateBacklog()  {
   for bl in $(ls ~/run/*/var/tmp/tb/backlog.$target 2>/dev/null)
   do
     if [[ $target = "upd" ]]; then
-      # re-mix them
+      # re-mix data with backlog
       sort -u $result $bl | shuf > $bl.tmp
     elif [[ $target = "1st" ]]; then
-      # put shuffled new data (sort out dups before) after existing entries
+      # put shuffled data (sort out dups before) after current backlog
       (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     fi
 
