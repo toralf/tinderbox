@@ -1,6 +1,7 @@
 #!/bin/bash
 # set -x
 
+
 # setup a new tinderbox image
 
 
@@ -35,7 +36,7 @@ function ThrowUseFlags() {
 function GetProfiles() {
   eselect profile list |\
   awk ' { print $2 } ' |\
-  grep -e "^default/linux/amd64/17\.1" -e "^default/linux/amd64/17\../musl" |\
+  grep -e "^default/linux/amd64/17\.1" |\
   grep -v -e '/x32' -e '/selinux' -e '/uclibc' -e 'musl' |\
   cut -f4- -d'/' -s
 }
@@ -43,19 +44,12 @@ function GetProfiles() {
 
 function ThrowCflags()  {
   # 685160 colon-in-CFLAGS
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    cflags="$cflags -falign-functions=32:25:16"
-  fi
-
-  # 713576 by ago, but much noise (jer, ulm)
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    cflags="$cflags -Wformat -Werror=format-security"
-  fi
+  [[ $(($RANDOM % 2)) -eq 0 ]] && cflags="$cflags -falign-functions=32:25:16"
 }
 
 
 # helper of main()
-# options can be overwritten by command line parameter
+# the variables here are mostly globals
 #
 function SetOptions() {
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
@@ -67,12 +61,14 @@ function SetOptions() {
     multiabi="y"
   fi
 
-  # prefer a non-running profile, but if no one was found, the last entry would make it eventually
-  #
+  # prefer a non-running profile
+  # however if no one passes the break criteria, then the last entry would make it eventually
   while read profile
   do
-    if [[ "$multiabi" = "y" && $profile =~ "/no-multilib" ]]; then
-      continue
+    if [[ "$multiabi" = "y" ]]; then
+      if [[ $profile =~ "/no-multilib" ]]; then
+        continue
+      fi
     fi
 
     local p=$(echo $profile | tr '/' '_')
@@ -84,20 +80,12 @@ function SetOptions() {
   ThrowCflags
   features="xattr cgroup -news -collision-protect"
 
-  # parity OpenSSL : LibreSSL = 1:1
-  #
-  libressl="n"
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    libressl="y"
-  fi
-
-  # check with default USE flag set of the profile
+  # check the default USE flag set of choosen profile
   defaultuseflags="n"
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     defaultuseflags="y"
   fi
 
-  # yields to FEATURES=test if set
   testfeature="n"
   # run at most 1 image with enabled "test" FEATURE
   if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
@@ -108,8 +96,31 @@ function SetOptions() {
     fi
   fi
 
-  # Musl is not yet ready for regular scheduling
+  libressl="n"
+  # parity OpenSSL : LibreSSL = 1:1
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    libressl="y"
+  fi
+
   musl="n"
+  # no random throwing, Musl is not yet ready for regular scheduling
+  if [[ $musl = "y" ]]; then
+    cflags="$cflags_default"
+    defaultuseflags="y"
+    libressl="n"
+    profile="17.0/musl"
+    multiabi="n"
+    testfeature="n"
+  fi
+
+  science="n"
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    science="y"
+  fi
+  if [[ $science = "y" ]]; then
+    musl="n"
+    testfeature="n"
+  fi
 }
 
 
@@ -129,51 +140,34 @@ function checkBool()  {
 # helper of main()
 #
 function CheckOptions() {
+  checkBool "defaultuseflags"
+  checkBool "libressl"
+  checkBool "multiabi"
+  checkBool "musl"
+  checkBool "science"
+  checkBool "testfeature"
+
   if [[ -z "$profile" ]]; then
     echo " profile empty!"
     exit 1
   fi
 
-  if [[ ! -d $repo_gentoo/profiles/default/linux/amd64/$profile ]]; then
+  if [[ ! -d $repodir/gentoo/profiles/default/linux/amd64/$profile ]]; then
     echo " profile unknown: >>$profile<<"
     exit 1
   fi
 
-  if [[ $profile =~ "/musl" || $musl = "y" ]]; then
-    musl="y"
-
-    cflags="-O2 -pipe -march=native"
-    libressl="n"
-    multiabi="n"
-    defaultuseflags="y"
-    testfeature="n"
-  fi
-
-  checkBool "libressl"
-  checkBool "multiabi"
-  checkBool "testfeature"
-  checkBool "musl"
-  checkBool "defaultuseflags"
 }
 
 
 # helper of UnpackStage3()
-#
-function ComputeImageName()  {
+function CreateImageName()  {
+  # profile[-flavour]-day-time
   name="$(echo $profile | tr '/' '_')-"
-
-  if [[ "$libressl" = "y" ]]; then
-    name="${name}_libressl"
-  fi
-
-  if [[ "$multiabi" = "y" ]]; then
-    name="${name}_abi32+64"
-  fi
-
-  if [[ "$testfeature" = "y" ]]; then
-    name="${name}_test"
-  fi
-
+  [[ "$libressl" = "y" ]]     && name="${name}_libressl"
+  [[ "$multiabi" = "y" ]]     && name="${name}_abi32+64"
+  [[ "$science" = "y" ]]      && name="${name}_science"
+  [[ "$testfeature" = "y" ]]  && name="${name}_test"
   name="$(echo $name | sed -e 's/-[_-]/-/g' -e 's/-$//')"
   name="${name}-$(date +%Y%m%d-%H%M%S)"
 }
@@ -271,7 +265,7 @@ function UnpackStage3()  {
   gpg --quiet --verify $f.DIGESTS.asc || exit 1
   echo
 
-  ComputeImageName
+  CreateImageName
   CreateImageDir
 
   date
@@ -284,74 +278,40 @@ function UnpackStage3()  {
 
 # configure image specific repositories (either being bind mounted or local)
 #
+function addRepoConf()  {
+  local reponame=$1
+  local priority=$2
+  local location=${3:-$repodir/$reponame}
+
+  cat << EOF > ./etc/portage/repos.conf/$reponame.conf
+[$reponame]
+location = $location
+priority = $priority
+
+EOF
+}
+
+
 function CompileRepoFiles()  {
   mkdir -p ./etc/portage/repos.conf/
-
-  cat << EOF > ./etc/portage/repos.conf/gentoo.conf
-[gentoo]
-location = $repo_gentoo
-
-EOF
-
-  cat << EOF > ./etc/portage/repos.conf/tinderbox.conf
-[tinderbox]
-location = /mnt/tb/data/portage
-
-EOF
-
-  mkdir -p                  ./$repo_local/{metadata,profiles}
-  echo 'masters = gentoo' > ./$repo_local/metadata/layout.conf
-  echo 'local'            > ./$repo_local/profiles/repo_name
-
-  cat << EOF > ./etc/portage/repos.conf/local.conf
-[local]
-location = $repo_local
-
-EOF
 
   cat << EOF > ./etc/portage/repos.conf/default.conf
 [DEFAULT]
 main-repo = gentoo
 auto-sync = no
 
-[gentoo]
-priority = 10
-
-[tinderbox]
-priority = 90
-
-[local]
-priority = 99
-
 EOF
+  # the "local" repository for this particular image
+  mkdir -p                  ./$repodir/local/{metadata,profiles}
+  echo 'masters = gentoo' > ./$repodir/local/metadata/layout.conf
+  echo 'local'            > ./$repodir/local/profiles/reponame
 
-  if [[ "$libressl" = "y" ]]; then
-    cat << EOF > ./etc/portage/repos.conf/libressl.conf
-[libressl]
-location = $repo_libressl
-
-EOF
-
-  cat << EOF >> ./etc/portage/repos.conf/default.conf
-[libressl]
-priority = 20
-
-EOF
-
-  fi
-
-  if [[ "$musl" = "y" ]]; then
-    cat << EOF > ./etc/portage/repos.conf/musl.conf
-[musl]
-location = $repo_musl
-
-EOF
-  cat << EOF >> ./etc/portage/repos.conf/default.conf
-[musl]
-priority = 30
-
-EOF
-  fi
+  addRepoConf "gentoo" 10
+  [[ "$libressl" = "y" ]] && addRepoConf "libressl" 20
+  [[ "$musl" = "y" ]]     && addRepoConf "musl"     30
+  [[ "$science" = "y" ]]  && addRepoConf "science"  40
+  addRepoConf "tinderbox" 90 /mnt/tb/data/portage
+  addRepoConf "local 99"
 }
 
 
@@ -637,13 +597,10 @@ export GCC_COLORS=""
 date
 echo "#setup rsync" | tee /var/tmp/tb/task
 
-rsync   --archive --cvs-exclude /mnt/repos/gentoo   /var/db/repos/
-if [[ $libressl = "y" ]]; then
-  rsync --archive --cvs-exclude /mnt/repos/libressl /var/db/repos/
-fi
-if [[ $musl = "y" ]]; then
-  rsync --archive --cvs-exclude /mnt/repos/musl     /var/db/repos/
-fi
+                         rsync --archive --cvs-exclude /mnt/repos/gentoo   $repodir/
+[[ $libressl = "y" ]] && rsync --archive --cvs-exclude /mnt/repos/libressl $repodir/
+[[ $musl = "y" ]]     && rsync --archive --cvs-exclude /mnt/repos/musl     $repodir/
+[[ $science = "y" ]]  && rsync --archive --cvs-exclude /mnt/repos/science  $repodir/
 
 date
 echo "#setup configure" | tee /var/tmp/tb/task
@@ -674,7 +631,7 @@ echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
 # date
-# echo "#setup update stage3" | tee /var/tmp/tb/task
+# echo "#setup stage3" | tee /var/tmp/tb/task
 # emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
 # locale-gen -j1
 # eselect python update --if-unset
@@ -684,7 +641,7 @@ env-update
 source /etc/profile
 
 date
-echo "#setup install tools" | tee /var/tmp/tb/task
+echo "#setup tools" | tee /var/tmp/tb/task
 
 # emerge ssmtp before mailx b/c mailx would pull its ebuild default MTA rather than ssmtp
 emerge -u mail-mta/ssmtp
@@ -700,10 +657,10 @@ if [[ $testfeature = "y" ]]; then
 fi
 
 date
-echo "#setup fill backlog" | tee /var/tmp/tb/task
-# sort -u is needed if more than one repository is non-empty
+echo "#setup backlog" | tee /var/tmp/tb/task
+# sort -u is needed if a package is 2 or more repos
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/backlog
-truncate -s 0 /var/tmp/tb/task
+touch /var/tmp/tb/task
 
 # create symlinks to appropriate credential files
 (cd /root && ln -s ../mnt/tb/sdata/.bugzrc)
@@ -777,27 +734,27 @@ function Dryrun() {
       echo
       echo "#setup dryrun $attempt#$max_attempts" > $mnt/var/tmp/tb/task
 
-      grep -v -e '^$' -e '^#' $repo_gentoo/profiles/desc/l10n.desc |\
+      grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
       cut -f1 -d' ' -s |\
       shuf -n $(($RANDOM % 20)) |\
       sort |\
       xargs |\
       xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
 
-      grep -v -e '^$' -e '^#' $repo_gentoo/profiles/use.desc |\
+      grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
       cut -f1 -d' ' -s |\
       DropUseFlags |\
       ThrowUseFlags 10 |\
       PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
 
-      grep -h 'flag name="' $repo_gentoo/*/*/metadata.xml |\
+      grep -h 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
       cut -f2 -d'"' -s |\
       sort -u |\
       DropUseFlags |\
       ThrowUseFlags 100 |\
       PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
-      grep -Hl 'flag name="' $repo_gentoo/*/*/metadata.xml |\
+      grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
       shuf -n $(($RANDOM % 400)) |\
       while read file
       do
@@ -850,17 +807,13 @@ if [[ -n "$1" ]]; then
   echo
 fi
 
-repo_gentoo=/var/db/repos/gentoo
-repo_libressl=/var/db/repos/libressl
-repo_local=/var/db/repos/local
-repo_musl=/var/db/repos/musl
-
+repodir=/var/db/repos
 tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
 
 SetOptions
 
-while getopts c:f:l:m:p:r:t: opt
+while getopts c:f:l:m:p:r:s:t: opt
 do
   case $opt in
     c)  cflags="$OPTARG"
@@ -874,6 +827,8 @@ do
     p)  profile="$OPTARG"
         ;;
     r)  defaultuseflags="$OPTARG"
+        ;;
+    s)  science="y"
         ;;
     t)  testfeature="$OPTARG"
         ;;
@@ -894,10 +849,10 @@ CreateSetupScript
 RunSetupScript
 Dryrun
 
-cd ~tinderbox/run
-ln -s ../$mnt
-
-echo
-su - tinderbox -c "${0%/*}/start_img.sh $name"
+# cd ~tinderbox/run
+# ln -s ../$mnt
+#
+# echo
+# su - tinderbox -c "${0%/*}/start_img.sh $name"
 
 exit 0
