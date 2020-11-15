@@ -91,7 +91,7 @@ function SetOptions() {
     libressl="y"
   fi
 
-  # check profile default USE flag set
+  # check with default USE flag set of the profile
   defaultuseflags="n"
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     defaultuseflags="y"
@@ -104,6 +104,7 @@ function SetOptions() {
     # test takes looong time and deps are a PITA
     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       testfeature="y"
+      defaultuseflags="y"
     fi
   fi
 
