@@ -310,7 +310,7 @@ function SetAssigneeAndCc() {
     assignee="libressl@gentoo.org"
     cc="$m"
 
-  elif [[ ! $repo = "gentoo" ]]; then # usually "libressl" or "musl"
+  elif [[ ! $repo = "gentoo" ]]; then
     assignee="$repo@gentoo.org"
     cc="$m"
 
@@ -324,14 +324,9 @@ function SetAssigneeAndCc() {
   fi
 
   echo "$assignee" > $issuedir/assignee
-
-  # non-empty eg. at a file collision case
-  if [[ -s $issuedir/cc ]]; then
-    cc="$cc $(cat $issuedir/cc)"
-  fi
-  if [[ -n "$cc" ]]; then
-    echo "$cc" | xargs -n 1 | sort -u | xargs > $issuedir/cc
-  fi
+  # the file is pre-filled eg. at a file collision detection
+  [[ -s $issuedir/cc ]] && cc="$cc $(cat $issuedir/cc)"
+  [[ -n "$cc" ]] && echo "$cc" | xargs -n 1 | sort -u | grep -v "^$assignee$" | xargs > $issuedir/cc
 }
 
 
