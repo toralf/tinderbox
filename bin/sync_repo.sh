@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 #set -x
 
 set -uf
@@ -7,24 +6,28 @@ set -uf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
+mailto="tor-relay@zwiebeltoralf.de"
+
+
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
   exit 1
 fi
 
-mailto="tor-relay@zwiebeltoralf.de"
-
 log="/tmp/${0##*/}.log"
 
-date > "$log" || exit 1
+date > $log || exit 1
 eix-sync &>> $log
 rc1=$?
 
-# musl repo is not configured at the tinderbox host so eix-sync can't care for it
-#
-date >> $log
-cd /var/db/repos/musl/ && git pull &>> $log
-rc2=$?
+# these repos are not used at the tinderbox host itself so eix-sync won't sync them
+rc2=0
+for repo in musl sci
+do
+  date >> $log
+  (cd /var/db/repos/$repo && git pull) &>> $log
+  ((rc2=rc2+$?))
+done
 
 if [[ $rc1 -ne 0 || $rc2 -ne 0 || -n "$(grep 'git pull error' $log)" ]]; then
   mail -s "${0##*/}: return codes: eix=$rc1 musl=$rc2" $mailto < $log
