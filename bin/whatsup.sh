@@ -24,11 +24,10 @@ function __is_running() {
 }
 
 
-# ${n} is the minimum length to distinguish image names
-#
 function PrintImageName()  {
+  # ${n} should be the minimum length to distinguish image names
   n=22
-  printf "%-${n}s " $(cut -c-$n <<< ${1##*/})
+  printf "%-${n}s" $(cut -c-$n <<< ${1##*/})
 }
 
 
