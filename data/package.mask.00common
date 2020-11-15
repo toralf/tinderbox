@@ -2,33 +2,26 @@
 #
 
 # turns /etc/resolv.conf into a symlink: https://bugs.gentoo.org/555694
-#
 net-dns/resolvconf-symlink
 
 # calls for trouble b/c it sneaks into PATH
-#
 dev-util/plan9port
 
 # https://bugs.gentoo.org/662396
-#
 sys-fs/static-dev
 
 # compile hang https://bugs.gentoo.org/711098
-#
 dev-scheme/racket
 
 # deprecated
-#
 dev-qt/qtwebkit
 net-libs/webkit-gtk
 
 # outdated, br0ken, breaks revdep-rebuild, needs special kernel config, ...
-#
 */s6
 app-emacs/jde
 net-analyzer/openvas
 net-fs/openafs
-net-libs/zeromq
 sci-libs/linux-gpib
 sys-apps/modutils
 sys-cluster/openmpi
@@ -37,5 +30,4 @@ sys-fs/vhba
 x11-drivers/nvidia-drivers
 
 # flip up/down of 10.0.[01], mask 9.x BTW too
-#
 <sys-devel/llvm-10.0.1
