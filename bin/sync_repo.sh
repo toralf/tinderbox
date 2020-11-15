@@ -22,7 +22,7 @@ rc1=$?
 
 # these repos are not used at the tinderbox host itself so eix-sync won't sync them
 rc2=0
-for repo in musl sci
+for repo in musl science
 do
   date >> $log
   (cd /var/db/repos/$repo && git pull) &>> $log
