@@ -330,7 +330,7 @@ function SetAssigneeAndCc() {
     cc="$cc $(cat $issuedir/cc)"
   fi
   if [[ -n "$cc" ]]; then
-    echo "$cc" | xargs > $issuedir/cc
+    echo "$cc" | xargs -n 1 | sort -u | xargs > $issuedir/cc
   fi
 }
 
