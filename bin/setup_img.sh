@@ -7,7 +7,7 @@
 # helper of ThrowUseFlags()
 #
 function DropUseFlags()  {
-  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|doc|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|libunwind|linguas|livecd|lto|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|passwdqc|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|udev|user-session|vaapi|valgrind|vdpau|video_cards_|vim-syntax|vulkan|webkit|zink'
+  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|doc|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|linguas|livecd|lto|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|passwdqc|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|udev|user-session|vaapi|valgrind|vdpau|video_cards_|vim-syntax|vulkan|webkit|zink'
 }
 
 
