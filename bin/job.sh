@@ -1208,6 +1208,9 @@ function WorkOnTask() {
       fi
     else
       echo "$(date) ok" >> /var/tmp/tb/$task.history
+      if [[ $task = "@world" ]]; then
+        add2backlog "%emerge --depclean || true"
+      fi
     fi
 
     cp $logfile /var/tmp/tb/$task.last.log
@@ -1323,18 +1326,16 @@ export TERM=linux
 export TERMINFO=/etc/terminfo
 
 name=$(cat /var/tmp/tb/name)
-keyword="stable"
-grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf
-if [[ $? -eq 0 ]]; then
-  keyword="unstable"
-fi
+grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
 
 # retry $task if task file is non-empty (eg. after a terminated emerge)
-#
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
   truncate -s 0 $taskfile
 fi
+
+# if we were hard stopped then clean up
+add2backlog "%emaint --fix merges"
 
 while [[ : ]]
 do
