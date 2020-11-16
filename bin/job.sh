@@ -1280,7 +1280,7 @@ function DetectALoop() {
 # Hint: the file "timestamp.git" is created by sync_repo.sh
 #
 function updateAllRepos() {
-  for image_repo in $(ls -d /var/db/repos/* 2>/dev/null)
+  for image_repo in $(ls -d /var/db/repos/* 2>/dev/null | grep -v -e "/local" -e "/tinderbox")
   do
     host_repo=/mnt/repos/$(basename $image_repo)
     if [[ ! -d $host_repo ]]; then
