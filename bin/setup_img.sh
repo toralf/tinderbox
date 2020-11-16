@@ -92,7 +92,6 @@ function SetOptions() {
     # test takes looong time and deps are a PITA
     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       testfeature="y"
-      defaultuseflags="y"
     fi
   fi
 
@@ -100,6 +99,12 @@ function SetOptions() {
   # parity OpenSSL : LibreSSL = 1:1
   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
     libressl="y"
+  fi
+
+  science="n"
+  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+    science="y"
+    testfeature="n"
   fi
 
   musl="n"
@@ -110,15 +115,6 @@ function SetOptions() {
     libressl="n"
     profile="17.0/musl"
     multiabi="n"
-    testfeature="n"
-  fi
-
-  science="n"
-  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    science="y"
-  fi
-  if [[ $science = "y" ]]; then
-    musl="n"
     testfeature="n"
   fi
 }
@@ -304,14 +300,14 @@ EOF
   # the "local" repository for this particular image
   mkdir -p                  ./$repodir/local/{metadata,profiles}
   echo 'masters = gentoo' > ./$repodir/local/metadata/layout.conf
-  echo 'local'            > ./$repodir/local/profiles/reponame
+  echo 'local'            > ./$repodir/local/profiles/repo_name
 
-  addRepoConf "gentoo" 10
-  [[ "$libressl" = "y" ]] && addRepoConf "libressl" 20
-  [[ "$musl" = "y" ]]     && addRepoConf "musl"     30
-  [[ "$science" = "y" ]]  && addRepoConf "science"  40
-  addRepoConf "tinderbox" 90 /mnt/tb/data/portage
-  addRepoConf "local 99"
+  addRepoConf "gentoo" "10"
+  [[ "$libressl" = "y" ]] && addRepoConf "libressl" "20"
+  [[ "$musl" = "y" ]]     && addRepoConf "musl"     "30"
+  [[ "$science" = "y" ]]  && addRepoConf "science"  "40"
+  addRepoConf "tinderbox" "90" "/mnt/tb/data/portage"
+  addRepoConf "local" "99"
 }
 
 
@@ -529,7 +525,7 @@ function CreateBacklog()  {
   # update @world before working on the arbitrarily choosen package list
   # @system is just a fall back for @world failure or if it takes very long
   #
-  # this is the last time where depclean is run w/o "-p" (and must succeeded)
+  # depclean must succeeded here during setup
   #
   cat << EOF >> $bl.1st
 app-portage/pfl
@@ -849,10 +845,10 @@ CreateSetupScript
 RunSetupScript
 Dryrun
 
-# cd ~tinderbox/run
-# ln -s ../$mnt
-#
-# echo
-# su - tinderbox -c "${0%/*}/start_img.sh $name"
+cd ~tinderbox/run
+ln -s ../$mnt
+
+echo
+su - tinderbox -c "${0%/*}/start_img.sh $name"
 
 exit 0
