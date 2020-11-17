@@ -151,9 +151,9 @@ if [[ -d ./files ]]; then
       continue
     fi
 
-    # x-bzip matches both *.bz2 and *.tbz2
-    #
-    echo "$f" | grep -q "bz2$" && ct="application/x-bzip" || ct="text/plain"
+    ct="text/plain"
+    echo "$f" | grep -q "bz2$" && ct="application/x-bzip"
+    echo "$f" | grep -q "xz$"  && ct="application/x-bzip"
     echo "  $f"
     timeout 120 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn $?
   done
