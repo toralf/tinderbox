@@ -529,7 +529,7 @@ function CreateBacklog()  {
   #
   cat << EOF >> $bl.1st
 app-portage/pfl
-%emerge --depclean
+%emerge --depclean --changed-use
 @world
 @system
 EOF
