@@ -1291,7 +1291,6 @@ function updateAllRepos() {
     fi
 
     if [[ ! -f $image_repo/timestamp.git || $(cat $image_repo/timestamp.git) != $(cat $host_repo/timestamp.git) ]]; then
-      echo "#rsync $image_repo" > $taskfile
       # very unlikely but if a git pull at the host is running then wait till it finished
       while [[ -f $host_repo/.git/index.lock ]]
       do
@@ -1350,9 +1349,10 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
+  echo "#rsync repos" > $taskfile
   updateAllRepos
 
-  truncate -s0 $taskfile
+  echo "#get task" > $taskfile
   getNextTask
   WorkOnTask
   truncate -s 0 $taskfile
