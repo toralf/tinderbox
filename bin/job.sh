@@ -311,7 +311,11 @@ function SetAssigneeAndCc() {
     cc="$m"
 
   elif [[ ! $repo = "gentoo" ]]; then
-    assignee="$repo@gentoo.org"
+    if [[ $repo = "science" ]]; then
+      assignee="sci@gentoo.org"
+    else
+      assignee="$repo@gentoo.org"
+    fi
     cc="$m"
 
   elif [[ $name =~ "musl" ]]; then
