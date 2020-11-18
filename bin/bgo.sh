@@ -64,7 +64,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 if [[ -f ./.reported ]]; then
-  echo "already reported - do :    rm $issuedir/.reported"
+  echo "already reported - for a re-run do :    rm $issuedir/.reported"
   exit 3
 fi
 
@@ -163,17 +163,24 @@ if [[ -n "$block" ]]; then
   timeout 120 bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
-# set assignee and cc as the last step to reduce the amount of emails sent out by bugzilla for each change at a bug report
+# set assignee and cc as the last step to reduce the amount of emails sent out by bugzilla
 #
 if [[ $newbug -eq 1 ]]; then
-  assignee="-a $(cat ./assignee)"   # we expect only 1 entry here
-  if [[ -s ./cc ]]; then
-    cc="$(cat ./cc | grep -v -f ./assignee | xargs | sed 's/ / --add-cc /g')"    # grep is need if eg for musl the assignee was overwritten manually
-    if [[ -n "$cc" ]]; then
-      cc="--add-cc $cc"
-    fi
+  add_assignee="-a $(cat ./assignee)"      # we expect 1 entry here
+  cc="$(cat ./cc)"                  # contains 0x0a at least
+  if [[ -n "$cc" ]]; then
+    add_cc="--add-cc $(echo $cc | sed 's/ / --add-cc /g')"
   fi
-  timeout 120 bugz modify $assignee $cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+  timeout 120 bugz modify $add_assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err
+
+  # if a Cc: is invalid then try them independently
+  if [[ $? -ne 0 && -n "$cc" ]]; then
+    timeout 120 bugz modify $add_assignee $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+    for i in $cc
+    do
+      timeout 120 bugz modify --add-cc $i $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+    done
+  fi
 fi
 
 echo
