@@ -167,7 +167,7 @@ fi
 #
 if [[ $newbug -eq 1 ]]; then
   add_assignee="-a $(cat ./assignee)"      # we expect 1 entry here
-  cc="$(cat ./cc)"                  # contains 0x0a at least
+  cc="$(cat ./cc 2>/dev/null)"             # contains 0x0a at least
   if [[ -n "$cc" ]]; then
     add_cc="--add-cc $(echo $cc | sed 's/ / --add-cc /g')"
   fi
