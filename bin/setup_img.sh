@@ -87,9 +87,8 @@ function SetOptions() {
   fi
 
   testfeature="n"
-  # run at most 1 image with enabled "test" FEATURE
+  # run at most 1 image
   if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
-    # test takes looong time and deps are a PITA
     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       testfeature="y"
     fi
@@ -102,9 +101,12 @@ function SetOptions() {
   fi
 
   science="n"
-  if [[ $(($RANDOM % 4)) -eq 0 ]]; then
-    science="y"
-    testfeature="n"
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+    # run at most 1 image
+    if [[ -z "$(ls -d ~tinderbox/run/*science* 2>/dev/null)" ]]; then
+      science="y"
+      testfeature="n"
+    fi
   fi
 
   musl="n"
