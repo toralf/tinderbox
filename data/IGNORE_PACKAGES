@@ -13,25 +13,22 @@ virtual/
 #
 # looong emerge time either itself or due to its deps
 #
-app-editors/atom
 app-office/
 app-officeext/
-app-text/bibus
 dev-haskell/language-python
 dev-lang/ghc
 dev-lang/rust
 dev-libs/aws-sdk-cpp
 dev-libs/rocm
 dev-qt/qtweb
-dev-util/electron
 dev-util/include-what-you-use
 gnome-extra/sushi
 net-libs/nodejs
 oci8
 sci-chemistry/psi
 sci-libs/atlas
-sci-libs/tensorflow
 sci-libs/libint
+sci-libs/tensorflow
 sci-visualization/tensorboard
 sys-cluster/
 sys-devel/byfl
@@ -45,6 +42,4 @@ www-client/google-chrome
 dev-lang/mlton
 sci-mathematics/twelf
 #
-# too much issues in moment
 #
-#dev-haskell/

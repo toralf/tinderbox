@@ -69,3 +69,4 @@ configure: error:
 : No such file or directory
 .* will not be built.
  was not found.
+sed:

@@ -262,3 +262,4 @@ ragel:
 .*: No such file or directory
 AssertionError: Need at least
 AttributeError:
+ValueError:

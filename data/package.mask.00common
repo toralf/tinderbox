@@ -31,3 +31,6 @@ x11-drivers/nvidia-drivers
 
 # flip up/down of 10.0.[01], mask 9.x BTW too
 <sys-devel/llvm-10.0.1
+
+# OOM
+sci-biology/drlfom_bidsdata
