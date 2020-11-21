@@ -383,10 +383,12 @@ EOF
 }
 
 
+# helper of GotAnIssue()
+#
 function CreateIssueDir() {
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(echo $pkg | tr '/' '_')
   mkdir -p $issuedir/files
-  chmod 777 $issuedir # to manually edit title, issue etc.
+  chmod 777 $issuedir # allow to edit title etc. manually
 }
 
 
@@ -773,12 +775,13 @@ EOF
   AddBgoCommandLine
   AttachFilesToBody $issuedir/bugz.* $issuedir/emerge-info.txt $issuedir/task.log* $issuedir/files/*
 
-  # prepend failed package
-  #
-  if [[ "$phase" = "test" ]]; then
-    sed -i -e "s,^,$pkg : [TEST] ," $issuedir/title
-  else
-    sed -i -e "s,^,$pkg : ," $issuedir/title
+  # finalize title
+  sed -i -e "s,^,${pkg} :," $issuedir/title
+  if [[ $phase = "test" ]]; then
+    sed -i -e "s,^,[TEST] ," $issuedir/title
+  fi
+  if [[ $repo != "gentoo" ]]; then
+    sed -i -e "s,^,[$repo overlay] ," $issuedir/title
   fi
   TrimTitle
 
