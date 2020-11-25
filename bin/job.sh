@@ -610,7 +610,7 @@ function SearchForAnAlreadyFiledBug() {
       -e 's,/\.\.\./, ,'          \
       -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
       -e 's,.* : ,,'              \
-      -e 's,[<>&\*\?], ,g'        \
+      -e 's,[<>&\*\?\!], ,g'      \
       -e 's,[\(\)], ,g'           \
       -e 's,  *, ,g'              \
       $issuedir/title > $bsi
