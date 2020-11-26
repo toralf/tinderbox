@@ -776,7 +776,7 @@ EOF
   AttachFilesToBody $issuedir/bugz.* $issuedir/emerge-info.txt $issuedir/task.log* $issuedir/files/*
 
   # finalize title
-  sed -i -e "s,^,${pkg} :," $issuedir/title
+  sed -i -e "s,^,${pkg} : ," $issuedir/title
   if [[ $phase = "test" ]]; then
     sed -i -e "s,^,[TEST] ," $issuedir/title
   fi
