@@ -9,8 +9,8 @@ function ScanTreeForChanges() {
   repo_path=$(portageq get_repo_path / gentoo) || exit 2
   cd $repo_path || exit 2
 
-  # add a delay to let Gentoo mirrors be synced already
-  git diff --diff-filter=ACM --name-status "@{ 2 hour ago }".."@{ 1 hour ago }" 2>/dev/null |\
+  # give mirrors time to sync - 1 hours seems (rarely) too short
+  git diff --diff-filter=ACM --name-status "@{ 3 hour ago }".."@{ 2 hour ago }" 2>/dev/null |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s | cut -f1-2 -d'/' -s | uniq |\
   grep -v -f ~/tb/data/IGNORE_PACKAGES > $result
