@@ -147,7 +147,6 @@ sandbox=(env -i
     --unshare-cgroup
     --unshare-ipc
     --unshare-pid
-    --unshare-user-try
     --unshare-uts
     --hostname "$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
     --chdir /var/tmp/tb
