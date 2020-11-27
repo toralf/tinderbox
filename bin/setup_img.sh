@@ -779,7 +779,7 @@ function DryRunLoops() {
 # main
 #
 #############################################################################
-set -eu
+set -u
 
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
@@ -804,10 +804,14 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 SetOptions
 
-while getopts c:f:l:m:p:r:s:t: opt
+while getopts c:d:f:l:m:p:r:s:t: opt
 do
   case $opt in
     c)  cflags="$OPTARG"
+        ;;
+    d)  mnt="$OPTARG"
+        DryRunLoops
+        exit 0
         ;;
     f)  features="$OPTARG"
         ;;
