@@ -258,7 +258,11 @@ function PackagesPerDay() {
       END {
         $p[$i] += 0;    # set end date nevertheless whether the emerge operations finished or not
         foreach my $i (0..$#p) {
-          (exists $p[$i]) ? printf "%5i", $p[$i] : printf "    -";
+          if ($i < 8 || $i % 7 == 0) {
+            (exists $p[$i]) ? printf "%5i", $p[$i] : printf "    -";
+          } else {
+            (exists $p[$i]) ? printf "%4i", $p[$i] : printf "   -";
+          }
         }
         print "\n";
       }
