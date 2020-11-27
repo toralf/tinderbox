@@ -2,6 +2,8 @@
 # set -x
 
 # global upper limits for tinderboxes, fuzzer et. al.
+# the /run directory and the Cgroup settings are used by various scripts
+# so maybe call this script eg. by a crontab @reboot line
 
 set -euf
 
