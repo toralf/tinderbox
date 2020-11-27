@@ -109,6 +109,11 @@ if [[ -z "$mnt" ]]; then
   exit 4
 fi
 
+if [[ ! -d /run/tinderbox ]]; then
+  echo "missing dir - wasn't cgroup.sh run before ?"
+  exit 5
+fi
+
 # only mkdir is an atomic file system operation in the Linux kernel
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
