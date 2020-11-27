@@ -692,9 +692,8 @@ function RunSetupScript() {
 }
 
 
-# check that the USE flags do not yield to circular or other non-resolvable dependencies
-#
-function DryrunHelper() {
+# the USE flags must do not yield to circular or other non-resolvable dependencies for the very first @world
+function DryRun() {
   nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh
   local rc=$?
 
@@ -716,70 +715,62 @@ function DryrunHelper() {
 }
 
 
-function Dryrun() {
-  echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+function DryRunLoops() {
+  attempt=0
+  max_attempts=30
+  while [[ : ]]
+  do
+    ((attempt=attempt+1))
+    date
+    echo "dryrun $attempt#$max_attempts ==========================================================="
+    echo
+    echo "#setup dryrun $attempt#$max_attempts" > $mnt/var/tmp/tb/task
 
-  if [[ "$defaultuseflags" = "y" ]]; then
-    DryrunHelper || exit 2
-  else
-    attempt=0
-    max_attempts=30
-    while [[ : ]]
+    grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
+    cut -f1 -d' ' -s |\
+    shuf -n $(($RANDOM % 20)) |\
+    sort |\
+    xargs |\
+    xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
+
+    grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
+    cut -f1 -d' ' -s |\
+    DropUseFlags |\
+    ThrowUseFlags 10 |\
+    PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
+
+    grep -h 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
+    cut -f2 -d'"' -s |\
+    sort -u |\
+    DropUseFlags |\
+    ThrowUseFlags 100 |\
+    PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
+
+    grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
+    shuf -n $(($RANDOM % 400)) |\
+    while read file
     do
-      ((attempt=attempt+1))
-      date
-      echo "dryrun $attempt#$max_attempts ==========================================================="
-      echo
-      echo "#setup dryrun $attempt#$max_attempts" > $mnt/var/tmp/tb/task
-
-      grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
-      cut -f1 -d' ' -s |\
-      shuf -n $(($RANDOM % 20)) |\
-      sort |\
-      xargs |\
-      xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
-
-      grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
-      cut -f1 -d' ' -s |\
+      pkg=$(echo $file | cut -f6-7 -d'/')
+      grep -h 'flag name="' $file |\
+      cut -f2 -d'"' -s |\
       DropUseFlags |\
       ThrowUseFlags 10 |\
-      PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
+      xargs |\
+      xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
+    done |\
+    sort > $mnt/etc/portage/package.use/24thrown_package_use_flags
 
-      grep -h 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
-      cut -f2 -d'"' -s |\
-      sort -u |\
-      DropUseFlags |\
-      ThrowUseFlags 100 |\
-      PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
+    DryRun && break
 
-      grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
-      shuf -n $(($RANDOM % 400)) |\
-      while read file
-      do
-        pkg=$(echo $file | cut -f6-7 -d'/')
-        grep -h 'flag name="' $file |\
-        cut -f2 -d'"' -s |\
-        DropUseFlags |\
-        ThrowUseFlags 10 |\
-        xargs |\
-        xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
-      done |\
-      sort > $mnt/etc/portage/package.use/24thrown_package_use_flags
+    echo
+    tail -v -n 2000 $mnt/etc/portage/package.use/2?thrown*
 
-      DryrunHelper && break
+    if [[ $attempt -ge $max_attempts ]]; then
+      echo -e "\n$(date)\ntoo much attempts, giving up\n"
+      exit 2
+    fi
 
-      echo
-      tail -v -n 2000 $mnt/etc/portage/package.use/2?thrown*
-
-      if [[ $attempt -ge $max_attempts ]]; then
-        echo -e "\n$(date)\ntoo much attempts, giving up\n"
-        exit 2
-      fi
-
-    done
-  fi
-
-  echo -e "\n$(date)\n  setup OK"
+  done
 }
 
 
@@ -788,6 +779,8 @@ function Dryrun() {
 # main
 #
 #############################################################################
+set -eu
+
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
@@ -845,8 +838,15 @@ CompileMiscFiles
 CreateBacklog
 CreateSetupScript
 RunSetupScript
-Dryrun
 
+echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+if [[ "$defaultuseflags" = "y" ]]; then
+  DryRun
+else
+  DryRunLoops
+fi
+
+echo -e "\n$(date)\n  setup OK"
 cd ~tinderbox/run
 ln -s ../$mnt
 
