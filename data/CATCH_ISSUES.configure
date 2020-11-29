@@ -63,6 +63,7 @@ Failed to find a unicode locale
 : fatal error:.*No such file or directory
 C compiler cannot create executables
 CMake Error at
+CMake Error:
 Configuring incomplete
 cmake failed
 configure: error:
