@@ -651,7 +651,7 @@ emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
 
 # mandatory tools by job.sh
-emerge -u app-arch/sharutils app-portage/gentoolkit www-client/pybugz
+emerge -u app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz
 
 eselect profile set --force default/linux/amd64/$profile
 
