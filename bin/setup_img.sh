@@ -574,13 +574,18 @@ EOF
 
 
 # - configure locale, timezone etc.
-# - install and configure tools called in job.sh using a basic profile
-#     <package>                   <command/s>
-#     mail-*                      ssmtp, mail
+# - install and configure tools used in job.sh
+#
+#     <package>                   <command>
+#
 #     app-arch/sharutils          uudecode
 #     app-portage/gentoolkit      equery, eshowkw
+#     app-portage/portage-utils   qatom
+#     mail-*/*                    ssmtp, mail
 #     www-client/pybugz           bugz
-# - dry run of @world using the desired profile
+#
+# - switch to the desired profile
+# - fill backlog
 #
 function CreateSetupScript()  {
   cat << EOF > ./var/tmp/tb/setup.sh || exit 1
