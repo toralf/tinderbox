@@ -798,7 +798,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-if [[ -n "$1" ]]; then
+if [[ $# -gt 0 ]]; then
   echo "   $# additional args are given: '${@}'"
   echo
 fi
