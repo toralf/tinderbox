@@ -425,6 +425,9 @@ function foundSandboxIssue() {
 
 
 # helper of ClassifyIssue()
+# consider this crontab entry to save CPU cycles at other images, if a package failed (assuming, that CFLAGS was the culprit)
+#
+# @hourly  f=/tmp/cflagsknown2fail; sort -u ~/run/*/etc/portage/package.env/cflags_default 2>/dev/null | column -t >$f && for i in $(ls -d ~/run/*/etc/portage/package.env/ 2>/dev/null); do cp $f $i; done
 #
 function foundCflagsIssue() {
   grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null
