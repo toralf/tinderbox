@@ -9,6 +9,7 @@
 # dependency issues at image setup
 app-portage/pfl           -network-cron
 dev-db/sqlite             -icu
+net-wireless/bluez        -obex
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
 
