@@ -725,6 +725,8 @@ function DryRunLoops() {
   max_attempts=30
   while [[ : ]]
   do
+    echo
+
     ((attempt=attempt+1))
     date
     echo "dryrun $attempt#$max_attempts ==========================================================="
