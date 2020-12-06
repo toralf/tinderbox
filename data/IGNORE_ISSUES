@@ -1,3 +1,4 @@
+asciidoctor
 but please install the FUSE libraries and headers to build this module
 Cannot build with randomized sbrk. Your options
 Cannot execute 32-bit applications
@@ -13,6 +14,7 @@ error: format not a string literal and no format arguments
 .et https:
 Fetch instructions for
 gcc version .* found, expected gcc
+has no attribute SSL_OP_NO_TLSv1_3
 Incompatible gcc version found
 Incorrect kernel configuration options
 INTERNALERROR

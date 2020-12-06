@@ -1,3 +1,5 @@
+asciidoctor.*cannot load
+gems.*asciidocter.*LoadError
 is not a compiled interface for this version of OCaml
 : multiple definition of.*: first defined here
 .atal error:

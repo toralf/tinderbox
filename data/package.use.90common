@@ -24,7 +24,7 @@ dev-lang/python           readline
 dev-libs/libpcre*         -libedit
 
 # 2x faster compile
-dev-qt/qtwebengine        jumbo-build
+*/*                       jumbo-build
 
 # dev-util/google-perftools blocker in @preserved-rebuild
 */*                       -jmalloc -tcmalloc
