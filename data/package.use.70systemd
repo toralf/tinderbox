@@ -1,6 +1,7 @@
 # package.use/70systemd
 #
 
-dev-lang/python         -bluetooth
-net-wireless/bluez      user-session
-sys-apps/dbus           user-session
+dev-lang/python           -bluetooth
+net-wireless/bluez        user-session
+net-wireless/bluez        -obex
+sys-apps/dbus             user-session

@@ -9,7 +9,6 @@
 # dependency issues at image setup
 app-portage/pfl           -network-cron
 dev-db/sqlite             -icu
-net-wireless/bluez        -obex
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
 
@@ -31,14 +30,3 @@ dev-libs/libpcre*         -libedit
 
 # can't/won't be tested at all
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind
-
-# https://bugs.gentoo.org/749591.
-sys-libs/timezone-data    zic-slim
-
-# py 3.7->3.8 left overs
-dev-python/certifi          PYTHON_TARGETS: python3_7
-dev-python/cffi             PYTHON_TARGETS: python3_7
-dev-python/ply              PYTHON_TARGETS: python3_7
-dev-python/pycparser        PYTHON_TARGETS: python3_7
-dev-python/setuptools       PYTHON_TARGETS: python3_7
-dev-python/setuptools_scm   PYTHON_TARGETS: python3_7
