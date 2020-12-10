@@ -1,0 +1,13 @@
+emerge: there are no ebuilds built with USE flags to satisfy
+emerge: there are no ebuilds to satisfy
+The following REQUIRED_USE flag constraints are unsatisfied:
+!!! One of the following masked packages is required to complete your request:
+!!! All ebuilds that could satisfy ".*" have been masked.
+* Error: The above package list contains packages which cannot be
+* Error: circular dependencies:
+It may be possible to solve this
+* Invalid resume list:
+Dependencies could not be completely resolved due t
+Couldn't find .* to unmerge.
+emerge: There are no sets to satisfy
+!!! Multiple package instances within a single package slot have been pulled

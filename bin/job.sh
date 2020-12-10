@@ -1082,20 +1082,7 @@ function RunAndCheck() {
     return $rc
   fi
 
-  grep -q -e 'emerge: there are no ebuilds built with USE flags to satisfy' \
-          -e 'emerge: there are no ebuilds to satisfy' \
-          -e 'The following REQUIRED_USE flag constraints are unsatisfied:' \
-          -e '!!! One of the following masked packages is required to complete your request:' \
-          -e '!! All ebuilds that could satisfy ".*" have been masked.' \
-          -e '* Error: The above package list contains packages which cannot be' \
-          -e '* Error: circular dependencies:' \
-          -e 'It may be possible to solve this' \
-          -e '* Invalid resume list:' \
-          -e 'Dependencies could not be completely resolved due to' \
-          -e "Couldn't find .* to unmerge." \
-          -e 'emerge: There are no sets to satisfy' \
-          -e '!!! Multiple package instances within a single package slot have been pulled' \
-          $logfile_stripped
+  grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped
   if [[ $? -eq 0 ]]; then
     return $rc
   fi
