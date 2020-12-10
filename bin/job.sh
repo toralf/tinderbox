@@ -876,7 +876,6 @@ function GotAnIssue()  {
   setWorkDir
   CollectIssueFiles
 
-  echo "internal failure: no title guessed from tinderbox logs" > $issuedir/title
   ClassifyIssue
   SearchForBlocker
   SetAssigneeAndCc
