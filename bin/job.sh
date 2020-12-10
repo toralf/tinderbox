@@ -440,35 +440,6 @@ function foundCflagsIssue() {
 }
 
 
-# helper of foundGenericIssue()
-#
-function handleTestPhase() {
-  grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null
-  if [[ $? -ne 0 ]]; then
-    printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
-    try_again=1
-  fi
-
-  # tar returns an error if it can't find at least one directory
-  # therefore feed only existing dirs to it
-  #
-  pushd "$workdir" 1>/dev/null
-  dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
-  if [[ -n "$dirs" ]]; then
-    # the tar here is know to spew things like the obe below so ignore errors
-    # tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
-    tar -cjpf $issuedir/files/tests.tbz2 \
-      --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
-      --exclude='*.o' --exclude="*/symlinktest/*" \
-      --dereference --sparse --one-file-system --warning='no-file-ignored' \
-      $dirs 2>/dev/null
-  fi
-  popd 1>/dev/null
-
-  echo "TESTFAILURE" >> $issuedir/keywords
-}
-
-
 # helper of ClassifyIssue()
 #
 function foundGenericIssue() {
@@ -520,6 +491,35 @@ function foundGenericIssue() {
             -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
             -e 's,target /.*/,target <snip>/,g' \
             $issuedir/title
+}
+
+
+# helper of ClassifyIssue()
+#
+function handleTestPhase() {
+  grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null
+  if [[ $? -ne 0 ]]; then
+    printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+    try_again=1
+  fi
+
+  # tar returns an error if it can't find at least one directory
+  # therefore feed only existing dirs to it
+  #
+  pushd "$workdir" 1>/dev/null
+  dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
+  if [[ -n "$dirs" ]]; then
+    # the tar here is know to spew things like the obe below so ignore errors
+    # tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
+    tar -cjpf $issuedir/files/tests.tbz2 \
+      --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
+      --exclude='*.o' --exclude="*/symlinktest/*" \
+      --dereference --sparse --one-file-system --warning='no-file-ignored' \
+      $dirs 2>/dev/null
+  fi
+  popd 1>/dev/null
+
+  echo "TESTFAILURE" >> $issuedir/keywords
 }
 
 
