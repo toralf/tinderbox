@@ -807,7 +807,7 @@ fi
 
 repodir=/var/db/repos
 tbdistdir=~tinderbox/distfiles
-gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
+gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
 
 SetOptions
 
