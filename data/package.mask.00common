@@ -22,7 +22,7 @@ net-libs/webkit-gtk
 app-emacs/jde
 net-analyzer/openvas
 net-fs/openafs
-sci-libs/linux-gpib
+sci-libs/linux-gpib-modules
 sys-apps/modutils
 sys-cluster/openmpi
 sys-fs/loop-aes
@@ -31,6 +31,4 @@ x11-drivers/nvidia-drivers
 
 # flip up/down of 10.0.[01], mask 9.x BTW too
 <sys-devel/llvm-10.0.1
-
-# OOM
-sci-biology/drlfom_bidsdata
+<sys-devel/llvm-common-10.0.1
