@@ -795,7 +795,7 @@ EOF
 }
 
 
-# helper of GotAnIssue() and CheckQA
+# helper of GotAnIssue()
 #
 function SendoutIssueMail()  {
   if [[ -s $issuedir/title ]]; then
@@ -1063,72 +1063,6 @@ function PostEmerge() {
 }
 
 
-# helper of RunAndCheck()
-#
-function CheckQA() {
-  pushd /var/tmp/tb 1>/dev/null
-
-  # prefer "grep -f <file>" over "grep -e <pattern>"
-  split --lines=1 --suffix-length=2 /mnt/tb/data/CATCH_QA
-
-  find /var/log/portage/elog -name '*.log' |\
-  while read elogfile
-  do
-    pkg=$(cut -f1-2 -d':' -s <<< ${elogfile##*/} | tr ':' '/')
-    pkgname=$(pn2p "$pkg")
-    pkglog=$(ls -1t /var/log/portage/$(echo "$pkg" | tr '/' ':'):????????-??????.log 2>/dev/null | head -n 1)
-
-    # process each QA issue separately (there might be more than 1 in the same elog file)
-    #
-    for x in x??
-    do
-      grep -a -f $x $elogfile > title
-      if [[ -s title ]]; then
-        CreateIssueDir
-        pkglog_stripped=$issuedir/$(basename $pkglog)
-        stripEscapeSequences < $pkglog > $pkglog_stripped
-
-        mv title $issuedir/title
-        grep -a -f $issuedir/title -B 1 -A 5 $elogfile > $issuedir/issue
-        cp $issuedir/issue $issuedir/comment0
-        cp $issuedir/issue $issuedir/body
-
-        # if QA elog contains more than 7 lines (1 before, 5 after) then attach it too
-        if [[ $( wc -l < $elogfile ) -gt 7 ]]; then
-          cp $elogfile $issuedir/files/elog-${elogfile##*/}
-        fi
-
-        AddWhoamiToComment0
-        SearchForBlocker
-        repo=$(portageq metadata / ebuild $pkg repository)
-        SetAssigneeAndCc
-        AddVersionAssigneeAndCC
-        SearchForAnAlreadyFiledBug
-        AddBgoCommandLine
-        collectPortageDir
-        sed -i -e "s,^,$pkg : ," $issuedir/title
-        TrimTitle
-        AttachFilesToBody $issuedir/files/elog*
-        CompressIssueFiles
-        echo "QAglobalscope" >> $issuedir/keywords
-
-        chmod 777     $issuedir/
-        chmod -R a+rw $issuedir/
-        if [[ -z "$similar_bug_no" ]]; then
-          SendoutIssueMail
-        fi
-      fi
-    done
-
-    mv $elogfile $elogfile.checked
-  done
-
-  rm -f x?? title
-
-  popd 1>/dev/null
-}
-
-
 # helper of WorkOnTask()
 # run ($1) and act on result
 #
@@ -1143,10 +1077,6 @@ function RunAndCheck() {
 
   blocker_bug_no=""
   similar_bug_no=""
-
-  if [[ ! $keyword = "stable" ]]; then
-    CheckQA
-  fi
 
   if [[ $rc -eq 0 ]]; then
     return $rc
@@ -1189,10 +1119,10 @@ function RunAndCheck() {
 #
 function WorkOnTask() {
   try_again=0           # 1 usually means to retry task, but eg. with "test-fail-continue"
-  pkg=""                # eg. app-portage/eix-0.33.11
-  pkglog=""             # logfile
+  pkg=""                # eg. "app-portage/eix-0.33.11"
+  pkglog=""             # portage logfile of pkg
   pkglog_stripped=""    # stripped escape sequences and more from it
-  pkgname=""            # eg. app-portage/eix
+  pkgname=""            # eg. "app-portage/eix"
 
   local rc
 
