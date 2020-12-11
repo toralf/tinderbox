@@ -291,9 +291,6 @@ function getPkgVarsFromIssuelog()  {
     Mail "INFO: $FUNCNAME failed to get package log file:  >$pkg<  >$pkgname<  >$task<  >$pkglog<" $logfile_stripped
     return 1
   fi
-
-  # used by check_bgo.sh
-  echo "$repo" > $issuedir/repository
 }
 
 
@@ -869,6 +866,10 @@ function GotAnIssue()  {
 
   getPkgVarsFromIssuelog || return
   CreateIssueDir
+
+  # used by check_bgo.sh
+  echo "$repo" > $issuedir/repository
+
   pkglog_stripped=$issuedir/$(basename $pkglog)
   stripEscapeSequences < $pkglog > $pkglog_stripped
 
