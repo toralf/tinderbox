@@ -477,8 +477,6 @@ EOF
 
 
 function CompileMiscFiles()  {
-  echo $name > ./var/tmp/tb/name
-
   # use local host DNS resolver
   #
   cat << EOF > ./etc/resolv.conf
@@ -590,7 +588,6 @@ EOF
 function CreateSetupScript()  {
   cat << EOF > ./var/tmp/tb/setup.sh || exit 1
 #!/bin/sh
-#
 # set -x
 
 set -eu
@@ -634,7 +631,7 @@ echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
 # date
-# echo "#setup stage3" | tee /var/tmp/tb/task
+# echo "#update stage3" | tee /var/tmp/tb/task
 # emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
 # locale-gen -j1
 # eselect python update --if-unset

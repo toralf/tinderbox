@@ -1221,7 +1221,7 @@ export PY_FORCE_COLOR="0"
 export TERM=linux
 export TERMINFO=/etc/terminfo
 
-name=$(cat /var/tmp/tb/name)
+name=$(cat /etc/conf.d/hostname)
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
 
 # retry $task if task file is non-empty (eg. after a terminated emerge)
