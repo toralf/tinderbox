@@ -882,39 +882,6 @@ function GotAnIssue()  {
 
   CompileIssueMail  # do it before we might return so that the issue could be still sent manually at any time later
 
-  # https://bugs.gentoo.org/596664
-  #
-  grep -q -e "configure: error: XML::Parser perl module is required for intltool" $pkglog_stripped
-  if [[ $? -eq 0 ]]; then
-    try_again=1
-    add2backlog "$task"
-    add2backlog "%emerge -1 dev-perl/XML-Parser"
-    return
-  fi
-
-  # https://bugs.gentoo.org/687226
-  #
-  grep -q -e "MiscXS.c: loadable library and perl binaries are mismatched" $pkglog_stripped
-  if [[ $? -eq 0 ]]; then
-    try_again=1
-    add2backlog "$task"
-    add2backlog "%emerge -1 sys-apps/texinfo"
-    return
-  fi
-
-  grep -q \
-          -e "configure: error: perl module Locale::gettext required" \
-          -e "Can't locate Locale/Messages.pm in @INC"                \
-          $pkglog_stripped
-  if [[ $? -eq 0 ]]; then
-    if [[ $try_again -eq 0 ]]; then
-      try_again=1
-      add2backlog "$task"
-    fi
-    add2backlog "%perl-cleaner --all"
-    return
-  fi
-
   if [[ $try_again -eq 1 ]]; then
     add2backlog "$task"
   else
