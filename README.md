@@ -14,7 +14,7 @@ setup_img.sh
 ```
 The current *stage3* file is downloaded, verified and unpacked, profile, keyword and USE flag are set.
 Mandatory portage config files will be compiled.
-Few required packages (*ssmtp*, *pybugz* etc.) will be installed.
+Few required packages will be installed.
 A backlog is filled up with all available package in a randomized order (*/var/tmp/tb/backlog*).
 A symlink is made into *~/run* and the image is started.
 

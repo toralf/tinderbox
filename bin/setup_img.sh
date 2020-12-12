@@ -573,18 +573,11 @@ EOF
 
 # - configure locale, timezone etc.
 # - install and configure tools used in job.sh
-#
 #     <package>                   <command>
-#
-#     app-arch/sharutils          uudecode
-#     app-portage/gentoolkit      equery, eshowkw
 #     app-portage/portage-utils   qatom
 #     mail-*/*                    ssmtp, mail
-#     www-client/pybugz           bugz
-#
 # - switch to the desired profile
 # - fill backlog
-#
 function CreateSetupScript()  {
   cat << EOF > ./var/tmp/tb/setup.sh || exit 1
 #!/bin/sh
@@ -648,7 +641,7 @@ emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
 
 # mandatory tools by job.sh
-emerge -u app-arch/sharutils app-portage/gentoolkit app-portage/portage-utils www-client/pybugz
+emerge -u app-portage/portage-utils
 
 eselect profile set --force default/linux/amd64/$profile
 
@@ -658,12 +651,11 @@ fi
 
 date
 echo "#setup backlog" | tee /var/tmp/tb/task
-# sort -u is needed if a package is 2 or more repos
+# sort -u is needed if the same package is in 2 or more repos
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/backlog
 touch /var/tmp/tb/task
 
 # create symlinks to appropriate credential files
-(cd /root && ln -s ../mnt/tb/sdata/.bugzrc)
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
 EOF
@@ -672,7 +664,7 @@ EOF
 }
 
 
-# MTA, bugz et. al
+# MTA et. al
 #
 function RunSetupScript() {
   date

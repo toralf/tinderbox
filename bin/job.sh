@@ -31,22 +31,11 @@ function stripEscapeSequences() {
 }
 
 
-# send out a non-MIME-compliant email
-#
 # $1 (mandatory) is the SMTP subject,
-# $2 (optionally) contains either the message or a file (maybe containing MIME encoded parts)
+# $2 (optionally) is either the message or a flat text file
 #
 function Mail() {
   subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
-
-  # the Debian mailx automatically adds a MIME SMTP header line
-  # But uuencode is not MIME-compliant, therefore newer Thunderbird versions shows
-  # any attachment as inline text only :-(
-  #
-  # a workaround is to insert an empty SMTP header line before that SMTP header line to invalidate its special meaning
-  # but do this only if there're uuencoded attachments
-  #
-  [[ -f $2 ]] && grep -q "^begin 644 " $2 && dummy='-a dummy_header_line' || dummy=""
 
   (
     if [[ -f $2 ]]; then
@@ -56,7 +45,7 @@ function Mail() {
     else
       echo "${2:-empty_mail_body}"
     fi
-  ) | timeout 120 mail $dummy -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
+  ) | timeout 120 mail -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
 
   if [[ $? -ne 0 ]]; then
     echo "$(date) mail failed, \$rc=$rc, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
@@ -294,95 +283,6 @@ function getPkgVarsFromIssuelog()  {
 }
 
 
-# set assignee and cc for the b.g.o. record
-#
-function SetAssigneeAndCc() {
-  local assignee
-  local cc
-
-  local m=$(equery meta -m $pkgname 2>/dev/null | grep '@' | xargs)
-
-  if [[ -z "$m" ]]; then
-    assignee="maintainer-needed@gentoo.org"
-    cc=""
-
-  elif [[ "$blocker_bug_no" = "561854" ]]; then
-    assignee="libressl@gentoo.org"
-    cc="$m"
-
-  elif [[ ! $repo = "gentoo" ]]; then
-    if [[ $repo = "science" ]]; then
-      assignee="sci@gentoo.org"
-    else
-      assignee="$repo@gentoo.org"
-    fi
-    cc="$m"
-
-  elif [[ $name =~ "musl" ]]; then
-    assignee="musl@gentoo.org"
-    cc="$m"
-
-  else
-    assignee=$(echo "$m" | cut -f1 -d' ')
-    cc=$(echo "$m" | cut -f2- -d' ' -s)
-  fi
-
-  echo "$assignee" > $issuedir/assignee
-  # the file is pre-filled eg. at a file collision detection
-  [[ -s $issuedir/cc ]] && cc="$cc $(cat $issuedir/cc)"
-  [[ -n "$cc" ]] && echo "$cc" | xargs -n 1 | sort -u | grep -v "^$assignee$" | xargs > $issuedir/cc
-}
-
-
-# add this eg. to #comment0 of an b.g.o. record
-#
-function AddWhoamiToComment0() {
-  cat << EOF >> $issuedir/comment0
-
-  -------------------------------------------------------------------
-
-  This is an $keyword amd64 chroot image at a tinderbox (==build bot)
-  name: $name
-
-  -------------------------------------------------------------------
-
-EOF
-}
-
-
-# attach given files onto the email
-# (should be called after the lines of text)
-#
-function AttachFilesToBody()  {
-  for f in $*
-  do
-    if [[ -f $f ]]; then
-      local s=$( wc -c < $f )
-      if [[ $s -gt 0 && $s -lt 1048576 ]]; then
-        echo >> $issuedir/body
-        uuencode $f ${f##*/} >> $issuedir/body
-        echo >> $issuedir/body
-      fi
-    fi
-  done
-}
-
-
-# query b.g.o. about same/similar bug reports
-#
-function AddVersionAssigneeAndCC() {
-  cat << EOF >> $issuedir/body
-
---
-versions: $(eshowkw --overlays --arch amd64 $pkgname | grep -v -e '^  *|' -e '^-' -e '^Keywords' | awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' | xargs)
-assignee: $(cat $issuedir/assignee)
-cc:       $(cat $issuedir/cc 2>/dev/null)
---
-
-EOF
-}
-
-
 # helper of GotAnIssue()
 #
 function CreateIssueDir() {
@@ -400,9 +300,6 @@ function foundCollisionIssue() {
   # get package (name+version) of the colliding package
   local s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_stripped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
   echo "file collision with $s" > $issuedir/title
-
-  # inform both parties of the collision
-  equery meta -m $s 2>/dev/null | grep '@' | xargs > $issuedir/cc
 }
 
 
@@ -563,185 +460,40 @@ function ClassifyIssue() {
   while [[ $(wc -c < $issuedir/issue) -gt 1024 && $(wc -l < $issuedir/issue) -gt 1 ]]; do
     sed -i -e "1d" $issuedir/issue
   done
-}
 
-
-# test title against known blocker
-# the BLOCKER file contains paragraphs like:
-#
-#   # comment
-#   <bug id>
-#   <pattern string ready for grep -E>
-#
-# if <pattern> is defined more than once then the first makes it
-#
-function SearchForBlocker() {
-  if [[ ! -s $issuedir/title ]]; then
-    return 0
-  fi
-
-  local number=""
-  while read line
-  do
-    if [[ $line =~ ^[0-9].*$ ]]; then
-      number=$line
-      continue
-    fi
-
-    grep -q -E "$line" $issuedir/title
-    if [[ $? -eq 0 ]]; then
-      blocker_bug_no=$number
-      break
-    fi
-  done < <(grep -v -e '^#' -e '^$' /mnt/tb/data/BLOCKER)
-}
-
-
-# enrich email body by b.g.o. findings and links
-#
-function SearchForAnAlreadyFiledBug() {
-  if [[ ! -s $issuedir/title ]]; then
-    return
-  fi
-
-  bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search patterns
-
-  # get away line numbers, certain special terms et al
-  sed -e 's,&<[[:alnum:]].*>,,g'  \
-      -e 's,/\.\.\./, ,'          \
-      -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
-      -e 's,.* : ,,'              \
-      -e 's,[<>&\*\?\!], ,g'      \
-      -e 's,[\(\)], ,g'           \
-      -e 's,  *, ,g'              \
-      $issuedir/title > $bsi
-
-  # for the file collision case: remove the package version from the installed package
-  #
-  grep -q "file collision" $bsi && sed -i -e 's/\-[0-9\-r\.]*$//g' $bsi
-
-  # truncation accordingly to the b.g.o. title length limit, the used number here is heuristic
-  # b/c we don't take the package name length here into account
-  if [[ $(wc -c < $bsi) -gt 90 ]]; then
-    truncate -s 90 $bsi
-  fi
-
-  # search first for the same version, second for category/package name
-  # take the highest bug id and put the summary of the next (newest) 10 bugs into the email body
-  #
-  for i in $pkg $pkgname
-  do
-    similar_bug_no=$(timeout 300 bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" 2>>$issuedir/bugz.err | grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
-    if [[ -n "$similar_bug_no" ]]; then
-      echo "CONFIRMED " >> $issuedir/bgo_result
-      break
-    fi
-
-    for s in FIXED WORKSFORME DUPLICATE
-    do
-      similar_bug_no=$(timeout 300 bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" 2>>$issuedir/bugz.err | sort -u -n -r | head -n 10 | tee -a $issuedir/body | head -n 1 | cut -f1 -d' ')
-      if [[ -n "$similar_bug_no" ]]; then
-        echo "$s " >> $issuedir/bgo_result  # trailing space is intentionally
-        break 2
-      fi
-    done
-  done
-}
-
-
-# compile a command line ready for copy+paste to file a bug
-# and add the top 20 b.g.o. search results too
-#
-function AddBgoCommandLine() {
-  local block=""
-  if [[ -n "$blocker_bug_no" ]]; then
-    block="-b $blocker_bug_no"
-  fi
-
-  if [[ -n "$similar_bug_no" ]]; then
-    cat << EOF >> $issuedir/body
-  https://bugs.gentoo.org/show_bug.cgi?id=$similar_bug_no
-
-  bgo.sh -d ~/img?/$name/$issuedir $block -c 'this seems to be either still an issue or a similarity to the one reported in bug $similar_bug_no'
-EOF
-
-  else
-    # SearchForAnAlreadyFiledBug() was unsuccessful, so look here for the latest open/closed reports
-    # as a hint, whether the bgo.sh command line should be fired up or not
-    #
-    cat << EOF >> $issuedir/body
-
-  bgo.sh -d ~/img?/$name/$issuedir $block
-
-EOF
-
-    echo "" >> $issuedir/body
-
-    h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
-    g='stabilize|Bump| keyword| bump'
-
-    echo "  OPEN:     $h&resolution=---&short_desc=$pkgname" >> $issuedir/body
-    timeout 300 bugz -q --columns 400 search --show-status     $pkgname 2>>$issuedir/bugz.err | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
-
-    echo "" >> $issuedir/body
-
-    echo "  RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname" >> $issuedir/body
-    timeout 300 bugz -q --columns 400 search --status RESOLVED $pkgname 2>>$issuedir/bugz.err | grep -v -i -E "$g" | sort -u -n -r | head -n 20 >> $issuedir/body
-  fi
-
-  # append a newline to make copy+paste from Thunderbird message window more convenient
-  #
-  echo >> $issuedir/body
-}
-
-
-# b.g.o. limits "Summary"
-#
-function TrimTitle()  {
-  truncate -s "<${1:-130}" $issuedir/title
+  # shrink loong path names and :lineno:columno: pattern
+  sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' $issuedir/title
 }
 
 
 # helper of GotAnIssue()
 # creates an email containing convenient links and a command line ready for copy+paste
 #
-function CompileIssueMail() {
+function CompileComment0TitleAndBody() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
-  # shrink loong path names and :lineno:columno: pattern
-  #
-  sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' $issuedir/title
-
   cat $issuedir/issue | stripEscapeSequences > $issuedir/comment0
-
   # cut a too long #comment0
-  #
   while [[ $(wc -c < $issuedir/comment0) -gt 4000 ]]
   do
     sed -i '1d' $issuedir/comment0
   done
 
-  # copy it to the email body before enriching it
-  #
+  # take the upper part of comment0 for the email
   cp $issuedir/comment0 $issuedir/body
-  AddWhoamiToComment0
+  echo -e "\n\n    check_bgo.sh -d ~/img?/$name/$issuedir\n" >> $issuedir/body
 
-  if [[ -n "$block" ]]; then
-    cat <<EOF >> $issuedir/comment0
-  Please see the tracker bug for details.
+  # now enrich comment0
+  cat << EOF >> $issuedir/comment0
 
-EOF
-  fi
+  -------------------------------------------------------------------
 
-  grep -q -e "Can't locate .* in @INC" ${bak}
-  if [[ $? -eq 0 ]]; then
-    cat <<EOF >> $issuedir/comment0
-  Please see https://wiki.gentoo.org/wiki/Project:Perl/Dot-In-INC-Removal#Counter_Balance
+  This is an $keyword amd64 chroot image at a tinderbox (==build bot)
+  name: $name
+
+  -------------------------------------------------------------------
 
 EOF
-  fi
-
-  AddVersionAssigneeAndCC
 
   (
     echo "gcc-config -l:"
@@ -765,18 +517,10 @@ EOF
 
     echo
     echo "emerge -qpvO $pkgname"
-    head -n 1 $issuedir/emerge-qpvO
+    emerge -qpvO $pkgname | head -n 1
   ) >> $issuedir/comment0 2>/dev/null
 
-  if [[ -s $issuedir/title ]]; then
-    TrimTitle 200
-    SearchForAnAlreadyFiledBug
-  fi
-
-  AddBgoCommandLine
-  AttachFilesToBody $issuedir/bugz.* $issuedir/emerge-info.txt $issuedir/task.log* $issuedir/files/*
-
-  # finalize title
+  # prefix title
   sed -i -e "s,^,${pkg} : ," $issuedir/title
   if [[ $phase = "test" ]]; then
     sed -i -e "s,^,[TEST] ," $issuedir/title
@@ -784,25 +528,7 @@ EOF
   if [[ $repo != "gentoo" ]]; then
     sed -i -e "s,^,[$repo overlay] ," $issuedir/title
   fi
-  TrimTitle
-
-  # grant write permissions to all artifacts
-  #
-  chmod    777  $issuedir/{,files}
-  chmod -R a+rw $issuedir/
-}
-
-
-# helper of GotAnIssue()
-#
-function SendoutIssueMail()  {
-  if [[ -s $issuedir/title ]]; then
-    # do not inform about a known issue twice
-    #
-    grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED 2>/dev/null && return
-    cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
-  fi
-  Mail "$(cat $issuedir/bgo_result 2>/dev/null)$(cat $issuedir/title)" $issuedir/body
+  truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary"
 }
 
 
@@ -844,11 +570,9 @@ function add2backlog()  {
 }
 
 
-# collect files and compile an email
-#
+# collect files and compile an SMTP email
 function GotAnIssue()  {
-  grep -q -F '^>>> Installing ' $logfile_stripped
-  if [[ $? -eq 0 ]]; then
+  if grep -q -F '^>>> Installing ' $logfile_stripped; then
     PutDepsIntoWorldFile &>/dev/null
   fi
 
@@ -857,32 +581,24 @@ function GotAnIssue()  {
     Finish 1 "FATAL: $fatal"
   fi
 
-  grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $logfile_stripped
-  if [[ $? -eq 0 ]]; then
+  if grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $logfile_stripped; then
     Finish 1 "KILLED"
   fi
 
   getPkgVarsFromIssuelog || return
   CreateIssueDir
-
-  # used by check_bgo.sh
-  echo "$repo" > $issuedir/repository
-
+  echo "$repo" > $issuedir/repository   # used by check_bgo.sh
   pkglog_stripped=$issuedir/$(basename $pkglog)
   stripEscapeSequences < $pkglog > $pkglog_stripped
-
-  emerge -qpvO $pkgname &> $issuedir/emerge-qpvO
-
   cp $logfile $issuedir
-
   setWorkDir
   CollectIssueFiles
-
   ClassifyIssue
-  SearchForBlocker
-  SetAssigneeAndCc
+  CompileComment0TitleAndBody
 
-  CompileIssueMail  # do it before we might return so that the issue could be still sent manually at any time later
+  # grant write permissions to all artifacts
+  chmod    777  $issuedir/{,files}
+  chmod -R a+rw $issuedir/
 
   if [[ $try_again -eq 1 ]]; then
     add2backlog "$task"
@@ -890,10 +606,12 @@ function GotAnIssue()  {
     echo "=$pkg" >> /etc/portage/package.mask/self
   fi
 
-  grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title
-  if [[ $? -ne 0 ]]; then
-    SendoutIssueMail
+  if grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
+    if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
+      cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
+    fi
   fi
+  Mail "$(cat $issuedir/title)" $issuedir/body
 }
 
 
@@ -1032,19 +750,15 @@ function PostEmerge() {
 
 
 # helper of WorkOnTask()
-# run ($1) and act on result
+# run ($@) and act on result
 #
 function RunAndCheck() {
-  (eval $@) &>> $logfile
+  ( eval $@ ) &>> $logfile
   local rc=$?
 
   logfile_stripped=/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).log
   stripEscapeSequences < $logfile > $logfile_stripped
-
   PostEmerge
-
-  blocker_bug_no=""
-  similar_bug_no=""
 
   if [[ $rc -eq 0 ]]; then
     return $rc

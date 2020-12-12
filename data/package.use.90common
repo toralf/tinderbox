@@ -18,10 +18,6 @@ mail-mta/ssmtp            -gnutls mta ssl
 # from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
 sys-apps/nix              -etc_profile
 
-# "readline" is required by pybugz and is xor'ed to libedit
-dev-lang/python           readline
-dev-libs/libpcre*         -libedit
-
 # 2x faster compile
 */*                       jumbo-build
 
