@@ -518,8 +518,6 @@ function handleTestPhase() {
       $dirs 2>/dev/null
   fi
   popd 1>/dev/null
-
-  echo "TESTFAILURE" >> $issuedir/keywords
 }
 
 

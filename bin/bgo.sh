@@ -110,12 +110,8 @@ else
     timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err || Error $?
   fi
 
-  if [[ -s $issuedir/keywords ]]; then
-    cat $issuedir/keywords |\
-    while read i
-    do
-      timeout 120 bugz modify --set-keywords "$i" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
-    done
+  if grep -q -F '[TEST]' $issuedir/title; then
+    timeout 120 bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
   fi
 fi
 
