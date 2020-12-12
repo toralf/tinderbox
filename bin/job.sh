@@ -475,7 +475,7 @@ function CompileComment0TitleAndBody() {
 
   # take the upper part of comment0 for the email
   cp $issuedir/comment0 $issuedir/body
-  echo -e "\n\n    check_bgo.sh -d ~/img?/$name/$issuedir\n" >> $issuedir/body
+  echo -e "\n\n    check_bgo.sh ~/img?/$name/$issuedir\n" >> $issuedir/body
 
   # now enrich comment0
   cat << EOF >> $issuedir/comment0
