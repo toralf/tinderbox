@@ -590,7 +590,7 @@ function CreateSetupScript()  {
 #!/bin/sh
 # set -x
 
-set -eu
+set -euf
 
 export GCC_COLORS=""
 
