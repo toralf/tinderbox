@@ -165,7 +165,7 @@ function collectPortageDir()  {
 # b.g.o. has a limit of 1 MB
 #
 function CompressIssueFiles()  {
-  for f in $( ls $issuedir/task.log $issuedir/files/* 2>/dev/null )
+  for f in $(ls $issuedir/task.log $issuedir/files/* 2>/dev/null)
   do
     if [[ $(wc -c < $f) -gt 1000000 ]]; then
       bzip2 $f
@@ -277,15 +277,6 @@ function getPkgVarsFromIssuelog()  {
     Mail "INFO: $FUNCNAME failed to get package log file:  >$pkg<  >$pkgname<  >$task<  >$pkglog<" $logfile_stripped
     return 1
   fi
-}
-
-
-# helper of GotAnIssue()
-#
-function CreateIssueDir() {
-  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(echo $pkg | tr '/' '_')
-  mkdir -p $issuedir/files
-  chmod 777 $issuedir # allow to edit title etc. manually
 }
 
 
@@ -580,7 +571,10 @@ function GotAnIssue()  {
   fi
 
   getPkgVarsFromIssuelog || return
-  CreateIssueDir
+
+  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(echo $pkg | tr '/' '_')
+  mkdir -p $issuedir/files
+  chmod 777 $issuedir # allow to edit title etc. manually
   echo "$repo" > $issuedir/repository   # used by check_bgo.sh
   pkglog_stripped=$issuedir/$(basename $pkglog)
   stripEscapeSequences < $pkglog > $pkglog_stripped
@@ -603,8 +597,8 @@ function GotAnIssue()  {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
+      Mail "$(cat $issuedir/title)" $issuedir/body
     fi
-    Mail "$(cat $issuedir/title)" $issuedir/body
   fi
 }
 
@@ -634,14 +628,10 @@ function SwitchGCC() {
 
   if ! gcc-config --list-profiles --nocolor | grep -q "$latest \*$"; then
     current=$(gcc -dumpversion)
-
     gcc-config --nocolor $latest &>> $logfile
     source /etc/profile
-
-    add2backlog "%emerge @preserved-rebuild"      # must not fail
-    add2backlog "%emerge -1 sys-devel/libtool"    # should be rebuild
-
-    # kick off old GCC installation artifacts to force catching related issues/missing links
+    add2backlog "%emerge @preserved-rebuild"                  # must not fail
+    add2backlog "%emerge -1 sys-devel/libtool"                # should be rebuild
     add2backlog "%emerge --unmerge sys-devel/gcc:$current"
   fi
 }
@@ -658,14 +648,11 @@ function PostEmerge() {
   rm -f /etc/portage/._cfg????_make.conf
 
   # if eg. a new glibc was installed then rebuild the locales
-  ls /etc/._cfg????_locale.gen &>/dev/null
-  if [[ $? -eq 0 ]]; then
+  if ls /etc/._cfg????_locale.gen &>/dev/null; then
     locale-gen > /dev/null
     rm /etc/._cfg????_locale.gen
-  else
-    if grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $logfile_stripped; then
-      locale-gen > /dev/null
-    fi
+  elif grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $logfile_stripped; then
+    locale-gen > /dev/null
   fi
 
   # merge the remaining config files automatically and update the runtime environment
@@ -758,7 +745,7 @@ function RunAndCheck() {
   PostEmerge
 
   if [[ $rc -eq 0 ]]; then
-    return $rc
+    return 0
   fi
 
   if grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
@@ -766,6 +753,7 @@ function RunAndCheck() {
   fi
 
   if [[ $rc -lt 128 ]]; then
+    # a packge failed during emerge
     GotAnIssue
   else
     let signal="$rc - 128"
@@ -783,16 +771,13 @@ function RunAndCheck() {
 # this is the heart of the tinderbox
 #
 function WorkOnTask() {
-  try_again=0           # 1 usually means to retry task, but eg. with "test-fail-continue"
+  try_again=0           # "1" means to retry same task with changed USE/FEATURE/CFLAGS, eg. with "test-fail-continue"
   pkg=""                # eg. "app-portage/eix-0.33.11"
+  pkgname=""            # eg. "app-portage/eix"
   pkglog=""             # portage logfile of pkg
   pkglog_stripped=""    # stripped escape sequences and more from it
-  pkgname=""            # eg. "app-portage/eix"
-
-  local rc
 
   # @set
-  #
   if [[ $task =~ ^@ ]]; then
     opts="--deep --backtrack=30"
     if [[ ! $task = "@preserved-rebuild" ]]; then
@@ -801,33 +786,27 @@ function WorkOnTask() {
         opts="$opts --newuse --changed-use --exclude kernel/gentoo-sources"
       fi
     fi
-    RunAndCheck "emerge $task $opts"
-    rc=$?
 
-    if [[ $rc -ne 0 ]]; then
+    if RunAndCheck "emerge $task $opts"; then
+      echo "$(date) ok" >> /var/tmp/tb/$task.history
+      if [[ $task = "@world" ]]; then
+        add2backlog "%emerge --depclean || true"
+      fi
+    else
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
       if [[ $try_again -eq 0 ]]; then
         if [[ -n "$pkg" ]]; then
           add2backlog "%emerge --resume --skip-first"
         fi
       fi
-    else
-      echo "$(date) ok" >> /var/tmp/tb/$task.history
-      if [[ $task = "@world" ]]; then
-        add2backlog "%emerge --depclean || true"
-      fi
     fi
-
     cp $logfile /var/tmp/tb/$task.last.log
 
   # %<command>
-  #
   elif [[ $task =~ ^% ]]; then
     cmd="$(echo "$task" | cut -c2-)"
-    RunAndCheck "$cmd"
-    rc=$?
 
-    if [[ $rc -ne 0 ]]; then
+    if ! RunAndCheck "$cmd"; then
       if [[ $try_again -eq 0 ]]; then
         if [[ $task =~ " --resume" ]]; then
           if [[ -n "$pkg" ]]; then
@@ -844,12 +823,10 @@ function WorkOnTask() {
     fi
 
   # pinned package version
-  #
   elif [[ $task =~ ^= ]]; then
     RunAndCheck "emerge $task"
 
   # anything else
-  #
   else
     RunAndCheck "emerge --update $task"
   fi
