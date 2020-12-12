@@ -600,7 +600,7 @@ function GotAnIssue()  {
     echo "=$pkg" >> /etc/portage/package.mask/self
   fi
 
-  if grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
+  if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
     fi
