@@ -604,8 +604,8 @@ function GotAnIssue()  {
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
     fi
+    Mail "$(cat $issuedir/title)" $issuedir/body
   fi
-  Mail "$(cat $issuedir/title)" $issuedir/body
 }
 
 
