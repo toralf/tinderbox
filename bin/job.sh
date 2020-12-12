@@ -127,7 +127,9 @@ function getNextTask() {
 
     else
       if [[ ! "$backlog" = $backlog1st ]]; then
-        echo "$task" | grep -q -f /mnt/tb/data/IGNORE_PACKAGES && continue
+        if echo "$task" | grep -q -f /mnt/tb/data/IGNORE_PACKAGES; then
+          continue
+        fi
       fi
 
       # skip if $task is masked, keyworded or just an invalid atom
@@ -138,7 +140,9 @@ function getNextTask() {
       #
       installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
-        qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > ' && continue
+        if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
+          continue
+        fi
       fi
 
       # $task is valid
@@ -306,8 +310,7 @@ function foundCollisionIssue() {
 # helper of ClassifyIssue()
 #
 function foundSandboxIssue() {
-  grep -q "=$pkg " /etc/portage/package.env/nosandbox 2>/dev/null
-  if [[ $? -ne 0 ]]; then
+  if ! grep -q "=$pkg " /etc/portage/package.env/nosandbox 2>/dev/null; then
     printf "%-50s %s\n" "<=$pkg" "nosandbox" >> /etc/portage/package.env/nosandbox
     try_again=1
   fi
@@ -327,8 +330,7 @@ function foundSandboxIssue() {
 # @hourly  f=/tmp/cflagsknown2fail; sort -u ~/run/*/etc/portage/package.env/cflags_default 2>/dev/null | column -t >$f && for i in $(ls -d ~/run/*/etc/portage/package.env/ 2>/dev/null); do cp $f $i; done
 #
 function foundCflagsIssue() {
-  grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null
-  if [[ $? -ne 0 ]]; then
+  if ! grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null; then
     printf "%-50s %s\n" "<=$pkg" "cflags_default" >> /etc/portage/package.env/cflags_default
     try_again=1
   fi
@@ -394,8 +396,7 @@ function foundGenericIssue() {
 # helper of ClassifyIssue()
 #
 function handleTestPhase() {
-  grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null
-  if [[ $? -ne 0 ]]; then
+  if ! grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
     printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
   fi
@@ -638,8 +639,7 @@ function BuildKernel()  {
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
 
-  gcc-config --list-profiles --nocolor | grep -q "$latest \*$"
-  if [[ $? -eq 1 ]]; then
+  if ! gcc-config --list-profiles --nocolor | grep -q "$latest \*$"; then
     current=$(gcc -dumpversion)
 
     gcc-config --nocolor $latest &>> $logfile
@@ -670,7 +670,9 @@ function PostEmerge() {
     locale-gen > /dev/null
     rm /etc/._cfg????_locale.gen
   else
-    grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $logfile_stripped && locale-gen > /dev/null
+    if grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $logfile_stripped; then
+      locale-gen > /dev/null
+    fi
   fi
 
   # merge the remaining config files automatically and update the runtime environment
@@ -682,17 +684,17 @@ function PostEmerge() {
 
   # the very last step after an emerge
   #
-  grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $logfile_stripped
-  if [[ $? -eq 0 ]]; then
+  if grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $logfile_stripped; then
     if [[ ! $task =~ "@preserved-rebuild" || $try_again -eq 0 ]]; then
       add2backlog "@preserved-rebuild"
     fi
   fi
 
-  grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $logfile_stripped && add2backlog "%haskell-updater"
+  if grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $logfile_stripped; then
+    add2backlog "%haskell-updater"
+  fi
 
-  grep -q ">>> Installing .* sys-kernel/gentoo-sources" $logfile_stripped
-  if [[ $? -eq 0 ]]; then
+  if grep -q ">>> Installing .* sys-kernel/gentoo-sources" $logfile_stripped; then
     current=$(eselect kernel show 2>/dev/null | grep "gentoo" | cut -f4 -d'/' -s)
     # compile the Gentoo kernel (but only the very first one, ignore any updates)
     if [[ -z "$current" ]]; then
@@ -705,8 +707,12 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q ">>> Installing .* dev-lang/perl-[1-9]" $logfile_stripped && add2backlog "%perl-cleaner --all"
-  grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $logfile_stripped && add2backlog "%SwitchGCC"
+  if grep -q ">>> Installing .* dev-lang/perl-[1-9]" $logfile_stripped; then
+    add2backlog "%perl-cleaner --all"
+  fi
+  if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $logfile_stripped; then
+    add2backlog "%SwitchGCC"
+  fi
 
   # update the image once a day if nothing 1st prio is scheduled
   #
@@ -731,8 +737,7 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $logfile_stripped
-  if [[ $? -eq 0 ]]; then
+  if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $logfile_stripped; then
     current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
     latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
 
@@ -741,8 +746,7 @@ function PostEmerge() {
     fi
   fi
 
-  grep -q ">>> Installing .* dev-lang/python-[1-9]" $logfile_stripped
-  if [[ $? -eq 0 ]]; then
+  if grep -q ">>> Installing .* dev-lang/python-[1-9]" $logfile_stripped; then
     add2backlog "%eselect python cleanup"
     add2backlog "%eselect python update --if-unset"
   fi
@@ -764,8 +768,7 @@ function RunAndCheck() {
     return $rc
   fi
 
-  grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped
-  if [[ $? -eq 0 ]]; then
+  if grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
     return $rc
   fi
 
@@ -837,8 +840,7 @@ function WorkOnTask() {
           if [[ -n "$pkg" ]]; then
             add2backlog "%emerge --resume --skip-first"
           else
-            grep -q ' Invalid resume list:' $logfile_stripped
-            if [[ $? -eq 0 ]]; then
+            if grep -q ' Invalid resume list:' $logfile_stripped; then
               add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
             fi
           fi
@@ -934,7 +936,11 @@ export TERM=linux
 export TERMINFO=/etc/terminfo
 
 name=$(cat /etc/conf.d/hostname)
-grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
+if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
+  keyword="unstable"
+else
+  keyword="stable"
+fi
 
 # retry $task if task file is non-empty (eg. after a terminated emerge)
 if [[ -s $taskfile ]]; then

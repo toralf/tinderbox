@@ -43,15 +43,13 @@ function check_history()  {
   #   = no issues
   #
   if [[ -s $file ]]; then
-    tail -n 1 $file | grep -q " NOT ok"
-    if [[ $? -eq 0 ]]; then
+    if tail -n 1 $file | grep -q " NOT ok"; then
       uc=$(echo $lc | tr '[:lower:]' '[:upper:]')
       flag="${uc}${flag}"
       return
     fi
 
-    tail -n 1 $file | grep -q " ok"
-    if [[ $? -eq 0 ]]; then
+    if tail -n 1 $file | grep -q " ok"; then
       flag=" $flag"
       return
     fi
@@ -115,7 +113,11 @@ function Overall() {
     if [[ -f $i/var/tmp/tb/STOP ]]; then
       flag="${flag}S"
     else
-      grep -q "^STOP" $i/var/tmp/tb/backlog.1st && flag="${flag}s" || flag="$flag "
+      if grep -q "^STOP" $i/var/tmp/tb/backlog.1st; then
+        flag="${flag}s"
+      else
+        flag="$flag "
+      fi
     fi
 
     [[ -f $i/var/tmp/tb/KEEP ]] && flag="${flag}K" || flag="$flag "
