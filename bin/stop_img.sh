@@ -1,10 +1,8 @@
 #!/bin/bash
-#
 # set -x
 
 
 # stop tinderbox chroot image/s
-#
 
 
 function __is_running() {

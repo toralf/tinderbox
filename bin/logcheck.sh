@@ -1,11 +1,9 @@
 #!/bin/bash
-#
 # set -x
 
 export LANG=C.utf8
 
 # check if stdout/err of job.sh was made
-#
 
 mailto="tinderbox@zwiebeltoralf.de"
 

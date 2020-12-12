@@ -57,7 +57,6 @@ function updateBacklog()  {
 
 
 #######################################################################
-#
 export LANG=C.utf8
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then

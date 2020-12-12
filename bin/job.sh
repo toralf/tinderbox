@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 # set -x
 
 
@@ -10,7 +9,6 @@
 
 
 # strip away quotes
-#
 function stripQuotesAndMore() {
   sed -e 's,['\''‘’"`],,g' |\
   sed -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
@@ -18,7 +16,6 @@ function stripQuotesAndMore() {
 
 
 # strip away escape sequences, eg. colours et al.
-#
 function stripEscapeSequences() {
   perl -MTerm::ANSIColor=colorstrip -nle '
     $_ = colorstrip($_);
@@ -33,7 +30,6 @@ function stripEscapeSequences() {
 
 # $1 (mandatory) is the SMTP subject,
 # $2 (optionally) is either the message or a flat text file
-#
 function Mail() {
   subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
 
@@ -54,11 +50,9 @@ function Mail() {
 
 
 # clean up and exit
-#
 # $1: return code
 # $2: email Subject
 # $3: file to be attached
-#
 function Finish()  {
   local rc=$1
   subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
@@ -77,7 +71,6 @@ function Finish()  {
 
 
 # helper of getNextTask()
-#
 function setTaskAndBacklog()  {
   if [[ -s $backlog1st ]]; then
     backlog=$backlog1st
@@ -102,7 +95,6 @@ function setTaskAndBacklog()  {
 
 
 # verify/parse $task accordingly to the needs of the tinderbox
-#
 function getNextTask() {
   while [[ : ]]; do
     setTaskAndBacklog
@@ -133,11 +125,9 @@ function getNextTask() {
       fi
 
       # skip if $task is masked, keyworded or just an invalid atom
-      #
       best_visible=$(portageq best_visible / $task 2>/dev/null) || continue
 
       # skip if $task is installed and would be downgraded
-      #
       installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
         if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
@@ -146,7 +136,6 @@ function getNextTask() {
       fi
 
       # $task is valid
-      #
       break
     fi
   done
@@ -156,14 +145,12 @@ function getNextTask() {
 
 
 # helper of CollectIssueFiles
-#
 function collectPortageDir()  {
   (cd / && tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage)
 }
 
 
 # b.g.o. has a limit of 1 MB
-#
 function CompressIssueFiles()  {
   for f in $(ls $issuedir/task.log $issuedir/files/* 2>/dev/null)
   do
@@ -176,7 +163,6 @@ function CompressIssueFiles()  {
 
 # helper of GotAnIssue()
 # gather together what's needed for the email and b.g.o.
-#
 function CollectIssueFiles() {
   local ehist=/var/tmp/tb/emerge-history.txt
   local cmd="qlop --nocolor --verbose --merge --unmerge"
@@ -184,7 +170,6 @@ function CollectIssueFiles() {
   cat << EOF > $ehist
 # This file contains the emerge history got with:
 # $cmd
-#
 EOF
   ($cmd) &>> $ehist
 
@@ -220,11 +205,9 @@ EOF
     )
 
     # additional cmake files
-    #
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null
 
     # provide the whole temp dir if possible
-    #
     (
       cd "$workdir/../.." &&\
       [[ -d ./temp ]]     &&\
@@ -236,7 +219,6 @@ EOF
     )
 
     # ICE of GCC ?
-    #
     if [[ -f $workdir/gcc-build-logs.tar.bz2 ]]; then
       cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
     fi
@@ -248,7 +230,6 @@ EOF
 
 # helper of GotAnIssue()
 # get failed package and logfile names
-#
 function getPkgVarsFromIssuelog()  {
   pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
   if [[ -z "$pkg" ]]; then # eg. in postinst phase
@@ -264,7 +245,6 @@ function getPkgVarsFromIssuelog()  {
   pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
 
   # double check that the values are ok
-  #
   repo=$(portageq metadata / ebuild $pkg repository)
   repo_path=$(portageq get_repo_path / $repo)
   if [[ ! -d $repo_path/$pkgname ]]; then
@@ -281,7 +261,6 @@ function getPkgVarsFromIssuelog()  {
 
 
 # helper of ClassifyIssue()
-#
 function foundCollisionIssue() {
   grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_stripped | grep -B 15 ' * Package .* NOT' > $issuedir/issue
 
@@ -292,7 +271,6 @@ function foundCollisionIssue() {
 
 
 # helper of ClassifyIssue()
-#
 function foundSandboxIssue() {
   if ! grep -q "=$pkg " /etc/portage/package.env/nosandbox 2>/dev/null; then
     printf "%-50s %s\n" "<=$pkg" "nosandbox" >> /etc/portage/package.env/nosandbox
@@ -310,9 +288,7 @@ function foundSandboxIssue() {
 
 # helper of ClassifyIssue()
 # consider this crontab entry to save CPU cycles at other images, if a package failed (assuming, that CFLAGS was the culprit)
-#
 # @hourly  f=/tmp/cflagsknown2fail; sort -u ~/run/*/etc/portage/package.env/cflags_default 2>/dev/null | column -t >$f && for i in $(ls -d ~/run/*/etc/portage/package.env/ 2>/dev/null); do cp $f $i; done
-#
 function foundCflagsIssue() {
   if ! grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null; then
     printf "%-50s %s\n" "<=$pkg" "cflags_default" >> /etc/portage/package.env/cflags_default
@@ -324,13 +300,11 @@ function foundCflagsIssue() {
 
 
 # helper of ClassifyIssue()
-#
 function foundGenericIssue() {
     pushd /var/tmp/tb 1>/dev/null
 
     # run over manually collected pattern in the order they do appear in the appropriate pattern file
     # as an attempt to get the real issue
-    #
     (
       [[ -n "$phase" ]] && cat /mnt/tb/data/CATCH_ISSUES.$phase
       cat /mnt/tb/data/CATCH_ISSUES
@@ -356,7 +330,6 @@ function foundGenericIssue() {
     popd 1>/dev/null
 
     # strip away hex addresses, line and time numbers and other stuff
-    #
     sed -i  -e 's/0x[0-9a-f]*/<snip>/g'         \
             -e 's/: line [0-9]*:/:line <snip>:/g' \
             -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
@@ -378,7 +351,6 @@ function foundGenericIssue() {
 
 
 # helper of ClassifyIssue()
-#
 function handleTestPhase() {
   if ! grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
     printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
@@ -387,7 +359,6 @@ function handleTestPhase() {
 
   # tar returns an error if it can't find at least one directory
   # therefore feed only existing dirs to it
-  #
   pushd "$workdir" 1>/dev/null
   dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
   if [[ -n "$dirs" ]]; then
@@ -405,7 +376,6 @@ function handleTestPhase() {
 
 # helper of GotAnIssue()
 # get the issue and a descriptive title
-#
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
@@ -441,7 +411,6 @@ function ClassifyIssue() {
   fi
 
   # if the issue file is too big, then delete in each loop the 1st line as long as needed
-  #
   while [[ $(wc -c < $issuedir/issue) -gt 1024 && $(wc -l < $issuedir/issue) -gt 1 ]]; do
     sed -i -e "1d" $issuedir/issue
   done
@@ -453,7 +422,6 @@ function ClassifyIssue() {
 
 # helper of GotAnIssue()
 # creates an email containing convenient links and a command line ready for copy+paste
-#
 function CompileComment0TitleAndBody() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
@@ -520,7 +488,6 @@ EOF
 # helper of GotAnIssue()
 # add successfully emerged packages to world (otherwise we'd need "--deep" unconditionally)
 # https://bugs.gentoo.org/show_bug.cgi?id=563482
-#
 function PutDepsIntoWorldFile() {
   emerge --depclean --pretend --verbose=n 2>/dev/null |\
   grep "^All selected packages: "                     |\
@@ -531,7 +498,6 @@ function PutDepsIntoWorldFile() {
 
 # helper of GotAnIssue()
 # for ABI_X86="32 64" we have two ./work directories in /var/tmp/portage/<category>/<name>
-#
 function setWorkDir() {
   workdir=$(fgrep -m 1 " * Working directory: '" $logfile_stripped | cut -f2 -d"'" -s)
   if [[ ! -d "$workdir" ]]; then
@@ -548,7 +514,6 @@ function setWorkDir() {
 
 function add2backlog()  {
   # no duplicates
-  #
   if [[ ! "$(tail -n 1 $backlog1st)" = "${@}" ]]; then
     echo "${@}" >> $backlog1st
   fi
@@ -604,7 +569,6 @@ function GotAnIssue()  {
 
 
 # helper of PostEmerge()
-#
 function BuildKernel()  {
   echo "$FUNCNAME" >> $logfile
   (
@@ -622,7 +586,6 @@ function BuildKernel()  {
 
 # helper of PostEmerge()
 # switch to latest GCC
-#
 function SwitchGCC() {
   latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
 
@@ -639,10 +602,8 @@ function SwitchGCC() {
 
 # helper of RunAndCheck()
 # it schedules follow-ups from the last emerge operation
-#
 function PostEmerge() {
   # don't change these config files after image setup
-  #
   rm -f /etc/._cfg????_{hosts,resolv.conf}
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
@@ -656,14 +617,12 @@ function PostEmerge() {
   fi
 
   # merge the remaining config files automatically and update the runtime environment
-  #
   etc-update --automode -5 1>/dev/null
   env-update &>/dev/null
 
   source /etc/profile || Finish 2 "can't source /etc/profile"
 
   # the very last step after an emerge
-  #
   if grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $logfile_stripped; then
     if [[ ! $task =~ "@preserved-rebuild" || $try_again -eq 0 ]]; then
       add2backlog "@preserved-rebuild"
@@ -695,7 +654,6 @@ function PostEmerge() {
   fi
 
   # update the image once a day if nothing 1st prio is scheduled
-  #
   if [[ ! -s $backlog1st ]]; then
     local last=""
     if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history ]]; then
@@ -735,7 +693,6 @@ function PostEmerge() {
 
 # helper of WorkOnTask()
 # run ($@) and act on result
-#
 function RunAndCheck() {
   ( eval $@ ) &>> $logfile
   local rc=$?
@@ -769,7 +726,6 @@ function RunAndCheck() {
 
 
 # this is the heart of the tinderbox
-#
 function WorkOnTask() {
   try_again=0           # "1" means to retry same task with changed USE/FEATURE/CFLAGS, eg. with "test-fail-continue"
   pkg=""                # eg. "app-portage/eix-0.33.11"
@@ -834,7 +790,6 @@ function WorkOnTask() {
 
 
 # heuristic:
-#
 function DetectALoop() {
   x=7
   if [[ $name =~ "test" ]]; then
@@ -862,7 +817,6 @@ function DetectALoop() {
 
 # sync all repositories with the one(s) at the host system
 # Hint: the file "timestamp.git" is created by sync_repo.sh
-#
 function updateAllRepos() {
   for image_repo in $(ls -d /var/db/repos/* 2>/dev/null | grep -v -e "/local" -e "/tinderbox")
   do
@@ -901,7 +855,6 @@ export PYTEST_ADDOPTS="--color=no"
 export PY_FORCE_COLOR="0"
 
 # https://bugs.gentoo.org/683118
-#
 export TERM=linux
 export TERMINFO=/etc/terminfo
 
@@ -926,7 +879,6 @@ do
   date > $logfile
 
   # pick up after ourself b/c "auto-clean" in FEATURES is deactivated to collect issue files
-  #
   rm -rf /var/tmp/portage/*
 
   if [[ -f /var/tmp/tb/STOP ]]; then

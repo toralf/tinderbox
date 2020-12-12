@@ -1,10 +1,8 @@
 #!/bin/bash
-#
 # set -x
 
 
 # start tinderbox chroot image/s
-#
 
 
 function __is_running() {
@@ -56,10 +54,8 @@ do
   echo " starting: $mnt"
 
   # nice makes reading of sysstat numbers easier
-  #
   nice -n 1 sudo /opt/tb/bin/bwrap.sh -m "$mnt" -s "/opt/tb/bin/job.sh" &> ~/logs/${mnt##*/}.log &
 done
 
 # avoid an invisible prompt
-#
 echo

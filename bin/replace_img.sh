@@ -1,9 +1,7 @@
 #!/bin/bash
-#
 # set -x
 
 # replace an older tinderbox image with a newer one
-#
 
 
 function Finish() {
@@ -61,7 +59,6 @@ function list_images() {
 
 
 # look for an image satisfying the conditions
-#
 function LookForAnOldEnoughImage()  {
   local current_time=$(date +%s)
   local distance
@@ -120,8 +117,6 @@ EOF
 
 
 #######################################################################
-#
-#
 set -u
 
 export LANG=C.utf8
@@ -152,7 +147,6 @@ do
 done
 
 # do not run this script in parallel
-#
 lck="/tmp/${0##*/}.lck"
 if [[ -s "$lck" ]]; then
   kill -0 $(cat $lck) 2>/dev/null

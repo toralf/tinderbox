@@ -1,9 +1,7 @@
 #!/bin/bash
-#
 # set -x
 
 # create or modify a bug report at http://bugzilla.gentoo.org
-#
 
 function Warn() {
   rc=$1
@@ -26,7 +24,6 @@ function Error() {
 
 
 #######################################################################
-#
 
 export LANG=C.utf8
 
@@ -69,12 +66,10 @@ if [[ -f ./.reported ]]; then
 fi
 
 # cleanup of a previous run
-#
 rm -f bgo.sh.{out,err}
 
 if [[ -n "$id" ]]; then
   # modify an existing bug report
-  #
   if [[ -z "$comment" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
@@ -82,7 +77,6 @@ if [[ -n "$id" ]]; then
 
 else
   # create a new bug report
-  #
   timeout 120 bugz post \
     --product "Gentoo Linux"          \
     --component "Current packages"    \
@@ -116,7 +110,6 @@ else
 fi
 
 # avoid duplicate reports
-#
 touch ./.reported
 
 echo
@@ -141,7 +134,6 @@ if [[ -d ./files ]]; then
     fi
 
     # max. size from b.g.o. is 1000 KB
-    #
     if [[ $bytes -gt 1000000 ]]; then
       echo "skipped too fat file: $f"
       continue
@@ -160,7 +152,6 @@ if [[ -n "$block" ]]; then
 fi
 
 # set assignee and cc as the last step to reduce the amount of emails sent out by bugzilla
-#
 if [[ $newbug -eq 1 ]]; then
   add_assignee="-a $(cat ./assignee)"      # we expect 1 entry here
   cc="$(cat ./cc 2>/dev/null)"             # contains 0x0a at least

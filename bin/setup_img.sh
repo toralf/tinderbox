@@ -6,7 +6,6 @@
 
 
 # helper of ThrowUseFlags()
-#
 function DropUseFlags()  {
   egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|doc|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|linguas|livecd|lto|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|passwdqc|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|udev|user-session|vaapi|valgrind|vdpau|video_cards_|vim-syntax|vulkan|webkit|zink'
 }
@@ -32,7 +31,6 @@ function ThrowUseFlags() {
 
 
 # helper of SetOptions()
-#
 function GetProfiles() {
   eselect profile list |\
   awk ' { print $2 } ' |\
@@ -50,7 +48,6 @@ function ThrowCflags()  {
 
 # helper of main()
 # the variables here are mostly globals
-#
 function SetOptions() {
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=""
@@ -123,7 +120,6 @@ function SetOptions() {
 
 
 # helper of CheckOptions()
-#
 function checkBool()  {
   var=$1
   val=$(eval echo \$${var})
@@ -136,7 +132,6 @@ function checkBool()  {
 
 
 # helper of main()
-#
 function CheckOptions() {
   checkBool "defaultuseflags"
   checkBool "libressl"
@@ -172,7 +167,6 @@ function CreateImageName()  {
 
 
 # helper of UnpackStage3()
-#
 function CreateImageDir() {
   local l=$(readlink ~tinderbox/img)
   if [[ ! -d ~tinderbox/"$l" ]]; then
@@ -185,7 +179,6 @@ function CreateImageDir() {
   mkdir $name || exit 1
 
   # relative path (eg ./img1) from ~tinderbox
-  #
   mnt=$l/$name
 
   echo " new image: $mnt"
@@ -194,7 +187,6 @@ function CreateImageDir() {
 
 
 # download, verify and unpack the stage3 file
-#
 function UnpackStage3()  {
   latest="$tbdistdir/latest-stage3.txt"
 
@@ -275,7 +267,6 @@ function UnpackStage3()  {
 
 
 # configure image specific repositories (either being bind mounted or local)
-#
 function addRepoConf()  {
   local reponame=$1
   local priority=$2
@@ -314,7 +305,6 @@ EOF
 
 
 # compile make.conf
-#
 function CompileMakeConf()  {
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
@@ -366,7 +356,6 @@ EOF
 
 
 # helper of CompilePortageFiles()
-#
 function cpconf() {
   for f in $*
   do
@@ -378,7 +367,6 @@ function cpconf() {
 
 
 # create portage + tinderbox directories + files and symlinks
-#
 function CompilePortageFiles()  {
   mkdir -p ./mnt/{repos,tb/data,tb/sdata} ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
 
@@ -403,11 +391,9 @@ function CompilePortageFiles()  {
   echo 'FEATURES="-test"'                         > ./etc/portage/env/notest
 
   # to preserve the same dep tree: re-try a failed package with "test" again but ignore now the test results
-  #
   echo 'FEATURES="test-fail-continue"'            > ./etc/portage/env/test-fail-continue
 
   # re-try w/o sandbox'ing
-  #
   echo 'FEATURES="-sandbox -usersandbox"'         > ./etc/portage/env/nosandbox
 
   # save CPU cycles with a cron job like:
@@ -422,7 +408,6 @@ FFLAGS="\${CFLAGS}"
 EOF
 
   # no parallel build, prefer 1 thread in N running images over up to N running threads in 1 image
-  #
   cat << EOF                                      > ./etc/portage/env/noconcurrent
 EGO_BUILD_FLAGS="-p 1"
 GO19CONCURRENTCOMPILATION=0
@@ -458,7 +443,6 @@ EOF
     cpconf ~tinderbox/tb/data/package.*.*test
   else
     # overrule any IUSE=+test
-    #
     echo "*/*  notest" > ./etc/portage/package.env/12notest
   fi
 
@@ -478,7 +462,6 @@ EOF
 
 function CompileMiscFiles()  {
   # use local host DNS resolver
-  #
   cat << EOF > ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
@@ -493,7 +476,6 @@ EOF
 EOF
 
   # avoid interactive question in vim
-  #
   cat << EOF > ./root/.vimrc
 set softtabstop=2
 set shiftwidth=2
@@ -508,7 +490,6 @@ EOF
 # /var/tmp/tb/backlog.upd : update_backlog.sh writes to it
 # /var/tmp/tb/backlog     : filled by setup_img.sh
 # /var/tmp/tb/backlog.1st : filled by setup_img.sh, job.sh and retest.sh write to it
-#
 function CreateBacklog()  {
   bl=./var/tmp/tb/backlog
 
@@ -517,16 +498,13 @@ function CreateBacklog()  {
   chown tinderbox:portage $bl{,.1st,.upd}
 
   # requested by Whissi, this is an alternative mysql engine
-  #
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
   # update @world before working on the arbitrarily choosen package list
   # @system is just a fall back for @world failure or if it takes very long
-  #
   # depclean must succeeded here during setup
-  #
   cat << EOF >> $bl.1st
 app-portage/pfl
 %emerge --depclean --changed-use
@@ -535,10 +513,8 @@ app-portage/pfl
 EOF
 
   # switch to LibreSSL
-  #
   if [[ "$libressl" = "y" ]]; then
     # --unmerge already schedules @preserved-rebuild but the final @preserved-rebuild should not fail, therefore "% ..."
-    #
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
 %emerge --unmerge dev-libs/openssl
@@ -551,15 +527,12 @@ EOF
   fi
 
   # at least systemd and virtualbox need (even more compiled?) kernel sources and would fail in @preserved-rebuild otherwise
-  #
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
   # upgrade GCC asap, and avoid to rebuild the existing one (b/c the old version will be unmerged soon)
-  #
   #   %...      : bail out if it fails
   #   =         : do not upgrade the current (slotted) version b/c we remove them immediately afterwards
   # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of these deps
-  #
   echo "%emerge -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
   if [[ $profile =~ "/systemd" ]]; then
@@ -604,7 +577,6 @@ useradd -u $(id -u tinderbox) tinderbox
 if [[ ! $musl = "y" ]]; then
   cat << EOF2 >> /etc/locale.gen
 # by \$0 at \$(date)
-#
 en_US ISO-8859-1
 en_US.UTF-8 UTF-8
 de_DE ISO-8859-1
@@ -665,7 +637,6 @@ EOF
 
 
 # MTA et. al
-#
 function RunSetupScript() {
   date
   echo " run setup script ..."
@@ -774,7 +745,6 @@ function DryRunLoops() {
 #
 # main
 #
-#############################################################################
 set -u
 
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"

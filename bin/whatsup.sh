@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 # set -x
 
 # print tinderbox statistics
@@ -36,12 +35,10 @@ function check_history()  {
   lc=$2
 
   # eg. for @system:
-  #
   # X = @x failed at all to start
   # x = @x failed due to a package issue
   # . = never run before
   #   = no issues
-  #
   if [[ -s $file ]]; then
     if tail -n 1 $file | grep -q " NOT ok"; then
       uc=$(echo $lc | tr '[:lower:]' '[:upper:]')
@@ -64,7 +61,6 @@ function check_history()  {
 
 
 # whatsup.sh -o
-#
 # compl fail days backlog  upd  1st status  8#8 locked
 #   764   31  1.8   18847  153    0    l K  run/17.0_musl-20200311-204810
 #  3415   92  3.1   15925  114    0    ls   run/17.1-libressl-20200310-153510
@@ -92,7 +88,6 @@ function Overall() {
 
     # count emerge failures based on distinct package name+version+release
     # example of an issue directory name: 20200313-044024-net-analyzer_iptraf-ng-1.1.4-r3
-    #
     fail=0
     if [[ -d $i/var/tmp/tb/issues ]]; then
       fail=$(ls -1 $i/var/tmp/tb/issues | while read i; do echo ${i##/*}; done | cut -f3- -d'-' -s | sort -u | wc -w)
@@ -125,13 +120,11 @@ function Overall() {
     # show result of last run of @system, @world and @preserved-rebuild respectively
     # upper case: an error occurred, lower case: a warning occurred
     # a "." means was not run yet and a space, that it was fully ok
-    #
     check_history $i/var/tmp/tb/@world.history              w
     check_history $i/var/tmp/tb/@system.history             s
     check_history $i/var/tmp/tb/@preserved-rebuild.history  p
 
     # images during setup are not already symlinked to ~/run, print so that the position of / is fixed
-    #
     b=${i##*/}
     if [[ -e ~/run/$b ]]; then
       d="run"
@@ -146,11 +139,9 @@ function Overall() {
 
 
 # whatsup.sh -t
-#
 # 13.0-abi32+64_20170216-202818              1:53 m  mail-filter/assp
 # desktop_20170218-203252                    1:11 h  games-emulation/sdlmame
 # desktop-libressl-abi32+64_20170215-18565   0:03 m  dev-ruby/stringex
-#
 function Tasks()  {
   ts=$(date +%s)
   for i in $images
@@ -189,11 +180,9 @@ function Tasks()  {
 
 
 # whatsup.sh -l
-#
 # 13.0-abi32+64_20170216-202818              0:13 m  >>> (5 of 8) dev-perl/Email-MessageID-1.406.0
 # desktop_20170218-203252                    1:10 h  >>> (1 of 1) games-emulation/sdlmame-0.174
 # desktop-libressl-abi32+64_20170215-18565   0:32 m  *** dev-ruby/stringex
-#
 function LastEmergeOperation()  {
   for i in $images
   do
@@ -204,7 +193,6 @@ function LastEmergeOperation()  {
     fi
 
     # catch the last *started* emerge operation
-    #
     tac $i/var/log/emerge.log 2>/dev/null |\
     grep -m 1 -E -e ' >>>| \*\*\* emerge' -e ' \*\*\* terminating.' -e ' ::: completed emerge' |\
     sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
@@ -232,11 +220,9 @@ function LastEmergeOperation()  {
 
 
 # whatsup.sh -p
-#
 # gnome-systemd_20170301-222559     793 1092  696  315
 # plasma-abi32+64_20170216-195507   454 1002  839  672 1111  864 691. 719 665 469 521 487 460 403. 453
 # plasma-abi32+64_20170228-094845   627  462 1111  718  546  182
-#
 function PackagesPerDay() {
   for i in $images
   do
@@ -274,9 +260,7 @@ function PackagesPerDay() {
 
 
 # whatsup.sh -c
-#
 # 1x: 4800   2x: 2199   3x: 1037   4x: 765   5x: 562   6x: 525   7x: 537   8x: 125
-#
 function CountPackages()  {
   for i in $images
   do
@@ -316,7 +300,6 @@ function CountPackages()  {
 
 
 #######################################################################
-#
 set -u
 export LANG=C.utf8
 unset LC_TIME

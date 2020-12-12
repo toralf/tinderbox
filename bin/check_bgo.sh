@@ -54,13 +54,10 @@ function SearchForMatchingBugs() {
 
 # test title against known blocker
 # the BLOCKER file contains paragraphs like:
-#
 #   # comment
 #   <bug id>
 #   <pattern string ready for grep -E>
-#
 # if <pattern> is defined more than once then the first makes it
-#
 function LookupForABlocker() {
   if [[ ! -s $issuedir/title ]]; then
     return 1
@@ -135,7 +132,6 @@ function SetAssigneeAndCc() {
 
 
 #######################################################################
-#
 export LANG=C.utf8
 set -euf
 
