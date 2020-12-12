@@ -246,13 +246,6 @@ EOF
 }
 
 
-# strip away the version (get $PN from $P)
-#
-function pn2p() {
-  qatom --quiet "$1" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/'
-}
-
-
 # helper of GotAnIssue()
 # get failed package and logfile names
 #
@@ -268,7 +261,7 @@ function getPkgVarsFromIssuelog()  {
     fi
   fi
 
-  pkgname=$(pn2p "$pkg")
+  pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
 
   # double check that the values are ok
   #
