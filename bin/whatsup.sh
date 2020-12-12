@@ -76,8 +76,8 @@ function Overall() {
     day=0
     f=$i/var/tmp/tb/setup.sh
     if [[ -f $f ]]; then
-      let "age = $(date +%s) - $(stat -c%Y $f)"
-      day=$( echo "scale=1; $age / 86400.0" | bc )
+      let "age = $(date +%s) - $(stat -c%Y $f)" || true
+      day=$(echo "scale=1; $age / 86400.0" | bc)
     fi
 
     compl=0
@@ -159,15 +159,15 @@ function Tasks()  {
     fi
     task=$(cat $tsk)
 
-    let "delta = $ts - $(stat -c%Y $tsk)" 2>/dev/null
+    let "delta = $ts - $(stat -c%Y $tsk)" || true
 
     if [[ $delta -lt 3600 ]]; then
-      let "minutes = $delta / 60 % 60"
-      let "seconds = $delta % 60 % 60"
+      let "minutes = $delta / 60 % 60"  || true
+      let "seconds = $delta % 60 % 60"  || true
       printf "%3i:%02i m " $minutes $seconds
     else
-      let "hours = $delta / 60 / 60"
-      let "minutes = $delta / 60 % 60"
+      let "hours = $delta / 60 / 60"    || true
+      let "minutes = $delta / 60 % 60"  || true
       printf "%3i:%02i h " $hours $minutes
     fi
 
@@ -300,7 +300,7 @@ function CountPackages()  {
 
 
 #######################################################################
-set -u
+set -eu
 export LANG=C.utf8
 unset LC_TIME
 
