@@ -24,18 +24,24 @@ function SearchForMatchingBugs() {
   do
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r | head -n 10 | tee $output
-    [[ -s $output ]] && break
+    if [[ -s $output ]]; then
+      break
+    fi
 
     for s in FIXED WORKSFORME DUPLICATE
     do
       bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |
           sort -u -n -r | head -n 10 | tee $output
-      [[ -s $output ]] && break 2
+      if [[ -s $output ]]; then
+        break 2
+      fi
     done
   done
 
   # search for any bug of that category/package
   if [[ ! -s $output ]]; then
+    echo    "              $pkg"
+    echo    "    title:    $(cat $issuedir/title)"
     echo -n "    versions: "
     eshowkw --overlays --arch amd64 $pkgname |\
         grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
@@ -47,11 +53,18 @@ function SearchForMatchingBugs() {
 
     echo -e "    OPEN:     $h&resolution=---&short_desc=$pkgname\n"
     bugz -q --columns 400 search --show-status     $pkgname | grep -v -i -E "$g" |\
-        sort -u -n -r | head -n 10
-    echo
-    echo -e "    RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-    bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
-        sort -u -n -r | head -n 10
+        sort -u -n -r | head -n 10 | tee $output
+    if [[ ! -s $output ]]; then
+      echo
+      echo -e "    RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
+      bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
+          sort -u -n -r | head -n 10
+    fi
+
+    echo -en "\n\n    bgo.sh -d $issuedir"
+    if [[ -n $blocker_bug_no ]]; then
+      echo " -b $blocker_bug_no"
+    fi
   fi
 
   rm $output
@@ -69,7 +82,6 @@ function LookupForABlocker() {
     return 1
   fi
 
-  local number
   while read line
   do
     if [[ $line =~ ^# || "$line" = "" ]]; then
@@ -138,8 +150,8 @@ function SetAssigneeAndCc() {
 
 
 #######################################################################
-export LANG=C.utf8
 set -euf
+export LANG=C.utf8
 
 issuedir=$(realpath $1)
 
@@ -151,20 +163,11 @@ echo
 
 name=$(cat $issuedir/../../../../../etc/conf.d/hostname)      # eg.: 17.1-20201022-101504
 repo=$(cat $issuedir/repository)                              # eg.: gentoo
-pkg=$(basename $issuedir | cut -f3- -d'-' | sed 's,_,/,')     # eg.: net-misc/bird-2.0.7
-pkgname=$(qatom $pkg | cut -f1-2 -d' ' | tr ' ' '/')          # eg.: net-misc/bird
-
-echo    "    $pkg"
-echo    "    title: $(cat $issuedir/title)"
-echo
+pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7
+pkgname=$(qatom $pkg | cut -f1-2 -d' ' -s | tr ' ' '/')       # eg.: net-misc/bird
 
 SearchForMatchingBugs
 blocker_bug_no=""
 LookupForABlocker
 SetAssigneeAndCc
-
-echo -en "\n\n    bgo.sh -d $issuedir"
-if [[ -n $blocker_bug_no ]]; then
-  echo -n " -b $blocker_bug_no"
-fi
-echo -e "\n\n"
+echo

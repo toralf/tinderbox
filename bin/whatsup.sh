@@ -8,7 +8,7 @@ function list_images() {
   (
     ls ~tinderbox/run/
     ls /run/tinderbox/ | sed 's,.lock,,g'
-  ) |\
+  ) 2>/dev/null |\
   sort -u |\
   while read i
   do
@@ -24,7 +24,7 @@ function __is_running() {
 
 
 function PrintImageName()  {
-  # ${n} should be the minimum length to distinguish image names
+  # ${n} is the minimum length to distinguish image names
   n=22
   printf "%-${n}s" $(cut -c-$n <<< ${1##*/})
 }
@@ -61,13 +61,11 @@ function check_history()  {
 
 
 # whatsup.sh -o
-# compl fail days backlog  upd  1st status  8#8 locked
-#   764   31  1.8   18847  153    0    l K  run/17.0_musl-20200311-204810
-#  3415   92  3.1   15925  114    0    ls   run/17.1-libressl-20200310-153510
-#   271   13  3.4   19037  546   18 ..wlS   run/17.1_desktop-test-20200310-081612
-#  2934   74  4.8   17974  535    0         run/17.1_desktop_plasma-libressl-20200308-224459
+# compl fail days backlog .upd .1st status  7#7 running
+#  5297   82  6.1   15067   78    0   Wr    run/17.1-libressl-20201207-110314
+#   245    0  1.0   19037  448    3 ...r    run/17.1_desktop-abi32+64-20201212-135247
 function Overall() {
-  running=$(ls -d /run/tinderbox/*.lock 2>/dev/null | wc -l)
+  running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
   all=$(wc -w <<< $images)
   echo "compl fail days backlog .upd .1st status  $running#$all running"
 
@@ -300,7 +298,7 @@ function CountPackages()  {
 
 
 #######################################################################
-set -eu
+set -euf
 export LANG=C.utf8
 unset LC_TIME
 
@@ -309,6 +307,8 @@ images=$(list_images)
 while getopts chlopt\? opt
 do
   case $opt in
+    c)  CountPackages
+        ;;
     l)  LastEmergeOperation
         ;;
     o)  Overall
@@ -316,8 +316,6 @@ do
     p)  PackagesPerDay
         ;;
     t)  Tasks
-        ;;
-    c)  CountPackages
         ;;
     *)  echo "call: ${0##*/} [-c] [-l] [-o] [-p] [-t]"
         echo

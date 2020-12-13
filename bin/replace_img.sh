@@ -24,7 +24,7 @@ function Finish() {
 
 
 function GetCompl() {
-  grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log
+  grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log || true
 }
 
 
@@ -36,9 +36,10 @@ function GetLeft()  {
 function LookForEmptyBacklogs()  {
   while read oldimg
   do
-    n=$(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog{,.1st})) # ignore update, it is filled hourly
-    [[ $? -eq 0 && $n -eq 0 ]] && return 0
-  done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)
+    if $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog{,.1st} 2>/dev/null)) = "0"; then
+      return 0
+    fi
+  done < <(cd ~/run; ls -t ~tinderbox/run/ 2>/dev/null | cut -f1 -d'/' -s | tac)
 
   return 1
 }
@@ -48,7 +49,7 @@ function list_images() {
   (
     ls ~tinderbox/run/
     ls /run/tinderbox/ | sed 's,.lock,,g'
-  ) |\
+  )  2>/dev/null |\
   sort -u |\
   while read i
   do
@@ -60,36 +61,39 @@ function list_images() {
 
 # look for an image satisfying the conditions
 function LookForAnOldEnoughImage()  {
-  local current_time=$(date +%s)
-  local distance
   local newest=$(ls -t $(list_images | sed 's,$,/var/tmp/tb/name,g') 2>/dev/null | head -n 1)
+  if [[ -z "$newest" ]]; then
+    return 1
+  fi
+  local current_time=$(date +%s)
 
-  if [[ -n "$newest" ]]; then
-    let "distance = ($current_time - $(stat -c%Y $newest)) / 3600"
+  if [[ $condition_distance -gt 0 ]]; then
+    local distance
+    let "distance = ($current_time - $(stat -c%Y $newest)) / 3600" || true
     if [[ $distance -lt $condition_distance ]]; then
       return 1
     fi
-
-    # hint: hereby the variable "oldimg" is set globally
-    while read oldimg
-    do
-      [[ -f ~/run/$oldimg/var/tmp/tb/KEEP ]] && continue
-
-      let "runtime = ($current_time - $(stat -c%Y ~/run/$oldimg/var/tmp/tb/name)) / 3600 / 24"
-      if [[ $runtime -ge $condition_runtime ]]; then
-        [[ $(GetLeft $oldimg) -le $condition_backlog || $(GetCompl $oldimg) -ge $condition_completed ]] && return 0
-      else
-        [[ $(GetLeft $oldimg) -le $condition_backlog && $(GetCompl $oldimg) -ge $condition_completed ]] && return 0
-      fi
-    done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)  # from oldest to newest
   fi
+
+  # "oldimg" is but used only if zero is returned
+  while read oldimg
+  do
+    let "runtime = ($current_time - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24" || true
+    if [[ $runtime -ge $condition_runtime ]]; then
+      if [[ $(GetLeft $oldimg) -le $condition_backlog || $(GetCompl $oldimg) -ge $condition_completed ]]; then
+        return 0
+      fi
+    elif [[ $(GetLeft $oldimg) -le $condition_backlog && $(GetCompl $oldimg) -ge $condition_completed ]]; then
+      return 0
+    fi
+  done < <(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | tac)  # from oldest to newest
 
   return 1
 }
 
 
 function StopOldImage() {
-  # kick off current entries and absorb external restart-logic
+  # kick off current entries and neutralize external restart-logic for a while
   cat << EOF > ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP
 STOP
@@ -97,7 +101,6 @@ STOP
 STOP
 STOP
 STOP scheduled at $(unset LC_TIME; date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left
-app-portage/pfl
 EOF
 
   local lock_dir=/run/tinderbox/$oldimg.lock
@@ -117,8 +120,7 @@ EOF
 
 
 #######################################################################
-set -u
-
+set -eu
 export LANG=C.utf8
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
@@ -149,44 +151,40 @@ done
 # do not run this script in parallel
 lck="/tmp/${0##*/}.lck"
 if [[ -s "$lck" ]]; then
-  kill -0 $(cat $lck) 2>/dev/null
-  if [[ $? -eq 0 ]]; then
+  if kill -0 $(cat $lck) 2>/dev/null; then
     exit 1    # process is running
   fi
 fi
 echo $$ >> "$lck" || Finish 1
 
 if [[ -z "$oldimg" ]]; then
-  LookForEmptyBacklogs
-  if [[ $? -ne 0 ]]; then
+  if ! LookForEmptyBacklogs; then
     LookForAnOldEnoughImage || Finish 0
   fi
+elif [[ ! -e ~/run/$oldimg ]]; then
+  echo " error, old image not found: $oldimg"
+  Finish 1
 fi
 
-if [[ -n "$oldimg" && "$oldimg" != "-" ]]; then
+if [[ -e ~/run/$oldimg ]]; then
   echo
   date
   if [[ -e ~/run/$oldimg ]]; then
-    echo " finish $oldimg ..."
+    echo " finishing $oldimg ..."
     StopOldImage
-  else
-    echo " error, not found: $oldimg ..."
-    Finish 1
   fi
 fi
 
-while [[ : ]]
-do
-  echo
-  date
-  echo " setup a new image ..."
+echo
+date
+echo " setup a new image ..."
 
-  sudo ${0%/*}/setup_img.sh $setupargs
-  rc=$?
-  if [[ $rc -eq 3 ]]; then
-    continue
-  elif [[ $rc -eq 0 ]]; then
-    [[  -n "$oldimg" && -e ~/run/$oldimg ]] && rm -- ~/run/$oldimg ~/logs/$oldimg.log
+if sudo ${0%/*}/setup_img.sh $setupargs; then
+  if [[ -e ~/run/$oldimg ]]; then
+    rm -- ~/run/$oldimg ~/logs/$oldimg.log
   fi
-  Finish $rc
-done
+  Finish 0
+else
+  Finish $?
+fi
+

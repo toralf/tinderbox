@@ -7,12 +7,7 @@
 
 # helper of ThrowUseFlags()
 function DropUseFlags()  {
-  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|doc|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|linguas|livecd|lto|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|passwdqc|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|udev|user-session|vaapi|valgrind|vdpau|video_cards_|vim-syntax|vulkan|webkit|zink'
-}
-
-
-function PrintUseFlags() {
-  xargs -s 73 | sed -e '/^$/d' | sed -e "s,^,*/*  ,g"
+  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|doc|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|linguas|livecd|lto|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|passwdqc|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|udev|user-session|vaapi|valgrind|vdpau|video_cards_|vim-syntax|vulkan|webkit|zink' || true
 }
 
 
@@ -23,8 +18,12 @@ function ThrowUseFlags() {
   shuf | sort |\
   while read flag
   do
-    [[ $(($RANDOM % $n)) -eq 0 ]] || continue
-    [[ $(($RANDOM % $m)) -eq 0 ]] && echo -n "-"
+    if [[ $(($RANDOM % $n)) -eq 0 ]]; then
+      continue
+    fi
+    if [[ $(($RANDOM % $m)) -eq 0 ]]; then
+      echo -n "-"
+    fi
     echo -n "$flag "
   done
 }
@@ -41,8 +40,10 @@ function GetProfiles() {
 
 
 function ThrowCflags()  {
-  # 685160 colon-in-CFLAGS
-  [[ $(($RANDOM % 2)) -eq 0 ]] && cflags="$cflags -falign-functions=32:25:16"
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    # 685160 colon-in-CFLAGS
+    cflags="$cflags -falign-functions=32:25:16"
+  fi
 }
 
 
@@ -69,7 +70,7 @@ function SetOptions() {
     fi
 
     local p=$(echo $profile | tr '/' '_')
-    if [[ -z "$(ls -d ~tinderbox/run/$p-* /run/tinderbox/$p-*.lock 2>/dev/null)" ]]; then
+    if ! ls -d ~tinderbox/run/$p-* /run/tinderbox/$p-*.lock &>/dev/null; then
       break
     fi
   done < <(GetProfiles | shuf)
@@ -85,7 +86,7 @@ function SetOptions() {
 
   testfeature="n"
   # run at most 1 image
-  if [[ -z "$(ls -d ~tinderbox/run/*test* 2>/dev/null)" ]]; then
+  if ! ls -d ~tinderbox/run/*test* &>/dev/null; then
     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       testfeature="y"
     fi
@@ -98,11 +99,10 @@ function SetOptions() {
   fi
 
   science="n"
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    # run at most 1 image
-    if [[ -z "$(ls -d ~tinderbox/run/*science* 2>/dev/null)" ]]; then
+  # run at most 1 image
+  if ! ls -d ~tinderbox/run/*science* &>/dev/null; then
+    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
       science="y"
-      testfeature="n"
     fi
   fi
 
@@ -157,10 +157,10 @@ function CheckOptions() {
 function CreateImageName()  {
   # profile[-flavour]-day-time
   name="$(echo $profile | tr '/' '_')-"
-  [[ "$libressl" = "y" ]]     && name="${name}_libressl"
-  [[ "$multiabi" = "y" ]]     && name="${name}_abi32+64"
-  [[ "$science" = "y" ]]      && name="${name}_science"
-  [[ "$testfeature" = "y" ]]  && name="${name}_test"
+  [[ "$libressl" = "y" ]]     && name="${name}_libressl"  || true
+  [[ "$multiabi" = "y" ]]     && name="${name}_abi32+64"  || true
+  [[ "$science" = "y" ]]      && name="${name}_science"   || true
+  [[ "$testfeature" = "y" ]]  && name="${name}_test"      || true
   name="$(echo $name | sed -e 's/-[_-]/-/g' -e 's/-$//')"
   name="${name}-$(date +%Y%m%d-%H%M%S)"
 }
@@ -203,33 +203,13 @@ function UnpackStage3()  {
   wgeturl="$mirror/releases/amd64/autobuilds"
 
   case $profile in
-    */no-multilib/hardened)
-      stage3=$(grep "/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest)
-      ;;
-
-    */musl/hardened)
-      stage3=$(grep "/stage3-amd64-musl-hardened-20.*\.tar\." $latest)
-      ;;
-
-    */hardened)
-      stage3=$(grep "/stage3-amd64-hardened-20.*\.tar\." $latest)
-      ;;
-
-    */no-multilib)
-      stage3=$(grep "/stage3-amd64-nomultilib-20.*\.tar\." $latest)
-      ;;
-
-    */systemd)
-      stage3=$(grep "/stage3-amd64-systemd-20.*\.tar\." $latest)
-      ;;
-
-    */musl)
-      stage3=$(grep "/stage3-amd64-musl-vanilla-20.*\.tar\." $latest)
-      ;;
-
-    *)
-      stage3=$(grep "/stage3-amd64-20.*\.tar\." $latest)
-      ;;
+    */no-multilib/hardened)   stage3=$(grep "/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest);;
+    */musl/hardened)          stage3=$(grep "/stage3-amd64-musl-hardened-20.*\.tar\." $latest);;
+    */hardened)               stage3=$(grep "/stage3-amd64-hardened-20.*\.tar\." $latest);;
+    */no-multilib)            stage3=$(grep "/stage3-amd64-nomultilib-20.*\.tar\." $latest);;
+    */systemd)                stage3=$(grep "/stage3-amd64-systemd-20.*\.tar\." $latest);;
+    */musl)                   stage3=$(grep "/stage3-amd64-musl-vanilla-20.*\.tar\." $latest);;
+    *)                        stage3=$(grep "/stage3-amd64-20.*\.tar\." $latest);;
   esac
   stage3=$(echo $stage3 | cut -f1 -d' ' -s)
 
@@ -296,9 +276,9 @@ EOF
   echo 'local'            > ./$repodir/local/profiles/repo_name
 
   addRepoConf "gentoo" "10"
-  [[ "$libressl" = "y" ]] && addRepoConf "libressl" "20"
-  [[ "$musl" = "y" ]]     && addRepoConf "musl"     "30"
-  [[ "$science" = "y" ]]  && addRepoConf "science"  "40"
+  [[ "$libressl" = "y" ]] && addRepoConf "libressl" "20"  || true
+  [[ "$musl" = "y" ]]     && addRepoConf "musl"     "30"  || true
+  [[ "$science" = "y" ]]  && addRepoConf "science"  "40"  || true
   addRepoConf "tinderbox" "90" "/mnt/tb/data/portage"
   addRepoConf "local" "99"
 }
@@ -319,7 +299,7 @@ FCFLAGS="$cflags_default"
 FFLAGS="\${FCFLAGS}"
 
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
-$([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"')
+$([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"' || true)
 
 ACCEPT_KEYWORDS="~amd64"
 
@@ -417,7 +397,7 @@ NINJAFLAGS="-j1"
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
 OMP_NUM_THREADS=1
-RUSTFLAGS="-C codegen-units=1$([[ $musl = "y" ]] && echo " -C target-feature=-crt-static")"
+RUSTFLAGS="-C codegen-units=1$([[ $musl = "y" ]] && echo " -C target-feature=-crt-static" || true)"
 RUST_TEST_THREADS=1
 RUST_TEST_TASKS=1
 
@@ -506,8 +486,8 @@ function CreateBacklog()  {
   # @system is just a fall back for @world failure or if it takes very long
   # depclean must succeeded here during setup
   cat << EOF >> $bl.1st
-app-portage/pfl
 %emerge --depclean --changed-use
+app-portage/pfl
 @world
 @system
 EOF
@@ -564,9 +544,9 @@ date
 echo "#setup rsync" | tee /var/tmp/tb/task
 
                          rsync --archive --cvs-exclude /mnt/repos/gentoo   $repodir/
-[[ $libressl = "y" ]] && rsync --archive --cvs-exclude /mnt/repos/libressl $repodir/
-[[ $musl = "y" ]]     && rsync --archive --cvs-exclude /mnt/repos/musl     $repodir/
-[[ $science = "y" ]]  && rsync --archive --cvs-exclude /mnt/repos/science  $repodir/
+[[ $libressl = "y" ]] && rsync --archive --cvs-exclude /mnt/repos/libressl $repodir/  || true
+[[ $musl = "y" ]]     && rsync --archive --cvs-exclude /mnt/repos/musl     $repodir/  || true
+[[ $science = "y" ]]  && rsync --archive --cvs-exclude /mnt/repos/science  $repodir/  || true
 
 date
 echo "#setup configure" | tee /var/tmp/tb/task
@@ -641,46 +621,36 @@ function RunSetupScript() {
   date
   echo " run setup script ..."
   cd ~tinderbox/
-
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > $mnt/var/tmp/tb/setup_wrapper.sh
-  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s "$mnt/var/tmp/tb/setup_wrapper.sh"
-  rc=$?
 
-  if [[ $rc -ne 0 ]]; then
+  if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s "$mnt/var/tmp/tb/setup_wrapper.sh"; then
+    local rc=$?
     echo -e "$(date)\n setup was NOT successful (rc=$rc) @ $mnt\n"
-    tail -v -n 1000 $mnt/var/tmp/tb/setup.sh.log
+    tail -v -n 200 $mnt/var/tmp/tb/setup.sh.log
     echo
-    exit 3 # 3 triggers another dryrun in replace-image.sh
+    return $rc
   fi
-
-  echo
 }
 
 
 # the USE flags must do not yield to circular or other non-resolvable dependencies for the very first @world
-function DryRun() {
-  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh
-  local rc=$?
-
-  if [[ $rc -eq 0 ]]; then
-    grep -H -A 99 -e 'The following USE changes are necessary to proceed:'                \
-                  -e 'One of the following packages is required to complete your request' \
-                  $mnt/var/tmp/tb/dryrun.log
-    if [[ $? -eq 0 ]]; then
-      echo -e "\n$(date)\n dry run was NOT successful due to ^^^\n"
-      return 11
-    fi
-  else
+function DryRunOnce() {
+  if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
+    local rc=$?
     echo -e "\n$(date)\n dry run was NOT successful (rc=$rc):\n"
     tail -v -n 200 $mnt/var/tmp/tb/dryrun.log
     echo
+    return $rc
   fi
-
-  return $rc
 }
 
 
-function DryRunLoops() {
+function PrintUseFlags() {
+  xargs -s 73 | sed -e '/^$/d' | sed -e "s,^,*/*  ,g"
+}
+
+
+function DryRunWithVaryingUseFlags() {
   attempt=0
   max_attempts=30
   while [[ : ]]
@@ -727,7 +697,7 @@ function DryRunLoops() {
     done |\
     sort > $mnt/etc/portage/package.use/24thrown_package_use_flags
 
-    DryRun && break
+    DryRunOnce && break
 
     echo
     tail -v -n 2000 $mnt/etc/portage/package.use/2?thrown*
@@ -745,7 +715,7 @@ function DryRunLoops() {
 #
 # main
 #
-set -u
+set -eu
 
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
@@ -776,7 +746,7 @@ do
     c)  cflags="$OPTARG"
         ;;
     d)  mnt="$OPTARG"
-        DryRunLoops
+        DryRunWithVaryingUseFlags
         exit 0
         ;;
     f)  features="$OPTARG"
@@ -809,11 +779,12 @@ CreateBacklog
 CreateSetupScript
 RunSetupScript
 
+echo
 echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 if [[ "$defaultuseflags" = "y" ]]; then
-  DryRun
+  DryRunOnce
 else
-  DryRunLoops
+  DryRunWithVaryingUseFlags
 fi
 
 echo -e "\n$(date)\n  setup OK"

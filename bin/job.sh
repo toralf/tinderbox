@@ -28,45 +28,40 @@ function stripEscapeSequences() {
 }
 
 
-# $1 (mandatory) is the SMTP subject,
-# $2 (optionally) is either the message or a flat text file
+# send otu a SMTP email
 function Mail() {
   subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
-
-  (
-    if [[ -f $2 ]]; then
-      ls -l $2
-      echo
-      cat $2
-    else
-      echo "${2:-empty_mail_body}"
-    fi
-  ) | timeout 120 mail -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log
-
-  if [[ $? -ne 0 ]]; then
-    echo "$(date) mail failed, \$rc=$rc, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
-  fi
+  if [[ -e $2 ]]; then
+    ls -l $2
+    echo
+    cat $2
+  else
+    echo "${2:-empty_mail_body}"
+  fi |\
+  timeout 120 mail -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log || \
+      echo "$(date) mail failed, \$rc=$rc, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
 }
 
 
 # clean up and exit
-# $1: return code
-# $2: email Subject
-# $3: file to be attached
 function Finish()  {
-  local rc=$1
-  subject=$(echo "$2" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
+  trap - INT QUIT TERM EXIT
 
-  /usr/bin/pfl &>/dev/null
+  local exit_code=${1:-$?}
 
-  if [[ $rc -eq 0 ]]; then
-    Mail "Finish ok: $subject" $3
+  if [[ -x /usr/bin/pfl ]]; then
+    /usr/bin/pfl &>/dev/null || true
+  fi
+
+  subject=$(echo "${2:-<no subject given>}" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
+  if [[ $exit_code -eq 0 ]]; then
+    Mail "Finish ok: $subject" "${3:-<no message given>}"
   else
-    Mail "Finish NOT ok, rc=$rc: $subject" ${3:-$logfile}
+    Mail "Finish NOT ok, exit_code=$exit_code: $subject" "${3:-$logfile}"
   fi
 
   rm -f /var/tmp/tb/STOP
-  exit $rc
+  exit $exit_code
 }
 
 
@@ -115,7 +110,9 @@ function getNextTask() {
 
     elif [[ $task =~ ^= ]]; then
       # pinned version, but check validity
-      portageq best_visible / $task &>/dev/null && break
+      if portageq best_visible / $task &>/dev/null; then
+        break
+      fi
 
     else
       if [[ ! "$backlog" = $backlog1st ]]; then
@@ -125,7 +122,9 @@ function getNextTask() {
       fi
 
       # skip if $task is masked, keyworded or just an invalid atom
-      best_visible=$(portageq best_visible / $task 2>/dev/null) || continue
+      if ! best_visible=$(portageq best_visible / $task 2>/dev/null); then
+        continue
+      fi
 
       # skip if $task is installed and would be downgraded
       installed=$(portageq best_version / $task)
@@ -262,7 +261,7 @@ function getPkgVarsFromIssuelog()  {
 
 # helper of ClassifyIssue()
 function foundCollisionIssue() {
-  grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_stripped | grep -B 15 ' * Package .* NOT' > $issuedir/issue
+  grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_stripped | grep -B 15 ' * Package .* NOT' > $issuedir/issue || true
 
   # get package (name+version) of the colliding package
   local s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_stripped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
@@ -317,8 +316,7 @@ function foundGenericIssue() {
 
     for x in ./x??
     do
-      grep -a -m 1 -B 2 -A 3 -f $x ./stripped_pkglog > ./issue
-      if [[ $? -eq 0 ]]; then
+      if grep -a -m 1 -B 2 -A 3 -f $x ./stripped_pkglog > ./issue; then
         mv ./issue $issuedir
         sed -n '3p' < $issuedir/issue | stripQuotesAndMore > $issuedir/title # 3p == 3rd line == matches -A 3
         break
@@ -389,7 +387,7 @@ function ClassifyIssue() {
     handleTestPhase
   fi
 
-  if [[ -n "$(grep -m 1 ' * Detected file collision(s):' $pkglog_stripped)" ]]; then
+  if grep -q -m 1 ' * Detected file collision(s):' $pkglog_stripped; then
     foundCollisionIssue
 
   elif [[ -n $sandb ]]; then # no test at "-f" b/c it might not be allowed to be written
@@ -526,7 +524,7 @@ function GotAnIssue()  {
     PutDepsIntoWorldFile &>/dev/null
   fi
 
-  fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $logfile_stripped)
+  fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $logfile_stripped) || true
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
   fi
@@ -584,6 +582,16 @@ function BuildKernel()  {
 }
 
 
+function source_profile(){
+  local old_setting=${-//[^u]/}
+  set +u
+  source /etc/profile 2>/dev/null
+  if [[ -n "${old_setting}" ]]; then
+    set -u
+  fi
+}
+
+
 # helper of PostEmerge()
 # switch to latest GCC
 function SwitchGCC() {
@@ -592,7 +600,7 @@ function SwitchGCC() {
   if ! gcc-config --list-profiles --nocolor | grep -q "$latest \*$"; then
     current=$(gcc -dumpversion)
     gcc-config --nocolor $latest &>> $logfile
-    source /etc/profile
+    source_profile
     add2backlog "%emerge @preserved-rebuild"                  # must not fail
     add2backlog "%emerge -1 sys-devel/libtool"                # should be rebuild
     add2backlog "%emerge --unmerge sys-devel/gcc:$current"
@@ -616,11 +624,10 @@ function PostEmerge() {
     locale-gen > /dev/null
   fi
 
-  # merge the remaining config files automatically and update the runtime environment
+  # merge the remaining config files automatically + update the environment
   etc-update --automode -5 1>/dev/null
   env-update &>/dev/null
-
-  source /etc/profile || Finish 2 "can't source /etc/profile"
+  source_profile
 
   # the very last step after an emerge
   if grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $logfile_stripped; then
@@ -694,8 +701,10 @@ function PostEmerge() {
 # helper of WorkOnTask()
 # run ($@) and act on result
 function RunAndCheck() {
-  ( eval $@ ) &>> $logfile
-  local rc=$?
+  local rc=0
+  if ! (eval $@ &>> $logfile); then
+    rc=$?
+  fi
 
   logfile_stripped=/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).log
   stripEscapeSequences < $logfile > $logfile_stripped
@@ -725,13 +734,10 @@ function RunAndCheck() {
 }
 
 
-# this is the heart of the tinderbox
+# this function is the heart of the tinderbox
 function WorkOnTask() {
-  try_again=0           # "1" means to retry same task with changed USE/FEATURE/CFLAGS, eg. with "test-fail-continue"
-  pkg=""                # eg. "app-portage/eix-0.33.11"
-  pkgname=""            # eg. "app-portage/eix"
-  pkglog=""             # portage logfile of pkg
-  pkglog_stripped=""    # stripped escape sequences and more from it
+  try_again=0           # "1" means to retry same task, but with changed/reset USE/ENV/FEATURE/CFLAGS
+  unset pkg pkgname pkglog pkglog_stripped
 
   # @set
   if [[ $task =~ ^@ ]]; then
@@ -769,7 +775,7 @@ function WorkOnTask() {
             add2backlog "%emerge --resume --skip-first"
           else
             if grep -q ' Invalid resume list:' $logfile_stripped; then
-              add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
+              add2backlog "$(tac $taskfile.history | grep -m 1 '^%')" || true
             fi
           fi
         elif [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" && ! $task =~ "BuildKernel" ]]; then
@@ -803,7 +809,7 @@ function DetectALoop() {
       continue
     fi
 
-    n=$(tail -n $y $taskfile.history | grep -c "$t")
+    n=$(tail -n $y $taskfile.history | grep -c "$t") || true
     if [[ $n -ge $x ]]; then
       for i in $(seq 1 $y)
       do
@@ -841,7 +847,9 @@ function updateAllRepos() {
 #
 #       main
 #
+set -eu
 export LANG=C.utf8
+trap Finish INT QUIT TERM EXIT
 
 mailto="tinderbox@zwiebeltoralf.de"
 taskfile=/var/tmp/tb/task           # holds the current task
@@ -871,24 +879,20 @@ if [[ -s $taskfile ]]; then
   truncate -s 0 $taskfile
 fi
 
-# if we were hard stopped then clean up
+# then clean up if a kill occurred before
 add2backlog "%emaint --fix merges"
 
 while [[ : ]]
 do
   date > $logfile
-
   # pick up after ourself b/c "auto-clean" in FEATURES is deactivated to collect issue files
   rm -rf /var/tmp/portage/*
-
   if [[ -f /var/tmp/tb/STOP ]]; then
-    echo "#stopping" > $taskfile
-    Finish 0 "catched STOP file" /var/tmp/tb/STOP
+    break
   fi
 
   echo "#rsync repos" > $taskfile
   updateAllRepos
-
   echo "#get task" > $taskfile
   getNextTask
   WorkOnTask
@@ -896,3 +900,6 @@ do
 
   DetectALoop
 done
+
+echo "#stopping" > $taskfile
+Finish 0 "catched STOP file" /var/tmp/tb/STOP

@@ -56,7 +56,7 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-trap Exit EXIT QUIT TERM
+trap Exit INT QUIT TERM EXIT
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
@@ -115,7 +115,7 @@ fi
 # only mkdir is an atomic file system operation in the Linux kernel
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
-trap Cleanup EXIT QUIT TERM
+trap Cleanup INT QUIT TERM EXIT
 
 if [[ -n "$entrypoint" ]]; then
   if [[ -L "$mnt/entrypoint" ]]; then
