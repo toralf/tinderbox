@@ -36,6 +36,12 @@ function SearchForMatchingBugs() {
 
   # search for any bug of that category/package
   if [[ ! -s $output ]]; then
+    echo -n "    versions: "
+    eshowkw --overlays --arch amd64 $pkgname |\
+        grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
+        awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
+        xargs
+
     local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     local g='stabilize|Bump| keyword| bump'
 
@@ -148,12 +154,8 @@ repo=$(cat $issuedir/repository)                              # eg.: gentoo
 pkg=$(basename $issuedir | cut -f3- -d'-' | sed 's,_,/,')     # eg.: net-misc/bird-2.0.7
 pkgname=$(qatom $pkg | cut -f1-2 -d' ' | tr ' ' '/')          # eg.: net-misc/bird
 
-echo -e  "    title: $(cat $issuedir/title)\n"
-echo -en "    versions: "
-eshowkw --overlays --arch amd64 $pkgname |\
-    grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
-    awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
-    xargs
+echo    "    $pkg"
+echo    "    title: $(cat $issuedir/title)"
 echo
 
 SearchForMatchingBugs
