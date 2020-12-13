@@ -83,7 +83,7 @@ function Overall() {
     compl=0
     f=$i/var/log/emerge.log
     if [[ -f $f ]]; then
-      compl=$(grep -c ' ::: completed emerge' $f)
+      compl=$(grep -c ' ::: completed emerge' $f) || true
     fi
 
     # count emerge failures based on distinct package name+version+release
