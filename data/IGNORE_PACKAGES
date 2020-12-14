@@ -42,4 +42,7 @@ www-client/google-chrome
 dev-lang/mlton
 sci-mathematics/twelf
 #
+# wants qtwebengine
 #
+media-gfx/digikam
+www-client/falkon
