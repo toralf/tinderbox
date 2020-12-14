@@ -307,16 +307,11 @@ images=$(list_images)
 while getopts chlopt\? opt
 do
   case $opt in
-    c)  CountPackages
-        ;;
-    l)  LastEmergeOperation
-        ;;
-    o)  Overall
-        ;;
-    p)  PackagesPerDay
-        ;;
-    t)  Tasks
-        ;;
+    c)  CountPackages        ;;
+    l)  LastEmergeOperation  ;;
+    o)  Overall              ;;
+    p)  PackagesPerDay       ;;
+    t)  Tasks                ;;
     *)  echo "call: ${0##*/} [-c] [-l] [-o] [-p] [-t]"
         echo
         exit 0

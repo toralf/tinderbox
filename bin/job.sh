@@ -28,7 +28,7 @@ function stripEscapeSequences() {
 }
 
 
-# send otu a SMTP email
+# send out a SMTP email
 function Mail() {
   subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
   if [[ -e $2 ]]; then
