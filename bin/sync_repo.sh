@@ -29,7 +29,10 @@ done
 # needed by job.sh
 for repo in $(ls /var/db/repos/)
 do
-  [[ -d /var/db/repos/$repo/.git ]] && cd /var/db/repos/$repo && git show -s --format="%ct" HEAD > timestamp.git
+  if [[ -d /var/db/repos/$repo/.git ]]; then
+    cd /var/db/repos/$repo
+    git show -s --format="%ct" HEAD > timestamp.git
+  fi
 done
 
 echo  >> $log

@@ -305,7 +305,9 @@ function foundGenericIssue() {
     # run over manually collected pattern in the order they do appear in the appropriate pattern file
     # as an attempt to get the real issue
     (
-      [[ -n "$phase" ]] && cat /mnt/tb/data/CATCH_ISSUES.$phase
+      if [[ -n "$phase" ]]; then
+        cat /mnt/tb/data/CATCH_ISSUES.$phase
+      fi
       cat /mnt/tb/data/CATCH_ISSUES
     ) | split --lines=1 --suffix-length=2
 

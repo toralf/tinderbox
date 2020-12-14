@@ -7,7 +7,9 @@
 
 set -euf
 
-[[ ! -d /run/tinderbox ]] && mkdir /run/tinderbox
+if [[ ! -d /run/tinderbox ]]; then
+  mkdir /run/tinderbox
+fi
 
 echo "/opt/tb/bin/cgroup-release-agent.sh" > /sys/fs/cgroup/cpu/release_agent
 echo "/opt/tb/bin/cgroup-release-agent.sh" > /sys/fs/cgroup/memory/release_agent
