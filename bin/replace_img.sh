@@ -61,7 +61,7 @@ function list_images() {
 
 # look for an image satisfying the conditions
 function LookForAnOldEnoughImage()  {
-  local newest=$(ls -t $(list_images | sed 's,$,/var/tmp/tb/name,g') 2>/dev/null | head -n 1)
+  local newest=$(ls -t $(list_images | sed 's,$,/etc/conf.d/hostname,g') 2>/dev/null | head -n 1)
   if [[ -z "$newest" ]]; then
     return 1
   fi
@@ -75,7 +75,7 @@ function LookForAnOldEnoughImage()  {
     fi
   fi
 
-  # "oldimg" is but used only if zero is returned
+  # "oldimg" is always set here as a side effect, but it is used only if "0" is returned
   while read oldimg
   do
     let "runtime = ($current_time - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24" || true
