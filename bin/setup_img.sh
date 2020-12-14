@@ -6,8 +6,8 @@
 
 
 # helper of ThrowUseFlags()
-function DropUseFlags()  {
-  egrep -v -e '32|64|FreeBSD|^armv|bindist|bootstrap|broadcom|build|cdinstall|compile-locales|consolekit|d3d9|debug|doc|elibc|elogind|forced-sandbox|gallium|gcj|ghcbootstrap|hardened|hostname|ithreads|kill|libav|libreoffice|libressl|linguas|livecd|lto|make-symlinks|malloc|minimal|mips|monolithic|multilib|musl|nvidia|oci8|opencl|openmp|openssl|passwdqc|pax_kernel|perftools|prefix|tools|selinux|split-usr|ssp|static|symlink|system|systemd|test|uclibc|udev|user-session|vaapi|valgrind|vdpau|video_cards_|vim-syntax|vulkan|webkit|zink' || true
+function IgnoreUseFlags()  {
+  egrep -v -f ~tinderbox/tb/data/IGNORE_USE_FLAGS || true
 }
 
 
@@ -672,14 +672,14 @@ function DryRunWithVaryingUseFlags() {
 
     grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
     cut -f1 -d' ' -s |\
-    DropUseFlags |\
+    IgnoreUseFlags |\
     ThrowUseFlags 10 |\
     PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
 
     grep -h 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
     cut -f2 -d'"' -s |\
     sort -u |\
-    DropUseFlags |\
+    IgnoreUseFlags |\
     ThrowUseFlags 100 |\
     PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
@@ -690,7 +690,7 @@ function DryRunWithVaryingUseFlags() {
       pkg=$(echo $file | cut -f6-7 -d'/')
       grep -h 'flag name="' $file |\
       cut -f2 -d'"' -s |\
-      DropUseFlags |\
+      IgnoreUseFlags |\
       ThrowUseFlags 10 |\
       xargs |\
       xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
