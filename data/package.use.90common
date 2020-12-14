@@ -12,7 +12,7 @@ dev-db/sqlite             -icu
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
 
-# mailer for job.sh
+# SMTP mailer for job.sh
 mail-mta/ssmtp            -gnutls mta ssl
 
 # from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
@@ -26,3 +26,9 @@ sys-apps/nix              -etc_profile
 
 # can't/won't be tested at all
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind
+
+# awefully long emerge time
+*/*                       -webengine -webkit
+
+# wants qtwebengine
+net-irc/quassel           -urlpreview
