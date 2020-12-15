@@ -624,7 +624,7 @@ function RunSetupScript() {
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > $mnt/var/tmp/tb/setup_wrapper.sh
 
   if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s "$mnt/var/tmp/tb/setup_wrapper.sh"; then
-    local rc=$?
+    local rc=1
     echo -e "$(date)\n setup was NOT successful (rc=$rc) @ $mnt\n"
     tail -v -n 200 $mnt/var/tmp/tb/setup.sh.log
     echo
@@ -636,7 +636,7 @@ function RunSetupScript() {
 # the USE flags must do not yield to circular or other non-resolvable dependencies for the very first @world
 function DryRunOnce() {
   if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
-    local rc=$?
+    local rc=1
     echo -e "\n$(date)\n dry run was NOT successful (rc=$rc):\n"
     tail -v -n 200 $mnt/var/tmp/tb/dryrun.log
     echo

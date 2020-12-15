@@ -28,7 +28,7 @@ function retestPackages() {
       sed -i -e "/$(echo $p | sed -e 's,/,\\/,')/d" \
         ~/tb/data/ALREADY_CATCHED                   \
         ~/run/*/etc/portage/package.mask/self       \
-        ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null
+        ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null || true
     fi
   done
 }
@@ -57,6 +57,7 @@ function updateBacklog()  {
 
 
 #######################################################################
+set -eu
 export LANG=C.utf8
 
 if [[ ! "$(whoami)" = "tinderbox" ]]; then

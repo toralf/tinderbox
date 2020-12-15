@@ -23,7 +23,8 @@ eix-sync &>> $log
 for repo in musl science
 do
   date >> $log
-  (cd /var/db/repos/$repo && git pull) &>> $log
+  cd /var/db/repos/$repo
+  git pull &>> $log
 done
 
 # needed by job.sh
@@ -35,12 +36,13 @@ do
   fi
 done
 
-echo  >> $log
-date  >> $log
+echo >> $log
+date >> $log
 
 if grep -q "warning: There are too many unreachable loose objects; run 'git prune' to remove them." $log; then
   for repo in $(ls /var/db/repos/)
   do
-    cd /var/db/repos/$repo && git prune &>> $log
+    cd /var/db/repos/$repo
+    git prune &>> $log
   done
 fi

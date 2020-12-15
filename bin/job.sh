@@ -705,7 +705,7 @@ function PostEmerge() {
 function RunAndCheck() {
   local rc=0
   if ! (eval $@ &>> $logfile); then
-    rc=$?
+    rc=1
   fi
 
   logfile_stripped=/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).log
@@ -724,11 +724,11 @@ function RunAndCheck() {
     # a packge failed during emerge
     GotAnIssue
   else
-    let signal="$rc - 128"
+    let signal="$rc - 128" || true
     if [[ $signal -eq 9 ]]; then
       Finish 0 "catched signal $signal - exiting"
     else
-      Mail "INFO: emerge got signal $signal" $logfile_stripped
+      Mail "INFO: emerge stopped due to signal $signal" $logfile_stripped
     fi
   fi
 
@@ -788,11 +788,11 @@ function WorkOnTask() {
 
   # pinned package version
   elif [[ $task =~ ^= ]]; then
-    RunAndCheck "emerge $task"
+    RunAndCheck "emerge $task" || true
 
   # anything else
   else
-    RunAndCheck "emerge --update $task"
+    RunAndCheck "emerge --update $task" || true
   fi
 }
 
