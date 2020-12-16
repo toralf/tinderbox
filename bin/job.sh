@@ -45,10 +45,9 @@ function Mail() {
 
 # clean up and exit
 function Finish()  {
-  trap - INT QUIT TERM EXIT
-
   local exit_code=${1:-$?}
 
+  trap - INT QUIT TERM EXIT
   if [[ -x /usr/bin/pfl ]]; then
     /usr/bin/pfl &>/dev/null || true
   fi
@@ -739,7 +738,8 @@ function RunAndCheck() {
 # this function is the heart of the tinderbox
 function WorkOnTask() {
   try_again=0           # "1" means to retry same task, but with changed/reset USE/ENV/FEATURE/CFLAGS
-  unset pkg pkgname pkglog pkglog_stripped
+  unset pkgname pkglog pkglog_stripped
+  pkg=""
 
   # @set
   if [[ $task =~ ^@ ]]; then
@@ -758,10 +758,8 @@ function WorkOnTask() {
       fi
     else
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
-      if [[ $try_again -eq 0 ]]; then
-        if [[ -n "$pkg" ]]; then
-          add2backlog "%emerge --resume --skip-first"
-        fi
+      if [[ -n "$pkg" && $try_again -eq 0 ]]; then
+        add2backlog "%emerge --resume --skip-first"
       fi
     fi
     cp $logfile /var/tmp/tb/$task.last.log
