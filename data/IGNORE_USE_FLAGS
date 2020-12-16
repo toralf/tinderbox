@@ -1,5 +1,5 @@
-^32$
-^64$
+32
+64
 ^armv
 bindist
 bootstrap
@@ -60,7 +60,7 @@ user-session
 vaapi
 valgrind
 vdpau
-video_cards_
 vim-syntax
 vulkan
+x32
 zink

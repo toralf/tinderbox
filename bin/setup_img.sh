@@ -7,7 +7,7 @@
 
 # helper of ThrowUseFlags()
 function IgnoreUseFlags()  {
-  egrep -v -f ~tinderbox/tb/data/IGNORE_USE_FLAGS || true
+  grep -v -w -f ~tinderbox/tb/data/IGNORE_USE_FLAGS || true
 }
 
 
