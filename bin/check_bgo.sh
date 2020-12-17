@@ -126,7 +126,7 @@ function SetAssigneeAndCc() {
 
   # for a file collision report both involved sites
   if grep -q 'file collision with' $issuedir/title; then
-    local collision_partner=$(sed -e 's,.*file collision with ,,' < <(cat $issuedir/title))
+    local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
     if [[ -n "$collision_partner" ]]; then
       cc="$cc $(equery meta -m $collision_partner | grep '@' | xargs)"
     fi
