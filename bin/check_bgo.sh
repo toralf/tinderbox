@@ -25,48 +25,41 @@ function SearchForMatchingBugs() {
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r | head -n 10 | tee $output
     if [[ -s $output ]]; then
-      break
+      rm $output
+      return
     fi
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |
-          sort -u -n -r | head -n 10 | tee $output
+      bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |\
+          sort -u -n -r | head -n 10 | sed "s,^,$s  ," | tee $output
       if [[ -s $output ]]; then
-        break 2
+        rm $output
+        return
       fi
     done
   done
 
-  # search for any bug of that category/package
+  # no findings till now, so search for any bug of that category/package
+
+  local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
+  local g='stabilize|Bump| keyword| bump'
+
+  echo -e "    OPEN:     $h&resolution=---&short_desc=$pkgname\n"
+  bugz -q --columns 400 search --show-status     $pkgname | grep -v -i -E "$g" |\
+      sort -u -n -r | head -n 10 | tee $output
   if [[ ! -s $output ]]; then
-    echo    "              $pkg"
-    echo    "    title:    $(cat $issuedir/title)"
-    echo -n "    versions: "
-    eshowkw --overlays --arch amd64 $pkgname |\
-        grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
-        awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
-        xargs
-
-    local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
-    local g='stabilize|Bump| keyword| bump'
-
-    echo -e "    OPEN:     $h&resolution=---&short_desc=$pkgname\n"
-    bugz -q --columns 400 search --show-status     $pkgname | grep -v -i -E "$g" |\
-        sort -u -n -r | head -n 10 | tee $output
-    if [[ ! -s $output ]]; then
-      echo
-      echo -e "    RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-      bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
-          sort -u -n -r | head -n 10
-    fi
-
-    echo -en "\n\n    bgo.sh -d $issuedir"
-    if [[ -n $blocker_bug_no ]]; then
-      echo " -b $blocker_bug_no"
-    fi
+    echo
+    echo -e "    RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
+    bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
+        sort -u -n -r | head -n 10
   fi
 
+  echo -en "\n\n    bgo.sh -d $issuedir"
+  if [[ -n $blocker_bug_no ]]; then
+    echo -e " -b $blocker_bug_no"
+  fi
+  echo
   rm $output
 }
 
@@ -166,8 +159,17 @@ repo=$(cat $issuedir/repository)                              # eg.: gentoo
 pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7
 pkgname=$(qatom $pkg | cut -f1-2 -d' ' -s | tr ' ' '/')       # eg.: net-misc/bird
 
-SearchForMatchingBugs
+echo -n "    versions: "
+eshowkw --overlays --arch amd64 $pkgname |\
+    grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
+    awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
+    xargs
+echo    "    title:    $(cat $issuedir/title)"
+
 blocker_bug_no=""
 LookupForABlocker
 SetAssigneeAndCc
+echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
+echo
+SearchForMatchingBugs
 echo

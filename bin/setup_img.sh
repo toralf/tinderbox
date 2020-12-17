@@ -393,7 +393,6 @@ EGO_BUILD_FLAGS="-p 1"
 GO19CONCURRENTCOMPILATION=0
 GOMAXPROCS="1"
 MAKEOPTS="-j1"
-NINJAFLAGS="-j1"
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
 OMP_NUM_THREADS=1
@@ -428,7 +427,7 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  # give FF and TB a chance
+  # give Firefox, Thunderbird et al a chance
   if [[ $(($RANDOM % 8)) -eq 0 ]]; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
@@ -467,13 +466,13 @@ EOF
 }
 
 
-# /var/tmp/tb/backlog.upd : update_backlog.sh writes to it
-# /var/tmp/tb/backlog     : filled by setup_img.sh
-# /var/tmp/tb/backlog.1st : filled by setup_img.sh, job.sh and retest.sh write to it
+# /var/tmp/tb/backlog     : filled  once by setup_img.sh
+# /var/tmp/tb/backlog.1st : filled  once by setup_img.sh, job.sh and update_backlog.sh update it
+# /var/tmp/tb/backlog.upd : updated      by update_backlog.sh
 function CreateBacklog()  {
   bl=./var/tmp/tb/backlog
 
-  truncate -s 0           $bl{,.1st,.upd}
+  touch                   $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
@@ -483,8 +482,7 @@ function CreateBacklog()  {
   fi
 
   # update @world before working on the arbitrarily choosen package list
-  # @system is just a fall back for @world failure or if it takes very long
-  # depclean must succeeded here during setup
+  # this depclean must not fail
   cat << EOF >> $bl.1st
 %emerge --depclean --changed-use
 app-portage/pfl
@@ -492,9 +490,8 @@ app-portage/pfl
 @system
 EOF
 
-  # switch to LibreSSL
   if [[ "$libressl" = "y" ]]; then
-    # --unmerge already schedules @preserved-rebuild but the final @preserved-rebuild should not fail, therefore "% ..."
+    # --unmerge already schedules @preserved-rebuild nevertheless the final @preserved-rebuild must not fail
     cat << EOF >> $bl.1st
 %emerge @preserved-rebuild
 %emerge --unmerge dev-libs/openssl
@@ -524,7 +521,7 @@ EOF
 }
 
 
-# - configure locale, timezone etc.
+# - configure locales, timezone etc.
 # - install and configure tools used in job.sh
 #     <package>                   <command>
 #     app-portage/portage-utils   qatom
@@ -536,7 +533,8 @@ function CreateSetupScript()  {
 #!/bin/sh
 # set -x
 
-set -euf
+# no -u due sto source /etc/profile
+set -ef
 
 export GCC_COLORS=""
 
@@ -577,7 +575,7 @@ emerge --config sys-libs/timezone-data
 
 # date
 # echo "#update stage3" | tee /var/tmp/tb/task
-# emerge -u --deep --changed-use @system --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
+# emerge -u --deep --changed-use @world --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
 # locale-gen -j1
 # eselect python update --if-unset
 
@@ -588,7 +586,7 @@ source /etc/profile
 date
 echo "#setup tools" | tee /var/tmp/tb/task
 
-# emerge ssmtp before mailx b/c mailx would pull its ebuild default MTA rather than ssmtp
+# emerge ssmtp before mailx b/c mailx would pull a different MTA than ssmtp per default
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
 
@@ -604,10 +602,10 @@ fi
 date
 echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if the same package is in 2 or more repos
-qsearch --all --nocolor --name-only --quiet | sort -u | shuf >> /var/tmp/tb/backlog
+qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
 touch /var/tmp/tb/task
 
-# create symlinks to appropriate credential files
+# create symlink(s) to appropriate credential file(s)
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
 EOF
