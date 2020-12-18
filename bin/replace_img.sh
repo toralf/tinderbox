@@ -36,10 +36,10 @@ function GetLeft()  {
 function LookForEmptyBacklogs()  {
   while read oldimg
   do
-    if $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog{,.1st} 2>/dev/null)) = "0"; then
+    if [[ $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog{,.1st} 2>/dev/null)) = "0" ]]; then
       return 0
     fi
-  done < <(cd ~/run; ls -t ~tinderbox/run/ 2>/dev/null | cut -f1 -d'/' -s | tac)
+  done < <(cd ~/run; ls -dt * 2>/dev/null | tac)
 
   return 1
 }
@@ -61,15 +61,16 @@ function list_images() {
 
 # look for an image satisfying the conditions
 function LookForAnOldEnoughImage()  {
-  local newest=$(ls -t $(list_images | sed 's,$,/etc/conf.d/hostname,g') 2>/dev/null | head -n 1)
+  local newest=$(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
   if [[ -z "$newest" ]]; then
     return 1
   fi
+
   local current_time=$(date +%s)
 
   if [[ $condition_distance -gt 0 ]]; then
     local distance
-    let "distance = ($current_time - $(stat -c%Y $newest)) / 3600" || true
+    let "distance = ($current_time - $(stat -c%Y $newest/etc/conf.d/hostname)) / 3600" || true
     if [[ $distance -lt $condition_distance ]]; then
       return 1
     fi
@@ -78,13 +79,19 @@ function LookForAnOldEnoughImage()  {
   # "oldimg" is always set here as a side effect, but it is used only if "0" is returned
   while read oldimg
   do
+    local runtime
     let "runtime = ($current_time - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24" || true
+    local left=$(GetLeft $oldimg)
+    local completed=$(GetCompl $oldimg)
+
     if [[ $runtime -ge $condition_runtime ]]; then
-      if [[ $(GetLeft $oldimg) -le $condition_backlog || $(GetCompl $oldimg) -ge $condition_completed ]]; then
+      if [[ $left -le $condition_backlog || $completed -ge $condition_completed ]]; then
         return 0
       fi
-    elif [[ $(GetLeft $oldimg) -le $condition_backlog && $(GetCompl $oldimg) -ge $condition_completed ]]; then
-      return 0
+    else
+      if [[ $left -le $condition_backlog && $completed -ge $condition_completed ]]; then
+        return 0
+      fi
     fi
   done < <(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | tac)  # from oldest to newest
 
@@ -100,7 +107,7 @@ STOP
 STOP
 STOP
 STOP
-STOP scheduled at $(unset LC_TIME; date +%R), $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left
+STOP $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left
 EOF
 
   local lock_dir=/run/tinderbox/$oldimg.lock
@@ -128,8 +135,8 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-condition_backlog=12000     # max. entries left in the backlog
-condition_completed=7000    # min. amount of completed emerge operations
+condition_backlog=11000     # max. entries left in the backlog
+condition_completed=8000    # min. amount of completed emerge operations
 condition_distance=0        # min. distance in hours to the previous image
 condition_runtime=21        # max. age in days for an image
 oldimg=""                   # optional: image name to be replaced ("-" to add a new one)
@@ -159,7 +166,9 @@ echo $$ >> "$lck" || Finish 1
 
 if [[ -z "$oldimg" ]]; then
   if ! LookForEmptyBacklogs; then
-    LookForAnOldEnoughImage || Finish 0
+    if ! LookForAnOldEnoughImage; then
+      Finish 0
+    fi
   fi
 elif [[ ! -e ~/run/$oldimg ]]; then
   echo " error, old image not found: $oldimg"
