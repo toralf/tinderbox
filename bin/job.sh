@@ -90,7 +90,8 @@ function setTaskAndBacklog()  {
 
 # verify/parse $task accordingly to the needs of the tinderbox
 function getNextTask() {
-  while [[ : ]]; do
+  while [[ : ]]
+  do
     setTaskAndBacklog
 
     if [[ -z "$task" || $task =~ ^# ]]; then
@@ -192,14 +193,16 @@ EOF
   if [[ -d "$workdir" ]]; then
     # catch all log file(s)
     (
+      set -e
       f=/var/tmp/tb/files
-      cd "$workdir/.." &&\
-      find ./ -name "*.log" -o -name "testlog.*" -o -wholename '*/elf/*.out' > $f &&\
-      [[ -s $f ]] &&\
-      tar -cjpf $issuedir/files/logs.tbz2 \
-        --dereference --warning='no-file-removed' --warning='no-file-ignored' \
-        --files-from $f 2>/dev/null
-      rm -f $f
+      cd "$workdir/.."
+      find ./ -name "*.log" -o -name "testlog.*" -o -wholename '*/elf/*.out' > $f
+      if [[ -s $f ]]; then
+        tar -cjpf $issuedir/files/logs.tbz2 \
+            --dereference --warning='no-file-removed' --warning='no-file-ignored' \
+            --files-from $f 2>/dev/null
+      fi
+      rm $f
     )
 
     # additional cmake files
@@ -207,13 +210,15 @@ EOF
 
     # provide the whole temp dir if possible
     (
-      cd "$workdir/../.." &&\
-      [[ -d ./temp ]]     &&\
-      timeout -s 15 180 tar -cjpf $issuedir/files/temp.tbz2 \
-          --dereference --warning='no-file-removed' --warning='no-file-ignored'  \
-          --exclude='*/kerneldir/*' --exclude='*/var-tests/*' --exclude='*/go-build[0-9]*/*' \
-          --exclude='*/testdirsymlink/*' --exclude='*/go-cache/??/*' \
-          ./temp
+      set -e
+      cd "$workdir/../.."
+      if [[ -d ./temp ]]; then
+        timeout -s 15 180 tar -cjpf $issuedir/files/temp.tbz2 \
+            --dereference --warning='no-file-removed' --warning='no-file-ignored'  \
+            --exclude='*/kerneldir/*' --exclude='*/var-tests/*' --exclude='*/go-build[0-9]*/*' \
+            --exclude='*/testdirsymlink/*' --exclude='*/go-cache/??/*' \
+            ./temp
+      fi
     )
 
     # ICE of GCC ?
@@ -277,7 +282,7 @@ function foundSandboxIssue() {
 
   echo "sandbox issue" > $issuedir/title
   if [[ -f $sandb ]]; then
-    head -n 10 $sandb > $issuedir/issue 2>&1
+    head -n 10 $sandb &> $issuedir/issue
   else
     echo "Bummer, sandbox file does not exist: $sandb" > $issuedir/issue
   fi
@@ -285,14 +290,13 @@ function foundSandboxIssue() {
 
 
 # helper of ClassifyIssue()
-# consider this crontab entry to save CPU cycles at other images, if a package failed (assuming, that CFLAGS was the culprit)
+# consider this crontab entry to save CPU cycles at other images if a package failed (assuming, that CFLAGS was the culprit)
 # @hourly  f=/tmp/cflagsknown2fail; sort -u ~/run/*/etc/portage/package.env/cflags_default 2>/dev/null | column -t >$f && for i in $(ls -d ~/run/*/etc/portage/package.env/ 2>/dev/null); do cp $f $i; done
 function foundCflagsIssue() {
   if ! grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null; then
     printf "%-50s %s\n" "<=$pkg" "cflags_default" >> /etc/portage/package.env/cflags_default
     try_again=1
   fi
-
   echo "$1" > $issuedir/title
 }
 
@@ -310,11 +314,9 @@ function foundGenericIssue() {
       cat /mnt/tb/data/CATCH_ISSUES
     ) | split --lines=1 --suffix-length=2
 
-    # the amount of echos must match the argument of -B 2 in the grep in the for-loop
-    echo                  >  ./stripped_pkglog
-    echo                  >> ./stripped_pkglog
+    # the amount of newlines must match the argument of -B in the grep in the for-loop
+    echo -e "\n\n"        >  ./stripped_pkglog
     cat $pkglog_stripped  >> ./stripped_pkglog
-
     for x in ./x??
     do
       if grep -a -m 1 -B 2 -A 3 -f $x ./stripped_pkglog > ./issue; then
@@ -323,7 +325,6 @@ function foundGenericIssue() {
         break
       fi
     done
-
     rm -f ./x?? ./stripped_pkglog ./issue
 
     popd 1>/dev/null
@@ -364,10 +365,10 @@ function handleTestPhase() {
     # the tar here is know to spew things like the obe below so ignore errors
     # tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
     tar -cjpf $issuedir/files/tests.tbz2 \
-      --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
-      --exclude='*.o' --exclude="*/symlinktest/*" \
-      --dereference --sparse --one-file-system --warning='no-file-ignored' \
-      $dirs 2>/dev/null
+        --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
+        --exclude='*.o' --exclude="*/symlinktest/*" \
+        --dereference --sparse --one-file-system --warning='no-file-ignored' \
+        $dirs 2>/dev/null
   fi
   popd 1>/dev/null
 }
@@ -409,13 +410,19 @@ function ClassifyIssue() {
     foundGenericIssue
   fi
 
-  # if the issue file is too big, then delete in each loop the 1st line as long as needed
-  while [[ $(wc -c < $issuedir/issue) -gt 1024 && $(wc -l < $issuedir/issue) -gt 1 ]]; do
+  # if the issue file size is too big, then delete each time the 1st line till it fits
+  while [[ : ]]
+  do
+    read lines words chars <<< $(wc < $issuedir/issue)
+    if [[ $lines -le 1 || $chars -le 1024 ]]; then
+      break
+    fi
     sed -i -e "1d" $issuedir/issue
   done
 
   # shrink loong path names and :lineno:columno: pattern
-  sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' $issuedir/title
+  sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
+         -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' $issuedir/title
 }
 
 
@@ -424,18 +431,12 @@ function ClassifyIssue() {
 function CompileComment0TitleAndBody() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
-  cat $issuedir/issue | stripEscapeSequences > $issuedir/comment0
-  # cut a too long #comment0
-  while [[ $(wc -c < $issuedir/comment0) -gt 4000 ]]
-  do
-    sed -i '1d' $issuedir/comment0
-  done
+  stripEscapeSequences < $issuedir/issue > $issuedir/comment0
 
-  # take the upper part of comment0 for the email
+  # put this into the email before completing comment0
   cp $issuedir/comment0 $issuedir/body
   echo -e "\n\n    check_bgo.sh ~/img?/$name/$issuedir\n" >> $issuedir/body
 
-  # now enrich comment0
   cat << EOF >> $issuedir/comment0
 
   -------------------------------------------------------------------
