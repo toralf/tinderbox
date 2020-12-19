@@ -12,15 +12,13 @@ function IgnoreUseFlags()  {
 
 
 function ThrowUseFlags() {
-  n=$1  # pass: about 1 of n
-  m=5   # mask: about 20%
+  local n=$1  # pass: about n
+  local m=5   # mask: about 20%
 
-  shuf | sort |\
+  shuf -n $(($RANDOM % $n)) |\
+  sort |\
   while read flag
   do
-    if [[ $(($RANDOM % $n)) -eq 0 ]]; then
-      continue
-    fi
     if [[ $(($RANDOM % $m)) -eq 0 ]]; then
       echo -n "-"
     fi
@@ -188,7 +186,7 @@ function CreateImageDir() {
 
 # download, verify and unpack the stage3 file
 function UnpackStage3()  {
-  latest="$tbdistdir/latest-stage3.txt"
+  local latest="$tbdistdir/latest-stage3.txt"
 
   for mirror in $gentoo_mirrors
   do
@@ -200,7 +198,7 @@ function UnpackStage3()  {
     exit 1
   fi
 
-  wgeturl="$mirror/releases/amd64/autobuilds"
+  local wgeturl="$mirror/releases/amd64/autobuilds"
 
   case $profile in
     */no-multilib/hardened)   stage3=$(grep "/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest);;
@@ -211,14 +209,14 @@ function UnpackStage3()  {
     */musl)                   stage3=$(grep "/stage3-amd64-musl-vanilla-20.*\.tar\." $latest);;
     *)                        stage3=$(grep "/stage3-amd64-20.*\.tar\." $latest);;
   esac
-  stage3=$(echo $stage3 | cut -f1 -d' ' -s)
+  local stage3=$(echo $stage3 | cut -f1 -d' ' -s)
 
   if [[ -z "$stage3" || "$stage3" =~ [[:space:]] ]]; then
     echo " can't get stage3 filename for profile '$profile' in $latest"
     exit 1
   fi
 
-  f=$tbdistdir/${stage3##*/}
+  local f=$tbdistdir/${stage3##*/}
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo " downloading $f ..."
@@ -447,7 +445,7 @@ nameserver 127.0.0.1
 
 EOF
 
-  h=$(hostname)
+  local h=$(hostname)
   cat << EOF > ./etc/hosts
 127.0.0.1 localhost $h.localdomain $h
 ::1       localhost $h.localdomain $h
@@ -470,7 +468,7 @@ EOF
 # /var/tmp/tb/backlog.1st : filled  once by setup_img.sh, job.sh and update_backlog.sh update it
 # /var/tmp/tb/backlog.upd : updated      by update_backlog.sh
 function CreateBacklog()  {
-  bl=./var/tmp/tb/backlog
+  local bl=./var/tmp/tb/backlog
 
   touch                   $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
@@ -649,8 +647,9 @@ function PrintUseFlags() {
 
 
 function DryRunWithVaryingUseFlags() {
-  attempt=0
-  max_attempts=30
+  local attempt=0
+  local max_attempts=30
+
   while [[ : ]]
   do
     echo
@@ -663,7 +662,7 @@ function DryRunWithVaryingUseFlags() {
 
     grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
     cut -f1 -d' ' -s |\
-    shuf -n $(($RANDOM % 20)) |\
+    shuf -n $(($RANDOM % 10)) |\
     sort |\
     xargs |\
     xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
@@ -671,7 +670,7 @@ function DryRunWithVaryingUseFlags() {
     grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
     cut -f1 -d' ' -s |\
     IgnoreUseFlags |\
-    ThrowUseFlags 10 |\
+    ThrowUseFlags 100 |\
     PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
 
     grep -h 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
@@ -683,6 +682,7 @@ function DryRunWithVaryingUseFlags() {
 
     grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
     shuf -n $(($RANDOM % 400)) |\
+    sort |\
     while read file
     do
       pkg=$(echo $file | cut -f6-7 -d'/')
@@ -692,8 +692,7 @@ function DryRunWithVaryingUseFlags() {
       ThrowUseFlags 10 |\
       xargs |\
       xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
-    done |\
-    sort > $mnt/etc/portage/package.use/24thrown_package_use_flags
+    done > $mnt/etc/portage/package.use/24thrown_package_use_flags
 
     DryRunOnce && break
 
