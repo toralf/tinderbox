@@ -53,8 +53,11 @@ function SetOptions() {
 
   # an "y" yields to ABI_X86: 32 64
   multiabi="n"
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    multiabi="y"
+  # run at most 1 image
+  if ! ls -d ~tinderbox/run/*abi32+64* &>/dev/null; then
+    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+      multiabi="y"
+    fi
   fi
 
   # prefer a non-running profile
@@ -681,7 +684,7 @@ function DryRunWithVaryingUseFlags() {
     PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
     grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
-    shuf -n $(($RANDOM % 400)) |\
+    shuf -n $(($RANDOM % 600)) |\
     sort |\
     while read file
     do
@@ -689,7 +692,7 @@ function DryRunWithVaryingUseFlags() {
       grep -h 'flag name="' $file |\
       cut -f2 -d'"' -s |\
       IgnoreUseFlags |\
-      ThrowUseFlags 10 |\
+      ThrowUseFlags 8 |\
       xargs |\
       xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
     done > $mnt/etc/portage/package.use/24thrown_package_use_flags
