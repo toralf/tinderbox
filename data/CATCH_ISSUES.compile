@@ -53,7 +53,7 @@ ImportError:
 The .* distribution was not found and is required by
 stack smashing detected
 Errors in .* projects
-No rule to make target
+: undefined reference
 CSC: error .*:
 : error adding symbols:
 Error: No implementations provided for the following modules:
@@ -265,3 +265,4 @@ ragel:
 AssertionError: Need at least
 AttributeError:
 ValueError:
+No rule to make target

@@ -39,7 +39,6 @@ Please switch to an openmp compatible compiler
 Please use a supported ICD
 PostgreSQL slot must be set to one of:
 proxy.golang.org
-run haskell-updater to fix broken packages
 Select exactly one database type out of these:
 some Java tools are not available on some VMs on some architectures
 Sorry, but this version does not yet support features
