@@ -616,6 +616,7 @@ function SwitchGCC() {
 function PostEmerge() {
   # don't change these config files after image setup
   rm -f /etc/._cfg????_{hosts,resolv.conf}
+  rm -f /etc/conf.d/._cfg????_hostname
   rm -f /etc/ssmtp/._cfg????_ssmtp.conf
   rm -f /etc/portage/._cfg????_make.conf
 
