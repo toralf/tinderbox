@@ -34,25 +34,26 @@ function SearchForMatchingBugs() {
       bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |\
           sort -u -n -r | head -n 10 | sed "s,^,$s  ," | tee $output
       if [[ -s $output ]]; then
-        rm $output
-        return
+        break 2
       fi
     done
   done
 
-  # no findings till now, so search for any bug of that category/package
-
-  local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
-  local g='stabilize|Bump| keyword| bump'
-
-  echo -e "    OPEN:     $h&resolution=---&short_desc=$pkgname\n"
-  bugz -q --columns 400 search --show-status     $pkgname | grep -v -i -E "$g" |\
-      sort -u -n -r | head -n 10 | tee $output
   if [[ ! -s $output ]]; then
-    echo
-    echo -e "    RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-    bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
-        sort -u -n -r | head -n 10
+    # if no findings till now, so search for any bug of that category/package
+
+    local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
+    local g='stabilize|Bump| keyword| bump'
+
+    echo -e "    OPEN:     $h&resolution=---&short_desc=$pkgname\n"
+    bugz -q --columns 400 search --show-status     $pkgname | grep -v -i -E "$g" |\
+        sort -u -n -r | head -n 10 | tee $output
+    if [[ ! -s $output ]]; then
+      echo
+      echo -e "    RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
+      bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
+          sort -u -n -r | head -n 10
+    fi
   fi
 
   echo -en "\n\n    bgo.sh -d $issuedir"
