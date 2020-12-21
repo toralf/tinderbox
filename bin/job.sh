@@ -48,8 +48,9 @@ function Finish()  {
   local exit_code=${1:-$?}
 
   trap - INT QUIT TERM EXIT
+
   if [[ -x /usr/bin/pfl ]]; then
-    /usr/bin/pfl &>/dev/null || true
+    /usr/bin/pfl &>/dev/null
   fi
 
   subject=$(echo "${2:-<no subject given>}" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
