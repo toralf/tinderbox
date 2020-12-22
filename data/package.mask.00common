@@ -25,6 +25,7 @@ net-fs/openafs
 sci-libs/linux-gpib-modules
 sys-apps/modutils
 sys-cluster/openmpi
+sys-fs/encfs
 sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
