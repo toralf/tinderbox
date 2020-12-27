@@ -104,7 +104,6 @@ to have 2 directories acting as mount points for 2 separate file systems holding
 ```bash
 ln -sf ./img1 ./img
 ```
-
 Clone this Git repository.
 
 Move *./data* and *./sdata* into *~tinderbox/tb/*.
@@ -116,6 +115,17 @@ Grant sudo rights to the user *tinderbox*:
 
 ```bash
 tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/sync_repo.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/cgroup.sh
+```
+Maybe create this crontab entries for user *tinderbox*:
+
+```bash
+# update image backlogs
+14 * * * * /opt/tb/bin/update_backlog.sh
+
+# save cpu cycles
+@hourly  f=/tmp/cflagsknown2fail; sort -u ~/run/*/etc/portage/package.env/cflags_default 2>/dev/null | column -t >$f && for i in $(ls -d ~/run/*/etc/portage/package.env/ 2>/dev/null); do cp $f $i; done
+
+@weekly find ~/distfiles/ -maxdepth 1 -type f -atime +366 -exec rm "{}" \
 ```
 ## link(s)
 
