@@ -25,7 +25,8 @@ function SearchForMatchingBugs() {
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r | head -n 10 | tee $output
     if [[ -s $output ]]; then
-      break
+      rm $output
+      return
     fi
 
     for s in FIXED WORKSFORME DUPLICATE
