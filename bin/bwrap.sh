@@ -113,7 +113,7 @@ if [[ -z "$mnt" ]]; then
 fi
 
 if [[ ! -d /run/tinderbox ]]; then
-  echo "missing dir - wasn't cgroup.sh run before ?"
+  echo "please create /run/tinderbox before as user root!"
   exit 5
 fi
 
