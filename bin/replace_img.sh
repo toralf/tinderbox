@@ -23,7 +23,7 @@ function Finish() {
 }
 
 
-function GetCompl() {
+function GetCompleted() {
   grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log || true
 }
 
@@ -68,6 +68,7 @@ function LookForAnOldEnoughImage()  {
 
   local current_time=$(date +%s)
 
+  # min distance between 2 subsequent images
   if [[ $condition_distance -gt 0 ]]; then
     local distance
     let "distance = ($current_time - $(stat -c%Y $newest/etc/conf.d/hostname)) / 3600" || true
@@ -76,20 +77,20 @@ function LookForAnOldEnoughImage()  {
     fi
   fi
 
-  # "oldimg" is always set here as a side effect, but it is used only if "0" is returned
+  # hint: $oldimg is set here as a side effect, but only used if "0" is returned
   while read oldimg
   do
     local runtime
     let "runtime = ($current_time - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24" || true
     local left=$(GetLeft $oldimg)
-    local completed=$(GetCompl $oldimg)
+    local completed=$(GetCompleted $oldimg)
 
-    if [[ $runtime -ge $condition_runtime ]]; then
-      if [[ $left -le $condition_backlog || $completed -ge $condition_completed ]]; then
+    if [[ $condition_maxruntime -gt 0 ]]; then
+      if [[ $runtime -ge $condition_maxruntime ]]; then
         return 0
       fi
     else
-      if [[ $left -le $condition_backlog && $completed -ge $condition_completed ]]; then
+      if [[ $left -le $condition_left && $completed -ge $condition_completed ]]; then
         return 0
       fi
     fi
@@ -107,7 +108,7 @@ STOP
 STOP
 STOP
 STOP
-STOP $(GetCompl $oldimg) completed, $(GetLeft $oldimg) left
+STOP $(GetCompleted $oldimg) completed, $(GetLeft $oldimg) left
 EOF
 
   local lock_dir=/run/tinderbox/$oldimg.lock
@@ -135,22 +136,24 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-condition_backlog=10000     # max. entries left in the backlog
+condition_left=10000        # max. entries left in the backlog
 condition_completed=8000    # min. amount of completed emerge operations
 condition_distance=0        # min. distance in hours to the previous image
-condition_runtime=21        # max. age in days for an image
+condition_maxruntime=21     # max. age in days for an image
+
 oldimg=""                   # optional: image name to be replaced ("-" to add a new one)
 setupargs=""                # arguments passed thru to setup_img.sh
 
-while getopts b:c:d:o:r:s: opt
+while getopts c:d:l:m:o:s: opt
 do
   case "$opt" in
-    b)  condition_backlog="$OPTARG"   ;;
-    c)  condition_completed="$OPTARG" ;;
-    d)  condition_distance="$OPTARG"  ;;
-    o)  oldimg="${OPTARG##*/}"        ;;
-    r)  condition_runtime="$OPTARG"   ;;
-    s)  setupargs="$OPTARG"           ;;
+    c)  condition_completed="$OPTARG"   ;;
+    d)  condition_distance="$OPTARG"    ;;
+    l)  condition_left="$OPTARG"        ;;
+    m)  condition_maxruntime="$OPTARG"  ;;
+
+    o)  oldimg="${OPTARG##*/}"          ;;
+    s)  setupargs="$OPTARG"             ;;
     *)  echo " opt not implemented: '$opt'"; exit 1;;
   esac
 done
