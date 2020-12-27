@@ -7,8 +7,7 @@
 */*  RUBY_TARGETS: ruby27
 
 # dependency issues at image setup
-app-portage/pfl           -network-cron
-dev-db/sqlite             -icu
+#dev-db/sqlite             -icu
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
 
@@ -27,8 +26,5 @@ sys-apps/nix              -etc_profile
 # can't/won't be tested at all
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind
 
-# awefully long emerge time
-*/*                       -webengine -webkit
-
-# wants qtwebengine
-net-irc/quassel           -urlpreview
+# too much unneeded deps for the tinderbox purpose
+app-portage/pfl           -network-cron
