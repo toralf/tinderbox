@@ -16,6 +16,11 @@ function CgroupCreate() {
   local name=$1
   local pid=$2
 
+  # use cgroup v1 if available
+  if ! hash -r /usr/bin/cgcreate || ! hash -r /usr/bin/cgset; then
+    return 0
+  fi
+
   # bail out before the kernel oom-killer chooses another victim process to kill if -j1 of emerge is ignored
   cgcreate -g cpu,memory:$name
 
