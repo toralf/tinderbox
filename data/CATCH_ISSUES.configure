@@ -71,3 +71,4 @@ configure: error:
 .* will not be built.
  was not found.
 sed:
+The version of your compiler is not supported at this time
