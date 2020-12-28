@@ -2,5 +2,4 @@
 .~lock*
 data/ALREADY_CATCHED
 data/portage/*-*/
-data/patches/*-*/
 sdata/ssmtp.conf

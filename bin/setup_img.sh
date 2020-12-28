@@ -347,7 +347,7 @@ function cpconf() {
 }
 
 
-# create portage + tinderbox directories + files and symlinks
+# create portage and tinderbox related directories + files
 function CompilePortageFiles()  {
   mkdir -p ./mnt/{repos,tb/data,tb/sdata} ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
 
@@ -363,15 +363,13 @@ function CompilePortageFiles()  {
     chgrp portage ./etc/portage/$d
   done
 
-  (cd ./etc/portage; ln -s ../../mnt/tb/data/patches)
-
-  touch       ./etc/portage/package.mask/self     # holds failed packages of this image
+  touch       ./etc/portage/package.mask/self     # filled with failed packages of the particular image
   chmod a+rw  ./etc/portage/package.mask/self
 
   echo 'FEATURES="test"'                          > ./etc/portage/env/test
   echo 'FEATURES="-test"'                         > ./etc/portage/env/notest
 
-  # to preserve the same dep tree: re-try a failed package with "test" again but ignore now the test results
+  # re-try a failed package with "test" again (to preserve the same dep tree as before) but continue even if the test phase fails
   echo 'FEATURES="test-fail-continue"'            > ./etc/portage/env/test-fail-continue
 
   # re-try w/o sandbox'ing
@@ -587,7 +585,7 @@ source /etc/profile
 date
 echo "#setup tools" | tee /var/tmp/tb/task
 
-# emerge ssmtp before mailx b/c mailx would pull a different MTA than ssmtp per default
+# emerge ssmtp before mailx b/c mailx would per default pull a different MTA than ssmtp
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
 
