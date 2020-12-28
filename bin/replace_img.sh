@@ -69,7 +69,7 @@ function LookForAnOldEnoughImage()  {
   local current_time=$(date +%s)
 
   # min distance between 2 subsequent images
-  if [[ $condition_distance -gt 0 ]]; then
+  if [[ $condition_distance -gt -1 ]]; then
     local distance
     let "distance = ($current_time - $(stat -c%Y $newest/etc/conf.d/hostname)) / 3600" || true
     if [[ $distance -lt $condition_distance ]]; then
@@ -82,15 +82,25 @@ function LookForAnOldEnoughImage()  {
   do
     local runtime
     let "runtime = ($current_time - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24" || true
-    local left=$(GetLeft $oldimg)
-    local completed=$(GetCompleted $oldimg)
 
-    if [[ $condition_maxruntime -gt 0 ]]; then
+    if [[ $condition_maxruntime -gt -1 ]]; then
       if [[ $runtime -ge $condition_maxruntime ]]; then
         return 0
       fi
-    else
+    fi
+
+    local left=$(GetLeft $oldimg)
+    local completed=$(GetCompleted $oldimg)
+    if [[ $condition_left -gt -1 && $condition_completed -gt -1 ]]; then
       if [[ $left -le $condition_left && $completed -ge $condition_completed ]]; then
+        return 0
+      fi
+    elif [[ $condition_left -gt -1 ]]; then
+      if [[ $left -le $condition_left ]]; then
+        return 0
+      fi
+    elif [[ $condition_completed -gt -1 ]]; then
+      if [[ $completed -ge $condition_completed ]]; then
         return 0
       fi
     fi
@@ -136,13 +146,13 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-condition_left=10000        # max. entries left in the backlog
-condition_completed=8000    # min. amount of completed emerge operations
-condition_distance=0        # min. distance in hours to the previous image
-condition_maxruntime=21     # max. age in days for an image
+condition_completed=-1      # completed emerge operations
+condition_distance=-1       # distance in hours to the previous image
+condition_left=-1           # left entries in backlogs
+condition_maxruntime=-1     # age in days for an image
 
 oldimg=""                   # optional: image name to be replaced ("-" to add a new one)
-setupargs=""                # arguments passed thru to setup_img.sh
+setupargs=""                # argument(s) for setup_img.sh
 
 while getopts c:d:l:m:o:s: opt
 do
