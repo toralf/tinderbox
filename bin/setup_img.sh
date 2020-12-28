@@ -738,31 +738,24 @@ repodir=/var/db/repos
 tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
 
+autostart="y"
 SetOptions
 
 while getopts c:d:f:l:m:p:r:s:t: opt
 do
   case $opt in
-    c)  cflags="$OPTARG"
-        ;;
+    c)  cflags="$OPTARG"            ;;
     d)  mnt="$OPTARG"
         DryRunWithVaryingUseFlags
         exit 0
         ;;
-    f)  features="$OPTARG"
-        ;;
-    l)  libressl="$OPTARG"
-        ;;
-    m)  multiabi="$OPTARG"
-        ;;
-    p)  profile="$OPTARG"
-        ;;
-    r)  defaultuseflags="$OPTARG"
-        ;;
-    s)  science="y"
-        ;;
-    t)  testfeature="$OPTARG"
-        ;;
+    f)  features="$OPTARG"          ;;
+    l)  libressl="$OPTARG"          ;;
+    m)  multiabi="$OPTARG"          ;;
+    p)  profile="$OPTARG"           ;;
+    r)  defaultuseflags="$OPTARG"   ;;
+    s)  science="y"                 ;;
+    t)  testfeature="$OPTARG"       ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 1
         ;;
