@@ -67,3 +67,7 @@ Failed Running aclocal|configure: error: C compiler cannot create executables|co
 # asciidoctor
 744385
 :in load: cannot load such file -- /usr/lib64/ruby/gems/2.7
+
+# (qtbindir) - [TRACKER] packages that need qt{4,5}_get_bindir
+544108
+qmake|moc|lrelease|lconvert

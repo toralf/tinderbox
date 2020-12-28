@@ -606,6 +606,11 @@ echo "#setup backlog" | tee /var/tmp/tb/task
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
 touch /var/tmp/tb/task
 
+# requested by asturm for bug 544108
+mkdir /etc/portage/profile
+echo "dev-qt/qtchooser-66" > /etc/portage/profile/package.provided
+
+# the very last step:
 # create symlink(s) to appropriate credential file(s)
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
