@@ -7,7 +7,8 @@
 */*  RUBY_TARGETS: ruby27
 
 # dependency issues at image setup
-#dev-db/sqlite             -icu
+dev-db/sqlite             -icu
+dev-lang/python           -bluetooth
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
 
