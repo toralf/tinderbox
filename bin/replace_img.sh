@@ -183,7 +183,7 @@ if [[ -z "$oldimg" ]]; then
       Finish 0
     fi
   fi
-elif [[ ! -e ~/run/$oldimg ]]; then
+elif [[ ! $oldimg = "-" && ! -e ~/run/$oldimg ]]; then
   echo " error, old image not found: $oldimg"
   Finish 1
 fi
