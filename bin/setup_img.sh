@@ -741,9 +741,10 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 autostart="y"
 SetOptions
 
-while getopts c:d:f:l:m:p:r:s:t: opt
+while getopts a:c:d:f:l:m:p:r:s:t: opt
 do
   case $opt in
+    a)  autostart="$OPTARG"         ;;
     c)  cflags="$OPTARG"            ;;
     d)  mnt="$OPTARG"
         DryRunWithVaryingUseFlags
@@ -784,7 +785,9 @@ echo -e "\n$(date)\n  setup OK"
 cd ~tinderbox/run
 ln -s ../$mnt
 
-echo
-su - tinderbox -c "${0%/*}/start_img.sh $name"
+if [[ $autostart = "y" ]]; then
+  echo
+  su - tinderbox -c "${0%/*}/start_img.sh $name"
+fi
 
 exit 0
