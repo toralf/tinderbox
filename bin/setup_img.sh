@@ -95,9 +95,9 @@ function SetOptions() {
 
   libressl="n"
   # parity OpenSSL : LibreSSL = 1:1
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-    libressl="y"
-  fi
+#   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+#     libressl="y"
+#   fi
 
   science="n"
   # run at most 1 image
