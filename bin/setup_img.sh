@@ -435,6 +435,10 @@ EOF
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
+
+  # requested by asturm for bug 544108 to sunet it
+  mkdir /etc/portage/profile
+  echo "dev-qt/qtchooser-66" > /etc/portage/profile/package.provided
 }
 
 
@@ -603,10 +607,6 @@ echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if the same package is in 2 or more repos
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
 touch /var/tmp/tb/task
-
-# requested by asturm for bug 544108
-mkdir /etc/portage/profile
-echo "dev-qt/qtchooser-66" > /etc/portage/profile/package.provided
 
 # the very last step:
 # create symlink(s) to appropriate credential file(s)
