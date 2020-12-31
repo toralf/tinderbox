@@ -347,6 +347,7 @@ function foundGenericIssue() {
             -e 's/(@INC contains:.*)/.../g'     \
             -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
             -e 's,target /.*/,target <snip>/,g' \
+            -e 's,(\.text\..*):,(<snip>),g'     \
             $issuedir/title
 }
 
