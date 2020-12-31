@@ -2,6 +2,7 @@
 # set -x
 
 # set cgroup v1 limits
+# reserve 8 vCPU for members of $name, period=0.1 sec
 
 set -euf
 
@@ -11,7 +12,7 @@ name=/local
 cgcreate -g cpu,memory:$name
 
 cgset -r cpu.use_hierarchy=1      $name
-cgset -r cpu.cfs_quota_us=900000  $name
+cgset -r cpu.cfs_quota_us=800000  $name
 cgset -r cpu.cfs_period_us=100000 $name
 cgset -r cpu.notify_on_release=1  $name
 
@@ -20,7 +21,7 @@ cgset -r memory.limit_in_bytes=120G       $name
 cgset -r memory.memsw.limit_in_bytes=140G $name
 cgset -r memory.notify_on_release=1       $name
 
-# make it available for non-tinderbox users too
+# make this script available for non-tinderbox users too
 cp /opt/tb/bin/cgroup-release-agent.sh /usr/local/bin/
 chmod 755 /usr/local/bin/cgroup-release-agent.sh
 
