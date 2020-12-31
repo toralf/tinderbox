@@ -437,7 +437,6 @@ EOF
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
 
   # requested by asturm for bug 544108 to sunet it
-  mkdir /etc/portage/profile
   echo "dev-qt/qtchooser-66" > /etc/portage/profile/package.provided
 }
 
