@@ -77,7 +77,6 @@ function SetOptions() {
   done < <(GetProfiles | shuf)
 
   ThrowCflags
-  features="xattr cgroup -news -collision-protect"
 
   # check the default USE flag set of choosen profile
   defaultuseflags="n"
@@ -311,7 +310,7 @@ ACCEPT_LICENSE="*"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
-FEATURES="$features"
+FEATURES="xattr cgroup -news -collision-protect"
 EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --verbose --color=n --autounmask=n"
 
 CLEAN_DELAY=0
@@ -743,7 +742,7 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 autostart="y"
 SetOptions
 
-while getopts a:c:d:f:l:m:p:r:s:t: opt
+while getopts a:c:d:l:m:p:r:s:t: opt
 do
   case $opt in
     a)  autostart="$OPTARG"         ;;
@@ -752,7 +751,6 @@ do
         DryRunWithVaryingUseFlags
         exit 0
         ;;
-    f)  features="$OPTARG"          ;;
     l)  libressl="$OPTARG"          ;;
     m)  multiabi="$OPTARG"          ;;
     p)  profile="$OPTARG"           ;;
