@@ -87,10 +87,10 @@ function SetOptions() {
 
   testfeature="n"
   # run at most 1 image
-  if ! ls -d ~tinderbox/run/*test* &>/dev/null; then
-    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-      testfeature="y"
-    fi
+#   if ! ls -d ~tinderbox/run/*test* &>/dev/null; then
+#     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+#       testfeature="y"
+#     fi
   fi
 
   libressl="n"
