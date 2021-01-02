@@ -90,7 +90,7 @@ function SetOptions() {
 #     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
 #       testfeature="y"
 #     fi
-  fi
+#   fi
 
   libressl="n"
   # parity OpenSSL : LibreSSL = 1:1
