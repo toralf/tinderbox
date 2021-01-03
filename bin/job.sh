@@ -122,12 +122,11 @@ function getNextTask() {
         fi
       fi
 
-      # skip if $task is masked, keyworded or just an invalid atom
       if ! best_visible=$(portageq best_visible / $task 2>/dev/null); then
         continue
       fi
 
-      # skip if $task is installed and would be downgraded
+      # skip if $task would be downgraded
       installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
         if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
