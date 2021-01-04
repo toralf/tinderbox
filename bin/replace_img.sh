@@ -33,10 +33,10 @@ function GetLeft()  {
 }
 
 
-function LookForEmptyBacklogs()  {
+function LookForEmptyBacklog()  {
   while read oldimg
   do
-    if [[ $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog{,.1st} 2>/dev/null)) = "0" ]]; then
+    if [[ $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog 2>/dev/null)) = "0" ]]; then
       return 0
     fi
   done < <(cd ~/run; ls -dt * 2>/dev/null | tac)
@@ -178,7 +178,7 @@ fi
 echo $$ >> "$lck" || Finish 1
 
 if [[ -z "$oldimg" ]]; then
-  if ! LookForEmptyBacklogs; then
+  if ! LookForEmptyBacklog; then
     if ! LookForAnOldEnoughImage; then
       Finish 0
     fi
@@ -191,10 +191,8 @@ fi
 if [[ -e ~/run/$oldimg ]]; then
   echo
   date
-  if [[ -e ~/run/$oldimg ]]; then
-    echo " finishing $oldimg ..."
-    StopOldImage
-  fi
+  echo " replacing $oldimg ..."
+  StopOldImage
 fi
 
 echo
