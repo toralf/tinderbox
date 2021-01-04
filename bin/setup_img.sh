@@ -652,7 +652,7 @@ function PrintUseFlags() {
 
 function DryRunWithVaryingUseFlags() {
   local attempt=0
-  local max_attempts=30
+  local max_attempts=99
 
   while [[ : ]]
   do
@@ -699,9 +699,6 @@ function DryRunWithVaryingUseFlags() {
     done > $mnt/etc/portage/package.use/24thrown_package_use_flags
 
     DryRunOnce && break
-
-    echo
-    tail -v -n 2000 $mnt/etc/portage/package.use/2?thrown*
 
     if [[ $attempt -ge $max_attempts ]]; then
       echo -e "\n$(date)\ntoo much attempts, giving up\n"
