@@ -18,6 +18,7 @@ FreeBSD
 gallium
 gcj
 ghcbootstrap
+gnutls
 hardened
 hostname
 ithreads
@@ -32,9 +33,11 @@ make-symlinks
 malloc
 minimal
 mips
+modemmanager
 monolithic
 multilib
 musl
+nss
 nvidia
 oci8
 opencl
@@ -47,8 +50,10 @@ perftools
 prefix
 selinux
 split-usr
+ssl
 ssp
 static
+static-libs
 symlink
 system
 systemd

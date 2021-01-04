@@ -8,7 +8,7 @@
 
 # dependency issues at image setup
 dev-db/sqlite             -icu
-dev-lang/python           -bluetooth
+dev-lang/python           -bluetooth -tk
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
 
@@ -29,3 +29,6 @@ sys-apps/nix              -etc_profile
 
 # too much unneeded deps for the tinderbox purpose
 app-portage/pfl           -network-cron
+
+# requested by sam_
+*/*                       tcl tk

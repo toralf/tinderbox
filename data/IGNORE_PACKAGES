@@ -46,3 +46,9 @@ sci-mathematics/twelf
 #
 media-gfx/digikam
 www-client/falkon
+#
+# out of scope
+#
+acct-group/
+acct-user/
+app-dicts/
