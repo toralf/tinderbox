@@ -227,27 +227,28 @@ function PackagesPerDay() {
     PrintImageName $i
 
     perl -F: -wane '
-      # @p helds the amount of emerge operations of day $i
+      # @p helds the amount of emerge operations of (runtime, not calendar) day $i
       BEGIN {
-        @p = (0);
-        $first = 0;
+        @packages   = ();  # per day
+        $start_time = 0;   # of emerge.log
       }
 
-      # calculate these values for the case that current emerge runs longer than 1 day
-      my $curr = $F[0];
-      $first = $curr unless ($first);
-      my $i = ($curr - $first) / 86400;
-
+      my $current_time = $F[0];
+      $start_time = $current_time unless ($start_time);
       next unless (m/::: completed emerge/);
-      $p[$i]++;
+
+      my $runday = int(($current_time - $start_time) / 86400); # runtime day, starts with "0" (zero)
+      $packages[$runday]++;  # increment # of packages of this runday
 
       END {
-        $p[$i] += 0;    # set end date nevertheless whether the emerge operations finished or not
-        foreach my $i (0..$#p) {
-          if ($i < 8 || $i % 7 == 0) {
-            (exists $p[$i]) ? printf "%5i", $p[$i] : printf "    -";
+        $packages[$runday] += 0;
+        foreach my $runday (0..$#packages) {
+          # in the first week we have often >1,000 packages per runday, but not later
+          # furthermore separate runweeks by an extra space
+          if ($runday < 8 || $runday % 7 == 0) {
+            (exists $packages[$runday]) ? printf "%5i", $packages[$runday] : printf "    -";
           } else {
-            (exists $p[$i]) ? printf "%4i", $p[$i] : printf "   -";
+            (exists $packages[$runday]) ? printf "%4i", $packages[$runday] : printf "   -";
           }
         }
         print "\n";
