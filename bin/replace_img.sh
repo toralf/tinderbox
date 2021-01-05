@@ -111,7 +111,7 @@ function LookForAnOldEnoughImage()  {
 
 
 function StopOldImage() {
-  # kick off current entries and neutralize external restart-logic for a while
+  # repeated STOP to render any external restart-logic for a while
   cat << EOF > ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP
 STOP
@@ -121,18 +121,21 @@ STOP
 STOP $(GetCompleted $oldimg) completed, $(GetLeft $oldimg) left
 EOF
 
+  # do not wait for an empty backlog.1st b/c job.sh might inject @preserved-rebuilds et al into it
+  ${0%/*}/stop_img.sh $oldimg
+
   local lock_dir=/run/tinderbox/$oldimg.lock
   if [[ -d $lock_dir ]]; then
     date
-    echo " waiting for unlock ..."
+    echo " waiting for image unlock ..."
     while [[ -d $lock_dir ]]
     do
       sleep 1
     done
     date
-    echo " unlocked."
+    echo " image is unlocked"
   else
-    echo " image is not locked"
+    echo " image was not locked"
   fi
 }
 
