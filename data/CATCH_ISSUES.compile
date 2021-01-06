@@ -266,3 +266,5 @@ AssertionError: Need at least
 AttributeError:
 ValueError:
 No rule to make target
+RuntimeError: Could not find qmake executable
+Failed to determine Qt version

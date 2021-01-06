@@ -38,3 +38,4 @@ FileNotFoundError: .* No such file or directory:
  note: each undeclared identifier is reported only once for each function it appears in
 Segmentation fault
  undefined reference to
+^ERROR

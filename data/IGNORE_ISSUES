@@ -2,6 +2,7 @@ asciidoctor
 but please install the FUSE libraries and headers to build this module
 Cannot build with randomized sbrk. Your options
 Cannot execute 32-bit applications
+clang does not support the BPF target. Please check LLVM_TARGETS.
 code model kernel not supported in the 32 bit mode
  \* *CONFIG_.*is not set when it should be
  \*   atlas needs all cpu set to performance

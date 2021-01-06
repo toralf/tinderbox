@@ -62,7 +62,7 @@ eant failed
 
 # (autoconf-2.70_beta) - sys-devel/autoconf-2.69c: new beta version
 732648
-Failed Running aclocal|configure: error: C compiler cannot create executables|configure: error: cannot find install-sh|Failed Running autoconf|configure: error:|./configure:|./config.h: error:|DHAVE_CONFIG_H: command not found
+Failed Running aclocal|configure: error: C compiler cannot create executables|configure: error: cannot find install-sh|Failed Running autoconf|configure: error:|./configure:|./config.h: error:|DHAVE_CONFIG_H: command not found|AC_PROG_LEX: unrecognized argument
 
 # asciidoctor
 744385
@@ -70,4 +70,8 @@ Failed Running aclocal|configure: error: C compiler cannot create executables|co
 
 # (qtbindir) - [TRACKER] packages that need qt{4,5}_get_bindir
 544108
-qmake|moc|lrelease|lconvert
+qmake|moc|lrelease|lconvert|Failed to determine Qt version
+
+# [TRACKER] Packages that have failures with dev-lang/python-exec[-native-symlinks]
+762406
+python3: .*|Could NOT find PythonLibs|missing: PYTHON_|/python: bad interpreter:|PYTHON_EXECUTABLE-NOTFOUND: command not found
