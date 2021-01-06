@@ -436,7 +436,7 @@ function CompileComment0TitleAndBody() {
 
   # put this into the email before completing comment0
   cp $issuedir/comment0 $issuedir/body
-  echo -e "\n\n    check_bgo.sh ~/img{1,2}/$name/$issuedir\n" >> $issuedir/body
+  echo -e "\n\n    check_bgo.sh ~/img?/$name/$issuedir\n" >> $issuedir/body
 
   cat << EOF >> $issuedir/comment0
 
