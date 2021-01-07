@@ -10,6 +10,7 @@ compile-locales
 consolekit
 d3d9
 debug
+default-gold
 doc
 elibc
 elogind
@@ -19,6 +20,7 @@ gallium
 gcj
 ghcbootstrap
 gnutls
+gold
 hardened
 hostname
 ithreads
