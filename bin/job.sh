@@ -145,7 +145,7 @@ function getNextTask() {
 
 # helper of CollectIssueFiles
 function collectPortageDir()  {
-  (cd / && tar -cjpf $issuedir/files/etc.portage.tbz2 --dereference etc/portage)
+  (cd / && tar -cjpf $issuedir/files/etc.portage.tar.bz2 --dereference etc/portage)
 }
 
 
@@ -198,7 +198,7 @@ EOF
       cd "$workdir/.."
       find ./ -name "*.log" -o -name "testlog.*" -o -wholename '*/elf/*.out' > $f
       if [[ -s $f ]]; then
-        tar -cjpf $issuedir/files/logs.tbz2 \
+        tar -cjpf $issuedir/files/logs.tar.bz2 \
             --dereference --warning='no-file-removed' --warning='no-file-ignored' \
             --files-from $f 2>/dev/null
       fi
@@ -213,7 +213,7 @@ EOF
       set -e
       cd "$workdir/../.."
       if [[ -d ./temp ]]; then
-        timeout -s 15 180 tar -cjpf $issuedir/files/temp.tbz2 \
+        timeout -s 15 180 tar -cjpf $issuedir/files/temp.tar.bz2 \
             --dereference --warning='no-file-removed' --warning='no-file-ignored'  \
             --exclude='*/kerneldir/*' --exclude='*/var-tests/*' --exclude='*/go-build[0-9]*/*' \
             --exclude='*/testdirsymlink/*' --exclude='*/go-cache/??/*' \
@@ -365,7 +365,7 @@ function handleTestPhase() {
   if [[ -n "$dirs" ]]; then
     # the tar here is know to spew things like the obe below so ignore errors
     # tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
-    tar -cjpf $issuedir/files/tests.tbz2 \
+    tar -cjpf $issuedir/files/tests.tar.bz2 \
         --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
         --exclude='*.o' --exclude="*/symlinktest/*" \
         --dereference --sparse --one-file-system --warning='no-file-ignored' \
