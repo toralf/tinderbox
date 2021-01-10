@@ -71,7 +71,7 @@ function SetOptions() {
     fi
 
     local p=$(echo $profile | tr '/' '_')
-    if ! ls -d ~tinderbox/run/$p-* /run/tinderbox/$p-*.lock &>/dev/null; then
+    if ! test -e ~tinderbox/run/$p-* && ! test -d /run/tinderbox/$p-*.lock; then
       break
     fi
   done < <(GetProfiles | shuf)
