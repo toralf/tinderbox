@@ -216,7 +216,7 @@ EOF
         timeout -s 15 180 tar -cjpf $issuedir/files/temp.tar.bz2 \
             --dereference --warning='no-file-removed' --warning='no-file-ignored'  \
             --exclude='*/kerneldir/*' --exclude='*/var-tests/*' --exclude='*/go-build[0-9]*/*' \
-            --exclude='*/testdirsymlink/*' --exclude='*/go-cache/??/*' \
+            --exclude='*/testdirsymlink/*' --exclude='*/go-cache/??/*' --exclude='*/nested_link_to_dir/*' \
             ./temp
       fi
     )
