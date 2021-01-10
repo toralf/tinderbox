@@ -60,18 +60,26 @@ fatal error: sys/sysctl.h: No such file or director
 699102
 eant failed
 
+# (qtbindir) - [TRACKER] packages that need qt{4,5}_get_bindir
+544108
+qmake|moc|lrelease|lconvert|Failed to determine Qt version
+
 # (autoconf-2.70_beta) - sys-devel/autoconf-2.69c: new beta version
 732648
-Failed Running aclocal|configure: error: C compiler cannot create executables|configure: error: cannot find install-sh|Failed Running autoconf|configure: error:|./configure:|./config.h: error:|DHAVE_CONFIG_H: command not found|AC_PROG_LEX: unrecognized argument
+Failed Running aclocal|configure: error: C compiler cannot create executables|configure: error: cannot find install-sh|Failed Running autoconf|DHAVE_CONFIG_H: command not found|AC_PROG_LEX: unrecognized argument
 
 # asciidoctor
 744385
 :in load: cannot load such file -- /usr/lib64/ruby/gems/2.7
 
-# (qtbindir) - [TRACKER] packages that need qt{4,5}_get_bindir
-544108
-qmake|moc|lrelease|lconvert|Failed to determine Qt version
-
 # [TRACKER] Packages that have failures with dev-lang/python-exec[-native-symlinks]
 762406
-python3: .*|Could NOT find PythonLibs|missing: PYTHON_|/python: bad interpreter:|PYTHON_EXECUTABLE-NOTFOUND: command not found
+python3: .*|Could NOT find PythonLibs|missing: PYTHON_|/python: bad interpreter:|PYTHON_EXECUTABLE-NOTFOUND: command not found|No supported Python implementation|python is required
+
+# tinfo) - [TRACKER] Failures with sys-libs/ncurses[tinfo]
+457530
+libtinfo.so.6: error adding symbols:
+
+# (gcc-10) - [TRACKER] sys-devel/gcc-10 porting
+706426
+Rank mismatch|mismatch in argument
