@@ -64,12 +64,6 @@ function SetOptions() {
   # however if no one passes the break criteria, then the last entry would make it eventually
   while read profile
   do
-    if [[ "$multiabi" = "y" ]]; then
-      if [[ $profile =~ "/no-multilib" ]]; then
-        continue
-      fi
-    fi
-
     local p=$(echo $profile | tr '/' '_')
     if ! test -e ~tinderbox/run/$p-* && ! test -d /run/tinderbox/$p-*.lock; then
       break
@@ -150,6 +144,12 @@ function CheckOptions() {
     exit 1
   fi
 
+  if [[ "$multiabi" = "y" ]]; then
+    if [[ $profile =~ "/no-multilib" ]]; then
+      echo " ABI_X86 mismatch: >>$profile<<"
+      exit 1
+    fi
+  fi
 }
 
 
