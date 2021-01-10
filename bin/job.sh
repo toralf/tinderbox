@@ -15,7 +15,7 @@ function stripQuotesAndMore() {
 }
 
 
-# strip away escape sequences, eg. colours et al.
+# strip away colour escape sequences etc
 function stripEscapeSequences() {
   perl -MTerm::ANSIColor=colorstrip -nle '
     $_ = colorstrip($_);
@@ -523,10 +523,6 @@ function add2backlog()  {
 
 # collect files and compile an SMTP email
 function GotAnIssue()  {
-  if grep -q -F '^>>> Installing ' $logfile_stripped; then
-    PutDepsIntoWorldFile &>/dev/null
-  fi
-
   fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $logfile_stripped) || true
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
@@ -716,6 +712,10 @@ function RunAndCheck() {
 
   if [[ $rc -eq 0 ]]; then
     return 0
+  fi
+
+  if grep -q -F '^>>> Installing ' $logfile_stripped; then
+    PutDepsIntoWorldFile &>/dev/null
   fi
 
   if grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
