@@ -62,7 +62,7 @@ eant failed
 
 # (qtbindir) - [TRACKER] packages that need qt{4,5}_get_bindir
 544108
-qmake|moc|lrelease|lconvert|Failed to determine Qt version
+qmake|moc|lrelease|lconvert|Failed to determine Qt version|qtchooser
 
 # (autoconf-2.70_beta) - sys-devel/autoconf-2.69c: new beta version
 732648
@@ -74,7 +74,7 @@ Failed Running aclocal|configure: error: C compiler cannot create executables|co
 
 # [TRACKER] Packages that have failures with dev-lang/python-exec[-native-symlinks]
 762406
-python3: .*|Could NOT find PythonLibs|missing: PYTHON_|/python: bad interpreter:|PYTHON_EXECUTABLE-NOTFOUND: command not found|No supported Python implementation|python is required
+python3: .*|Could NOT find PythonLibs|missing: PYTHON_|python: bad interpreter:|PYTHON_EXECUTABLE-NOTFOUND: command not found|No supported Python implementation|python is required|python3 not found|python: No such file or directory
 
 # tinfo) - [TRACKER] Failures with sys-libs/ncurses[tinfo]
 457530

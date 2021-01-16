@@ -177,6 +177,7 @@ Not in scope:
 error\[.*\]:
 sh: .* No such file or directory
 /bin/sh: .* Not a directory
+Type mismatch between actual argument
 Could NOT find .* (missing: .*)
  (RuntimeError)
  API requires the .* utility to be installed
@@ -268,3 +269,4 @@ ValueError:
 No rule to make target
 RuntimeError: Could not find qmake executable
 Failed to determine Qt version
+Cannot find file
