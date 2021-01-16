@@ -4,7 +4,7 @@
 # create or modify a bug report at http://bugzilla.gentoo.org
 
 function Warn() {
-  rc=$1
+  local rc=$1
 
   echo "
   *
@@ -16,8 +16,9 @@ function Warn() {
 }
 
 
-function Error() {
-  rc=$1
+function Exit() {
+  local rc=${1:-$?}
+
   Warn $rc
   exit $rc
 }
@@ -25,7 +26,9 @@ function Error() {
 
 #######################################################################
 
+set -eu
 export LANG=C.utf8
+trap Exit INT QUIT TERM
 
 id=""
 block=""
@@ -55,10 +58,6 @@ if [[ -z "$issuedir" ]]; then
 fi
 
 cd $issuedir
-if [[ $? -ne 0 ]]; then
-  echo "cannot cd into '$issuedir'"
-  exit 2
-fi
 
 if [[ -f ./.reported ]]; then
   echo "already reported - for a re-run do :    rm $issuedir/.reported"
@@ -73,7 +72,7 @@ if [[ -n "$id" ]]; then
   if [[ -z "$comment" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
-  timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err || Error $?
+  timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
 
 else
   # create a new bug report
@@ -90,33 +89,31 @@ else
     --description-from "./comment0"   \
     --batch                           \
     --default-confirm n               \
-    1>bgo.sh.out 2>bgo.sh.err || Error $?
+    1>bgo.sh.out 2>bgo.sh.err
 
   id=$(grep ' * Bug .* submitted' bgo.sh.out | sed 's/[^0-9]//g')
   if [[ -z "$id" ]]; then
     echo
     echo "empty bug id"
     echo
-    Error 4
+    Exit 4
   fi
 
   if [[ -n "$comment" ]]; then
-    timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err || Error $?
+    timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
   fi
 
   if grep -q -F '[TEST]' $issuedir/title; then
     timeout 120 bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
   fi
 fi
+echo
 
 # avoid duplicate reports
-touch ./.reported
-
-echo
-echo "https://bugs.gentoo.org/show_bug.cgi?id=$id"
+echo "https://bugs.gentoo.org/show_bug.cgi?id=$id" | tee -a ./.reported
 
 if [[ -s bgo.sh.err ]]; then
-  Error 5
+  Exit 5
 fi
 
 if [[ -f emerge-info.txt ]]; then
@@ -131,17 +128,17 @@ if [[ -d ./files ]]; then
     if [[ $bytes -eq 0 ]]; then
       echo "skipped empty file: $f"
       continue
-    fi
-
     # max. size from b.g.o. is 1000 KB
-    if [[ $bytes -gt 1000000 ]]; then
+    elif [[ $bytes -gt 1000000 ]]; then
       echo "skipped too fat file: $f"
       continue
     fi
 
-    ct="text/plain"
-    echo "$f" | grep -q "bz2$" && ct="application/x-bzip"
-    echo "$f" | grep -q "xz$"  && ct="application/x-bzip"
+    if echo "$f" | grep -q -e "bz2$" -e "xz$"; then
+      ct="application/x-bzip"
+    else
+      ct="text/plain"
+    fi
     echo "  $f"
     timeout 120 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn $?
   done
@@ -153,14 +150,16 @@ fi
 
 # set assignee and cc as the last step to reduce the amount of emails sent out by bugzilla
 if [[ $newbug -eq 1 ]]; then
-  add_assignee="-a $(cat ./assignee)"      # we expect 1 entry here
-  cc="$(cat ./cc 2>/dev/null)"             # contains 0x0a at least
+  add_assignee="-a $(cat ./assignee)"      # we expect exact 1 entry
+  cc="$(cat ./cc 2>/dev/null || true)"     # allowed to be non-existing or empty
   if [[ -n "$cc" ]]; then
     add_cc="--add-cc $(echo $cc | sed 's/ / --add-cc /g')"
+  else
+    add_cc=""
   fi
-  timeout 120 bugz modify $add_assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err
+  timeout 120 bugz modify $add_assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || echo -e "\nwarning: wrong assignee or cc\n"
 
-  # if a Cc: is invalid then try them independently
+  # if a Cc: is invalid (above command failed) then try them independently
   if [[ $? -ne 0 && -n "$cc" ]]; then
     timeout 120 bugz modify $add_assignee $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
     for i in $cc
