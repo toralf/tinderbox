@@ -135,7 +135,7 @@ function SetAssigneeAndCc() {
 
   echo "$assignee" > $issuedir/assignee
   if [[ -n "$cc" ]]; then
-    echo "$cc" | xargs -n 1 | sort -u | grep -v "^$assignee$" | xargs > "$issuedir/cc"
+    echo "$cc" | xargs -n 1 | sort -u | grep -v "^$assignee$" | xargs > $issuedir/cc
   else
     rm -f $issuedir/cc
   fi
