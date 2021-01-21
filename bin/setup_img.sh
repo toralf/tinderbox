@@ -565,7 +565,7 @@ de_DE.UTF-8@euro UTF-8
 EOF2
 
   locale-gen -j1
-  eselect locale set en_US.UTF-8
+  eselect locale set C.UTF-8
 fi
 
 env-update
