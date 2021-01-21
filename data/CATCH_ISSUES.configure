@@ -62,8 +62,7 @@ but please install the FUSE libraries and headers to build this module
 Failed to find a unicode locale
 : fatal error:.*No such file or directory
 C compiler cannot create executables
-CMake Error at
-CMake Error:
+Unable to find Qt
 Configuring incomplete
 cmake failed
 configure: error:
@@ -73,3 +72,6 @@ configure: error:
 sed:
 The version of your compiler is not supported at this time
 Could not create Makefile due to some reason
+environment: .*: command not found
+CMake Error at
+CMake Error:

@@ -177,7 +177,7 @@ Not in scope:
 error\[.*\]:
 sh: .* No such file or directory
 /bin/sh: .* Not a directory
-Type mismatch between actual argument
+ mismatch between actual argument at (1) and actual argument at (2)
 Could NOT find .* (missing: .*)
  (RuntimeError)
  API requires the .* utility to be installed

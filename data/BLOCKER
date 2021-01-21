@@ -31,7 +31,7 @@ utf8 .* does not map to Unicode
 # [Tracker] (-fno-common) - Packages failing with -fno-common
 #
 705764
-fails to build with -fno-common or gcc-10|: multiple definition of.*: first defined here
+fails to build with -fno-common or gcc-10|: multiple definition of.*: first defined here|mismatch between actual argument at (1)
 
 # (binutils-2.34) - binutils-2.34 porting
 #
@@ -83,3 +83,7 @@ libtinfo.so.6: error adding symbols:
 # (gcc-10) - [TRACKER] sys-devel/gcc-10 porting
 706426
 Rank mismatch|mismatch in argument
+
+# [TRACKER] setuptools-51.3.0+ breakage (#1390: Newlines in metadata description/Summary now trigger a ValueError)
+765838
+ValueError: newlines not allowed
