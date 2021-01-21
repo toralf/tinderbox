@@ -486,7 +486,6 @@ EOF
 }
 
 
-# helper of GotAnIssue()
 # add successfully emerged packages to world (otherwise we'd need "--deep" unconditionally)
 # https://bugs.gentoo.org/show_bug.cgi?id=563482
 function PutDepsIntoWorldFile() {
