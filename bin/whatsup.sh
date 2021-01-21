@@ -25,7 +25,7 @@ function __is_running() {
 
 function PrintImageName()  {
   # ${n} is the minimum length to distinguish image names
-  n=22
+  n=21
   printf "%-${n}s" $(cut -c-$n <<< ${1##*/})
 }
 
