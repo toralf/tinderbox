@@ -311,7 +311,7 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
 FEATURES="xattr cgroup -news -collision-protect"
-EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --verbose --color=n --autounmask=n"
+EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --verbose --color=n --autounmask=n --ask=n"
 
 CLEAN_DELAY=0
 NOCOLOR=true
