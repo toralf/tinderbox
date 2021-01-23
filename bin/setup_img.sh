@@ -587,7 +587,7 @@ source /etc/profile
 date
 echo "#setup tools" | tee /var/tmp/tb/task
 
-# emerge ssmtp before mailx b/c mailx would per default pull a different MTA than ssmtp
+# emerge ssmtp separately and before mailx b/c the later would pull in a different MTA per default
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
 
@@ -595,7 +595,6 @@ emerge -u mail-client/mailx
 emerge -u app-portage/portage-utils
 
 eselect profile set --force default/linux/amd64/$profile
-
 if [[ $testfeature = "y" ]]; then
   echo "*/*  test" >> /etc/portage/package.env/11dotest
 fi
