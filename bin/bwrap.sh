@@ -21,21 +21,17 @@ function CgroupCreate() {
     return 0
   fi
 
-  # bail out before the kernel oom-killer chooses another victim process to kill if -j1 of emerge is ignored
   cgcreate -g cpu,memory:$name
 
-  cgset -r cpu.use_hierarchy=1      $name
-  cgset -r cpu.cfs_quota_us=150000  $name
-  cgset -r cpu.cfs_period_us=100000 $name
-  cgset -r cpu.notify_on_release=1  $name
-
-  cgset -r memory.use_hierarchy=1           $name
+  cgset -r cpu.cfs_quota_us=150000          $name
   cgset -r memory.limit_in_bytes=20G        $name
   cgset -r memory.memsw.limit_in_bytes=30G  $name
-  cgset -r memory.notify_on_release=1       $name
 
-  echo "$pid" > /sys/fs/cgroup/cpu/$name/tasks
-  echo "$pid" > /sys/fs/cgroup/memory/$name/tasks
+  for i in cpu memory
+  do
+    echo      1 > /sys/fs/cgroup/$i/$name/notify_on_release
+    echo "$pid" > /sys/fs/cgroup/$i/$name/tasks
+  done
 }
 
 
