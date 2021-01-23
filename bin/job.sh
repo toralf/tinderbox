@@ -876,7 +876,7 @@ if [[ -s $taskfile ]]; then
   truncate -s 0 $taskfile
 fi
 
-# then clean up if a kill occurred before
+# clean up if eg. a KILL/TERM occurred before
 add2backlog "%emaint --fix merges"
 
 while [[ : ]]
