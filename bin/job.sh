@@ -455,7 +455,7 @@ EOF
 
     clang --version
     llvm-config --prefix --version
-    eselect python list
+    python -V
     eselect ruby list
     eselect rust list
     java-config --list-available-vms --nocolor
@@ -688,11 +688,6 @@ function PostEmerge() {
     if [[ "$current" != "$latest" ]]; then
       add2backlog "%eselect ruby set $latest"
     fi
-  fi
-
-  if grep -q ">>> Installing .* dev-lang/python-[1-9]" $logfile_stripped; then
-    add2backlog "%eselect python cleanup"
-    add2backlog "%eselect python update --if-unset"
   fi
 }
 

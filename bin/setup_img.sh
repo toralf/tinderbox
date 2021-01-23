@@ -516,9 +516,6 @@ EOF
   if [[ $profile =~ "/systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
   fi
-
-  echo "%eselect python cleanup" >> $bl.1st
-  echo "%eselect python update --if-unset" >> $bl.1st
 }
 
 
@@ -578,7 +575,6 @@ emerge --config sys-libs/timezone-data
 # echo "#update stage3" | tee /var/tmp/tb/task
 # emerge -u --deep --changed-use @world --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
 # locale-gen -j1
-# eselect python update --if-unset
 
 date
 env-update
