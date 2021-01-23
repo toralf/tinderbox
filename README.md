@@ -97,12 +97,7 @@ chgrp tinderbox /opt/tb
 Run as user *tinderbox* in ~tinderbox :
 
 ```bash
-mkdir distfiles img{1,2} logs run tb
-```
-to have 2 directories acting as mount points for 2 separate file systems holding the images. Use both file systems in a round robin manner, start with the first, eg.:
-
-```bash
-ln -sf ./img1 ./img
+mkdir distfiles img logs run tb
 ```
 Clone this Git repository.
 
@@ -123,9 +118,13 @@ Maybe create this crontab entries for user *tinderbox*:
 14 * * * * /opt/tb/bin/update_backlog.sh
 
 # save cpu cycles
-@hourly  f=/tmp/cflagsknown2fail; sort -u ~/run/*/etc/portage/package.env/cflags_default 2>/dev/null | column -t >$f && for i in $(ls -d ~/run/*/etc/portage/package.env/ 2>/dev/null); do cp $f $i; done
+@hourly  f=/tmp/cflagsknown2fail; sort -u ~tinderbox/run/*/etc/portage/package.env/cflags_default 2>/dev/null | column -t >$f && for i in $(ls -d ~/run/*/etc/portage/package.env/ 2>/dev/null); do cp $f $i; done
 
-@weekly find ~/distfiles/ -maxdepth 1 -type f -atime +366 -exec rm "{}" \
+# house keeping
+@weekly find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +366 -exec rm "{}" \
+
+# renew image
+15 * * * * l=/tmp/replace_img.sh.log.$$ && /opt/tb/bin/replace_img.sh &>$l; cat $l; rm $l
 ```
 ## link(s)
 
