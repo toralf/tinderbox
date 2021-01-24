@@ -23,17 +23,17 @@ function Finish() {
 }
 
 
-function GetCompleted() {
+function GetCompletedEmergeOperations() {
   grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log || true
 }
 
 
-function GetLeft()  {
+function NumberOfPackagesInBacklog()  {
   wc -l < ~/run/$1/var/tmp/tb/backlog
 }
 
 
-function LookForEmptyBacklog()  {
+function LookForAnImageWithEmptyBacklog()  {
   while read oldimg
   do
     if [[ $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog 2>/dev/null)) = "0" ]]; then
@@ -44,23 +44,7 @@ function LookForEmptyBacklog()  {
   return 1
 }
 
-
-function list_images() {
-  (
-    ls ~tinderbox/run/
-    ls /run/tinderbox/ | sed 's,.lock,,g'
-  )  2>/dev/null |\
-  sort -u |\
-  while read i
-  do
-    ls -d ~tinderbox/img{1,2}/${i} 2>/dev/null
-  done |\
-  sort -k 5 -t'/'
-}
-
-
-# look for an image satisfying the conditions
-function LookForAnOldEnoughImage()  {
+function LookForAnImageInRunReadyToBeReplaced()  {
   local newest=$(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
   if [[ -z "$newest" ]]; then
     return 1
@@ -89,8 +73,8 @@ function LookForAnOldEnoughImage()  {
       fi
     fi
 
-    local left=$(GetLeft $oldimg)
-    local completed=$(GetCompleted $oldimg)
+    local left=$(NumberOfPackagesInBacklog $oldimg)
+    local completed=$(GetCompletedEmergeOperations $oldimg)
     if [[ $condition_left -gt -1 && $condition_completed -gt -1 ]]; then
       if [[ $left -le $condition_left && $completed -ge $condition_completed ]]; then
         return 0
@@ -118,7 +102,7 @@ STOP
 STOP
 STOP
 STOP
-STOP $(GetCompleted $oldimg) completed, $(GetLeft $oldimg) left
+STOP $(GetCompletedEmergeOperations $oldimg) completed, $(NumberOfPackagesInBacklog $oldimg) left
 EOF
 
   # do not wait for an empty backlog.1st b/c job.sh might inject @preserved-rebuilds et al into it
@@ -154,7 +138,7 @@ condition_distance=-1       # distance in hours to the previous image
 condition_left=-1           # left entries in backlogs
 condition_maxruntime=-1     # age in days for an image
 
-oldimg=""                   # optional: image name to be replaced ("-" to add a new one)
+oldimg=""                   # optional: image name to be replaced ("-" to add a new one), no paths allowed!
 setupargs=""                # argument(s) for setup_img.sh
 
 while getopts c:d:l:m:o:s: opt
@@ -181,8 +165,8 @@ fi
 echo $$ >> "$lck" || Finish 1
 
 if [[ -z "$oldimg" ]]; then
-  if ! LookForEmptyBacklog; then
-    if ! LookForAnOldEnoughImage; then
+  if ! LookForAnImageWithEmptyBacklog; then
+    if ! LookForAnImageInRunReadyToBeReplaced; then
       Finish 0
     fi
   fi
