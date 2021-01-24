@@ -439,6 +439,10 @@ function CompileComment0TitleAndBody() {
   cp $issuedir/comment0 $issuedir/body
   echo -e "\n\n    check_bgo.sh ~/img?/$name/$issuedir\n" >> $issuedir/body
 
+  local keyword="stable"
+  if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
+    keyword="unstable"
+  fi
   cat << EOF >> $issuedir/comment0
 
   -------------------------------------------------------------------
@@ -865,11 +869,6 @@ export TERM=linux
 export TERMINFO=/etc/terminfo
 
 name=$(cat /etc/conf.d/hostname)
-if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
-  keyword="unstable"
-else
-  keyword="stable"
-fi
 
 # retry $task if task file is non-empty (eg. after a terminated emerge)
 if [[ -s $taskfile ]]; then
@@ -895,7 +894,6 @@ do
   getNextTask
   WorkOnTask
   truncate -s 0 $taskfile
-
   DetectALoop
 done
 
