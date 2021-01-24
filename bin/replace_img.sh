@@ -71,13 +71,13 @@ function LookForAnOldEnoughImage()  {
   # min distance between 2 subsequent images
   if [[ $condition_distance -gt -1 ]]; then
     local distance
-    let "distance = ($current_time - $(stat -c%Y $newest/etc/conf.d/hostname)) / 3600" || true
+    let "distance = ($current_time - $(stat -c%Y ~/run/$newest/etc/conf.d/hostname)) / 3600" || true
     if [[ $distance -lt $condition_distance ]]; then
       return 1
     fi
   fi
 
-  # hint: $oldimg is set here as a side effect, but only used if "0" is returned
+  # hint: $oldimg is set here intentionally as a side effect, but it is used only if "0" is returned
   while read oldimg
   do
     local runtime
