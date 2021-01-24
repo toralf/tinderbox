@@ -9,7 +9,7 @@ export LANG=C.utf8
 
 
 # use cgroup v1 if available
-if ! hash -r cgcreate || ! hash -r cgset; then
+if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
   exit 0
 fi
 
