@@ -38,8 +38,9 @@ function Mail() {
   else
     echo "${2:-empty_mail_body}"
   fi |\
-  timeout 120 mail -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log || \
-      echo "$(date) mail failed, \$rc=$rc, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
+  if ! timeout 120 mail -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log; then
+    echo "$(date) mail failed, \$?=$?, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
+  fi
 }
 
 
