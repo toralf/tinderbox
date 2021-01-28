@@ -1,7 +1,6 @@
 32
 64
 ^armv
-bindist
 bootstrap
 broadcom
 build
@@ -33,6 +32,7 @@ livecd
 lto
 make-symlinks
 malloc
+mbedtls
 minimal
 mips
 modemmanager

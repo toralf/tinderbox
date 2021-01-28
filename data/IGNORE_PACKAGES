@@ -28,6 +28,7 @@ oci8
 sci-chemistry/psi
 sci-libs/atlas
 sci-libs/libint
+sci-libs/rocFFT
 sci-libs/tensorflow
 sci-visualization/tensorboard
 sys-cluster/

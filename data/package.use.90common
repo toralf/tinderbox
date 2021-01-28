@@ -4,7 +4,7 @@
 */*  QEMU_SOFTMMU_TARGETS: -* x86_64 i386
 */*  QEMU_USER_TARGETS: -* x86_64 i386
 */*  VIDEO_CARDS: -* dummy
-*/*  RUBY_TARGETS: ruby27
+*/*  RUBY_TARGETS: ruby27 ruby30
 
 # dependency issues at image setup
 dev-db/sqlite             -icu
