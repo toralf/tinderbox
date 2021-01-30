@@ -17,11 +17,11 @@ log="/tmp/${0##*/}.log"
 date > $log || exit 1
 eix-sync &>> $log
 
-# sync repos which are not configured in portage at the tinderbox host so eix-sync doesn't know those
+# sync repos which are not configured at the tinderbox host
 for repo in libressl musl science
 do
   date >> $log
-  cd /var/db/repos/$repo
+  cd /var/db/repos/$repo 2>/dev/null || continue
   git pull &>> $log
 done
 
@@ -40,3 +40,4 @@ date >> $log
 if grep -q "warning: " $log; then
   cat $log
 fi
+
