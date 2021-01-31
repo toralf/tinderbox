@@ -18,7 +18,7 @@ date > $log || exit 1
 eix-sync &>> $log
 
 # sync repos which are not configured at the tinderbox host
-for repo in libressl musl science
+for repo in musl science
 do
   date >> $log
   cd /var/db/repos/$repo 2>/dev/null || continue

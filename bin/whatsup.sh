@@ -60,10 +60,10 @@ function check_history()  {
 }
 
 
-# whatsup.sh -o
-# compl fail days backlog .upd .1st status  7#7 running
-#  5297   82  6.1   15067   78    0   Wr    run/17.1-libressl-20201207-110314
-#   245    0  1.0   19037  448    3 ...r    run/17.1_desktop-abi32+64-20201212-135247
+# $ whatsup.sh -o
+# compl fail days backlog .upd .1st status  6#6 running
+# 13973  275 28.9    5115 2103    0   Wr    run/17.1_desktop-20210102-162234
+#  4867   40  8.1   16962 2233    0    r    run/17.1_desktop_plasma_systemd-20210123-112139
 function Overall() {
   running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
   all=$(wc -w <<< $images)
@@ -135,11 +135,9 @@ function Overall() {
   done
 }
 
-
-# whatsup.sh -t
-# 13.0-abi32+64_20170216-202818              1:53 m  mail-filter/assp
-# desktop_20170218-203252                    1:11 h  games-emulation/sdlmame
-# desktop-libressl-abi32+64_20170215-18565   0:03 m  dev-ruby/stringex
+# $ whatsup.sh -t
+# 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
+# 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks()  {
   ts=$(date +%s)
   for i in $images
@@ -177,10 +175,10 @@ function Tasks()  {
 }
 
 
-# whatsup.sh -l
-# 13.0-abi32+64_20170216-202818              0:13 m  >>> (5 of 8) dev-perl/Email-MessageID-1.406.0
-# desktop_20170218-203252                    1:10 h  >>> (1 of 1) games-emulation/sdlmame-0.174
-# desktop-libressl-abi32+64_20170215-18565   0:32 m  *** dev-ruby/stringex
+# $ whatsup.sh -l
+# 17.1_desktop-20210102
+# 17.1_desktop_plasma_s  0:02 m  >>> AUTOCLEAN: media-sound/toolame:0
+# 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation()  {
   for i in $images
   do
@@ -217,10 +215,9 @@ function LastEmergeOperation()  {
 }
 
 
-# whatsup.sh -p
-# gnome-systemd_20170301-222559     793 1092  696  315
-# plasma-abi32+64_20170216-195507   454 1002  839  672 1111  864 691. 719 665 469 521 487 460 403. 453
-# plasma-abi32+64_20170228-094845   627  462 1111  718  546  182
+# $ whatsup.sh -p
+# 17.1_desktop-20210102  372  832  885  536  528  773  731  715 648 684 500 476 418 610  453 395 353 460 408
+# 17.1_desktop_plasma_s  300  640   18  522  803  726  939  794 126
 function PackagesPerDay() {
   for i in $images
   do

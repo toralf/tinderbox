@@ -2,12 +2,6 @@
 # Empty lines and comments are ignored.
 #
 
-
-# libressl-support
-#
-561854
-error: redefinition of .struct bio_method_st.|BIO_|_get0_|_set0_|unknown type name EC_KEY_METHOD|DSA_SIG_get0 was not declared in this scope|OPENSSL_.* was not declared in this scope|undefined reference to HMAC|OPENSSL_|TLS1_._VERSION|undefined reference to SSL_|undefined symbol: OPENSSL_|undefined reference to .SSL_|error: HMAC|HMAC_CTX_|unknown type name SSL_CONF_CTX|TLS_MAX_VERSION undeclared|implicit declaration of function EVP_|SSL_CTX_get_security_level|EVP_CIPH_OCB_MODE undeclared|SSL_OP_NO_TLSv1_3|RSA_meth_get_finish
-
 # QA
 #
 520404

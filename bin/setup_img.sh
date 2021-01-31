@@ -86,12 +86,6 @@ function SetOptions() {
 #     fi
 #   fi
 
-  libressl="n"
-  # parity OpenSSL : LibreSSL = 1:1
-#   if [[ $(($RANDOM % 2)) -eq 0 ]]; then
-#     libressl="y"
-#   fi
-
   science="n"
   # run at most 1 image
   if ! ls -d ~tinderbox/run/*science* &>/dev/null; then
@@ -105,7 +99,6 @@ function SetOptions() {
   if [[ $musl = "y" ]]; then
     cflags="$cflags_default"
     defaultuseflags="y"
-    libressl="n"
     profile="17.0/musl"
     multiabi="n"
     testfeature="n"
@@ -128,7 +121,6 @@ function checkBool()  {
 # helper of main()
 function CheckOptions() {
   checkBool "defaultuseflags"
-  checkBool "libressl"
   checkBool "multiabi"
   checkBool "musl"
   checkBool "science"
@@ -157,7 +149,6 @@ function CheckOptions() {
 function CreateImageName()  {
   # profile[-flavour]-day-time
   name="$(echo $profile | tr '/' '_')-"
-  [[ "$libressl" = "y" ]]     && name="${name}_libressl"  || true
   [[ "$multiabi" = "y" ]]     && name="${name}_abi32+64"  || true
   [[ "$science" = "y" ]]      && name="${name}_science"   || true
   [[ "$testfeature" = "y" ]]  && name="${name}_test"      || true
@@ -276,7 +267,6 @@ EOF
   echo 'local'            > ./$repodir/local/profiles/repo_name
 
   addRepoConf "gentoo" "10"
-  [[ "$libressl" = "y" ]] && addRepoConf "libressl" "20"  || true
   [[ "$musl" = "y" ]]     && addRepoConf "musl"     "30"  || true
   [[ "$science" = "y" ]]  && addRepoConf "science"  "40"  || true
   addRepoConf "tinderbox" "90" "/mnt/tb/data/portage"
@@ -408,10 +398,6 @@ EOF
 
   cpconf ~tinderbox/tb/data/package.*.??common
 
-  if [[ "$libressl" = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.env.??libressl  # *.use.* will be copied after GCC update
-  fi
-
   if [[ "$multiabi" = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.*.??abi32+64
   fi
@@ -491,19 +477,6 @@ app-portage/pfl
 @system
 EOF
 
-  if [[ "$libressl" = "y" ]]; then
-    # --unmerge already schedules @preserved-rebuild nevertheless the final @preserved-rebuild must not fail
-    cat << EOF >> $bl.1st
-%emerge @preserved-rebuild
-%emerge --unmerge dev-libs/openssl
-%emerge --fetchonly dev-libs/libressl net-misc/openssh net-misc/wget
-%chmod g+w     /etc/portage/package.use/??libressl
-%chgrp portage /etc/portage/package.use/??libressl
-%f=\$(echo /mnt/tb/data/package.use.??libressl); cp \$f /etc/portage/package.use/\${f##*.}
-%emerge --fetchonly dev-libs/openssl
-EOF
-  fi
-
   # at least systemd and virtualbox need (even more compiled?) kernel sources and would fail in @preserved-rebuild otherwise
   echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
 
@@ -540,7 +513,6 @@ date
 echo "#setup rsync" | tee /var/tmp/tb/task
 
                          rsync --archive --cvs-exclude /mnt/repos/gentoo   $repodir/
-[[ $libressl = "y" ]] && rsync --archive --cvs-exclude /mnt/repos/libressl $repodir/  || true
 [[ $musl = "y" ]]     && rsync --archive --cvs-exclude /mnt/repos/musl     $repodir/  || true
 [[ $science = "y" ]]  && rsync --archive --cvs-exclude /mnt/repos/science  $repodir/  || true
 
@@ -734,7 +706,7 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 autostart="y"
 SetOptions
 
-while getopts a:c:d:l:m:p:r:s:t: opt
+while getopts a:c:d:m:p:r:s:t: opt
 do
   case $opt in
     a)  autostart="$OPTARG"         ;;
@@ -743,7 +715,6 @@ do
         DryRunWithVaryingUseFlags
         exit 0
         ;;
-    l)  libressl="$OPTARG"          ;;
     m)  multiabi="$OPTARG"          ;;
     p)  profile="$OPTARG"           ;;
     r)  defaultuseflags="$OPTARG"   ;;

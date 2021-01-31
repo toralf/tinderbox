@@ -27,7 +27,7 @@ sys-apps/nix              -etc_profile
 # can't/won't be tested at all
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind
 
-# too much unneeded deps for the tinderbox purpose
+# unneeded for the tinderbox purpose
 app-portage/pfl           -network-cron
 
 # requested by sam_

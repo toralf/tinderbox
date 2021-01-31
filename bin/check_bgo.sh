@@ -104,10 +104,6 @@ function SetAssigneeAndCc() {
     assignee="maintainer-needed@gentoo.org"
     cc=""
 
-  elif [[ "$blocker_bug_no" = "561854" ]]; then
-    assignee="libressl@gentoo.org"
-    cc="$m"
-
   elif [[ ! $repo = "gentoo" ]]; then
     if [[ $repo = "science" ]]; then
       assignee="sci@gentoo.org"
