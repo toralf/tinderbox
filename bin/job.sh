@@ -713,7 +713,7 @@ function RunAndCheck() {
     return 0
   fi
 
-  if grep -q -F '^>>> Installing ' $logfile_stripped; then
+  if grep -q '^>>> Installing ' $logfile_stripped; then
     PutDepsIntoWorldFile &>/dev/null
   fi
 
