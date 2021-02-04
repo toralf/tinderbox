@@ -24,7 +24,7 @@ function Finish() {
 
 
 function GetCompletedEmergeOperations() {
-  grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log || true
+  grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log 2>/dev/null || echo "0"
 }
 
 
@@ -34,6 +34,7 @@ function NumberOfPackagesInBacklog()  {
 
 
 function LookForAnImageWithEmptyBacklog()  {
+  # wanted side effect: $oldimg is set
   while read oldimg
   do
     if [[ $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog 2>/dev/null)) = "0" ]]; then
@@ -44,52 +45,51 @@ function LookForAnImageWithEmptyBacklog()  {
   return 1
 }
 
+
+function __minDistanceIsReached()  {
+  local distance
+  (( distance = ($(date +%s) - $(stat -c%Y ~/run/$newest/etc/conf.d/hostname)) / 3600))
+  [[ $distance -ge $condition_distance ]] && return 0 || return 1
+}
+
+
+function __maxRuntimeIsReached()  {
+  local runtime
+  ((runtime = ($(date +%s) - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24))
+  [[ $runtime -ge $condition_maxruntime ]] && return 0 || return 1
+}
+
+
+function __NotMuchLeftInBacklog()  {
+  [[ $(NumberOfPackagesInBacklog $oldimg) -le $condition_left ]] && return 0 || return 1
+}
+
+
+function __EnoughCompletedEmergeOperations()  {
+  [[ $(GetCompletedEmergeOperations $oldimg) -ge $condition_completed ]] && return 0 || return 1
+}
+
+
 function LookForAnImageInRunReadyToBeReplaced()  {
-  local newest=$(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
-  if [[ -z "$newest" ]]; then
-    return 1
-  fi
-
-  local current_time=$(date +%s)
-
-  # min distance between 2 subsequent images
-  if [[ $condition_distance -gt -1 ]]; then
-    local distance
-    let "distance = ($current_time - $(stat -c%Y ~/run/$newest/etc/conf.d/hostname)) / 3600" || true
-    if [[ $distance -lt $condition_distance ]]; then
-      return 1
-    fi
-  fi
-
   # hint: $oldimg is set here intentionally as a side effect, but it is used only if "0" is returned
   while read oldimg
   do
-    local runtime
-    let "runtime = ($current_time - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24" || true
-
     if [[ $condition_maxruntime -gt -1 ]]; then
-      if [[ $runtime -ge $condition_maxruntime ]]; then
+      if __maxRuntimeIsReached; then
         return 0
       fi
     fi
-
-    local left=$(NumberOfPackagesInBacklog $oldimg)
-    local completed=$(GetCompletedEmergeOperations $oldimg)
-    if [[ $condition_left -gt -1 && $condition_completed -gt -1 ]]; then
-      if [[ $left -le $condition_left && $completed -ge $condition_completed ]]; then
+    if [[ $condition_left -gt -1 ]]; then
+      if __NotMuchLeftInBacklog; then
         return 0
       fi
-    elif [[ $condition_left -gt -1 ]]; then
-      if [[ $left -le $condition_left ]]; then
-        return 0
-      fi
-    elif [[ $condition_completed -gt -1 ]]; then
-      if [[ $completed -ge $condition_completed ]]; then
+    fi
+    if [[ $condition_completed -gt -1 ]]; then
+      if __EnoughCompletedEmergeOperations; then
         return 0
       fi
     fi
   done < <(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | tac)  # from oldest to newest
-
   return 1
 }
 
@@ -166,6 +166,15 @@ echo $$ >> "$lck" || Finish 1
 
 if [[ -z "$oldimg" ]]; then
   if ! LookForAnImageWithEmptyBacklog; then
+    newest=$(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
+    if [[ -z "$newest" ]]; then
+      Finish 0
+    fi
+    if [[ $condition_distance -gt -1 ]]; then
+      if ! __minDistanceIsReached; then
+        Finish 0
+      fi
+    fi
     if ! LookForAnImageInRunReadyToBeReplaced; then
       Finish 0
     fi
