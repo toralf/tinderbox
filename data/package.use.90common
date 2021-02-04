@@ -32,3 +32,5 @@ app-portage/pfl           -network-cron
 
 # requested by sam_
 */*                       tcl tk
+
+*/*                       -webengine -webkit
