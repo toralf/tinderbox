@@ -577,7 +577,7 @@ function BuildKernel()  {
     cd /usr/src/linux
     make distclean
     make defconfig
-    make -j1
+    make -j${jobs}
     make modules_install
     make install
   ) &>> $logfile
@@ -857,6 +857,7 @@ mailto="tinderbox@zwiebeltoralf.de"
 taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds output of the current task
 backlog1st=/var/tmp/tb/backlog.1st  # the high prio backlog
+jobs=2                              # number of parallel jobs
 
 export GCC_COLORS=""
 export OCAML_COLOR="never"

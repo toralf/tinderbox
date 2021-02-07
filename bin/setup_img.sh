@@ -375,22 +375,21 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # no parallel build, prefer 1 thread in N running images over up to N running threads in 1 image
-  cat << EOF                                      > ./etc/portage/env/noconcurrent
-EGO_BUILD_FLAGS="-p 1"
-GO19CONCURRENTCOMPILATION=0
-GOMAXPROCS="1"
-MAKEOPTS="-j1"
+  cat << EOF                                      > ./etc/portage/env/jobs
+EGO_BUILD_FLAGS="-p ${jobs}"
+GO19CONCURRENTCOMPILATION=$([[ ${jobs} -eq 1 ]] && echo "0" || echo "1")
+GOMAXPROCS="${jobs}"
+MAKEOPTS="-j${jobs}"
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
-OMP_NUM_THREADS=1
-RUSTFLAGS="-C codegen-units=1$([[ $musl = "y" ]] && echo " -C target-feature=-crt-static" || true)"
-RUST_TEST_THREADS=1
-RUST_TEST_TASKS=1
+OMP_NUM_THREADS=${jobs}
+RUSTFLAGS="-C codegen-units=${jobs}$([[ $musl = "y" ]] && echo " -C target-feature=-crt-static" || true)"
+RUST_TEST_THREADS=${jobs}
+RUST_TEST_TASKS=${jobs}
 
 EOF
 
-  echo '*/*  noconcurrent' > ./etc/portage/package.env/00noconcurrent
+  echo '*/*  jobs' > ./etc/portage/package.env/00jobs
 
   if [[ $profile =~ '/systemd' ]]; then
     cpconf ~tinderbox/tb/data/package.*.??systemd
@@ -533,7 +532,7 @@ de_DE.UTF-8@euro UTF-8
 
 EOF2
 
-  locale-gen -j1
+  locale-gen -j${jobs}
   eselect locale set C.UTF-8
 fi
 
@@ -546,7 +545,7 @@ emerge --config sys-libs/timezone-data
 # date
 # echo "#update stage3" | tee /var/tmp/tb/task
 # emerge -u --deep --changed-use @world --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
-# locale-gen -j1
+# locale-gen -j${jobs}
 
 date
 env-update
@@ -702,6 +701,10 @@ fi
 repodir=/var/db/repos
 tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
+
+# best would be to have 1 thread in N running images instead up to N running threads in 1 image
+# but the lifetime of an image with -j1 is about 35 days running at a 6-core Xeon ...
+jobs=2
 
 autostart="y"
 SetOptions
