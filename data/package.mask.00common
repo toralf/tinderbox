@@ -19,17 +19,14 @@ net-libs/webkit-gtk
 
 # outdated, br0ken, breaks revdep-rebuild, needs special kernel config, ...
 */s6
-app-emacs/jde
 net-analyzer/openvas
 net-fs/openafs
 sci-libs/linux-gpib-modules
 sys-apps/modutils
-sys-cluster/openmpi
 sys-fs/encfs
 sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 
-# flip up/down of 10.0.[01], mask 9.x BTW too
-<sys-devel/llvm-10.0.1
-<sys-devel/llvm-common-10.0.1
+# 30 hours build time
+dev-qt/qtwebengine

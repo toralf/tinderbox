@@ -65,7 +65,6 @@ C compiler cannot create executables
 Unable to find Qt
 Package dependency requirement '.* could not be satisfied.
 A required package was not found
-cmake failed
 configure: error:
 : No such file or directory
 .* will not be built.
@@ -77,3 +76,4 @@ environment: .*: command not found
 CMake Error at
 CMake Error:
 Configuring incomplete
+cmake failed

@@ -16,14 +16,10 @@ virtual/
 app-office/
 app-officeext/
 dev-haskell/language-python
-dev-lang/ghc
-dev-lang/rust
 dev-libs/aws-sdk-cpp
 dev-libs/rocm
-dev-qt/qtweb
 dev-util/include-what-you-use
 gnome-extra/sushi
-net-libs/nodejs
 oci8
 sci-chemistry/psi
 sci-libs/atlas
@@ -33,8 +29,6 @@ sci-libs/tensorflow
 sci-visualization/tensorboard
 sys-cluster/
 sys-devel/byfl
-sys-devel/clang
-sys-devel/llvm
 www-client/chromium
 www-client/google-chrome
 #
@@ -43,14 +37,6 @@ www-client/google-chrome
 dev-lang/mlton
 sci-mathematics/twelf
 #
-# wants qtwebengine
-#
-media-gfx/digikam
-www-client/falkon
-#
 # out of scope
 #
-acct-group/
-acct-user/
-app-dicts/
 sys-firmware/
