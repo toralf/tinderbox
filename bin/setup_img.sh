@@ -544,7 +544,7 @@ emerge --config sys-libs/timezone-data
 
 # date
 # echo "#update stage3" | tee /var/tmp/tb/task
-# emerge -u --deep --changed-use @world --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
+# emerge -u --changed-use @world --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
 # locale-gen -j${jobs}
 
 date
@@ -740,7 +740,7 @@ CreateSetupScript
 RunSetupScript
 
 echo
-echo 'emerge --update --deep --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+echo 'emerge --update --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 if [[ "$defaultuseflags" = "y" ]]; then
   DryRunOnce
 else

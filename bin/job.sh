@@ -491,8 +491,8 @@ EOF
 }
 
 
-# add successfully emerged packages to world (otherwise we'd need "--deep" unconditionally)
-# https://bugs.gentoo.org/show_bug.cgi?id=563482
+# add successfully emerged packages to world to avoid
+# that long-compile-time deps like llvm, rust get lost if an emerge failed
 function PutDepsIntoWorldFile() {
   emerge --depclean --pretend --verbose=n 2>/dev/null |\
   grep "^All selected packages: "                     |\
@@ -745,7 +745,7 @@ function WorkOnTask() {
 
   # @set
   if [[ $task =~ ^@ ]]; then
-    opts="--deep --backtrack=30"
+    opts="--backtrack=30"
     if [[ ! $task = "@preserved-rebuild" ]]; then
       opts="$opts --update"
       if [[ $task = "@system" || $task = "@world" ]]; then
