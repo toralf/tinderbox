@@ -12,3 +12,4 @@ Couldn't find .* to unmerge.
 emerge: There are no sets to satisfy
 !!! Multiple package instances within a single package slot have been pulled
 !!! "--ask" should only be used in a terminal. Exiting.
+The following USE changes are necessary to proceed:
