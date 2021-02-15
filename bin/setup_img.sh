@@ -300,8 +300,8 @@ ACCEPT_LICENSE="*"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
-FEATURES="xattr cgroup -news -collision-protect"
-EMERGE_DEFAULT_OPTS="--with-bdeps=y --verbose-conflicts --nospinner --tree --quiet-build --autounmask-keep-masks=y --complete-graph=y --verbose --color=n --autounmask=n --ask=n --deep"
+FEATURES="cgroup xattr -collision-protect -news"
+EMERGE_DEFAULT_OPTS="--verbose --nospinner --quiet-build --tree --color=n --ask=n --deep --with-bdeps=y"
 
 CLEAN_DELAY=0
 NOCOLOR=true
@@ -319,7 +319,7 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-  # the "tinderbox" user have to be in group "portage"
+  # the "tinderbox" user must be a member of group "portage"
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
 }
@@ -377,7 +377,7 @@ EOF
 
   cat << EOF                                      > ./etc/portage/env/jobs
 EGO_BUILD_FLAGS="-p ${jobs}"
-GO19CONCURRENTCOMPILATION=$([[ ${jobs} -eq 1 ]] && echo "0" || echo "1")
+GO19CONCURRENTCOMPILATION=0
 GOMAXPROCS="${jobs}"
 MAKEOPTS="-j${jobs}"
 OMP_DYNAMIC=FALSE
