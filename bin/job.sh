@@ -480,7 +480,7 @@ EOF
   ) >> $issuedir/comment0 2>/dev/null
 
   # prefix title
-  sed -i -e "s,^,${pkg} : ," $issuedir/title
+  sed -i -e "s,^,${pkg} - ," $issuedir/title
   if [[ $phase = "test" ]]; then
     sed -i -e "s,^,[TEST] ," $issuedir/title
   fi
@@ -493,6 +493,7 @@ EOF
 
 # add successfully emerged packages to world to avoid
 # that long-compile-time deps like llvm, rust get lost if an emerge failed
+# and later a depclean is made, eg. after a succesful @world
 function PutDepsIntoWorldFile() {
   emerge --depclean --pretend --verbose=n 2>/dev/null |\
   grep "^All selected packages: "                     |\
@@ -701,6 +702,7 @@ function PostEmerge() {
 # run ($@) and act on result
 function RunAndCheck() {
   local rc=0
+  # run eval in a subshell intentionally
   if ! (eval $@ &>> $logfile); then
     rc=1
   fi
@@ -713,12 +715,12 @@ function RunAndCheck() {
     return 0
   fi
 
-  if grep -q '^>>> Installing ' $logfile_stripped; then
-    PutDepsIntoWorldFile &>/dev/null
-  fi
-
   if grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
     return $rc
+  fi
+
+  if grep -q '^>>> Installing ' $logfile_stripped; then
+    PutDepsIntoWorldFile &>/dev/null
   fi
 
   if [[ $rc -lt 128 ]]; then
