@@ -301,7 +301,7 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
 FEATURES="cgroup xattr -collision-protect -news"
-EMERGE_DEFAULT_OPTS="--verbose --nospinner --quiet-build --tree --color=n --ask=n --deep --with-bdeps=y"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --with-bdeps=y"
 
 CLEAN_DELAY=0
 NOCOLOR=true
@@ -467,23 +467,19 @@ function CreateBacklog()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  # update @world before working on the arbitrarily choosen package list
-  # this depclean must not fail
   cat << EOF >> $bl.1st
+# the depclean here must not fail
 %emerge --depclean --changed-use
 app-portage/pfl
 @world
+sys-kernel/gentoo-sources
 @system
 EOF
 
-  # at least systemd and virtualbox need (even more compiled?) kernel sources and would fail in @preserved-rebuild otherwise
-  echo "%emerge -u sys-kernel/gentoo-sources" >> $bl.1st
-
-  # upgrade GCC asap, and avoid to rebuild the existing one (b/c the old version will be unmerged soon)
-  #   %...      : bail out if it fails
-  #   =         : do not upgrade the current (slotted) version b/c we remove them immediately afterwards
-  # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of these deps
-  echo "%emerge -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+  # *try* to upgrade + avoid rebuilding of the existing GCC - might not work due to --deep
+  #   =         : do not upgrade the current (slotted) version b/c we'll remove that immediately afterwards
+  # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of the deps
+  echo "%emerge -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr || true" >> $bl.1st
 
   if [[ $profile =~ "/systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
@@ -582,7 +578,6 @@ EOF
 }
 
 
-# MTA et. al
 function RunSetupScript() {
   date
   echo " run setup script ..."
@@ -596,6 +591,7 @@ function RunSetupScript() {
     echo
     return $rc
   fi
+  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g'  $mnt/etc/portage/make.conf
 }
 
 
