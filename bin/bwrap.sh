@@ -161,6 +161,7 @@ sandbox=(env -i
 CgroupCreate local/${mnt##*/} $$
 
 # prevent "Broken sem_open function (bug 496328)"
+# https://github.com/containers/bubblewrap/issues/329
 echo "chmod 1777 /dev/shm" > "$mnt/etc/profile.d/99_bwrap.sh"
 
 if [[ -n "$entrypoint" ]]; then
