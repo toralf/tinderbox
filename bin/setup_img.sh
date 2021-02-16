@@ -410,7 +410,7 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  # give Firefox, Thunderbird et al a chance
+  # give Firefox, Thunderbird et al. a chance
   if [[ $(($RANDOM % 8)) -eq 0 ]]; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
@@ -420,7 +420,7 @@ EOF
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
 
-  # requested by asturm for bug 544108 to sunet it
+  # requested by asturm for bug 544108 to sunset it
   echo "dev-qt/qtchooser-66" > /etc/portage/profile/package.provided
 }
 
@@ -468,11 +468,13 @@ function CreateBacklog()  {
   fi
 
   cat << EOF >> $bl.1st
+@world
+@system
+sys-kernel/gentoo-sources
 # the depclean here must not fail
 %emerge --depclean --changed-use
 app-portage/pfl
 @world
-sys-kernel/gentoo-sources
 @system
 EOF
 
