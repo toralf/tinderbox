@@ -44,15 +44,20 @@ function Mail() {
 }
 
 
+function feedPfl()  {
+  if [[ -x /usr/bin/pfl ]]; then
+    /usr/bin/pfl &>/dev/null
+  fi
+}
+
+
 # clean up and exit
 function Finish()  {
   local exit_code=${1:-$?}
 
   trap - INT QUIT TERM EXIT
 
-  if [[ -x /usr/bin/pfl ]]; then
-    /usr/bin/pfl &>/dev/null
-  fi
+  feedPfl
 
   subject=$(echo "${2:-<no subject given>}" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
   if [[ $exit_code -eq 0 ]]; then
@@ -683,7 +688,6 @@ function PostEmerge() {
     if [[ -n $last && $(( $(date +%s) - $(stat -c%Y $last) )) -gt 86400 ]]; then
       add2backlog "@world"
       add2backlog "@system"
-      add2backlog "%/usr/bin/pfl || true"    # gather data of installed packages before being updated/lost
     fi
   fi
 
@@ -747,6 +751,8 @@ function WorkOnTask() {
 
   # @set
   if [[ $task =~ ^@ ]]; then
+    feedPfl
+
     opts="--backtrack=30"
     if [[ ! $task = "@preserved-rebuild" ]]; then
       opts="$opts --update"
@@ -767,6 +773,8 @@ function WorkOnTask() {
       fi
     fi
     cp $logfile /var/tmp/tb/$task.last.log
+
+    feedPfl
 
   # %<command>
   elif [[ $task =~ ^% ]]; then
