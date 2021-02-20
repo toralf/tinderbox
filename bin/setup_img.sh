@@ -478,10 +478,10 @@ app-portage/pfl
 @system
 EOF
 
-  # *try* to upgrade + avoid rebuilding of the existing GCC - might not work due to --deep
-  #   =         : do not upgrade the current (slotted) version b/c we'll remove that immediately afterwards
-  # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of the deps
-  echo "%emerge  --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr || true" >> $bl.1st
+  # update GCC first
+  #   =         : do not update the current (slotted) version - that will be removed immediately afterwards
+  # dev-libs/*  : avoid a rebuild of GCC in @world later caused by an update or rebuild of these deps
+  echo "%emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
   if [[ $profile =~ "/systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
