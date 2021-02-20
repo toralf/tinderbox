@@ -240,9 +240,11 @@ function PackagesPerDay() {
       END {
         $packages[$runday] += 0;
         foreach my $runday (0..$#packages) {
-          # in the first week we have often >1,000 packages per runday, but not later
-          # furthermore separate runweeks by an extra space
-          if ($runday < 8 || $runday % 7 == 0) {
+          # separate runweeks by an extra space
+          printf "." if ($runday && $runday % 7 == 0);
+
+          # in the first week we have often >1K packages per runday
+          if ($runday < 7) {
             (exists $packages[$runday]) ? printf "%5i", $packages[$runday] : printf "    -";
           } else {
             (exists $packages[$runday]) ? printf "%4i", $packages[$runday] : printf "   -";
@@ -256,7 +258,8 @@ function PackagesPerDay() {
 
 
 # whatsup.sh -c
-# 1x: 4800   2x: 2199   3x: 1037   4x: 765   5x: 562   6x: 525   7x: 537   8x: 125
+# 1x5169  2x2657  3x2060  4x785  5x463  6x199  7x78  8x79  9x25  10x7  11x5  13x11  14x7  15x1
+# total = 25096  unique = 11546
 function CountPackages()  {
   for i in $images
   do
