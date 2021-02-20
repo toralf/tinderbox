@@ -481,7 +481,7 @@ EOF
   # *try* to upgrade + avoid rebuilding of the existing GCC - might not work due to --deep
   #   =         : do not upgrade the current (slotted) version b/c we'll remove that immediately afterwards
   # dev-libs/*  : avoid an rebuild of GCC later in @world due to an upgrade of any of the deps
-  echo "%emerge -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr || true" >> $bl.1st
+  echo "%emerge  --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr || true" >> $bl.1st
 
   if [[ $profile =~ "/systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
@@ -701,8 +701,8 @@ tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
 
 # best would be to have 1 thread in N running images instead up to N running threads in 1 image
-# but the lifetime of an image with -j1 is about 35 days running at a 6-core Xeon ...
-jobs=2
+# OTOH the lifetime of an image with -j1 is about 35 days running at a 6-core Xeon ...
+jobs=1
 
 autostart="y"
 SetOptions
