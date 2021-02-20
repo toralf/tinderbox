@@ -177,7 +177,6 @@ Not in scope:
 error\[.*\]:
 sh: .* No such file or directory
 /bin/sh: .* Not a directory
- mismatch between actual argument at (1) and actual argument at (2)
 Could NOT find .* (missing: .*)
  (RuntimeError)
  API requires the .* utility to be installed
@@ -224,6 +223,7 @@ Fatal Error:
 tput: unknown terminal
 marshal.list: Permission denied
 Please port gnulib .* to your platform
+no required module provides
 ^command failed:
 NameError:
 build cache is disabled by GOCACHE=off, but required as of Go
@@ -270,3 +270,6 @@ No rule to make target
 RuntimeError: Could not find qmake executable
 Failed to determine Qt version
 Cannot find file
+go: cannot find main module
+go install: version is required
+ModuleNotFoundError:

@@ -56,7 +56,7 @@ eant failed
 
 # (qtbindir) - [TRACKER] packages that need qt{4,5}_get_bindir
 544108
-qmake|moc|lrelease|lconvert|Failed to determine Qt version|qtchooser
+qmake|moc |lrelease|lconvert|Failed to determine Qt version|qtchooser
 
 # (autoconf-2.70_beta) - sys-devel/autoconf-2.69c: new beta version
 732648
