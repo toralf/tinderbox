@@ -13,8 +13,7 @@ if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
   exit 0
 fi
 
-# default: reserve 3 vCPU
-vcpu=$(echo "(( ${1:-$(nproc) - 3.0} ) * 100000.0) / 1" | bc)
+vcpu=$(echo "(( ${1:-$(nproc) - 4 } ) * 100000.0) / 1" | bc)
 ram=${2:-120G}
 vram=${3:-140G}
 
