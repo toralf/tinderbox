@@ -257,13 +257,13 @@ function getPkgVarsFromIssuelog()  {
   repo=$(portageq metadata / ebuild $pkg repository)
   repo_path=$(portageq get_repo_path / $repo)
   if [[ ! -d $repo_path/$pkgname ]]; then
-    Mail "INFO: $FUNCNAME failed to get repo path for:  >$pkg<  >$pkgname<  >$task<" $logfile_stripped
+    Mail "INFO: $FUNCNAME failed to get repo path for: pkg='$pkg'  pkgname='$pkgname'  task='$task'" $logfile_stripped
     return 1
   fi
 
   pkglog=$(grep -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $logfile_stripped)
   if [[ ! -f $pkglog ]]; then
-    Mail "INFO: $FUNCNAME failed to get package log file:  >$pkg<  >$pkgname<  >$task<  >$pkglog<" $logfile_stripped
+    Mail "INFO: $FUNCNAME failed to get package log file: pkg='$pkg'  pkgname='$pkgname'  task='$task'  pkglog='$pkglog'" $logfile_stripped
     return 1
   fi
 }
