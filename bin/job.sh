@@ -583,7 +583,7 @@ function BuildKernel()  {
     cd /usr/src/linux
     make distclean
     make defconfig
-    make $(grep "^MAKEOPTS=" /etc/portage/env/jobs | cut -f2- -d'=' -s)
+    make $(grep "^MAKEOPTS=" /etc/portage/env/jobs | cut -f2 -d'"' -s)
     make modules_install
     make install
   ) &>> $logfile
