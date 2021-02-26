@@ -10,9 +10,9 @@ function IgnoreUseFlags()  {
   grep -v -w -f ~tinderbox/tb/data/IGNORE_USE_FLAGS || true
 }
 
-
+# helper of DryRunWithVaryingUseFlags
 function ThrowUseFlags() {
-  local n=$1  # pass: about n
+  local n=$1  # pass: up to n-1
   local m=5   # mask: about 20%
 
   shuf -n $(($RANDOM % $n)) |\
@@ -379,7 +379,7 @@ EOF
 EGO_BUILD_FLAGS="-p ${jobs}"
 GO19CONCURRENTCOMPILATION=0
 GOMAXPROCS="${jobs}"
-MAKEOPTS="-j${jobs}"
+MAKEOPTS="-j ${jobs}"
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
 OMP_NUM_THREADS=${jobs}
@@ -419,9 +419,6 @@ EOF
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
-
-  # requested by asturm for bug 544108 to sunset it
-  echo "dev-qt/qtchooser-66" > /etc/portage/profile/package.provided
 }
 
 
@@ -467,15 +464,17 @@ function CreateBacklog()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
+# the depclean here must not fail
+# the 2nd @{system,world} is made due to the long runtime of the initial one and might BTW clean a failed state
   cat << EOF >> $bl.1st
+sys-kernel/gentoo-sources
 @world
 @system
-sys-kernel/gentoo-sources
-# the depclean here must not fail
 %emerge --depclean --changed-use
 app-portage/pfl
 @world
 @system
+sys-apps/portage
 EOF
 
   # update GCC first
@@ -501,7 +500,7 @@ function CreateSetupScript()  {
 #!/bin/sh
 # set -x
 
-# no -u due sto source /etc/profile
+# no set -u b/c "source /etc/profile" would fail otherwise
 set -ef
 
 export GCC_COLORS=""
@@ -530,7 +529,7 @@ de_DE.UTF-8@euro UTF-8
 
 EOF2
 
-  locale-gen -j${jobs}
+  locale-gen -j ${jobs}
   eselect locale set C.UTF-8
 fi
 
@@ -543,7 +542,7 @@ emerge --config sys-libs/timezone-data
 # date
 # echo "#update stage3" | tee /var/tmp/tb/task
 # emerge -u --changed-use @world --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
-# locale-gen -j${jobs}
+# locale-gen -j ${jobs}
 
 date
 env-update
@@ -701,8 +700,8 @@ tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
 
 # best would be to have 1 thread in N running images instead up to N running threads in 1 image
-# OTOH the lifetime of an image with -j1 is about 35 days running at a 6-core Xeon ...
-jobs=1
+# OTOH the lifetime of an image with -j 1 is about 35 days running at a 6-core Xeon ...
+jobs=2
 
 autostart="y"
 SetOptions
