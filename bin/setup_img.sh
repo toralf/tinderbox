@@ -701,7 +701,7 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 # best would be to have 1 thread in N running images instead up to N running threads in 1 image
 # OTOH the lifetime of an image with -j 1 is about 35 days running at a 6-core Xeon ...
-jobs=2
+jobs=1
 
 autostart="y"
 SetOptions
