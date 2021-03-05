@@ -81,3 +81,7 @@ Rank mismatch|mismatch in argument
 # [TRACKER] setuptools-51.3.0+ breakage (#1390: Newlines in metadata description/Summary now trigger a ValueError)
 765838
 ValueError: newlines not allowed
+
+# (PROJ-8) - [Tracker] sci-libs/proj revdeps using deprecated proj_api.h - removal in PROJ 8
+729098
+proj_api.h|could not find PROJ

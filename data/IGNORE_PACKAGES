@@ -21,6 +21,9 @@ dev-libs/rocm
 dev-util/include-what-you-use
 gnome-extra/sushi
 oci8
+sci-astronomy/psfex
+sci-astronomy/scamp
+sci-astronomy/sextractor
 sci-chemistry/psi
 sci-libs/atlas
 sci-libs/libint
