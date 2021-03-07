@@ -264,40 +264,32 @@ function PackagesPerDay() {
 # 1x5169  2x2657  3x2060  4x785  5x463  6x199  7x78  8x79  9x25  10x7  11x5  13x11  14x7  15x1
 # total = 25096  unique = 11546
 function CountPackages()  {
-  for i in $images
-  do
-    grep -F ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null | cut -f9 -d' ' -s
-  done |\
-  perl -wne '
+  perl -wane '
     BEGIN {
-      my %emergesPerPackage = ();     # how often a particular package was emerged
-      my $total = 0;                  # total amount of emerge operations
+      my %pet = ();     # package => emerge times
     }
 
-    chomp();
-    $emergesPerPackage{$_}++;
+    $pet{$F[7]}++ if (m/ ::: completed emerge /);
 
     END {
-      my %h = ();
-
-      # count the "amount of emerge" values
-      for my $key (sort keys %emergesPerPackage)  {
-        my $value = $emergesPerPackage{$key};
+      my %h = ();       # emerge times => occurrence
+      for my $key (sort keys %pet)  {
+        my $value = $pet{$key};
         $h{$value}++;
-        $total += $value;
-        print $value, "x ", $key, "\n" if ($value > 22);
       }
 
-      my $unique = 0; # packages
+      my $total = 0;    # total amount of emerge operations
+      my $unique = 0;   # packages
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};
-        printf "%i%s%i  ", $key, "x", $value;   # "amount of packages" "x" "which were emerged N times"
+        print $key, "x", $value, " ";
         $unique += $value;
+        $total += $key * $value;
       }
 
       print "\ntotal = $total  unique = $unique\n";
     }
-  '
+  ' < <(cat $(for i in $images; do ls $i/var/log/emerge.log; done))
 }
 
 
