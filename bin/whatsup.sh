@@ -289,7 +289,7 @@ function CountPackages()  {
 
       print "\ntotal = $total  unique = $unique\n";
     }
-  ' < <(cat $(for i in $images; do ls $i/var/log/emerge.log; done))
+  ' < <(cat $(for i in $images; do ls $i/var/log/emerge.log 2>/dev/null; done))
 }
 
 
