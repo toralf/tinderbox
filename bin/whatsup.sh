@@ -258,6 +258,9 @@ function PackagesPerDay() {
 
 
 # whatsup.sh -c
+# 22x dev-perl/Module-Build-0.422.400
+# 22x dev-perl/Pod-Parser-1.630.0-r1
+# 22x virtual/perl-File-Temp-0.230.900
 # 1x5169  2x2657  3x2060  4x785  5x463  6x199  7x78  8x79  9x25  10x7  11x5  13x11  14x7  15x1
 # total = 25096  unique = 11546
 function CountPackages()  {
@@ -278,11 +281,11 @@ function CountPackages()  {
       my %h = ();
 
       # count the "amount of emerge" values
-      for my $key (keys %emergesPerPackage)  {
+      for my $key (sort keys %emergesPerPackage)  {
         my $value = $emergesPerPackage{$key};
         $h{$value}++;
         $total += $value;
-        print $value, "x ", $key, "\n" if ($value > 21);
+        print $value, "x ", $key, "\n" if ($value > 22);
       }
 
       my $unique = 0; # packages
