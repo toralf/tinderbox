@@ -271,7 +271,7 @@ function getPkgVarsFromIssuelog()  {
 
 # helper of ClassifyIssue()
 function foundCollisionIssue() {
-  grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_stripped | grep -B 15 ' * Package .* NOT' > $issuedir/issue || true
+  grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_stripped | grep -B 15 ' * Package .* NOT' > $issuedir/issue
 
   # get package (name+version) of the colliding package
   local s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_stripped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
