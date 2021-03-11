@@ -61,22 +61,24 @@ function check_history()  {
 
 
 # $ whatsup.sh -o
-# compl fail days backlog .upd .1st status  6#6 running
-# 13973  275 28.9    5115 2103    0   Wr    run/17.1_desktop-20210102-162234
-#  4867   40  8.1   16962 2233    0    r    run/17.1_desktop_plasma_systemd-20210123-112139
+# compl fail bgo days backlog .upd .1st status  7#7 running
+#  4402   36   1  4.8   16529    7    0   Wr    run/17.1-20210306-163653
+#  4042   26   0  5.1   17774   12    2    r    run/17.1_desktop_gnome-20210306-091529
 function Overall() {
   running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
   all=$(wc -w <<< $images)
-  echo "compl fail days backlog .upd .1st status  $running#$all running"
+  echo "compl fail bgo days backlog .upd .1st status  $running#$all running"
 
   for i in $images
   do
-    day=0
+    days=0
     f=$i/var/tmp/tb/setup.sh
     if [[ -f $f ]]; then
       let "age = $(date +%s) - $(stat -c%Y $f)" || true
-      day=$(echo "scale=1; $age / 86400.0" | bc)
+      days=$(echo "scale=1; $age / 86400.0" | bc)
     fi
+
+    bgo=$(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
 
     compl=0
     f=$i/var/log/emerge.log
@@ -131,7 +133,7 @@ function Overall() {
       d=${d##*/}
     fi
 
-    printf "%5i %4i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $day $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
+    printf "%5i %4i %3i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
   done
 }
 
@@ -224,9 +226,9 @@ function PackagesPerDay() {
     PrintImageName $i
 
     perl -F: -wane '
-      # @p helds the amount of emerge operations of (runtime, not calendar) day $i
+      # @p helds the amount of emerge operations of (runtime, not calendar) days $i
       BEGIN {
-        @packages   = ();  # per day
+        @packages   = ();  # per days
         $start_time = 0;   # of emerge.log
       }
 
@@ -234,20 +236,20 @@ function PackagesPerDay() {
       $start_time = $current_time unless ($start_time);
       next unless (m/::: completed emerge/);
 
-      my $runday = int(($current_time - $start_time) / 86400); # runtime day, starts with "0" (zero)
-      $packages[$runday]++;  # increment # of packages of this runday
+      my $rundays = int(($current_time - $start_time) / 86400); # runtime days, starts with "0" (zero)
+      $packages[$rundays]++;  # increment # of packages of this rundays
 
       END {
-        $packages[$runday] += 0;
-        foreach my $runday (0..$#packages) {
+        $packages[$rundays] += 0;
+        foreach my $rundays (0..$#packages) {
           # separate runweeks by an extra space
-          printf "." if ($runday && $runday % 7 == 0);
+          printf "." if ($rundays && $rundays % 7 == 0);
 
-          # in the first week we have often >1K packages per runday
-          if ($runday < 7) {
-            (exists $packages[$runday]) ? printf "%5i", $packages[$runday] : printf "    -";
+          # in the first week we have often >1K packages per rundays
+          if ($rundays < 7) {
+            (exists $packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
           } else {
-            (exists $packages[$runday]) ? printf "%4i", $packages[$runday] : printf "   -";
+            (exists $packages[$rundays]) ? printf "%4i", $packages[$rundays] : printf "   -";
           }
         }
         print "\n";
@@ -294,7 +296,7 @@ function CountPackages()  {
 
 
 #######################################################################
-set -euf
+set -eu
 export LANG=C.utf8
 unset LC_TIME
 
