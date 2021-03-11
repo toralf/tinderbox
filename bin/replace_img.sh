@@ -53,14 +53,14 @@ function __minDistanceIsReached()  {
 }
 
 
-function __maxRuntimeIsReached()  {
+function __ReachedMaxRuntime()  {
   local runtime
   ((runtime = ($(date +%s) - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24))
-  [[ $runtime -ge $condition_maxruntime ]] && return 0 || return 1
+  [[ $runtime -ge $condition_runtime ]] && return 0 || return 1
 }
 
 
-function __NotMuchLeftInBacklog()  {
+function __TooLessLeftInBacklog()  {
   [[ $(NumberOfPackagesInBacklog $oldimg) -le $condition_left ]] && return 0 || return 1
 }
 
@@ -74,13 +74,13 @@ function LookForAnImageInRunReadyToBeReplaced()  {
   # hint: $oldimg is set here intentionally as a side effect, but it is used only if "0" is returned
   while read oldimg
   do
-    if [[ $condition_maxruntime -gt -1 ]]; then
-      if __maxRuntimeIsReached; then
+    if [[ $condition_runtime -gt -1 ]]; then
+      if __ReachedMaxRuntime; then
         return 0
       fi
     fi
     if [[ $condition_left -gt -1 ]]; then
-      if __NotMuchLeftInBacklog; then
+      if __TooLessLeftInBacklog; then
         return 0
       fi
     fi
@@ -136,18 +136,18 @@ fi
 condition_completed=-1      # completed emerge operations
 condition_distance=-1       # distance in hours to the previous image
 condition_left=-1           # left entries in backlogs
-condition_maxruntime=-1     # age in days for an image
+condition_runtime=-1     # age in days for an image
 
 oldimg=""                   # optional: image name to be replaced ("-" to add a new one), no paths allowed!
 setupargs=""                # argument(s) for setup_img.sh
 
-while getopts c:d:l:m:o:s: opt
+while getopts c:d:l:o:r:s: opt
 do
   case "$opt" in
     c)  condition_completed="$OPTARG"   ;;
     d)  condition_distance="$OPTARG"    ;;
     l)  condition_left="$OPTARG"        ;;
-    m)  condition_maxruntime="$OPTARG"  ;;
+    r)  condition_runtime="$OPTARG"     ;;
 
     o)  oldimg="${OPTARG##*/}"          ;;
     s)  setupargs="$OPTARG"             ;;
