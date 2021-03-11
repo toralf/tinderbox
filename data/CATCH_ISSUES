@@ -24,3 +24,4 @@ sed.*failed
 Please fix the ebuild to use correct FHS/Gentoo policy paths
 ninja: build stopped:
 \[BUG\] Segmentation fault at
+^ERROR

@@ -32,10 +32,10 @@ Fatal error .
 glib-mkenums: command not found
 AttributeError:
 error: unknown target
-FileNotFoundError: .* No such file or directory:
-.* failed to
+FileNotFoundError:
+ \*   .* failed
+.* failed
 : Permission denied
  note: each undeclared identifier is reported only once for each function it appears in
 Segmentation fault
  undefined reference to
-^ERROR
