@@ -46,4 +46,4 @@ proj_api.h|could not find PROJ
 
 # (autoconf-2.7x) - [TRACKER] >=sys-devel/autoconf-2.70 issues
 732648
-Failed Running automake|configure: error: cannot find required auxiliary files:
+Failed Running automake|configure: error: cannot find required auxiliary files:|configure.*syntax error near unexpected token newline
