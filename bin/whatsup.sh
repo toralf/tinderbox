@@ -99,23 +99,23 @@ function Overall() {
 
     flag=""
     if __is_running $i ; then
-      flag="${flag}r"
+      flag+="r"
     else
-      flag="$flag "
+      flag+=" "
     fi
 
     # F=STOP file, f=STOP in backlog
     if [[ -f $i/var/tmp/tb/STOP ]]; then
-      flag="${flag}S"
+      flag+="S"
     else
       if grep -q "^STOP" $i/var/tmp/tb/backlog.1st; then
-        flag="${flag}s"
+        flag+="s"
       else
-        flag="$flag "
+        flag+=" "
       fi
     fi
 
-    [[ -f $i/var/tmp/tb/KEEP ]] && flag="${flag}K" || flag="$flag "
+    [[ -f $i/var/tmp/tb/KEEP ]] && flag+="K" || flag+=" "
 
     # show result of last run of @system, @world and @preserved-rebuild respectively
     # upper case: an error occurred, lower case: a warning occurred

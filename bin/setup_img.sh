@@ -103,6 +103,10 @@ function SetOptions() {
     multiabi="n"
     testfeature="n"
   fi
+
+  # best would be to have 1 thread in N running images instead up to N running threads in 1 image
+  # OTOH the lifetime of an image with -j 1 is about 35 days running at a 6-core Xeon ...
+  jobs=1
 }
 
 
@@ -149,11 +153,12 @@ function CheckOptions() {
 function CreateImageName()  {
   # profile[-flavour]-day-time
   name="$(echo $profile | tr '/' '_')-"
-  [[ "$multiabi" = "y" ]]     && name="${name}_abi32+64"  || true
-  [[ "$science" = "y" ]]      && name="${name}_science"   || true
-  [[ "$testfeature" = "y" ]]  && name="${name}_test"      || true
+  [[ "$multiabi" = "y" ]]     && name+="_abi32+64"  || true
+  [[ "$science" = "y" ]]      && name+="_science"   || true
+  [[ "$testfeature" = "y" ]]  && name+="_test"      || true
+  [[ $jobs -gt 1 ]]           && name+="_j${jobs}"  || true
   name="$(echo $name | sed -e 's/-[_-]/-/g' -e 's/-$//')"
-  name="${name}-$(date +%Y%m%d-%H%M%S)"
+  name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
 
@@ -699,14 +704,10 @@ repodir=/var/db/repos
 tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
 
-# best would be to have 1 thread in N running images instead up to N running threads in 1 image
-# OTOH the lifetime of an image with -j 1 is about 35 days running at a 6-core Xeon ...
-jobs=1
-
 autostart="y"
 SetOptions
 
-while getopts a:c:d:m:p:r:s:t: opt
+while getopts a:c:d:j:m:p:r:s:t: opt
 do
   case $opt in
     a)  autostart="$OPTARG"         ;;
@@ -715,6 +716,7 @@ do
         DryRunWithVaryingUseFlags
         exit 0
         ;;
+    j)  jobs="$OPTARG"              ;;
     m)  multiabi="$OPTARG"          ;;
     p)  profile="$OPTARG"           ;;
     r)  defaultuseflags="$OPTARG"   ;;
