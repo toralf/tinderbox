@@ -117,7 +117,7 @@ function checkBool()  {
 
   if [[ "$val" != "y" && "$val" != "n" ]]; then
     echo " wrong value for variable \$$var: >>$val<<"
-    exit 1
+    return 1
   fi
 }
 
@@ -132,19 +132,24 @@ function CheckOptions() {
 
   if [[ -z "$profile" ]]; then
     echo " profile empty!"
-    exit 1
+    return 1
   fi
 
   if [[ ! -d $repodir/gentoo/profiles/default/linux/amd64/$profile ]]; then
-    echo " profile unknown: >>$profile<<"
-    exit 1
+    echo " wrong profile: >>$profile<<"
+    return 1
   fi
 
   if [[ "$multiabi" = "y" ]]; then
     if [[ $profile =~ "/no-multilib" ]]; then
       echo " ABI_X86 mismatch: >>$profile<<"
-      exit 1
+      return 1
     fi
+  fi
+
+  if [[ ! $jobs =~ ^[0-9].*$ ]]; then
+    echo " jobs is wrong: >>${jobs}<<"
+    return 1
   fi
 }
 
@@ -167,12 +172,12 @@ function CreateImageDir() {
   local l=$(readlink ~tinderbox/img)
   if [[ ! -d ~tinderbox/"$l" ]]; then
     echo "unexpected readlink result '$l'"
-    exit 1
+    return 1
   fi
 
-  cd ~tinderbox/$l || exit 1
+  cd ~tinderbox/$l || return 1
 
-  mkdir $name || exit 1
+  mkdir $name || return 1
 
   # relative path (eg ./img1) from ~tinderbox
   mnt=$l/$name
@@ -193,7 +198,7 @@ function UnpackStage3()  {
 
   if [[ ! -s $latest ]]; then
     echo " empty: $latest"
-    exit 1
+    return 1
   fi
 
   local wgeturl="$mirror/releases/amd64/autobuilds"
@@ -211,14 +216,14 @@ function UnpackStage3()  {
 
   if [[ -z "$stage3" || "$stage3" =~ [[:space:]] ]]; then
     echo " can't get stage3 filename for profile '$profile' in $latest"
-    exit 1
+    return 1
   fi
 
   local f=$tbdistdir/${stage3##*/}
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo " downloading $f ..."
-    wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || exit 1
+    wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || return 1
   fi
 
   date
@@ -228,7 +233,7 @@ function UnpackStage3()  {
 
   date
   echo " verifying $f ..."
-  gpg --quiet --verify $f.DIGESTS.asc || exit 1
+  gpg --quiet --verify $f.DIGESTS.asc || return 1
   echo
 
   CreateImageName
@@ -237,7 +242,7 @@ function UnpackStage3()  {
   date
   cd $name
   echo " untar'ing $f ..."
-  tar -xpf $f --same-owner --xattrs || exit 1
+  tar -xpf $f --same-owner --xattrs || return 1
   echo
 }
 
@@ -754,5 +759,3 @@ if [[ $autostart = "y" ]]; then
   echo
   su - tinderbox -c "${0%/*}/start_img.sh $name"
 fi
-
-exit 0
