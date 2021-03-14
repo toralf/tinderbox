@@ -711,7 +711,8 @@ function RunAndCheck() {
     rc=1
   fi
 
-  logfile_stripped=/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).log
+  local suffix=$(echo $task | sed -e 's,[\$() ],_,g' -e 's,/,:,g')
+  logfile_stripped=/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).$suffix.log
   stripEscapeSequences < $logfile > $logfile_stripped
   PostEmerge
 
