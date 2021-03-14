@@ -6,6 +6,7 @@
 
 function SearchForMatchingBugs() {
   local bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search patterns
+  local found_something=0
 
   # get away line numbers, certain special terms et al
   sed -e 's,&<[[:alnum:]].*>,,g'  \
@@ -17,7 +18,7 @@ function SearchForMatchingBugs() {
       -e 's,  *, ,g'              \
       $issuedir/title > $bsi
 
-  local output=$(mktemp /tmp/$(basename $0)_XXXXXX.log) # just needed to test for success of bugz
+  local output=$(mktemp /tmp/$(basename $0)_XXXXXX.log)
 
   # search first for the same version, if unsuccessful then repeat with category/package name only
   for i in $pkg $pkgname
@@ -25,6 +26,7 @@ function SearchForMatchingBugs() {
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r | head -n 10 | tee $output
     if [[ -s $output ]]; then
+      found_something=1
       rm $output
       return
     fi
@@ -34,6 +36,7 @@ function SearchForMatchingBugs() {
       bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |\
           sort -u -n -r | head -n 10 | sed "s,^,$s  ," | tee $output
       if [[ -s $output ]]; then
+        found_something=1
         break 2
       fi
     done
@@ -48,20 +51,31 @@ function SearchForMatchingBugs() {
     echo -e "\nOPEN:     $h&resolution=---&short_desc=$pkgname\n"
     bugz -q --columns 400 search --show-status     $pkgname | grep -v -i -E "$g" |\
         sort -u -n -r | head -n 10 | tee $output
-    if [[ ! -s $output ]]; then
+    if [[ -s $output ]]; then
+      found_something=1
+    else
       echo
       echo -e "RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
       bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
-          sort -u -n -r | head -n 10
+          sort -u -n -r | head -n 10 | tee $output
+      if [[ -s $output ]]; then
+        found_something=1
+      fi
     fi
   fi
 
-  echo -en "\n\n    bgo.sh -d $issuedir"
+  rm $output
+
+  local cmd="$(dirname $0)/bgo.sh -d $issuedir"
   if [[ -n $blocker_bug_no ]]; then
-    echo -e " -b $blocker_bug_no"
+    cmd+=" -b $blocker_bug_no"
   fi
-  echo -e "\n"
-  rm  $output
+
+  if [[ $found_something -eq 1 ]]; then
+    echo -e "\n\n    ${cmd}\n"
+  else
+    $cmd
+  fi
 }
 
 
@@ -146,10 +160,16 @@ export LANG=C.utf8
 
 issuedir=$(realpath $1)
 
-cd $issuedir || exit 1
 if [[ ! -s $issuedir/title ]]; then
+  echo "no title"
   exit 1
 fi
+
+if [[ -f $issuedir/.reported ]]; then
+  echo "already reported"
+  exit 0
+fi
+
 echo
 
 name=$(cat $issuedir/../../../../../etc/conf.d/hostname)      # eg.: 17.1-20201022-101504

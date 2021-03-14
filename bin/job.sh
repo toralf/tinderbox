@@ -32,10 +32,10 @@ function stripEscapeSequences() {
 # send out a SMTP email
 function Mail() {
   subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
-  if [[ -e $2 ]]; then
-    ls -l $2
+  if [[ -s $2 ]]; then
     echo
     cat $2
+    echo
   else
     echo "${2:-empty_mail_body}"
   fi |\
@@ -441,10 +441,6 @@ function CompileComment0TitleAndBody() {
 
   stripEscapeSequences < $issuedir/issue > $issuedir/comment0
 
-  # put this into the email before completing comment0
-  cp $issuedir/comment0 $issuedir/body
-  echo -e "\n\n    check_bgo.sh ~/img?/$name/$issuedir\n" >> $issuedir/body
-
   local keyword="stable"
   if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
     keyword="unstable"
@@ -570,6 +566,9 @@ function GotAnIssue()  {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
+      echo -e "\n\n    check_bgo.sh ~/img?/$name/$issuedir\n\n\n" > $issuedir/body
+      cat $issuedir/comment0 >> $issuedir/body
+      touch $issuedir/.check_me
       Mail "$(cat $issuedir/title)" $issuedir/body
     fi
   fi
