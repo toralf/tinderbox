@@ -18,14 +18,14 @@ function ScanTreeForChanges() {
 
 
 function retestPackages() {
-  echo ${@} | xargs -n 1 --no-run-if-empty | sort -u |\
+  xargs -n 1 --no-run-if-empty <<< ${@} | sort -u |\
   while read word
   do
     echo "$word" >> $result
     pkgname=$(qatom "$word" | cut -f1-2 -d' ' -s | grep -F -v '<unset>' | tr ' ' '/')
     if [[ -n "$pkgname" ]]; then
       # delete package from global tinderbox file and from image specific files
-      sed -i -e "/$(echo $pkgname | sed -e 's,/,\\/,')/d" \
+      sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)/d" \
         ~/tb/data/ALREADY_CATCHED                   \
         ~/run/*/etc/portage/package.mask/self       \
         ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null || true

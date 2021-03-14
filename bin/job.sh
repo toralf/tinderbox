@@ -31,7 +31,7 @@ function stripEscapeSequences() {
 
 # send out a SMTP email
 function Mail() {
-  subject=$(echo "$1" | stripQuotesAndMore | cut -c1-200 | tr '\n' ' ')
+  subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
   if [[ -s $2 ]]; then
     echo
     cat $2
@@ -60,7 +60,7 @@ function Finish()  {
 
   feedPfl
 
-  subject=$(echo "${2:-<no subject given>}" | stripQuotesAndMore | tr '\n' ' ' | cut -c1-200)
+  subject=$(stripQuotesAndMore <<< ${2:-<no subject given>} | tr '\n' ' ' | cut -c1-200)
   if [[ $exit_code -eq 0 ]]; then
     Mail "Finish ok: $subject" "${3:-<no message given>}"
   else
@@ -124,7 +124,7 @@ function getNextTask() {
 
     else
       if [[ ! "$backlog" = $backlog1st ]]; then
-        if echo "$task" | grep -q -f /mnt/tb/data/IGNORE_PACKAGES; then
+        if grep -q -f /mnt/tb/data/IGNORE_PACKAGES <<< $task; then
           continue
         fi
       fi
@@ -262,7 +262,7 @@ function getPkgVarsFromIssuelog()  {
     return 1
   fi
 
-  pkglog=$(grep -o -m 1 "/var/log/portage/$(echo $pkgname | tr '/' ':').*\.log" $logfile_stripped)
+  pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $logfile_stripped)
   if [[ ! -f $pkglog ]]; then
     Mail "INFO: $FUNCNAME failed to get package log file: pkg='$pkg'  pkgname='$pkgname'  task='$task'  pkglog='$pkglog'" $logfile_stripped
     return 1
@@ -541,7 +541,7 @@ function GotAnIssue()  {
 
   getPkgVarsFromIssuelog || return
 
-  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(echo $pkg | tr '/' '_')
+  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
   mkdir -p $issuedir/files
   chmod 777 $issuedir # allow to edit title etc. manually
   echo "$repo" > $issuedir/repository   # used by check_bgo.sh
@@ -778,7 +778,7 @@ function WorkOnTask() {
 
   # %<command>
   elif [[ $task =~ ^% ]]; then
-    cmd="$(echo "$task" | cut -c2-)"
+    cmd="$(cut -c2- <<< $task)"
 
     if ! RunAndCheck "$cmd"; then
       if [[ $try_again -eq 0 ]]; then

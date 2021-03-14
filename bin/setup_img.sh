@@ -64,7 +64,7 @@ function SetOptions() {
   # however if no one passes the break criteria, then the last entry would make it eventually
   while read profile
   do
-    local p=$(echo $profile | tr '/' '_')
+    local p=$(tr '/' '_' <<< $profile)
     if ! ls ~tinderbox/run/$p-* &>/dev/null && ! ls -d /run/tinderbox/$p-*.lock &>/dev/null ]]; then
       break
     fi
@@ -157,12 +157,12 @@ function CheckOptions() {
 # helper of UnpackStage3()
 function CreateImageName()  {
   # profile[-flavour]-day-time
-  name="$(echo $profile | tr '/' '_')-"
+  name="$(tr '/' '_' <<< $profile)-"
   [[ "$multiabi" = "y" ]]     && name+="_abi32+64"  || true
   [[ "$science" = "y" ]]      && name+="_science"   || true
   [[ "$testfeature" = "y" ]]  && name+="_test"      || true
   [[ $jobs -gt 1 ]]           && name+="_j${jobs}"  || true
-  name="$(echo $name | sed -e 's/-[_-]/-/g' -e 's/-$//')"
+  name="$(sed -e 's/-[_-]/-/g' -e 's/-$//' <<< $name)"
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
@@ -212,7 +212,7 @@ function UnpackStage3()  {
     */musl)                   stage3=$(grep "/stage3-amd64-musl-vanilla-20.*\.tar\." $latest);;
     *)                        stage3=$(grep "/stage3-amd64-20.*\.tar\." $latest);;
   esac
-  local stage3=$(echo $stage3 | cut -f1 -d' ' -s)
+  local stage3=$(cut -f1 -d' ' -s <<< $stage3)
 
   if [[ -z "$stage3" || "$stage3" =~ [[:space:]] ]]; then
     echo " can't get stage3 filename for profile '$profile' in $latest"
@@ -340,7 +340,7 @@ function cpconf() {
   for f in $*
   do
     # eg.: .../package.unmask.??common -> package.unmask/??common
-    read -r a b c <<<$(echo ${f##*/} | tr '.' ' ')
+    read -r a b c <<<$(tr '.' ' ' <<< ${f##*/})
     cp $f ./etc/portage/"$a.$b/$c"
   done
 }
@@ -662,7 +662,7 @@ function DryRunWithVaryingUseFlags() {
     sort |\
     while read file
     do
-      pkg=$(echo $file | cut -f6-7 -d'/')
+      pkg=$(cut -f6-7 -d'/' <<< $file)
       grep -h 'flag name="' $file |\
       cut -f2 -d'"' -s |\
       IgnoreUseFlags |\

@@ -41,7 +41,7 @@ function check_history()  {
   #   = no issues
   if [[ -s $file ]]; then
     if tail -n 1 $file | grep -q " NOT ok"; then
-      uc=$(echo $lc | tr '[:lower:]' '[:upper:]')
+      uc=$(tr '[:lower:]' '[:upper:]' <<< $lc)
       flag="${uc}${flag}"
       return
     fi

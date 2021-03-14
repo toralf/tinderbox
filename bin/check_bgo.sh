@@ -131,8 +131,8 @@ function SetAssigneeAndCc() {
     cc="$m"
 
   else
-    assignee=$(echo "$m" | cut -f1 -d' ')
-    cc=$(echo "$m" | cut -f2- -d' ' -s)
+    assignee=$(cut -f1 -d' ' <<< $m)
+    cc=$(cut -f2- -d' ' -s <<< $m)
   fi
 
   # for a file collision report both involved sites
@@ -146,7 +146,7 @@ function SetAssigneeAndCc() {
 
   echo "$assignee" > $issuedir/assignee
   if [[ -n "$cc" ]]; then
-    echo "$cc" | xargs -n 1 | sort -u | grep -v "^$assignee$" | xargs > $issuedir/cc
+    xargs -n 1 <<< $cc | sort -u | grep -v "^$assignee$" | xargs > $issuedir/cc
   else
     rm -f $issuedir/cc
   fi

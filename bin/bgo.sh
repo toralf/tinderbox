@@ -134,7 +134,7 @@ if [[ -d ./files ]]; then
       continue
     fi
 
-    if echo "$f" | grep -q -e "bz2$" -e "xz$"; then
+    if grep -q -e "bz2$" -e "xz$" <<< $f; then
       ct="application/x-bzip"
     else
       ct="text/plain"
@@ -153,7 +153,7 @@ if [[ $newbug -eq 1 ]]; then
   add_assignee="-a $(cat ./assignee)"      # we expect exact 1 entry
   cc="$(cat ./cc 2>/dev/null || true)"     # allowed to be non-existing or empty
   if [[ -n "$cc" ]]; then
-    add_cc="--add-cc $(echo $cc | sed 's/ / --add-cc /g')"
+    add_cc="--add-cc $(sed 's/ / --add-cc /g' <<< $cc)"
   else
     add_cc=""
   fi

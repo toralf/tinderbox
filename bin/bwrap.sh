@@ -152,7 +152,7 @@ sandbox=(env -i
     --unshare-ipc
     --unshare-pid
     --unshare-uts
-    --hostname "$(echo "${mnt##*/}" | sed -e 's,[+\.],_,g' | cut -c-57)"
+    --hostname "$(sed -e 's,[+\.],_,g' <<< ${mnt##*/} | cut -c-57)"
     --chdir /var/tmp/tb
     --die-with-parent
      /bin/bash -l
