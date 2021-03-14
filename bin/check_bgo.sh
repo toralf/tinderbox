@@ -48,7 +48,7 @@ function SearchForMatchingBugs() {
     local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
     local g='stabilize|Bump| keyword| bump'
 
-    echo -e "\nOPEN:     $h&resolution=---&short_desc=$pkgname\n"
+    echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
     bugz -q --columns 400 search --show-status     $pkgname | grep -v -i -E "$g" |\
         sort -u -n -r | head -n 10 | tee $output
     if [[ -s $output ]]; then
