@@ -484,13 +484,13 @@ sys-kernel/gentoo-sources
 app-portage/pfl
 @world
 @system
-sys-apps/portage
+%emerge --deep=0 sys-apps/portage
 EOF
 
   # update GCC first
   #   =         : do not update the current (slotted) version - that will be removed immediately afterwards
   # dev-libs/*  : avoid a rebuild of GCC in @world later caused by an update or rebuild of these deps
-  echo "%emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+  echo "%emerge --deep=0 -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
   if [[ $profile =~ "/systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
@@ -510,7 +510,7 @@ function CreateSetupScript()  {
 #!/bin/sh
 # set -x
 
-# no set -u b/c "source /etc/profile" would fail otherwise
+# no "-u" b/c "source /etc/profile" would fail otherwise
 set -ef
 
 export GCC_COLORS=""
@@ -558,14 +558,10 @@ date
 env-update
 source /etc/profile
 
-date
+# emerge ssmtp separately before mailx b/c the later would pull in a different MTA if none is found
 echo "#setup tools" | tee /var/tmp/tb/task
-
-# emerge ssmtp separately and before mailx b/c the later would pull in a different MTA per default
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
-
-# mandatory tools by job.sh
 emerge -u app-portage/portage-utils
 
 eselect profile set --force default/linux/amd64/$profile
@@ -577,10 +573,8 @@ date
 echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if the same package is in 2 or more repos
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
-touch /var/tmp/tb/task
 
-# the very last step:
-# create symlink(s) to appropriate credential file(s)
+# the very last step: create symlink(s) to r-o bind mounted files
 (cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
 EOF

@@ -248,6 +248,10 @@ function getPkgVarsFromIssuelog()  {
       pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $logfile_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
       if [[ -z "$pkg" ]]; then
         pkg=$(grep -F ' * Fetch failed' $logfile_stripped | grep -o "'.*'" | sed "s,',,g")
+        if [[ -z $pkg ]]; then
+          Mail "INFO: $FUNCNAME failed to get pkg" $logfile_stripped
+          return 1
+        fi
       fi
     fi
   fi
@@ -566,9 +570,9 @@ function GotAnIssue()  {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
-      echo -e "\n\n    check_bgo.sh ~/img?/$name/$issuedir\n\n\n" > $issuedir/body
-      cat $issuedir/comment0 >> $issuedir/body
       touch $issuedir/.check_me
+      echo -e "\n\n    check_bgo.sh ~/img?/$name/$issuedir\n\n\n" > $issuedir/body
+      cat $issuedir/issue >> $issuedir/body
       Mail "$(cat $issuedir/title)" $issuedir/body
     fi
   fi
