@@ -90,7 +90,7 @@ function LookupForABlocker() {
     return 1
   fi
 
-  while read line
+  while read -r line
   do
     if [[ $line =~ ^# || "$line" = "" ]]; then
       continue
@@ -171,6 +171,8 @@ if [[ -f $issuedir/.reported ]]; then
 fi
 
 echo
+echo "======================================================================="
+echo $issuedir
 
 name=$(cat $issuedir/../../../../../etc/conf.d/hostname)      # eg.: 17.1-20201022-101504
 repo=$(cat $issuedir/repository)                              # eg.: gentoo
@@ -191,3 +193,5 @@ echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 echo
 SearchForMatchingBugs
 echo
+
+rm $issuedir/.check_me
