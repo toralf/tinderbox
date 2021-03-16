@@ -477,7 +477,6 @@ function CreateBacklog()  {
 # the depclean here must not fail
 # the 2nd @{system,world} is made due to the long runtime of the initial one and might BTW clean a failed state
   cat << EOF >> $bl.1st
-sys-kernel/gentoo-sources
 @world
 @system
 %emerge --depclean --changed-use
@@ -485,6 +484,7 @@ app-portage/pfl
 @world
 @system
 %emerge --deep=0 sys-apps/portage
+%emerge --deep=0 sys-kernel/gentoo-sources
 EOF
 
   # update GCC first
