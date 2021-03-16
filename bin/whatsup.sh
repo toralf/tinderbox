@@ -10,7 +10,7 @@ function list_images() {
     ls /run/tinderbox/ | sed 's,.lock,,g'
   ) 2>/dev/null |\
   sort -u |\
-  while read i
+  while read -r i
   do
     ls -d ~tinderbox/img{1,2}/${i} 2>/dev/null
   done |\
@@ -90,7 +90,7 @@ function Overall() {
     # example of an issue directory name: 20200313-044024-net-analyzer_iptraf-ng-1.1.4-r3
     fail=0
     if [[ -d $i/var/tmp/tb/issues ]]; then
-      fail=$(ls -1 $i/var/tmp/tb/issues | while read i; do echo ${i##/*}; done | cut -f3- -d'-' -s | sort -u | wc -w)
+      fail=$(ls -1 $i/var/tmp/tb/issues | while read -r i; do echo ${i##/*}; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
     bl=$(wc -l  2>/dev/null < $i/var/tmp/tb/backlog)

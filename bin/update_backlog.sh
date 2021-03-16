@@ -19,7 +19,7 @@ function ScanTreeForChanges() {
 
 function retestPackages() {
   xargs -n 1 --no-run-if-empty <<< ${@} | sort -u |\
-  while read word
+  while read -r word
   do
     echo "$word" >> $result
     pkgname=$(qatom "$word" | cut -f1-2 -d' ' -s | grep -F -v '<unset>' | tr ' ' '/')

@@ -17,7 +17,7 @@ function ThrowUseFlags() {
 
   shuf -n $(($RANDOM % $n)) |\
   sort |\
-  while read flag
+  while read -r flag
   do
     if [[ $(($RANDOM % $m)) -eq 0 ]]; then
       echo -n "-"
@@ -62,7 +62,7 @@ function SetOptions() {
 
   # prefer a non-running profile
   # however if no one passes the break criteria, then the last entry would make it eventually
-  while read profile
+  while read -r profile
   do
     local p=$(tr '/' '_' <<< $profile)
     if ! ls ~tinderbox/run/$p-* &>/dev/null && ! ls -d /run/tinderbox/$p-*.lock &>/dev/null ]]; then
@@ -340,7 +340,7 @@ function cpconf() {
   for f in $*
   do
     # eg.: .../package.unmask.??common -> package.unmask/??common
-    read -r a b c <<<$(tr '.' ' ' <<< ${f##*/})
+    read -r -a b c <<<$(tr '.' ' ' <<< ${f##*/})
     cp $f ./etc/portage/"$a.$b/$c"
   done
 }
@@ -654,7 +654,7 @@ function DryRunWithVaryingUseFlags() {
     grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
     shuf -n $(($RANDOM % 600)) |\
     sort |\
-    while read file
+    while read -r file
     do
       pkg=$(cut -f6-7 -d'/' <<< $file)
       grep -h 'flag name="' $file |\

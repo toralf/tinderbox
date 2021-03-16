@@ -35,7 +35,7 @@ function NumberOfPackagesInBacklog()  {
 
 function LookForAnImageWithEmptyBacklog()  {
   # wanted side effect: $oldimg is set
-  while read oldimg
+  while read -r oldimg
   do
     if [[ $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog 2>/dev/null)) = "0" ]]; then
       return 0
@@ -72,7 +72,7 @@ function __EnoughCompletedEmergeOperations()  {
 
 function LookForAnImageInRunReadyToBeReplaced()  {
   # hint: $oldimg is set here intentionally as a side effect, but it is used only if "0" is returned
-  while read oldimg
+  while read -r oldimg
   do
     if [[ $condition_runtime -gt -1 ]]; then
       if __ReachedMaxRuntime; then
