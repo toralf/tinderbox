@@ -43,3 +43,11 @@ sci-mathematics/twelf
 # out of scope
 #
 sys-firmware/
+#
+# too much install issues in moment
+#
+dev-ruby/
+#
+# haskell-updater fails
+#
+dev-haskell/

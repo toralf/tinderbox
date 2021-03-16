@@ -1,12 +1,12 @@
 # package.use/30misc
 #
 
-# www-client/firefox and mail-client/thunderbird
+# mail-client/thunderbird www-client/firefox
 #
 dev-db/sqlite             secure-delete
 dev-lang/python           sqlite
 dev-libs/libpcre          pcre16
-mail-client/thunderbird   gstreamer -pulseaudio system-icu
+mail-client/thunderbird   gstreamer system-icu
 media-libs/libcanberra    alsa
 media-libs/libpng         apng
 media-libs/libsdl2        video
@@ -16,7 +16,7 @@ net-dns/libidn            -mono
 sys-libs/ntdb             python
 sys-libs/tdb              python
 sys-libs/tevent           python
-ww-client/firefox         -pulseaudio system-icu
+ww-client/firefox         system-icu
 x11-libs/libxcb           xkb
 
 # www-client/falkon

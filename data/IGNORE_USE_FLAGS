@@ -47,6 +47,7 @@ openmp
 openoffice
 openssl
 passwdqc
+pwquality
 pax_kernel
 perftools
 prefix
@@ -66,6 +67,7 @@ udev
 user-session
 vaapi
 valgrind
+vanilla
 vdpau
 vim-syntax
 vulkan
