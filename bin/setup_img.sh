@@ -340,7 +340,7 @@ function cpconf() {
   for f in $*
   do
     # eg.: .../package.unmask.??common -> package.unmask/??common
-    read -r -a b c <<<$(tr '.' ' ' <<< ${f##*/})
+    read -r a b c <<<$(tr '.' ' ' <<< ${f##*/})
     cp $f ./etc/portage/"$a.$b/$c"
   done
 }
