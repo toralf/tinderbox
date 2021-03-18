@@ -58,3 +58,4 @@ Wformat-security.*ignored without.*Wformat
 You need to apply a patch to your kernel to compile and run the aufs4 module
 Your C compiler is too old for this package.
 Your kernel version is not yet tested with this version of phc-intel.
+dev-ruby/.*::gentoo failed (install phase)
