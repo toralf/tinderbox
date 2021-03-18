@@ -53,14 +53,13 @@ function SearchForMatchingBugs() {
         sort -u -n -r | head -n 10 | tee $output
     if [[ -s $output ]]; then
       found_something=1
-    else
-      echo
-      echo -e "RESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-      bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
-          sort -u -n -r | head -n 10 | tee $output
-      if [[ -s $output ]]; then
-        found_something=1
-      fi
+    fi
+
+    echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
+    bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
+        sort -u -n -r | head -n 10 | tee $output
+    if [[ -s $output ]]; then
+      found_something=1
     fi
   fi
 
@@ -194,4 +193,4 @@ echo
 SearchForMatchingBugs
 echo
 
-rm $issuedir/.check_me
+rm -f $issuedir/.check_me
