@@ -19,9 +19,10 @@ function stripQuotesAndMore() {
 function stripEscapeSequences() {
   perl -MTerm::ANSIColor=colorstrip -nle '
     $_ = colorstrip($_);
-    s,\x1B\x5B\x33\x31,,g;
     s,\x1B\x5B\x6D\x0F,,g;
-    s,\x1B\x5B\x4B,,g;
+    s,\x1B\x5B\x32.,,g;
+    s,\x1B\x5B\x31.,,g;
+    s,\x1B\x5B,,g;
     s,\x00,\n,g;
     s,\r,\n,g;
     print;
