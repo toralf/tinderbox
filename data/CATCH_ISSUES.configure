@@ -76,3 +76,4 @@ CMake Error at
 CMake Error:
 Configuring incomplete
 cmake failed
+Package .* was not found in the .* path.

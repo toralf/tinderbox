@@ -261,6 +261,7 @@ Please install it manually.(pip .*
 error: invalid integral value
 DISTUTILS_USE_SETUPTOOLS value is probably incorrect
 ragel:
+Execution failed for task
 .*: No such file or directory
 AssertionError: Need at least
 AttributeError:

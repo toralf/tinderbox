@@ -10,7 +10,8 @@ dev-util/plan9port
 # https://bugs.gentoo.org/662396
 sys-fs/static-dev
 
-# compile hang https://bugs.gentoo.org/711098
+# compile hang
+# https://bugs.gentoo.org/711098
 dev-scheme/racket
 
 # deprecated
