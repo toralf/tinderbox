@@ -502,7 +502,7 @@ EOF
 # that long-compile-time deps like llvm, rust get lost if an emerge failed
 # and later a depclean is made, eg. after a succesful @world
 function PutDepsIntoWorldFile() {
-  emerge --depclean --pretend --verbose=n 2>/dev/null |\
+  emerge --depclean --verbose=n --pretend 2>/dev/null |\
   grep "^All selected packages: "                     |\
   cut -f2- -d':' -s                                   |\
   xargs --no-run-if-empty emerge -O --noreplace
@@ -769,7 +769,7 @@ function WorkOnTask() {
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
-        add2backlog "%emerge --depclean || true"
+        add2backlog "%emerge --depclean --verbose=n || true"
       fi
     else
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
