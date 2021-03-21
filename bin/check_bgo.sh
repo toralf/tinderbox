@@ -23,8 +23,8 @@ function SearchForMatchingBugs() {
   # search first for the same version, if unsuccessful then repeat with category/package name only
   for i in $pkg $pkgname
   do
-    bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" | grep -e " CONFIRMED " -e " IN_PROGRESS " |\
-        sort -u -n -r | head -n 10 | tee $output
+    bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |
+        grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee $output
     if [[ -s $output ]]; then
       found_something=1
       rm $output
@@ -33,6 +33,7 @@ function SearchForMatchingBugs() {
 
     for s in FIXED WORKSFORME DUPLICATE
     do
+      echo -en "$s     \r"
       bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |\
           sort -u -n -r | head -n 10 | sed "s,^,$s  ," | tee $output
       if [[ -s $output ]]; then
@@ -49,17 +50,19 @@ function SearchForMatchingBugs() {
     local g='stabilize|Bump| keyword| bump'
 
     echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
-    bugz -q --columns 400 search --show-status     $pkgname | grep -v -i -E "$g" |\
-        sort -u -n -r | head -n 10 | tee $output
+    bugz -q --columns 400 search --show-status $pkgname |\
+        grep -v -i -E "$g" | sort -u -n -r | head -n 10 | tee $output
     if [[ -s $output ]]; then
       found_something=1
     fi
 
-    echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-    bugz -q --columns 400 search --status RESOLVED $pkgname | grep -v -i -E "$g" |\
-        sort -u -n -r | head -n 10 | tee $output
-    if [[ -s $output ]]; then
-      found_something=1
+    if [[ $(wc -l < $output) -lt 5 ]]; then
+      echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
+      bugz -q --columns 400 search --status RESOLVED $pkgname |\
+          grep -v -i -E "$g" | sort -u -n -r | head -n 10 | tee $output
+      if [[ -s $output ]]; then
+        found_something=1
+      fi
     fi
   fi
 
