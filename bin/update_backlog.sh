@@ -2,10 +2,10 @@
 # set -x
 
 
-# merge tree changes or certain packages into appropriate backlogs
+# merge either tree changes -or- given package/s into dedicated backlog
 
 
-function ScanTreeForChanges() {
+function GetTreeChanges() {
   repo_path=$(portageq get_repo_path / gentoo) || exit 2
   cd $repo_path || exit 2
 
@@ -17,39 +17,37 @@ function ScanTreeForChanges() {
 }
 
 
-function retestPackages() {
+function prepareRetest() {
+  truncate -s 0 $result
   xargs -n 1 --no-run-if-empty <<< ${@} | sort -u |\
   while read -r word
   do
     echo "$word" >> $result
-    pkgname=$(qatom "$word" | cut -f1-2 -d' ' -s | grep -F -v '<unset>' | tr ' ' '/')
+    pkgname=$(qatom "$word" 2>/dev/null | cut -f1-2 -d' ' -s | grep -F -v '<unset>' | tr ' ' '/')
     if [[ -n "$pkgname" ]]; then
       # delete package from global tinderbox file and from image specific files
-      sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)/d" \
-        ~/tb/data/ALREADY_CATCHED                   \
-        ~/run/*/etc/portage/package.mask/self       \
-        ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null || true
+      sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)/d"  \
+          ~/tb/data/ALREADY_CATCHED                     \
+          ~/run/*/etc/portage/package.mask/self         \
+          ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} \
+          2>/dev/null || true
     fi
   done
 }
 
 
 function updateBacklog()  {
-  target=$1
-
-  [[ -s $result ]] || return
-
-  for bl in $(ls ~/run/*/var/tmp/tb/backlog.$target 2>/dev/null)
+  for bl in $(ls ~/run/*/var/tmp/tb/backlog.$target)
   do
     if [[ $target = "upd" ]]; then
-      # re-mix data with backlog
+      # mix results into backlog
       sort -u $result $bl | shuf > $bl.tmp
     elif [[ $target = "1st" ]]; then
-      # put shuffled data (sort out dups before) after current backlog
+      # put shuffled data (grep out dups before) ahead of backlog
       (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     fi
 
-    # no "mv", that would overwrite file permissions
+    # no "mv", "cp" keeps file permissions and inode
     cp $bl.tmp $bl
     rm $bl.tmp
   done
@@ -65,15 +63,19 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-result=/tmp/${0##*/}.txt
-truncate -s 0 $result
+result=/tmp/${0##*/}.txt  # package/s for the appropriate backlog
 
-# use update backlog for new and updated portage tree entries
-# and high prio backlog to retest package(s)
 if [[ $# -eq 0 ]]; then
-  ScanTreeForChanges
-  updateBacklog "upd"
+  target="upd"
+  GetTreeChanges
 else
-  retestPackages ${@}
-  updateBacklog "1st"
+  target=$1   # "upd" or "1st"
+  shift
+  prepareRetest ${@}
 fi
+
+if [[ -s $result ]]; then
+ updateBacklog
+fi
+
+# keep the result file
