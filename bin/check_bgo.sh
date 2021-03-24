@@ -6,7 +6,6 @@
 
 function SearchForMatchingBugs() {
   local bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search patterns
-  local found_something=0
 
   # get away line numbers, certain special terms et al
   sed -e 's,&<[[:alnum:]].*>,,g'  \
@@ -26,7 +25,7 @@ function SearchForMatchingBugs() {
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |
         grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee $output
     if [[ -s $output ]]; then
-      found_something=1
+      found_issues=1
       rm $output
       return
     fi
@@ -37,7 +36,7 @@ function SearchForMatchingBugs() {
       bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |\
           sort -u -n -r | head -n 10 | sed "s,^,$s  ," | tee $output
       if [[ -s $output ]]; then
-        found_something=1
+        found_issues=1
         break 2
       fi
     done
@@ -53,7 +52,7 @@ function SearchForMatchingBugs() {
     bugz -q --columns 400 search --show-status $pkgname |\
         grep -v -i -E "$g" | sort -u -n -r | head -n 10 | tee $output
     if [[ -s $output ]]; then
-      found_something=1
+      found_issues=1
     fi
 
     if [[ $(wc -l < $output) -lt 5 ]]; then
@@ -61,23 +60,12 @@ function SearchForMatchingBugs() {
       bugz -q --columns 400 search --status RESOLVED $pkgname |\
           grep -v -i -E "$g" | sort -u -n -r | head -n 10 | tee $output
       if [[ -s $output ]]; then
-        found_something=1
+        found_issues=1
       fi
     fi
   fi
 
   rm $output
-
-  local cmd="$(dirname $0)/bgo.sh -d $issuedir"
-  if [[ -n $blocker_bug_no ]]; then
-    cmd+=" -b $blocker_bug_no"
-  fi
-
-  if [[ $found_something -eq 1 ]]; then
-    echo -e "\n\n    ${cmd}\n"
-  else
-    $cmd
-  fi
 }
 
 
@@ -193,7 +181,20 @@ LookupForABlocker
 SetAssigneeAndCc
 echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 echo
+
+found_issues=0
 SearchForMatchingBugs
+
+cmd="$(dirname $0)/bgo.sh -d $issuedir"
+if [[ -n $blocker_bug_no ]]; then
+  cmd+=" -b $blocker_bug_no"
+fi
+
+if [[ $found_issues -eq 1 ]]; then
+  echo -e "\n\n    ${cmd}\n"
+else
+  $cmd
+fi
 echo
 
 rm -f $issuedir/.check_me
