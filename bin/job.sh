@@ -15,18 +15,9 @@ function stripQuotesAndMore() {
 }
 
 
-# strip away colour escape sequences etc
-function stripEscapeSequences() {
-  perl -MTerm::ANSIColor=colorstrip -nle '
-    $_ = colorstrip($_);
-    s,\x1B\x5B\x6D\x0F,,g;
-    s,\x1B\x5B\x32.,,g;
-    s,\x1B\x5B\x31.,,g;
-    s,\x1B\x5B,,g;
-    s,\x00,\n,g;
-    s,\r,\n,g;
-    print;
-  '
+# handle what ansifilter had survived
+function handleNonPrintableBytes() {
+  perl -nle ' s,[\x00\r],\n,g; print; '
 }
 
 
@@ -392,7 +383,7 @@ function handleTestPhase() {
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
-  # for phase "install" grep might return > 1 matches ("doins failed" and "newins failed")
+  # for phase "install" grep might hit > 1 matches ("doins failed" and "newins failed")
   phase=$(
     grep -m 1 " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
     sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' '
@@ -420,7 +411,7 @@ function ClassifyIssue() {
     foundGenericIssue
   fi
 
-  # if the issue file size is too big, then delete each time the 1st line till it fits
+  # if the issue file size is too big, then delete each round the 1st line till it fits
   while [[ : ]]
   do
     read lines words chars <<< $(wc < $issuedir/issue)
@@ -441,7 +432,7 @@ function ClassifyIssue() {
 function CompileComment0TitleAndBody() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
-  stripEscapeSequences < $issuedir/issue > $issuedir/comment0
+  handleNonPrintableBytes < $issuedir/issue > $issuedir/comment0
 
   local keyword="stable"
   if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
@@ -548,7 +539,7 @@ function GotAnIssue()  {
   chmod 777 $issuedir # allow to edit title etc. manually
   echo "$repo" > $issuedir/repository   # used by check_bgo.sh
   pkglog_stripped=$issuedir/$(basename $pkglog)
-  stripEscapeSequences < $pkglog > $pkglog_stripped
+  handleNonPrintableBytes < $pkglog > $pkglog_stripped
   cp $logfile $issuedir
   setWorkDir
   CollectIssueFiles
@@ -714,7 +705,7 @@ function RunAndCheck() {
   fi
 
   logfile_stripped=/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).$(tr -c '[:alnum:]' '_' <<< $task).log
-  stripEscapeSequences < $logfile > $logfile_stripped
+  handleNonPrintableBytes < $logfile > $logfile_stripped
   PostEmerge
 
   if [[ $rc -eq 0 ]]; then
