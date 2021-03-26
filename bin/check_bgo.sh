@@ -34,9 +34,9 @@ function SearchForMatchingBugs() {
     do
       echo -en "$s     \r"
       bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |\
-          sort -u -n -r | head -n 10 | sed "s,^,$s  ," | tee $output
+          sort -u -n -r | head -n 8 | sed "s,^,$s  ," | tee $output
       if [[ -s $output ]]; then
-        found_issues=1
+        found_issues=2
         break 2
       fi
     done
@@ -50,17 +50,17 @@ function SearchForMatchingBugs() {
 
     echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
     bugz -q --columns 400 search --show-status $pkgname |\
-        grep -v -i -E "$g" | sort -u -n -r | head -n 10 | tee $output
+        grep -v -i -E "$g" | sort -u -n -r | head -n 8 | tee $output
     if [[ -s $output ]]; then
-      found_issues=1
+      found_issues=2
     fi
 
     if [[ $(wc -l < $output) -lt 5 ]]; then
       echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
       bugz -q --columns 400 search --status RESOLVED $pkgname |\
-          grep -v -i -E "$g" | sort -u -n -r | head -n 10 | tee $output
+          grep -v -i -E "$g" | sort -u -n -r | head -n 8 | tee $output
       if [[ -s $output ]]; then
-        found_issues=1
+        found_issues=2
       fi
     fi
   fi
@@ -190,10 +190,10 @@ if [[ -n $blocker_bug_no ]]; then
   cmd+=" -b $blocker_bug_no"
 fi
 
-if [[ $found_issues -eq 1 ]]; then
-  echo -e "\n\n    ${cmd}\n"
-else
+if [[ $found_issues -eq 0 ]]; then
   $cmd
+elif [[ $found_issues -eq 2 ]]; then
+  echo -e "\n\n    ${cmd}\n"
 fi
 echo
 
