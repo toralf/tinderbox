@@ -474,23 +474,21 @@ function CreateBacklog()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-# the depclean here must not fail
-# the 2nd @{system,world} is made due to the long runtime of the initial one and might BTW clean a failed state
+# this very first depclean must not fail
   cat << EOF >> $bl.1st
-@world
-@system
 %emerge --depclean --verbose=n
 app-portage/pfl
 @world
 @system
-%emerge --deep=0 sys-apps/portage
-%emerge --deep=0 sys-kernel/gentoo-sources
+%sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
+%emerge sys-apps/portage
+%emerge sys-kernel/gentoo-sources
 EOF
 
   # update GCC first
   #   =         : do not update the current (slotted) version - that will be removed immediately afterwards
   # dev-libs/*  : avoid a rebuild of GCC in @world later caused by an update or rebuild of these deps
-  echo "%emerge --deep=0 -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+  echo "%emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
   if [[ $profile =~ "/systemd" ]]; then
     echo "%systemd-machine-id-setup" >> $bl.1st
@@ -549,33 +547,39 @@ source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
-# date
-# echo "#update stage3" | tee /var/tmp/tb/task
-# emerge -u --changed-use @world --keep-going=y --exclude sys-devel/gcc --exclude sys-libs/glibc || true
-# locale-gen -j ${jobs}
-
 date
 env-update
 source /etc/profile
 
+date
+echo "#setup mailer" | tee /var/tmp/tb/task
 # emerge ssmtp separately before mailx b/c the later would pull in a different MTA if none is found
-echo "#setup tools" | tee /var/tmp/tb/task
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
-emerge -u app-portage/portage-utils
+(cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
+date
 eselect profile set --force default/linux/amd64/$profile
 if [[ $testfeature = "y" ]]; then
   echo "*/*  test" >> /etc/portage/package.env/11dotest
 fi
 
 date
+echo "#setup tools" | tee /var/tmp/tb/task
+emerge -u sys-devel/slibtool app-portage/portage-utils app-text/ansifilter
+cat << EOF2 >> /etc/portage/make.conf
+
+LIBTOOL="rlibtool"
+MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
+
+PORTAGE_LOG_FILTER_FILE_CMD="ansifilter"
+
+EOF2
+
+date
 echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if the same package is in 2 or more repos
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
-
-# the very last step: create symlink(s) to r-o bind mounted files
-(cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
 EOF
 
@@ -596,7 +600,6 @@ function RunSetupScript() {
     echo
     return $rc
   fi
-  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g'  $mnt/etc/portage/make.conf
 }
 
 

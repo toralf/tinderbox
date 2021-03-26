@@ -13,6 +13,7 @@ default-gold
 doc
 elibc
 elogind
+firmware
 forced-sandbox
 FreeBSD
 gallium

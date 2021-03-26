@@ -13,6 +13,8 @@ sys-fs/static-dev
 # compile hang
 # https://bugs.gentoo.org/711098
 dev-scheme/racket
+# https://bugs.gentoo.org/770976
+x11-wm/stumpwm
 
 # deprecated
 dev-qt/qtwebkit
