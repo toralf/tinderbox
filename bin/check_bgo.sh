@@ -23,7 +23,7 @@ function SearchForMatchingBugs() {
   for i in $pkg $pkgname
   do
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |
-        grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 10 | tee $output
+        grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 8 | tee $output
     if [[ -s $output ]]; then
       found_issues=1
       rm $output
@@ -32,9 +32,9 @@ function SearchForMatchingBugs() {
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      echo -en "$s     \r"
+      echo -en "$i $s               \r"
       bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |\
-          sort -u -n -r | head -n 8 | sed "s,^,$s  ," | tee $output
+          sort -u -n -r | head -n 5 | sed "s,^,$s  ," | tee $output
       if [[ -s $output ]]; then
         found_issues=2
         break 2
@@ -50,7 +50,7 @@ function SearchForMatchingBugs() {
 
     echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
     bugz -q --columns 400 search --show-status $pkgname |\
-        grep -v -i -E "$g" | sort -u -n -r | head -n 8 | tee $output
+        grep -v -i -E "$g" | sort -u -n -r | head -n 5 | tee $output
     if [[ -s $output ]]; then
       found_issues=2
     fi
@@ -58,7 +58,7 @@ function SearchForMatchingBugs() {
     if [[ $(wc -l < $output) -lt 5 ]]; then
       echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
       bugz -q --columns 400 search --status RESOLVED $pkgname |\
-          grep -v -i -E "$g" | sort -u -n -r | head -n 8 | tee $output
+          grep -v -i -E "$g" | sort -u -n -r | head -n 5 | tee $output
       if [[ -s $output ]]; then
         found_issues=2
       fi
@@ -161,8 +161,8 @@ if [[ -f $issuedir/.reported ]]; then
 fi
 
 echo
-echo "======================================================================="
-echo $issuedir
+echo "==========================================="
+# echo $issuedir
 
 name=$(cat $issuedir/../../../../../etc/conf.d/hostname)      # eg.: 17.1-20201022-101504
 repo=$(cat $issuedir/repository)                              # eg.: gentoo
