@@ -38,7 +38,7 @@ function GetProfiles() {
 
 
 function ThrowCflags()  {
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     # 685160 colon-in-CFLAGS
     cflags="$cflags -falign-functions=32:25:16"
   fi
@@ -456,6 +456,8 @@ let g:session_autosave = 'no'
 autocmd BufEnter *.txt set textwidth=0
 
 EOF
+
+  echo "$name" > ./etc/conf.d/hostname
 }
 
 
@@ -481,8 +483,8 @@ app-portage/pfl
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
-%emerge sys-apps/portage
-%emerge sys-kernel/gentoo-sources
+sys-apps/portage
+sys-kernel/gentoo-kernel-bin
 EOF
 
   # update GCC first
@@ -523,7 +525,6 @@ echo "#setup rsync" | tee /var/tmp/tb/task
 date
 echo "#setup configure" | tee /var/tmp/tb/task
 
-echo "$name" > /etc/conf.d/hostname
 useradd -u $(id -u tinderbox) tinderbox
 
 if [[ ! $musl = "y" ]]; then
@@ -543,13 +544,24 @@ fi
 
 env-update
 source /etc/profile
-
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
-
-date
 env-update
 source /etc/profile
+
+date
+echo "#setup tools" | tee /var/tmp/tb/task
+emerge -u app-text/ansifilter
+echo 'PORTAGE_LOG_FILTER_FILE_CMD="ansifilter"' >> /etc/portage/make.conf
+if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+  emerge -u sys-devel/slibtool
+  cat << EOF2 >> /etc/portage/make.conf
+
+LIBTOOL="rdlibtool"
+MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
+
+EOF2
+fi
 
 date
 echo "#setup mailer" | tee /var/tmp/tb/task
@@ -565,20 +577,8 @@ if [[ $testfeature = "y" ]]; then
 fi
 
 date
-echo "#setup tools" | tee /var/tmp/tb/task
-emerge -u sys-devel/slibtool app-portage/portage-utils app-text/ansifilter
-cat << EOF2 >> /etc/portage/make.conf
-
-LIBTOOL="rlibtool"
-MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
-
-PORTAGE_LOG_FILTER_FILE_CMD="ansifilter"
-
-EOF2
-
-date
 echo "#setup backlog" | tee /var/tmp/tb/task
-# sort -u is needed if the same package is in 2 or more repos
+# sort -u is needed if the same package is in more than one repo
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
 
 EOF
