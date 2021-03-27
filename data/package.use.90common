@@ -4,7 +4,7 @@
 */*  QEMU_SOFTMMU_TARGETS: -* x86_64 i386
 */*  QEMU_USER_TARGETS: -* x86_64 i386
 */*  VIDEO_CARDS: -* dummy
-*/*  RUBY_TARGETS: ruby27
+*/*  RUBY_TARGETS: ruby30
 
 # not be tested at all
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind

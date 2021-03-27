@@ -1,6 +1,7 @@
 newinitd:.* does not exist
  \* .* is not a valid file/directory
  !!! .* does not exist
+!!! doexe:
 chown: invalid user
 chown: invalid group:
 ERROR:root
