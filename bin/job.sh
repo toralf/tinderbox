@@ -293,8 +293,6 @@ function foundSandboxIssue() {
 
 
 # helper of ClassifyIssue()
-# consider this crontab entry to save CPU cycles at other images if a package failed (assuming, that CFLAGS was the culprit)
-# @hourly  f=/tmp/cflagsknown2fail; sort -u ~/run/*/etc/portage/package.env/cflags_default 2>/dev/null | column -t >$f && for i in $(ls -d ~/run/*/etc/portage/package.env/ 2>/dev/null); do cp $f $i; done
 function foundCflagsIssue() {
   if ! grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null; then
     printf "%-50s %s\n" "<=$pkg" "cflags_default" >> /etc/portage/package.env/cflags_default
@@ -396,14 +394,12 @@ function ClassifyIssue() {
   if grep -q -m 1 ' * Detected file collision(s):' $pkglog_stripped; then
     foundCollisionIssue
 
-  elif [[ -n $sandb ]]; then # no test at "-f" b/c it might not be allowed to be written
+  elif [[ -n $sandb ]]; then # no "-f" b/c it might not exist
     foundSandboxIssue
 
+  # special forced issues
   elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog_stripped | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
-
-  elif [[ -n "$(grep -m 1 -B 3 -A 0 ': error:.*.-Werror=format-security.' $pkglog_stripped | tee $issuedir/issue)" ]]; then
-    foundCflagsIssue "$(tail -n 1 $issuedir/issue)"
 
   else
     grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog_stripped | tee $issuedir/issue |\
