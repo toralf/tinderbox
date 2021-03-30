@@ -510,8 +510,7 @@ function CreateSetupScript()  {
 #!/bin/sh
 # set -x
 
-# no "-u" b/c "source /etc/profile" would fail otherwise
-set -ef
+set -euf
 
 export GCC_COLORS=""
 
@@ -542,12 +541,10 @@ EOF2
   eselect locale set C.UTF-8
 fi
 
-env-update
-source /etc/profile
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 env-update
-source /etc/profile
+set +u; source /etc/profile; set -u
 
 date
 echo "#setup tools" | tee /var/tmp/tb/task
@@ -579,7 +576,7 @@ fi
 date
 echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if the same package is in more than one repo
-qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
+qsearch --all --nocolor --name-only --quiet | sort -u -R > /var/tmp/tb/backlog
 
 EOF
 
@@ -603,12 +600,11 @@ function RunSetupScript() {
 }
 
 
-# the USE flags must do not yield to circular or other non-resolvable dependencies for the very first @world
-function DryRunOnce() {
+# the USE flags must do neither yield to circular nor to non-resolvable dependencies for the very first @world
+function DryRun() {
   if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
     local rc=1
-    echo -e "\n$(date)\n dry run was NOT successful (rc=$rc):\n"
-    tail -v -n 200 $mnt/var/tmp/tb/dryrun.log
+    echo -e "$(date)\n dry run was NOT successful (rc=$rc).\n"
     echo
     return $rc
   fi
@@ -619,7 +615,7 @@ function PrintUseFlags() {
   xargs -s 73 | sed -e '/^$/d' | sed -e "s,^,*/*  ,g"
 }
 
-
+# varying USE flags till very first @world would not complain at start
 function DryRunWithVaryingUseFlags() {
   local attempt=0
   local max_attempts=99
@@ -668,7 +664,7 @@ function DryRunWithVaryingUseFlags() {
       xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
     done > $mnt/etc/portage/package.use/24thrown_package_use_flags
 
-    DryRunOnce && break
+    DryRun && break
 
     if [[ $attempt -ge $max_attempts ]]; then
       echo -e "\n$(date)\ntoo much attempts, giving up\n"
@@ -741,9 +737,12 @@ CreateSetupScript
 RunSetupScript
 
 echo
-echo 'emerge --update --newuse --changed-use --backtrack=30 --pretend @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+echo 'emerge --update --newuse --changed-use --backtrack=30 --pretend --deep @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 if [[ "$defaultuseflags" = "y" ]]; then
-  DryRunOnce
+  date
+  echo "dryrun with default USE flags ==========================================================="
+  echo
+  DryRun
 else
   DryRunWithVaryingUseFlags
 fi
