@@ -32,7 +32,7 @@ function SearchForMatchingBugs() {
 
     for s in FIXED WORKSFORME DUPLICATE
     do
-      echo -en "$i $s               \r"
+      echo -en "$i $s                   \r"
       bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |\
           sort -u -n -r | head -n 3 | sed "s,^,$s  ," | tee $output
       if [[ -s $output ]]; then
