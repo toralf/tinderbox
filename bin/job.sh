@@ -703,7 +703,7 @@ function RunAndCheck() {
     rc=1
   fi
 
-  logfile_stripped=/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).$(tr -c '[:alnum:]' '_' <<< $task).log
+  logfile_stripped="/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_').log"
   handleNonPrintableBytes < $logfile > $logfile_stripped
   PostEmerge
 
