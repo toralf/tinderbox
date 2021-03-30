@@ -225,6 +225,8 @@ EOF
     if [[ -f $workdir/gcc-build-logs.tar.bz2 ]]; then
       cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
     fi
+
+    find /tmp/ -name "core.*" -exec mv {} $issuedir/
   fi
 
   collectPortageDir
@@ -878,6 +880,9 @@ fi
 
 # clean up if eg. a KILL/TERM occurred before
 add2backlog "%emaint --fix merges"
+
+# useful only with FEATURES="splitdebug" and CFLAGS="-Og -g"
+echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
 while [[ : ]]
 do
