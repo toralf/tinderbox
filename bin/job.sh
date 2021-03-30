@@ -33,6 +33,7 @@ function Mail() {
   fi |\
   if ! timeout 120 mail -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log; then
     echo "$(date) mail failed, \$?=$?, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
+    chmod a+rw /var/tmp/tb/mail.log
   fi
 }
 
@@ -220,7 +221,7 @@ EOF
       fi
     )
 
-    # ICE of GCC ?
+    # ICE
     if [[ -f $workdir/gcc-build-logs.tar.bz2 ]]; then
       cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
     fi
