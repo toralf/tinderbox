@@ -17,7 +17,7 @@ function stripQuotesAndMore() {
 
 # handle what ansifilter had survived
 function handleNonPrintableBytes() {
-  perl -nle ' s,[\x00\r],\n,g; print; '
+  perl -wnle ' s,\x00,\n,g; s,\r\n,\n,g; s,\r,\n,g; print; '
 }
 
 
