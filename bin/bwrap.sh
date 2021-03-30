@@ -84,10 +84,11 @@ do
           if [[ -d "$mnt" ]]; then
             break
           fi
+          mnt=""
         done
 
         if [[ -z "$mnt" || -L "$mnt" || ! $(stat -c '%u' "$mnt") = "0" || ! "$mnt" = "$(realpath -e $mnt)" ]]; then
-          echo "mount point not accepted"
+          echo "mount point either not found or not accepted"
           exit 2
         fi
 
