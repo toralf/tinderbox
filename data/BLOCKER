@@ -45,4 +45,4 @@ error: template with C linkage
 
 #  (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
 765709
-slibtool|rlibtool|rdlibtool|ld: cannot find|undefined reference to|gcc: error: unrecognized command-line option
+slibtool|rlibtool|rdlibtool|ld: cannot find|undefined reference to|gcc: error: unrecognized command-line option|./shtool:

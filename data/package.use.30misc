@@ -1,7 +1,9 @@
 # package.use/30misc
 #
 
-# mail-client/thunderbird www-client/firefox
+# this is sporadically added to an image at setup to allow to emerge ...
+
+# ... mail-client/thunderbird, www-client/firefox
 #
 dev-db/sqlite             secure-delete
 dev-lang/python           sqlite
@@ -19,7 +21,7 @@ sys-libs/tevent           python
 ww-client/firefox         system-icu
 x11-libs/libxcb           xkb
 
-# www-client/falkon
+# ... www-client/falkon
 #
 app-text/xmlto            text
 dev-libs/libxml2          icu

@@ -1,7 +1,7 @@
 # tasks matching a pattern here will be skipped (except for being in backlog.1st)
 # this file MUST NOT have empty lines (except the very last one)
 #
-# never explicitly run emerge with:
+# never explicitly feed emerge with:
 #
 dev-embedded/
 java-virtuals/
@@ -17,7 +17,6 @@ app-office/
 app-officeext/
 dev-haskell/language-python
 dev-libs/aws-sdk-cpp
-dev-libs/rocm
 dev-util/include-what-you-use
 gnome-extra/sushi
 oci8
@@ -40,14 +39,17 @@ www-client/google-chrome
 dev-lang/mlton
 sci-mathematics/twelf
 #
-# out of scope
-#
-sys-firmware/
-#
-# too much install issues in moment
+# too much issues with version 30 currently
 #
 dev-ruby/
 #
-# haskell-updater fails
+# haskell-updater fails currently
 #
 dev-haskell/
+#
+# AMD GPU specific
+#
+dev-libs/rocm
+dev-util/rocm
+sys-devel/llvm-roc
+sci-libs/roc
