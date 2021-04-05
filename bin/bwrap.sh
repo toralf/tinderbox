@@ -126,7 +126,7 @@ if [[ -n "$entrypoint" ]]; then
   fi
 
   if [[ -e "$mnt/entrypoint" ]]; then
-    rm -f "$mnt/entrypoint"
+    rm "$mnt/entrypoint"
   fi
   touch             "$mnt/entrypoint"
   chmod 744         "$mnt/entrypoint"
