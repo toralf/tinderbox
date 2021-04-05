@@ -10,7 +10,7 @@ function IgnoreUseFlags()  {
   grep -v -w -f ~tinderbox/tb/data/IGNORE_USE_FLAGS || true
 }
 
-# helper of DryRunWithVaryingUseFlags
+# helper of DryRunWithRandomUseFlags
 function ThrowUseFlags() {
   local n=$1  # pass: up to n-1
   local m=5   # mask: about 20%
@@ -51,12 +51,16 @@ function SetOptions() {
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=""
 
+  # best would be to have 1 thread in N running images instead up to N running threads in 1 image
+  # OTOH the lifetime of an image with -j 1 is about 35 days running at a 6-core Xeon ...
+  jobs=1
+
   # an "y" yields to ABI_X86: 32 64
-  multiabi="n"
+  abi3264="n"
   # run at most 1 image
   if ! ls -d ~tinderbox/run/*abi32+64* &>/dev/null; then
     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-      multiabi="y"
+      abi3264="y"
     fi
   fi
 
@@ -72,41 +76,11 @@ function SetOptions() {
 
   ThrowCflags
 
-  # check the default USE flag set of choosen profile
-  defaultuseflags="n"
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-    defaultuseflags="y"
-  fi
-
-  testfeature="n"
-  # run at most 1 image
-#   if ! ls -d ~tinderbox/run/*test* &>/dev/null; then
-#     if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-#       testfeature="y"
-#     fi
-#   fi
-
+  randomuseflags="y"
   science="n"
-  # run at most 1 image
-  if ! ls -d ~tinderbox/run/*science* &>/dev/null; then
-    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
-      science="y"
-    fi
-  fi
+  testfeature="n"
 
   musl="n"
-  # no random throwing, Musl is not yet ready for regular scheduling
-  if [[ $musl = "y" ]]; then
-    cflags="$cflags_default"
-    defaultuseflags="y"
-    profile="17.0/musl"
-    multiabi="n"
-    testfeature="n"
-  fi
-
-  # best would be to have 1 thread in N running images instead up to N running threads in 1 image
-  # OTOH the lifetime of an image with -j 1 is about 35 days running at a 6-core Xeon ...
-  jobs=1
 }
 
 
@@ -124,9 +98,9 @@ function checkBool()  {
 
 # helper of main()
 function CheckOptions() {
-  checkBool "defaultuseflags"
-  checkBool "multiabi"
+  checkBool "abi3264"
   checkBool "musl"
+  checkBool "randomuseflags"
   checkBool "science"
   checkBool "testfeature"
 
@@ -140,7 +114,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ "$multiabi" = "y" ]]; then
+  if [[ "$abi3264" = "y" ]]; then
     if [[ $profile =~ "/no-multilib" ]]; then
       echo " ABI_X86 mismatch: >>$profile<<"
       return 1
@@ -158,7 +132,7 @@ function CheckOptions() {
 function CreateImageName()  {
   # profile[-flavour]-day-time
   name="$(tr '/' '_' <<< $profile)-"
-  [[ "$multiabi" = "y" ]]     && name+="_abi32+64"  || true
+  [[ "$abi3264" = "y" ]]     && name+="_abi32+64"  || true
   [[ "$science" = "y" ]]      && name+="_science"   || true
   [[ "$testfeature" = "y" ]]  && name+="_test"      || true
   [[ $jobs -gt 1 ]]           && name+="_j${jobs}"  || true
@@ -407,7 +381,7 @@ EOF
 
   cpconf ~tinderbox/tb/data/package.*.??common
 
-  if [[ "$multiabi" = "y" ]]; then
+  if [[ "$abi3264" = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.*.??abi32+64
   fi
 
@@ -548,7 +522,7 @@ set +u; source /etc/profile; set -u
 
 date
 echo "#setup tools" | tee /var/tmp/tb/task
-emerge -u app-text/ansifilter
+emerge -u app-text/ansifilter app-portage/portage-utils
 echo 'PORTAGE_LOG_FILTER_FILE_CMD="ansifilter"' >> /etc/portage/make.conf
 if [[ $(($RANDOM % 2)) -eq 0 ]]; then
   emerge -u sys-devel/slibtool
@@ -616,7 +590,7 @@ function PrintUseFlags() {
 }
 
 # varying USE flags till very first @world would not complain at start
-function DryRunWithVaryingUseFlags() {
+function DryRunWithRandomUseFlags() {
   local attempt=0
   local max_attempts=99
 
@@ -702,24 +676,27 @@ repodir=/var/db/repos
 tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
 
-autostart="y"
 SetOptions
 
-while getopts a:c:d:j:m:p:r:s:t: opt
+while getopts a:c:j:m:p:r:s:t: opt
 do
   case $opt in
-    a)  autostart="$OPTARG"         ;;
-    c)  cflags="$OPTARG"            ;;
-    d)  mnt="$OPTARG"
-        DryRunWithVaryingUseFlags
-        exit 0
+    a)  abi3264="$OPTARG"         ;;
+    c)  cflags="$OPTARG"          ;;
+    j)  jobs="$OPTARG"            ;;
+    p)  profile="$OPTARG"         ;;
+    r)  randomuseflags="$OPTARG"  ;;
+    s)  science="$OPTARG"         ;;
+    t)  testfeature="$OPTARG"     ;;
+    m)  musl="$OPTARG"
+        if [[ $musl = "y" ]]; then
+          cflags="$cflags_default"
+          randomuseflags="n"
+          profile="17.0/musl"
+          abi3264="n"
+          testfeature="n"
+        fi
         ;;
-    j)  jobs="$OPTARG"              ;;
-    m)  multiabi="$OPTARG"          ;;
-    p)  profile="$OPTARG"           ;;
-    r)  defaultuseflags="$OPTARG"   ;;
-    s)  science="y"                 ;;
-    t)  testfeature="$OPTARG"       ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 1
         ;;
@@ -738,20 +715,18 @@ RunSetupScript
 
 echo
 echo 'emerge --update --newuse --changed-use --backtrack=30 --pretend --deep @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
-if [[ "$defaultuseflags" = "y" ]]; then
+if [[ "$randomuseflags" = "y" ]]; then
+  DryRunWithRandomUseFlags
+else
   date
   echo "dryrun with default USE flags ==========================================================="
   echo
   DryRun
-else
-  DryRunWithVaryingUseFlags
 fi
 
 echo -e "\n$(date)\n  setup OK"
 cd ~tinderbox/run
 ln -s ../$mnt
 
-if [[ $autostart = "y" ]]; then
-  echo
-  su - tinderbox -c "${0%/*}/start_img.sh $name"
-fi
+echo
+su - tinderbox -c "${0%/*}/start_img.sh $name"
