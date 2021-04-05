@@ -226,7 +226,7 @@ EOF
       cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
     fi
 
-    find /tmp/ -name "core.*" -exec mv {} $issuedir/
+    find /tmp/ -name "core.*" -exec mv {} $issuedir/files \;
   fi
 
   collectPortageDir
