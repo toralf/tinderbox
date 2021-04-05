@@ -19,7 +19,7 @@ function SearchForMatchingBugs() {
 
   local output=$(mktemp /tmp/$(basename $0)_XXXXXX.log)
 
-  # search first for the same version, if unsuccessful then repeat with category/package name only
+  # search first for the same revision/version,then try only category/package name
   for i in $pkg $pkgname
   do
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |
@@ -30,16 +30,14 @@ function SearchForMatchingBugs() {
       return
     fi
 
-    for s in FIXED WORKSFORME DUPLICATE
-    do
-      echo -en "$i $s                   \r"
-      bugz -q --columns 400 search --show-status --resolution $s --status RESOLVED -- $i "$(cat $bsi)" |\
-          sort -u -n -r | head -n 3 | sed "s,^,$s  ," | tee $output
-      if [[ -s $output ]]; then
-        found_issues=2
-        break 2
-      fi
-    done
+    echo -en "$i                     \r"
+    bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bsi)" |\
+        sort -u -n -r | head -n 3 | tee $output
+    if [[ -s $output ]]; then
+      found_issues=2
+      rm $output
+      return
+    fi
   done
 
   if [[ ! -s $output ]]; then
@@ -169,12 +167,12 @@ repo=$(cat $issuedir/repository)                              # eg.: gentoo
 pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7
 pkgname=$(qatom $pkg | cut -f1-2 -d' ' -s | tr ' ' '/')       # eg.: net-misc/bird
 
+echo    "    title:    $(cat $issuedir/title)"
 echo -n "    versions: "
 eshowkw --overlays --arch amd64 $pkgname |\
     grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
     awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
     xargs
-echo    "    title:    $(cat $issuedir/title)"
 
 blocker_bug_no=""
 LookupForABlocker
