@@ -40,7 +40,14 @@ function GetProfiles() {
 function ThrowCflags()  {
   if [[ $(($RANDOM % 16)) -eq 0 ]]; then
     # 685160 colon-in-CFLAGS
-    cflags="$cflags -falign-functions=32:25:16"
+    cflags+=" -falign-functions=32:25:16"
+  fi
+
+  # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    cflags+=" -Og -g"
+  else
+    cflags+=" -O2"
   fi
 }
 
@@ -48,7 +55,7 @@ function ThrowCflags()  {
 # helper of main()
 # the variables here are mostly globals
 function SetOptions() {
-  cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
+  cflags_default="-pipe -march=native -fno-diagnostics-color"
   cflags=""
 
   # best would be to have 1 thread in N running images instead up to N running threads in 1 image
@@ -75,11 +82,9 @@ function SetOptions() {
   done < <(GetProfiles | shuf)
 
   ThrowCflags
-
   randomuseflags="y"
   science="n"
   testfeature="n"
-
   musl="n"
 }
 
@@ -262,8 +267,6 @@ EOF
 function CompileMakeConf()  {
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
-NOCOLOR="true"
-GCC_COLORS=""
 PORTAGE_TMPFS="/dev/shm"
 
 CFLAGS="$cflags_default $cflags"
@@ -273,22 +276,24 @@ FCFLAGS="$cflags_default"
 FFLAGS="\${FCFLAGS}"
 
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
-$([[ ! $profile =~ "/hardened" ]] && echo 'PAX_MARKINGS="none"' || true)
+$([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS="~amd64"
 
 # no re-distribution nor any "usage", just QA
 ACCEPT_LICENSE="*"
 
-# just tinderboxing, no manual interaction
+# no manual interaction
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
-FEATURES="cgroup xattr -collision-protect -news"
+NOCOLOR="true"
+GCC_COLORS=""
+
+FEATURES="cgroup splitdebug xattr -collision-protect -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --with-bdeps=y"
 
 CLEAN_DELAY=0
-NOCOLOR=true
 
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
@@ -485,8 +490,6 @@ function CreateSetupScript()  {
 # set -x
 
 set -euf
-
-export GCC_COLORS=""
 
 date
 echo "#setup rsync" | tee /var/tmp/tb/task
