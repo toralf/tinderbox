@@ -6,7 +6,7 @@
 */*  VIDEO_CARDS: -* dummy
 */*  RUBY_TARGETS: ruby30
 
-# will not be tested at all
+# no test at all
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind
 
 # 2x faster compile
@@ -15,16 +15,18 @@
 # dev-util/google-perftools blocker in @preserved-rebuild
 */*                       -jmalloc -tcmalloc
 
-# quicker/easier setup and other misc. requirements
-app-portage/pfl           -network-cron
-app-text/ansifilter       -qt5
+# tinderbox requirements
 mail-mta/ssmtp            -gnutls mta ssl
 
-# dependency issues preventing a setup
+# setup dependency issues
 dev-db/sqlite             -icu
 dev-lang/python           -bluetooth
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
+
+# quicker/easier setup
+app-portage/pfl           -network-cron
+app-text/ansifilter       -qt5
 
 # from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
 sys-apps/nix              -etc_profile

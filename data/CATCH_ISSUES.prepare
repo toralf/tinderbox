@@ -1,3 +1,4 @@
+patch .* failed with
 Cannot find \$EPATCH_SOURCE!
 you need to fix the relative paths in patch
 must be called in src_prepare
@@ -18,5 +19,4 @@ LoadError:
 Project ERROR: Unknown module
 iconv: unrecognized option:
 Bad system call
-patch .* failed with
 cp: not writing through
