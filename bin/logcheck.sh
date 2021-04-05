@@ -22,7 +22,7 @@ do
         ls -l ~/run/*/var/tmp/tb/mail.log
         echo
         head -v ~/run/*/var/tmp/tb/mail.log
-        echo -e "\nto re-activate this test again, do:\n\n   tail -v ~/logs/*; truncate -s 0 ~/logs/*; rm -f $f\n"
+        echo -e "\n\nto re-activate this test again, do:\n\n  tail -v ~/logs/*; rm -f $f;     truncate -s 0 ~/logs/*\n\n"
       ) |\
       tee $f | mail -s "logs are non-empty" $mailto || true
     fi
