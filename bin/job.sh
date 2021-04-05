@@ -749,7 +749,7 @@ function WorkOnTask() {
     if [[ ! $task = "@preserved-rebuild" ]]; then
       opts="$opts --update"
       if [[ $task = "@system" || $task = "@world" ]]; then
-        opts="$opts --newuse --changed-use --exclude kernel/gentoo-sources"
+        opts="$opts --newuse --changed-use"
       fi
     fi
 
