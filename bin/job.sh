@@ -647,7 +647,7 @@ function PostEmerge() {
     # compile the Gentoo kernel (but only the very first one, ignore any updates)
     if [[ -z "$current" ]]; then
       latest=$(eselect kernel list | grep "gentoo" | tail -n 1 | awk ' { print $2 } ')
-      eselect kernel set $latest
+      add2backlog "%eselect kernel set $latest"
     fi
 
     if [[ ! -f /usr/src/linux/.config ]]; then
@@ -860,7 +860,6 @@ taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds output of the current task
 backlog1st=/var/tmp/tb/backlog.1st  # the high prio backlog
 
-export GCC_COLORS=""
 export OCAML_COLOR="never"
 export CARGO_TERM_COLOR="never"
 export PYTEST_ADDOPTS="--color=no"
@@ -872,6 +871,8 @@ export TERMINFO=/etc/terminfo
 
 name=$(cat /etc/conf.d/hostname)
 
+echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
+
 # retry $task if task file is non-empty (eg. after a terminated emerge)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
@@ -881,22 +882,18 @@ fi
 # clean up if eg. a KILL/TERM occurred before
 add2backlog "%emaint --fix merges"
 
-# useful only with FEATURES="splitdebug" and CFLAGS="-Og -g"
-echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
-
 while [[ : ]]
 do
   date > $logfile
-  # pick up after ourself b/c "auto-clean" in FEATURES is deactivated to collect issue files
+  echo "#cleanup" > $taskfile
   rm -rf /var/tmp/portage/*
-  if [[ -f /var/tmp/tb/STOP ]]; then
-    break
-  fi
-
   echo "#rsync repos" > $taskfile
   updateAllRepos
   echo "#get task" > $taskfile
   getNextTask
+  if [[ -f /var/tmp/tb/STOP ]]; then
+    break
+  fi
   WorkOnTask
   truncate -s 0 $taskfile
   DetectALoop
