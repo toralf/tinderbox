@@ -117,7 +117,7 @@ fi
 # only mkdir is an atomic file system operation in the Linux kernel
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
-trap Cleanup INT QUIT TERM EXIT
+trap Cleanup QUIT TERM EXIT
 
 if [[ -n "$entrypoint" ]]; then
   if [[ -L "$mnt/entrypoint" ]]; then
