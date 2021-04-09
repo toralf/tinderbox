@@ -15,9 +15,13 @@ function stripQuotesAndMore() {
 }
 
 
-# handle what ansifilter had survived
-function handleNonPrintableBytes() {
-  perl -wnle ' s,\x00,\n,g; s,\r\n,\n,g; s,\r,\n,g; print; '
+function filterPlainPext() {
+  if [[ -x /usr/bin/ansifilter ]]; then
+    /usr/bin/ansifilter
+  else
+    perl -MTerm::ANSIColor=colorstrip -wne ' $_ = colorstrip($_); print; '
+  fi |\
+  perl -wne ' s,\x00,\n,g; s,\r\n,\n,g; s,\r,\n,g; print; '
 }
 
 
@@ -431,7 +435,7 @@ function ClassifyIssue() {
 function CompileComment0TitleAndBody() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
-  handleNonPrintableBytes < $issuedir/issue > $issuedir/comment0
+  filterPlainPext < $issuedir/issue > $issuedir/comment0
 
   local keyword="stable"
   if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
@@ -538,7 +542,7 @@ function GotAnIssue()  {
   chmod 777 $issuedir # allow to edit title etc. manually
   echo "$repo" > $issuedir/repository   # used by check_bgo.sh
   pkglog_stripped=$issuedir/$(basename $pkglog)
-  handleNonPrintableBytes < $pkglog > $pkglog_stripped
+  filterPlainPext < $pkglog > $pkglog_stripped
   cp $logfile $issuedir
   setWorkDir
   CollectIssueFiles
@@ -704,7 +708,7 @@ function RunAndCheck() {
   fi
 
   logfile_stripped="/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_').log"
-  handleNonPrintableBytes < $logfile > $logfile_stripped
+  filterPlainPext < $logfile > $logfile_stripped
   PostEmerge
 
   if [[ $rc -eq 0 ]]; then
