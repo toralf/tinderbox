@@ -777,10 +777,8 @@ function WorkOnTask() {
         if [[ $task =~ " --resume" ]]; then
           if [[ -n "$pkg" ]]; then
             add2backlog "%emerge --resume --skip-first"
-          else
-            if grep -q ' Invalid resume list:' $logfile_stripped; then
-              add2backlog "$(tac $taskfile.history | grep -m 1 '^%')" || true
-            fi
+          elif grep -q ' Invalid resume list:' $logfile_stripped; then
+            add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
           fi
         elif [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" && ! $task =~ "BuildKernel" ]]; then
           Finish 3 "command: '$cmd'"
