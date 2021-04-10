@@ -10,22 +10,16 @@
 
 # strip away quotes
 function stripQuotesAndMore() {
-  sed -e 's,['\''‘’"`],,g' |\
-  sed -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
+  sed -e 's,['\''‘’"`],,g' -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
 }
 
 
 function filterPlainPext() {
-  if [[ -x /usr/bin/ansifilter ]]; then
-    /usr/bin/ansifilter
-  else
-    perl -MTerm::ANSIColor=colorstrip -wne ' $_ = colorstrip($_); print; '
-  fi |\
   perl -wne ' s,\x00,\n,g; s,\r\n,\n,g; s,\r,\n,g; print; '
 }
 
 
-# send out a SMTP email
+# send out an SMTP email
 function Mail() {
   subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
   if [[ -s $2 ]]; then
@@ -33,7 +27,7 @@ function Mail() {
     cat $2
     echo
   else
-    echo "${2:-empty_mail_body}"
+    echo -e "${2:-empty_mail_body}"
   fi |\
   if ! timeout 120 mail -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log; then
     echo "$(date) mail failed, \$?=$?, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
@@ -230,7 +224,10 @@ EOF
       cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
     fi
 
-    find /tmp/ -name "core.*" -exec mv {} $issuedir/files \;
+    if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
+      mv /tmp/core.* $issuedir/files
+      Mail "INFO: got core files for $pkg" "$(ls -l $issuedir/files/)"
+    fi
   fi
 
   collectPortageDir
@@ -435,12 +432,12 @@ function ClassifyIssue() {
 function CompileComment0TitleAndBody() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
-  filterPlainPext < $issuedir/issue > $issuedir/comment0
-
   local keyword="stable"
   if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
     keyword="unstable"
   fi
+
+  cp $issuedir/issue $issuedir/comment0
   cat << EOF >> $issuedir/comment0
 
   -------------------------------------------------------------------
