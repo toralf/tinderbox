@@ -33,3 +33,6 @@ x11-drivers/nvidia-drivers
 
 # 30 hours build time
 dev-qt/qtwebengine
+
+# obsolete and annoys
+app-vim/curcmdmode

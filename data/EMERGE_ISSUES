@@ -14,3 +14,4 @@ It may be possible to solve this
 !!! One of the following masked packages is required to complete your request:
 The following REQUIRED_USE flag constraints are unsatisfied:
 The following USE changes are necessary to proceed:
+The emaint program provides an interface to system health checks

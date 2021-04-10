@@ -47,7 +47,7 @@ dev-ruby/
 #
 dev-haskell/
 #
-# AMD GPU specifi
+# AMD GPU specific
 #
 dev-libs/roc
 dev-util/hipc
