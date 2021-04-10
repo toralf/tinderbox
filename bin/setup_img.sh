@@ -289,6 +289,7 @@ ACCEPT_RESTRICT="-fetch"
 
 NOCOLOR="true"
 GCC_COLORS=""
+PORTAGE_LOG_FILTER_FILE_CMD="bash -c \\"ansifilter --ignore-clear; exec cat\\""
 
 FEATURES="cgroup splitdebug xattr -collision-protect -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --with-bdeps=y"
@@ -456,7 +457,10 @@ function CreateBacklog()  {
   fi
 
 # this very first depclean must not fail
+# the repeated @system+@world makes column "status" of the whatsup.sh -o more useful
   cat << EOF >> $bl.1st
+@world
+@system
 %emerge --depclean --verbose=n
 app-portage/pfl
 @world
@@ -526,8 +530,7 @@ set +u; source /etc/profile; set -u
 date
 echo "#setup tools" | tee /var/tmp/tb/task
 emerge -u app-text/ansifilter app-portage/portage-utils
-echo 'PORTAGE_LOG_FILTER_FILE_CMD="ansifilter"' >> /etc/portage/make.conf
-if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+if [[ $(($RANDOM % 4)) -eq 0 ]]; then
   emerge -u sys-devel/slibtool
   cat << EOF2 >> /etc/portage/make.conf
 
