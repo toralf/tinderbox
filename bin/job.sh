@@ -29,7 +29,7 @@ function Mail() {
   else
     echo -e "${2:-empty_mail_body}"
   fi |\
-  if ! timeout 120 mail -s "$subject    @ $name" -- $mailto &>> /var/tmp/tb/mail.log; then
+  if ! timeout 120 mail -s "$subject    @ $name" -- $MAILTO &>> /var/tmp/tb/mail.log; then
     echo "$(date) mail failed, \$?=$?, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
     chmod a+rw /var/tmp/tb/mail.log
   fi
@@ -854,7 +854,6 @@ set -eu
 export LANG=C.utf8
 trap Finish INT QUIT TERM EXIT
 
-mailto="tinderbox@zwiebeltoralf.de"
 taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds output of the current task
 backlog1st=/var/tmp/tb/backlog.1st  # the high prio backlog

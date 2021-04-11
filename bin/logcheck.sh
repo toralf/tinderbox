@@ -6,8 +6,6 @@
 set -eu
 export LANG=C.utf8
 
-mailto="tinderbox@zwiebeltoralf.de"
-
 f=/tmp/${0##*/}.out
 
 while [[ : ]]
@@ -24,7 +22,7 @@ do
         head -v ~/run/*/var/tmp/tb/mail.log
         echo -e "\n\nto re-activate this test again, do:\n\n  tail -v ~/logs/*; rm -f $f;     truncate -s 0 ~/logs/*\n\n"
       ) |\
-      tee $f | mail -s "logs are non-empty" $mailto || true
+      tee $f | mail -s "logs are non-empty" $MAILTO || true
     fi
   fi
 
