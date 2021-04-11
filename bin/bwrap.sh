@@ -139,24 +139,24 @@ sandbox=(env -i
     SHELL=/bin/bash
     TERM=linux
     /usr/bin/bwrap
-    --bind "$mnt"                       /
-    --bind /home/tinderbox/tb/data      /mnt/tb/data
-    --bind /home/tinderbox/distfiles    /var/cache/distfiles
-    --ro-bind /home/tinderbox/tb/sdata  /mnt/tb/sdata
-    --ro-bind /var/db/repos             /mnt/repos
-    --tmpfs                             /var/tmp/portage
-    --tmpfs /dev/shm
-    --dev /dev
-    --proc /proc
-    --mqueue /dev/mqueue
-    --unshare-cgroup
-    --unshare-ipc
-    --unshare-pid
-    --unshare-uts
-    --hostname "$(sed -e 's,[+\.],_,g' <<< ${mnt##*/} | cut -c-57)"
-    --chdir /var/tmp/tb
-    --die-with-parent
-     /bin/bash -l
+        --bind "$mnt"                       /
+        --bind /home/tinderbox/tb/data      /mnt/tb/data
+        --bind /home/tinderbox/distfiles    /var/cache/distfiles
+        --ro-bind /home/tinderbox/tb/sdata  /mnt/tb/sdata
+        --ro-bind /var/db/repos             /mnt/repos
+        --tmpfs                             /var/tmp/portage
+        --tmpfs /dev/shm
+        --dev /dev
+        --proc /proc
+        --mqueue /dev/mqueue
+        --unshare-cgroup
+        --unshare-ipc
+        --unshare-pid
+        --unshare-uts
+        --hostname "$(sed -e 's,[+\.],_,g' <<< ${mnt##*/} | cut -c-57)"
+        --chdir /var/tmp/tb
+        --die-with-parent
+        /bin/bash -l
 )
 
 CgroupCreate local/${mnt##*/} $$
