@@ -550,6 +550,14 @@ function GotAnIssue()  {
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
 
+  if grep -q 'error: perl module .* required' $issuedir/title; then
+    try_again=1
+    add2backlog "$task"
+    add2backlog "%perl-cleaner --all"
+    Mail "hit the infamous perl issue" $issuedir/body
+    return
+  fi
+
   if [[ $try_again -eq 1 ]]; then
     add2backlog "$task"
   else
@@ -656,9 +664,10 @@ function PostEmerge() {
     fi
   fi
 
-  if grep -q ">>> Installing .* dev-lang/perl-[1-9]" $logfile_stripped; then
+  if grep -q -e ">>> Installing .* dev-lang/perl-[1-9]" -e 'Use: perl-cleaner' $logfile_stripped; then
     add2backlog "%perl-cleaner --all"
   fi
+
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $logfile_stripped; then
     add2backlog "%SwitchGCC"
   fi
