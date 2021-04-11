@@ -558,8 +558,8 @@ function GotAnIssue()  {
 
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
-      stdbuf -o0 cat $issuedir/title >> /mnt/tb/data/ALREADY_CATCHED
-      touch $issuedir/.check_me
+      # no simple cat due to buffered output
+      echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
       echo -e "\n\n    check_bgo.sh ~/img?/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
       Mail "$(cat $issuedir/title)" $issuedir/body
