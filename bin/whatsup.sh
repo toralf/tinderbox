@@ -135,6 +135,7 @@ function Overall() {
 
     printf "%5i %4i %3i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
   done
+  CountPackages
 }
 
 # $ whatsup.sh -t
@@ -284,12 +285,13 @@ function CountPackages()  {
       my $unique = 0;   # packages
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};
-        print $key, "x", $value, " ";
         $unique += $value;
         $total += $key * $value;
+        #print $key, "x", $value, " ";
       }
+      #print "\n";
 
-      print "\ntotal = $total  unique = $unique\n";
+      print "$total   ($unique unique)\n";
     }
   ' < <(cat $(for i in $images; do ls $i/var/log/emerge.log 2>/dev/null; done))
 }
