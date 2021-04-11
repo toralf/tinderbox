@@ -66,6 +66,7 @@ fi
 
 mnt=""
 entrypoint=""
+
 while getopts h\?m:s: opt
 do
   case $opt in
@@ -156,6 +157,7 @@ sandbox=(env -i
         --hostname "$(sed -e 's,[+\.],_,g' <<< ${mnt##*/} | cut -c-57)"
         --chdir /var/tmp/tb
         --die-with-parent
+        --setenv MAILTO "${MAILTO:-tinderbox}"
         /bin/bash -l
 )
 

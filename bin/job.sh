@@ -21,7 +21,7 @@ function filterPlainPext() {
 
 # send out an SMTP email
 function Mail() {
-  subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
+  local subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
   if [[ -s $2 ]]; then
     echo
     cat $2
@@ -29,7 +29,7 @@ function Mail() {
   else
     echo -e "${2:-empty_mail_body}"
   fi |\
-  if ! timeout 120 mail -s "$subject    @ $name" -- $MAILTO &>> /var/tmp/tb/mail.log; then
+  if ! timeout 120 mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
     echo "$(date) mail failed, \$?=$?, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
     chmod a+rw /var/tmp/tb/mail.log
   fi
