@@ -194,5 +194,3 @@ elif [[ $found_issues -eq 2 ]]; then
   echo -e "\n\n    ${cmd}\n"
 fi
 echo
-
-rm -f $issuedir/.check_me
