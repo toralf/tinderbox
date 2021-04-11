@@ -538,6 +538,7 @@ LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
 
 EOF2
+  echo "*/* -audit -cups" >> /etc/portage/package.use/slibtool
 fi
 
 date
