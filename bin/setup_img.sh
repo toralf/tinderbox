@@ -288,7 +288,6 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
 NOCOLOR="true"
-GCC_COLORS=""
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c \\"ansifilter --ignore-clear; exec cat\\""
 
 FEATURES="cgroup splitdebug xattr -collision-protect -news"

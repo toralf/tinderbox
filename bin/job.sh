@@ -858,10 +858,11 @@ taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds output of the current task
 backlog1st=/var/tmp/tb/backlog.1st  # the high prio backlog
 
-export OCAML_COLOR="never"
 export CARGO_TERM_COLOR="never"
-export PYTEST_ADDOPTS="--color=no"
+export GCC_COLORS=""
+export OCAML_COLOR="never"
 export PY_FORCE_COLOR="0"
+export PYTEST_ADDOPTS="--color=no"
 
 # https://bugs.gentoo.org/683118
 export TERM=linux
