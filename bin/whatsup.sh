@@ -135,7 +135,6 @@ function Overall() {
 
     printf "%5i %4i %3i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
   done
-  CountPackages
 }
 
 # $ whatsup.sh -t
