@@ -30,7 +30,17 @@ function SearchForMatchingBugs() {
       return
     fi
 
-    echo -en "$i                     \r"
+    echo -en "$i DUP                    \r"
+    bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bsi)" |\
+        sort -u -n -r | head -n 3 | tee $output
+    if [[ -s $output ]]; then
+      found_issues=2
+      rm $output
+      echo -e " \n^DUPLICATE"
+      return
+    fi
+
+    echo -en "$i                        \r"
     bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bsi)" |\
         sort -u -n -r | head -n 3 | tee $output
     if [[ -s $output ]]; then
