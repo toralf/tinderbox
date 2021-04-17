@@ -272,7 +272,7 @@ function getPkgVarsFromIssuelog()  {
 
 # helper of ClassifyIssue()
 function foundCollisionIssue() {
-  grep -m 1 -A 20 ' * Detected file collision(s):' $logfile_stripped | grep -B 15 ' * Package .* NOT' > $issuedir/issue
+  grep -A 4 'NOT merged due to file collisions' $logfile_stripped > $issuedir/issue
 
   # get package (name+version) of the colliding package
   local s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_stripped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
@@ -395,7 +395,7 @@ function ClassifyIssue() {
     handleTestPhase
   fi
 
-  if grep -q -m 1 ' * Detected file collision(s):' $pkglog_stripped; then
+  if grep -q -m 1 -F ' * Detected file collision(s):' $pkglog_stripped; then
     foundCollisionIssue
 
   elif [[ -n $sandb ]]; then # no "-f" b/c it might not exist
@@ -554,7 +554,7 @@ function GotAnIssue()  {
     try_again=1
     add2backlog "$task"
     add2backlog "%perl-cleaner --all"
-    Mail "hit the infamous perl issue" $issuedir/body
+    Mail "hit the infamous perl issue" $issuedir/issue
     return
   fi
 
