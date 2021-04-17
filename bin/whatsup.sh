@@ -286,9 +286,9 @@ function CountPackages()  {
         my $value = $h{$key};
         $unique += $value;
         $total += $key * $value;
-        #print $key, "x", $value, " ";
+        print $key, "x", $value, " ";
       }
-      #print "\n";
+      print "\n";
 
       print "$total   ($unique unique)\n";
     }
