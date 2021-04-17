@@ -13,9 +13,9 @@ if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
   exit 0
 fi
 
-vcpu=$(echo "(( ${1:-$(nproc) - 4 } ) * 100000.0) / 1" | bc)
+vcpu=$(echo "( ${1:-$(nproc) - 4} ) * 100000.0" | bc | sed -e 's,\..*,,g')
 ram=${2:-120G}
-vram=${3:-140G}
+vram=${3:-150G}
 
 # make this script available for non-tinderbox consumers too
 cp /opt/tb/bin/cgroup-release-agent.sh /usr/local/bin/
@@ -27,7 +27,7 @@ do
   echo "/usr/local/bin/cgroup-release-agent.sh" > /sys/fs/cgroup/$i/release_agent
 done
 
-# prefer a generic name b/c "tinderbox" is just one consumer of CGroups
+# prefer a generic name b/c "tinderbox" is just one (of currently 2) consumer of CGroups
 name=/local
 cgcreate -g cpu,memory:$name
 
