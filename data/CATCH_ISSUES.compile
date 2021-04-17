@@ -275,3 +275,6 @@ go install: version is required
 ModuleNotFoundError:
 libtool: error
 ./shtool:Error:
+ld: cannot use executable
+ar: libdeps specified more than once
+: Fatal error

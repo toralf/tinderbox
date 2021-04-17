@@ -5,6 +5,7 @@ Dependencies could not be completely resolved due t
 emerge: there are no ebuilds built with USE flags to satisfy
 emerge: there are no ebuilds to satisfy
 emerge: There are no sets to satisfy
+/entrypoint: line .*: .* Killed
 * Error: circular dependencies:
 * Error: The above package list contains packages which cannot be
 * Invalid resume list:
