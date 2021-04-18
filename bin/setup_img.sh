@@ -158,7 +158,7 @@ function CreateImageDir() {
 
   mkdir $name || return 1
 
-  # relative path (eg ./img1) from ~tinderbox
+  # relative path (usually ./img) from ~tinderbox
   mnt=$l/$name
 
   echo " new image: $mnt"
