@@ -272,10 +272,12 @@ function getPkgVarsFromIssuelog()  {
 
 # helper of ClassifyIssue()
 function foundCollisionIssue() {
-  grep -A 4 'NOT merged due to file collisions' $logfile_stripped > $issuedir/issue
-
-  # get package (name+version) of the colliding package
-  local s=$(grep -m 1 -A 2 'Press Ctrl-C to Stop' $logfile_stripped | grep '::' | tr ':' ' ' | cut -f3 -d' ' -s)
+  # get the colliding package name
+  local s=$(
+    grep -m 1 -A 5 'Press Ctrl-C to Stop' $logfile_stripped |\
+    tee -a  $issuedir/issue |\
+    grep -m 1 '::' | tr ':' ' ' | cut -f3 -d' ' -s
+  )
   echo "file collision with $s" > $issuedir/title
 }
 
