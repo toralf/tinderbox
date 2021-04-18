@@ -1,6 +1,2 @@
 # package.accept_keywords/00common
 #
-
-# requested by dilfridge/slyfox
-~sys-devel/binutils-2.36.1        **
-~sys-libs/binutils-libs-2.36.1    **
