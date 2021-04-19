@@ -886,7 +886,6 @@ echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 # retry $task if task file is non-empty (eg. after a terminated emerge)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
-  truncate -s 0 $taskfile
 fi
 
 while [[ : ]]
@@ -899,12 +898,10 @@ do
   echo "#get task" > $taskfile
   getNextTask
   if [[ -f /var/tmp/tb/STOP ]]; then
-    break
+    echo "#stopping" > $taskfile
+    Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
   WorkOnTask
   truncate -s 0 $taskfile
   DetectALoop
 done
-
-echo "#stopping" > $taskfile
-Finish 0 "catched STOP file" /var/tmp/tb/STOP
