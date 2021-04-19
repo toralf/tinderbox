@@ -397,12 +397,17 @@ EOF
     echo "*/*  notest" > ./etc/portage/package.env/12notest
   fi
 
-  echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
-
   # give Firefox, Thunderbird et al. a chance
   if [[ $(($RANDOM % 8)) -eq 0 ]]; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
+
+  # prefer the -bin variant (due to loong emerge time)
+  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+    echo "dev-lang/rust" > ./etc/portage/package.mask/91rust
+  fi
+
+  echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
   touch ./var/tmp/tb/task
 
