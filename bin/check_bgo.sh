@@ -156,7 +156,7 @@ function SetAssigneeAndCc() {
 set -euf
 export LANG=C.utf8
 
-issuedir=$(realpath $1)
+issuedir=~/run/$1
 
 if [[ ! -s $issuedir/title ]]; then
   echo "no title"
