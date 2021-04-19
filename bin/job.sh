@@ -757,7 +757,7 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     feedPfl
 
-    opts="--backtrack=30"
+    local opts="--backtrack=30"
     if [[ ! $task = "@preserved-rebuild" ]]; then
       opts="$opts --update"
       if [[ $task = "@system" || $task = "@world" ]]; then
@@ -782,7 +782,7 @@ function WorkOnTask() {
 
   # %<command>
   elif [[ $task =~ ^% ]]; then
-    cmd="$(cut -c2- <<< $task)"
+    local cmd="$(cut -c2- <<< $task)"
 
     if ! RunAndCheck "$cmd"; then
       if [[ $try_again -eq 0 ]]; then
@@ -811,7 +811,7 @@ function WorkOnTask() {
 
 # heuristic:
 function DetectALoop() {
-  x=7
+  local x=7
   if [[ $name =~ "test" ]]; then
     x=18
   fi
@@ -823,7 +823,7 @@ function DetectALoop() {
       continue
     fi
 
-    n=$(tail -n $y $taskfile.history | grep -c "$t") || true
+    local n=$(tail -n $y $taskfile.history | grep -c "$t") || true
     if [[ $n -ge $x ]]; then
       for i in $(seq 1 $y)
       do
@@ -840,7 +840,7 @@ function DetectALoop() {
 function updateAllRepos() {
   for image_repo in $(ls -d /var/db/repos/* 2>/dev/null | grep -v -e "/local$" -e "/tinderbox$")
   do
-    host_repo=/mnt/repos/$(basename $image_repo)
+    local host_repo=/mnt/repos/$(basename $image_repo)
     if [[ ! -d $host_repo ]]; then
       continue
     fi
