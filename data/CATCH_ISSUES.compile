@@ -278,3 +278,5 @@ libtool: error
 ld: cannot use executable
 ar: libdeps specified more than once
 : Fatal error
+uh-oh! RDoc had a problem:
+Makefile:.* Stop.

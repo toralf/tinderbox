@@ -18,6 +18,7 @@ app-officeext/
 dev-haskell/language-python
 dev-libs/aws-sdk-cpp
 dev-util/include-what-you-use
+dev-util/intel-graphics-compiler
 gnome-extra/sushi
 oci8
 sci-astronomy/psfex
@@ -54,3 +55,7 @@ dev-util/hipc
 dev-util/roc
 sys-devel/llvm-roc
 sci-libs/roc
+#
+# misc
+#
+app-dicts/

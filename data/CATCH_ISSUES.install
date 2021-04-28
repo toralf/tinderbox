@@ -1,3 +1,4 @@
+Can't locate Locale/gettext.pm in @INC
 newinitd:.* does not exist
  \* .* is not a valid file/directory
  !!! .* does not exist
@@ -34,8 +35,7 @@ glib-mkenums: command not found
 AttributeError:
 error: unknown target
 FileNotFoundError:
- \*   .* failed
-.* failed
+Error: The .* plugin is not installed
 : Permission denied
  note: each undeclared identifier is reported only once for each function it appears in
 Segmentation fault

@@ -46,3 +46,7 @@ error: template with C linkage
 #  (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
 765709
 slibtool|rlibtool|rdlibtool|ld: cannot find|undefined reference to|gcc: error: unrecognized command-line option|./shtool:
+
+#  (gcc-11) - [TRACKER] sys-devel/gcc-11 porting
+732706 maybe gcc-11 related
+error: static assertion failed: comparison object must be invocable as cons|error: .*numeric_limits.* is not a member of .*std|ISO C\+\+17|const class .* has no member named

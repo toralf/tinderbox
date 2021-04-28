@@ -1,2 +1,33 @@
 # package.unmask/00common
 #
+
+# by mattst88
+#
+>=dev-libs/vala-common-0.51
+>=games-board/gnome-chess-40
+>=app-misc/tracker-3
+>=app-misc/tracker-miners-3
+>=gnome-base/nautilus-40
+>=sys-process/gnome-usage-3.38
+>=media-plugins/grilo-plugins-0.3.13
+>=media-sound/gnome-music-40
+>=media-gfx/gnome-photos-40
+>=gnome-base/gnome-shell-40
+>=gnome-extra/gnome-shell-extensions-40
+>=x11-wm/mutter-40
+>=media-sound/gnome-music-40
+>=games-board/gnome-chess-40
+>=dev-libs/gobject-introspection-common-1.68.0
+>=dev-libs/gobject-introspection-1.68.0
+>=dev-util/gdbus-codegen-2.68.0
+>=dev-util/glib-utils-2.68.0
+>=dev-libs/glib-2.68.0
+>=net-libs/glib-networking-2.68.0
+>=gnome-base/nautilus-40
+>=gnome-extra/gnome-calendar-40
+>=dev-libs/libgweather-40
+>=dev-libs/vala-common-0.49
+>=x11-libs/pango-1.43
+>=dev-cpp/pangomm-2.48
+dev-lang/vala:0.50
+dev-lang/vala:0.52

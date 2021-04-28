@@ -1,19 +1,16 @@
 # package.use/90common
 #
 
-*/*  QEMU_SOFTMMU_TARGETS: -* x86_64 i386
-*/*  QEMU_USER_TARGETS: -* x86_64 i386
-*/*  VIDEO_CARDS: -* dummy
-*/*  RUBY_TARGETS: ruby30
+*/*  QEMU_SOFTMMU_TARGETS:  x86_64 i386
+*/*  QEMU_USER_TARGETS:     x86_64 i386
+*/*  VIDEO_CARDS:           dummy
+*/*  RUBY_TARGETS:          ruby30
 
-# no test at all
+# no tinderboxing at all
 */*                       -cdinstall -firmware -oci8 -pax_kernel ssp -symlink -valgrind
 
 # 2x faster compile
 */*                       jumbo-build
-
-# dev-util/google-perftools blocker in @preserved-rebuild
-*/*                       -jmalloc -tcmalloc
 
 # tinderbox requirements
 mail-mta/ssmtp            -gnutls mta ssl

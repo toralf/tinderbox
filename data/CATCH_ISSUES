@@ -18,10 +18,10 @@ sed:.*expression.*unknown option
 sed.*failed
 ^ERROR:
 .:.*: Error:
- \* emake failed
 Please fix the ebuild to use correct FHS/Gentoo policy paths
 ninja: build stopped:
 \[BUG\] Segmentation fault at
 ^ERROR
 Error .
 error: .
+ \*   .* failed
