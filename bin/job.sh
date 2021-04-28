@@ -288,13 +288,8 @@ function foundSandboxIssue() {
     printf "%-50s %s\n" "<=$pkg" "nosandbox" >> /etc/portage/package.env/nosandbox
     try_again=1
   fi
-
   echo "sandbox issue" > $issuedir/title
-  if [[ -f $sandb ]]; then
-    head -n 10 $sandb &> $issuedir/issue
-  else
-    echo "Bummer, sandbox file does not exist: $sandb" > $issuedir/issue
-  fi
+  head -n 10 $sandb &> $issuedir/issue
 }
 
 
