@@ -608,6 +608,7 @@ function SwitchGCC() {
       add2backlog "%emerge -1 sys-devel/slibtool"
     fi
     add2backlog "%emerge -1 sys-devel/libtool"
+    add2backlog "%emerge --unmerge sys-devel/gcc:$(gcc -dumpversion | cut -f1 -d'.')"
   fi
 }
 
