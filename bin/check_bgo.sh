@@ -104,7 +104,6 @@ function LookupForABlocker() {
       if [[ -n "$suffix" ]]; then
         if ! grep -q -F " ($suffix)" $issuedir/title; then
           sed -i -e "s,$, ($suffix),g" $issuedir/title
-          echo "suffixed title"
         fi
       fi
       break
