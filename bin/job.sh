@@ -889,11 +889,11 @@ do
   echo "#rsync repos" > $taskfile
   updateAllRepos
   echo "#get task" > $taskfile
-  getNextTask
   if [[ -f /var/tmp/tb/STOP ]]; then
     echo "#stopping" > $taskfile
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
+  getNextTask
   WorkOnTask
   truncate -s 0 $taskfile
   DetectALoop
