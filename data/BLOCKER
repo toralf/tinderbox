@@ -7,33 +7,13 @@
 685160
 ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 
-#  (qt-5.15) - [Tracker] Packages broken with Qt 5.15
-726178
-QPainterPath
-
-# (qtbindir) - [TRACKER] packages that need qt{4,5}_get_bindir
-544108
-qmake|moc |lrelease|lconvert|Failed to determine Qt version|qtchooser
-
 # asciidoctor
 744385
 :in load: cannot load such file -- /usr/lib64/ruby/gems/2.7
 
-# [TRACKER] Packages that have failures with dev-lang/python-exec[-native-symlinks]
-762406
-python3: .*|Could NOT find PythonLibs|missing: PYTHON_|python: bad interpreter:|PYTHON_EXECUTABLE-NOTFOUND: command not found|No supported Python implementation|python is required|python3 not found|python: No such file or directory
-
 # tinfo) - [TRACKER] Failures with sys-libs/ncurses[tinfo]
 457530
 libtinfo.so.6: error adding symbols:
-
-# [TRACKER] setuptools-51.3.0+ breakage (#1390: Newlines in metadata description/Summary now trigger a ValueError)
-765838
-ValueError: newlines not allowed
-
-# (PROJ-8) - [Tracker] sci-libs/proj revdeps using deprecated proj_api.h - removal in PROJ 8
-729098
-proj_api.h|could not find PROJ
 
 # (autoconf-2.7x) - [TRACKER] >=sys-devel/autoconf-2.70 issues
 732648
@@ -45,8 +25,8 @@ error: template with C linkage
 
 #  (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
 765709
-slibtool|rlibtool|rdlibtool|ld: cannot find|undefined reference to|gcc: error: unrecognized command-line option|./shtool:
+slibtool|rlibtool|rdlibtool|gcc: error: unrecognized command-line option|./shtool:
 
 #  (gcc-11) - [TRACKER] sys-devel/gcc-11 porting
 732706 maybe gcc-11 related
-error: static assertion failed: comparison object must be invocable as cons|error: .*numeric_limits.* is not a member of .*std|ISO C\+\+17|const class .* has no member named
+error: static assertion failed: comparison object must be invocable as cons|error: .*numeric_limits.* is not a member of .*std|ISO C\+\+17|const class .* has no member named|error: reference to data is ambiguous
