@@ -591,24 +591,24 @@ function source_profile(){
   local old_setting=${-//[^u]/}
   set +u
   source /etc/profile 2>/dev/null
-  if [[ -n "${old_setting}" ]]; then
-    set -u
-  fi
+  [[ -n "${old_setting}" ]] && set -u || true
 }
 
 
 # helper of PostEmerge()
 # switch to latest GCC
 function SwitchGCC() {
-  latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
+  local latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
 
-  if ! gcc-config --list-profiles --nocolor | grep -q "$latest \*$"; then
-    current=$(gcc -dumpversion)
+  if ! gcc-config --list-profiles --nocolor | grep -q -F "$latest *"; then
     gcc-config --nocolor $latest &>> $logfile
     source_profile
-    add2backlog "%emerge @preserved-rebuild"                  # must not fail
-    add2backlog "%emerge -1 sys-devel/libtool"                # should be rebuild
-    add2backlog "%emerge --unmerge sys-devel/gcc:$current"
+    add2backlog "%emerge @preserved-rebuild"
+    if qlist -ICv sys-devel/slibtool 1>/dev/null; then
+      add2backlog "%emerge -1 sys-devel/slibtool"
+    fi
+    add2backlog "%emerge -1 sys-devel/libtool"
+    add2backlog "%emerge --unmerge sys-devel/gcc:$(gcc -dumpversion | cut -f1 -d'.')"
   fi
 }
 
