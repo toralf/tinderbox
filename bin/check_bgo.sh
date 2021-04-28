@@ -25,40 +25,35 @@ function SearchForMatchingBugs() {
       -e 's,  *, ,g'              \
       $issuedir/title > $bsi
 
-  local output=$(mktemp /tmp/$(basename $0)_XXXXXX.log)
-
   # search first for the same revision/version,then try only category/package name
   for i in $pkg $pkgname
   do
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |
-        grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 8 | tee $output
-    if [[ -s $output ]]; then
+        grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 8 | tee $tmpfile
+    if [[ -s $tmpfile ]]; then
       found_issues=1
-      rm $output
       return
     fi
 
     echo -en "$i DUP                    \r"
     bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bsi)" |\
-        sort -u -n -r | head -n 3 | tee $output
-    if [[ -s $output ]]; then
+        sort -u -n -r | head -n 3 | tee $tmpfile
+    if [[ -s $tmpfile ]]; then
       found_issues=2
-      rm $output
       echo -e " \n^DUPLICATE"
       return
     fi
 
     echo -en "$i                        \r"
     bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bsi)" |\
-        sort -u -n -r | head -n 3 | tee $output
-    if [[ -s $output ]]; then
+        sort -u -n -r | head -n 3 | tee $tmpfile
+    if [[ -s $tmpfile ]]; then
       found_issues=2
-      rm $output
       return
     fi
   done
 
-  if [[ ! -s $output ]]; then
+  if [[ ! -s $tmpfile ]]; then
     # if no findings till now, so search for any bug of that category/package
 
     local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
@@ -66,22 +61,20 @@ function SearchForMatchingBugs() {
 
     echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
     bugz -q --columns 400 search --show-status $pkgname |\
-        grep -v -i -E "$g" | sort -u -n -r | head -n 8 | tee $output
-    if [[ -s $output ]]; then
+        grep -v -i -E "$g" | sort -u -n -r | head -n 8 | tee $tmpfile
+    if [[ -s $tmpfile ]]; then
       found_issues=2
     fi
 
-    if [[ $(wc -l < $output) -lt 5 ]]; then
+    if [[ $(wc -l < $tmpfile) -lt 5 ]]; then
       echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
       bugz -q --columns 400 search --status RESOLVED $pkgname |\
-          grep -v -i -E "$g" | sort -u -n -r | head -n 5 | tee $output
-      if [[ -s $output ]]; then
+          grep -v -i -E "$g" | sort -u -n -r | head -n 5 | tee $tmpfile
+      if [[ -s $tmpfile ]]; then
         found_issues=2
       fi
     fi
   fi
-
-  rm $output
 }
 
 
