@@ -94,13 +94,18 @@ function LookupForABlocker() {
       continue
     fi
 
-    if [[ $line =~ ^[0-9].*$ ]]; then
-      number=$line
-      continue
+    if [[ $line =~ ^[0-9].* ]]; then
+      read -r number suffix <<< $line
     fi
 
     if grep -q -E "$line" $issuedir/title; then
       blocker_bug_no=$number
+      if [[ -n "$suffix" ]]; then
+        if ! grep -q -F " ($suffix)" $issuedir/title; then
+          sed -i -e "s,$, ($suffix),g" $issuedir/title
+          echo "suffixed title"
+        fi
+      fi
       break
     fi
   done < <(grep -v -e '^#' -e '^$' ~tinderbox/tb/data/BLOCKER)
