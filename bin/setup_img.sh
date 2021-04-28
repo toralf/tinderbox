@@ -402,8 +402,8 @@ EOF
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
 
-  # prefer the -bin variant (due to loong emerge time)
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+  # force the -bin variant (due to loong emerge time)
+  if [[ $(($RANDOM % 8)) -lt 7 ]]; then
     echo "dev-lang/rust" > ./etc/portage/package.mask/91rust
   fi
 
@@ -617,7 +617,7 @@ function DryRunWithRandomUseFlags() {
 
     grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
     cut -f1 -d' ' -s |\
-    shuf -n $(($RANDOM % 10)) |\
+    shuf -n $(($RANDOM % 15)) |\
     sort |\
     xargs |\
     xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
@@ -625,18 +625,18 @@ function DryRunWithRandomUseFlags() {
     grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
     cut -f1 -d' ' -s |\
     IgnoreUseFlags |\
-    ThrowUseFlags 100 |\
+    ThrowUseFlags 150 |\
     PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
 
     grep -h 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
     cut -f2 -d'"' -s |\
     sort -u |\
     IgnoreUseFlags |\
-    ThrowUseFlags 100 |\
+    ThrowUseFlags 150 |\
     PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
     grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
-    shuf -n $(($RANDOM % 600)) |\
+    shuf -n $(($RANDOM % 900)) |\
     sort |\
     while read -r file
     do
@@ -644,7 +644,7 @@ function DryRunWithRandomUseFlags() {
       grep -h 'flag name="' $file |\
       cut -f2 -d'"' -s |\
       IgnoreUseFlags |\
-      ThrowUseFlags 8 |\
+      ThrowUseFlags 12 |\
       xargs |\
       xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
     done > $mnt/etc/portage/package.use/24thrown_package_use_flags
@@ -652,7 +652,7 @@ function DryRunWithRandomUseFlags() {
     DryRun && break
 
     if [[ $attempt -ge $max_attempts ]]; then
-      echo -e "\n$(date)\ntoo much attempts, giving up\n"
+      echo -e "\n$(date)\ndidn't make it after attempts, giving up\n"
       exit 2
     fi
 
@@ -665,9 +665,9 @@ function DryRunWithRandomUseFlags() {
 # main
 #
 set -eu
+export LANG=C.utf8
 
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
-export LANG=C.utf8
 
 date
 echo " $0 started"
