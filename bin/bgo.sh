@@ -19,7 +19,9 @@ function Warn() {
 function Exit() {
   local rc=${1:-$?}
 
-  Warn $rc
+  if [[ $rc -ne 0 ]]; then
+    Warn $rc
+  fi
   exit $rc
 }
 
@@ -28,7 +30,7 @@ function Exit() {
 
 set -eu
 export LANG=C.utf8
-trap Exit INT QUIT TERM
+trap Exit INT QUIT TERM EXIT
 
 id=""
 block=""
