@@ -4,6 +4,14 @@
 # check buzilla.gentoo.org whether issue was already reported
 
 
+function Exit()  {
+  local rc=${1:-$?}
+
+  rm -f $tmpfile
+  exit $rc
+}
+
+
 function SearchForMatchingBugs() {
   local bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search patterns
 
@@ -172,6 +180,9 @@ if [[ -f $issuedir/.reported ]]; then
   echo "already reported"
   exit 0
 fi
+
+trap Exit INT QUIT TERM EXIT
+tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.log)
 
 echo
 echo "==========================================="
