@@ -307,27 +307,24 @@ function foundCflagsIssue() {
 function foundGenericIssue() {
     pushd /var/tmp/tb 1>/dev/null
 
-    # run over manually collected pattern in the order they do appear in the appropriate pattern file
-    # as an attempt to get the real issue
+    # run sequential over the pattern in the order they are specified
+    # to avoid shell/quoting effects put each pattern in a file and point to that in "grep -m 1 ... -f"
     (
       if [[ -n "$phase" ]]; then
         cat /mnt/tb/data/CATCH_ISSUES.$phase
       fi
       cat /mnt/tb/data/CATCH_ISSUES
-    ) | split --lines=1 --suffix-length=2
+    ) | split --lines=1 --suffix-length=2 - x
 
-    # the amount of newlines must match the argument of -B in the grep in the for-loop
-    echo -e "\n\n"        >  ./stripped_pkglog
-    cat $pkglog_stripped  >> ./stripped_pkglog
     for x in ./x??
     do
-      if grep -a -m 1 -B 2 -A 3 -f $x ./stripped_pkglog > ./issue; then
+      if grep -m 1 -a -B 2 -A 4 -f $x $pkglog_stripped > ./issue; then
         mv ./issue $issuedir
-        sed -n '3p' < $issuedir/issue | stripQuotesAndMore > $issuedir/title # 3p == 3rd line == matches -A 3
+        sed -n '3p' $issuedir/issue | stripQuotesAndMore > $issuedir/title # fails if "-B 2" didn't delivered
         break
       fi
     done
-    rm -f ./x?? ./stripped_pkglog ./issue
+    rm -f ./x?? ./issue
 
     popd 1>/dev/null
 
@@ -349,6 +346,7 @@ function foundGenericIssue() {
             -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
             -e 's,target /.*/,target <snip>/,g' \
             -e 's,(\.text\..*):,(<snip>),g'     \
+            -e 's,object index [0-9].*,object index <snip>,g' \
             $issuedir/title
 }
 
