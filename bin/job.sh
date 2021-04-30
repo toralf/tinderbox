@@ -567,6 +567,7 @@ function GotAnIssue()  {
       echo -e "\n\n    check_bgo.sh $name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
       Mail "$(cat $issuedir/title)" $issuedir/body
+      touch $issuedir/.unchecked
     fi
   fi
 }

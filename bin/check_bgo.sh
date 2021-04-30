@@ -179,6 +179,7 @@ tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.log)
 echo
 echo "==========================================="
 # echo $issuedir
+rm -f $issuedir/.unchecked
 
 name=$(cat $issuedir/../../../../../etc/conf.d/hostname)      # eg.: 17.1-20201022-101504
 repo=$(cat $issuedir/repository)                              # eg.: gentoo
