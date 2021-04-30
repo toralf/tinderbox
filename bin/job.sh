@@ -456,6 +456,7 @@ EOF
     java-config --list-available-vms --nocolor
     eselect java-vm list
     ghc --version
+    eselect php list cli
 
     echo
     echo "  timestamp(s) of HEAD at this tinderbox image:"
