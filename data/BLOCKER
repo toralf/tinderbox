@@ -29,4 +29,4 @@ slibtool|rlibtool|rdlibtool|gcc: error: unrecognized command-line option|./shtoo
 
 #  (gcc-11) - [TRACKER] sys-devel/gcc-11 porting
 732706 maybe gcc-11 related
-error: static assertion failed: comparison object must be invocable as cons|error: .*numeric_limits.* is not a member of .*std|ISO C\+\+17|const class .* has no member named|error: reference to data is ambiguous
+error: static assertion failed: comparison object must be invocable as cons|error: .* is not a member of .*std|17 does not allow|const class .* has no member named|error: reference to data is ambiguous|error: redefinition of struct|error: inlining failed in call to|error: .* was not declared in this scope|error: reference to byte is ambiguous|error: .* does not name a type|error: static assertion failed: comparison object must|error: size of array element is not a multiple

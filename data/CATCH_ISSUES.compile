@@ -280,3 +280,4 @@ ar: libdeps specified more than once
 : Fatal error
 uh-oh! RDoc had a problem:
 Makefile:.* Stop.
+Cannot build with randomized sbrk.
