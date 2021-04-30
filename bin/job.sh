@@ -603,6 +603,7 @@ function SwitchGCC() {
   local latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
 
   if ! gcc-config --list-profiles --nocolor | grep -q -F "$latest *"; then
+    local old=$(gcc -dumpversion | cut -f1 -d'.')
     gcc-config --nocolor $latest &>> $logfile
     source_profile
     add2backlog "%emerge @preserved-rebuild"
@@ -610,7 +611,7 @@ function SwitchGCC() {
       add2backlog "%emerge -1 sys-devel/slibtool"
     fi
     add2backlog "%emerge -1 sys-devel/libtool"
-    add2backlog "%emerge --unmerge sys-devel/gcc:$(gcc -dumpversion | cut -f1 -d'.')"
+    add2backlog "%emerge --unmerge sys-devel/gcc:$old"
   fi
 }
 
