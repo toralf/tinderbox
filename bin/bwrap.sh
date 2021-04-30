@@ -46,6 +46,7 @@ function Cleanup()  {
 
 function Exit()  {
   echo "bailing out ..."
+  trap - QUIT TERM EXIT
 }
 
 
@@ -115,7 +116,6 @@ if [[ ! -d /run/tinderbox ]]; then
   exit 5
 fi
 
-# only mkdir is an atomic file system operation in the Linux kernel
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 mkdir "$lock_dir"
 trap Cleanup QUIT TERM EXIT
@@ -125,13 +125,9 @@ if [[ -n "$entrypoint" ]]; then
     echo "found symlinked $mnt/entrypoint"
     exit 4
   fi
-
-  if [[ -e "$mnt/entrypoint" ]]; then
-    rm "$mnt/entrypoint"
-  fi
-  touch             "$mnt/entrypoint"
-  chmod 744         "$mnt/entrypoint"
+  rm -f             "$mnt/entrypoint"
   cp "$entrypoint"  "$mnt/entrypoint"
+  chmod 744         "$mnt/entrypoint"
 fi
 
 sandbox=(env -i

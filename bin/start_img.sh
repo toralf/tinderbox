@@ -10,6 +10,10 @@ function __is_running() {
 }
 
 
+#############################################################################
+#
+# main
+#
 set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8

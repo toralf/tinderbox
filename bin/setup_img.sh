@@ -547,7 +547,7 @@ fi
 
 date
 echo "#setup mailer" | tee /var/tmp/tb/task
-# emerge ssmtp separately before mailx b/c the later would pull in a different MTA if none is found
+# emerge ssmtp separately before mailx b/c mailx would pull in per default a different MTA
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
 
