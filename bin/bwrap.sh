@@ -140,12 +140,12 @@ sandbox=(env -i
     SHELL=/bin/bash
     TERM=linux
     /usr/bin/bwrap
-        --bind "$mnt"                       /
-        --bind /home/tinderbox/tb/data      /mnt/tb/data
-        --bind /home/tinderbox/distfiles    /var/cache/distfiles
-        --ro-bind /home/tinderbox/tb/sdata  /mnt/tb/sdata
-        --ro-bind /var/db/repos             /mnt/repos
-        --tmpfs                             /var/tmp/portage
+        --bind "$mnt"                             /
+        --bind ~tinderbox/tb/data                 /mnt/tb/data
+        --bind ~tinderbox/distfiles               /var/cache/distfiles
+        --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
+        --ro-bind /var/db/repos                   /mnt/repos
+        --tmpfs                                   /var/tmp/portage
         --tmpfs /dev/shm
         --dev /dev
         --proc /proc

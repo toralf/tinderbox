@@ -327,7 +327,7 @@ function cpconf() {
 
 # create portage and tinderbox related directories + files
 function CompilePortageFiles()  {
-  mkdir -p ./mnt/{repos,tb/data,tb/sdata} ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
+  mkdir -p ./mnt/{repos,tb/data} ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
 
   chgrp portage ./var/tmp/tb
   chmod ug+rwx  ./var/tmp/tb
@@ -550,7 +550,6 @@ echo "#setup mailer" | tee /var/tmp/tb/task
 # emerge ssmtp separately before mailx b/c the later would pull in a different MTA if none is found
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
-(cd /etc/ssmtp && ln -sf ../../mnt/tb/sdata/ssmtp.conf)
 
 date
 eselect profile set --force default/linux/amd64/$profile
