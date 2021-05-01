@@ -73,9 +73,10 @@ function SetOptions() {
 
   # prefer a non-running profile
   # however if no one passes the break criteria, then the last entry would make it eventually
-  while read -r profile
+  while read -r line
   do
-    local p=$(tr '/' '_' <<< $profile)
+    profile=$line
+    local p=$(tr '/' '_' <<< $line)
     if ! ls ~tinderbox/run/$p-* &>/dev/null && ! ls -d /run/tinderbox/$p-*.lock &>/dev/null ]]; then
       break
     fi
