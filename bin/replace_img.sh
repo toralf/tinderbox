@@ -37,8 +37,12 @@ function LookForAnImageWithEmptyBacklog()  {
   # wanted side effect: $oldimg is set
   while read -r oldimg
   do
-    if [[ $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog 2>/dev/null)) = "0" ]]; then
-      return 0
+    if [[ -e ~/run/$oldimg ]]; then
+      if [[ $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog 2>/dev/null)) = "0" ]]; then
+        return 0
+      fi
+    else
+      echo "warn: ~/run/$oldimg is broken !"
     fi
   done < <(cd ~/run; ls -dt * 2>/dev/null | tac)
 
