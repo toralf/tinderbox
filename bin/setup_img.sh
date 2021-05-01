@@ -678,10 +678,8 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-if [[ $# -gt 0 ]]; then
-  echo "   $# additional args are given: '${@}'"
-  echo
-fi
+echo "   $# args given: '${@}'"
+echo
 
 repodir=/var/db/repos
 tbdistdir=~tinderbox/distfiles
