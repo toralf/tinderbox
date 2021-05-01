@@ -158,13 +158,13 @@ function SetAssigneeAndCc() {
 
 
 #######################################################################
-set -euf
+set -eu
 export LANG=C.utf8
 
 if [[ -d $1 ]]; then
   issuedir=$1
 else
-  issuedir=~/run/$1
+  issuedir=$(ls -1d ~/img?/$1)
 fi
 
 if [[ ! -s $issuedir/title ]]; then
