@@ -12,14 +12,14 @@ function IgnoreUseFlags()  {
 
 # helper of DryRunWithRandomUseFlags
 function ThrowUseFlags() {
-  local n=$1  # pass: up to n-1
-  local m=5   # mask: about 20%
+  local n=$1  # pass up to n-1
+  local m=5   # mask 1:5
 
   shuf -n $(($RANDOM % $n)) |\
   sort |\
   while read -r flag
   do
-    if [[ $(($RANDOM % $m)) -eq 0 ]]; then
+    if dice 1 $m; then
       echo -n "-"
     fi
     echo -n "$flag "
@@ -38,13 +38,13 @@ function GetProfiles() {
 
 
 function ThrowCflags()  {
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+  if dice 1 16; then
     # 685160 colon-in-CFLAGS
     cflags+=" -falign-functions=32:25:16"
   fi
 
   # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
-  if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+  if dice 1 2; then
     cflags+=" -Og -g"
   else
     cflags+=" -O2"
@@ -66,7 +66,7 @@ function SetOptions() {
   abi3264="n"
   # run at most 1 image
   if ! ls -d ~tinderbox/run/*abi32+64* &>/dev/null; then
-    if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+    if dice 1 16; then
       abi3264="y"
     fi
   fi
@@ -399,12 +399,12 @@ EOF
   fi
 
   # give Firefox, Thunderbird et al. a chance
-  if [[ $(($RANDOM % 8)) -eq 0 ]]; then
+  if dice 1 8; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
 
   # force the -bin variant (due to loong emerge time)
-  if [[ $(($RANDOM % 8)) -lt 7 ]]; then
+  if dice 7 8; then
     echo "dev-lang/rust" > ./etc/portage/package.mask/91rust
   fi
 
@@ -457,7 +457,7 @@ function CreateBacklog()  {
   chown tinderbox:portage $bl{,.1st,.upd}
 
   # requested by Whissi, this is an alternative mysql engine
-  if [[ $(($RANDOM % 16)) -eq 0 ]]; then
+  if dice 1 16; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
