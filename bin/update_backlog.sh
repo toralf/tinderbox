@@ -17,9 +17,9 @@ function GetTreeChanges() {
 }
 
 
-function prepareRetest() {
-  truncate -s 0 $result
-  xargs -n 1 --no-run-if-empty <<< ${@} | sort -u |\
+function ScheduleRetest() {
+  xargs -n 1 --no-run-if-empty <<< ${@} |\
+  sort -u |\
   while read -r word
   do
     echo "$word" >> $result
@@ -67,14 +67,15 @@ fi
 source $(dirname $0)/lib.sh
 
 result=/tmp/${0##*/}.txt  # package/s for the appropriate backlog
+truncate -s 0 $result
 
 if [[ $# -eq 0 ]]; then
   target="upd"
   GetTreeChanges
 else
-  target=$1   # "upd" or "1st"
+  target=${1:-upd}
   shift
-  prepareRetest ${@}
+  ScheduleRetest ${@}
 fi
 
 if [[ -s $result ]]; then
