@@ -546,7 +546,7 @@ function GotAnIssue()  {
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
 
-  if grep -q 'error: perl module .* required' $issuedir/title; then
+  if grep -q -e 'error: perl module .* required' -e 'Cant locate Locale/gettext.pm in' $issuedir/title; then
     try_again=1
     add2backlog "$task"
     add2backlog "%perl-cleaner --all"
