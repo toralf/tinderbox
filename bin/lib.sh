@@ -1,14 +1,15 @@
 function __list_images() {
   (
-    ls ~tinderbox/run/
-    ls /run/tinderbox/ | sed 's,.lock,,g'
+    ls /run/tinderbox/ | sed 's,.lock,,g' | sort -k 5 -t'/'
+    ls ~tinderbox/run/                    | sort -k 5 -t'/'
   ) |\
-  sort -u |\
+  xargs -n 1 basename |\
+  awk '!x[$0]++' |\
   while read -r i
   do
     ls -d ~tinderbox/img{1,2}/${i} 2>/dev/null
   done |\
-  sort -k 5 -t'/'
+  cat
 }
 
 
