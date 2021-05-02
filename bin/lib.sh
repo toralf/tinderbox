@@ -2,7 +2,7 @@ function __list_images() {
   (
     ls ~tinderbox/run/
     ls /run/tinderbox/ | sed 's,.lock,,g'
-  ) 2>/dev/null |\
+  ) |\
   sort -u |\
   while read -r i
   do
@@ -13,10 +13,9 @@ function __list_images() {
 
 
 function __dice() {
-  local p=$1
-  local P=$2
-  [[ $(($RANDOM % P)) -lt $p ]]
-  return $?
+  local n=$1
+  local N=$2
+  [[ $(($RANDOM % N)) -lt $n ]]
 }
 
 
