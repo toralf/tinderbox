@@ -4,11 +4,6 @@
 # print tinderbox statistics
 
 
-function __is_running() {
-  [[ -d "/run/tinderbox/${1##*/}.lock" ]]
-}
-
-
 function PrintImageName()  {
   # ${n} is the minimum length to distinguish image names
   n=21

@@ -5,11 +5,6 @@
 # start tinderbox chroot image/s
 
 
-function __is_running() {
-  [[ -d "/run/tinderbox/${1##*/}.lock" ]]
-}
-
-
 #############################################################################
 #
 # main
@@ -23,6 +18,8 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " you must be tinderbox"
   exit 1
 fi
+
+source $(dirname $0)/lib.sh
 
 for i in ${@:-$(ls ~/run 2>/dev/null)}
 do

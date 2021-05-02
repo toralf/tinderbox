@@ -18,3 +18,8 @@ function dice() {
   [[ $(($RANDOM % P)) -lt $p ]]
   return $?
 }
+
+
+function __is_running() {
+  [[ -d "/run/tinderbox/${1##*/}.lock" ]]
+}
