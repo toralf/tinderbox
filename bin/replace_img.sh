@@ -34,12 +34,17 @@ function NumberOfPackagesInBacklog()  {
 
 
 function LookForAnImageWithEmptyBacklog()  {
-  # wanted side effect: $oldimg is set
+  # set $oldimg here
   while read -r oldimg
   do
     if [[ -e ~/run/$oldimg ]]; then
-      if [[ $(wc -l < <(cat ~/run/$oldimg/var/tmp/tb/backlog 2>/dev/null)) = "0" ]]; then
-        return 0
+      local bl=~/run/$oldimg/var/tmp/tb/backlog
+      if [[ -f $bl ]]; then
+        if [[ $(wc -l < <(cat $bl)) = "0" ]]; then
+          return 0
+        fi
+      else
+        echo "warn: $bl is missing !"
       fi
     else
       echo "warn: ~/run/$oldimg is broken !"
