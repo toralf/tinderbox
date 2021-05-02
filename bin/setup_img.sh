@@ -309,6 +309,14 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
+if dice 1 4; then
+  cat <<EOF >> ./etc/portage/make.conf
+LIBTOOL="rdlibtool"
+MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
+
+EOF
+fi
+
   # the "tinderbox" user must be a member of group "portage"
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
@@ -535,14 +543,8 @@ set +u; source /etc/profile; set -u
 date
 echo "#setup tools" | tee /var/tmp/tb/task
 emerge -u app-text/ansifilter app-portage/portage-utils
-if [[ $(($RANDOM % 4)) -eq 0 ]]; then
+if grep -q LIBTOOL /etc/portage/make.conf; then
   emerge -u sys-devel/slibtool
-  cat << EOF2 >> /etc/portage/make.conf
-
-LIBTOOL="rdlibtool"
-MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
-
-EOF2
   echo "*/* -audit -cups" >> /etc/portage/package.use/slibtool
 fi
 
