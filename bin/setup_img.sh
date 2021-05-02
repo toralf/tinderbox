@@ -312,7 +312,7 @@ EOF
 if dice 1 4; then
   cat <<EOF >> ./etc/portage/make.conf
 LIBTOOL="rdlibtool"
-MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
+MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
 
 EOF
 fi
