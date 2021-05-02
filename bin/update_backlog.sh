@@ -37,8 +37,9 @@ function prepareRetest() {
 
 
 function updateBacklog()  {
-  for bl in $(ls ~/run/*/var/tmp/tb/backlog.$target)
+  for i in $(list_images)
   do
+    local bl=$i/var/tmp/tb/backlog.$target
     if [[ $target = "upd" ]]; then
       # mix results into backlog
       sort -u $result $bl | shuf > $bl.tmp
@@ -62,6 +63,8 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " you must be tinderbox"
   exit 1
 fi
+
+source $(dirname $0)/lib.sh
 
 result=/tmp/${0##*/}.txt  # package/s for the appropriate backlog
 

@@ -4,20 +4,6 @@
 # print tinderbox statistics
 
 
-function list_images() {
-  (
-    ls ~tinderbox/run/
-    ls /run/tinderbox/ | sed 's,.lock,,g'
-  ) 2>/dev/null |\
-  sort -u |\
-  while read -r i
-  do
-    ls -d ~tinderbox/img{1,2}/${i} 2>/dev/null
-  done |\
-  sort -k 5 -t'/'
-}
-
-
 function __is_running() {
   [[ -d "/run/tinderbox/${1##*/}.lock" ]]
 }
@@ -301,9 +287,11 @@ function CountPackages()  {
 #
 # main
 #
-set -eu
+set -euf
 export LANG=C.utf8
 unset LC_TIME
+
+source $(dirname $0)/lib.sh
 
 images=$(list_images)
 
