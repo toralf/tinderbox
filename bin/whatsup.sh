@@ -288,7 +288,7 @@ unset LC_TIME
 
 source $(dirname $0)/lib.sh
 
-images=$(list_images)
+images=$(__list_images)
 
 while getopts chlopt\? opt
 do

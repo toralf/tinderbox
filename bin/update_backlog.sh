@@ -37,7 +37,7 @@ function prepareRetest() {
 
 
 function updateBacklog()  {
-  for i in $(list_images)
+  for i in $(__list_images)
   do
     local bl=$i/var/tmp/tb/backlog.$target
     if [[ $target = "upd" ]]; then

@@ -19,7 +19,7 @@ function ThrowUseFlags() {
   sort |\
   while read -r flag
   do
-    if dice 1 $m; then
+    if ____dice 1 $m; then
       echo -n "-"
     fi
     echo -n "$flag "
@@ -38,13 +38,13 @@ function GetProfiles() {
 
 
 function ThrowCflags()  {
-  if dice 1 16; then
+  if ____dice 1 16; then
     # 685160 colon-in-CFLAGS
     cflags+=" -falign-functions=32:25:16"
   fi
 
   # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
-  if dice 1 2; then
+  if ____dice 1 2; then
     cflags+=" -Og -g"
   else
     cflags+=" -O2"
@@ -66,7 +66,7 @@ function SetOptions() {
   abi3264="n"
   # run at most 1 image
   if ! ls -d ~tinderbox/run/*abi32+64* &>/dev/null; then
-    if dice 1 16; then
+    if ____dice 1 16; then
       abi3264="y"
     fi
   fi
@@ -309,7 +309,7 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-if dice 1 4; then
+if ____dice 1 4; then
   cat <<EOF >> ./etc/portage/make.conf
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
@@ -407,12 +407,12 @@ EOF
   fi
 
   # give Firefox, Thunderbird et al. a chance
-  if dice 1 8; then
+  if ____dice 1 8; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
 
   # force the -bin variant (due to loong emerge time)
-  if dice 7 8; then
+  if ____dice 7 8; then
     echo "dev-lang/rust" > ./etc/portage/package.mask/91rust
   fi
 
@@ -465,7 +465,7 @@ function CreateBacklog()  {
   chown tinderbox:portage $bl{,.1st,.upd}
 
   # requested by Whissi, this is an alternative mysql engine
-  if dice 1 16; then
+  if ____dice 1 16; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 

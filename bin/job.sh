@@ -68,7 +68,7 @@ function setTaskAndBacklog()  {
   if [[ -s $backlog1st ]]; then
     backlog=$backlog1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd ]] && dice 1 3; then
+  elif [[ -s /var/tmp/tb/backlog.upd ]] && __dice 1 3; then
     backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then

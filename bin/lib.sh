@@ -1,4 +1,4 @@
-function list_images() {
+function __list_images() {
   (
     ls ~tinderbox/run/
     ls /run/tinderbox/ | sed 's,.lock,,g'
@@ -12,7 +12,7 @@ function list_images() {
 }
 
 
-function dice() {
+function __dice() {
   local p=$1
   local P=$2
   [[ $(($RANDOM % P)) -lt $p ]]
