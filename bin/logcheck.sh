@@ -8,7 +8,7 @@ export LANG=C.utf8
 
 f=/tmp/${0##*/}.out
 
-while [[ : ]]
+while :
 do
   if [[ ! -f $f ]]; then
     if [[ "$(wc -c ~/logs/*.log 2>/dev/null | tail -n 1 | awk ' { print $1 } ')" != "0" ]]; then
@@ -25,6 +25,5 @@ do
       tee $f | mail -s "logs are non-empty" ${MAILTO:-tinderbox} || true
     fi
   fi
-
   sleep 1
 done

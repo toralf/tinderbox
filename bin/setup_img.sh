@@ -607,7 +607,7 @@ function DryRunWithRandomUseFlags() {
   local attempt=0
   local max_attempts=99
 
-  while [[ : ]]
+  while :
   do
     echo
 

@@ -89,7 +89,7 @@ function setTaskAndBacklog()  {
 
 # verify/parse $task accordingly to the needs of the tinderbox
 function getNextTask() {
-  while [[ : ]]
+  while :
   do
     setTaskAndBacklog
 
@@ -407,7 +407,7 @@ function ClassifyIssue() {
   fi
 
   # if the issue file size is too big, then delete each round the 1st line till it fits
-  while [[ : ]]
+  while :
   do
     read lines words chars <<< $(wc < $issuedir/issue)
     if [[ $lines -le 1 || $chars -le 1024 ]]; then
@@ -891,7 +891,7 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
-while [[ : ]]
+while :
 do
   date > $logfile
   echo "#cleanup" > $taskfile
