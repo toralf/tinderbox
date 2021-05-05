@@ -528,7 +528,7 @@ function GotAnIssue()  {
     Finish 1 "KILLED"
   fi
 
-  getPkgVarsFromIssuelog || return
+  getPkgVarsFromIssuelog || return $?
 
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
   mkdir -p $issuedir/files
@@ -706,17 +706,24 @@ function PostEmerge() {
 # run ($@) and act on result
 function RunAndCheck() {
   local rc=0
+
   # run eval in a subshell intentionally
   if ! (eval $@ &>> $logfile); then
-    rc=1
+    rc=$?
   fi
 
+  # create the stripped log file unconditionally
   logfile_stripped="/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_').log"
   filterPlainPext < $logfile > $logfile_stripped
+
   PostEmerge
 
   if [[ $rc -eq 0 ]]; then
-    return 0
+    return $rc
+  fi
+
+  if [[ $(wc -l < <(cat $logfile_stripped)) -le 1 ]]; then
+    return $rc
   fi
 
   if grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
