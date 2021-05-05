@@ -15,6 +15,7 @@ virtual/
 #
 app-office/
 app-officeext/
+dev-db/mongodb
 dev-haskell/language-python
 dev-libs/aws-sdk-cpp
 dev-util/include-what-you-use
