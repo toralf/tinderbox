@@ -59,7 +59,7 @@ function Overall() {
       days=$(echo "scale=1; $age / 86400.0" | bc)
     fi
 
-    bgo=$(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
+    bgo=$(set +f; ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
 
     compl=0
     f=$i/var/log/emerge.log
@@ -125,11 +125,10 @@ function Tasks()  {
   ts=$(date +%s)
   for i in $images
   do
-    PrintImageName $i
     if ! __is_running $i ; then
-      echo
       continue
     fi
+    PrintImageName $i
 
     tsk=$i/var/tmp/tb/task
     if [[ ! -s $tsk ]]; then
@@ -165,11 +164,10 @@ function Tasks()  {
 function LastEmergeOperation()  {
   for i in $images
   do
-    PrintImageName $i
     if ! __is_running $i ; then
-      echo
       continue
     fi
+    PrintImageName $i
 
     # catch the last *started* emerge operation
     tac $i/var/log/emerge.log 2>/dev/null |\
@@ -204,6 +202,9 @@ function LastEmergeOperation()  {
 function PackagesPerDay() {
   for i in $images
   do
+    if ! __is_running $i ; then
+      continue
+    fi
     PrintImageName $i
 
     perl -F: -wane '
