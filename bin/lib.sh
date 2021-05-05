@@ -1,3 +1,4 @@
+# either locked or in ~run
 function __list_images() {
   (
     ls /run/tinderbox/ | sed 's,.lock,,g' | sort -k 5 -t'/'
@@ -13,6 +14,7 @@ function __list_images() {
 }
 
 
+# n:N, eg. 1:5
 function __dice() {
   local n=$1
   local N=$2
@@ -20,6 +22,7 @@ function __dice() {
 }
 
 
+# lock dir is handled by bwrap and cgroup agent
 function __is_running() {
   [[ -d "/run/tinderbox/${1##*/}.lock" ]]
 }
