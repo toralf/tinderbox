@@ -25,7 +25,7 @@ for i in ${@:-$(ls ~/run 2>/dev/null)}
 do
   echo -n "$(date +%X) "
 
-  mnt="$(ls -d ~tinderbox/img{1,2}/${i##*/} 2>/dev/null || true)"
+  mnt="$(ls -d ~tinderbox/img/${i##*/} 2>/dev/null || true)"
 
   if [[ -z "$mnt" || ! -d "$mnt" || -L "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
     echo "no valid mount point found for $i"

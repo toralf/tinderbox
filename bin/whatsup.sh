@@ -6,7 +6,7 @@
 
 function PrintImageName()  {
   # ${n} is the minimum length to distinguish image names
-  n=21
+  n=30
   printf "%-${n}s" $(cut -c-$n <<< ${1##*/})
 }
 
@@ -74,9 +74,9 @@ function Overall() {
       fail=$(ls -1 $i/var/tmp/tb/issues | while read -r i; do echo ${i##/*}; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
-    bl=$(wc -l  2>/dev/null < $i/var/tmp/tb/backlog)
-    bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st)
-    blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd)
+    bl=$( wc -l < $i/var/tmp/tb/backlog     2>/dev/null)
+    bl1=$(wc -l < $i/var/tmp/tb/backlog.1st 2>/dev/null)
+    blu=$(wc -l < $i/var/tmp/tb/backlog.upd 2>/dev/null)
 
     flag=""
     if __is_running $i ; then

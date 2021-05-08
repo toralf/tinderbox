@@ -10,7 +10,7 @@ function GetTreeChanges() {
   cd $repo_path || exit 2
 
   # give mirrors time to sync - 1 hours seems (rarely) too short
-  git diff --diff-filter=ACM --name-status "@{ 3 hour ago }".."@{ 2 hour ago }" 2>/dev/null |\
+  git diff --diff-filter=ACM --name-status "@{ 3 hour ago }".."@{ 2 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s | cut -f1-2 -d'/' -s | uniq |\
   grep -v -f ~/tb/data/IGNORE_PACKAGES > $result

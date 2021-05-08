@@ -16,21 +16,10 @@ virtual/
 app-office/
 app-officeext/
 dev-db/mongodb
-dev-haskell/language-python
 dev-libs/aws-sdk-cpp
 dev-util/include-what-you-use
 dev-util/intel-graphics-compiler
-gnome-extra/sushi
 oci8
-sci-astronomy/psfex
-sci-astronomy/scamp
-sci-astronomy/sextractor
-sci-chemistry/psi
-sci-libs/atlas
-sci-libs/libint
-sci-libs/rocFFT
-sci-libs/tensorflow
-sci-visualization/tensorboard
 sys-cluster/
 sys-devel/byfl
 www-client/chromium
@@ -56,7 +45,3 @@ dev-util/hipc
 dev-util/roc
 sys-devel/llvm-roc
 sci-libs/roc
-#
-# misc
-#
-app-dicts/

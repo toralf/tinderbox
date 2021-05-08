@@ -74,26 +74,17 @@ do
     h|\?)
         Help
         ;;
-    m)
-        if [[ -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
+    m)  if [[ -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
           echo "argument not accepted"
           exit 2
         fi
 
-        for i in 1 2
-        do
-          mnt=/home/tinderbox/img${i}/${OPTARG##*/}
-          if [[ -d "$mnt" ]]; then
-            break
-          fi
-          mnt=""
-        done
-
-        if [[ -z "$mnt" || -L "$mnt" || ! $(stat -c '%u' "$mnt") = "0" || ! "$mnt" = "$(realpath -e $mnt)" ]]; then
+        if [[ -L "$OPTARG" || ! $(stat -c '%u' "$OPTARG") = "0" ]]; then
           echo "mount point either not found or not accepted"
           exit 2
         fi
 
+        mnt=$OPTARG
         ;;
     s)
         if [[ ! -s "$OPTARG" ]]; then

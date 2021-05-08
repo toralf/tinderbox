@@ -8,6 +8,10 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 export LANG=C.utf8
 
 
+if [[ ! -d /run/tinderbox ]]; then
+  mkdir /run/tinderbox
+fi
+
 # use cgroup v1 if available
 if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
   exit 0

@@ -136,34 +136,14 @@ function CheckOptions() {
 
 # helper of UnpackStage3()
 function CreateImageName()  {
-  # profile[-flavour]-day-time
+  # profile-[flavour(s)]-date-time
   name="$(tr '/' '_' <<< $profile)-"
-  [[ "$abi3264" = "y" ]]     && name+="_abi32+64"  || true
-  [[ "$science" = "y" ]]      && name+="_science"   || true
-  [[ "$testfeature" = "y" ]]  && name+="_test"      || true
-  [[ $jobs -gt 1 ]]           && name+="_j${jobs}"  || true
+  [[ "$abi3264" = "n" ]]      || name+="_abi32+64"
+  [[ "$science" = "n" ]]      || name+="_science"
+  [[ "$testfeature" = "n" ]]  || name+="_test"
+  name+="_j${jobs}"
   name="$(sed -e 's/-[_-]/-/g' -e 's/-$//' <<< $name)"
   name+="-$(date +%Y%m%d-%H%M%S)"
-}
-
-
-# helper of UnpackStage3()
-function CreateImageDir() {
-  local l=$(readlink ~tinderbox/img)
-  if [[ ! -d ~tinderbox/"$l" ]]; then
-    echo "unexpected readlink result '$l'"
-    return 1
-  fi
-
-  cd ~tinderbox/$l || return 1
-
-  mkdir $name || return 1
-
-  # relative path (usually ./img) from ~tinderbox
-  mnt=$l/$name
-
-  echo " new image: $mnt"
-  echo
 }
 
 
@@ -217,10 +197,14 @@ function UnpackStage3()  {
   echo
 
   CreateImageName
-  CreateImageDir
+
+  mnt=~tinderbox/img/$name
+  mkdir $mnt || return 1
+  echo " new image: $mnt"
+  echo
 
   date
-  cd $name
+  cd $mnt
   echo " untar'ing $f ..."
   tar -xpf $f --same-owner --xattrs || return 1
   echo
@@ -302,9 +286,6 @@ PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="root@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
-PORTAGE_GPG_DIR="/var/lib/gentoo/gkeys/keyrings/gentoo/release"
-PORTAGE_GPG_KEY="F45B2CE82473685B6F6DCAAD23217DA79B888F45"
-
 GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
@@ -353,18 +334,18 @@ function CompilePortageFiles()  {
   touch       ./etc/portage/package.mask/self     # filled with failed packages of the particular image
   chmod a+rw  ./etc/portage/package.mask/self
 
-  echo 'FEATURES="test"'                          > ./etc/portage/env/test
+  echo 'FEATURES="test"'                  > ./etc/portage/env/test
   echo 'FEATURES="-test"'                         > ./etc/portage/env/notest
 
   # re-try a failed package with "test" again (to preserve the same dep tree as before) but continue even if the test phase fails
-  echo 'FEATURES="test-fail-continue"'            > ./etc/portage/env/test-fail-continue
+  echo 'FEATURES="test-fail-continue"'    > ./etc/portage/env/test-fail-continue
 
   # re-try w/o sandbox'ing
-  echo 'FEATURES="-sandbox -usersandbox"'         > ./etc/portage/env/nosandbox
+  echo 'FEATURES="-sandbox -usersandbox"' > ./etc/portage/env/nosandbox
 
   # save CPU cycles with a cron job like:
   # @hourly  sort -u ~tinderbox/run/*/etc/portage/package.env/cflags_default 2>/dev/null > /tmp/cflagsknown2fail; for i in ~/run/*/etc/portage/package.env/; do cp /tmp/cflagsknown2fail $i; done
-  cat <<EOF                                       > ./etc/portage/env/cflags_default
+  cat <<EOF                               > ./etc/portage/env/cflags_default
 CFLAGS="$cflags_default"
 CXXFLAGS="\${CFLAGS}"
 
@@ -373,7 +354,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  cat << EOF                                      > ./etc/portage/env/jobs
+  cat << EOF                              > ./etc/portage/env/jobs
 EGO_BUILD_FLAGS="-p ${jobs}"
 GO19CONCURRENTCOMPILATION=0
 GOMAXPROCS="${jobs}"
@@ -412,7 +393,7 @@ EOF
   fi
 
   # force the -bin variant (due to loong emerge time)
-  if __dice 7 8; then
+  if __dice 3 4; then
     echo "dev-lang/rust" > ./etc/portage/package.mask/91rust
   fi
 
@@ -542,11 +523,12 @@ set +u; source /etc/profile; set -u
 
 date
 echo "#setup tools" | tee /var/tmp/tb/task
-emerge -u app-text/ansifilter app-portage/portage-utils
+emerge -u app-text/ansifilter
 if grep -q LIBTOOL /etc/portage/make.conf; then
-  emerge -u sys-devel/slibtool
   echo "*/* -audit -cups" >> /etc/portage/package.use/slibtool
+  emerge -u sys-devel/slibtool
 fi
+emerge -u app-portage/portage-utils
 
 date
 echo "#setup mailer" | tee /var/tmp/tb/task
@@ -592,7 +574,6 @@ function DryRun() {
   if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
     local rc=1
     echo -e "$(date)\n dry run was NOT successful (rc=$rc).\n"
-    echo
     return $rc
   fi
 }
@@ -680,6 +661,8 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+source $(dirname $0)/lib.sh
+
 echo "   $# args given: '${@}'"
 echo
 
@@ -737,7 +720,6 @@ fi
 
 echo -e "\n$(date)\n  setup OK"
 cd ~tinderbox/run
-ln -s ../$mnt
-
+ln -s ../img/$name
 echo
 su - tinderbox -c "${0%/*}/start_img.sh $name"
