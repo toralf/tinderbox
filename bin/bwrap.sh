@@ -23,9 +23,10 @@ function CgroupCreate() {
 
   cgcreate -g cpu,memory:$name
 
-  cgset -r cpu.cfs_quota_us=150000          $name
-  cgset -r memory.limit_in_bytes=20G        $name
-  cgset -r memory.memsw.limit_in_bytes=30G  $name
+  # chain each image especially if it does not respect "-j 2"
+  cgset -r cpu.cfs_quota_us=400000          $name
+  cgset -r memory.limit_in_bytes=30G        $name
+  cgset -r memory.memsw.limit_in_bytes=40G  $name
 
   for i in cpu memory
   do
