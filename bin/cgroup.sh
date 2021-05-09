@@ -7,7 +7,6 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 export LANG=C.utf8
 
-
 if [[ ! -d /run/tinderbox ]]; then
   mkdir /run/tinderbox
 fi
@@ -21,17 +20,21 @@ vcpu=$(echo "( ${1:-$(nproc) - 4} ) * 100000.0" | bc | sed -e 's,\..*,,g')
 ram=${2:-120G}
 vram=${3:-150G}
 
-# make this script available for non-tinderbox consumers too
-cp /opt/tb/bin/cgroup-release-agent.sh /usr/local/bin/
-chmod 755 /usr/local/bin/cgroup-release-agent.sh
-
 echo 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
+
+agent=/tmp/cgroup-release-agent.sh
+cat << EOF > $agent
+#!/bin/sh
+cgdelete -g cpu,memory:\$1
+
+EOF
+chmod 755 $agent
 for i in cpu memory
 do
-  echo "/usr/local/bin/cgroup-release-agent.sh" > /sys/fs/cgroup/$i/release_agent
+  echo $agent > /sys/fs/cgroup/$i/release_agent
 done
 
-# prefer a generic name b/c "tinderbox" is just one (of currently 2) consumer of CGroups
+# prefer a generic name for all consumers
 name=/local
 cgcreate -g cpu,memory:$name
 
