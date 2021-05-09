@@ -74,9 +74,9 @@ function Overall() {
       fail=$(ls -1 $i/var/tmp/tb/issues | while read -r i; do echo ${i##/*}; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
-    bl=$( wc -l < $i/var/tmp/tb/backlog     2>/dev/null)
-    bl1=$(wc -l < $i/var/tmp/tb/backlog.1st 2>/dev/null)
-    blu=$(wc -l < $i/var/tmp/tb/backlog.upd 2>/dev/null)
+    bl=$( wc -l 2>/dev/null < $i/var/tmp/tb/backlog    )
+    bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st)
+    blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd)
 
     flag=""
     if __is_running $i ; then
@@ -202,9 +202,6 @@ function LastEmergeOperation()  {
 function PackagesPerDay() {
   for i in $images
   do
-    if ! __is_running $i ; then
-      continue
-    fi
     PrintImageName $i
 
     perl -F: -wane '
@@ -226,13 +223,7 @@ function PackagesPerDay() {
         foreach my $rundays (0..$#packages) {
           # separate runweeks by an extra space
           printf "." if ($rundays && $rundays % 7 == 0);
-
-          # in the first week we have often >1K packages per rundays
-          if ($rundays < 7) {
-            (exists $packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
-          } else {
-            (exists $packages[$rundays]) ? printf "%4i", $packages[$rundays] : printf "   -";
-          }
+          (exists $packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
         }
         print "\n";
       }
