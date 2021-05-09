@@ -357,7 +357,7 @@ EOF
 EGO_BUILD_FLAGS="-p ${jobs}"
 GO19CONCURRENTCOMPILATION=0
 GOMAXPROCS="${jobs}"
-MAKEOPTS="-j ${jobs}"
+MAKEOPTS="-j${jobs}"
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
 OMP_NUM_THREADS=${jobs}
@@ -449,13 +449,10 @@ function CreateBacklog()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-# this very first depclean must not fail
-# the repeated @system+@world makes column "status" of the whatsup.sh -o more useful
   cat << EOF >> $bl.1st
 @world
 @system
-%emerge --depclean --verbose=n
-app-portage/pfl
+%emerge --depclean --verbose=n    # the very first depclean must not fail
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
