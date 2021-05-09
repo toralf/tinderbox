@@ -57,8 +57,7 @@ function ThrowCflags()  {
 # helper of main()
 # the variables here are mostly globals
 function SetOptions() {
-  # best would be to have 1 thread in N running images instead up to N running threads in 1 image
-  # OTOH the lifetime of an image with -j 1 is about 35 days running at a 6-core Xeon ...
+  # prefer to have 1 thread in N running images instead of *up to* N running threads in 1 image
   jobs=1
 
   # an "y" yields to ABI_X86: 32 64
