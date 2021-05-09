@@ -14,12 +14,12 @@ function stripQuotesAndMore() {
 }
 
 
+# filter leftovers of ansifilter
 function filterPlainPext() {
   perl -wne ' s,\x00,\n,g; s,\r\n,\n,g; s,\r,\n,g; print; '
 }
 
 
-# send out an SMTP email
 function Mail() {
   local subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
   if [[ -s $2 ]]; then
@@ -36,6 +36,7 @@ function Mail() {
 }
 
 
+# http://www.portagefilelist.de
 function feedPfl()  {
   if [[ -x /usr/bin/pfl ]]; then
     /usr/bin/pfl &>/dev/null
@@ -43,7 +44,7 @@ function feedPfl()  {
 }
 
 
-# clean up and exit
+# this is the end ...
 function Finish()  {
   local exit_code=${1:-$?}
 
