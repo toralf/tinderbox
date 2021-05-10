@@ -30,7 +30,7 @@ function Mail() {
     echo -e "${2:-empty_mail_body}"
   fi |\
   if ! timeout 120 mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
-    echo "$(date) mail failed, \$?=$?, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
+    echo "$(date) mail timeout, \$?=$?, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
     chmod a+rw /var/tmp/tb/mail.log
   fi
 }
@@ -69,7 +69,7 @@ function setTaskAndBacklog()  {
   if [[ -s $backlog1st ]]; then
     backlog=$backlog1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 3)) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 4)) -eq 0 ]]; then
     backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
@@ -268,6 +268,8 @@ function getPkgVarsFromIssuelog()  {
     Mail "INFO: $FUNCNAME failed to get package log file: pkg='$pkg'  pkgname='$pkgname'  task='$task'  pkglog='$pkglog'" $logfile_stripped
     return 1
   fi
+
+  return 0
 }
 
 
@@ -727,17 +729,15 @@ function RunAndCheck() {
     return $rc
   fi
 
-  if grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
-    return $rc
-  fi
-
+  # simulate that installed deps were be emerged step by step before
   if grep -q '^>>> Installing ' $logfile_stripped; then
     PutDepsIntoWorldFile &>/dev/null
   fi
 
   if [[ $rc -lt 128 ]]; then
-    # a packge failed during emerge
-    GotAnIssue
+    if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
+      GotAnIssue
+    fi
   else
     let signal="$rc - 128" || true
     if [[ $signal -eq 9 ]]; then
