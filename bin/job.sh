@@ -706,11 +706,11 @@ function PostEmerge() {
 # helper of WorkOnTask()
 # run ($@) and act on result
 function RunAndCheck() {
-  local rc=0
+  local rc
 
   # run eval in a subshell intentionally
   if ! (eval $@ &>> $logfile); then
-    rc=$?
+    rc=$1
   fi
 
   # create the stripped log file unconditionally
