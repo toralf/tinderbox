@@ -72,29 +72,25 @@ entrypoint=""
 while getopts h\?m:s: opt
 do
   case $opt in
-    h|\?)
-        Help
-        ;;
-    m)  if [[ -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
-          echo "argument not accepted"
-          exit 2
-        fi
+    h|\?) Help
+          ;;
+    m)    if [[ -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
+            echo "argument not accepted"
+            exit 2
+          fi
 
-        if [[ -L "$OPTARG" || ! $(stat -c '%u' "$OPTARG") = "0" ]]; then
-          echo "mount point either not found or not accepted"
-          exit 2
-        fi
-
-        mnt=$OPTARG
-        ;;
-    s)
-        if [[ ! -s "$OPTARG" ]]; then
-          echo "no valid entry point script given: $OPTARG"
-          exit 3
-        fi
-
-        entrypoint="$OPTARG"
-        ;;
+          if [[ ! -e "$OPTARG" || ! $(stat -c '%u' "$OPTARG") = "0" ]]; then
+            echo "no valid mount point found"
+            exit 2
+          fi
+          mnt=$OPTARG
+          ;;
+    s)    if [[ ! -s "$OPTARG" ]]; then
+            echo "no valid entry point script given: $OPTARG"
+            exit 3
+          fi
+          entrypoint="$OPTARG"
+          ;;
   esac
 done
 
@@ -114,7 +110,7 @@ trap Cleanup QUIT TERM EXIT
 
 if [[ -n "$entrypoint" ]]; then
   if [[ -L "$mnt/entrypoint" ]]; then
-    echo "found symlinked $mnt/entrypoint"
+    echo "symlinked $mnt/entrypoint forbidden"
     exit 4
   fi
   rm -f             "$mnt/entrypoint"
