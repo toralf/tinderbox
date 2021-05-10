@@ -125,9 +125,6 @@ function Tasks()  {
   ts=$(date +%s)
   for i in $images
   do
-    if ! __is_running $i ; then
-      continue
-    fi
     PrintImageName $i
 
     tsk=$i/var/tmp/tb/task
@@ -164,9 +161,6 @@ function Tasks()  {
 function LastEmergeOperation()  {
   for i in $images
   do
-    if ! __is_running $i ; then
-      continue
-    fi
     PrintImageName $i
 
     # catch the last *started* emerge operation
