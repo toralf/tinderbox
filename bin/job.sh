@@ -708,14 +708,11 @@ function PostEmerge() {
 # helper of WorkOnTask()
 # run ($@) and act on result
 function RunAndCheck() {
-  local rc
+  local rc=0
 
   # run eval in a subshell intentionally
-  if ! (eval $@ &>> $logfile); then
-    rc=$1
-  fi
+  (eval $@ &>> $logfile) || rc=$?
 
-  # create the stripped log file unconditionally
   logfile_stripped="/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_').log"
   filterPlainPext < $logfile > $logfile_stripped
 
