@@ -15,7 +15,6 @@ virtual/
 #
 app-office/
 app-officeext/
-dev-db/mongodb
 dev-libs/aws-sdk-cpp
 dev-util/include-what-you-use
 dev-util/intel-graphics-compiler
@@ -33,10 +32,6 @@ sci-mathematics/twelf
 # too much issues with version 30 currently
 #
 dev-ruby/
-#
-# haskell-updater fails currently
-#
-dev-haskell/
 #
 # AMD GPU specific
 #
