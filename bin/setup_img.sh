@@ -392,7 +392,7 @@ EOF
   fi
 
   # force the -bin variant (due to loong emerge time)
-  if __dice 3 4; then
+  if __dice 1 2; then
     echo "dev-lang/rust" > ./etc/portage/package.mask/91rust
   fi
 
