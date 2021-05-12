@@ -126,6 +126,10 @@ function Tasks()  {
   for i in $images
   do
     PrintImageName $i
+    if ! __is_running $i ; then
+      echo
+      continue
+    fi
 
     tsk=$i/var/tmp/tb/task
     if [[ ! -s $tsk ]]; then
@@ -162,6 +166,10 @@ function LastEmergeOperation()  {
   for i in $images
   do
     PrintImageName $i
+    if ! __is_running $i ; then
+      echo
+      continue
+    fi
 
     # catch the last *started* emerge operation
     tac $i/var/log/emerge.log 2>/dev/null |\
@@ -181,7 +189,7 @@ function LastEmergeOperation()  {
         $hours = $delta / 60 / 60;
         $minutes = $delta / 60 % 60;
         # note long runtimes
-        printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");
+        printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 9000 ? " " : "!");
       }
       print join (" ", @F[1..$#F]);
     '

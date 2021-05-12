@@ -1,8 +1,8 @@
-# either locked or in ~run
+# if locked or symlinked to ~run
 function __list_images() {
   (
-    ls /run/tinderbox/ | sed 's,.lock,,g' | sort
     ls ~tinderbox/run/                    | sort
+    ls /run/tinderbox/ | sed 's,.lock,,g' | sort
   ) |\
   xargs -n 1 --no-run-if-empty basename  |\
   awk '!x[$0]++' |\

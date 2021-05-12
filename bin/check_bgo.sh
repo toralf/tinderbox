@@ -161,18 +161,12 @@ function SetAssigneeAndCc() {
 set -eu
 export LANG=C.utf8
 
-if [[ -d $1 ]]; then
-  issuedir=$1
-else
-  issuedir=$(ls -1d ~/img?/$1)
-fi
+issuedir=~tinderbox/img/$1
 
 if [[ ! -s $issuedir/title ]]; then
   echo "no title"
   exit 1
-fi
-
-if [[ -f $issuedir/.reported ]]; then
+elif [[ -f $issuedir/.reported ]]; then
   echo "already reported"
   exit 0
 fi
@@ -182,8 +176,6 @@ tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.log)
 
 echo
 echo "==========================================="
-# echo $issuedir
-rm -f $issuedir/.unchecked
 
 name=$(cat $issuedir/../../../../../etc/conf.d/hostname)      # eg.: 17.1-20201022-101504
 repo=$(cat $issuedir/repository)                              # eg.: gentoo
@@ -197,6 +189,7 @@ eshowkw --overlays --arch amd64 $pkgname |\
     awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
     xargs
 
+rm -f $issuedir/.unchecked
 blocker_bug_no=""
 LookupForABlocker
 SetAssigneeAndCc

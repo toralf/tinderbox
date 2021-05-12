@@ -30,7 +30,7 @@ function Mail() {
     echo -e "${2:-empty_mail_body}"
   fi |\
   if ! timeout 120 mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
-    echo "$(date) mail timeout, \$?=$?, \$subject=$subject  \$2=$2" | tee -a /var/tmp/tb/mail.log
+    echo "$(date) mail timeout, \$subject=$subject \$2=$2" | tee -a /var/tmp/tb/mail.log
     chmod a+rw /var/tmp/tb/mail.log
   fi
 }
@@ -88,7 +88,6 @@ function setTaskAndBacklog()  {
 }
 
 
-# verify/parse $task accordingly to the needs of the tinderbox
 function getNextTask() {
   while :
   do
@@ -485,9 +484,8 @@ EOF
 }
 
 
-# add successfully emerged packages to world to avoid
-# that long-compile-time deps like llvm, rust get lost if an emerge failed
-# and later a depclean is made, eg. after a succesful @world
+# keep successfully emerged deps to avoid that those get unmerged by "--depclean"
+# or irritates portage otherwise
 function PutDepsIntoWorldFile() {
   emerge --depclean --verbose=n --pretend 2>/dev/null |\
   grep "^All selected packages: "                     |\
@@ -553,7 +551,6 @@ function GotAnIssue()  {
     try_again=1
     add2backlog "$task"
     add2backlog "%perl-cleaner --all"
-    Mail "hit the infamous perl issue" $issuedir/issue
     return
   fi
 
