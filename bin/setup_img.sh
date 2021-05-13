@@ -136,13 +136,13 @@ function CheckOptions() {
 # helper of UnpackStage3()
 function CreateImageName()  {
   # profile-[flavour(s)]-date-time
-  name="$(tr '/' '_' <<< $profile)-"
+  name="$(tr '[\-/]' '_' <<< $profile)-"
   [[ "$abi3264" = "n" ]]      || name+="_abi32+64"
   [[ "$science" = "n" ]]      || name+="_science"
   [[ "$testfeature" = "n" ]]  || name+="_test"
   name+="_j${jobs}"
-  name="$(sed -e 's/-[_-]/-/g' -e 's/-$//' <<< $name)"
   name+="-$(date +%Y%m%d-%H%M%S)"
+  name="$(sed -e 's/-_/_/g' <<< $name)"
 }
 
 
