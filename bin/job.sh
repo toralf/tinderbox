@@ -79,10 +79,10 @@ function setTaskAndBacklog()  {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    Finish 0 "all backlogs are EMPTY, $(qlist --installed | wc -l) packages installed"
+    Finish 0 "empty backlogs, $(qlist --Iv | wc -l) packages installed"
   fi
 
-  # copy the last line to $task and splice that line from the backlog
+  # copy content of the last line into $task and then delete that line
   task=$(tail -n 1 $backlog)
   sed -i -e '$d' $backlog
 }
@@ -189,15 +189,22 @@ EOF
   CompressIssueFiles
 
   if [[ -d "$workdir" ]]; then
-    # catch all log file(s)
+    # catch relevant logs
     (
       set -e
       f=/var/tmp/tb/files
       cd "$workdir/.."
-      find ./ -name "*.log" -o -name "testlog.*" -o -wholename '*/elf/*.out' > $f
+      find ./ -name "*.log" \
+          -o -name "testlog.*" \
+          -o -wholename '*/elf/*.out' \
+          -o -wholename '*/softmmu-build/*' \
+          -o -name "meson-log.txt" |\
+          sort -u > $f
       if [[ -s $f ]]; then
         tar -cjpf $issuedir/files/logs.tar.bz2 \
-            --dereference --warning='no-file-removed' --warning='no-file-ignored' \
+            --dereference \
+            --warning='no-file-removed' \
+            --warning='no-file-ignored' \
             --files-from $f 2>/dev/null
       fi
       rm $f
@@ -212,9 +219,15 @@ EOF
       cd "$workdir/../.."
       if [[ -d ./temp ]]; then
         timeout -s 15 180 tar -cjpf $issuedir/files/temp.tar.bz2 \
-            --dereference --warning='no-file-removed' --warning='no-file-ignored'  \
-            --exclude='*/kerneldir/*' --exclude='*/var-tests/*' --exclude='*/go-build[0-9]*/*' \
-            --exclude='*/testdirsymlink/*' --exclude='*/go-cache/??/*' --exclude='*/nested_link_to_dir/*' \
+            --dereference \
+            --warning='no-file-ignored'  \
+            --warning='no-file-removed' \
+            --exclude='*/go-build[0-9]*/*' \
+            --exclude='*/go-cache/??/*' \
+            --exclude='*/kerneldir/*' \
+            --exclude='*/nested_link_to_dir/*' \
+            --exclude='*/testdirsymlink/*' \
+            --exclude='*/var-tests/*' \
             ./temp
       fi
     )
