@@ -1,7 +1,7 @@
 # tasks matching a pattern here will be skipped (except for being in backlog.1st)
 # this file MUST NOT have empty lines (except the very last one)
 #
-# never explicitly feed emerge with:
+# never explicitly emerge:
 #
 dev-embedded/
 java-virtuals/
@@ -10,19 +10,6 @@ sec-policy/
 sys-firmware/
 sys-kernel/
 virtual/
-#
-# looong emerge time either itself or due to its deps
-#
-app-office/
-app-officeext/
-dev-libs/aws-sdk-cpp
-dev-util/include-what-you-use
-dev-util/intel-graphics-compiler
-oci8
-sys-cluster/
-sys-devel/byfl
-www-client/chromium
-www-client/google-chrome
 #
 # too many unix processes in blocking state
 #
@@ -40,3 +27,7 @@ dev-util/hipc
 dev-util/roc
 sys-devel/llvm-roc
 sci-libs/roc
+#
+# looong emerge time either itself or due to its deps
+#
+sci-libs/libint
