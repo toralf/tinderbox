@@ -391,9 +391,18 @@ EOF
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
 
-  # force the -bin variant (due to loong emerge time)
-  if __dice 1 2; then
+  # force -bin variants (due to loong emerge time)
+  if __dice 3 4; then
+    echo "app-office/libreoffice" > ./etc/portage/package.mask/91libreoffice
+  fi
+  if __dice 3 4; then
     echo "dev-lang/rust" > ./etc/portage/package.mask/91rust
+  fi
+  if __dice 3 4; then
+    echo "sci-libs/atlas" > ./etc/portage/package.mask/91atlas
+  fi
+  if __dice 3 4; then
+    echo "libint" > ./etc/portage/package.mask/91libint
   fi
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
