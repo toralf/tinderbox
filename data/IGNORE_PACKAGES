@@ -10,24 +10,3 @@ sec-policy/
 sys-firmware/
 sys-kernel/
 virtual/
-#
-# too many unix processes in blocking state
-#
-dev-lang/mlton
-sci-mathematics/twelf
-#
-# too much issues with version 30 currently
-#
-dev-ruby/
-#
-# AMD GPU specific
-#
-dev-libs/roc
-dev-util/hipc
-dev-util/roc
-sys-devel/llvm-roc
-sci-libs/roc
-#
-# looong emerge time either itself or due to its deps
-#
-sci-libs/libint

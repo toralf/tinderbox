@@ -53,6 +53,8 @@ The HyperSpec cannot be redistributed.
  requires kernel .* or greater.
 The version of your compiler is not supported at this time
 Tried to use too new gcc.
+Unsupported kernel version
+USE=modules and in-kernel ipset support detected.
 Use CONFIG_WIREGUARD=y for this kernel, and do not use this package.
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
