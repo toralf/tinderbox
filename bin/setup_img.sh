@@ -142,7 +142,7 @@ function CreateImageName()  {
   [[ "$testfeature" = "n" ]]  || name+="_test"
   name+="_j${jobs}"
   name+="-$(date +%Y%m%d-%H%M%S)"
-  name="$(sed -e 's/-_/_/g' <<< $name)"
+  name="$(sed -e 's/-_/-/g' <<< $name)"
 }
 
 
