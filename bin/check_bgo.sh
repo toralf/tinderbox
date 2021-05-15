@@ -161,7 +161,7 @@ function SetAssigneeAndCc() {
 set -eu
 export LANG=C.utf8
 
-issuedir=~tinderbox/img/$1
+issuedir=$1
 
 if [[ ! -s $issuedir/title ]]; then
   echo "no title"
