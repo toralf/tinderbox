@@ -23,8 +23,9 @@ function CgroupCreate() {
 
   cgcreate -g cpu,memory:$name
 
-  # chain each image with respect to -jX
-  local x=$(tr '[\-_]' ' ' <<< $name | xargs -n 1 | grep ^j | cut -c2-)
+  # limit each image to 125% of a cpu per -jX
+  local x=$(tr '[\-_]' ' ' <<< $name | xargs -n 1 | grep "^j" | cut -c2-)
+  local quota
   ((quota=125000 * $x))
   cgset -r cpu.cfs_quota_us=$quota          $name
   cgset -r memory.limit_in_bytes=30G        $name
@@ -141,9 +142,9 @@ sandbox=(env -i
         --unshare-pid
         --unshare-uts
         --hostname "$(sed -e 's,[+\.],_,g' <<< ${mnt##*/} | cut -c-57)"
-        --chdir /var/tmp/tb
         --die-with-parent
         --setenv MAILTO "${MAILTO:-tinderbox}"
+        --chdir /var/tmp/tb
         /bin/bash -l
 )
 
