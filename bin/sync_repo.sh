@@ -17,15 +17,15 @@ log="/tmp/${0##*/}.log"
 date > $log || exit 1
 eix-sync &>> $log
 
-# sync repos which are not configured at the tinderbox host
+# sync repos which are not pulled but but configured at the tinderbox host
 for repo in musl science
 do
-  date >> $log
   cd /var/db/repos/$repo 2>/dev/null || continue
+  date >> $log
   git pull &>> $log
 done
 
-# needed by job.sh to decide whether to sync with local image or not
+# timestamp.git is checked in job.sh to decide to sync
 for repo in $(ls /var/db/repos/)
 do
   if [[ -d /var/db/repos/$repo/.git ]]; then
