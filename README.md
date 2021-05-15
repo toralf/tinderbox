@@ -109,22 +109,19 @@ Edit the credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, 
 Grant sudo rights to the user *tinderbox*:
 
 ```bash
-tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/sync_repo.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/cgroup.sh
+tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/sync_repo.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/cgroup.sh,/opt/tb/bin/sync_repo.sh
 ```
 Maybe create this crontab entries for user *tinderbox*:
 
 ```bash
+@reboot /opt/tb/bin/start_img.sh; /opt/tb/bin/logcheck.sh
+
 # update image backlogs
-14 * * * * /opt/tb/bin/update_backlog.sh
+@hourly sudo /opt/tb/bin/sync_repo.sh 1>/dev/null; /opt/tb/bin/update_backlog.sh
 
-# save cpu cycles
-@hourly  f=/tmp/cflagsknown2fail; sort -u ~tinderbox/run/*/etc/portage/package.env/cflags_default 2>/dev/null | column -t >$f && for i in $(ls -d ~/run/*/etc/portage/package.env/ 2>/dev/null); do cp $f $i; done
+# replace an image
+@hourly l=/tmp/replace_img.sh.log.$$ && /opt/tb/bin/replace_img.sh -s '-j2' &>$l; cat $l; rm $l
 
-# house keeping
-@weekly find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +366 -exec rm "{}" \
-
-# renew image
-15 * * * * l=/tmp/replace_img.sh.log.$$ && /opt/tb/bin/replace_img.sh &>$l; cat $l; rm $l
 ```
 ## link(s)
 
