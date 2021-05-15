@@ -98,10 +98,9 @@ error: expected expression before
  error: implicit declaration of
  failed: .*glib-genmarshal
 error: signals-marshal.h: No such file or directory
-\-\-.*: command not found
+error:.*command not found
 gck-marshal.list: Permission denied
 This expression has type .* but an expression
-.* command not found
 mmap: wanted .* bytes at .*, actually mapped at .*
 pushd.*No such file or directory
 Unable to set SELinux security labels
@@ -192,7 +191,6 @@ Relocatable linking .* is not supported
 Makefile.* Terminated
 asciidoc: Command not found
 PermissionError:
-Package .* was not found in the pkg-config search path.
 missing separator.  Stop.
 Extension error:
 is illegal here

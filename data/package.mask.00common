@@ -4,17 +4,8 @@
 # turns /etc/resolv.conf into a symlink: https://bugs.gentoo.org/555694
 net-dns/resolvconf-symlink
 
-# calls for trouble b/c it sneaks into PATH
+# calls for trouble by sneaking into PATH
 dev-util/plan9port
-
-# https://bugs.gentoo.org/662396
-sys-fs/static-dev
-
-# compile hang
-# https://bugs.gentoo.org/711098
-dev-scheme/racket
-# https://bugs.gentoo.org/770976
-x11-wm/stumpwm
 
 # deprecated
 dev-qt/qtwebkit
@@ -31,16 +22,24 @@ sys-fs/loop-aes
 sys-fs/vhba
 x11-drivers/nvidia-drivers
 
-# 30 hours build time with -j1
-dev-qt/qtwebengine
-
 # obsolete and annoys
 app-vim/curcmdmode
 
 # looong emerge time either itself or due to its deps
 dev-libs/aws-sdk-cpp
+dev-qt/qtwebengine
 dev-util/include-what-you-use
 dev-util/intel-graphics-compiler
 sys-devel/byfl
 www-client/chromium
 www-client/google-chrome
+
+# https://bugs.gentoo.org/662396
+sys-fs/static-dev
+# compile hang
+# https://bugs.gentoo.org/711098
+dev-scheme/racket
+# https://bugs.gentoo.org/770976
+x11-wm/stumpwm
+# https://bugs.gentoo.org/789804
+sci-libs/libint:2
