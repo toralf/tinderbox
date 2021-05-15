@@ -390,11 +390,7 @@ EOF
   if __dice 1 8; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
-
-  # force -bin variants (due to loong emerge time)
-  if __dice 3 4; then
-    echo "app-office/libreoffice" > ./etc/portage/package.mask/91libreoffice
-  fi
+  # long emerge times
   if __dice 3 4; then
     echo "dev-lang/rust" > ./etc/portage/package.mask/91rust
   fi
@@ -402,7 +398,7 @@ EOF
     echo "sci-libs/atlas" > ./etc/portage/package.mask/91atlas
   fi
   if __dice 3 4; then
-    echo "libint" > ./etc/portage/package.mask/91libint
+    echo "sci-libs/libint" > ./etc/portage/package.mask/91libint
   fi
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
@@ -454,11 +450,12 @@ function CreateBacklog()  {
   chown tinderbox:portage $bl{,.1st,.upd}
 
   # requested by Whissi, this is an alternative mysql engine
-  if __dice 1 16; then
+  if __dice 1 8; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
   cat << EOF >> $bl.1st
+%emerge --depclean --verbose=n    # this neither
 @world
 @system
 %emerge --depclean --verbose=n    # the very first depclean must not fail
