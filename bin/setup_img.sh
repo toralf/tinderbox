@@ -31,8 +31,8 @@ function ThrowUseFlags() {
 function GetProfiles() {
   eselect profile list |\
   awk ' { print $2 } ' |\
-  grep -e "^default/linux/amd64/17\.1" |\
-  grep -v -e '/x32' -e '/selinux' -e '/uclibc' -e 'musl' |\
+  grep -F "default/linux/amd64/17.1" |\
+  grep -v -F -e '/x32' -e '/selinux' -e '/uclibc' -e 'musl' |\
   cut -f4- -d'/' -s
 }
 
@@ -40,13 +40,13 @@ function GetProfiles() {
 function ThrowCflags()  {
   cflags=""
 
+  # 685160 colon-in-CFLAGS
   if __dice 1 16; then
-    # 685160 colon-in-CFLAGS
     cflags+=" -falign-functions=32:25:16"
   fi
 
   # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
-  if __dice 1 2; then
+  if __dice 1 4; then
     cflags+=" -Og -g"
   else
     cflags+=" -O2"
@@ -55,28 +55,33 @@ function ThrowCflags()  {
 
 
 # helper of main()
-# the variables here are mostly globals
+# almost are variables here are globals
 function SetOptions() {
   # prefer to have 1 thread in N running images instead of *up to* N running threads in 1 image
   jobs=1
 
-  # an "y" yields to ABI_X86: 32 64
+  # an "y" yields activates "*/* ABI_X86: 32 64"
   abi3264="n"
-  # run at most 1 image
+  # run at most 1 image with this flavour
   if ! ls -d ~tinderbox/run/*abi32+64* &>/dev/null; then
     if __dice 1 16; then
       abi3264="y"
     fi
   fi
 
-  # prefer a non-running profile
-  # however if no one passes the break criteria, then the last entry would make it eventually
+  # prefer a non-running profile, preferably not in ~/run, otherwise the first makes it
+  profile=""
   while read -r line
   do
-    profile=$line
-    local p=$(tr '/' '_' <<< $line)
-    if ! ls ~tinderbox/run/$p-* &>/dev/null && ! ls -d /run/tinderbox/$p-*.lock &>/dev/null ]]; then
-      break
+    if [[ -z $profile ]]; then
+      profile=$line
+    fi
+    local p=$(tr '/-' '_' <<< $line)
+    if ! ls -d /run/tinderbox/$p-*.lock &>/dev/null; then
+      profile=$line
+      if ! ls ~tinderbox/run/$p-* &>/dev/null; then
+        break
+      fi
     fi
   done < <(GetProfiles | shuf)
 
@@ -135,14 +140,12 @@ function CheckOptions() {
 
 # helper of UnpackStage3()
 function CreateImageName()  {
-  # profile-[flavour(s)]-date-time
-  name="$(tr '[\-/]' '_' <<< $profile)-"
+  name="$(tr '/\-' '_' <<< $profile)"
+  name+="-j${jobs}"
   [[ "$abi3264" = "n" ]]      || name+="_abi32+64"
   [[ "$science" = "n" ]]      || name+="_science"
   [[ "$testfeature" = "n" ]]  || name+="_test"
-  name+="_j${jobs}"
   name+="-$(date +%Y%m%d-%H%M%S)"
-  name="$(sed -e 's/-_/-/g' <<< $name)"
 }
 
 
