@@ -127,7 +127,7 @@ Watch the mailbox for cron outputs.
 Watch UNIX processes via:
 
 ```bash
-watch bash -c "pgrep entrypoint | xargs -n 1 pstree -Ulnpu"
+watch -c "pgrep entrypoint | xargs -n 1 pstree -UlnpuT"
 ```
 
 ## link(s)
