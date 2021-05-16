@@ -14,6 +14,7 @@ error: format not a string literal and no format arguments
 .-Wformat-security. ignored without .-Wformat.
 .et https:
 Fetch instructions for
+flag provided but not defined
 gcc version .* found, expected gcc
 has no attribute SSL_OP_NO_TLSv1_3
 Incompatible gcc version found
