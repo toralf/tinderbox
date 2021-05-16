@@ -123,7 +123,8 @@ Maybe create this crontab entries for user *tinderbox*:
 @hourly l=/tmp/replace_img.sh.log.$$ && /opt/tb/bin/replace_img.sh -s '-j2' &>$l; cat $l; rm $l
 
 ```
-and watch it:
+Watch the mailbox for cron outputs.
+Watch UNIX processes via:
 
 ```bash
 watch bash -c "pgrep entrypoint | xargs -n 1 pstree -Ulnpu"
