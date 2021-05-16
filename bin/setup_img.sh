@@ -330,20 +330,19 @@ function CompilePortageFiles()  {
     chgrp portage ./etc/portage/$d
   done
 
-  touch       ./etc/portage/package.mask/self     # filled with failed packages of the particular image
+  touch       ./etc/portage/package.mask/self     # gets failed packages
   chmod a+rw  ./etc/portage/package.mask/self
 
   echo 'FEATURES="test"'                  > ./etc/portage/env/test
-  echo 'FEATURES="-test"'                         > ./etc/portage/env/notest
+  echo 'FEATURES="-test"'                 > ./etc/portage/env/notest
 
-  # re-try a failed package with "test" again (to preserve the same dep tree as before) but continue even if the test phase fails
+  # continue an expected failed test of a package while preserving the dependency tree
   echo 'FEATURES="test-fail-continue"'    > ./etc/portage/env/test-fail-continue
 
-  # re-try w/o sandbox'ing
+  # retry w/o sandbox'ing
   echo 'FEATURES="-sandbox -usersandbox"' > ./etc/portage/env/nosandbox
 
-  # save CPU cycles with a cron job like:
-  # @hourly  sort -u ~tinderbox/run/*/etc/portage/package.env/cflags_default 2>/dev/null > /tmp/cflagsknown2fail; for i in ~/run/*/etc/portage/package.env/; do cp /tmp/cflagsknown2fail $i; done
+  # retry with sane defaults
   cat <<EOF                               > ./etc/portage/env/cflags_default
 CFLAGS="$cflags_default"
 CXXFLAGS="\${CFLAGS}"
@@ -353,10 +352,10 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
+  # no more parallelism than specified in $jops
   cat << EOF                              > ./etc/portage/env/jobs
 EGO_BUILD_FLAGS="-p ${jobs}"
 GO19CONCURRENTCOMPILATION=0
-GOMAXPROCS="${jobs}"
 MAKEOPTS="-j${jobs}"
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
@@ -449,7 +448,7 @@ function CreateBacklog()  {
   chmod 664               $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  # requested by Whissi, this is an alternative mysql engine
+  # requested by Whissi, its an alternative mysql engine
   if __dice 1 8; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
@@ -467,8 +466,8 @@ sys-kernel/gentoo-kernel-bin
 EOF
 
   # update GCC first
-  #   =         : do not update the current (slotted) version - that will be removed immediately afterwards
-  # dev-libs/*  : avoid a rebuild of GCC in @world later caused by an update or rebuild of these deps
+  # =          : do not update the current version - that will be removed immediately afterwards
+  # dev-libs/* : avoid a rebuild of GCC in @world due to an update/rebuild of these packages
   echo "%emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
   if [[ $profile =~ "/systemd" ]]; then
@@ -479,10 +478,6 @@ EOF
 
 # - configure locales, timezone etc.
 # - install and configure tools used in job.sh
-#     <package>                   <command>
-#     app-portage/portage-utils   qatom
-#     mail-*/*                    ssmtp, mail
-# - switch to the desired profile
 # - fill backlog
 function CreateSetupScript()  {
   cat << EOF > ./var/tmp/tb/setup.sh || exit 1
@@ -493,15 +488,12 @@ set -euf
 
 date
 echo "#setup rsync" | tee /var/tmp/tb/task
-
                          rsync --archive --cvs-exclude /mnt/repos/gentoo   $repodir/
 [[ $musl = "y" ]]     && rsync --archive --cvs-exclude /mnt/repos/musl     $repodir/  || true
 [[ $science = "y" ]]  && rsync --archive --cvs-exclude /mnt/repos/science  $repodir/  || true
 
 date
 echo "#setup configure" | tee /var/tmp/tb/task
-
-useradd -u $(id -u tinderbox) tinderbox
 
 if [[ ! $musl = "y" ]]; then
   cat << EOF2 >> /etc/locale.gen
@@ -514,7 +506,7 @@ de_DE.UTF-8@euro UTF-8
 
 EOF2
 
-  locale-gen -j ${jobs}
+  locale-gen -j${jobs}
   eselect locale set C.UTF-8
 fi
 
@@ -546,7 +538,7 @@ fi
 
 date
 echo "#setup backlog" | tee /var/tmp/tb/task
-# sort -u is needed if the same package is in more than one repo
+# sort -u is needed if a package is in more than one repo
 qsearch --all --nocolor --name-only --quiet | sort -u -R > /var/tmp/tb/backlog
 
 EOF
