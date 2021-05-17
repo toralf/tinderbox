@@ -1,0 +1,7 @@
+# packages with long emerge times, candidates to prefer either -bin or to skip it
+#
+
+app-office/libreoffice
+dev-lang/rust
+sci-libs/atlas
+sci-libs/libint

@@ -392,16 +392,13 @@ EOF
   if __dice 1 8; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
-  # long emerge times
-  if __dice 3 4; then
-    echo "dev-lang/rust" > ./etc/portage/package.mask/91rust
-  fi
-  if __dice 3 4; then
-    echo "sci-libs/atlas" > ./etc/portage/package.mask/91atlas
-  fi
-  if __dice 3 4; then
-    echo "sci-libs/libint" > ./etc/portage/package.mask/91libint
-  fi
+
+  for p in $(grep -v -e '#' -e'^$' ~tinderbox/tb/data/BIN_OR_SKIP)
+  do
+    if __dice 3 4; then
+      echo "$p" >> ./etc/portage/package.mask/91bin-or-skip
+    fi
+  done
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
