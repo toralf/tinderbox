@@ -127,7 +127,7 @@ Watch the mailbox for cron outputs.
 Watch UNIX processes via:
 
 ```bash
-watch -c "pgrep bwrap.sh | xargs -n 1 pstree -UlnpuT"
+watch -c "pgrep bwrap.sh | xargs -n 1 -r pstree -UlnpuT"
 ```
 
 ## link(s)
