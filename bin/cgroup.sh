@@ -37,8 +37,8 @@ done
 name=/local
 cgcreate -g cpu,memory:$name
 
-# default: reserve 3 cores (SMT gives +60%)
-vcpu=${1:-$(echo "($(nproc) - 3 * 1.6)  * 100000.0" | bc | sed -e 's,\..*,,g')}
+# default: reserve 3.5 thr
+vcpu=${1:-$(echo "($(nproc) - 3.5)  * 100000.0" | bc | sed -e 's,\..*,,g')}
 ram=${2:-120G}
 vram=${3:-150G}
 cgset -r cpu.cfs_quota_us=$vcpu             $name
