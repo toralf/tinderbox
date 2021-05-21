@@ -23,10 +23,10 @@ function CgroupCreate() {
 
   cgcreate -g cpu,memory:$name
 
-  # limit each image to 125% of a cpu per -jX
+  # limit each image to 105% of a cpu per -jX
   local x=$(tr '[\-_]' ' ' <<< $name | xargs -n 1 | grep "^j" | cut -c2-)
   local quota
-  ((quota=125000 * $x))
+  ((quota=105000 * $x))
   cgset -r cpu.cfs_quota_us=$quota          $name
   cgset -r memory.limit_in_bytes=30G        $name
   cgset -r memory.memsw.limit_in_bytes=40G  $name
