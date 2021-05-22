@@ -69,7 +69,7 @@ function setTaskAndBacklog()  {
   if [[ -s $backlog1st ]]; then
     backlog=$backlog1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 4)) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 3)) -eq 0 ]]; then
     backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
@@ -79,7 +79,7 @@ function setTaskAndBacklog()  {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    Finish 0 "empty backlogs, $(qlist --Iv | wc -l) packages installed"
+    Finish 0 "empty backlogs, $(qlist -Iv | wc -l) packages installed"
   fi
 
   # copy content of the last line into $task and then delete that line
