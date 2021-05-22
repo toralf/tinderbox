@@ -66,8 +66,8 @@ function Finish()  {
 
 # helper of getNextTask()
 function setTaskAndBacklog()  {
-  if [[ -s $backlog1st ]]; then
-    backlog=$backlog1st
+  if [[ -s /var/tmp/tb/backlog.1st ]]; then
+    backlog=/var/tmp/tb/backlog.1st
 
   elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 3)) -eq 0 ]]; then
     backlog=/var/tmp/tb/backlog.upd
@@ -114,7 +114,7 @@ function getNextTask() {
       fi
 
     else
-      if [[ ! "$backlog" = $backlog1st ]]; then
+      if [[ ! "$backlog" = /var/tmp/tb/backlog.1st ]]; then
         if grep -q -f /mnt/tb/data/IGNORE_PACKAGES <<< $task; then
           continue
         fi
@@ -525,8 +525,8 @@ function setWorkDir() {
 
 function add2backlog()  {
   # no duplicates
-  if [[ ! "$(tail -n 1 $backlog1st)" = "${@}" ]]; then
-    echo "${@}" >> $backlog1st
+  if [[ ! "$(tail -n 1 /var/tmp/tb/backlog.1st)" = "${@}" ]]; then
+    echo "${@}" >> /var/tmp/tb/backlog.1st
   fi
 }
 
@@ -684,7 +684,7 @@ function PostEmerge() {
   fi
 
   # update the image once a day if nothing 1st prio is scheduled
-  if [[ ! -s $backlog1st ]]; then
+  if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local last=""
     if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history ]]; then
       if [[ /var/tmp/tb/@world.history -nt /var/tmp/tb/@system.history ]]; then
@@ -878,7 +878,6 @@ trap Finish INT QUIT TERM EXIT
 
 taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds output of the current task
-backlog1st=/var/tmp/tb/backlog.1st  # the high prio backlog
 
 export CARGO_TERM_COLOR="never"
 export GCC_COLORS=""
