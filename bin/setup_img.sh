@@ -41,7 +41,7 @@ function ThrowCflags()  {
   cflags=""
 
   # 685160 colon-in-CFLAGS
-  if __dice 1 16; then
+  if __dice 1 12; then
     cflags+=" -falign-functions=32:25:16"
   fi
 
@@ -57,19 +57,16 @@ function ThrowCflags()  {
 # helper of main()
 # almost are variables here are globals
 function SetOptions() {
-  # prefer to have 1 thread in N running images instead of *up to* N running threads in 1 image
+  # 1 process in N running images >= *up to* N running processes in 1 image
   jobs=1
 
-  # an "y" yields activates "*/* ABI_X86: 32 64"
+  # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
-  # run at most 1 image with this flavour
-  if ! ls -d ~tinderbox/run/*abi32+64* &>/dev/null; then
-    if __dice 1 16; then
-      abi3264="y"
-    fi
+  if __dice 1 12; then
+    abi3264="y"
   fi
 
-  # prefer a non-running profile, preferably not in ~/run, otherwise the first makes it
+  # prefer a non-running profile plus not symlinked to ~/run
   profile=""
   while read -r line
   do
@@ -87,10 +84,14 @@ function SetOptions() {
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
   ThrowCflags
+  musl="n"
   randomuseflags="y"
   science="n"
+
   testfeature="n"
-  musl="n"
+  if __dice 1 12; then
+    testfeature="y"
+  fi
 }
 
 
@@ -265,6 +266,7 @@ FFLAGS="\${FCFLAGS}"
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
+# test unstable only
 ACCEPT_KEYWORDS="~amd64"
 
 # no re-distribution nor any "usage", just QA
@@ -279,6 +281,7 @@ PORTAGE_LOG_FILTER_FILE_CMD="bash -c \\"ansifilter --ignore-clear; exec cat\\""
 
 FEATURES="cgroup splitdebug xattr -collision-protect -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --with-bdeps=y"
+
 ALLOW_TEST="network"
 
 CLEAN_DELAY=0
@@ -396,7 +399,7 @@ EOF
 
   for p in $(grep -v -e '#' -e'^$' ~tinderbox/tb/data/BIN_OR_SKIP)
   do
-    if __dice 3 4; then
+    if __dice 11 12; then
       echo "$p" >> ./etc/portage/package.mask/91bin-or-skip
     fi
   done
@@ -455,10 +458,10 @@ function CreateBacklog()  {
   fi
 
   cat << EOF >> $bl.1st
-%emerge --depclean --verbose=n    # this neither
+%emerge --depclean
 @world
 @system
-%emerge --depclean --verbose=n    # the very first depclean must not fail
+%emerge --depclean
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
