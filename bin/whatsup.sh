@@ -6,7 +6,7 @@
 
 function PrintImageName()  {
   # ${n} is the minimum length to distinguish image names
-  n=30
+  n=${2:-30}
   printf "%-${n}s" $(cut -c-$n <<< ${1##*/})
 }
 
@@ -42,13 +42,13 @@ function check_history()  {
 
 
 # $ whatsup.sh -o
-# compl fail bgo days backlog .upd .1st status  7#7 running
-#  4402   36   1  4.8   16529    7    0   Wr    run/17.1-20210306-163653
-#  4042   26   0  5.1   17774   12    2    r    run/17.1_desktop_gnome-20210306-091529
+# compl fail bugs days backlog .upd .1st status  7#7 running
+#  4402   36    1  4.8   16529    7    0   Wr    run/17.1-20210306-163653
+#  4042   26    0  5.1   17774   12    2    r    run/17.1_desktop_gnome-20210306-091529
 function Overall() {
   running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
   all=$(wc -w <<< $images)
-  echo "compl fail bgo days backlog .upd .1st status  $running#$all running"
+  echo "compl fail bugs days backlog .upd .1st status  $running#$all running"
 
   for i in $images
   do
@@ -114,7 +114,7 @@ function Overall() {
       d=${d##*/}
     fi
 
-    printf "%5i %4i %3i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
+    printf "%5i %4i %4i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
   done
 }
 
@@ -199,18 +199,20 @@ function LastEmergeOperation()  {
 }
 
 
-# $ whatsup.sh -p
-# 17.1_desktop-20210102  372  832  885  536  528  773  731  715 648 684 500 476 418 610  453 395 353 460 408
-# 17.1_desktop_plasma_s  300  640   18  522  803  726  939  794 126
+# whatsup.sh -p
+#                                                  1    2    3    4    5    6    7.    8    9   10   11   12   13
+# 17.1_desktop_gnome_systemd-abi32+64-j2-202105 1056 1563 1742 1313  641  791  827.  747  411  495  211
+# 17.1_no-multilib-j2-20210510-162903           2273 2012 1678 1212 1034  674  829.  729  681  560  195
 function PackagesPerImagePerRunDay() {
-  for i in $images
+  printf "%45s %s\n" " " "   1    2    3    4    5    6    7.    8    9   10   11   12   13"
+
+  for i in $(ls ~tinderbox/run/ | sort -t '-' -k3,4 -n)
   do
-    PrintImageName $i
+    PrintImageName $i 45
 
     perl -F: -wane '
-      # @p helds the amount of emerge operations of (runtime, not calendar) days $i
       BEGIN {
-        @packages   = ();  # per days
+        @packages   = ();  # helds the amount of emerge operations per runday
         $start_time = 0;   # of emerge.log
       }
 
@@ -230,18 +232,50 @@ function PackagesPerImagePerRunDay() {
         }
         print "\n";
       }
-    ' $i/var/log/emerge.log
+    ' ~tinderbox/img/$i/var/log/emerge.log
   done
 }
 
 
+# whatsup.sh -r
+function RepoCoverage() {
+  echo "coverage "
+  perl -wane '
+    BEGIN {
+      @packages   = ();   # helds the amount of unique emerged packages per runday
+      $start_time = 0;    # of emerge.log
+      %unique     = ();   # only count the 1st occurrence
+    }
+
+    my $epoch_time = $F[0];
+    my $pkg = $F[6];
+
+    $start_time = $epoch_time unless ($start_time);
+    my $rundays = int(($epoch_time - $start_time) / 86400); # runtime days, starts with "0" (zero)
+
+    $packages[$rundays]++ unless ($unique{$pkg}++);
+
+    END {
+      $packages[$rundays] += 0;
+      foreach my $rundays (0..$#packages) {
+        if (exists $packages[$rundays]) {
+          print $packages[$rundays], " ";
+        } else  {
+          print 0;
+        }
+      }
+      print "\n";
+    }
+  ' < <(grep -h '::: completed emerge' ~tinderbox/run/*/var/log/emerge.log | tr -d ':' | sort)
+}
+
+
 # whatsup.sh -c
-# 22x dev-perl/Module-Build-0.422.400
-# 22x dev-perl/Pod-Parser-1.630.0-r1
-# 22x virtual/perl-File-Temp-0.230.900
-# 1x5169  2x2657  3x2060  4x785  5x463  6x199  7x78  8x79  9x25  10x7  11x5  13x11  14x7  15x1
-# total = 25096  unique = 11546
+# packages x emerge times
+# 3006x1 824x2 387x3 197x4 171x5 137x6 154x7 136x8 84x9 79x10 109x11 286x12 6x13 6x14 6x15
 function CountEmergesPerPackages()  {
+  echo "packages x emerge times"
+
   perl -wane '
     BEGIN {
       my %pet = ();     # package => emerge times
@@ -262,12 +296,12 @@ function CountEmergesPerPackages()  {
         my $value = $h{$key};
         $unique += $value;
         $total += $key * $value;
-        print $key, "x", $value, " ";
+        print $value, "x", $key, " ";
       }
 
-      print "\n\ntotal: $total   ($unique unique)\n";
+      print "\n\nemerges: $total   ($unique unique packages)\n";
     }
-  ' ~tinderbox/img/*/var/log/emerge.log
+  ' ~tinderbox/run/*/var/log/emerge.log
 }
 
 
@@ -300,7 +334,9 @@ function emergeThruput()  {
     }
 
     END {
-      print "yyyy-mm-dd   sum   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23\n\n";
+      print "yyyy-mm-dd   sum";
+      foreach my $i (0..23) { printf("%4i", $i) }
+      print "\n\n";
       for my $key (sort { $a cmp $b } keys %Day)  {
         printf("%s %5i", $key, $Day{$key}->{"day"});
         foreach my $hour(0..23) {
@@ -310,7 +346,7 @@ function emergeThruput()  {
         print "\n";
       }
     }
-  ' ~tinderbox/img/*/var/log/emerge.log
+  ' ~tinderbox/run/*/var/log/emerge.log
 }
 
 
@@ -326,7 +362,7 @@ source $(dirname $0)/lib.sh
 
 images=$(__list_images)
 
-while getopts cehlopt\? opt
+while getopts cehloprt\? opt
 do
   case $opt in
     c)  CountEmergesPerPackages   ;;
@@ -334,6 +370,7 @@ do
     l)  LastEmergeOperation       ;;
     o)  Overall                   ;;
     p)  PackagesPerImagePerRunDay ;;
+    r)  RepoCoverage              ;;
     t)  Tasks                     ;;
   esac
   echo
