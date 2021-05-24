@@ -676,6 +676,7 @@ function PostEmerge() {
   fi
 
   if grep -q -e ">>> Installing .* dev-lang/perl-[1-9]" -e 'Use: perl-cleaner' $logfile_stripped; then
+    add2backlog "%emerge --depclean"
     add2backlog "%perl-cleaner --all"
   fi
 
@@ -728,15 +729,12 @@ function RunAndCheck() {
 
   PostEmerge
 
-  if [[ $rc -eq 0 ]]; then
+  if [[ $rc -eq 0 || $(wc -l < <(cat $logfile_stripped)) -le 1 ]]; then
     return $rc
   fi
 
-  if [[ $(wc -l < <(cat $logfile_stripped)) -le 1 ]]; then
-    return $rc
-  fi
-
-  # simulate that installed deps were be emerged step by step before
+  # we had an issue
+  # make world state same as if (succesful) installed deps were emerged step by step in previous emerges
   if grep -q '^>>> Installing ' $logfile_stripped; then
     PutDepsIntoWorldFile &>/dev/null
   fi
@@ -820,13 +818,14 @@ function WorkOnTask() {
 }
 
 
-# heuristic:
 function DetectALoop() {
+  # heuristic:
   local x=7
+  local y
   if [[ $name =~ "test" ]]; then
     x=18
   fi
-  let "y = x * 2"
+  ((y = x * 2))
 
   for t in "@preserved-rebuild" "%perl-cleaner"
   do
@@ -878,6 +877,7 @@ trap Finish INT QUIT TERM EXIT
 
 taskfile=/var/tmp/tb/task           # holds the current task
 logfile=$taskfile.log               # holds output of the current task
+name=$(cat /etc/conf.d/hostname)    # the image name
 
 export CARGO_TERM_COLOR="never"
 export GCC_COLORS=""
@@ -889,11 +889,10 @@ export PYTEST_ADDOPTS="--color=no"
 export TERM=linux
 export TERMINFO=/etc/terminfo
 
-name=$(cat /etc/conf.d/hostname)
-
+# help to catch segfaults
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
-# retry $task if task file is non-empty (eg. after a terminated emerge)
+# re-schedule $task eg. after a killed emerge
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
@@ -901,8 +900,6 @@ fi
 while :
 do
   date > $logfile
-  echo "#cleanup" > $taskfile
-  rm -rf /var/tmp/portage/*
   echo "#rsync repos" > $taskfile
   updateAllRepos
   echo "#get task" > $taskfile
@@ -912,6 +909,7 @@ do
   fi
   getNextTask
   WorkOnTask
-  truncate -s 0 $taskfile
+  echo "#cleanup" > $taskfile
+  rm -rf /var/tmp/portage/*
   DetectALoop
 done
