@@ -28,8 +28,6 @@ ld: -r and -pie may not be used together
 recompile with -fPIE
 : syntax error in
 : error adding symbol
-ld returned .* exit status
-: error:
 Parse error .
  Segmentation fault
 object has no attribute
@@ -282,3 +280,7 @@ Makefile:.* Stop.
 Cannot build with randomized sbrk.
 ^\[error\]
 UnicodeEncodeError:
+Package .* was not found in the .* path.
+ld: i386 architecture of input file
+final link failed:
+ld returned .* exit status

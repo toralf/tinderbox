@@ -1,4 +1,5 @@
 asciidoctor
+both portaudio and jack are enabled, disable one
 but please install the FUSE libraries and headers to build this module
 Cannot build with randomized sbrk. Your options
 Cannot execute 32-bit applications

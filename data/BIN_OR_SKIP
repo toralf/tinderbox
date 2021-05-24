@@ -1,7 +1,16 @@
-# packages with long emerge times, candidates to prefer either -bin or to skip it
-#
+# packages with very long emerge times: mask with a likelood of x %
 
 app-office/libreoffice
+dev-db/mongodb
+dev-lang/gnat-gpl
 dev-lang/rust
+dev-qt/qtwebengine
+dev-qt/qtwebkit
+dev-util/include-what-you-use
+dev-util/intel-graphics-compiler
+net-libs/webkit-gtk
 sci-libs/atlas
 sci-libs/libint
+sci-libs/trilinos
+sys-devel/byfl
+sys-devel/llvm-roc
