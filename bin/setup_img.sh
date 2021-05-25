@@ -300,6 +300,7 @@ if __dice 1 4; then
   cat <<EOF >> ./etc/portage/make.conf
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
+MAKE="make LIBTOOL=\${LIBTOOL}"
 
 EOF
 fi
