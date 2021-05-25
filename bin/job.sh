@@ -777,7 +777,7 @@ function WorkOnTask() {
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
-        add2backlog "%emerge --depclean --verbose=n || true"
+        add2backlog "%emerge --depclean"
       fi
     else
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
