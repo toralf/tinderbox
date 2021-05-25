@@ -770,7 +770,7 @@ function WorkOnTask() {
     if [[ ! $task = "@preserved-rebuild" ]]; then
       opts="$opts --update"
       if [[ $task = "@system" || $task = "@world" ]]; then
-        opts="$opts --newuse --changed-use"
+        opts="$opts --changed-use"
       fi
     fi
 

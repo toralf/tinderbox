@@ -707,7 +707,7 @@ CreateSetupScript
 RunSetupScript
 
 echo
-echo 'emerge --update --newuse --changed-use --backtrack=30 --pretend --deep @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+echo 'emerge --update --changed-use --backtrack=30 --pretend --deep @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 if [[ "$randomuseflags" = "y" ]]; then
   DryRunWithRandomUseFlags
 else
