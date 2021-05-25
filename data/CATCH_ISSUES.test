@@ -76,7 +76,6 @@ Resolve library did not return a fully qualified domain name.
   *FAILED  ess
 :Error:
 ^not ok [[:digit:]]*
-^make.* Segmentation fault
 test in .* failed
 /bin/bash: docker: command not found
 \.\.\.\.\.\.\. no
@@ -88,7 +87,6 @@ Unescaped left brace in regex is illegal here
 .. \[fail\]
 Error: This expression has type .* but an expression was expected
 ^\?: .*
-Segmentation fault
 Test .* failed:
 ModuleNotFoundError:
  FAILED (.*)

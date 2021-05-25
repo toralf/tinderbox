@@ -29,13 +29,11 @@ recompile with -fPIE
 : syntax error in
 : error adding symbol
 Parse error .
- Segmentation fault
 object has no attribute
 .*.texinfo:.*: unknown command
 reference to Parameter is ambiguous
 Unknown M68KMAKE directive
 was not declared in this scope
-error: .* has not been declared
 ModuleNotFoundError: No module named
 Invalid C declaration:
 : undefined method

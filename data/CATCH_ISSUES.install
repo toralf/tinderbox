@@ -7,8 +7,6 @@ chown: invalid user
 chown: invalid group:
 ERROR:root
 install: cannot stat .*: No such file or directory
-CMake Error
-configure: error: Cannot find .* - please compile and install it first.
 : fatal error:
 /bin/sh: .* cd: .*: Not a directory
 make.* No rule to make target .* needed by .* Stop.
@@ -38,5 +36,5 @@ FileNotFoundError:
 Error: The .* plugin is not installed
 : Permission denied
  note: each undeclared identifier is reported only once for each function it appears in
-Segmentation fault
  undefined reference to
+mkdir: cannot create directory
