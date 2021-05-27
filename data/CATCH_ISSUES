@@ -12,6 +12,7 @@ Files matching a file type that is not allowed:
 \* ERROR: .* failed:
 : No such file or directory.  Stop.
 ln: failed to create symbolic link .*: File exists
+Segmentation fault
 ^Error:
 : error:
 sed:.*expression.*unknown option
@@ -21,9 +22,7 @@ sed.*failed
 error: .
 Please fix the ebuild to use correct FHS/Gentoo policy paths
 ninja: build stopped:
-\[BUG\] Segmentation fault at
 ^ERROR
 Error .
  \*   .* failed
 Unsupported kernel version!
-Segmentation fault

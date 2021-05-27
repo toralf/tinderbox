@@ -33,7 +33,6 @@ object has no attribute
 .*.texinfo:.*: unknown command
 reference to Parameter is ambiguous
 Unknown M68KMAKE directive
-was not declared in this scope
 ModuleNotFoundError: No module named
 Invalid C declaration:
 : undefined method
@@ -56,7 +55,6 @@ CSC: error .*:
 Error: No implementations provided for the following modules:
 LoadError
 cannot find symbol
-incompatible types
 bad class file:
 Compile failed; see the compiler error
 Failed Patch:

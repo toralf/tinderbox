@@ -25,7 +25,7 @@ error: template with C linkage
 
 #  (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
 765709
-slibtool|rlibtool|rdlibtool|gcc: error: unrecognized command-line option|./shtool:
+slibtool|rlibtool|rdlibtool|error: unrecognized command-line option|./shtool:|syntax error: .* unexpected
 
 #  (gcc-11) - [TRACKER] sys-devel/gcc-11 porting
 732706 maybe gcc-11 related
