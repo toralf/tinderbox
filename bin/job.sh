@@ -818,30 +818,18 @@ function WorkOnTask() {
 }
 
 
-function DetectALoop() {
-  # heuristic:
-  local x=7
-  local y
-  if [[ $name =~ "test" ]]; then
-    x=18
+function CheckForRebuildLoop() {
+  if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages' $logfile_stripped; then
+    grep -F ' *      used by ' $logfile_stripped |\
+    cut -f2 -d'(' |\
+    tr -d ')' |\
+    while read -r package
+    do
+      if grep -q ">>> Installing .* $package::" $logfile_stripped; then
+        Finish 1 "loop for $package" $logfile_stripped
+      fi
+    done
   fi
-  ((y = x * 2))
-
-  for t in "@preserved-rebuild" "%perl-cleaner"
-  do
-    if [[ ! $task =~ $t ]]; then
-      continue
-    fi
-
-    local n=$(tail -n $y $taskfile.history | grep -c "$t") || true
-    if [[ $n -ge $x ]]; then
-      for i in $(seq 1 $y)
-      do
-        echo "#" >> $taskfile.history
-      done
-      Finish 1 "${n}x $t among last $y tasks"
-    fi
-  done
 }
 
 
@@ -911,5 +899,5 @@ do
   WorkOnTask
   echo "#cleanup" > $taskfile
   rm -rf /var/tmp/portage/*
-  DetectALoop
+  CheckForRebuildLoop
 done
