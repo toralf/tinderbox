@@ -100,7 +100,7 @@ function checkBool()  {
   var=$1
   val=$(eval echo \$${var})
 
-  if [[ "$val" != "y" && "$val" != "n" ]]; then
+  if [[ $val != "y" && $val != "n" ]]; then
     echo " wrong value for variable \$$var: >>$val<<"
     return 1
   fi
@@ -115,7 +115,7 @@ function CheckOptions() {
   checkBool "science"
   checkBool "testfeature"
 
-  if [[ -z "$profile" ]]; then
+  if [[ -z $profile ]]; then
     echo " profile empty!"
     return 1
   fi
@@ -125,7 +125,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ "$abi3264" = "y" ]]; then
+  if [[ $abi3264 = "y" ]]; then
     if [[ $profile =~ "/no-multilib" ]]; then
       echo " ABI_X86 mismatch: >>$profile<<"
       return 1
@@ -143,9 +143,10 @@ function CheckOptions() {
 function CreateImageName()  {
   name="$(tr '/\-' '_' <<< $profile)"
   name+="-j${jobs}"
-  [[ "$abi3264" = "n" ]]      || name+="_abi32+64"
-  [[ "$science" = "n" ]]      || name+="_science"
-  [[ "$testfeature" = "n" ]]  || name+="_test"
+  [[ $abi3264 = "n" ]]      || name+="_abi32+64"
+  [[ $science = "n" ]]      || name+="_science"
+  [[ $testfeature = "n" ]]  || name+="_test"
+  [[ $cflags =~ '-O2' ]]    || name+="_debug"
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
@@ -177,7 +178,7 @@ function UnpackStage3()  {
   esac
   local stage3=$(cut -f1 -d' ' -s <<< $stage3)
 
-  if [[ -z "$stage3" || "$stage3" =~ [[:space:]] ]]; then
+  if [[ -z $stage3 || $stage3 =~ [[:space:]] ]]; then
     echo " can't get stage3 filename for profile '$profile' in $latest"
     return 1
   fi
@@ -244,8 +245,8 @@ EOF
   echo 'local'            > ./$repodir/local/profiles/repo_name
 
   addRepoConf "gentoo" "10"
-  [[ "$musl" = "y" ]]     && addRepoConf "musl"     "30"  || true
-  [[ "$science" = "y" ]]  && addRepoConf "science"  "40"  || true
+  [[ $musl = "y" ]]     && addRepoConf "musl"     "30"  || true
+  [[ $science = "y" ]]  && addRepoConf "science"  "40"  || true
   addRepoConf "tinderbox" "90" "/mnt/tb/data/portage"
   addRepoConf "local" "99"
 }
@@ -382,11 +383,11 @@ EOF
 
   cpconf ~tinderbox/tb/data/package.*.??common
 
-  if [[ "$abi3264" = "y" ]]; then
+  if [[ $abi3264 = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.*.??abi32+64
   fi
 
-  if [[ "$testfeature" = "y" ]]; then
+  if [[ $testfeature = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.*.*test
   else
     # overrule any IUSE=+test
@@ -708,7 +709,7 @@ RunSetupScript
 
 echo
 echo 'emerge --update --changed-use --backtrack=30 --pretend --deep @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
-if [[ "$randomuseflags" = "y" ]]; then
+if [[ $randomuseflags = "y" ]]; then
   DryRunWithRandomUseFlags
 else
   date
