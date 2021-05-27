@@ -818,17 +818,21 @@ function WorkOnTask() {
 }
 
 
-function CheckForRebuildLoop() {
-  if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages' $logfile_stripped; then
-    grep -F ' *      used by ' $logfile_stripped |\
-    cut -f2 -d'(' |\
-    tr -d ')' |\
+function SquashRebuildLoop() {
+  if test $task = '@preserved-rebuild' && \
+          grep -q -F 'Use emerge @preserved-rebuild to rebuild packages' $logfile_stripped; then
+    local packages=""
     while read -r package
     do
       if grep -q ">>> Installing .* $package::" $logfile_stripped; then
-        Finish 1 "loop for $package" $logfile_stripped
+        packages+="=$package "
       fi
-    done
+    done < <(grep -F ' *      used by ' $logfile_stripped | cut -f2 -d'(' -s | tr -d ')')
+
+    if [[ -n $packages ]]; then
+      add2backlog "%emerge -C $packages"
+      Mail "$FUNCNAME for $packages"
+    fi
   fi
 }
 
@@ -899,5 +903,5 @@ do
   WorkOnTask
   echo "#cleanup" > $taskfile
   rm -rf /var/tmp/portage/*
-  CheckForRebuildLoop
+  SquashRebuildLoop
 done
