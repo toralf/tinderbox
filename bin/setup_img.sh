@@ -547,6 +547,8 @@ echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if a package is in more than one repo
 qsearch --all --nocolor --name-only --quiet | sort -u -R > /var/tmp/tb/backlog
 
+# copy+paste the \n too for middle mouse selections
+echo "set enable-bracketed-paste off" >> /etc/inputrc
 EOF
 
   chmod u+x ./var/tmp/tb/setup.sh
