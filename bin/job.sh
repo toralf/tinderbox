@@ -830,8 +830,9 @@ function SquashRebuildLoop() {
     done < <(grep -F ' *      used by ' $logfile_stripped | cut -f2 -d'(' -s | tr -d ')')
 
     if [[ -n $packages ]]; then
-      add2backlog "%emerge -C $packages"
-      Mail "$FUNCNAME for $packages"
+      local unique=$(echo $packages | xargs -n 1 | sort -u | xargs)
+      add2backlog "%emerge -C $unique"
+      Mail "$FUNCNAME for $unique"
     fi
   fi
 }
