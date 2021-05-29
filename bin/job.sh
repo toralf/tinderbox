@@ -236,11 +236,6 @@ EOF
     if [[ -f $workdir/gcc-build-logs.tar.bz2 ]]; then
       cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
     fi
-
-    if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
-      mv /tmp/core.* $issuedir/files
-      Mail "INFO: got core files for $pkg" "$(ls -l $issuedir/files/)"
-    fi
   fi
 
   collectPortageDir
@@ -282,6 +277,15 @@ function getPkgVarsFromIssuelog()  {
   fi
 
   return 0
+}
+
+
+function createIssueDir() {
+  getPkgVarsFromIssuelog || return $?
+
+  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
+  mkdir -p $issuedir/files
+  chmod 777 $issuedir # allow to edit title etc. manually
 }
 
 
@@ -541,12 +545,6 @@ function GotAnIssue()  {
   if grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $logfile_stripped; then
     Finish 1 "KILLED"
   fi
-
-  getPkgVarsFromIssuelog || return $?
-
-  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
-  mkdir -p $issuedir/files
-  chmod 777 $issuedir # allow to edit title etc. manually
   echo "$repo" > $issuedir/repository   # used by check_bgo.sh
   pkglog_stripped=$issuedir/$(basename $pkglog)
   filterPlainPext < $pkglog > $pkglog_stripped
@@ -724,31 +722,41 @@ function RunAndCheck() {
   # run eval in a subshell intentionally
   (eval $@ &>> $logfile) || rc=$?
 
-  logfile_stripped="/var/tmp/tb/logs/task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_').log"
+  local taskdirname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
+  logfile_stripped="/var/tmp/tb/logs/$taskdirname.log"
   filterPlainPext < $logfile > $logfile_stripped
-
   PostEmerge
 
-  if [[ $rc -eq 0 || $(wc -l < <(cat $logfile_stripped)) -le 1 ]]; then
+  if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
+    mkdir -p /var/tmp/tb/core/$taskdirname
+    mv /tmp/core.* /var/tmp/tb/core/$taskdirname
+    Mail "INFO: keep core files in $taskdirname" "$(ls -lh /var/tmp/tb/core/$taskdirname/)"
+  fi
+
+  if [[ $rc -eq 0 ]]; then
     return $rc
   fi
 
-  # we had an issue
-  # make world state same as if (succesful) installed deps were emerged step by step in previous emerges
+  # make world state same as if (succesfully) installed deps were emerged step by step in previous emerges
   if grep -q '^>>> Installing ' $logfile_stripped; then
     PutDepsIntoWorldFile &>/dev/null
   fi
 
   if [[ $rc -lt 128 ]]; then
     if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
-      GotAnIssue
+      if createIssueDir; then
+        GotAnIssue
+      else
+        Mail "WARN: can't create issuedir for $task" $logfile_stripped
+        return $rc
+      fi
     fi
   else
-    let signal="$rc - 128" || true
+    let signal="$rc - 128"
     if [[ $signal -eq 9 ]]; then
       Finish 0 "catched signal $signal - exiting"
     else
-      Mail "INFO: emerge stopped due to signal $signal" $logfile_stripped
+      Mail "INFO: emerge stopped by signal $signal" $logfile_stripped
     fi
   fi
 
