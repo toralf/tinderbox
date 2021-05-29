@@ -500,14 +500,14 @@ EOF
   truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary"
 }
 
-
-# keep successfully emerged deps to avoid that those get unmerged by "--depclean"
-# or irritates portage otherwise
+# make world state same as if (succesfully) installed deps were emerged step by step in previous emerges
 function PutDepsIntoWorldFile() {
-  emerge --depclean --verbose=n --pretend 2>/dev/null |\
-  grep "^All selected packages: "                     |\
-  cut -f2- -d':' -s                                   |\
-  xargs --no-run-if-empty emerge -O --noreplace
+  if grep -q '^>>> Installing ' $logfile_stripped; then
+    emerge --depclean --verbose=n --pretend 2>/dev/null |\
+    grep "^All selected packages: "                     |\
+    cut -f2- -d':' -s                                   |\
+    xargs --no-run-if-empty emerge -O --noreplace &>/dev/null
+  fi
 }
 
 
@@ -737,21 +737,20 @@ function RunAndCheck() {
     return $rc
   fi
 
-  # make world state same as if (succesfully) installed deps were emerged step by step in previous emerges
-  if grep -q '^>>> Installing ' $logfile_stripped; then
-    PutDepsIntoWorldFile &>/dev/null
-  fi
-
   if [[ $rc -lt 128 ]]; then
     if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
       if createIssueDir; then
         GotAnIssue
+        if [[ $try_again -eq 0 ]]; then
+          PutDepsIntoWorldFile
+        fi
       else
         Mail "WARN: can't create issuedir for $task" $logfile_stripped
         return $rc
       fi
     fi
   else
+    PutDepsIntoWorldFile
     let signal="$rc - 128"
     if [[ $signal -eq 9 ]]; then
       Finish 0 "catched signal $signal - exiting"
