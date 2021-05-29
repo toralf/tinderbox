@@ -41,7 +41,8 @@ function check_history()  {
 }
 
 
-# $ whatsup.sh -o
+# whatsup.sh -o
+#
 # compl fail bugs days backlog .upd .1st status  7#7 running
 #  4402   36    1  4.8   16529    7    0   Wr    run/17.1-20210306-163653
 #  4042   26    0  5.1   17774   12    2    r    run/17.1_desktop_gnome-20210306-091529
@@ -119,7 +120,7 @@ function Overall() {
 }
 
 
-# $ whatsup.sh -t
+# whatsup.sh -t
 # 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks()  {
@@ -159,7 +160,8 @@ function Tasks()  {
 }
 
 
-# $ whatsup.sh -l
+# whatsup.sh -l
+#
 # 17.1_desktop-20210102
 # 17.1_desktop_plasma_s  0:02 m  >>> AUTOCLEAN: media-sound/toolame:0
 # 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
@@ -200,13 +202,13 @@ function LastEmergeOperation()  {
 
 
 # whatsup.sh -p
-#                                                  1    2    3    4    5    6    7.    8    9   10   11   12   13
+#                                                  1    2    3    4    5    6    7.    8    9   10   11
 # 17.1_desktop_gnome_systemd-abi32+64-j2-202105 1056 1563 1742 1313  641  791  827.  747  411  495  211
 # 17.1_no-multilib-j2-20210510-162903           2273 2012 1678 1212 1034  674  829.  729  681  560  195
 function PackagesPerImagePerRunDay() {
   printf "%45s %s\n" " " "   1    2    3    4    5    6    7.    8    9   10   11   12   13"
 
-  for i in $(ls ~tinderbox/run/ | sort -t '-' -k3,4 -n)
+  for i in $(ls ~tinderbox/run/ | sort -t '-' -k 3)
   do
     PrintImageName $i 45
 
@@ -238,8 +240,11 @@ function PackagesPerImagePerRunDay() {
 
 
 # whatsup.sh -r
+#
+# coverage
+# 3486 4787 2822 1763 1322 802 524 128
 function RepoCoverage() {
-  echo "coverage "
+  printf "%s %38s " "~amd64" "coverage"
   perl -wane '
     BEGIN {
       @packages   = ();   # helds the amount of unique emerged packages per runday
@@ -259,9 +264,9 @@ function RepoCoverage() {
       $packages[$rundays] += 0;
       foreach my $rundays (0..$#packages) {
         if (exists $packages[$rundays]) {
-          print $packages[$rundays], " ";
+          printf ("%5i", $packages[$rundays]);
         } else  {
-          print 0;
+          print "    0";
         }
       }
       print "\n";
@@ -271,6 +276,7 @@ function RepoCoverage() {
 
 
 # whatsup.sh -c
+#
 # packages x emerge times
 # 3006x1 824x2 387x3 197x4 171x5 137x6 154x7 136x8 84x9 79x10 109x11 286x12 6x13 6x14 6x15
 function CountEmergesPerPackages()  {
@@ -306,6 +312,7 @@ function CountEmergesPerPackages()  {
 
 
 # whatsup.sh -e
+#
 # 2021.04.10      3551
 # 2021.04.11      16540
 # 2021.04.12      14296
