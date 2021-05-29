@@ -818,8 +818,15 @@ function WorkOnTask() {
 }
 
 
+# few repeated @preserved-rebuild are ok
 function SquashRebuildLoop() {
-  if test $task = '@preserved-rebuild' && \
+  local n=$(tail -n 15 $taskfile.history | grep -c '@preserved-rebuild') || true
+  if [[ $n -ge 5 ]]; then
+    echo -e "#\n#\n#\n#\n#\n" >> $taskfile.history
+    Finish 1 "$FUNCNAME too much @preserved-rebuild" $taskfile.history
+  fi
+
+  if [[ "$task" =~ '@preserved-rebuild' ]] &&\
           grep -q -F 'Use emerge @preserved-rebuild to rebuild packages' $logfile_stripped; then
     local packages=""
     while read -r package
