@@ -9,8 +9,10 @@ function GetTreeChanges() {
   repo_path=$(portageq get_repo_path / gentoo) || exit 2
   cd $repo_path || exit 2
 
-  # give mirrors time to sync - 1 hour is sometimes too low
-  git diff --diff-filter=ACM --name-status "@{ 131 minute ago }".."@{ 70 minute ago }" |\
+  # give mirrors time to sync
+  # 1 hour is sometimes slightly too less
+  # and @hourly could means after a reboot up to 2 h
+  git diff --diff-filter=ACM --name-status "@{ 190 minute ago }".."@{ 70 minute ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s | cut -f1-2 -d'/' -s | uniq |\
   grep -v -f ~/tb/data/IGNORE_PACKAGES > $result
@@ -48,7 +50,7 @@ function updateBacklog()  {
       (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     fi
 
-    # no "mv", "cp" keeps file permissions and inode
+    # no "mv", "cp" keeps both file permissions and inode number
     cp $bl.tmp $bl
     rm $bl.tmp
   done
