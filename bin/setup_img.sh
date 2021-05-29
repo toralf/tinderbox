@@ -278,7 +278,7 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
 NOCOLOR="true"
-PORTAGE_LOG_FILTER_FILE_CMD="bash -c \\"ansifilter --ignore-clear; exec cat\\""
+PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
 FEATURES="cgroup splitdebug xattr -collision-protect -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --with-bdeps=y"
