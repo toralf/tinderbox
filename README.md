@@ -57,29 +57,6 @@ whatsup.sh -otlpc
 New findings are send via email to the user specified in the variable *mailto*.
 Bugs are be filed using *bgo.sh*. A copy+paste ready command line is included in the bug email.
 
-### manually bug hunting within an image
-
-1. stop image if it is running
-2. go into it
-3. inspect/adapt files in */etc/portage/packages.*
-4. do your work in the local image repository to test new/changed ebuilds
-5. exit
-
-### unattended test of package/s
-
-Add package(s) to be tested (goes into */var/tmp/tb/backlog.upd* of each image):
-
-```bash
-update_backlog.sh @system app-portage/pfl
-```
-*STOP* can be used instead *INFO* to stop the image at that point, the following text will become the subject of an email.
-
-### misc
-The script *update_backlog.sh* feeds repository updates into the file *backlog.upd* of each image.
-And it is used too to retest an emerge of given package(s).
-*logcheck.sh* is a helper to notify about non-empty log file(s).
-*replace_img.sh* stops an older and spins up a new image based on age and amount of installed packages.
-
 ## installation
 Create the user *tinderbox*:
 
@@ -109,26 +86,22 @@ Edit the credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, 
 Grant sudo rights to the user *tinderbox*:
 
 ```bash
-tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/sync_repo.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/cgroup.sh,/opt/tb/bin/sync_repo.sh
+tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/cgroup.sh
 ```
+
 Maybe create this crontab entries for user *tinderbox*:
 
 ```bash
-@reboot /opt/tb/bin/start_img.sh; /opt/tb/bin/logcheck.sh
+# crontab of tinderbox
+#
+@reboot sudo /opt/tb/bin/cgroup.sh; /opt/tb/bin/start_img.sh
 
-# update image backlogs
-@hourly sudo /opt/tb/bin/sync_repo.sh 1>/dev/null; /opt/tb/bin/update_backlog.sh
+* * * * * /opt/tb/bin/logcheck.sh
 
 # replace an image
-@hourly l=/tmp/replace_img.sh.log.$$ && /opt/tb/bin/replace_img.sh -s '-j2' &>$l; cat $l; rm $l
-
+@hourly l=/tmp/replace_img.sh.log.$$ && /opt/tb/bin/replace_img.sh -s '-j3' &>$l; cat $l; rm $l
 ```
 Watch the mailbox for cron outputs.
-Watch UNIX processes via:
-
-```bash
-watch -c "pgrep bwrap.sh | xargs -n 1 -r pstree -UlnpuT"
-```
 
 ## link(s)
 
