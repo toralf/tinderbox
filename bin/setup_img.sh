@@ -10,6 +10,7 @@ function IgnoreUseFlags()  {
   grep -v -w -f ~tinderbox/tb/data/IGNORE_USE_FLAGS || true
 }
 
+
 # helper of DryRunWithRandomUseFlags
 function ThrowUseFlags() {
   local n=$1  # pass up to n-1
@@ -215,40 +216,56 @@ function UnpackStage3()  {
 }
 
 
-# configure image specific repositories (either being bind mounted or local)
-function addRepoConf()  {
-  local reponame=$1
-  local priority=$2
-  local location=${3:-$repodir/$reponame}
-
-  cat << EOF > ./etc/portage/repos.conf/$reponame.conf
-[$reponame]
-location = $location
-priority = $priority
-
-EOF
-}
-
-
+# configure image repositories
 function CompileRepoFiles()  {
   mkdir -p ./etc/portage/repos.conf/
 
-  cat << EOF > ./etc/portage/repos.conf/default.conf
+  cat << EOF >> ./etc/portage/repos.conf/all.conf
 [DEFAULT]
 main-repo = gentoo
-auto-sync = no
+auto-sync = yes
+
+[gentoo]
+location  = $repodir/gentoo
+priority  = 10
+sync-uri  = https://github.com/gentoo-mirror/gentoo.git
+sync-type = git
+
+[tinderbox]
+location  = /mnt/tb/data/portage
+priority  = 90
+
+[local]
+location  = $repodir/local
+priority  = 99
 
 EOF
-  # the "local" repository for this particular image
+
   mkdir -p                  ./$repodir/local/{metadata,profiles}
   echo 'masters = gentoo' > ./$repodir/local/metadata/layout.conf
   echo 'local'            > ./$repodir/local/profiles/repo_name
 
-  addRepoConf "gentoo" "10"
-  [[ $musl = "y" ]]     && addRepoConf "musl"     "30"  || true
-  [[ $science = "y" ]]  && addRepoConf "science"  "40"  || true
-  addRepoConf "tinderbox" "90" "/mnt/tb/data/portage"
-  addRepoConf "local" "99"
+  if [[ $musl = "y" ]]; then
+    cat << EOF >> ./etc/portage/repos.conf/all.conf
+[musl]
+location  = $repodir/musl
+priority  = 40
+sync-uri  = https://github.com/gentoo/musl.git
+sync-type = git
+
+EOF
+  fi
+
+  if [[ $science = "y" ]]; then
+    cat << EOF >> ./etc/portage/repos.conf/all.conf
+[science]
+location  = $repodir/science
+priority  = 50
+sync-uri  = https://github.com/gentoo/sci.git
+sync-type = git
+
+EOF
+  fi
 }
 
 
@@ -493,12 +510,6 @@ function CreateSetupScript()  {
 set -euf
 
 date
-echo "#setup rsync" | tee /var/tmp/tb/task
-                         rsync --archive --cvs-exclude /mnt/repos/gentoo   $repodir/
-[[ $musl = "y" ]]     && rsync --archive --cvs-exclude /mnt/repos/musl     $repodir/  || true
-[[ $science = "y" ]]  && rsync --archive --cvs-exclude /mnt/repos/science  $repodir/  || true
-
-date
 echo "#setup configure" | tee /var/tmp/tb/task
 
 if [[ ! $musl = "y" ]]; then
@@ -522,13 +533,16 @@ env-update
 set +u; source /etc/profile; set -u
 
 date
+echo "#setup sync" | tee /var/tmp/tb/task
+emerge -u -O dev-vcs/git
+emaint sync --auto 1>/dev/null
+
 echo "#setup tools" | tee /var/tmp/tb/task
-emerge -u app-text/ansifilter
 if grep -q LIBTOOL /etc/portage/make.conf; then
   echo "*/* -audit -cups" >> /etc/portage/package.use/slibtool
   emerge -u sys-devel/slibtool
 fi
-emerge -u app-portage/portage-utils
+emerge -u app-text/ansifilter app-portage/portage-utils
 
 date
 echo "#setup mailer" | tee /var/tmp/tb/task
@@ -707,6 +721,11 @@ CompilePortageFiles
 CompileMiscFiles
 CreateBacklog
 CreateSetupScript
+cd $repodir
+                        git clone --depth 1 https://github.com/gentoo-mirror/gentoo.git
+[[ $musl    = "n" ]] || git clone --depth 1 https://github.com/gentoo/musl.git
+[[ $science = "n" ]] || git clone --depth 1 https://github.com/gentoo/sci.git
+
 RunSetupScript
 
 echo

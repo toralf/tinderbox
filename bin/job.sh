@@ -477,11 +477,11 @@ EOF
     ghc --version
     eselect php list cli
 
-    echo
-    echo "  timestamp(s) of HEAD at this tinderbox image:"
-    for i in /var/db/repos/*/timestamp.git
+    for i in /var/db/repos/*/.git
     do
-      echo -e "${i%/*}\t$(date -u -d @$(cat $i))"
+      cd $i/..
+      echo "  HEAD of ::$(basename $PWD)"
+      git show -s HEAD
     done
 
     echo
@@ -663,7 +663,7 @@ function PostEmerge() {
   if grep -q ">>> Installing .* sys-kernel/gentoo-sources" $logfile_stripped; then
     current=$(eselect kernel show 2>/dev/null | grep "gentoo" | cut -f4 -d'/' -s)
     # compile the Gentoo kernel (but only the very first one, ignore any updates)
-    if [[ -z "$current" ]]; then
+    if [[ -z "$current_time" ]]; then
       latest=$(eselect kernel list | grep "gentoo" | tail -n 1 | awk ' { print $2 } ')
       add2backlog "%eselect kernel set $latest"
     fi
@@ -707,7 +707,7 @@ function PostEmerge() {
     current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
     latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
 
-    if [[ "$current" != "$latest" ]]; then
+    if [[ "$current_time" != "$latest" ]]; then
       add2backlog "%eselect ruby set $latest"
     fi
   fi
@@ -852,25 +852,26 @@ function SquashRebuildLoop() {
 }
 
 
-# sync all repositories with the one(s) at the host system
-# Hint: the file "timestamp.git" is created by sync_repo.sh
-function updateAllRepos() {
-  for image_repo in $(ls -d /var/db/repos/* 2>/dev/null | grep -v -e "/local$" -e "/tinderbox$")
-  do
-    local host_repo=/mnt/repos/$(basename $image_repo)
-    if [[ ! -d $host_repo ]]; then
-      continue
-    fi
+function syncRepos()  {
+  local diff=$1
 
-    if [[ ! -f $image_repo/timestamp.git || $(cat $image_repo/timestamp.git) != $(cat $host_repo/timestamp.git) ]]; then
-      # very unlikely but if a git pull at the host is running then wait till it finished
-      while [[ -f $host_repo/.git/index.lock ]]
-      do
-        sleep 1
-      done
-      rsync --archive --cvs-exclude --delete $host_repo /var/db/repos/
+  if ! emaint sync --auto | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
+    cd /var/db/repos/gentoo
+    ((diff = diff + 3660))
+    if [[ $diff -gt 7200 ]]; then
+      diff=7200
     fi
-  done
+    git diff --diff-filter=ACM --name-status "@{ $diff second ago }".."@{ 60 minute ago }" |\
+    grep -F -e '/files/' -e '.ebuild' -e 'Manifest' | cut -f2- -s | cut -f1-2 -d'/' -s |
+    grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
+    uniq > /tmp/diff.upd
+
+    if [[ -s /tmp/diff.upd ]]; then
+      cp /var/tmp/tb/backlog.upd /tmp
+      sort -u /tmp/diff.upd /tmp/backlog.upd | shuf > /var/tmp/tb/backlog.upd
+      rm /tmp/backlog.upd
+    fi
+  fi
 }
 
 
@@ -896,6 +897,9 @@ export PYTEST_ADDOPTS="--color=no"
 export TERM=linux
 export TERMINFO=/etc/terminfo
 
+export GIT_PAGER="cat"
+export PAGER="cat"
+
 # help to catch segfaults
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
@@ -904,16 +908,21 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
+last_sync=0  # forces a sync at start
 while :
 do
   date > $logfile
-  echo "#rsync repos" > $taskfile
-  updateAllRepos
-  echo "#get task" > $taskfile
   if [[ -f /var/tmp/tb/STOP ]]; then
     echo "#stopping" > $taskfile
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
+  current_time=$(date +%s)
+  if [[ $(((diff = $current_time - $last_sync))) -ge 3600 ]]; then
+    echo "#sync repos" > $taskfile
+    last_sync=$current_time
+    syncRepos $diff
+  fi
+  echo "#get task" > $taskfile
   getNextTask
   WorkOnTask
   echo "#cleanup" > $taskfile

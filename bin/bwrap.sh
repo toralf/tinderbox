@@ -131,7 +131,6 @@ sandbox=(env -i
         --bind ~tinderbox/tb/data                 /mnt/tb/data
         --bind ~tinderbox/distfiles               /var/cache/distfiles
         --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
-        --ro-bind /var/db/repos                   /mnt/repos
         --tmpfs                                   /var/tmp/portage
         --tmpfs /dev/shm
         --dev /dev
