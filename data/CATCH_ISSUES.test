@@ -25,6 +25,7 @@ Failed tests:
  \*\*\*Failed
  \*\*\*Exception:
 : FAILED:
+^FAILED
 Failed .* tests, .*% okay, .* tests skipped.
 testsuite: .* failed
 Test .* from suite .* failed.
