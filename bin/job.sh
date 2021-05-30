@@ -872,6 +872,7 @@ function syncRepos()  {
       rm /tmp/backlog.upd
     fi
   fi
+  rm -f /var/tmp/tb/SYNC  # could be created by retest.sh
 }
 
 
@@ -917,7 +918,7 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
   current_time=$(date +%s)
-  if [[ $(((diff = $current_time - $last_sync))) -ge 3600 ]]; then
+  if [[ $(((diff = $current_time - $last_sync))) -ge 3600 || -f /var/tmp/tb/SYNC ]]; then
     echo "#sync repos" > $taskfile
     last_sync=$current_time
     syncRepos $diff
