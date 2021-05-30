@@ -280,3 +280,5 @@ Package .* was not found in the .* path.
 ld: i386 architecture of input file
 final link failed:
 ld returned .* exit status
+a: malformed archive
+rdlibtool: command not found

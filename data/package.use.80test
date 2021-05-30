@@ -2,11 +2,15 @@
 #
 
 # if FEATURES=test is set then these USE flags are needed to avoid a dep blocker at setup
-#
+
 media-gfx/imagemagick     corefonts
 media-libs/harfbuzz       icu
 media-libs/tiff           jpeg
+media-sound/pulseaudio    -equalizer
 net-nds/openldap          berkdb
-sys-libs/libseccomp       -python
 sys-apps/man-db           -nls
+sys-libs/libseccomp       -python
 x11-base/xorg-server      xvfb
+
+# or later, eg. in "perl-cleaner --all"
+*/*                       -jack

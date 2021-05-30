@@ -21,6 +21,7 @@ Failed tests:
 ^FAIL: .*
 ^Failure:
  FAIL .*
+: FAIL
  \*\*\*Failed
  \*\*\*Exception:
 : FAILED:
