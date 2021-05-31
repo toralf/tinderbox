@@ -23,10 +23,10 @@ function CgroupCreate() {
 
   cgcreate -g cpu,memory:$name
 
-  # limit each image to 105% of a cpu per -jX
+  # limit each image with -jX to X+0.1 cpus
   local x=$(tr '[\-_]' ' ' <<< $name | xargs -n 1 | grep "^j" | cut -c2-)
   local quota
-  ((quota=105000 * $x))
+  ((quota = 10000 + 100000 * $x))
   cgset -r cpu.cfs_quota_us=$quota          $name
   cgset -r memory.limit_in_bytes=30G        $name
   cgset -r memory.memsw.limit_in_bytes=40G  $name
@@ -103,8 +103,7 @@ if [[ -z "$mnt" ]]; then
 fi
 
 if [[ ! -d /run/tinderbox ]]; then
-  echo "please create /run/tinderbox before as user root!"
-  exit 5
+  mkdir /run/tinderbox
 fi
 
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
