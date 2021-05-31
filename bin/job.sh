@@ -727,7 +727,7 @@ function RunAndCheck() {
   filterPlainPext < $logfile > $logfile_stripped
   PostEmerge
 
-  if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
+  if grep -q -F ' -Og -g' /etc/portage/make.conf && [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
     mkdir -p /var/tmp/tb/core/$taskdirname
     mv /tmp/core.* /var/tmp/tb/core/$taskdirname
     Mail "INFO: keep core files in $taskdirname" "$(ls -lh /var/tmp/tb/core/$taskdirname/)"
