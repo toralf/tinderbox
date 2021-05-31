@@ -853,15 +853,13 @@ function SquashRebuildLoop() {
 
 
 function syncRepos()  {
-  local diff=$1
-
   if ! emaint sync --auto | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
     cd /var/db/repos/gentoo
-    ((diff = diff + 3660))
-    if [[ $diff -gt 7200 ]]; then
-      diff=7200
+    ((ago = diff + 3600))
+    if [[ $ago -gt 18000 ]]; then
+      ago=18000
     fi
-    git diff --diff-filter=ACM --name-status "@{ $diff second ago }".."@{ 60 minute ago }" |\
+    git diff --diff-filter=ACM --name-status "@{ $ago second ago }".."@{ 60 minute ago }" |\
     grep -F -e '/files/' -e '.ebuild' -e 'Manifest' | cut -f2- -s | cut -f1-2 -d'/' -s |
     grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
     uniq > /tmp/diff.upd
