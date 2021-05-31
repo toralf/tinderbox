@@ -38,23 +38,6 @@ function GetProfiles() {
 }
 
 
-function ThrowCflags()  {
-  cflags=""
-
-  # 685160 colon-in-CFLAGS
-  if __dice 1 12; then
-    cflags+=" -falign-functions=32:25:16"
-  fi
-
-  # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
-  if __dice 1 4; then
-    cflags+=" -Og -g"
-  else
-    cflags+=" -O2"
-  fi
-}
-
-
 # helper of main()
 # almost are variables here are globals
 function SetOptions() {
@@ -65,6 +48,12 @@ function SetOptions() {
   abi3264="n"
   if __dice 1 12; then
     abi3264="y"
+  fi
+
+  # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
+  debug="n"
+  if __dice 1 8; then
+    debug="y"
   fi
 
   # prefer a non-running profile plus not symlinked to ~/run
@@ -84,7 +73,12 @@ function SetOptions() {
   done < <(GetProfiles | shuf)
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
-  ThrowCflags
+  # 685160 colon-in-CFLAGS
+  cflags=""
+  if __dice 1 12; then
+    cflags+=" -falign-functions=32:25:16"
+  fi
+
   musl="n"
   randomuseflags="y"
   science="n"
@@ -111,10 +105,17 @@ function checkBool()  {
 # helper of main()
 function CheckOptions() {
   checkBool "abi3264"
+  checkBool "debug"
   checkBool "musl"
   checkBool "randomuseflags"
   checkBool "science"
   checkBool "testfeature"
+
+  if [[ $debug = "y" ]]; then
+    cflags+=" -Og -g"
+  else
+    cflags+=" -O2"
+  fi
 
   if [[ -z $profile ]]; then
     echo " profile empty!"
@@ -145,9 +146,9 @@ function CreateImageName()  {
   name="$(tr '/\-' '_' <<< $profile)"
   name+="-j${jobs}"
   [[ $abi3264 = "n" ]]      || name+="_abi32+64"
+  [[ $debug = "n" ]]        || name+="_debug"
   [[ $science = "n" ]]      || name+="_science"
   [[ $testfeature = "n" ]]  || name+="_test"
-  [[ $cflags =~ '-O2' ]]    || name+="_debug"
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
@@ -266,6 +267,15 @@ sync-type = git
 
 EOF
   fi
+
+  date
+  echo " clone repos ..."
+
+  cd ./$repodir
+                          git clone --quiet --depth 1 https://github.com/gentoo-mirror/gentoo.git
+  [[ $musl    = "n" ]] || git clone --quiet --depth 1 https://github.com/gentoo/musl.git
+  [[ $science = "n" ]] || git clone --quiet --depth 1 https://github.com/gentoo/sci.git
+  cd - 1>/dev/null
 }
 
 
@@ -688,25 +698,18 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 SetOptions
 
-while getopts a:c:j:m:p:r:s:t: opt
+while getopts a:c:d:j:m:p:r:s:t: opt
 do
   case $opt in
     a)  abi3264="$OPTARG"         ;;
     c)  cflags="$OPTARG"          ;;
+    d)  debug="$OPTARG"           ;;
     j)  jobs="$OPTARG"            ;;
     p)  profile="$OPTARG"         ;;
     r)  randomuseflags="$OPTARG"  ;;
     s)  science="$OPTARG"         ;;
     t)  testfeature="$OPTARG"     ;;
-    m)  musl="$OPTARG"
-        if [[ $musl = "y" ]]; then
-          cflags="$cflags_default"
-          randomuseflags="n"
-          profile="17.0/musl"
-          abi3264="n"
-          testfeature="n"
-        fi
-        ;;
+    m)  musl="$OPTARG"            ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 1
         ;;
@@ -721,11 +724,6 @@ CompilePortageFiles
 CompileMiscFiles
 CreateBacklog
 CreateSetupScript
-cd $repodir
-                        git clone --depth 1 https://github.com/gentoo-mirror/gentoo.git
-[[ $musl    = "n" ]] || git clone --depth 1 https://github.com/gentoo/musl.git
-[[ $science = "n" ]] || git clone --depth 1 https://github.com/gentoo/sci.git
-
 RunSetupScript
 
 echo
