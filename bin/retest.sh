@@ -35,7 +35,7 @@ done
 if [[ -s $result ]]; then
   for i in $(__list_images)
   do
-    touch /var/tmp/tb/SYNC  # force a repo sync
+    touch $i/var/tmp/tb/SYNC  # force a repo sync
 
     bl=$i/var/tmp/tb/backlog.1st
     # put shuffled data (grep out dups before) ahead of high prio backlog
