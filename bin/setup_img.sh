@@ -46,13 +46,13 @@ function SetOptions() {
 
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
-  if __dice 1 12; then
+  if __dice 1 24; then
     abi3264="y"
   fi
 
   # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
   debug="n"
-  if __dice 1 8; then
+  if __dice 1 12; then
     debug="y"
   fi
 
@@ -75,7 +75,7 @@ function SetOptions() {
   cflags_default="-pipe -march=native -fno-diagnostics-color"
   # 685160 colon-in-CFLAGS
   cflags=""
-  if __dice 1 12; then
+  if __dice 1 24; then
     cflags+=" -falign-functions=32:25:16"
   fi
 
@@ -84,7 +84,7 @@ function SetOptions() {
   science="n"
 
   testfeature="n"
-  if __dice 1 12; then
+  if __dice 1 24; then
     testfeature="y"
   fi
 }
@@ -324,7 +324,7 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-if __dice 1 4; then
+if __dice 1 6; then
   cat <<EOF >> ./etc/portage/make.conf
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
@@ -422,7 +422,7 @@ EOF
   fi
 
   # give Firefox, Thunderbird et al. a chance
-  if __dice 1 8; then
+  if __dice 1 12; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
 
@@ -482,7 +482,7 @@ function CreateBacklog()  {
   chown tinderbox:portage $bl{,.1st,.upd}
 
   # requested by Whissi, its an alternative mysql engine
-  if __dice 1 8; then
+  if __dice 1 12; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
