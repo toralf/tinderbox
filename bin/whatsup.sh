@@ -162,7 +162,6 @@ function Tasks()  {
 
 # whatsup.sh -l
 #
-# 17.1_desktop-20210102
 # 17.1_desktop_plasma_s  0:02 m  >>> AUTOCLEAN: media-sound/toolame:0
 # 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation()  {
@@ -220,21 +219,21 @@ function PackagesPerImagePerRunDay() {
 
       my $epoch_time = $F[0];
       $start_time = $epoch_time unless ($start_time);
+
       next unless (m/::: completed emerge/);
 
-      my $rundays = int(($epoch_time - $start_time) / 86400); # runtime days, starts with "0" (zero)
-      $packages[$rundays]++;  # increment # of packages of this rundays
+      my $rundays = int(($epoch_time - $start_time) / 86400);
+      $packages[$rundays]++;
 
       END {
         $packages[$rundays] += 0;
         foreach my $rundays (0..$#packages) {
-          # separate runweeks by an extra space
-          printf "." if ($rundays && $rundays % 7 == 0);
-          (exists $packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
+          printf "." if ($rundays > 5 && $rundays % 7 == 0);    # dot between 2 week
+          ($packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
         }
         print "\n";
       }
-    ' ~tinderbox/img/$i/var/log/emerge.log
+    ' ~tinderbox/run/$i/var/log/emerge.log
   done
 }
 
@@ -244,32 +243,27 @@ function PackagesPerImagePerRunDay() {
 # coverage
 # 3486 4787 2822 1763 1322 802 524 128
 function RepoCoverage() {
-  printf "%s %38s " "~amd64" "coverage"
+  printf "coverage"
   perl -wane '
     BEGIN {
-      @packages   = ();   # helds the amount of unique emerged packages per runday
-      $start_time = 0;    # of emerge.log
-      %unique     = ();   # only count the 1st occurrence
+      @coverage   = ();   # helds the amount of unseen packages per runday
+      $start_time = 0;    # of all images
+      %seen       = ();
     }
 
     my $epoch_time = $F[0];
     my $pkg = $F[6];
 
     $start_time = $epoch_time unless ($start_time);
-    my $rundays = int(($epoch_time - $start_time) / 86400); # runtime days, starts with "0" (zero)
+    my $rundays = int(($epoch_time - $start_time) / 86400);
 
-    $packages[$rundays]++ unless ($unique{$pkg}++);
+    # strip of the version would be more precise but it is not worth here
+    $coverage[$rundays]++ unless ($seen{$pkg}++);
 
     END {
-      $packages[$rundays] += 0;
-      foreach my $rundays (0..$#packages) {
-        if (exists $packages[$rundays]) {
-          printf ("%5i", $packages[$rundays]);
-        } else  {
-          print "    0";
-        }
+      foreach my $rundays (0..$#coverage) {
+        ($coverage[$rundays]) ? printf "%5i", $coverage[$rundays] : print "    0";
       }
-      print "\n";
     }
   ' < <(grep -h '::: completed emerge' ~tinderbox/run/*/var/log/emerge.log | tr -d ':' | sort)
 }
@@ -297,30 +291,25 @@ function CountEmergesPerPackages()  {
       }
 
       my $total = 0;    # total amount of emerge operations
-      my $unique = 0;   # packages
+      my $seen = 0;   # packages
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};
-        $unique += $value;
+        $seen += $value;
         $total += $key * $value;
         print $value, "x", $key, " ";
       }
 
-      print "\n\nemerges: $total   ($unique unique packages)\n";
+      print "\n\nemerges: $total   ($seen seen packages)\n";
     }
   ' ~tinderbox/run/*/var/log/emerge.log
 }
 
 
 # whatsup.sh -e
+# yyyy-mm-dd   sum   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
 #
-# 2021.04.10      3551
-# 2021.04.11      16540
-# 2021.04.12      14296
-# 2021.04.13      12605
-# 2021.04.14      10796
-# 2021.04.15      7372
-# 2021.04.16      9557
-# 2021.04.17      5542
+# 2021-04-31    15   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  15   0   0   0
+# 2021-05-01  2790  28  87  91  41   4  13   0   1  15  29  78  35  62  46  75   9   0 193 104 234 490 508 459 188
 function emergeThruput()  {
   perl -F: -wane '
     BEGIN {
