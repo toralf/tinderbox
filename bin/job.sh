@@ -853,7 +853,7 @@ function SquashRebuildLoop() {
 
 
 function syncRepos()  {
-  if ! emaint sync --auto | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
+  if ! emaint sync --auto 2>> $logfile | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
     cd /var/db/repos/gentoo
     ((ago = diff + 3600))
     if [[ $ago -gt 18000 ]]; then
