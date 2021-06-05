@@ -28,8 +28,8 @@ function CgroupCreate() {
   local quota
   ((quota = 10000 + 100000 * $x))
   cgset -r cpu.cfs_quota_us=$quota          $name
-  cgset -r memory.limit_in_bytes=30G        $name
-  cgset -r memory.memsw.limit_in_bytes=40G  $name
+  cgset -r memory.limit_in_bytes=40G        $name
+  cgset -r memory.memsw.limit_in_bytes=70G  $name
 
   for i in cpu memory
   do
