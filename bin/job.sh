@@ -82,8 +82,8 @@ function setTaskAndBacklog()  {
     Finish 0 "empty backlogs, $(qlist -Iv | wc -l) packages installed"
   fi
 
-  # copy content of the last line into $task and then delete that line
-  task=$(tail -n 1 $backlog)
+  # take content of the last line of chosen backlog and delete that line
+  task=$(tail -n 1 $backlog | stripQuotesAndMore | filterPlainPext)
   sed -i -e '$d' $backlog
 }
 
@@ -753,9 +753,9 @@ function RunAndCheck() {
     PutDepsIntoWorldFile
     let signal="$rc - 128"
     if [[ $signal -eq 9 ]]; then
-      Finish 0 "catched signal $signal - exiting"
+      Finish 0 "catched signal $signal - exiting, task=$task"
     else
-      Mail "INFO: emerge stopped by signal $signal" $logfile_stripped
+      Mail "INFO: emerge stopped by signal $signal, task=$task" $logfile_stripped
     fi
   fi
 
@@ -853,13 +853,18 @@ function SquashRebuildLoop() {
 
 
 function syncRepos()  {
-  if ! emaint sync --auto 2>> $logfile | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
-    cd /var/db/repos/gentoo
+  local diff=$1
+  local ago
+
+  if ! emaint sync --auto 1>/dev/null | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
+    # limit to 5 hours
     ((ago = diff + 3600))
     if [[ $ago -gt 18000 ]]; then
       ago=18000
     fi
-    git diff --diff-filter=ACM --name-status "@{ $ago second ago }".."@{ 60 minute ago }" |\
+
+    cd /var/db/repos/gentoo
+    git diff --diff-filter=ACM --name-status "@{ $ago second ago }".."@{ 60 minute ago }" 2>/dev/null |\
     grep -F -e '/files/' -e '.ebuild' -e 'Manifest' | cut -f2- -s | cut -f1-2 -d'/' -s |
     grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
     uniq > /tmp/diff.upd
