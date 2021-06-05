@@ -40,7 +40,7 @@ function SearchForMatchingBugs() {
         sort -u -n -r | head -n 3 | tee $tmpfile
     if [[ -s $tmpfile ]]; then
       found_issues=2
-      echo -e " \n^DUPLICATE"
+      echo -e " \n^^ DUPLICATE"
       return
     fi
 
