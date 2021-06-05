@@ -28,7 +28,7 @@ function ThrowUseFlags() {
 }
 
 
-# helper of SetOptions()
+# helper of InitOptions()
 function GetProfiles() {
   eselect profile list |\
   awk ' { print $2 } ' |\
@@ -40,7 +40,7 @@ function GetProfiles() {
 
 # helper of main()
 # almost are variables here are globals
-function SetOptions() {
+function InitOptions() {
   # 1 process in N running images >= *up to* N running processes in 1 image
   jobs=1
 
@@ -48,12 +48,6 @@ function SetOptions() {
   abi3264="n"
   if __dice 1 24; then
     abi3264="y"
-  fi
-
-  # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
-  debug="n"
-  if __dice 1 12; then
-    debug="y"
   fi
 
   # prefer a non-running profile plus not symlinked to ~/run
@@ -72,12 +66,22 @@ function SetOptions() {
     fi
   done < <(GetProfiles | shuf)
 
-  cflags_default="-pipe -march=native -fno-diagnostics-color"
-  # 685160 colon-in-CFLAGS
-  cflags=""
-  if __dice 1 24; then
-    cflags+=" -falign-functions=32:25:16"
+  default_cflags="-pipe -march=native -fno-diagnostics-color"
+
+  # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
+  if __dice 1 12; then
+    additional_cflags+="-Og -g"
+  else
+    additional_cflags+="-O2"
   fi
+
+  # 685160 colon-in-CFLAGS
+  additional_cflags=""
+  if __dice 1 24; then
+    additional_cflags+=" -falign-functions=32:25:16"
+  fi
+
+  cflags="$default_cflags $additional_cflags"
 
   musl="n"
   randomuseflags="y"
@@ -110,12 +114,6 @@ function CheckOptions() {
   checkBool "randomuseflags"
   checkBool "science"
   checkBool "testfeature"
-
-  if [[ $debug = "y" ]]; then
-    cflags+=" -Og -g"
-  else
-    cflags+=" -O2"
-  fi
 
   if [[ -z $profile ]]; then
     echo " profile empty!"
@@ -285,10 +283,10 @@ function CompileMakeConf()  {
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
 
-CFLAGS="$cflags_default $cflags"
+CFLAGS="$default_cflags $additional_cflags"
 CXXFLAGS="\${CFLAGS}"
 
-FCFLAGS="$cflags_default"
+FCFLAGS="$default_cflags"
 FFLAGS="\${FCFLAGS}"
 
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
@@ -379,8 +377,8 @@ function CompilePortageFiles()  {
   echo 'FEATURES="-sandbox -usersandbox"' > ./etc/portage/env/nosandbox
 
   # retry with sane defaults
-  cat <<EOF                               > ./etc/portage/env/cflags_default
-CFLAGS="$cflags_default"
+  cat <<EOF                               > ./etc/portage/env/default_cflags
+CFLAGS="$default_cflags"
 CXXFLAGS="\${CFLAGS}"
 
 FCFLAGS="\${CFLAGS}"
@@ -543,7 +541,7 @@ env-update
 set +u; source /etc/profile; set -u
 
 date
-echo "#setup sync" | tee /var/tmp/tb/task
+echo "#setup git" | tee /var/tmp/tb/task
 emerge -u -O dev-vcs/git
 emaint sync --auto 1>/dev/null
 
@@ -696,14 +694,13 @@ repodir=/var/db/repos
 tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
 
-SetOptions
+InitOptions
 
-while getopts a:c:d:j:m:p:r:s:t: opt
+while getopts a:c:j:m:p:r:s:t: opt
 do
   case $opt in
     a)  abi3264="$OPTARG"         ;;
     c)  cflags="$OPTARG"          ;;
-    d)  debug="$OPTARG"           ;;
     j)  jobs="$OPTARG"            ;;
     p)  profile="$OPTARG"         ;;
     r)  randomuseflags="$OPTARG"  ;;
