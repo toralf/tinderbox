@@ -98,7 +98,7 @@ Maybe create this crontab entries for user *tinderbox*:
 * * * * * /opt/tb/bin/logcheck.sh
 
 # replace an image
-@hourly   l=/tmp/replace_img.sh.log.$$ && /opt/tb/bin/replace_img.sh -s '-j3' &>$l; cat $l; rm $l
+@hourly   /opt/tb/bin/replace_img.sh
 
 # house keeping
 @daily    /opt/tb/bin/house_keeping.sh
