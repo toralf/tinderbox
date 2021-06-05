@@ -94,12 +94,14 @@ Maybe create this crontab entries for user *tinderbox*:
 ```bash
 # crontab of tinderbox
 #
-@reboot sudo /opt/tb/bin/cgroup.sh; /opt/tb/bin/start_img.sh
-
+@reboot   rm ~/run/*/var/tmp/tb/STOP; /opt/tb/bin/start_img.sh
 * * * * * /opt/tb/bin/logcheck.sh
 
 # replace an image
-@hourly l=/tmp/replace_img.sh.log.$$ && /opt/tb/bin/replace_img.sh -s '-j3' &>$l; cat $l; rm $l
+@hourly   l=/tmp/replace_img.sh.log.$$ && /opt/tb/bin/replace_img.sh -s '-j3' &>$l; cat $l; rm $l
+
+# house keeping
+@daily    /opt/tb/bin/house_keeping.sh
 ```
 Watch the mailbox for cron outputs.
 
