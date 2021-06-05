@@ -41,8 +41,10 @@ function GetProfiles() {
 # helper of main()
 # almost are variables here are globals
 function InitOptions() {
-  # 1 process in N running images >= *up to* N running processes in 1 image
-  jobs=1
+  # 1 process in N running images rules over *up to* N running processes in 1 image
+  # furhermore -j1 makes it easier to manage resource management -but-
+  # the compile times are awefully
+  jobs=3
 
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
