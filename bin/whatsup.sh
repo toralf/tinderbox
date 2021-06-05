@@ -207,7 +207,7 @@ function LastEmergeOperation()  {
 function PackagesPerImagePerRunDay() {
   printf "%45s %s\n" " " "   1    2    3    4    5    6    7.    8    9   10   11   12   13"
 
-  for i in $(ls ~tinderbox/run/ | sort -t '-' -k 3)
+  for i in $(ls ~tinderbox/run/ | sort -t '-' -k 3,4)
   do
     PrintImageName $i 45
 
