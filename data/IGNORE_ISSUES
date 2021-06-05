@@ -1,3 +1,4 @@
+ requires kernel .* or greater.
 asciidoctor
 both portaudio and jack are enabled, disable one
 but please install the FUSE libraries and headers to build this module
@@ -9,6 +10,7 @@ code model kernel not supported in the 32 bit mode
  \*   atlas needs all cpu set to performance
 CONFIG_SYSFS_DEPRECATED_V2 support detected!
 configure: error: Linux kernel in .* is version .*, but version newer than .* is not supported
+Could not find Objective-C runtime
 Couldn't find .* to unmerge.
 dev-python/pypy.* needs to be installed for USE=low-memory
 error: format not a string literal and no format arguments
@@ -52,7 +54,7 @@ Sorry, but you have to patch kernel sources with the following patch
 Space constraints set in the ebuild were not met
 SYSVIPC not enabled in the kernel
 The HyperSpec cannot be redistributed.
- requires kernel .* or greater.
+The Objective-C compiler does not work o
 The version of your compiler is not supported at this time
 Tried to use too new gcc.
 Unsupported kernel version

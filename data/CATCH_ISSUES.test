@@ -120,3 +120,4 @@ Errors while running CTest
 make:.* test
 can't load package:
 : cannot find package
+ command not found

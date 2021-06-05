@@ -282,3 +282,4 @@ final link failed:
 ld returned .* exit status
 a: malformed archive
 rdlibtool: command not found
+cp: cannot create regular file
