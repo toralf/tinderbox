@@ -82,10 +82,16 @@ do
             exit 2
           fi
 
-          if [[ ! -e "$OPTARG" || ! $(stat -c '%u' "$OPTARG") = "0" ]]; then
+          if [[ ! -e "$OPTARG" ]]; then
             echo "no valid mount point found"
             exit 2
           fi
+
+          if [[ ! $(stat -c '%u' "$OPTARG") = "0" ]]; then
+            echo "wrong ownership of mount point"
+            exit 2
+          fi
+
           mnt=$OPTARG
           ;;
     s)    if [[ ! -s "$OPTARG" ]]; then
