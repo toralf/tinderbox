@@ -82,8 +82,8 @@ function setTaskAndBacklog()  {
     Finish 0 "empty backlogs, $(qlist -Iv | wc -l) packages installed"
   fi
 
-  # take content of the last line of chosen backlog and delete that line
-  task=$(tail -n 1 $backlog | stripQuotesAndMore | filterPlainPext)
+  # move last line of chosen backlog into $task
+  task=$(tail -n 1 $backlog)
   sed -i -e '$d' $backlog
 }
 
