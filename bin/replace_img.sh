@@ -204,7 +204,7 @@ echo
 date
 echo " setup a new image ..."
 
-if sudo ${0%/*}/setup_img.sh $setupargs; then
+if nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs; then
   if [[ -e ~/run/$oldimg ]]; then
     rm -- ~/run/$oldimg ~/logs/$oldimg.log
   fi
