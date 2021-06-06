@@ -711,6 +711,10 @@ function PostEmerge() {
       add2backlog "%eselect ruby set $latest"
     fi
   fi
+
+  if grep -q -F 'Please run emaint --check world' $logfile_stripped; then
+    add2backlog "%emaint --check world"
+  fi
 }
 
 
