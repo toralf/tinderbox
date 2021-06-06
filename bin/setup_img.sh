@@ -271,11 +271,14 @@ EOF
   date
   echo " clone repos ..."
 
+  # rsync is much faster than git clone
   cd ./$repodir
-                          git clone --quiet --depth 1 https://github.com/gentoo-mirror/gentoo.git
-  [[ $musl    = "n" ]] || git clone --quiet --depth 1 https://github.com/gentoo/musl.git
-  [[ $science = "n" ]] || git clone --quiet --depth 1 https://github.com/gentoo/sci.git
-  cd - 1>/dev/null
+  rsync --archive --quiet /var/db/repos/gentoo ./
+  cd ./gentoo
+  git pull
+  cd ..
+  [[ $musl    = "n" ]] || git clone --quiet https://github.com/gentoo/musl.git
+  [[ $science = "n" ]] || git clone --quiet https://github.com/gentoo/sci.git
 }
 
 
