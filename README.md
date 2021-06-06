@@ -3,8 +3,7 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 
 **side note**:
 I started with 2-3 dozen lines of one or two shell scripts.
-Unfortunately I missed the point of no return when I added additional 2-3 KLOC.
-Whilst it works and will be maintained I do not plan to add additional functionality to it.
+Unfortunately I missed the point of no return when I added additional 2 KLOC to switch to a more appropriate language like Python.
 
 ## usage
 ### create a new image
@@ -32,6 +31,7 @@ Without any arguments all symlinks in *~/run* are processed.
 ```bash
 stop_img.sh <image>
 ```
+
 A marker file */var/tmp/tb/STOP* is created in that image.
 The current emerge operation will be finished before *job.sh* removes the marker file and exits.
 
@@ -40,6 +40,7 @@ The current emerge operation will be finished before *job.sh* removes the marker
 ```bash
 sudo /opt/tb/bin/bwrap.sh -m <mount point>
 ```
+
 This uses bubblewrap (a better chroot, see https://github.com/containers/bubblewrap).
 
 ### removal of an image
@@ -50,12 +51,16 @@ The image itself will stay in its data dir till that is cleanud up.
 ### status of all images
 
 ```bash
-whatsup.sh -otlpc
+whatsup.sh -crpe
+watch whatsup.sh -otl
 ```
+
 ### report findings
 
-New findings are send via email to the user specified in the variable *mailto*.
-Bugs are be filed using *bgo.sh*. A copy+paste ready command line is included in the bug email.
+The file *tb/data/ALREADY_FILED* holds reported findings.
+A new finding is send via email to the user specified by the variable *MAILTO*.
+The Gentoo bugzilla can be searched by *check_bgo.sh* for dups/similarities.
+A finding can be filed using *bgo.sh*.
 
 ## installation
 Create the user *tinderbox*:
@@ -64,6 +69,7 @@ Create the user *tinderbox*:
 useradd -m tinderbox
 usermod -a -G portage tinderbox
 ```
+
 Run as *root*:
 
 ```bash
@@ -86,10 +92,10 @@ Edit the credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, 
 Grant sudo rights to the user *tinderbox*:
 
 ```bash
-tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/cgroup.sh
+tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh
 ```
 
-Maybe create this crontab entries for user *tinderbox*:
+Create these crontab entries for user *tinderbox*:
 
 ```bash
 # crontab of tinderbox
@@ -103,6 +109,13 @@ Maybe create this crontab entries for user *tinderbox*:
 # house keeping
 @daily    /opt/tb/bin/house_keeping.sh
 ```
+
+and this as *root*:
+
+```bash
+@reboot   /opt/tb/bin/cgroup.sh
+```
+
 Watch the mailbox for cron outputs.
 
 ## link(s)
