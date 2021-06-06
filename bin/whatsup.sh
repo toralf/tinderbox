@@ -321,6 +321,7 @@ function emergeThruput()  {
       my $epoch_time = $F[0];
       my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($epoch_time);
       $year += 1900;
+      $mon += 1;
       $mon = "0" . $mon if ($mon < 10);
       $mday = "0" . $mday if ($mday < 10);
 
