@@ -69,7 +69,7 @@ function setTaskAndBacklog()  {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     backlog=/var/tmp/tb/backlog.1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 3)) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 2)) -eq 0 ]]; then
     backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
