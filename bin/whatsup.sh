@@ -207,7 +207,7 @@ function LastEmergeOperation()  {
 function PackagesPerImagePerRunDay() {
   printf "%45s %s\n" " " "   1    2    3    4    5    6    7.    8    9   10   11   12   13"
 
-  for i in $(ls ~tinderbox/run/ | sort -t '-' -k 3,4)
+  for i in $(ls ~/run/ | sort -t '-' -k 3,4)
   do
     PrintImageName $i 45
 
@@ -233,7 +233,7 @@ function PackagesPerImagePerRunDay() {
         }
         print "\n";
       }
-    ' ~tinderbox/run/$i/var/log/emerge.log
+    ' ~/run/$i/var/log/emerge.log
   done
 }
 
@@ -265,7 +265,7 @@ function RepoCoverage() {
         ($coverage[$rundays]) ? printf "%5i", $coverage[$rundays] : print "    0";
       }
     }
-  ' < <(grep -h '::: completed emerge' ~tinderbox/run/*/var/log/emerge.log | tr -d ':' | sort)
+  ' < <(grep -h '::: completed emerge' ~/run/*/var/log/emerge.log | tr -d ':' | sort)
 }
 
 
@@ -301,7 +301,7 @@ function CountEmergesPerPackages()  {
 
       print "\n\nemerges: $total   ($seen seen packages)\n";
     }
-  ' ~tinderbox/run/*/var/log/emerge.log
+  ' ~/run/*/var/log/emerge.log
 }
 
 
@@ -342,7 +342,7 @@ function emergeThruput()  {
         print "\n";
       }
     }
-  ' ~tinderbox/run/*/var/log/emerge.log
+  ' ~/run/*/var/log/emerge.log
 }
 
 

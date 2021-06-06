@@ -5,7 +5,7 @@
 
 
 function Finish() {
-  local rc=$1
+  local rc=${1:-$?}
   local pid=$$
 
   if [[ $rc -ne 0 ]]; then

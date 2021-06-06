@@ -111,7 +111,6 @@ function checkBool()  {
 # helper of main()
 function CheckOptions() {
   checkBool "abi3264"
-  checkBool "debug"
   checkBool "musl"
   checkBool "randomuseflags"
   checkBool "science"
@@ -146,7 +145,6 @@ function CreateImageName()  {
   name="$(tr '/\-' '_' <<< $profile)"
   name+="-j${jobs}"
   [[ $abi3264 = "n" ]]      || name+="_abi32+64"
-  [[ $debug = "n" ]]        || name+="_debug"
   [[ $science = "n" ]]      || name+="_science"
   [[ $testfeature = "n" ]]  || name+="_test"
   name+="-$(date +%Y%m%d-%H%M%S)"
@@ -219,6 +217,8 @@ function UnpackStage3()  {
 
 # configure image repositories
 function CompileRepoFiles()  {
+  cd $mnt
+
   mkdir -p ./etc/portage/repos.conf/
 
   cat << EOF >> ./etc/portage/repos.conf/all.conf
@@ -284,6 +284,8 @@ EOF
 
 # compile make.conf
 function CompileMakeConf()  {
+  cd $mnt
+
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
@@ -355,6 +357,8 @@ function cpconf() {
 
 # create portage and tinderbox related directories + files
 function CompilePortageFiles()  {
+  cd $mnt
+
   mkdir -p ./mnt/{repos,tb/data} ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
 
   chgrp portage ./var/tmp/tb
@@ -446,6 +450,8 @@ EOF
 
 
 function CompileMiscFiles()  {
+  cd $mnt
+
   # use local host DNS resolver
   cat << EOF > ./etc/resolv.conf
 domain localdomain
@@ -479,6 +485,8 @@ EOF
 # /var/tmp/tb/backlog.upd : updated      by update_backlog.sh
 function CreateBacklog()  {
   local bl=./var/tmp/tb/backlog
+
+  cd $mnt
 
   touch                   $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
@@ -516,6 +524,8 @@ EOF
 # - install and configure tools used in job.sh
 # - fill backlog
 function CreateSetupScript()  {
+  cd $mnt
+
   cat << EOF > ./var/tmp/tb/setup.sh || exit 1
 #!/bin/sh
 # set -x
@@ -585,67 +595,64 @@ EOF
 function RunSetupScript() {
   date
   echo " run setup script ..."
+
   cd ~tinderbox/
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > $mnt/var/tmp/tb/setup_wrapper.sh
 
-  if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s "$mnt/var/tmp/tb/setup_wrapper.sh"; then
-    local rc=1
-    echo -e "$(date)\n setup was NOT successful (rc=$rc) @ $mnt\n"
-    tail -v -n 200 $mnt/var/tmp/tb/setup.sh.log
+  if ! nice -n 1 ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
+    echo -e "$(date)\n $FUNCNAME was NOT successful @ $mnt\n"
+    tail -v -n 100 $mnt/var/tmp/tb/setup.sh.log
     echo
-    return $rc
+    return 1
   fi
 }
 
 
-# the USE flags must do neither yield to circular nor to non-resolvable dependencies for the very first @world
 function DryRun() {
   if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
-    local rc=1
-    echo -e "$(date)\n dry run was NOT successful (rc=$rc).\n"
-    return $rc
+    echo -e "$(date)\n $FUNCNAME was NOT successful\n"
+    return 1
   fi
 }
 
 
-function PrintUseFlags() {
+function FormatUseFlags() {
   xargs -s 73 | sed -e '/^$/d' | sed -e "s,^,*/*  ,g"
 }
 
-# varying USE flags till very first @world would not complain at start
-function DryRunWithRandomUseFlags() {
-  local attempt=0
-  local max_attempts=99
 
-  while :
+# varying USE flags till dry run of @world would succeed
+function DryRunWithRandomUseFlags() {
+  cd $mnt
+
+  for attempt in $(seq -w 1 99)
   do
     echo
-
-    ((attempt=attempt+1))
     date
-    echo "dryrun $attempt#$max_attempts ==========================================================="
+    echo "dryrun $attempt ==========================================================="
     echo
-    echo "#setup dryrun $attempt#$max_attempts" > $mnt/var/tmp/tb/task
+
+    echo "#setup dryrun $attempt" > .//var/tmp/tb/task
 
     grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
     cut -f1 -d' ' -s |\
     shuf -n $(($RANDOM % 15)) |\
     sort |\
     xargs |\
-    xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > $mnt/etc/portage/package.use/21thrown_l10n_from_profile
+    xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > ./etc/portage/package.use/21thrown_l10n_from_profile
 
     grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
     cut -f1 -d' ' -s |\
     IgnoreUseFlags |\
     ThrowUseFlags 150 |\
-    PrintUseFlags > $mnt/etc/portage/package.use/22thrown_global_use_flags_from_profile
+    FormatUseFlags > ./etc/portage/package.use/22thrown_global_use_flags_from_profile
 
     grep -h 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
     cut -f2 -d'"' -s |\
     sort -u |\
     IgnoreUseFlags |\
     ThrowUseFlags 150 |\
-    PrintUseFlags > $mnt/etc/portage/package.use/23thrown_global_use_flags_from_metadata
+    FormatUseFlags > ./etc/portage/package.use/23thrown_global_use_flags_from_metadata
 
     grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
     shuf -n $(($RANDOM % 900)) |\
@@ -659,16 +666,14 @@ function DryRunWithRandomUseFlags() {
       ThrowUseFlags 12 |\
       xargs |\
       xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
-    done > $mnt/etc/portage/package.use/24thrown_package_use_flags
+    done > ./etc/portage/package.use/24thrown_package_use_flags
 
-    DryRun && break
-
-    if [[ $attempt -ge $max_attempts ]]; then
-      echo -e "\n$(date)\ndidn't make it after attempts, giving up\n"
-      exit 2
-    fi
-
+    DryRun &> ./var/tmp/tb/dryrun.$attempt.log && return
   done
+
+  echo -e "\n$(date)\ndidn't make it after $attempt attempts, giving up\n"
+  truncate -s 0 ./var/tmp/tb/task
+  exit 2
 }
 
 
@@ -681,14 +686,14 @@ export LANG=C.utf8
 
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
-date
-echo " $0 started"
-echo
-
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
   exit 1
 fi
+
+date
+echo " $0 started"
+echo
 
 source $(dirname $0)/lib.sh
 
@@ -729,7 +734,7 @@ CreateSetupScript
 RunSetupScript
 
 echo
-echo 'emerge --update --changed-use --backtrack=30 --pretend --deep @world &> /var/tmp/tb/dryrun.log' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+echo 'emerge --update --changed-use --backtrack=30 --pretend --deep @world' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 if [[ $randomuseflags = "y" ]]; then
   DryRunWithRandomUseFlags
 else

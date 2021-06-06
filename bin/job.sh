@@ -575,7 +575,7 @@ function GotAnIssue()  {
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       # no simple cat due to buffered output
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
-      echo -e "\n\n    check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
+      echo -e "\n\n    check_bgo.sh ~/img/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
       Mail "$(cat $issuedir/title)" $issuedir/body
       touch $issuedir/.unchecked
@@ -767,7 +767,7 @@ function RunAndCheck() {
 }
 
 
-# this function is the heart of the tinderbox
+# this is the heart of the tinderbox
 function WorkOnTask() {
   try_again=0           # "1" means to retry same task, but with changed/reset USE/ENV/FEATURE/CFLAGS
   unset pkgname pkglog pkglog_stripped

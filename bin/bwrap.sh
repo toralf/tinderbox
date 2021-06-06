@@ -40,7 +40,7 @@ function CgroupCreate() {
 
 
 function Cleanup()  {
-  local rc=$?
+  local rc=${1:-$?}
 
   rmdir "$lock_dir"
 

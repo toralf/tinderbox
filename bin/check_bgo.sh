@@ -108,7 +108,7 @@ function LookupForABlocker() {
       fi
       break
     fi
-  done < <(grep -v -e '^#' -e '^$' ~tinderbox/tb/data/BLOCKER)
+  done < <(grep -v -e '^#' -e '^$' ~/tb/data/BLOCKER)
 }
 
 

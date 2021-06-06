@@ -4,7 +4,7 @@
 # create or modify a bug report at http://bugzilla.gentoo.org
 
 function Warn() {
-  local rc=$1
+  local rc=${1:-$?}
 
   echo "
   *
