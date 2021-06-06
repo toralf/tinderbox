@@ -24,16 +24,10 @@ source $(dirname $0)/lib.sh
 for i in ${@:-$(ls ~/run 2>/dev/null)}
 do
   echo -n "$(date +%X) "
+  mnt=~/img/$(basename $i)
 
-  mnt="$(ls -d ~tinderbox/img/${i##*/} 2>/dev/null || true)"
-
-  if [[ -z "$mnt" || ! -d "$mnt" || ! -e "$mnt" || $(stat -c '%u' "$mnt") -ne 0 ]]; then
-    echo "no valid mount point found for $i"
-    continue
-  fi
-
-  if [[ "$mnt" =~ ".." || "$mnt" =~ "//" || "$mnt" =~ [[:space:]] || "$mnt" =~ '\' ]]; then
-    echo "illegal character(s) in mount point $mnt"
+  if [[ ! -d $mnt ]]; then
+    echo "no valid mount point found for $mnt"
     continue
   fi
 
