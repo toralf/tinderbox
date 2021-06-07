@@ -584,22 +584,6 @@ function GotAnIssue()  {
 }
 
 
-# helper of PostEmerge()
-function BuildKernel()  {
-  echo "$FUNCNAME" >> $logfile
-  (
-    set -e
-    cd /usr/src/linux
-    make distclean
-    make defconfig
-    make $(grep "^MAKEOPTS=" /etc/portage/env/jobs | cut -f2 -d'"' -s)
-    make modules_install
-    make install
-  ) &>> $logfile
-  return $?
-}
-
-
 function source_profile(){
   local old_setting=${-//[^u]/}
   set +u
@@ -658,19 +642,6 @@ function PostEmerge() {
 
   if grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $logfile_stripped; then
     add2backlog "%haskell-updater"
-  fi
-
-  if grep -q ">>> Installing .* sys-kernel/gentoo-sources" $logfile_stripped; then
-    current=$(eselect kernel show 2>/dev/null | grep "gentoo" | cut -f4 -d'/' -s)
-    # compile the Gentoo kernel (but only the very first one, ignore any updates)
-    if [[ -z "$current_time" ]]; then
-      latest=$(eselect kernel list | grep "gentoo" | tail -n 1 | awk ' { print $2 } ')
-      add2backlog "%eselect kernel set $latest"
-    fi
-
-    if [[ ! -f /usr/src/linux/.config ]]; then
-      add2backlog "%BuildKernel"
-    fi
   fi
 
   if grep -q -e ">>> Installing .* dev-lang/perl-[1-9]" -e 'Use: perl-cleaner' $logfile_stripped; then
@@ -812,7 +783,7 @@ function WorkOnTask() {
           elif grep -q ' Invalid resume list:' $logfile_stripped; then
             add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
           fi
-        elif [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" && ! $task =~ "BuildKernel" ]]; then
+        elif [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" ]]; then
           Finish 3 "command: '$cmd'"
         fi
       fi
