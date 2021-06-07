@@ -190,7 +190,7 @@ function LastEmergeOperation()  {
       } else  {
         $hours = $delta / 60 / 60;
         $minutes = $delta / 60 % 60;
-        # note long runtimes
+        # mark long runtimes
         printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 9000 ? " " : "!");
       }
       print join (" ", @F[1..$#F]);
@@ -316,6 +316,11 @@ function CountEmergesPerPackages()  {
 # 2021-04-31    15   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  15   0   0   0
 # 2021-05-01  2790  28  87  91  41   4  13   0   1  15  29  78  35  62  46  75   9   0 193 104 234 490 508 459 188
 function emergeThruput()  {
+  perl -we '
+      print "yyyy-mm-dd   sum";
+      foreach my $i (0..23) { printf("%4i", $i) }
+      print "\n\n";
+      '
   perl -F: -wane '
     BEGIN {
       my %Day = ();
@@ -336,19 +341,15 @@ function emergeThruput()  {
     }
 
     END {
-      print "yyyy-mm-dd   sum";
-      foreach my $i (0..23) { printf("%4i", $i) }
-      print "\n\n";
       for my $key (sort { $a cmp $b } keys %Day)  {
         printf("%s %5i", $key, $Day{$key}->{"day"});
         foreach my $hour(0..23) {
-
           printf("%4i", $Day{$key}->{$hour} ? $Day{$key}->{$hour} : 0);
         }
         print "\n";
       }
     }
-  ' ~/img/*/var/log/emerge.log |\
+  '  $(ls -d ~/img/*/var/log/emerge.log | sort -t '-' -k 3,4  | tail -n 40) |\
   tail -n 14
 }
 
