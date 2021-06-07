@@ -26,8 +26,10 @@ hostname
 ithreads
 kill
 libav
+libunwind
 linguas
 livecd
+llvm-libunwind
 lto
 make-symlinks
 malloc
