@@ -261,11 +261,16 @@ function RepoCoverage() {
     $coverage[$rundays]++ unless ($seen{$pkg}++);
 
     END {
+      my $sum = 0;
       foreach my $rundays (0..$#coverage) {
-        ($coverage[$rundays]) ? printf "%5i", $coverage[$rundays] : print "    0";
+        my $val = $coverage[$rundays] ?  $coverage[$rundays] : 0;
+        $sum += $val;
+        printf "%5i", $val;
       }
+      print "\ncumulated $sum\n";
     }
   ' < <(grep -h '::: completed emerge' ~/run/*/var/log/emerge.log | tr -d ':' | sort)
+  echo
 }
 
 
@@ -299,7 +304,7 @@ function CountEmergesPerPackages()  {
         print $value, "x", $key, " ";
       }
 
-      print "\n\nemerges: $total   ($seen seen packages)\n";
+      print "\n\nemerges: $total   ($seen packages)\n";
     }
   ' ~/run/*/var/log/emerge.log
 }
@@ -343,7 +348,8 @@ function emergeThruput()  {
         print "\n";
       }
     }
-  ' ~/run/*/var/log/emerge.log
+  ' ~/img/*/var/log/emerge.log |\
+  tail -n 14
 }
 
 
