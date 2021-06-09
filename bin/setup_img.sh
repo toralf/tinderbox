@@ -69,20 +69,17 @@ function InitOptions() {
   done < <(GetProfiles | shuf)
 
   default_cflags="-pipe -march=native -fno-diagnostics-color"
-
-  # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
   if __dice 1 12; then
-    additional_cflags+="-Og -g"
+    # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
+    default_cflags+="-Og -g"
   else
-    additional_cflags+="-O2"
+    default_cflags+="-O2"
   fi
-
-  # 685160 colon-in-CFLAGS
-  additional_cflags=""
+  local additional_cflags=""
   if __dice 1 24; then
+    # 685160 colon-in-CFLAGS
     additional_cflags+=" -falign-functions=32:25:16"
   fi
-
   cflags="$default_cflags $additional_cflags"
 
   musl="n"
@@ -290,7 +287,7 @@ function CompileMakeConf()  {
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
 
-CFLAGS="$default_cflags $additional_cflags"
+CFLAGS="$cflags"
 CXXFLAGS="\${CFLAGS}"
 
 FCFLAGS="$default_cflags"
