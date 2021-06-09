@@ -763,8 +763,13 @@ function WorkOnTask() {
       fi
     else
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
-      if [[ -n "$pkg" && $try_again -eq 0 ]]; then
-        add2backlog "%emerge --resume --skip-first"
+      if [[ -n "$pkg" ]]; then
+        if [[ $try_again -eq 0 ]]; then
+          add2backlog "%emerge --resume --skip-first"
+        fi
+      elif grep -q '^The following USE changes are necessary to proceed:' $logfile_stripped; then
+        grep -h -A 10 '^The following USE changes are necessary to proceed:' $logfile_stripped | grep "^>=" >> /etc/portage/package.use/USE-changes
+        add2backlog "$task"
       fi
     fi
     cp $logfile /var/tmp/tb/$task.last.log
