@@ -7,9 +7,11 @@ build
 cdinstall
 compile-locales
 consolekit
+custom-cflags
 d3d9
 debug
 default-gold
+dist-kernel
 doc
 elibc
 elogind
@@ -42,6 +44,7 @@ multilib
 musl
 nss
 nvidia
+ocamlopt
 oci8
 opencl
 openmp
