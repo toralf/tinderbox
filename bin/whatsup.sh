@@ -286,24 +286,34 @@ function CountEmergesPerPackages()  {
       my %pet = ();     # package => emerge times
     }
 
-    $pet{$F[7]}++ if (m/ ::: completed emerge /);
+    next unless (m/::: completed emerge/);
+
+    my $pkg = $F[7];
+    $pet{$pkg}++;
 
     END {
-      my %h = ();       # emerge times => occurrence
+      my %h = ();       # pet => occurrence
+
       for my $key (sort keys %pet)  {
         my $value = $pet{$key};
         $h{$value}++;
       }
 
       my $total = 0;    # total amount of emerge operations
-      my $seen = 0;   # packages
+      my $seen = 0;     #              of packages
+      my $max = 0;      # max times of being emerged
+
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};
         $seen += $value;
         $total += $key * $value;
         print $value, "x", $key, " ";
+        $max = $key if ($max < $key);
       }
 
+      for my $key (keys %pet)  {
+        print " ", $key if ($max == $pet{$key});
+      }
       print "\n\nemerges: $total   ($seen packages)\n";
     }
   ' ~/run/*/var/log/emerge.log
