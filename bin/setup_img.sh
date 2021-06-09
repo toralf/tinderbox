@@ -272,10 +272,11 @@ EOF
   cd ./$repodir
   rsync --archive --quiet /var/db/repos/gentoo ./
   cd ./gentoo
-  git pull
+  git pull --quiet
   cd ..
   [[ $musl    = "n" ]] || git clone --quiet https://github.com/gentoo/musl.git
   [[ $science = "n" ]] || git clone --quiet https://github.com/gentoo/sci.git
+  echo
 }
 
 
@@ -310,7 +311,7 @@ NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
 FEATURES="cgroup splitdebug xattr -collision-protect -news"
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --with-bdeps=y"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --with-bdeps=y --verbose-conflicts"
 
 ALLOW_TEST="network"
 
@@ -470,6 +471,7 @@ set shiftwidth=2
 set expandtab
 let g:session_autosave = 'no'
 autocmd BufEnter *.txt set textwidth=0
+cnoreabbrev X x
 
 EOF
 
