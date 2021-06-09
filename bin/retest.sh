@@ -19,6 +19,10 @@ xargs -n 1 <<< ${@} |\
 sort -u |\
 while read -r word
 do
+  if [[ -z "$word" ]]; then
+    continue
+  fi
+
   echo "$word" >> $result
 
   # delete a package from global tinderbox file and from image specific files
@@ -35,11 +39,13 @@ done
 if [[ -s $result ]]; then
   for i in $(__list_images)
   do
-    touch $i/var/tmp/tb/SYNC  # force a repo sync
-
     bl=$i/var/tmp/tb/backlog.1st
-    # put shuffled data (grep out dups before) ahead of high prio backlog
-    (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
+    if [[ -s $bl ]]; then
+      # grep out dups and schedule new ones after current entries
+      (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
+    else
+      shuf $result > $bl.tmp
+    fi
     mv $bl.tmp $bl
   done
 fi
