@@ -68,12 +68,12 @@ function InitOptions() {
     fi
   done < <(GetProfiles | shuf)
 
-  default_cflags="-pipe -march=native -fno-diagnostics-color"
+  default_cflags="-pipe -march=native -fno-diagnostics-color "
   if __dice 1 12; then
     # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
-    default_cflags+="-Og -g"
+    default_cflags+=" -Og -g"
   else
-    default_cflags+="-O2"
+    default_cflags+=" -O2"
   fi
   local additional_cflags=""
   if __dice 1 24; then
@@ -144,6 +144,7 @@ function CreateImageName()  {
   [[ $abi3264 = "n" ]]      || name+="_abi32+64"
   [[ $science = "n" ]]      || name+="_science"
   [[ $testfeature = "n" ]]  || name+="_test"
+  [[ $cflags =~ Og ]]       || name+="_debug"
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
@@ -228,10 +229,6 @@ location  = $repodir/gentoo
 priority  = 10
 sync-uri  = https://github.com/gentoo-mirror/gentoo.git
 sync-type = git
-
-[tinderbox]
-location  = /mnt/tb/data/portage
-priority  = 90
 
 [local]
 location  = $repodir/local
@@ -499,9 +496,8 @@ function CreateBacklog()  {
   cat << EOF >> $bl.1st
 %emerge --depclean
 @world
-@system
-%emerge --depclean
 @world
+@system
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
 sys-apps/portage
@@ -666,6 +662,9 @@ function DryRunWithRandomUseFlags() {
       xargs |\
       xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
     done > ./etc/portage/package.use/24thrown_package_use_flags
+
+    chgrp portage ./etc/portage/package.use/2*
+    chmod a+r,g+w ./etc/portage/package.use/2*
 
     DryRun &> ./var/tmp/tb/dryrun.$attempt.log && return
   done
