@@ -68,19 +68,19 @@ function InitOptions() {
     fi
   done < <(GetProfiles | shuf)
 
-  default_cflags="-pipe -march=native -fno-diagnostics-color "
+  cflags_default="-pipe -march=native -fno-diagnostics-color "
   if __dice 1 12; then
     # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
-    default_cflags+=" -Og -g"
+    cflags_default+=" -Og -g"
   else
-    default_cflags+=" -O2"
+    cflags_default+=" -O2"
   fi
-  local additional_cflags=""
-  if __dice 1 24; then
+  local cflags_special=""
+  if __dice 1 12; then
     # 685160 colon-in-CFLAGS
-    additional_cflags+=" -falign-functions=32:25:16"
+    cflags_special+=" -falign-functions=32:25:16"
   fi
-  cflags="$default_cflags $additional_cflags"
+  cflags="$cflags_default $cflags_special"
 
   musl="n"
   randomuseflags="y"
@@ -288,7 +288,7 @@ PORTAGE_TMPFS="/dev/shm"
 CFLAGS="$cflags"
 CXXFLAGS="\${CFLAGS}"
 
-FCFLAGS="$default_cflags"
+FCFLAGS="$cflags_default"
 FFLAGS="\${FCFLAGS}"
 
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
@@ -381,8 +381,8 @@ function CompilePortageFiles()  {
   echo 'FEATURES="-sandbox -usersandbox"' > ./etc/portage/env/nosandbox
 
   # retry with sane defaults
-  cat <<EOF                               > ./etc/portage/env/default_cflags
-CFLAGS="$default_cflags"
+  cat <<EOF                               > ./etc/portage/env/cflags_default
+CFLAGS="$cflags_default"
 CXXFLAGS="\${CFLAGS}"
 
 FCFLAGS="\${CFLAGS}"
