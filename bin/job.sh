@@ -767,8 +767,8 @@ function WorkOnTask() {
         if [[ $try_again -eq 0 ]]; then
           add2backlog "%emerge --resume --skip-first"
         fi
-      elif grep -q '^The following USE changes are necessary to proceed:' $logfile_stripped; then
-        grep -h -A 10 '^The following USE changes are necessary to proceed:' $logfile_stripped | grep "^>=" >> /etc/portage/package.use/USE-changes
+      elif  grep -A 1000 '^The following USE changes are necessary to proceed:' $logfile_stripped |\
+            grep -v 'required by' | grep '^>=' >> /etc/portage/package.use/USE-changes; then
         add2backlog "$task"
       fi
     fi
@@ -836,24 +836,27 @@ function syncRepos()  {
   local diff=$1
   local ago
 
-  if ! emaint sync --auto 1>/dev/null | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
-    # limit to 5 hours
-    ((ago = diff + 3600))
-    if [[ $ago -gt 18000 ]]; then
-      ago=18000
-    fi
+  if emaint sync --auto 1>/dev/null | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
+    return
+  fi
 
-    cd /var/db/repos/gentoo
-    git diff --diff-filter=ACM --name-status "@{ $ago second ago }".."@{ 60 minute ago }" 2>/dev/null |\
-    grep -F -e '/files/' -e '.ebuild' -e 'Manifest' | cut -f2- -s | cut -f1-2 -d'/' -s |
-    grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
-    uniq > /tmp/diff.upd
+  # feed backlog.upd with new entries from max 5 hours ago
 
-    if [[ -s /tmp/diff.upd ]]; then
-      cp /var/tmp/tb/backlog.upd /tmp
-      sort -u /tmp/diff.upd /tmp/backlog.upd | shuf > /var/tmp/tb/backlog.upd
-      rm /tmp/backlog.upd
-    fi
+  ((ago = diff + 3600 + 61))
+  if [[ $ago -gt 18000 ]]; then
+    ago=18000
+  fi
+
+  cd /var/db/repos/gentoo
+  git diff --diff-filter=ACM --name-status "@{ $ago second ago }".."@{ 60 minute ago }" 2>/dev/null |\
+  grep -F -e '/files/' -e '.ebuild' -e 'Manifest' | cut -f2- -s | cut -f1-2 -d'/' -s |
+  grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
+  uniq > /tmp/diff.upd
+
+  if [[ -s /tmp/diff.upd ]]; then
+    cp /var/tmp/tb/backlog.upd /tmp
+    sort -u /tmp/diff.upd /tmp/backlog.upd | shuf > /var/tmp/tb/backlog.upd
+    rm /tmp/backlog.upd
   fi
 }
 
@@ -894,15 +897,16 @@ fi
 last_sync=0  # forces a sync at start
 while :
 do
-  date > $logfile
   if [[ -f /var/tmp/tb/STOP ]]; then
     echo "#stopping" > $taskfile
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
+
+  date > $logfile
   current_time=$(date +%s)
   if [[ $(( diff = current_time - last_sync )) -ge 3600 || -f /var/tmp/tb/SYNC ]]; then
-    rm -f /var/tmp/tb/SYNC  # created by retest.sh
     echo "#sync repos" > $taskfile
+    rm -f /var/tmp/tb/SYNC  # created eg. by retest.sh
     last_sync=$current_time
     syncRepos $diff
   fi
