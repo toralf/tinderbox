@@ -9,7 +9,7 @@ export LANG=C.utf8
 
 f=/tmp/${0##*/}.out
 
-if [[ ! -s $f && "$(wc -c ~/logs/*.log 2>/dev/null | tail -n 1 | awk ' { print $1 } ')" != "0" ]]; then
+if [[ ! -s $f && $(wc -c < <(cat ~/logs/*.log 2>/dev/null)) != 0 ]]; then
   ls -l ~/logs/
   echo
   head -v ~/logs/*.log | tee $f
