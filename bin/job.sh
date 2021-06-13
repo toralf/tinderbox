@@ -22,12 +22,14 @@ function filterPlainPext() {
 
 function Mail() {
   local subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
-  if [[ -s $2 ]]; then
+  local content=${2:-}
+
+  if [[ -s $content ]]; then
     echo
-    cat $2
+    cat $content
     echo
   else
-    echo -e "${2:-empty_mail_body}"
+    echo -e "${content}"
   fi |\
   if ! timeout 120 mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
     echo "$(date) mail timeout, \$subject=$subject \$2=$2" | tee -a /var/tmp/tb/mail.log
@@ -826,7 +828,7 @@ function SquashRebuildLoop() {
     if [[ -n $packages ]]; then
       local unique=$(echo $packages | xargs -n 1 | sort -u | xargs)
       add2backlog "%emerge -C $unique"
-      Mail "$FUNCNAME for $unique"
+      Mail "$FUNCNAME unmerge: $unique"
     fi
   fi
 }
@@ -904,9 +906,8 @@ do
 
   date > $logfile
   current_time=$(date +%s)
-  if [[ $(( diff = current_time - last_sync )) -ge 3600 || -f /var/tmp/tb/SYNC ]]; then
+  if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
-    rm -f /var/tmp/tb/SYNC  # created eg. by retest.sh
     last_sync=$current_time
     syncRepos $diff
   fi
