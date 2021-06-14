@@ -104,7 +104,7 @@ function LookForAnImageInRunReadyToBeReplaced()  {
 
 
 function StopOldImage() {
-  # repeated STOP to render any external restart-logic for a while
+  # repeat STOP to stop immediately after an unwanted restart due to a changed job.sh or so
   cat << EOF > ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP
 STOP
