@@ -394,15 +394,20 @@ EOF
   cat << EOF                              > ./etc/portage/env/jobs
 EGO_BUILD_FLAGS="-p ${jobs}"
 GO19CONCURRENTCOMPILATION=0
+
 MAKEOPTS="-j${jobs}"
+
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
 OMP_NUM_THREADS=${jobs}
-RUSTFLAGS="-C codegen-units=${jobs}$([[ $musl = "y" ]] && echo " -C target-feature=-crt-static" || true)"
+
 RUST_TEST_THREADS=${jobs}
 RUST_TEST_TASKS=${jobs}
 
 EOF
+  if [[ $musl = "y" ]]; then
+    echo 'RUSTFLAGS=" -C target-feature=-crt-static"' >> ./etc/portage/env/jobs
+  fi
 
   echo '*/*  jobs' > ./etc/portage/package.env/00jobs
 
