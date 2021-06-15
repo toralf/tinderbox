@@ -88,11 +88,11 @@ Move *./data* and *./sdata* into *~tinderbox/tb/*.
 Move *./bin* into */opt/tb/ as user *root*.
 The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
 The user *tinderbox* must have write permissions for files in *~tinderbox/tb/data*.
-Edit the credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, set ownership/rwx-access of this subdirectory and its files to user *root* only.
+Edit the ssmtp credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, set ownership/rwx-access of this subdirectory and its files to user *root* only.
 Grant sudo rights to the user *tinderbox*:
 
 ```bash
-tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh
+tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh
 ```
 
 Create these crontab entries for user *tinderbox*:

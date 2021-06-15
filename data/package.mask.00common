@@ -37,3 +37,12 @@ x11-wm/stumpwm
 sci-libs/libint:2
 # gcc-11 issues
 sci-libs/*
+
+# flip-flop
+<dev-util/ragel-7.0.3
+
+# creates /vz which annoys me
+sys-cluster/vzctl
+
+# breaks @world too often
+sci-biology/samtools

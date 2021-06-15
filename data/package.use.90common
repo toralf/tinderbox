@@ -26,3 +26,6 @@ app-portage/pfl           -network-cron
 
 # from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
 sys-apps/nix              -etc_profile
+
+# !!! All ebuilds that could satisfy "x11-libs/libyui-ncurses:0/6" have been masked.
+x11-libs/libyui           -ncurses

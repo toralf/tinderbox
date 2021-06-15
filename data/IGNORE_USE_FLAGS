@@ -1,6 +1,5 @@
 32
 64
-^armv
 bootstrap
 broadcom
 build
@@ -38,13 +37,12 @@ malloc
 mbedtls
 minimal
 mips
-modemmanager
 monolithic
 multilib
 musl
 nss
 nvidia
-ocamlopt
+o-flag-munging
 oci8
 opencl
 openmp

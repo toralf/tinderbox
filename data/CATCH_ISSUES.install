@@ -38,3 +38,4 @@ Error: The .* plugin is not installed
  note: each undeclared identifier is reported only once for each function it appears in
  undefined reference to
 mkdir: cannot create directory
+install: .* does not exist
