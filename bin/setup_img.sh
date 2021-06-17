@@ -484,7 +484,7 @@ EOF
 # /var/tmp/tb/backlog     : filled  once by setup_img.sh
 # /var/tmp/tb/backlog.1st : filled  once by setup_img.sh, job.sh and update_backlog.sh update it
 # /var/tmp/tb/backlog.upd : updated      by update_backlog.sh
-function CreateBacklog()  {
+function CreateHighPrioBacklog()  {
   local bl=./var/tmp/tb/backlog
 
   cd $mnt
@@ -732,10 +732,8 @@ CompileRepoFiles
 CompileMakeConf
 CompilePortageFiles
 CompileMiscFiles
-CreateBacklog
 CreateSetupScript
 RunSetupScript
-
 echo
 echo 'emerge --update --changed-use --backtrack=30 --pretend --deep @world' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 if [[ $randomuseflags = "y" ]]; then
@@ -746,6 +744,7 @@ else
   echo
   DryRun
 fi
+CreateHighPrioBacklog
 
 echo -e "\n$(date)\n  setup OK"
 cd ~tinderbox/run
