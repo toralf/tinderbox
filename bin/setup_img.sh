@@ -144,7 +144,7 @@ function CreateImageName()  {
   [[ $abi3264 = "n" ]]      || name+="_abi32+64"
   [[ $science = "n" ]]      || name+="_science"
   [[ $testfeature = "n" ]]  || name+="_test"
-  [[ $cflags =~ Og ]]       || name+="_debug"
+  [[ $cflags =~ O2 ]]       || name+="_debug"
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
@@ -499,7 +499,6 @@ function CreateHighPrioBacklog()  {
   fi
 
   cat << EOF >> $bl.1st
-%emerge --depclean
 @world
 @world
 @system
@@ -510,8 +509,8 @@ sys-kernel/gentoo-kernel-bin
 EOF
 
   # update GCC first
-  # =          : do not update the current version - that will be removed immediately afterwards
-  # dev-libs/* : avoid a rebuild of GCC in @world due to an update/rebuild of these packages
+  # =          : do not rebuild the current GCC (slot)
+  # dev-libs/* : avoid a rebuild of GCC later in @world caused by an update/rebuild of these packages
   echo "%emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
 
   if [[ $profile =~ "/systemd" ]]; then
@@ -520,9 +519,6 @@ EOF
 }
 
 
-# - configure locales, timezone etc.
-# - install and configure tools used in job.sh
-# - fill backlog
 function CreateSetupScript()  {
   cd $mnt
 
@@ -530,10 +526,11 @@ function CreateSetupScript()  {
 #!/bin/sh
 # set -x
 
+export LANG=C.utf8
 set -euf
 
 date
-echo "#setup configure" | tee /var/tmp/tb/task
+echo "#setup locales + timezone" | tee /var/tmp/tb/task
 
 if [[ ! $musl = "y" ]]; then
   cat << EOF2 >> /etc/locale.gen
@@ -557,10 +554,10 @@ set +u; source /etc/profile; set -u
 
 date
 echo "#setup git" | tee /var/tmp/tb/task
-emerge -u -O dev-vcs/git
+emerge -u dev-vcs/git
 emaint sync --auto 1>/dev/null
 
-echo "#setup tools" | tee /var/tmp/tb/task
+echo "#setup portage helpers" | tee /var/tmp/tb/task
 if grep -q LIBTOOL /etc/portage/make.conf; then
   echo "*/* -audit -cups" >> /etc/portage/package.use/slibtool
   emerge -u sys-devel/slibtool
@@ -569,9 +566,12 @@ emerge -u app-text/ansifilter app-portage/portage-utils
 
 date
 echo "#setup mailer" | tee /var/tmp/tb/task
-# emerge ssmtp separately before mailx b/c mailx would pull in per default a different MTA
+# emerge ssmtp separately before mailx b/c mailx would pull in per default another MTA than ssmtp
 emerge -u mail-mta/ssmtp
 emerge -u mail-client/mailx
+
+# /etc/ssmtp/._cfg0000_ssmtp.conf
+etc-update --automode -5 1>/dev/null
 
 date
 eselect profile set --force default/linux/amd64/$profile

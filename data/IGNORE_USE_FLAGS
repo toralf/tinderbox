@@ -25,6 +25,7 @@ gnutls
 gold
 hardened
 hostname
+initramfs
 ithreads
 kill
 libav

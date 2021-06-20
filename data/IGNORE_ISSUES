@@ -18,6 +18,8 @@ error: format not a string literal and no format arguments
 .et https:
 Fetch instructions for
  file collision with dev-util/idea-community
+ file collision with dev-util/goland
+ file collision with dev-util/clion
 flag provided but not defined
 gcc version .* found, expected gcc
 has no attribute SSL_OP_NO_TLSv1_3

@@ -17,7 +17,8 @@ mail-mta/ssmtp            mta ssl
 
 # setup dependency issues
 dev-db/sqlite             -icu
-dev-lang/python           -bluetooth
+#dev-lang/python           -bluetooth
+dev-vcs/git               -perl -python -webdav
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
 
@@ -27,5 +28,5 @@ app-portage/pfl           -network-cron
 # from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
 sys-apps/nix              -etc_profile
 
-# !!! All ebuilds that could satisfy "x11-libs/libyui-ncurses:0/6" have been masked.
+# @world issues
 x11-libs/libyui           -ncurses

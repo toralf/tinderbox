@@ -1,7 +1,7 @@
 # package.use/30misc
 #
 
-# this is sporadically added to an image at setup to allow to emerge ...
+# this file is randomly given to an image to allow to emerge ...
 
 # ... mail-client/thunderbird, www-client/firefox
 #

@@ -26,3 +26,4 @@ ninja: build stopped:
 Error .
  \*   .* failed
 Unsupported kernel version!
+ \* ERROR:
