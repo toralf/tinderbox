@@ -75,9 +75,9 @@ function Overall() {
       fail=$(ls -1 $i/var/tmp/tb/issues | while read -r i; do echo ${i##/*}; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
-    bl=$( wc -l 2>/dev/null < $i/var/tmp/tb/backlog    )
-    bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st)
-    blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd)
+    bl=$( wc -l 2>/dev/null < $i/var/tmp/tb/backlog     || echo 0)
+    bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st || echo 0)
+    blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd || echo 0)
 
     flag=""
     if __is_running $i ; then
@@ -90,7 +90,7 @@ function Overall() {
     if [[ -f $i/var/tmp/tb/STOP ]]; then
       flag+="S"
     else
-      if grep -q "^STOP" $i/var/tmp/tb/backlog.1st; then
+      if grep -q "^STOP" $i/var/tmp/tb/backlog.1st 2>/dev/null; then
         flag+="s"
       else
         flag+=" "
