@@ -637,16 +637,18 @@ function PostEmerge() {
 
   # the very last step after an emerge
   if grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $logfile_stripped; then
-    if [[ ! $task =~ "@preserved-rebuild" || $try_again -eq 0 ]]; then
+    if [[ $try_again -eq 0 ]]; then
       add2backlog "@preserved-rebuild"
     fi
   fi
 
-  if grep -q -e "Please, run 'haskell-updater'" -e "ghc-pkg check: 'checking for other broken packages:'" $logfile_stripped; then
+  if grep -q  -e "Please, run 'haskell-updater'" \
+              -e "ghc-pkg check: 'checking for other broken packages:'" $logfile_stripped; then
     add2backlog "%haskell-updater"
   fi
 
-  if grep -q -e ">>> Installing .* dev-lang/perl-[1-9]" -e 'Use: perl-cleaner' $logfile_stripped; then
+  if grep -q  -e ">>> Installing .* dev-lang/perl-[1-9]" \
+              -e 'Use: perl-cleaner' $logfile_stripped; then
     add2backlog "%emerge --depclean"
     add2backlog "%perl-cleaner --all"
   fi
@@ -842,11 +844,10 @@ function syncRepos()  {
     return
   fi
 
-  # feed backlog.upd with new entries from max 5 hours ago
-
+  # feed backlog.upd with new entries from max 3 hours ago
   ((ago = diff + 3600 + 61))
-  if [[ $ago -gt 18000 ]]; then
-    ago=18000
+  if [[ $ago -gt 10800 ]]; then
+    ago=10800
   fi
 
   cd /var/db/repos/gentoo
