@@ -630,8 +630,10 @@ function PostEmerge() {
     locale-gen > /dev/null
   fi
 
-  # merge the remaining config files automatically + update the environment
+  # merge the remaining config files automatically
   etc-update --automode -5 1>/dev/null
+
+  # update the environment
   env-update &>/dev/null
   source_profile
 
