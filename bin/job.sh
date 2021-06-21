@@ -10,7 +10,7 @@
 
 # strip away quotes
 function stripQuotesAndMore() {
-  sed -e 's,['\''‘’"`],,g' -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
+  sed -e 's,['\''‘’"`•],,g' -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
 }
 
 
@@ -31,7 +31,7 @@ function Mail() {
   else
     echo -e "${content}"
   fi |\
-  if ! timeout 120 mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
+  if ! timeout 60 mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
     echo "$(date) mail timeout, \$subject=$subject \$2=$2" | tee -a /var/tmp/tb/mail.log
     chmod a+rw /var/tmp/tb/mail.log
   fi
