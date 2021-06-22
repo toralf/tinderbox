@@ -205,11 +205,11 @@ function LastEmergeOperation()  {
 # 17.1_desktop_gnome_systemd-abi32+64-j2-202105 1056 1563 1742 1313  641  791  827.  747  411  495  211
 # 17.1_no-multilib-j2-20210510-162903           2273 2012 1678 1212 1034  674  829.  729  681  560  195
 function PackagesPerImagePerRunDay() {
-  printf "%42s %s\n" " " "   1    2    3    4    5    6    7.    8    9   10   11   12   13   14."
+  printf "%52s %s\n" " " "   1    2    3    4    5    6    7.    8    9   10   11   12"
 
   for i in $(ls ~/run/ | sort -t '-' -k 3,4)
   do
-    PrintImageName $i 42
+    PrintImageName $i 52
 
     perl -F: -wane '
       BEGIN {
