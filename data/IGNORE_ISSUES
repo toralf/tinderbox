@@ -1,5 +1,5 @@
- requires kernel .* or greater.
 asciidoctor
+ \*   atlas needs all cpu set to performance
 both portaudio and jack are enabled, disable one
 but please install the FUSE libraries and headers to build this module
 Cannot build with randomized sbrk. Your options
@@ -7,19 +7,18 @@ Cannot execute 32-bit applications
 clang does not support the BPF target. Please check LLVM_TARGETS.
 code model kernel not supported in the 32 bit mode
  \* *CONFIG_.*is not set when it should be
- \*   atlas needs all cpu set to performance
 CONFIG_SYSFS_DEPRECATED_V2 support detected!
 configure: error: Linux kernel in .* is version .*, but version newer than .* is not supported
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.
 dev-python/pypy.* needs to be installed for USE=low-memory
+dev-ruby/.*::gentoo failed (install phase)
 error: format not a string literal and no format arguments
-.-Wformat-security. ignored without .-Wformat.
 .et https:
 Fetch instructions for
- file collision with dev-util/idea-community
- file collision with dev-util/goland
  file collision with dev-util/clion
+ file collision with dev-util/goland
+ file collision with dev-util/idea-community
 flag provided but not defined
 gcc version .* found, expected gcc
 has no attribute SSL_OP_NO_TLSv1_3
@@ -39,8 +38,8 @@ Need FEATURES=-userpriv to run this testsuite
 No LLVM slot <= .* found installed!
 Nonmodular kernel detected, will not build kernel modules
 No pathcc executable was installed, your hardware is unsupported most likely
-No support for external modules in
 No supported Python implementation in PYTHON_SINGLE_TARGET.
+No support for external modules in
 OTP release .* does not match required regex
 pcmcia support is broken on kernels newer
 Please disable .* support in your kernel config and recompile your kernel
@@ -50,6 +49,7 @@ Please switch to an openmp compatible compiler
 Please use a supported ICD
 PostgreSQL slot must be set to one of:
 proxy.golang.org
+ requires kernel .* or greater.
 Select exactly one database type out of these:
 some Java tools are not available on some VMs on some architectures
 Sorry, but this version does not yet support features
@@ -61,13 +61,14 @@ The Objective-C compiler does not work o
 The version of your compiler is not supported at this time
 Tried to use too new gcc.
 Unsupported kernel version
-USE=modules and in-kernel ipset support detected.
 Use CONFIG_WIREGUARD=y for this kernel, and do not use this package.
+USE=modules and in-kernel ipset support detected.
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
+.-Wformat-security. ignored without .-Wformat.
 Wformat-security.*ignored without.*Wformat
 \* *You need one of the following mpi implementations:
 You need to apply a patch to your kernel to compile and run the aufs4 module
 Your C compiler is too old for this package.
 Your kernel version is not yet tested with this version of phc-intel.
-dev-ruby/.*::gentoo failed (install phase)
+

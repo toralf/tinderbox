@@ -1,5 +1,6 @@
 32
 64
+bindist
 bootstrap
 broadcom
 build
@@ -76,4 +77,5 @@ vdpau
 vim-syntax
 vulkan
 x32
+xcrypt
 zink

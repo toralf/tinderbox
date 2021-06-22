@@ -15,10 +15,13 @@
 # tinderbox requirements
 mail-mta/ssmtp            mta ssl
 
-# setup dependency issues
+# https://bugs.gentoo.org/764623
+dev-lang/python           -bluetooth
+
+# avoid setup dependency issues
+app-text/ansifilter       -qt5
 dev-db/sqlite             -icu
-#dev-lang/python           -bluetooth
-dev-vcs/git               -perl -python -webdav
+dev-vcs/git               -cvs -perl -tk -webdav
 sys-apps/busybox          -pam
 sys-apps/shadow           -cracklib
 

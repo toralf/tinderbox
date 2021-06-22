@@ -59,7 +59,6 @@ bad class file:
 Compile failed; see the compiler error
 Failed Patch:
 can't get .* relocation type
-No instance for (
 texi2info failed
 is not a function name
 mkdir: cannot create directory

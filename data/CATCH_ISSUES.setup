@@ -25,3 +25,5 @@ Select exactly one database type out of these: mysql oracle postgres sqlite
 Unable to find version .* of package
 No Python implementation set
  \*.*CONFIG_.*is not set when it should be
+ \*   .* requires .* (CONFIG_.*) to be
+ \*   Kernel not configured;
