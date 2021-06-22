@@ -30,6 +30,7 @@ initramfs
 ithreads
 kill
 libav
+libssp
 libunwind
 linguas
 livecd
@@ -45,8 +46,9 @@ multilib
 musl
 nss
 nvidia
-oci8
 o-flag-munging
+oci8
+oci8-instant-client
 opencl
 openmp
 openoffice

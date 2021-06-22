@@ -1,5 +1,2 @@
 # package.use/70systemd
 #
-
-net-wireless/bluez        -obex user-session
-sys-apps/dbus             user-session
