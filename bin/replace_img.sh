@@ -1,7 +1,7 @@
 #!/bin/bash
 # set -x
 
-# replace an older tinderbox image with a newer one
+# setup a new image or replace an older one
 
 
 function Finish() {
@@ -13,11 +13,7 @@ function Finish() {
     date
     echo " finished $pid with rc=$rc"
   fi
-
-  sed -i -e "/^${pid}$/d" $lck
-  if [[ ! -s $lck ]]; then
-    rm $lck
-  fi
+  rm -f $lck
 
   exit $rc
 }
@@ -29,7 +25,7 @@ function GetCompletedEmergeOperations() {
 
 
 function NumberOfPackagesInBacklog()  {
-  wc -l < ~/run/$1/var/tmp/tb/backlog
+  wc -l < ~/run/$1/var/tmp/tb/backlog || echo "0"
 }
 
 
@@ -58,24 +54,24 @@ function LookForAnImageWithEmptyBacklog()  {
 function __minDistanceIsReached()  {
   local distance
   (( distance = ($(date +%s) - $(stat -c%Y ~/run/$newest/etc/conf.d/hostname)) / 3600))
-  [[ $distance -ge $condition_distance ]] && return 0 || return 1
+  [[ $distance -ge $condition_distance ]]
 }
 
 
 function __ReachedMaxRuntime()  {
   local runtime
   ((runtime = ($(date +%s) - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24))
-  [[ $runtime -ge $condition_runtime ]] && return 0 || return 1
+  [[ $runtime -ge $condition_runtime ]]
 }
 
 
 function __TooLessLeftInBacklog()  {
-  [[ $(NumberOfPackagesInBacklog $oldimg) -le $condition_left ]] && return 0 || return 1
+  [[ $(NumberOfPackagesInBacklog $oldimg) -le $condition_left ]]
 }
 
 
 function __EnoughCompletedEmergeOperations()  {
-  [[ $(GetCompletedEmergeOperations $oldimg) -ge $condition_completed ]] && return 0 || return 1
+  [[ $(GetCompletedEmergeOperations $oldimg) -ge $condition_completed ]]
 }
 
 
@@ -142,6 +138,16 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
+# do not run this script in parallel till the old image is removed
+lck="/tmp/${0##*/}.lck"
+if [[ -s "$lck" ]]; then
+  if kill -0 $(cat $lck) 2>/dev/null; then
+    exit 1    # process is running
+  fi
+fi
+echo $$ > "$lck" || Finish 1
+trap Finish INT QUIT TERM EXIT
+
 condition_completed=-1      # completed emerge operations
 condition_distance=-1       # distance in hours to the previous image
 condition_left=-1           # left entries in backlogs
@@ -163,15 +169,6 @@ do
     *)  echo " opt not implemented: '$opt'"; exit 1;;
   esac
 done
-
-# do not run this script in parallel
-lck="/tmp/${0##*/}.lck"
-if [[ -s "$lck" ]]; then
-  if kill -0 $(cat $lck) 2>/dev/null; then
-    exit 1    # process is running
-  fi
-fi
-echo $$ >> "$lck" || Finish 1
 
 if [[ -z "$oldimg" ]]; then
   if ! LookForAnImageWithEmptyBacklog; then
@@ -198,18 +195,13 @@ if [[ -e ~/run/$oldimg ]]; then
   date
   echo " replacing $oldimg ..."
   StopOldImage
+  rm -- ~/run/$oldimg ~/logs/$oldimg.log
 fi
+
+rm $lck
 
 echo
 date
 echo " setup a new image ..."
-
-if nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs; then
-  if [[ -e ~/run/$oldimg ]]; then
-    rm -- ~/run/$oldimg ~/logs/$oldimg.log
-  fi
-  Finish 0
-else
-  Finish $?
-fi
-
+nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
+Finish $?
