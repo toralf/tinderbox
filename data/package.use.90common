@@ -1,32 +1,21 @@
 # package.use/90common
 #
 
+# these settings are fixed for every tinderbox image
+
 */*  QEMU_SOFTMMU_TARGETS:  x86_64 i386
 */*  QEMU_USER_TARGETS:     x86_64 i386
 */*  VIDEO_CARDS:           dummy
 */*  RUBY_TARGETS:          ruby30
 
-# no tinderboxing at all
-*/*                       -cdinstall -firmware -oci8 -oci8-instant-client -pax_kernel ssp -symlink -valgrind
+# not at all
+*/*                       -cdinstall -firmware -initramfs -pax_kernel -symlink -valgrind
 
 # 2x faster compile
 */*                       jumbo-build
 
 # tinderbox requirements
 mail-mta/ssmtp            mta ssl
-
-# https://bugs.gentoo.org/764623
-dev-lang/python           -bluetooth
-
-# avoid setup dependency issues
-app-text/ansifilter       -qt5
-dev-db/sqlite             -icu
-dev-vcs/git               -cvs -perl -tk -webdav
-sys-apps/busybox          -pam
-sys-apps/shadow           -cracklib
-
-# quicker/easier setup
-app-portage/pfl           -network-cron
 
 # from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
 sys-apps/nix              -etc_profile

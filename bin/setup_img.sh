@@ -538,7 +538,9 @@ function CreateHighPrioBacklog()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  cat << EOF >> $bl.1st
+  cat << EOF > $bl.1st
+@world
+%rm /etc/portage/package.use/90setup
 @world
 @world
 @system
