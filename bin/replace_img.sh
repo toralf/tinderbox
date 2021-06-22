@@ -25,18 +25,18 @@ function GetCompletedEmergeOperations() {
 
 
 function NumberOfPackagesInBacklog()  {
-  wc -l < ~/run/$1/var/tmp/tb/backlog || echo "0"
+  wc -l 2>/dev/null < ~/run/$1/var/tmp/tb/backlog || echo "0"
 }
 
 
-function LookForAnImageWithEmptyBacklog()  {
-  # set $oldimg here
+function AnImageHasAnEmptyBacklog()  {
+  # set $oldimg here intentionally
   while read -r oldimg
   do
     if [[ -e ~/run/$oldimg ]]; then
       local bl=~/run/$oldimg/var/tmp/tb/backlog
       if [[ -f $bl ]]; then
-        if [[ $(wc -l < <(cat $bl)) = "0" ]]; then
+        if [[ $(wc -l < $bl) -eq 0 ]]; then
           return 0
         fi
       else
@@ -51,10 +51,22 @@ function LookForAnImageWithEmptyBacklog()  {
 }
 
 
-function __minDistanceIsReached()  {
+function MinDistanceIsReached()  {
+  local newest=$(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
+  if [[ -z "$newest" ]]; then
+    return 1
+  fi
+
   local distance
   (( distance = ($(date +%s) - $(stat -c%Y ~/run/$newest/etc/conf.d/hostname)) / 3600))
   [[ $distance -ge $condition_distance ]]
+}
+
+
+function MaxCountIsRunning()  {
+  if ! pgrep -f $(dirname $0)/setup_img.sh 1>/dev/null; then
+    [[ $(ls ~/run/ 2>/dev/null | wc -l) -ge $condition_count || $(ls /run/tinderbox 2>/dev/null | wc -l) -ge $condition_count ]]
+  fi
 }
 
 
@@ -75,7 +87,7 @@ function __EnoughCompletedEmergeOperations()  {
 }
 
 
-function LookForAnImageInRunReadyToBeReplaced()  {
+function ReplaceAnImage()  {
   # hint: $oldimg is set here intentionally as a side effect, but it is used only if "0" is returned
   while read -r oldimg
   do
@@ -151,17 +163,19 @@ trap Finish INT QUIT TERM EXIT
 condition_completed=-1      # completed emerge operations
 condition_distance=-1       # distance in hours to the previous image
 condition_left=-1           # left entries in backlogs
-condition_runtime=-1     # age in days for an image
+condition_runtime=-1        # age in days for an image
+condition_count=-1          # number of images to be run
 
 oldimg=""                   # optional: image name to be replaced ("-" to add a new one), no paths allowed!
 setupargs=""                # argument(s) for setup_img.sh
 
-while getopts c:d:l:o:r:s: opt
+while getopts c:d:l:n:o:r:s: opt
 do
   case "$opt" in
     c)  condition_completed="$OPTARG"   ;;
     d)  condition_distance="$OPTARG"    ;;
     l)  condition_left="$OPTARG"        ;;
+    n)  condition_count="$OPTARG"       ;;
     r)  condition_runtime="$OPTARG"     ;;
 
     o)  oldimg="${OPTARG##*/}"          ;;
@@ -171,22 +185,26 @@ do
 done
 
 if [[ -z "$oldimg" ]]; then
-  if ! LookForAnImageWithEmptyBacklog; then
-    newest=$(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
-    if [[ -z "$newest" ]]; then
-      Finish 0
-    fi
+  if ! AnImageHasAnEmptyBacklog; then
     if [[ $condition_distance -gt -1 ]]; then
-      if ! __minDistanceIsReached; then
+      if ! MinDistanceIsReached; then
         Finish 0
       fi
     fi
-    if ! LookForAnImageInRunReadyToBeReplaced; then
-      Finish 0
+
+    if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
+      if ! ReplaceAnImage; then
+        Finish 0
+      fi
+    elif [[ $condition_count -gt -1 ]]; then
+      if MaxCountIsRunning; then
+        Finish 0
+      fi
     fi
   fi
+
 elif [[ ! $oldimg = "-" && ! -e ~/run/$oldimg ]]; then
-  echo " error, old image not found: $oldimg"
+  echo " error, given old image is not valid: $oldimg"
   Finish 1
 fi
 
