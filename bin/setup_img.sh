@@ -68,7 +68,7 @@ function InitOptions() {
     fi
   done < <(GetProfiles | shuf)
 
-  cflags_default="-pipe -march=native -fno-diagnostics-color "
+  cflags_default="-pipe -march=native -fno-diagnostics-color"
   if __dice 1 12; then
     # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
     cflags_default+=" -Og -g"
@@ -269,10 +269,10 @@ EOF
   cd ./$repodir
   rsync --archive --quiet /var/db/repos/gentoo ./
   cd ./gentoo
-  git pull --quiet
+  git pull --quiet 2>/dev/null
   cd ..
-  [[ $musl    = "n" ]] || git clone --quiet https://github.com/gentoo/musl.git
-  [[ $science = "n" ]] || git clone --quiet https://github.com/gentoo/sci.git
+  [[ $musl    = "n" ]] || git clone --quiet https://github.com/gentoo/musl.git 2>/dev/null
+  [[ $science = "n" ]] || git clone --quiet https://github.com/gentoo/sci.git  2>/dev/null
   echo
 }
 
@@ -328,7 +328,6 @@ if __dice 1 6; then
   cat <<EOF >> ./etc/portage/make.conf
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
-MAKE="make LIBTOOL=\${LIBTOOL}"
 
 EOF
 fi
@@ -442,6 +441,47 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
+  # libxcrypt as requested by sam
+  # https://gist.github.com/thesamesam/a36ff15235f5cbe5004972f80f254123#portage-changes
+  # https://wiki.gentoo.org/wiki/Project:Toolchain/libcrypt_implementation
+  if __dice 1 2; then
+    cat << EOF >> ./etc/portage/package.use/81libxcrypt
+# Disable libcrypt in glibc
+sys-libs/glibc -crypt
+# Provide libcrypt
+sys-libs/libxcrypt system
+
+*/*                             -bindist
+#
+EOF
+
+    cat << EOF >> ./etc/portage/package.accept_keywords/81libxcrypt
+# Allow the new libcrypt virtual which includes libxcrypt
+>=virtual/libcrypt-2
+
+EOF
+
+    cat << EOF >> ./etc/portage/package.unmask/81libxcrypt
+# Allow virtual which specifies libxcrypt
+>=virtual/libcrypt-2
+
+EOF
+
+    mkdir -p ./etc/portage/profile
+
+    cat << EOF >> ./etc/portage/profile/package.use.mask
+# Allow libxcrypt to be the system provider of libcrypt, not glibc
+sys-libs/libxcrypt -system
+
+EOF
+
+    cat << EOF >> ./etc/portage/profile/package.use.force
+# Don't force glibc to provide libcrypt
+sys-libs/glibc -crypt
+
+EOF
+fi
+
   touch ./var/tmp/tb/task
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
@@ -482,8 +522,8 @@ EOF
 
 
 # /var/tmp/tb/backlog     : filled  once by setup_img.sh
-# /var/tmp/tb/backlog.1st : filled  once by setup_img.sh, job.sh and update_backlog.sh update it
-# /var/tmp/tb/backlog.upd : updated      by update_backlog.sh
+# /var/tmp/tb/backlog.1st : filled  once by setup_img.sh, job.sh or retest.sh updates it
+# /var/tmp/tb/backlog.upd : updated      by job.sh
 function CreateHighPrioBacklog()  {
   local bl=./var/tmp/tb/backlog
 
@@ -505,6 +545,7 @@ function CreateHighPrioBacklog()  {
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
 sys-apps/portage
+%eselect kernel set 1
 sys-kernel/gentoo-kernel-bin
 EOF
 
@@ -512,10 +553,6 @@ EOF
   # =          : do not rebuild the current GCC (slot)
   # dev-libs/* : avoid a rebuild of GCC later in @world caused by an update/rebuild of these packages
   echo "%emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
-
-  if [[ $profile =~ "/systemd" ]]; then
-    echo "%systemd-machine-id-setup" >> $bl.1st
-  fi
 }
 
 
@@ -552,6 +589,10 @@ emerge --config sys-libs/timezone-data
 env-update
 set +u; source /etc/profile; set -u
 
+if [[ $profile =~ "/systemd" ]]; then
+  systemd-machine-id-setup
+fi
+
 date
 echo "#setup git" | tee /var/tmp/tb/task
 emerge -u dev-vcs/git
@@ -568,10 +609,18 @@ date
 echo "#setup mailer" | tee /var/tmp/tb/task
 # emerge ssmtp separately before mailx b/c mailx would pull in per default another MTA than ssmtp
 emerge -u mail-mta/ssmtp
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the destination already exists (bind-mounted by bwrap-sh)
 emerge -u mail-client/mailx
 
-# /etc/ssmtp/._cfg0000_ssmtp.conf
-etc-update --automode -5 1>/dev/null
+if [[ -s /etc/portage/package.use/81libxcrypt ]]; then
+  date
+  echo "#setup libxcrypt" | tee /var/tmp/tb/task
+  emerge -u virtual/libcrypt || emerge -u virtual/libcrypt dev-lang/perl || exit 1
+fi
+
+if grep -q 'sys-devel/gcc' /var/tmp/tb/setup.sh.log; then
+  echo "%SwitchGCC" >> /var/tmp/tb/backlog.1st
+fi
 
 date
 eselect profile set --force default/linux/amd64/$profile
@@ -584,8 +633,9 @@ echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if a package is in more than one repo
 qsearch --all --nocolor --name-only --quiet | sort -u -R > /var/tmp/tb/backlog
 
-# copy+paste the \n too for middle mouse selections
+# copy+paste the \n too for middle mouse selections (sys-libs/readline de-activates that behaviour with v8.x)
 echo "set enable-bracketed-paste off" >> /etc/inputrc
+
 EOF
 
   chmod u+x ./var/tmp/tb/setup.sh
@@ -625,14 +675,14 @@ function FormatUseFlags() {
 function DryRunWithRandomUseFlags() {
   cd $mnt
 
-  for attempt in $(seq -w 1 99)
+  for attempt in $(seq -w 1 50)
   do
     echo
     date
     echo "dryrun $attempt ==========================================================="
     echo
 
-    echo "#setup dryrun $attempt" > .//var/tmp/tb/task
+    echo "#setup dryrun $attempt" > ./var/tmp/tb/task
 
     grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
     cut -f1 -d' ' -s |\
@@ -671,7 +721,13 @@ function DryRunWithRandomUseFlags() {
     chgrp portage ./etc/portage/package.use/2*
     chmod a+r,g+w ./etc/portage/package.use/2*
 
-    DryRun &> ./var/tmp/tb/dryrun.$attempt.log && return
+    # allows "tail -f ./dryrun.log"
+    touch ./var/tmp/tb/logs/dryrun.$attempt.log
+    (cd ./var/tmp/tb; ln -f ./logs/dryrun.$attempt.log dryrun.log)
+
+    if DryRun &> ./var/tmp/tb/logs/dryrun.$attempt.log; then
+      return
+    fi
   done
 
   echo -e "\n$(date)\ndidn't make it after $attempt attempts, giving up\n"
@@ -732,10 +788,11 @@ CompileRepoFiles
 CompileMakeConf
 CompilePortageFiles
 CompileMiscFiles
+CreateHighPrioBacklog
 CreateSetupScript
 RunSetupScript
 echo
-echo 'emerge --update --changed-use --backtrack=30 --pretend --deep @world' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+echo 'emerge --update --changed-use --pretend --deep @world' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 if [[ $randomuseflags = "y" ]]; then
   DryRunWithRandomUseFlags
 else
@@ -744,7 +801,6 @@ else
   echo
   DryRun
 fi
-CreateHighPrioBacklog
 
 echo -e "\n$(date)\n  setup OK"
 cd ~tinderbox/run
