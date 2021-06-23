@@ -1,2 +1,3 @@
 Please switch to a gcc version built with USE=
 Space constraints set in the ebuild were not met
+ \*   Unsupported version of Rust selected

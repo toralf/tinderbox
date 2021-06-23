@@ -451,8 +451,6 @@ sys-libs/glibc -crypt
 # Provide libcrypt
 sys-libs/libxcrypt system
 
-*/*                             -bindist
-#
 EOF
 
     cat << EOF >> ./etc/portage/package.accept_keywords/81libxcrypt
