@@ -141,6 +141,25 @@ EOF
 }
 
 
+function setupANewImage() {
+  if [[ -e ~/run/$oldimg ]]; then
+    echo
+    date
+    echo " replacing $oldimg ..."
+    StopOldImage
+    rm -- ~/run/$oldimg ~/logs/$oldimg.log
+  fi
+
+  rm $lck
+
+  echo
+  date
+  echo " setup a new image ..."
+  nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
+  Finish $?
+}
+
+
 #######################################################################
 set -eu
 export LANG=C.utf8
@@ -187,37 +206,24 @@ done
 if [[ -z "$oldimg" ]]; then
   if ! AnImageHasAnEmptyBacklog; then
     if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
-      if [[ $condition_distance -gt -1 ]]; then
-        if ! MinDistanceIsReached; then
-          Finish 0
+      if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
+        if ReplaceAnImage; then
+          setupANewImage
         fi
-      elif ! ReplaceAnImage; then
-        Finish 0
       fi
-    elif [[ $condition_count -gt -1 ]]; then
-      if MaxCountIsRunning; then
-        Finish 0
+    fi
+
+    if [[ $condition_count -gt -1 ]]; then
+      if ! MaxCountIsRunning; then
+        setupANewImage
       fi
     fi
   fi
 
-elif [[ ! $oldimg = "-" && ! -e ~/run/$oldimg ]]; then
-  echo " error, given old image is not valid: $oldimg"
-  Finish 1
+elif [[ ! $oldimg = "-" ]]; then
+  if [[ ! -e ~/run/$oldimg ]]; then
+    echo " error, given old image is not valid: $oldimg"
+    Finish 1
+  fi
+
 fi
-
-if [[ -e ~/run/$oldimg ]]; then
-  echo
-  date
-  echo " replacing $oldimg ..."
-  StopOldImage
-  rm -- ~/run/$oldimg ~/logs/$oldimg.log
-fi
-
-rm $lck
-
-echo
-date
-echo " setup a new image ..."
-nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
-Finish $?
