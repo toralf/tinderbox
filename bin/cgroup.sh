@@ -33,8 +33,8 @@ done
 name=/local
 cgcreate -g cpu,memory:$name
 
-# reserve 4.5 vCPUs, 18 GB RAM and 48 GB vRAM
-vcpu=${1:-$(($(nproc) * 100000 - 450000))}
+# reserve 3.5 vCPUs, 18 GB RAM and 48 GB vRAM
+vcpu=${1:-$(($(nproc) * 100000 - 350000))}
 ram=${2:-110G}
 vram=${3:-320G}
 cgset -r cpu.cfs_quota_us=$vcpu             $name
