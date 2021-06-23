@@ -186,14 +186,12 @@ done
 
 if [[ -z "$oldimg" ]]; then
   if ! AnImageHasAnEmptyBacklog; then
-    if [[ $condition_distance -gt -1 ]]; then
-      if ! MinDistanceIsReached; then
-        Finish 0
-      fi
-    fi
-
     if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
-      if ! ReplaceAnImage; then
+      if [[ $condition_distance -gt -1 ]]; then
+        if ! MinDistanceIsReached; then
+          Finish 0
+        fi
+      elif ! ReplaceAnImage; then
         Finish 0
       fi
     elif [[ $condition_count -gt -1 ]]; then
