@@ -29,7 +29,7 @@ function Mail() {
     cat $content
     echo
   else
-    echo -e "${content}"
+    echo -e "$content"
   fi |\
   if ! timeout 60 mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
     echo "$(date) mail timeout, \$subject=$subject \$2=$2" | tee -a /var/tmp/tb/mail.log
@@ -71,7 +71,7 @@ function setTaskAndBacklog()  {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     backlog=/var/tmp/tb/backlog.1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 2)) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 3)) -eq 0 ]]; then
     backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
@@ -84,7 +84,7 @@ function setTaskAndBacklog()  {
     Finish 0 "empty backlogs, $(qlist -Iv | wc -l) packages installed"
   fi
 
-  # move last line of chosen backlog into $task
+  # move last line of $backlog into $task
   task=$(tail -n 1 $backlog)
   sed -i -e '$d' $backlog
 }
@@ -122,12 +122,14 @@ function getNextTask() {
         fi
       fi
 
+      local best_visible
+
       if ! best_visible=$(portageq best_visible / $task 2>/dev/null); then
         continue
       fi
 
       # skip if $task would be downgraded
-      installed=$(portageq best_version / $task)
+      local installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
         if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
           continue
@@ -382,7 +384,7 @@ function handleTestPhase() {
   # tar returns an error if it can't find at least one directory
   # therefore feed only existing dirs to it
   pushd "$workdir" 1>/dev/null
-  dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
+  local dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
   if [[ -n "$dirs" ]]; then
     # the tar here is know to spew things like the obe below so ignore errors
     # tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
@@ -539,7 +541,7 @@ function add2backlog()  {
 
 # collect files and compile an SMTP email
 function GotAnIssue()  {
-  fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $logfile_stripped) || true
+  local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $logfile_stripped) || true
   if [[ -n "$fatal" ]]; then
     Finish 1 "FATAL: $fatal"
   fi
@@ -681,8 +683,8 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $logfile_stripped; then
-    current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
-    latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
+    local current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
+    local latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
 
     if [[ "$current_time" != "$latest" ]]; then
       add2backlog "%eselect ruby set $latest"
@@ -732,7 +734,7 @@ function RunAndCheck() {
     fi
   else
     PutDepsIntoWorldFile
-    let signal="$rc - 128"
+    ((signal = rc - 128))
     if [[ $signal -eq 9 ]]; then
       Finish 0 "catched signal $signal - exiting, task=$task"
     else
@@ -895,6 +897,13 @@ export PAGER="cat"
 
 # help to catch segfaults
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
+
+for i in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/IGNORE_PACKAGES
+do
+  if [[ $(grep -c "^$" $i) -ne 0 ]]; then
+    Finish 1 "unexpected empty line(s) in $i"
+  fi
+done
 
 # re-schedule $task eg. after a killed emerge
 if [[ -s $taskfile ]]; then
