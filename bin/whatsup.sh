@@ -12,32 +12,32 @@ function PrintImageName()  {
 
 
 function check_history()  {
-  file=$1
-  lc=$2
+  local file=$1
+  local flag=$2
 
-  # eg. for @system:
-  # X = @x failed at all to start
-  # x = @x failed due to a package issue
+  # eg.:
+  # X = @x failed even to start
+  # x = @x failed due to a package
   # . = never run before
   #   = no issues
   if [[ -s $file ]]; then
-    if tail -n 1 $file | grep -q " NOT ok"; then
-      uc=$(tr '[:lower:]' '[:upper:]' <<< $lc)
-      flag="${uc}${flag}"
-      return
-    fi
+    local line=$(tail -n 1 $file)
 
-    if tail -n 1 $file | grep -q " ok"; then
-      flag=" $flag"
-      return
+    if grep -q " NOT ok" <<< $line; then
+      if grep -q " NOT ok$" <<< $line; then
+        local uflag=$(tr '[:lower:]' '[:upper:]' <<< $lc)
+        flags="${uflag}${flags}"
+      else
+        flags="${flag}${flags}"
+      fi
+    elif grep -q " ok" <<< $line; then
+      flags=" $flags"
+    else
+      flags="?$flags"
     fi
-
-    flag="${lc}${flag}"
-    return
+  else
+    flags=".$flags"
   fi
-
-  flag=".$flag"
-  return
 }
 
 
@@ -79,25 +79,25 @@ function Overall() {
     bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st || echo 0)
     blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd || echo 0)
 
-    flag=""
+    flags=""
     if __is_running $i ; then
-      flag+="r"
+      flags+="r"
     else
-      flag+=" "
+      flags+=" "
     fi
 
     # F=STOP file, f=STOP in backlog
     if [[ -f $i/var/tmp/tb/STOP ]]; then
-      flag+="S"
+      flags+="S"
     else
       if grep -q "^STOP" $i/var/tmp/tb/backlog.1st 2>/dev/null; then
-        flag+="s"
+        flags+="s"
       else
-        flag+=" "
+        flags+=" "
       fi
     fi
 
-    [[ -f $i/var/tmp/tb/KEEP ]] && flag+="K" || flag+=" "
+    [[ -f $i/var/tmp/tb/KEEP ]] && flags+="K" || flags+=" "
 
     # show result of last run of @system, @world and @preserved-rebuild respectively
     # upper case: an error occurred, lower case: a warning occurred
@@ -115,7 +115,7 @@ function Overall() {
       d=${d##*/}
     fi
 
-    printf "%5i %4i %4i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flag" "$d" "$b" 2>/dev/null
+    printf "%5i %4i %4i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
   done
 }
 
