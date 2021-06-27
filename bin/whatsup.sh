@@ -313,7 +313,7 @@ function CountEmergesPerPackages()  {
       for my $key (keys %pet)  {
         print " ", $key if ($max == $pet{$key});
       }
-      print "\n\n $total emerges         $seen packages)\n";
+      print "\n\n $total emerges         $seen packages\n";
     }
   ' ~/run/*/var/log/emerge.log
 }
