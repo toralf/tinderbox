@@ -156,8 +156,6 @@ function setupANewImage() {
   date
   echo " setup a new image ..."
   nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
-
-  Finish $?
 }
 
 
@@ -205,28 +203,39 @@ do
 done
 
 if [[ -z "$oldimg" ]]; then
-  if AnImageHasAnEmptyBacklog; then
-    setupANewImage
+  if [[ $condition_count -gt -1 ]]; then
+    while ! MaxCountIsRunning
+    do
+      setupANewImage
+    done
   fi
 
-  if [[ $condition_count -gt -1 ]]; then
-    if ! MaxCountIsRunning; then
-      setupANewImage
-    fi
-  fi
+  while AnImageHasAnEmptyBacklog
+  do
+    setupANewImage
+  done
 
   if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
-    if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
-      if AnImageIsFull; then
+    while AnImageIsFull
+    do
+      if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
         setupANewImage
+      else
+        break
       fi
-    fi
+    done
   fi
 
-elif [[ ! $oldimg = "-" ]]; then
+elif [[ $oldimg = "-" ]]; then
+  setupANewImage
+
+else
   if [[ ! -e ~/run/$oldimg ]]; then
     echo " error, given old image is not valid: $oldimg"
     Finish 1
+  else
+    setupANewImage
   fi
-  setupANewImage
 fi
+
+Finish $?
