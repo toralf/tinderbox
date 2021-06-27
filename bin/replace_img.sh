@@ -20,12 +20,12 @@ function Finish() {
 
 
 function GetCompletedEmergeOperations() {
-  grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log 2>/dev/null || echo "0"
+  grep -c ' ::: completed emerge' ~/run/$oldimg/var/log/emerge.log 2>/dev/null || echo "0"
 }
 
 
 function NumberOfPackagesInBacklog()  {
-  wc -l 2>/dev/null < ~/run/$1/var/tmp/tb/backlog || echo "0"
+  wc -l 2>/dev/null < ~/run/$oldimg/var/tmp/tb/backlog || echo "0"
 }
 
 
@@ -78,16 +78,16 @@ function __ReachedMaxRuntime()  {
 
 
 function __TooLessLeftInBacklog()  {
-  [[ $(NumberOfPackagesInBacklog $oldimg) -le $condition_left ]]
+  [[ $(NumberOfPackagesInBacklog) -le $condition_left ]]
 }
 
 
 function __EnoughCompletedEmergeOperations()  {
-  [[ $(GetCompletedEmergeOperations $oldimg) -ge $condition_completed ]]
+  [[ $(GetCompletedEmergeOperations) -ge $condition_completed ]]
 }
 
 
-function ReplaceAnImage()  {
+function AnImageIsFull()  {
   # hint: $oldimg is set here intentionally as a side effect, but it is used only if "0" is returned
   while read -r oldimg
   do
@@ -119,7 +119,7 @@ STOP
 STOP
 STOP
 STOP
-STOP $(GetCompletedEmergeOperations $oldimg) completed, $(NumberOfPackagesInBacklog $oldimg) left
+STOP $(GetCompletedEmergeOperations) completed, $(NumberOfPackagesInBacklog $oldimg) lef
 EOF
 
   # do not wait for an empty backlog.1st b/c job.sh might inject @preserved-rebuilds et al into it
@@ -142,7 +142,7 @@ EOF
 
 
 function setupANewImage() {
-  if [[ -e ~/run/$oldimg ]]; then
+  if [[ -n $oldimg && -e ~/run/$oldimg ]]; then
     echo
     date
     echo " replacing $oldimg ..."
@@ -156,6 +156,7 @@ function setupANewImage() {
   date
   echo " setup a new image ..."
   nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
+
   Finish $?
 }
 
@@ -204,17 +205,19 @@ do
 done
 
 if [[ -z "$oldimg" ]]; then
-  if ! AnImageHasAnEmptyBacklog; then
-    if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
-      if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
-        if ReplaceAnImage; then
-          setupANewImage
-        fi
-      fi
-    fi
+  if AnImageHasAnEmptyBacklog; then
+    setupANewImage
+  fi
 
-    if [[ $condition_count -gt -1 ]]; then
-      if ! MaxCountIsRunning; then
+  if [[ $condition_count -gt -1 ]]; then
+    if ! MaxCountIsRunning; then
+      setupANewImage
+    fi
+  fi
+
+  if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
+    if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
+      if AnImageIsFull; then
         setupANewImage
       fi
     fi
@@ -225,5 +228,5 @@ elif [[ ! $oldimg = "-" ]]; then
     echo " error, given old image is not valid: $oldimg"
     Finish 1
   fi
-
+  setupANewImage
 fi
