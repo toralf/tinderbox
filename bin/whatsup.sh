@@ -23,14 +23,14 @@ function check_history()  {
   if [[ -s $file ]]; then
     local line=$(tail -n 1 $file)
 
-    if grep -q " NOT ok" <<< $line; then
-      if grep -q " NOT ok$" <<< $line; then
-        local uflag=$(tr '[:lower:]' '[:upper:]' <<< $lc)
+    if grep -q " NOT ok $" <<< $line; then
+      if grep -q " NOT ok $" <<< $line; then
+        local uflag=$(tr '[:lower:]' '[:upper:]' <<< $flag)
         flags="${uflag}${flags}"
       else
         flags="${flag}${flags}"
       fi
-    elif grep -q " ok" <<< $line; then
+    elif grep -q " ok$" <<< $line; then
       flags=" $flags"
     else
       flags="?$flags"
@@ -240,7 +240,7 @@ function PackagesPerImagePerRunDay() {
 
 # whatsup.sh -r
 #
-# coverage
+# repo coverage
 # 3486 4787 2822 1763 1322 802 524 128
 function RepoCoverage() {
   printf "coverage"
@@ -267,7 +267,6 @@ function RepoCoverage() {
         $sum += $val;
         printf "%5i", $val;
       }
-      print "\ncumulated $sum\n";
     }
   ' < <(grep -h '::: completed emerge' ~/run/*/var/log/emerge.log | tr -d ':' | sort)
   echo
@@ -314,7 +313,7 @@ function CountEmergesPerPackages()  {
       for my $key (keys %pet)  {
         print " ", $key if ($max == $pet{$key});
       }
-      print "\n\nemerges: $total   ($seen packages)\n";
+      print "\n\n $total emerges         $seen packages)\n";
     }
   ' ~/run/*/var/log/emerge.log
 }
