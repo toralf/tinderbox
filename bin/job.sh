@@ -773,7 +773,15 @@ function WorkOnTask() {
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
       if [[ -n "$pkg" ]]; then
         if [[ $try_again -eq 0 ]]; then
-          add2backlog "%emerge --resume --skip-first"
+          if [[ $task = "@preserved-rebuild" ]]; then
+            if [[ $(equery d $pkgname | wc -l) -eq 0 ]]; then
+              add2backlog "@world"
+              add2backlog "@preserved-rebuild"
+              add2backlog "%emerge -C $pkgname"
+            fi
+          else
+            add2backlog "%emerge --resume --skip-first"
+          fi
         fi
       elif  grep -A 1000 '^The following USE changes are necessary to proceed:' $logfile_stripped |\
             grep -v 'required by' |\
@@ -786,7 +794,7 @@ function WorkOnTask() {
 
     feedPfl
 
-  # %<command>
+  # %<command/s>
   elif [[ $task =~ ^% ]]; then
     local cmd="$(cut -c2- <<< $task)"
 
@@ -804,11 +812,11 @@ function WorkOnTask() {
       fi
     fi
 
-  # pinned package version
+  # pinned version
   elif [[ $task =~ ^= ]]; then
     RunAndCheck "emerge $task" || true
 
-  # anything else
+  # a common atom
   else
     RunAndCheck "emerge --update $task" || true
   fi
@@ -820,6 +828,7 @@ function SquashRebuildLoop() {
   local n=$(tail -n 15 $taskfile.history | grep -c '@preserved-rebuild') || true
   if [[ $n -ge 5 ]]; then
     echo -e "#\n#\n#\n#\n#\n" >> $taskfile.history
+    echo "@preserved-rebuild" >> /var/tmp/tb/backlog.1st # re-try it asap
     Finish 1 "$FUNCNAME too much @preserved-rebuild" $taskfile.history
   fi
 
