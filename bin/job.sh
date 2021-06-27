@@ -606,10 +606,11 @@ function SwitchGCC() {
     gcc-config --nocolor $latest &>> $logfile
     source_profile
     add2backlog "%emerge @preserved-rebuild"
-    if qlist -ICv sys-devel/slibtool 1>/dev/null; then
+    if grep -q LIBTOOL /etc/portage/make.conf; then
       add2backlog "%emerge -1 sys-devel/slibtool"
+    else
+      add2backlog "%emerge -1 sys-devel/libtool"
     fi
-    add2backlog "%emerge -1 sys-devel/libtool"
     add2backlog "%emerge --unmerge sys-devel/gcc:$old"
   fi
 }
