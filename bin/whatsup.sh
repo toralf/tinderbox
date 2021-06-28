@@ -201,11 +201,11 @@ function LastEmergeOperation()  {
 
 
 # whatsup.sh -p
-#                                                  1    2    3    4    5    6    7.    8    9   10   11
-# 17.1_desktop_gnome_systemd-abi32+64-j2-202105 1056 1563 1742 1313  641  791  827.  747  411  495  211
-# 17.1_no-multilib-j2-20210510-162903           2273 2012 1678 1212 1034  674  829.  729  681  560  195
+#                                                        1d   2d   3d   4d   5d   6d   7d.   8d   9d  10d  11d  12d
+# 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454.  789
+# 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811.  701´
 function PackagesPerImagePerRunDay() {
-  printf "%52s %s\n" " " "   1    2    3    4    5    6    7.    8    9   10   11   12"
+  printf "%52s %s\n" " " "  1d   2d   3d   4d   5d   6d   7d.   8d   9d  10d  11d  12d"
 
   for i in $(ls ~/run/ | sort -t '-' -k 3,4)
   do
