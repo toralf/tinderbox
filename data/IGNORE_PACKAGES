@@ -1,8 +1,7 @@
-# tasks matching a pattern here will be skipped (except for being in backlog.1st)
-# this file MUST NOT have empty lines (except the very last one)
+# tasks matching a pattern here will be skipped (except for backlog.1st)
+# this file MUST NOT have empty lines
 #
-# never explicitly emerge:
-#
+app-eselect/
 dev-embedded/
 java-virtuals/
 perl-core/

@@ -9,7 +9,7 @@
 */*  RUBY_TARGETS:          ruby30
 
 # not at all
-*/*                       -cdinstall -firmware -initramfs -pax_kernel -symlink -valgrind
+*/*                       -cdinstall -firmware -initramfs -pax-kernel -symlink -valgrind
 
 # 2x faster compile
 */*                       jumbo-build
@@ -20,6 +20,7 @@ mail-mta/ssmtp            mta ssl
 # from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
 sys-apps/nix              -etc_profile
 
-# @world issues
+# avoid @world issues
 sys-apps/busybox          -pam
+sys-cluster/openmpi       cxx
 x11-libs/libyui           -ncurses

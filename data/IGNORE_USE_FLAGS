@@ -37,12 +37,11 @@ musl
 nss
 nvidia
 o-flag-munging
-obj-gc
 opencl
 openmp
 openssl
 passwdqc
-pax_kernel
+pax-kernel
 perftools
 prefix
 pwquality
