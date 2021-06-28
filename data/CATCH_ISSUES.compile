@@ -283,3 +283,4 @@ a: malformed archive
 rdlibtool: command not found
 cp: cannot create regular file
 Couldn't open
+gdbm_fetch: Item not found

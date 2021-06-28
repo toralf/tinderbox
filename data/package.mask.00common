@@ -28,18 +28,18 @@ www-client/google-chrome
 
 # https://bugs.gentoo.org/662396
 sys-fs/static-dev
-# compile hang
+
 # https://bugs.gentoo.org/711098
 dev-scheme/racket
+
 # https://bugs.gentoo.org/770976
 x11-wm/stumpwm
+
 # https://bugs.gentoo.org/789804
 sci-libs/libint:2
-# gcc-11 issues
-sci-libs/*
 
 # flip-flop
-<dev-util/ragel-7.0.3
+<dev-util/ragel-7.0.4
 
 # creates /vz which annoys me
 sys-cluster/vzctl

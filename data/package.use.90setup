@@ -10,8 +10,9 @@ dev-lang/python           -bluetooth
 app-text/ansifilter       -qt5
 dev-db/sqlite             -icu
 dev-vcs/git               -cvs -perl -tk -webdav
-sys-apps/busybox          -pam
+media-libs/libwebp        -tiff
 sys-apps/shadow           -cracklib
 
 # quicker/easier setup
 app-portage/pfl           -network-cron
+

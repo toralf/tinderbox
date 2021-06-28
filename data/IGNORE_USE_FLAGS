@@ -37,6 +37,7 @@ musl
 nss
 nvidia
 o-flag-munging
+obj-gc
 opencl
 openmp
 openssl

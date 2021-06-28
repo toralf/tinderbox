@@ -1,7 +1,7 @@
 # package.use/80test
 #
 
-# if FEATURES=test is set then these USE flags are needed to avoid a dep blocker at setup
+# if FEATURES=test is set then these USE flags are needed to avoid a dep blocker at setup ...
 
 media-gfx/imagemagick     corefonts
 media-libs/harfbuzz       icu
@@ -12,5 +12,11 @@ sys-apps/man-db           -nls
 sys-libs/libseccomp       -python
 x11-base/xorg-server      xvfb
 
-# or later, eg. in "perl-cleaner --all"
+# ... or later, eg. in "perl-cleaner --all"
 */*                       -jack
+
+# ... or later in @world
+#app-editors/emacs         -gtk -svg
+app-text/xmlto            -latex
+dev-util/cmake            -emacs
+net-print/cups            -zeroconf

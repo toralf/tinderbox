@@ -1,7 +1,9 @@
 /usr/bin/rpm2tar: line .*:
+Unsupported type of integrity check
 tar: This does not look like a tar archive
 tar: Exiting with failure status due to previous errors
 cp: .* No such file or directory
 rm: cannot remove
 mv: cannot stat
 asciidoctor
+failure unpacking

@@ -41,6 +41,7 @@ No supported Python implementation in PYTHON_SINGLE_TARGET.
 No support for external modules in
 OTP release .* does not match required regex
 pcmcia support is broken on kernels newer
+Please check to make sure these options are set correctly.
 Please disable .* support in your kernel config and recompile your kernel
 Please, run haskell-updater to fix broken packages
 Please switch to a gcc version built with USE=graphite
@@ -67,6 +68,7 @@ Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
 .-Wformat-security. ignored without .-Wformat.
 Wformat-security.*ignored without.*Wformat
+WireGuard has been merged upstream into this kernel.
  \* *You need one of the following mpi implementations:
 You need to apply a patch to your kernel to compile and run the aufs4 module
 Your C compiler is too old for this package.

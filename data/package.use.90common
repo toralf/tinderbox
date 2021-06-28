@@ -21,4 +21,5 @@ mail-mta/ssmtp            mta ssl
 sys-apps/nix              -etc_profile
 
 # @world issues
+sys-apps/busybox          -pam
 x11-libs/libyui           -ncurses

@@ -3,7 +3,7 @@ Please specify at least one package name on the command line.
 Could not find a package configuration file provided by
 You have to install development tools first.
 error in setup command
-Could not find Objective-C
+Could not find
 Requires at least PyQ.*
 The Motif libraries are not installed.
 setup: At least the following dependencies are missing:
@@ -27,3 +27,6 @@ No Python implementation set
  \*.*CONFIG_.*is not set when it should be
  \*   .* requires .* (CONFIG_.*) to be
  \*   Kernel not configured;
+USE=modules and in-kernel ipset support detected.
+ \*   Linux .* is the latest supported version
+ \* WireGuard has been merged upstream into this kernel. Therefore
