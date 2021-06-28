@@ -1,9 +1,9 @@
 # tinderbox
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
-**side note**:
-I started with 2-3 dozen lines of one or two shell scripts.
-Unfortunately I missed the point of no return when I added additional 2 KLOC to switch to a more appropriate language like Python.
+For that N Gentoo images are running in parallel using [bubblewrap](https://github.com/containers/bubblewrap) (a better chroot).
+
+Each image is setup from a recent stage3 tarball as an arbitrary combination of *~amd64* + *profile* + *USE flag* + ... set. Within each image all Gentoo packages are scheduled to be emerged in a randomized order.
 
 ## usage
 ### create a new image
@@ -11,10 +11,9 @@ Unfortunately I missed the point of no return when I added additional 2 KLOC to 
 ```bash
 setup_img.sh
 ```
-The current *stage3* file is downloaded, verified and unpacked, profile, keyword and USE flag are set.
-Mandatory portage config files will be compiled.
-Few required packages will be installed.
-A backlog is filled up with all available package in a randomized order (*/var/tmp/tb/backlog*).
+The current *stage3* file is downloaded, verified and unpacked.
+Mandatory portage config files will be compiled and few required packages will be installed.
+A backlog is filled up with all rec ent packages in a randomized order.
 A symlink is made into *~/run* and the image is started.
 
 ### start an image
@@ -22,9 +21,9 @@ A symlink is made into *~/run* and the image is started.
 ```bash
 start_img.sh <image>
 ```
-The wrapper *bwrap.sh* handles all sandbox related actions and gives control to *job.sh* which is the heart of the tinderbox.
-
 Without any arguments all symlinks in *~/run* are processed.
+
+The wrapper *bwrap.sh* handles all sandbox related actions and starts *job.sh* within that image.
 
 ### stop an image
 
@@ -41,7 +40,7 @@ The current emerge operation will be finished before *job.sh* removes the marker
 sudo /opt/tb/bin/bwrap.sh -m <mount point>
 ```
 
-This uses bubblewrap (a better chroot, see https://github.com/containers/bubblewrap).
+This uses
 
 ### removal of an image
 
