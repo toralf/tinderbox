@@ -214,11 +214,11 @@ function UnpackStage3()  {
 
 
 # configure image repositories
-function CompileRepoFiles()  {
+function InitRepositories()  {
   cd $mnt
-
   mkdir -p ./etc/portage/repos.conf/
 
+  # ::gentoo
   cat << EOF >> ./etc/portage/repos.conf/all.conf
 [DEFAULT]
 main-repo = gentoo
@@ -236,10 +236,12 @@ priority  = 99
 
 EOF
 
+  # ::local
   mkdir -p                  ./$repodir/local/{metadata,profiles}
   echo 'masters = gentoo' > ./$repodir/local/metadata/layout.conf
   echo 'local'            > ./$repodir/local/profiles/repo_name
 
+  # ::musl
   if [[ $musl = "y" ]]; then
     cat << EOF >> ./etc/portage/repos.conf/all.conf
 [musl]
@@ -251,6 +253,7 @@ sync-type = git
 EOF
   fi
 
+  # ::science
   if [[ $science = "y" ]]; then
     cat << EOF >> ./etc/portage/repos.conf/all.conf
 [science]
@@ -262,17 +265,16 @@ sync-type = git
 EOF
   fi
 
-  date
-  echo " clone repos ..."
-
-  # rsync is much faster than git clone
   cd ./$repodir
-  rsync --archive --quiet /var/db/repos/gentoo ./
-  cd ./gentoo
-  git pull --quiet 2>/dev/null
-  cd ..
-  [[ $musl    = "n" ]] || git clone --quiet https://github.com/gentoo/musl.git 2>/dev/null
-  [[ $science = "n" ]] || git clone --quiet https://github.com/gentoo/sci.git  2>/dev/null
+  # git clone of a local repo is much slower than cp (or rsync)
+  local refdir=~tinderbox/img/$(ls -t ~tinderbox/run | head -n 1)/var/db/repos/gentoo
+  if [[ ! -d $refdir ]]; then
+    refdir=/var/db/repos/gentoo
+  fi
+  cp -ar --reflink=auto $refdir ./
+  [[ $musl    = "n" ]] || git clone --quiet https://github.com/gentoo/musl.git
+  [[ $science = "n" ]] || git clone --quiet https://github.com/gentoo/sci.git
+
   echo
 }
 
@@ -324,7 +326,7 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-if __dice 1 6; then
+if __dice 1 12; then
   cat <<EOF >> ./etc/portage/make.conf
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
@@ -414,7 +416,7 @@ EOF
     cpconf ~tinderbox/tb/data/package.*.??systemd
   fi
 
-  cpconf ~tinderbox/tb/data/package.*.??common
+  cpconf ~tinderbox/tb/data/package.*.??{common,setup}
 
   if [[ $abi3264 = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.*.??abi32+64
@@ -538,15 +540,12 @@ function CreateHighPrioBacklog()  {
 
   cat << EOF > $bl.1st
 @world
+@system
 %rm /etc/portage/package.use/90setup
 @world
-@world
-@system
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
-sys-apps/portage
-%eselect kernel set 1
-sys-kernel/gentoo-kernel-bin
+sys-apps/portage app-portage/gentoolkit
 EOF
 
   # update GCC first
@@ -567,7 +566,7 @@ export LANG=C.utf8
 set -euf
 
 date
-echo "#setup locales + timezone" | tee /var/tmp/tb/task
+echo "#setup locale + timezone" | tee /var/tmp/tb/task
 
 if [[ ! $musl = "y" ]]; then
   cat << EOF2 >> /etc/locale.gen
@@ -623,6 +622,10 @@ if grep -q 'sys-devel/gcc' /var/tmp/tb/setup.sh.log; then
 fi
 
 date
+echo "#setup kernel" | tee /var/tmp/tb/task
+emerge -u sys-kernel/gentoo-kernel-bin
+eselect kernel set 1
+
 eselect profile set --force default/linux/amd64/$profile
 if [[ $testfeature = "y" ]]; then
   echo "*/*  test" >> /etc/portage/package.env/11dotest
@@ -721,13 +724,23 @@ function DryRunWithRandomUseFlags() {
     chgrp portage ./etc/portage/package.use/2*
     chmod a+r,g+w ./etc/portage/package.use/2*
 
-    # allows "tail -f ./dryrun.log"
-    touch ./var/tmp/tb/logs/dryrun.$attempt.log
-    (cd ./var/tmp/tb; ln -f ./logs/dryrun.$attempt.log dryrun.log)
-
-    if DryRun &> ./var/tmp/tb/logs/dryrun.$attempt.log; then
+    local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
+    rm -f ./etc/portage/package.use/USE-changes-setup
+    if DryRun &> $drylog; then
       return
     fi
+    local i=0
+    while   grep -A 1000 '^The following USE changes are necessary to proceed:' $drylog |\
+            grep -v 'required by' |\
+            grep -v -e 'sys-devel/gcc' -e 'sys-libs/glibc' |\
+            grep '^>=' >> ./etc/portage/package.use/USE-changes-setup
+    do
+      if DryRun &> $drylog; then
+        return
+      elif [[ $((i = i + 1)) -gt 10 ]]; then
+        break
+      fi
+    done
   done
 
   echo -e "\n$(date)\ndidn't make it after $attempt attempts, giving up\n"
@@ -784,7 +797,7 @@ done
 
 CheckOptions
 UnpackStage3
-CompileRepoFiles
+InitRepositories
 CompileMakeConf
 CompilePortageFiles
 CompileMiscFiles
