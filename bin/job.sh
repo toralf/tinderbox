@@ -784,11 +784,6 @@ function WorkOnTask() {
             add2backlog "%emerge --resume --skip-first"
           fi
         fi
-      elif  grep -A 1000 '^The following USE changes are necessary to proceed:' $logfile_stripped |\
-            grep -v 'required by' |\
-            grep -v -e 'sys-devel/gcc' -e 'sys-libs/glibc' |\
-            grep '^>=' >> /etc/portage/package.use/USE-changes; then
-        add2backlog "$task"
       fi
     fi
     cp $logfile /var/tmp/tb/$task.last.log

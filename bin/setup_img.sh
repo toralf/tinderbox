@@ -11,7 +11,7 @@ function IgnoreUseFlags()  {
 }
 
 
-# helper of DryRunWithRandomUseFlags
+# helper of DryRunWithRandomizedUseFlags
 function ThrowUseFlags() {
   local n=$1  # pass up to n-1
   local m=5   # mask 1:5
@@ -83,13 +83,12 @@ function InitOptions() {
   cflags="$cflags_default $cflags_special"
 
   musl="n"
-  randomuseflags="y"
   science="n"
-
   testfeature="n"
   if __dice 1 24; then
     testfeature="y"
   fi
+  useflagfile=""
 }
 
 
@@ -109,7 +108,6 @@ function checkBool()  {
 function CheckOptions() {
   checkBool "abi3264"
   checkBool "musl"
-  checkBool "randomuseflags"
   checkBool "science"
   checkBool "testfeature"
 
@@ -662,6 +660,10 @@ function RunSetupScript() {
 
 
 function DryRun() {
+  cd $mnt
+  chgrp portage ./etc/portage/package.use/2*
+  chmod a+r,g+w ./etc/portage/package.use/2*
+
   if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
     echo -e "$(date)\n $FUNCNAME was NOT successful\n"
     return 1
@@ -675,7 +677,7 @@ function FormatUseFlags() {
 
 
 # varying USE flags till dry run of @world would succeed
-function DryRunWithRandomUseFlags() {
+function DryRunWithRandomizedUseFlags() {
   cd $mnt
 
   for attempt in $(seq -w 1 50)
@@ -721,11 +723,8 @@ function DryRunWithRandomUseFlags() {
       xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
     done > ./etc/portage/package.use/24thrown_package_use_flags
 
-    chgrp portage ./etc/portage/package.use/2*
-    chmod a+r,g+w ./etc/portage/package.use/2*
-
     local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
-    rm -f ./etc/portage/package.use/USE-changes-setup
+    rm -f ./etc/portage/package.use/29USE-changes-setup
     if DryRun &> $drylog; then
       return
     fi
@@ -733,7 +732,7 @@ function DryRunWithRandomUseFlags() {
     while   grep -A 1000 '^The following USE changes are necessary to proceed:' $drylog |\
             grep -v 'required by' |\
             grep -v -e 'sys-devel/gcc' -e 'sys-libs/glibc' |\
-            grep '^>=' >> ./etc/portage/package.use/USE-changes-setup
+            grep '^>=' >> ./etc/portage/package.use/29USE-changes-setup
     do
       if DryRun &> $drylog; then
         return
@@ -778,17 +777,17 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts a:c:j:m:p:r:s:t: opt
+while getopts a:c:j:m:p:s:t:u: opt
 do
   case $opt in
-    a)  abi3264="$OPTARG"         ;;
-    c)  cflags="$OPTARG"          ;;
-    j)  jobs="$OPTARG"            ;;
-    p)  profile="$OPTARG"         ;;
-    r)  randomuseflags="$OPTARG"  ;;
-    s)  science="$OPTARG"         ;;
-    t)  testfeature="$OPTARG"     ;;
-    m)  musl="$OPTARG"            ;;
+    a)  abi3264="$OPTARG"     ;;
+    c)  cflags="$OPTARG"      ;;
+    j)  jobs="$OPTARG"        ;;
+    m)  musl="$OPTARG"        ;;
+    p)  profile="$OPTARG"     ;;
+    s)  science="$OPTARG"     ;;
+    t)  testfeature="$OPTARG" ;;
+    u)  useflagfile="$OPTARG" ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 1
         ;;
@@ -806,13 +805,14 @@ CreateSetupScript
 RunSetupScript
 echo
 echo 'emerge --update --changed-use --pretend --deep @world' > $mnt/var/tmp/tb/dryrun_wrapper.sh
-if [[ $randomuseflags = "y" ]]; then
-  DryRunWithRandomUseFlags
-else
+if [[ -e $useflagfile ]]; then
   date
-  echo "dryrun with default USE flags ==========================================================="
+  echo "dryrun with given USE flag file ==========================================================="
   echo
+  cp $useflagfile $mnt/etc/portage/package.use/28given_use_flags
   DryRun
+else
+  DryRunWithRandomizedUseFlags
 fi
 
 echo -e "\n$(date)\n  setup OK"
