@@ -26,7 +26,7 @@ function Mail() {
 
   if [[ -s $content ]]; then
     echo
-    cat $content
+    head -n 10000 $content
     echo
   else
     echo -e "$content"
