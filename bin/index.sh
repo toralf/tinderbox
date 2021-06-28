@@ -13,7 +13,24 @@ tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 cat << EOF >> $tmpfile
 <html>
 
-<h1>recent <a href="https://zwiebeltoralf.de/tinderbox.html">tinderbox</a> results</h1>
+<h1>recent <a href="https://zwiebeltoralf.de/tinderbox.html">tinderbox</a> data</h1>
+
+EOF
+
+cat << EOF >> $tmpfile
+<h2>content of image directory</h2>
+
+EOF
+ls  ~tinderbox/img/ |\
+while read d
+do
+  cat << EOF >> $tmpfile
+  <a href="./$d/">$d</a><br>
+EOF
+done
+
+cat << EOF >> $tmpfile
+<h2>reported <a href="https://bugs.gentoo.org/">Gentoo Bugs</a></h2>
 
 <table border="0" align="left">
 
@@ -51,7 +68,7 @@ do
   cat << EOF >> $tmpfile
     <tr>
       <td><a href="$buguri">$bugno</a></td>
-      <td>$(cat $ftitle)</td>
+      <td>$(recode ascii..html < $ftitle)</td>
       <td><a href="./$image/">$image</a></td>
       <td><a href="./$image/etc/portage/">link</a></td>
       <td><a href="$(cut -f5- -d'/' <<< $d)/">link</a></td>
@@ -64,8 +81,10 @@ cat << EOF >> $tmpfile
   </tbody>
 </table>
 
-</html>
+EOF
 
+cat << EOF >> $tmpfile
+</html>
 EOF
 
 if ! diff -q $tmpfile ~tinderbox/img/index.html 1>/dev/null; then
