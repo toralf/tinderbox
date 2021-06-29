@@ -20,12 +20,14 @@ EOF
 cat << EOF >> $tmpfile
 <h2>content of image directory</h2>
 
+<p><i>image</i>/var/tmp/tb contains ./logs and all ./issues</p>
+
 EOF
 ls  ~tinderbox/img/ |\
 while read d
 do
   cat << EOF >> $tmpfile
-  <a href="./$d/">$d</a><br>
+  <a href="./$d">$d</a><br>
 EOF
 done
 
