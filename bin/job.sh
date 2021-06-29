@@ -662,7 +662,16 @@ function PostEmerge() {
     add2backlog "%SwitchGCC"
   fi
 
-  # update the image once a day if nothing 1st prio is scheduled
+  if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $logfile_stripped; then
+    local current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
+    local latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
+
+    if [[ "$current_time" != "$latest" ]]; then
+      add2backlog "%eselect ruby set $latest"
+    fi
+  fi
+
+  # if nothing 1st prio is scheduled then update the image (but not more often than daily)
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local last=""
     if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history ]]; then
@@ -677,23 +686,10 @@ function PostEmerge() {
       last=/var/tmp/tb/@system.history
     fi
 
-    if [[ -n $last && $(( $(date +%s) - $(stat -c%Y $last) )) -gt 86400 ]]; then
+    if [[ -z $last || $(( $(date +%s) - $(stat -c%Y $last) )) -gt 86400 ]]; then
       add2backlog "@world"
       add2backlog "@system"
     fi
-  fi
-
-  if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $logfile_stripped; then
-    local current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
-    local latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
-
-    if [[ "$current_time" != "$latest" ]]; then
-      add2backlog "%eselect ruby set $latest"
-    fi
-  fi
-
-  if grep -q -F 'Please run emaint --check world' $logfile_stripped; then
-    add2backlog "%emaint --check world"
   fi
 }
 
