@@ -22,5 +22,6 @@ sys-apps/nix              -etc_profile
 
 # avoid @world issues
 sys-apps/busybox          -pam
+sys-apps/dbus             user-session
 sys-cluster/openmpi       cxx
 x11-libs/libyui           -ncurses
