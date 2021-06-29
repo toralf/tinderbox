@@ -239,6 +239,16 @@ EOF
   echo 'masters = gentoo' > ./$repodir/local/metadata/layout.conf
   echo 'local'            > ./$repodir/local/profiles/repo_name
 
+  date
+  echo " cloning ::gentoo"
+  cd ./$repodir
+  # git clone of a local repo is much slower than cp (or rsync)
+  local refdir=~tinderbox/img/$(ls -t ~tinderbox/run | head -n 1)/var/db/repos/gentoo
+  if [[ ! -d $refdir ]]; then
+    refdir=/var/db/repos/gentoo
+  fi
+  cp -ar --reflink=auto $refdir ./
+
   # ::musl
   if [[ $musl = "y" ]]; then
     cat << EOF >> ./etc/portage/repos.conf/all.conf
@@ -249,6 +259,9 @@ sync-uri  = https://github.com/gentoo/musl.git
 sync-type = git
 
 EOF
+    date
+    echo " cloning ::musl"
+    git clone --quiet https://github.com/gentoo/musl.git
   fi
 
   # ::science
@@ -261,17 +274,10 @@ sync-uri  = https://github.com/gentoo/sci.git
 sync-type = git
 
 EOF
+    date
+    echo " cloning ::science"
+    git clone --quiet https://github.com/gentoo/sci.git
   fi
-
-  cd ./$repodir
-  # git clone of a local repo is much slower than cp (or rsync)
-  local refdir=~tinderbox/img/$(ls -t ~tinderbox/run | head -n 1)/var/db/repos/gentoo
-  if [[ ! -d $refdir ]]; then
-    refdir=/var/db/repos/gentoo
-  fi
-  cp -ar --reflink=auto $refdir ./
-  [[ $musl    = "n" ]] || git clone --quiet https://github.com/gentoo/musl.git
-  [[ $science = "n" ]] || git clone --quiet https://github.com/gentoo/sci.git
 
   echo
 }
