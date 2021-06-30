@@ -6,7 +6,7 @@
 */*  QEMU_SOFTMMU_TARGETS:  x86_64 i386
 */*  QEMU_USER_TARGETS:     x86_64 i386
 */*  VIDEO_CARDS:           dummy
-*/*  RUBY_TARGETS:          ruby30
+#*/*  RUBY_TARGETS:          ruby30
 
 # not at all
 */*                       -cdinstall -firmware -initramfs -pax-kernel -symlink -valgrind
@@ -22,6 +22,4 @@ sys-apps/nix              -etc_profile
 
 # avoid @world issues
 sys-apps/busybox          -pam
-sys-apps/dbus             user-session
-sys-cluster/openmpi       cxx
 x11-libs/libyui           -ncurses

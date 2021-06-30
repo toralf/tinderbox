@@ -1,6 +1,8 @@
 # tasks matching a pattern here will be skipped (except for backlog.1st)
 # this file MUST NOT have empty lines
 #
+# generic entries
+#
 app-eselect/
 dev-embedded/
 java-virtuals/
@@ -9,3 +11,7 @@ sec-policy/
 sys-firmware/
 sys-kernel/
 virtual/
+#
+# temporary disabled
+#
+sci-*/
