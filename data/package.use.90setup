@@ -1,15 +1,9 @@
 # package.use/90setup
 #
 
-# this file helps to setup an image and is removed after an image has finished @world once
+# this file helps to setup an image so that first @world succeeds, it is removed afterwards
 
-# https://bugs.gentoo.org/764623
 dev-lang/python           -bluetooth
-
-# setup dependency issues
-app-portage/pfl           -network-cron
-app-text/ansifilter       -qt5
 dev-db/sqlite             -icu
-dev-vcs/git               -perl -webdav
+dev-vcs/git               -mediawiki -mediawiki-experimental -perl
 media-libs/libwebp        -tiff
-sys-apps/shadow           -cracklib

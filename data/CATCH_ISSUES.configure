@@ -19,8 +19,8 @@ Cannot execute 32-bit applications
 Unable to find clang libraries
 extconf.rb:.* (RuntimeError)
 The .* version in .* must be updated.
-\-\- Could NOT find
-\-\- Could not find
+  Could NOT find
+  Could not find
 bad option:
 Meson encountered an error
 Invalid option:

@@ -1,10 +1,8 @@
-!!! All ebuilds that could satisfy ".*" have been masked.
 !!! "--ask" should only be used in a terminal. Exiting.
+!!! One of the following masked packages is required to complete your request:
 Couldn't find .* to unmerge.
 Dependencies could not be completely resolved due t
-emerge: there are no ebuilds built with USE flags to satisfy
-emerge: there are no ebuilds to satisfy
-emerge: There are no sets to satisfy
+emerge: there are no .* to satisfy
 /entrypoint: line .*: .* Killed
 * Error: circular dependencies:
 * Error: The above package list contains packages which cannot be
@@ -12,7 +10,6 @@ emerge: There are no sets to satisfy
 is not a valid package atom.
 It may be possible to solve this
 !!! Multiple package instances within a single package slot have been pulled
-!!! One of the following masked packages is required to complete your request:
 The emaint program provides an interface to system health checks
 The following REQUIRED_USE flag constraints are unsatisfied:
 The following USE changes are necessary to proceed:

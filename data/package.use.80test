@@ -16,7 +16,6 @@ x11-base/xorg-server      xvfb
 */*                       -jack
 
 # ... or later in @world
-#app-editors/emacs         -gtk -svg
 app-text/xmlto            -latex
 dev-util/cmake            -emacs
 net-print/cups            -zeroconf

@@ -2,24 +2,45 @@
 #
 
 # these settings are fixed for every tinderbox image
+# overwritten can only be made by using file names not starting with a digit
 
-*/*  QEMU_SOFTMMU_TARGETS:  x86_64 i386
-*/*  QEMU_USER_TARGETS:     x86_64 i386
-*/*  VIDEO_CARDS:           dummy
-#*/*  RUBY_TARGETS:          ruby30
+*/*  QEMU_SOFTMMU_TARGETS:      x86_64 i386
+*/*  QEMU_USER_TARGETS:         x86_64 i386
+*/*  VIDEO_CARDS:               dummy
 
 # not at all
-*/*                       -cdinstall -firmware -initramfs -pax-kernel -symlink -valgrind
+*/*                             -cdinstall -firmware -initramfs -pax-kernel -symlink -valgrind
 
 # 2x faster compile
-*/*                       jumbo-build
+*/*                             jumbo-build
 
 # tinderbox requirements
-mail-mta/ssmtp            mta ssl
+mail-mta/ssmtp                  mta ssl
 
-# from slyfox: As soon as /etc/profile.d/nix.sh gets installed the next bash process will create a hard link to it
-sys-apps/nix              -etc_profile
+# /etc/profile.d/nix.sh overwrite it with a hard link
+sys-apps/nix                    -etc_profile
 
 # avoid @world issues
-sys-apps/busybox          -pam
-x11-libs/libyui           -ncurses
+app-portage/pfl                 -network-cron
+app-text/ansifilter             -qt5
+dev-vcs/git                     -cgi -cvs -subversion -webdav
+dev-libs/glib                   -gtk-doc
+dev-python/Babel                -doc
+dev-python/importlib_resources  -doc
+dev-python/jaraco-packaging     -doc
+dev-python/jinja                -doc
+dev-python/lxml                 -doc
+dev-python/pycairo              -doc
+dev-python/pygments             -doc
+dev-python/rst-linker           -doc
+dev-python/six                  -doc
+dev-python/zipp                 -doc
+sys-apps/busybox                -pam
+sys-apps/shadow                 -cracklib
+x11-libs/libyui                 -ncurses
+
+# by sam
+# Disable libcrypt in glibc
+sys-libs/glibc                  -crypt
+# Provide libcrypt
+sys-libs/libxcrypt              system

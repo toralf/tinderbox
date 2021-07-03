@@ -39,3 +39,4 @@ Error: The .* plugin is not installed
  undefined reference to
 mkdir: cannot create directory
 install: .* does not exist
+convert: no
