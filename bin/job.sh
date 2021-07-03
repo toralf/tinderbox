@@ -1,12 +1,10 @@
 #!/bin/bash
 # set -x
 
-
 # This is the tinderbox script itself.
 # The main function is WorkOnTask().
 # The remaining code just parses the output.
 # That's all.
-
 
 # strip away quotes
 function stripQuotesAndMore() {
@@ -103,7 +101,7 @@ function getNextTask() {
       continue
 
     elif [[ $task =~ ^STOP ]]; then
-      echo "#stopping" > $taskfile
+      echo "#stopping by task" > $taskfile
       Finish 0 "$task"
 
     elif [[ $task =~ ^@ || $task =~ ^% ]]; then
@@ -257,7 +255,6 @@ function getPkgVarsFromIssuelog()  {
       if [[ -z "$pkg" ]]; then
         pkg=$(grep -F ' * Fetch failed' $logfile_stripped | grep -o "'.*'" | sed "s,',,g")
         if [[ -z $pkg ]]; then
-          Mail "INFO: $FUNCNAME failed to get pkg" $logfile_stripped
           return 1
         fi
       fi
@@ -619,6 +616,11 @@ function SwitchGCC() {
 # helper of RunAndCheck()
 # it schedules follow-ups from the last emerge operation
 function PostEmerge() {
+  # try to catch if it vanishes
+  if [[ ! -e /usr/src/linux ]]; then
+    Finish 1 "whoops, no kernel symlink" $logfile_stripped
+  fi
+
   # don't change these config files after image setup
   rm -f /etc/._cfg????_{hosts,resolv.conf}
   rm -f /etc/conf.d/._cfg????_hostname
@@ -718,16 +720,16 @@ function RunAndCheck() {
   fi
 
   if [[ $rc -lt 128 ]]; then
-    if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped; then
-      if createIssueDir; then
-        GotAnIssue
-        if [[ $try_again -eq 0 ]]; then
-          PutDepsIntoWorldFile
-        fi
-      else
-        Mail "WARN: can't create issuedir for $task" $logfile_stripped
-        return $rc
+    if createIssueDir; then
+      GotAnIssue
+      if [[ $try_again -eq 0 ]]; then
+        PutDepsIntoWorldFile
       fi
+    elif grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped && ! grep -q '^>>>' $logfile_stripped; then
+      return $rc
+    else
+      Mail "WARN: can't create issuedir for $task" $logfile_stripped
+      return $rc
     fi
   else
     PutDepsIntoWorldFile
@@ -915,7 +917,7 @@ last_sync=0  # forces a sync at start
 while :
 do
   if [[ -f /var/tmp/tb/STOP ]]; then
-    echo "#stopping" > $taskfile
+    echo "#stopping by file" > $taskfile
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
