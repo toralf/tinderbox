@@ -447,44 +447,18 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  # libxcrypt as requested by sam
-  # https://gist.github.com/thesamesam/a36ff15235f5cbe5004972f80f254123#portage-changes
-  # https://wiki.gentoo.org/wiki/Project:Toolchain/libcrypt_implementation
-  if __dice 1 2; then
-    cat << EOF >> ./etc/portage/package.use/81libxcrypt
-# Disable libcrypt in glibc
-sys-libs/glibc -crypt
-# Provide libcrypt
-sys-libs/libxcrypt system
-
-EOF
-
-    cat << EOF >> ./etc/portage/package.accept_keywords/81libxcrypt
-# Allow the new libcrypt virtual which includes libxcrypt
->=virtual/libcrypt-2
-
-EOF
-
-    cat << EOF >> ./etc/portage/package.unmask/81libxcrypt
-# Allow virtual which specifies libxcrypt
->=virtual/libcrypt-2
-
-EOF
-
-    mkdir -p ./etc/portage/profile
-
-    cat << EOF >> ./etc/portage/profile/package.use.mask
+  # by sam
+  mkdir -p ./etc/portage/profile
+  cat << EOF >> ./etc/portage/profile/package.use.mask
 # Allow libxcrypt to be the system provider of libcrypt, not glibc
 sys-libs/libxcrypt -system
 
 EOF
-
-    cat << EOF >> ./etc/portage/profile/package.use.force
+  cat << EOF >> ./etc/portage/profile/package.use.force
 # Don't force glibc to provide libcrypt
 sys-libs/glibc -crypt
 
 EOF
-fi
 
   touch ./var/tmp/tb/task
 
@@ -537,7 +511,7 @@ function CreateHighPrioBacklog()  {
   chmod 664               $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
 
-  # requested by Whissi, its an alternative mysql engine
+  # requested by Whissi (an alternative mysql engine)
   if __dice 1 12; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
@@ -615,11 +589,9 @@ emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the destination already exists (bind-mounted by bwrap-sh)
 emerge -u mail-client/mailx
 
-if [[ -s /etc/portage/package.use/81libxcrypt ]]; then
-  date
-  echo "#setup libxcrypt" | tee /var/tmp/tb/task
-  emerge -u virtual/libcrypt || emerge -u virtual/libcrypt dev-lang/perl || exit 1
-fi
+date
+echo "#setup libxcrypt" | tee /var/tmp/tb/task
+emerge -u virtual/libcrypt || emerge -u virtual/libcrypt dev-lang/perl || exit 1
 
 if grep -q 'sys-devel/gcc' /var/tmp/tb/setup.sh.log; then
   echo "%SwitchGCC" >> /var/tmp/tb/backlog.1st
@@ -628,7 +600,10 @@ fi
 date
 echo "#setup kernel" | tee /var/tmp/tb/task
 emerge -u sys-kernel/gentoo-kernel-bin
-eselect kernel set 1
+if [[ ! -e /usr/src/linux ]]; then
+  echo "whoops, no kernel symlink"
+  exit 1
+fi
 
 eselect profile set --force default/linux/amd64/$profile
 if [[ $testfeature = "y" ]]; then
@@ -686,7 +661,7 @@ function FormatUseFlags() {
 function DryRunWithRandomizedUseFlags() {
   cd $mnt
 
-  for attempt in $(seq -w 1 50)
+  for attempt in $(seq -w 1 99)
   do
     echo
     date
@@ -730,19 +705,19 @@ function DryRunWithRandomizedUseFlags() {
     done > ./etc/portage/package.use/24thrown_package_use_flags
 
     local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
-    rm -f ./etc/portage/package.use/29USE-changes-setup
+    rm -f ./etc/portage/package.use/28USE-changes-setup
     if DryRun &> $drylog; then
       return
     fi
     local i=0
     while   grep -A 1000 '^The following USE changes are necessary to proceed:' $drylog |\
             grep -v 'required by' |\
-            grep -v -e 'sys-devel/gcc' -e 'sys-libs/glibc' |\
-            grep '^>=' >> ./etc/portage/package.use/29USE-changes-setup
+            grep -v -e 'sys-devel/gcc' -e 'sys-libs/glibc' -e '_targets' |\
+            grep '^>=' >> ./etc/portage/package.use/28USE-changes-setup
     do
       if DryRun &> $drylog; then
         return
-      elif [[ $((i = i + 1)) -gt 10 ]]; then
+      elif [[ $((i++)) -gt 9 ]]; then
         break
       fi
     done
