@@ -33,7 +33,7 @@ done
 name=/local
 cgcreate -g cpu,memory:$name
 
-# reserve 3.5 vCPUs, 18 GB RAM and 48 GB vRAM
+# reserve 3.5 vCPUs, 18 GB RAM and 64 GB vRAM for others
 vcpu=${1:-$(($(nproc) * 100000 - 350000))}
 ram=${2:-110G}
 vram=${3:-320G}
