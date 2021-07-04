@@ -79,6 +79,8 @@ function Overall() {
     bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st || echo 0)
     blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd || echo 0)
 
+    # "r" image is running
+    # " " image is NOT running
     flags=""
     if __is_running $i ; then
       flags+="r"
@@ -86,7 +88,8 @@ function Overall() {
       flags+=" "
     fi
 
-    # F=STOP file, f=STOP in backlog
+    # "S" STOP file
+    # "s" STOP in backlog
     if [[ -f $i/var/tmp/tb/STOP ]]; then
       flags+="S"
     else
@@ -97,11 +100,12 @@ function Overall() {
       fi
     fi
 
-    [[ -f $i/var/tmp/tb/KEEP ]] && flags+="K" || flags+=" "
-
-    # show result of last run of @system, @world and @preserved-rebuild respectively
-    # upper case: an error occurred, lower case: a warning occurred
-    # a "." means was not run yet and a space, that it was fully ok
+    # result of last run of @system, @world and @preserved-rebuild respectively:
+    #
+    # upper case: an error occurred
+    # lower case: a package failed
+    # "." not yet run
+    # " " ok
     check_history $i/var/tmp/tb/@world.history              w
     check_history $i/var/tmp/tb/@system.history             s
     check_history $i/var/tmp/tb/@preserved-rebuild.history  p
@@ -240,35 +244,16 @@ function PackagesPerImagePerRunDay() {
 
 # whatsup.sh -r
 #
-# repo coverage
-# 3486 4787 2822 1763 1322 802 524 128
+# coverage: 17812
 function RepoCoverage() {
-  printf "coverage"
-  perl -wane '
-    BEGIN {
-      @coverage   = ();   # helds the amount of unseen packages per runday
-      $start_time = 0;    # of all images
-      %seen       = ();
-    }
-
-    my $epoch_time = $F[0];
-    my $pkg = $F[6];
-
-    $start_time = $epoch_time unless ($start_time);
-    my $rundays = int(($epoch_time - $start_time) / 86400);
-
-    # strip of the version would be more precise but it is not worth here
-    $coverage[$rundays]++ unless ($seen{$pkg}++);
-
-    END {
-      my $sum = 0;
-      foreach my $rundays (0..$#coverage) {
-        my $val = $coverage[$rundays] ?  $coverage[$rundays] : 0;
-        $sum += $val;
-        printf "%5i", $val;
-      }
-    }
-  ' < <(grep -h '::: completed emerge' ~/run/*/var/log/emerge.log | tr -d ':' | sort)
+  echo -n "coverage "
+  for i in run img
+  do
+    coverage=$(grep -H '::: completed emerge' ~/$i/*/var/log/emerge.log |\
+                tr -d ':' | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' | sort -u |\
+                wc -l)
+    echo -n "$coverage "
+  done
   echo
 }
 
