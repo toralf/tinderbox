@@ -618,6 +618,8 @@ qsearch --all --nocolor --name-only --quiet | sort -u -R > /var/tmp/tb/backlog
 # copy+paste the \n too for middle mouse selections (sys-libs/readline de-activates that behaviour with v8.x)
 echo "set enable-bracketed-paste off" >> /etc/inputrc
 
+date
+echo "#setup done" | tee /var/tmp/tb/task
 EOF
 
   chmod u+x ./var/tmp/tb/setup.sh
@@ -646,7 +648,7 @@ function DryRun() {
   chmod a+r,g+w ./etc/portage/package.use/2*
 
   if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
-    echo -e "$(date)\n $FUNCNAME was NOT successful\n"
+    echo -e "\n$(date)\n $FUNCNAME was NOT successful\n"
     return 1
   fi
 }
@@ -705,26 +707,13 @@ function DryRunWithRandomizedUseFlags() {
     done > ./etc/portage/package.use/24thrown_package_use_flags
 
     local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
-    rm -f ./etc/portage/package.use/28USE-changes-setup
     if DryRun &> $drylog; then
       return
     fi
-    local i=0
-    while   grep -A 1000 '^The following USE changes are necessary to proceed:' $drylog |\
-            grep -v 'required by' |\
-            grep -v -e 'sys-devel/gcc' -e 'sys-libs/glibc' -e '_targets' |\
-            grep '^>=' >> ./etc/portage/package.use/28USE-changes-setup
-    do
-      if DryRun &> $drylog; then
-        return
-      elif [[ $((i++)) -gt 9 ]]; then
-        break
-      fi
-    done
+    grep -H -A 15 'Error: circular dependencies:' $drylog
   done
 
   echo -e "\n$(date)\ndidn't make it after $attempt attempts, giving up\n"
-  truncate -s 0 ./var/tmp/tb/task
   exit 2
 }
 
