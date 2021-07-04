@@ -112,7 +112,7 @@ function AnImageIsFull()  {
 
 
 function StopOldImage() {
-  # repeat STOP to stop immediately after an unwanted restart due to a changed job.sh or so
+  # repeat STOP to stop again immediately after an external triggered restart
   cat << EOF > ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP
 STOP
@@ -122,7 +122,7 @@ STOP
 STOP $(GetCompletedEmergeOperations) completed, $(NumberOfPackagesInBacklog $oldimg) lef
 EOF
 
-  # do not wait for an empty backlog.1st b/c job.sh might inject @preserved-rebuilds et al into it
+  # do not put a "STOP" into backlog.1st b/c job.sh might inject @preserved-rebuilds et al before it
   ${0%/*}/stop_img.sh $oldimg
 
   local lock_dir=/run/tinderbox/$oldimg.lock
@@ -133,10 +133,6 @@ EOF
     do
       sleep 1
     done
-    date
-    echo " image is unlocked"
-  else
-    echo " image was not locked"
   fi
 }
 
@@ -145,9 +141,10 @@ function setupANewImage() {
   if [[ -n $oldimg && -e ~/run/$oldimg ]]; then
     echo
     date
-    echo " replacing $oldimg ..."
+    echo " stopping $oldimg ..."
     StopOldImage
     rm -- ~/run/$oldimg ~/logs/$oldimg.log
+    rm "done"
   fi
 
   rm $lck
