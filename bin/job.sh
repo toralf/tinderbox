@@ -715,29 +715,27 @@ function RunAndCheck() {
     Mail "INFO: keep core files in $taskdirname" "$(ls -lh /var/tmp/tb/core/$taskdirname/)"
   fi
 
-  if [[ $rc -eq 0 ]]; then
-    return $rc
-  fi
-
-  if [[ $rc -lt 128 ]]; then
-    if createIssueDir; then
-      GotAnIssue
-      if [[ $try_again -eq 0 ]]; then
-        PutDepsIntoWorldFile
-      fi
-    elif grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped && ! grep -q '^>>>' $logfile_stripped; then
-      return $rc
-    else
-      Mail "WARN: can't create issuedir for $task" $logfile_stripped
-      return $rc
-    fi
-  else
+  if [[ $rc -ge 128 ]]; then
     PutDepsIntoWorldFile
     ((signal = rc - 128))
     if [[ $signal -eq 9 ]]; then
       Finish 0 "catched signal $signal - exiting, task=$task"
     else
       Mail "INFO: emerge stopped by signal $signal, task=$task" $logfile_stripped
+    fi
+
+  elif [[ $rc -ne 0 ]]; then
+    if grep -q '^>>>' $logfile_stripped; then
+      if createIssueDir; then
+        GotAnIssue
+        if [[ $try_again -eq 0 ]]; then
+          PutDepsIntoWorldFile
+        fi
+      else
+        Mail "WARN: can't get data for $task" $logfile_stripped
+      fi
+    elif ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped && ! ; then
+      Mail "unrecognized log for $task" $logfile_stripped
     fi
   fi
 
