@@ -3,7 +3,25 @@
 
 # this file helps to setup an image so that first @world succeeds, it is removed afterwards
 
-dev-lang/python           -bluetooth
-dev-db/sqlite             -icu
-dev-vcs/git               -mediawiki -mediawiki-experimental -perl
-media-libs/libwebp        -tiff
+app-editors/emacs               -gui -svg
+dev-lang/python                 -bluetooth
+dev-db/sqlite                   -icu
+dev-libs/glib                   -gtk-doc
+dev-util/desktop-file-utils     -emacs
+dev-vcs/git                     -cgi -cvs -subversion -webdav -mediawiki -mediawiki-experimental -perl
+media-libs/freetype             -harfbuzz
+media-libs/libwebp              -tiff
+net-dns/avahi                   -gtk
+sys-apps/shadow                 -cracklib
+sys-libs/ncurses                -gpm
+
+dev-python/Babel                -doc
+dev-python/importlib_resources  -doc
+dev-python/jaraco-packaging     -doc
+dev-python/jinja                -doc
+dev-python/lxml                 -doc
+dev-python/pycairo              -doc
+dev-python/pygments             -doc
+dev-python/rst-linker           -doc
+dev-python/six                  -doc
+dev-python/zipp                 -doc

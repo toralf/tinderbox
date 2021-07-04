@@ -2,7 +2,7 @@
 #
 
 # these settings are fixed for every tinderbox image
-# overwritten can only be made by using file names not starting with a digit
+# overwrite those by using file names not starting with a digit
 
 */*  QEMU_SOFTMMU_TARGETS:      x86_64 i386
 */*  QEMU_USER_TARGETS:         x86_64 i386
@@ -20,24 +20,12 @@ mail-mta/ssmtp                  mta ssl
 # /etc/profile.d/nix.sh overwrite it with a hard link
 sys-apps/nix                    -etc_profile
 
-# avoid @world issues
+# pull in too much deps at begin
 app-portage/pfl                 -network-cron
 app-text/ansifilter             -qt5
-dev-vcs/git                     -cgi -cvs -subversion -webdav
-dev-libs/glib                   -gtk-doc
-dev-python/Babel                -doc
-dev-python/importlib_resources  -doc
-dev-python/jaraco-packaging     -doc
-dev-python/jinja                -doc
-dev-python/lxml                 -doc
-dev-python/pycairo              -doc
-dev-python/pygments             -doc
-dev-python/rst-linker           -doc
-dev-python/six                  -doc
-dev-python/zipp                 -doc
+
+# avoid @world issues
 sys-apps/busybox                -pam
-sys-apps/shadow                 -cracklib
-x11-libs/libyui                 -ncurses
 
 # by sam
 # Disable libcrypt in glibc
