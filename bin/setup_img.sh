@@ -663,7 +663,7 @@ function FormatUseFlags() {
 function DryRunWithRandomizedUseFlags() {
   cd $mnt
 
-  for attempt in $(seq -w 1 99)
+  for attempt in $(seq -w 1 50)
   do
     echo
     date
