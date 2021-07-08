@@ -437,8 +437,10 @@ function ClassifyIssue() {
   done
 
   # shrink loong path names and :lineno:columno: pattern
-  sed -i -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
-         -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' $issuedir/title
+  sed -i  -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
+          -e 's,ninja: error: /.*/,ninja error: .../,' \
+          -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' \
+          $issuedir/title
 }
 
 
