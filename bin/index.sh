@@ -18,7 +18,7 @@ cat << EOF >> $tmpfile
 EOF
 
 cat << EOF >> $tmpfile
-<h2>content of image directory</h2>
+<h2>recent content of image directory</h2>
 
 <p><i>image</i>/var/tmp/tb contains ./logs and all ./issues</p>
 
@@ -32,7 +32,7 @@ EOF
 done
 
 cat << EOF >> $tmpfile
-<h2>reported <a href="https://bugs.gentoo.org/">Gentoo Bugs</a></h2>
+<h2>recent reported <a href="https://bugs.gentoo.org/">Gentoo Bugs</a></h2>
 
 <table border="0" align="left">
 
