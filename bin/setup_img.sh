@@ -230,14 +230,19 @@ sync-type = git
 
 [local]
 location  = $repodir/local
+auto-sync = no
 priority  = 99
 
 EOF
 
   # ::local
-  mkdir -p                  ./$repodir/local/{metadata,profiles}
-  echo 'masters = gentoo' > ./$repodir/local/metadata/layout.conf
-  echo 'local'            > ./$repodir/local/profiles/repo_name
+  mkdir -p       ./$repodir/local/{metadata,profiles}
+  echo 'local' > ./$repodir/local/profiles/repo_name
+  cat << EOF  > ./$repodir/local/metadata/layout.conf
+[local]
+masters = gentoo
+
+EOF
 
   date
   echo " cloning ::gentoo"
@@ -313,7 +318,7 @@ ACCEPT_RESTRICT="-fetch"
 NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
-FEATURES="cgroup splitdebug xattr -collision-protect -news"
+FEATURES="cgroup xattr -collision-protect -news -splitdebug"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --with-bdeps=y --verbose-conflicts"
 
 ALLOW_TEST="network"
