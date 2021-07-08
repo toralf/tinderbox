@@ -144,7 +144,7 @@ function setupANewImage() {
     echo " stopping $oldimg ..."
     StopOldImage
     rm -- ~/run/$oldimg ~/logs/$oldimg.log
-    rm "done"
+    echo "done"
   fi
 
   rm $lck
