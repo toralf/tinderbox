@@ -211,7 +211,7 @@ function LastEmergeOperation()  {
 function PackagesPerImagePerRunDay() {
   printf "%52s %s\n" " " "  1d   2d   3d   4d   5d   6d   7d.   8d   9d  10d  11d  12d"
 
-  for i in $(ls ~/run/ | sort -t '-' -k 3,4)
+  for i in $(ls -d ~/run/17* 2>/dev/null | sort -t '-' -k 3,4)
   do
     PrintImageName $i 52
 
@@ -230,14 +230,16 @@ function PackagesPerImagePerRunDay() {
       $packages[$rundays]++;
 
       END {
-        $packages[$rundays] += 0;
-        foreach my $rundays (0..$#packages) {
-          printf "." if ($rundays > 5 && $rundays % 7 == 0);    # dot between 2 week
-          ($packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
+        if ($#packages >= 0) {
+          $packages[$rundays] += 0;
+          foreach my $rundays (0..$#packages) {
+            printf "." if ($rundays > 5 && $rundays % 7 == 0);    # dot between 2 week
+            ($packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
+          }
         }
         print "\n";
       }
-    ' ~/run/$i/var/log/emerge.log
+    ' $i/var/log/emerge.log
   done
 }
 
