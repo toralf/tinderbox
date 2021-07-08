@@ -17,11 +17,13 @@ do
   echo
   date
   df -m $fs
+  echo
   img=$(ls -d ~tinderbox/img/*/ 2>/dev/null | sort -t'-' -k 3,4 | head -n 1)
   if [[ -d $img ]]; then
     echo "prune image: $img"
     rm -rf $img
     sleep 60    # lazy btrfs
+    echo
     df -m $fs
   else
     echo "nothing to delete ?!"
