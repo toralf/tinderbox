@@ -11,6 +11,7 @@ debug
 default-gold
 dist-kernel
 elogind
+exec-static-trampoline
 firmware
 FreeBSD
 fuse

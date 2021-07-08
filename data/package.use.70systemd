@@ -1,6 +1,6 @@
 # package.use/70systemd
 #
 
-sys-apps/dbus                         user-session
-app-text/docbook-xsl-ns-stylesheets   -ruby
-sys-cluster/openmpi                   cxx
+app-crypt/pinentry              -gtk
+sys-auth/polkit                 -gtk
+sys-apps/systemd                -homed

@@ -7,6 +7,7 @@
 */*  QEMU_SOFTMMU_TARGETS:      x86_64 i386
 */*  QEMU_USER_TARGETS:         x86_64 i386
 */*  VIDEO_CARDS:               dummy
+*/*  RUBY_TARGETS:              ruby30
 
 # not at all
 */*                             -cdinstall -firmware -initramfs -pax-kernel -symlink -valgrind
@@ -20,15 +21,24 @@ mail-mta/ssmtp                  mta ssl
 # /etc/profile.d/nix.sh overwrite it with a hard link
 sys-apps/nix                    -etc_profile
 
-# pull in too much deps at begin
+# too much deps needed which would be installed always first
 app-portage/pfl                 -network-cron
 app-text/ansifilter             -qt5
 
-# avoid @world issues
+# avoid @world dep issues after 90setup is removed
+app-crypt/libsecret             -gtk-doc
+dev-libs/glib                   -gtk-doc
+dev-libs/libpcre*               readline -libedit
+dev-vcs/git                     -cvs -subversion
+media-libs/freetype             harfbuzz
 sys-apps/busybox                -pam
+sys-apps/shadow                 -cracklib
 
 # by sam
 # Disable libcrypt in glibc
 sys-libs/glibc                  -crypt
 # Provide libcrypt
 sys-libs/libxcrypt              system
+
+# by slyfox: old (default, safe) https://bugs.gentoo.org/801109
+>=dev-libs/libffi-3.4           -exec-static-trampoline

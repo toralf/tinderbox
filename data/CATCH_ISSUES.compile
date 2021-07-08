@@ -1,3 +1,4 @@
+The futex facility returned an unexpected error code.
 asciidoctor.*cannot load
 gems.*asciidocter.*LoadError
 is not a compiled interface for this version of OCaml
@@ -13,7 +14,6 @@ undefined symbol:
 exited with code: 1.
 I can't find the format file
 ; recompile with -fPIC
-multiple definition of
 must be installed to use
 Non type-variable argument
 too few arguments to function
@@ -175,7 +175,6 @@ sh: .* No such file or directory
   unbound variable:
 fatal: Not a git repository (or any parent up to mount point /var/tmp)
 rm: cannot remove 'libsrtp.a': No such file or directory
- Performing Test .* - Failed
 OTP release .* does not match required regex
 Can't open heap image file
 \[ERROR\]

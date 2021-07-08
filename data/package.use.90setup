@@ -3,25 +3,26 @@
 
 # this file helps to setup an image so that first @world succeeds, it is removed afterwards
 
-app-editors/emacs               -gui -svg
-dev-lang/python                 -bluetooth
-dev-db/sqlite                   -icu
-dev-libs/glib                   -gtk-doc
-dev-util/desktop-file-utils     -emacs
-dev-vcs/git                     -cgi -cvs -subversion -webdav -mediawiki -mediawiki-experimental -perl
-media-libs/freetype             -harfbuzz
-media-libs/libwebp              -tiff
-net-dns/avahi                   -gtk
-sys-apps/shadow                 -cracklib
-sys-libs/ncurses                -gpm
 
+# quicker bootstrap
+dev-vcs/git                     -cgi -mediawiki -mediawiki-experimental -perl -webdav
+
+
+# Error: circular dependencies:
+app-crypt/mit-krb5              -nls
+app-editors/emacs               -gui -svg
+app-text/xmlto                  -latex
+dev-lang/python                 -bluetooth
 dev-python/Babel                -doc
-dev-python/importlib_resources  -doc
-dev-python/jaraco-packaging     -doc
-dev-python/jinja                -doc
-dev-python/lxml                 -doc
-dev-python/pycairo              -doc
-dev-python/pygments             -doc
-dev-python/rst-linker           -doc
-dev-python/six                  -doc
-dev-python/zipp                 -doc
+dev-vcs/cvs                     -kerberos
+dev-util/cmake                  -qt5
+dev-util/desktop-file-utils     -emacs
+media-libs/freetype             -harfbuzz
+media-libs/harfbuzz             -introspection
+media-libs/libwebp              -tiff
+media-libs/tiff                 -webp
+net-dns/avahi                   -gtk
+net-print/cups                  -zeroconf
+net-wireless/wpa_supplicant     -qt5
+sys-libs/ncurses                -gpm
+x11-libs/gtk+                   -cups

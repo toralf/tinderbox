@@ -46,3 +46,6 @@ sys-cluster/vzctl
 
 # breaks @world too often
 sci-biology/samtools
+
+# https://bugs.gentoo.org/show_bug.cgi?id=801223
+sci-libs/atlas

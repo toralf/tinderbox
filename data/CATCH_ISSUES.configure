@@ -1,3 +1,4 @@
+The futex facility returned an unexpected error code.
 Unknown CMake command
 CMake will not be able to correctly generate this project.
 required internal CMake variable not set
@@ -19,8 +20,6 @@ Cannot execute 32-bit applications
 Unable to find clang libraries
 extconf.rb:.* (RuntimeError)
 The .* version in .* must be updated.
-  Could NOT find
-  Could not find
 bad option:
 Meson encountered an error
 Invalid option:
@@ -71,7 +70,10 @@ The version of your compiler is not supported at this time
 Could not create Makefile due to some reason
 environment: .*: command not found
  Could NOT find .* (missing:
-CMake Error at
-CMake Error:
+.*: Required feature .* not found
 Configuring incomplete
 cmake failed
+.CONFIG_
+checking version of x86_64-pc-linux-gnu-gcc ... .* - old version, at least .* required!
+CMake Error at
+CMake Error:

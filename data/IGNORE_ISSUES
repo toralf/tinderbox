@@ -1,3 +1,4 @@
+ .CONFIG_
 asciidoctor
  \*   atlas needs all cpu set to performance
 both portaudio and jack are enabled, disable one
