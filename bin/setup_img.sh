@@ -465,6 +465,29 @@ sys-libs/glibc -crypt
 
 EOF
 
+    cat << EOF > ./etc/portage/package.use/90libffi
+# by slyfox
+# Tracker: https://bugs.gentoo.org/801109
+# Known examples: https://wiki.gentoo.org/index.php?title=Project:Toolchain#libffi-3.4
+
+EOF
+
+  if __dice 1 4; then
+    cat << EOF >> ./etc/portage/package.use/90libffi
+# by slyfox: old (default, safe) https://bugs.gentoo.org/801109
+
+>=dev-libs/libffi-3.4      -exec-static-trampoline
+
+EOF
+  else
+    cat << EOF >> ./etc/portage/package.use/90libffi
+# by slyfox: would also be nice:
+
+>=dev-libs/libffi-3.4      exec-static-trampoline
+
+EOF
+  fi
+
   touch ./var/tmp/tb/task
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
