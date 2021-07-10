@@ -17,16 +17,13 @@ truncate -s 0 $result
 
 xargs -n 1 <<< ${@} |\
 sort -u |\
+grep -v "^$" |\
 while read -r word
 do
-  if [[ -z "$word" ]]; then
-    continue
-  fi
-
   echo "$word" >> $result
 
-  # delete a package from global tinderbox file and from image specific files
-  pkgname=$(qatom "$word" 2>/dev/null | cut -f1-2 -d' ' -s | grep -F -v '<unset>' | tr ' ' '/')
+  # delete a package in global and image specific files
+  pkgname=$(qatom "$word" 2>/dev/null | cut -f1-2 -d' ' -s | grep -v -F '<unset>' | tr ' ' '/')
   if [[ -n "$pkgname" ]]; then
     sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)/d"  \
         ~/tb/data/ALREADY_CATCHED                     \
@@ -41,7 +38,7 @@ if [[ -s $result ]]; then
   do
     bl=$i/var/tmp/tb/backlog.1st
     if [[ -s $bl ]]; then
-      # grep out dups and schedule new ones after current entries
+      # filter out dups, schedule new after existing entries
       (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     else
       shuf $result > $bl.tmp
