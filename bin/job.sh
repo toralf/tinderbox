@@ -618,11 +618,6 @@ function SwitchGCC() {
 # helper of RunAndCheck()
 # it schedules follow-ups from the last emerge operation
 function PostEmerge() {
-  # try to catch if it vanishes
-  if [[ ! -e /usr/src/linux ]]; then
-    Finish 1 "whoops, no kernel symlink" $logfile_stripped
-  fi
-
   # don't change these config files after image setup
   rm -f /etc/._cfg????_{hosts,resolv.conf}
   rm -f /etc/conf.d/._cfg????_hostname
@@ -675,7 +670,7 @@ function PostEmerge() {
     fi
   fi
 
-  # if nothing 1st prio is scheduled then update the image (but not more often than daily)
+  # if nothing is scheduled in the 1st prio then check for scheduleßing of the daily update
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local last=""
     if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history ]]; then
@@ -759,7 +754,7 @@ function WorkOnTask() {
     if [[ ! $task = "@preserved-rebuild" ]]; then
       opts="$opts --update"
       if [[ $task = "@system" || $task = "@world" ]]; then
-        opts="$opts --changed-use"
+        opts="$opts --changed-use --newuse"
       fi
     fi
 
