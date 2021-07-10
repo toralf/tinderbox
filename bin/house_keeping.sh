@@ -12,7 +12,7 @@ fi
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -exec rm {} +
 
 fs=/dev/nvme0n1p4
-while [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < 200000 || $5 > "85%")') ]]
+while [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < 200000 || $5 > "87%")') ]]
 do
   echo
   date
@@ -27,6 +27,6 @@ do
     df -m $fs
   else
     echo "nothing to delete ?!"
-    break
+    exit 1
   fi
 done
