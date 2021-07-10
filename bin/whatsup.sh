@@ -239,7 +239,7 @@ function PackagesPerImagePerRunDay() {
         }
         print "\n";
       }
-    ' $i/var/log/emerge.log
+    ' $i/var/log/emerge.log 2>/dev/null
   done
 }
 
