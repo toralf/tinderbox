@@ -6,7 +6,7 @@
 
 function PrintImageName()  {
   # ${n} is the minimum length to distinguish image names
-  n=${2:-30}
+  n=${2}
   printf "%-${n}s" $(cut -c-$n <<< ${1##*/})
 }
 
@@ -131,7 +131,7 @@ function Tasks()  {
   ts=$(date +%s)
   for i in $images
   do
-    PrintImageName $i
+    PrintImageName $i 30
     if ! __is_running $i ; then
       echo
       continue
@@ -171,13 +171,15 @@ function Tasks()  {
 function LastEmergeOperation()  {
   for i in $images
   do
-    PrintImageName $i
+    PrintImageName $i 30
     if ! __is_running $i ; then
       echo
       continue
     fi
 
-    # catch the last *started* emerge operation
+    ((cols = $(tput cols) - 30))
+
+    # display the last *started* emerge operation
     tac $i/var/log/emerge.log 2>/dev/null |\
     grep -m 1 -E -e ' >>>| \*\*\* emerge' -e ' \*\*\* terminating.' -e ' ::: completed emerge' |\
     sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
@@ -198,7 +200,7 @@ function LastEmergeOperation()  {
         printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 9000 ? " " : "!");
       }
       my $outline = join (" ", @F[1..$#F]);
-      print substr ($outline, 1, 83);
+      print substr ($outline, 1, '"'$cols'"');
     '
     echo
   done
