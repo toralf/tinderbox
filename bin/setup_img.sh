@@ -53,7 +53,6 @@ function InitOptions() {
     abi3264="y"
   fi
 
-  # prefer a non-running profile plus not symlinked to ~/run
   profile=""
   while read -r line
   do
@@ -61,11 +60,14 @@ function InitOptions() {
       profile=$line
     fi
     local p=$(tr '/-' '_' <<< $line)
+    # basic: not running
     if ! ls -d /run/tinderbox/$p-*.lock &>/dev/null; then
       profile=$line
+      # sufficiant: not in ~/run
       if ! ls ~tinderbox/run/$p-* &>/dev/null; then
         break
       fi
+      # but the last one would make it otherwise
     fi
   done < <(GetProfiles | shuf)
 
