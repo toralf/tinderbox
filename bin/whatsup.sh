@@ -197,7 +197,8 @@ function LastEmergeOperation()  {
         # mark long runtimes
         printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 9000 ? " " : "!");
       }
-      print join (" ", @F[1..$#F]);
+      my $outline = join (" ", @F[1..$#F]);
+      print substr ($outline, 1, 83);
     '
     echo
   done
