@@ -13,17 +13,18 @@ function IgnoreUseFlags()  {
 
 # helper of DryRunWithRandomizedUseFlags
 function ThrowUseFlags() {
-  local n=$1  # pass up to n-1
-  local m=5   # mask 1:5
+  local n=$1        # pass up to n-1
+  local m=${2:-5}   # mask 1:m of them
 
   shuf -n $(($RANDOM % $n)) |\
   sort |\
   while read -r flag
   do
     if __dice 1 $m; then
-      echo -n "-"
+      echo -n "-$flag "
+    else
+      echo -n "$flag "
     fi
-    echo -n "$flag "
   done
 }
 
