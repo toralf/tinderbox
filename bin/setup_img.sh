@@ -473,20 +473,21 @@ EOF
 # Tracker: https://bugs.gentoo.org/801109
 # Known examples: https://wiki.gentoo.org/index.php?title=Project:Toolchain#libffi-3.4
 
+*/*                        libffi
 EOF
 
-  if __dice 1 4; then
+  if __dice 1 3; then
     cat << EOF >> ./etc/portage/package.use/90libffi
-# by slyfox: old (default, safe) https://bugs.gentoo.org/801109
+# would also be nice:
 
->=dev-libs/libffi-3.4      -exec-static-trampoline
+>=dev-libs/libffi-3.4      exec-static-trampoline
 
 EOF
   else
     cat << EOF >> ./etc/portage/package.use/90libffi
-# by slyfox: would also be nice:
+# old (default, safe)
 
->=dev-libs/libffi-3.4      exec-static-trampoline
+>=dev-libs/libffi-3.4      -exec-static-trampoline
 
 EOF
   fi
