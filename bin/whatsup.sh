@@ -128,6 +128,8 @@ function Overall() {
 # 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks()  {
+  ((cols = $(tput cols) - 38))
+
   ts=$(date +%s)
   for i in $images
   do
@@ -159,7 +161,7 @@ function Tasks()  {
     if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
       echo -n " "
     fi
-    echo $task
+    echo $task | cut -c1-$cols
   done
 }
 
@@ -169,6 +171,8 @@ function Tasks()  {
 # 17.1_desktop_plasma_s  0:02 m  >>> AUTOCLEAN: media-sound/toolame:0
 # 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation()  {
+  ((cols = $(tput cols) - 38))
+
   for i in $images
   do
     PrintImageName $i 30
@@ -176,8 +180,6 @@ function LastEmergeOperation()  {
       echo
       continue
     fi
-
-    ((cols = $(tput cols) - 30))
 
     # display the last *started* emerge operation
     tac $i/var/log/emerge.log 2>/dev/null |\
@@ -208,15 +210,17 @@ function LastEmergeOperation()  {
 
 
 # whatsup.sh -p
-#                                                        1d   2d   3d   4d   5d   6d   7d.   8d   9d  10d  11d  12d
-# 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454.  789
-# 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811.  701´
+#                                                        1d   2d   3d   4d   5d   6d   7d   8d   9d  10d  11d  12d
+# 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
+# 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
-  printf "%52s %s\n" " " "  1d   2d   3d   4d   5d   6d   7d.   8d   9d  10d  11d  12d"
+  printf "%47s" " "
+  for i in $(seq 1 13); do printf "%4id" $i; done
+  echo
 
   for i in $(ls -d ~/run/17* 2>/dev/null | sort -t '-' -k 3,4)
   do
-    PrintImageName $i 52
+    PrintImageName $i 47
 
     perl -F: -wane '
       BEGIN {
@@ -236,7 +240,6 @@ function PackagesPerImagePerRunDay() {
         if ($#packages >= 0) {
           $packages[$rundays] += 0;
           foreach my $rundays (0..$#packages) {
-            printf "." if ($rundays > 5 && $rundays % 7 == 0);    # dot between 2 week
             ($packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
           }
         }
