@@ -26,19 +26,15 @@ app-portage/pfl                 -network-cron
 app-text/ansifilter             -qt5
 
 # avoid @world dep issues after 90setup is removed
-app-crypt/libsecret             -gtk-doc
-dev-libs/glib                   -gtk-doc
-dev-libs/libpcre*               readline -libedit
 dev-vcs/git                     -cvs -subversion
-media-libs/freetype             harfbuzz
 sys-apps/busybox                -pam
 sys-apps/shadow                 -cracklib
+
+# forces +test otherwise
+dev-libs/glib                   -gtk-doc
 
 # by sam
 # Disable libcrypt in glibc
 sys-libs/glibc                  -crypt
 # Provide libcrypt
 sys-libs/libxcrypt              system
-
-# by slyfox: old (default, safe) https://bugs.gentoo.org/801109
->=dev-libs/libffi-3.4           -exec-static-trampoline

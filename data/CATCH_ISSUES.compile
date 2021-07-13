@@ -287,3 +287,4 @@ gdbm_fetch: Item not found
  \*   .* not found,
 .*: no input file given
 Configuration error:
+.* not found in the JDK being used for compilation

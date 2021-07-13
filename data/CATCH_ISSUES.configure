@@ -52,7 +52,6 @@ The Motif libraries are not installed.
 flex: could not
 asciidoctor:.*cannot load such file
 ERROR: unable to find
-Package .*, required by .* not found
 .* requires .* install the dependency
 SyntaxError:
 but please install the FUSE libraries and headers to build this module
@@ -61,7 +60,6 @@ C compiler cannot create executables
 Unable to find Qt
 Package dependency requirement '.* could not be satisfied.
 A required package was not found
-configure: error:
 : No such file or directory
 .* will not be built.
  was not found.
@@ -71,9 +69,13 @@ Could not create Makefile due to some reason
 environment: .*: command not found
  Could NOT find .* (missing:
 .*: Required feature .* not found
-Configuring incomplete
-cmake failed
-.CONFIG_
+ .CONFIG_
 checking version of x86_64-pc-linux-gnu-gcc ... .* - old version, at least .* required!
+  Flow control statements are not properly nested.
+ error: Unable to find
+The following variables are used in this project, but they are set to NOTFOUND.
+configure: error:
 CMake Error at
 CMake Error:
+Configuring incomplete
+cmake failed

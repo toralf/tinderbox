@@ -9,6 +9,7 @@ custom-cflags
 d3d9
 debug
 default-gold
+device-mapper-only
 dist-kernel
 elogind
 exec-static-trampoline
@@ -22,6 +23,7 @@ gnutls
 gold
 hardened
 headers-only
+hostname
 ithreads
 kill
 libssp
@@ -33,9 +35,11 @@ make-symlinks
 mbedtls
 minimal
 mips
+mono
 monolithic
 multilib
 musl
+nis
 nss
 nvidia
 o-flag-munging

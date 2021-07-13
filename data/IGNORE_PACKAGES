@@ -12,6 +12,12 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# temporary disabled
+# temp entries
 #
-sci-*/
+x11-libs/libyui
+x11-libs/libyui-ncurses
+#
+sci-libs/atlas
+sci-astronomy/psfex
+sci-astronomy/scamp
+sci-astronomy/sextractor

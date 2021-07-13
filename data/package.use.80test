@@ -19,3 +19,4 @@ x11-base/xorg-server      xvfb
 app-text/xmlto            -latex
 dev-util/cmake            -emacs
 net-print/cups            -zeroconf
+
