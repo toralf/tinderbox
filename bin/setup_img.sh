@@ -550,17 +550,18 @@ function CreateHighPrioBacklog()  {
   cat << EOF > $bl.1st
 @world
 @system
-%rm /etc/portage/package.use/90setup
+%sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
 @world
 @system
-%sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
+%rm -f /etc/portage/package.use/??setup*
+@world
+@system
+%USE="-X -cairo -glib -graphite -harfbuzz -icu -introspection -png -truetype" emerge -u media-libs/freetype media-libs/harfbuzz || true
 sys-apps/portage app-portage/gentoolkit
-EOF
+%emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
+sys-kernel/gentoo-kernel-bin
 
-  # update GCC first
-  # =          : do not rebuild the current GCC (slot)
-  # dev-libs/* : avoid a rebuild of GCC later in @world caused by an update/rebuild of these packages
-  echo "%emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr" >> $bl.1st
+EOF
 }
 
 
@@ -628,14 +629,6 @@ if grep -q 'sys-devel/gcc' /var/tmp/tb/setup.sh.log; then
   echo "%SwitchGCC" >> /var/tmp/tb/backlog.1st
 fi
 
-date
-echo "#setup kernel" | tee /var/tmp/tb/task
-emerge -u sys-kernel/gentoo-kernel-bin
-if [[ ! -e /usr/src/linux ]]; then
-  echo "whoops, no kernel symlink"
-  exit 1
-fi
-
 eselect profile set --force default/linux/amd64/$profile
 if [[ $testfeature = "y" ]]; then
   echo "*/*  test" >> /etc/portage/package.env/11dotest
@@ -646,7 +639,7 @@ echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if a package is in more than one repo
 qsearch --all --nocolor --name-only --quiet | sort -u -R > /var/tmp/tb/backlog
 
-# copy+paste the \n too for middle mouse selections (sys-libs/readline de-activates that behaviour with v8.x)
+# include the \n at copying (sys-libs/readline de-activates that behaviour with v8.x)
 echo "set enable-bracketed-paste off" >> /etc/inputrc
 
 date
