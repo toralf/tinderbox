@@ -817,7 +817,7 @@ CreateHighPrioBacklog
 CreateSetupScript
 RunSetupScript
 
-echo 'emerge --update --changed-use --pretend --deep @world' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+echo 'emerge --update --changed-use --newuse --deep @world --pretend' > $mnt/var/tmp/tb/dryrun_wrapper.sh
 if [[ -e $useflagfile ]]; then
   date
   echo "dryrun with given USE flag file ==========================================================="
