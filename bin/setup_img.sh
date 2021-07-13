@@ -668,8 +668,9 @@ function RunSetupScript() {
 
 function DryRun() {
   cd $mnt
-  chgrp portage ./etc/portage/package.use/2*
-  chmod a+r,g+w ./etc/portage/package.use/2*
+
+  chgrp portage ./etc/portage/package.use/*
+  chmod a+r,g+w ./etc/portage/package.use/*
 
   if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
     echo -e "\n$(date)\n $FUNCNAME was NOT successful\n"
@@ -687,58 +688,76 @@ function FormatUseFlags() {
 function DryRunWithRandomizedUseFlags() {
   cd $mnt
 
-  for attempt in $(seq -w 1 50)
+  echo
+  date
+  echo "dryrun $attempt ==========================================================="
+  echo
+
+  echo "#setup dryrun $attempt" > ./var/tmp/tb/task
+
+  grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
+  cut -f1 -d' ' -s |\
+  shuf -n $(($RANDOM % 20)) |\
+  sort |\
+  xargs |\
+  xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/21thrown_l10n_from_profile
+
+  grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
+  cut -f1 -d' ' -s |\
+  IgnoreUseFlags |\
+  ThrowUseFlags 200 |\
+  FormatUseFlags > ./etc/portage/package.use/22thrown_global_use_flags_from_profile
+
+  grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
+  shuf -n $(($RANDOM % 1000)) |\
+  sort |\
+  while read -r file
   do
-    echo
-    date
-    echo "dryrun $attempt ==========================================================="
-    echo
-
-    echo "#setup dryrun $attempt" > ./var/tmp/tb/task
-
-    grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
-    cut -f1 -d' ' -s |\
-    shuf -n $(($RANDOM % 15)) |\
-    sort |\
-    xargs |\
-    xargs -I {} --no-run-if-empty printf "%s %s\n" "*/*  L10N: -* {}" > ./etc/portage/package.use/21thrown_l10n_from_profile
-
-    grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
-    cut -f1 -d' ' -s |\
-    IgnoreUseFlags |\
-    ThrowUseFlags 150 |\
-    FormatUseFlags > ./etc/portage/package.use/22thrown_global_use_flags_from_profile
-
-    grep -h 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
+    pkg=$(cut -f6-7 -d'/' <<< $file)
+    grep -h 'flag name="' $file |\
+    grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |\
     cut -f2 -d'"' -s |\
-    sort -u |\
     IgnoreUseFlags |\
-    ThrowUseFlags 150 |\
-    FormatUseFlags > ./etc/portage/package.use/23thrown_global_use_flags_from_metadata
+    ThrowUseFlags 15 |\
+    xargs |\
+    xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
+  done > ./etc/portage/package.use/24thrown_package_use_flags
 
-    grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
-    shuf -n $(($RANDOM % 900)) |\
-    sort |\
-    while read -r file
+  local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
+  if DryRun &> $drylog; then
+    return 0
+  else
+    local fautocirc=./etc/portage/package.use/91setup-auto-solve-circ-dep
+    local fautoflag=./etc/portage/package.use/89necessary-use-flag-change
+
+    grep -h -A 10 "It might be possible to break this cycle" $drylog |\
+    grep -F ' (Change USE: ' |\
+    grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' -e '+' -e 'This change might require ' |\
+    sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
+    tr -d ')' |\
+    sort -u |\
+    while read -r p u
     do
-      pkg=$(cut -f6-7 -d'/' <<< $file)
-      grep -h 'flag name="' $file |\
-      cut -f2 -d'"' -s |\
-      IgnoreUseFlags |\
-      ThrowUseFlags 12 |\
-      xargs |\
-      xargs -I {} --no-run-if-empty printf "%-50s %s\n" "$pkg" "{}"
-    done > ./etc/portage/package.use/24thrown_package_use_flags
+      q=$(qatom $p | cut -f1-2 -d' ' | tr ' ' '/')
+      printf "%-30s %s\n" $q "$u"
+    done |\
+    sort -u > $fautocirc
 
-    local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
-    if DryRun &> $drylog; then
-      return
+    grep -h -A 100 'The following USE changes are necessary to proceed:' $drylog |\
+    grep "^>=" |\
+    sort -u |\
+    grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' > $fautoflag
+
+    if [[ -s $fautocirc || -s $fautoflag ]]; then
+      tail -v $fautocirc $fautoflag
+      if DryRun &> $drylog; then
+        return 0
+      fi
     fi
-    grep -H -A 15 'Error: circular dependencies:' $drylog
-  done
+    rm $fautocirc $fautoflag
+  fi
 
-  echo -e "\n$(date)\ndidn't make it after $attempt attempts, giving up\n"
-  exit 2
+  return 1
 }
 
 
@@ -806,10 +825,18 @@ if [[ -e $useflagfile ]]; then
   cp $useflagfile $mnt/etc/portage/package.use/28given_use_flags
   DryRun
 else
-  DryRunWithRandomizedUseFlags
+  for attempt in $(seq -w 1 80)
+  do
+    if [[ $attempt -eq 41 ]]; then
+      echo 'emerge --update --changed-use --newuse @world --pretend' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+    fi
+    if DryRunWithRandomizedUseFlags; then
+      break
+    fi
+  done
 fi
 
-echo -e "\n$(date)\n  setup OK"
+echo -e "\n$(date)\n  setup done"
 cd ~tinderbox/run
 ln -s ../img/$name
 echo
