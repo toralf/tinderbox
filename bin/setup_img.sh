@@ -73,7 +73,7 @@ function InitOptions() {
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
   if __dice 1 12; then
-    # catch sth like:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
+    # try to debug:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
     cflags_default+=" -Og -g"
   else
     cflags_default+=" -O2"
@@ -386,7 +386,6 @@ function CompilePortageFiles()  {
 
   echo 'FEATURES="test"'                  > ./etc/portage/env/test
   echo 'FEATURES="-test"'                 > ./etc/portage/env/notest
-
   # continue an expected failed test of a package while preserving the dependency tree
   echo 'FEATURES="test-fail-continue"'    > ./etc/portage/env/test-fail-continue
 
@@ -459,12 +458,12 @@ EOF
   mkdir -p ./etc/portage/profile
   cat << EOF >> ./etc/portage/profile/package.use.mask
 # Allow libxcrypt to be the system provider of libcrypt, not glibc
-sys-libs/libxcrypt -system
+sys-libs/libxcrypt         -system
 
 EOF
   cat << EOF >> ./etc/portage/profile/package.use.force
 # Don't force glibc to provide libcrypt
-sys-libs/glibc -crypt
+sys-libs/glibc             -crypt
 
 EOF
 
