@@ -445,6 +445,7 @@ EOF
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
 
+  # packages either having a -bin variant or being only rarely build
   for p in $(grep -v -e '#' -e'^$' ~tinderbox/tb/data/BIN_OR_SKIP)
   do
     if __dice 11 12; then
@@ -556,10 +557,10 @@ function CreateHighPrioBacklog()  {
 %rm -f /etc/portage/package.use/??setup*
 @world
 @system
-%USE="-X -cairo -glib -graphite -harfbuzz -icu -introspection -png -truetype" emerge -u media-libs/freetype media-libs/harfbuzz || true
 sys-apps/portage app-portage/gentoolkit
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
+%SwitchGCC
 
 EOF
 }
@@ -569,7 +570,7 @@ function CreateSetupScript()  {
   cd $mnt
 
   cat << EOF > ./var/tmp/tb/setup.sh || exit 1
-#!/bin/sh
+#!/bin/bash
 # set -x
 
 export LANG=C.utf8
@@ -624,10 +625,13 @@ emerge -u mail-client/mailx
 date
 echo "#setup libxcrypt" | tee /var/tmp/tb/task
 emerge -u virtual/libcrypt || emerge -u virtual/libcrypt dev-lang/perl || exit 1
-
 if grep -q 'sys-devel/gcc' /var/tmp/tb/setup.sh.log; then
   echo "%SwitchGCC" >> /var/tmp/tb/backlog.1st
 fi
+
+date
+echo "#setup harfbuzz" | tee /var/tmp/tb/task
+USE="-X -cairo -fontconfig -graphite -harfbuzz -icu -png -truetype" emerge -u media-libs/freetype media-libs/harfbuzz
 
 eselect profile set --force default/linux/amd64/$profile
 if [[ $testfeature = "y" ]]; then
@@ -637,7 +641,7 @@ fi
 date
 echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if a package is in more than one repo
-qsearch --all --nocolor --name-only --quiet | sort -u -R > /var/tmp/tb/backlog
+qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
 
 # include the \n at copying (sys-libs/readline de-activates that behaviour with v8.x)
 echo "set enable-bracketed-paste off" >> /etc/inputrc
@@ -680,7 +684,7 @@ function DryRun() {
 
 
 function FormatUseFlags() {
-  xargs -s 73 | sed -e '/^$/d' | sed -e "s,^,*/*  ,g"
+  xargs --no-run-if-empty -s 73 | sed -e "s,^,*/*  ,g"
 }
 
 
@@ -761,6 +765,40 @@ function DryRunWithRandomizedUseFlags() {
 }
 
 
+function FinalizeImage(){
+  echo 'emerge --update --changed-use --newuse --deep @world --pretend' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+  if [[ -e $useflagfile ]]; then
+    date
+    echo "dryrun with given USE flag file ==========================================================="
+    echo
+    cp $useflagfile $mnt/etc/portage/package.use/28given_use_flags
+    DryRun
+  else
+    for attempt in $(seq -w 1 98)
+    do
+      if [[ "$attempt" = "50" ]]; then
+        echo 'emerge --update --changed-use --newuse @world --pretend' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+      fi
+      if DryRunWithRandomizedUseFlags; then
+        return 0
+      fi
+    done
+    return 1
+  fi
+
+  return $?
+}
+
+
+function startImage() {
+  echo -e "\n$(date)\n  setup done"
+  cd ~tinderbox/run
+  ln -s ../img/$name
+  echo
+  su - tinderbox -c "${0%/*}/start_img.sh $name"
+}
+
+
 #############################################################################
 #
 # main
@@ -781,8 +819,10 @@ echo
 
 source $(dirname $0)/lib.sh
 
-echo "   $# args given: '${@}'"
-echo
+if [[ $# -gt 0 ]]; then
+  echo "   args: '${@}'"
+  echo
+fi
 
 repodir=/var/db/repos
 tbdistdir=~tinderbox/distfiles
@@ -790,15 +830,25 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts a:c:j:m:p:s:t:u: opt
+while getopts M:S:a:c:f:j:m:p:s:t:u: opt
 do
   case $opt in
+    M)  musl="$OPTARG"        ;;
+    S)  science="$OPTARG"     ;;
     a)  abi3264="$OPTARG"     ;;
     c)  cflags="$OPTARG"      ;;
+    f)  mnt="$OPTARG"
+        name=$(basename $mnt)
+        FinalizeImage
+        exit $?
+        ;;
     j)  jobs="$OPTARG"        ;;
-    m)  musl="$OPTARG"        ;;
     p)  profile="$OPTARG"     ;;
-    s)  science="$OPTARG"     ;;
+    s)  mnt="$OPTARG"
+        name=$(basename $mnt)
+        startImage
+        exit $?
+        ;;
     t)  testfeature="$OPTARG" ;;
     u)  useflagfile="$OPTARG" ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
@@ -816,28 +866,4 @@ CompileMiscFiles
 CreateHighPrioBacklog
 CreateSetupScript
 RunSetupScript
-
-echo 'emerge --update --changed-use --newuse --deep @world --pretend' > $mnt/var/tmp/tb/dryrun_wrapper.sh
-if [[ -e $useflagfile ]]; then
-  date
-  echo "dryrun with given USE flag file ==========================================================="
-  echo
-  cp $useflagfile $mnt/etc/portage/package.use/28given_use_flags
-  DryRun
-else
-  for attempt in $(seq -w 1 80)
-  do
-    if [[ $attempt -eq 41 ]]; then
-      echo 'emerge --update --changed-use --newuse @world --pretend' > $mnt/var/tmp/tb/dryrun_wrapper.sh
-    fi
-    if DryRunWithRandomizedUseFlags; then
-      break
-    fi
-  done
-fi
-
-echo -e "\n$(date)\n  setup done"
-cd ~tinderbox/run
-ln -s ../img/$name
-echo
-su - tinderbox -c "${0%/*}/start_img.sh $name"
+FinalizeImage
