@@ -704,13 +704,13 @@ function DryRunWithRandomizedUseFlags() {
   shuf -n $(($RANDOM % 20)) |\
   sort |\
   xargs |\
-  xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/21thrown_l10n_from_profile
+  xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/21thrown_l10n
 
   grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
   cut -f1 -d' ' -s |\
   IgnoreUseFlags |\
   ThrowUseFlags 200 |\
-  FormatUseFlags > ./etc/portage/package.use/22thrown_global_use_flags_from_profile
+  FormatUseFlags > ./etc/portage/package.use/22thrown_global_use_flags
 
   grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
   shuf -n $(($RANDOM % 1000)) |\
