@@ -867,3 +867,4 @@ CreateHighPrioBacklog
 CreateSetupScript
 RunSetupScript
 FinalizeImage
+startImage
