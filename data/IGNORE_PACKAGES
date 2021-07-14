@@ -12,12 +12,19 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# temp entries
+# stucks in @world
 #
-x11-libs/libyui
-x11-libs/libyui-ncurses
+x11-libs/libyui*
+#
+# https://bugs.gentoo.org/801223
 #
 sci-libs/atlas
 sci-astronomy/psfex
 sci-astronomy/scamp
 sci-astronomy/sextractor
+#
+# creates /vz which annoys me
+#
+sys-cluster/vzctl
+app-misc/vzstats
+sys-cluster/ploop

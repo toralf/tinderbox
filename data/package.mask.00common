@@ -29,17 +29,15 @@ www-client/google-chrome
 # https://bugs.gentoo.org/662396
 sys-fs/static-dev
 
-# https://bugs.gentoo.org/711098
-dev-scheme/racket
-
 # https://bugs.gentoo.org/770976
 x11-wm/stumpwm
 
 # https://bugs.gentoo.org/789804
 sci-libs/libint:2
 
-# flip-flop with -6.x
+# flip-flop
+<dev-python/docutils-0.17.1
 <dev-util/ragel-7.0.4
-
-# creates /vz which annoys me
-sys-cluster/vzctl
+<net-libs/nodejs-16.4.1
+<sys-devel/clang-12.0.0
+<sys-devel/llvm-12.0.0

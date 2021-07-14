@@ -43,6 +43,7 @@ nis
 nss
 nvidia
 o-flag-munging
+oci8
 opencl
 openmp
 openssl

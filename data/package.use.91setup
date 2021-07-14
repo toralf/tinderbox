@@ -5,4 +5,4 @@
 
 
 # quicker bootstrap
-dev-vcs/git                     -cgi -mediawiki -mediawiki-experimental -perl -webdav
+dev-vcs/git                     -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav

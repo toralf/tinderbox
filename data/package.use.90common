@@ -2,7 +2,6 @@
 #
 
 # these settings are fixed for every tinderbox image
-# overwrite those by using file names not starting with a digit
 
 */*  QEMU_SOFTMMU_TARGETS:      x86_64 i386
 */*  QEMU_USER_TARGETS:         x86_64 i386
@@ -15,23 +14,18 @@
 # 2x faster compile
 */*                             jumbo-build
 
-# tinderbox requirements
+# preferred
+dev-libs/libpcre*               -libedit readline
+
+# MTA
 mail-mta/ssmtp                  mta ssl
 
 # /etc/profile.d/nix.sh overwrite it with a hard link
 sys-apps/nix                    -etc_profile
 
-# too much deps needed which would be installed always first
+# too much deps needed which would always be installed at start of a new image
 app-portage/pfl                 -network-cron
 app-text/ansifilter             -qt5
-
-# avoid @world dep issues after 90setup is removed
-dev-vcs/git                     -cvs -subversion
-sys-apps/busybox                -pam
-sys-apps/shadow                 -cracklib
-
-# forces +test otherwise
-dev-libs/glib                   -gtk-doc
 
 # by sam
 # Disable libcrypt in glibc
