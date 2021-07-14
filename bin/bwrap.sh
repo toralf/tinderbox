@@ -108,12 +108,8 @@ if [[ -z "$mnt" ]]; then
   exit 4
 fi
 
-if [[ ! -d /run/tinderbox ]]; then
-  mkdir /run/tinderbox
-fi
-
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
-mkdir "$lock_dir"
+mkdir -p "$lock_dir"
 trap Cleanup QUIT TERM EXIT
 
 if [[ -n "$entrypoint" ]]; then
