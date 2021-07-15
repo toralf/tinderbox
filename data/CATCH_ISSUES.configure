@@ -35,7 +35,6 @@ configure in /.* failed
 This expression has type .* but an expression was
 Please, run .haskell-updater
 Detected broken packages:
- configure failed
 error: unsupported
 error: setupterm:
 bison: .* cannot open: Permission denied
@@ -67,7 +66,6 @@ sed:
 The version of your compiler is not supported at this time
 Could not create Makefile due to some reason
 environment: .*: command not found
- Could NOT find .* (missing:
 .*: Required feature .* not found
  .CONFIG_
 checking version of x86_64-pc-linux-gnu-gcc ... .* - old version, at least .* required!

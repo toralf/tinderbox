@@ -20,7 +20,7 @@ dev-libs/libpcre*               -libedit readline
 # MTA
 mail-mta/ssmtp                  mta ssl
 
-# /etc/profile.d/nix.sh overwrite it with a hard link
+# /etc/profile.d/nix.sh overwrites it
 sys-apps/nix                    -etc_profile
 
 # too much deps needed which would always be installed at start of a new image
@@ -32,3 +32,8 @@ app-text/ansifilter             -qt5
 sys-libs/glibc                  -crypt
 # Provide libcrypt
 sys-libs/libxcrypt              system
+
+# DryRun() won't succeed otherwise
+dev-vcs/git                     -cvs -subversion
+sys-apps/busybox                -pam
+sys-apps/shadow                 -cracklib
