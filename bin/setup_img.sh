@@ -677,9 +677,10 @@ function DryRun() {
   chmod a+r,g+w ./etc/portage/package.use/*
 
   if nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
-    echo " OK"
+    echo -e "\n OK\n"
+    return 0
   else
-    echo -e "\n$(date)\n $FUNCNAME was NOT successful\n"
+    echo -e "\n NOT ok\n"
     return 1
   fi
 }
@@ -706,13 +707,13 @@ function DryRunWithRandomizedUseFlags() {
   shuf -n $(($RANDOM % 20)) |\
   sort |\
   xargs |\
-  xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/21thrown_l10n
+  xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
 
   grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
   cut -f1 -d' ' -s |\
   IgnoreUseFlags |\
   ThrowUseFlags 200 |\
-  FormatUseFlags > ./etc/portage/package.use/22thrown_global_use_flags
+  FormatUseFlags > ./etc/portage/package.use/24thrown_global_use_flags
 
   grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
   shuf -n $(($RANDOM % 1000)) |\
@@ -727,7 +728,7 @@ function DryRunWithRandomizedUseFlags() {
     ThrowUseFlags 15 |\
     xargs |\
     xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
-  done > ./etc/portage/package.use/24thrown_package_use_flags
+  done > ./etc/portage/package.use/26thrown_package_use_flags
 
   local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
   if DryRun &> $drylog; then
@@ -736,7 +737,7 @@ function DryRunWithRandomizedUseFlags() {
     echo "#setup dryrun $attempt #2" > ./var/tmp/tb/task
 
     local fautocirc=./etc/portage/package.use/91setup-auto-solve-circ-dep
-    local fautoflag=./etc/portage/package.use/89necessary-use-flag-change
+    local fautoflag=./etc/portage/package.use/28necessary-use-flag-change
 
     grep -h -A 10 "It might be possible to break this cycle" $drylog |\
     grep -F ' (Change USE: ' |\
