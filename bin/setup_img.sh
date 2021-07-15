@@ -676,7 +676,9 @@ function DryRun() {
   chgrp portage ./etc/portage/package.use/*
   chmod a+r,g+w ./etc/portage/package.use/*
 
-  if ! nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
+  if nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
+    echo " OK"
+  else
     echo -e "\n$(date)\n $FUNCNAME was NOT successful\n"
     return 1
   fi
@@ -731,6 +733,8 @@ function DryRunWithRandomizedUseFlags() {
   if DryRun &> $drylog; then
     return 0
   else
+    echo "#setup dryrun $attempt #2" > ./var/tmp/tb/task
+
     local fautocirc=./etc/portage/package.use/91setup-auto-solve-circ-dep
     local fautoflag=./etc/portage/package.use/89necessary-use-flag-change
 
