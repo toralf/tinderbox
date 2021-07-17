@@ -214,13 +214,13 @@ function LastEmergeOperation()  {
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
-  printf "%47s" " "
+  printf "%48s" " "
   for i in $(seq 1 13); do printf "%4id" $i; done
   echo
 
   for i in $(ls -d ~/run/17* 2>/dev/null | sort -t '-' -k 3,4)
   do
-    PrintImageName $i 47
+    PrintImageName $i 48
 
     perl -F: -wane '
       BEGIN {
@@ -319,7 +319,7 @@ function CountEmergesPerPackages()  {
 # 2021-05-01  2790  28  87  91  41   4  13   0   1  15  29  78  35  62  46  75   9   0 193 104 234 490 508 459 188
 function emergeThruput()  {
   perl -we '
-      print "yyyy-mm-dd   sum";
+      print "yyyy-mm-dd   sum ";
       foreach my $i (0..23) { printf("%4i", $i) }
       print "\n\n";
       '
@@ -344,7 +344,7 @@ function emergeThruput()  {
 
     END {
       for my $key (sort { $a cmp $b } keys %Day)  {
-        printf("%s %5i", $key, $Day{$key}->{"day"});
+        printf("%s %5i ", $key, $Day{$key}->{"day"});
         foreach my $hour(0..23) {
           printf("%4i", $Day{$key}->{$hour} ? $Day{$key}->{$hour} : 0);
         }
