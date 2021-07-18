@@ -49,7 +49,7 @@ function InitOptions() {
 
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
-  if __dice 1 24; then
+  if __dice 1 26; then
     abi3264="y"
   fi
 
@@ -72,14 +72,14 @@ function InitOptions() {
   done < <(GetProfiles | shuf)
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
-  if __dice 1 12; then
+  if __dice 1 13; then
     # try to debug:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
     cflags_default+=" -Og -g"
   else
     cflags_default+=" -O2"
   fi
   local cflags_special=""
-  if __dice 1 12; then
+  if __dice 1 13; then
     # 685160 colon-in-CFLAGS
     cflags_special+=" -falign-functions=32:25:16"
   fi
@@ -88,7 +88,7 @@ function InitOptions() {
   musl="n"
   science="n"
   testfeature="n"
-  if __dice 1 24; then
+  if __dice 1 26; then
     testfeature="y"
   fi
   useflagfile=""
@@ -338,7 +338,7 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-if __dice 1 12; then
+if __dice 1 26; then
   cat <<EOF >> ./etc/portage/make.conf
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
@@ -441,7 +441,7 @@ EOF
   fi
 
   # give Firefox, Thunderbird et al. a chance
-  if __dice 1 12; then
+  if __dice 1 13; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
 
@@ -544,7 +544,7 @@ function CreateHighPrioBacklog()  {
   chown tinderbox:portage $bl{,.1st,.upd}
 
   # requested by Whissi (an alternative mysql engine)
-  if __dice 1 12; then
+  if __dice 1 13; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
@@ -674,15 +674,9 @@ function DryRun() {
   cd $mnt
 
   chgrp portage ./etc/portage/package.use/*
-  chmod a+r,g+w ./etc/portage/package.use/*
+  chmod g+w,a+r ./etc/portage/package.use/*
 
-  if nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh; then
-    echo -e "\n OK\n"
-    return 0
-  else
-    echo -e "\n NOT ok\n"
-    return 1
-  fi
+  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
 }
 
 
@@ -694,11 +688,6 @@ function FormatUseFlags() {
 # varying USE flags till dry run of @world would succeed
 function DryRunWithRandomizedUseFlags() {
   cd $mnt
-
-  echo
-  date
-  echo "dryrun $attempt ==========================================================="
-  echo
 
   echo "#setup dryrun $attempt" > ./var/tmp/tb/task
 
@@ -730,8 +719,8 @@ function DryRunWithRandomizedUseFlags() {
     xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
   done > ./etc/portage/package.use/26thrown_package_use_flags
 
-  local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
-  if DryRun &> $drylog; then
+  if DryRun; then
+    echo -e "\n OK\n"
     return 0
   else
     echo "#setup dryrun $attempt #2" > ./var/tmp/tb/task
@@ -759,7 +748,8 @@ function DryRunWithRandomizedUseFlags() {
 
     if [[ -s $fautocirc || -s $fautoflag ]]; then
       tail -v $fautocirc $fautoflag
-      if DryRun &> $drylog; then
+      if DryRun; then
+        echo -e "\n OK\n"
         return 0
       fi
     fi
@@ -771,27 +761,34 @@ function DryRunWithRandomizedUseFlags() {
 
 
 function FinalizeImage(){
-  echo 'emerge --update --changed-use --newuse --deep @world --pretend' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+  cd $mnt
+
+  echo 'emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
   if [[ -e $useflagfile ]]; then
     date
     echo "dryrun with given USE flag file ==========================================================="
     echo
-    cp $useflagfile $mnt/etc/portage/package.use/28given_use_flags
+    cp $useflagfile ./etc/portage/package.use/28given_use_flags
+    local drylog=./var/tmp/tb/logs/dryrun.log
     DryRun
+    return $?
   else
     for attempt in $(seq -w 1 98)
     do
+      echo
+      date
+      echo "dryrun $attempt ==========================================================="
+      echo
       if [[ "$attempt" = "50" ]]; then
-        echo 'emerge --update --changed-use --newuse @world --pretend' > $mnt/var/tmp/tb/dryrun_wrapper.sh
+        echo 'emerge --update --changed-use --newuse @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
       fi
+      local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
       if DryRunWithRandomizedUseFlags; then
         return 0
       fi
     done
     return 1
   fi
-
-  return $?
 }
 
 
