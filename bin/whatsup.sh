@@ -44,8 +44,8 @@ function check_history()  {
 # whatsup.sh -o
 #
 # compl fail bugs days backlog .upd .1st status  7#7 running
-#  4402   36    1  4.8   16529    7    0   Wr    run/17.1-20210306-163653
-#  4042   26    0  5.1   17774   12    2    r    run/17.1_desktop_gnome-20210306-091529
+#  4402   36    1  4.8   16529    7    0   Wr    ~/run/17.1-20210306-163653
+#  4042   26    0  5.1   17774   12    2    r    ~/run/17.1_desktop_gnome-20210306-091529
 function Overall() {
   running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
   all=$(wc -w <<< $images)
@@ -110,16 +110,10 @@ function Overall() {
     check_history $i/var/tmp/tb/@system.history             s
     check_history $i/var/tmp/tb/@preserved-rebuild.history  p
 
-    # images during setup are not already symlinked to ~/run, print so that the position of / is fixed
-    b=${i##*/}
-    if [[ -e ~/run/$b ]]; then
-      d="run"
-    else
-      d=${i%/*}
-      d=${d##*/}
-    fi
-
-    printf "%5i %4i %4i %4.1f %7i %4i %4i %6s %4s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
+    # images during setup are not yet symlinked to ~/run
+    b=$(basename $i)
+    [[ -e ~/run/$b ]] && d="~/run" || d="~/img"
+    printf "%5i %4i %4i %4.1f %7i %4i %4i %6s  %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
   done
 }
 
