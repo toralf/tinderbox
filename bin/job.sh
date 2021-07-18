@@ -55,6 +55,7 @@ function Finish()  {
   subject=$(stripQuotesAndMore <<< ${2:-<no subject given>} | tr '\n' ' ' | cut -c1-200)
   if [[ $exit_code -eq 0 ]]; then
     Mail "Finish ok: $subject" "${3:-<no message given>}"
+    truncate -s 0 $taskfile
   else
     Mail "Finish NOT ok, exit_code=$exit_code: $subject" "${3:-$logfile}"
   fi
@@ -602,7 +603,7 @@ function SwitchGCC() {
 
   if ! gcc-config --list-profiles --nocolor | grep -q -F "$latest *"; then
     local old=$(gcc -dumpversion | cut -f1 -d'.')
-    gcc-config --nocolor $latest &>> $logfile
+    gcc-config --nocolor $latest
     source_profile
     add2backlog "%emerge @preserved-rebuild"
     if grep -q LIBTOOL /etc/portage/make.conf; then
@@ -696,10 +697,8 @@ function PostEmerge() {
 # helper of WorkOnTask()
 # run ($@) and act on result
 function RunAndCheck() {
-  local rc=0
-
-  # run eval in a subshell intentionally
-  (eval $@ &>> $logfile) || rc=$?
+  (eval $@; rc=$?; echo; date; exit $rc) &>> $logfile
+  local rc=$?
 
   local taskdirname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
   logfile_stripped="/var/tmp/tb/logs/$taskdirname.log"
@@ -916,7 +915,7 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  date > $logfile
+  (date; echo) > $logfile
   current_time=$(date +%s)
   if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
