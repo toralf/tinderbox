@@ -23,7 +23,7 @@ mail-mta/ssmtp                  mta ssl
 # /etc/profile.d/nix.sh overwrites it
 sys-apps/nix                    -etc_profile
 
-# too much deps needed which would always be installed at start of a new image
+# too much deps always being installed at start of every new image
 app-portage/pfl                 -network-cron
 app-text/ansifilter             -qt5
 
@@ -33,7 +33,10 @@ sys-libs/glibc                  -crypt
 # Provide libcrypt
 sys-libs/libxcrypt              system
 
-# DryRun() won't succeed otherwise
+# DryRun() or @world won't succeed otherwise
 dev-vcs/git                     -cvs -subversion
 sys-apps/busybox                -pam
 sys-apps/shadow                 -cracklib
+
+# https://bugs.gentoo.org/show_bug.cgi?id=802435
+dev-lang/ruby                   -jemalloc

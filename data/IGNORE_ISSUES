@@ -10,6 +10,7 @@ code model kernel not supported in the 32 bit mode
  \* *CONFIG_.*is not set when it should be
 CONFIG_SYSFS_DEPRECATED_V2 support detected!
 configure: error: Linux kernel in .* is version .*, but version newer than .* is not supported
+Could not find a usable .config
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.
 dev-python/pypy.* needs to be installed for USE=low-memory
