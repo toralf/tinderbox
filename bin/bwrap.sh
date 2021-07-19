@@ -96,7 +96,7 @@ do
           ;;
     s)    if [[ ! -s "$OPTARG" ]]; then
             echo "no valid entry point script given: $OPTARG"
-            exit 3
+            exit 2
           fi
           entrypoint="$OPTARG"
           ;;
@@ -105,17 +105,21 @@ done
 
 if [[ -z "$mnt" ]]; then
   echo "no mnt given!"
-  exit 4
+  exit 3
 fi
 
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
+if [[ -d $lock_dir ]]; then
+  echo "found $lock_dir"
+  exit 4
+fi
 mkdir -p "$lock_dir"
 trap Cleanup QUIT TERM EXIT
 
 if [[ -n "$entrypoint" ]]; then
   if [[ -L "$mnt/entrypoint" ]]; then
     echo "symlinked $mnt/entrypoint forbidden"
-    exit 4
+    exit 5
   fi
   rm -f             "$mnt/entrypoint"
   cp "$entrypoint"  "$mnt/entrypoint"
