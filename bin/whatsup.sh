@@ -297,7 +297,7 @@ function CountEmergesPerPackages()  {
         $max = $key if ($max < $key);
       }
 
-      for my $key (keys %pet)  {
+      for my $key (sort keys %pet)  {
         print " ", $key if ($max == $pet{$key});
       }
       print "\n\n $total emerges         $seen packages\n";
