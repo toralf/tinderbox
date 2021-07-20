@@ -33,7 +33,8 @@ sys-libs/glibc                  -crypt
 # Provide libcrypt
 sys-libs/libxcrypt              system
 
-# DryRun() or @world won't succeed otherwise
+# setup issues
+dev-libs/glib                   -gtk-doc
 dev-vcs/git                     -cvs -subversion
 sys-apps/busybox                -pam
 sys-apps/shadow                 -cracklib
