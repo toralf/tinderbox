@@ -78,12 +78,12 @@ function InitOptions() {
   else
     cflags_default+=" -O2"
   fi
-  local cflags_special=""
+
+  cflags=$cflags_default
   if __dice 1 13; then
     # 685160 colon-in-CFLAGS
-    cflags_special+=" -falign-functions=32:25:16"
+    cflags+=" -falign-functions=32:25:16"
   fi
-  cflags="$cflags_default $cflags_special"
 
   musl="n"
   science="n"
@@ -730,7 +730,8 @@ function DryRunWithRandomizedUseFlags() {
 
     grep -h -A 10 "It might be possible to break this cycle" $drylog |\
     grep -F ' (Change USE: ' |\
-    grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' -e '+' -e 'This change might require ' |\
+    grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' \
+                -e '+' -e 'This change might require ' |\
     sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
     tr -d ')' |\
     sort -u |\
