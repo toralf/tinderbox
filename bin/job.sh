@@ -833,7 +833,7 @@ function SquashRebuildLoop() {
     if [[ -n $packages ]]; then
       local unique=$(echo $packages | xargs -n 1 | sort -u | xargs)
       add2backlog "%emerge -C $unique"
-      Mail "$FUNCNAME unmerge: $unique"
+      Mail "INFO: will unmerge $unique"
     fi
   fi
 }
