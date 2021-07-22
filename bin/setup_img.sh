@@ -158,25 +158,24 @@ function UnpackStage3()  {
   do
     wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest && break
   done
-
   if [[ ! -s $latest ]]; then
     echo " empty: $latest"
     return 1
   fi
 
-  local wgeturl="$mirror/releases/amd64/autobuilds"
-
   case $profile in
-    */no-multilib/hardened)   stage3=$(grep "/stage3-amd64-hardened+nomultilib-20.*\.tar\." $latest);;
-    */musl/hardened)          stage3=$(grep "/stage3-amd64-musl-hardened-20.*\.tar\." $latest);;
-    */hardened)               stage3=$(grep "/stage3-amd64-hardened-20.*\.tar\." $latest);;
-    */no-multilib)            stage3=$(grep "/stage3-amd64-nomultilib-20.*\.tar\." $latest);;
-    */systemd)                stage3=$(grep "/stage3-amd64-systemd-20.*\.tar\." $latest);;
-    */musl)                   stage3=$(grep "/stage3-amd64-musl-vanilla-20.*\.tar\." $latest);;
-    *)                        stage3=$(grep "/stage3-amd64-20.*\.tar\." $latest);;
+    17.1/hardened)                stage3=$(grep "^20.*Z/stage3-amd64-hardened-openrc-20.*\.tar\." $latest) ;;
+    17.1/no-multilib/hardened)    stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-openrc-20.*\.tar\." $latest) ;;
+    17.1/no-multilib/systemd)     stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-systemd-20.*\.tar\." $latest) ;;
+    17.1/no-multilib)             stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-openrc-20.*\.tar\." $latest) ;;
+    17.0/musl/hardened)           stage3=$(grep "^20.*Z/stage3-amd64-musl-hardened-20.*\.tar\." $latest) ;;
+    17.0/musl)                    stage3=$(grep "^20.*Z/stage3-amd64-musl-20.*\.tar\." $latest) ;;
+    17.1*/systemd)                stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
+    17..*/no-multilib/*/selinux)  stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-selinux-openrc-20.*\.tar\." $latest) ;;
+    17..*/selinux)                stage3=$(grep "^20.*Z/stage3-amd64-hardened-selinux-openrc-20.*\.tar\." $latest) ;;
+    *)                            stage3=$(grep "^20.*Z/stage3-amd64-20.*\.tar\." $latest) ;;
   esac
   local stage3=$(cut -f1 -d' ' -s <<< $stage3)
-
   if [[ -z $stage3 || $stage3 =~ [[:space:]] ]]; then
     echo " can't get stage3 filename for profile '$profile' in $latest"
     return 1
@@ -186,6 +185,7 @@ function UnpackStage3()  {
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo " downloading $f ..."
+    local wgeturl="$mirror/releases/amd64/autobuilds"
     wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || return 1
   fi
 
@@ -193,7 +193,6 @@ function UnpackStage3()  {
   echo " getting signing key ..."
   # use the Gentoo key server, but be relaxed if it doesn't answer
   gpg --keyserver hkps://keys.gentoo.org --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D || true
-
   date
   echo " verifying $f ..."
   gpg --quiet --verify $f.DIGESTS.asc || return 1
@@ -402,7 +401,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # no more parallelism than specified in $jops
+  # max $jobs parallel jobs
   cat << EOF                              > ./etc/portage/env/jobs
 EGO_BUILD_FLAGS="-p ${jobs}"
 GO19CONCURRENTCOMPILATION=0
