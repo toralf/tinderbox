@@ -1,10 +1,12 @@
 #!/bin/bash
 # set -x
 
+
 # This is the tinderbox script itself.
 # The main function is WorkOnTask().
 # The remaining code just parses the output.
 # That's all.
+
 
 # strip away quotes
 function stripQuotesAndMore() {
@@ -484,7 +486,7 @@ EOF
     for i in /var/db/repos/*/.git
     do
       cd $i/..
-      echo "  HEAD of ::$(basename $PWD)"
+      echo -e "\n  HEAD of ::$(basename $PWD)"
       git show -s HEAD
     done
 
