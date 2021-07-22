@@ -28,3 +28,5 @@ sci-astronomy/sextractor
 sys-cluster/vzctl
 app-misc/vzstats
 sys-cluster/ploop
+#
+app-dicts/stardict

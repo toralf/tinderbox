@@ -72,6 +72,7 @@ checking version of x86_64-pc-linux-gnu-gcc ... .* - old version, at least .* re
   Flow control statements are not properly nested.
  error: Unable to find
 The following variables are used in this project, but they are set to NOTFOUND.
+Could NOT find .* (missing:
 configure: error:
 CMake Error at
 CMake Error:

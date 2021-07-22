@@ -56,6 +56,7 @@ pwquality
 selinux
 split-usr
 ssl
+sslv3
 ssp
 static
 static-libs

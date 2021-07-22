@@ -38,6 +38,7 @@ dev-libs/glib                   -gtk-doc
 dev-vcs/git                     -cvs -subversion
 sys-apps/busybox                -pam
 sys-apps/shadow                 -cracklib
+sys-cluster/openmpi             cxx
 
 # https://bugs.gentoo.org/show_bug.cgi?id=802435
 dev-lang/ruby                   -jemalloc
