@@ -1,22 +1,23 @@
 # package.use/80test
 #
 
-# if FEATURES=test is set then these USE flags are needed to avoid a dep blocker at setup ...
+# if FEATURES=test is set then these USE flags are needed too
 
-dev-libs/libzip           tools
-dev-util/strace           -unwind
-media-gfx/imagemagick     corefonts truetype
-media-libs/harfbuzz       icu
-media-libs/libheif        go libde265
-media-libs/soxr           examples
-media-libs/tiff           jpeg
-media-sound/pulseaudio    -equalizer
-net-nds/openldap          berkdb -minimal
-net-misc/openssh          -xmss
-sys-apps/man-db           -nls
-sys-libs/libseccomp       -python
-x11-base/xorg-server      xvfb
-
+app-text/docbook-xsl-stylesheets    -ruby
+dev-libs/libzip                     tools
+dev-util/strace                     -unwind
+media-gfx/imagemagick               corefonts truetype
+media-libs/harfbuzz                 icu
+media-libs/libheif                  go libde265
+media-libs/soxr                     examples
+media-libs/tiff                     jpeg
+media-sound/pulseaudio              -equalizer
+net-nds/openldap                    berkdb -minimal
+net-misc/openssh                    -xmss
+sys-apps/man-db                     -nls
+sys-apps/dbus                       debug
+sys-libs/libseccomp                 -python
+x11-base/xorg-server                xvfb
 
 # ... or later, eg. in "perl-cleaner --all"
 */*                       -jack

@@ -2,3 +2,4 @@ Please switch to a gcc version built with USE=
 Space constraints set in the ebuild were not met
  \*   Unsupported version of Rust selected
  \* Please check to make sure these options are set correctly.
+ \*   Kernel not configured; no .config found in

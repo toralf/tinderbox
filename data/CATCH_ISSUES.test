@@ -1,3 +1,4 @@
+\<internal:/
 ^ValueError:
 E   ImportError:
 ____ ERROR coll
@@ -6,6 +7,7 @@ argparse.ArgumentError:
 ImportError:
 Need FEATURES=.* to run this testsuite
 ^E: Failure
+ \.\.\. FAILED
 : FAILED (.*:.*)
 .* failed unexpectedly.
 ^ERROR:.*test
