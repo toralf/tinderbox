@@ -171,8 +171,8 @@ function UnpackStage3()  {
     17.0/musl/hardened)           stage3=$(grep "^20.*Z/stage3-amd64-musl-hardened-20.*\.tar\." $latest) ;;
     17.0/musl)                    stage3=$(grep "^20.*Z/stage3-amd64-musl-20.*\.tar\." $latest) ;;
     17.1*/systemd)                stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
-    17..*/no-multilib/*/selinux)  stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-selinux-openrc-20.*\.tar\." $latest) ;;
-    17..*/selinux)                stage3=$(grep "^20.*Z/stage3-amd64-hardened-selinux-openrc-20.*\.tar\." $latest) ;;
+    17.1/no-multi*/hard*/selinux) stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-selinux-openrc-20.*\.tar\." $latest) ;;
+    17.1/hardened/selinux)        stage3=$(grep "^20.*Z/stage3-amd64-hardened-selinux-openrc-20.*\.tar\." $latest) ;;
     *)                            stage3=$(grep "^20.*Z/stage3-amd64-20.*\.tar\." $latest) ;;
   esac
   local stage3=$(cut -f1 -d' ' -s <<< $stage3)
@@ -454,39 +454,14 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  # by sam
-  mkdir -p ./etc/portage/profile
-  cat << EOF >> ./etc/portage/profile/package.use.mask
-# Allow libxcrypt to be the system provider of libcrypt, not glibc
-sys-libs/libxcrypt         -system
-
-EOF
-  cat << EOF >> ./etc/portage/profile/package.use.force
-# Don't force glibc to provide libcrypt
-sys-libs/glibc             -crypt
-
-EOF
-
+  if __dice 1 3; then
     cat << EOF > ./etc/portage/package.use/90libffi
 # by slyfox
 # Tracker: https://bugs.gentoo.org/801109
 # Known examples: https://wiki.gentoo.org/index.php?title=Project:Toolchain#libffi-3.4
 
 */*                        libffi
-EOF
-
-  if __dice 1 3; then
-    cat << EOF >> ./etc/portage/package.use/90libffi
-# would also be nice:
-
 >=dev-libs/libffi-3.4      exec-static-trampoline
-
-EOF
-  else
-    cat << EOF >> ./etc/portage/package.use/90libffi
-# old (default, safe)
-
->=dev-libs/libffi-3.4      -exec-static-trampoline
 
 EOF
   fi
@@ -623,10 +598,7 @@ emerge -u mail-client/mailx
 
 date
 echo "#setup libxcrypt" | tee /var/tmp/tb/task
-emerge -u virtual/libcrypt || emerge -u virtual/libcrypt dev-lang/perl || exit 1
-if grep -q 'sys-devel/gcc' /var/tmp/tb/setup.sh.log; then
-  echo "%SwitchGCC" >> /var/tmp/tb/backlog.1st
-fi
+emerge -u virtual/libcrypt sys-apps/shadow sys-apps/man-pages || exit 1
 
 date
 echo "#setup harfbuzz" | tee /var/tmp/tb/task
@@ -845,7 +817,11 @@ do
         exit $?
         ;;
     j)  jobs="$OPTARG"        ;;
-    p)  profile="$OPTARG"     ;;
+    p)  profile="$OPTARG"
+        cflags=$cflags_default
+        abi3264="n"
+        testfeature="n"
+        ;;
     s)  mnt="$OPTARG"
         name=$(basename $mnt)
         startImage
