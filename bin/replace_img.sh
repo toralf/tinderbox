@@ -11,7 +11,7 @@ function Finish() {
   if [[ $rc -ne 0 ]]; then
     echo
     date
-    echo " finished $pid with rc=$rc"
+    echo " pid $pid exited with rc=$rc"
   fi
   rm -f $lck
 
