@@ -49,7 +49,7 @@ function InitOptions() {
 
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
-  if __dice 1 26; then
+  if __dice 1 39; then
     abi3264="y"
   fi
 
@@ -88,7 +88,7 @@ function InitOptions() {
   musl="n"
   science="n"
   testfeature="n"
-  if __dice 1 26; then
+  if __dice 1 39; then
     testfeature="y"
   fi
   useflagfile=""
@@ -337,7 +337,7 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-if __dice 1 26; then
+if __dice 1 39; then
   cat <<EOF >> ./etc/portage/make.conf
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
@@ -383,8 +383,9 @@ function CompilePortageFiles()  {
   touch       ./etc/portage/package.mask/self     # gets failed packages
   chmod a+rw  ./etc/portage/package.mask/self
 
-  echo 'FEATURES="test"'                  > ./etc/portage/env/test
+  # setup or dep calculation issues or just broken at all
   echo 'FEATURES="-test"'                 > ./etc/portage/env/notest
+
   # continue an expected failed test of a package while preserving the dependency tree
   echo 'FEATURES="test-fail-continue"'    > ./etc/portage/env/test-fail-continue
 
@@ -424,6 +425,8 @@ EOF
 
   if [[ $profile =~ '/systemd' ]]; then
     cpconf ~tinderbox/tb/data/package.*.??systemd
+  else
+    cpconf ~tinderbox/tb/data/package.*.??openrc
   fi
 
   cpconf ~tinderbox/tb/data/package.*.??{common,setup}
@@ -433,28 +436,30 @@ EOF
   fi
 
   if [[ $testfeature = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.*.*test
+    cpconf ~tinderbox/tb/data/package.*.??test
   else
-    # overrule any IUSE=+test
-    echo "*/*  notest" > ./etc/portage/package.env/12notest
+    cpconf ~tinderbox/tb/data/package.*.??notest
   fi
 
-  # give Firefox, Thunderbird et al. a chance
+  # give Firefox, Thunderbird et al. a better chance
   if __dice 1 13; then
     cpconf ~tinderbox/tb/data/package.use.30misc
   fi
 
-  # packages either having a -bin variant or being only rarely build
+  # packages either having a -bin variant or shall only rarely been build
   for p in $(grep -v -e '#' -e'^$' ~tinderbox/tb/data/BIN_OR_SKIP)
   do
-    if __dice 11 12; then
+    if ! __dice 1 13; then
       echo "$p" >> ./etc/portage/package.mask/91bin-or-skip
     fi
   done
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  if __dice 1 3; then
+  if __dice 1 2; then
+    mkdir /etc/portage/profile
+    echo ">=dev-libs/libffi-3.4 -exec-static-trampoline" >> /etc/portage/profile/package.use.mask
+
     cat << EOF > ./etc/portage/package.use/90libffi
 # by slyfox
 # Tracker: https://bugs.gentoo.org/801109
@@ -525,12 +530,10 @@ function CreateHighPrioBacklog()  {
   cat << EOF > $bl.1st
 @world
 @system
-%sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
-@world
-@system
 %rm -f /etc/portage/package.use/??setup*
 @world
 @system
+%sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
 sys-apps/portage app-portage/gentoolkit
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
@@ -549,6 +552,9 @@ function CreateSetupScript()  {
 
 export LANG=C.utf8
 set -euf
+
+# include the \n at copying (sys-libs/readline de-activates that behaviour with v8.x)
+echo "set enable-bracketed-paste off" >> /etc/inputrc
 
 date
 echo "#setup locale + timezone" | tee /var/tmp/tb/task
@@ -593,32 +599,33 @@ date
 echo "#setup mailer" | tee /var/tmp/tb/task
 # emerge ssmtp separately before mailx b/c mailx would pull in per default another MTA than ssmtp
 emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the destination already exists (bind-mounted by bwrap-sh)
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the destination does already exist (bind-mounted by bwrap.sh)
 emerge -u mail-client/mailx
 
 date
 echo "#setup libxcrypt" | tee /var/tmp/tb/task
-emerge -u virtual/libcrypt sys-apps/shadow sys-apps/man-pages || exit 1
+emerge -u virtual/libcrypt sys-apps/shadow sys-apps/man-pages
 
 date
 echo "#setup harfbuzz" | tee /var/tmp/tb/task
 USE="-X -cairo -fontconfig -graphite -harfbuzz -icu -png -truetype" emerge -u media-libs/freetype media-libs/harfbuzz
 
 eselect profile set --force default/linux/amd64/$profile
-if [[ $testfeature = "y" ]]; then
-  echo "*/*  test" >> /etc/portage/package.env/11dotest
-fi
 
 date
-echo "#setup backlog" | tee /var/tmp/tb/task
+echo "#setup finalize" | tee /var/tmp/tb/task
+
+# switch on the test feature now
+if [[ $testfeature = "y" ]]; then
+  sed -i -e 's,FEATURES=",FEATURES="test ,g' /etc/portage/make.conf
+fi
+
 # sort -u is needed if a package is in more than one repo
 qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
 
-# include the \n at copying (sys-libs/readline de-activates that behaviour with v8.x)
-echo "set enable-bracketed-paste off" >> /etc/inputrc
-
 date
 echo "#setup done" | tee /var/tmp/tb/task
+
 EOF
 
   chmod u+x ./var/tmp/tb/setup.sh
@@ -632,12 +639,14 @@ function RunSetupScript() {
   cd ~tinderbox/
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > $mnt/var/tmp/tb/setup_wrapper.sh
 
-  if ! nice -n 1 ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
-    echo -e "$(date)\n $FUNCNAME was NOT successful @ $mnt\n"
-    tail -v -n 100 $mnt/var/tmp/tb/setup.sh.log
-    echo
-    return 1
+  if nice -n 1 ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
+    return 0
   fi
+
+  echo -e "$(date)\n $FUNCNAME was NOT successful @ $mnt\n"
+  tail -v -n 100 $mnt/var/tmp/tb/setup.sh.log
+  echo
+  return 1
 }
 
 
@@ -647,7 +656,13 @@ function DryRun() {
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
 
-  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
+  if nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog; then
+    echo -e "\n OK\n"
+    return 0
+  fi
+
+  echo -e "\n NOT ok\n"
+  return 1
 }
 
 
@@ -660,7 +675,7 @@ function FormatUseFlags() {
 function DryRunWithRandomizedUseFlags() {
   cd $mnt
 
-  echo "#setup dryrun $attempt" > ./var/tmp/tb/task
+  echo "#setup dryrun $attempt" | tee > ./var/tmp/tb/task
 
   grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
   cut -f1 -d' ' -s |\
@@ -691,48 +706,54 @@ function DryRunWithRandomizedUseFlags() {
   done > ./etc/portage/package.use/26thrown_package_use_flags
 
   if DryRun; then
-    echo -e "\n OK\n"
     return 0
-  else
-    echo "#setup dryrun $attempt #2" > ./var/tmp/tb/task
-
-    local fautocirc=./etc/portage/package.use/91setup-auto-solve-circ-dep
-    local fautoflag=./etc/portage/package.use/28necessary-use-flag-change
-
-    grep -h -A 10 "It might be possible to break this cycle" $drylog |\
-    grep -F ' (Change USE: ' |\
-    grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' \
-                -e '+' -e 'This change might require ' |\
-    sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
-    tr -d ')' |\
-    sort -u |\
-    while read -r p u
-    do
-      q=$(qatom $p | cut -f1-2 -d' ' | tr ' ' '/')
-      printf "%-30s %s\n" $q "$u"
-    done |\
-    sort -u > $fautocirc
-
-    grep -h -A 100 'The following USE changes are necessary to proceed:' $drylog |\
-    grep "^>=" |\
-    sort -u |\
-    grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' > $fautoflag
-
-    if [[ -s $fautocirc || -s $fautoflag ]]; then
-      tail -v $fautocirc $fautoflag
-      if DryRun; then
-        echo -e "\n OK\n"
-        return 0
-      fi
-    fi
-    rm $fautocirc $fautoflag
   fi
 
+  local fautocirc=./etc/portage/package.use/91setup-auto-solve-circ-dep
+
+  grep -h -A 10 "It might be possible to break this cycle" $drylog |\
+  grep -F ' (Change USE: ' |\
+  grep -v -F  -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' \
+              -e '+' -e 'This change might require ' |\
+  sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
+  tr -d ')' |\
+  sort -u |\
+  while read -r p u
+  do
+    q=$(qatom $p | cut -f1-2 -d' ' | tr ' ' '/')
+    printf "%-30s %s\n" $q "$u"
+  done |\
+  sort -u > $fautocirc
+
+  if [[ -s $fautocirc ]]; then
+    echo "#setup dryrun $attempt #2" | tee > ./var/tmp/tb/task
+    tail -v $fautocirc
+    if DryRun; then
+      return 0
+    fi
+  fi
+
+  local fautoflag=./etc/portage/package.use/28necessary-use-flag-change
+
+  grep -h -A 100 'The following USE changes are necessary to proceed:' $drylog |\
+  grep "^>=" |\
+  sort -u |\
+  grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' > $fautoflag
+
+  if [[ -s $fautoflag ]]; then
+    echo "#setup dryrun $attempt #3" | tee > ./var/tmp/tb/task
+    tail -v $fautoflag
+    if DryRun; then
+      return 0
+    fi
+  fi
+
+  rm $fautocirc $fautoflag
   return 1
 }
 
 
-function FinalizeImage(){
+function ThrowImageUseFlags(){
   cd $mnt
 
   echo 'emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
@@ -745,20 +766,24 @@ function FinalizeImage(){
     DryRun
     return $?
   else
-    for attempt in $(seq -w 1 98)
+    local attempt=1
+    while [[ $attempt -lt 1000 ]]
     do
+      if [[ -f ./var/tmp/tb/STOP ]]; then
+        echo -e "\n foundd STOP file"
+        return 1
+      fi
       echo
       date
       echo "dryrun $attempt ==========================================================="
       echo
-      if [[ "$attempt" = "50" ]]; then
-        echo 'emerge --update --changed-use --newuse @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
-      fi
-      local drylog=./var/tmp/tb/logs/dryrun.$attempt.log
+      local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
       if DryRunWithRandomizedUseFlags; then
         return 0
       fi
+      ((attempt++))
     done
+    echo -e "\n max attempts reached"
     return 1
   fi
 }
@@ -813,7 +838,7 @@ do
     c)  cflags="$OPTARG"      ;;
     f)  mnt="$OPTARG"
         name=$(basename $mnt)
-        FinalizeImage
+        ThrowImageUseFlags
         exit $?
         ;;
     j)  jobs="$OPTARG"        ;;
@@ -844,5 +869,5 @@ CompileMiscFiles
 CreateHighPrioBacklog
 CreateSetupScript
 RunSetupScript
-FinalizeImage
+ThrowImageUseFlags
 startImage
