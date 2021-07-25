@@ -12,7 +12,7 @@ function listImages()  {
 <h2>content of image directory</h2>
 
 <i>image</i>/var/tmp/tb contains ./logs and ./issues
-
+<br>
 EOF
   ls  ~tinderbox/img/ |\
   while read d
