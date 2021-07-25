@@ -1,9 +1,0 @@
-# package.unmask/00common
-#
-
-# by sam
-# Allow virtual which specifies libxcrypt
->=virtual/libcrypt-2
-
-# by slyfox
-~dev-libs/libffi-3.4.2

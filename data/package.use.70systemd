@@ -1,6 +1,2 @@
 # package.use/70systemd
 #
-
-app-crypt/pinentry              -gtk
-sys-auth/polkit                 -gtk
-sys-apps/systemd                -homed

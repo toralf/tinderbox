@@ -4,6 +4,7 @@
 # if FEATURES=test is set then these USE flags are needed too
 
 app-text/docbook-xsl-stylesheets    -ruby
+dev-libs/glib                       gtk-doc
 dev-libs/libzip                     tools
 dev-util/strace                     -unwind
 media-gfx/imagemagick               corefonts truetype
@@ -20,10 +21,9 @@ sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
 
 # ... or later, eg. in "perl-cleaner --all"
-*/*                       -jack
+*/*                                 -jack
 
 # ... or later in @world
-app-text/xmlto            -latex
-dev-util/cmake            -emacs
-net-print/cups            -zeroconf
-
+app-text/xmlto                      -latex
+dev-util/cmake                      -emacs
+net-print/cups                      -zeroconf
