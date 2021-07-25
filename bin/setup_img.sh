@@ -588,11 +588,15 @@ echo "#setup git" | tee /var/tmp/tb/task
 emerge -u dev-vcs/git
 emaint sync --auto 1>/dev/null
 
-echo "#setup portage helpers" | tee /var/tmp/tb/task
 if grep -q LIBTOOL /etc/portage/make.conf; then
+  date
+  echo "#setup slibtool" | tee /var/tmp/tb/task
   echo "*/* -audit -cups" >> /etc/portage/package.use/slibtool
   emerge -u sys-devel/slibtool
 fi
+
+date
+echo "#setup portage helpers" | tee /var/tmp/tb/task
 emerge -u app-text/ansifilter app-portage/portage-utils
 
 date
@@ -611,9 +615,6 @@ echo "#setup harfbuzz" | tee /var/tmp/tb/task
 USE="-X -cairo -fontconfig -graphite -harfbuzz -icu -png -truetype" emerge -u media-libs/freetype media-libs/harfbuzz
 
 eselect profile set --force default/linux/amd64/$profile
-
-date
-echo "#setup finalize" | tee /var/tmp/tb/task
 
 # switch on the test feature now
 if [[ $testfeature = "y" ]]; then
@@ -640,10 +641,11 @@ function RunSetupScript() {
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > $mnt/var/tmp/tb/setup_wrapper.sh
 
   if nice -n 1 ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
+    echo -e "$(date)\n $FUNCNAME OK\n"
     return 0
   fi
 
-  echo -e "$(date)\n $FUNCNAME was NOT successful @ $mnt\n"
+  echo -e "$(date)\n $FUNCNAME was NOT ok\n"
   tail -v -n 100 $mnt/var/tmp/tb/setup.sh.log
   echo
   return 1
@@ -657,11 +659,11 @@ function DryRun() {
   chmod g+w,a+r ./etc/portage/package.use/*
 
   if nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog; then
-    echo -e "\n OK\n"
+    echo " OK"
     return 0
   fi
 
-  echo -e "\n NOT ok\n"
+  echo " NOT ok"
   return 1
 }
 
@@ -675,7 +677,7 @@ function FormatUseFlags() {
 function DryRunWithRandomizedUseFlags() {
   cd $mnt
 
-  echo "#setup dryrun $attempt" | tee > ./var/tmp/tb/task
+  echo "#setup dryrun $attempt" | tee ./var/tmp/tb/task
 
   grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
   cut -f1 -d' ' -s |\
@@ -726,7 +728,7 @@ function DryRunWithRandomizedUseFlags() {
   sort -u > $fautocirc
 
   if [[ -s $fautocirc ]]; then
-    echo "#setup dryrun $attempt #2" | tee > ./var/tmp/tb/task
+    echo "#setup dryrun $attempt #circ dep" | tee ./var/tmp/tb/task
     tail -v $fautocirc
     if DryRun; then
       return 0
@@ -741,7 +743,7 @@ function DryRunWithRandomizedUseFlags() {
   grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' > $fautoflag
 
   if [[ -s $fautoflag ]]; then
-    echo "#setup dryrun $attempt #3" | tee > ./var/tmp/tb/task
+    echo "#setup dryrun $attempt #flag change" | tee ./var/tmp/tb/task
     tail -v $fautoflag
     if DryRun; then
       return 0
@@ -770,13 +772,13 @@ function ThrowImageUseFlags(){
     while [[ $attempt -lt 1000 ]]
     do
       if [[ -f ./var/tmp/tb/STOP ]]; then
-        echo -e "\n foundd STOP file"
+        echo -e "\n found STOP file"
+        rm ./var/tmp/tb/STOP
         return 1
       fi
       echo
       date
-      echo "dryrun $attempt ==========================================================="
-      echo
+      echo "==========================================================="
       local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
       if DryRunWithRandomizedUseFlags; then
         return 0
