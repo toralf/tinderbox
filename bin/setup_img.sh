@@ -534,7 +534,8 @@ function CreateHighPrioBacklog()  {
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
-sys-apps/portage app-portage/gentoolkit
+sys-apps/portage
+app-portage/gentoolkit
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
 %SwitchGCC
