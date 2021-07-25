@@ -173,7 +173,7 @@ function UnpackStage3()  {
     17.1*/systemd)                stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
     17.1/no-multi*/hard*/selinux) stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-selinux-openrc-20.*\.tar\." $latest) ;;
     17.1/hardened/selinux)        stage3=$(grep "^20.*Z/stage3-amd64-hardened-selinux-openrc-20.*\.tar\." $latest) ;;
-    *)                            stage3=$(grep "^20.*Z/stage3-amd64-20.*\.tar\." $latest) ;;
+    *)                            stage3=$(grep "^20.*Z/stage3-amd64-openrc-20.*\.tar\." $latest) ;;
   esac
   local stage3=$(cut -f1 -d' ' -s <<< $stage3)
   if [[ -z $stage3 || $stage3 =~ [[:space:]] ]]; then
@@ -457,7 +457,6 @@ EOF
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
   if __dice 1 2; then
-    mkdir /etc/portage/profile
     echo ">=dev-libs/libffi-3.4 -exec-static-trampoline" >> /etc/portage/profile/package.use.mask
 
     cat << EOF > ./etc/portage/package.use/90libffi
