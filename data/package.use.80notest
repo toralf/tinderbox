@@ -3,4 +3,6 @@
 
 # if FEATURES=test is NOT set then these USE flags are needed too
 
+*/*                                 -valgrind
+
 dev-libs/glib                       -gtk-doc

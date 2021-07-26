@@ -3,7 +3,6 @@
 bindist
 bootstrap
 build
-cdinstall
 compile-locales
 custom-cflags
 d3d9
@@ -26,6 +25,7 @@ headers-only
 hostname
 ithreads
 kill
+l10n_
 libssp
 libunwind
 livecd
@@ -42,14 +42,12 @@ musl
 nis
 nss
 nvidia
-o-flag-munging
 oci8
+o-flag-munging
 opencl
 openmp
 openssl
 passwdqc
-pax-kernel
-pax_kernel
 perftools
 prefix
 pwquality
@@ -60,7 +58,6 @@ sslv3
 ssp
 static
 static-libs
-symlink
 system
 systemd
 test
@@ -69,7 +66,6 @@ uclibc
 udev
 user-session
 vaapi
-valgrind
 vanilla
 vdpau
 vim-syntax

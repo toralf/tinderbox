@@ -1,2 +1,4 @@
 # package.use/70systemd
 #
+
+net-dns/avahi                       dbus

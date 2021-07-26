@@ -1,8 +1,11 @@
 # package.use/91setup
 #
 
-# this file helps to setup an image so that first @world succeeds, it is removed afterwards
+# this file helps to setup an image so that DRyRun() succeeds, it is removed afterwards
 
 
 # quicker bootstrap
 dev-vcs/git                     -cgi -mediawiki -mediawiki-experimental -perl
+
+# breaks harfbuzz / DryRun
+dev-python/pygments             -doc

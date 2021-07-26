@@ -1,7 +1,10 @@
 # package.use/90common
 #
 
-# these settings are fixed for every tinderbox image
+
+#######################################################################
+#
+# global settings
 
 */*  QEMU_SOFTMMU_TARGETS:      x86_64 i386
 */*  QEMU_USER_TARGETS:         x86_64 i386
@@ -9,13 +12,10 @@
 */*  RUBY_TARGETS:              ruby30
 
 # not at all
-*/*                             -cdinstall -firmware -initramfs -pax-kernel -symlink -valgrind
+*/*                             -cdinstall -firmware -initramfs -pax-kernel pax_kernel -symlink
 
 # 2x faster compile
 */*                             jumbo-build
-
-# preferred
-dev-libs/libpcre*               -libedit readline
 
 # MTA
 mail-mta/ssmtp                  mta ssl
@@ -27,20 +27,27 @@ sys-apps/nix                    -etc_profile
 app-portage/pfl                 -network-cron
 app-text/ansifilter             -qt5
 
-# by sam
-# Disable libcrypt in glibc
-sys-libs/glibc                  -crypt
-# Provide libcrypt
-sys-libs/libxcrypt              system
-
 # setup issues
+dev-libs/libpcre*               -libedit readline
 dev-vcs/git                     -cvs -subversion
 sys-apps/busybox                -pam
 sys-apps/shadow                 -cracklib
 sys-cluster/openmpi             cxx
 
+
+#######################################################################
+#
+# temp settings
+#
+
 # https://bugs.gentoo.org/show_bug.cgi?id=802435
 dev-lang/ruby                   -jemalloc
+
+# by sam
+# Disable libcrypt in glibc
+sys-libs/glibc                  -crypt
+# Provide libcrypt
+sys-libs/libxcrypt              system
 
 # by slyfox
 # Tracker: https://bugs.gentoo.org/801109
