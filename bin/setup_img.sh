@@ -455,13 +455,12 @@ EOF
   done
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
-
   cat ~tinderbox/tb/data/package.use.mask >> /etc/portage/profile/package.use.mask
+
+  touch ./var/tmp/tb/task
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
-
-  touch ./var/tmp/tb/task
 }
 
 
@@ -677,11 +676,11 @@ function DryRunWithRandomizedUseFlags() {
   grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
   cut -f1 -d' ' -s |\
   IgnoreUseFlags |\
-  ThrowUseFlags 200 |\
+  ThrowUseFlags 150 |\
   FormatUseFlags > ./etc/portage/package.use/24thrown_global_use_flags
 
   grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
-  shuf -n $(($RANDOM % 1000)) |\
+  shuf -n $(($RANDOM % 1500)) |\
   sort |\
   while read -r file
   do
@@ -690,7 +689,7 @@ function DryRunWithRandomizedUseFlags() {
     grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |\
     cut -f2 -d'"' -s |\
     IgnoreUseFlags |\
-    ThrowUseFlags 15 |\
+    ThrowUseFlags 10 |\
     xargs |\
     xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
   done > ./etc/portage/package.use/26thrown_package_use_flags
