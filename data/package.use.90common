@@ -41,3 +41,9 @@ sys-cluster/openmpi             cxx
 
 # https://bugs.gentoo.org/show_bug.cgi?id=802435
 dev-lang/ruby                   -jemalloc
+
+# by slyfox
+# Tracker: https://bugs.gentoo.org/801109
+# Known examples: https://wiki.gentoo.org/index.php?title=Project:Toolchain#libffi-3.4
+*/*                        libffi
+>=dev-libs/libffi-3.4      exec-static-trampoline

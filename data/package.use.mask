@@ -1,0 +1,7 @@
+# package.use.mask
+#
+
+# mask USE flags globally
+
+# by slyfox
+>=dev-libs/libffi-3.4               -exec-static-trampoline

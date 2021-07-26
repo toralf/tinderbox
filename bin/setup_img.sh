@@ -456,24 +456,12 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  if __dice 1 2; then
-    echo ">=dev-libs/libffi-3.4 -exec-static-trampoline" >> /etc/portage/profile/package.use.mask
-
-    cat << EOF > ./etc/portage/package.use/90libffi
-# by slyfox
-# Tracker: https://bugs.gentoo.org/801109
-# Known examples: https://wiki.gentoo.org/index.php?title=Project:Toolchain#libffi-3.4
-
-*/*                        libffi
->=dev-libs/libffi-3.4      exec-static-trampoline
-
-EOF
-  fi
-
-  touch ./var/tmp/tb/task
+  cat ~tinderbox/tb/data/package.use.mask >> /etc/portage/profile/package.use.mask
 
   chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
+
+  touch ./var/tmp/tb/task
 }
 
 
@@ -641,7 +629,7 @@ function RunSetupScript() {
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > $mnt/var/tmp/tb/setup_wrapper.sh
 
   if nice -n 1 ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
-    echo -e "$(date)\n $FUNCNAME OK\n"
+    echo -e " OK"
     return 0
   fi
 
