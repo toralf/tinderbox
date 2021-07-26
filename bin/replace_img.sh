@@ -13,7 +13,7 @@ function Finish() {
     date
     echo " pid $pid exited with rc=$rc"
   fi
-  rm -f $lck
+  rm $lck
 
   exit $rc
 }
@@ -146,8 +146,6 @@ function setupANewImage() {
     rm -- ~/run/$oldimg ~/logs/$oldimg.log
     echo "done"
   fi
-
-  rm $lck
 
   echo
   date
