@@ -674,6 +674,7 @@ function DryRunWithRandomizedUseFlags() {
   xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
 
   grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
+  grep -v -F -e '!' |\
   cut -f1 -d' ' -s |\
   IgnoreUseFlags |\
   ThrowUseFlags 150 |\
