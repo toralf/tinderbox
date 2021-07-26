@@ -7,6 +7,8 @@
 function Exit()  {
   local rc=${1:-$?}
 
+  trap - INT QUIT TERM EXIT
+
   rm -f $tmpfile
   exit $rc
 }

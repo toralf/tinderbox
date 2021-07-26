@@ -19,6 +19,8 @@ function Warn() {
 function Exit() {
   local rc=${1:-$?}
 
+  trap - INT QUIT TERM EXIT
+
   if [[ $rc -ne 0 ]]; then
     Warn $rc
   fi

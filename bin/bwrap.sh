@@ -50,7 +50,7 @@ function Cleanup()  {
 
 function Exit()  {
   echo "bailing out ..."
-  trap - QUIT TERM EXIT
+  trap - INT QUIT TERM EXIT
 }
 
 

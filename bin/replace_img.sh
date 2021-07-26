@@ -8,6 +8,8 @@ function Finish() {
   local rc=${1:-$?}
   local pid=$$
 
+  trap - INT QUIT TERM EXIT
+
   if [[ $rc -ne 0 ]]; then
     echo
     date
@@ -163,14 +165,14 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-# do not run this script in parallel till the old image is removed
+# do not run this script in parallel
 lck="/tmp/${0##*/}.lck"
 if [[ -s "$lck" ]]; then
   if kill -0 $(cat $lck) 2>/dev/null; then
     exit 1    # process is running
   fi
 fi
-echo $$ > "$lck" || Finish 1
+echo $$ > "$lck" || exit 1
 trap Finish INT QUIT TERM EXIT
 
 condition_completed=-1      # completed emerge operations
