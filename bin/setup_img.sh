@@ -246,10 +246,11 @@ masters = gentoo
 
 EOF
 
+  # ::gentoo
   date
   echo " cloning ::gentoo"
   cd ./$repodir
-  # git clone of a local repo is much slower than cp (or rsync)
+  # "git clone" of a local repo is much slower than cp
   local refdir=~tinderbox/img/$(ls -t ~tinderbox/run | head -n 1)/var/db/repos/gentoo
   if [[ ! -d $refdir ]]; then
     refdir=/var/db/repos/gentoo
@@ -572,7 +573,7 @@ fi
 
 date
 echo "#setup git" | tee /var/tmp/tb/task
-emerge -u dev-vcs/git
+USE="-cgi -mediawiki -mediawiki-experimental" emerge -u dev-vcs/git
 emaint sync --auto 1>/dev/null
 
 if grep -q LIBTOOL /etc/portage/make.conf; then
@@ -598,8 +599,8 @@ echo "#setup libxcrypt" | tee /var/tmp/tb/task
 emerge -u virtual/libcrypt sys-apps/shadow sys-apps/man-pages
 
 date
-echo "#setup harfbuzz" | tee /var/tmp/tb/task
-USE="-X -cairo -fontconfig -graphite -harfbuzz -icu -png -truetype" emerge -u media-libs/freetype media-libs/harfbuzz
+echo "#setup harfbuzz/freetype" | tee /var/tmp/tb/task
+USE="-X -harfbuzz -png" emerge -u media-libs/freetype
 
 eselect profile set --force default/linux/amd64/$profile
 
@@ -673,15 +674,14 @@ function DryRunWithRandomizedUseFlags() {
   xargs |\
   xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
 
-  grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/use.desc |\
-  grep -v -F -e '!' |\
+  grep -v -e '^$' -e '^#' -e 'internal use only' $repodir/gentoo/profiles/use.desc |\
   cut -f1 -d' ' -s |\
   IgnoreUseFlags |\
   ThrowUseFlags 150 |\
   FormatUseFlags > ./etc/portage/package.use/24thrown_global_use_flags
 
   grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
-  shuf -n $(($RANDOM % 1500)) |\
+  shuf -n $(($RANDOM % 2000)) |\
   sort |\
   while read -r file
   do
