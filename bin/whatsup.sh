@@ -103,12 +103,12 @@ function Overall() {
     # result of last run of @system, @world and @preserved-rebuild respectively:
     #
     # upper case: an error occurred
-    # lower case: a package failed
+    # lower case: just a package failed
     # "." not yet run
     # " " ok
+    check_history $i/var/tmp/tb/@preserved-rebuild.history  p
     check_history $i/var/tmp/tb/@world.history              w
     check_history $i/var/tmp/tb/@system.history             s
-    check_history $i/var/tmp/tb/@preserved-rebuild.history  p
 
     # images during setup are not yet symlinked to ~/run
     b=$(basename $i)
