@@ -842,14 +842,14 @@ function SquashRebuildLoop() {
 
 
 function syncRepos()  {
-  local diff=$1
-  local ago
+  local diff=${1:-0}
 
   if emaint sync --auto 1>/dev/null | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
     return
   fi
 
   # feed backlog.upd with new entries from max 3 hours ago
+  local ago
   ((ago = diff + 3600 + 61))
   if [[ $ago -gt 10800 ]]; then
     ago=10800
