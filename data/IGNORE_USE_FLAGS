@@ -25,7 +25,6 @@ headers-only
 hostname
 ithreads
 kill
-l10n_
 libssp
 libunwind
 livecd

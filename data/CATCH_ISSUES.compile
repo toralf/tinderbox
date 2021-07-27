@@ -290,3 +290,4 @@ Configuration error:
 .* not found in the JDK being used for compilation
 cc1: some warnings being treated as errors
 rdlibtool: error
+installed package .* is broken due to missing package
