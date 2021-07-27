@@ -12,7 +12,7 @@ fi
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -exec rm {} +
 
 fs=/dev/nvme0n1p4
-while [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < 200000 || $5 > "82%")') ]]
+while [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < 200000 || $5 > "84%")') ]]
 do
   img=$(ls -d ~tinderbox/img/*/ 2>/dev/null | sort -t'-' -k 3,4 | head -n 1)
   if [[ -d $img ]]; then
