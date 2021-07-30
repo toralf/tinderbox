@@ -1,10 +1,9 @@
 # package.use/80test
 #
 
-# if FEATURES=test is set then these USE flags are needed too
+# if FEATURES=test is active for a package then these USE flags are required
 
 app-text/docbook-xsl-stylesheets    -ruby
-dev-libs/glib                       gtk-doc
 dev-libs/libzip                     tools
 dev-util/strace                     -unwind
 media-gfx/imagemagick               corefonts truetype
@@ -20,10 +19,10 @@ sys-apps/dbus                       debug
 sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
 
-# ... or later, eg. in "perl-cleaner --all"
+# setup issues
 */*                                 -jack
-
-# ... or later in @world
 app-text/xmlto                      -latex
+dev-libs/glib                       -gtk-doc
 dev-util/cmake                      -emacs
+media-libs/harfbuzz                 -cairo
 net-print/cups                      -zeroconf

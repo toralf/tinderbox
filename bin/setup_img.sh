@@ -436,11 +436,7 @@ EOF
     cpconf ~tinderbox/tb/data/package.*.??abi32+64
   fi
 
-  if [[ $testfeature = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.*.??test
-  else
-    cpconf ~tinderbox/tb/data/package.*.??notest
-  fi
+  cpconf ~tinderbox/tb/data/package.*.??test-$testfeature
 
   # give Firefox, Thunderbird et al. a better chance
   if __dice 1 13; then
