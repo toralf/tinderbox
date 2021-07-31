@@ -114,6 +114,15 @@ function AnImageIsFull()  {
 
 
 function StopOldImage() {
+  echo
+  date
+  echo " stopping $oldimg ..."
+
+  if [[ -z $oldimg || ~/run/$oldimg = "-" || ! -e ~/run/$oldimg ]]; then
+    echo "invalid file name"
+    exit 1
+  fi
+
   # repeat STOP to stop again immediately after an external triggered restart
   cat << EOF > ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP
@@ -136,19 +145,12 @@ EOF
       sleep 1
     done
   fi
+  rm -- ~/run/$oldimg ~/logs/$oldimg.log
+  echo "done"
 }
 
 
 function setupANewImage() {
-  if [[ -n $oldimg && -e ~/run/$oldimg ]]; then
-    echo
-    date
-    echo " stopping $oldimg ..."
-    StopOldImage
-    rm -- ~/run/$oldimg ~/logs/$oldimg.log
-    echo "done"
-  fi
-
   echo
   date
   echo " setup a new image ..."
@@ -209,6 +211,7 @@ if [[ -z "$oldimg" ]]; then
 
   while AnImageHasAnEmptyBacklog
   do
+    StopOldImage
     setupANewImage
   done
 
@@ -216,6 +219,7 @@ if [[ -z "$oldimg" ]]; then
     while AnImageIsFull
     do
       if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
+        StopOldImage
         setupANewImage
       else
         break
@@ -223,16 +227,11 @@ if [[ -z "$oldimg" ]]; then
     done
   fi
 
-elif [[ $oldimg = "-" ]]; then
-  setupANewImage
-
 else
-  if [[ ! -e ~/run/$oldimg ]]; then
-    echo " error, given old image is not valid: $oldimg"
-    Finish 1
-  else
-    setupANewImage
+  if [[ ! $oldimg = "-" ]]; then
+    StopOldImage
   fi
+  setupANewImage
 fi
 
 Finish $?
