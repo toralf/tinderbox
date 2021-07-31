@@ -61,7 +61,6 @@ Failed Patch:
 can't get .* relocation type
 texi2info failed
 is not a function name
-mkdir: cannot create directory
 Unable to find program
 javac: invalid source release
 Unknown channel
@@ -291,3 +290,4 @@ Configuration error:
 cc1: some warnings being treated as errors
 rdlibtool: error
 installed package .* is broken due to missing package
+mkdir: cannot create directory

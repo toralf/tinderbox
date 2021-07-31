@@ -1,2 +1,5 @@
 # package.unmask/90common
 #
+
+# Whissi
+#>=dev-libs/openssl-3.0.0_beta2

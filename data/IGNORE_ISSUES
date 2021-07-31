@@ -38,6 +38,7 @@ Nonmodular kernel detected, will not build kernel modules
 No pathcc executable was installed, your hardware is unsupported most likely
 No supported Python implementation in PYTHON_SINGLE_TARGET.
 No support for external modules in
+One of the .* use flags must be enabled
 OTP release .* does not match required regex
 pcmcia support is broken on kernels newer
 Please check to make sure these options are set correctly.

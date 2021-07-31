@@ -8,6 +8,7 @@ custom-cflags
 d3d9
 debug
 default-gold
+deprecated
 device-mapper-only
 dist-kernel
 elogind
