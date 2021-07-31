@@ -16,7 +16,7 @@ while [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < 200000 || $5 > "88%")')
 do
   img=$(ls -d ~tinderbox/img/*/ 2>/dev/null | sort -t'-' -k 3,4 | head -n 1)
   if [[ -d $img ]]; then
-    rm -r $img
+    rm -r $img || exit $?
     sleep 30    # lazy btrfs
   else
     echo "nothing to delete ?!"
