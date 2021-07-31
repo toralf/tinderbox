@@ -43,13 +43,13 @@ function check_history()  {
 
 # whatsup.sh -o
 #
-# compl fail bugs days backlog .upd .1st status  7#7 running
-#  4402   36    1  4.8   16529    7    0   Wr    ~/run/17.1-20210306-163653
-#  4042   26    0  5.1   17774   12    2    r    ~/run/17.1_desktop_gnome-20210306-091529
+# compl fail bug day backlog .upd .1st swprs 7#7 running
+#  4402   36   1 4.8   16529    7    0  W r  ~/run/17.1-20210306-163653
+#  4042   26   0 5.1   17774   12    2    r  ~/run/17.1_desktop_gnome-20210306-091529
 function Overall() {
   running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
   all=$(wc -w <<< $images)
-  echo "compl fail bugs days backlog .upd .1st status  $running#$all running"
+  echo "compl fail bug  day backlog .upd .1st swprs $running#$all running"
 
   for i in $images
   do
@@ -113,7 +113,7 @@ function Overall() {
     # images during setup are not yet symlinked to ~/run
     b=$(basename $i)
     [[ -e ~/run/$b ]] && d="~/run" || d="~/img"
-    printf "%5i %4i %4i %4.1f %7i %4i %4i %6s  %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
+    printf "%5i %4i %3i %4.1f %7i %4i %4i %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
   done
 }
 
@@ -317,6 +317,7 @@ function emergeThruput()  {
       foreach my $i (0..23) { printf("%4i", $i) }
       print "\n\n";
       '
+
   perl -F: -wane '
     BEGIN {
       my %Day = ();
@@ -345,7 +346,7 @@ function emergeThruput()  {
         print "\n";
       }
     }
-  '  $(ls -d ~/img/*/var/log/emerge.log | sort -t '-' -k 3,4  | tail -n 40) |\
+  ' $(find ~/img/*/var/log/emerge.log -mtime -15 | sort -t '-' -k 3,4) |\
   tail -n 14
 }
 
