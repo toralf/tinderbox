@@ -1,3 +1,4 @@
+FileNotFoundError:
 dial tcp: lookup proxy.golang.org
 go:.* read: connection refused
 Fetched file: .* VERIFY FAILED!

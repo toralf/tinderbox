@@ -29,7 +29,6 @@ app-text/ansifilter             -qt5
 
 # setup issues
 dev-libs/libpcre*               -libedit readline
-dev-vcs/git                     -cvs -subversion
 sys-apps/busybox                -pam
 sys-apps/shadow                 -cracklib
 sys-cluster/openmpi             cxx

@@ -46,3 +46,7 @@ sci-libs/libint:2
 
 # Whissi
 #<dev-libs/openssl-3.0.0_beta2
+
+# sam, dilfridge
+#virtual/jdk:1.8
+

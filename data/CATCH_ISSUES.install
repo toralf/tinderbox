@@ -32,7 +32,6 @@ Fatal error .
 glib-mkenums: command not found
 AttributeError:
 error: unknown target
-FileNotFoundError:
 Error: The .* plugin is not installed
 : Permission denied
  note: each undeclared identifier is reported only once for each function it appears in
