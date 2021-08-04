@@ -38,7 +38,7 @@ if [[ -s $result ]]; then
   do
     bl=$i/var/tmp/tb/backlog.1st
     if [[ -s $bl ]]; then
-      # filter out dups, schedule new after existing entries
+      # filter out dups, schedule new entries after existing entries
       (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     else
       shuf $result > $bl.tmp
