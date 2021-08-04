@@ -47,22 +47,22 @@ function check_history()  {
 #  4402   36   1 4.8   16529    7    0  W r  ~/run/17.1-20210306-163653
 #  4042   26   0 5.1   17774   12    2    r  ~/run/17.1_desktop_gnome-20210306-091529
 function Overall() {
-  running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
-  all=$(wc -w <<< $images)
+  local running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
+  local all=$(wc -w <<< $images)
   echo "compl fail bug  day backlog .upd .1st swprs $running#$all running"
 
   for i in $images
   do
-    days=0
-    f=$i/var/tmp/tb/setup.sh
+    local days=0
+    local f=$i/var/tmp/tb/setup.sh
     if [[ -f $f ]]; then
       let "age = $(date +%s) - $(stat -c%Y $f)" || true
       days=$(echo "scale=1; $age / 86400.0" | bc)
     fi
 
-    bgo=$(set +f; ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
+    local bgo=$(set +f; ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
 
-    compl=0
+    local compl=0
     f=$i/var/log/emerge.log
     if [[ -f $f ]]; then
       compl=$(grep -c ' ::: completed emerge' $f) || true
@@ -70,18 +70,18 @@ function Overall() {
 
     # count emerge failures based on distinct package name+version+release
     # example of an issue directory name: 20200313-044024-net-analyzer_iptraf-ng-1.1.4-r3
-    fail=0
+    local fail=0
     if [[ -d $i/var/tmp/tb/issues ]]; then
       fail=$(ls -1 $i/var/tmp/tb/issues | while read -r i; do echo ${i##/*}; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
-    bl=$( wc -l 2>/dev/null < $i/var/tmp/tb/backlog     || echo 0)
-    bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st || echo 0)
-    blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd || echo 0)
+    local bl=$( wc -l 2>/dev/null < $i/var/tmp/tb/backlog     || echo 0)
+    local bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st || echo 0)
+    local blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd || echo 0)
 
     # "r" image is running
     # " " image is NOT running
-    flags=""
+    local flags=""
     if __is_running $i ; then
       flags+="r"
     else
@@ -111,7 +111,7 @@ function Overall() {
     check_history $i/var/tmp/tb/@system.history             s
 
     # images during setup are not yet symlinked to ~/run
-    b=$(basename $i)
+    local b=$(basename $i)
     [[ -e ~/run/$b ]] && d="~/run" || d="~/img"
     printf "%5i %4i %3i %4.1f %7i %4i %4i %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
   done
@@ -193,7 +193,7 @@ function LastEmergeOperation()  {
         $hours = $delta / 60 / 60;
         $minutes = $delta / 60 % 60;
         # mark long runtimes
-        printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 9000 ? " " : "!");
+        printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");
       }
       my $outline = join (" ", @F[1..$#F]);
       print substr ($outline, 1, '"'$cols'"');
@@ -204,17 +204,17 @@ function LastEmergeOperation()  {
 
 
 # whatsup.sh -p
-#                                                        1d   2d   3d   4d   5d   6d   7d   8d   9d  10d  11d  12d
+#                                                        1d   2d   3d   4d   5d   6d   7d   8d   9d  10d
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
-  printf "%48s" " "
-  for i in $(seq 1 13); do printf "%4id" $i; done
+  printf "%60s" " "
+  for i in $(seq 1 10); do printf "%4id" $i; done
   echo
 
   for i in $(ls -d ~/run/17* 2>/dev/null | sort -t '-' -k 3,4)
   do
-    PrintImageName $i 48
+    PrintImageName $i 60
 
     perl -F: -wane '
       BEGIN {
