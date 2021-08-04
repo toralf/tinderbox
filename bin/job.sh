@@ -544,13 +544,14 @@ function add2backlog()  {
 # collect files and compile an SMTP email
 function GotAnIssue()  {
   local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $logfile_stripped) || true
-  if [[ -n "$fatal" ]]; then
+  if [[ -n $fatal ]]; then
     Finish 1 "FATAL: $fatal"
   fi
 
   if grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $logfile_stripped; then
     Finish 1 "KILLED"
   fi
+
   echo "$repo" > $issuedir/repository   # used by check_bgo.sh
   pkglog_stripped=$issuedir/$(basename $pkglog)
   filterPlainPext < $pkglog > $pkglog_stripped
@@ -673,7 +674,7 @@ function PostEmerge() {
     fi
   fi
 
-  # if nothing is scheduled in the 1st prio then check for scheduleßing of the daily update
+  # if 1st prio is empty then check for a schedule of the daily update
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local last=""
     if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history ]]; then
@@ -815,28 +816,10 @@ function WorkOnTask() {
 
 # few repeated @preserved-rebuild are ok
 function SquashRebuildLoop() {
-  local n=$(tail -n 15 $taskfile.history | grep -c '@preserved-rebuild') || true
-  if [[ $n -ge 5 ]]; then
+  if [[ n=$(tail -n 15 $taskfile.history | grep -c '@preserved-rebuild') -ge 5 ]]; then
     echo -e "#\n#\n#\n#\n#\n" >> $taskfile.history
     echo "@preserved-rebuild" >> /var/tmp/tb/backlog.1st # re-try it asap
     Finish 1 "$FUNCNAME too much @preserved-rebuild" $taskfile.history
-  fi
-
-  if [[ "$task" =~ '@preserved-rebuild' ]] &&\
-          grep -q -F 'Use emerge @preserved-rebuild to rebuild packages' $logfile_stripped; then
-    local packages=""
-    while read -r package
-    do
-      if grep -q ">>> Installing .* $package::" $logfile_stripped; then
-        packages+="=$package "
-      fi
-    done < <(grep -F ' *      used by ' $logfile_stripped | cut -f2 -d'(' -s | tr -d ')')
-
-    if [[ -n $packages ]]; then
-      local unique=$(echo $packages | xargs -n 1 | sort -u | xargs)
-      add2backlog "%emerge -C $unique"
-      Mail "INFO: will unmerge $unique"
-    fi
   fi
 }
 
