@@ -569,7 +569,7 @@ fi
 
 date
 echo "#setup git" | tee /var/tmp/tb/task
-USE="-cgi -mediawiki -mediawiki-experimental" emerge -u dev-vcs/git
+emerge -u dev-vcs/git
 emaint sync --auto 1>/dev/null
 
 if grep -q LIBTOOL /etc/portage/make.conf; then
@@ -592,11 +592,11 @@ emerge -u mail-client/mailx
 
 date
 echo "#setup libxcrypt" | tee /var/tmp/tb/task
-emerge -u virtual/libcrypt sys-apps/shadow sys-apps/man-pages
+emerge -u virtual/libcrypt
 
 date
 echo "#setup harfbuzz/freetype" | tee /var/tmp/tb/task
-USE="-X -harfbuzz -png" emerge -u media-libs/freetype
+USE="-X" emerge -u media-libs/freetype
 
 eselect profile set --force default/linux/amd64/$profile
 
