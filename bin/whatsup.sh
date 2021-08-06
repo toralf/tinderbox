@@ -313,7 +313,7 @@ function CountEmergesPerPackages()  {
 # 2021-05-01  2790  28  87  91  41   4  13   0   1  15  29  78  35  62  46  75   9   0 193 104 234 490 508 459 188
 function emergeThruput()  {
   perl -we '
-      print "yyyy-mm-dd   sum ";
+      print "yyyy-mm-dd   sum  ";
       foreach my $i (0..23) { printf("%4i", $i) }
       print "\n\n";
       '
@@ -339,7 +339,7 @@ function emergeThruput()  {
 
     END {
       for my $key (sort { $a cmp $b } keys %Day)  {
-        printf("%s %5i ", $key, $Day{$key}->{"day"});
+        printf("%s %5i  ", $key, $Day{$key}->{"day"});
         foreach my $hour(0..23) {
           printf("%4i", $Day{$key}->{$hour} ? $Day{$key}->{$hour} : 0);
         }
