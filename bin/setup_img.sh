@@ -538,7 +538,7 @@ export LANG=C.utf8
 set -euf
 
 # include the \n at copying (sys-libs/readline de-activates that behaviour with v8.x)
-echo "set enable-bracketed-paste off" >> /etc/inputrc
+echo "set enable-bracketed-paste off" >> ~/.inputrc
 
 date
 echo "#setup locale + timezone" | tee /var/tmp/tb/task
