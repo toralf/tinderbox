@@ -11,9 +11,6 @@
 */*  VIDEO_CARDS:               -* dummy
 */*  RUBY_TARGETS:              ruby30
 
-# not at all
-*/*                             -cdinstall -firmware -initramfs -pax-kernel -pax_kernel -symlink -vanilla
-
 # 2x faster compile
 */*                             jumbo-build
 

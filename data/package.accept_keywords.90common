@@ -1,9 +1,16 @@
 # package.accept_keywords/90common
 #
 
+
+# needed for glibc-2.34 at least at the tinderbox
+virtual/jdk:11
+
+
+#######################################################################
+#
+
 # Whissi
-#>=dev-libs/openssl-3.0.0_beta2 **
+>=dev-libs/openssl-3.0.0_beta2 **
 
 # sam, dilfridge
-#~sys-libs/glibc-2.34  **
-#virtual/jdk:11
+~sys-libs/glibc-2.34  **

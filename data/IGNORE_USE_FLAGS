@@ -3,6 +3,7 @@
 bindist
 bootstrap
 build
+cdinstall
 compile-locales
 custom-cflags
 d3d9
@@ -24,7 +25,11 @@ gold
 hardened
 headers-only
 hostname
+i386
+initramfs
 ithreads
+jack
+jumbo-build
 kill
 libssp
 libunwind
@@ -42,12 +47,15 @@ musl
 nis
 nss
 nvidia
+obj-gc
 oci8
 o-flag-munging
 opencl
 openmp
 openssl
 passwdqc
+pax-kernel
+pax_kernel
 perftools
 prefix
 pwquality
@@ -58,6 +66,7 @@ sslv3
 ssp
 static
 static-libs
+symlink
 system
 systemd
 test
@@ -66,10 +75,12 @@ uclibc
 udev
 user-session
 vaapi
+valgrind
 vanilla
 vdpau
 vim-syntax
 vulkan
 x32
+x86_64
 xcrypt
 zink

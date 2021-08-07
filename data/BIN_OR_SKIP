@@ -1,9 +1,8 @@
-# packages with very long emerge times: mask with a likelood of x %
+# arbitrarily mask packages with a very long emerge times with a likelood of x %
 
 app-office/libreoffice
 dev-db/mongodb
 dev-lang/gnat-gpl
-dev-lang/rust
 dev-qt/qtwebengine
 dev-qt/qtwebkit
 dev-util/include-what-you-use

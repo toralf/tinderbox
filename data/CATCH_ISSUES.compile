@@ -291,3 +291,4 @@ cc1: some warnings being treated as errors
 rdlibtool: error
 installed package .* is broken due to missing package
 mkdir: cannot create directory
+root file .* not found

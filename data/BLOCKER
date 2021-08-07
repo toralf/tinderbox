@@ -45,4 +45,5 @@ EVP_|RSA_SSLV23_PADDING|VERSION_OPENSSL_|error: key undeclared|FIPS_|ERR_GET_FUN
 
 # (glibc-2.34) - [TRACKER] sys-libs/glibc-2.34 related issues
 803482
-variably modified .* at file scope|size of array .* is not an integral|void value not ignored as it ought to be|expected declaration specifiers or|too few arguments to function|missing binary operator before token|initializer element is not constant|undeclared (first use in this function)
+variably modified .* at file scope|size of array .* is not an integral|void value not ignored as it ought to be|expected declaration specifiers or|too few arguments to function|missing binary operator before token|initializer element is not constant| undeclared \(first use in this function\)|macro .* requires an identifier|size of array .* is not an integral| .* undeclared|call to non-constexpr function|undefined reference to| pthread_|storage size of .* isnt constant|conflicting types for .*|expected \) before
+
