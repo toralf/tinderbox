@@ -1,8 +1,7 @@
 #!/bin/bash
 # set -x
 
-# create ~tinderbox/img/index.html from .reported file in issues directory
-
+# create ~tinderbox/img/index.html
 
 
 function listImages()  {
@@ -14,6 +13,7 @@ function listImages()  {
 <i>image</i>/var/tmp/tb contains ./logs and ./issues
 <br>
 EOF
+
   ls  ~tinderbox/img/ |\
   while read d
   do
