@@ -176,10 +176,8 @@ fi
 trap Exit INT QUIT TERM EXIT
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.log)
 
-echo
-echo "==========================================="
-
-name=$(cat $issuedir/../../../../../etc/conf.d/hostname)      # eg.: 17.1-20201022-101504
+mnt=$issuedir/../../../../..
+name=$(cat $mnt/etc/conf.d/hostname)                          # eg.: 17.1-20201022-101504
 repo=$(cat $issuedir/repository)                              # eg.: gentoo
 pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7-r1
 pkgname=$(qatom $pkg | cut -f1-2 -d' ' -s | tr ' ' '/')       # eg.: net-misc/bird
@@ -188,19 +186,22 @@ versions=$(eshowkw --overlays --arch amd64 $pkgname |\
             awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
             xargs
           )
-
-echo "    title:    $(cat $issuedir/title)"
-echo "    versions: $versions"
-
 rm -f $issuedir/.unchecked
 blocker_bug_no=""
 LookupForABlocker
 SetAssigneeAndCc
+
+echo
+echo "==========================================="
+echo "    title:    $(cat $issuedir/title)"
+echo "    versions: $versions"
 echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 if [[ $repo = "gentoo" ]]; then
-  if best=$(ACCEPT_KEYWORDS=~amd64 portageq best_visible / $pkgname); then
+  keyword=$(grep "^ACCEPT_KEYWORDS=" $mnt/etc/portage/make.conf)
+  cmd="$keyword portageq best_visible / $pkgname"
+  if best=$(eval $cmd); then
     if [[ ! $pkg = $best ]]; then
-      echo -n "    NOT best visible version ($best)!"
+      echo "    NOT best_visible:    $best"
     fi
   fi
 fi
@@ -214,6 +215,7 @@ if [[ -n $blocker_bug_no ]]; then
   cmd+=" -b $blocker_bug_no"
 fi
 
+# file autoamtically if no entry at all was found for that package
 if [[ $found_issues -eq 0 ]]; then
   $cmd
 elif [[ $found_issues -eq 2 ]]; then
