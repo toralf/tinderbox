@@ -1,0 +1,5 @@
+# package.accept_keywords/50stable
+#
+
+# sam, dilfridge
+sys-devel/gcc:11                    ~amd64

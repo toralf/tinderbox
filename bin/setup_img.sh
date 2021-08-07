@@ -85,6 +85,7 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
+  keyword="~amd64"
   musl="n"
   science="n"
   testfeature="n"
@@ -142,6 +143,7 @@ function CheckOptions() {
 function CreateImageName()  {
   name="$(tr '/\-' '_' <<< $profile)"
   name+="-j${jobs}"
+  [[ $keyword =~ '~' ]]     || name+="_stable"
   [[ $abi3264 = "n" ]]      || name+="_abi32+64"
   [[ $science = "n" ]]      || name+="_science"
   [[ $testfeature = "n" ]]  || name+="_test"
@@ -309,7 +311,7 @@ LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
 # test unstable only
-ACCEPT_KEYWORDS="~amd64"
+ACCEPT_KEYWORDS="$keyword"
 
 # no re-distribution nor any "usage", just QA
 ACCEPT_LICENSE="*"
@@ -354,11 +356,14 @@ fi
 
 # helper of CompilePortageFiles()
 function cpconf() {
+  # eg.: copy  .../package.unmask.??common  to  package.unmask/??common
   for f in $*
   do
-    # eg.: .../package.unmask.??common -> package.unmask/??common
-    read -r a b c <<<$(tr '.' ' ' <<< ${f##*/})
-    cp $f ./etc/portage/"$a.$b/$c"
+    read -r dummy suffix filename <<<$(tr '.' ' ' <<< ${f##*/})
+    if [[ $keyword =~ '~' && $filename =~ "stable" ]]; then
+      continue
+    fi
+    cp $f ./etc/portage/package.$suffix/$filename
   done
 }
 
@@ -424,6 +429,10 @@ EOF
 
   echo '*/*  jobs' > ./etc/portage/package.env/00jobs
 
+  if [[ ! $keyword =~ '~' ]]; then
+    cpconf ~tinderbox/tb/data/package.*.??stable
+  fi
+
   if [[ $profile =~ '/systemd' ]]; then
     cpconf ~tinderbox/tb/data/package.*.??systemd
   else
@@ -453,6 +462,7 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
   cat ~tinderbox/tb/data/package.use.mask >> /etc/portage/profile/package.use.mask
+  cat ~tinderbox/tb/data/use.mask         >> /etc/portage/profile/use.mask
 
   touch ./var/tmp/tb/task
 
@@ -471,6 +481,10 @@ nameserver 127.0.0.1
 
 EOF
 
+  # choose the image name as a hsot name
+  echo "$name" > ./etc/conf.d/hostname
+
+  # point to the tinderbox host system
   local h=$(hostname)
   cat << EOF > ./etc/hosts
 127.0.0.1 localhost $h.localdomain $h
@@ -489,14 +503,17 @@ cnoreabbrev X x
 
 EOF
 
-  echo "$name" > ./etc/conf.d/hostname
+  # include the \n in pasting (sys-libs/readline de-activates that behaviour with v8.x)
+  echo "set enable-bracketed-paste off" >> ./root/.inputrc
 }
 
 
-# /var/tmp/tb/backlog     : filled  once by setup_img.sh
-# /var/tmp/tb/backlog.1st : filled  once by setup_img.sh, job.sh or retest.sh updates it
-# /var/tmp/tb/backlog.upd : updated      by job.sh
-function CreateHighPrioBacklog()  {
+# what                      filled  once by     updated by
+#
+# /var/tmp/tb/backlog     : setup_img.sh
+# /var/tmp/tb/backlog.1st : setup_img.sh        job.sh, retest.sh
+# /var/tmp/tb/backlog.upd :                     job.sh
+function CreateBacklogs()  {
   local bl=./var/tmp/tb/backlog
 
   cd $mnt
@@ -536,9 +553,6 @@ function CreateSetupScript()  {
 
 export LANG=C.utf8
 set -euf
-
-# include the \n at copying (sys-libs/readline de-activates that behaviour with v8.x)
-echo "set enable-bracketed-paste off" >> ~/.inputrc
 
 date
 echo "#setup locale + timezone" | tee /var/tmp/tb/task
@@ -592,7 +606,7 @@ emerge -u mail-client/mailx
 
 date
 echo "#setup libxcrypt" | tee /var/tmp/tb/task
-emerge -u virtual/libcrypt
+emerge -u virtual/libcrypt dev-libs/openssl
 
 date
 echo "#setup harfbuzz/freetype" | tee /var/tmp/tb/task
@@ -815,7 +829,7 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts M:S:a:c:f:j:m:p:s:t:u: opt
+while getopts M:S:a:c:f:j:k:m:p:s:t:u: opt
 do
   case $opt in
     M)  musl="$OPTARG"        ;;
@@ -828,6 +842,7 @@ do
         exit $?
         ;;
     j)  jobs="$OPTARG"        ;;
+    k)  keyword="$OPTARG"     ;;
     p)  profile="$OPTARG"
         cflags=$cflags_default
         abi3264="n"
@@ -852,7 +867,7 @@ InitRepositories
 CompileMakeConf
 CompilePortageFiles
 CompileMiscFiles
-CreateHighPrioBacklog
+CreateBacklogs
 CreateSetupScript
 RunSetupScript
 ThrowImageUseFlags

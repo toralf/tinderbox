@@ -1,0 +1,12 @@
+# use.mask
+#
+
+# (un)mask USE flags globally
+
+cdinstall
+firmware
+initramfs
+pax-kernel
+pax_kernel
+symlink
+vanilla
