@@ -360,8 +360,14 @@ function cpconf() {
   for f in $*
   do
     read -r dummy suffix filename <<<$(tr '.' ' ' <<< ${f##*/})
-    if [[ $keyword =~ '~' && $filename =~ "stable" ]]; then
-      continue
+    if [[ $keyword =~ '~' ]]; then
+      if [[ $filename =~ "stable" ]]; then
+        continue
+      fi
+    else
+      if [[ $filename =~ "mask" || $filename =~ "accept_keywords" ]]; then
+        continue
+      fi
     fi
     cp $f ./etc/portage/package.$suffix/$filename
   done
@@ -377,13 +383,13 @@ function CompilePortageFiles()  {
   chgrp portage ./var/tmp/tb
   chmod ug+rwx  ./var/tmp/tb
 
-  for d in package.{accept_keywords,env,mask,unmask,use} env
+  for d in profile package.{accept_keywords,env,mask,unmask,use} env
   do
     if [[ ! -d ./etc/portage/$d ]]; then
       mkdir       ./etc/portage/$d
     fi
-    chmod 775     ./etc/portage/$d
     chgrp portage ./etc/portage/$d
+    chmod g+w     ./etc/portage/$d
   done
 
   touch       ./etc/portage/package.mask/self     # gets failed packages
@@ -461,8 +467,11 @@ EOF
   done
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
-  cat ~tinderbox/tb/data/package.use.mask >> /etc/portage/profile/package.use.mask
-  cat ~tinderbox/tb/data/use.mask         >> /etc/portage/profile/use.mask
+
+  for f in ~tinderbox/tb/data/*use.mask
+  do
+    cat $f >> ./etc/portage/profile/$(basename $f)
+  done
 
   touch ./var/tmp/tb/task
 
@@ -604,9 +613,11 @@ emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the destination does already exist (bind-mounted by bwrap.sh)
 emerge -u mail-client/mailx
 
-date
-echo "#setup libxcrypt" | tee /var/tmp/tb/task
-emerge -u virtual/libcrypt dev-libs/openssl
+if [[ $keyword =~ '~' ]]; then
+  date
+  echo "#setup libxcrypt" | tee /var/tmp/tb/task
+  emerge -u virtual/libcrypt || emerge -u virtual/libcrypt dev-libs/openssl
+fi
 
 date
 echo "#setup harfbuzz/freetype" | tee /var/tmp/tb/task
