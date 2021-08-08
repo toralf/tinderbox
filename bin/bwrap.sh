@@ -24,7 +24,14 @@ function CgroupCreate() {
   cgcreate -g cpu,memory:$name
 
   # limit each image with -jX to X+0.1 cpus
-  local x=$(tr '[\-_]' ' ' <<< $name | xargs -n 1 | grep "^j" | cut -c2-)
+  local x=$(tr '[\-_]' ' ' <<< $name | xargs -n 1 --no-run-if-empty | grep "^j" | cut -c2-)
+  if [[ -z $x || ! $x == +([[:digit:]]) ]]; then
+    echo "got wrong value for -j: $x, set quota to 1"
+  elif [[ $x -gt 10 ]]; then
+    echo "limit value for -j: $x, set quota to 10"
+    x=10
+  fi
+
   local quota
   ((quota = 10000 + 100000 * $x))
   cgset -r cpu.cfs_quota_us=$quota          $name
