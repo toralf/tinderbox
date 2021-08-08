@@ -5,7 +5,6 @@
 
 cdinstall
 firmware
-initramfs
 pax-kernel
 pax_kernel
 symlink
