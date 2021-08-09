@@ -186,7 +186,6 @@ versions=$(eshowkw --overlays --arch amd64 $pkgname |\
             awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
             xargs
           )
-rm -f $issuedir/.unchecked
 blocker_bug_no=""
 LookupForABlocker
 SetAssigneeAndCc
