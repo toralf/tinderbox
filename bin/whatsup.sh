@@ -208,13 +208,13 @@ function LastEmergeOperation()  {
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
-  printf "%60s" " "
-  for i in $(seq 1 10); do printf "%4id" $i; done
+  printf "%54s" " "
+  for i in $(seq 1 12); do printf "%4id" $i; done
   echo
 
   for i in $(ls -d ~/run/17* 2>/dev/null | sort -t '-' -k 3,4)
   do
-    PrintImageName $i 60
+    PrintImageName $i 54
 
     perl -F: -wane '
       BEGIN {
