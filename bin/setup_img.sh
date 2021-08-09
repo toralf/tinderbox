@@ -365,8 +365,10 @@ function cpconf() {
         continue
       fi
     else
-      if [[ $suffix =~ "mask" || $suffix =~ "accept_keywords" ]]; then
-        continue
+      if [[ ! $filename =~ "stable" ]]; then
+        if [[ $suffix =~ "mask" || $suffix =~ "accept_keywords" ]]; then
+          continue
+        fi
       fi
     fi
     cp $f ./etc/portage/package.$suffix/$filename
