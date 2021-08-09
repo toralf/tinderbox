@@ -365,7 +365,7 @@ function cpconf() {
         continue
       fi
     else
-      if [[ $filename =~ "mask" || $filename =~ "accept_keywords" ]]; then
+      if [[ $suffix =~ "mask" || $suffix =~ "accept_keywords" ]]; then
         continue
       fi
     fi
