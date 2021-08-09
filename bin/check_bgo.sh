@@ -195,13 +195,17 @@ echo "==========================================="
 echo "    title:    $(cat $issuedir/title)"
 echo "    versions: $versions"
 echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
+
 if [[ $repo = "gentoo" ]]; then
   keyword=$(grep "^ACCEPT_KEYWORDS=" $mnt/etc/portage/make.conf)
-  cmd="$keyword portageq best_visible / $pkgname"
+  cmd="$keyword ACCEPT_LICENSE="*" portageq best_visible / $pkgname"
   if best=$(eval $cmd); then
     if [[ ! $pkg = $best ]]; then
-      echo "    NOT best_visible:    $best"
+      echo "    IS  NOT  LATEST"
+      exit 0
     fi
+  else
+    echo "      best=$best ???"
   fi
 fi
 echo
@@ -214,7 +218,7 @@ if [[ -n $blocker_bug_no ]]; then
   cmd+=" -b $blocker_bug_no"
 fi
 
-# file autoamtically if no entry at all was found for that package
+# file automatically if no entry at all was found for that package
 if [[ $found_issues -eq 0 ]]; then
   $cmd
 elif [[ $found_issues -eq 2 ]]; then
