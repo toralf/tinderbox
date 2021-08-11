@@ -503,7 +503,7 @@ EOF
 
 EOF
 
-  # avoid interactive question in vim
+  # avoid interactive question of vim
   cat << EOF > ./root/.vimrc
 set softtabstop=2
 set shiftwidth=2
@@ -519,11 +519,11 @@ EOF
 }
 
 
-# what                      filled  once by     updated by
+# what                      filled once by        updated by
 #
 # /var/tmp/tb/backlog     : setup_img.sh
-# /var/tmp/tb/backlog.1st : setup_img.sh        job.sh, retest.sh
-# /var/tmp/tb/backlog.upd :                     job.sh
+# /var/tmp/tb/backlog.1st : setup_img.sh          job.sh, retest.sh
+# /var/tmp/tb/backlog.upd :                       job.sh
 function CreateBacklogs()  {
   local bl=./var/tmp/tb/backlog
 
