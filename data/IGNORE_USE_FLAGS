@@ -3,7 +3,6 @@
 bindist
 bootstrap
 build
-cdinstall
 compile-locales
 custom-cflags
 d3d9
@@ -14,7 +13,6 @@ device-mapper-only
 dist-kernel
 elogind
 exec-static-trampoline
-firmware
 FreeBSD
 fuse
 gallium
@@ -26,9 +24,9 @@ hardened
 headers-only
 hostname
 i386
-initramfs
 ithreads
 jack
+jemalloc
 jumbo-build
 kill
 libssp
@@ -54,8 +52,6 @@ opencl
 openmp
 openssl
 passwdqc
-pax-kernel
-pax_kernel
 perftools
 prefix
 pwquality
@@ -66,7 +62,6 @@ sslv3
 ssp
 static
 static-libs
-symlink
 system
 systemd
 test
@@ -75,8 +70,6 @@ uclibc
 udev
 user-session
 vaapi
-valgrind
-vanilla
 vdpau
 vim-syntax
 vulkan

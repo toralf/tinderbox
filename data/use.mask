@@ -8,4 +8,5 @@ firmware
 pax-kernel
 pax_kernel
 symlink
+valgrind
 vanilla

@@ -6,29 +6,29 @@
 #
 # global settings
 
-*/*  QEMU_SOFTMMU_TARGETS:      x86_64 i386
-*/*  QEMU_USER_TARGETS:         x86_64 i386
-*/*  VIDEO_CARDS:               -* dummy
-*/*  RUBY_TARGETS:              ruby30
+*/*  QEMU_SOFTMMU_TARGETS:          x86_64 i386
+*/*  QEMU_USER_TARGETS:             x86_64 i386
+*/*  VIDEO_CARDS:                   -* dummy
+*/*  RUBY_TARGETS:                  ruby30
 
 # 2x faster compile
-*/*                             jumbo-build
+*/*                                 jumbo-build
 
 # MTA
-mail-mta/ssmtp                  mta ssl
+mail-mta/ssmtp                      mta ssl
 
 # /etc/profile.d/nix.sh overwrites it
-sys-apps/nix                    -etc_profile
+sys-apps/nix                        -etc_profile
 
 # too much deps always being installed at start of every new image
-app-portage/pfl                 -network-cron
-app-text/ansifilter             -qt5
+app-portage/pfl                     -network-cron
+app-text/ansifilter                 -qt5
 
 # setup issues
-dev-libs/libpcre*               -libedit readline
-sys-apps/busybox                -pam
-sys-apps/shadow                 -cracklib
-sys-cluster/openmpi             cxx
+dev-libs/libpcre*                   -libedit readline
+sys-apps/busybox                    -pam
+sys-apps/shadow                     -cracklib
+sys-cluster/openmpi                 cxx
 
 
 #######################################################################
@@ -37,16 +37,16 @@ sys-cluster/openmpi             cxx
 #
 
 # https://bugs.gentoo.org/show_bug.cgi?id=802435
-dev-lang/ruby                   -jemalloc
+dev-lang/ruby                       -jemalloc
 
 # by sam
 # Disable libcrypt in glibc
-sys-libs/glibc                  -crypt
+>=sys-libs/glibc-2.33-r5            -crypt
 # Provide libcrypt
-sys-libs/libxcrypt              system
+>=sys-libs/libxcrypt-4.4.24         system
 
 # by slyfox
 # Tracker: https://bugs.gentoo.org/801109
 # Known examples: https://wiki.gentoo.org/index.php?title=Project:Toolchain#libffi-3.4
-*/*                        libffi
->=dev-libs/libffi-3.4      exec-static-trampoline
+*/*                                 libffi
+>=dev-libs/libffi-3.4               exec-static-trampoline

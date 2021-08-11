@@ -2,7 +2,7 @@
 #
 
 
-# needed for glibc-2.34 at least at the tinderbox
+# needed for glibc-2.34 (at least) at the tinderbox
 virtual/jdk:11
 
 
@@ -10,7 +10,7 @@ virtual/jdk:11
 #
 
 # Whissi
->=dev-libs/openssl-3.0.0_beta2
+# >=dev-libs/openssl-3.0.0_beta2
 
 # sam, dilfridge
 ~sys-libs/glibc-2.34
