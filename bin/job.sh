@@ -26,7 +26,7 @@ function Mail() {
 
   if [[ -s $content ]]; then
     echo
-    head -n 10000 $content
+    head -n 10000 $content | sed -e 's,^>>>, >>>,'
     echo
   else
     echo -e "$content"
