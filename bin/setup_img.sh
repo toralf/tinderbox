@@ -340,12 +340,14 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-if __dice 1 39; then
-  cat <<EOF >> ./etc/portage/make.conf
-LIBTOOL="rdlibtool"
-MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
+if [[ $keyword =~ '~' ]]; then
+  if __dice 1 39; then
+    cat <<EOF >> ./etc/portage/make.conf
+  LIBTOOL="rdlibtool"
+  MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
 
 EOF
+  fi
 fi
 
   # the "tinderbox" user must be a member of group "portage"
