@@ -1,14 +1,14 @@
 # package.use/40abi32+64
 #
 
-*/*  ABI_X86: -* 32 64
+*/*  ABI_X86: 32 64
 
 # circ dep
 #
-dev-util/pkgconfig          internal-glib
-sys-fs/eudev                -introspection
-sys-libs/libcap             -pam
-sys-libs/ncurses            -gpm
+dev-util/pkgconfig                  internal-glib
+sys-fs/eudev                        -introspection
+sys-libs/libcap                     -pam
+sys-libs/ncurses                    -gpm
 
 # https://bugs.gentoo.org/617788
-*/*                         -obj-gc
+*/*                                 -obj-gc

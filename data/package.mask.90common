@@ -44,8 +44,9 @@ sci-libs/libint:2
 <sys-devel/clang-12.0.1
 <sys-devel/llvm-12.0.0
 
-# misbehaves with glibc-2.34 (at least) at the tinderbox
+# avoid emerge hangs with glibc-2.34 (at least) at the tinderbox
 virtual/jdk:1.8
+virtual/jre:1.8
 
 
 #######################################################################
