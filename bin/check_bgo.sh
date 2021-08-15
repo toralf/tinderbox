@@ -170,7 +170,9 @@ if [[ ! -s $issuedir/title ]]; then
   exit 1
 elif [[ -f $issuedir/.reported ]]; then
   echo "already reported"
-  exit 0
+  if [[ $# -lt 2 ]]; then
+    exit 0
+  fi
 fi
 
 trap Exit INT QUIT TERM EXIT
@@ -201,11 +203,13 @@ if [[ $repo = "gentoo" ]]; then
   cmd="$keyword ACCEPT_LICENSE="*" portageq best_visible / $pkgname"
   if best=$(eval $cmd); then
     if [[ ! $pkg = $best ]]; then
-      echo "    IS  NOT  LATEST"
-      exit 0
+      echo -e "\n    is  NOT  latest"
+      if [[ $# -lt 2 ]]; then
+        exit 0
+      fi
     fi
   else
-    echo "      best=$best ???"
+    echo "      warn: best NOT found"
   fi
 fi
 echo
