@@ -34,7 +34,7 @@ function GetProfiles() {
   eselect profile list |\
   awk ' { print $2 } ' |\
   grep -F "default/linux/amd64/17.1" |\
-  grep -v -F -e '/x32' -e '/selinux' -e '/uclibc' -e 'musl' |\
+  grep -v -F -e '/x32' -e '/selinux' -e '/uclibc' -e 'musl' -e 'developer' |\
   cut -f4- -d'/' -s
 }
 
@@ -45,7 +45,7 @@ function InitOptions() {
   # 1 process in N running images rules over *up to* N running processes in 1 image
   # furhermore -j1 makes it easier to manage resource management -but-
   # the compile times are awefully
-  jobs=3
+  jobs=4
 
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
