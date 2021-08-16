@@ -89,7 +89,7 @@ function __EnoughCompletedEmergeOperations()  {
 }
 
 
-function AnImageIsFull()  {
+function AnImageReachedEOL()  {
   # hint: $oldimg is set here intentionally as a side effect, but it is used only if "0" is returned
   while read -r oldimg
   do
@@ -216,7 +216,7 @@ if [[ -z "$oldimg" ]]; then
   done
 
   if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
-    while AnImageIsFull
+    while AnImageReachedEOL
     do
       if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
         StopOldImage
