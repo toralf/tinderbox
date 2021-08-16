@@ -17,4 +17,4 @@ virtual/jre:11
 ~sys-libs/glibc-2.34  **
 
 # soap:
-~dev-libs/boost-1.77  **
+~dev-libs/boost-1.77.0  **

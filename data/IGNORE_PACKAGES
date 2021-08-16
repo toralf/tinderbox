@@ -1,4 +1,4 @@
-# tasks matching a pattern here will be skipped (except for backlog.1st)
+# backlog entries matching a pattern here will be skipped (except for backlog.1st entries)
 # this file MUST NOT have empty lines
 #
 # not at all
@@ -14,7 +14,7 @@ virtual/
 #
 # stucks in @world
 #
-x11-libs/libyui*
+x11-libs/libyui
 #
 # https://bugs.gentoo.org/801223
 #
@@ -31,3 +31,5 @@ sys-cluster/ploop
 sys-cluster/vzctl
 #
 app-dicts/
+#
+sys-libs/musl
