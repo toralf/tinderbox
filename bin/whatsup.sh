@@ -122,7 +122,7 @@ function Overall() {
 # 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks()  {
-  ((cols = $(tput cols) - 38))
+  ((cols = $(tput cols) - 40))
 
   ts=$(date +%s)
   for i in $images
