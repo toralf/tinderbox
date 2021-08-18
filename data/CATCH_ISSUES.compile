@@ -292,3 +292,5 @@ rdlibtool: error
 installed package .* is broken due to missing package
 mkdir: cannot create directory
 root file .* not found
+go: updates to .* needed,
+Symbol .* at .* has no .* type.

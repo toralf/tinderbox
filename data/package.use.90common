@@ -44,9 +44,3 @@ dev-lang/ruby                       -jemalloc
 >=sys-libs/glibc-2.33-r5            -crypt
 # Provide libcrypt
 >=sys-libs/libxcrypt-4.4.24         system
-
-# by slyfox
-# Tracker: https://bugs.gentoo.org/801109
-# Known examples: https://wiki.gentoo.org/index.php?title=Project:Toolchain#libffi-3.4
-*/*                                 libffi
->=dev-libs/libffi-3.4               exec-static-trampoline

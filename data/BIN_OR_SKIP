@@ -2,6 +2,7 @@
 
 app-office/libreoffice
 dev-db/mongodb
+dev-java/icedtea
 dev-lang/gnat-gpl
 dev-qt/qtwebengine
 dev-qt/qtwebkit

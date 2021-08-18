@@ -32,4 +32,10 @@ sys-cluster/vzctl
 #
 app-dicts/
 #
+# musl specific
+#
 sys-libs/musl
+#
+# javac hangs https://bugs.gentoo.org/807832
+#
+dev-java/

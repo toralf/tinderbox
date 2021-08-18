@@ -2,6 +2,3 @@
 #
 
 # (un)mask USE flags per category/package
-
-# by slyfox
->=dev-libs/libffi-3.4               -exec-static-trampoline
