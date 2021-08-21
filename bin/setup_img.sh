@@ -736,12 +736,12 @@ function ThrowImageUseFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' $repodir/gentoo/profiles/use.desc |\
   cut -f1 -d' ' -s |\
   IgnoreUseFlags |\
-  ThrowUseFlags 150 |\
+  ThrowUseFlags 200 |\
   xargs -s 73 |\
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/24thrown_global_use_flags
 
   grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
-  shuf -n $(($RANDOM % 2000)) |\
+  shuf -n $(($RANDOM % 3000)) |\
   sort |\
   while read -r file
   do
@@ -750,7 +750,7 @@ function ThrowImageUseFlags() {
     grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |\
     cut -f2 -d'"' -s |\
     IgnoreUseFlags |\
-    ThrowUseFlags 10 |\
+    ThrowUseFlags 15 |\
     xargs |\
     xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
   done > ./etc/portage/package.use/26thrown_package_use_flags
