@@ -12,10 +12,6 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# stucks in @world
-#
-x11-libs/libyui
-#
 # https://bugs.gentoo.org/801223
 #
 sci-libs/atlas
@@ -30,12 +26,6 @@ app-misc/vzstats
 sys-cluster/ploop
 sys-cluster/vzctl
 #
-app-dicts/
-#
 # musl specific
 #
 sys-libs/musl
-#
-# javac hangs https://bugs.gentoo.org/807832
-#
-dev-java/

@@ -25,7 +25,7 @@ slibtool|rlibtool|rdlibtool|error: unrecognized command-line option|./shtool:|sy
 
 #  (gcc-11) - [TRACKER] sys-devel/gcc-11 porting
 732706 maybe gcc-11 related
-maybe gcc-11 related| is not a member of std|in namespace std
+maybe gcc-11 related| is not a member of std|in namespace std|.* does not name a type
 
 # (mbedtls-3) - [TRACKER] >=net-libs/mbedtls-3.0 breaks multiple revdeps
 805011
@@ -38,3 +38,7 @@ EVP_|RSA_SSLV23_PADDING|VERSION_OPENSSL_|error: key undeclared|FIPS_|ERR_GET_FUN
 # (glibc-2.34) - [TRACKER] sys-libs/glibc-2.34 related issues
 803482
 variably modified .* at file scope|size of array .* is not an integral|void value not ignored as it ought to be|expected declaration specifiers or|missing binary operator before token|initializer element is not constant| undeclared \(first use in this function\)|macro .* requires an identifier|size of array .* is not an integral| .* undeclared|call to non-constexpr function|pthread|storage size of .* isnt constant|conflicting types for .*|expected \) before| redeclared as different kind of symbol|malloc attribute argument .* is ambiguous|static declaration of .* follows non-static declaration
+
+#  (boost-1.77) - [Tracker] Packages failing to build with ~dev-libs/boost-1.77
+808087
+boost

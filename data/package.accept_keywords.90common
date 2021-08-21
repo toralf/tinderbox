@@ -2,19 +2,8 @@
 #
 
 
-# avoid emerge hangs with glibc-2.34 (at least) at the tinderbox
-virtual/jdk:11
-virtual/jre:11
-
-
 #######################################################################
 #
-
-# Whissi
-# >=dev-libs/openssl-3.0.0_beta2 **
-
-# sam, dilfridge
-~sys-libs/glibc-2.34  **
 
 # soap:
 ~dev-libs/boost-1.77.0  **
