@@ -144,9 +144,9 @@ sandbox=(env -i
         --bind ~tinderbox/distfiles               /var/cache/distfiles
         --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
         --tmpfs                                   /var/tmp/portage
-        --perms 1777 --tmpfs /dev/shm
-        --dev /dev
         --proc /proc
+        --dev /dev
+        --perms 1777 --tmpfs /dev/shm
         --mqueue /dev/mqueue
         --unshare-cgroup
         --unshare-ipc
