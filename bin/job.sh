@@ -879,25 +879,26 @@ export PAGER="cat"
 # help to catch segfaults
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
-for i in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/IGNORE_PACKAGES
-do
-  if [[ $(grep -c "^$" $i) -ne 0 ]]; then
-    Finish 1 "unexpected empty line(s) in $i"
-  fi
-done
-
-# re-schedule $task eg. after a killed emerge
+# re-schedule $task
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
-last_sync=0  # forces a sync at start
+last_sync=0  # forces a repo sync at start
 while :
 do
   if [[ -f /var/tmp/tb/STOP ]]; then
     echo "#stopping by file" > $taskfile
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
+
+  # error-prone
+  for i in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/IGNORE_PACKAGES
+  do
+    if grep -q "^$" $i; then
+      Finish 1 "empty line(s) in $i"
+    fi
+  done
 
   (date; echo) > $logfile
   current_time=$(date +%s)
