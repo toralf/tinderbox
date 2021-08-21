@@ -53,23 +53,7 @@ function InitOptions() {
     abi3264="y"
   fi
 
-  profile=""
-  while read -r line
-  do
-    if [[ -z $profile ]]; then
-      profile=$line
-    fi
-    local p=$(tr '/-' '_' <<< $line)
-    # basic: not running
-    if ! ls -d /run/tinderbox/$p-*.lock &>/dev/null; then
-      profile=$line
-      # sufficiant: not in ~/run
-      if ! ls ~tinderbox/run/$p-* &>/dev/null; then
-        break
-      fi
-      # but the last one would make it otherwise
-    fi
-  done < <(GetProfiles | shuf)
+  profile=$(GetProfiles | shuf -n 1)
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
   if __dice 1 39; then
