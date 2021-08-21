@@ -11,7 +11,7 @@ function IgnoreUseFlags()  {
 }
 
 
-# helper of DryRunWithRandomizedUseFlags
+# helper of ThrowUseFlags
 function ThrowUseFlags() {
   local n=$1        # pass up to n-1
   local m=${2:-4}   # mask 1:m of them
@@ -255,6 +255,7 @@ EOF
   # "git clone" of a local repo is much slower than cp
   local refdir=~tinderbox/img/$(ls -t ~tinderbox/run | head -n 1)/var/db/repos/gentoo
   if [[ ! -d $refdir ]]; then
+  # fallback b/c this does not benefit from --reflinks
     refdir=/var/db/repos/gentoo
   fi
   cp -ar --reflink=auto $refdir ./
@@ -594,6 +595,9 @@ if [[ $profile =~ "/systemd" ]]; then
   systemd-machine-id-setup
 fi
 
+groupadd -g $(id -g tinderbox)                       tinderbox
+useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
+
 date
 echo "#setup git" | tee /var/tmp/tb/task
 emerge -u dev-vcs/git
@@ -665,62 +669,26 @@ function RunSetupScript() {
 }
 
 
+function RunDryrunWrapper() {
+  echo "#setup dryrun $attempt dryrun ..." | tee ./var/tmp/tb/task
+  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
+  local rc=$?
+  if [[ $rc -eq 0 ]]; then
+    echo " OK"
+  else
+    echo " NOT ok"
+  fi
+  return $rc
+}
+
+
 function DryRun() {
   cd $mnt
 
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
 
-  if nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog; then
-    echo " OK"
-    return 0
-  fi
-
-  echo " NOT ok"
-  return 1
-}
-
-
-function FormatUseFlags() {
-  xargs --no-run-if-empty -s 73 | sed -e "s,^,*/*  ,g"
-}
-
-
-# varying USE flags till dry run of @world would succeed
-function DryRunWithRandomizedUseFlags() {
-  cd $mnt
-
-  echo "#setup dryrun $attempt" | tee ./var/tmp/tb/task
-
-  grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
-  cut -f1 -d' ' -s |\
-  shuf -n $(($RANDOM % 20)) |\
-  sort |\
-  xargs |\
-  xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
-
-  grep -v -e '^$' -e '^#' -e 'internal use only' $repodir/gentoo/profiles/use.desc |\
-  cut -f1 -d' ' -s |\
-  IgnoreUseFlags |\
-  ThrowUseFlags 150 |\
-  FormatUseFlags > ./etc/portage/package.use/24thrown_global_use_flags
-
-  grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
-  shuf -n $(($RANDOM % 2000)) |\
-  sort |\
-  while read -r file
-  do
-    pkg=$(cut -f6-7 -d'/' <<< $file)
-    grep -h 'flag name="' $file |\
-    grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |\
-    cut -f2 -d'"' -s |\
-    IgnoreUseFlags |\
-    ThrowUseFlags 10 |\
-    xargs |\
-    xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
-  done > ./etc/portage/package.use/26thrown_package_use_flags
-
-  if DryRun; then
+  if RunDryrunWrapper; then
     return 0
   fi
 
@@ -743,7 +711,7 @@ function DryRunWithRandomizedUseFlags() {
   if [[ -s $fautocirc ]]; then
     echo "#setup dryrun $attempt #circ dep" | tee ./var/tmp/tb/task
     tail -v $fautocirc
-    if DryRun; then
+    if RunDryrunWrapper; then
       return 0
     fi
   fi
@@ -758,7 +726,7 @@ function DryRunWithRandomizedUseFlags() {
   if [[ -s $fautoflag ]]; then
     echo "#setup dryrun $attempt #flag change" | tee ./var/tmp/tb/task
     tail -v $fautoflag
-    if DryRun; then
+    if RunDryrunWrapper; then
       return 0
     fi
   fi
@@ -768,7 +736,44 @@ function DryRunWithRandomizedUseFlags() {
 }
 
 
-function ThrowImageUseFlags(){
+# varying USE flags till dry run of @world would succeed
+function ThrowImageUseFlags() {
+  cd $mnt
+
+  echo "#setup dryrun $attempt preparing ..." | tee ./var/tmp/tb/task
+
+  grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
+  cut -f1 -d' ' -s |\
+  shuf -n $(($RANDOM % 20)) |\
+  sort |\
+  xargs |\
+  xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
+
+  grep -v -e '^$' -e '^#' -e 'internal use only' $repodir/gentoo/profiles/use.desc |\
+  cut -f1 -d' ' -s |\
+  IgnoreUseFlags |\
+  ThrowUseFlags 150 |\
+  xargs -s 73 |\
+  sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/24thrown_global_use_flags
+
+  grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
+  shuf -n $(($RANDOM % 2000)) |\
+  sort |\
+  while read -r file
+  do
+    pkg=$(cut -f6-7 -d'/' <<< $file)
+    grep -h 'flag name="' $file |\
+    grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |\
+    cut -f2 -d'"' -s |\
+    IgnoreUseFlags |\
+    ThrowUseFlags 10 |\
+    xargs |\
+    xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
+  done > ./etc/portage/package.use/26thrown_package_use_flags
+}
+
+
+function CompileWorkingUseFlags(){
   cd $mnt
 
   echo 'emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
@@ -778,11 +783,13 @@ function ThrowImageUseFlags(){
     echo
     cp $useflagfile ./etc/portage/package.use/28given_use_flags
     local drylog=./var/tmp/tb/logs/dryrun.log
-    DryRun
-    return $?
+    if DryRun; then
+      return 0
+    fi
+    return 1
   else
     local attempt=1
-    while [[ $attempt -lt 1000 ]]
+    while [[ $attempt -lt 200 ]]
     do
       if [[ -f ./var/tmp/tb/STOP ]]; then
         echo -e "\n found STOP file"
@@ -793,7 +800,8 @@ function ThrowImageUseFlags(){
       date
       echo "==========================================================="
       local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
-      if DryRunWithRandomizedUseFlags; then
+      ThrowImageUseFlags
+      if DryRun; then
         return 0
       fi
       ((attempt++))
@@ -804,7 +812,7 @@ function ThrowImageUseFlags(){
 }
 
 
-function startImage() {
+function StartImage() {
   echo -e "\n$(date)\n  setup done"
   cd ~tinderbox/run
   ln -s ../img/$name
@@ -853,7 +861,7 @@ do
     c)  cflags="$OPTARG"      ;;
     f)  mnt="$OPTARG"
         name=$(basename $mnt)
-        ThrowImageUseFlags
+        CompileWorkingUseFlags
         exit $?
         ;;
     j)  jobs="$OPTARG"        ;;
@@ -865,7 +873,7 @@ do
         ;;
     s)  mnt="$OPTARG"
         name=$(basename $mnt)
-        startImage
+        StartImage
         exit $?
         ;;
     t)  testfeature="$OPTARG" ;;
@@ -885,5 +893,5 @@ CompileMiscFiles
 CreateBacklogs
 CreateSetupScript
 RunSetupScript
-ThrowImageUseFlags
-startImage
+CompileWorkingUseFlags
+StartImage
