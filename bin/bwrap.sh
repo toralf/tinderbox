@@ -139,15 +139,6 @@ sandbox=(env -i
     SHELL=/bin/bash
     TERM=linux
     /usr/bin/bwrap
-        --bind "$mnt"                             /
-        --bind ~tinderbox/tb/data                 /mnt/tb/data
-        --bind ~tinderbox/distfiles               /var/cache/distfiles
-        --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
-        --tmpfs                                   /var/tmp/portage
-        --proc /proc
-        --dev /dev
-        --perms 1777 --tmpfs /dev/shm
-        --mqueue /dev/mqueue
         --unshare-cgroup
         --unshare-ipc
         --unshare-pid
@@ -155,6 +146,15 @@ sandbox=(env -i
         --hostname "$(sed -e 's,[+\.],_,g' <<< ${mnt##*/} | cut -c-57)"
         --die-with-parent
         --setenv MAILTO "${MAILTO:-tinderbox}"
+        --bind "$mnt"                             /
+        --proc /proc
+        --dev /dev
+        --mqueue /dev/mqueue
+        --perms 1777 --tmpfs /dev/shm
+        --bind ~tinderbox/tb/data                 /mnt/tb/data
+        --bind ~tinderbox/distfiles               /var/cache/distfiles
+        --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
+        --tmpfs                                   /var/tmp/portage
         --chdir /var/tmp/tb
         /bin/bash -l
 )
