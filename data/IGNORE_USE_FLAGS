@@ -45,7 +45,7 @@ musl
 nis
 nss
 nvidia
-obj-gc
+objc-gc
 oci8
 o-flag-munging
 opencl
