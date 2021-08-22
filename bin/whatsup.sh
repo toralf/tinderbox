@@ -212,7 +212,7 @@ function PackagesPerImagePerRunDay() {
   for i in $(seq 1 12); do printf "%4id" $i; done
   echo
 
-  for i in $(ls -d ~/run/17* 2>/dev/null | sort -t '-' -k 3,4)
+  for i in $(ls -d ~/run/* 2>/dev/null | sort -t '-' -k 3,4)
   do
     PrintImageName $i 54
 
