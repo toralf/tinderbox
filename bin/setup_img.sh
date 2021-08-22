@@ -654,14 +654,11 @@ function RunSetupScript() {
 
 
 function RunDryrunWrapper() {
-  echo "#setup dryrun $attempt dryrun ..." | tee ./var/tmp/tb/task
   nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
   local rc=$?
-  if [[ $rc -eq 0 ]]; then
-    echo " OK"
-  else
-    echo " NOT ok"
-  fi
+  chmod a+w $drylog
+
+  [[ $rc -eq 0 ]] && echo " OK" || echo " NOT ok"
   return $rc
 }
 
@@ -672,6 +669,7 @@ function DryRun() {
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
 
+  echo "#setup dryrun $attempt" | tee ./var/tmp/tb/task
   if RunDryrunWrapper; then
     return 0
   fi
@@ -693,14 +691,14 @@ function DryRun() {
   sort -u > $fautocirc
 
   if [[ -s $fautocirc ]]; then
-    echo "#setup dryrun $attempt #circ dep" | tee ./var/tmp/tb/task
+    echo "#setup dryrun $attempt # solve circ dep" | tee ./var/tmp/tb/task
     tail -v $fautocirc
     if RunDryrunWrapper; then
       return 0
     fi
   fi
 
-  local fautoflag=./etc/portage/package.use/28necessary-use-flag-change
+  local fautoflag=./etc/portage/package.use/27necessary-use-flag-change
 
   grep -h -A 100 'The following USE changes are necessary to proceed:' $drylog |\
   grep "^>=" |\
@@ -708,7 +706,7 @@ function DryRun() {
   grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' > $fautoflag
 
   if [[ -s $fautoflag ]]; then
-    echo "#setup dryrun $attempt #flag change" | tee ./var/tmp/tb/task
+    echo "#setup dryrun $attempt # necessary flag change" | tee ./var/tmp/tb/task
     tail -v $fautoflag
     if RunDryrunWrapper; then
       return 0
@@ -724,7 +722,7 @@ function DryRun() {
 function ThrowImageUseFlags() {
   cd $mnt
 
-  echo "#setup dryrun $attempt preparing ..." | tee ./var/tmp/tb/task
+  echo "#setup dryrun $attempt # throw flags ..." | tee ./var/tmp/tb/task
 
   grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
   cut -f1 -d' ' -s |\
@@ -738,7 +736,7 @@ function ThrowImageUseFlags() {
   IgnoreUseFlags |\
   ThrowUseFlags 200 |\
   xargs -s 73 |\
-  sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/24thrown_global_use_flags
+  sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
   shuf -n $(($RANDOM % 3000)) |\
@@ -753,7 +751,7 @@ function ThrowImageUseFlags() {
     ThrowUseFlags 15 |\
     xargs |\
     xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
-  done > ./etc/portage/package.use/26thrown_package_use_flags
+  done > ./etc/portage/package.use/24thrown_package_use_flags
 }
 
 
@@ -773,7 +771,7 @@ function CompileWorkingUseFlags(){
     return 1
   else
     local attempt=1
-    while [[ $attempt -lt 200 ]]
+    while [[ $attempt -lt 1000 ]]
     do
       if [[ -f ./var/tmp/tb/STOP ]]; then
         echo -e "\n found STOP file"
@@ -846,6 +844,7 @@ do
     f)  mnt="$OPTARG"
         name=$(basename $mnt)
         CompileWorkingUseFlags
+        StartImage
         exit $?
         ;;
     j)  jobs="$OPTARG"        ;;
