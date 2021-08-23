@@ -18,8 +18,8 @@ if [[ "$(whoami)" != "root" ]]; then
 fi
 
 if pruneNeeded; then
-  find ~tinderbox/distfiles/ -maxdepth 1 -type f -mtime +365                  -delete -ignore_readdir_race
-  find ~tinderbox/distfiles/ -maxdepth 1 -type f -mtime +8   -name 'stage3-*' -delete -ignore_readdir_race
+  find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +365                  -delete
+  find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +8   -name 'stage3-*' -delete
 
   while pruneNeeded
   do
