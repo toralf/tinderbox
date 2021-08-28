@@ -7,3 +7,6 @@
 
 # soap:
 ~dev-libs/boost-1.77.0
+
+# sam, dilfridge
+~sys-libs/glibc-2.34

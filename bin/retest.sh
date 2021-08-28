@@ -38,11 +38,15 @@ if [[ -s $result ]]; then
   do
     bl=$i/var/tmp/tb/backlog.1st
     if [[ -s $bl ]]; then
-      # filter out dups, schedule new entries after existing entries
+      # schedule new entries after existing entries, but filter out dups before
       (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     else
       shuf $result > $bl.tmp
     fi
     mv $bl.tmp $bl
+
+    # force a repo sync before re-test
+    sed -i -e '/%syncRepos/d' $bl
+    echo "%syncRepos" >> $bl
   done
 fi

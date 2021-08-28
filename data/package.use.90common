@@ -20,15 +20,15 @@ mail-mta/ssmtp                      mta ssl
 # /etc/profile.d/nix.sh overwrites it
 sys-apps/nix                        -etc_profile
 
-# too much deps always being installed at start of every new image
+# too much deps would always be installed at setup of a new image
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -qt5
 
 # setup issues
 dev-libs/libpcre*                   -libedit readline
+dev-vcs/git                         -mediawiki -mediawiki-experimental -webdav
 sys-apps/busybox                    -pam
 sys-apps/shadow                     -cracklib
-sys-cluster/openmpi                 cxx
 
 
 #######################################################################

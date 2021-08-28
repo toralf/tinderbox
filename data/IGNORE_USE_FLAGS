@@ -22,6 +22,7 @@ gnutls
 gold
 hardened
 headers-only
+homed
 hostname
 i386
 ithreads
@@ -45,6 +46,8 @@ musl
 nis
 nss
 nvidia
+objc
+objc++
 objc-gc
 oci8
 o-flag-munging

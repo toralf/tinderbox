@@ -294,3 +294,4 @@ mkdir: cannot create directory
 root file .* not found
 go: updates to .* needed,
 Symbol .* at .* has no .* type.
+pkg_resources.UnknownExtra:
