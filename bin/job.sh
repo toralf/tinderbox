@@ -876,7 +876,6 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
-# help to catch segfaults
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
 # re-schedule $task
@@ -884,11 +883,11 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
-last_sync=0  # forces a repo sync at start
+last_sync=0  # forces a repo sync
 while :
 do
   if [[ -f /var/tmp/tb/STOP ]]; then
-    echo "#stopping by file" > $taskfile
+    echo "#catched STOP file" > $taskfile
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
