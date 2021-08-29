@@ -654,6 +654,9 @@ function RunSetupScript() {
 
 
 function RunDryrunWrapper() {
+  local message=$1
+
+  echo "$message" | tee ./var/tmp/tb/task
   nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
   local rc=$?
   chmod a+w $drylog
@@ -669,8 +672,7 @@ function DryRun() {
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
 
-  echo "#setup dryrun $attempt" | tee ./var/tmp/tb/task
-  if RunDryrunWrapper; then
+  if RunDryrunWrapper "#setup dryrun $attempt"; then
     return 0
   fi
 
@@ -691,9 +693,8 @@ function DryRun() {
   sort -u > $fautocirc
 
   if [[ -s $fautocirc ]]; then
-    echo "#setup dryrun $attempt # solve circ dep" | tee ./var/tmp/tb/task
     tail -v $fautocirc
-    if RunDryrunWrapper; then
+    if RunDryrunWrapper "#setup dryrun $attempt # solve circ dep"; then
       return 0
     fi
   fi
@@ -706,9 +707,8 @@ function DryRun() {
   grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' > $fautoflag
 
   if [[ -s $fautoflag ]]; then
-    echo "#setup dryrun $attempt # necessary flag change" | tee ./var/tmp/tb/task
     tail -v $fautoflag
-    if RunDryrunWrapper; then
+    if RunDryrunWrapper "#setup dryrun $attempt # necessary flag change"; then
       return 0
     fi
   fi
