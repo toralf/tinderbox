@@ -369,8 +369,8 @@ function CompilePortageFiles()  {
 
   mkdir -p ./mnt/{repos,tb/data} ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
 
-  chgrp portage ./var/tmp/tb
-  chmod ug+rwx  ./var/tmp/tb
+  chgrp portage ./var/tmp/tb/{,logs}
+  chmod ug+rwx  ./var/tmp/tb/{,logs}
 
   for d in profile package.{accept_keywords,env,mask,unmask,use} env
   do
@@ -528,7 +528,7 @@ function CreateBacklogs()  {
   cat << EOF > $bl.1st
 @world
 @system
-%rm -f /etc/portage/package.use/??setup*
+%rm -f /etc/portage/package.use/91setup*
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
@@ -677,43 +677,55 @@ function DryRun() {
   fi
 
   local fautocirc=./etc/portage/package.use/91setup-auto-solve-circ-dep
-
-  grep -h -A 10 "It might be possible to break this cycle" $drylog |\
-  grep -F ' (Change USE: ' |\
-  grep -v -F  -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' \
-              -e '+' -e 'This change might require ' |\
-  sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
-  tr -d ')' |\
-  sort -u |\
-  while read -r p u
-  do
-    q=$(qatom $p | cut -f1-2 -d' ' | tr ' ' '/')
-    printf "%-30s %s\n" $q "$u"
-  done |\
-  sort -u > $fautocirc
-
-  if [[ -s $fautocirc ]]; then
-    tail -v $fautocirc
-    if RunDryrunWrapper "#setup dryrun $attempt # solve circ dep"; then
-      return 0
-    fi
-  fi
-
   local fautoflag=./etc/portage/package.use/27necessary-use-flag-change
 
-  grep -h -A 100 'The following USE changes are necessary to proceed:' $drylog |\
-  grep "^>=" |\
-  sort -u |\
-  grep -v -F -e '_' -e 'sys-devel/gcc' -e 'sys-libs/glibc' > $fautoflag
+  for i in 1 2 3
+  do
+    grep -h -A 10 "It might be possible to break this cycle" $drylog |\
+    grep -F ' (Change USE: ' |\
+    grep -v -F -e 'sys-devel/gcc' -e 'sys-libs/glibc' -e '+' -e 'This change might require ' |\
+    sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
+    tr -d ')' |\
+    sort -u |\
+    while read -r p u
+    do
+      if [[ $u =~ '_' ]]; then
+        continue
+      fi
+      q=$(qatom $p | cut -f1-2 -d' ' | tr ' ' '/')
+      printf "%-30s %s\n" $q "$u"
+    done |\
+    sort -u > $fautocirc-$i
 
-  if [[ -s $fautoflag ]]; then
-    tail -v $fautoflag
-    if RunDryrunWrapper "#setup dryrun $attempt # necessary flag change"; then
-      return 0
+    if [[ -s $fautocirc-$i ]]; then
+      tail -v $fautocirc-$i
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # solve circ dep"; then
+        return 0
+      fi
+    else
+      rm $fautocirc-$i
     fi
-  fi
 
-  rm $fautocirc $fautoflag
+    grep -h -A 100 'The following USE changes are necessary to proceed:' $drylog |\
+    grep "^>=" |\
+    grep -v -e '>=sys-devel/gcc' -e '>=sys-libs/glibc' -e '>=.* .*_' |\
+    sort -u > $fautoflag-$i
+
+    if [[ -s $fautoflag-$i ]]; then
+      tail -v $fautoflag-$i
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # necessary flag change"; then
+        return 0
+      fi
+    else
+      rm $fautoflag-$i
+    fi
+
+    if [[ ! -s $fautocirc-$i && ! -s $fautoflag-$i ]]; then
+      break
+    fi
+  done
+
+  rm -f $fautocirc-* $fautoflag-*
   return 1
 }
 
@@ -722,7 +734,7 @@ function DryRun() {
 function ThrowImageUseFlags() {
   cd $mnt
 
-  echo "#setup dryrun $attempt # throw flags ..." | tee ./var/tmp/tb/task
+  echo "#setup dryrun $attempt # throw flags ..."
 
   grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
   cut -f1 -d' ' -s |\
