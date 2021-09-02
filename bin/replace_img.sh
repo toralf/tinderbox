@@ -79,7 +79,7 @@ function __ReachedMaxRuntime()  {
 }
 
 
-function __TooLessLeftInBacklog()  {
+function __TooSmallBacklog()  {
   [[ $(NumberOfPackagesInBacklog) -le $condition_left ]]
 }
 
@@ -95,16 +95,19 @@ function AnImageReachedEOL()  {
   do
     if [[ $condition_runtime -gt -1 ]]; then
       if __ReachedMaxRuntime; then
+        reason="reached max runtime"
         return 0
       fi
     fi
     if [[ $condition_left -gt -1 ]]; then
-      if __TooLessLeftInBacklog; then
+      if __TooSmallBacklog; then
+        reason="too small backlog"
         return 0
       fi
     fi
     if [[ $condition_completed -gt -1 ]]; then
       if __EnoughCompletedEmergeOperations; then
+        reason="enough completed"
         return 0
       fi
     fi
@@ -114,9 +117,11 @@ function AnImageReachedEOL()  {
 
 
 function StopOldImage() {
+  local msg="replace reason: $1"
+
   echo
   date
-  echo " stopping $oldimg ..."
+  echo " stopping $oldimg, $msg"
 
   if [[ -z $oldimg || ~/run/$oldimg = "-" || ! -e ~/run/$oldimg ]]; then
     echo "invalid file name"
@@ -130,7 +135,7 @@ STOP
 STOP
 STOP
 STOP
-STOP $(GetCompletedEmergeOperations) completed, $(NumberOfPackagesInBacklog $oldimg) lef
+STOP $msg
 EOF
 
   # do not put a "STOP" into backlog.1st b/c job.sh might inject @preserved-rebuilds et al before it
@@ -211,15 +216,15 @@ if [[ -z "$oldimg" ]]; then
 
   while AnImageHasAnEmptyBacklog
   do
-    StopOldImage
+    StopOldImage "empty backlogs"
     setupANewImage
   done
 
   if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
     while AnImageReachedEOL
     do
+      StopOldImage "$reason"
       if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
-        StopOldImage
         setupANewImage
       else
         break
@@ -229,7 +234,7 @@ if [[ -z "$oldimg" ]]; then
 
 else
   if [[ ! $oldimg = "-" ]]; then
-    StopOldImage
+    StopOldImage "user decision"
   fi
   setupANewImage
 fi
