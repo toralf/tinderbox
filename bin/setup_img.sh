@@ -434,7 +434,7 @@ EOF
     cpconf ~tinderbox/tb/data/package.*.??openrc
   fi
 
-  cpconf ~tinderbox/tb/data/package.*.??{common,setup}
+  cpconf ~tinderbox/tb/data/package.*.??common
 
   if [[ $abi3264 = "y" ]]; then
     cpconf ~tinderbox/tb/data/package.*.??abi32+64
@@ -526,9 +526,6 @@ function CreateBacklogs()  {
   fi
 
   cat << EOF > $bl.1st
-@world
-@system
-%rm -f /etc/portage/package.use/91setup*
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
@@ -676,7 +673,7 @@ function DryRun() {
     return 0
   fi
 
-  local fautocirc=./etc/portage/package.use/91setup-auto-solve-circ-dep
+  local fautocirc=./etc/portage/package.use/27setup-auto-solve-circ-dep
   local fautoflag=./etc/portage/package.use/27necessary-use-flag-change
 
   for i in 1 2 3
