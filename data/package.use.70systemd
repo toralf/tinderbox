@@ -1,4 +1,2 @@
 # package.use/70systemd
 #
-
-sys-apps/dbus                       user-session

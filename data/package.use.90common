@@ -26,7 +26,7 @@ app-text/ansifilter                 -qt5
 
 # setup issues
 dev-libs/libpcre*                   -libedit readline
-dev-vcs/git                         -mediawiki -mediawiki-experimental -webdav
+dev-vcs/git                         -cgi -mediawiki -mediawiki-experimental -webdav
 sys-apps/busybox                    -pam
 sys-apps/shadow                     -cracklib
 

@@ -48,3 +48,7 @@ sci-libs/libint:2
 #######################################################################
 #
 
+# to test sys-libs/glibc-2.34
+dev-java/openjdk*
+virtual/jre
+virtual/jdk
