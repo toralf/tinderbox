@@ -676,7 +676,7 @@ function DryRun() {
   local fautocirc=./etc/portage/package.use/27setup-auto-solve-circ-dep
   local fautoflag=./etc/portage/package.use/27necessary-use-flag-change
 
-  for i in 1 2 3
+  for i in $(seq 1 9)
   do
     grep -h -A 10 "It might be possible to break this cycle" $drylog |\
     grep -F ' (Change USE: ' |\
