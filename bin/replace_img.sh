@@ -16,10 +16,6 @@ function Finish() {
     echo " pid $pid exited with rc=$rc"
   fi
 
-  if [[ -n $lockfile ]]; then
-    rm $lockfile
-  fi
-
   exit $rc
 }
 
@@ -201,6 +197,9 @@ if [[ -z "$oldimg" ]]; then
   if [[ -s "$lockfile" ]]; then
     if kill -0 $(cat $lockfile) 2>/dev/null; then
       exit 1    # process is running
+    else
+      echo " found stale lockfile content:"
+      cat $lockfile
     fi
   fi
   echo $$ > "$lockfile" || exit 1
