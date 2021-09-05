@@ -1,4 +1,4 @@
-# backlog entries matching a pattern here will be skipped (except for backlog.1st entries)
+# a task matching a pattern will be skipped (except for backlog.1st)
 # this file MUST NOT have empty lines
 #
 # not at all

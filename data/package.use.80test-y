@@ -5,6 +5,7 @@
 
 app-text/docbook-xsl-stylesheets    -ruby
 dev-libs/libzip                     tools
+dev-libs/openssl                    -sctp
 dev-util/strace                     -unwind
 media-gfx/imagemagick               corefonts truetype
 media-libs/harfbuzz                 icu
@@ -18,6 +19,7 @@ sys-apps/man-db                     -nls
 sys-apps/dbus                       debug
 sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
+
 
 # setup issues
 */*                                 -jack

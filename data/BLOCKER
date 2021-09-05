@@ -33,7 +33,7 @@ mbedtls
 
 # (openssl-3.0) - [TRACKER] packages failing with =dev-libs/openssl-3.0.0
 797325
-EVP_|RSA_SSLV23_PADDING|VERSION_OPENSSL_|error: key undeclared|FIPS_|ERR_GET_FUNC|CRYPTO_|ctx|get_dh2048|ssl|SSL|INT_MAX|HMAC_|rsa_|CRYPTO_|DSA
+EVP_|RSA_SSLV23_PADDING|VERSION_OPENSSL_|error: key undeclared|FIPS_|ERR_GET_FUNC|CRYPTO_|ctx|get_dh2048|ssl|SSL|INT_MAX|HMAC_|rsa_|CRYPTO_|DSA|ENGINE_.*deprecated
 
 # (glibc-2.34) - [TRACKER] sys-libs/glibc-2.34 related issues
 803482
