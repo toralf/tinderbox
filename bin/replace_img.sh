@@ -15,7 +15,10 @@ function Finish() {
     date
     echo " pid $pid exited with rc=$rc"
   fi
-  rm $lck
+
+  if [[ -n $lockfile ]]; then
+    rm $lockfile
+  fi
 
   exit $rc
 }
@@ -121,15 +124,16 @@ function StopOldImage() {
 
   echo
   date
-  echo " stopping $oldimg, $msg"
+  echo " $msg for $oldimg"
 
-  if [[ -z $oldimg || ~/run/$oldimg = "-" || ! -e ~/run/$oldimg ]]; then
-    echo "invalid file name"
-    exit 1
-  fi
+  local lock_dir=/run/tinderbox/$oldimg.lock
+  if [[ -d $lock_dir ]]; then
+    date
+    echo " waiting for image unlock ..."
 
-  # repeat STOP to stop again immediately after an external triggered restart
-  cat << EOF > ~/run/$oldimg/var/tmp/tb/backlog.1st
+    # do not only put a "STOP" into backlog.1st b/c job.sh might prepend additional task/s onto it
+    # repeated STOP lines to neutralise an external triggered restart
+    cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP
 STOP
 STOP
@@ -137,14 +141,7 @@ STOP
 STOP
 STOP $msg
 EOF
-
-  # do not put a "STOP" into backlog.1st b/c job.sh might inject @preserved-rebuilds et al before it
-  ${0%/*}/stop_img.sh $oldimg
-
-  local lock_dir=/run/tinderbox/$oldimg.lock
-  if [[ -d $lock_dir ]]; then
-    date
-    echo " waiting for image unlock ..."
+    echo "$msg" >> ~/run/$oldimg/var/tmp/tb/STOP
     while [[ -d $lock_dir ]]
     do
       sleep 1
@@ -172,14 +169,6 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-# do not run this script in parallel
-lck="/tmp/${0##*/}.lck"
-if [[ -s "$lck" ]]; then
-  if kill -0 $(cat $lck) 2>/dev/null; then
-    exit 1    # process is running
-  fi
-fi
-echo $$ > "$lck" || exit 1
 trap Finish INT QUIT TERM EXIT
 
 condition_completed=-1      # completed emerge operations
@@ -207,6 +196,15 @@ do
 done
 
 if [[ -z "$oldimg" ]]; then
+  # do not run this branch in parallel
+  lockfile="/tmp/${0##*/}.lck"
+  if [[ -s "$lockfile" ]]; then
+    if kill -0 $(cat $lockfile) 2>/dev/null; then
+      exit 1    # process is running
+    fi
+  fi
+  echo $$ > "$lockfile" || exit 1
+
   if [[ $condition_count -gt -1 ]]; then
     while ! MaxCountIsRunning
     do
@@ -231,6 +229,8 @@ if [[ -z "$oldimg" ]]; then
       fi
     done
   fi
+
+  rm $lockfile
 
 else
   if [[ ! $oldimg = "-" ]]; then
