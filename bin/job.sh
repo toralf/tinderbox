@@ -450,11 +450,6 @@ function ClassifyIssue() {
 function CompileIssueComment0() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
-  local keyword="stable"
-  if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
-    keyword="unstable"
-  fi
-
   cp $issuedir/issue $issuedir/comment0
   cat << EOF >> $issuedir/comment0
 
@@ -542,6 +537,18 @@ function finishTitle()  {
 }
 
 
+function SendIssueMail()  {
+  if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
+    if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
+      # no simple cat due to buffered output
+      echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
+      echo -e "\n\n    check_bgo.sh ~/img/$name/$issuedir\n\n\n" > $issuedir/body
+      cat $issuedir/issue >> $issuedir/body
+      Mail "$(cat $issuedir/title)" $issuedir/body
+    fi
+  fi
+}
+
 
 # collect files and compile an SMTP email
 function GotAnIssue()  {
@@ -582,15 +589,7 @@ function GotAnIssue()  {
     echo "=$pkg" >> /etc/portage/package.mask/self
   fi
 
-  if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
-    if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
-      # no simple cat due to buffered output
-      echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
-      echo -e "\n\n    check_bgo.sh ~/img/$name/$issuedir\n\n\n" > $issuedir/body
-      cat $issuedir/issue >> $issuedir/body
-      Mail "$(cat $issuedir/title)" $issuedir/body
-    fi
-  fi
+  SendIssueMail
 }
 
 
@@ -742,10 +741,25 @@ function RunAndCheck() {
     fi
   fi
 
-  if grep -q -f /mnt/tb/data/CATCH_MISC $tasklog_stripped; then
-    if createIssueDir; then
+  find /var/log/portage/ -type f -newer $taskfile |\
+  while read -r pkglog
+  do
+    pkglog_stripped=/tmp/$(basename $pkglog)
+    filterPlainPext < $pkglog > $pkglog_stripped
+    if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
+      pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' | tr ':' '/')
+      repo=$(portageq metadata / ebuild $pkg repository)
+
+      issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
+      mkdir -p $issuedir/files
+      chmod 777 $issuedir # allow to edit title etc. manually
+
       echo "$repo" > $issuedir/repository   # used by check_bgo.sh
-      grep -f /mnt/tb/data/CATCH_MISC $tasklog_stripped | tee $issuedir/issue | head -n 1 > $issuedir/title
+      grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped | tee $issuedir/issue | head -n 1 > $issuedir/title
+
+      cp $pkglog $issuedir/files
+      mv $pkglog_stripped $issuedir
+      phase=""
       finishTitle
       cp $tasklog $issuedir
       cp $issuedir/issue $issuedir/comment0
@@ -769,10 +783,11 @@ EOF
       chmod    777  $issuedir/{,files}
       chmod -R a+rw $issuedir/
 
+      SendIssueMail
     else
-      Mail "WARN: can't collect data for $task" $tasklog_stripped
+      rm $pkglog_stripped
     fi
-  fi
+  done
 
   return $rc
 }
@@ -899,6 +914,10 @@ trap Finish INT QUIT TERM EXIT
 taskfile=/var/tmp/tb/task           # holds the current task
 tasklog=$taskfile.log               # holds output of the current task
 name=$(cat /etc/conf.d/hostname)    # the image name
+keyword="stable"
+if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
+  keyword="unstable"
+fi
 
 export CARGO_TERM_COLOR="never"
 export GCC_COLORS=""
