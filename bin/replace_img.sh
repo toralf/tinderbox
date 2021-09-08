@@ -142,9 +142,10 @@ EOF
     do
       sleep 1
     done
+    echo "done"
   fi
+
   rm -- ~/run/$oldimg ~/logs/$oldimg.log
-  echo "done"
 }
 
 
@@ -191,51 +192,48 @@ do
   esac
 done
 
-if [[ -z "$oldimg" ]]; then
-  # do not run this branch in parallel
-  lockfile="/tmp/${0##*/}.lck"
-  if [[ -s "$lockfile" ]]; then
-    if kill -0 $(cat $lockfile) 2>/dev/null; then
-      exit 1    # process is running
-    else
-      echo " found stale lockfile content:"
-      cat $lockfile
-    fi
-  fi
-  echo $$ > "$lockfile" || exit 1
+if [[ -n "$oldimg" ]]; then
+  StopOldImage "user decision"
+  exec nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
+fi
 
-  if [[ $condition_count -gt -1 ]]; then
-    while ! MaxCountIsRunning
-    do
-      setupANewImage
-    done
+# do not run automatic mode in parallel
+lockfile="/tmp/${0##*/}.lck"
+if [[ -s "$lockfile" ]]; then
+  if kill -0 $(cat $lockfile) 2>/dev/null; then
+    exit 1    # process is running
+  else
+    echo " found stale lockfile content:"
+    cat $lockfile
   fi
+fi
+echo $$ > "$lockfile" || exit 1
 
-  while AnImageHasAnEmptyBacklog
+if [[ $condition_count -gt -1 ]]; then
+  while ! MaxCountIsRunning
   do
-    StopOldImage "empty backlogs"
     setupANewImage
   done
-
-  if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
-    while AnImageReachedEOL
-    do
-      StopOldImage "$reason"
-      if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
-        setupANewImage
-      else
-        break
-      fi
-    done
-  fi
-
-  rm $lockfile
-
-else
-  if [[ ! $oldimg = "-" ]]; then
-    StopOldImage "user decision"
-  fi
-  setupANewImage
 fi
+
+while AnImageHasAnEmptyBacklog
+do
+  StopOldImage "empty backlogs"
+  setupANewImage
+done
+
+if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
+  while AnImageReachedEOL
+  do
+    StopOldImage "$reason"
+    if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
+      setupANewImage
+    else
+      break
+    fi
+  done
+fi
+
+rm $lockfile
 
 Finish $?
