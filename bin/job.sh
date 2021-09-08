@@ -247,9 +247,8 @@ EOF
 }
 
 
-# helper of GotAnIssue()
-# get failed package and logfile names
-function getPkgVarsFromIssuelog()  {
+# get package and logfile names + create the dir
+function createIssueDir() {
   pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
   if [[ -z "$pkg" ]]; then # eg. in postinst phase
     pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk ' { print $3 } ')
@@ -279,13 +278,6 @@ function getPkgVarsFromIssuelog()  {
     Mail "INFO: $FUNCNAME failed to get package log file: pkg='$pkg'  pkgname='$pkgname'  task='$task'  pkglog='$pkglog'" $tasklog_stripped
     return 1
   fi
-
-  return 0
-}
-
-
-function createIssueDir() {
-  getPkgVarsFromIssuelog || return $?
 
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
   mkdir -p $issuedir/files
