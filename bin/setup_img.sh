@@ -761,6 +761,8 @@ function ThrowImageUseFlags() {
     xargs |\
     xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
   done > ./etc/portage/package.use/24thrown_package_use_flags
+
+  wc ./etc/portage/package.use/2*
 }
 
 
