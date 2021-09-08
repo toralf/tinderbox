@@ -163,10 +163,8 @@ function CompressIssueFiles()  {
 }
 
 
-# helper of GotAnIssue()
-# gather together what's needed for the email and b.g.o.
-function CollectIssueFiles() {
-  local ehist=/var/tmp/tb/emerge-history.txt
+function CreateEmergeHistoryFile()  {
+  local ehist=$issuedir/files/emerge-history.txt
   local cmd="qlop --nocolor --verbose --merge --unmerge"
 
   cat << EOF > $ehist
@@ -174,6 +172,12 @@ function CollectIssueFiles() {
 # $cmd
 EOF
   ($cmd) &>> $ehist
+}
+
+
+# gather together what's needed for the email and b.g.o.
+function CollectIssueFiles() {
+  CreateEmergeHistoryFile
 
   apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $tasklog_stripped | grep "\.out"          | cut -f5 -d' ' -s)
   cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $tasklog_stripped | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
@@ -184,7 +188,7 @@ EOF
   sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $tasklog_stripped                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
   roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $tasklog_stripped | grep "/LastTest\.log" | awk ' { print $2 } ')
 
-  for f in $ehist $pkglog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
+  for f in $apout $cmlog $cmerr $oracl $envir $salso $sandb $roslg
   do
     if [[ -f $f ]]; then
       cp $f $issuedir/files
@@ -282,6 +286,8 @@ function createIssueDir() {
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
   mkdir -p $issuedir/files
   chmod 777 $issuedir # allow to edit title etc. manually
+
+  cp $pkglog $issuedir/files
 }
 
 
@@ -523,6 +529,20 @@ function add2backlog()  {
 }
 
 
+function finishTitle()  {
+  # prefix title
+  sed -i -e "s,^,${pkg} - ," $issuedir/title
+  if [[ $phase = "test" ]]; then
+    sed -i -e "s,^,[TEST] ," $issuedir/title
+  fi
+  if [[ $repo != "gentoo" ]]; then
+    sed -i -e "s,^,[$repo overlay] ," $issuedir/title
+  fi
+  truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
+}
+
+
+
 # collect files and compile an SMTP email
 function GotAnIssue()  {
   local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped) || true
@@ -542,16 +562,7 @@ function GotAnIssue()  {
   CollectIssueFiles
 
   ClassifyIssue
-  # prefix title
-  sed -i -e "s,^,${pkg} - ," $issuedir/title
-  if [[ $phase = "test" ]]; then
-    sed -i -e "s,^,[TEST] ," $issuedir/title
-  fi
-  if [[ $repo != "gentoo" ]]; then
-    sed -i -e "s,^,[$repo overlay] ," $issuedir/title
-  fi
-  truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
-
+  finishTitle
   CompileIssueComment0
 
   # grant write permissions to all artifacts
@@ -717,21 +728,26 @@ function RunAndCheck() {
     fi
 
   elif [[ $rc -ne 0 ]]; then
-    if createIssueDir; then
-      GotAnIssue
-      if [[ $try_again -eq 0 ]]; then
-        PutDepsIntoWorldFile
+    if grep -q '^>>>' $tasklog_stripped; then
+      if createIssueDir; then
+        GotAnIssue
+        if [[ $try_again -eq 0 ]]; then
+          PutDepsIntoWorldFile
+        fi
+      else
+        Mail "WARN: can't collect data for $task and rc=$rc" $tasklog_stripped
       fi
-    else
-      Mail "WARN: can't collect data for $task" $tasklog_stripped
+    elif ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
+      Mail "unrecognized log for $task" $tasklog_stripped
     fi
   fi
 
   if grep -q -f /mnt/tb/data/CATCH_MISC $tasklog_stripped; then
     if createIssueDir; then
+      echo "$repo" > $issuedir/repository   # used by check_bgo.sh
+      grep -f /mnt/tb/data/CATCH_MISC $tasklog_stripped | tee $issuedir/issue | head -n 1 > $issuedir/title
+      finishTitle
       cp $tasklog $issuedir
-      grep -f mnt/tb/data/CATCH_MISC $tasklog_stripped > $issuedir/issue
-      head -n 1 $issuedir/issue | cut -c1-130 > title   # b.g.o. limits "Summary" length
       cp $issuedir/issue $issuedir/comment0
       cat << EOF >> $issuedir/comment0
 
@@ -745,10 +761,10 @@ function RunAndCheck() {
   The output of emerge matches a pattern requested by a Gentoo dev.
 
 EOF
-      cp $tasklog $issuedir
       collectPortageDir
-      CompressIssueFiles
+      CreateEmergeHistoryFile
 
+      CompressIssueFiles
       # grant write permissions to all artifacts
       chmod    777  $issuedir/{,files}
       chmod -R a+rw $issuedir/
@@ -756,7 +772,6 @@ EOF
     else
       Mail "WARN: can't collect data for $task" $tasklog_stripped
     fi
-
   fi
 
   return $rc
