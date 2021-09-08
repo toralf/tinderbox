@@ -42,3 +42,7 @@ variably modified .* at file scope|size of array .* is not an integral|void valu
 #  (boost-1.77) - [Tracker] Packages failing to build with ~dev-libs/boost-1.77
 808087
 boost
+
+# [TRACKER] Packages relying on setuptools' use_2to3 option
+812149
+SetuptoolsDeprecationWarning: 2to3

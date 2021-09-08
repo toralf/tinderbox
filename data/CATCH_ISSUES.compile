@@ -295,3 +295,4 @@ root file .* not found
 go: updates to .* needed,
 Symbol .* at .* has no .* type.
 pkg_resources.UnknownExtra:
+can.t write to file

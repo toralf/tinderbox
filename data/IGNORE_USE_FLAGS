@@ -35,6 +35,7 @@ libunwind
 livecd
 llvm-libunwind
 lto
+low-memory
 make-symlinks
 mbedtls
 minimal
