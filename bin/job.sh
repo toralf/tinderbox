@@ -717,18 +717,46 @@ function RunAndCheck() {
     fi
 
   elif [[ $rc -ne 0 ]]; then
-    if grep -q '^>>>' $tasklog_stripped; then
-      if createIssueDir; then
-        GotAnIssue
-        if [[ $try_again -eq 0 ]]; then
-          PutDepsIntoWorldFile
-        fi
-      else
-        Mail "WARN: can't get data for $task" $tasklog_stripped
+    if createIssueDir; then
+      GotAnIssue
+      if [[ $try_again -eq 0 ]]; then
+        PutDepsIntoWorldFile
       fi
-    elif ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped && ! ; then
-      Mail "unrecognized log for $task" $tasklog_stripped
+    else
+      Mail "WARN: can't collect data for $task" $tasklog_stripped
     fi
+  fi
+
+  if grep -q -f /mnt/tb/data/CATCH_MISC $tasklog_stripped; then
+    if createIssueDir; then
+      cp $tasklog $issuedir
+      grep -f mnt/tb/data/CATCH_MISC $tasklog_stripped > $issuedir/issue
+      head -n 1 $issuedir/issue | cut -c1-130 > title   # b.g.o. limits "Summary" length
+      cp $issuedir/issue $issuedir/comment0
+      cat << EOF >> $issuedir/comment0
+
+  -------------------------------------------------------------------
+
+  This is an $keyword amd64 chroot image at a tinderbox (==build bot)
+  name: $name
+
+  -------------------------------------------------------------------
+
+  The output of emerge matches a pattern requested by a Gentoo dev.
+
+EOF
+      cp $tasklog $issuedir
+      collectPortageDir
+      CompressIssueFiles
+
+      # grant write permissions to all artifacts
+      chmod    777  $issuedir/{,files}
+      chmod -R a+rw $issuedir/
+
+    else
+      Mail "WARN: can't collect data for $task" $tasklog_stripped
+    fi
+
   fi
 
   return $rc
