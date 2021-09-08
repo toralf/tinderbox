@@ -59,7 +59,7 @@ function Finish()  {
     Mail "Finish ok: $subject" "${3:-<no message given>}"
     truncate -s 0 $taskfile
   else
-    Mail "Finish NOT ok, exit_code=$exit_code: $subject" "${3:-$logfile}"
+    Mail "Finish NOT ok, exit_code=$exit_code: $subject" "${3:-$tasklog}"
   fi
 
   rm -f /var/tmp/tb/STOP
@@ -142,7 +142,7 @@ function getNextTask() {
     fi
   done
 
-  echo "$task" | tee -a $taskfile.history $logfile > $taskfile
+  echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
 }
 
 
@@ -175,14 +175,14 @@ function CollectIssueFiles() {
 EOF
   ($cmd) &>> $ehist
 
-  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $logfile_stripped | grep "\.out"          | cut -f5 -d' ' -s)
-  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $logfile_stripped | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
-  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $logfile_stripped | sed  "s/txt./txt/"    | cut -f8 -d' ' -s)
-  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $logfile_stripped | grep "\.log"          | cut -f2 -d' ' -s)
-  envir=$(grep -m 1      'The ebuild environment file is located at'                 $logfile_stripped                         | cut -f2 -d"'" -s)
-  salso=$(grep -m 1 -A 2 ' See also'                                                 $logfile_stripped | grep "\.log"          | awk '{ print $1 }' )
-  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $logfile_stripped                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
-  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $logfile_stripped | grep "/LastTest\.log" | awk ' { print $2 } ')
+  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $tasklog_stripped | grep "\.out"          | cut -f5 -d' ' -s)
+  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $tasklog_stripped | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
+  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $tasklog_stripped | sed  "s/txt./txt/"    | cut -f8 -d' ' -s)
+  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $tasklog_stripped | grep "\.log"          | cut -f2 -d' ' -s)
+  envir=$(grep -m 1      'The ebuild environment file is located at'                 $tasklog_stripped                         | cut -f2 -d"'" -s)
+  salso=$(grep -m 1 -A 2 ' See also'                                                 $tasklog_stripped | grep "\.log"          | awk '{ print $1 }' )
+  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $tasklog_stripped                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
+  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $tasklog_stripped | grep "/LastTest\.log" | awk ' { print $2 } ')
 
   for f in $ehist $pkglog $sandb $apout $cmlog $cmerr $oracl $envir $salso $roslg
   do
@@ -252,11 +252,11 @@ EOF
 function getPkgVarsFromIssuelog()  {
   pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
   if [[ -z "$pkg" ]]; then # eg. in postinst phase
-    pkg=$(grep -m 1 -F ' * Package: ' $logfile_stripped | awk ' { print $3 } ')
+    pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk ' { print $3 } ')
     if [[ -z "$pkg" ]]; then
-      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $logfile_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
+      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
       if [[ -z "$pkg" ]]; then
-        pkg=$(grep -F ' * Fetch failed' $logfile_stripped | grep -o "'.*'" | sed "s,',,g")
+        pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
         if [[ -z $pkg ]]; then
           return 1
         fi
@@ -270,13 +270,13 @@ function getPkgVarsFromIssuelog()  {
   repo=$(portageq metadata / ebuild $pkg repository)
   repo_path=$(portageq get_repo_path / $repo)
   if [[ ! -d $repo_path/$pkgname ]]; then
-    Mail "INFO: $FUNCNAME failed to get repo path for: pkg='$pkg'  pkgname='$pkgname'  task='$task'" $logfile_stripped
+    Mail "INFO: $FUNCNAME failed to get repo path for: pkg='$pkg'  pkgname='$pkgname'  task='$task'" $tasklog_stripped
     return 1
   fi
 
-  pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $logfile_stripped)
+  pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
-    Mail "INFO: $FUNCNAME failed to get package log file: pkg='$pkg'  pkgname='$pkgname'  task='$task'  pkglog='$pkglog'" $logfile_stripped
+    Mail "INFO: $FUNCNAME failed to get package log file: pkg='$pkg'  pkgname='$pkgname'  task='$task'  pkglog='$pkglog'" $tasklog_stripped
     return 1
   fi
 
@@ -297,7 +297,7 @@ function createIssueDir() {
 function foundCollisionIssue() {
   # get the colliding package name
   local s=$(
-    grep -m 1 -A 5 'Press Ctrl-C to Stop' $logfile_stripped |\
+    grep -m 1 -A 5 'Press Ctrl-C to Stop' $tasklog_stripped |\
     tee -a  $issuedir/issue |\
     grep -m 1 '::' | tr ':' ' ' | cut -f3 -d' ' -s
   )
@@ -498,7 +498,7 @@ EOF
 
 # make world state same as if (succesfully) installed deps were emerged step by step in previous emerges
 function PutDepsIntoWorldFile() {
-  if grep -q '^>>> Installing ' $logfile_stripped; then
+  if grep -q '^>>> Installing ' $tasklog_stripped; then
     emerge --depclean --verbose=n --pretend 2>/dev/null |\
     grep "^All selected packages: "                     |\
     cut -f2- -d':' -s                                   |\
@@ -510,9 +510,9 @@ function PutDepsIntoWorldFile() {
 # helper of GotAnIssue()
 # for ABI_X86="32 64" we have two ./work directories in /var/tmp/portage/<category>/<name>
 function setWorkDir() {
-  workdir=$(fgrep -m 1 " * Working directory: '" $logfile_stripped | cut -f2 -d"'" -s)
+  workdir=$(fgrep -m 1 " * Working directory: '" $tasklog_stripped | cut -f2 -d"'" -s)
   if [[ ! -d "$workdir" ]]; then
-    workdir=$(fgrep -m 1 ">>> Source unpacked in " $logfile_stripped | cut -f5 -d" " -s)
+    workdir=$(fgrep -m 1 ">>> Source unpacked in " $tasklog_stripped | cut -f5 -d" " -s)
     if [[ ! -d "$workdir" ]]; then
       workdir=/var/tmp/portage/$pkg/work/${pkg##*/}
       if [[ ! -d "$workdir" ]]; then
@@ -533,19 +533,19 @@ function add2backlog()  {
 
 # collect files and compile an SMTP email
 function GotAnIssue()  {
-  local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $logfile_stripped) || true
+  local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped) || true
   if [[ -n $fatal ]]; then
     Finish 1 "FATAL: $fatal"
   fi
 
-  if grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $logfile_stripped; then
+  if grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $tasklog_stripped; then
     Finish 1 "KILLED"
   fi
 
   echo "$repo" > $issuedir/repository   # used by check_bgo.sh
   pkglog_stripped=$issuedir/$(basename $pkglog)
   filterPlainPext < $pkglog > $pkglog_stripped
-  cp $logfile $issuedir
+  cp $tasklog $issuedir
   setWorkDir
   CollectIssueFiles
 
@@ -632,7 +632,7 @@ function PostEmerge() {
   if ls /etc/._cfg????_locale.gen &>/dev/null; then
     locale-gen > /dev/null
     rm /etc/._cfg????_locale.gen
-  elif grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $logfile_stripped; then
+  elif grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $tasklog_stripped; then
     locale-gen > /dev/null
   fi
 
@@ -644,28 +644,28 @@ function PostEmerge() {
   source_profile
 
   # the very last step after an emerge
-  if grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $logfile_stripped; then
+  if grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $tasklog_stripped; then
     if [[ $try_again -eq 0 ]]; then
       add2backlog "@preserved-rebuild"
     fi
   fi
 
   if grep -q  -e "Please, run 'haskell-updater'" \
-              -e "ghc-pkg check: 'checking for other broken packages:'" $logfile_stripped; then
+              -e "ghc-pkg check: 'checking for other broken packages:'" $tasklog_stripped; then
     add2backlog "%haskell-updater"
   fi
 
   if grep -q  -e ">>> Installing .* dev-lang/perl-[1-9]" \
-              -e 'Use: perl-cleaner' $logfile_stripped; then
+              -e 'Use: perl-cleaner' $tasklog_stripped; then
     add2backlog "%emerge --depclean"
     add2backlog "%perl-cleaner --all"
   fi
 
-  if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $logfile_stripped; then
+  if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
     add2backlog "%SwitchGCC"
   fi
 
-  if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $logfile_stripped; then
+  if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped; then
     local current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
     local latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
 
@@ -700,12 +700,13 @@ function PostEmerge() {
 # helper of WorkOnTask()
 # run ($@) and act on result
 function RunAndCheck() {
-  (eval $@; rc=$?; echo; date; exit $rc) &>> $logfile
+  (eval $@; rc=$?; echo; date; exit $rc) &>> $tasklog
   local rc=$?
 
   local taskdirname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
-  logfile_stripped="/var/tmp/tb/logs/$taskdirname.log"
-  filterPlainPext < $logfile > $logfile_stripped
+  tasklog_stripped="/var/tmp/tb/logs/$taskdirname.log"
+
+  filterPlainPext < $tasklog > $tasklog_stripped
   PostEmerge
 
   if grep -q -F ' -Og -g' /etc/portage/make.conf && [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
@@ -720,21 +721,21 @@ function RunAndCheck() {
     if [[ $signal -eq 9 ]]; then
       Finish 0 "catched signal $signal - exiting, task=$task"
     else
-      Mail "INFO: emerge stopped by signal $signal, task=$task" $logfile_stripped
+      Mail "INFO: emerge stopped by signal $signal, task=$task" $tasklog_stripped
     fi
 
   elif [[ $rc -ne 0 ]]; then
-    if grep -q '^>>>' $logfile_stripped; then
+    if grep -q '^>>>' $tasklog_stripped; then
       if createIssueDir; then
         GotAnIssue
         if [[ $try_again -eq 0 ]]; then
           PutDepsIntoWorldFile
         fi
       else
-        Mail "WARN: can't get data for $task" $logfile_stripped
+        Mail "WARN: can't get data for $task" $tasklog_stripped
       fi
-    elif ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $logfile_stripped && ! ; then
-      Mail "unrecognized log for $task" $logfile_stripped
+    elif ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped && ! ; then
+      Mail "unrecognized log for $task" $tasklog_stripped
     fi
   fi
 
@@ -781,7 +782,7 @@ function WorkOnTask() {
         fi
       fi
     fi
-    cp $logfile /var/tmp/tb/$task.last.log
+    cp $tasklog /var/tmp/tb/$task.last.log
 
     feedPfl
 
@@ -794,7 +795,7 @@ function WorkOnTask() {
         if [[ $task =~ " --resume" ]]; then
           if [[ -n "$pkg" ]]; then
             add2backlog "%emerge --resume --skip-first"
-          elif grep -q ' Invalid resume list:' $logfile_stripped; then
+          elif grep -q ' Invalid resume list:' $tasklog_stripped; then
             add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
           fi
         elif [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" ]]; then
@@ -861,7 +862,7 @@ export LANG=C.utf8
 trap Finish INT QUIT TERM EXIT
 
 taskfile=/var/tmp/tb/task           # holds the current task
-logfile=$taskfile.log               # holds output of the current task
+tasklog=$taskfile.log               # holds output of the current task
 name=$(cat /etc/conf.d/hostname)    # the image name
 
 export CARGO_TERM_COLOR="never"
@@ -900,7 +901,7 @@ do
     fi
   done
 
-  (date; echo) > $logfile
+  (date; echo) > $tasklog
   current_time=$(date +%s)
   if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
