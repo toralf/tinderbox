@@ -449,7 +449,7 @@ function ClassifyIssue() {
 
 # helper of GotAnIssue()
 # creates an email containing convenient links and a command line ready for copy+paste
-function CompileComment0TitleAndBody() {
+function CompileIssueComment0() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
 
   local keyword="stable"
@@ -494,16 +494,6 @@ EOF
     echo "emerge -qpvO $pkgname"
     emerge -qpvO $pkgname | head -n 1
   ) >> $issuedir/comment0 2>/dev/null
-
-  # prefix title
-  sed -i -e "s,^,${pkg} - ," $issuedir/title
-  if [[ $phase = "test" ]]; then
-    sed -i -e "s,^,[TEST] ," $issuedir/title
-  fi
-  if [[ $repo != "gentoo" ]]; then
-    sed -i -e "s,^,[$repo overlay] ," $issuedir/title
-  fi
-  truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary"
 }
 
 # make world state same as if (succesfully) installed deps were emerged step by step in previous emerges
@@ -558,8 +548,19 @@ function GotAnIssue()  {
   cp $logfile $issuedir
   setWorkDir
   CollectIssueFiles
+
   ClassifyIssue
-  CompileComment0TitleAndBody
+  # prefix title
+  sed -i -e "s,^,${pkg} - ," $issuedir/title
+  if [[ $phase = "test" ]]; then
+    sed -i -e "s,^,[TEST] ," $issuedir/title
+  fi
+  if [[ $repo != "gentoo" ]]; then
+    sed -i -e "s,^,[$repo overlay] ," $issuedir/title
+  fi
+  truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
+
+  CompileIssueComment0
 
   # grant write permissions to all artifacts
   chmod    777  $issuedir/{,files}
