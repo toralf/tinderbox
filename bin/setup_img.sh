@@ -517,8 +517,8 @@ function CreateBacklogs()  {
   cd $mnt
 
   touch                   $bl{,.1st,.upd}
-  chmod 664               $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
+  chmod 664               $bl{,.1st,.upd}
 
   # requested by Whissi (an alternative mysql engine)
   if __dice 1 13; then
