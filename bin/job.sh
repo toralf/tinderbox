@@ -154,12 +154,16 @@ function collectPortageDir()  {
 
 # b.g.o. has a limit of 1 MB
 function CompressIssueFiles()  {
-  for f in $(ls $issuedir/task.log $issuedir/files/* 2>/dev/null)
+  for f in $(ls $issuedir/task.log $issuedir/files/* 2>/dev/null | grep -v -F '.bz2')
   do
     if [[ $(wc -c < $f) -gt 1000000 ]]; then
       bzip2 $f
     fi
   done
+
+  # grant write permissions to all artifacts
+  chmod    777  $issuedir/{,files}
+  chmod -R a+rw $issuedir/
 }
 
 
@@ -194,8 +198,6 @@ function CollectIssueFiles() {
       cp $f $issuedir/files
     fi
   done
-
-  CompressIssueFiles
 
   if [[ -d "$workdir" ]]; then
     # catch relevant logs
@@ -245,6 +247,8 @@ function CollectIssueFiles() {
     if [[ -f $workdir/gcc-build-logs.tar.bz2 ]]; then
       cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
     fi
+
+    CompressIssueFiles
   fi
 
   collectPortageDir
@@ -255,6 +259,10 @@ function createAndPrefillIssueDir() {
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
   mkdir -p $issuedir/files
   chmod 777 $issuedir # allow to edit title etc. manually
+
+  echo "$repo" > $issuedir/repository   # used by check_bgo.sh
+  cp $pkglog  $issuedir/files           # origin, unprocessed
+  cp $tasklog $issuedir                 # stripped
 }
 
 
@@ -291,7 +299,6 @@ function DerivePkgFromTaskLog() {
   fi
 
   createAndPrefillIssueDir
-  cp $pkglog $issuedir/files
 }
 
 
@@ -565,10 +572,8 @@ function GotAnIssue()  {
     Finish 1 "KILLED"
   fi
 
-  echo "$repo" > $issuedir/repository   # used by check_bgo.sh
   pkglog_stripped=$issuedir/$(basename $pkglog)
   filterPlainPext < $pkglog > $pkglog_stripped
-  cp $tasklog $issuedir
   setWorkDir
   CollectIssueFiles
 
@@ -754,18 +759,13 @@ function RunAndCheck() {
       pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' | tr ':' '/')
       repo=$(portageq metadata / ebuild $pkg repository)
 
-      issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
-      mkdir -p $issuedir/files
-      chmod 777 $issuedir # allow to edit title etc. manually
+      createAndPrefillIssueDir
 
-      echo "$repo" > $issuedir/repository   # used by check_bgo.sh
       grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped | tee $issuedir/issue | head -n 1 > $issuedir/title
 
-      cp $pkglog $issuedir/files
       mv $pkglog_stripped $issuedir
       phase=""
       finishTitle
-      cp $tasklog $issuedir
       cp $issuedir/issue $issuedir/comment0
       cat << EOF >> $issuedir/comment0
 
@@ -781,12 +781,7 @@ function RunAndCheck() {
 EOF
       collectPortageDir
       CreateEmergeHistoryFile
-
       CompressIssueFiles
-      # grant write permissions to all artifacts
-      chmod    777  $issuedir/{,files}
-      chmod -R a+rw $issuedir/
-
       SendIssueMail
     else
       rm $pkglog_stripped
