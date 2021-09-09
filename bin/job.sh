@@ -252,7 +252,7 @@ function CollectIssueFiles() {
 
 
 # get package and logfile names + create the dir
-function createIssueDir() {
+function DerivePkgFromTaskLog() {
   pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
   if [[ -z "$pkg" ]]; then # eg. in postinst phase
     pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk ' { print $3 } ')
@@ -728,7 +728,7 @@ function RunAndCheck() {
 
   elif [[ $rc -ne 0 ]]; then
     if grep -q '^>>>' $tasklog_stripped; then
-      if createIssueDir; then
+      if DerivePkgFromTaskLog; then
         GotAnIssue
         if [[ $try_again -eq 0 ]]; then
           PutDepsIntoWorldFile
