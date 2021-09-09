@@ -247,11 +247,7 @@ function CollectIssueFiles() {
     if [[ -f $workdir/gcc-build-logs.tar.bz2 ]]; then
       cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
     fi
-
-    CompressIssueFiles
   fi
-
-  collectPortageDir
 }
 
 
@@ -548,7 +544,7 @@ function finishTitle()  {
 }
 
 
-function SendIssueMail()  {
+function IfNewThenSendIssueMail()  {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       # no simple cat due to buffered output
@@ -561,7 +557,7 @@ function SendIssueMail()  {
 }
 
 
-# collect files and compile an SMTP email
+# analyze the issue
 function GotAnIssue()  {
   local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped) || true
   if [[ -n $fatal ]]; then
@@ -576,6 +572,8 @@ function GotAnIssue()  {
   filterPlainPext < $pkglog > $pkglog_stripped
   setWorkDir
   CollectIssueFiles
+  collectPortageDir
+  CompressIssueFiles
 
   ClassifyIssue
   finishTitle
@@ -598,7 +596,7 @@ function GotAnIssue()  {
     echo "=$pkg" >> /etc/portage/package.mask/self
   fi
 
-  SendIssueMail
+  IfNewThenSendIssueMail
 }
 
 
@@ -782,7 +780,7 @@ EOF
       collectPortageDir
       CreateEmergeHistoryFile
       CompressIssueFiles
-      SendIssueMail
+      IfNewThenSendIssueMail
     else
       rm $pkglog_stripped
     fi
