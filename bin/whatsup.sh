@@ -54,7 +54,7 @@ function Overall() {
   for i in $images
   do
     local days=0
-    local f=$i/var/tmp/tb/setup.sh
+    local f=$(ls $i/var/tmp/tb/logs/dryrun*.log 2>/dev/null | sort -n | head -n 1)
     if [[ -f $f ]]; then
       let "age = $(date +%s) - $(stat -c%Y $f)" || true
       days=$(echo "scale=1; $age / 86400.0" | bc)
