@@ -80,32 +80,27 @@ function SearchForMatchingBugs() {
 }
 
 
-# test title against known blocker
+# check for a blocker/tracker bug
 # the BLOCKER file contains paragraphs like:
+#
 #   # comment
-#   <bug id>
-#   <pattern string ready for grep -E>
-# if <pattern> is defined more than once then the first makes it
+#   <bug id> <optional: title prefix>
+#   <pattern/s>
 function LookupForABlocker() {
-  if [[ ! -s $issuedir/title ]]; then
-    return 1
-  fi
-
   while read -r line
   do
-    if [[ $line =~ ^# || "$line" = "" ]]; then
+    if [[ $line =~ ^[0-9].* ]]; then
+      read -r number title_prefix <<< $line
       continue
     fi
 
-    if [[ $line =~ ^[0-9].* ]]; then
-      read -r number suffix <<< $line
-    fi
-
     if grep -q -E "$line" $issuedir/title; then
+      # keep the number of the previous loop
       blocker_bug_no=$number
-      if [[ -n "$suffix" ]]; then
-        if ! grep -q -F " ($suffix)" $issuedir/title; then
-          sed -i -e "s,$, ($suffix),g" $issuedir/title
+      # prefix the title if given and not already done before
+      if [[ -n "$title_prefix" ]]; then
+        if ! grep -q -F " ($title_prefix)" $issuedir/title; then
+          sed -i -e "s,$, ($title_prefix),g" $issuedir/title
         fi
       fi
       break
@@ -170,6 +165,7 @@ if [[ ! -s $issuedir/title ]]; then
   exit 1
 elif [[ -f $issuedir/.reported ]]; then
   echo "already reported"
+  # a 2nd parameter skips the exit
   if [[ $# -lt 2 ]]; then
     exit 0
   fi
