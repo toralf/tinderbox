@@ -41,6 +41,19 @@ function check_history()  {
 }
 
 
+# prefer creation time of symlink
+function getStartTime() {
+  local image=$1
+
+  local f=~/run/$(basename $image)
+  if [[ -e $f ]]; then
+    stat -c%Y $f
+  else
+    stat -c%Y $image
+  fi
+}
+
+
 # whatsup.sh -o
 #
 # compl fail bug day backlog .upd .1st swprs 7#7 running
@@ -53,13 +66,7 @@ function Overall() {
 
   for i in $images
   do
-    local days=0
-    local f=$(ls $i/var/tmp/tb/logs/dryrun*.log 2>/dev/null | sort -n | head -n 1)
-    if [[ -f $f ]]; then
-      let "age = $(date +%s) - $(stat -c%Y $f)" || true
-      days=$(echo "scale=1; $age / 86400.0" | bc)
-    fi
-
+    local days=$(echo "scale=1; ( $(date +%s) - $(getStartTime $i) ) / 86400.0" | bc)
     local bgo=$(set +f; ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
 
     local compl=0
@@ -216,18 +223,16 @@ function PackagesPerImagePerRunDay() {
   do
     PrintImageName $i 54
 
+    local start_time=$(getStartTime $i)
     perl -F: -wane '
       BEGIN {
         @packages   = ();  # helds the amount of emerge operations per runday
-        $start_time = 0;   # of emerge.log
       }
 
       my $epoch_time = $F[0];
-      $start_time = $epoch_time unless ($start_time);
-
       next unless (m/::: completed emerge/);
 
-      my $rundays = int(($epoch_time - $start_time) / 86400);
+      my $rundays = int( ($epoch_time - '$start_time') / 86400);
       $packages[$rundays]++;
 
       END {
