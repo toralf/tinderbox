@@ -679,6 +679,24 @@ function DryRun() {
 
   for i in $(seq 1 9)
   do
+    # eg.: !!! The ebuild selected to satisfy "net-misc/openssh" has unmet requirements.
+    #      -  net-misc/openssh-8.7_p1-r2::gentoo USE="X X509 hpn libedit...
+    local f="./etc/portage/package.use/24thrown_package_use_flags"
+    local before=$(md5sum $f)
+    grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |\
+    grep -e '^- ' | cut -f2 -d' ' -s | cut -f1 -d':' -s | xargs --no-run-if-empty qatom | cut -f1-2 -d' ' -s | tr ' ' '/' |\
+    while read -r pkg
+    do
+      echo "kick off $pkg"
+      sed -i -e "/^$pkg /d" $f
+    done
+    local after=$(md5sum $f)
+    if [[ ! $before == $after ]]; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
+        return 0
+      fi
+    fi
+
     grep -h -A 10 "It might be possible to break this cycle" $drylog |\
     grep -F ' (Change USE: ' |\
     grep -v -F -e 'sys-devel/gcc' -e 'sys-libs/glibc' -e '+' -e 'This change might require ' |\
@@ -697,7 +715,7 @@ function DryRun() {
 
     if [[ -s $fautocirc-$i ]]; then
       tail -v $fautocirc-$i
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # solve circ dep"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved circ dep"; then
         return 0
       fi
     else
@@ -711,7 +729,7 @@ function DryRun() {
 
     if [[ -s $fautoflag-$i ]]; then
       tail -v $fautoflag-$i
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # necessary flag change"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved flag change"; then
         return 0
       fi
     else
