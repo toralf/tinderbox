@@ -21,13 +21,15 @@ if pruneNeeded; then
   find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +365                  -delete
   find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +8   -name 'stage3-*' -delete
 
-  while pruneNeeded
+  find ~tinderbox/img/ -mindepth 1 -maxdepth 1 -type d -name '*-j*-20??????-??????' |\
+  sort -t'-' -k 3,4 |\
+  while read -r img
   do
-    img=$(
-      find ~tinderbox/img/ -mindepth 1 -maxdepth 1 -type d -name '*-j*-20??????-??????' |\
-      sort -t'-' -k 3,4 |\
-      head -n 1
-    )
-    [[ -d $img ]] && rm -r $img && sleep 30    # lazy btrfs
+    if pruneNeeded; then
+      rm -r $img
+      sleep 30    # lazy btrfs
+    else
+      break
+    fi
   done
 fi
