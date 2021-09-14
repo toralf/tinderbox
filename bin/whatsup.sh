@@ -257,7 +257,10 @@ function RepoCoverage() {
   for i in run img
   do
     coverage=$(grep -H '::: completed emerge' ~/$i/*/var/log/emerge.log |\
-                tr -d ':' | awk ' { print $7 } ' | xargs qatom | cut -f1-2 -d' ' | tr ' ' '/' | sort -u |\
+                tr -d ':' |\
+                awk ' { print $7 } ' |\
+                xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
+                sort -u |\
                 wc -l)
     echo -n "$coverage "
   done

@@ -708,7 +708,7 @@ function DryRun() {
       if [[ $u =~ '_' ]]; then
         continue
       fi
-      q=$(qatom $p | cut -f1-2 -d' ' | tr ' ' '/')
+      q=$(qatom -F "%{CATEGORY}/%{PN}" $p)
       printf "%-30s %s\n" $q "$u"
     done |\
     sort -u > $fautocirc-$i

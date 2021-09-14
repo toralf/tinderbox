@@ -23,7 +23,7 @@ do
   echo "$word" >> $result
 
   # delete a package in global and image specific files
-  pkgname=$(qatom "$word" 2>/dev/null | cut -f1-2 -d' ' -s | grep -v -F '<unset>' | tr ' ' '/')
+  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$word" 2>/dev/null | grep -v -F '<unset>')
   if [[ -n "$pkgname" ]]; then
     sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)/d"  \
         ~/tb/data/ALREADY_CATCHED                     \
