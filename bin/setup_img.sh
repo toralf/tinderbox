@@ -42,8 +42,9 @@ function GetProfiles() {
 # helper of main()
 # almost are variables here are globals
 function InitOptions() {
-  # 1 process in N running images rules over *up to* N running processes in 1 image
-  # furhermore -j1 makes it easier to manage resource management -but-
+  # 1 process in each of N running images is much more efficient than *up to* N processes in each image
+  # plus -j1 makes it easier to catch the root cause
+  # but:
   # the compile times are awefully
   jobs=4
 
@@ -680,26 +681,30 @@ function DryRun() {
   for i in $(seq 1 9)
   do
     # eg.: !!! The ebuild selected to satisfy "net-misc/openssh" has unmet requirements.
-    #      -  net-misc/openssh-8.7_p1-r2::gentoo USE="X X509 hpn libedit...
-    local f="./etc/portage/package.use/24thrown_package_use_flags"
-    local before=$(md5sum $f)
-    grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |\
-    grep -e '^- ' | cut -f2 -d' ' -s | cut -f1 -d':' -s | xargs --no-run-if-empty qatom | cut -f1-2 -d' ' -s | tr ' ' '/' |\
-    while read -r pkg
-    do
-      echo "kick off $pkg"
-      sed -i -e "/^$pkg /d" $f
-    done
-    local after=$(md5sum $f)
-    if [[ ! $before == $after ]]; then
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
-        return 0
+    #      - net-misc/openssh-8.7_p1-r2::gentoo USE="X X509 hpn libedit...
+    local pkg=$(
+      grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |\
+      awk ' /^- / { print $2 } ' |\
+      cut -f1 -d':' -s |\
+      xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
+      sed -e 's,/,\\/,'
+    )
+    if [[ -n $pkg ]]; then
+      local f="./etc/portage/package.use/24thrown_package_use_flags"
+      local before=$(md5sum $f)
+      sed -i -e "/$pkg /d" $f
+      local after=$(md5sum $f)
+      if [[ $before = $after ]]; then
+        echo " kicked off $pkg"
+        if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
+          return 0
+        fi
       fi
     fi
 
-    grep -h -A 10 "It might be possible to break this cycle" $drylog |\
+    grep -A 10 "It might be possible to break this cycle" $drylog |\
     grep -F ' (Change USE: ' |\
-    grep -v -F -e 'sys-devel/gcc' -e 'sys-libs/glibc' -e '+' -e 'This change might require ' |\
+    grep -v -F -e 'sys-libs/glibc' -e '+' -e 'This change might require ' |\
     sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
     tr -d ')' |\
     sort -u |\
@@ -714,7 +719,7 @@ function DryRun() {
     sort -u > $fautocirc-$i
 
     if [[ -s $fautocirc-$i ]]; then
-      tail -v $fautocirc-$i
+      tail -v $fautocirc-$i | sed -e 's,^, ,'
       if RunDryrunWrapper "#setup dryrun $attempt-$i # solved circ dep"; then
         return 0
       fi
@@ -722,13 +727,13 @@ function DryRun() {
       rm $fautocirc-$i
     fi
 
-    grep -h -A 100 'The following USE changes are necessary to proceed:' $drylog |\
+    grep -A 100 'The following USE changes are necessary to proceed:' $drylog |\
     grep "^>=" |\
-    grep -v -e '>=sys-devel/gcc' -e '>=sys-libs/glibc' -e '>=.* .*_' |\
+    grep -v -e '>=sys-libs/glibc' -e '>=.* .*_' |\
     sort -u > $fautoflag-$i
 
     if [[ -s $fautoflag-$i ]]; then
-      tail -v $fautoflag-$i
+      tail -v $fautoflag-$i | sed -e 's,^, ,'
       if RunDryrunWrapper "#setup dryrun $attempt-$i # solved flag change"; then
         return 0
       fi
@@ -736,7 +741,8 @@ function DryRun() {
       rm $fautoflag-$i
     fi
 
-    if [[ ! -s $fautocirc-$i && ! -s $fautoflag-$i ]]; then
+    # nothing to tweak, give it up
+    if [[ -z $pkg && ! -s $fautocirc-$i && ! -s $fautoflag-$i ]]; then
       break
     fi
   done
@@ -772,7 +778,7 @@ function ThrowImageUseFlags() {
   while read -r file
   do
     pkg=$(cut -f6-7 -d'/' <<< $file)
-    grep -h 'flag name="' $file |\
+    grep 'flag name="' $file |\
     grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |\
     cut -f2 -d'"' -s |\
     IgnoreUseFlags |\
