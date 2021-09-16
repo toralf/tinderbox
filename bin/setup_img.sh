@@ -694,7 +694,7 @@ function DryRun() {
       local before=$(md5sum $f)
       sed -i -e "/$pkg /d" $f
       local after=$(md5sum $f)
-      if [[ $before = $after ]]; then
+      if [[ ! $before = $after ]]; then
         echo " kicked off $pkg"
         if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
           return 0
