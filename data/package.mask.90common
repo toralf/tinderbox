@@ -39,6 +39,7 @@ sci-libs/libint:2
 <dev-java/stringtemplate-4.0.8
 <dev-lang/ghc-8.10.4
 <dev-libs/boost-1.77.0-r1
+<dev-libs/openssl-3.0.0
 <dev-python/docutils-0.17.1
 <dev-util/ragel-7.0.4
 <net-libs/nodejs-16.6.2

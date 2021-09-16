@@ -7,3 +7,4 @@ rm: cannot remove
 mv: cannot stat
 asciidoctor
 failure unpacking
+unpack: .* does not exist

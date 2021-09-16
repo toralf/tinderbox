@@ -6,7 +6,7 @@
 #
 
 # Whissi
->=dev-libs/openssl-3.0.0_beta2
+>=dev-libs/openssl-3.0.0
 
 # soap:
 ~dev-libs/boost-1.77.0

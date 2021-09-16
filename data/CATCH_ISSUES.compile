@@ -296,3 +296,5 @@ go: updates to .* needed,
 Symbol .* at .* has no .* type.
 pkg_resources.UnknownExtra:
 can.t write to file
+^No module named
+/usr/bin/python.*: No module named
