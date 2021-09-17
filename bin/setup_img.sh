@@ -786,8 +786,6 @@ function ThrowImageUseFlags() {
     xargs |\
     xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
   done > ./etc/portage/package.use/24thrown_package_use_flags
-
-  wc ./etc/portage/package.use/2*
 }
 
 
@@ -831,10 +829,10 @@ function CompileWorkingUseFlags(){
 
 
 function StartImage() {
-  echo -e "\n$(date)\n  setup done"
+  echo -e "\n$(date)\n  setup done\n"
   cd ~tinderbox/run
   ln -s ../img/$name
-  echo
+  wc $name/etc/portage/package.use/2*
   su - tinderbox -c "${0%/*}/start_img.sh $name"
 }
 
