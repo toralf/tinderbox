@@ -223,9 +223,9 @@ do
 done
 
 if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
-  while AnImageReachedEOL
+  while [[ $condition_distance -eq -1 ]] || MinDistanceIsReached
   do
-    if [[ $condition_distance -eq -1 ]] || MinDistanceIsReached; then
+    if AnImageReachedEOL; then
       StopOldImage "$reason"
       setupANewImage
     else
