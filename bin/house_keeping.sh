@@ -26,6 +26,8 @@ if pruneNeeded; then
   while read -r img
   do
     if pruneNeeded; then
+      # https://forums.gentoo.org/viewtopic-p-6072905.html?sid=461188c03d3c4d08de80136a49982d86#6072905
+      [[ -d $img/tmp/.private  ]] && chattr -R -a $img/tmp/.private
       rm -r $img
       sleep 30    # lazy btrfs
     else
