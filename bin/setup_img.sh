@@ -589,7 +589,6 @@ emaint sync --auto 1>/dev/null
 if grep -q LIBTOOL /etc/portage/make.conf; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
-  echo "*/* -audit -cups" >> /etc/portage/package.use/slibtool
   emerge -u sys-devel/slibtool
 fi
 
@@ -666,6 +665,10 @@ function RunDryrunWrapper() {
 
 
 function DryRun() {
+  # $1 is the $attempt
+  local fautocirc=./etc/portage/package.use/27setup-auto-solve-circ-dep-${1:-}
+  local fautoflag=./etc/portage/package.use/27necessary-use-flag-change-${1:-}
+
   cd $mnt
 
   chgrp portage ./etc/portage/package.use/*
@@ -674,9 +677,6 @@ function DryRun() {
   if RunDryrunWrapper "#setup dryrun $attempt"; then
     return 0
   fi
-
-  local fautocirc=./etc/portage/package.use/27setup-auto-solve-circ-dep
-  local fautoflag=./etc/portage/package.use/27necessary-use-flag-change
 
   for i in $(seq 1 9)
   do
@@ -817,7 +817,7 @@ function CompileWorkingUseFlags(){
       echo "==========================================================="
       local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
       ThrowImageUseFlags
-      if DryRun; then
+      if DryRun $attempt; then
         return 0
       fi
       ((attempt++))
