@@ -127,8 +127,8 @@ function StopOldImage() {
     date
     echo " waiting for image unlock ..."
 
-    # do not only put a "STOP" into backlog.1st b/c job.sh might prepend additional task/s onto it
-    # repeated STOP lines to neutralise an external triggered restart
+    # do not just put a "STOP" into backlog.1st b/c job.sh might prepend additional task/s onto it
+    # repeat STOP lines to neutralise an external triggered restart
     cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
 STOP
 STOP
