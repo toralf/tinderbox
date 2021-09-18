@@ -237,7 +237,8 @@ EOF
   date
   echo " cloning ::gentoo"
   cd ./$repodir
-  # "git clone" of a local repo is much slower than cp
+  # "git clone" is much slower than "cp --reflink" at local system
+  # "-t": takes the most recent refdir
   local refdir=~tinderbox/img/$(ls -t ~tinderbox/run | head -n 1)/var/db/repos/gentoo
   if [[ ! -d $refdir ]]; then
   # fallback b/c this does not benefit from --reflinks
@@ -296,7 +297,6 @@ FFLAGS="\${FCFLAGS}"
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
-# test unstable only
 ACCEPT_KEYWORDS="$keyword"
 
 # no re-distribution nor any "usage", just QA
@@ -610,7 +610,7 @@ if [[ $keyword =~ '~' ]]; then
 fi
 
 date
-echo "#setup harfbuzz/freetype" | tee /var/tmp/tb/task
+echo "#setup freetype" | tee /var/tmp/tb/task
 USE="-X" emerge -u media-libs/freetype
 
 eselect profile set --force default/linux/amd64/$profile
