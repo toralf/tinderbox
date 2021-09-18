@@ -26,9 +26,10 @@ function CgroupCreate() {
   # limit each image with -jX to X+0.1 cpus
   local x=$(tr '[\-_]' ' ' <<< $name | xargs -n 1 --no-run-if-empty | grep "^j" | cut -c2-)
   if [[ -z $x || ! $x == +([[:digit:]]) ]]; then
-    echo "got wrong value for -j: $x, set quota to 1"
+    echo "got wrong value for -j: $x so set cgroup quota to 1"
+    x=1
   elif [[ $x -gt 10 ]]; then
-    echo "limit value for -j: $x, set quota to 10"
+    echo "value for -j: $x but limit cgroup quota to 10"
     x=10
   fi
 
