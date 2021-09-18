@@ -15,7 +15,7 @@ function Exit()  {
 
 
 function SearchForMatchingBugs() {
-  local bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search patterns
+  local bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search items
 
   # get away line numbers, certain special terms et al
   sed -e 's,&<[[:alnum:]].*>,,g'  \
