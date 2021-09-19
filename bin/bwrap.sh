@@ -2,7 +2,7 @@
 # set -x
 
 
-# bubblewrap (better chroot) into an image interactively - or - run an entrypoint script
+# bubblewrap (better chroot) into an image interactively - or - run a script in it
 
 
 function Help() {
@@ -23,18 +23,17 @@ function CgroupCreate() {
 
   cgcreate -g cpu,memory:$name
 
-  # limit each image with -jX to X+0.1 cpus
-  local x=$(tr '[\-_]' ' ' <<< $name | xargs -n 1 --no-run-if-empty | grep "^j" | cut -c2-)
-  if [[ -z $x || ! $x == +([[:digit:]]) ]]; then
-    echo "got wrong value for -j: $x so set cgroup quota to 1"
+  # limit each image having -jX in its name to X+0.1 cpus
+  local x=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
+  if [[ -z $x ]]; then
+    echo "got no value for -j , set it to 1"
     x=1
   elif [[ $x -gt 10 ]]; then
-    echo "value for -j: $x but limit cgroup quota to 10"
+    echo "value for -j: $x , limit it to 10"
     x=10
   fi
 
-  local quota
-  ((quota = 10000 + 100000 * $x))
+  local quota=$((100000 * $x + 10000))
   cgset -r cpu.cfs_quota_us=$quota          $name
   cgset -r memory.limit_in_bytes=40G        $name
   cgset -r memory.memsw.limit_in_bytes=70G  $name
