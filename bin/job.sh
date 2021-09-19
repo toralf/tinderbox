@@ -508,34 +508,29 @@ function add2backlog()  {
 
 
 function finishTitle()  {
-    # strip away hex addresses, line and time numbers and other stuff
-    sed -i  -e 's/0x[0-9a-f]*/<snip>/g'         \
-            -e 's/: line [0-9]*:/:line <snip>:/g' \
-            -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
-            -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
-            -e 's,:[[:digit:]]*): ,:<snip>:,g'  \
-            -e 's,([[:digit:]]* of [[:digit:]]*),(<snip> of <snip)>,g'  \
-            -e 's,  *, ,g'                      \
-            -e 's,[0-9]*[\.][0-9]* sec,,g'      \
-            -e 's,[0-9]*[\.][0-9]* s,,g'        \
-            -e 's,([0-9]*[\.][0-9]*s),,g'       \
-            -e 's/ \.\.\.*\./ /g'               \
-            -e 's/___*/_/g'                     \
-            -e 's/; did you mean .* \?$//g'     \
-            -e 's/(@INC contains:.*)/.../g'     \
-            -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
-            -e 's,target /.*/,target <snip>/,g' \
-            -e 's,(\.text\..*):,(<snip>),g'     \
-            -e 's,object index [0-9].*,object index <snip>,g' \
-            $issuedir/title
-
-  # shrink loong path names and :lineno:columno: pattern
-  sed -i  -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
+  # strip away hex addresses, loong path names, line and time numbers and other stuff
+  sed -i  -e 's/0x[0-9a-f]*/<snip>/g'         \
+          -e 's/: line [0-9]*:/:line <snip>:/g' \
+          -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
+          -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
+          -e 's,:[[:digit:]]*): ,:<snip>:,g'  \
+          -e 's,([[:digit:]]* of [[:digit:]]*),(<snip> of <snip)>,g'  \
+          -e 's,[0-9]*[\.][0-9]* sec,,g'      \
+          -e 's,[0-9]*[\.][0-9]* s,,g'        \
+          -e 's,([0-9]*[\.][0-9]*s),,g'       \
+          -e 's/ \.\.\.*\./ /g'               \
+          -e 's/___*/_/g'                     \
+          -e 's/; did you mean .* \?$//g'     \
+          -e 's/(@INC contains:.*)/.../g'     \
+          -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
+          -e 's,target /.*/,target <snip>/,g' \
+          -e 's,(\.text\..*):,(<snip>),g'     \
+          -e 's,object index [0-9].*,object index <snip>,g' \
+          -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
           -e 's,ninja: error: /.*/,ninja error: .../,' \
           -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' \
           -e 's,\*, ,g' \
-          -e 's,  *, ,g' \
-          $issuedir/title
+        $issuedir/title
 
   # prefix title
   sed -i -e "s,^,${pkg} - ," $issuedir/title
@@ -548,6 +543,8 @@ function finishTitle()  {
   if [[ $keyword = "stable" ]]; then
     sed -i -e "s,^,[stable] ," $issuedir/title
   fi
+
+  sed -i -e 's,  *, ,g' $issuedir/title
   truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
 }
 
