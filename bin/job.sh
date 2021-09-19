@@ -355,27 +355,6 @@ function foundGenericIssue() {
     rm -f ./x?? ./issue
 
     popd 1>/dev/null
-
-    # strip away hex addresses, line and time numbers and other stuff
-    sed -i  -e 's/0x[0-9a-f]*/<snip>/g'         \
-            -e 's/: line [0-9]*:/:line <snip>:/g' \
-            -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
-            -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
-            -e 's,:[[:digit:]]*): ,:<snip>:,g'  \
-            -e 's,([[:digit:]]* of [[:digit:]]*),(<snip> of <snip)>,g'  \
-            -e 's,  *, ,g'                      \
-            -e 's,[0-9]*[\.][0-9]* sec,,g'      \
-            -e 's,[0-9]*[\.][0-9]* s,,g'        \
-            -e 's,([0-9]*[\.][0-9]*s),,g'       \
-            -e 's/ \.\.\.*\./ /g'               \
-            -e 's/___*/_/g'                     \
-            -e 's/; did you mean .* \?$//g'     \
-            -e 's/(@INC contains:.*)/.../g'     \
-            -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
-            -e 's,target /.*/,target <snip>/,g' \
-            -e 's,(\.text\..*):,(<snip>),g'     \
-            -e 's,object index [0-9].*,object index <snip>,g' \
-            $issuedir/title
 }
 
 
@@ -408,10 +387,11 @@ function handleTestPhase() {
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
 
-  # for phase "install" grep might hit > 1 matches ("doins failed" and "newins failed")
+  # "-m 1" because for phase "install" grep might have 2 matches ("doins failed" and "newins failed")
+  # "-o" in the 1st grep b/c sometimes perl spews a message into the same line
   phase=$(
-    grep -m 1 " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
-    sed -e 's/.* failed \(.* phase\)/\1/g' | cut -f2 -d'(' | cut -f1 -d' '
+    grep -m 1 -o " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
+    grep -Eo '\(.* ' | cut -c2-
   )
 
   if [[ "$phase" = "test" ]]; then
@@ -434,21 +414,15 @@ function ClassifyIssue() {
     foundGenericIssue
   fi
 
-  # if the issue file size is too big, then delete each round the 1st line till it fits
+  # if the issue file size is too big, then delete the 1st line till it fits
   while :
   do
-    read lines words chars <<< $(wc < $issuedir/issue)
+    read -r lines chars <<< $(wc -l -c < $issuedir/issue)
     if [[ $lines -le 1 || $chars -le 1024 ]]; then
       break
     fi
     sed -i -e "1d" $issuedir/issue
   done
-
-  # shrink loong path names and :lineno:columno: pattern
-  sed -i  -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
-          -e 's,ninja: error: /.*/,ninja error: .../,' \
-          -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' \
-          $issuedir/title
 }
 
 
@@ -494,6 +468,8 @@ EOF
     echo "emerge -qpvO $pkgname"
     emerge -qpvO $pkgname | head -n 1
   ) >> $issuedir/comment0 2>/dev/null
+
+  tail -v */etc/portage/package.*/??$keyword >> $issuedir/comment0 2>/dev/null
 }
 
 # make world state same as if (succesfully) installed deps were emerged step by step in previous emerges
@@ -532,6 +508,35 @@ function add2backlog()  {
 
 
 function finishTitle()  {
+    # strip away hex addresses, line and time numbers and other stuff
+    sed -i  -e 's/0x[0-9a-f]*/<snip>/g'         \
+            -e 's/: line [0-9]*:/:line <snip>:/g' \
+            -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
+            -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
+            -e 's,:[[:digit:]]*): ,:<snip>:,g'  \
+            -e 's,([[:digit:]]* of [[:digit:]]*),(<snip> of <snip)>,g'  \
+            -e 's,  *, ,g'                      \
+            -e 's,[0-9]*[\.][0-9]* sec,,g'      \
+            -e 's,[0-9]*[\.][0-9]* s,,g'        \
+            -e 's,([0-9]*[\.][0-9]*s),,g'       \
+            -e 's/ \.\.\.*\./ /g'               \
+            -e 's/___*/_/g'                     \
+            -e 's/; did you mean .* \?$//g'     \
+            -e 's/(@INC contains:.*)/.../g'     \
+            -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
+            -e 's,target /.*/,target <snip>/,g' \
+            -e 's,(\.text\..*):,(<snip>),g'     \
+            -e 's,object index [0-9].*,object index <snip>,g' \
+            $issuedir/title
+
+  # shrink loong path names and :lineno:columno: pattern
+  sed -i  -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
+          -e 's,ninja: error: /.*/,ninja error: .../,' \
+          -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' \
+          -e 's,\*, ,g' \
+          -e 's,  *, ,g' \
+          $issuedir/title
+
   # prefix title
   sed -i -e "s,^,${pkg} - ," $issuedir/title
   if [[ $phase = "test" ]]; then
@@ -540,6 +545,9 @@ function finishTitle()  {
   if [[ $repo != "gentoo" ]]; then
     sed -i -e "s,^,[$repo overlay] ," $issuedir/title
   fi
+  if [[ $keyword = "stable" ]]; then
+    sed -i -e "s,^,[stable] ," $issuedir/title
+  fi
   truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
 }
 
@@ -547,7 +555,7 @@ function finishTitle()  {
 function IfNewThenSendIssueMail()  {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
-      # no simple cat due to buffered output
+      # wrap cat with echo due to buffered output of cat
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
       echo -e "\n\n    check_bgo.sh ~/img/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
