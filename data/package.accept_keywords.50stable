@@ -1,5 +1,8 @@
 # package.accept_keywords/50stable
 #
 
-# sam, dilfridge
-# sys-devel/gcc:11                    ~amd64
+# by sam, dilfridge
+sys-devel/gcc:11                    ~amd64
+
+# by soap
+~sys-devel/autoconf-2.71            ~amd64
