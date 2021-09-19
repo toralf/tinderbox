@@ -71,6 +71,10 @@ function InitOptions() {
   fi
 
   keyword="~amd64"
+  if __dice 1 39; then
+    keyword="amd64"
+  fi
+
   musl="n"
   science="n"
   testfeature="n"
@@ -349,10 +353,12 @@ function cpconf() {
   do
     read -r dummy suffix filename <<<$(tr '.' ' ' <<< ${f##*/})
     if [[ $keyword =~ '~' ]]; then
+      # do not apply stable definitions to ~amd64
       if [[ $filename =~ "stable" ]]; then
         continue
       fi
     else
+      # do not apply certain definitions to amd64
       if [[ ! $filename =~ "stable" ]]; then
         if [[ $suffix =~ "mask" || $suffix =~ "accept_keywords" ]]; then
           continue
@@ -695,7 +701,6 @@ function DryRun() {
       sed -i -e "/$pkg /d" $f
       local after=$(md5sum $f)
       if [[ ! $before = $after ]]; then
-        echo " kicked off $pkg"
         if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
           return 0
         fi
@@ -719,7 +724,6 @@ function DryRun() {
     sort -u > $fautocirc-$i
 
     if [[ -s $fautocirc-$i ]]; then
-      tail -v $fautocirc-$i | sed -e 's,^, ,'
       if RunDryrunWrapper "#setup dryrun $attempt-$i # solved circ dep"; then
         return 0
       fi
@@ -733,7 +737,6 @@ function DryRun() {
     sort -u > $fautoflag-$i
 
     if [[ -s $fautoflag-$i ]]; then
-      tail -v $fautoflag-$i | sed -e 's,^, ,'
       if RunDryrunWrapper "#setup dryrun $attempt-$i # solved flag change"; then
         return 0
       fi
