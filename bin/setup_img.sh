@@ -589,10 +589,10 @@ useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 
 date
 echo "#setup git" | tee /var/tmp/tb/task
-emerge -u dev-vcs/git
+USE="-cgi -mediawiki -mediawiki-experimental -webdav" emerge -u dev-vcs/git
 emaint sync --auto 1>/dev/null
 
-if grep -q LIBTOOL /etc/portage/make.conf; then
+if grep -q "LIBTOOL" /etc/portage/make.conf; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
   emerge -u sys-devel/slibtool
@@ -672,8 +672,8 @@ function RunDryrunWrapper() {
 
 function DryRun() {
   # $1 is the $attempt
-  local fautocirc=./etc/portage/package.use/27setup-auto-solve-circ-dep-${1:-}
-  local fautoflag=./etc/portage/package.use/27necessary-use-flag-change-${1:-}
+  local fautocirc=./etc/portage/package.use/27-circ-dep-change-${1:-}
+  local fautoflag=./etc/portage/package.use/27-necessary-use-flag-change-${1:-}
 
   cd $mnt
 

@@ -20,15 +20,12 @@ mail-mta/ssmtp                      mta ssl
 # /etc/profile.d/nix.sh overwrites it
 sys-apps/nix                        -etc_profile
 
-# too much deps would always be installed at setup of a new image
+# otherwise https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https
+dev-vcs/git                         curl
+
+# too much deps which would be installed always immediately at setup instead sometimes later
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -qt5
-
-# setup issues
-dev-libs/libpcre*                   -libedit readline
-dev-vcs/git                         -cgi -mediawiki -mediawiki-experimental -webdav
-sys-apps/busybox                    -pam
-sys-apps/shadow                     -cracklib
 
 
 #######################################################################
