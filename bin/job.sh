@@ -455,6 +455,7 @@ EOF
     java-config --list-available-vms --nocolor
     eselect java-vm list
     ghc --version
+    echo "php cli:"
     eselect php list cli
 
     for i in /var/db/repos/*/.git
