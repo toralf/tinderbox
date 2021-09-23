@@ -25,6 +25,7 @@ function SearchForMatchingBugs() {
       -e 's,[<>&\*\?\!], ,g'      \
       -e 's,[\(\)], ,g'           \
       -e 's,  *, ,g'              \
+      -e 's,^\[.*\] ,,g'          \
       $issuedir/title > $bsi
 
   # search first for the same revision/version,then try only category/package name
