@@ -737,6 +737,7 @@ function RunAndCheck() {
       Finish 0 "catched signal $signal - exiting, task=$task"
     else
       Mail "INFO: emerge stopped by signal $signal, task=$task" $tasklog_stripped
+      GotAnIssue
     fi
 
   elif [[ $rc -ne 0 ]]; then
