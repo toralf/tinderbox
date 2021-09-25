@@ -181,8 +181,6 @@ EOF
 
 # gather together what's needed for the email and b.g.o.
 function CollectIssueFiles() {
-  CreateEmergeHistoryFile
-
   apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $tasklog_stripped | grep "\.out"          | cut -f5 -d' ' -s)
   cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $tasklog_stripped | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
   cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $tasklog_stripped | sed  "s/txt./txt/"    | cut -f8 -d' ' -s)
@@ -565,26 +563,35 @@ function IfNewThenSendIssueMail()  {
 
 # analyze the issue
 function GotAnIssue()  {
-  local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped) || true
-  if [[ -n $fatal ]]; then
-    Finish 1 "FATAL: $fatal"
-  fi
+  local emerge_was_killed_by_user=${1:-0}
 
-  if grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $tasklog_stripped; then
-    Finish 1 "KILLED"
+  if [[ $emerge_was_killed_by_user -eq 0 ]]; then
+    local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped) || true
+    if [[ -n $fatal ]]; then
+      Finish 1 "FATAL: $fatal"
+    fi
+
+    if grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $tasklog_stripped; then
+      Finish 1 "KILLED"
+    fi
   fi
 
   pkglog_stripped=$issuedir/$(basename $pkglog)
   filterPlainPext < $pkglog > $pkglog_stripped
-  setWorkDir
-  CollectIssueFiles
-  collectPortageDir
-  CompressIssueFiles
+  if [[ $emerge_was_killed_by_user -eq 0 ]]; then
+    setWorkDir
+    CreateEmergeHistoryFile
+    CollectIssueFiles
+    CompressIssueFiles
+    ClassifyIssue
+  else
+    echo "emerge seemed to hang" > $issuedir/title
+    echo "emerge was killed therefore" > $issuedir/issue
+  fi
 
-  ClassifyIssue
+  collectPortageDir
   finishTitle
   CompileIssueComment0
-
   # grant write permissions to all artifacts
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
@@ -598,7 +605,9 @@ function GotAnIssue()  {
 
   if [[ $try_again -eq 1 ]]; then
     add2backlog "$task"
-  else
+  fi
+
+  if [[ $try_again -eq 0 || $emerge_was_killed_by_user -eq 1 ]]; then
     echo "=$pkg" >> /etc/portage/package.mask/self
   fi
 
@@ -712,49 +721,7 @@ function PostEmerge() {
 }
 
 
-# helper of WorkOnTask()
-# run ($@) and act on result
-function RunAndCheck() {
-  (eval $@; rc=$?; echo; date; exit $rc) &>> $tasklog
-  local rc=$?
-
-  local taskdirname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
-  tasklog_stripped="/var/tmp/tb/logs/$taskdirname.log"
-
-  filterPlainPext < $tasklog > $tasklog_stripped
-  PostEmerge
-
-  if grep -q -F ' -Og -g' /etc/portage/make.conf && [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
-    mkdir -p /var/tmp/tb/core/$taskdirname
-    mv /tmp/core.* /var/tmp/tb/core/$taskdirname
-    Mail "INFO: keep core files in $taskdirname" "$(ls -lh /var/tmp/tb/core/$taskdirname/)"
-  fi
-
-  if [[ $rc -ge 128 ]]; then
-    PutDepsIntoWorldFile
-    ((signal = rc - 128))
-    if [[ $signal -eq 9 ]]; then
-      Finish 0 "catched signal $signal - exiting, task=$task"
-    else
-      Mail "INFO: emerge stopped by signal $signal, task=$task" $tasklog_stripped
-      GotAnIssue
-    fi
-
-  elif [[ $rc -ne 0 ]]; then
-    if grep -q '^>>>' $tasklog_stripped; then
-      if DerivePkgFromTaskLog; then
-        GotAnIssue
-        if [[ $try_again -eq 0 ]]; then
-          PutDepsIntoWorldFile
-        fi
-      else
-        Mail "WARN: can't collect data for $task and rc=$rc" $tasklog_stripped
-      fi
-    elif ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
-      Mail "unrecognized log for $task" $tasklog_stripped
-    fi
-  fi
-
+function catchMisc()  {
   find /var/log/portage/ -type f -newer $taskfile |\
   while read -r pkglog
   do
@@ -792,7 +759,55 @@ EOF
       rm $pkglog_stripped
     fi
   done
+}
 
+
+# helper of WorkOnTask()
+# run ($@) and act on result
+function RunAndCheck() {
+  (eval $@; rc=$?; echo; date; exit $rc) &>> $tasklog
+  local rc=$?
+
+  local taskdirname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
+  tasklog_stripped="/var/tmp/tb/logs/$taskdirname.log"
+
+  filterPlainPext < $tasklog > $tasklog_stripped
+  PostEmerge
+
+  if grep -q -F ' -Og -g' /etc/portage/make.conf && [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
+    mkdir -p /var/tmp/tb/core/$taskdirname
+    mv /tmp/core.* /var/tmp/tb/core/$taskdirname
+    Mail "INFO: keep core files in $taskdirname" "$(ls -lh /var/tmp/tb/core/$taskdirname/)"
+  fi
+
+  if [[ $rc -ge 128 ]]; then
+    PutDepsIntoWorldFile
+    ((signal = rc - 128))
+    if [[ $signal -eq 9 ]]; then
+      Finish 0 "catched signal $signal - exiting, task=$task"
+    else
+      Mail "INFO: emerge stopped by signal $signal, task=$task" $tasklog_stripped
+      if DerivePkgFromTaskLog; then
+        GotAnIssue 1
+      fi
+    fi
+
+  elif [[ $rc -ne 0 ]]; then
+    if grep -q '^>>>' $tasklog_stripped; then
+      if DerivePkgFromTaskLog; then
+        GotAnIssue
+        if [[ $try_again -eq 0 ]]; then
+          PutDepsIntoWorldFile
+        fi
+      else
+        Mail "WARN: can't collect data for $task and rc=$rc" $tasklog_stripped
+      fi
+    elif ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
+      Mail "unrecognized log for $task" $tasklog_stripped
+    fi
+  fi
+
+  catchMisc
   return $rc
 }
 
