@@ -27,7 +27,6 @@ hostname
 i386
 ithreads
 jack
-jemalloc
 jumbo-build
 kill
 libssp

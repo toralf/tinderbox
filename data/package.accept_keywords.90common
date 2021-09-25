@@ -1,15 +1,2 @@
 # package.accept_keywords/90common
 #
-
-
-#######################################################################
-#
-
-# Whissi
->=dev-libs/openssl-3.0.0  **
-
-# soap:
-~dev-libs/boost-1.77.0    **
-
-# sam, dilfridge
-~sys-libs/glibc-2.34      **

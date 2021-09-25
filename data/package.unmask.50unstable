@@ -1,0 +1,13 @@
+# package.unmask/50unstable
+#
+
+
+#######################################################################
+#
+
+# by Whissi
+# >=dev-libs/openssl-3.0.0
+
+# by sam, dilfridge
+~sys-libs/glibc-2.34
+

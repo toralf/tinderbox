@@ -1,4 +1,4 @@
-# package.mask/00common
+# package.mask/90common
 #
 
 # turns /etc/resolv.conf into a symlink: https://bugs.gentoo.org/555694
@@ -34,27 +34,3 @@ x11-wm/stumpwm
 
 # https://bugs.gentoo.org/789804
 sci-libs/libint:2
-
-# flip-flop
-<dev-java/stringtemplate-4.0.8
-<dev-lang/ghc-8.10.4
-<dev-libs/boost-1.77.0-r1
-<dev-libs/openssl-3.0.0
-<dev-python/docutils-0.17.1
-<dev-util/ragel-7.0.4
-<net-libs/nodejs-16.6.2
-<sys-devel/clang-12.0.1
-<sys-devel/llvm-12.0.1
-
-
-#######################################################################
-#
-
-# hangs with sys-libs/glibc-2.34
-dev-java/ibm-jre-bin
-dev-java/icedtea*
-dev-java/openj*
-dev-java/oracle-jdk-bin
-dev-java/sun-jre-bin
-virtual/jre
-virtual/jdk

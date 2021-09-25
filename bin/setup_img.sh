@@ -352,19 +352,6 @@ function cpconf() {
   for f in $*
   do
     read -r dummy suffix filename <<<$(tr '.' ' ' <<< ${f##*/})
-    if [[ $keyword =~ '~' ]]; then
-      # do not apply stable definitions to ~amd64
-      if [[ $filename =~ "stable" ]]; then
-        continue
-      fi
-    else
-      # do not apply certain definitions to amd64
-      if [[ ! $filename =~ "stable" ]]; then
-        if [[ $suffix =~ "mask" || $suffix =~ "accept_keywords" ]]; then
-          continue
-        fi
-      fi
-    fi
     cp $f ./etc/portage/package.$suffix/$filename
   done
 }
@@ -432,7 +419,9 @@ EOF
 
   echo '*/*  jobs' > ./etc/portage/package.env/00jobs
 
-  if [[ ! $keyword =~ '~' ]]; then
+  if [[ $keyword =~ '~' ]]; then
+    cpconf ~tinderbox/tb/data/package.*.??unstable
+  else
     cpconf ~tinderbox/tb/data/package.*.??stable
   fi
 

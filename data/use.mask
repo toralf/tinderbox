@@ -1,7 +1,7 @@
 # use.mask
 #
 
-# (un)mask USE flags globally
+# (un/)mask USE flags globally
 
 cdinstall
 firmware
