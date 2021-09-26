@@ -694,7 +694,7 @@ function DryRun() {
       fi
     fi
 
-    local fautocirc=./etc/portage/package.use/27-$attempt-$i-circ-dep-change
+    local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
 
     grep -A 10 "It might be possible to break this cycle" $drylog |\
     grep -F ' (Change USE: ' |\
@@ -720,7 +720,7 @@ function DryRun() {
       rm $fautocirc
     fi
 
-    local fautoflag=./etc/portage/package.use/27-$attempt-$i-necessary-use-flag-change
+    local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
 
     grep -A 100 'The following USE changes are necessary to proceed:' $drylog |\
     grep "^>=" |\
