@@ -380,17 +380,20 @@ function handleTestPhase() {
 }
 
 
-# helper of GotAnIssue()
-# get the issue and a descriptive title
-function ClassifyIssue() {
-  touch $issuedir/{issue,title}
-
+function setEmergePhase()  {
   # "-m 1" because for phase "install" grep might have 2 matches ("doins failed" and "newins failed")
   # "-o" in the 1st grep b/c sometimes perl spews a message into the same line
   phase=$(
     grep -m 1 -o " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
     grep -Eo '\(.* ' | cut -c2-
   )
+}
+
+
+# helper of GotAnIssue()
+# get the issue and a descriptive title
+function ClassifyIssue() {
+  touch $issuedir/{issue,title}
 
   if [[ "$phase" = "test" ]]; then
     handleTestPhase
@@ -578,6 +581,7 @@ function GotAnIssue()  {
 
   pkglog_stripped=$issuedir/$(basename $pkglog)
   filterPlainPext < $pkglog > $pkglog_stripped
+  setEmergePhase
   if [[ $emerge_was_killed_by_user -eq 0 ]]; then
     setWorkDir
     CreateEmergeHistoryFile
@@ -603,12 +607,23 @@ function GotAnIssue()  {
     return
   fi
 
-  if [[ $try_again -eq 1 ]]; then
-    add2backlog "$task"
+  if [[ $emerge_was_killed_by_user -eq 0 ]]; then
+    if [[ $try_again -eq 0 ]]; then
+      echo "=$pkg" >> /etc/portage/package.mask/self
+    fi
+  else
+    if [[ $phase = "test" ]]; then
+      try_again=1
+      echo "=$pkg" >> /etc/portage/package.env/notest
+      # with "notest" the dependency tree might be changed -> implicit depclean it in @world
+      add2backlog "@world"
+    else
+      echo "=$pkg" >> /etc/portage/package.mask/self
+    fi
   fi
 
-  if [[ $try_again -eq 0 || $emerge_was_killed_by_user -eq 1 ]]; then
-    echo "=$pkg" >> /etc/portage/package.mask/self
+  if [[ $try_again -eq 1 ]]; then
+    add2backlog "$task"
   fi
 
   IfNewThenSendIssueMail
@@ -727,6 +742,8 @@ function catchMisc()  {
   do
     pkglog_stripped=/tmp/$(basename $pkglog)
     filterPlainPext < $pkglog > $pkglog_stripped
+    setEmergePhase
+
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' | tr ':' '/')
       repo=$(portageq metadata / ebuild $pkg repository)
@@ -736,7 +753,6 @@ function catchMisc()  {
       grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped | tee $issuedir/issue | head -n 1 > $issuedir/title
 
       mv $pkglog_stripped $issuedir
-      phase=""
       finishTitle
       cp $issuedir/issue $issuedir/comment0
       cat << EOF >> $issuedir/comment0
