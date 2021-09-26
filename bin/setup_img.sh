@@ -660,9 +660,7 @@ function RunDryrunWrapper() {
 
 
 function DryRun() {
-  # $1 is the $attempt
-  local fautocirc=./etc/portage/package.use/27-circ-dep-change-${1:-}
-  local fautoflag=./etc/portage/package.use/27-necessary-use-flag-change-${1:-}
+  local attempt=$1
 
   cd $mnt
 
@@ -690,11 +688,13 @@ function DryRun() {
       sed -i -e "/$pkg /d" $f
       local after=$(md5sum $f)
       if [[ ! $before = $after ]]; then
-        if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
+        if RunDryrunWrapper "#setup dryrun $attempt # solved unmet requirements"; then
           return 0
         fi
       fi
     fi
+
+    local fautocirc=./etc/portage/package.use/27-$attempt-$i-circ-dep-change
 
     grep -A 10 "It might be possible to break this cycle" $drylog |\
     grep -F ' (Change USE: ' |\
@@ -710,36 +710,38 @@ function DryRun() {
       q=$(qatom -F "%{CATEGORY}/%{PN}" $p)
       printf "%-30s %s\n" $q "$u"
     done |\
-    sort -u > $fautocirc-$i
+    sort -u > $fautocirc
 
-    if [[ -s $fautocirc-$i ]]; then
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved circ dep"; then
+    if [[ -s $fautocirc ]]; then
+      if RunDryrunWrapper "#setup dryrun $attempt # solved circ dep"; then
         return 0
       fi
     else
-      rm $fautocirc-$i
+      rm $fautocirc
     fi
+
+    local fautoflag=./etc/portage/package.use/27-$attempt-$i-necessary-use-flag-change
 
     grep -A 100 'The following USE changes are necessary to proceed:' $drylog |\
     grep "^>=" |\
     grep -v -e '>=sys-libs/glibc' -e '>=.* .*_' |\
-    sort -u > $fautoflag-$i
+    sort -u > $fautoflag
 
-    if [[ -s $fautoflag-$i ]]; then
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved flag change"; then
+    if [[ -s $fautoflag ]]; then
+      if RunDryrunWrapper "#setup dryrun $attempt # solved flag change"; then
         return 0
       fi
     else
-      rm $fautoflag-$i
+      rm $fautoflag
     fi
 
     # nothing to tweak, give it up
-    if [[ -z $pkg && ! -s $fautocirc-$i && ! -s $fautoflag-$i ]]; then
+    if [[ -z $pkg && ! -s $fautocirc && ! -s $fautoflag ]]; then
       break
     fi
   done
 
-  rm -f $fautocirc-* $fautoflag-*
+  rm -f ./etc/portage/package.use/27-$attempt-*
   return 1
 }
 
