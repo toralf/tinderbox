@@ -901,10 +901,9 @@ function WorkOnTask() {
 
 
 # few repeated @preserved-rebuild are ok
-function SquashRebuildLoop() {
-  if [[ n=$(tail -n 15 $taskfile.history | grep -c '@preserved-rebuild') -ge 5 ]]; then
-    echo -e "#\n#\n#\n#\n#\n" >> $taskfile.history
-    echo "@preserved-rebuild" >> /var/tmp/tb/backlog.1st # re-try it asap
+function DetectRebuildLoop() {
+  if [[ $(tail -n 20 $taskfile.history | grep -c '@preserved-rebuild') -ge 6 ]]; then
+    truncate -s 0 /var/tmp/tb/backlog*
     Finish 1 "$FUNCNAME too much @preserved-rebuild" $taskfile.history
   fi
 }
@@ -1002,5 +1001,5 @@ do
   WorkOnTask
   echo "#cleanup" > $taskfile
   rm -rf /var/tmp/portage/*
-  SquashRebuildLoop
+  DetectRebuildLoop
 done
