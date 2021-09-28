@@ -37,12 +37,8 @@ if [[ -s $result ]]; then
   for i in $(__list_images)
   do
     bl=$i/var/tmp/tb/backlog.1st
-    if [[ -s $bl ]]; then
-      # schedule new entries after existing entries, but filter out dups before
-      (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
-    else
-      shuf $result > $bl.tmp
-    fi
+    # filter out dups, then put new entries after existing ones
+    (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     mv $bl.tmp $bl
 
     # force a repo sync before re-test
