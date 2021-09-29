@@ -515,23 +515,25 @@ function finishTitle()  {
           -e 's/: line [0-9]*:/:line <snip>:/g' \
           -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
           -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
-          -e 's,:[[:digit:]]*): ,:<snip>:,g'  \
+          -e 's,:[[:digit:]]*): ,:<snip>:, g'  \
           -e 's,([[:digit:]]* of [[:digit:]]*),(<snip> of <snip)>,g'  \
           -e 's,[0-9]*[\.][0-9]* sec,,g'      \
           -e 's,[0-9]*[\.][0-9]* s,,g'        \
           -e 's,([0-9]*[\.][0-9]*s),,g'       \
           -e 's/ \.\.\.*\./ /g'               \
-          -e 's/___*/_/g'                     \
           -e 's/; did you mean .* \?$//g'     \
           -e 's/(@INC contains:.*)/.../g'     \
           -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
           -e 's,target /.*/,target <snip>/,g' \
           -e 's,(\.text\..*):,(<snip>),g'     \
           -e 's,object index [0-9].*,object index <snip>,g' \
-          -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
-          -e 's,ninja: error: /.*/,ninja error: .../,' \
-          -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' \
-          -e 's,\*, ,g' \
+          -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g'  \
+          -e 's,ninja: error: /.*/,ninja error: .../,'  \
+          -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,'       \
+          -e 's, \w*/.*/\(.*\) , .../\1 ,g' \
+          -e 's,\*, ,g'   \
+          -e 's/___*/_/g' \
+          -e 's/  */ /g'  \
         $issuedir/title
 
   # prefix title
