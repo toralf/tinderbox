@@ -206,7 +206,6 @@ function UnpackStage3()  {
 
 # configure image repositories
 function InitRepositories()  {
-  cd $mnt
   mkdir -p ./etc/portage/repos.conf/
 
   # ::gentoo
@@ -281,13 +280,12 @@ EOF
   fi
 
   echo
+  cd $mnt
 }
 
 
 # compile make.conf
 function CompileMakeConf()  {
-  cd $mnt
-
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
@@ -359,8 +357,6 @@ function cpconf() {
 
 # create portage and tinderbox related directories + files
 function CompilePortageFiles()  {
-  cd $mnt
-
   mkdir -p ./mnt/{repos,tb/data} ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
 
   chgrp portage ./var/tmp/tb/{,logs}
@@ -454,9 +450,9 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  for f in ~tinderbox/tb/data/*use.mask
+  for f in ~tinderbox/tb/data/{package.,}use.mask
   do
-    cat $f >> ./etc/portage/profile/$(basename $f)
+    cp $f ./etc/portage/profile/$(basename $f)
   done
 
   touch ./var/tmp/tb/task
@@ -467,8 +463,6 @@ EOF
 
 
 function CompileMiscFiles()  {
-  cd $mnt
-
   # use local host DNS resolver
   cat << EOF > ./etc/resolv.conf
 domain localdomain
@@ -511,8 +505,6 @@ EOF
 function CreateBacklogs()  {
   local bl=./var/tmp/tb/backlog
 
-  cd $mnt
-
   touch                   $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
@@ -537,8 +529,6 @@ EOF
 
 
 function CreateSetupScript()  {
-  cd $mnt
-
   cat << EOF > ./var/tmp/tb/setup.sh || exit 1
 #!/bin/bash
 # set -x
@@ -631,18 +621,16 @@ function RunSetupScript() {
   date
   echo " run setup script ..."
 
-  cd ~tinderbox/
-  echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > $mnt/var/tmp/tb/setup_wrapper.sh
-
+  echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > ./var/tmp/tb/setup_wrapper.sh
   if nice -n 1 ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
     echo -e " OK"
     return 0
+  else
+    echo -e "$(date)\n $FUNCNAME was NOT ok\n"
+    tail -v -n 100 ./var/tmp/tb/setup.sh.log
+    echo
+    return 1
   fi
-
-  echo -e "$(date)\n $FUNCNAME was NOT ok\n"
-  tail -v -n 100 $mnt/var/tmp/tb/setup.sh.log
-  echo
-  return 1
 }
 
 
@@ -661,8 +649,6 @@ function RunDryrunWrapper() {
 
 function DryRun() {
   local attempt=$1
-
-  cd $mnt
 
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
@@ -683,12 +669,12 @@ function DryRun() {
       sed -e 's,/,\\/,'
     )
     if [[ -n $pkg ]]; then
-      local f="./etc/portage/package.use/24thrown_package_use_flags"
+      local f=./etc/portage/package.use/24thrown_package_use_flags
       local before=$(md5sum $f)
       sed -i -e "/$pkg /d" $f
       local after=$(md5sum $f)
       if [[ ! $before = $after ]]; then
-        if RunDryrunWrapper "#setup dryrun $attempt # solved unmet requirements"; then
+        if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
           return 0
         fi
       fi
@@ -713,7 +699,7 @@ function DryRun() {
     sort -u > $fautocirc
 
     if [[ -s $fautocirc ]]; then
-      if RunDryrunWrapper "#setup dryrun $attempt # solved circ dep"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved circ dep"; then
         return 0
       fi
     else
@@ -728,7 +714,7 @@ function DryRun() {
     sort -u > $fautoflag
 
     if [[ -s $fautoflag ]]; then
-      if RunDryrunWrapper "#setup dryrun $attempt # solved flag change"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved flag change"; then
         return 0
       fi
     else
@@ -748,8 +734,6 @@ function DryRun() {
 
 # varying USE flags till dry run of @world would succeed
 function ThrowImageUseFlags() {
-  cd $mnt
-
   echo "#setup dryrun $attempt # throw flags ..."
 
   grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
@@ -783,9 +767,7 @@ function ThrowImageUseFlags() {
 }
 
 
-function CompileWorkingUseFlags(){
-  cd $mnt
-
+function CompileWorkingUseFlags() {
   echo 'emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
   if [[ -e $useflagfile ]]; then
     date
@@ -870,6 +852,7 @@ do
     a)  abi3264="$OPTARG"     ;;
     c)  cflags="$OPTARG"      ;;
     f)  mnt="$OPTARG"
+        cd $mnt
         name=$(basename $mnt)
         CompileWorkingUseFlags
         StartImage
