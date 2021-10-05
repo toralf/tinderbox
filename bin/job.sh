@@ -1009,6 +1009,7 @@ do
   getNextTask
   WorkOnTask
   echo "#cleanup" > $taskfile
+  truncate -s 0 $tasklog
   rm -rf /var/tmp/portage/*
   DetectRebuildLoop
 done
