@@ -151,6 +151,7 @@ sandbox=(env -i
         --dev /dev
         --mqueue /dev/mqueue
         --perms 1777 --tmpfs /dev/shm
+        --tmpfs                                   /run
         --bind ~tinderbox/tb/data                 /mnt/tb/data
         --bind ~tinderbox/distfiles               /var/cache/distfiles
         --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf

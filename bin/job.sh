@@ -970,7 +970,14 @@ export PAGER="cat"
 
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
-# re-schedule $task
+# https://bugs.gentoo.org/816303
+if [[ $name =~ "_systemd" ]]; then
+  systemd-tmpfiles --create &>/dev/null
+else
+  mkdir /run/lock
+fi
+
+# re-schedule $task (== failed before)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
