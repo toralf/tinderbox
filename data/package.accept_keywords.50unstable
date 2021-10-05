@@ -10,3 +10,6 @@
 
 # sam, dilfridge
 ~sys-libs/glibc-2.34      **
+
+# by sam
+dev-lang/ocaml:4.12       **
