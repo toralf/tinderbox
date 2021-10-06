@@ -24,7 +24,7 @@ function Mail() {
   local subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
   local content=${2:-}
 
-  if [[ -s $content ]]; then
+  if [[ -f $content ]]; then
     echo
     head -n 10000 $content | sed -e 's,^>>>, >>>,'
     echo
@@ -974,7 +974,7 @@ echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 if [[ $name =~ "_systemd" ]]; then
   systemd-tmpfiles --create &>/dev/null
 else
-  mkdir /run/lock
+  RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>/dev/null
 fi
 
 # re-schedule $task (== failed before)
