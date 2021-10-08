@@ -514,7 +514,10 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
+  # the 1st @system might might fail if only @world can resolve all deps initially
+  # so repeat it to get rid of the "S" of the whatsup.sh output
   cat << EOF > $bl.1st
+@system
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
