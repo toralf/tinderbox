@@ -11,5 +11,5 @@
 # by sam, dilfridge
 ~sys-libs/glibc-2.34
 
-# by sam
-dev-lang/ocaml:4.12
+# by sam, tupone
+dev-lang/ocaml:0/4.13
