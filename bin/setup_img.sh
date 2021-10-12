@@ -811,7 +811,7 @@ function StartImage() {
   echo -e "\n$(date)\n  setup done\n"
   cd ~tinderbox/run
   ln -s ../img/$name
-  wc $name/etc/portage/package.use/2*
+  wc -l -w $name/etc/portage/package.use/2*
   su - tinderbox -c "${0%/*}/start_img.sh $name"
 }
 
