@@ -904,7 +904,7 @@ function WorkOnTask() {
 
 # few repeated @preserved-rebuild are ok
 function DetectRebuildLoop() {
-  if [[ $(tail -n 20 $taskfile.history | grep -c '@preserved-rebuild') -ge 6 ]]; then
+  if [[ $(tail -n 20 $taskfile.history | grep -c '@preserved-rebuild') -ge 7 ]]; then
     truncate -s 0 /var/tmp/tb/backlog*
     Finish 1 "$FUNCNAME too much @preserved-rebuild" $taskfile.history
   fi
