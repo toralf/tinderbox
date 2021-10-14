@@ -29,4 +29,3 @@ sys-cluster/vzctl
 # musl specific
 #
 sys-libs/musl
-#

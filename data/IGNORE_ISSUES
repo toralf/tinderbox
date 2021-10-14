@@ -1,76 +1,25 @@
- .CONFIG_
 asciidoctor
  \*   atlas needs all cpu set to performance
-both portaudio and jack are enabled, disable one
-but please install the FUSE libraries and headers to build this module
-Cannot build with randomized sbrk. Your options
-Cannot execute 32-bit applications
-clang does not support the BPF target. Please check LLVM_TARGETS.
-code model kernel not supported in the 32 bit mode
- \* *CONFIG_.*is not set when it should be
-CONFIG_SYSFS_DEPRECATED_V2 support detected!
-CONFIG_.*: *is not set when it should be.
-configure: error: Linux kernel in .* is version .*, but version newer than .* is not supported
-Could not find a usable .config
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.
 dev-python/pypy.* needs to be installed for USE=low-memory
 dev-ruby/.*::gentoo failed (install phase)
-error: format not a string literal and no format arguments
-Fetch instructions for
-flag provided but not defined
 gcc version .* found, expected gcc
-has no attribute SSL_OP_NO_TLSv1_3
 Incompatible gcc version found
-Incorrect kernel configuration options
-INTERNALERROR
-is not a compiled interface for this version of OCaml
-Kernel not configured; no .config found in
-kernel too new
-ld: -r and -pie may not be used together
-Linux >= .* and <= .* required for userspace modules
-Linux .* is the latest supported version
-meson.*Unable to determine dynamic linker
 mingw is needed
 Missing requested third party patch.
-Need FEATURES=-userpriv to run this testsuite
 No LLVM slot <= .* found installed!
-Nonmodular kernel detected, will not build kernel modules
 No pathcc executable was installed, your hardware is unsupported most likely
-No supported Python implementation in PYTHON_SINGLE_TARGET.
-No support for external modules in
 One of the .* use flags must be enabled
 OTP release .* does not match required regex
-pcmcia support is broken on kernels newer
-Please check to make sure these options are set correctly.
-Please disable .* support in your kernel config and recompile your kernel
-Please, run haskell-updater to fix broken packages
 Please switch to a gcc version built with USE=graphite
 Please switch to an openmp compatible compiler
 Please use a supported ICD
 PostgreSQL slot must be set to one of:
-proxy.golang.org
-requires kernel .* or greater.
 Select exactly one database type out of these:
 some Java tools are not available on some VMs on some architectures
-Sorry, but this version does not yet support features
-Sorry, but you have to patch kernel sources with the following patch
-Space constraints set in the ebuild were not met
-SYSVIPC not enabled in the kernel
-The HyperSpec cannot be redistributed.
 The Objective-C compiler does not work o
 The version of your compiler is not supported at this time
-Tried to use too new gcc.
-Unsupported kernel version
-Unsupported version of Rust selected
-Use CONFIG_WIREGUARD=y for this kernel, and do not use this package.
-USE=modules and in-kernel ipset support detected.
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
-.-Wformat-security. ignored without .-Wformat.
-Wformat-security.*ignored without.*Wformat
-WireGuard has been merged upstream into this kernel.
  \* *You need one of the following mpi implementations:
-You need to apply a patch to your kernel to compile and run the aufs4 module
-Your C compiler is too old for this package.
-Your kernel version is not yet tested with this version of phc-intel.

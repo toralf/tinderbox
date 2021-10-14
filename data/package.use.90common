@@ -33,8 +33,11 @@ app-text/ansifilter                 -qt5
 # temp settings
 #
 
-# https://bugs.gentoo.org/show_bug.cgi?id=802435
+# https://bugs.gentoo.org/802435
 dev-lang/ruby                       -jemalloc
+
+# https://bugs.gentoo.org/816867
+sys-kernel/gentoo-kernel-bin        -initramfs
 
 # by sam
 # Disable libcrypt in glibc

@@ -1,8 +1,5 @@
 # package.accept_keywords/50stable
 #
 
-# by sam, dilfridge
-sys-devel/gcc:11                    ~amd64
-
 # by sam, tupone
 dev-lang/ocaml:0/4.12               ~amd64

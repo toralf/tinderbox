@@ -1,18 +1,25 @@
 # package.mask/90common
 #
 
-# turns /etc/resolv.conf into a symlink: https://bugs.gentoo.org/555694
-net-dns/resolvconf-symlink
 
 # calls for trouble by sneaking into PATH
 dev-util/plan9port
 
-# outdated, br0ken, breaks revdep-rebuild, needs special kernel config, ...
+# outdated, br0ken, breaks revdep-rebuild, old kernel, needs special kernel config, ...
 */s6
+app-admin/ryzen_smu
+app-emulation/virtualbox-guest-additions
+app-laptop/tp_smapi
+app-laptop/tuxedo-keyboard
 net-analyzer/openvas
+net-firewall/firehol
+net-firewall/sanewall
+net-misc/r8168
 net-fs/openafs
+net-vpn/wireguard-modules
 sci-libs/linux-gpib-modules
 sys-apps/modutils
+sys-cluster/lustre
 sys-fs/encfs
 sys-fs/loop-aes
 sys-fs/vhba
@@ -21,7 +28,7 @@ x11-drivers/nvidia-drivers
 # obsolete and annoying
 app-vim/curcmdmode
 
-# incredible long compile times
+# way too long compile times
 dev-libs/aws-sdk-cpp
 www-client/chromium
 www-client/google-chrome
@@ -29,8 +36,8 @@ www-client/google-chrome
 # https://bugs.gentoo.org/662396
 sys-fs/static-dev
 
-# https://bugs.gentoo.org/770976
-x11-wm/stumpwm
+# avoid a flip-flop
+<dev-util/ragel-7.0.4
+<sys-devel/clang-12.0.1
+<sys-devel/llvm-12.0.1
 
-# https://bugs.gentoo.org/789804
-sci-libs/libint:2

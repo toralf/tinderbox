@@ -1,4 +1,7 @@
 # package.use.mask
 #
 
-# (un)mask USE flags per category/package
+# mask USE flags per category/package
+
+# turns /etc/resolv.conf into a symlink: https://bugs.gentoo.org/555694
+net-dns/resolvconf-symlink          symlink

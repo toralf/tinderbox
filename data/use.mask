@@ -1,12 +1,13 @@
 # use.mask
 #
 
-# (un/)mask USE flags globally
+# mask USE flags at all
 
 cdinstall
 firmware
 pax-kernel
-pax_kernel
 symlink
 valgrind
-vanilla
+
+# gdk-pixbuf
+gtk-doc
