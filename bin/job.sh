@@ -947,7 +947,7 @@ set -eu
 export LANG=C.utf8
 trap Finish INT QUIT TERM EXIT
 
-taskfile=/var/tmp/tb/task           # holds the current task
+taskfile=/var/tmp/tb/task           # holds the current task (maybe just a #comment)
 tasklog=$taskfile.log               # holds output of the current task
 name=$(cat /etc/conf.d/hostname)    # the image name
 keyword="stable"
@@ -970,11 +970,12 @@ export PAGER="cat"
 
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
+echo "#init /run" > $taskfile
 # https://bugs.gentoo.org/816303
 if [[ $name =~ "_systemd" ]]; then
-  systemd-tmpfiles --create &>/dev/null
+  systemd-tmpfiles --create &>$tasklog
 else
-  RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>/dev/null
+  RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog
 fi
 
 # re-schedule $task (== failed before)
@@ -990,15 +991,13 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  # error-prone
-  for i in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/IGNORE_PACKAGES
-  do
-    if grep -q "^$" $i; then
-      Finish 1 "empty line(s) in $i"
-    fi
-  done
+  # any newline there would foolish the logic and/or drain the backlog asap
+  if grep -q "^$" /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/IGNORE_PACKAGES; then
+    Finish 1 "empty line(s) in data/IGNORE_*"
+  fi
 
   (date; echo) > $tasklog
+  rm -rf /var/tmp/portage/*
   current_time=$(date +%s)
   if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
@@ -1010,6 +1009,5 @@ do
   WorkOnTask
   echo "#cleanup" > $taskfile
   truncate -s 0 $tasklog
-  rm -rf /var/tmp/portage/*
   DetectRebuildLoop
 done
