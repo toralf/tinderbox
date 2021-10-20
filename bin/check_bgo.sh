@@ -201,7 +201,7 @@ if [[ $repo = "gentoo" ]]; then
   if best=$(eval $cmd); then
     if [[ ! $pkg = $best ]]; then
       echo -e "\n    is  NOT  latest"
-      if [[ $# -lt 2 ]]; then
+      if [[ $# -lt 2 ]]; then # 2nd par is just a dummy to continue
         exit 0
       fi
     fi
