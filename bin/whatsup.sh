@@ -264,7 +264,6 @@ function RepoCoverage() {
                 wc -l)
     echo -n "$coverage "
   done
-  echo
 }
 
 
