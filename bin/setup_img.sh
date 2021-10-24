@@ -42,19 +42,19 @@ function GetProfiles() {
 # helper of main()
 # almost are variables here are globals
 function InitOptions() {
-  # 1 process in each of N running images is much more efficient than *up to* N processes in each image
-  # plus -j1 makes it easier to catch the root cause
-  # but:
-  # the compile times are awefully
+  # whilst 1 process in each of N running images is much more efficient than *up to* N processes in each image
+  # and it is much easier to catch the root cause, the compile times are awefully nowadays with -j1
   jobs=4
+
+  profile=$(GetProfiles | shuf -n 1)
 
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
-  if __dice 1 39; then
-    abi3264="y"
+  if [[ ! $profile =~ "/no-multilib" ]]; then
+    if __dice 1 39; then
+      abi3264="y"
+    fi
   fi
-
-  profile=$(GetProfiles | shuf -n 1)
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
   if __dice 1 39; then
