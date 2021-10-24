@@ -818,7 +818,7 @@ function RunAndCheck() {
           PutDepsIntoWorldFile
         fi
       else
-        Mail "WARN: can't collect data for $task and rc=$rc" $tasklog_stripped
+        Mail "WARN: cannot collect data for '$task', rc=$rc" $tasklog_stripped
       fi
     elif ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
       Mail "unrecognized log for $task" $tasklog_stripped
@@ -878,15 +878,19 @@ function WorkOnTask() {
     local cmd="$(cut -c2- <<< $task)"
 
     if ! RunAndCheck "$cmd"; then
-      if [[ $try_again -eq 0 ]]; then
-        if [[ $task =~ " --resume" ]]; then
-          if [[ -n "$pkg" ]]; then
-            add2backlog "%emerge --resume --skip-first"
-          elif grep -q ' Invalid resume list:' $tasklog_stripped; then
-            add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
+      if [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" ]]; then
+        if [[ $try_again -eq 0 ]]; then
+          if [[ $task =~ " --resume" ]]; then
+            if [[ -n "$pkg" ]]; then
+              add2backlog "%emerge --resume --skip-first"
+            elif grep -q ' Invalid resume list:' $tasklog_stripped; then
+              add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
+            else
+              Mail "WARN: dunno how to handle '--resume'" $tasklog_stripped
+            fi
+          else
+            Finish 3 "command: '$cmd'"
           fi
-        elif [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" ]]; then
-          Finish 3 "command: '$cmd'"
         fi
       fi
     fi
