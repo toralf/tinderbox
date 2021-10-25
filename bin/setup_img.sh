@@ -312,11 +312,12 @@ NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
 FEATURES="cgroup xattr -collision-protect -news -splitdebug"
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --with-bdeps=y --verbose-conflicts"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 ALLOW_TEST="network"
 
 CLEAN_DELAY=0
+PKGSYSTEM_ENABLE_FSYNC=0
 
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_ELOG_CLASSES="qa"
