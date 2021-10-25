@@ -27,3 +27,17 @@ function __dice() {
 function __is_running() {
   [[ -d "/run/tinderbox/${1##*/}.lock" ]]
 }
+
+
+# timestamp, prefer creation time of symlink
+function getStartTime() {
+  local image=$1
+
+  local f=~/run/$(basename $image)
+  if [[ -e $f ]]; then
+    stat -c%Y $f
+  else
+    stat -c%Y $image
+  fi
+}
+

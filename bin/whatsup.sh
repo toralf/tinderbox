@@ -6,7 +6,7 @@
 
 function PrintImageName()  {
   # ${n} is the minimum length to distinguish image names
-  n=${2}
+  local n=${2}
   printf "%-${n}s" $(cut -c-$n <<< ${1##*/})
 }
 
@@ -37,19 +37,6 @@ function check_history()  {
     fi
   else
     flags=".$flags"
-  fi
-}
-
-
-# prefer creation time of symlink
-function getStartTime() {
-  local image=$1
-
-  local f=~/run/$(basename $image)
-  if [[ -e $f ]]; then
-    stat -c%Y $f
-  else
-    stat -c%Y $image
   fi
 }
 
