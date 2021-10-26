@@ -1,7 +1,7 @@
 #!/bin/bash
 # set -x
 
-# setup a new image or replace an older one
+# replace an image with a new one
 
 
 function Finish() {
@@ -22,12 +22,12 @@ function Finish() {
 
 
 function GetCompletedEmergeOperations() {
-  grep -c ' ::: completed emerge' ~/run/$oldimg/var/log/emerge.log 2>/dev/null || echo "0"
+  grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log 2>/dev/null || echo "0"
 }
 
 
 function NumberOfPackagesInBacklog()  {
-  wc -l 2>/dev/null < ~/run/$oldimg/var/tmp/tb/backlog || echo "0"
+  wc -l 2>/dev/null < ~/run/$1/var/tmp/tb/backlog || echo "0"
 }
 
 
@@ -75,8 +75,7 @@ function MinDistanceIsReached()  {
     return 1
   fi
 
-  local distance
-  (( distance = ($(date +%s) - $(stat -c%Y ~/run/$newest/etc/conf.d/hostname)) / 3600))
+  local distance=$(( ( $(date +%s) - $(stat -c%Y ~/run/$newest/etc/conf.d/hostname) ) / 3600 ))
   [[ $distance -ge $condition_distance ]]
 }
 
@@ -89,19 +88,18 @@ function MaxCountIsRunning()  {
 
 
 function __ReachedMaxRuntime()  {
-  local runtime
-  ((runtime = ($(date +%s) - $(stat -c%Y ~/run/$oldimg/etc/conf.d/hostname)) / 3600 / 24))
+  local runtime=$(( ( $(date +%s) - $(stat -c%Y ~/run/$1/etc/conf.d/hostname) ) / 3600 / 24))
   [[ $runtime -ge $condition_runtime ]]
 }
 
 
 function __TooSmallBacklog()  {
-  [[ $(NumberOfPackagesInBacklog) -le $condition_left ]]
+  [[ $(NumberOfPackagesInBacklog $1) -le $condition_left ]]
 }
 
 
 function __EnoughCompletedEmergeOperations()  {
-  [[ $(GetCompletedEmergeOperations) -ge $condition_completed ]]
+  [[ $(GetCompletedEmergeOperations $1) -ge $condition_completed ]]
 }
 
 
@@ -109,21 +107,21 @@ function AnImageReachedEOL()  {
   while read -r i
   do
     if [[ $condition_runtime -gt -1 ]]; then
-      if __ReachedMaxRuntime; then
+      if __ReachedMaxRuntime $i; then
         reason="reached max runtime"
         oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_left -gt -1 ]]; then
-      if __TooSmallBacklog; then
+      if __TooSmallBacklog $i; then
         reason="too small backlog"
         oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_completed -gt -1 ]]; then
-      if __EnoughCompletedEmergeOperations; then
+      if __EnoughCompletedEmergeOperations $i; then
         reason="enough completed"
         oldimg=$i
         return 0
