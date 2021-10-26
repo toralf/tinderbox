@@ -16,6 +16,7 @@ function Finish() {
     echo " pid $pid exited with rc=$rc"
   fi
 
+  rm $lockfile
   exit $rc
 }
 
@@ -31,20 +32,36 @@ function NumberOfPackagesInBacklog()  {
 
 
 function AnImageHasAnEmptyBacklog()  {
-  # set $oldimg here intentionally
-  while read -r oldimg
+  while read -r i
   do
-    if [[ -e ~/run/$oldimg ]]; then
-      local bl=~/run/$oldimg/var/tmp/tb/backlog
-      if [[ -f $bl ]]; then
-        if [[ $(wc -l < $bl) -eq 0 ]]; then
-          return 0
-        fi
-      else
-        echo "warn: $bl is missing !"
+    local bl=~/run/$i/var/tmp/tb/backlog
+    if [[ -f $bl ]]; then
+      if [[ $(wc -l < $bl) -eq 0 ]]; then
+        oldimg=$i
+        return 0
       fi
     else
-      echo "warn: ~/run/$oldimg is broken !"
+      echo "warn: $bl is missing !"
+    fi
+  done < <(cd ~/run; ls -dt * 2>/dev/null | tac)
+
+  return 1
+}
+
+
+function WorldBrokenAndOld() {
+  while read -r i
+  do
+    local file=~/run/$i/var/tmp/tb/@world.history
+    if [[ -s $file ]]; then
+      local line=$(tail -n 1 $file)
+      if grep -q " NOT ok $" <<< $line; then
+        local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
+        if [[ $days -ge 4 ]]; then
+          oldimg=$i
+          return 0
+        fi
+      fi
     fi
   done < <(cd ~/run; ls -dt * 2>/dev/null | tac)
 
@@ -89,28 +106,31 @@ function __EnoughCompletedEmergeOperations()  {
 
 
 function AnImageReachedEOL()  {
-  # hint: $oldimg is set here intentionally as a side effect, but it is used only if "0" is returned
-  while read -r oldimg
+  while read -r i
   do
     if [[ $condition_runtime -gt -1 ]]; then
       if __ReachedMaxRuntime; then
         reason="reached max runtime"
+        oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_left -gt -1 ]]; then
       if __TooSmallBacklog; then
         reason="too small backlog"
+        oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_completed -gt -1 ]]; then
       if __EnoughCompletedEmergeOperations; then
         reason="enough completed"
+        oldimg=$i
         return 0
       fi
     fi
-  done < <(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | tac)  # from oldest to newest
+  done < <(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | tac)
+
   return 1
 }
 
@@ -146,6 +166,7 @@ EOF
   fi
 
   rm -- ~/run/$oldimg ~/logs/$oldimg.log
+  oldimg=""
 }
 
 
@@ -161,12 +182,12 @@ function setupANewImage() {
 set -eu
 export LANG=C.utf8
 
+source $(dirname $0)/lib.sh
+
 if [[ ! "$(whoami)" = "tinderbox" ]]; then
   echo " you must be tinderbox"
   exit 1
 fi
-
-trap Finish INT QUIT TERM EXIT
 
 condition_completed=-1      # completed emerge operations
 condition_distance=-1       # distance in hours to the previous image
@@ -174,7 +195,7 @@ condition_left=-1           # left entries in backlogs
 condition_runtime=-1        # age in days for an image
 condition_count=-1          # number of images to be run
 
-oldimg=""                   # optional: image name to be replaced ("-" to add a new one), no paths allowed!
+oldimg=""                   # image to be replaced
 setupargs=""                # argument(s) for setup_img.sh
 
 while getopts c:d:l:n:o:r:s: opt
@@ -197,17 +218,19 @@ if [[ -n "$oldimg" ]]; then
   exec nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
 fi
 
-# do not run automatic mode in parallel
+# do not run in parallel (in automatic mode)
 lockfile="/tmp/${0##*/}.lck"
 if [[ -s "$lockfile" ]]; then
   if kill -0 $(cat $lockfile) 2>/dev/null; then
-    exit 1    # process is running
+    exit 1    # a previous instance is (still) running
   else
     echo " found stale lockfile content:"
     cat $lockfile
   fi
 fi
 echo $$ > "$lockfile" || exit 1
+trap Finish INT QUIT TERM EXIT
+
 
 if [[ $condition_count -gt -1 ]]; then
   while ! MaxCountIsRunning
@@ -222,6 +245,12 @@ do
   setupANewImage
 done
 
+while WorldBrokenAndOld
+do
+  StopOldImage "@world broken"
+  setupANewImage
+done
+
 if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
   while [[ $condition_distance -eq -1 ]] || MinDistanceIsReached
   do
@@ -233,7 +262,5 @@ if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_complete
     fi
   done
 fi
-
-rm $lockfile
 
 Finish $?
