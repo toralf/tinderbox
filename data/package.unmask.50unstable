@@ -8,8 +8,11 @@
 # by Whissi
 # >=dev-libs/openssl-3.0.0
 
-# by sam, dilfridge
+# sam, dilfridge
 ~sys-libs/glibc-2.34
 
 # by sam, tupone
 dev-lang/ocaml:0/4.13
+
+# by dilfridge
+~dev-lang/perl-5.34.0-r5

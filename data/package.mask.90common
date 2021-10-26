@@ -5,7 +5,7 @@
 # calls for trouble by sneaking into PATH
 dev-util/plan9port
 
-# outdated, br0ken, breaks revdep-rebuild, old kernel, needs special kernel config, ...
+# outdated, br0ken, breaks revdep-rebuild, old kernel, needs special kernel config, needs kernel modules from same GCC, ...
 */s6
 app-admin/ryzen_smu
 app-emulation/virtualbox-guest-additions
@@ -15,7 +15,10 @@ net-analyzer/openvas
 net-firewall/firehol
 net-firewall/sanewall
 net-misc/r8168
+net-firewall/ipset
+net-firewall/ipt_netflow
 net-fs/openafs
+net-misc/asterisk
 net-vpn/wireguard-modules
 sci-libs/linux-gpib-modules
 sys-apps/modutils
@@ -40,4 +43,7 @@ sys-fs/static-dev
 <dev-util/ragel-7.0.4
 <sys-devel/clang-12.0.1
 <sys-devel/llvm-12.0.1
+<dev-python/setuptools-58.2.0
 
+# sam
+sys-cluster/nullmpi

@@ -1,7 +1,7 @@
 # package.use/30misc
 #
 
-# this file is randomly given to an image to allow to emerge ...
+# this file is random added to an image to enable emerge of ...
 
 # ... mail-client/thunderbird, www-client/firefox
 #
@@ -19,14 +19,4 @@ sys-libs/ntdb             python
 sys-libs/tdb              python
 sys-libs/tevent           python
 ww-client/firefox         system-icu
-x11-libs/libxcb           xkb
-
-# ... www-client/falkon
-#
-app-text/xmlto            text
-dev-libs/libxml2          icu
-dev-libs/libpcre2         pcre16
-dev-qt/qtwebchannel       qml
-dev-qt/qtwebengine        widgets
-media-libs/libvpx         svc
 x11-libs/libxcb           xkb
