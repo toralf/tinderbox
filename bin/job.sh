@@ -811,17 +811,19 @@ function RunAndCheck() {
     fi
 
   elif [[ $rc -ne 0 ]]; then
-    if grep -q '^>>>' $tasklog_stripped; then
-      if DerivePkgFromTaskLog; then
-        GotAnIssue
-        if [[ $try_again -eq 0 ]]; then
-          PutDepsIntoWorldFile
-        fi
+    if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
+      if ! grep -q '^>>>' $tasklog_stripped; then
+        Mail "unrecognized log for $task" $tasklog_stripped
       else
-        Mail "WARN: cannot collect data for '$task', rc=$rc" $tasklog_stripped
+        if DerivePkgFromTaskLog; then
+          GotAnIssue
+          if [[ $try_again -eq 0 ]]; then
+            PutDepsIntoWorldFile
+          fi
+        else
+          Mail "WARN: cannot collect data for '$task', rc=$rc" $tasklog_stripped
+        fi
       fi
-    elif ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
-      Mail "unrecognized log for $task" $tasklog_stripped
     fi
   fi
 
