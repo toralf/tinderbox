@@ -1,9 +1,9 @@
 # tinderbox
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
-For that N Gentoo images are running in parallel using [bubblewrap](https://github.com/containers/bubblewrap) (a better chroot).
+For that a dozen or more Gentoo images are running in parallel using [bubblewrap](https://github.com/containers/bubblewrap) (a better chroot).
 
-Each image is setup from a recent stage3 tarball as an arbitrary combination of *~amd64* + *profile* + *USE flag* + ... set. Within each image all Gentoo packages are scheduled to be emerged in a randomized order.
+Each image is setup from a recent *stage3* tarball as an arbitrary combination of *~amd64* + *profile* + *USE flag* set. Within each image all Gentoo packages are scheduled in a randomized order for emerge.
 
 ## usage
 ### create a new image
@@ -97,7 +97,6 @@ tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/op
 Create these crontab entries for user *tinderbox*:
 
 ```bash
-$ crontab -l
 # crontab of tinderbox
 #
 
