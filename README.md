@@ -97,16 +97,21 @@ tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/op
 Create these crontab entries for user *tinderbox*:
 
 ```bash
+$ crontab -l
 # crontab of tinderbox
 #
-@reboot   rm ~/run/*/var/tmp/tb/STOP; /opt/tb/bin/start_img.sh
-* * * * * /opt/tb/bin/logcheck.sh
+
+# start images
+@reboot   rm -f ~/run/*/var/tmp/tb/STOP; /opt/tb/bin/start_img.sh
+
+# check logs
+@reboot   while :; do sleep 60; /opt/tb/bin/logcheck.sh; done
 
 # replace an image
-@hourly   /opt/tb/bin/replace_img.sh
+@hourly   f=$(mktemp /tmp/XXXXXX); /opt/tb/bin/replace_img.sh &>$f; cat $f; rm $f
 
 # house keeping
-@daily    /opt/tb/bin/house_keeping.sh
+9 0 * * * sudo /opt/tb/bin/house_keeping.sh
 ```
 
 and this as *root*:
@@ -114,8 +119,6 @@ and this as *root*:
 ```bash
 @reboot   /opt/tb/bin/cgroup.sh
 ```
-
-Watch the mailbox for cron outputs.
 
 ## link(s)
 
