@@ -23,21 +23,14 @@ function __dice() {
 }
 
 
-# lock dir is handled by bwrap and cgroup agent
+# /run/ lock dir is handled by bwrap and cgroup agent
 function __is_running() {
   [[ -d "/run/tinderbox/${1##*/}.lock" ]]
 }
 
-
-# timestamp, prefer creation time of symlink
+# timestamp when setup started
 function getStartTime() {
   local image=$1
-
-  local f=~/run/$(basename $image)
-  if [[ -e $f ]]; then
-    stat -c%Y $f
-  else
-    stat -c%Y $image
-  fi
+  stat -c%Y $image/var/tmp/tb/setup.sh
 }
 
