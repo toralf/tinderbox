@@ -43,13 +43,13 @@ function check_history()  {
 
 # whatsup.sh -o
 #
-# compl fail bug day backlog .upd .1st swprs 7#7 running
+# compl bugs new day backlog .upd .1st swprs 7#7 running
 #  4402   36   1 4.8   16529    7    0  W r  ~/run/17.1-20210306-163653
 #  4042   26   0 5.1   17774   12    2    r  ~/run/17.1_desktop_gnome-20210306-091529
 function Overall() {
   local running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
   local all=$(wc -w <<< $images)
-  echo "compl fail bug  day backlog .upd .1st swprs $running#$all running"
+  echo "compl bugs new  day backlog .upd .1st swprs $running#$all running"
 
   for i in $images
   do
@@ -198,12 +198,12 @@ function LastEmergeOperation()  {
 
 
 # whatsup.sh -p
-#                                                        1d   2d   3d   4d   5d   6d   7d   8d   9d  10d
+#                                                         1d   2d   3d   4d   5d   6d   7d   8d   9d  10d
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
-  printf "%54s" " "
-  for i in $(seq 1 12); do printf "%4id" $i; done
+  printf "%55s" ""
+  for i in $(seq 1 11); do printf "%4id" $i; done
   echo
 
   for i in $(ls -d ~/run/* 2>/dev/null | sort -t '-' -k 3,4)
