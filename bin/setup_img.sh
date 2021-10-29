@@ -477,8 +477,8 @@ EOF
   # point to the tinderbox host system
   local h=$(hostname)
   cat << EOF > ./etc/hosts
-127.0.0.1 localhost $h.localdomain $h
-::1       localhost $h.localdomain $h
+127.0.0.1 localhost $h $name $name.localdomain
+::1       localhost $h $name $name.localdomain
 
 EOF
 
@@ -800,7 +800,7 @@ function CompileWorkingUseFlags() {
       if DryRun $attempt; then
         return 0
       fi
-      ((attempt++))
+      ((++attempt))
     done
     echo -e "\n max attempts reached"
     return 1
