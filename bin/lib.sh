@@ -31,6 +31,10 @@ function __is_running() {
 # timestamp when setup started
 function getStartTime() {
   local image=$1
-  stat -c%Y $image/var/tmp/tb/setup.sh
+  if [[ -s $image/var/tmp/tb/setup.sh ]]; then
+    stat -c%Y $image/var/tmp/tb/setup.sh
+  else
+    stat -c%Y $image
+  fi
 }
 
