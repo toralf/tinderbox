@@ -15,15 +15,18 @@ source $(dirname $0)/lib.sh
 result=/tmp/${0##*/}.txt  # package/s for the appropriate backlog
 truncate -s 0 $result
 
-xargs -n 1 <<< ${@} |\
+grep -e '@' -e '%' <<< ${@} >> $result
+
+grep -v -e '@' -e '%' <<< ${@} |\
+xargs -n 1 |\
 sort -u |\
 grep -v "^$" |\
-while read -r word
+while read -r atom
 do
-  echo "$word" >> $result
+  echo "$atom" >> $result
 
   # delete a package in global and image specific files
-  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$word" 2>/dev/null | grep -v -F '<unset>')
+  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$atom" 2>/dev/null | grep -v -F '<unset>')
   if [[ -n "$pkgname" ]]; then
     sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)/d"  \
         ~/tb/data/ALREADY_CATCHED                     \
