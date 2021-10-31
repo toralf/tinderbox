@@ -568,9 +568,9 @@ function IfNewThenSendIssueMail()  {
 
 # analyze the issue
 function GotAnIssue()  {
-  local emerge_was_killed_by_user=${1:-0}
+  local emerge_was_killed=${1:-0}
 
-  if [[ $emerge_was_killed_by_user -eq 0 ]]; then
+  if [[ $emerge_was_killed -eq 0 ]]; then
     local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped) || true
     if [[ -n $fatal ]]; then
       Finish 1 "FATAL: $fatal"
@@ -584,7 +584,7 @@ function GotAnIssue()  {
   pkglog_stripped=$issuedir/$(basename $pkglog)
   filterPlainPext < $pkglog > $pkglog_stripped
   setEmergePhase
-  if [[ $emerge_was_killed_by_user -eq 0 ]]; then
+  if [[ $emerge_was_killed -eq 0 ]]; then
     setWorkDir
     CreateEmergeHistoryFile
     CollectIssueFiles
@@ -609,7 +609,7 @@ function GotAnIssue()  {
     return
   fi
 
-  if [[ $emerge_was_killed_by_user -eq 0 ]]; then
+  if [[ $emerge_was_killed -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
       echo "=$pkg" >> /etc/portage/package.mask/self
     fi
@@ -801,12 +801,15 @@ function RunAndCheck() {
   if [[ $rc -ge 128 ]]; then
     PutDepsIntoWorldFile
     ((signal = rc - 128))
+    Mail "INFO: got signal $signal, task=$task" $tasklog_stripped
     if [[ $signal -eq 9 ]]; then
-      Finish 0 "catched signal $signal - exiting, task=$task"
-    else
-      Mail "INFO: emerge stopped by signal $signal, task=$task" $tasklog_stripped
+      Finish 0 "exiting"
+    elif [[ $signal -ne 15 ]]; then
       if DerivePkgFromTaskLog; then
         GotAnIssue 1
+        if [[ $try_again -eq 0 ]]; then
+          PutDepsIntoWorldFile
+        fi
       fi
     fi
 
