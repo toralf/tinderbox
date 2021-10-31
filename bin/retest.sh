@@ -15,12 +15,11 @@ source $(dirname $0)/lib.sh
 result=/tmp/${0##*/}.txt  # package/s for the appropriate backlog
 truncate -s 0 $result
 
-grep -e '@' -e '%' <<< ${@} >> $result
+grep -e '@' -e '%' -e '=' <<< ${@} >> $result || true
 
-grep -v -e '@' -e '%' <<< ${@} |\
+grep -v -e '@' -e '%' -e '=' <<< ${@} |\
 xargs -n 1 |\
 sort -u |\
-grep -v "^$" |\
 while read -r atom
 do
   echo "$atom" >> $result
@@ -28,11 +27,13 @@ do
   # delete a package in global and image specific files
   pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$atom" 2>/dev/null | grep -v -F '<unset>')
   if [[ -n "$pkgname" ]]; then
-    sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)/d"  \
+    if ! sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)/d"  \
         ~/tb/data/ALREADY_CATCHED                     \
         ~/run/*/etc/portage/package.mask/self         \
-        ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} \
-        2>/dev/null || true
+        ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null; then
+      # ^^ not all files might exist in current ~/run
+      :
+    fi
   fi
 done
 
