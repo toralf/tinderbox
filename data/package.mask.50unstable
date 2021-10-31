@@ -18,3 +18,12 @@
 
 # by sam, tupone
 <dev-lang/ocaml-4.13.0
+
+# hangs with sys-libs/glibc-2.34
+dev-java/ibm-jre-bin
+dev-java/icedtea*
+dev-java/openj*
+dev-java/oracle-jdk-bin
+dev-java/sun-jre-bin
+virtual/jre
+virtual/jdk
