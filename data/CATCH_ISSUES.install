@@ -42,3 +42,4 @@ convert: no
 : multiple definition of.*: first defined here
  \*   Header checksum mismatch, aborting.
  \* Ebuild author forgot an entry
+ModuleNotFoundError:
