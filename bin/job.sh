@@ -522,7 +522,7 @@ function finishTitle()  {
           -e 's,([0-9]*[\.][0-9]*s),,g'       \
           -e 's/ \.\.\.*\./ /g'               \
           -e 's/; did you mean .* \?$//g'     \
-          -e 's/(@INC contains:.*)/.../g'     \
+          -e 's/(@INC contains:.*)/<@INC snip>/g'     \
           -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
           -e 's,target /.*/,target <snip>/,g' \
           -e 's,(\.text\..*):,(<snip>),g'     \
