@@ -4,33 +4,33 @@
 # create ~tinderbox/img/index.html
 
 
+function listStat()  {
+  cat << EOF >> $tmpfile
+
+<h2>few stats</h2>
+<pre>
+EOF
+
+  date >> $tmpfile
+  $(dirname $0)/whatsup.sh -cpode >> $tmpfile
+  echo -e "\n<pre>\n</p>" >> $tmpfile
+}
+
+
 function listImages()  {
   cat << EOF >> $tmpfile
-
-<br>
-<h2>content of image directory</h2>
-
-<i>image</i>/var/tmp/tb contains ./logs and ./issues
+<h2>content of directory ~tinderbox/img</h2>
+Hint: Tinderbox data are under ./var/tmp/tb
 <br>
 EOF
 
-  ls  ~tinderbox/img/ |\
-  while read d
-  do
-    cat << EOF >> $tmpfile
-  <a href="./$d">$d</a><br>
-EOF
-  done
-
-  cat << EOF >> $tmpfile
-
-EOF
+  ls ~tinderbox/img/ | xargs -r -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
 }
 
 
 function listBugs() {
   cat << EOF >> $tmpfile
-<h2>reported <a href="https://bugs.gentoo.org/">Gentoo Bugs</a></h2>
+<h2>latest reported <a href="https://bugs.gentoo.org/">Gentoo Bugs</a></h2>
 
 <table border="0" align="left" class="list_table">
 
@@ -58,7 +58,7 @@ function listBugs() {
 
 EOF
 
-  ls -t ~tinderbox/img/*/var/tmp/tb/issues/*/.reported |\
+  ls -t ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null |\
   while read -r f
   do
     buguri=$(cat $f)
@@ -108,8 +108,9 @@ cat << EOF >> $tmpfile
 
 EOF
 
-listBugs
+listStat
 listImages
+listBugs
 
 cat << EOF >> $tmpfile
 </html>
