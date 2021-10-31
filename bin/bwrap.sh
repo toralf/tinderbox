@@ -123,16 +123,6 @@ fi
 mkdir -p "$lock_dir"
 trap Cleanup QUIT TERM EXIT
 
-if [[ -n "$entrypoint" ]]; then
-  if [[ -L "$mnt/entrypoint" ]]; then
-    echo "symlinked $mnt/entrypoint forbidden"
-    exit 5
-  fi
-  rm -f             "$mnt/entrypoint"
-  cp "$entrypoint"  "$mnt/entrypoint"
-  chmod 744         "$mnt/entrypoint"
-fi
-
 sandbox=(env -i
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
     HOME=/root
@@ -147,14 +137,14 @@ sandbox=(env -i
         --die-with-parent
         --setenv MAILTO "${MAILTO:-tinderbox}"
         --bind "$mnt"                             /
-        --proc /proc
-        --dev /dev
-        --mqueue /dev/mqueue
-        --perms 1777 --tmpfs /dev/shm
+        --dev                                     /dev
+        --mqueue                                  /dev/mqueue
+        --perms 1777 --tmpfs                      /dev/shm
+        --proc                                    /proc
         --tmpfs                                   /run
+        --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
         --bind ~tinderbox/tb/data                 /mnt/tb/data
         --bind ~tinderbox/distfiles               /var/cache/distfiles
-        --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
         --tmpfs                                   /var/tmp/portage
         --chdir /var/tmp/tb
         /bin/bash -l
@@ -163,6 +153,9 @@ sandbox=(env -i
 CgroupCreate local/${mnt##*/} $$
 
 if [[ -n "$entrypoint" ]]; then
+  rm -f             "$mnt/entrypoint"
+  cp "$entrypoint"  "$mnt/entrypoint"
+  chmod 744         "$mnt/entrypoint"
   ("${sandbox[@]}" -c "/entrypoint")
 else
   ("${sandbox[@]}")
