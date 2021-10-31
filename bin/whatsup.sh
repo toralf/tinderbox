@@ -239,17 +239,18 @@ function PackagesPerImagePerRunDay() {
 # whatsup.sh -r
 #
 # coverage: 17812
-function RepoCoverage() {
-  echo -n "coverage "
+function Coverage() {
   for i in run img
   do
+    echo -n "coverage in ~/$i : "
     coverage=$(grep -H '::: completed emerge' ~/$i/*/var/log/emerge.log |\
                 tr -d ':' |\
                 awk ' { print $7 } ' |\
                 xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
                 sort -u |\
                 wc -l)
-    echo -n "$coverage "
+    ((perc = 100 * $coverage / 19500))
+    echo "$coverage ($perc %)"
   done
 }
 
@@ -294,7 +295,7 @@ function CountEmergesPerPackages()  {
       for my $key (sort keys %pet)  {
         print " ", $key if ($max == $pet{$key});
       }
-      print "\n\n $total emerges         $seen packages\n";
+      print "\n\n $seen package revisions in $total emerges\n";
     }
   ' ~/run/*/var/log/emerge.log
 }
@@ -357,15 +358,15 @@ source $(dirname $0)/lib.sh
 
 images=$(__list_images)
 
-while getopts cehloprt\? opt
+while getopts cdehlopt\? opt
 do
   case $opt in
-    c)  CountEmergesPerPackages   ;;
+    c)  Coverage                  ;;
+    d)  PackagesPerImagePerRunDay ;;
     e)  emergeThruput             ;;
     l)  LastEmergeOperation       ;;
     o)  Overall                   ;;
-    p)  PackagesPerImagePerRunDay ;;
-    r)  RepoCoverage              ;;
+    p)  CountEmergesPerPackages   ;;
     t)  Tasks                     ;;
   esac
   echo
