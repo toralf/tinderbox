@@ -477,8 +477,8 @@ EOF
   # point to the tinderbox host system
   local h=$(hostname)
   cat << EOF > ./etc/hosts
-127.0.0.1 localhost $h $name $name.localdomain
-::1       localhost $h $name $name.localdomain
+127.0.0.1 localhost $h $h.localdomain $name $name.localdomain
+::1       localhost $h $h.localdomain $name $name.localdomain
 
 EOF
 
