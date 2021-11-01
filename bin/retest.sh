@@ -15,23 +15,21 @@ source $(dirname $0)/lib.sh
 result=/tmp/${0##*/}.txt  # package/s for the appropriate backlog
 truncate -s 0 $result
 
-grep -e '@' -e '%' -e '=' <<< ${@} >> $result || true
-
-grep -v -e '@' -e '%' -e '=' <<< ${@} |\
-xargs -n 1 |\
+grep    -e '^@' -e '^%' -e '^='        <<< ${@} >> $result || true
+grep -v -e '^@' -e '^%' -e '^=' -e '#' <<< ${@} |\
+xargs --no-run-if-empty -n 1 |\
 sort -u |\
 while read -r atom
 do
   echo "$atom" >> $result
-
-  # delete a package in global and image specific files
-  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$atom" 2>/dev/null | grep -v -F '<unset>')
+  # delete from global and image specific files
+  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$atom" 2>/dev/null | grep -v -F '<unset>' | sed -e 's,/,\\/,g')
   if [[ -n "$pkgname" ]]; then
-    if ! sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)/d"  \
-        ~/tb/data/ALREADY_CATCHED                     \
-        ~/run/*/etc/portage/package.mask/self         \
+    if ! sed -i -e "/$pkgname/d" \
+        ~/tb/data/ALREADY_CATCHED \
+        ~/run/*/etc/portage/package.mask/self \
         ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null; then
-      # ^^ not all files might exist in current ~/run
+      # ^^ those files might not exist currently
       :
     fi
   fi
@@ -45,7 +43,7 @@ if [[ -s $result ]]; then
     (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     mv $bl.tmp $bl
 
-    # force a repo sync before re-test
+    # force repo sync before all re-test, but once is enough
     sed -i -e '/%syncRepos/d' $bl
     echo "%syncRepos" >> $bl
   done
