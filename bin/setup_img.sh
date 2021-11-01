@@ -7,7 +7,7 @@
 
 # helper of ThrowUseFlags()
 function IgnoreUseFlags()  {
-  grep -v -w -f ~tinderbox/tb/data/IGNORE_USE_FLAGS || true
+  grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS || true
 }
 
 
@@ -30,6 +30,7 @@ function ThrowUseFlags() {
 
 
 # helper of InitOptions()
+# a musl profile has to be selected via command line
 function GetProfiles() {
   eselect profile list |\
   awk ' { print $2 } ' |\
@@ -143,45 +144,49 @@ function CreateImageName()  {
 
 # download, verify and unpack the stage3 file
 function UnpackStage3()  {
-  local latest="$tbdistdir/latest-stage3.txt"
+  local latest=$tbhome/distfiles/latest-stage3.txt
 
   for mirror in $gentoo_mirrors
   do
-    wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest && break
+    if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
+      echo "using mirror: $mirror"
+      break
+    fi
   done
   if [[ ! -s $latest ]]; then
     echo " empty: $latest"
     return 1
   fi
 
+  local stage3
   case $profile in
-    17.1/hardened)                stage3=$(grep "^20.*Z/stage3-amd64-hardened-openrc-20.*\.tar\." $latest) ;;
-    17.1/no-multilib/hardened)    stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-openrc-20.*\.tar\." $latest) ;;
-    17.1/no-multilib/systemd)     stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-systemd-20.*\.tar\." $latest) ;;
-    17.1/no-multilib)             stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-openrc-20.*\.tar\." $latest) ;;
-    17.0/musl/hardened)           stage3=$(grep "^20.*Z/stage3-amd64-musl-hardened-20.*\.tar\." $latest) ;;
-    17.0/musl)                    stage3=$(grep "^20.*Z/stage3-amd64-musl-20.*\.tar\." $latest) ;;
-    17.1*/systemd)                stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
-    17.1/no-multi*/hard*/selinux) stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-selinux-openrc-20.*\.tar\." $latest) ;;
-    17.1/hardened/selinux)        stage3=$(grep "^20.*Z/stage3-amd64-hardened-selinux-openrc-20.*\.tar\." $latest) ;;
-    *)                            stage3=$(grep "^20.*Z/stage3-amd64-openrc-20.*\.tar\." $latest) ;;
+    17.1/hardened)              stage3=$(grep "^20.*Z/stage3-amd64-hardened-openrc-20.*\.tar\." $latest) ;;
+    17.1/no-multilib/hardened)  stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-openrc-20.*\.tar\." $latest) ;;
+    17.1/no-multilib/systemd)   stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-systemd-20.*\.tar\." $latest) ;;
+    17.1/no-multilib)           stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-openrc-20.*\.tar\." $latest) ;;
+    17.1*/systemd)              stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
+    17.1*)                      stage3=$(grep "^20.*Z/stage3-amd64-openrc-20.*\.tar\." $latest) ;;
+    17.0/musl/hardened)         stage3=$(grep "^20.*Z/stage3-amd64-musl-hardened-20.*\.tar\." $latest) ;;
+    17.0/musl)                  stage3=$(grep "^20.*Z/stage3-amd64-musl-20.*\.tar\." $latest) ;;
+    *)                          stage3=""
   esac
-  local stage3=$(cut -f1 -d' ' -s <<< $stage3)
+
+  stage3=$(cut -f1 -d' ' -s <<< $stage3)
   if [[ -z $stage3 || $stage3 =~ [[:space:]] ]]; then
     echo " can't get stage3 filename for profile '$profile' in $latest"
     return 1
   fi
 
-  local f=$tbdistdir/${stage3##*/}
+  local f=$tbhome/distfiles/${stage3##*/}
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo " downloading $f ..."
     local wgeturl="$mirror/releases/amd64/autobuilds"
-    wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbdistdir || return 1
+    wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbhome/distfiles || return 1
   fi
 
   date
-  echo " getting signing key ..."
+  echo " updating signing key ..."
   # use the Gentoo key server, but be relaxed if it doesn't answer
   gpg --keyserver hkps://keys.gentoo.org --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D || true
   date
@@ -191,7 +196,7 @@ function UnpackStage3()  {
 
   CreateImageName
 
-  mnt=~tinderbox/img/$name
+  mnt=$tbhome/img/$name
   mkdir $mnt || return 1
   echo " new image: $mnt"
   echo
@@ -242,7 +247,7 @@ EOF
   cd ./$repodir
   # "git clone" is much slower than "cp --reflink" at local system
   # "-t": takes the most recent refdir
-  local refdir=~tinderbox/img/$(ls -t ~tinderbox/run | head -n 1)/var/db/repos/gentoo
+  local refdir=$tbhome/img/$(ls -t $tbhome/run | head -n 1)/var/db/repos/gentoo
   if [[ ! -d $refdir ]]; then
   # fallback b/c this does not benefit from --reflinks
     refdir=/var/db/repos/gentoo
@@ -417,32 +422,32 @@ EOF
   echo '*/*  jobs' > ./etc/portage/package.env/00jobs
 
   if [[ $keyword =~ '~' ]]; then
-    cpconf ~tinderbox/tb/data/package.*.??unstable
+    cpconf $tbhome/tb/data/package.*.??unstable
   else
-    cpconf ~tinderbox/tb/data/package.*.??stable
+    cpconf $tbhome/tb/data/package.*.??stable
   fi
 
   if [[ $profile =~ '/systemd' ]]; then
-    cpconf ~tinderbox/tb/data/package.*.??systemd
+    cpconf $tbhome/tb/data/package.*.??systemd
   else
-    cpconf ~tinderbox/tb/data/package.*.??openrc
+    cpconf $tbhome/tb/data/package.*.??openrc
   fi
 
-  cpconf ~tinderbox/tb/data/package.*.??common
+  cpconf $tbhome/tb/data/package.*.??common
 
   if [[ $abi3264 = "y" ]]; then
-    cpconf ~tinderbox/tb/data/package.*.??abi32+64
+    cpconf $tbhome/tb/data/package.*.??abi32+64
   fi
 
-  cpconf ~tinderbox/tb/data/package.*.??test-$testfeature
+  cpconf $tbhome/tb/data/package.*.??test-$testfeature
 
   # give Firefox, Thunderbird et al. a better chance
   if __dice 1 13; then
-    cpconf ~tinderbox/tb/data/package.use.30misc
+    cpconf $tbhome/tb/data/package.use.30misc
   fi
 
   # packages either having a -bin variant or shall only rarely been build
-  for p in $(grep -v -e '#' -e'^$' ~tinderbox/tb/data/BIN_OR_SKIP)
+  for p in $(grep -v -e '#' -e'^$' $tbhome/tb/data/BIN_OR_SKIP)
   do
     if ! __dice 1 13; then
       echo "$p" >> ./etc/portage/package.mask/91bin-or-skip
@@ -451,7 +456,7 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  for f in ~tinderbox/tb/data/{package.,}use.mask
+  for f in $tbhome/tb/data/{package.,}use.mask
   do
     cp $f ./etc/portage/profile/$(basename $f)
   done
@@ -592,15 +597,11 @@ emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the destination does already exist (bind-mounted by bwrap.sh)
 emerge -u mail-client/mailx
 
-if [[ $keyword =~ '~' ]]; then
+if [[ $name =~ "desktop" ]]; then
   date
-  echo "#setup libxcrypt" | tee /var/tmp/tb/task
-  emerge -u virtual/libcrypt || emerge -u virtual/libcrypt dev-libs/openssl
+  echo "#setup freetype" | tee /var/tmp/tb/task
+  USE="-X" emerge -u media-libs/freetype
 fi
-
-date
-echo "#setup freetype" | tee /var/tmp/tb/task
-USE="-X" emerge -u media-libs/freetype
 
 eselect profile set --force default/linux/amd64/$profile
 
@@ -810,7 +811,7 @@ function CompileWorkingUseFlags() {
 
 function StartImage() {
   echo -e "\n$(date)\n  setup done\n"
-  cd ~tinderbox/run
+  cd $tbhome/run
   ln -s ../img/$name
   wc -l -w $name/etc/portage/package.use/2*
   su - tinderbox -c "${0%/*}/start_img.sh $name"
@@ -842,8 +843,8 @@ if [[ $# -gt 0 ]]; then
   echo
 fi
 
+tbhome=~tinderbox
 repodir=/var/db/repos
-tbdistdir=~tinderbox/distfiles
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
 
 InitOptions
