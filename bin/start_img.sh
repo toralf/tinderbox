@@ -49,8 +49,7 @@ do
   echo " starting: $mnt"
 
   # nice makes sysstat graphs better readable
-  # "setsid -w" causes the autogroup scheduler (if used) to create a new group
-  nice -n 1 setsid -w sudo $(dirname $0)/bwrap.sh -m "$mnt" -s "$(dirname $0)/job.sh" &> ~/logs/${mnt##*/}.log &
+  nice -n 3 sudo $(dirname $0)/bwrap.sh -m "$mnt" -s "$(dirname $0)/job.sh" &> ~/logs/${mnt##*/}.log &
 done
 
 # avoid an invisible prompt
