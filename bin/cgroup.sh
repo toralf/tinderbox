@@ -29,12 +29,12 @@ do
   echo $agent > /sys/fs/cgroup/$i/release_agent
 done
 
-# prefer a generic identifier
+# prefer a generic identifier both for Tor project and for Gentoo tinderbox
 name=/local
 cgcreate -g cpu,memory:$name
 
-# reserve 2 vCPUs, 18 GB RAM and 64 GB vRAM for host system
-vcpu=${1:-$(( ($(nproc)-3) * 100000 ))}
+# reserve 4 vCPUs, 18 GB RAM and 64 GB swap/RAM for host
+vcpu=${1:-$(( ($(nproc)-4) * 100000 ))}
 ram=${2:-110G}
 vram=${3:-320G}
 cgset -r cpu.cfs_quota_us=$vcpu             $name
