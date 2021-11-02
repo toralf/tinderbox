@@ -11,6 +11,7 @@ app-admin/ryzen_smu
 app-emulation/virtualbox-guest-additions
 app-laptop/tp_smapi
 app-laptop/tuxedo-keyboard
+media-tv/v4l-dvb-saa716x
 net-analyzer/openvas
 net-firewall/firehol
 net-firewall/sanewall
