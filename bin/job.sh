@@ -886,8 +886,6 @@ function WorkOnTask() {
               add2backlog "%emerge --resume --skip-first"
             elif grep -q ' Invalid resume list:' $tasklog_stripped; then
               add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
-            else
-              Mail "WARN: dunno how to handle '--resume'" $tasklog_stripped
             fi
           else
             Finish 3 "command: '$cmd'"
