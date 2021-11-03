@@ -164,6 +164,8 @@ function UnpackStage3()  {
     17.1/no-multilib/hardened)  stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-openrc-20.*\.tar\." $latest) ;;
     17.1/no-multilib/systemd)   stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-systemd-20.*\.tar\." $latest) ;;
     17.1/no-multilib)           stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-openrc-20.*\.tar\." $latest) ;;
+    17.1/desktop*/systemd)      stage3=$(grep "^20.*Z/stage3-amd64-desktop-systemd-20.*\.tar\." $latest) ;;
+    17.1/desktop*)              stage3=$(grep "^20.*Z/stage3-amd64-desktop-openrc-20.*\.tar\." $latest) ;;
     17.1*/systemd)              stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
     17.1*)                      stage3=$(grep "^20.*Z/stage3-amd64-openrc-20.*\.tar\." $latest) ;;
     17.0/musl/hardened)         stage3=$(grep "^20.*Z/stage3-amd64-musl-hardened-20.*\.tar\." $latest) ;;
@@ -306,7 +308,7 @@ $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS="$keyword"
 
-# no re-distribution nor any "usage", just QA
+# just tinderbox, no re-distribution nor any "usage"
 ACCEPT_LICENSE="*"
 
 # no manual interaction
@@ -316,7 +318,7 @@ ACCEPT_RESTRICT="-fetch"
 NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
-FEATURES="cgroup xattr -collision-protect -news -splitdebug"
+FEATURES="cgroup protect-owned xattr-collision-protect -news -splitdebug"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 ALLOW_TEST="network"
@@ -597,15 +599,8 @@ emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the destination does already exist (bind-mounted by bwrap.sh)
 emerge -u mail-client/mailx
 
-if [[ $name =~ "desktop" ]]; then
-  date
-  echo "#setup freetype" | tee /var/tmp/tb/task
-  USE="-X" emerge -u media-libs/freetype
-fi
-
 eselect profile set --force default/linux/amd64/$profile
 
-# switch on the test feature now
 if [[ $testfeature = "y" ]]; then
   sed -i -e 's,FEATURES=",FEATURES="test ,g' /etc/portage/make.conf
 fi
@@ -780,13 +775,11 @@ function CompileWorkingUseFlags() {
     echo
     cp $useflagfile ./etc/portage/package.use/28given_use_flags
     local drylog=./var/tmp/tb/logs/dryrun.log
-    if DryRun; then
-      return 0
-    fi
-    return 1
+    DryRun
+    return $?
   else
-    local attempt=1
-    while [[ $attempt -lt 1000 ]]
+    local attempt=0
+    while [[ $(( ++$attempt )) -le 100 ]]
     do
       if [[ -f ./var/tmp/tb/STOP ]]; then
         echo -e "\n found STOP file"
@@ -801,7 +794,6 @@ function CompileWorkingUseFlags() {
       if DryRun $attempt; then
         return 0
       fi
-      ((++attempt))
     done
     echo -e "\n max attempts reached"
     return 1
