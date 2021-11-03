@@ -30,7 +30,6 @@ function ThrowUseFlags() {
 
 
 # helper of InitOptions()
-# a musl profile has to be selected via command line
 function GetProfiles() {
   eselect profile list |\
   awk ' { print $2 } ' |\
@@ -76,7 +75,6 @@ function InitOptions() {
     keyword="amd64"
   fi
 
-  musl="n"
   testfeature="n"
   if __dice 1 39; then
     testfeature="y"
@@ -100,7 +98,6 @@ function checkBool()  {
 # helper of main()
 function CheckOptions() {
   checkBool "abi3264"
-  checkBool "musl"
   checkBool "testfeature"
 
   if [[ -z $profile ]]; then
@@ -165,8 +162,6 @@ function UnpackStage3()  {
     17.1/desktop*)              stage3=$(grep "^20.*Z/stage3-amd64-desktop-openrc-20.*\.tar\." $latest) ;;
     17.1*/systemd)              stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
     17.1*)                      stage3=$(grep "^20.*Z/stage3-amd64-openrc-20.*\.tar\." $latest) ;;
-    17.0/musl/hardened)         stage3=$(grep "^20.*Z/stage3-amd64-musl-hardened-20.*\.tar\." $latest) ;;
-    17.0/musl)                  stage3=$(grep "^20.*Z/stage3-amd64-musl-20.*\.tar\." $latest) ;;
     *)                          stage3=""
   esac
 
@@ -252,21 +247,6 @@ EOF
     refdir=/var/db/repos/gentoo
   fi
   cp -ar --reflink=auto $refdir ./
-
-  # ::musl
-  if [[ $musl = "y" ]]; then
-    cat << EOF >> ./etc/portage/repos.conf/all.conf
-[musl]
-location  = $repodir/musl
-priority  = 40
-sync-uri  = https://github.com/gentoo/musl.git
-sync-type = git
-
-EOF
-    date
-    echo " cloning ::musl"
-    git clone --quiet https://github.com/gentoo/musl.git
-  fi
 
   echo
   cd $mnt
@@ -399,9 +379,6 @@ RUST_TEST_THREADS=${jobs}
 RUST_TEST_TASKS=${jobs}
 
 EOF
-  if [[ $musl = "y" ]]; then
-    echo 'RUSTFLAGS=" -C target-feature=-crt-static"' >> ./etc/portage/env/jobs
-  fi
 
   echo '*/*  jobs' > ./etc/portage/package.env/00jobs
 
@@ -531,21 +508,6 @@ set -euf
 
 date
 echo "#setup locale + timezone" | tee /var/tmp/tb/task
-
-if [[ ! $musl = "y" ]]; then
-  cat << EOF2 >> /etc/locale.gen
-# by \$0 at \$(date)
-en_US ISO-8859-1
-en_US.UTF-8 UTF-8
-de_DE ISO-8859-1
-de_DE@euro ISO-8859-15
-de_DE.UTF-8@euro UTF-8
-
-EOF2
-
-  locale-gen -j${jobs}
-  eselect locale set C.UTF-8
-fi
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
@@ -823,10 +785,9 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts M:a:c:f:j:k:m:p:s:t:u: opt
+while getopts a:c:f:j:k:m:p:s:t:u: opt
 do
   case $opt in
-    M)  musl="$OPTARG"        ;;
     a)  abi3264="$OPTARG"     ;;
     c)  cflags="$OPTARG"      ;;
     f)  mnt="$OPTARG"
