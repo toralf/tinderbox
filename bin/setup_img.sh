@@ -77,7 +77,6 @@ function InitOptions() {
   fi
 
   musl="n"
-  science="n"
   testfeature="n"
   if __dice 1 39; then
     testfeature="y"
@@ -102,7 +101,6 @@ function checkBool()  {
 function CheckOptions() {
   checkBool "abi3264"
   checkBool "musl"
-  checkBool "science"
   checkBool "testfeature"
 
   if [[ -z $profile ]]; then
@@ -135,7 +133,6 @@ function CreateImageName()  {
   name+="-j${jobs}"
   [[ $keyword =~ '~' ]]     || name+="_stable"
   [[ $abi3264 = "n" ]]      || name+="_abi32+64"
-  [[ $science = "n" ]]      || name+="_science"
   [[ $testfeature = "n" ]]  || name+="_test"
   [[ $cflags =~ O2 ]]       || name+="_debug"
   name+="-$(date +%Y%m%d-%H%M%S)"
@@ -269,21 +266,6 @@ EOF
     date
     echo " cloning ::musl"
     git clone --quiet https://github.com/gentoo/musl.git
-  fi
-
-  # ::science
-  if [[ $science = "y" ]]; then
-    cat << EOF >> ./etc/portage/repos.conf/all.conf
-[science]
-location  = $repodir/science
-priority  = 50
-sync-uri  = https://github.com/gentoo/sci.git
-sync-type = git
-
-EOF
-    date
-    echo " cloning ::science"
-    git clone --quiet https://github.com/gentoo/sci.git
   fi
 
   echo
@@ -841,11 +823,10 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts M:S:a:c:f:j:k:m:p:s:t:u: opt
+while getopts M:a:c:f:j:k:m:p:s:t:u: opt
 do
   case $opt in
     M)  musl="$OPTARG"        ;;
-    S)  science="$OPTARG"     ;;
     a)  abi3264="$OPTARG"     ;;
     c)  cflags="$OPTARG"      ;;
     f)  mnt="$OPTARG"
