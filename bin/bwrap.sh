@@ -133,7 +133,7 @@ sandbox=(env -i
         --unshare-ipc
         --unshare-pid
         --unshare-uts
-        --hostname "$(sed -e 's,[+\.],_,g' <<< ${mnt##*/} | cut -c-57)"
+        --hostname "$(cat ${mnt}/etc/conf.d/hostname)"
         --die-with-parent
         --setenv MAILTO "${MAILTO:-tinderbox}"
         --bind "$mnt"                             /

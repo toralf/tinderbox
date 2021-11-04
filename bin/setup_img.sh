@@ -434,17 +434,16 @@ function CompileMiscFiles()  {
   cat << EOF > ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
-
 EOF
 
-  # choose the image name as a hsot name
-  echo "$name" > ./etc/conf.d/hostname
+  local image_hostname=$(sed -e 's,[+\.],_,g' <<< $name | cut -c-63)
+  echo $image_hostname > ./etc/conf.d/hostname
 
-  # point to the tinderbox host system
-  local h=$(hostname)
+  local host_hostname=$(hostname)
+
   cat << EOF > ./etc/hosts
-127.0.0.1 localhost $h $h.localdomain $name $name.localdomain
-::1       localhost $h $h.localdomain $name $name.localdomain
+127.0.0.1 localhost $host_hostname $host_hostname.localdomain $image_hostname $image_hostname.localdomain
+::1       localhost $host_hostname $host_hostname.localdomain $image_hostname $image_hostname.localdomain
 
 EOF
 
