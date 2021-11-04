@@ -172,7 +172,7 @@ function setupANewImage() {
   echo
   date
   echo " setup a new image ..."
-  nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
+  sudo ${0%/*}/setup_img.sh $setupargs
 }
 
 
