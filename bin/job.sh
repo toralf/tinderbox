@@ -952,7 +952,7 @@ trap Finish INT QUIT TERM EXIT
 
 taskfile=/var/tmp/tb/task           # holds the current task (maybe just a #comment)
 tasklog=$taskfile.log               # holds output of the current task
-name=$(cat /etc/conf.d/hostname)    # the image name
+name=$(cat /var/tmp/tb/name)        # the image name
 keyword="stable"
 if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
   keyword="unstable"
