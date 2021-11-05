@@ -200,6 +200,8 @@ function UnpackStage3()  {
   echo " untar'ing $f ..."
   tar -xpf $f --same-owner --xattrs || return 1
   echo
+
+  echo $name > ./var/tmp/tb/name
 }
 
 
@@ -280,7 +282,7 @@ ACCEPT_RESTRICT="-fetch"
 NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
-FEATURES="cgroup protect-owned xattr-collision-protect -news -splitdebug"
+FEATURES="cgroup protect-owned xattr -collision-protect -news -splitdebug"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 ALLOW_TEST="network"
@@ -436,7 +438,7 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname=$(sed -e 's,[+\.],_,g' <<< $name | cut -c-63)
+  local image_hostname=$(tr -c '[^a-zA-Z0-9]' '-' <<< $name | cut -c-63)
   echo $image_hostname > ./etc/conf.d/hostname
 
   local host_hostname=$(hostname)
@@ -722,7 +724,7 @@ function CompileWorkingUseFlags() {
     return $?
   else
     local attempt=0
-    while [[ $(( ++$attempt )) -le 100 ]]
+    while [[ $(( ++attempt )) -le 100 ]]
     do
       if [[ -f ./var/tmp/tb/STOP ]]; then
         echo -e "\n found STOP file"
