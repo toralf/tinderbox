@@ -70,12 +70,13 @@ function WorldBrokenAndOld() {
 
 
 function MinDistanceIsReached()  {
+  # TODO: use name
   local newest=$(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
   if [[ -z "$newest" ]]; then
     return 1
   fi
 
-  local distance=$(( ( $(date +%s) - $(stat -c%Y ~/run/$newest/etc/conf.d/hostname) ) / 3600 ))
+  local distance=$(( ( $(date +%s) - $(getStartTime $1) ) / 3600 ))
   [[ $distance -ge $condition_distance ]]
 }
 
@@ -88,7 +89,7 @@ function MaxCountIsRunning()  {
 
 
 function __ReachedMaxRuntime()  {
-  local runtime=$(( ( $(date +%s) - $(stat -c%Y ~/run/$1/etc/conf.d/hostname) ) / 3600 / 24))
+  local runtime=$(( ( $(date +%s) - $(getStartTime $1) ) / 3600 / 24))
   [[ $runtime -ge $condition_runtime ]]
 }
 
@@ -143,7 +144,7 @@ function StopOldImage() {
   local lock_dir=/run/tinderbox/$oldimg.lock
   if [[ -d $lock_dir ]]; then
     date
-    echo " waiting for image unlock ..."
+    echo -e "\n waiting for image unlock ..."
 
     # do not just put a "STOP" into backlog.1st b/c job.sh might prepend additional task/s onto it
     # repeat STOP lines to neutralise an external triggered restart
