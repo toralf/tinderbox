@@ -176,7 +176,7 @@ trap Exit INT QUIT TERM EXIT
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.log)
 
 mnt=$issuedir/../../../../..
-name=$(cat $mnt/etc/conf.d/hostname)                          # eg.: 17.1-20201022-101504
+name=$(cat $mnt/var/tmp/tb/name)                              # eg.: 17.1-20201022-101504
 repo=$(cat $issuedir/repository)                              # eg.: gentoo
 pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7-r1
 pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                  # eg.: net-misc/bird
