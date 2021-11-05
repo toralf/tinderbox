@@ -5,26 +5,17 @@
 
 
 function listStat()  {
-  cat << EOF >> $tmpfile
-
-<h2>few stats</h2>
-<pre>
-EOF
-
+  echo -e "<h2>few stats</h2>\n<pre>\n" >> $tmpfile
   date >> $tmpfile
   $(dirname $0)/whatsup.sh -cpode >> $tmpfile
-  echo -e "\n<pre>\n</p>" >> $tmpfile
+  echo -e "\n</pre>\n" >> $tmpfile
 }
 
 
 function listImages()  {
-  cat << EOF >> $tmpfile
-<h2>content of directory ~tinderbox/img</h2>
-Hint: Tinderbox data are under ./var/tmp/tb
-<br>
-EOF
-
+  echo -e "<h2>content of directory ~tinderbox/img</h2>\nHint: Tinderbox data are under ./var/tmp/tb\n<br>\n<pre>"  >> $tmpfile
   ls ~tinderbox/img/ | xargs -r -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
+  echo -e "</pre>\n" >> $tmpfile
 }
 
 
@@ -78,11 +69,7 @@ EOF
 
   done
 
-  cat << EOF >> $tmpfile
-  </tbody>
-</table>
-
-EOF
+  echo -e "  </tbody>\n</table>\n" >> $tmpfile
 }
 
 
