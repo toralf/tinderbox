@@ -42,8 +42,8 @@ function GetProfiles() {
 # helper of main()
 # almost are variables here are globals
 function InitOptions() {
-  # whilst 1 process in each of N running images is much more efficient than *up to* N processes in each image
-  # and it is much easier to catch the root cause, the compile times are awefully nowadays with -j1
+  # whilst 1 process in each of N running images is much more efficient than *up to* M processes in N images
+  # and it is more easier to catch the error message, the compile times are awefully with -j1 nowadays
   jobs=4
 
   profile=$(GetProfiles | shuf -n 1)
@@ -207,7 +207,6 @@ function UnpackStage3()  {
 function InitRepositories()  {
   mkdir -p ./etc/portage/repos.conf/
 
-  # ::gentoo
   cat << EOF >> ./etc/portage/repos.conf/all.conf
 [DEFAULT]
 main-repo = gentoo
@@ -229,27 +228,26 @@ EOF
   # ::local
   mkdir -p       ./$repodir/local/{metadata,profiles}
   echo 'local' > ./$repodir/local/profiles/repo_name
-  cat << EOF  > ./$repodir/local/metadata/layout.conf
+  cat << EOF   > ./$repodir/local/metadata/layout.conf
 [local]
 masters = gentoo
 
 EOF
 
-  # ::gentoo
   date
   echo " cloning ::gentoo"
-  cd ./$repodir
-  # "git clone" is much slower than "cp --reflink" at local system
-  # "-t": takes the most recent refdir
-  local refdir=$tbhome/img/$(ls -t $tbhome/run | head -n 1)/var/db/repos/gentoo
+  # at local system a "git clone" is much slower than a "cp --reflink"
+  # use "img" here due to fs boundaries, but use a running image
+  local refdir=$tbhome/img/$(ls -t $tbhome/run | head -n 1)$repodir/gentoo
   if [[ ! -d $refdir ]]; then
-  # fallback b/c this does not benefit from --reflinks
-    refdir=/var/db/repos/gentoo
+    # fallback is the host
+    refdir=$repodir/gentoo
   fi
+  cd .$repodir
   cp -ar --reflink=auto $refdir ./
+  cd - 1>/dev/null
 
   echo
-  cd $mnt
 }
 
 
@@ -301,8 +299,8 @@ EOF
 if [[ $keyword =~ '~' ]]; then
   if __dice 1 39; then
     cat <<EOF >> ./etc/portage/make.conf
-  LIBTOOL="rdlibtool"
-  MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
+LIBTOOL="rdlibtool"
+MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
 
 EOF
   fi
