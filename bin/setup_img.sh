@@ -200,8 +200,6 @@ function UnpackStage3()  {
   echo " untar'ing $f ..."
   tar -xpf $f --same-owner --xattrs || return 1
   echo
-
-  echo $name > ./var/tmp/tb/name
 }
 
 
@@ -282,7 +280,7 @@ ACCEPT_RESTRICT="-fetch"
 NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
-FEATURES="cgroup protect-owned xattr -collision-protect -news -splitdebug"
+FEATURES="cgroup protect-owned xattr -collision-protect -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 ALLOW_TEST="network"
@@ -333,6 +331,8 @@ function CompilePortageFiles()  {
 
   chgrp portage ./var/tmp/tb/{,logs}
   chmod ug+rwx  ./var/tmp/tb/{,logs}
+
+  echo $name > ./var/tmp/tb/name
 
   for d in profile package.{accept_keywords,env,mask,unmask,use} env
   do
@@ -548,6 +548,10 @@ eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
   sed -i -e 's,FEATURES=",FEATURES="test ,g' /etc/portage/make.conf
+fi
+
+if [[ $name =~ "debug" ]]; then
+  sed -i -e 's,FEATURES=",FEATURES="splitdebug compressdebug ,g' /etc/portage/make.conf
 fi
 
 # sort -u is needed if a package is in more than one repo
