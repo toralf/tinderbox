@@ -76,7 +76,7 @@ function MinDistanceIsReached()  {
     return 1
   fi
 
-  local distance=$(( ( $(date +%s) - $(getStartTime $1) ) / 3600 ))
+  local distance=$(( ( $(date +%s) - $(getStartTime $newest) ) / 3600 ))
   [[ $distance -ge $condition_distance ]]
 }
 
