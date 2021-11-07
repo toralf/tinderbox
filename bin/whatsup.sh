@@ -43,13 +43,13 @@ function check_history()  {
 
 # whatsup.sh -o
 #
-# compl bugs new day backlog .upd .1st swprs 7#7 running
+# compl fail new day backlog .upd .1st swprs 7#7 running
 #  4402   36   1 4.8   16529    7    0  W r  ~/run/17.1-20210306-163653
 #  4042   26   0 5.1   17774   12    2    r  ~/run/17.1_desktop_gnome-20210306-091529
 function Overall() {
   local running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
   local all=$(wc -w <<< $images)
-  echo "compl bugs new  day backlog .upd .1st swprs $running#$all running"
+  echo "compl fail new  day backlog .upd .1st swprs $running#$all running"
 
   for i in $images
   do
@@ -197,7 +197,7 @@ function LastEmergeOperation()  {
 }
 
 
-# whatsup.sh -p
+# whatsup.sh -d
 #                                                         1d   2d   3d   4d   5d   6d   7d   8d   9d  10d
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
@@ -236,26 +236,29 @@ function PackagesPerImagePerRunDay() {
 }
 
 
-# whatsup.sh -r
+# whatsup.sh -c
 #
 # coverage: 17812
 function Coverage() {
+  local n=$(ls -d /var/db/repos/gentoo/*-*/* | wc -l)
+  local perc
   for i in run img
   do
     echo -n "coverage in ~/$i : "
-    coverage=$(grep -H '::: completed emerge' ~/$i/*/var/log/emerge.log |\
+    local coverage=$(grep -H '::: completed emerge' ~/$i/*/var/log/emerge.log |\
+                # handle ::local
                 tr -d ':' |\
                 awk ' { print $7 } ' |\
                 xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
                 sort -u |\
                 wc -l)
-    ((perc = 100 * $coverage / 19500))
+    ((perc = 100 * $coverage / $n))
     echo "$coverage ($perc %)"
   done
 }
 
 
-# whatsup.sh -c
+# whatsup.sh -p
 #
 # packages x emerge times
 # 3006x1 824x2 387x3 197x4 171x5 137x6 154x7 136x8 84x9 79x10 109x11 286x12 6x13 6x14 6x15
