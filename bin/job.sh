@@ -896,11 +896,15 @@ function WorkOnTask() {
 
   # pinned version
   elif [[ $task =~ ^= ]]; then
-    RunAndCheck "emerge $task" || true
+    if ! RunAndCheck "emerge $task"; then
+      Mail "pinned task failed: $task"
+    fi
 
   # a common atom
   else
-    RunAndCheck "emerge --update $task" || true
+    if ! RunAndCheck "emerge --update $task"; then
+      :
+    fi
   fi
 }
 
@@ -909,7 +913,7 @@ function WorkOnTask() {
 function DetectRebuildLoop() {
   if [[ $(tail -n 20 $taskfile.history | grep -c '@preserved-rebuild') -ge 7 ]]; then
     truncate -s 0 /var/tmp/tb/backlog*
-    Finish 1 "$FUNCNAME too much @preserved-rebuild" $taskfile.history
+    Finish 1 "too many @preserved-rebuild" $taskfile.history
   fi
 }
 
