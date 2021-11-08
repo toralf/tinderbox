@@ -260,10 +260,10 @@ function Coverage() {
 
 # whatsup.sh -p
 #
-# packages x emerge times
+# package revisions x emerge times
 # 3006x1 824x2 387x3 197x4 171x5 137x6 154x7 136x8 84x9 79x10 109x11 286x12 6x13 6x14 6x15
 function CountEmergesPerPackages()  {
-  echo "packages x emerge times"
+  echo "package revisions x emerge times"
 
   perl -wane '
     BEGIN {
