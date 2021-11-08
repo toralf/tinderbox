@@ -116,8 +116,6 @@ function Overall() {
 # 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks()  {
-  ((cols = $(tput cols) - 40))
-
   ts=$(date +%s)
   for i in $images
   do
@@ -159,8 +157,6 @@ function Tasks()  {
 # 17.1_desktop_plasma_s  0:02 m  >>> AUTOCLEAN: media-sound/toolame:0
 # 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation()  {
-  ((cols = $(tput cols) - 38))
-
   for i in $images
   do
     PrintImageName $i 30
@@ -360,6 +356,13 @@ unset LC_TIME
 source $(dirname $0)/lib.sh
 
 images=$(__list_images)
+
+# cut too long lines of tasks / last emerge op
+if width=$(tput cols 2>/dev/null); then
+  ((cols = width - 38))
+else
+  cols=100
+fi
 
 while getopts cdehlopt\? opt
 do
