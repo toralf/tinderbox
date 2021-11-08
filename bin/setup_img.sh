@@ -51,13 +51,13 @@ function InitOptions() {
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
-    if __dice 1 39; then
+    if __dice 1 25; then
       abi3264="y"
     fi
   fi
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
-  if __dice 1 39; then
+  if __dice 1 25; then
     # try to debug:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
     cflags_default+=" -Og -g"
   else
@@ -71,12 +71,12 @@ function InitOptions() {
   fi
 
   keyword="~amd64"
-  if __dice 1 39; then
+  if __dice 1 25; then
     keyword="amd64"
   fi
 
   testfeature="n"
-  if __dice 1 39; then
+  if __dice 1 25; then
     testfeature="y"
   fi
   useflagfile=""
@@ -281,8 +281,6 @@ PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 FEATURES="cgroup protect-owned xattr -collision-protect -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
-ALLOW_TEST="network"
-
 CLEAN_DELAY=0
 PKGSYSTEM_ENABLE_FSYNC=0
 
@@ -297,8 +295,9 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 EOF
 
 if [[ $keyword =~ '~' ]]; then
-  if __dice 1 39; then
+  if __dice 1 25; then
     cat <<EOF >> ./etc/portage/make.conf
+# requested by sam
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
 
@@ -306,7 +305,25 @@ EOF
   fi
 fi
 
-  # the "tinderbox" user must be a member of group "portage"
+if [[ $testfeature = "y" ]]; then
+  if __dice 1 2; then
+    cat <<EOF >> ./etc/portage/make.conf
+# requested by mgorny
+ALLOW_TEST="network"
+
+EOF
+  fi
+fi
+
+  if __dice 1 2; then
+    cat <<EOF >> ./etc/portage/make.conf
+# requested by mgorny
+SETUPTOOLS_USE_DISTUTILS=local
+
+EOF
+  fi
+
+  # hint: the user "tinderbox" should be a member of group "portage"
   chgrp portage ./etc/portage/make.conf
   chmod g+w ./etc/portage/make.conf
 }
@@ -314,10 +331,10 @@ fi
 
 # helper of CompilePortageFiles()
 function cpconf() {
-  # eg.: copy  .../package.unmask.??common  to  package.unmask/??common
   for f in $*
   do
     read -r dummy suffix filename <<<$(tr '.' ' ' <<< ${f##*/})
+    # eg.:  .../package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
   done
 }
@@ -749,7 +766,6 @@ function CompileWorkingUseFlags() {
 
 
 function StartImage() {
-  echo -e "\n$(date)\n  setup done\n"
   cd $tbhome/run
   ln -s ../img/$name
   wc -l -w $name/etc/portage/package.use/2*
@@ -830,4 +846,5 @@ CreateBacklogs
 CreateSetupScript
 RunSetupScript
 CompileWorkingUseFlags
+echo -e "\n$(date)\n  setup done\n"
 StartImage
