@@ -7,14 +7,14 @@
 function listStat()  {
   echo -e "<h2>few stats</h2>\n<pre>\n" >> $tmpfile
   date >> $tmpfile
-  $(dirname $0)/whatsup.sh -cpode >> $tmpfile
+  $(dirname $0)/whatsup.sh -cpdeotl | recode ascii..html >> $tmpfile
   echo -e "\n</pre>\n" >> $tmpfile
 }
 
 
 function listImages()  {
   echo -e "<h2>content of directory ~tinderbox/img</h2>\nHint: Tinderbox data are under ./var/tmp/tb\n<br>\n<pre>"  >> $tmpfile
-  ls ~tinderbox/img/ | xargs -r -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
+  ls ~tinderbox/img/ | recode ascii..html | xargs -r -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
   echo -e "</pre>\n" >> $tmpfile
 }
 
