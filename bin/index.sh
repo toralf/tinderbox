@@ -7,7 +7,7 @@
 function listStat()  {
   echo -e "<h2>few stats</h2>\n<pre>\n" >> $tmpfile
   date >> $tmpfile
-  $(dirname $0)/whatsup.sh -cpdeotl | recode ascii..html >> $tmpfile
+  $(dirname $0)/whatsup.sh -cpodetl | recode ascii..html >> $tmpfile
   echo -e "\n</pre>\n" >> $tmpfile
 }
 
