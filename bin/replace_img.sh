@@ -26,12 +26,17 @@ function GetCompletedEmergeOperations() {
 }
 
 
-function NumberOfPackagesInBacklog()  {
+function NumberOfPackagesInBacklog() {
   wc -l 2>/dev/null < ~/run/$1/var/tmp/tb/backlog || echo "0"
 }
 
 
-function AnImageHasAnEmptyBacklog()  {
+function NumberOfNewBugs() {
+  ls $1/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l || true
+}
+
+
+function HasAnEmptyBacklog() {
   while read -r i
   do
     local bl=~/run/$i/var/tmp/tb/backlog
@@ -49,7 +54,7 @@ function AnImageHasAnEmptyBacklog()  {
 }
 
 
-function WorldBrokenAndOld() {
+function WorldBrokenAndTooOldToRepair() {
   while read -r i
   do
     local file=~/run/$i/var/tmp/tb/@world.history
@@ -57,7 +62,7 @@ function WorldBrokenAndOld() {
       local line=$(tail -n 1 $file)
       if grep -q " NOT ok $" <<< $line; then
         local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
-        if [[ $days -ge 4 ]]; then
+        if [[ $days -ge 3 ]]; then
           oldimg=$i
           return 0
         fi
@@ -69,7 +74,7 @@ function WorldBrokenAndOld() {
 }
 
 
-function MinDistanceIsReached()  {
+function MinDistanceIsReached() {
   # TODO: use name
   local newest=$(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
   if [[ -z "$newest" ]]; then
@@ -81,49 +86,51 @@ function MinDistanceIsReached()  {
 }
 
 
-function MaxCountIsRunning()  {
+function FreeSlotAvailable() {
+  if [[ ! $condition_count -gt -1 ]]; then
+    return 1
+  fi
+
   if ! pgrep -f $(dirname $0)/setup_img.sh 1>/dev/null; then
-    [[ $(ls ~/run/ 2>/dev/null | wc -l) -ge $condition_count || $(ls /run/tinderbox 2>/dev/null | wc -l) -ge $condition_count ]]
+    [[ $(ls ~/run/ 2>/dev/null | wc -l) -lt $condition_count && $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $condition_count ]]
   fi
 }
 
 
-function __ReachedMaxRuntime()  {
-  local runtime=$(( ( $(date +%s) - $(getStartTime $1) ) / 3600 / 24))
-  [[ $runtime -ge $condition_runtime ]]
-}
+function ReplaceAnImage() {
+  if [[ $condition_distance -gt -1 ]]; then
+    if ! MinDistanceIsReached; then
+      return 1
+    fi
+  fi
 
-
-function __TooSmallBacklog()  {
-  [[ $(NumberOfPackagesInBacklog $1) -le $condition_left ]]
-}
-
-
-function __EnoughCompletedEmergeOperations()  {
-  [[ $(GetCompletedEmergeOperations $1) -ge $condition_completed ]]
-}
-
-
-function AnImageReachedEOL()  {
   while read -r i
   do
     if [[ $condition_runtime -gt -1 ]]; then
-      if __ReachedMaxRuntime $i; then
-        reason="reached max runtime"
+      local runtime=$(( ( $(date +%s) - $(getStartTime $i) ) / 3600 / 24))
+      if [[ $runtime -ge $condition_runtime ]]; then
+        reason="max runtime reached"
         oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_left -gt -1 ]]; then
-      if __TooSmallBacklog $i; then
-        reason="too small backlog"
+      if [[ $(NumberOfPackagesInBacklog $i) -le $condition_left ]]; then
+        reason="backlog is small enough"
         oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_completed -gt -1 ]]; then
-      if __EnoughCompletedEmergeOperations $i; then
+      if [[ $(GetCompletedEmergeOperations $i) -ge $condition_completed ]]; then
         reason="enough completed"
+        oldimg=$i
+        return 0
+      fi
+    fi
+    if [[ $condition_bugs -gt -1 ]]; then
+      if [[ $(NumberOfNewBugs $i) -eq 0 && $(GetCompletedEmergeOperations $i) -ge $condition_bugs ]] ; then
+        reason="no new bugs found"
         oldimg=$i
         return 0
       fi
@@ -193,13 +200,15 @@ condition_distance=-1       # distance in hours to the previous image
 condition_left=-1           # left entries in backlogs
 condition_runtime=-1        # age in days for an image
 condition_count=-1          # number of images to be run
+condition_bugs=-1           # number of (reported) bugs
 
 oldimg=""                   # image to be replaced
 setupargs=""                # argument(s) for setup_img.sh
 
-while getopts c:d:l:n:o:r:s: opt
+while getopts b:c:d:l:n:o:r:s: opt
 do
   case "$opt" in
+    b)  condition_bugs="$OPTARG"        ;;
     c)  condition_completed="$OPTARG"   ;;
     d)  condition_distance="$OPTARG"    ;;
     l)  condition_left="$OPTARG"        ;;
@@ -230,36 +239,27 @@ fi
 echo $$ > "$lockfile" || exit 1
 trap Finish INT QUIT TERM EXIT
 
+while FreeSlotAvailable
+do
+  setupANewImage
+done
 
-if [[ $condition_count -gt -1 ]]; then
-  while ! MaxCountIsRunning
-  do
-    setupANewImage
-  done
-fi
-
-while AnImageHasAnEmptyBacklog
+while HasAnEmptyBacklog
 do
   StopOldImage "empty backlogs"
   setupANewImage
 done
 
-while WorldBrokenAndOld
+while WorldBrokenAndTooOldToRepair
 do
   StopOldImage "@world broken"
   setupANewImage
 done
 
-if [[ $condition_runtime -gt -1 || $condition_left -gt -1 || $condition_completed -gt -1 ]]; then
-  while [[ $condition_distance -eq -1 ]] || MinDistanceIsReached
-  do
-    if AnImageReachedEOL; then
-      StopOldImage "$reason"
-      setupANewImage
-    else
-      break
-    fi
-  done
-fi
+while ReplaceAnImage
+do
+  StopOldImage "$reason"
+  setupANewImage
+done
 
 Finish $?
