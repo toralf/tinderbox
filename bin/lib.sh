@@ -28,14 +28,13 @@ function __is_running() {
   [[ -d "/run/tinderbox/${1##*/}.lock" ]]
 }
 
-# prefer timestamp when setup started
 function getStartTime() {
   local image=~tinderbox/img/$(basename $1)
 
-  if [[ -s $image/var/tmp/tb/setup.sh ]]; then
-    stat -c%Y $image/var/tmp/tb/setup.sh
+  if [[ -s $image/var/tmp/tb/name ]]; then
+    stat -c%Y $image/var/tmp/tb/name
   else
-    stat -c%Y $image
+    date +%s
   fi
 }
 

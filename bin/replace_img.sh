@@ -32,7 +32,7 @@ function NumberOfPackagesInBacklog() {
 
 
 function NumberOfNewBugs() {
-  ls $1/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l || true
+ ls $1/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l || echo "0"
 }
 
 
@@ -76,7 +76,7 @@ function WorldBrokenAndTooOldToRepair() {
 
 function MinDistanceIsReached() {
   # TODO: use name
-  local newest=$(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
+  local newest=$(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
   if [[ -z "$newest" ]]; then
     return 1
   fi
@@ -135,7 +135,7 @@ function ReplaceAnImage() {
         return 0
       fi
     fi
-  done < <(cd ~/run; ls -t */etc/conf.d/hostname 2>/dev/null | cut -f1 -d'/' -s | tac)
+  done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)
 
   return 1
 }
@@ -200,7 +200,7 @@ condition_distance=-1       # distance in hours to the previous image
 condition_left=-1           # left entries in backlogs
 condition_runtime=-1        # age in days for an image
 condition_count=-1          # number of images to be run
-condition_bugs=-1           # number of (reported) bugs
+condition_bugs=-1           # number of emerges w/o new (==reported) bugs
 
 oldimg=""                   # image to be replaced
 setupargs=""                # argument(s) for setup_img.sh
