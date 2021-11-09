@@ -14,8 +14,8 @@
 # 2x faster compile
 */*                                 jumbo-build
 
-# MTA
-mail-mta/ssmtp                      mta ssl
+# MTA of the tinderbox image
+mail-mta/ssmtp                      mta ssl -gnutls
 
 # /etc/profile.d/nix.sh overwrites it
 sys-apps/nix                        -etc_profile
@@ -23,7 +23,7 @@ sys-apps/nix                        -etc_profile
 # otherwise https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
-# too much deps which would be installed always immediately at setup instead sometimes later
+# too much deps which would be installed always immediately at setup
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -qt5
 
@@ -38,9 +38,3 @@ dev-lang/ruby                       -jemalloc
 
 # https://bugs.gentoo.org/816867
 sys-kernel/gentoo-kernel-bin        -initramfs
-
-# by sam
-# Disable libcrypt in glibc
->=sys-libs/glibc-2.33-r5            -crypt
-# Provide libcrypt
->=sys-libs/libxcrypt-4.4.24         system

@@ -33,7 +33,7 @@ mbedtls
 
 # (openssl-3.0) - [TRACKER] packages failing with =dev-libs/openssl-3.0.0
 797325
-EVP_|RSA_SSLV23_PADDING|VERSION_OPENSSL_|error: key undeclared|FIPS_|ERR_GET_FUNC|CRYPTO_|ctx|get_dh2048|ssl|SSL|INT_MAX|HMAC_|rsa_|CRYPTO_|DSA|ENGINE_.*deprecated
+EVP_|RSA_SSLV23_PADDING|VERSION_OPENSSL_|error: key undeclared|FIPS_|ERR_GET_FUNC|CRYPTO_|ctx|get_dh2048|INT_MAX|HMAC_|rsa_|CRYPTO_|DSA|ENGINE_.*deprecated
 
 # (glibc-2.34) - [TRACKER] sys-libs/glibc-2.34 related issues
 803482
@@ -42,3 +42,11 @@ variably modified .* at file scope|size of array .* is not an integral|void valu
 # [TRACKER] Packages relying on setuptools' use_2to3 option
 812149
 : SetuptoolsDeprecationWarning: 2to3|/site-packages/setuptools/lib2to3_ex.py:
+
+# [Tracker] Packages failing with dev-util/meson-0.60.0
+821545
+got unknown keyword arguments
+
+# [TRACKER] Packages broken by SETUPTOOLS_USE_DISTUTILS=local
+822354
+No module named

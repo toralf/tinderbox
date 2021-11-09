@@ -1,13 +1,15 @@
 # use.mask
 #
 
-# mask USE flags at all
+# USE flag mask at all
 
 cdinstall
+cuda
 firmware
 pax-kernel
+rados
 symlink
 valgrind
 
-# gdk-pixbuf
+# gdk-pixbuf issue
 gtk-doc

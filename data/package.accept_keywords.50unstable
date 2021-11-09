@@ -5,11 +5,11 @@
 #######################################################################
 #
 
-# by Whissi
-# >=dev-libs/openssl-3.0.0          **
-
 # sam, dilfridge
 ~sys-libs/glibc-2.34                **
 
 # by sam, tupone
 dev-lang/ocaml:0/4.13               **
+
+# by sam
+~dev-util/meson-0.61.1              **
