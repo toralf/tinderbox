@@ -32,7 +32,7 @@ function NumberOfPackagesInBacklog() {
 
 
 function NumberOfNewBugs() {
- ls $1/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l || echo "0"
+ ls ~/run/$1/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l || echo "0"
 }
 
 
