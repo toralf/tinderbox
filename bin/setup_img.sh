@@ -294,26 +294,26 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-if [[ $keyword =~ '~' ]]; then
-  if __dice 1 25; then
-    cat <<EOF >> ./etc/portage/make.conf
+  if [[ $keyword =~ '~' ]]; then
+    if __dice 1 25; then
+      cat <<EOF >> ./etc/portage/make.conf
 # requested by sam
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
 
 EOF
+    fi
   fi
-fi
 
-if [[ $testfeature = "y" ]]; then
-  if __dice 1 2; then
-    cat <<EOF >> ./etc/portage/make.conf
+  if [[ $testfeature = "y" ]]; then
+    if __dice 1 2; then
+      cat <<EOF >> ./etc/portage/make.conf
 # requested by mgorny
 ALLOW_TEST="network"
 
 EOF
+    fi
   fi
-fi
 
   if __dice 1 2; then
     cat <<EOF >> ./etc/portage/make.conf
