@@ -109,28 +109,28 @@ function ReplaceAnImage() {
     if [[ $condition_runtime -gt -1 ]]; then
       local runtime=$(( ( $(date +%s) - $(getStartTime $i) ) / 3600 / 24))
       if [[ $runtime -ge $condition_runtime ]]; then
-        reason="max runtime reached"
+        reason="runtime >$condition_runtime days"
         oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_left -gt -1 ]]; then
       if [[ $(NumberOfPackagesInBacklog $i) -le $condition_left ]]; then
-        reason="backlog is small enough"
+        reason="backlog <$condition_left lines"
         oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_completed -gt -1 ]]; then
       if [[ $(GetCompletedEmergeOperations $i) -ge $condition_completed ]]; then
-        reason="enough completed"
+        reason=">$condition_completed emerges completed"
         oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_bugs -gt -1 ]]; then
       if [[ $(NumberOfNewBugs $i) -eq 0 && $(GetCompletedEmergeOperations $i) -ge $condition_bugs ]] ; then
-        reason="no new bugs found"
+        reason="no new bugs found in $condition_bugs emerges"
         oldimg=$i
         return 0
       fi
@@ -252,7 +252,7 @@ done
 
 while WorldBrokenAndTooOldToRepair
 do
-  StopOldImage "@world broken"
+  StopOldImage "@world broken:  $oldimg/var/tmp/tb/@world.last.log"
   setupANewImage
 done
 
