@@ -263,7 +263,6 @@ CXXFLAGS="\${CFLAGS}"
 FCFLAGS="$cflags_default"
 FFLAGS="\${FCFLAGS}"
 
-LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS="$keyword"
@@ -285,6 +284,7 @@ CLEAN_DELAY=0
 PKGSYSTEM_ENABLE_FSYNC=0
 
 PORT_LOGDIR="/var/log/portage"
+
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="root@localhost"
@@ -305,6 +305,10 @@ EOF
     fi
   fi
 
+  if __dice 1 2; then
+    echo -e "LDFLAGS=\"\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0\"\n" >> ./etc/portage/make.conf
+  fi
+
   if [[ $testfeature = "y" ]]; then
     if __dice 1 2; then
       cat <<EOF >> ./etc/portage/make.conf
@@ -315,7 +319,7 @@ EOF
     fi
   fi
 
-  if __dice 1 2; then
+  if __dice 1 4; then
     cat <<EOF >> ./etc/portage/make.conf
 # requested by mgorny
 SETUPTOOLS_USE_DISTUTILS=local
