@@ -48,7 +48,8 @@ www-client/google-chrome
 # sam
 sys-cluster/nullmpi
 
-# hangs with sys-libs/glibc-2.34
-dev-java/*
-virtual/jre
-virtual/jdk
+# https://bugs.gentoo.org/807832
+#app-eselect/eselect-java
+#dev-java/*
+#virtual/jdk
+#virtual/jre

@@ -1,7 +1,7 @@
 # a task matching a pattern will be skipped (except for backlog.1st)
 # this file MUST NOT have empty lines
 #
-# not at all
+# never emerge theses explicitely
 #
 app-eselect/
 dev-embedded/

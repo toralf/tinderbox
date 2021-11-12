@@ -11,10 +11,6 @@ ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 744385
 :in load: cannot load such file -- /usr/lib64/ruby/gems/
 
-# tinfo) - [TRACKER] Failures with sys-libs/ncurses[tinfo]
-457530
-libtinfo.so.6: error adding symbols:
-
 # (autoconf-2.7x) - [TRACKER] >=sys-devel/autoconf-2.70 issues
 732648
 Failed Running automake|configure: error: cannot find required auxiliary files:|configure.*syntax error near unexpected token newline|aclocal-.*: command not found|error: C compiler cannot create executables
@@ -22,14 +18,6 @@ Failed Running automake|configure: error: cannot find required auxiliary files:|
 #  (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
 765709
 slibtool|rlibtool|rdlibtool|unrecognized command-line option|./shtool:|syntax error: .* unexpected
-
-# (boost-1.77) - [Tracker] Packages failing to build with ~dev-libs/boost-1.77
-808087
-boost|is not a member of std
-
-# (mbedtls-3) - [TRACKER] >=net-libs/mbedtls-3.0 breaks multiple revdeps
-805011
-mbedtls
 
 # (openssl-3.0) - [TRACKER] packages failing with =dev-libs/openssl-3.0.0
 797325
@@ -44,9 +32,13 @@ variably modified .* at file scope|size of array .* is not an integral|void valu
 : SetuptoolsDeprecationWarning: 2to3|/site-packages/setuptools/lib2to3_ex.py:
 
 # [Tracker] Packages failing with dev-util/meson-0.60.0
-821545
-got unknown keyword arguments
+821544
+got unknown keyword arguments|meson
 
 # [TRACKER] Packages broken by SETUPTOOLS_USE_DISTUTILS=local
 822354
 No module named
+
+# [Tracker] dev-scheme/guile-3.0.x breakage
+746914
+guile
