@@ -843,12 +843,14 @@ function WorkOnTask() {
 
     local opts="--backtrack=30"
     if [[ ! $task = "@preserved-rebuild" ]]; then
-      opts="$opts --update"
+      opts+=" --update"
       if [[ $task = "@system" || $task = "@world" ]]; then
-        opts="$opts --changed-use --newuse"
+        opts+=" --changed-use --newuse"
       fi
     fi
 
+    # feed before packages might be unmerged
+    feedPfl
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
@@ -871,13 +873,14 @@ function WorkOnTask() {
       fi
     fi
     cp $tasklog /var/tmp/tb/$task.last.log
-
     feedPfl
 
-  # %<command/s>
+  # %<command line>
   elif [[ $task =~ ^% ]]; then
     local cmd="$(cut -c2- <<< $task)"
 
+    # feed before packages might be unmerged
+    feedPfl
     if ! RunAndCheck "$cmd"; then
       if [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" ]]; then
         if [[ $try_again -eq 0 ]]; then
