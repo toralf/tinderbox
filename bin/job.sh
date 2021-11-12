@@ -839,9 +839,7 @@ function WorkOnTask() {
 
   # @set
   if [[ $task =~ ^@ ]]; then
-    feedPfl
-
-    local opts="--backtrack=30"
+    local opts=""
     if [[ ! $task = "@preserved-rebuild" ]]; then
       opts+=" --update"
       if [[ $task = "@system" || $task = "@world" ]]; then
