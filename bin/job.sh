@@ -380,15 +380,6 @@ function handleTestPhase() {
 }
 
 
-function setEmergePhase()  {
-  # "-m 1" because for phase "install" grep might have 2 matches ("doins failed" and "newins failed")
-  # "-o" in the 1st grep b/c sometimes perl spews a message into the same line
-  phase=$(
-    grep -m 1 -o " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
-    grep -Eo '\(.* ' | cut -c2-
-  )
-}
-
 
 # helper of GotAnIssue()
 # get the issue and a descriptive title
@@ -553,7 +544,7 @@ function finishTitle()  {
 }
 
 
-function IfNewThenSendIssueMail()  {
+function SendIssueMailIfNotYetReported()  {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       # wrap cat with echo due to buffered output of cat
@@ -562,6 +553,16 @@ function IfNewThenSendIssueMail()  {
       cat $issuedir/issue >> $issuedir/body
       Mail "$(cat $issuedir/title)" $issuedir/body
     fi
+  fi
+}
+
+
+function maskPackage()  {
+  local self=/etc/portage/package.mask/self
+  if grep -e "=$pkg$" $self; then
+    Mail "INFO: $self already contains =$pkg"
+  else
+    echo "=$pkg" >> $self
   fi
 }
 
@@ -583,7 +584,13 @@ function GotAnIssue()  {
 
   pkglog_stripped=$issuedir/$(basename $pkglog)
   filterPlainPext < $pkglog > $pkglog_stripped
-  setEmergePhase
+  # "-m 1" because for phase "install" grep might have 2 matches ("doins failed" and "newins failed")
+  # "-o" in the 1st grep b/c sometimes perl spews a message into the same line
+  phase=$(
+    grep -m 1 -o " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
+    grep -Eo '\(.* ' |\
+    tr -d '[( ]'
+  )
   if [[ $emerge_was_killed -eq 0 ]]; then
     setWorkDir
     CreateEmergeHistoryFile
@@ -611,7 +618,7 @@ function GotAnIssue()  {
 
   if [[ $emerge_was_killed -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
-      echo "=$pkg" >> /etc/portage/package.mask/self
+      maskPackage
     fi
   else
     if [[ $phase = "test" ]]; then
@@ -620,7 +627,7 @@ function GotAnIssue()  {
       # with "notest" the dependency tree might be changed -> implicit depclean it in @world
       add2backlog "@world"
     else
-      echo "=$pkg" >> /etc/portage/package.mask/self
+      maskPackage
     fi
   fi
 
@@ -628,7 +635,7 @@ function GotAnIssue()  {
     add2backlog "$task"
   fi
 
-  IfNewThenSendIssueMail
+  SendIssueMailIfNotYetReported
 }
 
 
@@ -742,22 +749,26 @@ function catchMisc()  {
   find /var/log/portage/ -type f -newer $taskfile |\
   while read -r pkglog
   do
+    if [[ $(wc -l < $pkglog) -le 6 ]]; then
+      continue
+    fi
+
     pkglog_stripped=/tmp/$(basename $pkglog)
     filterPlainPext < $pkglog > $pkglog_stripped
-    setEmergePhase
+    if ! grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
+      rm $pkglog_stripped
+      continue
+    fi
 
-    if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
-      pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' | tr ':' '/')
-      repo=$(portageq metadata / ebuild $pkg repository)
-
-      createAndPrefillIssueDir
-
-      grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped | tee $issuedir/issue | head -n 1 > $issuedir/title
-
-      mv $pkglog_stripped $issuedir
-      finishTitle
-      cp $issuedir/issue $issuedir/comment0
-      cat << EOF >> $issuedir/comment0
+    pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' | tr ':' '/')
+    repo=$(portageq metadata / ebuild $pkg repository)
+    createAndPrefillIssueDir
+    grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped | tee $issuedir/issue | head -n 1 > $issuedir/title
+    mv $pkglog_stripped $issuedir
+    finishTitle
+    sed -i -e "s,^,[misc] ," $issuedir/title
+    cp $issuedir/issue $issuedir/comment0
+    cat << EOF >> $issuedir/comment0
 
   -------------------------------------------------------------------
 
@@ -769,13 +780,10 @@ function catchMisc()  {
   The output of emerge matches a pattern requested by a Gentoo dev.
 
 EOF
-      collectPortageDir
-      CreateEmergeHistoryFile
-      CompressIssueFiles
-      IfNewThenSendIssueMail
-    else
-      rm $pkglog_stripped
-    fi
+    collectPortageDir
+    CreateEmergeHistoryFile
+    CompressIssueFiles
+    SendIssueMailIfNotYetReported
   done
 }
 
@@ -786,16 +794,17 @@ function RunAndCheck() {
   (eval $@; rc=$?; echo; date; exit $rc) &>> $tasklog
   local rc=$?
 
-  local taskdirname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
-  tasklog_stripped="/var/tmp/tb/logs/$taskdirname.log"
+  local taskname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
+  tasklog_stripped="/var/tmp/tb/logs/$taskname.log"
 
   filterPlainPext < $tasklog > $tasklog_stripped
   PostEmerge
 
   if grep -q -F ' -Og -g' /etc/portage/make.conf && [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
-    mkdir -p /var/tmp/tb/core/$taskdirname
-    mv /tmp/core.* /var/tmp/tb/core/$taskdirname
-    Mail "INFO: keep core files in $taskdirname" "$(ls -lh /var/tmp/tb/core/$taskdirname/)"
+    local taskdirname=/var/tmp/tb/core/$taskname
+    mkdir -p $taskdirname
+    mv /tmp/core.* $taskdirname
+    Mail "INFO: kept core files in $taskdirname" "$(ls -lh $taskdirname/)"
   fi
 
   if [[ $rc -ge 128 ]]; then
@@ -833,8 +842,8 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 function WorkOnTask() {
-  try_again=0           # "1" means to retry same task, but with changed/reset USE/ENV/FEATURE/CFLAGS
-  unset pkgname pkglog pkglog_stripped
+  try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
+  unset phase pkgname pkglog pkglog_stripped
   pkg=""
 
   # @set
@@ -976,6 +985,7 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
+# TODO: do something with these except just keeping it
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
 echo "#init /run" > $taskfile
@@ -1005,7 +1015,7 @@ do
   fi
 
   (date; echo) > $tasklog
-  rm -rf /var/tmp/portage/*
+  rm -rf /var/tmp/portage/* /tmp/core.*
   current_time=$(date +%s)
   if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
