@@ -15,7 +15,7 @@ if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
 fi
 
 # reserve 3 vCPUs, 18 GB RAM and 64 GB vRAM
-vcpu=$(( 100000 * ($(nproc) - 4) ))
+vcpu=$(( 100000 * ($(nproc) - 3) ))
 ram=110G
 vram=320G
 
