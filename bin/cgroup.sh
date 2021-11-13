@@ -14,6 +14,11 @@ if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
   exit 0
 fi
 
+# reserve 3 vCPUs, 18 GB RAM and 64 GB vRAM
+vcpu=$(( 100000 * ($(nproc) - 4) ))
+ram=110G
+vram=320G
+
 echo 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 
 # cgroup v1 does not cleanup after itself
@@ -33,10 +38,6 @@ done
 name=/local
 cgcreate -g cpu,memory:$name
 
-# reserve 4 vCPUs, 18 GB RAM and 64 GB swap/RAM for host
-vcpu=${1:-$(( ($(nproc)-4) * 100000 ))}
-ram=${2:-110G}
-vram=${3:-320G}
 cgset -r cpu.cfs_quota_us=$vcpu             $name
 cgset -r memory.limit_in_bytes=$ram         $name
 cgset -r memory.memsw.limit_in_bytes=$vram  $name
