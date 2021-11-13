@@ -559,9 +559,8 @@ function SendIssueMailIfNotYetReported()  {
 
 function maskPackage()  {
   local self=/etc/portage/package.mask/self
-  if grep -e "=$pkg$" $self; then
-    Mail "INFO: $self already contains =$pkg"
-  else
+  # unmask take precedence over mask -> unmasked packages (eg. glibc) cannot be masked in case of a failure
+  if ! grep -e "=$pkg$" $self; then
     echo "=$pkg" >> $self
   fi
 }
