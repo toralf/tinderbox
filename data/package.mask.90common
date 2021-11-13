@@ -40,16 +40,10 @@ dev-libs/aws-sdk-cpp
 www-client/chromium
 www-client/google-chrome
 
-# avoid a flip-flop
-<dev-util/ragel-7.0.4
-<sys-devel/clang-12.0.1
-<sys-devel/llvm-12.0.1
-
 # sam
 sys-cluster/nullmpi
 
-# https://bugs.gentoo.org/807832
-#app-eselect/eselect-java
-#dev-java/*
-#virtual/jdk
-#virtual/jre
+# glibc-2.34 issue https://bugs.gentoo.org/807832
+dev-java/*
+virtual/jdk
+virtual/jre
