@@ -21,6 +21,11 @@ function Finish() {
 }
 
 
+function listImages() {
+  (cd ~/run; ls -d * 2>/dev/null | shuf)
+}
+
+
 function GetCompletedEmergeOperations() {
   grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log 2>/dev/null || echo "0"
 }
@@ -48,7 +53,7 @@ function HasAnEmptyBacklog() {
     else
       echo "warn: $bl is missing !"
     fi
-  done < <(cd ~/run; ls -dt * 2>/dev/null | tac)
+  done < <(listImages)
 
   return 1
 }
@@ -62,13 +67,13 @@ function WorldBrokenAndTooOldToRepair() {
       local line=$(tail -n 1 $file)
       if grep -q " NOT ok $" <<< $line; then
         local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
-        if [[ $days -ge 3 ]]; then
+        if [[ $days -ge 4 ]]; then
           oldimg=$i
           return 0
         fi
       fi
     fi
-  done < <(cd ~/run; ls -dt * 2>/dev/null | tac)
+  done < <(listImages)
 
   return 1
 }
@@ -92,7 +97,7 @@ function FreeSlotAvailable() {
   fi
 
   if ! pgrep -f $(dirname $0)/setup_img.sh 1>/dev/null; then
-    [[ $(ls ~/run/ 2>/dev/null | wc -l) -lt $condition_count && $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $condition_count ]]
+    [[ $(listImages | wc -l) -lt $condition_count && $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $condition_count ]]
   fi
 }
 
@@ -135,7 +140,7 @@ function ReplaceAnImage() {
         return 0
       fi
     fi
-  done < <(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | tac)
+  done < <(listImages)
 
   return 1
 }
@@ -164,8 +169,15 @@ STOP
 STOP $msg
 EOF
     echo "$msg" >> ~/run/$oldimg/var/tmp/tb/STOP
+    local i=7200
     while [[ -d $lock_dir ]]
     do
+      if ! ((--i)); then
+        echo "give up on $oldimg"
+        sed '/^STOP/d' ~/run/$oldimg/var/tmp/tb/backlog.1st
+        rm ~/run/$oldimg/var/tmp/tb/STOP
+        return 1
+      fi
       sleep 1
     done
     echo "done"
@@ -222,8 +234,9 @@ do
 done
 
 if [[ -n "$oldimg" ]]; then
-  StopOldImage "user decision"
-  exec nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
+  if StopOldImage "user decision"; then
+    exec nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
+  fi
 fi
 
 # do not run in parallel (in automatic mode)
@@ -246,20 +259,23 @@ done
 
 while HasAnEmptyBacklog
 do
-  StopOldImage "empty backlogs"
-  setupANewImage
+  if StopOldImage "empty backlogs"; then
+    setupANewImage
+  fi
 done
 
 while WorldBrokenAndTooOldToRepair
 do
-  StopOldImage "@world broken:  $oldimg/var/tmp/tb/@world.last.log"
-  setupANewImage
+  if StopOldImage "@world broken:  $oldimg/var/tmp/tb/@world.last.log"; then
+    setupANewImage
+  fi
 done
 
 while ReplaceAnImage
 do
-  StopOldImage "$reason"
-  setupANewImage
+  if StopOldImage "$reason"; then
+    setupANewImage
+  fi
 done
 
-Finish $?
+Finish 0
