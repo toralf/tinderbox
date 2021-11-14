@@ -546,8 +546,8 @@ function finishTitle()  {
 
 function SendIssueMailIfNotYetReported()  {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
-    if ! grep -F -q -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
-      # wrap cat with echo due to buffered output of cat
+    if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
+      # put cat into echo due to buffered output of cat
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
       echo -e "\n\n    check_bgo.sh ~/img/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
@@ -560,7 +560,7 @@ function SendIssueMailIfNotYetReported()  {
 function maskPackage()  {
   local self=/etc/portage/package.mask/self
   # unmask take precedence over mask -> unmasked packages (eg. glibc) cannot be masked in case of a failure
-  if ! grep -e "=$pkg$" $self; then
+  if ! grep -q -e "=$pkg$" $self; then
     echo "=$pkg" >> $self
   fi
 }
@@ -753,6 +753,7 @@ function catchMisc()  {
     fi
 
     pkglog_stripped=/tmp/$(basename $pkglog)
+    phase=""
     filterPlainPext < $pkglog > $pkglog_stripped
     if ! grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       rm $pkglog_stripped
@@ -842,20 +843,16 @@ function RunAndCheck() {
 # this is the heart of the tinderbox
 function WorkOnTask() {
   try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
-  unset phase pkgname pkglog pkglog_stripped
-  pkg=""
+  unset pkg phase pkgname pkglog pkglog_stripped
 
   # @set
   if [[ $task =~ ^@ ]]; then
     local opts=""
-    if [[ ! $task = "@preserved-rebuild" ]]; then
-      opts+=" --update"
-      if [[ $task = "@system" || $task = "@world" ]]; then
-        opts+=" --changed-use --newuse"
-      fi
+    if [[ $task = "@system" || $task = "@world" ]]; then
+      opts+=" --update --changed-use --newuse"
     fi
 
-    # feed before packages might be unmerged
+    # feed PFL before older packages might be replaced
     feedPfl
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
@@ -878,7 +875,8 @@ function WorkOnTask() {
         fi
       fi
     fi
-    cp $tasklog /var/tmp/tb/$task.last.log
+    cp $tasklog /var/tmp/tb/$(tr ' ' '_' <<< $task).last.log
+    # feed daily, speeds up Finish()
     feedPfl
 
   # %<command line>
@@ -921,6 +919,7 @@ function WorkOnTask() {
 # few repeated @preserved-rebuild are ok
 function DetectRebuildLoop() {
   if [[ $(tail -n 20 $taskfile.history | grep -c '@preserved-rebuild') -ge 7 ]]; then
+    # the truncation forces the image replacement
     truncate -s 0 /var/tmp/tb/backlog*
     Finish 1 "too many @preserved-rebuild" $taskfile.history
   fi
@@ -1008,12 +1007,13 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  # any newline there would foolish the logic and/or drain the backlog asap
+  # an empty line foolishes the logic and drains backlog{,.upd} asap
   if grep -q "^$" /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/IGNORE_PACKAGES; then
     Finish 1 "empty line(s) in data/IGNORE_*"
   fi
 
   (date; echo) > $tasklog
+  # core files are only in _debug_ images already moved away
   rm -rf /var/tmp/portage/* /tmp/core.*
   current_time=$(date +%s)
   if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
