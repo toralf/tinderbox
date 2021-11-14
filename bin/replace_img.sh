@@ -266,7 +266,7 @@ done
 
 while WorldBrokenAndTooOldToRepair
 do
-  if StopOldImage "@world broken:  $oldimg/var/tmp/tb/@world.last.log"; then
+  if StopOldImage "@world broken:  ~tinderbox/img/$oldimg/var/tmp/tb/@world.last.log"; then
     setupANewImage
   fi
 done
