@@ -652,7 +652,7 @@ function DryRun() {
 
     grep -A 10 "It might be possible to break this cycle" $drylog |\
     grep -F ' (Change USE: ' |\
-    grep -v -F -e 'sys-libs/glibc' -e '+' -e 'This change might require ' |\
+    grep -v -F -e '+' -e 'This change might require ' |\
     sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
     tr -d ')' |\
     sort -u |\
@@ -678,7 +678,7 @@ function DryRun() {
 
     grep -A 100 'The following USE changes are necessary to proceed:' $drylog |\
     grep "^>=" |\
-    grep -v -e '>=sys-libs/glibc' -e '>=.* .*_' |\
+    grep -v -e '>=.* .*_' |\
     sort -u > $fautoflag
 
     if [[ -s $fautoflag ]]; then
