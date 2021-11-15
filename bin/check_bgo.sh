@@ -14,6 +14,11 @@ function Exit()  {
 }
 
 
+function bgoOutage() {
+  grep -F -e 'Error: Bugzilla error:' $tmpfile
+}
+
+
 function SearchForMatchingBugs() {
   local bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search items
 
@@ -32,7 +37,12 @@ function SearchForMatchingBugs() {
   for i in $pkg $pkgname
   do
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |
-        grep -e " CONFIRMED " -e " IN_PROGRESS " | sort -u -n -r | head -n 8 | tee $tmpfile
+        grep -e " CONFIRMED " -e " IN_PROGRESS " |\
+        sort -u -n -r |\
+        head -n 8 |\tee $tmpfile
+    if bgoOutage; then
+      return 1
+    fi
     if [[ -s $tmpfile ]]; then
       found_issues=1
       return
@@ -40,7 +50,12 @@ function SearchForMatchingBugs() {
 
     echo -en "$i DUP                    \r"
     bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bsi)" |\
-        sort -u -n -r | head -n 3 | tee $tmpfile
+        sort -u -n -r |\
+        head -n 3 |\
+        tee $tmpfile
+    if bgoOutage; then
+      return 1
+    fi
     if [[ -s $tmpfile ]]; then
       found_issues=2
       echo -e " \n^^ DUPLICATE"
@@ -49,7 +64,12 @@ function SearchForMatchingBugs() {
 
     echo -en "$i                        \r"
     bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bsi)" |\
-        sort -u -n -r | head -n 3 | tee $tmpfile
+        sort -u -n -r |\
+        head -n 3 |\
+        tee $tmpfile
+    if bgoOutage; then
+      return 1
+    fi
     if [[ -s $tmpfile ]]; then
       found_issues=2
       return
@@ -64,7 +84,13 @@ function SearchForMatchingBugs() {
 
     echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
     bugz -q --columns 400 search --show-status $pkgname |\
-        grep -v -i -E "$g" | sort -u -n -r | head -n 8 | tee $tmpfile
+        grep -v -i -E "$g" |\
+        sort -u -n -r |\
+        head -n 8 |\
+        tee $tmpfile
+    if bgoOutage; then
+      return 1
+    fi
     if [[ -s $tmpfile ]]; then
       found_issues=2
     fi
@@ -72,7 +98,13 @@ function SearchForMatchingBugs() {
     if [[ $(wc -l < $tmpfile) -lt 5 ]]; then
       echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
       bugz -q --columns 400 search --status RESOLVED $pkgname |\
-          grep -v -i -E "$g" | sort -u -n -r | head -n 5 | tee $tmpfile
+          grep -v -i -E "$g" |\
+          sort -u -n -r |\
+          head -n 5 |\
+          tee $tmpfile
+      if bgoOutage; then
+        return 1
+      fi
       if [[ -s $tmpfile ]]; then
         found_issues=2
       fi
@@ -118,19 +150,6 @@ function SetAssigneeAndCc() {
   if [[ -z "$m" ]]; then
     assignee="maintainer-needed@gentoo.org"
     cc=""
-
-  elif [[ ! $repo = "gentoo" ]]; then
-    if [[ $repo = "science" ]]; then
-      assignee="sci@gentoo.org"
-    else
-      assignee="$repo@gentoo.org"
-    fi
-    cc="$m"
-
-  elif [[ $name =~ "musl" ]]; then
-    assignee="musl@gentoo.org"
-    cc="$m"
-
   else
     assignee=$(cut -f1 -d' ' <<< $m)
     cc=$(cut -f2- -d' ' -s <<< $m)
