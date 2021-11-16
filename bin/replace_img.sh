@@ -59,18 +59,16 @@ function HasAnEmptyBacklog() {
 }
 
 
-function WorldBrokenAndTooOldToRepair() {
+function BrokenAndTooOldToRepair() {
   while read -r i
   do
-    local file=~/run/$i/var/tmp/tb/@world.history
-    if [[ -s $file ]]; then
-      local line=$(tail -n 1 $file)
-      if grep -q " NOT ok $" <<< $line; then
-        local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
-        if [[ $days -ge 4 ]]; then
-          oldimg=$i
-          return 0
-        fi
+    local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
+    if [[ $days -ge 4 ]]; then
+      local p=$(tail -n 1 ~/run/$i/var/tmp/tb/@preserved-rebuild.history 2>/dev/null) || true
+      local w=$(tail -n 1 ~/run/$i/var/tmp/tb/@world.history             2>/dev/null) || true
+      if grep -q " NOT ok $" <<< $p || grep -q " NOT ok $" <<< $w ; then
+        oldimg=$i
+        return 0
       fi
     fi
   done < <(listImages)
@@ -264,9 +262,9 @@ do
   fi
 done
 
-while WorldBrokenAndTooOldToRepair
+while BrokenAndTooOldToRepair
 do
-  if StopOldImage "@world broken:  ~tinderbox/img/$oldimg/var/tmp/tb/@world.last.log"; then
+  if StopOldImage "broken:  ~tinderbox/img/$oldimg/var/tmp/tb/@world.last.log"; then
     setupANewImage
   fi
 done
