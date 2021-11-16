@@ -406,15 +406,11 @@ function ClassifyIssue() {
     foundGenericIssue
   fi
 
-  # if the issue file size is too big, then delete the 1st line till it fits
-  while :
-  do
-    read -r lines chars <<< $(wc -l -c < $issuedir/issue)
-    if [[ $lines -le 1 || $chars -le 1024 ]]; then
-      break
-    fi
-    sed -i -e "1d" $issuedir/issue
-  done
+  if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
+    echo -e "too long lines were shrinked:\n" > $issuedir/issue.tmp
+    cut -c-1023 < $issuedir/issue >> $issuedir/issue.tmp
+    mv $issuedir/issue.tmp $issuedir/issue
+  fi
 }
 
 
