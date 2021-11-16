@@ -51,27 +51,28 @@ function InitOptions() {
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
-    if __dice 1 25; then
+    if __dice 1 50; then
       abi3264="y"
     fi
   fi
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
+  # try to debug:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
   if __dice 1 25; then
-    # try to debug:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
     cflags_default+=" -Og -g"
   else
     cflags_default+=" -O2"
   fi
 
   cflags=$cflags_default
-  if __dice 1 13; then
+  if __dice 1 50; then
     # 685160 colon-in-CFLAGS
     cflags+=" -falign-functions=32:25:16"
   fi
 
+  # stable image ?
   keyword="~amd64"
-  if __dice 1 25; then
+  if __dice 1 50; then
     keyword="amd64"
   fi
 
@@ -424,14 +425,14 @@ EOF
   cpconf $tbhome/tb/data/package.*.??test-$testfeature
 
   # give Firefox, Thunderbird et al. a better chance
-  if __dice 1 13; then
+  if __dice 1 10; then
     cpconf $tbhome/tb/data/package.use.30misc
   fi
 
   # packages either having a -bin variant or shall only rarely been build
   for p in $(grep -v -e '#' -e'^$' $tbhome/tb/data/BIN_OR_SKIP)
   do
-    if ! __dice 1 13; then
+    if ! __dice 1 10; then
       echo "$p" >> ./etc/portage/package.mask/91bin-or-skip
     fi
   done
@@ -497,7 +498,7 @@ function CreateBacklogs()  {
   chmod 664               $bl{,.1st,.upd}
 
   # requested by Whissi (an alternative mysql engine)
-  if __dice 1 13; then
+  if __dice 1 10; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
