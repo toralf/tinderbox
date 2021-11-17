@@ -107,10 +107,13 @@ Create these crontab entries for user *tinderbox*:
 @reboot   while :; do sleep 60; /opt/tb/bin/logcheck.sh; done
 
 # replace an image
-@hourly   f=$(mktemp /tmp/XXXXXX); /opt/tb/bin/replace_img.sh &>$f; cat $f; rm $f
+@hourly   f=$(mktemp /tmp/XXXXXX); /opt/tb/bin/replace_img.sh -n 13 -r 11 -d 9 -b 8000 -c 9999 &>$f; cat $f; rm $f
 
 # house keeping
 9 0 * * * sudo /opt/tb/bin/house_keeping.sh
+
+# indexing
+@hourly   /opt/tb/bin/index.sh
 ```
 
 and this as *root*:
