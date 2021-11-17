@@ -63,7 +63,7 @@ function BrokenAndTooOldToRepair() {
   while read -r i
   do
     local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
-    if [[ $days -ge 4 ]]; then
+    if [[ $days -ge 3 ]]; then
       local p=$(tail -n 1 ~/run/$i/var/tmp/tb/@preserved-rebuild.history 2>/dev/null) || true
       local w=$(tail -n 1 ~/run/$i/var/tmp/tb/@world.history             2>/dev/null) || true
       if grep -q " NOT ok $" <<< $p || grep -q " NOT ok $" <<< $w ; then
