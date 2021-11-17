@@ -3,7 +3,8 @@ The goal is to detect build issues of and conflicts between Gentoo Linux package
 
 For that a dozen or more Gentoo images are running in parallel using [bubblewrap](https://github.com/containers/bubblewrap) (a better chroot).
 
-Each image is setup from a recent *stage3* tarball as an arbitrary combination of *~amd64* + *profile* + *USE flag* set. Within each image all Gentoo packages are scheduled in a randomized order for emerge.
+Each image is setup from a recent *stage3* tarball as an arbitrary combination of *~amd64* + *profile* + *USE flag* set.
+Within each image all Gentoo packages are scheduled in a randomized order for emerge.
 
 ## usage
 ### create a new image
@@ -17,7 +18,6 @@ A backlog is filled up with all rec ent packages in a randomized order.
 A symlink is made into *~/run* and the image is started.
 
 ### start an image
-
 ```bash
 start_img.sh <image>
 ```
@@ -35,27 +35,21 @@ A marker file */var/tmp/tb/STOP* is created in that image.
 The current emerge operation will be finished before *job.sh* removes the marker file and exits.
 
 ### go into a stopped image
-
 ```bash
 sudo /opt/tb/bin/bwrap.sh -m <mount point>
 ```
 
-This uses
-
 ### removal of an image
-
 Stop the image and remove the symlink in *~/run*.
 The image itself will stay in its data dir till that is cleanud up.
 
 ### status of all images
-
 ```bash
 whatsup.sh -crpe
 watch whatsup.sh -otl
 ```
 
 ### report findings
-
 The file *tb/data/ALREADY_FILED* holds reported findings.
 A new finding is send via email to the user specified by the variable *MAILTO*.
 The Gentoo bugzilla can be searched by *check_bgo.sh* for dups/similarities.
