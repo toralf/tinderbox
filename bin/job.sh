@@ -838,8 +838,10 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 function WorkOnTask() {
+  unset phase pkgname pkglog pkglog_stripped
+
   try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
-  unset pkg phase pkgname pkglog pkglog_stripped
+  pkg=""
 
   # @set
   if [[ $task =~ ^@ ]]; then
