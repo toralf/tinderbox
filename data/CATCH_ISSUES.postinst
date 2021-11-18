@@ -1,3 +1,4 @@
 chown: cannot
 cp: cannot
 : command not found
+/usr/bin/php: .*: No such file or

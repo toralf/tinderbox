@@ -30,6 +30,7 @@ sys-fs/encfs
 sys-fs/loop-aes
 sys-fs/vhba
 sys-fs/zfs-kmod
+sys-power/acpi_call
 x11-drivers/nvidia-drivers
 
 # annoying

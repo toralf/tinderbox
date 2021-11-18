@@ -1,3 +1,4 @@
+: all warnings being treated as errors
 The futex facility returned an unexpected error code.
 asciidoctor.*cannot load
 gems.*asciidocter.*LoadError
@@ -301,3 +302,4 @@ pyglet.canvas.xlib.NoSuchDisplayException:
 : no input files
 Internal or unrecoverable error in:
 Got signal before environment was installed on our thread
+Error: cannot open mo file

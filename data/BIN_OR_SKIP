@@ -1,4 +1,4 @@
-# arbitrarily mask packages with a very long emerge times with a likelood of x %
+# mask packages with a long emerge times with a likelilood of < 100 %
 
 app-office/libreoffice
 dev-db/mongodb
