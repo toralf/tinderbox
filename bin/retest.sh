@@ -44,7 +44,7 @@ if [[ -s $result ]]; then
     mv $bl.tmp $bl
 
     # force repo sync before all re-test, but once is enough
-    sed -i -e '/%syncRepos/d' $bl
-    echo "%syncRepos" >> $bl
+    sed -i -e '/%syncReposAndUpdateBacklog/d' $bl
+    echo "%syncReposAndUpdateBacklog" >> $bl
   done
 fi
