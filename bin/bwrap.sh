@@ -24,13 +24,15 @@ function CgroupCreate() {
   cgcreate -g cpu,memory:$name
 
   # limit each image having -jX in its name to X+0.1 cpus
-  local x=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
-  if [[ -z $x ]]; then
-    echo "got no value for -j , set it to 1"
+  local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
+  if [[ -z $j ]]; then
+    echo "got no value for -j , use 1"
     x=1
-  elif [[ $x -gt 10 ]]; then
-    echo "value for -j: $x , limit it to 10"
+  elif [[ $j -gt 10 ]]; then
+    echo "value for -j: $j , use 10"
     x=10
+  else
+    x=$j
   fi
 
   local quota=$((100000 * $x + 10000))
