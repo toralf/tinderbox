@@ -344,9 +344,10 @@ function foundGenericIssue() {
 
     for x in ./x??
     do
-      if grep -m 1 -a -B 2 -A 4 -f $x $pkglog_stripped > ./issue; then
+      local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
+      if grep -m 1 -a -B $j -A 4 -f $x $pkglog_stripped > ./issue; then
         mv ./issue $issuedir
-        sed -n '3p' $issuedir/issue | stripQuotesAndMore > $issuedir/title # fails if "-B 2" didn't delivered
+        sed -n "$((j+1))p" $issuedir/issue | stripQuotesAndMore > $issuedir/title
         break
       fi
     done
@@ -408,7 +409,7 @@ function ClassifyIssue() {
 
   if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
     echo -e "too long lines were shrinked:\n" > $issuedir/issue.tmp
-    cut -c-1023 < $issuedir/issue >> $issuedir/issue.tmp
+    cut -c-300 < $issuedir/issue >> $issuedir/issue.tmp
     mv $issuedir/issue.tmp $issuedir/issue
   fi
 }
@@ -924,7 +925,7 @@ function DetectRebuildLoop() {
 }
 
 
-function syncRepos()  {
+function syncReposAndUpdateBacklog()  {
   local diff=${1:-0}
 
   if emaint sync --auto 1>/dev/null | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
@@ -1017,7 +1018,7 @@ do
   if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
     last_sync=$current_time
-    syncRepos $diff
+    syncReposAndUpdateBacklog $diff
   fi
   echo "#get task" > $taskfile
   getNextTask
