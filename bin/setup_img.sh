@@ -530,6 +530,10 @@ set -euf
 date
 echo "#setup locale + timezone" | tee /var/tmp/tb/task
 
+echo -e "en_US       ISO-8859-1"  >> /etc/locale.gen
+echo -e "en_US.UTF-8 UTF-8"       >> /etc/locale.gen      # especially for test needed
+locale-gen
+
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 env-update
