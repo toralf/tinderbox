@@ -84,12 +84,12 @@ function BrokenAndTooOldToRepair() {
 
 
 function MinDistanceIsReached() {
-  local newest=$(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
+  local newest=$(cd ~/run; cat */var/tmp/tb/setup.timestamp 2>/dev/null | sort -u | tail -n 1)
   if [[ -z "$newest" ]]; then
     return 1
   fi
 
-  local distance=$(( ( $(date +%s) - $(getStartTime $newest) ) / 3600 ))
+  local distance=$(( ( $(date +%s) - $newest ) / 3600 ))
   [[ $distance -ge $condition_distance ]]
 }
 

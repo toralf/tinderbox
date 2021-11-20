@@ -351,6 +351,7 @@ function CompilePortageFiles()  {
   chgrp portage ./var/tmp/tb/{,logs}
   chmod ug+rwx  ./var/tmp/tb/{,logs}
 
+  date +%s   > ./var/tmp/tb/setup.timestamp
   echo $name > ./var/tmp/tb/name
 
   for d in profile package.{accept_keywords,env,mask,unmask,use} env

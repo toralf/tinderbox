@@ -31,7 +31,9 @@ function __is_running() {
 function getStartTime() {
   local image=~tinderbox/img/$(basename $1)
 
-  if [[ -s $image/var/tmp/tb/name ]]; then
+  if [[ -s $image/var/tmp/tb/setup.timestamp ]]; then
+    cat $image/var/tmp/tb/setup.timestamp
+  elif [[ -s $image/var/tmp/tb/name ]]; then
     stat -c%Y $image/var/tmp/tb/name
   else
     date +%s
