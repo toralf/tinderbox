@@ -264,6 +264,9 @@ CXXFLAGS="\${CFLAGS}"
 FCFLAGS="$cflags_default"
 FFLAGS="\${FCFLAGS}"
 
+# simply enables QA check for LDFLAGS being respected by build system.
+LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
+
 $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS="$keyword"
@@ -304,10 +307,6 @@ MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
 
 EOF
     fi
-  fi
-
-  if __dice 1 2; then
-    echo -e "LDFLAGS=\"\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0\"\n" >> ./etc/portage/make.conf
   fi
 
   if [[ $testfeature = "y" ]]; then
@@ -562,7 +561,7 @@ echo "#setup portage helpers" | tee /var/tmp/tb/task
 emerge -u app-text/ansifilter app-portage/portage-utils
 
 date
-echo "#setup mailer" | tee /var/tmp/tb/task
+echo "#setup email" | tee /var/tmp/tb/task
 # emerge ssmtp separately before mailx b/c mailx would pull in per default another MTA than ssmtp
 emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the destination does already exist (bind-mounted by bwrap.sh)
