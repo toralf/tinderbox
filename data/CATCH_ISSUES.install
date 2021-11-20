@@ -44,3 +44,4 @@ convert: no
  \*   Header checksum mismatch, aborting.
  \* Ebuild author forgot an entry
 ModuleNotFoundError:
+ValueError:

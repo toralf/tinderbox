@@ -10,9 +10,11 @@ dev-util/plan9port
 # outdated, br0ken, breaks revdep-rebuild, old kernel, needs special kernel config, needs kernel module build w/ same GCC version, ...
 */s6
 app-admin/ryzen_smu
+app-benchmarks/stress-ng
 app-emulation/virtualbox-guest-additions
 app-laptop/tp_smapi
 app-laptop/tuxedo-keyboard
+dev-util/sysdig-kmod
 media-tv/v4l-dvb-saa716x
 net-analyzer/openvas
 net-firewall/firehol
@@ -31,6 +33,7 @@ sys-fs/loop-aes
 sys-fs/vhba
 sys-fs/zfs-kmod
 sys-power/acpi_call
+sys-power/bbswitch
 x11-drivers/nvidia-drivers
 
 # annoying

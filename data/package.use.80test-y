@@ -28,5 +28,3 @@ dev-libs/glib                       -gtk-doc
 dev-util/cmake                      -emacs
 media-libs/harfbuzz                 -cairo
 net-print/cups                      -zeroconf
-
-net-irc/weechat                     L10N: en_US.UTF-8
