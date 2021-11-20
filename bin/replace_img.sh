@@ -47,6 +47,7 @@ function HasAnEmptyBacklog() {
     local bl=~/run/$i/var/tmp/tb/backlog
     if [[ -f $bl ]]; then
       if [[ $(wc -l < $bl) -eq 0 ]]; then
+        reason="empty backlogs"
         oldimg=$i
         return 0
       fi
@@ -62,14 +63,19 @@ function HasAnEmptyBacklog() {
 function BrokenAndTooOldToRepair() {
   while read -r i
   do
+    local p=$(tail -n 1 ~/run/$i/var/tmp/tb/@preserved-rebuild.history 2>/dev/null) || true
+    if grep -q " NOT ok $" <<< $p ; then
+      reason="@preserved-rebuild broken"
+      oldimg=$i
+      return 0
+    fi
+
     local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
-    if [[ $days -ge 3 ]]; then
-      local p=$(tail -n 1 ~/run/$i/var/tmp/tb/@preserved-rebuild.history 2>/dev/null) || true
-      local w=$(tail -n 1 ~/run/$i/var/tmp/tb/@world.history             2>/dev/null) || true
-      if grep -q " NOT ok $" <<< $p || grep -q " NOT ok $" <<< $w ; then
-        oldimg=$i
-        return 0
-      fi
+    p=$(tail -n 1 ~/run/$i/var/tmp/tb/@world.history 2>/dev/null) || true
+    if grep -q " NOT ok $" <<< $p && [[ $days -ge 2 ]]; then
+      reason="@world broken and image older 2 days"
+      oldimg=$i
+      return 0
     fi
   done < <(listImages)
 
@@ -78,7 +84,6 @@ function BrokenAndTooOldToRepair() {
 
 
 function MinDistanceIsReached() {
-  # TODO: use name
   local newest=$(cd ~/run; ls -t */var/tmp/tb/name 2>/dev/null | cut -f1 -d'/' -s | head -n 1)
   if [[ -z "$newest" ]]; then
     return 1
@@ -145,7 +150,7 @@ function ReplaceAnImage() {
 
 
 function StopOldImage() {
-  local msg="replace reason: $1"
+  local msg="replaced b/c: $reason"
 
   echo
   date
@@ -257,21 +262,21 @@ done
 
 while HasAnEmptyBacklog
 do
-  if StopOldImage "empty backlogs"; then
+  if StopOldImage; then
     setupANewImage
   fi
 done
 
 while BrokenAndTooOldToRepair
 do
-  if StopOldImage "broken @world or @preserved-rebuild"; then
+  if StopOldImage; then
     setupANewImage
   fi
 done
 
 while ReplaceAnImage
 do
-  if StopOldImage "$reason"; then
+  if StopOldImage; then
     setupANewImage
   fi
 done
