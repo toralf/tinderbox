@@ -9,7 +9,4 @@
 dev-lang/ocaml:0/4.13
 
 # by sam
-~dev-util/meson-0.60.1
-
-# by sam
 dev-scheme/guile:12/3.0-1

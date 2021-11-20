@@ -11,10 +11,13 @@ dev-util/plan9port
 */s6
 app-admin/ryzen_smu
 app-benchmarks/stress-ng
+app-emulation/vendor-reset
 app-emulation/virtualbox-guest-additions
+app-emulation/virtualbox-modules
 app-laptop/tp_smapi
 app-laptop/tuxedo-keyboard
 dev-util/sysdig-kmod
+games-util/xpadneo
 media-tv/v4l-dvb-saa716x
 net-analyzer/openvas
 net-firewall/firehol
