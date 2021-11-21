@@ -480,7 +480,7 @@ function setWorkDir() {
   if [[ ! -d "$workdir" ]]; then
     workdir=$(fgrep -m 1 ">>> Source unpacked in " $tasklog_stripped | cut -f5 -d" " -s)
     if [[ ! -d "$workdir" ]]; then
-      workdir=/var/tmp/portage/$pkg/work/${pkg##*/}
+      workdir=/var/tmp/portage/$pkg/work/$(basename $pkg)
       if [[ ! -d "$workdir" ]]; then
         workdir=""
       fi

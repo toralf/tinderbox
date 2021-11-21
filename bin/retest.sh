@@ -12,7 +12,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-result=/tmp/${0##*/}.txt  # package/s for the appropriate backlog
+result=/tmp/$(basename $0).txt  # package/s for the appropriate backlog
 truncate -s 0 $result
 
 grep    -e '^@' -e '^%' -e '^='        <<< ${@} >> $result || true

@@ -1,4 +1,4 @@
-# if locked or symlinked to ~run
+# list if locked and/or symlinked to ~run
 function __list_images() {
   (
     ls ~/run/                    | sort
@@ -10,33 +10,23 @@ function __list_images() {
   do
     ls -d ~/run/${i} 2>/dev/null ||\
     ls -d ~/img/${i} 2>/dev/null
-  done |\
-  cat
+  done
 }
 
 
-# n:N, eg. 1:5
+# $1:$2, eg. 1:5
 function __dice() {
-  local n=$1
-  local N=$2
-  [[ $(($RANDOM % N)) -lt $n ]]
+  [[ $(($RANDOM % $2)) -lt $1 ]]
 }
 
 
-# /run/ lock dir is handled by bwrap and cgroup agent
+# /run/ lock dir is used by bwrap and cgroup
 function __is_running() {
-  [[ -d "/run/tinderbox/${1##*/}.lock" ]]
+  [[ -d "/run/tinderbox/$(basename $1).lock" ]]
 }
+
 
 function getStartTime() {
-  local image=~tinderbox/img/$(basename $1)
-
-  if [[ -s $image/var/tmp/tb/setup.timestamp ]]; then
-    cat $image/var/tmp/tb/setup.timestamp
-  elif [[ -s $image/var/tmp/tb/name ]]; then
-    stat -c%Y $image/var/tmp/tb/name
-  else
-    date +%s
-  fi
+  cat ~/img/$(basename $1)/var/tmp/tb/setup.timestamp
 }
 

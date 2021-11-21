@@ -22,6 +22,7 @@ vram=320G
 echo 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 
 # cgroup v1 does not cleanup after itself
+# create a shell script for that task in a system wide read and executeable location
 agent=/tmp/cgroup-release-agent.sh
 cat << EOF > $agent
 #!/bin/sh
@@ -34,7 +35,7 @@ do
   echo $agent > /sys/fs/cgroup/$i/release_agent
 done
 
-# prefer a generic identifier both for Tor project and for Gentoo tinderbox
+# prefer a generic identifier
 name=/local
 cgcreate -g cpu,memory:$name
 

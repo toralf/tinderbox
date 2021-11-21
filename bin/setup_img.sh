@@ -172,7 +172,7 @@ function UnpackStage3()  {
     return 1
   fi
 
-  local f=$tbhome/distfiles/${stage3##*/}
+  local f=$tbhome/distfiles/$(basename $stage3)
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
     echo " downloading $f ..."
@@ -309,14 +309,13 @@ EOF
     fi
   fi
 
-  if [[ $testfeature = "y" ]]; then
-    if __dice 1 2; then
-      cat <<EOF >> ./etc/portage/make.conf
+  # FWIW this is unreated to test
+  if __dice 1 2; then
+    cat <<EOF >> ./etc/portage/make.conf
 # requested by mgorny
 ALLOW_TEST="network"
 
 EOF
-    fi
   fi
 
   if __dice 1 2; then
@@ -337,7 +336,7 @@ EOF
 function cpconf() {
   for f in $*
   do
-    read -r dummy suffix filename <<<$(tr '.' ' ' <<< ${f##*/})
+    read -r dummy suffix filename <<<$(tr '.' ' ' <<< $(basename $f))
     # eg.:  .../package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
   done
@@ -595,7 +594,7 @@ function RunSetupScript() {
   echo " run setup script ..."
 
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > ./var/tmp/tb/setup_wrapper.sh
-  if nice -n 1 ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
+  if nice -n 1 $(dirname $0)/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
     echo -e " OK"
     return 0
   else
@@ -611,7 +610,7 @@ function RunDryrunWrapper() {
   local message=$1
 
   echo "$message" | tee ./var/tmp/tb/task
-  nice -n 1 sudo ${0%/*}/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
+  nice -n 1 sudo $(dirname $0)/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
   local rc=$?
   chmod a+w $drylog
 
@@ -778,7 +777,7 @@ function StartImage() {
   cd $tbhome/run
   ln -s ../img/$name
   wc -l -w $name/etc/portage/package.use/2*
-  su - tinderbox -c "${0%/*}/start_img.sh $name"
+  su - tinderbox -c "$(dirname $0)/start_img.sh $name"
 }
 
 

@@ -195,7 +195,7 @@ function setupANewImage() {
   echo
   date
   echo " setup a new image ..."
-  sudo ${0%/*}/setup_img.sh $setupargs
+  sudo $(dirname $0)/setup_img.sh $setupargs
 }
 
 
@@ -228,22 +228,22 @@ do
     d)  condition_distance="$OPTARG"    ;;
     l)  condition_left="$OPTARG"        ;;
     n)  condition_count="$OPTARG"       ;;
+    o)  oldimg=$(basename "$OPTARG")    ;;
     r)  condition_runtime="$OPTARG"     ;;
-
-    o)  oldimg="${OPTARG##*/}"          ;;
     s)  setupargs="$OPTARG"             ;;
     *)  echo " opt not implemented: '$opt'"; exit 1;;
   esac
 done
 
 if [[ -n "$oldimg" ]]; then
-  if StopOldImage "user decision"; then
-    exec nice -n 1 sudo ${0%/*}/setup_img.sh $setupargs
+  reason="user decision"
+  if StopOldImage; then
+    exec nice -n 1 sudo $(dirname $0)/setup_img.sh $setupargs
   fi
 fi
 
 # do not run in parallel (in automatic mode)
-lockfile="/tmp/${0##*/}.lck"
+lockfile="/tmp/$(basename $0).lck"
 if [[ -s "$lockfile" ]]; then
   if kill -0 $(cat $lockfile) 2>/dev/null; then
     exit 1    # a previous instance is (still) running

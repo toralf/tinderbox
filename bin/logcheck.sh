@@ -7,7 +7,7 @@
 set -eu
 export LANG=C.utf8
 
-f=/tmp/${0##*/}.out
+f=/tmp/$(basename $0).out
 
 if [[ ! -s $f ]]; then
   if [[ $(wc -c < <(cat ~/logs/*.log 2>/dev/null)) != 0 ]]; then
