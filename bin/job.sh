@@ -529,8 +529,8 @@ function finishTitle()  {
   if [[ $phase = "test" ]]; then
     sed -i -e "s,^,[TEST] ," $issuedir/title
   fi
-  if [[ $repo != "gentoo" ]]; then
-    sed -i -e "s,^,[$repo overlay] ," $issuedir/title
+  if [[ ! $repo = "gentoo" ]]; then
+    sed -i -e "s,^,[$repo] ," $issuedir/title
   fi
   if [[ $keyword = "stable" ]]; then
     sed -i -e "s,^,[stable] ," $issuedir/title
@@ -928,28 +928,37 @@ function DetectRebuildLoop() {
 function syncReposAndUpdateBacklog()  {
   local diff=${1:-0}
 
-  if emaint sync --auto 1>/dev/null | grep -B 1 '=== Sync completed for gentoo' | grep -q 'Already up to date.'; then
+  emaint sync --auto &>$tasklog
+  local rc=$?
+  if [[ $rc -ne 0 ]]; then
+    return $rc
+  elif grep -q 'git fetch error in /var/db/repos/gentoo' $tasklog; then
+    return 1
+  elif grep -B 1 '=== Sync completed for gentoo' $tasklog | grep -q 'Already up to date.'; then
     return
   fi
 
-  # feed backlog.upd with new entries from max 3 hours ago
-  local ago
-  ((ago = diff + 3600 + 61))
-  if [[ $ago -gt 10800 ]]; then
-    ago=10800
+  # feed backlog.upd with new entries, but limit $diff to 3 hours
+  local distance
+  ((distance = diff + 3600 + 61))
+  if [[ $distance -gt 10800 ]]; then
+    distance=10800
   fi
 
   cd /var/db/repos/gentoo
-  git diff --diff-filter=ACM --name-status "@{ $ago second ago }".."@{ 60 minute ago }" 2>/dev/null |\
+  git diff --diff-filter="ACM" --name-status "@{ $distance second ago }".."@{ 60 minute ago }" 2>/dev/null |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' | cut -f2- -s | cut -f1-2 -d'/' -s |
   grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
   uniq > /tmp/diff.upd
 
+  # mix new entries into the re-mixed backlog
   if [[ -s /tmp/diff.upd ]]; then
-    cp /var/tmp/tb/backlog.upd /tmp
-    sort -u /tmp/diff.upd /tmp/backlog.upd | shuf > /var/tmp/tb/backlog.upd
+    sort -u /tmp/diff.upd /var/tmp/tb/backlog.upd | shuf > /tmp/backlog.upd
+    cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
     rm /tmp/backlog.upd
   fi
+
+  rm /tmp/diff.upd
 }
 
 
@@ -1017,8 +1026,9 @@ do
   current_time=$(date +%s)
   if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
-    last_sync=$current_time
-    syncReposAndUpdateBacklog $diff
+    if syncReposAndUpdateBacklog $diff; then
+      last_sync=$current_time
+    fi
   fi
   echo "#get task" > $taskfile
   getNextTask

@@ -199,7 +199,7 @@ name=$(cat $mnt/var/tmp/tb/name)                              # eg.: 17.1-202010
 repo=$(cat $issuedir/repository)                              # eg.: gentoo
 pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7-r1
 pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                  # eg.: net-misc/bird
-versions=$(eshowkw --overlays --arch amd64 $pkgname |\
+versions=$(eshowkw --arch amd64 $pkgname |\
             grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
             awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
             xargs
