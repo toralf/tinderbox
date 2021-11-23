@@ -73,7 +73,7 @@ function BrokenAndTooOldToRepair() {
     local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
     p=$(tail -n 1 ~/run/$i/var/tmp/tb/@world.history 2>/dev/null) || true
     if grep -q " NOT ok $" <<< $p && [[ $days -ge 2 ]]; then
-      reason="@world broken and image older 2 days"
+      reason="@world broken and image age is older than $days day(s)"
       oldimg=$i
       return 0
     fi
