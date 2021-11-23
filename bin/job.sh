@@ -8,7 +8,7 @@
 # That's all.
 
 
-# strip away quotes
+# strip quotes
 function stripQuotesAndMore() {
   sed -e 's,['\''‘’"`•],,g' -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
 }
@@ -759,7 +759,6 @@ function catchMisc()  {
     grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped | tee $issuedir/issue | head -n 1 > $issuedir/title
     mv $pkglog_stripped $issuedir
     finishTitle
-    sed -i -e "s,^,[misc] ," $issuedir/title
     cp $issuedir/issue $issuedir/comment0
     cat << EOF >> $issuedir/comment0
 
