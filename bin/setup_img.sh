@@ -345,7 +345,7 @@ function cpconf() {
 
 # create portage and tinderbox related directories + files
 function CompilePortageFiles()  {
-  mkdir -p ./mnt/{repos,tb/data} ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
+  mkdir -p ./mnt/tb/data ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
 
   chgrp portage ./var/tmp/tb/{,logs}
   chmod ug+rwx  ./var/tmp/tb/{,logs}
