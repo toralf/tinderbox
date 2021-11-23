@@ -5,7 +5,7 @@
 # if less than 200 GB are free or more than 90% are used then act on it
 function pruneNeeded()  {
   local fs=/dev/nvme0n1p4
-  [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < 200000 || $5 > "90%")') ]]
+  [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < 200000 || $5 > "91%")') ]]
 }
 
 
