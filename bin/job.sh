@@ -532,10 +532,6 @@ function finishTitle()  {
   if [[ ! $repo = "gentoo" ]]; then
     sed -i -e "s,^,[$repo] ," $issuedir/title
   fi
-  if [[ $keyword = "stable" ]]; then
-    sed -i -e "s,^,[stable] ," $issuedir/title
-  fi
-
   sed -i -e 's,  *, ,g' $issuedir/title
   truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
 }
@@ -994,14 +990,16 @@ export PAGER="cat"
 # TODO: do something with these except just keeping it
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
-echo "#init /run" > $taskfile
 # https://bugs.gentoo.org/816303
-if [[ $name =~ "_systemd" ]]; then
-  systemd-tmpfiles --create &>$tasklog
-else
-  RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog
-fi
-
+echo "#init /run" > $taskfile
+if ! (if [[ $name =~ "_systemd" ]]; then
+        systemd-tmpfiles --create &>$tasklog
+      else
+        RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog
+      fi
+    ); then
+    Finish 1 "init failed"
+  fi
 # re-schedule $task (== failed before)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
