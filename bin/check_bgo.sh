@@ -20,6 +20,23 @@ function bgoOutage() {
 
 
 function SearchForMatchingBugs() {
+  # for a file collision report both involved sites
+  if grep -q 'file collision with' $issuedir/title; then
+    local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
+    collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
+    bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
+        grep -e " CONFIRMED " -e " IN_PROGRESS " |\
+        sort -u -n -r |\
+        head -n 8 |\tee $tmpfile
+    if bgoOutage; then
+      return 1
+    fi
+    if [[ -s $tmpfile ]]; then
+      found_issues=1
+      return
+    fi
+  fi
+
   local bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search items
 
   # get away line numbers, certain special terms et al
