@@ -33,6 +33,7 @@ low-memory
 make-symlinks
 minimal
 mips
+modules
 mono
 monolithic
 multilib
