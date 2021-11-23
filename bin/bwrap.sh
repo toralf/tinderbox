@@ -142,13 +142,13 @@ sandbox=(env -i
         --dev                                     /dev
         --mqueue                                  /dev/mqueue
         --perms 1777 --tmpfs                      /dev/shm
-        --proc                                    /proc
-        --tmpfs                                   /run
         --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
         --bind ~tinderbox/tb/data                 /mnt/tb/data
-        --tmpfs                                   /tmp
+        --proc                                    /proc
+        --tmpfs                                   /run
+        --perms 1777 --tmpfs                      /tmp
         --bind ~tinderbox/distfiles               /var/cache/distfiles
-        --tmpfs                                   /var/tmp/portage
+        --perms 1777 --tmpfs                      /var/tmp/portage
         --chdir /var/tmp/tb
         /bin/bash -l
 )
