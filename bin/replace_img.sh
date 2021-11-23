@@ -99,9 +99,11 @@ function FreeSlotAvailable() {
     return 1
   fi
 
-  if ! pgrep -f $(dirname $0)/setup_img.sh 1>/dev/null; then
-    [[ $(listImages | wc -l) -lt $condition_count && $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $condition_count ]]
+  if pgrep -f $(dirname $0)/setup_img.sh 1>/dev/null; then
+    return 1
   fi
+
+  [[ $(listImages | wc -l) -lt $condition_count && $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $condition_count ]]
 }
 
 
