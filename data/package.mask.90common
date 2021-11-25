@@ -41,8 +41,3 @@ www-client/google-chrome
 
 # sam
 sys-cluster/nullmpi
-
-# glibc-2.34 issue https://bugs.gentoo.org/807832
-dev-java/*
-virtual/jdk
-virtual/jre

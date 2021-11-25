@@ -28,6 +28,7 @@ Failed tests:
  \*\*\*Exception:
 : FAILED:
 ^FAILED
+ \*FAILED\*
 Failed .* tests, .*% okay, .* tests skipped.
 testsuite: .* failed
 Test .* from suite .* failed.
@@ -46,6 +47,7 @@ Line .* failed
 missing separator
 Can.t locate .* in @INC
 ^FAIL!
+^FAIL
 QFATAL :
 LoadError:
 rake aborted!

@@ -23,3 +23,4 @@ cp: not writing through
 convert:
  \*   .* not found
  \* * Failed running
+ \* * Failed to

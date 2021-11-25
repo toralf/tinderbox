@@ -79,3 +79,4 @@ Configuring incomplete
 cmake failed
  \*   Failed to find configuration
 Reason: UndefinedError
+Exception:
