@@ -58,7 +58,7 @@ function InitOptions() {
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
   # try to debug:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
-  if __dice 1 40; then
+  if __dice 1 80; then
     cflags_default+=" -Og -g"
   else
     cflags_default+=" -O2"
@@ -72,14 +72,15 @@ function InitOptions() {
 
   # stable image ?
   keyword="~amd64"
-  if __dice 1 40; then
+  if __dice 1 80; then
     keyword="amd64"
   fi
 
   testfeature="n"
-  if __dice 1 40; then
+  if __dice 1 80; then
     testfeature="y"
   fi
+
   useflagfile=""
 }
 
