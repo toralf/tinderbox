@@ -146,6 +146,7 @@ sandbox=(env -i
         --bind ~tinderbox/tb/data                 /mnt/tb/data
         --proc                                    /proc
         --tmpfs                                   /run
+        --ro-bind /sys                            /sys
         --perms 1777 --tmpfs                      /tmp
         --bind ~tinderbox/distfiles               /var/cache/distfiles
         --perms 1777 --tmpfs                      /var/tmp/portage
