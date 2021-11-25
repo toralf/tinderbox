@@ -42,6 +42,7 @@ function NumberOfNewBugs() {
 
 
 function HasAnEmptyBacklog() {
+  oldimg=""
   while read -r i
   do
     local bl=~/run/$i/var/tmp/tb/backlog
@@ -51,8 +52,6 @@ function HasAnEmptyBacklog() {
         oldimg=$i
         return 0
       fi
-    else
-      echo "warn: $bl is missing !"
     fi
   done < <(listImages)
 
@@ -61,6 +60,7 @@ function HasAnEmptyBacklog() {
 
 
 function BrokenAndTooOldToRepair() {
+  oldimg=""
   while read -r i
   do
     local p=$(tail -n 1 ~/run/$i/var/tmp/tb/@preserved-rebuild.history 2>/dev/null) || true
@@ -70,12 +70,14 @@ function BrokenAndTooOldToRepair() {
       return 0
     fi
 
-    local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
     p=$(tail -n 1 ~/run/$i/var/tmp/tb/@world.history 2>/dev/null) || true
-    if grep -q " NOT ok $" <<< $p && [[ $days -ge 2 ]]; then
-      reason="@world broken and image age is older than $days day(s)"
-      oldimg=$i
-      return 0
+    if grep -q " NOT ok $" <<< $p; then
+      local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
+      if [[ $days -ge 2 ]]; then
+        reason="@world broken and image age is older than $days day(s)"
+        oldimg=$i
+        return 0
+      fi
     fi
   done < <(listImages)
 
@@ -108,12 +110,7 @@ function FreeSlotAvailable() {
 
 
 function ReplaceAnImage() {
-  if [[ $condition_distance -gt -1 ]]; then
-    if ! MinDistanceIsReached; then
-      return 1
-    fi
-  fi
-
+  oldimg=""
   while read -r i
   do
     if [[ $condition_runtime -gt -1 ]]; then
@@ -156,7 +153,8 @@ function StopOldImage() {
 
   echo
   date
-  echo " $msg for $oldimg"
+  echo " $msg"
+  echo " stopping: $oldimg"
 
   local lock_dir=/run/tinderbox/$oldimg.lock
   if [[ -d $lock_dir ]]; then
@@ -186,10 +184,11 @@ EOF
       sleep 1
     done
     echo "done"
+  else
+    echo "not runnning"
   fi
 
   rm -- ~/run/$oldimg ~/logs/$oldimg.log
-  oldimg=""
 }
 
 
@@ -276,11 +275,19 @@ do
   fi
 done
 
-while ReplaceAnImage
+while :
 do
-  if StopOldImage; then
-    setupANewImage
+  if [[ $condition_distance -gt -1 ]]; then
+    if ! MinDistanceIsReached; then
+      break
+    fi
   fi
+  while ReplaceAnImage
+  do
+    if StopOldImage; then
+      setupANewImage
+    fi
+  done
 done
 
 Finish 0
