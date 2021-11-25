@@ -986,7 +986,7 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
-# TODO: do something with these except just keeping it
+# TODO: do something with these data
 echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
 
 # https://bugs.gentoo.org/816303
