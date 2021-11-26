@@ -925,6 +925,11 @@ function syncReposAndUpdateBacklog()  {
 
   emaint sync --auto &>$tasklog
   local rc=$?
+
+  if grep -q -F '* An update to portage is available. It is _highly_ recommended' $tasklog; then
+    add2backlog "sys-apps/portage"
+  fi
+
   if [[ $rc -ne 0 ]]; then
     return $rc
   elif grep -q 'git fetch error in /var/db/repos/gentoo' $tasklog; then
