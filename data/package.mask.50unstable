@@ -2,13 +2,6 @@
 #
 
 
-# avoid up/downgrading
-<dev-lang/ghc-8.10.4
-<dev-python/docutils-0.17.1
-<net-libs/nodejs-16.10.0
-<dev-util/ragel-7.0.4
-
-
 #######################################################################
 #
 
