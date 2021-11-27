@@ -59,26 +59,19 @@ function HasAnEmptyBacklog() {
 }
 
 
-function BrokenAndTooOldToRepair() {
+function Broken() {
   oldimg=""
   while read -r i
   do
-    local p=$(tail -n 1 ~/run/$i/var/tmp/tb/@preserved-rebuild.history 2>/dev/null) || true
-    if grep -q " NOT ok $" <<< $p ; then
-      reason="@preserved-rebuild broken"
-      oldimg=$i
-      return 0
-    fi
-
-    p=$(tail -n 1 ~/run/$i/var/tmp/tb/@world.history 2>/dev/null) || true
-    if grep -q " NOT ok $" <<< $p; then
-      local days=$(( ( $(date +%s) - $(getStartTime $i) ) / 86400 ))
-      if [[ $days -ge 2 ]]; then
-        reason="@world broken and image age is older than $days day(s)"
+    for s in @preserved-rebuild @world
+    do
+      local p=$(tail -n 1 ~/run/$i/var/tmp/tb/$s.history 2>/dev/null) || true
+      if grep -q " NOT ok $" <<< $p ; then
+        reason="$s broken"
         oldimg=$i
         return 0
       fi
-    fi
+    done
   done < <(listImages)
 
   return 1
@@ -187,6 +180,7 @@ EOF
   else
     echo "not runnning"
   fi
+  echo
 
   rm -- ~/run/$oldimg ~/logs/$oldimg.log
 }
@@ -268,26 +262,24 @@ do
   fi
 done
 
-while BrokenAndTooOldToRepair
+while Broken
 do
   if StopOldImage; then
     setupANewImage
   fi
 done
 
-while :
+while ReplaceAnImage
 do
   if [[ $condition_distance -gt -1 ]]; then
     if ! MinDistanceIsReached; then
       break
     fi
   fi
-  while ReplaceAnImage
-  do
-    if StopOldImage; then
-      setupANewImage
-    fi
-  done
+
+  if StopOldImage; then
+    setupANewImage
+  fi
 done
 
 Finish 0
