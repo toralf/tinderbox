@@ -1031,6 +1031,7 @@ do
     if syncReposAndUpdateBacklog $diff; then
       last_sync=$current_time
     fi
+    (date; echo) > $tasklog
   fi
   echo "#get task" > $taskfile
   getNextTask
