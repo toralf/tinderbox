@@ -147,7 +147,7 @@ function Tasks()  {
     if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
       echo -n " "
     fi
-    echo $task | cut -c1-$cols
+    echo $task | cut -c1-$cols_task
   done
 }
 
@@ -186,7 +186,7 @@ function LastEmergeOperation()  {
         printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");
       }
       my $outline = join (" ", @F[1..$#F]);
-      print substr ($outline, 1, '"'$cols'"');
+      print substr ($outline, 1, '"'$cols_task'"');
     '
     echo
   done
@@ -231,25 +231,27 @@ function PackagesPerImagePerRunDay() {
   done
 }
 
-
 # whatsup.sh -c
-#
-# coverage: 17812
+# coverage in ~/run : 84 % of past  8 days
+# coverage in ~/img : 91 % of past 53 days
 function Coverage() {
-  local n=$(ls -d /var/db/repos/gentoo/*-*/* | wc -l)
-  local perc
+  local N=$(ls -d /var/db/repos/gentoo/*-*/* | wc -l)
+  echo "$N packages in ::gentoo"
   for i in run img
   do
-    echo -n "coverage in ~/$i : "
-    local coverage=$(grep -H '::: completed emerge' ~/$i/*/var/log/emerge.log |\
+    local n=$(grep -H '::: completed emerge' ~/$i/*/var/log/emerge.log |\
                 # handle ::local
                 tr -d ':' |\
                 awk ' { print $7 } ' |\
                 xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
                 sort -u |\
                 wc -l)
-    ((perc = 100 * $coverage / $n))
-    echo "$coverage ($perc %)"
+    local oldest=$(cat ~/$i/*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
+    local days=$(( ( $(date +%s) - $oldest ) / 3600 / 24 ))
+    local perc
+    ((perc = 100 * $n / $N))
+    printf "coverage in ~/%s : %2i %% of past %2i days" $i $perc $days
+    echo
   done
 }
 
@@ -358,10 +360,10 @@ source $(dirname $0)/lib.sh
 images=$(__list_images)
 
 # cut too long lines of tasks / last emerge op
-if width=$(tput cols 2>/dev/null); then
-  ((cols = width - 38))
+if tput cols_task 2>/dev/null; then
+  ((cols_task = $(tput cols_task) - 38))
 else
-  cols=100
+  cols_task=100
 fi
 
 while getopts cdehlopt\? opt

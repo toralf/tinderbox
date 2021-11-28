@@ -79,7 +79,7 @@ function Broken() {
 
 
 function MinDistanceIsReached() {
-  local newest=$(cd ~/run; cat */var/tmp/tb/setup.timestamp 2>/dev/null | sort -u | tail -n 1)
+  local newest=$(cat ~/run/*/var/tmp/tb/setup.timestamp | sort -u | tail -n 1)
   if [[ -z "$newest" ]]; then
     return 1
   fi

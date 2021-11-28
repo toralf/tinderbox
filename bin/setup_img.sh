@@ -32,15 +32,14 @@ function ThrowUseFlags() {
 # helper of InitOptions()
 function GetProfiles() {
   eselect profile list |\
+  grep -v -F -e ' (exp)' -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl' -e '/developer' |\
+  grep -F "default/linux/amd64/17.1/" |\
   awk ' { print $2 } ' |\
-  grep -F "default/linux/amd64/17.1" |\
-  grep -v -F -e '/x32' -e '/selinux' -e '/uclibc' -e 'musl' -e 'developer' |\
   cut -f4- -d'/' -s
 }
 
 
 # helper of main()
-# almost are variables here are globals
 function InitOptions() {
   # whilst 1 process in each of N running images is much more efficient than *up to* M processes in N images
   # and it is more easier to catch the error message, the compile times are awefully with -j1 nowadays
