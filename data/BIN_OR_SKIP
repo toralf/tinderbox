@@ -1,8 +1,11 @@
-# mask packages with a long emerge times with a likelilood of < 100 %
+# mask packages with long emerge times, especially if they do have -bin variants
 
 app-office/libreoffice
+app-shells/nushell
 dev-db/mongodb
 dev-lang/gnat-gpl
+dev-lang/rust
+dev-python/pypy3-exe
 dev-qt/qtwebengine
 dev-util/include-what-you-use
 dev-util/intel-graphics-compiler

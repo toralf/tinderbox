@@ -45,3 +45,4 @@ convert: no
  \* Ebuild author forgot an entry
 ModuleNotFoundError:
 ValueError:
+KeyError:

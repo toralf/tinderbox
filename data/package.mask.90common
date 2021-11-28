@@ -29,6 +29,7 @@ sys-fs/encfs
 sys-fs/loop-aes
 sys-fs/vhba
 sys-fs/zfs-kmod
+sys-libs/uclibc-ng
 x11-drivers/nvidia-drivers
 
 # annoying
@@ -39,5 +40,5 @@ dev-libs/aws-sdk-cpp
 www-client/chromium
 www-client/google-chrome
 
-# sam
+# sam: nullmpi does not fully implement all of the MPI spec
 sys-cluster/nullmpi

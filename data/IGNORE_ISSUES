@@ -9,6 +9,7 @@ gcc version .* found, expected gcc
 Incompatible gcc version found
 dev-util/sysdig-kmod
 Kernel not configured; no .config found in
+Linux .* is the latest supported version
 mingw is needed
 Missing requested third party patch.
 No LLVM slot <= .* found installed!
@@ -25,6 +26,7 @@ some Java tools are not available on some VMs on some architectures
 The Objective-C compiler does not work o
 The version of your compiler is not supported at this time
 Use sys-devel/crossdev to build a .* toolchain
+USE=modules and in-kernel ipset support detected
 We have detected that you currently use udev or devfs or devtmpfs
  \* *You need one of the following mpi implementations:
  \*   .*:  *is not set when it should be.
