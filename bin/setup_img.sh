@@ -549,7 +549,9 @@ useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 date
 echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -webdav" emerge -u dev-vcs/git
-emaint sync --auto 1>/dev/null
+if ! emaint sync --auto 1>/dev/null; then
+  echo "ignoring git sync error"
+fi
 
 if grep -q "LIBTOOL" /etc/portage/make.conf; then
   date
