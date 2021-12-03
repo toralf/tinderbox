@@ -65,10 +65,12 @@ function Broken() {
   do
     for s in @preserved-rebuild @world
     do
-      local p=$(tail -n 1 ~/run/$i/var/tmp/tb/$s.history 2>/dev/null) || true
-      if grep -q " NOT ok $" <<< $p ; then
+      if tail -n 1 ~/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
         reason="$s broken"
         oldimg=$i
+        echo
+        tail -n 100 ~/run/$i/var/tmp/tb/$s.last.log
+        echo
         return 0
       fi
     done
