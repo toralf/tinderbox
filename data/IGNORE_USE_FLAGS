@@ -17,11 +17,13 @@ fuse
 gallium
 ghcbootstrap
 gold
+gtk-doc
 hardened
 headers-only
 homed
 hostname
 i386
+introspection
 ithreads
 jumbo-build
 libssp
@@ -59,6 +61,7 @@ tools
 uclibc
 user-session
 vaapi
+vala
 vdpau
 vim-syntax
 vulkan

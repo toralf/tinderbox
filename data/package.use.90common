@@ -5,10 +5,11 @@
 #######################################################################
 #
 # global settings
+#
 
 */*  QEMU_SOFTMMU_TARGETS:          x86_64 i386
 */*  QEMU_USER_TARGETS:             x86_64 i386
-*/*  VIDEO_CARDS:                   dummy
+*/*  VIDEO_CARDS:                   -* dummy fbdev intel amdgpu
 */*  RUBY_TARGETS:                  ruby30
 
 # 2x faster compile
@@ -32,6 +33,3 @@ app-text/ansifilter                 -qt5
 #
 # temp settings
 #
-
-# https://bugs.gentoo.org/805173
-app-editors/xemacs                  -Xaw3d

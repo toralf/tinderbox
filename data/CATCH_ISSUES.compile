@@ -303,3 +303,5 @@ pyglet.canvas.xlib.NoSuchDisplayException:
 Internal or unrecoverable error in:
 Got signal before environment was installed on our thread
 Error: cannot open mo file
+KeyError:
+   mydistutilsargs is banned in
