@@ -753,7 +753,7 @@ function CompileWorkingUseFlags() {
     return $?
   else
     local attempt=0
-    while [[ $(( ++attempt )) -le 100 ]]
+    while [[ $(( ++attempt )) -le 200 ]]
     do
       if [[ -f ./var/tmp/tb/STOP ]]; then
         echo -e "\n found STOP file"
