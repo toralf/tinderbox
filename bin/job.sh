@@ -851,6 +851,10 @@ function WorkOnTask() {
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
+        if tail -n 1 /var/tmp/tb/@system.history | grep -q " NOT ok $"; then
+          # if eg. a dep could not be solved in @system but now in @world then gid rid of the misguiding failure state
+          add2backlog "@system"
+        fi
         add2backlog "%emerge --depclean"
       fi
     else
@@ -926,8 +930,8 @@ function syncReposAndUpdateBacklog()  {
   emaint sync --auto &>$tasklog
   local rc=$?
 
-  if grep -q -F '* An update to portage is available. It is _highly_ recommended' $tasklog; then
-    add2backlog "sys-apps/portage"
+  if grep -q -F 'emerge --oneshot sys-apps/portage' $tasklog; then
+    add2backlog "%emerge --oneshot sys-apps/portage"
   fi
 
   if [[ $rc -ne 0 ]]; then
@@ -935,7 +939,7 @@ function syncReposAndUpdateBacklog()  {
   elif grep -q 'git fetch error in /var/db/repos/gentoo' $tasklog; then
     return 1
   elif grep -B 1 '=== Sync completed for gentoo' $tasklog | grep -q 'Already up to date.'; then
-    return
+    return 0
   fi
 
   # feed backlog.upd with new entries, but limit $diff to 3 hours
