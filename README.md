@@ -36,7 +36,7 @@ The current emerge operation will be finished before *job.sh* removes the marker
 
 ### go into a stopped image
 ```bash
-sudo /opt/tb/bin/bwrap.sh -m <mount point>
+sudo /opt/tb/bin/bwrap.sh -m <image>
 ```
 
 ### removal of an image
@@ -100,7 +100,7 @@ Create these crontab entries for user *tinderbox*:
 # check logs
 @reboot   while :; do sleep 60; /opt/tb/bin/logcheck.sh; done
 
-# replace an image
+# run 13 images in parallel
 @hourly   f=$(mktemp /tmp/XXXXXX); /opt/tb/bin/replace_img.sh -n 13 &>$f; cat $f; rm $f
 
 # house keeping
