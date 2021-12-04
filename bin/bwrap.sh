@@ -90,18 +90,7 @@ do
             echo "argument not accepted"
             exit 2
           fi
-
-          if [[ ! -e "$OPTARG" ]]; then
-            echo "no valid mount point found"
-            exit 2
-          fi
-
-          if [[ ! $(stat -c '%u' "$OPTARG") = "0" ]]; then
-            echo "wrong ownership of mount point"
-            exit 2
-          fi
-
-          mnt=$OPTARG
+          mnt=~tinderbox"/img/$OPTARG"
           ;;
     s)    if [[ ! -s "$OPTARG" ]]; then
             echo "no valid entry point script given: $OPTARG"
@@ -114,6 +103,16 @@ done
 
 if [[ -z "$mnt" ]]; then
   echo "no mnt given!"
+  exit 3
+fi
+
+if [[ ! -e "$mnt" ]]; then
+  echo "no valid mount point found"
+  exit 3
+fi
+
+if [[ ! $(stat -c '%u' "$mnt") = "0" ]]; then
+  echo "wrong ownership of mount point"
   exit 3
 fi
 

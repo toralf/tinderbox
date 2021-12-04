@@ -596,7 +596,7 @@ function RunSetupScript() {
   echo " run setup script ..."
 
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > ./var/tmp/tb/setup_wrapper.sh
-  if nice -n 1 $(dirname $0)/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
+  if nice -n 1 $(dirname $0)/bwrap.sh -m "$(basename $mnt)" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
     echo -e " OK"
     return 0
   else
@@ -612,7 +612,7 @@ function RunDryrunWrapper() {
   local message=$1
 
   echo "$message" | tee ./var/tmp/tb/task
-  nice -n 1 sudo $(dirname $0)/bwrap.sh -m "$mnt" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
+  nice -n 1 sudo $(dirname $0)/bwrap.sh -m "$(basename $mnt)" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
   local rc=$?
   chmod a+w $drylog
 
