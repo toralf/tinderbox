@@ -236,7 +236,7 @@ function PackagesPerImagePerRunDay() {
 # coverage in ~/img : 91 % of past 53 days
 function Coverage() {
   local N=$(ls -d /var/db/repos/gentoo/*-*/* | wc -l)
-  echo "$N packages in ::gentoo"
+  printf "%5i packages in ::gentoo\n" $N
   for i in run img
   do
     local n=$(grep -H '::: completed emerge' ~/$i/*/var/log/emerge.log |\
@@ -250,7 +250,7 @@ function Coverage() {
     local days=$(( ( $(date +%s) - $oldest ) / 3600 / 24 ))
     local perc
     ((perc = 100 * $n / $N))
-    printf "coverage in ~/%s : %2i %% of past %2i days" $i $perc $days
+    printf "%5i packages in ~/%s   (%2i%% in past %2i days)" $n $i $perc $days
     echo
   done
 }
