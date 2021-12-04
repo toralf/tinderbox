@@ -17,7 +17,6 @@ fuse
 gallium
 ghcbootstrap
 gold
-gtk-doc
 hardened
 headers-only
 homed
@@ -25,6 +24,7 @@ hostname
 i386
 introspection
 ithreads
+jack
 jumbo-build
 libssp
 libunwind

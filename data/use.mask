@@ -10,6 +10,3 @@ pax-kernel
 rados
 symlink
 valgrind
-
-# gdk-pixbuf issue
-gtk-doc

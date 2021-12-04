@@ -22,9 +22,7 @@ x11-base/xorg-server                xvfb
 
 
 # setup issues
-*/*                                 -jack
-app-text/xmlto                      -latex
-dev-libs/glib                       -gtk-doc
-dev-util/cmake                      -emacs
-media-libs/harfbuzz                 -cairo
-net-print/cups                      -zeroconf
+
+#app-text/xmlto                      -latex
+#dev-util/cmake                      -emacs
+#net-print/cups                      -zeroconf
