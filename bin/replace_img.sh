@@ -31,11 +31,6 @@ function GetCompletedEmergeOperations() {
 }
 
 
-function NumberOfPackagesInBacklog() {
-  wc -l 2>/dev/null < ~/run/$1/var/tmp/tb/backlog || echo "0"
-}
-
-
 function HasAnEmptyBacklog() {
   oldimg=""
   while read -r i
@@ -107,13 +102,6 @@ function ReplaceAnImage() {
       local runtime=$(( ( $(date +%s) - $(getStartTime $i) ) / 3600 / 24))
       if [[ $runtime -ge $condition_runtime ]]; then
         reason="runtime >$condition_runtime days"
-        oldimg=$i
-        return 0
-      fi
-    fi
-    if [[ $condition_left -gt -1 ]]; then
-      if [[ $(NumberOfPackagesInBacklog $i) -le $condition_left ]]; then
-        reason="backlog <$condition_left lines"
         oldimg=$i
         return 0
       fi
@@ -197,19 +185,17 @@ fi
 
 condition_completed=-1      # completed emerge operations
 condition_distance=-1       # distance in hours to the previous image
-condition_left=-1           # left entries in backlogs
 condition_runtime=-1        # age in days for an image
 condition_count=-1          # number of images to be run
 
 oldimg=""                   # image to be replaced
 setupargs=""                # argument(s) for setup_img.sh
 
-while getopts c:d:l:n:o:r:s: opt
+while getopts c:d:n:o:r:s: opt
 do
   case "$opt" in
     c)  condition_completed="$OPTARG"   ;;
     d)  condition_distance="$OPTARG"    ;;
-    l)  condition_left="$OPTARG"        ;;
     n)  condition_count="$OPTARG"       ;;
     o)  oldimg=$(basename "$OPTARG")    ;;
     r)  condition_runtime="$OPTARG"     ;;
