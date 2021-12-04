@@ -36,11 +36,6 @@ function NumberOfPackagesInBacklog() {
 }
 
 
-function NumberOfNewBugs() {
- ls ~/run/$1/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l || echo "0"
-}
-
-
 function HasAnEmptyBacklog() {
   oldimg=""
   while read -r i
@@ -130,13 +125,6 @@ function ReplaceAnImage() {
         return 0
       fi
     fi
-    if [[ $condition_bugs -gt -1 ]]; then
-      if [[ $(NumberOfNewBugs $i) -eq 0 && $(GetCompletedEmergeOperations $i) -ge $condition_bugs ]] ; then
-        reason="no new bugs found in $condition_bugs emerges"
-        oldimg=$i
-        return 0
-      fi
-    fi
   done < <(listImages)
 
   return 1
@@ -212,15 +200,13 @@ condition_distance=-1       # distance in hours to the previous image
 condition_left=-1           # left entries in backlogs
 condition_runtime=-1        # age in days for an image
 condition_count=-1          # number of images to be run
-condition_bugs=-1           # number of emerges w/o new (==reported) bugs
 
 oldimg=""                   # image to be replaced
 setupargs=""                # argument(s) for setup_img.sh
 
-while getopts b:c:d:l:n:o:r:s: opt
+while getopts c:d:l:n:o:r:s: opt
 do
   case "$opt" in
-    b)  condition_bugs="$OPTARG"        ;;
     c)  condition_completed="$OPTARG"   ;;
     d)  condition_distance="$OPTARG"    ;;
     l)  condition_left="$OPTARG"        ;;
