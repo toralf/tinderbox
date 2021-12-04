@@ -58,9 +58,9 @@ function Broken() {
       if tail -n 1 ~/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
         reason="$s broken"
         oldimg=$i
-        echo
-        tail -n 100 ~/run/$i/var/tmp/tb/$s.last.log
-        echo
+        echo -e "\n=========================================================\n"
+        tail -n 200 ~/run/$i/var/tmp/tb/$s.last.log
+        echo -e "\n=========================================================\n"
         return 0
       fi
     done
@@ -71,7 +71,7 @@ function Broken() {
 
 
 function MinDistanceIsReached() {
-  local newest=$(cat ~/run/*/var/tmp/tb/setup.timestamp | sort -u | tail -n 1)
+  local newest=$(set +f; cat ~/run/*/var/tmp/tb/setup.timestamp | sort -u -n | tail -n 1)
   if [[ -z "$newest" ]]; then
     return 1
   fi
