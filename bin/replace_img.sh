@@ -21,8 +21,8 @@ function Finish() {
 }
 
 
-function listImages() {
-  (cd ~/run; ls -d * 2>/dev/null | shuf)
+function shufImages() {
+  (set +f; cd ~/run; ls -d * 2>/dev/null | shuf)
 }
 
 
@@ -43,7 +43,7 @@ function HasAnEmptyBacklog() {
         return 0
       fi
     fi
-  done < <(listImages)
+  done < <(shufImages)
 
   return 1
 }
@@ -64,7 +64,7 @@ function Broken() {
         return 0
       fi
     done
-  done < <(listImages)
+  done < <(shufImages)
 
   return 1
 }
@@ -90,7 +90,7 @@ function FreeSlotAvailable() {
     return 1
   fi
 
-  [[ $(listImages | wc -l) -lt $condition_count && $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $condition_count ]]
+  [[ $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $condition_count && $(shufImages | wc -l) -lt $condition_count ]]
 }
 
 
@@ -101,19 +101,20 @@ function ReplaceAnImage() {
     if [[ $condition_runtime -gt -1 ]]; then
       local runtime=$(( ( $(date +%s) - $(getStartTime $i) ) / 3600 / 24))
       if [[ $runtime -ge $condition_runtime ]]; then
-        reason="runtime >$condition_runtime days"
+        reason="runtime $runtime days (>$condition_runtime)"
         oldimg=$i
         return 0
       fi
     fi
     if [[ $condition_completed -gt -1 ]]; then
-      if [[ $(GetCompletedEmergeOperations $i) -ge $condition_completed ]]; then
-        reason=">$condition_completed emerges completed"
+      local completed=$(GetCompletedEmergeOperations $i)
+      if [[ $completed -ge $condition_completed ]]; then
+        reason="$completed emerges completed (> $condition_completed)"
         oldimg=$i
         return 0
       fi
     fi
-  done < <(listImages)
+  done < <(shufImages)
 
   return 1
 }
@@ -173,7 +174,7 @@ function setupANewImage() {
 
 
 #######################################################################
-set -eu
+set -euf
 export LANG=C.utf8
 
 source $(dirname $0)/lib.sh
@@ -184,9 +185,9 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
 fi
 
 condition_completed=-1      # completed emerge operations
+condition_count=-1          # number of images to be run
 condition_distance=-1       # distance in hours to the previous image
 condition_runtime=-1        # age in days for an image
-condition_count=-1          # number of images to be run
 
 oldimg=""                   # image to be replaced
 setupargs=""                # argument(s) for setup_img.sh
@@ -195,23 +196,22 @@ while getopts c:d:n:o:r:s: opt
 do
   case "$opt" in
     c)  condition_completed="$OPTARG"   ;;
-    d)  condition_distance="$OPTARG"    ;;
     n)  condition_count="$OPTARG"       ;;
-    o)  oldimg=$(basename "$OPTARG")    ;;
+    d)  condition_distance="$OPTARG"    ;;
     r)  condition_runtime="$OPTARG"     ;;
+
+    o)  oldimg=$(basename "$OPTARG")
+        reason="user decision"
+        if StopOldImage; then
+          exec nice -n 1 sudo $(dirname $0)/setup_img.sh $setupargs
+        fi
+        ;;
     s)  setupargs="$OPTARG"             ;;
     *)  echo " opt not implemented: '$opt'"; exit 1;;
   esac
 done
 
-if [[ -n "$oldimg" ]]; then
-  reason="user decision"
-  if StopOldImage; then
-    exec nice -n 1 sudo $(dirname $0)/setup_img.sh $setupargs
-  fi
-fi
-
-# do not run in parallel (in automatic mode)
+# do not run in parallel from here
 lockfile="/tmp/$(basename $0).lck"
 if [[ -s "$lockfile" ]]; then
   if kill -0 $(cat $lockfile) 2>/dev/null; then
