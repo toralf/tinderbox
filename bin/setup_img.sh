@@ -810,26 +810,18 @@ fi
 
 tbhome=~tinderbox
 repodir=/var/db/repos
-gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s)
+gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf)
 
 InitOptions
 
-while getopts a:c:j:k:p:s:t:u: opt
+while getopts a:c:j:k:p:t:u: opt
 do
   case $opt in
     a)  abi3264="$OPTARG"     ;;
     c)  cflags="$OPTARG"      ;;
     j)  jobs="$OPTARG"        ;;
     k)  keyword="$OPTARG"     ;;
-    p)  profile="$OPTARG"
-        cflags=$cflags_default
-        abi3264="n"
-        testfeature="n"
-        ;;
-    s)  name="$OPTARG"
-        StartImage
-        exit $?
-        ;;
+    p)  profile="$OPTARG"     ;;
     t)  testfeature="$OPTARG" ;;
     u)  useflagfile="$OPTARG" ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
