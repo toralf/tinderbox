@@ -1,4 +1,4 @@
-#!/bin/bash
+q#!/bin/bash
 # set -x
 
 
@@ -21,10 +21,10 @@ fi
 
 source $(dirname $0)/lib.sh
 
-for i in ${@:-$(ls ~/run 2>/dev/null)}
+for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}
 do
   echo -n "$(date +%X) "
-  mnt=~/img/$(basename $i)
+  mnt=~tinderbox/img/$(basename $i)
 
   if [[ ! -d $mnt ]]; then
     echo "no valid mount point found for $mnt"
@@ -49,7 +49,7 @@ do
   echo " starting: $mnt"
 
   # nice makes sysstat graphs better readable
-  nice -n 3 sudo $(dirname $0)/bwrap.sh -m "$(basename $mnt)" -s "$(dirname $0)/job.sh" &> ~/logs/$(basename $mnt).log &
+  nice -n 3 sudo $(dirname $0)/bwrap.sh -m "$(basename $mnt)" -s "$(dirname $0)/job.sh" &> ~tinderbox/logs/$(basename $mnt).log &
 done
 
 # avoid an invisible prompt

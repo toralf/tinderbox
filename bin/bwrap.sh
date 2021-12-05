@@ -90,7 +90,7 @@ do
             echo "argument not accepted"
             exit 2
           fi
-          mnt=~tinderbox"/img/$OPTARG"
+          mnt=~tinderbox/img/${OPTARG##*/}
           ;;
     s)    if [[ ! -s "$OPTARG" ]]; then
             echo "no valid entry point script given: $OPTARG"

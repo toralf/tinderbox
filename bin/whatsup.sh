@@ -104,9 +104,9 @@ function Overall() {
     check_history $i/var/tmp/tb/@world.history              w
     check_history $i/var/tmp/tb/@system.history             s
 
-    # images during setup are not yet symlinked to ~/run
+    # images during setup are not yet symlinked to ~tinderbox/run
     local b=$(basename $i)
-    [[ -e ~/run/$b ]] && d="~/run" || d="~/img"
+    [[ -e ~tinderbox/run/$b ]] && d="~/run" || d="~/img"  # shorten output
     printf "%5i %4i %3i %4.1f %7i %4i %4i %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
   done
 }
@@ -202,7 +202,7 @@ function PackagesPerImagePerRunDay() {
   for i in $(seq 1 11); do printf "%4id" $i; done
   echo
 
-  for i in $(ls -d ~/run/* 2>/dev/null | sort -t '-' -k 3,4)
+  for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3,4)
   do
     PrintImageName $i 54
 
@@ -232,25 +232,25 @@ function PackagesPerImagePerRunDay() {
 }
 
 # whatsup.sh -c
-# coverage in ~/run : 84 % of past  8 days
-# coverage in ~/img : 91 % of past 53 days
+# coverage in ~tinderbox/run : 84 % of past  8 days
+# coverage in ~tinderbox/img : 91 % of past 53 days
 function Coverage() {
   local N=$(ls -d /var/db/repos/gentoo/*-*/* | wc -l)
   printf "%5i packages in ::gentoo\n" $N
   for i in run img
   do
-    local n=$(grep -H '::: completed emerge' ~/$i/*/var/log/emerge.log |\
+    local n=$(grep -H '::: completed emerge' ~tinderbox/$i/*/var/log/emerge.log |\
                 # handle ::local
                 tr -d ':' |\
                 awk ' { print $7 } ' |\
                 xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
                 sort -u |\
                 wc -l)
-    local oldest=$(cat ~/$i/*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
+    local oldest=$(cat ~tinderbox/$i/*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
     local days=$(( ( $(date +%s) - $oldest ) / 3600 / 24 ))
     local perc
     ((perc = 100 * $n / $N))
-    printf "%5i packages in ~/%s   (%2i%% in past %2i days)" $n $i $perc $days
+    printf "%5i packages in ~tinderbox/%s   (%2i%% in past %2i days)" $n $i $perc $days
     echo
   done
 }
@@ -298,7 +298,7 @@ function CountEmergesPerPackages()  {
       }
       print "\n\n $seen package revisions in $total emerges\n";
     }
-  ' ~/run/*/var/log/emerge.log
+  ' ~tinderbox/run/*/var/log/emerge.log
 }
 
 
@@ -342,7 +342,7 @@ function emergeThruput()  {
         print "\n";
       }
     }
-  ' $(find ~/img/*/var/log/emerge.log -mtime -15 | sort -t '-' -k 3,4) |\
+  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -15 | sort -t '-' -k 3,4) |\
   tail -n 14
 }
 

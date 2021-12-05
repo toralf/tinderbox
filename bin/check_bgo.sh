@@ -15,7 +15,7 @@ function Exit()  {
 
 
 function bgoOutage() {
-  grep -F -e 'Error: Bugzilla error:' $tmpfile
+  grep -q -F -e 'Error: Bugzilla error:' $tmpfile
 }
 
 
@@ -27,7 +27,8 @@ function SearchForMatchingBugs() {
     bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
         grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r |\
-        head -n 8 |\tee $tmpfile
+        head -n 8 |\
+        tee $tmpfile
     if bgoOutage; then
       return 1
     fi
@@ -56,7 +57,8 @@ function SearchForMatchingBugs() {
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |
         grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r |\
-        head -n 8 |\tee $tmpfile
+        head -n 8 |\
+        tee $tmpfile
     if bgoOutage; then
       return 1
     fi
@@ -155,7 +157,7 @@ function LookupForABlocker() {
       fi
       break
     fi
-  done < <(grep -v -e '^#' -e '^$' ~/tb/data/BLOCKER)
+  done < <(grep -v -e '^#' -e '^$' ~tinderbox/tb/data/BLOCKER)
 }
 
 

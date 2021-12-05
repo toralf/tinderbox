@@ -191,13 +191,12 @@ function UnpackStage3()  {
 
   CreateImageName
 
-  mnt=$tbhome/img/$name
-  mkdir $mnt || return 1
-  echo " new image: $mnt"
+  mkdir ~tinderbox/img/$name || return 1
+  cd ~tinderbox/img/$name
+  echo " new image: $name"
   echo
 
   date
-  cd $mnt
   echo " untar'ing $f ..."
   tar -xpf $f --same-owner --xattrs || return 1
   echo
@@ -244,7 +243,8 @@ EOF
     # fallback is the host
     refdir=$repodir/gentoo
   fi
-  cd .$repodir
+
+  cd ./$repodir
   cp -ar --reflink=auto $refdir ./
   cd - 1>/dev/null
 
@@ -596,7 +596,7 @@ function RunSetupScript() {
   echo " run setup script ..."
 
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > ./var/tmp/tb/setup_wrapper.sh
-  if nice -n 1 $(dirname $0)/bwrap.sh -m "$(basename $mnt)" -s $mnt/var/tmp/tb/setup_wrapper.sh; then
+  if nice -n 1 $(dirname $0)/bwrap.sh -m $name -s ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
     echo -e " OK"
     return 0
   else
@@ -612,7 +612,7 @@ function RunDryrunWrapper() {
   local message=$1
 
   echo "$message" | tee ./var/tmp/tb/task
-  nice -n 1 sudo $(dirname $0)/bwrap.sh -m "$(basename $mnt)" -s $mnt/var/tmp/tb/dryrun_wrapper.sh &> $drylog
+  nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -s ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &> $drylog
   local rc=$?
   chmod a+w $drylog
 
@@ -814,18 +814,11 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts a:c:f:j:k:m:p:s:t:u: opt
+while getopts a:c:j:k:p:s:t:u: opt
 do
   case $opt in
     a)  abi3264="$OPTARG"     ;;
     c)  cflags="$OPTARG"      ;;
-    f)  mnt="$OPTARG"
-        cd $mnt
-        name=$(basename $mnt)
-        CompileWorkingUseFlags
-        StartImage
-        exit $?
-        ;;
     j)  jobs="$OPTARG"        ;;
     k)  keyword="$OPTARG"     ;;
     p)  profile="$OPTARG"
@@ -833,8 +826,7 @@ do
         abi3264="n"
         testfeature="n"
         ;;
-    s)  mnt="$OPTARG"
-        name=$(basename $mnt)
+    s)  name="$OPTARG"
         StartImage
         exit $?
         ;;

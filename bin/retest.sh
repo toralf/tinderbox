@@ -26,9 +26,9 @@ do
   pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$atom" 2>/dev/null | grep -v -F '<unset>' | sed -e 's,/,\\/,g')
   if [[ -n "$pkgname" ]]; then
     if ! sed -i -e "/$pkgname/d" \
-        ~/tb/data/ALREADY_CATCHED \
-        ~/run/*/etc/portage/package.mask/self \
-        ~/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null; then
+        ~tinderbox/tb/data/ALREADY_CATCHED \
+        ~tinderbox/run/*/etc/portage/package.mask/self \
+        ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null; then
       # ^^ those files might not exist currently
       :
     fi

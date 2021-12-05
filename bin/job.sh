@@ -542,7 +542,7 @@ function SendIssueMailIfNotYetReported()  {
     if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       # put cat into echo due to buffered output of cat
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
-      echo -e "\n\n    check_bgo.sh ~/img/$name/$issuedir\n\n\n" > $issuedir/body
+      echo -e "\n\n    check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
       Mail "$(cat $issuedir/title)" $issuedir/body
     fi

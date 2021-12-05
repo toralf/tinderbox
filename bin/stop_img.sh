@@ -19,10 +19,10 @@ fi
 
 source $(dirname $0)/lib.sh
 
-for i in ${@:-$(ls ~/run 2>/dev/null)}
+for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}
 do
   echo -n "$(date +%X) "
-  mnt=~/img/$(basename $i)
+  mnt=~tinderbox/img/$(basename $i)
 
   if [[ ! -d $mnt ]]; then
     echo "no valid mount point found for $mnt"

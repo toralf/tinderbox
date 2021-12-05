@@ -22,12 +22,12 @@ function Finish() {
 
 
 function shufImages() {
-  (set +f; cd ~/run; ls -d * 2>/dev/null | shuf)
+  (set +f; cd ~tinderbox/run; ls -d * 2>/dev/null | shuf)
 }
 
 
 function GetCompletedEmergeOperations() {
-  grep -c ' ::: completed emerge' ~/run/$1/var/log/emerge.log 2>/dev/null || echo "0"
+  grep -c ' ::: completed emerge' ~tinderbox/run/$1/var/log/emerge.log 2>/dev/null || echo "0"
 }
 
 
@@ -35,7 +35,7 @@ function HasAnEmptyBacklog() {
   oldimg=""
   while read -r i
   do
-    local bl=~/run/$i/var/tmp/tb/backlog
+    local bl=~tinderbox/run/$i/var/tmp/tb/backlog
     if [[ -f $bl ]]; then
       if [[ $(wc -l < $bl) -eq 0 ]]; then
         reason="empty backlogs"
@@ -55,11 +55,11 @@ function Broken() {
   do
     for s in @preserved-rebuild @world
     do
-      if tail -n 1 ~/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+      if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
         reason="$s broken"
         oldimg=$i
         echo -e "\n=========================================================\n"
-        tail -n 200 ~/run/$i/var/tmp/tb/$s.last.log
+        tail -n 200 ~tinderbox/run/$i/var/tmp/tb/$s.last.log
         echo -e "\n=========================================================\n"
         return 0
       fi
@@ -71,7 +71,7 @@ function Broken() {
 
 
 function MinDistanceIsReached() {
-  local newest=$(set +f; cat ~/run/*/var/tmp/tb/setup.timestamp | sort -u -n | tail -n 1)
+  local newest=$(set +f; cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -u -n | tail -n 1)
   if [[ -z "$newest" ]]; then
     return 1
   fi
@@ -135,7 +135,7 @@ function StopOldImage() {
 
     # do not just put a "STOP" into backlog.1st b/c job.sh might prepend additional task/s onto it
     # repeat STOP lines to neutralise an external triggered restart
-    cat << EOF >> ~/run/$oldimg/var/tmp/tb/backlog.1st
+    cat << EOF >> ~tinderbox/run/$oldimg/var/tmp/tb/backlog.1st
 STOP
 STOP
 STOP
@@ -143,14 +143,14 @@ STOP
 STOP
 STOP $msg
 EOF
-    echo "$msg" >> ~/run/$oldimg/var/tmp/tb/STOP
+    echo "$msg" >> ~tinderbox/run/$oldimg/var/tmp/tb/STOP
     local i=7200
     while [[ -d $lock_dir ]]
     do
       if ! ((--i)); then
         echo "give up on $oldimg"
-        sed '/^STOP/d' ~/run/$oldimg/var/tmp/tb/backlog.1st
-        rm ~/run/$oldimg/var/tmp/tb/STOP
+        sed '/^STOP/d' ~tinderbox/run/$oldimg/var/tmp/tb/backlog.1st
+        rm ~tinderbox/run/$oldimg/var/tmp/tb/STOP
         return 1
       fi
       sleep 1
@@ -161,7 +161,7 @@ EOF
   fi
   echo
 
-  rm -- ~/run/$oldimg ~/logs/$oldimg.log
+  rm -- ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
 }
 
 

@@ -1,15 +1,15 @@
 # list if locked and/or symlinked to ~run
 function __list_images() {
   (
-    ls ~/run/                    | sort
+    ls ~tinderbox/run/                    | sort
     ls /run/tinderbox/ | sed 's,.lock,,g' | sort
   ) |\
   xargs -n 1 --no-run-if-empty basename  |\
   awk '!x[$0]++' |\
   while read -r i
   do
-    ls -d ~/run/${i} 2>/dev/null ||\
-    ls -d ~/img/${i} 2>/dev/null
+    ls -d ~tinderbox/run/${i} 2>/dev/null ||\
+    ls -d ~tinderbox/img/${i} 2>/dev/null
   done
 }
 
@@ -27,6 +27,6 @@ function __is_running() {
 
 
 function getStartTime() {
-  cat ~/img/$(basename $1)/var/tmp/tb/setup.timestamp
+  cat ~tinderbox/img/$(basename $1)/var/tmp/tb/setup.timestamp
 }
 
