@@ -86,7 +86,7 @@ do
   case $opt in
     h|\?) Help
           ;;
-    m)    if [[ -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
+    m)    if [[ -z "$OPTARG" || -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
             echo "argument not accepted"
             exit 2
           fi
@@ -107,7 +107,7 @@ if [[ -z "$mnt" ]]; then
 fi
 
 if [[ ! -e "$mnt" ]]; then
-  echo "no valid mount point found"
+  echo "no valid mount point given"
   exit 3
 fi
 
@@ -118,7 +118,7 @@ fi
 
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 if [[ -d $lock_dir ]]; then
-  echo "found $lock_dir"
+  echo "mount point is locked: $lock_dir"
   exit 4
 fi
 mkdir -p "$lock_dir"
