@@ -9,13 +9,30 @@ function Exit()  {
 
   trap - INT QUIT TERM EXIT
 
-  rm -f $tmpfile
+  rm -rf $rawfile $resultfile
   exit $rc
 }
 
 
-function bgoOutage() {
-  grep -q -F -e 'Error: Bugzilla error:' $tmpfile
+function ExitfBgoIsDown() {
+  if grep -q -F -e 'Error: Bugzilla error:' $rawfile; then
+    {
+      echo -e "\n b.g.o. is down\n" >&2
+      #cat $rawfile >&2
+    }
+    return 1
+  fi
+}
+
+
+function IssueWasFiledBefore() {
+  if [[ -s $resultfile ]]; then
+    issue_was_filed_before=1
+    return 0
+  else
+    issue_was_filed_before=0
+    return 1
+  fi
 }
 
 
@@ -24,16 +41,14 @@ function SearchForMatchingBugs() {
   if grep -q 'file collision with' $issuedir/title; then
     local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
-    bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
+    bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |\
+        tee $rawfile |\
         grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r |\
         head -n 8 |\
-        tee $tmpfile
-    if bgoOutage; then
-      return 1
-    fi
-    if [[ -s $tmpfile ]]; then
-      found_issues=1
+        tee $resultfile
+    ExitfBgoIsDown
+    if IssueWasFiledBefore; then
       return
     fi
   fi
@@ -54,48 +69,42 @@ function SearchForMatchingBugs() {
   # search first for the same revision/version,then try only category/package name
   for i in $pkg $pkgname
   do
-    bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |
+    bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |\
+        tee $rawfile |\
         grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r |\
         head -n 8 |\
-        tee $tmpfile
-    if bgoOutage; then
-      return 1
-    fi
-    if [[ -s $tmpfile ]]; then
-      found_issues=1
+        tee $resultfile
+    ExitfBgoIsDown
+    if IssueWasFiledBefore; then
       return
     fi
 
     echo -en "$i DUP                    \r"
     bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bsi)" |\
+        tee $rawfile |\
         sort -u -n -r |\
         head -n 3 |\
-        tee $tmpfile
-    if bgoOutage; then
-      return 1
-    fi
-    if [[ -s $tmpfile ]]; then
-      found_issues=2
+        tee $resultfile
+    ExitfBgoIsDown
+    if IssueWasFiledBefore; then
       echo -e " \n^^ DUPLICATE"
       return
     fi
 
     echo -en "$i                        \r"
     bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bsi)" |\
+        tee $rawfile |\
         sort -u -n -r |\
         head -n 3 |\
-        tee $tmpfile
-    if bgoOutage; then
-      return 1
-    fi
-    if [[ -s $tmpfile ]]; then
-      found_issues=2
+        tee $resultfile
+    ExitfBgoIsDown
+    if IssueWasFiledBefore; then
       return
     fi
   done
 
-  if [[ ! -s $tmpfile ]]; then
+  if [[ ! -s $resultfile ]]; then
     # if no findings till now, so search for any bug of that category/package
 
     local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
@@ -103,29 +112,27 @@ function SearchForMatchingBugs() {
 
     echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
     bugz -q --columns 400 search --show-status $pkgname |\
+        tee $rawfile |\
         grep -v -i -E "$g" |\
         sort -u -n -r |\
         head -n 8 |\
-        tee $tmpfile
-    if bgoOutage; then
-      return 1
-    fi
-    if [[ -s $tmpfile ]]; then
-      found_issues=2
+        tee $resultfile
+    ExitfBgoIsDown
+    if IssueWasFiledBefore; then
+      issue_was_filed_before=2
     fi
 
-    if [[ $(wc -l < $tmpfile) -lt 5 ]]; then
+    if [[ $(wc -l < $resultfile) -lt 5 ]]; then
       echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
       bugz -q --columns 400 search --status RESOLVED $pkgname |\
+          tee $rawfile |\
           grep -v -i -E "$g" |\
           sort -u -n -r |\
           head -n 5 |\
-          tee $tmpfile
-      if bgoOutage; then
-        return 1
-      fi
-      if [[ -s $tmpfile ]]; then
-        found_issues=2
+          tee $resultfile
+      ExitfBgoIsDown
+      if IssueWasFiledBefore; then
+        issue_was_filed_before=2
       fi
     fi
   fi
@@ -210,11 +217,12 @@ elif [[ -f $issuedir/.reported ]]; then
   fi
 fi
 
-trap Exit INT QUIT TERM EXIT
-tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.log)
+resultfile=$(mktemp /tmp/$(basename $0)_XXXXXX.result)
+rawfile=$(mktemp /tmp/$(basename $0)_XXXXXX.raw)
 
-mnt=$issuedir/../../../../..
-name=$(cat $mnt/var/tmp/tb/name)                              # eg.: 17.1-20201022-101504
+trap Exit INT QUIT TERM EXIT
+
+name=$(cat $issuedir/../../name)                              # eg.: 17.1-20201022-101504
 repo=$(cat $issuedir/repository)                              # eg.: gentoo
 pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7-r1
 pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                  # eg.: net-misc/bird
@@ -234,7 +242,7 @@ echo "    versions: $versions"
 echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 
 if [[ $repo = "gentoo" ]]; then
-  keyword=$(grep "^ACCEPT_KEYWORDS=" $mnt/etc/portage/make.conf)
+  keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
   cmd="$keyword ACCEPT_LICENSE="*" portageq best_visible / $pkgname"
   if best=$(eval $cmd); then
     if [[ ! $pkg = $best ]]; then
@@ -249,7 +257,6 @@ if [[ $repo = "gentoo" ]]; then
 fi
 echo
 
-found_issues=0
 SearchForMatchingBugs
 
 cmd="$(dirname $0)/bgo.sh -d $issuedir"
@@ -257,10 +264,11 @@ if [[ -n $blocker_bug_no ]]; then
   cmd+=" -b $blocker_bug_no"
 fi
 
-# file automatically if no entry at all was found for that package
-if [[ $found_issues -eq 0 ]]; then
+if [[ $issue_was_filed_before -eq 0 ]]; then
+  # no entry at all was found for that package -> file it automatically
   $cmd
-elif [[ $found_issues -eq 2 ]]; then
+elif [[ $issue_was_filed_before -eq 2 ]]; then
+  # some closed records were found -> manual inspect needed
   echo -e "\n\n    ${cmd}\n"
 fi
 echo
