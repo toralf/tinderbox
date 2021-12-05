@@ -305,3 +305,4 @@ Got signal before environment was installed on our thread
 Error: cannot open mo file
 KeyError:
    mydistutilsargs is banned in
+Error copying file
