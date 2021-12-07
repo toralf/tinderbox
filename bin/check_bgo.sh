@@ -265,7 +265,7 @@ if [[ -n $blocker_bug_no ]]; then
 fi
 
 if [[ $issue_was_filed_before -eq 0 ]]; then
-  echo -e "file it automatically ...\n"
+  echo -e "no known issues at all, automatic filing:\n"
   $cmd
 elif [[ $issue_was_filed_before -eq 2 ]]; then
   # some closed records were found -> manual inspect needed
