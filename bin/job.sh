@@ -914,12 +914,16 @@ function WorkOnTask() {
 }
 
 
-# few repeated @preserved-rebuild are ok
 function DetectRebuildLoop() {
-  if [[ $(tail -n 20 $taskfile.history | grep -c '@preserved-rebuild') -ge 7 ]]; then
-    # the truncation forces the image replacement
-    truncate -s 0 /var/tmp/tb/backlog*
-    Finish 1 "too many @preserved-rebuild" $taskfile.history
+  local histfile=/var/tmp/tb/@preserved-rebuild.history
+  if [[ -s $histfile ]]; then
+    # not more than n @preserved-rebuild within N last tasks
+    local n=7
+    local N=20
+    if [[ $(tail -n $N $histfile | grep -c '@preserved-rebuild') -ge $n ]]; then
+      echo "$(date) DetectRebuildLoop" >> $histfile
+      Finish 1 "DetectRebuildLoop" $histfile
+    fi
   fi
 }
 

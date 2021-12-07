@@ -53,17 +53,30 @@ function Broken() {
   oldimg=""
   while read -r i
   do
-    for s in @preserved-rebuild @world
-    do
-      if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+    local runtime=$(( ( $(date +%s) - $(getStartTime $i) ) / 3600 / 24))
+
+    s="@world"
+    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+      if [[ $runtime -ge 1 ]]; then
         reason="$s broken"
         oldimg=$i
-        echo -e "\n=========================================================\n"
-        tail -n 200 ~tinderbox/run/$i/var/tmp/tb/$s.last.log
-        echo -e "\n=========================================================\n"
         return 0
       fi
-    done
+    fi
+
+    s="@preserved-rebuild"
+    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+      if [[ $runtime -ge 2 ]]; then
+        reason="$s broken"
+        oldimg=$i
+        return 0
+      fi
+    fi
+    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " DetectRebuildLoop"; then
+      reason="$s DetectRebuildLoop"
+      oldimg=$i
+      return 0
+    fi
   done < <(shufImages)
 
   return 1
