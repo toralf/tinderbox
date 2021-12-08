@@ -134,17 +134,16 @@ function ReplaceAnImage() {
 
 
 function StopOldImage() {
-  local msg="replaced b/c: $reason"
-
-  echo
-  date
-  echo " $msg"
-  echo " stopping: $oldimg"
-
   local lock_dir=/run/tinderbox/$oldimg.lock
+
   if [[ -d $lock_dir ]]; then
+    local msg="replaced b/c: $reason"
+
+    echo " stopping: $oldimg"
     date
-    echo -e "\n waiting for image unlock ..."
+    echo -e "\n waiting for image unlock ...\n"
+    date
+    echo " $msg"
 
     # do not just put a "STOP" into backlog.1st b/c job.sh might prepend additional task/s onto it
     # repeat STOP lines to neutralise an external triggered restart
