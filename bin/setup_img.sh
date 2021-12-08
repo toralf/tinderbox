@@ -31,9 +31,16 @@ function ThrowUseFlags() {
 
 # helper of InitOptions()
 function GetProfiles() {
-  eselect profile list |\
-  grep -v -F -e ' (exp)' -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl' -e '/developer' |\
-  grep -F "default/linux/amd64/17.1/" |\
+  (
+    eselect profile list |\
+    grep -F "default/linux/amd64/17.1/" |\
+    grep -v -F -e ' (exp)' -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl' -e '/developer'
+
+    # by sam
+    eselect profile list |\
+    grep -e "default/linux/amd64/17\../musl" |\
+    grep -v -F -e '/selinux'
+  ) |\
   awk ' { print $2 } ' |\
   cut -f4- -d'/' -s
 }
@@ -49,7 +56,7 @@ function InitOptions() {
 
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
-  if [[ ! $profile =~ "/no-multilib" ]]; then
+  if [[ ! $profile =~ "/no-multilib" && ! $profile =~ "musl" ]]; then
     if __dice 1 40; then
       abi3264="y"
     fi
