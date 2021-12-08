@@ -231,28 +231,44 @@ function PackagesPerImagePerRunDay() {
   done
 }
 
-# whatsup.sh -c
-# coverage in ~tinderbox/run : 84 % of past  8 days
-# coverage in ~tinderbox/img : 91 % of past 53 days
+
+function getCoveredPackages() {
+  grep -H '::: completed emerge' ~tinderbox/$1/*/var/log/emerge.log |\
+  # handle ::local
+  tr -d ':' |\
+  awk ' { print $7 } ' |\
+  xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
+  sort -u
+}
+
+
+#  whatsup.sh -c
+# 19280 packages in ::gentoo
+# 15836 packages in ~tinderbox/run   (82% in past  9 days)
+# 17749 packages in ~tinderbox/img   (92% in past 48 days)
 function Coverage() {
-  local N=$(ls -d /var/db/repos/gentoo/*-*/* | wc -l)
+  local all=$(mktemp  /tmp/$(basename $0)_XXXXXX.all)
+  (cd /var/db/repos/gentoo; ls -d *-*/*; ls -d virtual/*) | grep -v -F 'metadata.xml' | sort > $all
+  local N=$(wc -l < $all)
   printf "%5i packages in ::gentoo\n" $N
+
   for i in run img
   do
-    local n=$(grep -H '::: completed emerge' ~tinderbox/$i/*/var/log/emerge.log |\
-                # handle ::local
-                tr -d ':' |\
-                awk ' { print $7 } ' |\
-                xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
-                sort -u |\
-                wc -l)
-    local oldest=$(cat ~tinderbox/$i/*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
+    local covered=~tinderbox/img/packages.$i.covered.txt
+    local uncovered=~tinderbox/img/packages.$i.uncovered.txt
+
+    getCoveredPackages $i > $covered
+    diff $covered $all | grep -F '>' | cut -f2 -d' ' -s > $uncovered
+
+    local n=$(wc -l < $covered)
+    local oldest=$(cat ~tinderbox/$i/17*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
     local days=$(( ( $(date +%s) - $oldest ) / 3600 / 24 ))
-    local perc
-    ((perc = 100 * $n / $N))
+    local perc=$((100 * $n / $N))
     printf "%5i packages in ~tinderbox/%s   (%2i%% in past %2i days)" $n $i $perc $days
     echo
   done
+
+  rm $all
 }
 
 

@@ -9,6 +9,7 @@ function listStat()  {
   date >> $tmpfile
   echo "<h3>coverage</h3>" >> $tmpfile
   $(dirname $0)/whatsup.sh -c | recode ascii..html >> $tmpfile
+  (cd  ~tinderbox/img; ls packages.*.*covered.txt 2>/dev/null) | recode ascii..html | xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
   echo "<h3>overview</h3>" >> $tmpfile
   $(dirname $0)/whatsup.sh -o | recode ascii..html >> $tmpfile
   echo "<h3>packages per day per image</h3>" >> $tmpfile
