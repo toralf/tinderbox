@@ -48,8 +48,9 @@ function GetProfiles() {
 
 # helper of main()
 function InitOptions() {
-  # whilst 1 process in each of N running images is much more efficient than *up to* M processes in N images
-  # and it is more easier to catch the error message, the compile times are awefully with -j1 nowadays
+  # 1 process in each of M running images is more efficient than *up to* n processes in N images
+  # (given 1 x M = n x N) and it is much easier to catch the error message
+  # but: the compile times are awefully with -j1
   jobs=4
 
   profile=$(GetProfiles | shuf -n 1)
