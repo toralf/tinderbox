@@ -2,17 +2,37 @@
 # set -x
 
 
-function sortImagesByName()  {
+function sortCandidatesByName()  {
   find ~tinderbox/img/ -mindepth 1 -maxdepth 1 -type d -name '*-j*-20??????-??????' |\
-  sort -t'-' -k 3,4     # oldest first
+  while read -r i
+  do
+    if __is_running $i; then
+      continue
+    fi
+
+    if [[ -e ~tinderbox/run/$(basename $i) ]]; then
+      continue
+    fi
+
+    local full_days=$(echo "scale=0; ( $(date +%s) - $(getStartTime $i) ) / 86400" | bc)
+    if [[ $full_days -lt 7 ]]; then
+      continue
+    fi
+
+    echo $i
+  done |\
+  sort -t'-' -k 3,4
 }
 
 
+# $ df -m /dev/nvme0n1p4
+# Filesystem     1M-blocks    Used Available Use% Mounted on
+# /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded()  {
   local fs=/dev/nvme0n1p4
-  local x=200000          # free space in GB
-  local y=89              # free space in percent
-  [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < "'"$x"'" || $5 > "'"$y"'%")') ]]
+  local gb=200000          # wanted free space in GB
+  local perc=89            # wanted free space in percent
+  [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < "'"$gb"'" || $5 > "'"$perc"'%")') ]]
 }
 
 
@@ -24,19 +44,15 @@ function pruneDir() {
     return 1
   fi
 
-  if ! __is_running $d; then
-    # https://forums.gentoo.org/viewtopic-p-6072905.html?sid=461188c03d3c4d08de80136a49982d86#6072905
-    if [[ -d $d/tmp/.private  ]]; then
-      chattr -R -a $d/tmp/.private
-    fi
-    rm -r $d
-    local rc=$?
-
-    sleep 40    # lazy btrfs
-    return $rc
+  # https://forums.gentoo.org/viewtopic-p-6072905.html?sid=461188c03d3c4d08de80136a49982d86#6072905
+  if [[ -d $d/tmp/.private  ]]; then
+    chattr -R -a $d/tmp/.private
   fi
+  rm -r $d
+  local rc=$?
 
-  return 0
+  sleep 40    # lazy btrfs
+  return $rc
 }
 
 
@@ -56,17 +72,15 @@ if pruneNeeded; then
   find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +365                  -delete
   find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +8   -name 'stage3-*' -delete
 
-  # prune non-running images having no reported bug
   while read -r img && pruneNeeded
   do
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneDir $img
     fi
-  done < <(sortImagesByName)
+  done < <(sortCandidatesByName)
 
-  # prune non-running images
   while read -r img && pruneNeeded
   do
     pruneDir $img
-  done < <(sortImagesByName)
+  done < <(sortCandidatesByName)
 fi
