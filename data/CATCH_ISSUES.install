@@ -46,3 +46,4 @@ convert: no
 ModuleNotFoundError:
 ValueError:
 KeyError:
+FAILED:

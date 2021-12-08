@@ -19,21 +19,9 @@ Failed Running automake|configure: error: cannot find required auxiliary files:|
 765709
 slibtool|rlibtool|rdlibtool|unrecognized command-line option|./shtool:|syntax error: .* unexpected
 
-# (openssl-3.0) - [TRACKER] packages failing with =dev-libs/openssl-3.0.0
-797325
-EVP_|RSA_SSLV23_PADDING|VERSION_OPENSSL_|error: key undeclared|FIPS_|ERR_GET_FUNC|CRYPTO_|ctx|get_dh2048|INT_MAX|HMAC_|rsa_|CRYPTO_|DSA|ENGINE_.*deprecated
-
-# (glibc-2.34) - [TRACKER] sys-libs/glibc-2.34 related issues
-803482
-variably modified .* at file scope|size of array .* is not an integral|void value not ignored as it ought to be|expected declaration specifiers or|missing binary operator before token|initializer element is not constant|macro .* requires an identifier|size of array .* is not an integral| .* undeclared|call to non-constexpr function| pthread|storage size of .* isnt constant|conflicting types for .*|expected \) before| redeclared as different kind of symbol|malloc attribute argument .* is ambiguous|static declaration of .* follows non-static declaration
-
 # [TRACKER] Packages relying on setuptools' use_2to3 option
 812149
 : SetuptoolsDeprecationWarning: 2to3|/site-packages/setuptools/lib2to3_ex.py:
-
-# [Tracker] Packages failing with dev-util/meson-0.60.0
-821544
-got unknown keyword arguments|meson
 
 # [TRACKER] Packages broken by SETUPTOOLS_USE_DISTUTILS=local
 822354
