@@ -275,6 +275,9 @@ FFLAGS="\${FCFLAGS}"
 # simply enables QA check for LDFLAGS being respected by build system.
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 
+# requested by sam
+EXTRA_ECONF="--enable-option-checking=fatal"
+
 $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS="$keyword"
