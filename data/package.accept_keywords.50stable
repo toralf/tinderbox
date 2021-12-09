@@ -1,5 +1,20 @@
 # package.accept_keywords/50stable
 #
 
+
+#######################################################################
+#
+# global settings
+#
+
+# no stable version yet
+mail-client/s-nail                  ~amd64
+
+
+#######################################################################
+#
+# temp settings
+#
+
 # by sam, tupone
 dev-lang/ocaml:0/4.12               ~amd64

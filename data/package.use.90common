@@ -28,6 +28,7 @@ dev-vcs/git                         curl
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -qt5
 
+
 #######################################################################
 #
 # temp settings

@@ -1,1 +1,18 @@
 SetuptoolsDeprecationWarning: 2to3
+.automake. called by src_prepare
+Automake "maintainer mode" detected:
+broken .png files found
+cmake-utils_src_prepare has not been run
+dosym target omits basename:
+econf called in .* instead of
+function is deprecated
+inherited illegally
+is deprecated, use .* instead
+One or more CMake variables were not used by the project
+python_.*_all() didn't call
+running automake in configure phase
+This ebuild installs into
+configure:.*: unrecognized options:
+Unrecognized configure options:
+USE Flag .* not in IUSE for
+warning: python_fix_shebang

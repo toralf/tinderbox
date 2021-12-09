@@ -1,3 +1,4 @@
+ invalid parameter.*enable-option-checking=warn
 The futex facility returned an unexpected error code.
 Unknown CMake command
 CMake will not be able to correctly generate this project.
