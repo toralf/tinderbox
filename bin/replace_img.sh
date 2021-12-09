@@ -71,14 +71,14 @@ function Broken() {
       fi
     fi
 
-    s="@preserved-rebuild"
-    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-      if [[ $runtime -ge 2 ]]; then
-        reason="$s broken"
-        oldimg=$i
-        return 0
-      fi
-    fi
+#     s="@preserved-rebuild"
+#     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+#       if [[ $runtime -ge 2 ]]; then
+#         reason="$s broken"
+#         oldimg=$i
+#         return 0
+#       fi
+#     fi
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " DetectRebuildLoop"; then
       reason="$s DetectRebuildLoop"
       oldimg=$i
@@ -215,20 +215,21 @@ while getopts c:d:n:o:r:s: opt
 do
   case "$opt" in
     c)  condition_completed="$OPTARG"   ;;
-    n)  condition_count="$OPTARG"       ;;
     d)  condition_distance="$OPTARG"    ;;
+    n)  condition_count="$OPTARG"       ;;
+    o)  oldimg=$(basename "$OPTARG")    ;;
     r)  condition_runtime="$OPTARG"     ;;
-
-    o)  oldimg=$(basename "$OPTARG")
-        reason="user decision"
-        if StopOldImage; then
-          exec nice -n 1 sudo $(dirname $0)/setup_img.sh $setupargs
-        fi
-        ;;
     s)  setupargs="$OPTARG"             ;;
     *)  echo " opt not implemented: '$opt'"; exit 1;;
   esac
 done
+
+if [[ -n $oldimg ]]; then
+  reason="user decision"
+  if StopOldImage; then
+    exec nice -n 1 sudo $(dirname $0)/setup_img.sh $setupargs
+  fi
+fi
 
 # do not run in parallel from here
 lockfile="/tmp/$(basename $0).lck"
