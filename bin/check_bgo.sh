@@ -30,7 +30,6 @@ function IssueWasFiledBefore() {
     issue_was_filed_before=1
     return 0
   else
-    issue_was_filed_before=0
     return 1
   fi
 }
@@ -257,6 +256,7 @@ if [[ $repo = "gentoo" ]]; then
 fi
 echo
 
+issue_was_filed_before=0
 SearchForMatchingBugs
 
 cmd="$(dirname $0)/bgo.sh -d $issuedir"
@@ -265,9 +265,9 @@ if [[ -n $blocker_bug_no ]]; then
 fi
 
 if [[ $issue_was_filed_before -eq 0 ]]; then
-  echo -e "no known issues at all, automatic filing:\n"
+  echo -e "no issues, automatic filing:\n"
   $cmd
-elif [[ $issue_was_filed_before -eq 2 ]]; then
+elif [[ $issue_was_filed_before -eq 2 || $# -eq 2 ]]; then
   # some closed records were found -> manual inspect needed
   echo -e "\n\n    ${cmd}\n"
 fi
