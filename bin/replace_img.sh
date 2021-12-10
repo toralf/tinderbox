@@ -71,14 +71,14 @@ function Broken() {
       fi
     fi
 
-#     s="@preserved-rebuild"
-#     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-#       if [[ $runtime -ge 2 ]]; then
-#         reason="$s broken"
-#         oldimg=$i
-#         return 0
-#       fi
-#     fi
+    s="@preserved-rebuild"
+    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+      if [[ $runtime -ge 2 ]]; then
+        reason="$s broken"
+        oldimg=$i
+        return 0
+      fi
+    fi
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " DetectRebuildLoop"; then
       reason="$s DetectRebuildLoop"
       oldimg=$i
@@ -246,6 +246,7 @@ trap Finish INT QUIT TERM EXIT
 
 while FreeSlotAvailable
 do
+  echo "less than $condition_count images running"
   setupANewImage
 done
 
