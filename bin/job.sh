@@ -8,7 +8,7 @@
 # That's all.
 
 
-# strip quotes
+# strip quotes and friends
 function stripQuotesAndMore() {
   sed -e 's,['\''‘’"`•],,g' -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
 }
@@ -31,8 +31,8 @@ function Mail() {
   else
     echo -e "$content"
   fi |\
-  if ! timeout 60 mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
-    echo "$(date) mail timeout, \$subject=$subject \$2=$2" | tee -a /var/tmp/tb/mail.log
+  if ! mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
+    echo "$(date) issue, \$subject=$subject \$content=$content" | tee -a /var/tmp/tb/mail.log
     chmod a+rw /var/tmp/tb/mail.log
   fi
 }
@@ -250,6 +250,8 @@ function CollectIssueFiles() {
 
 
 function createAndPrefillIssueDir() {
+  sleep 1   # create a unique timestamp of issue dir
+
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
   mkdir -p $issuedir/files
   chmod 777 $issuedir # allow to edit title etc. manually
@@ -333,8 +335,8 @@ function foundCflagsIssue() {
 function foundGenericIssue() {
     pushd /var/tmp/tb 1>/dev/null
 
-    # run sequential over the pattern in the order they are specified
-    # to avoid shell/quoting effects put each pattern in a file and point to that in "grep -m 1 ... -f"
+    # run line by line over the pattern file in the order the lines are specified there
+    # to avoid globbing effects split each pattern line into an own temp file and use that file in "grep ... -f"
     (
       if [[ -n "$phase" ]]; then
         cat /mnt/tb/data/CATCH_ISSUES.$phase
@@ -344,10 +346,9 @@ function foundGenericIssue() {
 
     for x in ./x??
     do
-      local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
-      if grep -m 1 -a -B $j -A 4 -f $x $pkglog_stripped > ./issue; then
+      if grep -m 1 -a -B 4 -A 4 -f $x $pkglog_stripped > ./issue; then
         mv ./issue $issuedir
-        sed -n "$((j+1))p" $issuedir/issue | stripQuotesAndMore > $issuedir/title
+        sed -n "5p" $issuedir/issue | stripQuotesAndMore > $issuedir/title # 5 == B+1 -> at least B+1 lines are expected
         break
       fi
     done
@@ -542,7 +543,7 @@ function SendIssueMailIfNotYetReported()  {
     if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       # put cat into echo due to buffered output of cat
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
-      echo -e "\n\n    check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
+      echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
       Mail "$(cat $issuedir/title)" $issuedir/body
     fi
@@ -738,29 +739,37 @@ function PostEmerge() {
 
 
 function catchMisc()  {
-  find /var/log/portage/ -type f -newer $taskfile |\
+  find /var/log/portage/ -mindepth 1 -maxdepth 1 -type f -newer $taskfile |\
   while read -r pkglog
   do
     if [[ $(wc -l < $pkglog) -le 6 ]]; then
       continue
     fi
 
-    pkglog_stripped=/tmp/$(basename $pkglog)
+    local pkglog_stripped=/tmp/$(basename $pkglog)
     phase=""
     filterPlainPext < $pkglog > $pkglog_stripped
     if ! grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       rm $pkglog_stripped
       continue
     fi
-
-    pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' | tr ':' '/')
+    pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' -s | tr ':' '/')
+    if [[ -z $pkg ]]; then
+      Mail "INFO: cannot get pkg for $task" $pkglog
+      continue
+    fi
     repo=$(portageq metadata / ebuild $pkg repository)
-    createAndPrefillIssueDir
-    grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped | tee $issuedir/issue | head -n 1 > $issuedir/title
-    mv $pkglog_stripped $issuedir
-    finishTitle
-    cp $issuedir/issue $issuedir/comment0
-    cat << EOF >> $issuedir/comment0
+
+    grep -m 1 -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |\
+    while read -r line
+    do
+      createAndPrefillIssueDir
+      echo "$line" > $issuedir/title
+      grep -m 1 -F -e "$line" $pkglog_stripped > $issuedir/issue
+      cp $pkglog_stripped $issuedir
+      finishTitle
+      cp $issuedir/issue $issuedir/comment0
+      cat << EOF >> $issuedir/comment0
 
   -------------------------------------------------------------------
 
@@ -769,13 +778,15 @@ function catchMisc()  {
 
   -------------------------------------------------------------------
 
-  The output of emerge matches a pattern requested by a Gentoo dev.
+  The log matches a QA pattern or a pattern requested by a Gentoo developer.
 
 EOF
-    collectPortageDir
-    CreateEmergeHistoryFile
-    CompressIssueFiles
-    SendIssueMailIfNotYetReported
+      collectPortageDir
+      CreateEmergeHistoryFile
+      CompressIssueFiles
+      SendIssueMailIfNotYetReported
+    done
+    rm $pkglog_stripped
   done
 }
 
@@ -816,7 +827,7 @@ function RunAndCheck() {
 
   elif [[ $rc -ne 0 ]]; then
     if DerivePkgFromTaskLog; then
-      GotAnIssue
+      GotAnIssue 0
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
       fi
@@ -828,6 +839,7 @@ function RunAndCheck() {
   fi
 
   catchMisc
+
   return $rc
 }
 
@@ -940,8 +952,13 @@ function syncReposAndUpdateBacklog()  {
 
   if [[ $rc -ne 0 ]]; then
     return $rc
-  elif grep -q 'git fetch error in /var/db/repos/gentoo' $tasklog; then
-    return 1
+  elif grep -q -F 'git fetch error in /var/db/repos/gentoo' $tasklog; then
+    if grep -q -F 'Protocol "https" not supported or disabled'; then
+      return 1
+    else
+      Mail "git sync issue" $tasklog
+      return 0
+    fi
   elif grep -B 1 '=== Sync completed for gentoo' $tasklog | grep -q 'Already up to date.'; then
     return 0
   fi
