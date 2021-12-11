@@ -3,6 +3,7 @@ SetuptoolsDeprecationWarning: 2to3
 Automake "maintainer mode" detected:
 broken .png files found
 cmake-utils_src_prepare has not been run
+configure: WARNING: SSL disabled, you will not be able to use HTTPS, FTPS, NTLM and more.
 dosym target omits basename:
 econf called in .* instead of
 function is deprecated

@@ -87,7 +87,7 @@ function SearchForMatchingBugs() {
         tee $resultfile
     ExitfBgoIsDown
     if IssueWasFiledBefore; then
-      echo -e " \n^^ DUPLICATE"
+      echo -e " \n^^ is a dup"
       return
     fi
 

@@ -53,13 +53,19 @@ function Broken() {
   oldimg=""
   while read -r i
   do
-    local starttime=$(getStartTime $i 2>/dev/null)
-    if [[ -z $starttime ]]; then
-      reason="setup broken"
+    s="@preserved-rebuild"
+    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " DetectRebuildLoop"; then
+      reason="$s DetectRebuildLoop"
       oldimg=$i
       return 0
     fi
 
+    local starttime
+    if ! starttime=$(getStartTime $i); then
+      reason="setup broken"
+      oldimg=$i
+      return 0
+    fi
     local runtime=$(( ($(date +%s)-$starttime) / 3600 / 24 ))
 
     s="@world"
@@ -79,11 +85,7 @@ function Broken() {
         return 0
       fi
     fi
-    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " DetectRebuildLoop"; then
-      reason="$s DetectRebuildLoop"
-      oldimg=$i
-      return 0
-    fi
+
   done < <(shufImages)
 
   return 1

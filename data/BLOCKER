@@ -30,3 +30,7 @@ No module named
 # [Tracker] dev-scheme/guile-3.0.x breakage
 746914
 guile
+
+ [Tracker] Packages failing with --enable-option-checking=fatal (unknown arguments)
+828551
+configure: .*: unrecognized options:|Unrecognized configure options:

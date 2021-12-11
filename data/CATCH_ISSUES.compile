@@ -307,3 +307,5 @@ KeyError:
    mydistutilsargs is banned in
 Error copying file
 CMake Error at
+error: while parsing singletons
+\[error\]

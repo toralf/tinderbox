@@ -57,7 +57,7 @@ function InitOptions() {
 
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
-  if [[ ! $profile =~ "/no-multilib" && ! $profile =~ "musl" ]]; then
+  if [[ ! $profile =~ "/no-multilib" ]]; then
     if __dice 1 40; then
       abi3264="y"
     fi
@@ -130,6 +130,12 @@ function CheckOptions() {
     echo " jobs is wrong: >>${jobs}<<"
     return 1
   fi
+
+  if [[ $profile =~ "musl" ]]; then
+    abi3264="n"
+    keyword="~amd64"
+    testfeature="n"
+  fi
 }
 
 
@@ -141,7 +147,7 @@ function CreateImageName()  {
   [[ $abi3264 = "n" ]]      || name+="_abi32+64"
   [[ $testfeature = "n" ]]  || name+="_test"
   [[ $cflags =~ O2 ]]       || name+="_debug"
-  name+="-$(date +%Y%m%d-%H%M%S)"
+  name+="-$(date +%Y%m%d-%H%M%S | tr -d '\n')"
 }
 
 
@@ -152,7 +158,9 @@ function UnpackStage3()  {
   for mirror in $gentoo_mirrors
   do
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
+      date
       echo "using mirror: $mirror"
+      echo
       break
     fi
   done
@@ -161,7 +169,7 @@ function UnpackStage3()  {
     return 1
   fi
 
-  local stage3
+  local stage3=""
   case $profile in
     17.1/hardened)              stage3=$(grep "^20.*Z/stage3-amd64-hardened-openrc-20.*\.tar\." $latest) ;;
     17.1/no-multilib/hardened)  stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-openrc-20.*\.tar\." $latest) ;;
@@ -171,7 +179,8 @@ function UnpackStage3()  {
     17.1/desktop*)              stage3=$(grep "^20.*Z/stage3-amd64-desktop-openrc-20.*\.tar\." $latest) ;;
     17.1*/systemd)              stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
     17.1*)                      stage3=$(grep "^20.*Z/stage3-amd64-openrc-20.*\.tar\." $latest) ;;
-    *)                          stage3=""
+    17.0/musl/hardened)         stage3=$(grep "^20.*Z/stage3-amd64-musl-hardened-20.*\.tar\." $latest) ;;
+    17.0/musl)                  stage3=$(grep "^20.*Z/stage3-amd64-musl-20.*\.tar\." $latest) ;;
   esac
 
   stage3=$(cut -f1 -d' ' -s <<< $stage3)
@@ -275,9 +284,6 @@ FFLAGS="\${FCFLAGS}"
 # simply enables QA check for LDFLAGS being respected by build system.
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 
-# requested by sam
-EXTRA_ECONF="--enable-option-checking=fatal"
-
 $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS="$keyword"
@@ -309,37 +315,42 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
+  # requested by sam
   if [[ $keyword =~ '~' ]]; then
     if __dice 1 20; then
-      cat <<EOF >> ./etc/portage/make.conf
-# requested by sam
-LIBTOOL="rdlibtool"
-MAKEFLAGS="LIBTOOL=\${LIBTOOL}"
-
-EOF
+      echo 'LIBTOOL="rdlibtool"'            >> ./etc/portage/make.conf
+      echo 'MAKEFLAGS="LIBTOOL=${LIBTOOL}"' >> ./etc/portage/make.conf
     fi
   fi
 
-  # FWIW this is unreated to test
+  # requested by mgorny
+  # Hint: this is unrelated to "test"
   if __dice 1 2; then
-    cat <<EOF >> ./etc/portage/make.conf
-# requested by mgorny
-ALLOW_TEST="network"
-
-EOF
+    echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
   fi
 
+  # requested by mgorny
   if __dice 1 2; then
-    cat <<EOF >> ./etc/portage/make.conf
-# requested by mgorny
-SETUPTOOLS_USE_DISTUTILS=local
+    echo 'SETUPTOOLS_USE_DISTUTILS=local' >> ./etc/portage/make.conf
 
-EOF
+    # known to be broken and forces @preserved-rebuild breakage
+    echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'          > ./etc/portage/env/no_setuptools
+    echo 'dev-lang/spidermonkey     no_setuptools'  > ./etc/portage/package.env/no_setuptools
   fi
 
-  # hint: the user "tinderbox" should be a member of group "portage"
+  # requested by sam
+  if __dice 1 2; then
+    echo 'EXTRA_ECONF="--enable-option-checking=warn"' >> ./etc/portage/make.conf
+
+    # known to be broken and forces @preserved-rebuild breakage
+    echo 'EXTRA_ECONF=""'                     > ./etc/portage/env/no_extra_econf
+    echo 'dev-lang/perl      no_extra_econf'  > ./etc/portage/package.env/no_extra_econf
+    echo 'dev-lang/ruby      no_extra_econf'  > ./etc/portage/package.env/no_extra_econf
+  fi
+
+  # this works only if the user "tinderbox" is a member of group "portage"
   chgrp portage ./etc/portage/make.conf
-  chmod g+w ./etc/portage/make.conf
+  chmod g+w     ./etc/portage/make.conf
 }
 
 
@@ -412,6 +423,10 @@ RUST_TEST_TASKS=${jobs}
 
 EOF
 
+  if [[ $profile =~ "musl" ]]; then
+    echo 'RUSTFLAGS=" -C target-feature=-crt-static"' >> ./etc/portage/env/jobs
+  fi
+
   echo '*/*  jobs' > ./etc/portage/package.env/00jobs
 
   if [[ $keyword =~ '~' ]]; then
@@ -468,7 +483,7 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname=$(tr -c '[^a-zA-Z0-9\-]' '-' <<< $name | cut -c-63)
+  local image_hostname=$(tr -c '[^a-zA-Z0-9\-+]' '-' <<< $name | cut -c-63)
   echo $image_hostname > ./etc/conf.d/hostname
 
   local host_hostname=$(hostname)
@@ -512,20 +527,23 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  # the 1st @system might might fail if only @world can resolve all deps initially
-  # so repeat it to get rid of the "S" of the whatsup.sh output
+  # the very 1st @system might might fail if only @world can resolve all deps initially -> repeat it
   cat << EOF > $bl.1st
 @system
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
 sys-apps/portage
-app-portage/gentoolkit
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
+app-portage/gentoolkit
 %SwitchGCC
 
 EOF
+
+  if [[ $profile =~ "musl" ]]; then
+    sed -i -e '/gcc/d' $bl.1st
+  fi
 }
 
 
@@ -540,9 +558,11 @@ set -euf
 date
 echo "#setup locale + timezone" | tee /var/tmp/tb/task
 
-echo -e "en_US       ISO-8859-1"  >> /etc/locale.gen
-echo -e "en_US.UTF-8 UTF-8"       >> /etc/locale.gen      # especially for test needed
-locale-gen
+if [[ ! $profile =~ "musl" ]]; then
+  echo -e "en_US       ISO-8859-1"  >> /etc/locale.gen
+  echo -e "en_US.UTF-8 UTF-8"       >> /etc/locale.gen      # especially for "test" needed
+  locale-gen
+fi
 
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
@@ -575,10 +595,10 @@ emerge -u app-text/ansifilter app-portage/portage-utils
 
 date
 echo "#setup email" | tee /var/tmp/tb/task
-# emerge ssmtp separately before mailx b/c mailx would pull in per default another MTA than ssmtp
+# emerge sSMTP before a mail client b/c virtual/mta specifies per default another MTA
 emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the destination does already exist (bind-mounted by bwrap.sh)
-emerge -u mail-client/mailx
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # /etc/ssmtp/ssmtp.conf is already bind-mounted in bwrap.sh
+emerge -u mail-client/s-nail          # mail-client/mailx does not compile under musl
 
 eselect profile set --force default/linux/amd64/$profile
 
@@ -590,8 +610,8 @@ if [[ $name =~ "debug" ]]; then
   sed -i -e 's,FEATURES=",FEATURES="splitdebug compressdebug ,g' /etc/portage/make.conf
 fi
 
-# sort -u is needed if a package is in more than one repo
-qsearch --all --nocolor --name-only --quiet | sort -u | shuf > /var/tmp/tb/backlog
+# sort -u is needed if a package is in several repositories
+qsearch --all --nocolor --name-only --quiet | grep -v -F -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf > /var/tmp/tb/backlog
 
 date
 echo "#setup done" | tee /var/tmp/tb/task
@@ -844,8 +864,8 @@ done
 CheckOptions
 UnpackStage3
 InitRepositories
-CompileMakeConf
 CompilePortageFiles
+CompileMakeConf
 CompileMiscFiles
 CreateBacklogs
 CreateSetupScript

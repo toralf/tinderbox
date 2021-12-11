@@ -19,10 +19,4 @@ sys-apps/man-db                     -nls
 sys-apps/dbus                       debug
 sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
-
-
-# setup issues
-
-#app-text/xmlto                      -latex
-#dev-util/cmake                      -emacs
-#net-print/cups                      -zeroconf
+[error] java.lang.NoClassDefFoundError: StatusPlugin$$anonfun$stampVersion$1

@@ -10,6 +10,3 @@ dev-lang/ocaml:0/4.13               **
 
 # by sam
 dev-scheme/guile:12/3.0-1           **
-
-# by matsl
-~app-editors/xemacs-21.5.9999       **

@@ -80,3 +80,4 @@ cmake failed
  \*   Failed to find configuration
 Reason: UndefinedError
 Exception:
+Configure: unknown option --enable-option-checking=warn

@@ -32,7 +32,6 @@ function Exit() {
 
 set -eu
 export LANG=C.utf8
-trap Exit INT QUIT TERM EXIT
 
 id=""
 block=""
@@ -64,9 +63,11 @@ fi
 cd $issuedir
 
 if [[ -f ./.reported ]]; then
-  echo "already reported - for a re-run do :    rm $issuedir/.reported"
+  echo -e "\n already reported, for a re-run do:\n\n    rm $issuedir/.reported\n"
   exit 3
 fi
+
+trap Exit INT QUIT TERM EXIT
 
 # cleanup of a previous run
 rm -f bgo.sh.{out,err}
@@ -76,11 +77,11 @@ if [[ -n "$id" ]]; then
   if [[ -z "$comment" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
-  timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
+  timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
 
 else
   # create a new bug report
-  timeout 120 bugz post \
+  timeout 60 bugz post \
     --product "Gentoo Linux"          \
     --component "Current packages"    \
     --version "unspecified"           \
@@ -95,7 +96,7 @@ else
     --default-confirm n               \
     1>bgo.sh.out 2>bgo.sh.err
 
-  id=$(grep ' * Bug .* submitted' bgo.sh.out | sed 's/[^0-9]//g')
+  id=$(grep "Info: Bug .* submitted" bgo.sh.out | sed 's/[^0-9]//g')
   if [[ -z "$id" ]]; then
     echo
     echo "empty bug id"
@@ -104,11 +105,11 @@ else
   fi
 
   if [[ -n "$comment" ]]; then
-    timeout 120 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
+    timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
   fi
 
   if grep -q -F '[TEST]' $issuedir/title; then
-    timeout 120 bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+    timeout 60 bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
   fi
 fi
 echo
@@ -121,7 +122,7 @@ if [[ -s bgo.sh.err ]]; then
 fi
 
 if [[ -f emerge-info.txt ]]; then
-  timeout 120 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+  timeout 60 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
 if [[ -d ./files ]]; then
@@ -144,33 +145,30 @@ if [[ -d ./files ]]; then
       ct="text/plain"
     fi
     echo "  $f"
-    timeout 120 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+    timeout 60 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn $?
   done
 fi
 
 if [[ -n "$block" ]]; then
-  timeout 120 bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+  timeout 60 bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
 fi
 
 # set assignee and cc as the last step to reduce the amount of emails sent out by bugzilla
 if [[ $newbug -eq 1 ]]; then
-  add_assignee="-a $(cat ./assignee)"      # we expect exact 1 entry
-  cc="$(cat ./cc 2>/dev/null || true)"     # allowed to be non-existing or empty
-  if [[ -n "$cc" ]]; then
-    add_cc="--add-cc $(sed 's/ / --add-cc /g' <<< $cc)"
+  name=$(cat $issuedir/../../name)
+  if [[ $name =~ musl ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC $issuedir/title; then
+    assignee="musl@gentoo.org"
+    cc="$(cat ./assignee ./cc 2>/dev/null || true)"
   else
-    add_cc=""
+    assignee="$(cat ./assignee)"
+    cc="$(cat ./cc 2>/dev/null || true)"
   fi
-  timeout 120 bugz modify $add_assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || echo -e "\nwarning: wrong assignee or cc\n"
+  add_cc=""
+  if [[ -n "$cc" ]]; then
+    add_cc="--add-cc $(sed 's/  */ --add-cc /g' <<< $cc)"
+  fi
 
-  # if a Cc: is invalid (above command failed) then try them independently
-  if [[ $? -ne 0 && -n "$cc" ]]; then
-    timeout 120 bugz modify $add_assignee $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
-    for i in $cc
-    do
-      timeout 120 bugz modify --add-cc $i $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
-    done
-  fi
+  timeout 60 bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err
 fi
 
 echo
