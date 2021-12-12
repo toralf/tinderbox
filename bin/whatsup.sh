@@ -5,9 +5,7 @@
 
 
 function PrintImageName()  {
-  # ${n} is the minimum length to distinguish image names
-  local n=${2}
-  printf "%-${n}s" $(cut -c-$n <<< $(basename $1))
+  printf "%-${2}s" $(cut -c-$2 < $1/var/tmp/tb/name)
 }
 
 
@@ -20,23 +18,23 @@ function check_history()  {
   # x = @x failed due to a package
   # . = never run before
   #   = no issues
+  # ? = internal error
   if [[ -s $file ]]; then
     local line=$(tail -n 1 $file)
-
     if grep -q " NOT ok " <<< $line; then
       if grep -q " NOT ok $" <<< $line; then
         local uflag=$(tr '[:lower:]' '[:upper:]' <<< $flag)
-        flags="${uflag}${flags}"
+        flags+="${uflag}"
       else
-        flags="${flag}${flags}"
+        flags+="${flag}"
       fi
     elif grep -q " ok$" <<< $line; then
-      flags=" $flags"
+      flags+=" "
     else
-      flags="?$flags"
+      flags+="?"
     fi
   else
-    flags=".$flags"
+    flags+="."
   fi
 }
 
@@ -76,23 +74,6 @@ function Overall() {
     # "r" image is running
     # " " image is NOT running
     local flags=""
-    if __is_running $i ; then
-      flags+="r"
-    else
-      flags+=" "
-    fi
-
-    # "S" STOP file
-    # "s" STOP in backlog
-    if [[ -f $i/var/tmp/tb/STOP ]]; then
-      flags+="S"
-    else
-      if grep -q "^STOP" $i/var/tmp/tb/backlog.1st 2>/dev/null; then
-        flags+="s"
-      else
-        flags+=" "
-      fi
-    fi
 
     # result of last run of @system, @world and @preserved-rebuild respectively:
     #
@@ -100,9 +81,25 @@ function Overall() {
     # lower case: just a package failed
     # "." not yet run
     # " " ok
-    check_history $i/var/tmp/tb/@preserved-rebuild.history  p
-    check_history $i/var/tmp/tb/@world.history              w
     check_history $i/var/tmp/tb/@system.history             s
+    check_history $i/var/tmp/tb/@world.history              w
+    check_history $i/var/tmp/tb/@preserved-rebuild.history  p
+
+    if __is_running $i ; then
+      flags+="r"
+    else
+      flags+=" "
+    fi
+
+    # "S" STOP file
+    # "s" STOP in backlog.1st
+    if [[ -f $i/var/tmp/tb/STOP ]]; then
+      flags+="S"
+    elif grep -q "^STOP" $i/var/tmp/tb/backlog.1st 2>/dev/null; then
+      flags+="s"
+    else
+      flags+=" "
+    fi
 
     # images during setup are not yet symlinked to ~tinderbox/run
     local b=$(basename $i)
@@ -244,8 +241,8 @@ function getCoveredPackages() {
 
 #  whatsup.sh -c
 # 19280 packages in ::gentoo
-# 15836 packages in ~tinderbox/run   (82% in past  9 days)
-# 17749 packages in ~tinderbox/img   (92% in past 48 days)
+# 15836 packages in ~tinderbox/run   (82% for last  9 days)
+# 17749 packages in ~tinderbox/img   (92% for last 48 days)
 function Coverage() {
   local all=$(mktemp  /tmp/$(basename $0)_XXXXXX.all)
   (cd /var/db/repos/gentoo; ls -d *-*/*; ls -d virtual/*) | grep -v -F 'metadata.xml' | sort > $all
@@ -264,7 +261,7 @@ function Coverage() {
     local oldest=$(cat ~tinderbox/$i/17*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
     local days=$(( ( $(date +%s) - $oldest ) / 3600 / 24 ))
     local perc=$((100 * $n / $N))
-    printf "%5i packages in ~tinderbox/%s   (%2i%% in past %2i days)" $n $i $perc $days
+    printf "%5i packages in ~tinderbox/%s   (%2i%% for last %2i days)" $n $i $perc $days
     echo
   done
 
@@ -382,7 +379,7 @@ else
   cols_task=100
 fi
 
-while getopts cdehlopt\? opt
+while getopts cdelopt opt
 do
   case $opt in
     c)  Coverage                  ;;
