@@ -4,13 +4,10 @@
 # create or modify a bug report at http://bugzilla.gentoo.org
 
 function Warn() {
-  local rc=${1:-$?}
+  local rc=$?
 
-  echo "
-  *
-  failed with error code $rc in $issuedir
-  *
-  "
+  echo "--------------"
+  echo -e "\n  ${1:-} failed with error code $rc\n\n"
   tail -v bgo.sh.*
   echo "--------------"
 }
@@ -109,7 +106,7 @@ else
   fi
 
   if grep -q -F '[TEST]' $issuedir/title; then
-    timeout 60 bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+    timeout 60 bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
   fi
 fi
 echo
@@ -122,7 +119,7 @@ if [[ -s bgo.sh.err ]]; then
 fi
 
 if [[ -f emerge-info.txt ]]; then
-  timeout 60 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+  timeout 60 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bgo.sh.out 2>bgo.sh.err || Warn "info"
 fi
 
 if [[ -d ./files ]]; then
@@ -145,30 +142,30 @@ if [[ -d ./files ]]; then
       ct="text/plain"
     fi
     echo "  $f"
-    timeout 60 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+    timeout 60 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn "attach $f"
   done
 fi
 
 if [[ -n "$block" ]]; then
-  timeout 60 bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn $?
+  timeout 60 bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
 fi
 
-# set assignee and cc as the last step to reduce the amount of emails sent out by bugzilla
+# do this as the very last step to reduce the amount of emails sent out by bugzilla for each record change
 if [[ $newbug -eq 1 ]]; then
   name=$(cat $issuedir/../../name)
   if [[ $name =~ musl ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC $issuedir/title; then
     assignee="musl@gentoo.org"
-    cc="$(cat ./assignee ./cc 2>/dev/null || true)"
+    cc="$(cat ./assignee ./cc 2>/dev/null | xargs -n 1 | grep -v "musl@gentoo.org" | xargs)"
   else
     assignee="$(cat ./assignee)"
     cc="$(cat ./cc 2>/dev/null || true)"
   fi
   add_cc=""
   if [[ -n "$cc" ]]; then
-    add_cc="--add-cc $(sed 's/  */ --add-cc /g' <<< $cc)"
+    add_cc="--add-cc $(sed 's, , --add-cc ,g' <<< $cc)"
   fi
 
-  timeout 60 bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err
+  timeout 60 bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn "'$assignee' '$add_cc'"
 fi
 
 echo
