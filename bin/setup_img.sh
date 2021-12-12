@@ -323,7 +323,7 @@ EOF
     fi
   fi
 
-  # requested by mgorny
+  # requested by mgorny, 822354
   # Hint: this is unrelated to "test"
   if __dice 1 2; then
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
@@ -334,18 +334,13 @@ EOF
     echo 'SETUPTOOLS_USE_DISTUTILS=local' >> ./etc/portage/make.conf
 
     # known to be broken and forces @preserved-rebuild breakage
-    echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'          > ./etc/portage/env/no_setuptools
-    echo 'dev-lang/spidermonkey     no_setuptools'  > ./etc/portage/package.env/no_setuptools
+    echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'                    > ./etc/portage/env/no_setuptools
+    echo 'dev-lang/spidermonkey                no_setuptools' > ./etc/portage/package.env/no_setuptools
   fi
 
-  # requested by sam
+  # requested by sam,but see https://bugs.gentoo.org/828551#c2
   if __dice 1 2; then
     echo 'EXTRA_ECONF="--enable-option-checking=warn"' >> ./etc/portage/make.conf
-
-    # known to be broken and forces @preserved-rebuild breakage
-    echo 'EXTRA_ECONF=""'                     > ./etc/portage/env/no_extra_econf
-    echo 'dev-lang/perl      no_extra_econf'  > ./etc/portage/package.env/no_extra_econf
-    echo 'dev-lang/ruby      no_extra_econf'  > ./etc/portage/package.env/no_extra_econf
   fi
 
   # this works only if the user "tinderbox" is a member of group "portage"
@@ -448,19 +443,6 @@ EOF
   fi
 
   cpconf $tbhome/tb/data/package.*.??test-$testfeature
-
-  # give Firefox, Thunderbird et al. a chance
-  if __dice 1 20; then
-    cpconf $tbhome/tb/data/package.use.30misc
-  fi
-
-  # packages either having a -bin variant or will only rarely be build due to loong emerge time
-  for p in $(grep -v -e '#' -e'^$' $tbhome/tb/data/BIN_OR_SKIP)
-  do
-    if ! __dice 1 20; then
-      echo "$p" >> ./etc/portage/package.mask/91bin-or-skip
-    fi
-  done
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
