@@ -52,20 +52,14 @@ function SearchForMatchingBugs() {
     fi
   fi
 
-  local bsi=$issuedir/bugz_search_items     # use the title as a set of space separated search items
-
-  # get away line numbers, certain special terms et al
-  sed -e 's,&<[[:alnum:]].*>,,g'  \
-      -e 's,/\.\.\./, ,'          \
-      -e 's,:[[:alnum:]]*:[[:alnum:]]*: , ,g' \
-      -e 's,.* : ,,'              \
-      -e 's,[<>&\*\?\!], ,g'      \
-      -e 's,[\(\)], ,g'           \
-      -e 's,  *, ,g'              \
-      -e 's,^\[.*\] ,,g'          \
+  local bsi=$issuedir/bugz_search_items     # transform title into space separated search items
+  sed -e 's,^.* - ,,'     \
+      -e 's,/\.\.\./, ,'  \
+      -e 's,[\(\)], ,g'   \
+      -e 's,  *, ,g'      \
       $issuedir/title > $bsi
 
-  # search first for the same revision/version,then try only category/package name
+  # look first for version+revision, then look for category/package name
   for i in $pkg $pkgname
   do
     bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |\
