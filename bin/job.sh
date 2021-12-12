@@ -792,7 +792,7 @@ EOF
 
 
 # helper of WorkOnTask()
-# run ($@) and act on result
+# run $@ in a subshell and act on result
 function RunAndCheck() {
   (eval $@; rc=$?; echo; date; exit $rc) &>> $tasklog
   local rc=$?
@@ -803,11 +803,15 @@ function RunAndCheck() {
   filterPlainPext < $tasklog > $tasklog_stripped
   PostEmerge
 
-  if grep -q -F ' -Og -g' /etc/portage/make.conf && [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
-    local taskdirname=/var/tmp/tb/core/$taskname
-    mkdir -p $taskdirname
-    mv /tmp/core.* $taskdirname
-    Mail "INFO: kept core files in $taskdirname" "$(ls -lh $taskdirname/)"
+  if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
+    if grep -q -F ' -Og -g' /etc/portage/make.conf; then
+      local taskdirname=/var/tmp/tb/core/$taskname
+      mkdir -p $taskdirname
+      mv /tmp/core.* $taskdirname
+      Mail "INFO: kept core files in $taskdirname" "$(ls -lh $taskdirname/)"
+    else
+      rm /tmp/core.*
+    fi
   fi
 
   if [[ $rc -ge 128 ]]; then
@@ -963,22 +967,20 @@ function syncReposAndUpdateBacklog()  {
     return 0
   fi
 
-  # feed backlog.upd with new entries, but limit $diff to 3 hours
-  local distance
-  ((distance = diff + 3600 + 61))
-  if [[ $distance -gt 10800 ]]; then
-    distance=10800
-  fi
-
   cd /var/db/repos/gentoo
-  git diff --diff-filter="ACM" --name-status "@{ $distance second ago }".."@{ 60 minute ago }" 2>/dev/null |\
-  grep -F -e '/files/' -e '.ebuild' -e 'Manifest' | cut -f2- -s | cut -f1-2 -d'/' -s |
+  # give mirrors 1 hour to sync
+  local distance=$((diff + 3600 + 61))
+  git diff --diff-filter="ACM" --name-status "@{ $distance second ago }".."@{ 1 hour ago }" |\
+  grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
+  cut -f2- -s |\
+  cut -f1-2 -d'/' -s |\
   grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
   uniq > /tmp/diff.upd
 
   # mix new entries into the re-mixed backlog
   if [[ -s /tmp/diff.upd ]]; then
     sort -u /tmp/diff.upd /var/tmp/tb/backlog.upd | shuf > /tmp/backlog.upd
+    # no mv to preserve target file perms
     cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
     rm /tmp/backlog.upd
   fi
@@ -1016,8 +1018,9 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
-# TODO: do something with these data
-echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
+if [[ $name =~ _debug ]]; then
+  echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
+fi
 
 # https://bugs.gentoo.org/816303
 echo "#init /run" > $taskfile
@@ -1048,8 +1051,6 @@ do
   fi
 
   (date; echo) > $tasklog
-  # core files are only in _debug_ images already moved away
-  rm -rf /var/tmp/portage/* /tmp/core.*
   current_time=$(date +%s)
   if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
