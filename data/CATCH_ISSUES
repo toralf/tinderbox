@@ -1,3 +1,5 @@
+\[error\]
+\[ERROR\]
 FileNotFoundError:
 dial tcp: lookup proxy.golang.org
 go:.* read: connection refused
