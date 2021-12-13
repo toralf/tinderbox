@@ -1,16 +1,16 @@
 SetuptoolsDeprecationWarning: 2to3
 .automake. called by src_prepare
 Automake "maintainer mode" detected:
-broken .png files found
 cmake-utils_src_prepare has not been run
 configure: WARNING: SSL disabled, you will not be able to use HTTPS, FTPS, NTLM and more.
 dosym target omits basename:
 econf called in .* instead of
 inherited illegally
-One or more CMake variables were not used by the project
 python_.*_all() didn't call
 running automake in configure phase
-configure:.*: unrecognized options:
-Unrecognized configure options:
 USE Flag .* not in IUSE for
 warning: python_fix_shebang
+One or more CMake variables were not used by the project
+configure: .*: unrecognized options:
+QA Notice: Unrecognized configure options:
+Unrecognized option

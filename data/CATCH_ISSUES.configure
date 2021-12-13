@@ -25,7 +25,6 @@ bad option:
 Meson encountered an error
 Invalid option:
 Project ERROR:
-Unrecognized option
 Can't locate .* in @INC
 SyntaxError: invalid syntax
 This version of Camlp4 is for OCaml
@@ -81,3 +80,5 @@ cmake failed
 Reason: UndefinedError
 Exception:
 Configure: unknown option --enable-option-checking=warn
+configure: .*: unrecognized options:
+Unrecognized option
