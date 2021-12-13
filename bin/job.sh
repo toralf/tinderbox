@@ -947,8 +947,6 @@ function DetectRebuildLoop() {
 
 
 function syncReposAndUpdateBacklog()  {
-  local diff=${1:-0}
-
   emaint sync --auto &>$tasklog
   local rc=$?
 
@@ -971,8 +969,7 @@ function syncReposAndUpdateBacklog()  {
 
   cd /var/db/repos/gentoo
   # give mirrors 1 hour to sync
-  local distance=$((diff + 3600))
-  git diff --diff-filter="ACM" --name-status "@{ $distance second ago }".."@{ 1 hour ago }" |\
+  git diff --diff-filter="ACM" --name-status "@{ 2 hour ago }".."@{ 1 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s |\
   cut -f1-2 -d'/' -s |\
@@ -1054,9 +1051,9 @@ do
 
   (date; echo) > $tasklog
   current_time=$(date +%s)
-  if [[ $(( diff = current_time - last_sync )) -ge 3600 ]]; then
+  if [[ $(( current_time - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
-    if syncReposAndUpdateBacklog $diff; then
+    if syncReposAndUpdateBacklog; then
       last_sync=$current_time
     fi
     (date; echo) > $tasklog
