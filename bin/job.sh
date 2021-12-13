@@ -279,22 +279,30 @@ function DerivePkgFromTaskLog() {
   fi
 
   pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
-
-  # double check that the values are ok
-  repo=$(portageq metadata / ebuild $pkg repository)
-  repo_path=$(portageq get_repo_path / $repo)
-  if [[ ! -d $repo_path/$pkgname ]]; then
-    Mail "INFO: $FUNCNAME failed to get repo path for: pkg='$pkg'  pkgname='$pkgname'  task='$task'" $tasklog_stripped
+  if [[ -z $pkgname ]]; then
+    Mail "INFO: cannot get pkgname for pkg '$pkg'" $tasklog_stripped
     return 1
   fi
 
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
-  if [[ ! -f $pkglog ]]; then
-    Mail "INFO: $FUNCNAME failed to get package log file: pkg='$pkg'  pkgname='$pkgname'  task='$task'  pkglog='$pkglog'" $tasklog_stripped
+  if [[ -z $pkglog ]]; then
+    if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
+      Mail "INFO: cannot get pkglog for pkg '$pkg'" $tasklog_stripped
+    fi
     return 1
   fi
 
-  createAndPrefillIssueDir
+  repo=$(grep -m 1 -F ' * Repository: ' $tasklog_stripped | awk ' { print $3 } ')
+  if [[ -z $repo ]]; then
+    Mail "INFO: cannot get repo for pkg '$pkg'" $tasklog_stripped
+    return 1
+  fi
+
+  # final check that the values are ok
+  if ! portageq get_repo_path / $repo 1>/dev/null; then
+    Mail "INFO: get_repo_path failed for  pkg '$pkg'  pkgname '$pkgname'  task '$task'" $tasklog_stripped
+    return 1
+  fi
 }
 
 
@@ -747,18 +755,14 @@ function catchMisc()  {
     fi
 
     local pkglog_stripped=/tmp/$(basename $pkglog)
-    phase=""
     filterPlainPext < $pkglog > $pkglog_stripped
     if ! grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       rm $pkglog_stripped
       continue
     fi
     pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' -s | tr ':' '/')
-    if [[ -z $pkg ]]; then
-      Mail "INFO: cannot get pkg for $task" $pkglog
-      continue
-    fi
-    repo=$(portageq metadata / ebuild $pkg repository)
+    repo=$(grep -m 1 -F ' * Repository: ' $pkglog_stripped | awk ' { print $3 } ')
+    phase=""
 
     grep -m 1 -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |\
     while read -r line
@@ -815,13 +819,14 @@ function RunAndCheck() {
   fi
 
   if [[ $rc -ge 128 ]]; then
-    PutDepsIntoWorldFile
     ((signal = rc - 128))
     Mail "INFO: got signal $signal, task=$task" $tasklog_stripped
     if [[ $signal -eq 9 ]]; then
+      PutDepsIntoWorldFile
       Finish 0 "exiting"
     elif [[ $signal -ne 15 ]]; then
       if DerivePkgFromTaskLog; then
+        createAndPrefillIssueDir
         GotAnIssue 1
         if [[ $try_again -eq 0 ]]; then
           PutDepsIntoWorldFile
@@ -831,13 +836,10 @@ function RunAndCheck() {
 
   elif [[ $rc -ne 0 ]]; then
     if DerivePkgFromTaskLog; then
+      createAndPrefillIssueDir
       GotAnIssue 0
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
-      fi
-    else
-      if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
-        Mail "WARN: cannot collect data for '$task', rc=$rc" $tasklog_stripped
       fi
     fi
   fi
@@ -969,7 +971,7 @@ function syncReposAndUpdateBacklog()  {
 
   cd /var/db/repos/gentoo
   # give mirrors 1 hour to sync
-  local distance=$((diff + 3600 + 61))
+  local distance=$((diff + 3600))
   git diff --diff-filter="ACM" --name-status "@{ $distance second ago }".."@{ 1 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s |\
@@ -1045,7 +1047,7 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  # an empty line foolishes the logic and drains backlog{,.upd} asap
+  # an empty line foolishes getNextTask() and drains backlog{,.upd} asap
   if grep -q "^$" /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/IGNORE_PACKAGES; then
     Finish 1 "empty line(s) in data/IGNORE_*"
   fi
