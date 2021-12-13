@@ -42,7 +42,8 @@ function GetProfiles() {
     grep -v -F -e '/selinux'
   ) |\
   awk ' { print $2 } ' |\
-  cut -f4- -d'/' -s
+  cut -f4- -d'/' -s |\
+  sort -u
 }
 
 
