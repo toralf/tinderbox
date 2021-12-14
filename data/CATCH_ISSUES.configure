@@ -82,3 +82,4 @@ Exception:
 Configure: unknown option --enable-option-checking=warn
 CMake Error: Unknown argument --enable-option-checking=warn
 configure: .*: unrecognized options:
+gcc: No such file or directory

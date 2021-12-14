@@ -4,9 +4,9 @@ Couldn't find .* to unmerge.
 Dependencies could not be completely resolved due t
 emerge: there are no .* to satisfy
 /entrypoint: line .*: .* Killed
-\* Error: circular dependencies:
-\* Error: The above package list contains packages which cannot be
-\* Invalid resume list:
+ \* Error: circular dependencies:
+ \* Error: The above package list contains packages which cannot be
+ \* Invalid resume list:
 is not a valid package atom.
 It may be possible to solve this
 !!! Multiple package instances within a single package slot have been pulled
