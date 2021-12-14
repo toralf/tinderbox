@@ -1029,9 +1029,13 @@ fi
 # https://bugs.gentoo.org/816303
 echo "#init /run" > $taskfile
 if [[ $name =~ "_systemd" ]]; then
-  systemd-tmpfiles --create &>$tasklog
+  if ! systemd-tmpfiles --create &>$tasklog; then
+    Finish 1 "systemd init error" $tasklog
+  fi
 else
-  RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog
+  if ! RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog; then
+    Finish 1 "openrc init error" $tasklog
+  fi
 fi
 
 # re-schedule $task (== failed before)
