@@ -929,7 +929,7 @@ function DetectRebuildLoop() {
 }
 
 
-function syncReposAndUpdateBacklog()  {
+function syncRepo()  {
   local last_sync=${1:-0}
   emaint sync --auto &>$tasklog
   local rc=$?
@@ -1037,7 +1037,7 @@ do
   last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
   if [[ $(( $(date +%s) - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
-    syncReposAndUpdateBacklog $last_sync
+    syncRepo $last_sync
   fi
 
   (date; echo) > $tasklog
