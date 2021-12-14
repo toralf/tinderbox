@@ -1023,14 +1023,12 @@ fi
 
 # https://bugs.gentoo.org/816303
 echo "#init /run" > $taskfile
-if ! (if [[ $name =~ "_systemd" ]]; then
-        systemd-tmpfiles --create &>$tasklog
-      else
-        RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog
-      fi
-    ); then
-    Finish 1 "init failed"
-  fi
+if [[ $name =~ "_systemd" ]]; then
+  systemd-tmpfiles --create &>$tasklog
+else
+  RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog
+fi
+
 # re-schedule $task (== failed before)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
