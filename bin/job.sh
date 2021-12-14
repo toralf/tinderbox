@@ -947,6 +947,7 @@ function DetectRebuildLoop() {
 
 
 function syncReposAndUpdateBacklog()  {
+  local last_sync=${1:-0}
   emaint sync --auto &>$tasklog
   local rc=$?
 
@@ -967,9 +968,13 @@ function syncReposAndUpdateBacklog()  {
     return 0
   fi
 
+  if [[ $last_sync -eq 0 ]]; then
+    return 0
+  fi
+
   cd /var/db/repos/gentoo
   # give mirrors 1 hour to sync
-  git diff --diff-filter="ACM" --name-status "@{ 2 hour ago }".."@{ 1 hour ago }" |\
+  git diff --diff-filter="ACM" --name-status "@{ $(( $(date +%s) - $last_sync + 3600 )) second ago }".."@{ 1 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s |\
   cut -f1-2 -d'/' -s |\
@@ -1034,7 +1039,6 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
-last_sync=0  # forces a repo sync
 while :
 do
   if [[ -f /var/tmp/tb/STOP ]]; then
@@ -1047,15 +1051,16 @@ do
     Finish 1 "empty line(s) in data/IGNORE_*"
   fi
 
-  (date; echo) > $tasklog
-  current_time=$(date +%s)
-  if [[ $(( current_time - last_sync )) -ge 3600 ]]; then
+  # sync ::gentoo hourly
+  last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
+  if [[ $(( $(date +%s) - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
-    if syncReposAndUpdateBacklog; then
-      last_sync=$current_time
-    fi
+    syncReposAndUpdateBacklog $last_sync
+    (date; echo) > $tasklog
+  else
     (date; echo) > $tasklog
   fi
+
   echo "#get task" > $taskfile
   getNextTask
   WorkOnTask
