@@ -256,7 +256,6 @@ function createAndPrefillIssueDir() {
   mkdir -p $issuedir/files
   chmod 777 $issuedir # allow to edit title etc. manually
 
-  echo "$repo" > $issuedir/repository   # used by check_bgo.sh
   cp $pkglog  $issuedir/files           # origin, unprocessed
   cp $tasklog $issuedir                 # stripped
 }
@@ -272,6 +271,9 @@ function DerivePkgFromTaskLog() {
       if [[ -z "$pkg" ]]; then
         pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
         if [[ -z $pkg ]]; then
+          if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
+            Mail "INFO: cannot get pkg for task '$task'" $tasklog_stripped
+          fi
           return 1
         fi
       fi
@@ -279,28 +281,11 @@ function DerivePkgFromTaskLog() {
   fi
 
   pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
-  if [[ -z $pkgname ]]; then
-    Mail "INFO: cannot get pkgname for pkg '$pkg'" $tasklog_stripped
-    return 1
-  fi
-
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
-  if [[ -z $pkglog ]]; then
+  if [[ ! -f $pkglog ]]; then
     if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
-      Mail "INFO: cannot get pkglog for pkg '$pkg'" $tasklog_stripped
+      Mail "INFO: pkglog '$pkglog' does not exist for pkg '$pkg', pkgname '$pkgname' and task '$task'" $tasklog_stripped
     fi
-    return 1
-  fi
-
-  repo=$(grep -m 1 -F ' * Repository: ' $tasklog_stripped | awk ' { print $3 } ')
-  if [[ -z $repo ]]; then
-    Mail "INFO: cannot get repo for pkg '$pkg'" $tasklog_stripped
-    return 1
-  fi
-
-  # final check that the values are ok
-  if ! portageq get_repo_path / $repo 1>/dev/null; then
-    Mail "INFO: get_repo_path failed for  pkg '$pkg'  pkgname '$pkgname'  task '$task'" $tasklog_stripped
     return 1
   fi
 }
@@ -537,9 +522,6 @@ function finishTitle()  {
   sed -i -e "s,^,${pkg} - ," $issuedir/title
   if [[ $phase = "test" ]]; then
     sed -i -e "s,^,[TEST] ," $issuedir/title
-  fi
-  if [[ ! $repo = "gentoo" ]]; then
-    sed -i -e "s,^,[$repo] ," $issuedir/title
   fi
   sed -i -e 's,  *, ,g' $issuedir/title
   truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
@@ -1050,21 +1032,14 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  # an empty line foolishes getNextTask() and drains backlog{,.upd} asap
-  if grep -q "^$" /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/IGNORE_PACKAGES; then
-    Finish 1 "empty line(s) in data/IGNORE_*"
-  fi
-
   # sync ::gentoo hourly
   last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
   if [[ $(( $(date +%s) - last_sync )) -ge 3600 ]]; then
     echo "#sync repos" > $taskfile
     syncReposAndUpdateBacklog $last_sync
-    (date; echo) > $tasklog
-  else
-    (date; echo) > $tasklog
   fi
 
+  (date; echo) > $tasklog
   echo "#get task" > $taskfile
   getNextTask
   WorkOnTask

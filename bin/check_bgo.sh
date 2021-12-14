@@ -216,7 +216,6 @@ rawfile=$(mktemp /tmp/$(basename $0)_XXXXXX.raw)
 trap Exit INT QUIT TERM EXIT
 
 name=$(cat $issuedir/../../name)                              # eg.: 17.1-20201022-101504
-repo=$(cat $issuedir/repository)                              # eg.: gentoo
 pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7-r1
 pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                  # eg.: net-misc/bird
 versions=$(eshowkw --arch amd64 $pkgname |\
@@ -234,19 +233,17 @@ echo "    title:    $(cat $issuedir/title)"
 echo "    versions: $versions"
 echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 
-if [[ $repo = "gentoo" ]]; then
-  keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
-  cmd="$keyword ACCEPT_LICENSE="*" portageq best_visible / $pkgname"
-  if best=$(eval $cmd); then
-    if [[ ! $pkg = $best ]]; then
-      echo -e "\n    is  NOT  latest"
-      if [[ $# -lt 2 ]]; then # 2nd par is just a dummy to continue
-        exit 0
-      fi
+keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
+cmd="$keyword ACCEPT_LICENSE="*" portageq best_visible / $pkgname"
+if best=$(eval $cmd); then
+  if [[ ! $pkg = $best ]]; then
+    echo -e "\n    is  NOT  latest"
+    if [[ $# -lt 2 ]]; then # 2nd par is just a dummy to continue
+      exit 0
     fi
-  else
-    echo "      warn: best NOT found"
   fi
+else
+  echo "      warn: best NOT found"
 fi
 echo
 
