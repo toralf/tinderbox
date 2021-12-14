@@ -700,7 +700,7 @@ function PostEmerge() {
     local current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
     local latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
 
-    if [[ "$current_time" != "$latest" ]]; then
+    if [[ "$current" != "$latest" ]]; then
       add2backlog "%eselect ruby set $latest"
     fi
   fi
