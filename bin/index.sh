@@ -85,40 +85,27 @@ EOF
 }
 
 
-function DisallowRobots() {
-  cat << EOF > ~tinderbox/img/robots.txt
-User-agent: *
-Disallow: /
-
-EOF
-}
-
-
 #######################################################################
 set -eu
 export LANG=C.utf8
 
-tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+cat << EOF > ~tinderbox/img/robots.txt
+User-agent: *
+Disallow: /
 
+EOF
+
+tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 cat << EOF >> $tmpfile
 <html>
 
 <h1>recent <a href="https://zwiebeltoralf.de/tinderbox.html">tinderbox</a> data</h1>
 
 EOF
-
 listStat
 listImages
 listBugs
+echo -e "\n</html>\n" >> $tmpfile
 
-cat << EOF >> $tmpfile
-</html>
-
-EOF
-
-if ! diff -q $tmpfile ~tinderbox/img/index.html 1>/dev/null; then
-  cp $tmpfile ~tinderbox/img/index.html
-  DisallowRobots
-fi
-
+cp $tmpfile ~tinderbox/img/index.html
 rm $tmpfile
