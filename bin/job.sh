@@ -49,20 +49,21 @@ function feedPfl()  {
 # this is the end ...
 function Finish()  {
   local exit_code=${1:-$?}
+  local subject=${2:-<internal error>}
 
   trap - INT QUIT TERM EXIT
+  set +e
 
   feedPfl
-
-  subject=$(stripQuotesAndMore <<< ${2:-<no subject given>} | tr '\n' ' ' | cut -c1-200)
+  subject=$(stripQuotesAndMore <<< $subject | tr '\n' ' ' | cut -c1-200)
   if [[ $exit_code -eq 0 ]]; then
-    Mail "Finish ok: $subject" "${3:-<no message given>}"
+    Mail "Finish ok: $subject" ${3:-}
     truncate -s 0 $taskfile
   else
-    Mail "Finish NOT ok, exit_code=$exit_code: $subject" "${3:-$tasklog}"
+    Mail "Finish NOT ok, exit_code=$exit_code: $subject" ${3:-}
   fi
-
   rm -f /var/tmp/tb/STOP
+
   exit $exit_code
 }
 
