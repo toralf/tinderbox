@@ -29,4 +29,4 @@ guile
 
  [Tracker] Packages failing with --enable-option-checking=fatal (unknown arguments)
 828551
-configure: .*: unrecognized options:|QA Notice: Unrecognized configure options:
+configure: .*: unrecognized options:|QA Notice: Unrecognized configure options:|CMake Error: Unknown argument --enable-option-checking=warn

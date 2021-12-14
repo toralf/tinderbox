@@ -31,3 +31,4 @@ USE=modules and in-kernel ipset support detected.
  \*   Linux .* is the latest supported version
  \* WireGuard has been merged upstream into this kernel. Therefore
  \*   One of the postgres_targets_postgresSL_OT use flags must be enabled
+ \*   unacceptable USE flag settings

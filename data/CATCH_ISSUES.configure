@@ -80,5 +80,5 @@ cmake failed
 Reason: UndefinedError
 Exception:
 Configure: unknown option --enable-option-checking=warn
+CMake Error: Unknown argument --enable-option-checking=warn
 configure: .*: unrecognized options:
-Unrecognized option
