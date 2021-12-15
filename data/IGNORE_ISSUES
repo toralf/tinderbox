@@ -4,7 +4,6 @@ Configure: unknown option --enable-option-checking=warn
 Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.
-dev-python/pypy.* needs to be installed for USE=low-memory
 dev-ruby/.*::gentoo failed (install phase)
 gcc version .* found, expected gcc
 Incompatible gcc version found
@@ -30,4 +29,3 @@ Use sys-devel/crossdev to build a .* toolchain
 USE=modules and in-kernel ipset support detected
 We have detected that you currently use udev or devfs or devtmpfs
  \* *You need one of the following mpi implementations:
- \*   .*:  *is not set when it should be.
