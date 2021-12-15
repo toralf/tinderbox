@@ -341,11 +341,6 @@ EOF
     echo 'dev-lang/spidermonkey            stdlib_setuptools' > ./etc/portage/package.env/stdlib_setuptools
   fi
 
-  # requested by sam, but see https://bugs.gentoo.org/828551#c2
-#   if __dice 1 2; then
-#     echo 'EXTRA_ECONF="--enable-option-checking=warn"' >> ./etc/portage/make.conf
-#   fi
-
   chgrp portage ./etc/portage/make.conf
   chmod g+w     ./etc/portage/make.conf
 }
