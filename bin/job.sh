@@ -600,16 +600,29 @@ function GotAnIssue()  {
     return
   fi
 
+  # https://bugs.gentoo.org/show_bug.cgi?id=828872
+  if grep -q -e 'internal compiler error:' $issuedir/title; then
+    if ! grep -q -e "^=$pkg " /etc/portage/package.env/j1 2>/dev/null; then
+      try_again=1
+      printf "%-50s %s\n" "=$pkg" "j1" >> /etc/portage/package.env/j1
+      add2backlog "$task"
+    fi
+  fi
+
   if [[ $emerge_was_killed -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
       maskPackage
     fi
   else
     if [[ $phase = "test" ]]; then
-      try_again=1
-      echo "=$pkg" >> /etc/portage/package.env/notest
-      # with "notest" the dependency tree might be changed -> implicit depclean it in @world
-      add2backlog "@world"
+      # if it was killed then do not retry with test-fail-continue
+      if ! grep -q -e "^=$pkg " /etc/portage/package.env/notest 2>/dev/null; then
+        try_again=1
+        printf "%-50s %s\n" "=$pkg" "notest" >> /etc/portage/package.env/notest
+        add2backlog "@world"  # force a depclean under the hood b/c with "notest" the dependency tree usually changed
+      else
+        Finish 1 "logic error in retrying a test case" /etc/portage/package.env/notest
+      fi
     else
       maskPackage
     fi
@@ -1027,6 +1040,7 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
+last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :
 do
   if [[ -f /var/tmp/tb/STOP ]]; then
@@ -1034,11 +1048,11 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  # sync ::gentoo hourly
-  last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
+  # update ::gentoo repo hourly
   if [[ $(( $(date +%s) - last_sync )) -ge 3600 ]]; then
-    echo "#sync repos" > $taskfile
+    echo "#sync repo" > $taskfile
     syncRepo $last_sync
+    last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
   fi
 
   (date; echo) > $tasklog
