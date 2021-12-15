@@ -22,7 +22,7 @@ function __dice() {
 
 # /run/ lock dir is used by bwrap and cgroup
 function __is_running() {
-  [[ -d "/run/tinderbox/$(basename $1).lock" ]]
+  [[ -d /run/tinderbox/$(basename $1).lock ]]
 }
 
 
