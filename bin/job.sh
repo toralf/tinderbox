@@ -634,10 +634,11 @@ function source_profile(){
 # helper of PostEmerge()
 # switch to latest GCC
 function SwitchGCC() {
-  local latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep 'x86_64-pc-linux-gnu-.*[0-9]$' | tail -n 1)
+  local latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$'| tail -n 1)
 
   if ! gcc-config --list-profiles --nocolor | grep -q -F "$latest *"; then
     local old=$(gcc -dumpversion | cut -f1 -d'.')
+    echo "SwitchGCC to $latest" >> $taskfile.history
     gcc-config --nocolor $latest
     source_profile
     add2backlog "%emerge @preserved-rebuild"
