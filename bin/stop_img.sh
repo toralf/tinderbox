@@ -29,13 +29,13 @@ do
     continue
   fi
 
-  if ! __is_running "$mnt" ; then
-    echo " image is not locked: $mnt"
+  if [[ -f $mnt/var/tmp/tb/STOP ]]; then
+    echo " has STOP file: $mnt"
     continue
   fi
 
-  if [[ -f $mnt/var/tmp/tb/STOP ]]; then
-    echo " has STOP file: $mnt"
+  if ! __is_running "$mnt" ; then
+    echo " image is not locked: $mnt"
     continue
   fi
 

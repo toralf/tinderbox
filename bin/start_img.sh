@@ -31,11 +31,6 @@ do
     continue
   fi
 
-  if __is_running "$mnt" ; then
-    echo " image is locked:  $mnt"
-    continue
-  fi
-
   if [[ -f $mnt/var/tmp/tb/STOP ]]; then
     echo " has STOP file: $mnt"
     continue
@@ -43,6 +38,11 @@ do
 
   if [[ $(cat $mnt/var/tmp/tb/backlog{,,1st,.upd} /var/tmp/tb/task 2>/dev/null | wc -l) -eq 0 ]]; then
     echo " all backlogs are empty: $mnt"
+    continue
+  fi
+
+  if __is_running "$mnt" ; then
+    echo " image is locked:  $mnt"
     continue
   fi
 
