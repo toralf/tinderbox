@@ -144,7 +144,7 @@ function CheckOptions() {
 function CreateImageName()  {
   name="$(tr '/\-' '_' <<< $profile)"
   name+="-j${jobs}"
-  [[ $keyword =~ '~' ]]     || name+="_stable"
+  [[ $keyword = '~amd64' ]] || name+="_stable"
   [[ $abi3264 = "n" ]]      || name+="_abi32+64"
   [[ $testfeature = "n" ]]  || name+="_test"
   [[ $cflags =~ O2 ]]       || name+="_debug"
@@ -285,6 +285,9 @@ FFLAGS="\${FCFLAGS}"
 # simply enables QA check for LDFLAGS being respected by build system.
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 
+RUSTFLAGS="-Ctarget-cpu=native -v"
+$([[ $profile =~ "musl" ]] && echo 'RUSTFLAGS=" -C target-feature=-crt-static"')
+
 $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS="$keyword"
@@ -317,14 +320,14 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 EOF
 
   # requested by sam
-  if [[ $keyword =~ '~' ]]; then
+  if [[ $keyword = '~amd64' ]]; then
     if __dice 1 20; then
       echo 'LIBTOOL="rdlibtool"'            >> ./etc/portage/make.conf
       echo 'MAKEFLAGS="LIBTOOL=${LIBTOOL}"' >> ./etc/portage/make.conf
     fi
   fi
 
-  # requested by mgorny, 822354
+  # requested by mgorny in 822354
   # Hint: this is unrelated to "test"
   if __dice 1 2; then
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
@@ -334,17 +337,15 @@ EOF
   if __dice 1 2; then
     echo 'SETUPTOOLS_USE_DISTUTILS=local' >> ./etc/portage/make.conf
 
-    # known to be broken and forces @preserved-rebuild breakage
-    echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'                    > ./etc/portage/env/no_setuptools
-    echo 'dev-lang/spidermonkey                no_setuptools' > ./etc/portage/package.env/no_setuptools
+    echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'                    > ./etc/portage/env/stdlib_setuptools
+    echo 'dev-lang/spidermonkey            stdlib_setuptools' > ./etc/portage/package.env/stdlib_setuptools
   fi
 
-  # requested by sam,but see https://bugs.gentoo.org/828551#c2
-  if __dice 1 2; then
-    echo 'EXTRA_ECONF="--enable-option-checking=warn"' >> ./etc/portage/make.conf
-  fi
+  # requested by sam, but see https://bugs.gentoo.org/828551#c2
+#   if __dice 1 2; then
+#     echo 'EXTRA_ECONF="--enable-option-checking=warn"' >> ./etc/portage/make.conf
+#   fi
 
-  # this works only if the user "tinderbox" is a member of group "portage"
   chgrp portage ./etc/portage/make.conf
   chmod g+w     ./etc/portage/make.conf
 }
@@ -403,29 +404,27 @@ FFLAGS="\${CFLAGS}"
 EOF
 
   # max $jobs parallel jobs
-  cat << EOF                              > ./etc/portage/env/jobs
-EGO_BUILD_FLAGS="-p ${jobs}"
+  for j in 1 $jobs
+  do
+    cat << EOF > ./etc/portage/env/j$j
+EGO_BUILD_FLAGS="-p $j"
 GO19CONCURRENTCOMPILATION=0
 
-MAKEOPTS="-j${jobs}"
+MAKEOPTS="-j$j"
 
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
-OMP_NUM_THREADS=${jobs}
+OMP_NUM_THREADS=$j
 
-RUSTFLAGS="-Ctarget-cpu=native -v"
-RUST_TEST_THREADS=${jobs}
-RUST_TEST_TASKS=${jobs}
+RUST_TEST_THREADS=$j
+RUST_TEST_TASKS=$j
 
 EOF
 
-  if [[ $profile =~ "musl" ]]; then
-    echo 'RUSTFLAGS=" -C target-feature=-crt-static"' >> ./etc/portage/env/jobs
-  fi
+  done
+  echo "*/*         j${jobs}" >> ./etc/portage/package.env/00j${jobs}
 
-  echo '*/*  jobs' > ./etc/portage/package.env/00jobs
-
-  if [[ $keyword =~ '~' ]]; then
+  if [[ $keyword = '~amd64' ]]; then
     cpconf $tbhome/tb/data/package.*.??unstable
   else
     cpconf $tbhome/tb/data/package.*.??stable
@@ -641,14 +640,15 @@ function DryRun() {
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
 
+  rm -f ./etc/portage/package.use/27-*-*
+
   if RunDryrunWrapper "#setup dryrun $attempt"; then
     return 0
   fi
 
   for i in $(seq 1 9)
   do
-    # eg.: !!! The ebuild selected to satisfy "net-misc/openssh" has unmet requirements.
-    #      - net-misc/openssh-8.7_p1-r2::gentoo USE="X X509 hpn libedit...
+    # kick off particular packages
     local pkg=$(
       grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |\
       awk ' /^- / { print $2 } ' |\
@@ -658,9 +658,9 @@ function DryRun() {
     )
     if [[ -n $pkg ]]; then
       local f=./etc/portage/package.use/24thrown_package_use_flags
-      local before=$(md5sum $f)
+      local before=$(wc -l < $f)
       sed -i -e "/$pkg /d" $f
-      local after=$(md5sum $f)
+      local after=$(wc -l < $f)
       if [[ ! $before = $after ]]; then
         if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
           return 0
@@ -668,19 +668,17 @@ function DryRun() {
       fi
     fi
 
+    # try to solve a dep cycle
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
-
     grep -A 10 "It might be possible to break this cycle" $drylog |\
     grep -F ' (Change USE: ' |\
     grep -v -F -e '+' -e 'This change might require ' |\
     sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
     tr -d ')' |\
     sort -u |\
+    grep -v ".*-.*/.* .*_.*" |\
     while read -r p u
     do
-      if [[ $u =~ '_' ]]; then
-        continue
-      fi
       q=$(qatom -F "%{CATEGORY}/%{PN}" $p)
       printf "%-30s %s\n" $q "$u"
     done |\
@@ -694,8 +692,8 @@ function DryRun() {
       rm $fautocirc
     fi
 
+    # follow advices
     local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
-
     grep -A 100 'The following USE changes are necessary to proceed:' $drylog |\
     grep "^>=" |\
     grep -v -e '>=.* .*_' |\
@@ -709,13 +707,12 @@ function DryRun() {
       rm $fautoflag
     fi
 
-    # nothing to tweak, give it up
+    # if no change in this round was made then give up
     if [[ -z $pkg && ! -s $fautocirc && ! -s $fautoflag ]]; then
       break
     fi
   done
 
-  rm -f ./etc/portage/package.use/27-$attempt-*
   return 1
 }
 
