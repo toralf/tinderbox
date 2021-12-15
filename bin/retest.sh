@@ -42,9 +42,5 @@ if [[ -s $result ]]; then
     # filter out dups, then put new entries after existing ones
     (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     mv $bl.tmp $bl
-
-    # force repo sync before all re-test, but once is enough
-    sed -i -e '/%syncRepo/d' $bl
-    echo "%syncRepo" >> $bl
   done
 fi
