@@ -250,33 +250,6 @@ function CollectIssueFiles() {
 }
 
 
-# get package and logfile names + create the dir
-function DerivePkgFromTaskLog() {
-  pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
-  if [[ -z "$pkg" ]]; then # eg. in postinst phase
-    pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk ' { print $3 } ')
-    if [[ -z "$pkg" ]]; then
-      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
-      if [[ -z "$pkg" ]]; then
-        pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
-        if [[ -z $pkg ]]; then
-          if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
-            Mail "INFO: cannot get pkg for task '$task'" $tasklog_stripped
-          fi
-          return 1
-        fi
-      fi
-    fi
-  fi
-
-  pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
-  pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
-  if [[ ! -f $pkglog ]]; then
-    pkglog=""
-  fi
-}
-
-
 # helper of ClassifyIssue()
 function foundCollisionIssue() {
   # get the colliding package name
@@ -793,6 +766,33 @@ EOF
     done
     rm $log_stripped
   done
+}
+
+
+# get package and logfile names + create the dir
+function DerivePkgFromTaskLog() {
+  pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
+  if [[ -z "$pkg" ]]; then # eg. in postinst phase
+    pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk ' { print $3 } ')
+    if [[ -z "$pkg" ]]; then
+      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
+      if [[ -z "$pkg" ]]; then
+        pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
+        if [[ -z $pkg ]]; then
+          if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
+            Mail "INFO: cannot get pkg for task '$task'" $tasklog_stripped
+          fi
+          return 1
+        fi
+      fi
+    fi
+  fi
+
+  pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
+  if [[ ! -f $pkglog ]]; then
+    pkglog=""
+  fi
 }
 
 
