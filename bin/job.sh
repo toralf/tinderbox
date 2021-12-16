@@ -250,20 +250,6 @@ function CollectIssueFiles() {
 }
 
 
-function createAndPrefillIssueDir() {
-  sleep 1   # create a unique timestamp of issue dir
-
-  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
-  mkdir -p $issuedir/files
-  chmod 777 $issuedir # allow to edit title etc. manually
-
-  if [[ -f $pkglog ]]; then
-    cp $pkglog $issuedir/files
-  fi
-  cp $tasklog $issuedir
-}
-
-
 # get package and logfile names + create the dir
 function DerivePkgFromTaskLog() {
   pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
@@ -744,6 +730,20 @@ function PostEmerge() {
       add2backlog "@system"
     fi
   fi
+}
+
+
+function createAndPrefillIssueDir() {
+  sleep 1   # create a unique timestamp of issue dir
+
+  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
+  mkdir -p $issuedir/files
+  chmod 777 $issuedir # allow to edit title etc. manually
+
+  if [[ -f $pkglog ]]; then
+    cp $pkglog $issuedir/files
+  fi
+  cp $tasklog $issuedir
 }
 
 
