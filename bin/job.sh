@@ -340,7 +340,7 @@ function foundGenericIssue() {
 
     for x in ./x??
     do
-      if grep -m 1 -a -B 4 -A 4 -f $x $pkglog_stripped > ./issue; then
+      if grep -m 1 -a -B 4 -A 2 -f $x $log_stripped > ./issue; then
         mv ./issue $issuedir
         sed -n "5p" $issuedir/issue | stripQuotesAndMore > $issuedir/title # 5 == B+1 -> at least B+1 lines are expected
         break
@@ -386,18 +386,18 @@ function ClassifyIssue() {
     handleTestPhase
   fi
 
-  if grep -q -m 1 -F ' * Detected file collision(s):' $pkglog_stripped; then
+  if grep -q -m 1 -F ' * Detected file collision(s):' $log_stripped; then
     foundCollisionIssue
 
   elif [[ -n $sandb ]]; then # no "-f" b/c it might not exist
     foundSandboxIssue
 
   # special forced issues
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog_stripped | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $log_stripped | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
   else
-    grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog_stripped | tee $issuedir/issue |\
+    grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $log_stripped | tee $issuedir/issue |\
     head -n 2 | tail -n 1 > $issuedir/title
     foundGenericIssue
   fi
@@ -566,12 +566,12 @@ function GotAnIssue()  {
     fi
   fi
 
-  pkglog_stripped=$issuedir/$(basename $pkglog)
-  filterPlainPext < $pkglog > $pkglog_stripped
+  log_stripped=$issuedir/$(basename $pkglog)
+  filterPlainPext < $pkglog > $log_stripped
   # "-m 1" because for phase "install" grep might have 2 matches ("doins failed" and "newins failed")
   # "-o" in the 1st grep b/c sometimes perl spews a message into the same line
   phase=$(
-    grep -m 1 -o " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
+    grep -m 1 -o " \* ERROR:.* failed (.* phase):" $log_stripped |\
     grep -Eo '\(.* ' |\
     tr -d '[( ]'
   )
@@ -751,23 +751,23 @@ function catchMisc()  {
       continue
     fi
 
-    local pkglog_stripped=/tmp/$(basename $pkglog)
-    filterPlainPext < $pkglog > $pkglog_stripped
-    if ! grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
-      rm $pkglog_stripped
+    local log_stripped=/tmp/$(basename $pkglog)
+    filterPlainPext < $pkglog > $log_stripped
+    if ! grep -q -f /mnt/tb/data/CATCH_MISC $log_stripped; then
+      rm $log_stripped
       continue
     fi
     pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' -s | tr ':' '/')
-    repo=$(grep -m 1 -F ' * Repository: ' $pkglog_stripped | awk ' { print $3 } ')
+    repo=$(grep -m 1 -F ' * Repository: ' $log_stripped | awk ' { print $3 } ')
     phase=""
 
-    grep -m 1 -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |\
+    grep -m 1 -f /mnt/tb/data/CATCH_MISC $log_stripped |\
     while read -r line
     do
       createAndPrefillIssueDir
       echo "$line" > $issuedir/title
-      grep -m 1 -F -e "$line" $pkglog_stripped > $issuedir/issue
-      cp $pkglog_stripped $issuedir
+      grep -m 1 -F -e "$line" $log_stripped > $issuedir/issue
+      cp $log_stripped $issuedir
       finishTitle
       cp $issuedir/issue $issuedir/comment0
       cat << EOF >> $issuedir/comment0
@@ -787,7 +787,7 @@ EOF
       CompressIssueFiles
       SendIssueMailIfNotYetReported
     done
-    rm $pkglog_stripped
+    rm $log_stripped
   done
 }
 
@@ -849,7 +849,7 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 function WorkOnTask() {
-  unset phase pkgname pkglog pkglog_stripped
+  unset phase pkgname pkglog log_stripped
 
   try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
   pkg=""
