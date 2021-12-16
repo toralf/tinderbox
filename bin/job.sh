@@ -257,8 +257,10 @@ function createAndPrefillIssueDir() {
   mkdir -p $issuedir/files
   chmod 777 $issuedir # allow to edit title etc. manually
 
-  cp $pkglog  $issuedir/files           # origin, unprocessed
-  cp $tasklog $issuedir                 # stripped
+  if [[ -f $pkglog ]]; then
+    cp $pkglog $issuedir/files
+  fi
+  cp $tasklog $issuedir
 }
 
 
@@ -284,10 +286,7 @@ function DerivePkgFromTaskLog() {
   pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
-    if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
-      Mail "INFO: pkglog '$pkglog' does not exist for pkg '$pkg', pkgname '$pkgname' and task '$task'" $tasklog_stripped
-    fi
-    return 1
+    pkglog=""
   fi
 }
 
@@ -567,7 +566,12 @@ function GotAnIssue()  {
   fi
 
   log_stripped=$issuedir/$(basename $pkglog)
-  filterPlainPext < $pkglog > $log_stripped
+  if [[ -f $pkglog ]]; then
+    filterPlainPext < $pkglog > $log_stripped
+  else
+    cp $tasklog_stripped $log_stripped
+  fi
+
   # "-m 1" because for phase "install" grep might have 2 matches ("doins failed" and "newins failed")
   # "-o" in the 1st grep b/c sometimes perl spews a message into the same line
   phase=$(
@@ -757,7 +761,7 @@ function catchMisc()  {
       rm $log_stripped
       continue
     fi
-    pkg=$(cut -f5 -d'/' <<< $pkglog | cut -f1-2 -d':' -s | tr ':' '/')
+    pkg=$(cut -f5 -d'/' <<< $log_stripped | cut -f1-2 -d':' -s | tr ':' '/')
     repo=$(grep -m 1 -F ' * Repository: ' $log_stripped | awk ' { print $3 } ')
     phase=""
 
