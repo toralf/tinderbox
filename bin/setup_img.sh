@@ -148,7 +148,7 @@ function CreateImageName()  {
   [[ $abi3264 = "n" ]]      || name+="_abi32+64"
   [[ $testfeature = "n" ]]  || name+="_test"
   [[ $cflags =~ O2 ]]       || name+="_debug"
-  name+="-$(date +%Y%m%d-%H%M%S | tr -d '\n')"
+  name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
 
@@ -460,7 +460,7 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname=$(tr -c '[^a-zA-Z0-9\-+]' '-' <<< $name | cut -c-63)
+  local image_hostname=$(echo $name | tr -d '\n' | tr '[:upper:]' '[:lower:]' | tr -c '[^a-z0-9\-]' '-' | cut -c-63)
   echo $image_hostname > ./etc/conf.d/hostname
 
   local host_hostname=$(hostname)
