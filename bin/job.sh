@@ -335,7 +335,7 @@ function handleTestPhase() {
 
 
 
-# helper of GotAnIssue()
+# helper of WorkAtIssue()
 # get the issue and a descriptive title
 function ClassifyIssue() {
   touch $issuedir/{issue,title}
@@ -368,7 +368,7 @@ function ClassifyIssue() {
 }
 
 
-# helper of GotAnIssue()
+# helper of WorkAtIssue()
 # creates an email containing convenient links and a command line ready for copy+paste
 function CompileIssueComment0() {
   emerge -p --info $pkgname &> $issuedir/emerge-info.txt
@@ -426,7 +426,7 @@ function PutDepsIntoWorldFile() {
 }
 
 
-# helper of GotAnIssue()
+# helper of WorkAtIssue()
 # for ABI_X86="32 64" we have two ./work directories in /var/tmp/portage/<category>/<name>
 function setWorkDir() {
   workdir=$(fgrep -m 1 " * Working directory: '" $tasklog_stripped | cut -f2 -d"'" -s)
@@ -510,26 +510,21 @@ function maskPackage()  {
 
 
 # analyze the issue
-function GotAnIssue()  {
+function WorkAtIssue()  {
   local emerge_was_killed=${1:-0}
 
   if [[ $emerge_was_killed -eq 0 ]]; then
     local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped) || true
     if [[ -n $fatal ]]; then
-      Finish 1 "FATAL: $fatal"
-    fi
-
-    if grep -q -e "Exiting on signal" -e " \* The ebuild phase '.*' has been killed by signal" $tasklog_stripped; then
-      Finish 1 "KILLED"
+      Finish 1 "FATAL: $fatal" $tasklog_stripped
     fi
   fi
 
-  log_stripped=$issuedir/$(basename $pkglog)
-  if [[ -f $pkglog ]]; then
-    filterPlainPext < $pkglog > $log_stripped
-  else
-    cp $tasklog_stripped $log_stripped
-  fi
+  log_stripped=$issuedir/$(tr '/' ':' <<< $pkg).log
+  filterPlainPext < $pkglog > $log_stripped
+
+  cp $pkglog  $issuedir/files
+  cp $tasklog $issuedir
 
   # "-m 1" because for phase "install" grep might have 2 matches ("doins failed" and "newins failed")
   # "-o" in the 1st grep b/c sometimes perl spews a message into the same line
@@ -706,17 +701,12 @@ function PostEmerge() {
 }
 
 
-function createAndPrefillIssueDir() {
+function createIssueDir() {
   sleep 1   # create a unique timestamp of issue dir
 
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
   mkdir -p $issuedir/files
   chmod 777 $issuedir # allow to edit title etc. manually
-
-  if [[ -f $pkglog ]]; then
-    cp $pkglog $issuedir/files
-  fi
-  cp $tasklog $issuedir
 }
 
 
@@ -741,7 +731,7 @@ function catchMisc()  {
     grep -m 1 -f /mnt/tb/data/CATCH_MISC $log_stripped |\
     while read -r line
     do
-      createAndPrefillIssueDir
+      createIssueDir
       echo "$line" > $issuedir/title
       grep -m 1 -F -e "$line" $log_stripped > $issuedir/issue
       cp $log_stripped $issuedir
@@ -769,21 +759,19 @@ EOF
 }
 
 
-# get package and logfile names + create the dir
-function DerivePkgFromTaskLog() {
-  pkg="$(cd /var/tmp/portage; ls -1td */* 2>/dev/null | head -n 1)" # head due to 32/64 multilib variants
-  if [[ -z "$pkg" ]]; then # eg. in postinst phase
-    pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk ' { print $3 } ')
+function GetPkgFromTaskLog() {
+  if grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
+    return 1
+  fi
+
+  pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk ' { print $3 } ')
+  if [[ -z "$pkg" ]]; then
+    pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
     if [[ -z "$pkg" ]]; then
-      pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
-      if [[ -z "$pkg" ]]; then
-        pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
-        if [[ -z $pkg ]]; then
-          if ! grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
-            Mail "INFO: cannot get pkg for task '$task'" $tasklog_stripped
-          fi
-          return 1
-        fi
+      pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
+      if [[ -z $pkg ]]; then
+        Mail "INFO: cannot get pkg for task '$task'" $tasklog_stripped
+        return 1
       fi
     fi
   fi
@@ -791,7 +779,8 @@ function DerivePkgFromTaskLog() {
   pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
-    pkglog=""
+    Mail "INFO: cannot get pkglog for pkg '$pkg' task '$task'" $tasklog_stripped
+    return 1
   fi
 }
 
@@ -826,9 +815,9 @@ function RunAndCheck() {
       PutDepsIntoWorldFile
       Finish 0 "exiting"
     elif [[ $signal -ne 15 ]]; then
-      if DerivePkgFromTaskLog; then
-        createAndPrefillIssueDir
-        GotAnIssue 1
+      if GetPkgFromTaskLog; then
+        createIssueDir
+        WorkAtIssue 1
         if [[ $try_again -eq 0 ]]; then
           PutDepsIntoWorldFile
         fi
@@ -836,9 +825,9 @@ function RunAndCheck() {
     fi
 
   elif [[ $rc -ne 0 ]]; then
-    if DerivePkgFromTaskLog; then
-      createAndPrefillIssueDir
-      GotAnIssue 0
+    if GetPkgFromTaskLog; then
+      createIssueDir
+      WorkAtIssue 0
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
       fi
