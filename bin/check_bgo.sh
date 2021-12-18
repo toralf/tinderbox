@@ -220,9 +220,15 @@ pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bi
 pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                  # eg.: net-misc/bird
 versions=$(eshowkw --arch amd64 $pkgname |\
             grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
+            # + == stable, o == masked, ~ == unstable
             awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
             xargs
           )
+if [[ -z $versions ]]; then
+  echo "$pkg is unknown"
+  exit 1
+fi
+
 blocker_bug_no=""
 LookupForABlocker
 SetAssigneeAndCc
