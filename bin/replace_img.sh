@@ -26,11 +26,6 @@ function shufImages() {
 }
 
 
-function GetCompletedEmergeOperations() {
-  grep -c ' ::: completed emerge' ~tinderbox/run/$1/var/log/emerge.log 2>/dev/null || echo "0"
-}
-
-
 function HasAnEmptyBacklog() {
   oldimg=""
   while read -r i
@@ -92,19 +87,8 @@ function Broken() {
 }
 
 
-function MinDistanceIsReached() {
-  local newest=$(set +f; cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -u -n | tail -n 1)
-  if [[ -z "$newest" ]]; then
-    return 1
-  fi
-
-  local distance=$(( ( $(date +%s) - $newest ) / 3600 ))
-  [[ $distance -ge $condition_distance ]]
-}
-
-
 function FreeSlotAvailable() {
-  if [[ ! $condition_count -gt -1 ]]; then
+  if [[ $desired_count -eq -1 ]]; then
     return 1
   fi
 
@@ -112,33 +96,7 @@ function FreeSlotAvailable() {
     return 1
   fi
 
-  [[ $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $condition_count && $(shufImages | wc -l) -lt $condition_count ]]
-}
-
-
-function ReplaceAnImage() {
-  oldimg=""
-  while read -r i
-  do
-    if [[ $condition_runtime -gt -1 ]]; then
-      local runtime=$(( ( $(date +%s) - $(getStartTime $i) ) / 3600 / 24))
-      if [[ $runtime -ge $condition_runtime ]]; then
-        reason="runtime $runtime days (>$condition_runtime)"
-        oldimg=$i
-        return 0
-      fi
-    fi
-    if [[ $condition_completed -gt -1 ]]; then
-      local completed=$(GetCompletedEmergeOperations $i)
-      if [[ $completed -ge $condition_completed ]]; then
-        reason="$completed emerges completed (> $condition_completed)"
-        oldimg=$i
-        return 0
-      fi
-    fi
-  done < <(shufImages)
-
-  return 1
+  [[ $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $desired_count && $(shufImages | wc -l) -lt $desired_count ]]
 }
 
 
@@ -146,7 +104,8 @@ function StopOldImage() {
   local lock_dir=/run/tinderbox/$oldimg.lock
 
   if [[ -d $lock_dir ]]; then
-    local msg="replaced b/c: $reason"
+    local completed=$(grep -c ' ::: completed emerge' ~tinderbox/run/$i/var/log/emerge.log 2>/dev/null || echo "0")
+    local msg="replaced b/c: $reason ($completed emerges completed)"
 
     echo " stopping: $oldimg"
     date
@@ -155,7 +114,7 @@ function StopOldImage() {
     echo " $msg"
 
     # do not just put a "STOP" into backlog.1st b/c job.sh might prepend additional task/s onto it
-    # repeat STOP lines to neutralise an external triggered restart
+    # repeat STOP lines to neutralise any externally triggered restart
     cat << EOF >> ~tinderbox/run/$oldimg/var/tmp/tb/backlog.1st
 STOP
 STOP
@@ -186,7 +145,7 @@ EOF
 }
 
 
-function setupANewImage() {
+function setupNewImage() {
   echo
   date
   echo " setup a new image ..."
@@ -205,22 +164,15 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-condition_completed=-1      # completed emerge operations
-condition_count=-1          # number of images to be run
-condition_distance=-1       # distance in hours to the previous image
-condition_runtime=-1        # age in days for an image
-
+desired_count=-1            # number of images to be run
 oldimg=""                   # image to be replaced
 setupargs=""                # argument(s) for setup_img.sh
 
-while getopts c:d:n:o:r:s: opt
+while getopts n:o:s: opt
 do
   case "$opt" in
-    c)  condition_completed="$OPTARG"   ;;
-    d)  condition_distance="$OPTARG"    ;;
-    n)  condition_count="$OPTARG"       ;;
+    n)  desired_count="$OPTARG"       ;;
     o)  oldimg=$(basename "$OPTARG")    ;;
-    r)  condition_runtime="$OPTARG"     ;;
     s)  setupargs="$OPTARG"             ;;
     *)  echo " opt not implemented: '$opt'"; exit 1;;
   esac
@@ -248,34 +200,21 @@ trap Finish INT QUIT TERM EXIT
 
 while FreeSlotAvailable
 do
-  echo "less than $condition_count images running"
-  setupANewImage
+  echo "less than $desired_count images running"
+  setupNewImage
 done
 
 while HasAnEmptyBacklog
 do
   if StopOldImage; then
-    setupANewImage
+    setupNewImage
   fi
 done
 
 while Broken
 do
   if StopOldImage; then
-    setupANewImage
-  fi
-done
-
-while ReplaceAnImage
-do
-  if [[ $condition_distance -gt -1 ]]; then
-    if ! MinDistanceIsReached; then
-      break
-    fi
-  fi
-
-  if StopOldImage; then
-    setupANewImage
+    setupNewImage
   fi
 done
 
