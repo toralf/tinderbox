@@ -510,7 +510,6 @@ function CreateBacklogs()  {
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
-sys-apps/portage
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
 app-portage/gentoolkit
@@ -622,21 +621,14 @@ function RunDryrunWrapper() {
   echo "$message" | tee ./var/tmp/tb/task
   nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -s ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &> $drylog
   local rc=$?
-  chmod a+w $drylog
+  chmod a+r $drylog
 
   [[ $rc -eq 0 ]] && echo " OK" || echo " NOT ok"
   return $rc
 }
 
 
-function DryRun() {
-  local attempt=$1
-
-  chgrp portage ./etc/portage/package.use/*
-  chmod g+w,a+r ./etc/portage/package.use/*
-
-  rm -f ./etc/portage/package.use/27-*-*
-
+function FixPossibleUseFlagIssues() {
   if RunDryrunWrapper "#setup dryrun $attempt"; then
     return 0
   fi
@@ -708,6 +700,7 @@ function DryRun() {
     fi
   done
 
+  rm -f ./etc/portage/package.use/27-*-*
   return 1
 }
 
@@ -747,7 +740,8 @@ function ThrowImageUseFlags() {
 }
 
 
-function CompileWorkingUseFlags() {
+function CompileUseFlagFiles() {
+  local attempt=0
   echo 'emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
   if [[ -e $useflagfile ]]; then
     date
@@ -755,10 +749,9 @@ function CompileWorkingUseFlags() {
     echo
     cp $useflagfile ./etc/portage/package.use/28given_use_flags
     local drylog=./var/tmp/tb/logs/dryrun.log
-    DryRun
+    FixPossibleUseFlagIssues $attempt
     return $?
   else
-    local attempt=0
     while [[ $(( ++attempt )) -le 200 ]]
     do
       if [[ -f ./var/tmp/tb/STOP ]]; then
@@ -771,7 +764,7 @@ function CompileWorkingUseFlags() {
       echo "==========================================================="
       local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
       ThrowImageUseFlags
-      if DryRun $attempt; then
+      if FixPossibleUseFlagIssues $attempt; then
         return 0
       fi
     done
@@ -845,6 +838,8 @@ CompileMiscFiles
 CreateBacklogs
 CreateSetupScript
 RunSetupScript
-CompileWorkingUseFlags
+CompileUseFlagFiles
+chgrp portage ./etc/portage/package.use/*
+chmod g+w,a+r ./etc/portage/package.use/*
 echo -e "\n$(date)\n  setup done\n"
 StartImage
