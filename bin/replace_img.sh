@@ -44,43 +44,40 @@ function HasAnEmptyBacklog() {
 }
 
 
-function Broken() {
+function FoundABrokenImage() {
   oldimg=""
   while read -r i
   do
+    local starttime
+    if ! starttime=$(getStartTime $i 2>/dev/null); then
+      reason="setup broken"
+      oldimg=$i
+      return 0
+    fi
+
+    s="@world"
+    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+      if [[ $(wc -l < ~tinderbox/run/$i/var/tmp/tb/backlog.1st) -eq 0 ]]; then
+        reason="$s broken"
+        oldimg=$i
+        return 0
+      fi
+    fi
+
     s="@preserved-rebuild"
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " DetectRebuildLoop"; then
       reason="$s DetectRebuildLoop"
       oldimg=$i
       return 0
     fi
-
-    local starttime
-    if ! starttime=$(getStartTime $i); then
-      reason="setup broken"
-      oldimg=$i
-      return 0
-    fi
-    local runtime=$(( ($(date +%s)-$starttime) / 3600 / 24 ))
-
-    s="@world"
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-      if [[ $runtime -ge 1 ]]; then
-        reason="$s broken"
-        oldimg=$i
-        return 0
-      fi
-    fi
-
-    s="@preserved-rebuild"
-    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+      local runtime=$(( ($(date +%s) - starttime) / 3600 / 24 ))
       if [[ $runtime -ge 2 ]]; then
         reason="$s broken"
         oldimg=$i
         return 0
       fi
     fi
-
   done < <(shufImages)
 
   return 1
@@ -211,7 +208,7 @@ do
   fi
 done
 
-while Broken
+while FoundABrokenImage
 do
   if StopOldImage; then
     setupNewImage
