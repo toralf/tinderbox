@@ -10,15 +10,13 @@ function sortCandidatesByName()  {
       continue
     fi
 
-    if [[ -e ~tinderbox/run/$(basename $i) ]]; then
-      continue
-    fi
-
     local starttime=$(getStartTime $i 2>/dev/null || stat -c%Y $i)
     local full_days=$(echo "scale=0; ( $(date +%s) - $starttime ) / 86400" | bc)
-    if [[ $full_days -lt 7 ]]; then
+    if [[ $full_days -lt 1 ]]; then
       continue
     fi
+    # eg. failed "%command" during setup
+    rm -f ~tinderbox/run/$(basename $i)
 
     echo $i
   done |\
