@@ -24,9 +24,10 @@ File Finder Failed for
 error: static declaration of
 /usr/bin/install crash
 install: cannot create regular file
+java.lang.NoSuchMethodError:
+error: .* was not declared
 environment: line .*: cd: .* No such file or directory
 mv: cannot stat .* No such file or directory
-java.lang.NoSuchMethodError:
 : No such file
 Failed to set XATTR_PAX markings
 Fatal error .
