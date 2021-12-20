@@ -142,8 +142,6 @@ function getNextTask() {
       break
     fi
   done
-
-  echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
 }
 
 
@@ -285,28 +283,24 @@ function foundCflagsIssue() {
 
 # helper of ClassifyIssue()
 function foundGenericIssue() {
-    pushd /var/tmp/tb 1>/dev/null
+  # run line by line over the pattern files in the order the lines are specified there
+  # to avoid globbing effects split lines of each file intotemp files and use that in "grep ... -f"
+  (
+    if [[ -n "$phase" ]]; then
+      cat /mnt/tb/data/CATCH_ISSUES.$phase
+    fi
+    cat /mnt/tb/data/CATCH_ISSUES
+  ) | split --lines=1 --suffix-length=3 - /tmp/x_
 
-    # run line by line over the pattern file in the order the lines are specified there
-    # to avoid globbing effects split each pattern line into an own temp file and use that file in "grep ... -f"
-    (
-      if [[ -n "$phase" ]]; then
-        cat /mnt/tb/data/CATCH_ISSUES.$phase
-      fi
-      cat /mnt/tb/data/CATCH_ISSUES
-    ) | split --lines=1 --suffix-length=2 - x
-
-    for x in ./x??
-    do
-      if grep -m 1 -a -B 4 -A 2 -f $x $log_stripped > ./issue; then
-        mv ./issue $issuedir
-        sed -n "5p" $issuedir/issue | stripQuotesAndMore > $issuedir/title # 5 == B+1 -> at least B+1 lines are expected
-        break
-      fi
-    done
-    rm -f ./x?? ./issue
-
-    popd 1>/dev/null
+  for x in /tmp/x_???
+  do
+    if grep -m 1 -a -B 4 -A 2 -f $x $log_stripped > /tmp/issue; then
+      mv /tmp/issue $issuedir
+      sed -n "5p" $issuedir/issue | stripQuotesAndMore > $issuedir/title # 5 == B+1 -> at least B+1 lines are expected
+      break
+    fi
+  done
+  rm -f /tmp/x_??? /tmp/issue
 }
 
 
@@ -317,13 +311,11 @@ function handleTestPhase() {
     try_again=1
   fi
 
-  # tar returns an error if it can't find at least one directory
-  # therefore feed only existing dirs to it
+  # tar returns an error if it can't find at least one directory, therefore feed only existing dirs to it
   pushd "$workdir" 1>/dev/null
   local dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
   if [[ -n "$dirs" ]]; then
-    # the tar here is know to spew things like the obe below so ignore errors
-    # tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
+    # ignore stderr, eg.:    tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
     tar -cjpf $issuedir/files/tests.tar.bz2 \
         --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
         --exclude='*.o' --exclude="*/symlinktest/*" \
@@ -338,8 +330,6 @@ function handleTestPhase() {
 # helper of WorkAtIssue()
 # get the issue and a descriptive title
 function ClassifyIssue() {
-  touch $issuedir/{issue,title}
-
   if [[ "$phase" = "test" ]]; then
     handleTestPhase
   fi
@@ -361,9 +351,9 @@ function ClassifyIssue() {
   fi
 
   if [[ $(wc -c < $issuedir/issue) -gt 1024 ]]; then
-    echo -e "too long lines were shrinked:\n" > $issuedir/issue.tmp
-    cut -c-300 < $issuedir/issue >> $issuedir/issue.tmp
-    mv $issuedir/issue.tmp $issuedir/issue
+    echo -e "too long lines were shrinked:\n" > /tmp/issue
+    cut -c-300 < $issuedir/issue >> /tmp/issue
+    mv /tmp/issue $issuedir/issue
   fi
 }
 
@@ -444,8 +434,8 @@ function setWorkDir() {
 
 function add2backlog()  {
   # no duplicates
-  if [[ ! "$(tail -n 1 /var/tmp/tb/backlog.1st)" = "${@}" ]]; then
-    echo "${@}" >> /var/tmp/tb/backlog.1st
+  if [[ ! "$(tail -n 1 /var/tmp/tb/backlog.1st)" = "$1" ]]; then
+    echo "$1" >> /var/tmp/tb/backlog.1st
   fi
 }
 
@@ -901,7 +891,7 @@ function WorkOnTask() {
               add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
             fi
           else
-            Finish 3 "command: '$cmd'"
+            Finish 3 "command: '$cmd'" $tasklog
           fi
         fi
       fi
@@ -910,7 +900,7 @@ function WorkOnTask() {
   # pinned version
   elif [[ $task =~ ^= ]]; then
     if ! RunAndCheck "emerge $task"; then
-      Mail "pinned task failed: $task"
+      Mail "pinned task failed: $task" $tasklog
     fi
 
   # a common atom
@@ -1028,7 +1018,7 @@ else
   fi
 fi
 
-# re-schedule $task (== failed before)
+# re-schedule $task (non-empty == failed before)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
@@ -1051,8 +1041,8 @@ do
   (date; echo) > $tasklog
   echo "#get task" > $taskfile
   getNextTask
+  echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
   echo "#cleanup" > $taskfile
-  truncate -s 0 $tasklog
   DetectRebuildLoop
 done
