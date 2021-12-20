@@ -57,10 +57,10 @@ function Finish()  {
   feedPfl
   subject=$(stripQuotesAndMore <<< $subject | tr '\n' ' ' | cut -c1-200)
   if [[ $exit_code -eq 0 ]]; then
-    Mail "Finish ok: $subject" ${3:-}
+    Mail "finish ok: $subject" ${3:-}
     truncate -s 0 $taskfile
   else
-    Mail "Finish NOT ok, exit_code=$exit_code: $subject" ${3:-}
+    Mail "finish NOT ok, exit_code=$exit_code: $subject" ${3:-}
   fi
   rm -f /var/tmp/tb/STOP
 
@@ -566,7 +566,7 @@ function WorkAtIssue()  {
         printf "%-50s %s\n" "=$pkg" "notest" >> /etc/portage/package.env/notest
         add2backlog "@world"  # force a depclean under the hood b/c with "notest" the dependency tree usually changed
       else
-        Finish 1 "logic error in retrying a test case" /etc/portage/package.env/notest
+        Mail "logic error in retrying a test case pks: $pkg" /etc/portage/package.env/notest
       fi
     else
       maskPackage
@@ -798,11 +798,11 @@ function RunAndCheck() {
   local signal=0
   if [[ $rc -ge 128 ]]; then
     ((signal = rc - 128))
-    Mail "INFO: got signal $signal, task=$task" $tasklog_stripped
     if [[ $signal -eq 9 ]]; then
       PutDepsIntoWorldFile
-      Finish 0 "exiting"
+      Finish $signal "exiting due to signal $signal"
     elif [[ $signal -ne 15 ]]; then
+      Mail "WARN: got signal $signal  task=$task" $tasklog_stripped
       if GetPkgFromTaskLog; then
         createIssueDir
         WorkAtIssue $signal
@@ -816,11 +816,10 @@ function RunAndCheck() {
     if GetPkgFromTaskLog; then
       createIssueDir
       WorkAtIssue $signal
-      local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped || true)
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
       fi
-      if [[ -n $fatal ]]; then
+      if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
         Finish 1 "FATAL: $fatal" $tasklog_stripped
       fi
     fi
@@ -846,7 +845,7 @@ function WorkOnTask() {
       opts+=" --update --changed-use --newuse"
     fi
 
-    # feed PFL before older packages might be replaced
+    # feed PFL before too b/c a lot of packages maybe replaced/removed by @set
     feedPfl
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
@@ -874,7 +873,6 @@ function WorkOnTask() {
       fi
     fi
     cp $tasklog /var/tmp/tb/$(tr ' ' '_' <<< $task).last.log
-    # feed daily, speeds up Finish()
     feedPfl
 
   # %<command line>
@@ -893,7 +891,7 @@ function WorkOnTask() {
               add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
             fi
           else
-            Finish 3 "command: '$cmd'" $tasklog
+            return 1
           fi
         fi
       fi
@@ -1048,9 +1046,11 @@ do
     Finish 0 "$(qlist -Iv | wc -l) packages installed" $taskfile
   fi
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
-  WorkOnTask
+  if ! WorkOnTask; then
+    Finish 1 "WARN: task: '$task'" $tasklog
+  fi
   echo "#cleanup" > $taskfile
   if HasRebuildLoop; then
-    Finish 1 "too much rebuilds" $histfile
+    Finish 2 "too much rebuilds" $histfile
   fi
 done
