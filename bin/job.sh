@@ -83,19 +83,24 @@ function setTaskAndBacklog()  {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    Finish 0 "empty backlogs, $(qlist -Iv | wc -l) packages installed"
+    return 1
   fi
 
   # move last line of $backlog into $task
   task=$(tail -n 1 $backlog)
   sed -i -e '$d' $backlog
+
+  return 0
 }
 
 
 function getNextTask() {
   while :
   do
-    setTaskAndBacklog
+    if ! setTaskAndBacklog; then
+      echo "#empty backlogs" > $taskfile
+      return 1
+    fi
 
     if [[ -z "$task" || $task =~ ^# ]]; then
       continue  # empty line or comment
@@ -106,7 +111,7 @@ function getNextTask() {
 
     elif [[ $task =~ ^STOP ]]; then
       echo "#stopping by task" > $taskfile
-      Finish 0 "$task"
+      return 1
 
     elif [[ $task =~ ^@ || $task =~ ^% ]]; then
       break  # @set or %command
@@ -125,7 +130,6 @@ function getNextTask() {
       fi
 
       local best_visible
-
       if ! best_visible=$(portageq best_visible / $task 2>/dev/null); then
         continue
       fi
@@ -920,7 +924,7 @@ function DetectRebuildLoop() {
     local N=20
     if [[ $(tail -n $N $histfile | grep -c '@preserved-rebuild') -ge $n ]]; then
       echo "$(date) DetectRebuildLoop" >> $histfile
-      Finish 1 "DetectRebuildLoop" $histfile
+      return 1
     fi
   fi
 }
@@ -1040,9 +1044,13 @@ do
 
   (date; echo) > $tasklog
   echo "#get task" > $taskfile
-  getNextTask
+  if ! getNextTask; then
+    Finish 0 "INFO: stopped, $(qlist -Iv | wc -l) packages installed" $taskfile
+  fi
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
   echo "#cleanup" > $taskfile
-  DetectRebuildLoop
+  if ! DetectRebuildLoop; then
+    Finish 1 "DetectRebuildLoop" $histfile
+  fi
 done
