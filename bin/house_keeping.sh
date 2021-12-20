@@ -14,12 +14,10 @@ function sortCandidatesByName()  {
       continue
     fi
 
-    local starttime=$(getStartTime $i 2>/dev/null)
-    if [[ $? -eq 0 && -n $starttime ]]; then
-      local full_days=$(echo "scale=0; ( $(date +%s) - $starttime ) / 86400" | bc)
-      if [[ $full_days -lt 7 ]]; then
-        continue
-      fi
+    local starttime=$(getStartTime $i 2>/dev/null || stat -c%Y $i)
+    local full_days=$(echo "scale=0; ( $(date +%s) - $starttime ) / 86400" | bc)
+    if [[ $full_days -lt 7 ]]; then
+      continue
     fi
 
     echo $i
