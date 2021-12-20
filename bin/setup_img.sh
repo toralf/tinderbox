@@ -504,12 +504,13 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  # the very 1st @system might might fail if only @world can resolve all deps initially -> repeat it
+  # the very 1st @system might fail if at setup only @world can resolve all deps -> repeat @system
   cat << EOF > $bl.1st
 @system
 @world
 @system
 %sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
+sys-apps/portage
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
 app-portage/gentoolkit
