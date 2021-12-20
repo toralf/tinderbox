@@ -110,7 +110,7 @@ function getNextTask() {
       continue
 
     elif [[ $task =~ ^STOP ]]; then
-      echo "#stopping by task" > $taskfile
+      echo "#task: $task" > $taskfile
       return 1
 
     elif [[ $task =~ ^@ || $task =~ ^% ]]; then
@@ -505,14 +505,7 @@ function maskPackage()  {
 
 # analyze the issue
 function WorkAtIssue()  {
-  local emerge_was_killed=${1:-0}
-
-  if [[ $emerge_was_killed -eq 0 ]]; then
-    local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped) || true
-    if [[ -n $fatal ]]; then
-      Finish 1 "FATAL: $fatal" $tasklog_stripped
-    fi
-  fi
+  local signal=$1
 
   log_stripped=$issuedir/$(tr '/' ':' <<< $pkg).log
   filterPlainPext < $pkglog > $log_stripped
@@ -527,7 +520,7 @@ function WorkAtIssue()  {
     grep -Eo '\(.* ' |\
     tr -d '[( ]'
   )
-  if [[ $emerge_was_killed -eq 0 ]]; then
+  if [[ $signal -eq 0 ]]; then
     setWorkDir
     CreateEmergeHistoryFile
     CollectIssueFiles
@@ -561,7 +554,7 @@ function WorkAtIssue()  {
     fi
   fi
 
-  if [[ $emerge_was_killed -eq 0 ]]; then
+  if [[ $signal -eq 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
       maskPackage
     fi
@@ -802,6 +795,7 @@ function RunAndCheck() {
     fi
   fi
 
+  local signal=0
   if [[ $rc -ge 128 ]]; then
     ((signal = rc - 128))
     Mail "INFO: got signal $signal, task=$task" $tasklog_stripped
@@ -811,7 +805,7 @@ function RunAndCheck() {
     elif [[ $signal -ne 15 ]]; then
       if GetPkgFromTaskLog; then
         createIssueDir
-        WorkAtIssue 1
+        WorkAtIssue $signal
         if [[ $try_again -eq 0 ]]; then
           PutDepsIntoWorldFile
         fi
@@ -821,9 +815,13 @@ function RunAndCheck() {
   elif [[ $rc -ne 0 ]]; then
     if GetPkgFromTaskLog; then
       createIssueDir
-      WorkAtIssue 0
+      WorkAtIssue $signal
+      local fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped || true)
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
+      fi
+      if [[ -n $fatal ]]; then
+        Finish 1 "FATAL: $fatal" $tasklog_stripped
       fi
     fi
   fi
@@ -916,17 +914,19 @@ function WorkOnTask() {
 }
 
 
-function DetectRebuildLoop() {
+function HasRebuildLoop() {
   local histfile=/var/tmp/tb/@preserved-rebuild.history
   if [[ -s $histfile ]]; then
     # not more than n @preserved-rebuild within N last tasks
     local n=7
     local N=20
     if [[ $(tail -n $N $histfile | grep -c '@preserved-rebuild') -ge $n ]]; then
-      echo "$(date) DetectRebuildLoop" >> $histfile
-      return 1
+      echo "$(date) HasRebuildLoop" >> $histfile
+      return 0
     fi
   fi
+
+  return 1
 }
 
 
@@ -1045,12 +1045,12 @@ do
   (date; echo) > $tasklog
   echo "#get task" > $taskfile
   if ! getNextTask; then
-    Finish 0 "INFO: stopped, $(qlist -Iv | wc -l) packages installed" $taskfile
+    Finish 0 "$(qlist -Iv | wc -l) packages installed" $taskfile
   fi
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
   echo "#cleanup" > $taskfile
-  if ! DetectRebuildLoop; then
-    Finish 1 "DetectRebuildLoop" $histfile
+  if HasRebuildLoop; then
+    Finish 1 "too much rebuilds" $histfile
   fi
 done
