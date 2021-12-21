@@ -81,22 +81,22 @@ fi
 mnt=""
 entrypoint=""
 
-while getopts h\?m:s: opt
+while getopts h\?e:m: opt
 do
   case $opt in
     h|\?) Help
+          ;;
+    e)    if [[ ! -s "$OPTARG" ]]; then
+            echo "no valid entry point script given: $OPTARG"
+            exit 2
+          fi
+          entrypoint="$OPTARG"
           ;;
     m)    if [[ -z "$OPTARG" || -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
             echo "argument not accepted"
             exit 2
           fi
           mnt=~tinderbox/img/${OPTARG##*/}
-          ;;
-    s)    if [[ ! -s "$OPTARG" ]]; then
-            echo "no valid entry point script given: $OPTARG"
-            exit 2
-          fi
-          entrypoint="$OPTARG"
           ;;
   esac
 done
