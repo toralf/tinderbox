@@ -850,11 +850,14 @@ function WorkOnTask() {
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
-        add2backlog "@preserved-rebuild"
-        if tail -n 1 /var/tmp/tb/@system.history | grep -q " NOT ok $"; then
-          # if eg. a dep could not be solved in @system but now in @world then gid rid of the misguiding failure state
-          add2backlog "@system"
-        fi
+        # if eg. a dep could not be solved in @s before but state is now ok after @world
+        # then gid rid of the misguiding failure state
+        for s in @preserved-rebuild @system
+        do
+          if tail -n 1 /var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+            add2backlog "$s"
+          fi
+        done
         add2backlog "%emerge --depclean"
       fi
     else
