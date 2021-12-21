@@ -850,6 +850,7 @@ function WorkOnTask() {
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
+        add2backlog "@preserved-rebuild"
         if tail -n 1 /var/tmp/tb/@system.history | grep -q " NOT ok $"; then
           # if eg. a dep could not be solved in @system but now in @world then gid rid of the misguiding failure state
           add2backlog "@system"
@@ -919,7 +920,7 @@ function HasRebuildLoop() {
     local n=7
     local N=20
     if [[ $(tail -n $N $histfile | grep -c '@preserved-rebuild') -ge $n ]]; then
-      echo "$(date) HasRebuildLoop" >> $histfile
+      echo "$(date) too much rebuilds" >> $histfile
       return 0
     fi
   fi
