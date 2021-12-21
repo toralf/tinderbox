@@ -6,6 +6,10 @@ function sortCandidatesByName()  {
   find ~tinderbox/img/ -mindepth 1 -maxdepth 1 -type d -name '*-j*-20??????-??????' |\
   while read -r i
   do
+    if [[ -f ~tinderbox/run/$(basename $i) ]]; then
+      continue
+    fi
+
     if __is_running $i; then
       continue
     fi
@@ -15,8 +19,6 @@ function sortCandidatesByName()  {
     if [[ $full_days -lt 1 ]]; then
       continue
     fi
-    # eg. failed "%command" during setup
-    rm -f ~tinderbox/run/$(basename $i)
 
     echo $i
   done |\
