@@ -48,13 +48,6 @@ function FoundABrokenImage() {
   oldimg=""
   while read -r i
   do
-    local starttime
-    if ! starttime=$(getStartTime $i 2>/dev/null); then
-      reason="setup broken"
-      oldimg=$i
-      return 0
-    fi
-
     s="@world"
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
       if [[ $(wc -l < ~tinderbox/run/$i/var/tmp/tb/backlog.1st) -eq 0 ]]; then
@@ -65,15 +58,26 @@ function FoundABrokenImage() {
     fi
 
     s="@preserved-rebuild"
-    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " DetectRebuildLoop"; then
-      reason="$s DetectRebuildLoop"
+    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
+      local starttime=$(getStartTime $i)
+      local runtime=$(( ($(date +%s) - starttime) / 3600 / 24 ))
+      if [[ $runtime -ge 3 ]]; then
+        reason="$s broken and too old"
+        oldimg=$i
+        return 0
+      fi
+    fi
+    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " too much rebuilds"; then
+      reason="$s too much rebuilds"
       oldimg=$i
       return 0
     fi
-    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-      local runtime=$(( ($(date +%s) - starttime) / 3600 / 24 ))
-      if [[ $runtime -ge 2 ]]; then
-        reason="$s broken"
+
+    if ! __is_running $i; then
+      local last_action=$(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task.history)
+      local stopped_since=$(( ($(date +%s) - last_action) / 3600 / 24 ))
+      if [[ $stopped_since -ge 1 ]]; then
+        reason="$s stopped since $stopped_since day/s"
         oldimg=$i
         return 0
       fi
