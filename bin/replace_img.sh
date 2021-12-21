@@ -73,9 +73,9 @@ function FoundABrokenImage() {
     fi
 
     if ! __is_running $i; then
-      local stopped_since=$(( ($(date +%s) - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task.history)) / 3600 ))
-      if [[ $stopped_since -ge 8 ]]; then
-        reason="$s stopped since $stopped_since hours/s"
+      local last_task=$(( ($(date +%s) - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task)) / 3600 ))
+      if [[ $last_task -ge 8 ]]; then
+        reason="$s stopped and last task is $last_task hours ago"
         oldimg=$i
         return 0
       fi
@@ -102,9 +102,9 @@ function FreeSlotAvailable() {
 function StopOldImage() {
   local lock_dir=/run/tinderbox/$oldimg.lock
 
+  local completed=$(grep -c ' ::: completed emerge' ~tinderbox/run/$i/var/log/emerge.log 2>/dev/null || echo "0")
   local msg="replaced b/c: $reason ($completed emerges completed)"
   if [[ -d $lock_dir ]]; then
-    local completed=$(grep -c ' ::: completed emerge' ~tinderbox/run/$i/var/log/emerge.log 2>/dev/null || echo "0")
 
     echo " stopping: $oldimg"
     date
@@ -196,6 +196,20 @@ if [[ -s "$lockfile" ]]; then
 fi
 echo $$ > "$lockfile" || exit 1
 trap Finish INT QUIT TERM EXIT
+
+# unlink a stopped image
+while read -r i
+do
+  if ! __is_running $i; then
+    local last_task=$(( ($(date +%s) - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task)) / 3600 ))
+    if [[ $last_task -ge 8 ]]; then
+      echo -e "\n$i last task $last_task hour/s ago\n"
+      tail -v 100 ~tinderbox/logs/$i.log
+      rm          ~tinderbox/logs/$i.log
+      rm ~tinderbox/run/$i
+    fi
+  fi
+done < <(shufImages)
 
 while FreeSlotAvailable
 do
