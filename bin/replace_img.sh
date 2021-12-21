@@ -59,8 +59,7 @@ function FoundABrokenImage() {
 
     s="@preserved-rebuild"
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-      local starttime=$(getStartTime $i)
-      local runtime=$(( ($(date +%s) - starttime) / 3600 / 24 ))
+      local runtime=$(( ($(date +%s) - $(getStartTime $i) ) / 3600 / 24 ))
       if [[ $runtime -ge 3 ]]; then
         reason="$s broken and too old"
         oldimg=$i
@@ -74,10 +73,9 @@ function FoundABrokenImage() {
     fi
 
     if ! __is_running $i; then
-      local last_action=$(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task.history)
-      local stopped_since=$(( ($(date +%s) - last_action) / 3600 / 24 ))
-      if [[ $stopped_since -ge 1 ]]; then
-        reason="$s stopped since $stopped_since day/s"
+      local stopped_since=$(( ($(date +%s) - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task.history)) / 3600 ))
+      if [[ $stopped_since -ge 8 ]]; then
+        reason="$s stopped since $stopped_since hours/s"
         oldimg=$i
         return 0
       fi
@@ -104,9 +102,9 @@ function FreeSlotAvailable() {
 function StopOldImage() {
   local lock_dir=/run/tinderbox/$oldimg.lock
 
+  local msg="replaced b/c: $reason ($completed emerges completed)"
   if [[ -d $lock_dir ]]; then
     local completed=$(grep -c ' ::: completed emerge' ~tinderbox/run/$i/var/log/emerge.log 2>/dev/null || echo "0")
-    local msg="replaced b/c: $reason ($completed emerges completed)"
 
     echo " stopping: $oldimg"
     date
@@ -138,7 +136,7 @@ EOF
     done
     echo "done"
   else
-    echo "not runnning"
+    echo "$oldimg $msg"
   fi
   echo
 
