@@ -505,7 +505,9 @@ function CreateBacklogs()  {
   fi
 
   # the very 1st @system might fail if at setup only @world can resolve all deps -> repeat @system
+  # furthermore clean up a hopefully outdated state of @preserved-rebuild for similar reason
   cat << EOF > $bl.1st
+@preserved-rebuild
 @system
 @world
 @system
@@ -519,7 +521,7 @@ app-portage/gentoolkit
 EOF
 
   if [[ $profile =~ "musl" ]]; then
-    sed -i -e '/gcc/d' $bl.1st
+    sed -i -e 's,.%.*gcc.*,sys-devel/gcc,' $bl.1st
   fi
 }
 
