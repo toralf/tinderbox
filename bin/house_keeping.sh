@@ -6,7 +6,7 @@ function sortCandidatesByName()  {
   find ~tinderbox/img/ -mindepth 1 -maxdepth 1 -type d -name '*-j*-20??????-??????' |\
   while read -r i
   do
-    if [[ -f ~tinderbox/run/$(basename $i) ]]; then
+    if [[ -e ~tinderbox/run/$(basename $i) ]]; then
       continue
     fi
 
