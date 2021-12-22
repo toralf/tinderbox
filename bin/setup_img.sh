@@ -321,7 +321,7 @@ EOF
 
   # requested by sam
   if [[ $keyword = '~amd64' ]]; then
-    if __dice 1 20; then
+    if __dice 1 80; then
       echo 'LIBTOOL="rdlibtool"'            >> ./etc/portage/make.conf
       echo 'MAKEFLAGS="LIBTOOL=${LIBTOOL}"' >> ./etc/portage/make.conf
     fi
