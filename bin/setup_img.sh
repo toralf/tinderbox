@@ -340,8 +340,8 @@ EOF
     echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'                    > ./etc/portage/env/setuptools_stdlib
     echo 'dev-lang/spidermonkey            setuptools_stdlib' > ./etc/portage/package.env/setuptools_stdlib
 
-    echo "~dev-python/setuptools-0.60.3"      >> /etc/portage/package.unmask/setuptools
-    echo "~dev-python/setuptools-0.60.3   **" >> /etc/portage/package.package.accept_keywords/setuptools
+    echo "=dev-python/setuptools-0.60*"       >> /etc/portage/package.unmask/setuptools
+    echo "=dev-python/setuptools-0.60*    **" >> /etc/portage/package.package.accept_keywords/setuptools
   fi
 
   chgrp portage ./etc/portage/make.conf
