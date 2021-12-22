@@ -789,7 +789,7 @@ function RunAndCheck() {
       local taskdirname=/var/tmp/tb/core/$taskname
       mkdir -p $taskdirname
       mv /tmp/core.* $taskdirname
-      Mail "INFO: kept core files in $taskdirname" "$(ls -lh $taskdirname/)"
+      Mail "INFO: kept core files in $taskdirname" "$(ls -lh $taskdirname/)" $tasklog_stripped
     else
       rm /tmp/core.*
     fi
@@ -800,7 +800,7 @@ function RunAndCheck() {
     ((signal = rc - 128))
     if [[ $signal -eq 9 ]]; then
       PutDepsIntoWorldFile
-      Finish $signal "exiting due to signal $signal"
+      Finish $signal "exiting due to signal $signal" $tasklog_stripped
     elif [[ $signal -ne 15 ]]; then
       Mail "WARN: got signal $signal  task=$task" $tasklog_stripped
       if GetPkgFromTaskLog; then

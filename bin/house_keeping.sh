@@ -2,7 +2,7 @@
 # set -x
 
 
-function sortCandidatesByName()  {
+function sortCandidatesByAge()  {
   find ~tinderbox/img/ -mindepth 1 -maxdepth 1 -type d -name '*-j*-20??????-??????' |\
   while read -r i
   do
@@ -70,18 +70,19 @@ source $(dirname $0)/lib.sh
 
 if pruneNeeded; then
   # prune distfiles older than 1 yr and stage3 files older than 1 week
-  find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +365                  -delete
-  find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +8   -name 'stage3-*' -delete
+  find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +365                         -delete
+  find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +8   -name 'stage3-amd64-*'  -delete
 
+  # first prune only images w/o any reported bug
   while read -r img && pruneNeeded
   do
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneDir $img
     fi
-  done < <(sortCandidatesByName)
+  done < <(sortCandidatesByAge)
 
   while read -r img && pruneNeeded
   do
     pruneDir $img
-  done < <(sortCandidatesByName)
+  done < <(sortCandidatesByAge)
 fi

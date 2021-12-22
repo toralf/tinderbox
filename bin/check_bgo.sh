@@ -204,10 +204,8 @@ if [[ ! -s $issuedir/title ]]; then
   exit 1
 elif [[ -f $issuedir/.reported ]]; then
   echo "already reported"
-  # a 2nd parameter skips the exit
-  if [[ $# -lt 2 ]]; then
-    exit 0
-  fi
+  # a 2nd parameter let continue
+  [[ $# -lt 2 ]] && exit 0
 fi
 
 resultfile=$(mktemp /tmp/$(basename $0)_XXXXXX.result)
@@ -240,16 +238,15 @@ echo "    versions: $versions"
 echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 
 keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
-cmd="$keyword ACCEPT_LICENSE="*" portageq best_visible / $pkgname"
+cmd="$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"
 if best=$(eval $cmd); then
   if [[ ! $pkg = $best ]]; then
     echo -e "\n    is  NOT  latest"
-    if [[ $# -lt 2 ]]; then # 2nd par is just a dummy to continue
-      exit 0
-    fi
+    [[ $# -lt 2 ]] && exit 0
   fi
 else
-  echo "      warn: best NOT found"
+  echo -e "\n    is  not  KNOWN"
+  [[ $# -lt 2 ]] && exit 0
 fi
 echo
 
