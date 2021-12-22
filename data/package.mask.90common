@@ -47,3 +47,6 @@ sys-cluster/nullmpi
 
 # https://bugs.gentoo.org/770976 - emerge hangs
 x11-wm/stumpwm
+
+# hangs under musl
+dev-libs/dmalloc

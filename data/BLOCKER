@@ -21,7 +21,7 @@ slibtool|rlibtool|rdlibtool|unrecognized command-line option|./shtool:|syntax er
 
 # [TRACKER] Packages broken by SETUPTOOLS_USE_DISTUTILS=local
 822354
-No module named
+No module named |KeyError:
 
 # [Tracker] dev-scheme/guile-3.0.x breakage
 746914
