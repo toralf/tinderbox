@@ -337,8 +337,11 @@ EOF
   if __dice 1 2; then
     echo 'SETUPTOOLS_USE_DISTUTILS=local' >> ./etc/portage/make.conf
 
-    echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'                    > ./etc/portage/env/stdlib_setuptools
-    echo 'dev-lang/spidermonkey            stdlib_setuptools' > ./etc/portage/package.env/stdlib_setuptools
+    echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'                    > ./etc/portage/env/setuptools_stdlib
+    echo 'dev-lang/spidermonkey            setuptools_stdlib' > ./etc/portage/package.env/setuptools_stdlib
+
+    echo "~dev-python/setuptools-0.60.3"      >> /etc/portage/package.unmask/setuptools
+    echo "~dev-python/setuptools-0.60.3   **" >> /etc/portage/package.package.accept_keywords/setuptools
   fi
 
   chgrp portage ./etc/portage/make.conf
@@ -504,8 +507,8 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  # the very 1st @system might fail if at setup only @world can resolve all deps -> repeat @system
-  # furthermore clean up a hopefully outdated state of @preserved-rebuild for similar reason
+  # the very 1st @system might fail if only @world can resolve all deps -> repeat @system
+  # furthermore clean up the state of a @preserved-rebuild for similar reason
   cat << EOF > $bl.1st
 @preserved-rebuild
 @system
@@ -519,10 +522,6 @@ app-portage/gentoolkit
 %SwitchGCC
 
 EOF
-
-  if [[ $profile =~ "musl" ]]; then
-    sed -i -e 's,.%.*gcc.*,sys-devel/gcc,' $bl.1st
-  fi
 }
 
 
