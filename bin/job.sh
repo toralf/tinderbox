@@ -800,13 +800,18 @@ function RunAndCheck() {
     fi
   fi
 
+  # got a signal
   local signal=0
   if [[ $rc -ge 128 ]]; then
     ((signal = rc - 128))
     if [[ $signal -eq 9 ]]; then
       PutDepsIntoWorldFile
       Finish $signal "exiting due to signal $signal" $tasklog_stripped
-    elif [[ $signal -ne 15 ]]; then
+    elif [[ $signal -eq 15 ]]; then
+      if [[ $try_again -eq 0 ]]; then
+        PutDepsIntoWorldFile
+      fi
+    else
       Mail "WARN: got signal $signal  task=$task" $tasklog_stripped
       if GetPkgFromTaskLog; then
         createIssueDir
@@ -817,9 +822,14 @@ function RunAndCheck() {
       fi
     fi
 
+  # timeout
   elif [[ $rc -eq 124 ]]; then
       Mail "INFO: timeout  task=$task" $tasklog_stripped
+      if [[ $try_again -eq 0 ]]; then
+        PutDepsIntoWorldFile
+      fi
 
+  # simple failed
   elif [[ $rc -ne 0 ]]; then
     if GetPkgFromTaskLog; then
       createIssueDir
