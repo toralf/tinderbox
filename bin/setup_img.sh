@@ -36,10 +36,12 @@ function GetProfiles() {
     grep -F "default/linux/amd64/17.1/" |\
     grep -v -F -e ' (exp)' -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl' -e '/developer'
 
-    # by sam
-    eselect profile list |\
-    grep -e "default/linux/amd64/17\../musl" |\
-    grep -v -F -e '/selinux'
+    if __dice 1 2; then
+      # by sam
+      eselect profile list |\
+      grep -e "default/linux/amd64/17\../musl" |\
+      grep -v -F -e '/selinux'
+    fi
   ) |\
   awk ' { print $2 } ' |\
   cut -f4- -d'/' -s |\
