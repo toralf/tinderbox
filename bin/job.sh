@@ -230,7 +230,7 @@ function CollectIssueFiles() {
       set -e
       cd "$workdir/../.."
       if [[ -d ./temp ]]; then
-        timeout -s 15 180 tar -cjpf $issuedir/files/temp.tar.bz2 \
+        timeout --signal=15 --kill-after=1m 3m tar -cjpf $issuedir/files/temp.tar.bz2 \
             --dereference \
             --warning='no-file-ignored'  \
             --warning='no-file-removed' \
@@ -593,10 +593,12 @@ function source_profile(){
 # switch to latest GCC
 function SwitchGCC() {
   local latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$'| tail -n 1)
+  local curr=$(gcc -dumpversion | cut -f1 -d'.')
 
-  if ! gcc-config --list-profiles --nocolor | grep -q -F "$latest *"; then
-    local old=$(gcc -dumpversion | cut -f1 -d'.')
-    echo "SwitchGCC to $latest" >> $taskfile.history
+  if gcc-config --list-profiles --nocolor | grep -q -F "$latest *"; then
+    echo "SwitchGCC: is latest: $curr"
+  else
+    echo "SwitchGCC: switch from $curr to $latest" >> $taskfile.history
     gcc-config --nocolor $latest
     source_profile
     add2backlog "%emerge @preserved-rebuild"
@@ -605,7 +607,7 @@ function SwitchGCC() {
     else
       add2backlog "%emerge -1 sys-devel/libtool"
     fi
-    add2backlog "%emerge --unmerge sys-devel/gcc:$old"
+    add2backlog "%emerge --unmerge sys-devel/gcc:$curr"
   fi
 }
 
@@ -757,7 +759,9 @@ function GetPkgFromTaskLog() {
     if [[ -z "$pkg" ]]; then
       pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
       if [[ -z $pkg ]]; then
-        Mail "INFO: cannot get pkg for task '$task'" $tasklog_stripped
+        if ! grep -q -F 'Exiting on signal ' $tasklog_stripped; then
+          Mail "INFO: cannot get pkg for task '$task'" $tasklog_stripped
+        fi
         return 1
       fi
     fi
@@ -773,10 +777,11 @@ function GetPkgFromTaskLog() {
 
 
 # helper of WorkOnTask()
-# run $@ in a subshell and act on result
+# run $1 in a subshell and act on result, timeout after $2
 function RunAndCheck() {
-  (eval $@; rc=$?; echo; date; exit $rc) &>> $tasklog
+  timeout --signal=15 --kill-after=5m ${2:-8h} bash -c "eval $1" &>> $tasklog
   local rc=$?
+  (echo; date) >> $tasklog
 
   local taskname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
   tasklog_stripped="/var/tmp/tb/logs/$taskname.log"
@@ -812,6 +817,9 @@ function RunAndCheck() {
       fi
     fi
 
+  elif [[ $rc -eq 124 ]]; then
+      Mail "INFO: timeout  task=$task" $tasklog_stripped
+
   elif [[ $rc -ne 0 ]]; then
     if GetPkgFromTaskLog; then
       createIssueDir
@@ -819,9 +827,9 @@ function RunAndCheck() {
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
       fi
-      if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
-        Finish 1 "FATAL: $fatal" $tasklog_stripped
-      fi
+    fi
+    if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
+      Finish 1 "FATAL: $fatal" $tasklog_stripped
     fi
   fi
 
@@ -847,7 +855,7 @@ function WorkOnTask() {
 
     # feed PFL before too b/c a lot of packages maybe replaced/removed by @set
     feedPfl
-    if RunAndCheck "emerge $task $opts"; then
+    if RunAndCheck "emerge $task $opts" "24h"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
         # if eg. a dep could not be solved in @s before but state is now ok after @world
@@ -985,15 +993,13 @@ function syncRepo()  {
 #
 set -eu
 export LANG=C.utf8
+export -f SwitchGCC
 trap Finish INT QUIT TERM EXIT
 
-taskfile=/var/tmp/tb/task           # holds the current task (maybe just a #comment)
-tasklog=$taskfile.log               # holds output of the current task
+taskfile=/var/tmp/tb/task           # holds the current task
+tasklog=/tmp/task.log               # holds output of it
 name=$(cat /var/tmp/tb/name)        # the image name
-keyword="stable"
-if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
-  keyword="unstable"
-fi
+grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
 
 export CARGO_TERM_COLOR="never"
 export GCC_COLORS=""
