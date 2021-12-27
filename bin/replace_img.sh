@@ -201,8 +201,8 @@ trap Finish INT QUIT TERM EXIT
 while read -r i
 do
   if ! __is_running $i; then
-    local last_task=$(( ($(date +%s) - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task)) / 3600 ))
-    if [[ $last_task -ge 8 ]]; then
+    last_task=$(( ($(date +%s) - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task)) / 3600 ))
+    if [[ $last_task -ge 48 ]]; then
       echo -e "\n$i last task $last_task hour/s ago\n"
       tail -v 100 ~tinderbox/logs/$i.log
       rm          ~tinderbox/logs/$i.log
