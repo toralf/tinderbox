@@ -153,11 +153,11 @@ fi
 # do this as the very last step to reduce the amount of emails sent out by bugzilla for each record change
 if [[ $newbug -eq 1 ]]; then
   name=$(cat $issuedir/../../name)
-  if [[ $name =~ musl ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC $issuedir/title; then
+  assignee="$(cat ./assignee)"
+  if [[ $name =~ musl && ! $assignee = "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC $issuedir/title; then
     assignee="musl@gentoo.org"
     cc="$(cat ./assignee ./cc 2>/dev/null | xargs -n 1 | grep -v "musl@gentoo.org" | xargs)"
   else
-    assignee="$(cat ./assignee)"
     cc="$(cat ./cc 2>/dev/null || true)"
   fi
   add_cc=""
