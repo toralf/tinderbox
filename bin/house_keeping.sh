@@ -69,11 +69,22 @@ fi
 source $(dirname $0)/lib.sh
 
 if pruneNeeded; then
-  # prune distfiles older than 1 yr and stage3 files older than 1 week
-  find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +365                         -delete
-  find ~tinderbox/distfiles/ -maxdepth 1 -ignore_readdir_race -type f -mtime +8   -name 'stage3-amd64-*'  -delete
+  # prune distfiles older than 1 yr
+  find ~tinderbox/distfiles/ -maxdepth 1 -type f -mtime +365 -delete
 
-  # first prune only images w/o any reported bug
+  # prune stage3 files
+  latest=~tinderbox/distfiles/latest-stage3.txt
+  if [[ -s $latest ]]; then
+    find ~tinderbox/distfiles/ -maxdepth 1 -type f -name 'stage3-amd64-*.xz' |\
+    while read -r stage3
+    do
+      if [[ $latest -nt $stage3 ]] && ! grep -q $(basename $stage3) $latest; then
+        rm ${stage3}*
+      fi
+    done
+  fi
+
+  # prune images w/o any reported bug
   while read -r img && pruneNeeded
   do
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
@@ -81,6 +92,7 @@ if pruneNeeded; then
     fi
   done < <(sortCandidatesByAge)
 
+  # prune images from oldest to newer
   while read -r img && pruneNeeded
   do
     pruneDir $img
