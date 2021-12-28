@@ -129,17 +129,17 @@ function Tasks()  {
     fi
     task=$(cat $tsk)
 
-    let "delta = $ts - $(stat -c%Y $tsk)" || true
-
+    set +e
+    let "delta = $ts - $(stat -c %Y $tsk)"
+    let "minutes = $delta / 60 % 60"
     if [[ $delta -lt 3600 ]]; then
-      let "minutes = $delta / 60 % 60"  || true
-      let "seconds = $delta % 60 % 60"  || true
+      let "seconds = $delta % 60 % 60"
       printf "%3i:%02i m " $minutes $seconds
     else
-      let "hours = $delta / 60 / 60"    || true
-      let "minutes = $delta / 60 % 60"  || true
+      let "hours = $delta / 60 / 60"
       printf "%3i:%02i h " $hours $minutes
     fi
+    set -e
 
     if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
       echo -n " "
@@ -164,26 +164,21 @@ function LastEmergeOperation()  {
 
     # display the last *started* emerge operation
     tac $i/var/log/emerge.log 2>/dev/null |\
-    grep -m 1 -E -e ' >>>| \*\*\* emerge' -e ' \*\*\* terminating.' -e ' ::: completed emerge' |\
-    sed -e 's/ \-\-.* / /g' -e 's, to /,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
+    grep -m 1 -e ' >>> ' -e ' *** emerge' -e ' *** terminating.' -e ' ::: completed emerge' |\
+    sed -e 's/ \-\-.* / /g' -e 's, to /$,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
     perl -wane '
-      next if (scalar @F < 2);
-
       chop ($F[0]);
       my $delta = time() - $F[0];
-
+      $minutes = $delta / 60 % 60;
       if ($delta < 3600) {
-        $minutes = $delta / 60 % 60;
         $seconds = $delta % 60 % 60;
         printf ("%3i:%02i m  ", $minutes, $seconds);
       } else  {
         $hours = $delta / 60 / 60;
-        $minutes = $delta / 60 % 60;
-        # mark long runtimes
-        printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");
+        printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");    # mark long runtimes
       }
-      my $outline = join (" ", @F[1..$#F]);
-      print substr ($outline, 1, '"'$cols_task'"');
+      my $line = join (" ", @F[1..$#F]);
+      print substr ($line, 0, '"'$cols_task'"');
     '
     echo
   done
