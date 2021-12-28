@@ -61,6 +61,7 @@ function Finish()  {
     truncate -s 0 $taskfile
   else
     Mail "finish NOT ok, exit_code=$exit_code: $subject" ${3:-}
+    cp $tasklog /var/tmp/tb
   fi
   rm -f /var/tmp/tb/STOP
 
@@ -863,7 +864,7 @@ function WorkOnTask() {
       opts+=" --update --changed-use --newuse"
     fi
 
-    # feed PFL before too b/c a lot of packages maybe replaced/removed by @set
+    # feed PFL b/c a lot of packages may be replaced/removed by @set
     feedPfl
     if RunAndCheck "emerge $task $opts" "24h"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
@@ -895,6 +896,7 @@ function WorkOnTask() {
       fi
     fi
     cp $tasklog /var/tmp/tb/$(tr ' ' '_' <<< $task).last.log
+    # and now feed PFL with the updates
     feedPfl
 
   # %<command line>
