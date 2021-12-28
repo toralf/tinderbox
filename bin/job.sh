@@ -62,7 +62,6 @@ function Finish()  {
     truncate -s 0 $taskfile
   else
     Mail "finish NOT ok, exit_code=$exit_code: $subject" ${3:-}
-    cp $tasklog /var/tmp/tb
   fi
   rm -f /var/tmp/tb/STOP
 
@@ -1010,7 +1009,7 @@ export -f SwitchGCC
 trap Finish INT QUIT TERM EXIT
 
 taskfile=/var/tmp/tb/task           # holds the current task
-tasklog=/tmp/task.log               # holds output of it
+tasklog=$taskfile.log               # holds output of it
 name=$(cat /var/tmp/tb/name)        # the image name
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
 
