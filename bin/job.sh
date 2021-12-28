@@ -43,6 +43,7 @@ function feedPfl()  {
   if [[ -x /usr/bin/pfl ]]; then
     /usr/bin/pfl &>/dev/null
   fi
+  return 0
 }
 
 
@@ -980,7 +981,7 @@ function syncRepo()  {
 
   cd /var/db/repos/gentoo
   # give mirrors 1 hour to sync
-  git diff --diff-filter="ACM" --name-status "@{ $(( $(date +%s) - $last_sync + 3600 )) second ago }".."@{ 1 hour ago }" |\
+  git diff -l0 --diff-filter="ACM" --name-status "@{ $(( $(date +%s) - $last_sync + 3600 )) second ago }".."@{ 1 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s |\
   cut -f1-2 -d'/' -s |\
