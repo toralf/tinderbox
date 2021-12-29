@@ -50,17 +50,15 @@ function FoundABrokenImage() {
   do
     s="@world"
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-      if [[ $(wc -l < ~tinderbox/run/$i/var/tmp/tb/backlog.1st) -eq 0 ]]; then
-        reason="$s broken"
-        oldimg=$i
-        return 0
-      fi
+      reason="$s broken"
+      oldimg=$i
+      return 0
     fi
 
     s="@preserved-rebuild"
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
       local runtime=$(( ($(date +%s) - $(getStartTime $i) ) / 3600 / 24 ))
-      if [[ $runtime -ge 3 ]]; then
+      if [[ $runtime -ge 2 ]]; then
         reason="$s broken and too old"
         oldimg=$i
         return 0
@@ -91,45 +89,32 @@ function FreeSlotAvailable() {
     return 1
   fi
 
-  if pgrep -f $(dirname $0)/setup_img.sh 1>/dev/null; then
-    return 1
-  fi
+  r=$(ls /run/tinderbox 2>/dev/null | wc -l)
+  s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
 
-  [[ $(ls /run/tinderbox 2>/dev/null | wc -l) -lt $desired_count && $(shufImages | wc -l) -lt $desired_count ]]
+  [[ $((r + s)) -lt $desired_count && $(shufImages | wc -l) -lt $desired_count ]]
 }
 
 
 function StopOldImage() {
+  rm ~tinderbox/run/$oldimg
+
   local lock_dir=/run/tinderbox/$oldimg.lock
-
-  local completed=$(grep -c ' ::: completed emerge' ~tinderbox/run/$oldimg/var/log/emerge.log 2>/dev/null || echo "0")
+  local completed=$(grep -c ' ::: completed emerge' ~tinderbox/img/$oldimg/var/log/emerge.log 2>/dev/null || echo "0")
   local msg="replaced b/c: $reason ($completed emerges completed)"
-  if [[ -d $lock_dir ]]; then
 
+  echo " $msg" | tee -a ~tinderbox/img/$oldimg/var/tmp/tb/STOP
+  if [[ -d $lock_dir ]]; then
     echo " stopping: $oldimg"
     date
+
     echo -e "\n waiting for image unlock ...\n"
     date
-    echo " $msg"
-
-    # do not just put a "STOP" into backlog.1st b/c job.sh might prepend additional task/s onto it
-    # repeat STOP lines to neutralise any externally triggered restart
-    cat << EOF >> ~tinderbox/run/$oldimg/var/tmp/tb/backlog.1st
-STOP
-STOP
-STOP
-STOP
-STOP
-STOP $msg
-EOF
-    echo "$msg" >> ~tinderbox/run/$oldimg/var/tmp/tb/STOP
-    local i=7200
+    local i=1800
     while [[ -d $lock_dir ]]
     do
       if ! ((--i)); then
-        echo "give up on $oldimg"
-        sed '/^STOP/d' ~tinderbox/run/$oldimg/var/tmp/tb/backlog.1st
-        rm ~tinderbox/run/$oldimg/var/tmp/tb/STOP
+        echo "give up waiting for $oldimg"
         return 1
       fi
       sleep 1
@@ -138,9 +123,8 @@ EOF
   else
     echo "$oldimg $msg"
   fi
+  rm ~tinderbox/logs/$oldimg.log
   echo
-
-  rm -- ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
 }
 
 
@@ -203,10 +187,12 @@ do
   if ! __is_running $i; then
     last_task=$(( ($(date +%s) - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task)) / 3600 ))
     if [[ $last_task -ge 48 ]]; then
-      echo -e "\n$i last task $last_task hour/s ago\n"
-      tail -v 100 ~tinderbox/logs/$i.log
-      rm          ~tinderbox/logs/$i.log
+      echo -e "\n$i last task $last_task hour/s ago - removing from ~/run\n"
       rm ~tinderbox/run/$i
+      if [[ -s ~tinderbox/logs/$i.log ]]; then
+        tail -v 100 ~tinderbox/logs/$i.log
+      fi
+      rm ~tinderbox/logs/$i.log
     fi
   fi
 done < <(shufImages)
