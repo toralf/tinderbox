@@ -437,6 +437,7 @@ function setWorkDir() {
 }
 
 
+# append onto the file == is the next task
 function add2backlog()  {
   # no duplicates
   if [[ ! "$(tail -n 1 /var/tmp/tb/backlog.1st)" = "$1" ]]; then
@@ -864,19 +865,10 @@ function WorkOnTask() {
       opts+=" --update --changed-use --newuse"
     fi
 
-    # feed PFL b/c a lot of packages may be replaced/removed by @set
     feedPfl
     if RunAndCheck "emerge $task $opts" "24h"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
-        # if eg. a dep could not be solved in @s before but state is now ok after @world
-        # then gid rid of the misguiding failure state
-        for s in @preserved-rebuild @system
-        do
-          if tail -n 1 /var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-            add2backlog "$s"
-          fi
-        done
         add2backlog "%emerge --depclean"
       fi
     else
@@ -887,16 +879,18 @@ function WorkOnTask() {
             if [[ $(equery d $pkgname | wc -l) -eq 0 ]]; then
               add2backlog "@world"
               add2backlog "@preserved-rebuild"
-              add2backlog "%emerge -C $pkgname"
+              add2backlog "%emerge --unmerge $pkgname"
             fi
           else
             add2backlog "%emerge --resume --skip-first"
           fi
         fi
+      else
+        if [[ $task = "@world" ]]; then
+          return 1
+        fi
       fi
     fi
-    cp $tasklog /var/tmp/tb/$(tr ' ' '_' <<< $task).last.log
-    # and now feed PFL with the updates
     feedPfl
 
   # %<command line>
@@ -906,7 +900,7 @@ function WorkOnTask() {
     # feed before packages might be unmerged
     feedPfl
     if ! RunAndCheck "$cmd"; then
-      if [[ ! $task =~ " --unmerge " && ! $task =~ "emerge -C " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" ]]; then
+      if [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" ]]; then
         if [[ $try_again -eq 0 ]]; then
           if [[ $task =~ " --resume" ]]; then
             if [[ -n "$pkg" ]]; then
@@ -1071,7 +1065,6 @@ do
   if ! WorkOnTask; then
     Finish 1 "WARN: task: '$task'" $tasklog
   fi
-  echo "#cleanup" > $taskfile
   if HasRebuildLoop; then
     Finish 2 "too much rebuilds" $histfile
   fi
