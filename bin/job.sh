@@ -875,15 +875,7 @@ function WorkOnTask() {
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
       if [[ -n "$pkg" ]]; then
         if [[ $try_again -eq 0 ]]; then
-          if [[ $task = "@preserved-rebuild" ]]; then
-            if [[ $(equery d $pkgname | wc -l) -eq 0 ]]; then
-              add2backlog "@world"
-              add2backlog "@preserved-rebuild"
-              add2backlog "%emerge --unmerge $pkgname"
-            fi
-          else
-            add2backlog "%emerge --resume --skip-first"
-          fi
+          add2backlog "%emerge --resume --skip-first"
         fi
       else
         if [[ $task = "@world" ]]; then
