@@ -117,7 +117,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ ! -d $repodir/gentoo/profiles/default/linux/amd64/$profile ]]; then
+  if [[ ! -d $reposdir/gentoo/profiles/default/linux/amd64/$profile ]]; then
     echo " wrong profile: >>$profile<<"
     return 1
   fi
@@ -233,22 +233,22 @@ main-repo = gentoo
 auto-sync = yes
 
 [gentoo]
-location  = $repodir/gentoo
+location  = $reposdir/gentoo
 priority  = 10
 sync-uri  = https://github.com/gentoo-mirror/gentoo.git
 sync-type = git
 
 [local]
-location  = $repodir/local
+location  = $reposdir/local
 auto-sync = no
 priority  = 99
 
 EOF
 
   # ::local
-  mkdir -p       ./$repodir/local/{metadata,profiles}
-  echo 'local' > ./$repodir/local/profiles/repo_name
-  cat << EOF   > ./$repodir/local/metadata/layout.conf
+  mkdir -p       ./$reposdir/local/{metadata,profiles}
+  echo 'local' > ./$reposdir/local/profiles/repo_name
+  cat << EOF   > ./$reposdir/local/metadata/layout.conf
 [local]
 masters = gentoo
 
@@ -258,13 +258,13 @@ EOF
   echo " cloning ::gentoo"
   # at local system a "git clone" is much slower than a "cp --reflink"
   # use "img" here due to fs boundaries, but use a running image
-  local refdir=$tbhome/img/$(ls -t $tbhome/run | head -n 1)$repodir/gentoo
+  local refdir=$(ls -t $tbhome/img/*/$reposdir/gentoo/.git/FETCH_HEAD 2>/dev/null | head -n 1 | sed -e 's,/.git/FETCH_HEAD,,')
   if [[ ! -d $refdir ]]; then
     # fallback is the host
-    refdir=$repodir/gentoo
+    refdir=$reposdir/gentoo
   fi
 
-  cd ./$repodir
+  cd ./$reposdir
   cp -ar --reflink=auto $refdir ./
   cd - 1>/dev/null
 
@@ -509,14 +509,12 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  # the very 1st @system might fail if only @world can resolve all deps -> repeat @system
-  # furthermore clean up the state of a @preserved-rebuild for similar reason
+  # the very 1st @system might fail if only @world can resolve all deps -> repeat @system to clean up its state
   cat << EOF > $bl.1st
-@preserved-rebuild
 @system
 @world
 @system
-%sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,g' /etc/portage/make.conf
+%sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
 sys-apps/portage
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
@@ -571,14 +569,14 @@ fi
 
 date
 echo "#setup portage helpers" | tee /var/tmp/tb/task
-emerge -u app-text/ansifilter app-portage/portage-utils
+emerge -u app-text/ansifilter
 
 date
 echo "#setup email" | tee /var/tmp/tb/task
 # emerge sSMTP before a mail client b/c virtual/mta specifies per default another MTA
 emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # /etc/ssmtp/ssmtp.conf is already bind-mounted in bwrap.sh
-emerge -u mail-client/s-nail          # mail-client/mailx does not compile under musl
+emerge -u mail-client/s-nail
 
 eselect profile set --force default/linux/amd64/$profile
 
@@ -713,21 +711,21 @@ function FixPossibleUseFlagIssues() {
 function ThrowImageUseFlags() {
   echo "#setup dryrun $attempt # throw flags ..."
 
-  grep -v -e '^$' -e '^#' $repodir/gentoo/profiles/desc/l10n.desc |\
+  grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |\
   cut -f1 -d' ' -s |\
   shuf -n $(($RANDOM % 20)) |\
   sort |\
   xargs |\
   xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
 
-  grep -v -e '^$' -e '^#' -e 'internal use only' $repodir/gentoo/profiles/use.desc |\
+  grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |\
   cut -f1 -d' ' -s |\
   IgnoreUseFlags |\
   ThrowUseFlags 250 |\
   xargs -s 73 |\
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
-  grep -Hl 'flag name="' $repodir/gentoo/*/*/metadata.xml |\
+  grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |\
   shuf -n $(($RANDOM % 3000)) |\
   sort |\
   while read -r file
@@ -812,7 +810,7 @@ if [[ $# -gt 0 ]]; then
 fi
 
 tbhome=~tinderbox
-repodir=/var/db/repos
+reposdir=/var/db/repos
 gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf)
 
 InitOptions
