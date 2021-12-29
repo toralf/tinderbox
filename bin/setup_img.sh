@@ -509,16 +509,14 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  # the very 1st @system might fail if only @world can resolve all deps -> repeat @system to clean up its state
   cat << EOF > $bl.1st
-@system
 @world
 @system
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
 sys-apps/portage
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
-app-portage/gentoolkit
+# GCC switch is almost a no-op and only needed if gcc is a dep of one of the mandatory tools emerged during setup
 %SwitchGCC
 
 EOF
