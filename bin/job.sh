@@ -781,7 +781,7 @@ function GetPkgFromTaskLog() {
 # helper of WorkOnTask()
 # run $1 in a subshell and act on result, timeout after $2
 function RunAndCheck() {
-  timeout --signal=15 --kill-after=5m ${2:-8h} bash -c "eval $1" &>> $tasklog
+  timeout --signal=15 --kill-after=5m ${2:-12h} bash -c "eval $1" &>> $tasklog
   local rc=$?
   (echo; date) >> $tasklog
 
@@ -827,6 +827,7 @@ function RunAndCheck() {
   # timeout
   elif [[ $rc -eq 124 ]]; then
       Mail "INFO: timeout  task=$task" $tasklog_stripped
+      # do not mask anything here
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
       fi
