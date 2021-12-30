@@ -97,7 +97,7 @@ function FreeSlotAvailable() {
 
 
 function StopOldImage() {
-  rm ~tinderbox/run/$oldimg
+  rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
 
   local lock_dir=/run/tinderbox/$oldimg.lock
   local completed=$(grep -c ' ::: completed emerge' ~tinderbox/img/$oldimg/var/log/emerge.log 2>/dev/null || echo "0")
@@ -123,7 +123,6 @@ function StopOldImage() {
   else
     echo "$oldimg $msg"
   fi
-  rm ~tinderbox/logs/$oldimg.log
   echo
 }
 
