@@ -309,3 +309,5 @@ Error copying file
 CMake Error at
 error: while parsing singletons
 openjade:.*:E:
+cannot parse
+gprbuild: .* failed
