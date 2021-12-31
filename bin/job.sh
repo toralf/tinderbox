@@ -516,7 +516,7 @@ function WorkAtIssue()  {
   cp $tasklog $issuedir
 
   # "-m 1" because for phase "install" grep might have 2 matches ("doins failed" and "newins failed")
-  # "-o" in the 1st grep b/c sometimes perl spews a message into the same line
+  # "-o" is needed for the 1st grep b/c sometimes perl spews a message into the same text line
   phase=$(
     grep -m 1 -o " \* ERROR:.* failed (.* phase):" $log_stripped |\
     grep -Eo '\(.* ' |\
@@ -530,7 +530,7 @@ function WorkAtIssue()  {
     ClassifyIssue
   else
     echo "emerge seemed to hang" > $issuedir/title
-    echo "emerge was killed therefore" > $issuedir/issue
+    echo "emerge was killed with $signal" | tee > $issuedir/issue
   fi
 
   collectPortageDir
@@ -684,7 +684,7 @@ function PostEmerge() {
       last=/var/tmp/tb/@system.history
     fi
 
-    if [[ -z $last || $(( $(date +%s) - $(stat -c%Y $last) )) -gt 86400 ]]; then
+    if [[ -z $last || $(( $(date +%s) - $(stat -c %Y $last) )) -ge 86400 ]]; then
       add2backlog "@world"
       add2backlog "@system"
     fi
@@ -806,31 +806,17 @@ function RunAndCheck() {
   local signal=0
   if [[ $rc -ge 128 ]]; then
     ((signal = rc - 128))
+    PutDepsIntoWorldFile
     if [[ $signal -eq 9 ]]; then
-      PutDepsIntoWorldFile
       Finish $signal "exiting due to signal $signal" $tasklog_stripped
-    elif [[ $signal -eq 15 ]]; then
-      if [[ $try_again -eq 0 ]]; then
-        PutDepsIntoWorldFile
-      fi
     else
       Mail "WARN: got signal $signal  task=$task" $tasklog_stripped
-      if GetPkgFromTaskLog; then
-        createIssueDir
-        WorkAtIssue $signal
-        if [[ $try_again -eq 0 ]]; then
-          PutDepsIntoWorldFile
-        fi
-      fi
     fi
 
   # timeout
   elif [[ $rc -eq 124 ]]; then
-      Mail "INFO: timeout  task=$task" $tasklog_stripped
-      # do not mask anything here
-      if [[ $try_again -eq 0 ]]; then
-        PutDepsIntoWorldFile
-      fi
+    Mail "INFO: timeout  task=$task" $tasklog_stripped
+    PutDepsIntoWorldFile
 
   # simple failed
   elif [[ $rc -ne 0 ]]; then
@@ -880,6 +866,7 @@ function WorkOnTask() {
         fi
       else
         if [[ $task = "@world" ]]; then
+          echo "@world is broken" >> /var/tmp/tb/STOP
           return 1
         fi
       fi
@@ -889,19 +876,18 @@ function WorkOnTask() {
   # %<command line>
   elif [[ $task =~ ^% ]]; then
     local cmd="$(cut -c2- <<< $task)"
-
-    # feed before packages might be unmerged
-    feedPfl
     if ! RunAndCheck "$cmd"; then
-      if [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" && ! $task =~ " --fetchonly" ]]; then
+      if [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" ]]; then
         if [[ $try_again -eq 0 ]]; then
           if [[ $task =~ " --resume" ]]; then
             if [[ -n "$pkg" ]]; then
               add2backlog "%emerge --resume --skip-first"
-            elif grep -q ' Invalid resume list:' $tasklog_stripped; then
-              add2backlog "$(tac $taskfile.history | grep -m 1 '^%')"
+            else
+              echo "failed: $cmd" >> /var/tmp/tb/STOP
+              return 1
             fi
           else
+            echo "failed: $cmd" >> /var/tmp/tb/STOP
             return 1
           fi
         fi
