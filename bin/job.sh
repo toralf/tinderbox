@@ -861,14 +861,10 @@ function WorkOnTask() {
     else
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
       if [[ -n "$pkg" ]]; then
-        if [[ $try_again -eq 0 ]]; then
-          add2backlog "%emerge --resume --skip-first"
-        fi
-      else
-        if [[ $task = "@world" ]]; then
-          echo "@world is broken" >> /var/tmp/tb/STOP
-          return 1
-        fi
+        add2backlog "$task"
+      elif [[ $task = "@world" ]]; then
+        echo "@world is broken" >> /var/tmp/tb/STOP
+        return 1
       fi
     fi
     feedPfl
@@ -879,17 +875,8 @@ function WorkOnTask() {
     if ! RunAndCheck "$cmd"; then
       if [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" ]]; then
         if [[ $try_again -eq 0 ]]; then
-          if [[ $task =~ " --resume" ]]; then
-            if [[ -n "$pkg" ]]; then
-              add2backlog "%emerge --resume --skip-first"
-            else
-              echo "failed: $cmd" >> /var/tmp/tb/STOP
-              return 1
-            fi
-          else
-            echo "failed: $cmd" >> /var/tmp/tb/STOP
-            return 1
-          fi
+          echo "failed: $cmd" >> /var/tmp/tb/STOP
+          return 1
         fi
       fi
     fi
@@ -1042,7 +1029,7 @@ do
   fi
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   if ! WorkOnTask; then
-    Finish 1 "WARN: task: '$task'" $tasklog
+    Finish 1 "task: '$task'" $tasklog
   fi
   if HasRebuildLoop; then
     Finish 2 "too much rebuilds" $histfile
