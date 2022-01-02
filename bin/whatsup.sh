@@ -144,7 +144,7 @@ function Tasks()  {
     if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
       echo -n " "
     fi
-    echo $task | cut -c1-$cols_task
+    echo $task | cut -c1-$((columns-38))
   done
 }
 
@@ -178,7 +178,7 @@ function LastEmergeOperation()  {
         printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");    # mark long runtimes
       }
       my $line = join (" ", @F[1..$#F]);
-      print substr ($line, 0, '"'$cols_task'"');
+      print substr ($line, 0, '"'$((columns-38))'"');
     '
     echo
   done
@@ -190,8 +190,9 @@ function LastEmergeOperation()  {
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
-  printf "%55s" ""
-  for i in $(seq 1 11); do printf "%4id" $i; done
+  printf "%54s" ""
+  max=$(( (columns-54)/5-1 ))
+  for i in $(seq 0 $max); do printf "%4id" $i; done
   echo
 
   for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3,4)
@@ -338,19 +339,19 @@ function emergeThruput()  {
 
       my $key = $year . "-" . $mon . "-" . $mday;
       $Day{$key}->{$hour}++;
-      $Day{$key}->{"day"}++;
+      $Day{$key}->{"sum"}++;
     }
 
     END {
       for my $key (sort { $a cmp $b } keys %Day)  {
-        printf("%s %5i  ", $key, $Day{$key}->{"day"});
+        printf("%s %5i  ", $key, $Day{$key}->{"sum"});
         foreach my $hour(0..23) {
           printf("%4i", $Day{$key}->{$hour} ? $Day{$key}->{$hour} : 0);
         }
         print "\n";
       }
     }
-  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -15 | sort -t '-' -k 3,4) |\
+  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -14 | sort -t '-' -k 3,4) |\
   tail -n 14
 }
 
@@ -366,12 +367,9 @@ unset LC_TIME
 source $(dirname $0)/lib.sh
 
 images=$(__list_images)
-
 # cut too long lines of tasks / last emerge op
-if tput cols_task 2>/dev/null; then
-  ((cols_task = $(tput cols_task) - 38))
-else
-  cols_task=100
+if ! columns=$(tput cols 2>/dev/null); then
+  columns=100
 fi
 
 while getopts cdelopt opt
