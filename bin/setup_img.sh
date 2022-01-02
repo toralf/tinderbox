@@ -509,7 +509,6 @@ function CreateBacklogs()  {
 
   cat << EOF > $bl.1st
 @world
-@system
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
 sys-apps/portage
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr

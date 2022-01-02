@@ -47,7 +47,7 @@ function check_history()  {
 function Overall() {
   local running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
   local all=$(wc -w <<< $images)
-  echo "compl fail new  day backlog .upd .1st swprs $running#$all running"
+  echo "compl fail new  day backlog .upd .1st wp rs $running#$all running"
 
   for i in $images
   do
@@ -75,22 +75,20 @@ function Overall() {
     # " " image is NOT running
     local flags=""
 
-    # result of last run of @system, @world and @preserved-rebuild respectively:
+    # result of last run of @world and @preserved-rebuild respectively:
     #
     # upper case: an error occurred
     # lower case: just a package failed
     # "." not yet run
     # " " ok
-    check_history $i/var/tmp/tb/@system.history             s
     check_history $i/var/tmp/tb/@world.history              w
     check_history $i/var/tmp/tb/@preserved-rebuild.history  p
-
+    flags+=" "
     if __is_running $i ; then
       flags+="r"
     else
       flags+=" "
     fi
-
     # "S" STOP file
     # "s" STOP in backlog.1st
     if [[ -f $i/var/tmp/tb/STOP ]]; then

@@ -671,22 +671,9 @@ function PostEmerge() {
 
   # if 1st prio is empty then check for a schedule of the daily update
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
-    local last=""
-    if [[ -f /var/tmp/tb/@world.history && -f /var/tmp/tb/@system.history ]]; then
-      if [[ /var/tmp/tb/@world.history -nt /var/tmp/tb/@system.history ]]; then
-        last=/var/tmp/tb/@world.history
-      else
-        last=/var/tmp/tb/@system.history
-      fi
-    elif [[ -f /var/tmp/tb/@world.history ]]; then
-      last=/var/tmp/tb/@world.history
-    elif [[ -f /var/tmp/tb/@system.history ]]; then
-      last=/var/tmp/tb/@system.history
-    fi
-
-    if [[ -z $last || $(( $(date +%s) - $(stat -c %Y $last) )) -ge 86400 ]]; then
+    local h=/var/tmp/tb/@world.history
+    if [[ ! -s $h || $(( $(date +%s) - $(stat -c %Y $h) )) -ge 86400 ]]; then
       add2backlog "@world"
-      add2backlog "@system"
     fi
   fi
 }
@@ -848,7 +835,7 @@ function WorkOnTask() {
   # @set
   if [[ $task =~ ^@ ]]; then
     local opts=""
-    if [[ $task = "@system" || $task = "@world" ]]; then
+    if [[ $task = "@world" ]]; then
       opts+=" --update --changed-use --newuse"
     fi
 
