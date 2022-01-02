@@ -5,6 +5,7 @@
 
 cdinstall
 cuda
+external-hsm
 firmware
 pax-kernel
 rados
