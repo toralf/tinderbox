@@ -64,7 +64,7 @@ EOF
   ls -t ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null |\
   while read -r f
   do
-    buguri=$(cat $f)
+    buguri=$(cat $f 2>/dev/null) || continue    # race with house keeping
     bugno=$(cut -f2 -d'=' <<< $buguri)
     d=${f%/*}
     ftitle=$d/title
