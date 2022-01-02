@@ -36,12 +36,10 @@ function GetProfiles() {
     grep -F "default/linux/amd64/17.1/" |\
     grep -v -F -e ' (exp)' -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl' -e '/developer'
 
-    if __dice 1 2; then
-      # by sam
-      eselect profile list |\
-      grep -e "default/linux/amd64/17\../musl" |\
-      grep -v -F -e '/selinux'
-    fi
+    # by sam
+    eselect profile list |\
+    grep -e "default/linux/amd64/17\../musl" |\
+    grep -v -F -e '/selinux'
   ) |\
   awk ' { print $2 } ' |\
   cut -f4- -d'/' -s |\
@@ -342,8 +340,8 @@ EOF
     echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'                    > ./etc/portage/env/setuptools_stdlib
     echo 'dev-lang/spidermonkey            setuptools_stdlib' > ./etc/portage/package.env/setuptools_stdlib
 
-    echo "=dev-python/setuptools-0.60*"       >> ./etc/portage/package.unmask/setuptools
-    echo "=dev-python/setuptools-0.60*    **" >> ./etc/portage/package.accept_keywords/setuptools
+    echo "=dev-python/setuptools-60.2*"       >> ./etc/portage/package.unmask/setuptools
+    echo "=dev-python/setuptools-60.2*    **" >> ./etc/portage/package.accept_keywords/setuptools
   fi
 
   chgrp portage ./etc/portage/make.conf
@@ -633,7 +631,7 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
-  for i in $(seq 1 9)
+  for i in {1..9}
   do
     # kick off particular packages
     local pkg=$(
