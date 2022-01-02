@@ -3,7 +3,7 @@
 
 
 function getCandidates()  {
-  find ~tinderbox/img/ -mindepth 1 -maxdepth 1 -type d -name '*-j*-20??????-??????' |\
+  ls -d ~tinderbox/img/17.*-j*-20??????-?????? 2>/dev/null |\
   while read -r i
   do
     if [[ -e ~tinderbox/run/$(basename $i) ]]; then
@@ -68,11 +68,10 @@ fi
 
 source $(dirname $0)/lib.sh
 
+# prune distfiles not accessed within 1 yr and old stage3 files
 if pruneNeeded; then
-  # prune distfiles not accessed within 1 yr
   find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
 
-  # prune stage3 files
   latest=~tinderbox/distfiles/latest-stage3.txt
   if [[ -s $latest ]]; then
     find ~tinderbox/distfiles/ -maxdepth 1 -type f -name 'stage3-amd64-*.xz' |\
@@ -103,7 +102,7 @@ do
   fi
 done < <(getCandidates)
 
-# prune images from oldest to newer
+# prune remaining images from oldest to newest
 while read -r img && pruneNeeded
 do
   pruneDir $img
