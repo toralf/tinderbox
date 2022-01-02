@@ -508,6 +508,7 @@ function CreateBacklogs()  {
   fi
 
   cat << EOF > $bl.1st
+app-portage/pfl
 @world
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
 sys-apps/portage
