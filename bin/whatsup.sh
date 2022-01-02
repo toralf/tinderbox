@@ -315,11 +315,12 @@ function CountEmergesPerPackages()  {
 # 2021-04-31    15   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  15   0   0   0
 # 2021-05-01  2790  28  87  91  41   4  13   0   1  15  29  78  35  62  46  75   9   0 193 104 234 490 508 459 188
 function emergeThruput()  {
-  perl -we '
-      print "yyyy-mm-dd   sum  ";
-      foreach my $i (0..23) { printf("%4i", $i) }
-      print "\n\n";
-      '
+  echo -n "yyyy-mm-dd   sum  "
+  for i in {0..23}
+  do
+    printf "  %2i" $i
+  done
+  echo -e "\n"
 
   perl -F: -wane '
     BEGIN {
@@ -365,7 +366,7 @@ unset LC_TIME
 source $(dirname $0)/lib.sh
 
 images=$(__list_images)
-# cut too long lines of tasks / last emerge op
+
 if ! columns=$(tput cols 2>/dev/null); then
   columns=100
 fi
