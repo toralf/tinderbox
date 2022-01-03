@@ -507,8 +507,6 @@ function maskPackage()  {
 
 # analyze the issue
 function WorkAtIssue()  {
-  local signal=$1
-
   log_stripped=$issuedir/$(tr '/' ':' <<< $pkg).log
   filterPlainPext < $pkglog > $log_stripped
 
@@ -522,16 +520,11 @@ function WorkAtIssue()  {
     grep -Eo '\(.* ' |\
     tr -d '[( ]'
   )
-  if [[ $signal -eq 0 ]]; then
-    setWorkDir
-    CreateEmergeHistoryFile
-    CollectIssueFiles
-    CompressIssueFiles
-    ClassifyIssue
-  else
-    echo "emerge seemed to hang" > $issuedir/title
-    echo "emerge was killed with $signal" | tee > $issuedir/issue
-  fi
+  setWorkDir
+  CreateEmergeHistoryFile
+  CollectIssueFiles
+  CompressIssueFiles
+  ClassifyIssue
 
   collectPortageDir
   finishTitle
@@ -556,26 +549,9 @@ function WorkAtIssue()  {
     fi
   fi
 
-  if [[ $signal -eq 0 ]]; then
-    if [[ $try_again -eq 0 ]]; then
-      maskPackage
-    fi
+  if [[ $try_again -eq 0 ]]; then
+    maskPackage
   else
-    if [[ $phase = "test" ]]; then
-      # if it was killed then do not retry with test-fail-continue
-      if ! grep -q -e "^=$pkg " /etc/portage/package.env/notest 2>/dev/null; then
-        try_again=1
-        printf "%-50s %s\n" "=$pkg" "notest" >> /etc/portage/package.env/notest
-        add2backlog "@world"  # force a depclean under the hood b/c with "notest" the dependency tree usually changed
-      else
-        Mail "logic error in retrying a test case pks: $pkg" /etc/portage/package.env/notest
-      fi
-    else
-      maskPackage
-    fi
-  fi
-
-  if [[ $try_again -eq 1 ]]; then
     add2backlog "$task"
   fi
 
@@ -669,18 +645,22 @@ function PostEmerge() {
     fi
   fi
 
-  # if 1st prio is empty then check for a schedule of the daily update
+  if grep -q -F 'emerge --oneshot sys-apps/portage' $tasklog_stripped; then
+    add2backlog "%emerge --oneshot sys-apps/portage"
+  fi
+
+  # if 1st prio is (still) empty then check for a schedule of the daily update
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local h=/var/tmp/tb/@world.history
     if [[ ! -s $h || $(( $(date +%s) - $(stat -c %Y $h) )) -ge 86400 ]]; then
       add2backlog "@world"
     fi
   fi
-}
+  }
 
 
 function createIssueDir() {
-  sleep 1   # create a unique timestamp of issue dir
+  sleep 1   # to guarantee a unique timestamp
 
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
   mkdir -p $issuedir/files
@@ -698,24 +678,21 @@ function catchMisc()  {
 
     local log_stripped=/tmp/$(basename $pkglog)
     filterPlainPext < $pkglog > $log_stripped
-    if ! grep -q -f /mnt/tb/data/CATCH_MISC $log_stripped; then
-      rm $log_stripped
-      continue
-    fi
-    pkg=$(cut -f5 -d'/' <<< $log_stripped | cut -f1-2 -d':' -s | tr ':' '/')
-    repo=$(grep -m 1 -F ' * Repository: ' $log_stripped | awk ' { print $3 } ')
-    phase=""
+    if grep -q -f /mnt/tb/data/CATCH_MISC $log_stripped; then
+      pkg=$( grep -m 1 -F ' * Package: '    $log_stripped | awk ' { print $3 } ')
+      repo=$(grep -m 1 -F ' * Repository: ' $log_stripped | awk ' { print $3 } ')
+      phase=""
 
-    grep -m 1 -f /mnt/tb/data/CATCH_MISC $log_stripped |\
-    while read -r line
-    do
-      createIssueDir
-      echo "$line" > $issuedir/title
-      grep -m 1 -F -e "$line" $log_stripped > $issuedir/issue
-      cp $log_stripped $issuedir
-      finishTitle
-      cp $issuedir/issue $issuedir/comment0
-      cat << EOF >> $issuedir/comment0
+      grep -f /mnt/tb/data/CATCH_MISC $log_stripped |\
+      while read -r line
+      do
+        createIssueDir
+        echo "$line" > $issuedir/title
+        grep -m 1 -F -e "$line" $log_stripped > $issuedir/issue
+        cp $log_stripped $issuedir
+        finishTitle
+        cp $issuedir/issue $issuedir/comment0
+        cat << EOF >> $issuedir/comment0
 
   -------------------------------------------------------------------
 
@@ -727,21 +704,18 @@ function catchMisc()  {
   The log matches a QA pattern or a pattern requested by a Gentoo developer.
 
 EOF
-      collectPortageDir
-      CreateEmergeHistoryFile
-      CompressIssueFiles
-      SendIssueMailIfNotYetReported
-    done
-    rm $log_stripped
+        collectPortageDir
+        CreateEmergeHistoryFile
+        CompressIssueFiles
+        SendIssueMailIfNotYetReported
+      done
+      rm $log_stripped
+    fi
   done
 }
 
 
 function GetPkgFromTaskLog() {
-  if grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
-    return 1
-  fi
-
   pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk ' { print $3 } ')
   if [[ -z "$pkg" ]]; then
     pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
@@ -790,9 +764,8 @@ function RunAndCheck() {
   fi
 
   # got a signal
-  local signal=0
   if [[ $rc -ge 128 ]]; then
-    ((signal = rc - 128))
+    local signal=$((rc - 128))
     PutDepsIntoWorldFile
     if [[ $signal -eq 9 ]]; then
       Finish $signal "exiting due to signal $signal" $tasklog_stripped
@@ -805,14 +778,19 @@ function RunAndCheck() {
     Mail "INFO: timeout  task=$task" $tasklog_stripped
     PutDepsIntoWorldFile
 
-  # simple failed
+  # emerge failed
   elif [[ $rc -ne 0 ]]; then
+    if grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
+      return 1
+    fi
     if GetPkgFromTaskLog; then
       createIssueDir
-      WorkAtIssue $signal
+      WorkAtIssue
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
       fi
+    else
+      Mail "WARN: cannot parse task log for $task" $tasklog_stripped
     fi
     if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
       Finish 1 "FATAL: $fatal" $tasklog_stripped
@@ -901,15 +879,9 @@ function HasRebuildLoop() {
 
 function syncRepo()  {
   local last_sync=${1:-0}
-  emaint sync --auto &>$tasklog
-  local rc=$?
 
-  if grep -q -F 'emerge --oneshot sys-apps/portage' $tasklog; then
-    add2backlog "%emerge --oneshot sys-apps/portage"
-  fi
-
-  if [[ $rc -ne 0 ]]; then
-    return $rc
+  if ! emaint sync --auto &>$tasklog; then
+    return 2
   elif grep -q -F 'git fetch error in /var/db/repos/gentoo' $tasklog; then
     if grep -q -F 'Protocol "https" not supported or disabled'; then
       return 1
@@ -927,7 +899,7 @@ function syncRepo()  {
 
   cd /var/db/repos/gentoo
   # give mirrors 1 hour to sync
-  git diff -l0 --diff-filter="ACM" --name-status "@{ $(( $(date +%s) - $last_sync + 3600 )) second ago }".."@{ 1 hour ago }" |\
+  git diff -l0 --diff-filter="ACM" --name-status "@{ $(( $(date +%s) - last_sync + 3600 )) second ago }".."@{ 1 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s |\
   cut -f1-2 -d'/' -s |\
