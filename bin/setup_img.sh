@@ -367,13 +367,13 @@ function CompilePortageFiles()  {
   chgrp portage ./var/tmp/tb/{,logs}
   chmod ug+rwx  ./var/tmp/tb/{,logs}
 
-  date +%s   > ./var/tmp/tb/setup.timestamp
+  echo $EPOCHSECONDS > ./var/tmp/tb/setup.timestamp
   echo $name > ./var/tmp/tb/name
 
   for d in profile package.{accept_keywords,env,mask,unmask,use} env
   do
     if [[ ! -d ./etc/portage/$d ]]; then
-      mkdir       ./etc/portage/$d
+      mkdir ./etc/portage/$d
     fi
     chgrp portage ./etc/portage/$d
     chmod g+w     ./etc/portage/$d

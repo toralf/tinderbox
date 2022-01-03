@@ -51,7 +51,7 @@ function Overall() {
 
   for i in $images
   do
-    local days=$(echo "scale=1; ( $(date +%s) - $(getStartTime $i) ) / 86400.0" | bc)
+    local days=$(echo "scale=1; ( $EPOCHSECONDS - $(getStartTime $i) ) / 86400.0" | bc)
     local bgo=$(set +f; ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
 
     local compl=0
@@ -111,7 +111,6 @@ function Overall() {
 # 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks()  {
-  ts=$(date +%s)
   for i in $images
   do
     PrintImageName $i 30
@@ -128,7 +127,7 @@ function Tasks()  {
     task=$(cat $tsk)
 
     set +e
-    let "delta = $ts - $(stat -c %Y $tsk)"
+    let "delta = $EPOCHSECONDS - $(stat -c %Y $tsk)"
     let "minutes = $delta / 60 % 60"
     if [[ $delta -lt 3600 ]]; then
       let "seconds = $delta % 60 % 60"
@@ -253,7 +252,7 @@ function Coverage() {
 
     local n=$(wc -l < $covered)
     local oldest=$(cat ~tinderbox/$i/17*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
-    local days=$(( ( $(date +%s) - $oldest ) / 3600 / 24 ))
+    local days=$(( (EPOCHSECONDS - $oldest)/3600/24 ))
     local perc=$((100 * $n / $N))
     printf "%5i packages in ~tinderbox/%s   (%2i%% for last %2i days)" $n $i $perc $days
     echo

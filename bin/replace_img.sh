@@ -57,7 +57,7 @@ function FoundABrokenImage() {
 
     s="@preserved-rebuild"
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-      local runtime=$(( ($(date +%s) - $(getStartTime $i) ) / 3600 / 24 ))
+      local runtime=$(( (EPOCHSECONDS - $(getStartTime $i))/3600/24 ))
       if [[ $runtime -ge 2 ]]; then
         reason="$s broken and too old"
         oldimg=$i
@@ -71,7 +71,7 @@ function FoundABrokenImage() {
     fi
 
     if ! __is_running $i; then
-      local last_task=$(( ($(date +%s) - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task)) / 3600 ))
+      local last_task=$(( (EPOCHSECONDS - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
       if [[ $last_task -ge 8 ]]; then
         reason="$s stopped and last task is $last_task hours ago"
         oldimg=$i
@@ -184,7 +184,7 @@ trap Finish INT QUIT TERM EXIT
 while read -r i
 do
   if ! __is_running $i; then
-    last_task=$(( ($(date +%s) - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task)) / 3600 ))
+    last_task=$(( (EPOCHSECONDS - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
     if [[ $last_task -ge 48 ]]; then
       echo -e "\n$i last task $last_task hour/s ago - removing from ~/run\n"
       rm ~tinderbox/run/$i

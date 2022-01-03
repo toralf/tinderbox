@@ -652,7 +652,7 @@ function PostEmerge() {
   # if 1st prio is (still) empty then check for a schedule of the daily update
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local h=/var/tmp/tb/@world.history
-    if [[ ! -s $h || $(( $(date +%s) - $(stat -c %Y $h) )) -ge 86400 ]]; then
+    if [[ ! -s $h || $(( EPOCHSECONDS - $(stat -c %Y $h) )) -ge 86400 ]]; then
       add2backlog "@world"
     fi
   fi
@@ -899,7 +899,7 @@ function syncRepo()  {
 
   cd /var/db/repos/gentoo
   # give mirrors 1 hour to sync
-  git diff -l0 --diff-filter="ACM" --name-status "@{ $(( $(date +%s) - last_sync + 3600 )) second ago }".."@{ 1 hour ago }" |\
+  git diff -l0 --diff-filter="ACM" --name-status "@{ $(( EPOCHSECONDS - last_sync + 3600 )) second ago }".."@{ 1 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s |\
   cut -f1-2 -d'/' -s |\
@@ -975,7 +975,7 @@ do
   fi
 
   # update ::gentoo repo hourly
-  if [[ $(( $(date +%s) - last_sync )) -ge 3600 ]]; then
+  if [[ $(( EPOCHSECONDS - last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
     syncRepo $last_sync
     last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)

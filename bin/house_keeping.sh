@@ -14,7 +14,7 @@ function getCandidates()  {
       continue
     fi
 
-    if [[ $(( $(date +%s) - $(stat -c %Y $i) )) -lt 86400 ]]; then
+    if [[ $(( EPOCHSECONDS - $(stat -c %Y $i) )) -lt 86400 ]]; then
       continue
     fi
 
@@ -79,7 +79,7 @@ if pruneNeeded; then
     do
       if [[ $latest -nt $stage3 ]]; then
         if ! grep -q $(basename $stage3) $latest; then
-          rm ${stage3}*
+          rm ${stage3} ${stage3}.DIGESTS.asc
         fi
       fi
     done
