@@ -6,6 +6,11 @@ function getCandidates()  {
   ls -d ~tinderbox/img/17.*-j*-20??????-?????? 2>/dev/null |\
   while read -r i
   do
+    if [[ ! -d $i ]]; then
+      echo "something wrong with '$i'"
+      exit 1
+    fi
+
     if [[ -e ~tinderbox/run/$(basename $i) ]]; then
       continue
     fi
@@ -58,7 +63,7 @@ function pruneDir() {
 
 
 #######################################################################
-set -euf
+set -eu
 export LANG=C.utf8
 
 if [[ "$(whoami)" != "root" ]]; then
@@ -68,22 +73,23 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# prune distfiles not accessed within 1 yr and old stage3 files
+# prune old stage3 files unconditionally
+latest=~tinderbox/distfiles/latest-stage3.txt
+if [[ -s $latest ]]; then
+  ls ~tinderbox/distfiles/stage3-amd64-*.xz 2>/dev/null |\
+  while read -r stage3
+  do
+    if [[ $latest -nt $stage3 ]]; then
+      if ! grep -q -F $(basename $stage3) $latest; then
+        rm $stage3{,.DIGESTS.asc}
+      fi
+    fi
+  done
+fi
+
+# prune distfiles not accessed within 1 yr
 if pruneNeeded; then
   find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
-
-  latest=~tinderbox/distfiles/latest-stage3.txt
-  if [[ -s $latest ]]; then
-    find ~tinderbox/distfiles/ -maxdepth 1 -type f -name 'stage3-amd64-*.xz' |\
-    while read -r stage3
-    do
-      if [[ $latest -nt $stage3 ]]; then
-        if ! grep -q $(basename $stage3) $latest; then
-          rm ${stage3} ${stage3}.DIGESTS.asc
-        fi
-      fi
-    done
-  fi
 fi
 
 # prune images with incompleted setup
