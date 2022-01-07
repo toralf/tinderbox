@@ -198,21 +198,24 @@ done < <(shufImages)
 
 while FreeSlotAvailable
 do
-  echo "less than $desired_count images running"
   setupNewImage
 done
 
 while HasAnEmptyBacklog
 do
   if StopOldImage; then
-    setupNewImage
+    if FreeSlotAvailable; then
+      setupNewImage
+    fi
   fi
 done
 
 while FoundABrokenImage
 do
   if StopOldImage; then
-    setupNewImage
+    if FreeSlotAvailable; then
+      setupNewImage
+    fi
   fi
 done
 
