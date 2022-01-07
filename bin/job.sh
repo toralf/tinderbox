@@ -42,8 +42,8 @@ function Mail() {
 function feedPfl()  {
   if [[ -x /usr/bin/pfl ]]; then
     /usr/bin/pfl &>/dev/null
+    return 0    # pfl is not mandatory
   fi
-  return 0
 }
 
 
@@ -100,7 +100,7 @@ function getNextTask() {
   do
     if ! setTaskAndBacklog; then
       echo "#empty backlogs" > $taskfile
-      return 1
+      Finish 0 "#empty backlogs$(qlist -Iv | wc -l) packages installed"
     fi
 
     if [[ -z "$task" || $task =~ ^# ]]; then
@@ -111,8 +111,7 @@ function getNextTask() {
       continue
 
     elif [[ $task =~ ^STOP ]]; then
-      echo "#task: $task" > $taskfile
-      return 1
+      Finish 0 "catched STOP task"
 
     elif [[ $task =~ ^@ || $task =~ ^% ]]; then
       break  # @set or %command
@@ -158,7 +157,7 @@ function collectPortageDir()  {
 
 # b.g.o. has a limit of 1 MB
 function CompressIssueFiles()  {
-  for f in $(ls $issuedir/task.log $issuedir/files/* 2>/dev/null | grep -v -F '.bz2')
+  for f in $($issuedir/files/* 2>/dev/null | grep -v -F '.bz2')
   do
     if [[ $(wc -c < $f) -gt 1000000 ]]; then
       bzip2 $f
@@ -185,18 +184,18 @@ EOF
 
 # gather together what's needed for the email and b.g.o.
 function CollectIssueFiles() {
-  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $tasklog_stripped | grep "\.out"          | cut -f5 -d' ' -s)
+  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $tasklog_stripped | grep -F '.out'        | cut -f5 -d' ' -s)
   cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $tasklog_stripped | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
   cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $tasklog_stripped | sed  "s/txt./txt/"    | cut -f8 -d' ' -s)
-  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $tasklog_stripped | grep "\.log"          | cut -f2 -d' ' -s)
+  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $tasklog_stripped | grep -F '.log'        | cut -f2 -d' ' -s)
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $tasklog_stripped                         | cut -f2 -d"'" -s)
-  salso=$(grep -m 1 -A 2 ' See also'                                                 $tasklog_stripped | grep "\.log"          | awk '{ print $1 }' )
-  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $tasklog_stripped                                  | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
-  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $tasklog_stripped | grep "/LastTest\.log" | awk ' { print $2 } ')
+  salso=$(grep -m 1 -A 2 ' See also'                                                 $tasklog_stripped | grep -F '.log'        | awk '{ print $1 }' )
+  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY'                                  $tasklog_stripped | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
+  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $tasklog_stripped | grep -F '/LastTest.log' | awk ' { print $2 } ')
 
   for f in $apout $cmlog $cmerr $oracl $envir $salso $sandb $roslg
   do
-    if [[ -f $f ]]; then
+    if [[ -s $f ]]; then
       cp $f $issuedir/files
     fi
   done
@@ -410,7 +409,8 @@ EOF
   tail -v */etc/portage/package.*/??$keyword >> $issuedir/comment0 2>/dev/null
 }
 
-# make world state same as if (succesfully) installed deps were emerged step by step in previous emerges
+
+# make world state similar to that if the (successfully installed) deps were emerged earlier in previous emerge/s
 function PutDepsIntoWorldFile() {
   if grep -q '^>>> Installing ' $tasklog_stripped; then
     emerge --depclean --verbose=n --pretend 2>/dev/null |\
@@ -486,7 +486,7 @@ function finishTitle()  {
 function SendIssueMailIfNotYetReported()  {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
-      # put cat into echo due to buffered output of cat
+      # chain "cat" by "echo" b/c cat has a buffered output which is racy between images
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
       echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
@@ -507,7 +507,7 @@ function maskPackage()  {
 
 # analyze the issue
 function WorkAtIssue()  {
-  log_stripped=$issuedir/$(tr '/' ':' <<< $pkg).log
+  log_stripped=$issuedir/$(tr '/' ':' <<< $pkg)_stripped.log
   filterPlainPext < $pkglog > $log_stripped
 
   cp $pkglog  $issuedir/files
@@ -523,7 +523,6 @@ function WorkAtIssue()  {
   setWorkDir
   CreateEmergeHistoryFile
   CollectIssueFiles
-  CompressIssueFiles
   ClassifyIssue
 
   collectPortageDir
@@ -532,6 +531,7 @@ function WorkAtIssue()  {
   # grant write permissions to all artifacts
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
+  CompressIssueFiles
 
   if grep -q -e 'error: perl module .* required' -e 'Cant locate Locale/gettext.pm in' $issuedir/title; then
     try_again=1
@@ -628,7 +628,7 @@ function PostEmerge() {
 
   if grep -q  -e ">>> Installing .* dev-lang/perl-[1-9]" \
               -e 'Use: perl-cleaner' $tasklog_stripped; then
-    add2backlog "%emerge --depclean"
+    add2backlog "@world"      # implies --depclean if successful
     add2backlog "%perl-cleaner --all"
   fi
 
@@ -645,7 +645,7 @@ function PostEmerge() {
     fi
   fi
 
-  if grep -q -F 'emerge --oneshot sys-apps/portage' $tasklog_stripped; then
+  if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
     add2backlog "%emerge --oneshot sys-apps/portage"
   fi
 
@@ -656,14 +656,12 @@ function PostEmerge() {
       add2backlog "@world"
     fi
   fi
-  }
+}
 
 
 function createIssueDir() {
-  sleep 1   # to guarantee a unique timestamp
-
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<< $pkg)
-  mkdir -p $issuedir/files
+  mkdir -p $issuedir/files || return $?
   chmod 777 $issuedir # allow to edit title etc. manually
 }
 
@@ -686,10 +684,10 @@ function catchMisc()  {
       grep -f /mnt/tb/data/CATCH_MISC $log_stripped |\
       while read -r line
       do
-        createIssueDir
+        createIssueDir || continue
         echo "$line" > $issuedir/title
         grep -m 1 -F -e "$line" $log_stripped > $issuedir/issue
-        cp $log_stripped $issuedir
+        cp $pkglog $issuedir/files
         finishTitle
         cp $issuedir/issue $issuedir/comment0
         cat << EOF >> $issuedir/comment0
@@ -709,8 +707,8 @@ EOF
         CompressIssueFiles
         SendIssueMailIfNotYetReported
       done
-      rm $log_stripped
     fi
+    rm $log_stripped
   done
 }
 
@@ -790,14 +788,14 @@ function RunAndCheck() {
         PutDepsIntoWorldFile
       fi
     else
-      Mail "WARN: cannot parse task log for $task" $tasklog_stripped
-    fi
-    if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
-      Finish 1 "FATAL: $fatal" $tasklog_stripped
+      Mail "WARN: cannot parse task log for '$task'" $tasklog_stripped
     fi
   fi
 
   catchMisc
+  if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
+    Finish 1 "FATAL: $fatal" $tasklog_stripped
+  fi
 
   return $rc
 }
@@ -828,8 +826,7 @@ function WorkOnTask() {
       if [[ -n "$pkg" ]]; then
         add2backlog "$task"
       elif [[ $task = "@world" ]]; then
-        echo "@world is broken" >> /var/tmp/tb/STOP
-        return 1
+        Finish 1 "@world is broken" $tasklog
       fi
     fi
     feedPfl
@@ -838,18 +835,15 @@ function WorkOnTask() {
   elif [[ $task =~ ^% ]]; then
     local cmd="$(cut -c2- <<< $task)"
     if ! RunAndCheck "$cmd"; then
-      if [[ ! $task =~ " --unmerge " && ! $task =~ " --depclean" ]]; then
-        if [[ $try_again -eq 0 ]]; then
-          echo "failed: $cmd" >> /var/tmp/tb/STOP
-          return 1
-        fi
+      if [[ ! $cmd =~ " --depclean" ]]; then
+        Mail "command failed: $cmd" $tasklog
       fi
     fi
 
   # pinned version
   elif [[ $task =~ ^= ]]; then
     if ! RunAndCheck "emerge $task"; then
-      Mail "pinned task failed: $task" $tasklog
+      Mail "pinned atom failed: $task" $tasklog
     fi
 
   # a common atom
@@ -861,19 +855,17 @@ function WorkOnTask() {
 }
 
 
-function HasRebuildLoop() {
+# not more than n @preserved-rebuild within N last tasks
+function DetectRebuildLoop() {
   local histfile=/var/tmp/tb/@preserved-rebuild.history
   if [[ -s $histfile ]]; then
-    # not more than n @preserved-rebuild within N last tasks
     local n=7
     local N=20
     if [[ $(tail -n $N $histfile | grep -c '@preserved-rebuild') -ge $n ]]; then
       echo "$(date) too much rebuilds" >> $histfile
-      return 0
+      Finish 2 "detected a rebuild loop" $histfile
     fi
   fi
-
-  return 1
 }
 
 
@@ -974,23 +966,21 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  # update ::gentoo repo hourly
+  # update ::gentoo hourly
   if [[ $(( EPOCHSECONDS - last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
-    syncRepo $last_sync
-    last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
+    if syncRepo $last_sync; then
+      last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
+    fi
+    if grep -q -F '* An update to portage is available.' $tasklog; then
+      add2backlog "%emerge --oneshot sys-apps/portage"
+    fi
   fi
 
   (date; echo) > $tasklog
   echo "#get task" > $taskfile
-  if ! getNextTask; then
-    Finish 0 "$(qlist -Iv | wc -l) packages installed" $taskfile
-  fi
+  getNextTask
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
-  if ! WorkOnTask; then
-    Finish 1 "task: '$task'" $tasklog
-  fi
-  if HasRebuildLoop; then
-    Finish 2 "too much rebuilds" $histfile
-  fi
+  WorkOnTask
+  DetectRebuildLoop
 done
