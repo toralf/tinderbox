@@ -7,7 +7,7 @@ Couldn't find .* to unmerge.
 dev-ruby/.*::gentoo failed (install phase)
 gcc version .* found, expected gcc
 Incompatible gcc version found
-dev-util/sysdig-kmod
+internal compiler error:
 Kernel not configured; no .config found in
 Linux .* is the latest supported version
 mingw is needed
