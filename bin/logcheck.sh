@@ -1,17 +1,14 @@
 #!/bin/bash
 # set -x
 
-# crontab example:
-# * * * * * /opt/tb/bin/logcheck.sh
-
 set -eu
 export LANG=C.utf8
 
+n=$(wc -l < <(cat ~tinderbox/logs/*.log 2>/dev/null))
 f=/tmp/$(basename $0).out
-n=$(wc -l < <(cat ~tinderbox/logs/*.log 2>/dev/null)
 
-if [[ ! -s $f ]]; then
-  if [[ $n -gt 0 ]]; then
+if [[ $n -gt 0 ]]; then
+  if [[ ! -s $f ]]; then
     (
       ls -l ~tinderbox/logs/
       echo
@@ -22,7 +19,7 @@ if [[ ! -s $f ]]; then
   fi
 else
   # remove obsolete old file
-  if [[ $n -eq 0 ]]; then
+  if [[ -s $f ]]; then
     rm $f
   fi
 fi
