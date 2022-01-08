@@ -359,6 +359,10 @@ function ClassifyIssue() {
     cut -c-300 < $issuedir/issue >> /tmp/issue
     mv /tmp/issue $issuedir/issue
   fi
+
+  if [[ ! -s $issuedir/issue || ! -s $issuedir/title ]]; then
+    return 1
+  fi
 }
 
 
@@ -523,7 +527,9 @@ function WorkAtIssue()  {
   setWorkDir
   CreateEmergeHistoryFile
   CollectIssueFiles
-  ClassifyIssue
+  if ! ClassifyIssue; then
+    Mail "cannot classify issue for task '$task'" $log_stripped
+  fi
 
   collectPortageDir
   finishTitle
