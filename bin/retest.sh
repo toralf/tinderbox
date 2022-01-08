@@ -2,6 +2,10 @@
 # set -x
 
 
+# call this eg by:
+# grep 'setup phase' ~/tb/data/ALREADY_CATCHED | sed -e 's,\[.*\] ,,g' | cut -f1 -d' ' -s | xargs -r qatom -F "%{CATEGORY}/%{PN}" | xargs retest.sh
+
+
 set -eu
 export LANG=C.utf8
 
