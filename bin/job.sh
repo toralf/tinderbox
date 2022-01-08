@@ -971,6 +971,8 @@ do
     echo "#sync repo" > $taskfile
     if syncRepo $last_sync; then
       last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
+    elif [[ $(( EPOCHSECONDS - last_sync )) -ge 86400 ]]; then
+      Finish 3 "repo older one day" $tasklog
     fi
     if grep -q -F '* An update to portage is available.' $tasklog; then
       add2backlog "%emerge --oneshot sys-apps/portage"
