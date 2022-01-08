@@ -255,7 +255,6 @@ Execution failed for task
 AssertionError: Need at least
 AttributeError:
 ValueError:
-No rule to make target
 RuntimeError: Could not find qmake executable
 Failed to determine Qt version
 Cannot find file
@@ -313,3 +312,4 @@ cannot parse
 gprbuild: .* failed
 Extension error:
 \! LaTeX. Error:
+error: cannot enable

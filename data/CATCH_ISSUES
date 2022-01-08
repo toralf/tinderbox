@@ -1,3 +1,4 @@
+No rule to make target
  \*   EPYTHON unset
 \[error\]
 \[ERROR\]
@@ -32,3 +33,4 @@ Error .
  \*   .* failed
 Unsupported kernel version!
  \* ERROR:
+ \* FAILED .

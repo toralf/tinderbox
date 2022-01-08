@@ -1,7 +1,7 @@
 # a task matching a pattern will be skipped (except for backlog.1st)
 # this file MUST NOT have empty lines
 #
-# never emerge theses explicitely
+# never emerge these explicitely
 #
 app-eselect/
 dev-embedded/
@@ -29,3 +29,12 @@ sys-cluster/vzctl
 # musl specific
 #
 sys-libs/musl
+#
+# loong emerge times
+#
+app-office/libreoffice
+dev-db/mongodb
+dev-libs/gf2x
+dev-db/mongodb
+dev-qt/qtwebengine
+sci-libs/

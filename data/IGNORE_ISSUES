@@ -1,5 +1,6 @@
 asciidoctor
  \*   atlas needs all cpu set to performance
+ \*   FEATURES=test will require fs.aio-max-nr=250000 at minimum!
 Configure: unknown option --enable-option-checking=warn
 Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
@@ -29,3 +30,4 @@ Use sys-devel/crossdev to build a .* toolchain
 USE=modules and in-kernel ipset support detected
 We have detected that you currently use udev or devfs or devtmpfs
  \* *You need one of the following mpi implementations:
+ \* you must set LINGUAS in /etc/portage/make.conf
