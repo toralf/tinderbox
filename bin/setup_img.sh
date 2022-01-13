@@ -505,7 +505,7 @@ sys-apps/portage
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 # systemd packages needs kernel headers and might be a (deep) dependency of gcc
 sys-kernel/gentoo-kernel-bin
-# % ia needed here b/c "qatom" in job.sh will by available after this package
+# % is needed here b/c "qatom" in job.sh will by available first after this package
 %emerge -u app-portage/portage-utils
 # GCC switch is almost a no-op except if gcc was emerged as a dep in setup.sh
 %SwitchGCC
