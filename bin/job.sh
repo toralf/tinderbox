@@ -287,24 +287,23 @@ function foundCflagsIssue() {
 
 # helper of ClassifyIssue()
 function foundGenericIssue() {
-  # run line by line over the pattern files in the order the lines are specified there
-  # to avoid globbing effects split lines of each file intotemp files and use that in "grep ... -f"
+  # the order of the pattern within the file/s rules
   (
     if [[ -n "$phase" ]]; then
       cat /mnt/tb/data/CATCH_ISSUES.$phase
     fi
     cat /mnt/tb/data/CATCH_ISSUES
-  ) | split --lines=1 --suffix-length=3 - /tmp/x_
+  ) | split --lines=1 --suffix-length=4 - /tmp/x_
 
-  for x in /tmp/x_???
+  for x in /tmp/x_????
   do
     if grep -m 1 -a -B 4 -A 2 -f $x $log_stripped > /tmp/issue; then
       mv /tmp/issue $issuedir
-      sed -n "5p" $issuedir/issue | stripQuotesAndMore > $issuedir/title # 5 == B+1 -> at least B+1 lines are expected
+      sed -n "5p" $issuedir/issue | stripQuotesAndMore > $issuedir/title # works for 5 == B+1 -> at least B+1 lines are expected
       break
     fi
   done
-  rm -f /tmp/x_??? /tmp/issue
+  rm -f /tmp/x_????
 }
 
 
