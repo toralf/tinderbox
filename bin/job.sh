@@ -56,12 +56,13 @@ function Finish()  {
   set +e
 
   feedPfl
-  subject=$(stripQuotesAndMore <<< $subject | tr '\n' ' ' | cut -c1-200)
+  subject=$(stripQuotesAndMore <<< $subject | tr '\n' ' ')
+  subject+="; $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null || echo '0') completed"
   if [[ $exit_code -eq 0 ]]; then
     Mail "finish ok: $subject" ${3:-}
     truncate -s 0 $taskfile
   else
-    Mail "finish NOT ok, exit_code=$exit_code: $subject" ${3:-}
+    Mail "finish NOT ok, exit_code=$exit_code, $subject" ${3:-}
   fi
   rm -f /var/tmp/tb/STOP
 
@@ -74,7 +75,7 @@ function setTaskAndBacklog()  {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     backlog=/var/tmp/tb/backlog.1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $(($RANDOM % 4)) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $(( $RANDOM%4 )) -eq 0 ]]; then
     backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
@@ -100,7 +101,7 @@ function getNextTask() {
   do
     if ! setTaskAndBacklog; then
       echo "#empty backlogs" > $taskfile
-      Finish 0 "#empty backlogs$(qlist -Iv | wc -l) packages installed"
+      Finish 0 "#empty backlogs"
     fi
 
     if [[ -z "$task" || $task =~ ^# ]]; then
@@ -117,7 +118,7 @@ function getNextTask() {
       break  # @set or %command
 
     elif [[ $task =~ ^= ]]; then
-      # pinned version, but check validity
+      # pinned version, nevertheless check validity
       if portageq best_visible / $task &>/dev/null; then
         break
       fi
@@ -129,12 +130,11 @@ function getNextTask() {
         fi
       fi
 
-      local best_visible
-      if ! best_visible=$(portageq best_visible / $task 2>/dev/null); then
+      # skip if $task would be downgraded
+      local best_visible=$(portageq best_visible / $task 2>/dev/null)
+      if [[ $? -ne 0 ]]; then
         continue
       fi
-
-      # skip if $task would be downgraded
       local installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
         if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
@@ -157,9 +157,9 @@ function collectPortageDir()  {
 
 # b.g.o. has a limit of 1 MB
 function CompressIssueFiles()  {
-  for f in $($issuedir/files/* 2>/dev/null | grep -v -F '.bz2')
+  for f in $(ls $issuedir/files/* 2>/dev/null | grep -v -F '.bz2')
   do
-    if [[ $(wc -c < $f) -gt 1000000 ]]; then
+    if [[ $(wc -c < $f) -gt 1048576 ]]; then
       bzip2 $f
     fi
   done
@@ -386,12 +386,13 @@ EOF
   (
     echo "gcc-config -l:"
     gcc-config -l
-
+    echo "clang/llvm (if any):"
     clang --version
     llvm-config --prefix --version
     python -V
     eselect ruby list
     eselect rust list
+    grep -e "^GENTOO_VM=" -e "^JAVACFLAGS=" $tasklog_stripped
     java-config --list-available-vms --nocolor
     eselect java-vm list
     ghc --version
@@ -566,10 +567,9 @@ function WorkAtIssue()  {
 
 
 function source_profile(){
-  local old_setting=${-//[^u]/}
   set +u
   source /etc/profile 2>/dev/null
-  [[ -n "${old_setting}" ]] && set -u || true
+  set -u
 }
 
 
@@ -577,21 +577,20 @@ function source_profile(){
 # switch to latest GCC
 function SwitchGCC() {
   local latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$'| tail -n 1)
-  local curr=$(gcc -dumpversion | cut -f1 -d'.')
+  local current=$(gcc -dumpversion | cut -f1 -d'.')
 
   if gcc-config --list-profiles --nocolor | grep -q -F "$latest *"; then
-    echo "SwitchGCC: is latest: $curr"
+    echo "SwitchGCC: $current is $latest"
   else
-    echo "SwitchGCC: switch from $curr to $latest" >> $taskfile.history
+    echo "SwitchGCC: switch from $current to $latest" >> $taskfile.history
     gcc-config --nocolor $latest
     source_profile
     add2backlog "%emerge @preserved-rebuild"
-    if grep -q LIBTOOL /etc/portage/make.conf; then
+    if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
       add2backlog "%emerge -1 sys-devel/slibtool"
-    else
-      add2backlog "%emerge -1 sys-devel/libtool"
     fi
-    add2backlog "%emerge --unmerge sys-devel/gcc:$curr"
+    add2backlog "%emerge -1 sys-devel/libtool"
+    add2backlog "%emerge --unmerge sys-devel/gcc:$current"
   fi
 }
 
@@ -599,19 +598,16 @@ function SwitchGCC() {
 # helper of RunAndCheck()
 # it schedules follow-ups from the last emerge operation
 function PostEmerge() {
-  # don't change these config files after image setup
-  rm -f /etc/._cfg????_{hosts,resolv.conf}
-  rm -f /etc/conf.d/._cfg????_hostname
-  rm -f /etc/ssmtp/._cfg????_ssmtp.conf
-  rm -f /etc/portage/._cfg????_make.conf
-
-  # if eg. a new glibc was installed then rebuild the locales
+  # regen locale if eg. a new glibc was installed
   if ls /etc/._cfg????_locale.gen &>/dev/null; then
     locale-gen > /dev/null
     rm /etc/._cfg????_locale.gen
   elif grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $tasklog_stripped; then
     locale-gen > /dev/null
   fi
+
+  # don't change these config files after image setup
+  rm -f /etc/._cfg????_{hosts,resolv.conf} /etc/conf.d/._cfg????_hostname /etc/ssmtp/._cfg????_ssmtp.conf /etc/portage/._cfg????_make.conf
 
   # merge the remaining config files automatically
   etc-update --automode -5 1>/dev/null
@@ -620,7 +616,7 @@ function PostEmerge() {
   env-update &>/dev/null
   source_profile
 
-  # the very last step after an emerge
+  # the very last post emerge action
   if grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $tasklog_stripped; then
     if [[ $try_again -eq 0 ]]; then
       add2backlog "@preserved-rebuild"
@@ -655,10 +651,10 @@ function PostEmerge() {
     add2backlog "%emerge --oneshot sys-apps/portage"
   fi
 
-  # if 1st prio is (still) empty then check for a schedule of the daily update
+  # if 1st prio is empty then check for a schedule of the daily update
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local h=/var/tmp/tb/@world.history
-    if [[ ! -s $h || $(( EPOCHSECONDS - $(stat -c %Y $h) )) -ge 86400 ]]; then
+    if [[ ! -s $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
       add2backlog "@world"
     fi
   fi
@@ -769,7 +765,7 @@ function RunAndCheck() {
 
   # got a signal
   if [[ $rc -ge 128 ]]; then
-    local signal=$((rc - 128))
+    local signal=$(( rc-128 ))
     PutDepsIntoWorldFile
     if [[ $signal -eq 9 ]]; then
       Finish $signal "exiting due to signal $signal" $tasklog_stripped
@@ -798,7 +794,6 @@ function RunAndCheck() {
     fi
   fi
 
-  catchMisc
   if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
     Finish 1 "FATAL: $fatal" $tasklog_stripped
   fi
@@ -858,6 +853,8 @@ function WorkOnTask() {
       :
     fi
   fi
+
+  catchMisc
 }
 
 
@@ -897,7 +894,7 @@ function syncRepo()  {
 
   cd /var/db/repos/gentoo
   # give mirrors 1 hour to sync
-  git diff -l0 --diff-filter="ACM" --name-status "@{ $(( EPOCHSECONDS - last_sync + 3600 )) second ago }".."@{ 1 hour ago }" |\
+  git diff -l0 --diff-filter="ACM" --name-status "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }".."@{ 1 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s |\
   cut -f1-2 -d'/' -s |\
@@ -973,11 +970,11 @@ do
   fi
 
   # update ::gentoo hourly
-  if [[ $(( EPOCHSECONDS - last_sync )) -ge 3600 ]]; then
+  if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
     if syncRepo $last_sync; then
       last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
-    elif [[ $(( EPOCHSECONDS - last_sync )) -ge 86400 ]]; then
+    elif [[ $(( EPOCHSECONDS-last_sync )) -ge 86400 ]]; then
       Finish 3 "repo older one day" $tasklog
     fi
     if grep -q -F '* An update to portage is available.' $tasklog; then

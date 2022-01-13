@@ -132,7 +132,7 @@ if [[ -d ./files ]]; then
       continue
     # max. size from b.g.o. is 1000 KB
     elif [[ $bytes -gt 1000000 ]]; then
-      echo "skipped too fat file: $f"
+      echo -e "\nskipped TOO FAT file: $f\n"
       continue
     fi
 

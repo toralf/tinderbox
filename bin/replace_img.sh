@@ -57,9 +57,9 @@ function FoundABrokenImage() {
 
     s="@preserved-rebuild"
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-      local runtime=$(( (EPOCHSECONDS - $(getStartTime $i))/3600/24 ))
-      if [[ $runtime -ge 2 ]]; then
-        reason="$s broken and too old"
+      local hours=$(( (EPOCHSECONDS-$(__getStartTime $i))/3600 ))
+      if [[ $hours -ge 24 ]]; then
+        reason="$s broken since $hours hours"
         oldimg=$i
         return 0
       fi
@@ -71,9 +71,9 @@ function FoundABrokenImage() {
     fi
 
     if ! __is_running $i; then
-      local last_task=$(( (EPOCHSECONDS - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
-      if [[ $last_task -ge 8 ]]; then
-        reason="$s stopped and last task is $last_task hours ago"
+      local hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
+      if [[ $hours -ge 8 ]]; then
+        reason="$s stopped and last task is $hours hours ago"
         oldimg=$i
         return 0
       fi
@@ -92,7 +92,7 @@ function FreeSlotAvailable() {
   r=$(ls /run/tinderbox 2>/dev/null | wc -l)
   s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
 
-  [[ $((r + s)) -lt $desired_count && $(shufImages | wc -l) -lt $desired_count ]]
+  [[ $(( r+s )) -lt $desired_count && $(shufImages | wc -l) -lt $desired_count ]]
 }
 
 
@@ -100,8 +100,7 @@ function StopOldImage() {
   rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
 
   local lock_dir=/run/tinderbox/$oldimg.lock
-  local completed=$(grep -c ' ::: completed emerge' ~tinderbox/img/$oldimg/var/log/emerge.log 2>/dev/null || echo "0")
-  local msg="replaced b/c: $reason ($completed emerges completed)"
+  local msg="replaced b/c: $reason"
 
   echo " $msg" | tee -a ~tinderbox/img/$oldimg/var/tmp/tb/STOP
   if [[ -d $lock_dir ]]; then
@@ -113,7 +112,7 @@ function StopOldImage() {
     local i=1800
     while [[ -d $lock_dir ]]
     do
-      if ! ((--i)); then
+      if ! (( --i )); then
         echo "give up waiting for $oldimg"
         return 1
       fi
@@ -160,6 +159,7 @@ do
   esac
 done
 
+# this is allowed to be run in parallel BUT it is racy for about half a minute
 if [[ -n $oldimg ]]; then
   reason="user decision"
   if StopOldImage; then
@@ -184,38 +184,36 @@ trap Finish INT QUIT TERM EXIT
 while read -r i
 do
   if ! __is_running $i; then
-    last_task=$(( (EPOCHSECONDS - $(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
-    if [[ $last_task -ge 48 ]]; then
-      echo -e "\n$i last task $last_task hour/s ago - removing from ~/run\n"
+    hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
+    if [[ $hours -ge 48 ]]; then
+      echo -e "\n$i last task $hours hour/s ago - removing from ~/run\n"
       rm ~tinderbox/run/$i
-      if [[ -s ~tinderbox/logs/$i.log ]]; then
-        tail -v 100 ~tinderbox/logs/$i.log
+      imglog=~tinderbox/logs/$i.log
+      if [[ -s $imglog ]]; then
+        tail -v -n 100 $imglog
       fi
-      rm ~tinderbox/logs/$i.log
+      rm $imglog
     fi
   fi
 done < <(shufImages)
 
-while FreeSlotAvailable
+while :
 do
-  setupNewImage
-done
+  if FreeSlotAvailable; then
+    setupNewImage
 
-while HasAnEmptyBacklog
-do
-  if StopOldImage; then
-    if FreeSlotAvailable; then
-      setupNewImage
+  elif HasAnEmptyBacklog; then
+    if StopOldImage; then
+      continue
     fi
-  fi
-done
 
-while FoundABrokenImage
-do
-  if StopOldImage; then
-    if FreeSlotAvailable; then
-      setupNewImage
+  elif FoundABrokenImage; then
+    if StopOldImage; then
+      continue
     fi
+
+  else
+    break
   fi
 done
 

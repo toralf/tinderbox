@@ -4,6 +4,22 @@
 # print tinderbox statistics
 
 
+# list if locked and/or symlinked to ~run
+function list_images() {
+  (
+    ls ~tinderbox/run/                    | sort
+    ls /run/tinderbox/ | sed 's,.lock,,g' | sort
+  ) |\
+  xargs -n 1 --no-run-if-empty basename  |\
+  awk '!x[$0]++' |\
+  while read -r i
+  do
+    ls -d ~tinderbox/run/${i} 2>/dev/null ||\
+    ls -d ~tinderbox/img/${i} 2>/dev/null
+  done
+}
+
+
 function PrintImageName()  {
   printf "%-${2}s" $(cut -c-$2 < $1/var/tmp/tb/name)
 }
@@ -51,7 +67,7 @@ function Overall() {
 
   for i in $images
   do
-    local days=$(echo "scale=1; ( $EPOCHSECONDS - $(getStartTime $i) ) / 86400.0" | bc)
+    local days=$(echo "scale=1; ( $EPOCHSECONDS - $(__getStartTime $i) ) / 86400.0" | bc)
     local bgo=$(set +f; ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
 
     local compl=0
@@ -141,7 +157,7 @@ function Tasks()  {
     if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
       echo -n " "
     fi
-    echo $task | cut -c1-$((columns-38))
+    echo $task | cut -c1-$(( columns-38 ))
   done
 }
 
@@ -175,7 +191,7 @@ function LastEmergeOperation()  {
         printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");    # mark long runtimes
       }
       my $line = join (" ", @F[1..$#F]);
-      print substr ($line, 0, '"'$((columns-38))'"');
+      print substr ($line, 0, '"'$(( columns-38 ))'"');
     '
     echo
   done
@@ -196,7 +212,7 @@ function PackagesPerImagePerRunDay() {
   do
     PrintImageName $i 54
 
-    local start_time=$(getStartTime $i)
+    local start_time=$(__getStartTime $i)
     perl -F: -wane '
       BEGIN {
         @packages   = ();  # helds the amount of emerge operations per runday
@@ -245,15 +261,15 @@ function Coverage() {
   for i in run img
   do
     local covered=~tinderbox/img/packages.$i.covered.txt
-    local uncovered=~tinderbox/img/packages.$i.uncovered.txt
+    local uncovered=~tinderbox/img/packages.$i.uncovered.txt    # used in index.sh
 
     getCoveredPackages $i > $covered
     diff $covered $all | grep -F '>' | cut -f2 -d' ' -s > $uncovered
 
     local n=$(wc -l < $covered)
-    local oldest=$(cat ~tinderbox/$i/17*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
-    local days=$(( (EPOCHSECONDS - $oldest)/3600/24 ))
-    local perc=$((100 * $n / $N))
+    local oldest=$(cat ~tinderbox/$i/17.*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
+    local days=$(( (EPOCHSECONDS-oldest)/3600/24 ))
+    local perc=$(( 100*$n/$N ))
     printf "%5i packages in ~tinderbox/%s   (%2i%% for last %2i days)" $n $i $perc $days
     echo
   done
@@ -364,7 +380,7 @@ unset LC_TIME
 
 source $(dirname $0)/lib.sh
 
-images=$(__list_images)
+images=$(list_images)
 
 if ! columns=$(tput cols 2>/dev/null); then
   columns=100

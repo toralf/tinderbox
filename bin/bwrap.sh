@@ -35,7 +35,7 @@ function CgroupCreate() {
     x=$j
   fi
 
-  local quota=$((100000 * $x + 10000))
+  local quota=$(( 100000*x+10000 ))
   cgset -r cpu.cfs_quota_us=$quota          $name
   cgset -r memory.limit_in_bytes=40G        $name
   cgset -r memory.memsw.limit_in_bytes=70G  $name

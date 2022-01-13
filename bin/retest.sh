@@ -14,8 +14,6 @@ if [[ ! "$(whoami)" = "tinderbox" ]]; then
   exit 1
 fi
 
-source $(dirname $0)/lib.sh
-
 result=/tmp/$(basename $0).txt  # package/s for the appropriate backlog
 truncate -s 0 $result
 
@@ -40,9 +38,9 @@ do
 done
 
 if [[ -s $result ]]; then
-  for i in $(__list_images)
+  for i in $(ls ~tinderbox/run 2>/dev/null)
   do
-    bl=$i/var/tmp/tb/backlog.1st
+    bl=~tinderbox/run/$i/var/tmp/tb/backlog.1st
     # filter out dups, then put new entries after existing ones
     (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
     mv $bl.tmp $bl

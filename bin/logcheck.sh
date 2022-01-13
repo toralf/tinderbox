@@ -18,8 +18,8 @@ if [[ $n -gt 0 ]]; then
     ) | mail -s "INFO: tinderbox logs" ${MAILTO:-tinderbox}
   fi
 else
-  # remove obsolete old file
-  if [[ -s $f ]]; then
+  # remove obsolete file
+  if [[ -f $f ]]; then
     rm $f
   fi
 fi

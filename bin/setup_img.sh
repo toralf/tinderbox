@@ -5,6 +5,12 @@
 # setup a new tinderbox image
 
 
+# $1:$2, eg. 1:5
+function dice() {
+  [[ $(( $RANDOM%$2)) -lt $1 ]]
+}
+
+
 # helper of ThrowUseFlags()
 function IgnoreUseFlags()  {
   grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS || true
@@ -16,11 +22,11 @@ function ThrowUseFlags() {
   local n=$1        # pass up to n-1
   local m=${2:-4}   # mask 1:m of them
 
-  shuf -n $(($RANDOM % $n)) |\
+  shuf -n $(( $RANDOM%$n)) |\
   sort |\
   while read -r flag
   do
-    if __dice 1 $m; then
+    if dice 1 $m; then
       echo -n "-$flag "
     else
       echo -n "$flag "
@@ -59,33 +65,33 @@ function InitOptions() {
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
-    if __dice 1 40; then
+    if dice 1 40; then
       abi3264="y"
     fi
   fi
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
   # try to debug:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
-  if __dice 1 80; then
+  if dice 1 80; then
     cflags_default+=" -Og -g"
   else
     cflags_default+=" -O2"
   fi
 
   cflags=$cflags_default
-  if __dice 1 40; then
+  if dice 1 40; then
     # 685160 colon-in-CFLAGS
     cflags+=" -falign-functions=32:25:16"
   fi
 
   # stable image ?
   keyword="~amd64"
-  if __dice 1 80; then
+  if dice 1 80; then
     keyword="amd64"
   fi
 
   testfeature="n"
-  if __dice 1 80; then
+  if dice 1 80; then
     testfeature="y"
   fi
 
@@ -221,8 +227,8 @@ function UnpackStage3()  {
 }
 
 
-# configure image repositories
-function InitRepositories()  {
+# configure only a ::gentoo repository
+function InitRepository()  {
   mkdir -p ./etc/portage/repos.conf/
 
   cat << EOF >> ./etc/portage/repos.conf/all.conf
@@ -232,37 +238,20 @@ auto-sync = yes
 
 [gentoo]
 location  = $reposdir/gentoo
-priority  = 10
 sync-uri  = https://github.com/gentoo-mirror/gentoo.git
 sync-type = git
-
-[local]
-location  = $reposdir/local
-auto-sync = no
-priority  = 99
-
-EOF
-
-  # ::local
-  mkdir -p       ./$reposdir/local/{metadata,profiles}
-  echo 'local' > ./$reposdir/local/profiles/repo_name
-  cat << EOF   > ./$reposdir/local/metadata/layout.conf
-[local]
-masters = gentoo
 
 EOF
 
   date
   echo " cloning ::gentoo"
   # at local system a "git clone" is much slower than a "cp --reflink"
-  # use "img" here due to fs boundaries, but use a running image
-  local refdir=$(ls -t $tbhome/img/*/$reposdir/gentoo/.git/FETCH_HEAD 2>/dev/null | head -n 1 | sed -e 's,/.git/FETCH_HEAD,,')
+  local refdir=$(ls -t $tbhome/img/*${reposdir}/gentoo/.git/FETCH_HEAD 2>/dev/null | head -n 1 | sed -e 's,/.git/FETCH_HEAD,,')
   if [[ ! -d $refdir ]]; then
     # fallback is the host
     refdir=$reposdir/gentoo
   fi
-
-  cd ./$reposdir
+  cd .$reposdir
   cp -ar --reflink=auto $refdir ./
   cd - 1>/dev/null
 
@@ -321,7 +310,7 @@ EOF
 
   # requested by sam
   if [[ $keyword = '~amd64' ]]; then
-    if __dice 1 80; then
+    if dice 1 80; then
       echo 'LIBTOOL="rdlibtool"'            >> ./etc/portage/make.conf
       echo 'MAKEFLAGS="LIBTOOL=${LIBTOOL}"' >> ./etc/portage/make.conf
     fi
@@ -329,12 +318,12 @@ EOF
 
   # requested by mgorny in 822354
   # Hint: this is unrelated to "test"
-  if __dice 1 2; then
+  if dice 1 2; then
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
   fi
 
   # requested by mgorny
-  if __dice 1 2; then
+  if dice 1 2; then
     echo 'SETUPTOOLS_USE_DISTUTILS=local' >> ./etc/portage/make.conf
 
     echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'                    > ./etc/portage/env/setuptools_stdlib
@@ -502,19 +491,23 @@ function CreateBacklogs()  {
   chown tinderbox:portage $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
 
-  # requested by Whissi (an alternative mysql engine)
-  if __dice 1 20; then
+  # requested by Whissi (an alternative virtual/mysql engine)
+  if dice 1 20; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
   cat << EOF > $bl.1st
 app-portage/pfl
+%grep -q -e \\'Use: perl-cleaner\\' /var/tmp/tb/setup.sh.log && perl-cleaner --all || true
 @world
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
 sys-apps/portage
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
+# systemd packages needs kernel headers and might be a (deep) dependency of gcc
 sys-kernel/gentoo-kernel-bin
-# GCC switch is almost a no-op and only needed if gcc is a dep of one of the mandatory tools emerged during setup
+# % ia needed here b/c "qatom" in job.sh will by available after this package
+%emerge -u app-portage/portage-utils
+# GCC switch is almost a no-op except if gcc was emerged as a dep in setup.sh
 %SwitchGCC
 
 EOF
@@ -522,22 +515,23 @@ EOF
 
 
 function CreateSetupScript()  {
-  cat << EOF > ./var/tmp/tb/setup.sh || exit 1
+  cat << EOF > ./var/tmp/tb/setup.sh || return 1
 #!/bin/bash
 # set -x
 
 export LANG=C.utf8
 set -euf
 
-date
-echo "#setup locale + timezone" | tee /var/tmp/tb/task
-
 if [[ ! $profile =~ "musl" ]]; then
+  date
+  echo "#setup locale" | tee /var/tmp/tb/task
   echo -e "en_US       ISO-8859-1"  >> /etc/locale.gen
   echo -e "en_US.UTF-8 UTF-8"       >> /etc/locale.gen      # especially for "test" needed
   locale-gen
 fi
 
+date
+echo "#setup timezone" | tee /var/tmp/tb/task
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 env-update
@@ -557,14 +551,14 @@ if ! emaint sync --auto 1>/dev/null; then
   echo "ignoring git sync error"
 fi
 
-if grep -q "LIBTOOL" /etc/portage/make.conf; then
+if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
   emerge -u sys-devel/slibtool
 fi
 
 date
-echo "#setup portage helpers" | tee /var/tmp/tb/task
+echo "#setup helpers" | tee /var/tmp/tb/task
 emerge -u app-text/ansifilter
 
 date
@@ -709,7 +703,7 @@ function ThrowImageUseFlags() {
 
   grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |\
   cut -f1 -d' ' -s |\
-  shuf -n $(($RANDOM % 20)) |\
+  shuf -n $(( $RANDOM%20 )) |\
   sort |\
   xargs |\
   xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
@@ -722,7 +716,7 @@ function ThrowImageUseFlags() {
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |\
-  shuf -n $(($RANDOM % 3000)) |\
+  shuf -n $(( $RANDOM%3000)) |\
   sort |\
   while read -r file
   do
@@ -798,8 +792,6 @@ date
 echo " $0 started"
 echo
 
-source $(dirname $0)/lib.sh
-
 if [[ $# -gt 0 ]]; then
   echo "   args: '${@}'"
   echo
@@ -822,14 +814,14 @@ do
     t)  testfeature="$OPTARG" ;;
     u)  useflagfile="$OPTARG" ;;
     *)  echo " '$opt' with '$OPTARG' not implemented"
-        exit 1
+        exit 2
         ;;
   esac
 done
 
 CheckOptions
 UnpackStage3
-InitRepositories
+InitRepository
 CompilePortageFiles
 CompileMakeConf
 CompileMiscFiles
