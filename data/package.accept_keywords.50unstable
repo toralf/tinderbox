@@ -13,7 +13,3 @@ dev-scheme/guile:12/3.0-1           **
 
 # by leio
 dev-lang/vala:0.54                  **
->=dev-libs/vala-common-0.54.4       **
-
-# dilfridge
-=sys-libs/glibc-2.34-r6             **

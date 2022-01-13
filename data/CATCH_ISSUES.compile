@@ -313,3 +313,4 @@ gprbuild: .* failed
 Extension error:
 \! LaTeX. Error:
 error: cannot enable
+Error> .
