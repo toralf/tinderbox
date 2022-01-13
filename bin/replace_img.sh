@@ -159,7 +159,7 @@ do
   esac
 done
 
-# this is allowed to be run in parallel BUT it is racy for about half a minute
+# this is allowed to be run in parallel however that is racy for about a half minute
 if [[ -n $oldimg ]]; then
   reason="user decision"
   if StopOldImage; then
