@@ -245,7 +245,7 @@ EOF
 
   date
   echo " cloning ::gentoo"
-  # at local system a "git clone" is much slower than a "cp --reflink"
+  # "git clone" is much slower than a local "cp --reflink"
   local refdir=$(ls -t $tbhome/img/*${reposdir}/gentoo/.git/FETCH_HEAD 2>/dev/null | head -n 1 | sed -e 's,/.git/FETCH_HEAD,,')
   if [[ ! -d $refdir ]]; then
     # fallback is the host
@@ -253,6 +253,7 @@ EOF
   fi
   cd .$reposdir
   cp -ar --reflink=auto $refdir ./
+  rm -f $reposdir/gentoo/.git/refs/heads/stable.lock
   cd - 1>/dev/null
 
   echo
