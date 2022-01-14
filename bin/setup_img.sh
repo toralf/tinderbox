@@ -505,7 +505,7 @@ sys-apps/portage
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 # systemd packages needs kernel headers and might be a (deep) dependency of gcc
 sys-kernel/gentoo-kernel-bin
-# % is needed here b/c "qatom" in job.sh will by available first after this package
+# % is needed here b/c "qatom" in job.sh will be available first after this package
 %emerge -u app-portage/portage-utils
 # GCC switch is almost a no-op except if gcc was emerged as a dep in setup.sh
 %SwitchGCC
@@ -547,9 +547,7 @@ useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 date
 echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -webdav" emerge -u dev-vcs/git
-if ! emaint sync --auto 1>/dev/null; then
-  echo "ignoring git sync error"
-fi
+emaint sync --auto 1>/dev/null
 
 if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
   date
