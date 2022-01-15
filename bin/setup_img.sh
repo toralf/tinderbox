@@ -253,7 +253,7 @@ EOF
   fi
   cd .$reposdir
   cp -ar --reflink=auto $refdir ./
-  rm -f $reposdir/gentoo/.git/refs/heads/stable.lock
+  rm -f $reposdir/gentoo/.git/refs/heads/stable.lock $reposdir/gentoo/.git/gc.log.lock
   cd - 1>/dev/null
 
   echo

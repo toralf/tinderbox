@@ -511,7 +511,7 @@ function maskPackage()  {
 
 # analyze the issue
 function WorkAtIssue()  {
-  log_stripped=$issuedir/$(tr '/' ':' <<< $pkg)_stripped.log
+  local pkglog_stripped=$issuedir/$(tr '/' ':' <<< $pkg).stripped.log
   filterPlainPext < $pkglog > $pkglog_stripped
 
   cp $pkglog  $issuedir/files
@@ -650,7 +650,7 @@ function PostEmerge() {
     add2backlog "%emerge --oneshot sys-apps/portage"
   fi
 
-  # if 1st prio is empty then check for a schedule of the daily update
+  # if 1st prio is empty then schedule the daily update if it is time
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local h=/var/tmp/tb/@world.history
     if [[ ! -s $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
@@ -675,7 +675,7 @@ function catchMisc()  {
       continue
     fi
 
-    local pkglog_stripped=/tmp/$(basename $pkglog)
+    local pkglog_stripped=/tmp/$(basename $pkglog | sed -e "s,\.log$,.stripped.log,")
     filterPlainPext < $pkglog > $pkglog_stripped
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       pkg=$( grep -m 1 -F ' * Package: '    $pkglog_stripped | awk ' { print $3 } ')
@@ -689,6 +689,7 @@ function catchMisc()  {
         echo "$line" > $issuedir/title
         grep -m 1 -F -e "$line" $pkglog_stripped > $issuedir/issue
         cp $pkglog $issuedir/files
+        cp $pkglog_stripped $issuedir
         finishTitle
         cp $issuedir/issue $issuedir/comment0
         cat << EOF >> $issuedir/comment0
@@ -721,9 +722,6 @@ function GetPkgFromTaskLog() {
     if [[ -z "$pkg" ]]; then
       pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
       if [[ -z $pkg ]]; then
-        if ! grep -q -F 'Exiting on signal ' $tasklog_stripped; then
-          Mail "INFO: cannot get pkg for task '$task'" $tasklog_stripped
-        fi
         return 1
       fi
     fi
@@ -741,6 +739,9 @@ function GetPkgFromTaskLog() {
 # helper of WorkOnTask()
 # run $1 in a subshell and act on result, timeout after $2
 function RunAndCheck() {
+  unset phase pkgname pkglog
+  try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
+
   timeout --signal=15 --kill-after=5m ${2:-12h} bash -c "eval $1" &>> $tasklog
   local rc=$?
   (echo; date) >> $tasklog
@@ -750,6 +751,7 @@ function RunAndCheck() {
 
   filterPlainPext < $tasklog > $tasklog_stripped
   PostEmerge
+  catchMisc
 
   if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
     if grep -q -F ' -Og -g' /etc/portage/make.conf; then
@@ -779,17 +781,12 @@ function RunAndCheck() {
 
   # emerge failed
   elif [[ $rc -ne 0 ]]; then
-    if grep -q -f /mnt/tb/data/EMERGE_ISSUES $tasklog_stripped; then
-      return 1
-    fi
     if GetPkgFromTaskLog; then
       createIssueDir
       WorkAtIssue
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
       fi
-    else
-      Mail "WARN: cannot parse task log for '$task'" $tasklog_stripped
     fi
   fi
 
@@ -803,11 +800,6 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 function WorkOnTask() {
-  unset phase pkgname pkglog log_stripped
-
-  try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
-  pkg=""
-
   # @set
   if [[ $task =~ ^@ ]]; then
     local opts=""
@@ -820,6 +812,9 @@ function WorkOnTask() {
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
         add2backlog "%emerge --depclean"
+      fi
+      if tail -n 1 /var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " NOT ok $"; then
+        add2backlog "@preserved-rebuild"
       fi
     else
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
@@ -852,8 +847,6 @@ function WorkOnTask() {
       :
     fi
   fi
-
-  catchMisc
 }
 
 
@@ -872,27 +865,21 @@ function DetectRebuildLoop() {
 
 
 function syncRepo()  {
-  local last_sync=${1:-0}
+  cd /var/db/repos/gentoo
 
   if ! emaint sync --auto &>$tasklog; then
-    return 2
-  elif grep -q -F 'git fetch error in /var/db/repos/gentoo' $tasklog; then
-    if grep -q -F 'Protocol "https" not supported or disabled'; then
-      return 1
-    else
-      Mail "git sync issue" $tasklog
-      return 0
+    if ! (git stash; git stash drop; git restore .; git pull) &>>$tasklog; then
+      Finish 3 "cannot pull ::gentoo" $tasklog
     fi
-  elif grep -B 1 '=== Sync completed for gentoo' $tasklog | grep -q 'Already up to date.'; then
-    return 0
+    Mail "INFO: fixed git sync issue" $tasklog
+  fi
+  last_sync=$EPOCHSECONDS
+
+  if grep -B 1 '=== Sync completed for gentoo' $tasklog | grep -q 'Already up to date.'; then
+    return
   fi
 
-  if [[ $last_sync -eq 0 ]]; then
-    return 0
-  fi
-
-  cd /var/db/repos/gentoo
-  # give mirrors 1 hour to sync
+  # mix repo changes and backlog together but add 1 hour wait time for the mirrors
   git diff -l0 --diff-filter="ACM" --name-status "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }".."@{ 1 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
   cut -f2- -s |\
@@ -900,7 +887,6 @@ function syncRepo()  {
   grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
   uniq > /tmp/diff.upd
 
-  # mix new entries into the re-mixed backlog
   if [[ -s /tmp/diff.upd ]]; then
     sort -u /tmp/diff.upd /var/tmp/tb/backlog.upd | shuf > /tmp/backlog.upd
     # no mv to preserve target file perms
@@ -909,6 +895,7 @@ function syncRepo()  {
   fi
 
   rm /tmp/diff.upd
+  return
 }
 
 
@@ -971,10 +958,9 @@ do
   # update ::gentoo hourly
   if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
-    if syncRepo $last_sync; then
-      last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
-    elif [[ $(( EPOCHSECONDS-last_sync )) -ge 86400 ]]; then
-      Finish 3 "repo older one day" $tasklog
+    syncRepo
+    if [[ $(( EPOCHSECONDS-last_sync )) -ge 86400 ]]; then
+      Finish 3 "repo too old" $tasklog
     fi
     if grep -q -F '* An update to portage is available.' $tasklog; then
       add2backlog "%emerge --oneshot sys-apps/portage"
