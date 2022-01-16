@@ -504,11 +504,10 @@ app-portage/pfl
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
 sys-apps/portage
 %emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
-# systemd packages needs kernel headers and might be a (deep) dependency of gcc
 sys-kernel/gentoo-kernel-bin
-# % is needed here b/c "qatom" in job.sh will be available first after this package
+# % is needed here to provide "qatom" which is used in job.sh in getNextTask()
 %emerge -u app-portage/portage-utils
-# GCC switch is almost a no-op except if gcc was emerged as a dep in setup.sh
+# GCC switch is almost a no-op except if gcc was already emerged as a dependency in setup.sh
 %SwitchGCC
 
 EOF
