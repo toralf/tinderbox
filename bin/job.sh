@@ -550,7 +550,6 @@ function WorkAtIssue()  {
     if ! grep -q -e "^=$pkg " /etc/portage/package.env/j1 2>/dev/null; then
       try_again=1
       printf "%-50s %s\n" "=$pkg" "j1" >> /etc/portage/package.env/j1
-      add2backlog "$task"
     fi
   fi
 
