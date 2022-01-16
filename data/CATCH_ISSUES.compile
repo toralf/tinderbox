@@ -283,7 +283,6 @@ gdbm_fetch: Item not found
 : cannot find package
  \*   .* not found,
 .*: no input file given
-Configuration error:
 .* not found in the JDK being used for compilation
 cc1: some warnings being treated as errors
 rdlibtool: error
@@ -315,3 +314,5 @@ error: cannot enable
 Error> .
   Caused by:
 : file format not recognized
+There is a programmable error
+Configuration error:
