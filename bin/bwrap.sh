@@ -2,14 +2,7 @@
 # set -x
 
 
-# bubblewrap (better chroot) into an image interactively - or - run a script in it
-
-
-function Help() {
-  echo
-  echo "  call: $(basename $0) -m mountpoint [-s <entrypoint script>]"
-  echo
-}
+# wrap (bubblewrap or chroot) into an image to run a script in it -or- work interactively within it
 
 
 function CgroupCreate() {
@@ -63,7 +56,101 @@ function Exit()  {
 }
 
 
-#############################################################################
+function mountAll() {
+  (
+    set -e
+
+    mount -o size=16G -t tmpfs  tmpfs $mnt/run
+    mount             -t proc   proc  $mnt/proc
+    mount --rbind               /sys  $mnt/sys
+    mount --make-rslave               $mnt/sys
+
+    mount --rbind               /dev  $mnt/dev
+    mount --make-rslave               $mnt/dev
+
+    mount -o bind     ~tinderbox/tb/data              $mnt/mnt/tb/data
+    mount -o bind,ro  ~tinderbox/tb/sdata/ssmtp.conf  $mnt/etc/ssmtp/ssmtp.conf
+    mount -o bind     ~tinderbox/distfiles            $mnt/var/cache/distfiles
+
+    mount -o size=16G -t tmpfs  tmpfs   $mnt/tmp
+    mount -o size=16G -t tmpfs  tmpfs   $mnt/var/tmp/portage
+  )
+
+  return $?
+}
+
+
+function umountAll()  {
+  (
+    set +e
+
+    umount -l $mnt/var/tmp/portage $mnt/tmp
+    umount -l $mnt/var/cache/distfiles $mnt/etc/ssmtp/ssmtp.conf $mnt/mnt/tb/data
+    umount -l $mnt/dev{/pts,/shm,/mqueue,}
+    umount -l $mnt/{sys,proc,run}
+  )
+}
+
+
+function RunUnderChroot() {
+  local rc=1
+
+  if mountAll; then
+    if [[ -n "$entrypoint" ]]; then
+      (/usr/bin/chroot $mnt /bin/bash -l -c "su - root -c /entrypoint")
+    else
+      (/usr/bin/chroot $mnt /bin/bash -l -c "su - root")
+    fi
+    rc=$?
+  fi
+  umountAll
+
+  return $rc
+}
+
+
+function RunUnderBwrap() {
+  local sandbox=(env -i
+    PATH=/usr/sbin:/usr/bin:/sbin:/bin
+    HOME=/root
+    SHELL=/bin/bash
+    TERM=linux
+    /usr/bin/bwrap
+        --unshare-cgroup
+        --unshare-ipc
+        --unshare-pid
+        --unshare-uts
+        --hostname "$(cat ${mnt}/etc/conf.d/hostname)"
+        --die-with-parent
+        --setenv MAILTO "${MAILTO:-tinderbox}"
+        --bind "$mnt"                             /
+        --dev                                     /dev
+        --mqueue                                  /dev/mqueue
+        --perms 1777 --tmpfs                      /dev/shm
+        --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
+        --bind ~tinderbox/tb/data                 /mnt/tb/data
+        --proc                                    /proc
+        --tmpfs                                   /run
+        --ro-bind /sys                            /sys
+        --perms 1777 --tmpfs                      /tmp
+        --bind ~tinderbox/distfiles               /var/cache/distfiles
+        --perms 1777 --tmpfs                      /var/tmp/portage
+        --chdir /var/tmp/tb
+        /bin/bash -l
+  )
+
+  if [[ -n "$entrypoint" ]]; then
+    ("${sandbox[@]}" -c "/entrypoint")
+  else
+    ("${sandbox[@]}")
+  fi
+  local rc=$?
+
+  return $rc
+}
+
+
+  #############################################################################
 #
 # main
 #
@@ -78,13 +165,14 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-mnt=""
+chroot="no"
 entrypoint=""
+mnt=""
 
-while getopts h\?e:m: opt
+while getopts ce:m: opt
 do
   case $opt in
-    h|\?) Help
+    c)    chroot="yes"
           ;;
     e)    if [[ ! -s "$OPTARG" ]]; then
             echo "no valid entry point script given: $OPTARG"
@@ -124,42 +212,16 @@ fi
 mkdir -p "$lock_dir"
 trap Cleanup QUIT TERM EXIT
 
-sandbox=(env -i
-    PATH=/usr/sbin:/usr/bin:/sbin:/bin
-    HOME=/root
-    SHELL=/bin/bash
-    TERM=linux
-    /usr/bin/bwrap
-        --unshare-cgroup
-        --unshare-ipc
-        --unshare-pid
-        --unshare-uts
-        --hostname "$(cat ${mnt}/etc/conf.d/hostname)"
-        --die-with-parent
-        --setenv MAILTO "${MAILTO:-tinderbox}"
-        --bind "$mnt"                             /
-        --dev                                     /dev
-        --mqueue                                  /dev/mqueue
-        --perms 1777 --tmpfs                      /dev/shm
-        --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
-        --bind ~tinderbox/tb/data                 /mnt/tb/data
-        --proc                                    /proc
-        --tmpfs                                   /run
-        --ro-bind /sys                            /sys
-        --perms 1777 --tmpfs                      /tmp
-        --bind ~tinderbox/distfiles               /var/cache/distfiles
-        --perms 1777 --tmpfs                      /var/tmp/portage
-        --chdir /var/tmp/tb
-        /bin/bash -l
-)
-
 CgroupCreate local/${mnt##*/} $$
 
 if [[ -n "$entrypoint" ]]; then
   rm -f             "$mnt/entrypoint"
   cp "$entrypoint"  "$mnt/entrypoint"
   chmod 744         "$mnt/entrypoint"
-  ("${sandbox[@]}" -c "/entrypoint")
+fi
+
+if [[ $chroot = "yes" ]]; then
+  RunUnderChroot
 else
-  ("${sandbox[@]}")
+  RunUnderBwrap
 fi
