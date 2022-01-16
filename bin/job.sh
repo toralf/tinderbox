@@ -904,8 +904,9 @@ function syncRepo()  {
 #
 set -eu
 export LANG=C.utf8
-export -f SwitchGCC
 trap Finish INT QUIT TERM EXIT
+
+export -f SwitchGCC syncRepo        # to call it eg. from retest.sh
 
 taskfile=/var/tmp/tb/task           # holds the current task
 tasklog=$taskfile.log               # holds output of it
