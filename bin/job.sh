@@ -26,14 +26,13 @@ function Mail() {
 
   if [[ -f $content ]]; then
     echo
-    head -n 10000 $content | sed -e 's,^>>>, >>>,'
-    echo
+    tail -n 1000 $content | sed -e 's,^>>>, >>>,'
+    echo -e "\n\n\n\n less ~tinderbox/img/$name/$content\n\n\n"
   else
     echo -e "$content"
   fi |\
-  if ! mail -s "$subject    @ $name" -- ${MAILTO:-tinderbox} &>> /var/tmp/tb/mail.log; then
-    echo "$(date) issue, \$subject=$subject \$content=$content" | tee -a /var/tmp/tb/mail.log
-    chmod a+rw /var/tmp/tb/mail.log
+  if ! (mail -s "$subject   @ $name" -- ${MAILTO:-tinderbox} 1>/dev/null); then
+    { echo "$(date) issue, \$subject=$subject \$content=$content" >&2 ; }
   fi
 }
 
