@@ -6,11 +6,6 @@ function getCandidates()  {
   ls -d ~tinderbox/img/17.*-j*-20??????-?????? 2>/dev/null |\
   while read -r i
   do
-    if [[ ! -d $i ]]; then
-      echo "something wrong with '$i'"
-      exit 1
-    fi
-
     if [[ -e ~tinderbox/run/$(basename $i) ]]; then
       continue
     fi
@@ -19,14 +14,14 @@ function getCandidates()  {
       continue
     fi
 
-    # keep last 2 weeks (whatsup.sh -e)
-    if [[ $(( (EPOCHSECONDS - $(stat -c %Y $i)) % 86400 )) -lt 14 ]]; then
+    # keep packages of last 2 weeks for "whatsup.sh -e"
+    if [[ $(( (EPOCHSECONDS - $(stat -c %Y $i/var/log/emerge.log)) % 86400 )) -lt 14 ]]; then
       continue
     fi
 
     echo $i
   done |\
-  sort -t'-' -k 3,4
+  sort -t'-' -k 3,4     # sort by date + time
 }
 
 
@@ -93,7 +88,7 @@ if pruneNeeded; then
   find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
 fi
 
-# prune images with incompleted setup
+# prune images with broken setup
 while read -r img && pruneNeeded
 do
   if [[ ! -f $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
@@ -109,7 +104,7 @@ do
   fi
 done < <(getCandidates)
 
-# prune remaining images from oldest to newest
+# prune images
 while read -r img && pruneNeeded
 do
   pruneDir $img
