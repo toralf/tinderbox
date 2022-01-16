@@ -19,7 +19,8 @@ function getCandidates()  {
       continue
     fi
 
-    if [[ $(( EPOCHSECONDS - $(stat -c %Y $i) )) -lt 86400 ]]; then
+    # keep last 2 weeks (whatsup.sh -e)
+    if [[ $(( (EPOCHSECONDS - $(stat -c %Y $i)) % 86400 )) -lt 14 ]]; then
       continue
     fi
 
