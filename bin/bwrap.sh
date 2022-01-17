@@ -199,7 +199,7 @@ if [[ ! -e "$mnt" ]]; then
   exit 3
 fi
 
-if [[ ! $(stat -c '%u' "$mnt") = "0" ]]; then
+if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   echo "wrong ownership of mount point"
   exit 3
 fi

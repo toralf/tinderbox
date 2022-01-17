@@ -123,7 +123,7 @@ function getNextTask() {
       fi
 
     else
-      if [[ ! "$backlog" = /var/tmp/tb/backlog.1st ]]; then
+      if [[ "$backlog" != /var/tmp/tb/backlog.1st ]]; then
         if grep -q -f /mnt/tb/data/IGNORE_PACKAGES <<< $task; then
           continue
         fi
@@ -445,7 +445,7 @@ function setWorkDir() {
 # append onto the file == is the next task
 function add2backlog()  {
   # no duplicates
-  if [[ ! "$(tail -n 1 /var/tmp/tb/backlog.1st)" = "$1" ]]; then
+  if [[ "$(tail -n 1 /var/tmp/tb/backlog.1st)" != "$1" ]]; then
     echo "$1" >> /var/tmp/tb/backlog.1st
   fi
 }

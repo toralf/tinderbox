@@ -638,7 +638,7 @@ function FixPossibleUseFlagIssues() {
       local before=$(wc -l < $f)
       sed -i -e "/$pkg /d" $f
       local after=$(wc -l < $f)
-      if [[ ! $before = $after ]]; then
+      if [[ $before != $after ]]; then
         if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
           return 0
         fi

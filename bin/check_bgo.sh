@@ -240,7 +240,7 @@ echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
 cmd="$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"
 if best=$(eval $cmd); then
-  if [[ ! $pkg = $best ]]; then
+  if [[ $pkg != $best ]]; then
     echo -e "\n    is  NOT  latest"
     [[ $# -lt 2 ]] && exit 0
   fi

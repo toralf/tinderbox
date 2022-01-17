@@ -2,7 +2,7 @@
 # set -x
 
 
-# start tinderbox chroot image/s
+# start tinderbox image/s
 
 
 #############################################################################
@@ -13,8 +13,7 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-
-if [[ ! "$(whoami)" = "tinderbox" ]]; then
+if [[ "$(whoami)" != "tinderbox" ]]; then
   echo " you must be tinderbox"
   exit 1
 fi

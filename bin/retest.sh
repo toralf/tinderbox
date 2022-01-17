@@ -9,7 +9,7 @@
 set -eu
 export LANG=C.utf8
 
-if [[ ! "$(whoami)" = "tinderbox" ]]; then
+if [[ "$(whoami)" != "tinderbox" ]]; then
   echo " you must be tinderbox"
   exit 1
 fi

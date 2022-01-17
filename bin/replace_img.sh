@@ -140,7 +140,7 @@ export LANG=C.utf8
 
 source $(dirname $0)/lib.sh
 
-if [[ ! "$(whoami)" = "tinderbox" ]]; then
+if [[ "$(whoami)" != "tinderbox" ]]; then
   echo " you must be tinderbox"
   exit 1
 fi
