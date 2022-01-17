@@ -15,7 +15,7 @@ function getCandidates()  {
     fi
 
     # keep packages of last 2 weeks for "whatsup.sh -e"
-    if [[ $(( (EPOCHSECONDS - $(stat -c %Y $i/var/log/emerge.log)) % 86400 )) -lt 14 ]]; then
+    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -lt 14 ]]; then
       continue
     fi
 
