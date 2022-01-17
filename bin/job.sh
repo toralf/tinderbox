@@ -129,11 +129,13 @@ function getNextTask() {
         fi
       fi
 
-      # skip if $task would be downgraded
+      # skip if $task is not visible
       local best_visible=$(portageq best_visible / $task 2>/dev/null)
-      if [[ $? -ne 0 ]]; then
+      if [[ $? -ne 0 || -z "$best_visible" ]]; then
         continue
       fi
+
+      # skip if $task would be downgraded
       local installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
         if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
@@ -141,7 +143,7 @@ function getNextTask() {
         fi
       fi
 
-      # $task is valid
+      # valid $task
       break
     fi
   done
