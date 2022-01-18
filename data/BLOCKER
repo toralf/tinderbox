@@ -26,3 +26,7 @@ No module named |KeyError:
 # [Tracker] dev-scheme/guile-3.0.x breakage
 746914
 guile
+
+# (openmpi-4) - [TRACKER] sys-cluster/openmpi - packages using deprecated MPI symbols (removed in openmpi-4)
+831358
+MPI_
