@@ -244,16 +244,17 @@ sync-type = git
 EOF
 
   date
-  echo " cloning ::gentoo"
   # "git clone" is much slower than a local "cp --reflink"
-  local refdir=$(ls -t $tbhome/img/*${reposdir}/gentoo/.git/FETCH_HEAD 2>/dev/null | head -n 1 | sed -e 's,/.git/FETCH_HEAD,,')
+  # use the 2nd youngest (sic!) repo to lower the probability of a clash with a "git gc" currently running at $refdir
+  local refdir=$(ls -t $tbhome/img/*${reposdir}/gentoo/metadata/timestamp.chk 2>/dev/null | head -n 2 | tail -n 1 | sed -e 's,metadata/timestamp.chk,,')
   if [[ ! -d $refdir ]]; then
     # fallback is the host
     refdir=$reposdir/gentoo
   fi
+  echo " cloning ::gentoo from $refdir"
   cd .$reposdir
   cp -ar --reflink=auto $refdir ./
-  rm -f $reposdir/gentoo/.git/refs/heads/stable.lock $reposdir/gentoo/.git/gc.log.lock
+  rm -f ./gentoo/.git/refs/heads/stable.lock ./gentoo/.git/gc.log.lock
   cd - 1>/dev/null
 
   echo
@@ -492,18 +493,18 @@ function CreateBacklogs()  {
   chown tinderbox:portage $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
 
-  # requested by Whissi (an alternative virtual/mysql engine)
+  # requested by Whissi (an non-default virtual/mysql engine)
   if dice 1 20; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
   cat << EOF > $bl.1st
 app-portage/pfl
-%grep -q -e \\'Use: perl-cleaner\\' /var/tmp/tb/setup.sh.log && perl-cleaner --all || true
+%grep -q -e \\'Use: perl-cleaner\\' /var/tmp/tb/setup.sh.log && perl-cleaner --all
 @world
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
 sys-apps/portage
-%emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
+%emerge -uU --changed-deps =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
 # % is needed here to provide "qatom" which is used in job.sh in getNextTask()
 %emerge -u app-portage/portage-utils
