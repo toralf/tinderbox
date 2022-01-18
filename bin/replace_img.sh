@@ -58,8 +58,8 @@ function FoundABrokenImage() {
     s="@preserved-rebuild"
     if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
       local hours=$(( (EPOCHSECONDS-$(__getStartTime $i))/3600 ))
-      if [[ $hours -ge 36 ]]; then
-        reason="$s broken since $hours hours"
+      if [[ $hours -ge 24 ]]; then
+        reason="$s broken after >= $hours hours runtime"
         oldimg=$i
         return 0
       fi
