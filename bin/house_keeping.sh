@@ -14,6 +14,11 @@ function getCandidates()  {
       continue
     fi
 
+    # keep images of last week
+    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i))/86400 )) -lt 7 ]]; then
+      continue
+    fi
+
     # keep packages of last 2 weeks for "whatsup.sh -e"
     if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -lt 14 ]]; then
       continue
