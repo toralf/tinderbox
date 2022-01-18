@@ -24,10 +24,11 @@ function Mail() {
   local subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
   local content=${2:-}
 
+  echo "#send out email" > $taskfile
   if [[ -f $content ]]; then
     echo
     tail -n 1000 $content | sed -e 's,^>>>, >>>,'
-    echo -e "\n\n\n\n less ~tinderbox/img/$name/$content\n\n\n"
+    echo -e " \n \n \n \n less ~tinderbox/img/$name/$content\n \n \n"
   else
     echo -e "$content"
   fi |\
@@ -40,7 +41,11 @@ function Mail() {
 # http://www.portagefilelist.de
 function feedPfl()  {
   if [[ -x /usr/bin/pfl ]]; then
+    cp $taskfile $taskfile.old
+    echo "#feed pfl" > $taskfile
     /usr/bin/pfl &>/dev/null
+    cp $taskfile.old $taskfile
+    rm $taskfile.old
     return 0    # pfl is not mandatory
   fi
 }
@@ -55,7 +60,7 @@ function Finish()  {
   set +e
 
   feedPfl
-  subject=$(stripQuotesAndMore <<< $subject | tr '\n' ' ')
+  subject=$(stripQuotesAndMore <<< $subject)
   subject+="; $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null || echo '0') completed"
   if [[ $exit_code -eq 0 ]]; then
     Mail "finish ok: $subject" ${3:-}
@@ -99,7 +104,6 @@ function getNextTask() {
   while :
   do
     if ! setTaskAndBacklog; then
-      echo "#empty backlogs" > $taskfile
       Finish 0 "#empty backlogs"
     fi
 
@@ -812,9 +816,9 @@ function WorkOnTask() {
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
         add2backlog "%emerge --depclean"
-      fi
-      if tail -n 1 /var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " NOT ok $"; then
-        add2backlog "@preserved-rebuild"
+        if tail -n 1 /var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " NOT ok $"; then
+          add2backlog "@preserved-rebuild"
+        fi
       fi
     else
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
@@ -830,7 +834,7 @@ function WorkOnTask() {
   elif [[ $task =~ ^% ]]; then
     local cmd="$(cut -c2- <<< $task)"
     if ! RunAndCheck "$cmd"; then
-      if [[ ! $cmd =~ " --depclean" ]]; then
+      if [[ ! $cmd =~ " --depclean" && ! $cmd =~ "grep -q " ]]; then
         Mail "command failed: $cmd" $tasklog
       fi
     fi
