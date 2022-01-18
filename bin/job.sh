@@ -16,7 +16,12 @@ function stripQuotesAndMore() {
 
 # filter leftovers of ansifilter
 function filterPlainPext() {
-  perl -wne ' s,\x00,\n,g; s,\r\n,\n,g; s,\r,\n,g; print; '
+  perl -wne '
+      s,\x00,\n,g;
+      s,\r\n,\n,g;
+      s,\r,\n,g;
+      print;
+  '
 }
 
 
