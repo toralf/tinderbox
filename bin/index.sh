@@ -5,8 +5,8 @@
 
 
 function listStat()  {
-  echo -e "<h2>few stats</h2>\n<pre>" >> $tmpfile
   date >> $tmpfile
+  echo -e "<h2>few stats</h2>\n<pre>" >> $tmpfile
   echo "<h3>coverage</h3>" >> $tmpfile
   $(dirname $0)/whatsup.sh -c | recode --silent ascii..html >> $tmpfile
   (cd  ~tinderbox/img; ls packages.*.*covered.txt 2>/dev/null) | recode --silent ascii..html | xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
@@ -33,7 +33,7 @@ function listImages()  {
 
 function listBugs() {
   cat << EOF >> $tmpfile
-<h2>latest reported <a href="https://bugs.gentoo.org/">Gentoo Bugs</a></h2>
+<h2>reported <a href="https://bugs.gentoo.org/">Gentoo Bugs</a> of images in ~tinderbox/img </h2>
 
 <table border="0" align="left" class="list_table">
 
