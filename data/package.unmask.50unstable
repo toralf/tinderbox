@@ -6,10 +6,10 @@
 #
 
 # by sam, tupone
-dev-lang/ocaml:0/4.13
+#dev-lang/ocaml:0/4.13
 
 # by sam
-dev-scheme/guile:12/3.0-1
+#dev-scheme/guile:12/3.0-1
 
 # by leio
-dev-lang/vala:0.54
+#dev-lang/vala:0.54

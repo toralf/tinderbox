@@ -32,3 +32,4 @@ USE=modules and in-kernel ipset support detected.
  \* WireGuard has been merged upstream into this kernel. Therefore
  \*   One of the postgres_targets_postgresSL_OT use flags must be enabled
  \*   unacceptable USE flag settings
+ \*   Please switch to an openmp compatible compiler

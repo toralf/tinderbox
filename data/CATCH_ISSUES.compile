@@ -316,3 +316,5 @@ Error> .
 : file format not recognized
 There is a programmable error
 Configuration error:
+:: ERROR:
+: command not found

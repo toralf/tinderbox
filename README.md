@@ -1,7 +1,7 @@
 # tinderbox
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
-For that a dozen or more Gentoo images are running in parallel using [bubblewrap](https://github.com/containers/bubblewrap) (a better chroot).
+For that a dozen or more Gentoo images are running in parallel using a sandbox ([bubblewrap](https://github.com/containers/bubblewrap) or as non-default the good old *chroot*).
 
 Each image is setup from a recent *stage3* tarball as an arbitrary combination of *~amd64* + *profile* + *USE flag* set.
 Within each image all Gentoo packages are scheduled in a randomized order for emerge.
@@ -14,14 +14,14 @@ setup_img.sh
 ```
 The current *stage3* file is downloaded, verified and unpacked.
 Mandatory portage config files will be compiled and few required packages will be installed.
-A backlog is filled up with all rec ent packages in a randomized order.
-A symlink is made into *~/run* and the image is started.
+A backlog is filled up with all recent packages in a randomized order.
+A symlink is made into *~tinderbox/run* and the image is started.
 
 ### start an image
 ```bash
 start_img.sh <image>
 ```
-Without any arguments all symlinks in *~/run* are processed.
+Without any arguments all symlinks in *~tinderbox/run* are started.
 
 The wrapper *bwrap.sh* handles all sandbox related actions and starts *job.sh* within that image.
 
@@ -40,12 +40,12 @@ sudo /opt/tb/bin/bwrap.sh -m <image>
 ```
 
 ### removal of an image
-Stop the image and remove the symlink in *~/run*.
-The image itself will stay in its data dir till that is cleanud up.
+Stop the image and remove the symlink in *~tinderbox/run*.
+The image itself will stay in its data dir till that is cleaned up.
 
 ### status of all images
 ```bash
-whatsup.sh -crpe
+whatsup.sh -decp
 watch whatsup.sh -otl
 ```
 
@@ -95,7 +95,7 @@ Create these crontab entries for user *tinderbox*:
 #
 
 # start images
-@reboot   rm -f ~/run/*/var/tmp/tb/STOP; /opt/tb/bin/start_img.sh
+@reboot   rm -f ~tinderbox/run/*/var/tmp/tb/STOP; /opt/tb/bin/start_img.sh
 
 # check logs
 @reboot   while :; do sleep 60; /opt/tb/bin/logcheck.sh; done

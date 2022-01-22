@@ -30,3 +30,7 @@ guile
 # (openmpi-4) - [TRACKER] sys-cluster/openmpi - packages using deprecated MPI symbols (removed in openmpi-4)
 831358
 MPI_
+
+# meson-0.61
+831474
+.*meson.*ERROR: Function does not take positional arguments
