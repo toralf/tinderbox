@@ -50,7 +50,7 @@ watch whatsup.sh -otl
 ```
 
 ### report findings
-The file *tb/data/ALREADY_FILED* holds reported findings.
+The file *~tinderbox/tb/data/ALREADY_FILED* holds reported findings.
 A new finding is send via email to the user specified by the variable *MAILTO*.
 The Gentoo bugzilla can be searched by *check_bgo.sh* for dups/similarities.
 A finding can be filed using *bgo.sh*.
@@ -78,17 +78,17 @@ mkdir distfiles img logs run tb
 Clone this Git repository.
 
 Move *./data* and *./sdata* into *~tinderbox/tb/*.
-Move *./bin* into */opt/tb/ as user *root*.
+Move *./bin* under */opt/tb/* as user *root*.
 The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
 The user *tinderbox* must have write permissions for files in *~tinderbox/tb/data*.
-Edit the ssmtp credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, set ownership/rwx-access of this subdirectory and its files to user *root* only.
-Grant sudo rights to the user *tinderbox*:
+Edit the ssmtp credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, set ownership and rwx access of this subdirectory and its files to user *root* only.
+Grant the user *tinderbox* these these sudo rights:
 
 ```bash
 tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh
 ```
 
-Create these crontab entries for user *tinderbox*:
+Create crontab entries for user *tinderbox*:
 
 ```bash
 # crontab of tinderbox
@@ -104,10 +104,7 @@ Create these crontab entries for user *tinderbox*:
 @hourly   f=$(mktemp /tmp/XXXXXX); /opt/tb/bin/replace_img.sh -n 13 &>$f; cat $f; rm $f
 
 # house keeping
-9 0 * * * sudo /opt/tb/bin/house_keeping.sh
-
-# indexing
-@hourly   /opt/tb/bin/index.sh
+@daily    sudo /opt/tb/bin/house_keeping.sh
 ```
 
 and this as *root*:
