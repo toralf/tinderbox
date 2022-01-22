@@ -105,9 +105,11 @@ function Overall() {
     else
       flags+=" "
     fi
-    # "S" STOP file
-    # "s" STOP in backlog.1st
-    if [[ -f $i/var/tmp/tb/STOP ]]; then
+
+    # stop/replace state
+    if [[ -f $i/var/tmp/tb/REPLACE_ME ]]; then
+      flags+="R"
+    elif [[ -f $i/var/tmp/tb/STOP ]]; then
       flags+="S"
     elif grep -q "^STOP" $i/var/tmp/tb/backlog.1st 2>/dev/null; then
       flags+="s"

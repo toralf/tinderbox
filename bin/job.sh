@@ -73,6 +73,10 @@ function Finish()  {
   else
     Mail "finish NOT ok, exit_code=$exit_code, $subject" ${3:-}
   fi
+
+  if [[ $exit_code -eq 13 ]]; then
+    echo "$subject" > /var/tmp/tb/REPLACE_ME
+  fi
   rm -f /var/tmp/tb/STOP
 
   exit $exit_code
@@ -94,23 +98,19 @@ function setTaskAndBacklog()  {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    return 1
+    Finish 13 "#empty backlogs"
   fi
 
   # move last line of $backlog into $task
   task=$(tail -n 1 $backlog)
   sed -i -e '$d' $backlog
-
-  return 0
 }
 
 
 function getNextTask() {
   while :
   do
-    if ! setTaskAndBacklog; then
-      Finish 0 "#empty backlogs"
-    fi
+    setTaskAndBacklog
 
     if [[ -z "$task" || $task =~ ^# ]]; then
       continue  # empty line or comment
@@ -593,11 +593,11 @@ function SwitchGCC() {
     echo "SwitchGCC: switch from $current to $latest" >> $taskfile.history
     gcc-config --nocolor $latest
     source_profile
-    add2backlog "%emerge @preserved-rebuild"
+    add2backlog "@preserved-rebuild"
     if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
-      add2backlog "%emerge -1 sys-devel/slibtool"
+      add2backlog "sys-devel/slibtool"
     fi
-    add2backlog "%emerge -1 sys-devel/libtool"
+    add2backlog "sys-devel/libtool"
     add2backlog "%emerge --unmerge sys-devel/gcc:$current"
   fi
 }
@@ -624,11 +624,9 @@ function PostEmerge() {
   env-update &>/dev/null
   source_profile
 
-  # the very last post emerge action
-  if grep -q "Use emerge @preserved-rebuild to rebuild packages using these libraries" $tasklog_stripped; then
-    if [[ $try_again -eq 0 ]]; then
-      add2backlog "@preserved-rebuild"
-    fi
+  # the last next task
+  if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
+    add2backlog "@preserved-rebuild"
   fi
 
   if grep -q  -e "Please, run 'haskell-updater'" \
@@ -655,8 +653,9 @@ function PostEmerge() {
     fi
   fi
 
+  # the first next task
   if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
-    add2backlog "%emerge --oneshot sys-apps/portage"
+    add2backlog "sys-apps/portage"
   fi
 
   # if 1st prio is empty then schedule the daily update if it is time
@@ -778,7 +777,7 @@ function RunAndCheck() {
     local signal=$(( rc-128 ))
     PutDepsIntoWorldFile
     if [[ $signal -eq 9 ]]; then
-      Finish $signal "exiting due to signal $signal" $tasklog_stripped
+      Finish 9 "exiting due to signal $signal" $tasklog_stripped
     else
       Mail "WARN: got signal $signal  task=$task" $tasklog_stripped
     fi
@@ -820,7 +819,7 @@ function WorkOnTask() {
     if RunAndCheck "emerge $task $opts" "24h"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
-        add2backlog "%emerge --depclean"
+        add2backlog "%emerge --depclean --verbose=n"
         if tail -n 1 /var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " NOT ok $"; then
           add2backlog "@preserved-rebuild"
         fi
@@ -830,7 +829,7 @@ function WorkOnTask() {
       if [[ -n "$pkg" ]]; then
         add2backlog "$task"
       elif [[ $task = "@world" ]]; then
-        Finish 1 "@world is broken" $tasklog
+        Finish 13 "@world is broken" $tasklog
       fi
     fi
     feedPfl
@@ -867,7 +866,7 @@ function DetectRebuildLoop() {
     local N=20
     if [[ $(tail -n $N $histfile | grep -c '@preserved-rebuild') -ge $n ]]; then
       echo "$(date) too much rebuilds" >> $histfile
-      Finish 2 "detected a rebuild loop" $histfile
+      Finish 13 "detected a rebuild loop" $histfile
     fi
   fi
 }
@@ -878,33 +877,33 @@ function syncRepo()  {
 
   if ! emaint sync --auto &>$tasklog; then
     if ! (git stash; git stash drop; git restore .; git pull) &>>$tasklog; then
-      Finish 3 "cannot pull ::gentoo" $tasklog
+      Finish 13 "cannot pull ::gentoo" $tasklog
     fi
     Mail "INFO: fixed git sync issue" $tasklog
   fi
   last_sync=$EPOCHSECONDS
 
   if grep -B 1 '=== Sync completed for gentoo' $tasklog | grep -q 'Already up to date.'; then
-    return
+    return 0
   fi
 
-  # mix repo changes and backlog together but add 1 hour wait time for the mirrors
-  git diff -l0 --diff-filter="ACM" --name-status "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }".."@{ 1 hour ago }" |\
+  # get repo changes with an 1 hour timeshift to let download mirrors being synced
+  git diff \
+      --diff-filter="ACM" \
+      --name-only \
+      "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }".."@{ 1 hour ago }" |\
   grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
-  cut -f2- -s |\
   cut -f1-2 -d'/' -s |\
   grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
-  uniq > /tmp/diff.upd
+  sort -u > /tmp/syncRepo.upd
 
-  if [[ -s /tmp/diff.upd ]]; then
-    sort -u /tmp/diff.upd /var/tmp/tb/backlog.upd | shuf > /tmp/backlog.upd
+  if [[ -s /tmp/syncRepo.upd ]]; then
+    # mix repo changes and backlog together
+    sort -u /tmp/syncRepo.upd /var/tmp/tb/backlog.upd | shuf > /tmp/backlog.upd
     # no mv to preserve target file perms
     cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
     rm /tmp/backlog.upd
   fi
-
-  rm /tmp/diff.upd
-  return
 }
 
 
@@ -937,18 +936,22 @@ export GIT_PAGER="cat"
 export PAGER="cat"
 
 if [[ $name =~ _debug ]]; then
-  echo "/tmp/core.%e.%p.%s.%t" > /proc/sys/kernel/core_pattern
+  if [[ -x /usr/sbin/minicoredumper ]]; then
+    echo '| /usr/sbin/minicoredumper %P %u %g %s %t %h %e' > /proc/sys/kernel/core_pattern
+  else
+    echo '/tmp/core.%e.%p.%s.%t' > /proc/sys/kernel/core_pattern
+  fi
 fi
 
 # https://bugs.gentoo.org/816303
 echo "#init /run" > $taskfile
 if [[ $name =~ "_systemd" ]]; then
   if ! systemd-tmpfiles --create &>$tasklog; then
-    Finish 1 "systemd init error" $tasklog
+    Finish 13 "systemd init error" $tasklog
   fi
 else
   if ! RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog; then
-    Finish 1 "openrc init error" $tasklog
+    Finish 13 "openrc init error" $tasklog
   fi
 fi
 
@@ -970,10 +973,10 @@ do
     echo "#sync repo" > $taskfile
     syncRepo
     if [[ $(( EPOCHSECONDS-last_sync )) -ge 86400 ]]; then
-      Finish 3 "repo too old" $tasklog
+      Finish 13 "repo too old" $tasklog
     fi
     if grep -q -F '* An update to portage is available.' $tasklog; then
-      add2backlog "%emerge --oneshot sys-apps/portage"
+      add2backlog "sys-apps/portage"
     fi
   fi
 

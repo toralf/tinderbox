@@ -35,6 +35,11 @@ do
     continue
   fi
 
+  if [[ -f $mnt/var/tmp/tb/REPLACE_ME ]]; then
+    echo " has REPLACE_ME file: $mnt"
+    continue
+  fi
+
   if [[ $(cat $mnt/var/tmp/tb/backlog{,,1st,.upd} /var/tmp/tb/task 2>/dev/null | wc -l) -eq 0 ]]; then
     echo " all backlogs are empty: $mnt"
     continue

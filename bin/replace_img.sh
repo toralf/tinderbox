@@ -26,57 +26,14 @@ function shufImages() {
 }
 
 
-function HasAnEmptyBacklog() {
+function HasReplaceMe() {
   oldimg=""
   while read -r i
   do
-    local bl=~tinderbox/run/$i/var/tmp/tb/backlog
-    if [[ -f $bl ]]; then
-      if [[ $(wc -l < $bl) -eq 0 ]]; then
-        reason="empty backlogs"
-        oldimg=$i
-        return 0
-      fi
-    fi
-  done < <(shufImages)
-
-  return 1
-}
-
-
-function FoundABrokenImage() {
-  oldimg=""
-  while read -r i
-  do
-    s="@world"
-    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-      reason="$s broken"
+    if [[ -f ~tinderbox/run/$i/var/tmp/tb/REPLACE_ME ]]; then
+      reason="$(cat ~tinderbox/run/$i/var/tmp/tb/REPLACE_ME)"
       oldimg=$i
       return 0
-    fi
-
-    s="@preserved-rebuild"
-    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/$s.history 2>/dev/null | grep -q " NOT ok $"; then
-      local hours=$(( (EPOCHSECONDS-$(__getStartTime $i))/3600 ))
-      if [[ $hours -ge 24 ]]; then
-        reason="$s broken after >= $hours hours runtime"
-        oldimg=$i
-        return 0
-      fi
-    fi
-    if tail -n 1 ~tinderbox/run/$i/var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " too much rebuilds"; then
-      reason="$s too much rebuilds"
-      oldimg=$i
-      return 0
-    fi
-
-    if ! __is_running $i; then
-      local hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
-      if [[ $hours -ge 8 ]]; then
-        reason="$s stopped and last task is $hours hours ago"
-        oldimg=$i
-        return 0
-      fi
     fi
   done < <(shufImages)
 
@@ -102,9 +59,8 @@ function StopOldImage() {
   local lock_dir=/run/tinderbox/$oldimg.lock
   local msg="replaced b/c: $reason"
 
-  echo " $msg" | tee -a ~tinderbox/img/$oldimg/var/tmp/tb/STOP
   if [[ -d $lock_dir ]]; then
-    echo " stopping: $oldimg"
+    echo " stopping: $msg" | tee -a ~tinderbox/img/$oldimg/var/tmp/tb/STOP
     date
 
     echo -e "\n waiting for image unlock ...\n"
@@ -185,8 +141,8 @@ while read -r i
 do
   if ! __is_running $i; then
     hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
-    if [[ $hours -ge 48 ]]; then
-      echo -e "\n$i last task $hours hour/s ago - removing from ~/run\n"
+    if [[ $hours -ge 36 ]]; then
+      echo -e "\n$i last task $hours hour/s ago - removed from ~tinderbox/run\n"
       rm ~tinderbox/run/$i
       imglog=~tinderbox/logs/$i.log
       if [[ -s $imglog ]]; then
@@ -202,12 +158,7 @@ do
   if FreeSlotAvailable; then
     setupNewImage
 
-  elif HasAnEmptyBacklog; then
-    if StopOldImage; then
-      continue
-    fi
-
-  elif FoundABrokenImage; then
+  elif HasReplaceMe; then
     if StopOldImage; then
       continue
     fi

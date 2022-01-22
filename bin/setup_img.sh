@@ -324,17 +324,6 @@ EOF
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
   fi
 
-  # requested by mgorny
-  if dice 1 2; then
-    echo 'SETUPTOOLS_USE_DISTUTILS=local' >> ./etc/portage/make.conf
-
-    echo 'SETUPTOOLS_USE_DISTUTILS=stdlib'                    > ./etc/portage/env/setuptools_stdlib
-    echo 'dev-lang/spidermonkey            setuptools_stdlib' > ./etc/portage/package.env/setuptools_stdlib
-
-    echo "=dev-python/setuptools-60.2*"       >> ./etc/portage/package.unmask/setuptools
-    echo "=dev-python/setuptools-60.2*    **" >> ./etc/portage/package.accept_keywords/setuptools
-  fi
-
   chgrp portage ./etc/portage/make.conf
   chmod g+w     ./etc/portage/make.conf
 }
@@ -494,22 +483,23 @@ function CreateBacklogs()  {
   chmod 664               $bl{,.1st,.upd}
 
   # requested by Whissi (an non-default virtual/mysql engine)
-  if dice 1 20; then
+  if dice 1 10; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  cat << EOF > $bl.1st
-app-portage/pfl
-%grep -q -e \\'Use: perl-cleaner\\' /var/tmp/tb/setup.sh.log && perl-cleaner --all
+  if [[ $name =~ "_debug" ]]; then
+    echo "sys-process/minicoredumper" >> $bl.1st
+  fi
+
+  cat << EOF >> $bl.1st
 @world
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
+app-portage/pfl
 sys-apps/portage
-%emerge -uU --changed-deps =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
+%emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
 sys-kernel/gentoo-kernel-bin
-# % is needed here to provide "qatom" which is used in job.sh in getNextTask()
+# %emerge is needed here to provide "qatom" which is used in getNextTask() of job.sh
 %emerge -u app-portage/portage-utils
-# GCC switch is almost a no-op except if gcc was already emerged as a dependency in setup.sh
-%SwitchGCC
 
 EOF
 }
