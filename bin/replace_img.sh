@@ -54,11 +54,10 @@ function FreeSlotAvailable() {
 
 
 function StopOldImage() {
-  rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
-
   local lock_dir=/run/tinderbox/$oldimg.lock
   local msg="replaced b/c: $reason"
 
+  rm ~tinderbox/run/$oldimg
   if [[ -d $lock_dir ]]; then
     echo " stopping: $msg" | tee -a ~tinderbox/img/$oldimg/var/tmp/tb/STOP
     date
@@ -78,6 +77,7 @@ function StopOldImage() {
   else
     echo "$oldimg $msg"
   fi
+  rm ~tinderbox/logs/$oldimg.log
   echo
 }
 
@@ -118,6 +118,7 @@ done
 # this is allowed to be run in parallel however that is racy for about 1-2 minutes
 if [[ -n $oldimg ]]; then
   reason="user decision"
+  echo "$reason" >> /var/tmp/tb/REPLACE_ME
   if StopOldImage; then
     exec nice -n 1 sudo $(dirname $0)/setup_img.sh $setupargs
   fi
