@@ -38,8 +38,9 @@ function Mail() {
     echo -e "$content"
   fi |\
   if ! (mail -s "$subject   @ $name" -- ${MAILTO:-tinderbox} 1>/dev/null); then
-    { echo "$(date) issue, \$subject=$subject \$content=$content" >&2 ; }
+    { echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2 ; }
   fi
+  echo "#done" > $taskfile
 }
 
 
@@ -75,7 +76,7 @@ function Finish()  {
   fi
 
   if [[ $exit_code -eq 13 ]]; then
-    echo "$subject" > /var/tmp/tb/REPLACE_ME
+    echo "$subject" >> /var/tmp/tb/REPLACE_ME
   fi
   rm -f /var/tmp/tb/STOP
 
@@ -754,8 +755,7 @@ function RunAndCheck() {
   local rc=$?
   (echo; date) >> $tasklog
 
-  local taskname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
-  tasklog_stripped="/var/tmp/tb/logs/$taskname.log"
+  tasklog_stripped="/tmp/tasklog_stripped.log"
 
   filterPlainPext < $tasklog > $tasklog_stripped
   PostEmerge
@@ -967,6 +967,9 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
+  rm $tasklog     # rm to detach from hadr linked file under ./logs
+  touch $tasklog
+
   # update ::gentoo hourly
   if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
@@ -983,6 +986,8 @@ do
   echo "#get task" > $taskfile
   getNextTask
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
+  taskname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
+  ln $tasklog /var/tmp/tb/logs/$taskname.log
   WorkOnTask
   DetectRebuildLoop
 done
