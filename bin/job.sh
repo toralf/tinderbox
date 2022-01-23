@@ -902,7 +902,6 @@ function syncRepo()  {
     sort -u /tmp/syncRepo.upd /var/tmp/tb/backlog.upd | shuf > /tmp/backlog.upd
     # no mv to preserve target file perms
     cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
-    rm /tmp/backlog.upd
   fi
 }
 
@@ -915,7 +914,7 @@ set -eu
 export LANG=C.utf8
 trap Finish INT QUIT TERM EXIT
 
-export -f SwitchGCC syncRepo        # to call it eg. from retest.sh
+export -f SwitchGCC                 # to call it eg. from retest.sh
 
 taskfile=/var/tmp/tb/task           # holds the current task
 tasklog=$taskfile.log               # holds output of it
@@ -972,12 +971,12 @@ do
   if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
     syncRepo
-    if [[ $(( EPOCHSECONDS-last_sync )) -ge 86400 ]]; then
-      Finish 13 "repo too old" $tasklog
-    fi
     if grep -q -F '* An update to portage is available.' $tasklog; then
       add2backlog "sys-apps/portage"
     fi
+  fi
+  if [[ $(( EPOCHSECONDS-$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD) )) -ge 86400 ]]; then
+    Finish 13 "repo too old" $tasklog
   fi
 
   (date; echo) > $tasklog
