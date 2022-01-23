@@ -19,9 +19,11 @@ function getCandidates()  {
       continue
     fi
 
-    # keep packages of last 2 weeks for "whatsup.sh -e"
-    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -lt 14 ]]; then
-      continue
+    if [[ -s $i/var/log/emerge.log ]]; then
+      # keep emerges of last 2 weeks for "whatsup.sh -e"
+      if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -lt 14 ]]; then
+        continue
+      fi
     fi
 
     echo $i
@@ -35,8 +37,8 @@ function getCandidates()  {
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded()  {
   local fs=/dev/nvme0n1p4
-  local gb=200000          # wanted free space in GB
-  local perc=89            # wanted free space in percent
+  local gb=200000          # have at least free (in GB)
+  local perc=89            # have not more used than (in %t)
 
   [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < "'"$gb"'" || $5 > "'"$perc"'%")') ]]
 }
