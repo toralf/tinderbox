@@ -763,10 +763,10 @@ function RunAndCheck() {
 
   if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
     if grep -q -F ' -Og -g' /etc/portage/make.conf; then
-      local taskdirname=/var/tmp/tb/core/$taskname
-      mkdir -p $taskdirname
-      mv /tmp/core.* $taskdirname
-      Mail "INFO: kept core files in $taskdirname" "$(ls -lh $taskdirname/)" $tasklog_stripped
+      local core_files_dir=/var/tmp/tb/core/$task_timestamp_prefix
+      mkdir -p $core_files_dir
+      mv /tmp/core.* $core_files_dir
+      Mail "INFO: kept core files in $core_files_dir" "$(ls -lh $core_files_dir/)" $tasklog_stripped
     else
       rm /tmp/core.*
     fi
@@ -875,11 +875,15 @@ function DetectRebuildLoop() {
 function syncRepo()  {
   cd /var/db/repos/gentoo
 
-  if ! emaint sync --auto &>$tasklog; then
-    if ! (git stash; git stash drop; git restore .; git pull) &>>$tasklog; then
-      Finish 13 "cannot pull ::gentoo" $tasklog
+  if ! emaint sync --auto &>>$tasklog; then
+    if (git stash; git stash drop; git restore .) &>>$tasklog; then
+      Mail "WARN: fixed ::gentoo" $tasklog
+      if ! emaint sync --auto &>>$tasklog; then
+        Finish 13 "cannot fix it" $tasklog
+      fi
+    else
+      Finish 13 "cannot fix ::gentoo" $tasklog
     fi
-    Mail "INFO: fixed git sync issue" $tasklog
   fi
   last_sync=$EPOCHSECONDS
 
@@ -967,10 +971,8 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  rm $tasklog     # rm to detach from hadr linked file under ./logs
-  touch $tasklog
-
   # update ::gentoo hourly
+  (date; echo) > $tasklog
   if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
     syncRepo
@@ -982,12 +984,15 @@ do
     Finish 13 "repo too old" $tasklog
   fi
 
+  # work on next task
   (date; echo) > $tasklog
-  echo "#get task" > $taskfile
+  echo "#get next task" > $taskfile
   getNextTask
+  task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
+  ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
-  taskname=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
-  ln $tasklog /var/tmp/tb/logs/$taskname.log
   WorkOnTask
+  rm $tasklog     # rm to detach from hard linked file
+
   DetectRebuildLoop
 done
