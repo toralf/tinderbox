@@ -68,13 +68,7 @@ function Finish()  {
   feedPfl
   subject=$(stripQuotesAndMore <<< $subject)
   subject+="; $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null || echo '0') completed"
-  if [[ $exit_code -eq 0 ]]; then
-    Mail "finish ok: $subject" ${3:-}
-    truncate -s 0 $taskfile
-  else
-    Mail "finish NOT ok, exit_code=$exit_code, $subject" ${3:-}
-  fi
-
+  Mail "finished with exit_code=$exit_code, $subject" ${3:-}
   if [[ $exit_code -eq 13 ]]; then
     echo "$subject" >> /var/tmp/tb/REPLACE_ME
   fi
@@ -992,7 +986,8 @@ do
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
-  rm $tasklog     # rm to detach from hard linked file
+  rm $tasklog     # rm needed to detach from the other hard link
+  truncate -s 0 $taskfile
 
   DetectRebuildLoop
 done
