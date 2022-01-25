@@ -39,12 +39,12 @@ function ThrowUseFlags() {
 function GetProfiles() {
   (
     eselect profile list |\
-    grep -F "default/linux/amd64/17.1/" |\
+    grep -F 'default/linux/amd64/17.1' |\
     grep -v -F -e ' (exp)' -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl' -e '/developer'
 
     # by sam
     eselect profile list |\
-    grep -e "default/linux/amd64/17\../musl" |\
+    grep -e 'default/linux/amd64/17.0/musl' |\
     grep -v -F -e '/selinux'
   ) |\
   awk ' { print $2 } ' |\
@@ -492,13 +492,12 @@ function CreateBacklogs()  {
   fi
 
   cat << EOF >> $bl.1st
+app-portage/pfl
 @world
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
-app-portage/pfl
-sys-apps/portage
-%emerge -uU =\$(portageq best_visible / gcc) dev-libs/mpc dev-libs/mpfr
+%emerge -u --changed-use sys-devel/gcc
 sys-kernel/gentoo-kernel-bin
-# %emerge is needed here to provide "qatom" which is used in getNextTask() of job.sh
+# run %emerge to provide "qatom" which is needed in getNextTask() of job.sh
 %emerge -u app-portage/portage-utils
 
 EOF
@@ -540,6 +539,12 @@ echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -webdav" emerge -u dev-vcs/git
 emaint sync --auto 1>/dev/null
 
+date
+echo "#setup portage" | tee /var/tmp/tb/task
+emerge -u app-text/ansifilter
+# have the latest portage version in place for dryrun
+emerge -u sys-apps/portage
+
 if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
@@ -547,11 +552,7 @@ if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
 fi
 
 date
-echo "#setup helpers" | tee /var/tmp/tb/task
-emerge -u app-text/ansifilter
-
-date
-echo "#setup email" | tee /var/tmp/tb/task
+echo "#setup MTA and MUA" | tee /var/tmp/tb/task
 # emerge sSMTP before a mail client b/c virtual/mta specifies per default another MTA
 emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # /etc/ssmtp/ssmtp.conf is already bind-mounted in bwrap.sh
