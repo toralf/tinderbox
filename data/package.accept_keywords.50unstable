@@ -1,15 +1,5 @@
 # package.accept_keywords/50unstable
 #
 
-
-#######################################################################
-#
-
-# by sam, tupone
-#dev-lang/ocaml:0/4.13               **
-
-# by sam
-#dev-scheme/guile:12/3.0-1           **
-
-# by leio
-#dev-lang/vala:0.54                  **
+# sam_ floppy
+=dev-util/meson-0.61*               **

@@ -318,3 +318,5 @@ There is a programmable error
 Configuration error:
 :: ERROR:
 : command not found
+Invalid value for GENTOO_VM:
+ \*   gcl is not supported b

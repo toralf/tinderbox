@@ -30,10 +30,11 @@ app-text/ansifilter                 -qt5
 
 sys-kernel/installkernel-gentoo     -grub
 
+
 #######################################################################
 #
 # temp settings
 #
 
-# no kernel drivers
+# no kernel drivers build per default
 x11-drivers/nvidia-drivers          -driver

@@ -38,3 +38,6 @@ dev-libs/gf2x
 dev-db/mongodb
 dev-qt/qtwebengine
 sci-libs/
+#
+dev-java/
+#

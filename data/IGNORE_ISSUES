@@ -1,4 +1,3 @@
-asciidoctor
  \*   atlas needs all cpu set to performance
  \*   FEATURES=test will require fs.aio-max-nr=250000 at minimum!
 Configure: unknown option --enable-option-checking=warn
