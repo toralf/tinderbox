@@ -8,13 +8,12 @@
 # That's all.
 
 
-# strip quotes and friends
 function stripQuotesAndMore() {
   sed -e 's,['\''‘’"`•],,g' -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
 }
 
 
-# filter leftovers of ansifilter
+# filter leftover of ansifilter
 function filterPlainPext() {
   perl -wne '
       s,\x00,\n,g;
@@ -823,7 +822,12 @@ function WorkOnTask() {
       if [[ -n "$pkg" ]]; then
         add2backlog "$task"
       elif [[ $task = "@world" ]]; then
-        Finish 13 "@world is broken" $tasklog
+        Finish 13 "$ask is broken" $tasklog
+      elif [[ $task = "@preserved-rebuild" ]]; then
+        local hours=$(( (EPOCHSECONDS-$(cat /var/tmp/tb/setup.timestamp))/3600 ))
+        if [[ $hours -gt 36 ]]; then
+          Finish 13 "$task is broken and image is $hours hours old" $tasklog
+        fi
       fi
     fi
     feedPfl
