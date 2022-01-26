@@ -822,7 +822,7 @@ function WorkOnTask() {
       if [[ -n "$pkg" ]]; then
         add2backlog "$task"
       elif [[ $task = "@world" ]]; then
-        Finish 13 "$ask is broken" $tasklog
+        Finish 13 "$task is broken" $tasklog
       elif [[ $task = "@preserved-rebuild" ]]; then
         local hours=$(( (EPOCHSECONDS-$(cat /var/tmp/tb/setup.timestamp))/3600 ))
         if [[ $hours -gt 36 ]]; then
