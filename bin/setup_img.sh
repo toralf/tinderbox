@@ -178,10 +178,10 @@ function UnpackStage3()  {
 
   local stage3=""
   case $profile in
-    17.1/hardened)              stage3=$(grep "^20.*Z/stage3-amd64-hardened-openrc-20.*\.tar\." $latest) ;;
-    17.1/no-multilib/hardened)  stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-openrc-20.*\.tar\." $latest) ;;
     17.1/no-multilib/systemd)   stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-systemd-20.*\.tar\." $latest) ;;
+    17.1/no-multilib/hardened)  stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-openrc-20.*\.tar\." $latest) ;;
     17.1/no-multilib)           stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-openrc-20.*\.tar\." $latest) ;;
+    17.1/hardened)              stage3=$(grep "^20.*Z/stage3-amd64-hardened-openrc-20.*\.tar\." $latest) ;;
     17.1/desktop*/systemd)      stage3=$(grep "^20.*Z/stage3-amd64-desktop-systemd-20.*\.tar\." $latest) ;;
     17.1/desktop*)              stage3=$(grep "^20.*Z/stage3-amd64-desktop-openrc-20.*\.tar\." $latest) ;;
     17.1*/systemd)              stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
