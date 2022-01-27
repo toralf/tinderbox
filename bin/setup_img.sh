@@ -537,6 +537,7 @@ useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 date
 echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -webdav" emerge -u dev-vcs/git
+git config --global gc.auto 0   # could invalidate COW effect
 emaint sync --auto 1>/dev/null
 
 date
