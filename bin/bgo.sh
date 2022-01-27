@@ -77,6 +77,11 @@ if [[ -n "$id" ]]; then
   timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
 
 else
+  if [[ ! -s ./assignee ]]; then
+    echo "no assignee given, run check_bgo.sh before !"
+    exit 4
+  fi
+
   # create a new bug report
   timeout 60 bugz post \
     --product "Gentoo Linux"          \
