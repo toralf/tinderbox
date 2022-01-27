@@ -39,7 +39,6 @@ function Mail() {
   if ! (mail -s "$subject   @ $name" -- ${MAILTO:-tinderbox} 1>/dev/null); then
     { echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2 ; }
   fi
-  echo "#done" > $taskfile
 }
 
 
@@ -936,6 +935,11 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
+# re-schedule $task (non-empty == failed before)
+if [[ -s $taskfile ]]; then
+  add2backlog "$(cat $taskfile)"
+fi
+
 if [[ $name =~ _debug ]]; then
   if [[ -x /usr/sbin/minicoredumper ]]; then
     echo '| /usr/sbin/minicoredumper %P %u %g %s %t %h %e' > /proc/sys/kernel/core_pattern
@@ -954,11 +958,6 @@ else
   if ! RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog; then
     Finish 13 "openrc init error" $tasklog
   fi
-fi
-
-# re-schedule $task (non-empty == failed before)
-if [[ -s $taskfile ]]; then
-  add2backlog "$(cat $taskfile)"
 fi
 
 last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
@@ -986,6 +985,9 @@ do
   (date; echo) > $tasklog
   echo "#get next task" > $taskfile
   getNextTask
+
+  rm -rf /var/tmp/portage/*
+
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
