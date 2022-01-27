@@ -143,7 +143,7 @@ do
   if ! __is_running $i; then
     hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
     if [[ $hours -ge 36 ]]; then
-      echo -e "\n$i last task $hours hour/s ago - removed from ~tinderbox/run\n"
+      echo -e "\n $i last task $hours hour/s ago - removed from ~tinderbox/run\n"
       rm ~tinderbox/run/$i
       imglog=~tinderbox/logs/$i.log
       if [[ -s $imglog ]]; then
@@ -157,7 +157,11 @@ done < <(shufImages)
 while :
 do
   if FreeSlotAvailable; then
-    setupNewImage
+    if ! setupNewImage; then
+      echo " setup failed with rc=$?, sleep 10 min ..."
+      sleep 600 || true   # allow to kill it
+      continue
+    fi
 
   elif HasReplaceMe; then
     if StopOldImage; then
