@@ -67,7 +67,7 @@ function Overall() {
 
   for i in $images
   do
-    local days=$(echo "scale=1; ( $EPOCHSECONDS - $(__getStartTime $i) ) / 86400.0" | bc)
+    local days=$(bc <<< "scale=1; ( $EPOCHSECONDS - $(__getStartTime $i) ) / 86400.0")
     local bgo=$(set +f; ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
 
     local compl=0
