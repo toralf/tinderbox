@@ -244,9 +244,8 @@ sync-type = git
 EOF
 
   date
-  # "git clone" is much slower than a local "cp --reflink"
-  # use the 2nd youngest (sic!) repo to lower the probability of a clash with a "git gc" currently running at $refdir
-  local refdir=$(ls -t $tbhome/img/*${reposdir}/gentoo/metadata/timestamp.chk 2>/dev/null | head -n 2 | tail -n 1 | sed -e 's,metadata/timestamp.chk,,')
+  # "git clone" is at a local machine much slower than a "cp --reflink"
+  local refdir=$(ls -t $tbhome/img/*${reposdir}/gentoo/metadata/timestamp.chk 2>/dev/null | head -n 1 | sed -e 's,metadata/timestamp.chk,,')
   if [[ ! -d $refdir ]]; then
     # fallback is the host
     refdir=$reposdir/gentoo
