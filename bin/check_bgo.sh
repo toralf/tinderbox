@@ -197,7 +197,7 @@ function SetAssigneeAndCc() {
 set -eu
 export LANG=C.utf8
 
-issuedir=$(realpath $1)
+issuedir=$1
 
 if [[ ! -s $issuedir/title ]]; then
   echo "no title"
@@ -213,9 +213,9 @@ rawfile=$(mktemp /tmp/$(basename $0)_XXXXXX.raw)
 
 trap Exit INT QUIT TERM EXIT
 
-name=$(cat $issuedir/../../name)                              # eg.: 17.1-20201022-101504
-pkg=$(basename $issuedir | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7-r1
-pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                  # eg.: net-misc/bird
+name=$(cat $issuedir/../../name)                                          # eg.: 17.1-20201022-101504
+pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7-r1
+pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                              # eg.: net-misc/bird
 versions=$(eshowkw --arch amd64 $pkgname |\
             grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
             # + == stable, o == masked, ~ == unstable
