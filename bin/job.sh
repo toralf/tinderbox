@@ -940,14 +940,6 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
-if [[ $name =~ _debug ]]; then
-  if [[ -x /usr/sbin/minicoredumper ]]; then
-    echo '| /usr/sbin/minicoredumper %P %u %g %s %t %h %e' > /proc/sys/kernel/core_pattern
-  else
-    echo '/tmp/core.%e.%p.%s.%t' > /proc/sys/kernel/core_pattern
-  fi
-fi
-
 # https://bugs.gentoo.org/816303
 echo "#init /run" > $taskfile
 if [[ $name =~ "_systemd" ]]; then
