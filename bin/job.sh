@@ -941,15 +941,9 @@ if [[ -s $taskfile ]]; then
 fi
 
 # https://bugs.gentoo.org/816303
-echo "#init /run" > $taskfile
-if [[ $name =~ "_systemd" ]]; then
-  if ! systemd-tmpfiles --create &>$tasklog; then
-    Finish 13 "systemd init error" $tasklog
-  fi
-else
-  if ! RC_LIBEXECDIR=/lib/rc/ /lib/rc/sh/init.sh &>$tasklog; then
-    Finish 13 "openrc init error" $tasklog
-  fi
+echo "#init" > $taskfile
+if ! systemd-tmpfiles --create &>$tasklog; then
+  Finish 13 "init error" $tasklog
 fi
 
 last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
