@@ -26,6 +26,7 @@ introspection
 ithreads
 jack
 jumbo-build
+kernel
 libssp
 libunwind
 livecd
@@ -46,8 +47,10 @@ objc++
 objc-gc
 oci8
 o-flag-munging
+pax-kernel
 perftools
 prefix
+prefix-guest
 savedconfig
 selinux
 split-usr
