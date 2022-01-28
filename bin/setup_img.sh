@@ -199,18 +199,38 @@ function UnpackStage3()  {
   local f=$tbhome/distfiles/$(basename $stage3)
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     date
-    echo " downloading $f ..."
+    echo " downloading $stage3 ..."
     local wgeturl="$mirror/releases/amd64/autobuilds"
-    wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbhome/distfiles || return 1
+    if ! wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbhome/distfiles; then
+      echo " failed !"
+      return 1
+    fi
   fi
 
   date
   echo " updating signing key ..."
-  # use the Gentoo key server, but be relaxed if it doesn't answer
-  gpg --keyserver hkps://keys.gentoo.org --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D || true
+  if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D; then
+    echo " info: could not contact Gentoo key server"
+  fi
   date
-  echo " verifying $f ..."
-  gpg --quiet --verify $f.DIGESTS.asc || return 1
+  echo " verifying the digest ..."
+  if ! gpg --quiet --verify $f.DIGESTS.asc; then
+    echo ' failed !'
+    mv $f.DIGESTS.asc /tmp
+    return 1
+  fi
+  date
+  echo " getting sha ..."
+  if ! sha=$(cd $tbhome/distfiles && sha512sum $(basename $f)); then
+    echo " failed: $sha"
+    return 1
+  fi
+  echo " verifying the file itself ..."
+  if [[ -z $sha ]] || ! grep "$sha" $f.DIGESTS.asc; then
+    echo " sha differs: $sha"
+    mv $f /tmp
+    return 1
+  fi
   echo
 
   CreateImageName
@@ -222,7 +242,12 @@ function UnpackStage3()  {
 
   date
   echo " untar'ing $f ..."
-  tar -xpf $f --same-owner --xattrs || return 1
+  if ! tar -xpf $f --same-owner --xattrs; then
+    echo -e "\n deleting $f"
+    rm $f{,.DIGESTS.asc}
+    return 1
+  fi
+
   echo
 }
 
