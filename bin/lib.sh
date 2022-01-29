@@ -1,10 +1,20 @@
-# /run/ lock dir is used by bwrap and cgroup
 function __is_running() {
-  [[ -d /run/tinderbox/$(basename $1).lock ]]
+  local b=$(basename $1)
+
+  [[ -d /sys/fs/cgroup/cpu/local/$b/ ]] || __is_locked $1
+}
+
+
+function __is_locked() {
+  local b=$(basename $1)
+
+  [[ -d /run/tinderbox/$b.lock/ ]]
 }
 
 
 function __getStartTime() {
-  cat ~tinderbox/img/$(basename $1)/var/tmp/tb/setup.timestamp
+  local b=$(basename $1)
+
+  cat ~tinderbox/img/$b/var/tmp/tb/setup.timestamp
 }
 
