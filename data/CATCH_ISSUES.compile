@@ -320,3 +320,4 @@ Configuration error:
 : command not found
 Invalid value for GENTOO_VM:
  \*   gcl is not supported b
+Unkown OCaml version
