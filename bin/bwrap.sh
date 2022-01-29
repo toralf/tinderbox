@@ -14,7 +14,9 @@ function CgroupCreate() {
     return 0
   fi
 
-  cgcreate -g cpu,memory:$name
+  if ! cgcreate -g cpu,memory:$name; then
+    return 1
+  fi
 
   # limit each image having -jX in its name to X+0.1 cpus
   local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
@@ -165,8 +167,6 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-trap Exit INT QUIT TERM EXIT
-
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
   exit 1
@@ -183,13 +183,13 @@ do
           ;;
     e)    if [[ ! -s "$OPTARG" ]]; then
             echo "no valid entry point script given: $OPTARG"
-            exit 2
+            exit 1
           fi
           entrypoint="$OPTARG"
           ;;
     m)    if [[ -z "$OPTARG" || -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
             echo "argument not accepted"
-            exit 2
+            exit 1
           fi
           mnt=~tinderbox/img/${OPTARG##*/}
           ;;
@@ -198,29 +198,32 @@ done
 
 if [[ -z "$mnt" ]]; then
   echo "no mnt given!"
-  exit 3
+  exit 1
 fi
 
 if [[ ! -e "$mnt" ]]; then
   echo "no valid mount point given"
-  exit 3
+  exit 1
 fi
 
 if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   echo "wrong ownership of mount point"
-  exit 3
+  exit 1
 fi
 
+# this is usually the 2nd barrier but would be the 1st if no cgroup is in place
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 if [[ -d $lock_dir ]]; then
-  echo "mount point is locked: $lock_dir"
-  exit 4
+  echo "lock dir found: $lock_dir"
+  exit 1
 fi
 mkdir -p "$lock_dir"
 
+trap Exit INT QUIT TERM EXIT
+
 if ! CgroupCreate ${mnt##*/} $$; then
   CgroupDelete
-  exit 5
+  exit 1
 fi
 
 if [[ -n "$entrypoint" ]]; then
