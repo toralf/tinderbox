@@ -6,7 +6,7 @@
 
 
 function CgroupCreate() {
-  local name=$1
+  local name=local/$1
   local pid=$2
 
   # use cgroup v1 if available
@@ -35,24 +35,31 @@ function CgroupCreate() {
 
   for i in cpu memory
   do
-    echo      1 > /sys/fs/cgroup/$i/$name/notify_on_release
-    echo "$pid" > /sys/fs/cgroup/$i/$name/tasks
+    echo 1 > /sys/fs/cgroup/$i/$name/notify_on_release
+    if ! echo "$pid" > /sys/fs/cgroup/$i/$name/tasks; then
+      return 1
+    fi
   done
 }
 
 
-function Cleanup()  {
-  local rc=${1:-$?}
+function CgroupDelete() {
+  local name=local/$1
 
-  rmdir "$lock_dir"
-
-  exit $rc
+  cgdelete -g cpu,memory:$name
 }
 
 
 function Exit()  {
-  echo "bailing out ..."
+  local rc=${1:-$?}
+
   trap - INT QUIT TERM EXIT
+
+  if [[ -d $lock_dir ]]; then
+    rmdir "$lock_dir"
+  fi
+
+  exit $rc
 }
 
 
@@ -210,9 +217,11 @@ if [[ -d $lock_dir ]]; then
   exit 4
 fi
 mkdir -p "$lock_dir"
-trap Cleanup QUIT TERM EXIT
 
-CgroupCreate local/${mnt##*/} $$
+if ! CgroupCreate ${mnt##*/} $$; then
+  CgroupDelete
+  exit 5
+fi
 
 if [[ -n "$entrypoint" ]]; then
   rm -f             "$mnt/entrypoint"
