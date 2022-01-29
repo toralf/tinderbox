@@ -884,6 +884,10 @@ function syncRepo()  {
   fi
   last_sync=$EPOCHSECONDS
 
+  if grep -q -F '* An update to portage is available.' $tasklog; then
+    add2backlog "sys-apps/portage"
+  fi
+
   if grep -B 1 '=== Sync completed for gentoo' $tasklog | grep -q 'Already up to date.'; then
     return 0
   fi
@@ -954,26 +958,24 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  # update ::gentoo hourly
   (date; echo) > $tasklog
-  if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
-    echo "#sync repo" > $taskfile
-    syncRepo
-    if grep -q -F '* An update to portage is available.' $tasklog; then
-      add2backlog "sys-apps/portage"
+
+  # if no high prio is scheduled update ::gentoo hourly
+  if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
+    if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
+      echo "#sync repo" > $taskfile
+      syncRepo
     fi
   fi
   if [[ $(( EPOCHSECONDS-$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD) )) -ge 86400 ]]; then
     Finish 13 "repo too old" $tasklog
   fi
 
-  # work on next task
-  (date; echo) > $tasklog
   echo "#get next task" > $taskfile
   getNextTask
-
   rm -rf /var/tmp/portage/*
 
+  (date; echo) > $tasklog
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
