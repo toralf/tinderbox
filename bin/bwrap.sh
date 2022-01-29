@@ -11,7 +11,7 @@ function CgroupCreate() {
 
   # use cgroup v1 if available
   if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
-    return 0
+    return 1
   fi
 
   if ! cgcreate -g cpu,memory:$name; then
