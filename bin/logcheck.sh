@@ -12,7 +12,7 @@ if [[ $n -gt 0 ]]; then
     (
       ls -l ~tinderbox/logs/
       echo
-      head -v ~tinderbox/logs/*.log | tee $f
+      head -n 100 -v ~tinderbox/logs/*.log | tee $f
       echo
       echo -e "\n\nto re-activate this test again, do:\n\n  tail -v ~tinderbox/logs/*; rm -f $f;     truncate -s 0 ~tinderbox/logs/*\n\n"
     ) |\
