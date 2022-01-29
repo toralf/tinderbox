@@ -628,9 +628,14 @@ function RunDryrunWrapper() {
   echo "$message" | tee ./var/tmp/tb/task
   nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &> $drylog
   local rc=$?
-  chmod a+r $drylog
 
-  [[ $rc -eq 0 ]] && echo " OK" || echo " NOT ok"
+  if [[ $rc -eq 0 ]]; then
+    echo " OK"
+  else
+    echo " NOT ok"
+  fi
+
+  chmod a+r $drylog
   return $rc
 }
 
