@@ -9,6 +9,7 @@ function list_images() {
   (
     ls ~tinderbox/run/                    | sort
     ls /run/tinderbox/ | sed 's,.lock,,g' | sort
+    ls -d /sys/fs/cgroup/cpu/local/17*    | sort
   ) |\
   xargs -n 1 --no-run-if-empty basename  |\
   awk '!x[$0]++' |\
@@ -61,7 +62,7 @@ function check_history()  {
 #  4402   36   1 4.8   16529    7    0  W r  ~/run/17.1-20210306-163653
 #  4042   26   0 5.1   17774   12    2    r  ~/run/17.1_desktop_gnome-20210306-091529
 function Overall() {
-  local running=$(ls /run/tinderbox/ 2>/dev/null | grep -c '\.lock$' || true)
+  local running=$(ls -d /run/tinderbox/*.lock 2>/dev/null | wc -l)
   local all=$(wc -w <<< $images)
   echo "compl fail new  day backlog .upd .1st wp rs $running#$all running"
 
@@ -102,6 +103,8 @@ function Overall() {
     flags+=" "
     if __is_running $i ; then
       flags+="r"
+    elif __is_locked $i ; then
+      flags+="l"
     else
       flags+=" "
     fi
