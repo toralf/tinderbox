@@ -198,6 +198,7 @@ function UnpackStage3()  {
 
   local f=$tbhome/distfiles/$(basename $stage3)
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
+    echo
     date
     echo " downloading $stage3 ..."
     local wgeturl="$mirror/releases/amd64/autobuilds"
@@ -207,11 +208,14 @@ function UnpackStage3()  {
     fi
   fi
 
+  echo
   date
   echo " updating signing key ..."
   if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D; then
     echo " info: could not contact Gentoo key server"
   fi
+
+  echo
   date
   echo " verifying the digest ..."
   if ! gpg --quiet --verify $f.DIGESTS.asc; then
@@ -219,6 +223,8 @@ function UnpackStage3()  {
     mv $f.DIGESTS.asc /tmp
     return 1
   fi
+
+  echo
   date
   echo " getting sha ..."
   if ! sha=$(cd $tbhome/distfiles && sha512sum $(basename $f)); then
@@ -231,15 +237,16 @@ function UnpackStage3()  {
     mv $f /tmp
     return 1
   fi
-  echo
 
   CreateImageName
 
   mkdir ~tinderbox/img/$name || return 1
   cd ~tinderbox/img/$name
-  echo " new image: $name"
   echo
+  date
+  echo " new image: $name"
 
+  echo
   date
   echo " untar'ing $f ..."
   if ! tar -xpf $f --same-owner --xattrs; then
@@ -790,6 +797,8 @@ function StartImage() {
   cd $tbhome/run
   ln -s ../img/$name
   wc -l -w $name/etc/portage/package.use/2*
+  echo
+  date
   su - tinderbox -c "$(dirname $0)/start_img.sh $name"
 }
 
@@ -807,6 +816,8 @@ if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
   exit 1
 fi
+
+echo
 
 date
 echo " $0 started"
