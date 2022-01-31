@@ -94,6 +94,9 @@ Create crontab entries for user *tinderbox*:
 # crontab of tinderbox
 #
 
+# start web service
+@reboot   cd ~/img && nice /opt/fuzz-utils/simple-http-server.py --address x.y.z --port 12345 &>/tmp/web-tinderbox.log
+
 # start images
 @reboot   rm -f ~tinderbox/run/*/var/tmp/tb/STOP; /opt/tb/bin/start_img.sh
 
