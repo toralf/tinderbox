@@ -158,11 +158,11 @@ function collectPortageDir()  {
 }
 
 
-# b.g.o. has a limit of 1 MB
 function CompressIssueFiles()  {
   for f in $(ls $issuedir/files/* 2>/dev/null | grep -v -F '.bz2')
   do
-    if [[ $(wc -c < $f) -gt 1048576 ]]; then
+    # 1/4 MB is ok
+    if [[ $(wc -c < $f) -gt 262144 ]]; then
       bzip2 $f
     fi
   done
@@ -835,7 +835,7 @@ function WorkOnTask() {
   elif [[ $task =~ ^% ]]; then
     local cmd="$(cut -c2- <<< $task)"
     if ! RunAndCheck "$cmd"; then
-      if [[ ! $cmd =~ " --depclean" && ! $cmd =~ "grep -q " ]]; then
+      if [[ ! $cmd =~ " --depclean" && ! $cmd = "emerge -uU sys-devel/gcc" ]]; then
         Mail "command failed: $cmd" $tasklog
       fi
     fi
