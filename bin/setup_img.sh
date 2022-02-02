@@ -165,9 +165,9 @@ function UnpackStage3()  {
   for mirror in $gentoo_mirrors
   do
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
+      echo
       date
       echo "using mirror: $mirror"
-      echo
       break
     fi
   done
@@ -254,8 +254,6 @@ function UnpackStage3()  {
     rm $f{,.DIGESTS.asc}
     return 1
   fi
-
-  echo
 }
 
 
@@ -275,6 +273,7 @@ sync-type = git
 
 EOF
 
+  echo
   date
   # "git clone" is at a local machine much slower than a "cp --reflink"
   local refdir=$(ls -t $tbhome/img/*${reposdir}/gentoo/metadata/timestamp.chk 2>/dev/null | head -n 1 | sed -e 's,metadata/timestamp.chk,,')
@@ -287,8 +286,6 @@ EOF
   cp -ar --reflink=auto $refdir ./
   rm -f ./gentoo/.git/refs/heads/stable.lock ./gentoo/.git/gc.log.lock
   cd - 1>/dev/null
-
-  echo
 }
 
 
@@ -526,7 +523,7 @@ function CreateBacklogs()  {
 app-portage/pfl
 @world
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
-%emerge -u --changed-use sys-devel/gcc
+%emerge -uU sys-devel/gcc
 sys-kernel/gentoo-kernel-bin
 # run %emerge to provide "qatom" which is needed in getNextTask() of job.sh
 %emerge -u app-portage/portage-utils
@@ -613,6 +610,7 @@ EOF
 
 
 function RunSetupScript() {
+  echo
   date
   echo " run setup script ..."
 
@@ -763,9 +761,9 @@ function CompileUseFlagFiles() {
   local attempt=0
   echo 'emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
   if [[ -e $useflagfile ]]; then
+    echo
     date
     echo "dryrun with given USE flag file ==========================================================="
-    echo
     cp $useflagfile ./etc/portage/package.use/28given_use_flags
     local drylog=./var/tmp/tb/logs/dryrun.log
     FixPossibleUseFlagIssues $attempt
@@ -818,14 +816,11 @@ if [[ "$(whoami)" != "root" ]]; then
 fi
 
 echo
-
 date
 echo " $0 started"
-echo
 
 if [[ $# -gt 0 ]]; then
   echo "   args: '${@}'"
-  echo
 fi
 
 tbhome=~tinderbox
