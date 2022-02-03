@@ -1,0 +1,11 @@
+# package.use/60musl
+#
+
+
+#######################################################################
+#
+# global settings
+#
+
+# https://bugs.gentoo.org/828580
+sys-devel/gcc                       -jit

@@ -65,7 +65,7 @@ function InitOptions() {
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
   if [[ ! $profile =~ "/no-multilib" ]]; then
-    if dice 1 40; then
+    if dice 1 80; then
       abi3264="y"
     fi
   fi
@@ -79,7 +79,7 @@ function InitOptions() {
   fi
 
   cflags=$cflags_default
-  if dice 1 40; then
+  if dice 1 80; then
     # 685160 colon-in-CFLAGS
     cflags+=" -falign-functions=32:25:16"
   fi
@@ -449,6 +449,10 @@ EOF
   fi
 
   cpconf $tbhome/tb/data/package.*.??test-$testfeature
+
+  if [[ $profile =~ "musl" ]]; then
+    cpconf $tbhome/tb/data/package.*.??musl
+  fi
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
