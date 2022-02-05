@@ -8,7 +8,6 @@ econf called in .* instead of
 inherited illegally
 python_.*_all() didn't call
 running automake in configure phase
-USE Flag .* not in IUSE for
 warning: python_fix_shebang
 One or more CMake variables were not used by the project
 QA Notice: Unrecognized configure options:

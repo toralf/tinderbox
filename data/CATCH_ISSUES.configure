@@ -30,7 +30,7 @@ SyntaxError: invalid syntax
 This version of Camlp4 is for OCaml
 : uninitialized constant
 meson.build.*ERROR:.*
-USE Flag .* not in IUSE for
+ \*   USE Flag .* not in IUSE for
 configure in /.* failed
 This expression has type .* but an expression was
 Please, run .haskell-updater

@@ -31,9 +31,6 @@ app-text/ansifilter                 -qt5
 # https://bugs.gentoo.org/831346
 sys-kernel/installkernel-gentoo     -grub
 
-# no kernel drivers build per default
-x11-drivers/nvidia-drivers          -driver
-
 
 #######################################################################
 #

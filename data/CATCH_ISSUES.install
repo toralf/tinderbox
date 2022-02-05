@@ -50,3 +50,4 @@ KeyError:
 FAILED:
 ^mv:
 ^iconv:
+ld: cannot find

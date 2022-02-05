@@ -1,11 +1,13 @@
  \*   atlas needs all cpu set to performance
- \*   FEATURES=test will require fs.aio-max-nr=250000 at minimum!
+cannot load such file .*asciidoctor
 Configure: unknown option --enable-option-checking=warn
 Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.
 dev-ruby/.*::gentoo failed (install phase)
+ \*   FEATURES=test will require fs.aio-max-nr=250000 at minimum!
 gcc version .* found, expected gcc
+gem install kramdown
 Incompatible gcc version found
 internal compiler error:
 Kernel not configured; no .config found in
@@ -25,8 +27,8 @@ Select exactly one database type out of these:
 some Java tools are not available on some VMs on some architectures
 The Objective-C compiler does not work o
 The version of your compiler is not supported at this time
-Use sys-devel/crossdev to build a .* toolchain
 USE=modules and in-kernel ipset support detected
+Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
- \* *You need one of the following mpi implementations:
  \* you must set LINGUAS in /etc/portage/make.conf
+ \* *You need one of the following mpi implementations:

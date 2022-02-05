@@ -8,4 +8,4 @@
 #
 
 # https://bugs.gentoo.org/828580
-sys-devel/gcc                       -jit
+sys-devel/gcc                       -go -jit
