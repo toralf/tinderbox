@@ -257,7 +257,7 @@ function UnpackStage3()  {
 }
 
 
-# configure only a ::gentoo repository
+# only ::gentoo in moment
 function InitRepository()  {
   mkdir -p ./etc/portage/repos.conf/
 
@@ -275,13 +275,15 @@ EOF
 
   echo
   date
-  # "git clone" is at a local machine much slower than a "cp --reflink"
-  local refdir=$(ls -t $tbhome/img/*${reposdir}/gentoo/metadata/timestamp.chk 2>/dev/null | head -n 1 | sed -e 's,metadata/timestamp.chk,,')
-  if [[ ! -d $refdir ]]; then
-    # fallback is the host
-    refdir=$reposdir/gentoo
+  local ts=$(ls -t $tbhome/img/*${reposdir}/gentoo/metadata/timestamp.chk 2>/dev/null | head -n 1)
+  if [[ -z $ts ]]; then
+    # fallback is the build host
+    local refdir=$reposdir/gentoo
+  else
+    local refdir=$(sed -e 's,metadata/timestamp.chk,,' <<< $ts)
   fi
-  echo " cloning ::gentoo from $refdir"
+  echo " cloning ::gentoo from $refdir $(cat $refdir/metadata/timestamp.chk)"
+  # "git clone" is at a local machine much slower than a "cp --reflink"
   cd .$reposdir
   cp -ar --reflink=auto $refdir ./
   rm -f ./gentoo/.git/refs/heads/stable.lock ./gentoo/.git/gc.log.lock
@@ -528,9 +530,6 @@ app-portage/pfl
 @world
 %sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
 %emerge -uU sys-devel/gcc
-sys-kernel/gentoo-kernel-bin
-# run %emerge to provide "qatom" which is needed in getNextTask() of job.sh
-%emerge -u app-portage/portage-utils
 
 EOF
 }
@@ -575,7 +574,6 @@ emaint sync --auto 1>/dev/null
 date
 echo "#setup portage" | tee /var/tmp/tb/task
 emerge -u app-text/ansifilter
-# have the latest portage version in place for dryrun
 emerge -u sys-apps/portage
 
 if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
@@ -585,12 +583,23 @@ if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
 fi
 
 date
-echo "#setup MTA and MUA" | tee /var/tmp/tb/task
-# emerge sSMTP before a mail client b/c virtual/mta specifies per default another MTA
+echo "#setup Mail" | tee /var/tmp/tb/task
+# emerge the MTA before the MUA b/c virtual/mta has per default another MTA than sSMTP
 emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # /etc/ssmtp/ssmtp.conf is already bind-mounted in bwrap.sh
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # /etc/ssmtp/ssmtp.conf is bind mounted by bwrap.sh
 emerge -u mail-client/s-nail
 
+date
+echo "#setup kernel" | tee /var/tmp/tb/task
+emerge -u sys-kernel/gentoo-kernel-bin
+
+# provides qatom
+date
+echo "#setup portage-utils" | tee /var/tmp/tb/task
+emerge -u app-portage/portage-utils
+
+date
+echo "#setup finish" | tee /var/tmp/tb/task
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
