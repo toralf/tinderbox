@@ -334,7 +334,7 @@ PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="root@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
-GENTOO_MIRRORS="$gentoo_mirrors"
+GENTOO_MIRRORS="$(tr '\n' ' ' <<< $gentoo_mirrors)"
 
 EOF
 
