@@ -21,54 +21,31 @@ function Finish() {
 }
 
 
-function shufImages() {
+function ImagesInRunShuffled() {
   (set +f; cd ~tinderbox/run; ls -d * 2>/dev/null | shuf)
 }
 
 
-function HasReplaceMe() {
-  oldimg=""
-  while read -r i
-  do
-    if [[ -f ~tinderbox/run/$i/var/tmp/tb/REPLACE_ME ]]; then
-      reason="$(cat ~tinderbox/run/$i/var/tmp/tb/REPLACE_ME)"
-      oldimg=$i
-      return 0
-    fi
-  done < <(shufImages)
-
-  return 1
-}
-
-
 function FreeSlotAvailable() {
-  if [[ $desired_count -eq -1 ]]; then
-    return 1
-  fi
-
   r=$(ls /run/tinderbox 2>/dev/null | wc -l)
   s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
 
-  [[ $(( r+s )) -lt $desired_count && $(shufImages | wc -l) -lt $desired_count ]]
+  [[ $(( r+s )) -lt $desired_count && $(ImagesInRunShuffled | wc -l) -lt $desired_count ]]
 }
 
 
-function StopOldImage() {
-  local lock_dir=/run/tinderbox/$oldimg.lock
-  local msg="replaced b/c: $reason"
-
-  rm ~tinderbox/run/$oldimg
-  if [[ -d $lock_dir ]]; then
-    echo " stopping: $msg" | tee -a ~tinderbox/img/$oldimg/var/tmp/tb/STOP
+function StoppedOldImage() {
+  local msg="replaced b/c: $(cat ~tinderbox/img/$oldimg/var/tmp/tb/REPLACE_ME)"
+  if __is_running $oldimg; then
+    echo
     date
-
-    echo -e "\n waiting for image unlock ...\n"
-    date
+    echo " stopping: $img"
+    touch ~tinderbox/img/$oldimg/var/tmp/tb/STOP
     local i=1800
-    while [[ -d $lock_dir ]]
+    while __is_locked $oldimg
     do
       if ! (( --i )); then
-        echo "give up waiting for $oldimg"
+        echo "  give up to wait for $oldimg"
         return 1
       fi
       sleep 1
@@ -77,8 +54,6 @@ function StopOldImage() {
   else
     echo "$oldimg $msg"
   fi
-  rm ~tinderbox/logs/$oldimg.log
-  echo
 }
 
 
@@ -86,7 +61,7 @@ function setupNewImage() {
   echo
   date
   echo " setup a new image ..."
-  sudo $(dirname $0)/setup_img.sh $setupargs
+  sudo $(dirname $0)/setup_img.sh
 }
 
 
@@ -101,27 +76,20 @@ if [[ "$(whoami)" != "tinderbox" ]]; then
   exit 1
 fi
 
-desired_count=-1            # number of images to be run
-oldimg=""                   # image to be replaced
-setupargs=""                # argument(s) for setup_img.sh
+desired_count=13            # number of images to be run
 
 while getopts n:o:s: opt
 do
   case "$opt" in
-    n)  desired_count="$OPTARG"       ;;
-    o)  oldimg=$(basename "$OPTARG")    ;;
-    s)  setupargs="$OPTARG"             ;;
-    *)  echo " opt not implemented: '$opt'"; exit 1;;
+    n)  desired_count="$OPTARG" ;;
+    o)  echo "user decision" >> ~tinderbox/img/$(basename $OPTARG)/var/tmp/tb/REPLACE_ME  ;;
+    *)  echo " opt not implemented: '$opt'"; exit 1 ;;
   esac
 done
 
-# this is allowed to be run in parallel however that is racy for about 1-2 minutes
-if [[ -n $oldimg ]]; then
-  reason="user decision"
-  echo "$reason" >> /var/tmp/tb/REPLACE_ME
-  if StopOldImage; then
-    exec nice -n 1 sudo $(dirname $0)/setup_img.sh $setupargs
-  fi
+if [[ $desired_count -lt 0 || $desired_count -gt 99 ]]; then
+  echo "desired_count is wrong: $desired_count"
+  exit 1
 fi
 
 # do not run in parallel from here
@@ -137,23 +105,6 @@ fi
 echo $$ > "$lockfile" || exit 1
 trap Finish INT QUIT TERM EXIT
 
-# unlink a stopped image
-while read -r i
-do
-  if ! __is_running $i; then
-    hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/run/$i/var/tmp/tb/task))/3600 ))
-    if [[ $hours -ge 36 ]]; then
-      echo -e "\n $i last task $hours hour/s ago - removed from ~tinderbox/run\n"
-      rm ~tinderbox/run/$i
-      imglog=~tinderbox/logs/$i.log
-      if [[ -s $imglog ]]; then
-        tail -v -n 100 $imglog
-      fi
-      rm $imglog
-    fi
-  fi
-done < <(shufImages)
-
 while :
 do
   if FreeSlotAvailable; then
@@ -163,12 +114,24 @@ do
       continue
     fi
 
-  elif HasReplaceMe; then
-    if StopOldImage; then
-      continue
-    fi
-
   else
+    while read -r oldimg
+    do
+      if ! __is_running $oldimg; then
+        hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task))/3600 ))
+        if [[ $hours -ge 36 ]]; then
+          echo -e "last task $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/REPLACE_ME
+        fi
+      fi
+
+      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
+        if StoppedOldImage; then
+          rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
+          continue 2
+        fi
+      fi
+    done < <(ImagesInRunShuffled)
+
     break
   fi
 done
