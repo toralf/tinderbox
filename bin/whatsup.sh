@@ -12,11 +12,12 @@ function list_images() {
     ls -d /sys/fs/cgroup/cpu/local/17*    | sort
   ) |\
   xargs -n 1 --no-run-if-empty basename  |\
-  awk '!x[$0]++' |\
+  awk ' !x[$0]++ ' |\
   while read -r i
   do
-    ls -d ~tinderbox/run/${i} 2>/dev/null ||\
-    ls -d ~tinderbox/img/${i} 2>/dev/null
+    if ! ls -d ~tinderbox/run/$i 2>/dev/null; then
+      ls -d ~tinderbox/img/$i
+    fi
   done
 }
 
@@ -41,9 +42,9 @@ function check_history()  {
     if grep -q " NOT ok " <<< $line; then
       if grep -q " NOT ok $" <<< $line; then
         local uflag=$(tr '[:lower:]' '[:upper:]' <<< $flag)
-        flags+="${uflag}"
+        flags+="$uflag"
       else
-        flags+="${flag}"
+        flags+="$flag"
       fi
     elif grep -q " ok$" <<< $line; then
       flags+=" "
