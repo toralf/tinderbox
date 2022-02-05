@@ -825,7 +825,7 @@ function WorkOnTask() {
       elif [[ $task = "@preserved-rebuild" ]]; then
         local hours=$(( (EPOCHSECONDS-$(cat /var/tmp/tb/setup.timestamp))/3600 ))
         if [[ $hours -gt 36 ]]; then
-          Finish 13 "$task is broken and image is $hours hours old" $tasklog
+          Finish 13 "$task is broken" $tasklog
         fi
       fi
     fi
