@@ -210,10 +210,13 @@ function UnpackStage3()  {
 
   echo
   date
-  echo " updating signing key ..."
-  if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys 534E4209AB49EEE1C19D96162C44695DB9F6043D; then
-    echo " info: could not contact Gentoo key server"
-  fi
+  echo " updating signing keys ..."
+  for key in 13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058
+  do
+    if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $key; then
+      echo " info: could not update key $key"
+    fi
+  done
 
   echo
   date
@@ -282,7 +285,7 @@ EOF
   else
     local refdir=$(sed -e 's,metadata/timestamp.chk,,' <<< $ts)
   fi
-  echo " cloning ::gentoo from $refdir $(cat $refdir/metadata/timestamp.chk)"
+  echo " cloning ::gentoo at $(cat $refdir/metadata/timestamp.chk)"
   # "git clone" is at a local machine much slower than a "cp --reflink"
   cd .$reposdir
   cp -ar --reflink=auto $refdir ./
@@ -851,7 +854,7 @@ do
     k)  keyword="$OPTARG"     ;;
     p)  profile="$OPTARG"     ;;
     t)  testfeature="$OPTARG" ;;
-    u)  useflagfile="$OPTARG" ;;
+    u)  useflagfile="$OPTARG" ;;    # eg.: /dev/null
     *)  echo " '$opt' with '$OPTARG' not implemented"
         exit 2
         ;;
