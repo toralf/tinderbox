@@ -14,24 +14,28 @@ if [[ "$(whoami)" != "tinderbox" ]]; then
   exit 1
 fi
 
-result=/tmp/$(basename $0).txt  # package/s for the appropriate backlog
+result=/tmp/$(basename $0).txt  # package/s to be scheduled in the backlog of each image
 truncate -s 0 $result
 
-grep    -e '^@' -e '^%' -e '^='        <<< ${@} >> $result || true
+# accept special *lines* w/o any check
+if ! grep -e '^@' -e '^%' -e '^=' <<< ${@} >> $result; then
+  :
+fi
+
+# work at the the remaining *items*
 grep -v -e '^@' -e '^%' -e '^=' -e '#' <<< ${@} |\
 xargs --no-run-if-empty -n 1 |\
 sort -u |\
-while read -r atom
+while read -r item
 do
-  echo "$atom" >> $result
-  # delete from global and image specific files
-  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$atom" 2>/dev/null | grep -v -F '<unset>' | sed -e 's,/,\\/,g')
+  echo "$item" >> $result
+  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$item" 2>/dev/null | grep -v -F '<unset>' | sed -e 's,/,\\/,g')
   if [[ -n "$pkgname" ]]; then
     if ! sed -i -e "/$pkgname/d" \
         ~tinderbox/tb/data/ALREADY_CATCHED \
         ~tinderbox/run/*/etc/portage/package.mask/self \
         ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null; then
-      # ^^ those files might not exist currently
+      # ^^ not all of those files might exist
       :
     fi
   fi
