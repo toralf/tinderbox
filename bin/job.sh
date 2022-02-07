@@ -77,7 +77,7 @@ function Finish()  {
 
 
 # helper of getNextTask()
-function setTaskAndBacklog()  {
+function setBacklog()  {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     backlog=/var/tmp/tb/backlog.1st
 
@@ -93,17 +93,17 @@ function setTaskAndBacklog()  {
   else
     Finish 13 "#empty backlogs"
   fi
-
-  # move last line of $backlog into $task
-  task=$(tail -n 1 $backlog)
-  sed -i -e '$d' $backlog
 }
 
 
 function getNextTask() {
   while :
   do
-    setTaskAndBacklog
+    setBacklog
+
+    # move last line of $backlog into $task
+    task=$(tail -n 1 $backlog)
+    sed -i -e '$d' $backlog
 
     if [[ -z "$task" || $task =~ ^# ]]; then
       continue  # empty line or comment
@@ -113,10 +113,10 @@ function getNextTask() {
       continue
 
     elif [[ $task =~ ^STOP ]]; then
-      Finish 0 "catched STOP task"
+      Finish 0 "$task"
 
     elif [[ $task =~ ^@ || $task =~ ^% ]]; then
-      break  # @set or %command
+      break
 
     elif [[ $task =~ ^= ]]; then
       # pinned version, nevertheless check validity
@@ -125,16 +125,15 @@ function getNextTask() {
       fi
 
     else
-      if [[ "$backlog" != /var/tmp/tb/backlog.1st ]]; then
-        if grep -q -f /mnt/tb/data/IGNORE_PACKAGES <<< $task; then
-          continue
-        fi
-      fi
-
-      # skip if $task is not visible
       local best_visible=$(portageq best_visible / $task 2>/dev/null)
       if [[ $? -ne 0 || -z "$best_visible" ]]; then
         continue
+      fi
+
+      if [[ "$backlog" != /var/tmp/tb/backlog.1st ]]; then
+        if grep -q -f /mnt/tb/data/IGNORE_PACKAGES <<< $best_visible; then
+          continue
+        fi
       fi
 
       # skip if $task would be downgraded
@@ -960,12 +959,9 @@ do
 
   (date; echo) > $tasklog
 
-  # if no high prio is scheduled update ::gentoo hourly
-  if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
-    if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
-      echo "#sync repo" > $taskfile
-      syncRepo
-    fi
+  if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
+    echo "#sync repo" > $taskfile
+    syncRepo
   fi
   if [[ $(( EPOCHSECONDS-$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD) )) -ge 86400 ]]; then
     Finish 13 "repo too old" $tasklog
