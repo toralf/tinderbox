@@ -321,3 +321,4 @@ Configuration error:
 Invalid value for GENTOO_VM:
  \*   gcl is not supported b
 Unkown OCaml version
+no theme named .* found
