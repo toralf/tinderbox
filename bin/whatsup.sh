@@ -9,8 +9,8 @@ function list_images() {
   (
     ls ~tinderbox/run/                    | sort
     ls /run/tinderbox/ | sed 's,.lock,,g' | sort
-    ls -d /sys/fs/cgroup/cpu/local/17*    | sort
-  ) |\
+    ls -d /sys/fs/cgroup/cpu/local/17.*   | sort
+  ) 2>/dev/null |\
   xargs -n 1 --no-run-if-empty basename  |\
   awk ' !x[$0]++ ' |\
   while read -r i
