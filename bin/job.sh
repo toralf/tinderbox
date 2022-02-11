@@ -28,7 +28,6 @@ function Mail() {
   local subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
   local content=${2:-}
 
-  echo "#send out email" > $taskfile
   if [[ -f $content ]]; then
     echo
     tail -n 1000 $content | sed -e 's,^>>>, >>>,'
@@ -39,18 +38,13 @@ function Mail() {
   if ! (mail -s "$subject   @ $name" -- ${MAILTO:-tinderbox} 1>/dev/null); then
     { echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2 ; }
   fi
-  truncate -s 0 $taskfile
 }
 
 
 # http://www.portagefilelist.de
 function feedPfl()  {
   if [[ -x /usr/bin/pfl ]]; then
-    cp $taskfile $taskfile.old
-    echo "#feed pfl" > $taskfile
     /usr/bin/pfl &>/dev/null
-    cp $taskfile.old $taskfile
-    rm $taskfile.old
     return 0    # pfl is not mandatory
   fi
 }
