@@ -22,7 +22,6 @@ source $(dirname $0)/lib.sh
 
 for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}
 do
-  echo -n "$(date +%X) "
   mnt=~tinderbox/img/$(basename $i)
 
   if [[ ! -d $mnt ]]; then
@@ -40,6 +39,5 @@ do
     continue
   fi
 
-  echo " stopping: $mnt"
-  touch "$mnt/var/tmp/tb/STOP"
+  echo "$(date +%X) init stop for $mnt" | tee -a $mnt/var/tmp/tb/STOP
 done
