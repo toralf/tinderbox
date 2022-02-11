@@ -113,27 +113,26 @@ do
       sleep 600 || true   # allow to kill it
       continue
     fi
-
-  else
-    while read -r oldimg
-    do
-      if ! __is_running $oldimg; then
-        hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task))/3600 ))
-        if [[ $hours -ge 36 ]]; then
-          echo -e "last task $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/REPLACE_ME
-        fi
-      fi
-
-      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
-        if KickOffOldImage; then
-          rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
-          continue 2
-        fi
-      fi
-    done < <(ImagesInRunShuffled)
-
-    break
   fi
+
+  while read -r oldimg
+  do
+    if ! __is_running $oldimg; then
+      hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task))/3600 ))
+      if [[ $hours -ge 36 ]]; then
+        echo -e "last task $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/REPLACE_ME
+      fi
+    fi
+
+    if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
+      if KickOffOldImage; then
+        rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
+        continue 2
+      fi
+    fi
+  done < <(ImagesInRunShuffled)
+
+  break
 done
 
 Finish 0
