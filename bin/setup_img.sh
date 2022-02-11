@@ -11,12 +11,6 @@ function dice() {
 }
 
 
-# helper of ThrowUseFlags()
-function IgnoreUseFlags()  {
-  grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS || true
-}
-
-
 # helper of ThrowUseFlags
 function ThrowUseFlags() {
   local n=$1        # pass up to n-1
@@ -86,12 +80,12 @@ function InitOptions() {
 
   # stable image ?
   keyword="~amd64"
-  if dice 1 80; then
+  if dice 1 160; then
     keyword="amd64"
   fi
 
   testfeature="n"
-  if dice 1 80; then
+  if dice 1 40; then
     testfeature="y"
   fi
 
@@ -167,7 +161,7 @@ function UnpackStage3()  {
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
       echo
       date
-      echo "using mirror: $mirror"
+      echo " using mirror $mirror"
       break
     fi
   done
@@ -176,23 +170,21 @@ function UnpackStage3()  {
     return 1
   fi
 
-  local stage3=""
-  case $profile in
-    17.1/no-multilib/systemd)   stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-systemd-20.*\.tar\." $latest) ;;
-    17.1/no-multilib/hardened)  stage3=$(grep "^20.*Z/stage3-amd64-hardened-nomultilib-openrc-20.*\.tar\." $latest) ;;
-    17.1/no-multilib)           stage3=$(grep "^20.*Z/stage3-amd64-nomultilib-openrc-20.*\.tar\." $latest) ;;
-    17.1/hardened)              stage3=$(grep "^20.*Z/stage3-amd64-hardened-openrc-20.*\.tar\." $latest) ;;
-    17.1/desktop*/systemd)      stage3=$(grep "^20.*Z/stage3-amd64-desktop-systemd-20.*\.tar\." $latest) ;;
-    17.1/desktop*)              stage3=$(grep "^20.*Z/stage3-amd64-desktop-openrc-20.*\.tar\." $latest) ;;
-    17.1*/systemd)              stage3=$(grep "^20.*Z/stage3-amd64-systemd-20.*\.tar\." $latest) ;;
-    17.1*)                      stage3=$(grep "^20.*Z/stage3-amd64-openrc-20.*\.tar\." $latest) ;;
-    17.0/musl/hardened)         stage3=$(grep "^20.*Z/stage3-amd64-musl-hardened-20.*\.tar\." $latest) ;;
-    17.0/musl)                  stage3=$(grep "^20.*Z/stage3-amd64-musl-20.*\.tar\." $latest) ;;
-  esac
-
-  stage3=$(cut -f1 -d' ' -s <<< $stage3)
-  if [[ -z $stage3 || $stage3 =~ [[:space:]] ]]; then
-    echo " can't get stage3 filename for profile '$profile' in $latest"
+  echo
+  date
+  echo " get stage3 name for $profile"
+  local prefix="stage3-amd64-$(sed -e 's,17.*/,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
+  if [[ ! $profile =~ "/systemd" ]]; then
+    prefix+="-openrc"
+  fi
+  if [[ $profile =~ "/desktop" ]]; then
+    # setup a desktop from a basic stage3 image, not the stage3 desktop variant
+    if dice 1 2; then
+      prefix=$(sed -e 's,-desktop,,' <<< $prefix)
+    fi
+  fi
+  if ! local stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
+    echo " grep for $prefix in $latest failed"
     return 1
   fi
 
@@ -220,30 +212,25 @@ function UnpackStage3()  {
 
   echo
   date
-  echo " verifying the digest ..."
+  echo " verifying the digest file ..."
   if ! gpg --quiet --verify $f.DIGESTS.asc; then
     echo ' failed !'
     mv $f.DIGESTS.asc /tmp
     return 1
   fi
-
-  echo
-  date
-  echo " getting sha ..."
-  if ! sha=$(cd $tbhome/distfiles && sha512sum $(basename $f)); then
-    echo " failed: $sha"
-    return 1
-  fi
-  echo " verifying the file itself ..."
-  if [[ -z $sha ]] || ! grep "$sha" $f.DIGESTS.asc; then
-    echo " sha differs: $sha"
+  echo " verifying the stage3 file  ..."
+  local digest=$(cd $tbhome/distfiles && sha512sum $(basename $f))
+  if [[ -z $digest ]] || ! grep "$digest" $f.DIGESTS.asc; then
+    echo " digest differs: $digest"
     mv $f /tmp
     return 1
   fi
 
   CreateImageName
 
-  mkdir ~tinderbox/img/$name || return 1
+  if ! mkdir ~tinderbox/img/$name; then
+    return 1
+  fi
   cd ~tinderbox/img/$name
   echo
   date
@@ -339,7 +326,7 @@ PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="root@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
-GENTOO_MIRRORS="$(tr '\n' ' ' <<< $gentoo_mirrors)"
+GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
@@ -493,12 +480,13 @@ EOF
 
   # avoid interactive question of vim
   cat << EOF > ./root/.vimrc
+autocmd BufEnter *.txt set textwidth=0
+cnoreabbrev X x
+let g:session_autosave = 'no'
+let g:tex_flavor = 'latex'
 set softtabstop=2
 set shiftwidth=2
 set expandtab
-let g:session_autosave = 'no'
-autocmd BufEnter *.txt set textwidth=0
-cnoreabbrev X x
 
 EOF
 
@@ -751,7 +739,7 @@ function ThrowImageUseFlags() {
 
   grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |\
   cut -f1 -d' ' -s |\
-  IgnoreUseFlags |\
+  grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |\
   ThrowUseFlags 250 |\
   xargs -s 73 |\
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
@@ -765,7 +753,7 @@ function ThrowImageUseFlags() {
     grep 'flag name="' $file |\
     grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |\
     cut -f2 -d'"' -s |\
-    IgnoreUseFlags |\
+    grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |\
     ThrowUseFlags 15 3 |\
     xargs |\
     xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
@@ -841,7 +829,7 @@ fi
 
 tbhome=~tinderbox
 reposdir=/var/db/repos
-gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf)
+gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
 
 InitOptions
 
@@ -855,9 +843,7 @@ do
     p)  profile="$OPTARG"     ;;
     t)  testfeature="$OPTARG" ;;
     u)  useflagfile="$OPTARG" ;;    # eg.: /dev/null
-    *)  echo " '$opt' with '$OPTARG' not implemented"
-        exit 2
-        ;;
+    *)  echo " '$opt' with '$OPTARG' not implemented"; exit 2 ;;
   esac
 done
 
