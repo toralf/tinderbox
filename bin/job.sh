@@ -39,6 +39,7 @@ function Mail() {
   if ! (mail -s "$subject   @ $name" -- ${MAILTO:-tinderbox} 1>/dev/null); then
     { echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2 ; }
   fi
+  truncate -s 0 $taskfile
 }
 
 
@@ -63,13 +64,14 @@ function Finish()  {
   trap - INT QUIT TERM EXIT
   set +e
 
+  if [[ $exit_code -eq 13 ]]; then
+    echo "$subject" >> /var/tmp/tb/REPLACE_ME
+  fi
+
   feedPfl
   subject=$(stripQuotesAndMore <<< $subject)
   subject+="; $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null || echo '0') completed"
   Mail "finished with exit_code=$exit_code, $subject" ${3:-}
-  if [[ $exit_code -eq 13 ]]; then
-    echo "$subject" >> /var/tmp/tb/REPLACE_ME
-  fi
   rm -f /var/tmp/tb/STOP
 
   exit $exit_code
@@ -976,7 +978,7 @@ do
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
-  rm $tasklog     # rm needed to detach from the other hard link
+  rm $tasklog     # rm needed to detach it from the hard linked file under .../logs
   truncate -s 0 $taskfile
 
   DetectRebuildLoop
