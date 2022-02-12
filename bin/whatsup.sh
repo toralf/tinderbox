@@ -23,7 +23,9 @@ function list_images() {
 
 
 function PrintImageName()  {
-  printf "%-${2}s" $(cut -c-$2 < $1/var/tmp/tb/name)
+  if ! printf "%-${2}s" $(cut -c-$2 < $1/var/tmp/tb/name 2>/dev/null); then
+    echo
+  fi
 }
 
 
@@ -135,35 +137,27 @@ function Overall() {
 function Tasks()  {
   for i in $images
   do
-    PrintImageName $i 30
-    if ! __is_running $i ; then
-      echo
-      continue
-    fi
+    local tsk=$i/var/tmp/tb/task
+    if PrintImageName $i 30 && __is_running $i && [[ -s $tsk ]]; then
+      local task=$(cat $tsk)
 
-    tsk=$i/var/tmp/tb/task
-    if [[ ! -s $tsk ]]; then
-      echo
-      continue
-    fi
-    task=$(cat $tsk)
+      set +e
+      (( delta = EPOCHSECONDS-$(stat -c %Y $tsk) ))
+      (( minutes = (delta/60)%60 ))
+      if [[ $delta -lt 3600 ]]; then
+        (( seconds = delta%60 ))
+        printf "%3i:%02i m " $minutes $seconds
+      else
+        (( hours = delta/3600 ))
+        printf "%3i:%02i h " $hours $minutes
+      fi
+      set -e
 
-    set +e
-    let "delta = $EPOCHSECONDS - $(stat -c %Y $tsk)"
-    let "minutes = $delta / 60 % 60"
-    if [[ $delta -lt 3600 ]]; then
-      let "seconds = $delta % 60 % 60"
-      printf "%3i:%02i m " $minutes $seconds
-    else
-      let "hours = $delta / 60 / 60"
-      printf "%3i:%02i h " $hours $minutes
+      if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
+        echo -n " "
+      fi
+      echo $task | cut -c1-$(( columns-38 ))
     fi
-    set -e
-
-    if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
-      echo -n " "
-    fi
-    echo $task | cut -c1-$(( columns-38 ))
   done
 }
 
@@ -175,31 +169,25 @@ function Tasks()  {
 function LastEmergeOperation()  {
   for i in $images
   do
-    PrintImageName $i 30
-    if ! __is_running $i ; then
+    if PrintImageName $i 30 && __is_running $i; then
+      tail -n 1 $i/var/log/emerge.log 2>/dev/null |\
+      sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |\
+      perl -wane '
+        chop ($F[0]);
+        my $delta = time() - $F[0];
+        $minutes = ($delta / 60) % 60;
+        if ($delta < 3600) {
+          $seconds = $delta % 60;
+          printf (" %2i:%02i m  ", $minutes, $seconds);
+        } else  {
+          $hours = $delta / 3600;
+          printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");    # (exclamation) mark long runtimes
+        }
+        my $line = join (" ", @F[2..$#F]);
+        print substr ($line, 0, '"'$(( columns-38 ))'"');
+      '
       echo
-      continue
     fi
-
-    # display the last *started* emerge operation
-    tac $i/var/log/emerge.log 2>/dev/null |\
-    grep -m 1 -e ' >>> ' -e ' *** emerge' -e ' *** terminating.' -e ' ::: completed emerge' |\
-    sed -e 's/ \-\-.* / /g' -e 's, to /$,,g' -e 's/ emerge / /g' -e 's/ completed / /g' -e 's/ \*\*\* .*/ /g' |\
-    perl -wane '
-      chop ($F[0]);
-      my $delta = time() - $F[0];
-      $minutes = $delta / 60 % 60;
-      if ($delta < 3600) {
-        $seconds = $delta % 60 % 60;
-        printf ("%3i:%02i m  ", $minutes, $seconds);
-      } else  {
-        $hours = $delta / 60 / 60;
-        printf ("%3i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");    # mark long runtimes
-      }
-      my $line = join (" ", @F[1..$#F]);
-      print substr ($line, 0, '"'$(( columns-38 ))'"');
-    '
-    echo
   done
 }
 
@@ -211,35 +199,38 @@ function LastEmergeOperation()  {
 function PackagesPerImagePerRunDay() {
   printf "%54s" ""
   max=$(( (columns-54)/5-1 ))
-  for i in $(seq 0 $max); do printf "%4id" $i; done
+  for i in $(seq 0 $max)
+  do
+    printf "%4id" $i
+  done
   echo
 
   for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3,4)
   do
-    PrintImageName $i 54
-
-    local start_time=$(__getStartTime $i)
-    perl -F: -wane '
-      BEGIN {
-        @packages   = ();  # helds the amount of emerge operations per runday
-      }
-
-      my $epoch_time = $F[0];
-      next unless (m/::: completed emerge/);
-
-      my $rundays = int( ($epoch_time - '$start_time') / 86400);
-      $packages[$rundays]++;
-
-      END {
-        if ($#packages >= 0) {
-          $packages[$rundays] += 0;
-          foreach my $rundays (0..$#packages) {
-            ($packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
-          }
+    if PrintImageName $i 54; then
+      local start_time=$(__getStartTime $i)
+      perl -F: -wane '
+        BEGIN {
+          @packages   = ();  # helds the amount of emerge operations per runday
         }
-        print "\n";
-      }
-    ' $i/var/log/emerge.log 2>/dev/null
+
+        my $epoch_time = $F[0];
+        next unless (m/::: completed emerge/);
+
+        my $rundays = int( ($epoch_time - '$start_time') / 86400);
+        $packages[$rundays]++;
+
+        END {
+          if ($#packages >= 0) {
+            $packages[$rundays] += 0;
+            foreach my $rundays (0..$#packages) {
+              ($packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
+            }
+          }
+          print "\n";
+        }
+      ' $i/var/log/emerge.log 2>/dev/null
+    fi
   done
 }
 
@@ -310,8 +301,8 @@ function CountEmergesPerPackages()  {
       }
 
       my $total = 0;    # total amount of emerge operations
-      my $seen = 0;     #              of packages
-      my $max = 0;      # max times of being emerged
+      my $seen = 0;     # "     "      "  packages
+      my $max = 0;      # emerge times of a package
 
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};

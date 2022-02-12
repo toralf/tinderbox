@@ -33,12 +33,12 @@ function ThrowUseFlags() {
 function GetProfiles() {
   (
     eselect profile list |\
-    grep -F 'default/linux/amd64/17.1' |\
+    grep -e "default/linux/amd64/17\.1" |\
     grep -v -F -e ' (exp)' -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl' -e '/developer'
 
     # by sam
     eselect profile list |\
-    grep -e 'default/linux/amd64/17.0/musl' |\
+    grep -e "default/linux/amd64/17\../musl" |\
     grep -v -F -e '/selinux'
   ) |\
   awk ' { print $2 } ' |\
@@ -132,7 +132,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ $profile =~ "musl" ]]; then
+  if [[ $profile =~ "/musl" ]]; then
     abi3264="n"
     keyword="~amd64"
     testfeature="n"
@@ -178,17 +178,23 @@ function UnpackStage3()  {
     prefix+="-openrc"
   fi
   if [[ $profile =~ "/desktop" ]]; then
-    # setup a desktop from a basic stage3 image, not the stage3 desktop variant
     if dice 1 2; then
+      # setup from a basic stage3 image instead of a desktop stage3
       prefix=$(sed -e 's,-desktop,,' <<< $prefix)
     fi
   fi
-  if ! local stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
-    echo " grep for $prefix in $latest failed"
+  local stage3=""
+  if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
+    echo " failed to grep for $prefix in $latest"
     return 1
   fi
-
-  local f=$tbhome/distfiles/$(basename $stage3)
+  if [[ -z $stage3 || $stage3 =~ ' ' ]]; then
+    echo " wrong '$stage3' for $prefix"
+    return 1
+  fi
+  if ! f=$tbhome/distfiles/$(basename $stage3); then
+    return 1
+  fi
   if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
     echo
     date
@@ -297,7 +303,7 @@ FFLAGS="\${FCFLAGS}"
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 
 RUSTFLAGS="-Ctarget-cpu=native -v"
-$([[ $profile =~ "musl" ]] && echo 'RUSTFLAGS=" -C target-feature=-crt-static"')
+$([[ $profile =~ "/musl" ]] && echo 'RUSTFLAGS=" -C target-feature=-crt-static"')
 
 $([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
@@ -442,7 +448,7 @@ EOF
 
   cpconf $tbhome/tb/data/package.*.??test-$testfeature
 
-  if [[ $profile =~ "musl" ]]; then
+  if [[ $profile =~ "/musl" ]]; then
     cpconf $tbhome/tb/data/package.*.??musl
   fi
 
@@ -512,10 +518,6 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  if [[ $name =~ "_debug" ]]; then
-    echo "sys-process/minicoredumper" >> $bl.1st
-  fi
-
   cat << EOF >> $bl.1st
 app-portage/pfl
 @world
@@ -527,14 +529,14 @@ EOF
 
 
 function CreateSetupScript()  {
-  cat << EOF > ./var/tmp/tb/setup.sh || return 1
+  if cat << EOF > ./var/tmp/tb/setup.sh; then
 #!/bin/bash
 # set -x
 
 export LANG=C.utf8
 set -euf
 
-if [[ ! $profile =~ "musl" ]]; then
+if [[ ! $profile =~ "/musl" ]]; then
   date
   echo "#setup locale" | tee /var/tmp/tb/task
   echo -e "en_US       ISO-8859-1"  >> /etc/locale.gen
@@ -590,7 +592,7 @@ echo "#setup portage-utils" | tee /var/tmp/tb/task
 emerge -u app-portage/portage-utils
 
 date
-echo "#setup finish" | tee /var/tmp/tb/task
+echo "#setup profile, make.conf, backlog" | tee /var/tmp/tb/task
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
@@ -609,7 +611,10 @@ echo "#setup done" | tee /var/tmp/tb/task
 
 EOF
 
-  chmod u+x ./var/tmp/tb/setup.sh
+    chmod u+x ./var/tmp/tb/setup.sh
+  else
+    return 1
+  fi
 }
 
 
@@ -621,7 +626,6 @@ function RunSetupScript() {
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > ./var/tmp/tb/setup_wrapper.sh
   if nice -n 1 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
     echo -e " OK"
-    return 0
   else
     echo -e "$(date)\n $FUNCNAME was NOT ok\n"
     tail -v -n 100 ./var/tmp/tb/setup.sh.log

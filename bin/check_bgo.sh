@@ -52,7 +52,7 @@ function SearchForMatchingBugs() {
     fi
   fi
 
-  local bsi=$issuedir/bugz_search_items     # transform title into space separated search items
+  local bsi=$issuedir/bugz_search_items     # transform the issue of the title into space separated search items
   sed -e 's,^.* - ,,'     \
       -e 's,/\.\.\./, ,'  \
       -e 's,[\(\)], ,g'   \
@@ -133,28 +133,21 @@ function SearchForMatchingBugs() {
 
 
 # check for a blocker/tracker bug
-# the BLOCKER file contains paragraphs like:
+# the BLOCKER file contains tupels like:
 #
 #   # comment
-#   <bug id> <optional: title prefix>
+#   <bug id>
 #   <pattern/s>
 function LookupForABlocker() {
   while read -r line
   do
     if [[ $line =~ ^[0-9].* ]]; then
-      read -r number title_prefix <<< $line
+      read -r number <<< $line
       continue
     fi
 
     if grep -q -E "$line" $issuedir/title; then
-      # keep the number of the previous loop
       blocker_bug_no=$number
-      # prefix the title if given and not already done before
-      if [[ -n "$title_prefix" ]]; then
-        if ! grep -q -F " ($title_prefix)" $issuedir/title; then
-          sed -i -e "s,$, ($title_prefix),g" $issuedir/title
-        fi
-      fi
       break
     fi
   done < <(grep -v -e '^#' -e '^$' ~tinderbox/tb/data/BLOCKER)

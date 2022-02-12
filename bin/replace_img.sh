@@ -39,7 +39,7 @@ function KickOffOldImage() {
   if __is_running $oldimg; then
     echo
     date
-    echo " stopping: $img"
+    echo " stopping: $oldimg"
     touch ~tinderbox/img/$oldimg/var/tmp/tb/STOP
     local i=1800
     while __is_locked $oldimg
@@ -109,8 +109,11 @@ while :
 do
   if FreeSlotAvailable; then
     if ! setupNewImage; then
-      echo " setup failed with rc=$?, sleep 10 min ..."
-      sleep 600 || true   # allow to kill it
+      rc=$?
+      echo " setup failed with rc=$rc, sleep 10 min ..."
+      if ! sleep 600; then
+        : # allowed to be killed
+      fi
       continue
     fi
   fi

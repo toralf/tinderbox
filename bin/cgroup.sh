@@ -11,25 +11,29 @@ export LANG=C.utf8
 
 # use cgroup v1 if available
 if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
-  exit 0
+  exit 1
 fi
 
-# reserve 3 vCPUs, 18 GB RAM and 64 GB vRAM
-vcpu=$(( 100000 * ($(nproc) - 3) ))
-ram=110G
-vram=320G
+# reserve vCPUs, RAM and vRAM
+vcpu=$(( 100000 * ($(nproc)-3) ))
+ram=$(( 128-18 ))G
+vram=$(( 384-64 ))G   # swap is 1/4 TB
 
 echo 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 
-# cgroup v1 does not cleanup after itself
-# create a shell script for that task in a system wide read and executeable location
-agent=/tmp/cgroup-release-agent.sh
+# cgroup v1 does not cleanup after itself so create a shell script for that
+# place it in a system wide read + executeable location for other consumers too
+agent="/tmp/cgroup-release-agent.sh"
 cat << EOF > $agent
 #!/bin/sh
+
 cgdelete -g cpu,memory:\$1
 
 EOF
+
+chown root:root
 chmod 755 $agent
+
 for i in cpu memory
 do
   echo $agent > /sys/fs/cgroup/$i/release_agent

@@ -22,6 +22,7 @@ source $(dirname $0)/lib.sh
 
 for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}
 do
+  echo -n "$(date +%X) "
   mnt=~tinderbox/img/$(basename $i)
 
   if [[ ! -d $mnt ]]; then
@@ -35,9 +36,11 @@ do
   fi
 
   if ! __is_running "$mnt" ; then
-    echo " image is not locked: $mnt"
+    echo " is not locked: $mnt"
     continue
   fi
 
-  echo "$(date +%X) init stop for $mnt" | tee -a $mnt/var/tmp/tb/STOP
+  echo "stopping $mnt"
+
+  touch $mnt/var/tmp/tb/STOP
 done

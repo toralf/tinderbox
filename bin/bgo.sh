@@ -110,7 +110,7 @@ else
     timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
   fi
 
-  if grep -q -F '[TEST]' $issuedir/title; then
+  if grep -q -F ' fails test -' $issuedir/title; then
     timeout 60 bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
   fi
 fi

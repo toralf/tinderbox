@@ -46,7 +46,7 @@ do
   fi
 
   if __is_running "$mnt" ; then
-    echo " image is locked:  $mnt"
+    echo " is locked:  $mnt"
     continue
   fi
 

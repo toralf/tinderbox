@@ -476,9 +476,10 @@ function finishTitle()  {
         $issuedir/title
 
   # prefix title
-  sed -i -e "s,^,${pkg} - ," $issuedir/title
   if [[ $phase = "test" ]]; then
-    sed -i -e "s,^,[TEST] ," $issuedir/title
+    sed -i -e "s,^,${pkg} fails test - ," $issuedir/title
+  else
+    sed -i -e "s,^,${pkg} - ," $issuedir/title
   fi
   sed -i -e 's,  *, ,g' $issuedir/title
   truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
