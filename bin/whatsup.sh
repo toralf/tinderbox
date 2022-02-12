@@ -143,7 +143,7 @@ function Tasks()  {
 
       set +e
       (( delta = EPOCHSECONDS-$(stat -c %Y $tsk) ))
-      (( minutes = (delta/60)%60 ))
+      (( minutes = delta/60%60 ))
       if [[ $delta -lt 3600 ]]; then
         (( seconds = delta%60 ))
         printf "%3i:%02i m " $minutes $seconds
@@ -174,19 +174,23 @@ function LastEmergeOperation()  {
       sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |\
       perl -wane '
         chop ($F[0]);
-        my $delta = time() - $F[0];
-        $minutes = ($delta / 60) % 60;
+        my $ts = time();
+        my $delta = $ts - $F[0];
+        if ($delta < 0) {
+          # scary but needed
+          $delta=0;
+        }
+        my $minutes = $delta / 60 % 60;
         if ($delta < 3600) {
-          $seconds = $delta % 60;
+          my $seconds = $delta % 60;
           printf (" %2i:%02i m  ", $minutes, $seconds);
         } else  {
-          $hours = $delta / 3600;
+          my $hours = $delta / 3600;
           printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");    # (exclamation) mark long runtimes
         }
         my $line = join (" ", @F[2..$#F]);
-        print substr ($line, 0, '"'$(( columns-38 ))'"');
+        print substr ($line, 0, '"'$(( columns-38 ))'"'), "\n";
       '
-      echo
     fi
   done
 }
