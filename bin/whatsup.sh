@@ -23,9 +23,7 @@ function list_images() {
 
 
 function PrintImageName()  {
-  if ! printf "%-${2}s" $(cut -c-$2 < $1/var/tmp/tb/name 2>/dev/null); then
-    echo
-  fi
+  printf "%-${2}s" $(cut -c-$2 < $1/var/tmp/tb/name 2>/dev/null)
 }
 
 
@@ -157,6 +155,8 @@ function Tasks()  {
         echo -n " "
       fi
       echo $task | cut -c1-$(( columns-38 ))
+    else
+      echo
     fi
   done
 }
@@ -174,8 +174,7 @@ function LastEmergeOperation()  {
       sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |\
       perl -wane '
         chop ($F[0]);
-        my $ts = time();
-        my $delta = $ts - $F[0];
+        my $delta = time() - $F[0];
         if ($delta < 0) {
           # scary but needed
           $delta=0;
@@ -191,6 +190,8 @@ function LastEmergeOperation()  {
         my $line = join (" ", @F[2..$#F]);
         print substr ($line, 0, '"'$(( columns-38 ))'"'), "\n";
       '
+    else
+      echo
     fi
   done
 }
@@ -234,6 +235,8 @@ function PackagesPerImagePerRunDay() {
           print "\n";
         }
       ' $i/var/log/emerge.log 2>/dev/null
+    else
+      echo
     fi
   done
 }
