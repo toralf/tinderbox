@@ -56,7 +56,7 @@ function SearchForMatchingBugs() {
   sed -e 's,^.* - ,,'     \
       -e 's,/\.\.\./, ,'  \
       -e 's,[\(\)], ,g'   \
-      -e 's,  *, ,g'      \
+      -e 's,\s\s*, ,g'    \
       $issuedir/title > $bsi
 
   # look first for version+revision, then look for category/package name

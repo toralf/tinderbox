@@ -450,18 +450,18 @@ function add2backlog()  {
 
 function finishTitle()  {
   # strip away hex addresses, loong path names, line and time numbers and other stuff
-  sed -i  -e 's/0x[0-9a-f]*/<snip>/g'         \
-          -e 's/: line [0-9]*:/:line <snip>:/g' \
-          -e 's/[0-9]* Segmentation fault/<snip> Segmentation fault/g' \
-          -e 's/Makefile:[0-9]*/Makefile:<snip>/g' \
+  sed -i  -e 's,0x[0-9a-f]*,<snip>,g'         \
+          -e 's,: line [0-9]*:,:line <snip>:,g' \
+          -e 's,[0-9]* Segmentation fault,<snip> Segmentation fault,g' \
+          -e 's,Makefile:[0-9]*,Makefile:<snip>,g' \
           -e 's,:[[:digit:]]*): ,:<snip>:, g'  \
           -e 's,([[:digit:]]* of [[:digit:]]*),(<snip> of <snip)>,g'  \
           -e 's,[0-9]*[\.][0-9]* sec,,g'      \
           -e 's,[0-9]*[\.][0-9]* s,,g'        \
           -e 's,([0-9]*[\.][0-9]*s),,g'       \
-          -e 's/ \.\.\.*\./ /g'               \
-          -e 's/; did you mean .* \?$//g'     \
-          -e 's/(@INC contains:.*)/<@INC snip>/g'     \
+          -e 's, \.\.\.*\., ,g'               \
+          -e 's,; did you mean .* \?$,,g'     \
+          -e 's,(@INC contains:.*),<@INC snip>,g'     \
           -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
           -e 's,target /.*/,target <snip>/,g' \
           -e 's,(\.text\..*):,(<snip>),g'     \
@@ -470,9 +470,9 @@ function finishTitle()  {
           -e 's,ninja: error: /.*/,ninja error: .../,'  \
           -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,'       \
           -e 's, \w*/.*/\(.*\) , .../\1 ,g' \
-          -e 's,\*, ,g'   \
-          -e 's/___*/_/g' \
-          -e 's/  */ /g'  \
+          -e 's,\*, ,g'     \
+          -e 's,___*,_,g'   \
+          -e 's,\s\s*, ,g'  \
         $issuedir/title
 
   # prefix title
@@ -481,7 +481,7 @@ function finishTitle()  {
   else
     sed -i -e "s,^,${pkg} - ," $issuedir/title
   fi
-  sed -i -e 's,  *, ,g' $issuedir/title
+  sed -i -e 's,\s\s*, ,g' $issuedir/title
   truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
 }
 
@@ -816,13 +816,8 @@ function WorkOnTask() {
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
       if [[ -n "$pkg" ]]; then
         add2backlog "$task"
-      elif [[ $task = "@world" ]]; then
+      elif [[ $task = "@world" || $task = "@preserved-rebuild" && ! -s /var/tmp/tb/backlog.1st ]]; then
         Finish 13 "$task is broken" $tasklog
-      elif [[ $task = "@preserved-rebuild" ]]; then
-        local hours=$(( (EPOCHSECONDS-$(cat /var/tmp/tb/setup.timestamp))/3600 ))
-        if [[ $hours -gt 36 ]]; then
-          Finish 13 "$task is broken" $tasklog
-        fi
       fi
     fi
     feedPfl
