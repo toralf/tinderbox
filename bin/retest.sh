@@ -35,8 +35,7 @@ do
         ~tinderbox/tb/data/ALREADY_CATCHED \
         ~tinderbox/run/*/etc/portage/package.mask/self \
         ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null; then
-      # ^^ not all of those files might exist
-      :
+      :   # ^^ not all of those files might exist
     fi
   fi
 done
