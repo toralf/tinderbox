@@ -172,7 +172,7 @@ function UnpackStage3()  {
 
   echo
   date
-  echo " get stage3 name for $profile"
+  echo " get prefix for $profile"
   local prefix="stage3-amd64-$(sed -e 's,17.*/,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
   if [[ ! $profile =~ "/systemd" ]]; then
     prefix+="-openrc"
@@ -183,13 +183,14 @@ function UnpackStage3()  {
       prefix=$(sed -e 's,-desktop,,' <<< $prefix)
     fi
   fi
+  echo " get stage3 name for $prefix"
   local stage3=""
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
-    echo " failed to grep for $prefix in $latest"
+    echo " failed"
     return 1
   fi
   if [[ -z $stage3 || $stage3 =~ ' ' ]]; then
-    echo " wrong '$stage3' for $prefix"
+    echo " wrong grep result for $prefix: >>>$stage3<<<"
     return 1
   fi
   if ! f=$tbhome/distfiles/$(basename $stage3); then
