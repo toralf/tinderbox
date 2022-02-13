@@ -1,9 +1,7 @@
-# This file contains pairs of lines (bug number + pattern) to check for a blocker
-# Empty lines and comments are ignored.
-#
+# tupels of (comment, bug number, pattern) to automate the check for a blocker bug in check_bgo.sh
+
 
 # (colon-in-CFLAGS) - (TRACKER) ebuilds using colon (:) as a sed delimiter break on CFLAGS=-falign-functions=32:25:16
-#
 685160
 ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 
@@ -13,15 +11,11 @@ ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 
 #  (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
 765709
-slibtool|rlibtool|rdlibtool|unrecognized command-line option|./shtool:|syntax error: .* unexpected
+slibtool|rlibtool|rdlibtool|unrecognized command-line option|./shtool:
 
 # [TRACKER] Packages relying on setuptools' use_2to3 option
 812149
 : SetuptoolsDeprecationWarning: 2to3|/site-packages/setuptools/lib2to3_ex.py:
-
-# [TRACKER] Packages broken by SETUPTOOLS_USE_DISTUTILS=local
-822354
-No module named |KeyError:
 
 # [Tracker] dev-scheme/guile-3.0.x breakage
 746914
@@ -34,3 +28,7 @@ MPI_
 # meson-0.61
 831474
 .*meson.*ERROR: Function does not take positional arguments
+
+# [TRACKER] sys-libs/glibc-2.35 related issues
+832701
+asdf

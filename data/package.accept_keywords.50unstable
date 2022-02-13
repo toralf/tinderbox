@@ -10,3 +10,10 @@ dev-ml/camlp4:0/4.13                **
 
 # sam
 dev-scheme/guile:12/3.0-1           **
+
+# jsmolic
+dev-games/ogre:0/1.12               **
+dev-games/ogre:0/2.1                **
+
+# dilfridge, sam
+=sys-libs/glibc-2.35*               **
