@@ -34,7 +34,7 @@ function FreeSlotAvailable() {
 }
 
 
-function KickOffOldImage() {
+function StopAndUnlinkOldImage() {
   local msg="kicked off b/c: $(cat ~tinderbox/img/$oldimg/var/tmp/tb/REPLACE_ME)"
   if __is_running $oldimg; then
     echo
@@ -128,7 +128,7 @@ do
     fi
 
     if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
-      if KickOffOldImage; then
+      if StopAndUnlinkOldImage; then
         rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
         continue 2
       fi
