@@ -85,7 +85,7 @@ function InitOptions() {
   fi
 
   testfeature="n"
-  if dice 1 40; then
+  if dice 1 80; then
     testfeature="y"
   fi
 
@@ -196,12 +196,12 @@ function UnpackStage3()  {
   if ! f=$tbhome/distfiles/$(basename $stage3); then
     return 1
   fi
-  if [[ ! -s $f || ! -f $f.DIGESTS.asc ]]; then
+  if [[ ! -s $f || ! -f $f.asc || ! -f $f.DIGESTS ]]; then
     echo
     date
     echo " downloading $stage3 ..."
     local wgeturl="$mirror/releases/amd64/autobuilds"
-    if ! wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.DIGESTS.asc} --directory-prefix=$tbhome/distfiles; then
+    if ! wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.asc,.DIGESTS} --directory-prefix=$tbhome/distfiles; then
       echo " failed !"
       return 1
     fi
@@ -213,23 +213,23 @@ function UnpackStage3()  {
   for key in 13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058
   do
     if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $key; then
-      echo " info: could not update key $key"
+      echo " info: could not update gpg key $key"
     fi
   done
 
   echo
   date
-  echo " verifying the digest file ..."
-  if ! gpg --quiet --verify $f.DIGESTS.asc; then
+  echo " verifying the stage3 file ..."
+  if ! gpg --quiet --verify $f.asc; then
     echo ' failed !'
-    mv $f.DIGESTS.asc /tmp
+    mv $f{,.asc,.DIGESTS} /tmp
     return 1
   fi
-  echo " verifying the stage3 file  ..."
+  echo " verifying the digest  ..."
   local digest=$(cd $tbhome/distfiles && sha512sum $(basename $f))
-  if [[ -z $digest ]] || ! grep "$digest" $f.DIGESTS.asc; then
-    echo " digest differs: $digest"
-    mv $f /tmp
+  if [[ -z $digest ]] || ! grep "$digest" $f.DIGESTS; then
+    echo " digest issue: $digest"
+    mv $f{,.asc,.DIGESTS} /tmp
     return 1
   fi
 
