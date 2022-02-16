@@ -5,7 +5,7 @@
 # setup a new tinderbox image
 
 
-# $1:$2, eg. 1:5
+# $1:$2, eg. 3:5
 function dice() {
   [[ $(( $RANDOM%$2)) -lt $1 ]]
 }
@@ -201,7 +201,7 @@ function UnpackStage3()  {
     date
     echo " downloading $stage3 ..."
     local wgeturl="$mirror/releases/amd64/autobuilds"
-    if ! wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.asc,.DIGESTS} --directory-prefix=$tbhome/distfiles; then
+    if ! wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
       echo " failed !"
       return 1
     fi
@@ -213,7 +213,7 @@ function UnpackStage3()  {
   for key in 13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058
   do
     if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $key; then
-      echo " info: could not update gpg key $key"
+      echo " notice: could not update gpg key $key"
     fi
   done
 
@@ -221,24 +221,15 @@ function UnpackStage3()  {
   date
   echo " verifying the stage3 file ..."
   if ! gpg --quiet --verify $f.asc; then
-    echo ' failed !'
-    mv $f{,.asc,.DIGESTS} /tmp
-    return 1
-  fi
-  echo " verifying the digest  ..."
-  local digest=$(cd $tbhome/distfiles && sha512sum $(basename $f))
-  if [[ -z $digest ]] || ! grep "$digest" $f.DIGESTS; then
-    echo " digest issue: $digest"
-    mv $f{,.asc,.DIGESTS} /tmp
+    echo ' failed'
+    mv $f{,.asc} /tmp
     return 1
   fi
 
   CreateImageName
-
   if ! mkdir ~tinderbox/img/$name; then
     return 1
   fi
-  cd ~tinderbox/img/$name
   echo
   date
   echo " new image: $name"
@@ -246,9 +237,10 @@ function UnpackStage3()  {
   echo
   date
   echo " untar'ing $f ..."
+  cd ~tinderbox/img/$name
   if ! tar -xpf $f --same-owner --xattrs; then
-    echo -e "\n deleting $f"
-    rm $f{,.DIGESTS.asc}
+    echo -e " failed"
+    mv $f{,.asc} /tmp
     return 1
   fi
 }
