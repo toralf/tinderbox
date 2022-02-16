@@ -31,8 +31,8 @@ cgdelete -g cpu,memory:\$1
 
 EOF
 
-chown root:root
-chmod 755 $agent
+chown root:root $agent
+chmod 755       $agent
 
 for i in cpu memory
 do
