@@ -59,13 +59,13 @@ function check_history()  {
 
 # whatsup.sh -o
 #
-# compl fail new day backlog .upd .1st swprs 7#7 running
-#  4402   36   1 4.8   16529    7    0  W r  ~/run/17.1-20210306-163653
-#  4042   26   0 5.1   17774   12    2    r  ~/run/17.1_desktop_gnome-20210306-091529
+# compl fail new day backlog .upd .1st wp rls 7#7 locked
+#  4402   36   1 4.8   16529    7    0 W  r   ~/run/17.1-20210306-163653
+#  4042   26   0 5.1   17774   12    2    r   ~/run/17.1_desktop_gnome-20210306-091529
 function Overall() {
-  local running=$(ls -d /run/tinderbox/*.lock 2>/dev/null | wc -l)
+  local locked=$(ls -d /run/tinderbox/*.lock 2>/dev/null | wc -l)
   local all=$(wc -w <<< $images)
-  echo "compl fail new  day backlog .upd .1st wp rs $running#$all running"
+  echo "compl fail new  day backlog .upd .1st wp cls $locked#$all locked"
 
   for i in $images
   do
@@ -89,8 +89,8 @@ function Overall() {
     local bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st || echo 0)
     local blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd || echo 0)
 
-    # "r" image is running
-    # " " image is NOT running
+    # "r" image is in ~rrunning
+    # "l" image is locked
     local flags=""
 
     # result of last run of @world and @preserved-rebuild respectively:
@@ -102,9 +102,12 @@ function Overall() {
     check_history $i/var/tmp/tb/@world.history              w
     check_history $i/var/tmp/tb/@preserved-rebuild.history  p
     flags+=" "
-    if __is_running $i ; then
-      flags+="r"
-    elif __is_locked $i ; then
+    if __is_cgrouped $i ; then
+      flags+="c"
+    else
+      flags+=" "
+    fi
+    if __is_locked $i ; then
       flags+="l"
     else
       flags+=" "
