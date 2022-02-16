@@ -173,7 +173,7 @@ function UnpackStage3()  {
   echo
   date
   echo " get prefix for $profile"
-  local prefix="stage3-amd64-$(sed -e 's,17.*/,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
+  local prefix="stage3-amd64-$(sed -e 's,17\../,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
   if [[ ! $profile =~ "/systemd" ]]; then
     prefix+="-openrc"
   fi
