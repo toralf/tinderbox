@@ -412,7 +412,7 @@ EOF
 }
 
 
-# make world state similar to that if the (successfully installed) deps were emerged earlier in previous emerge/s
+# put world into same state as if the (successfully installed) deps would have been already emerged in previous task/s
 function PutDepsIntoWorldFile() {
   if grep -q '^>>> Installing ' $tasklog_stripped; then
     emerge --depclean --verbose=n --pretend 2>/dev/null |\
@@ -424,7 +424,6 @@ function PutDepsIntoWorldFile() {
 
 
 # helper of WorkAtIssue()
-# for ABI_X86="32 64" we have two ./work directories in /var/tmp/portage/<category>/<name>
 function setWorkDir() {
   workdir=$(fgrep -m 1 " * Working directory: '" $tasklog_stripped | cut -f2 -d"'" -s)
   if [[ ! -d "$workdir" ]]; then
@@ -796,6 +795,8 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 function WorkOnTask() {
+  pkg=""
+
   # @set
   if [[ $task =~ ^@ ]]; then
     local opts=""
