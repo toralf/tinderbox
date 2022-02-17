@@ -85,3 +85,5 @@ configure: .*: unrecognized options:
 gcc: No such file or directory
 something is badly wrong at
 configure: line .*:
+ \*   Unable to build!
+  Looking for .*... not found.

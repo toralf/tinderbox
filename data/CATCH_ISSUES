@@ -1,3 +1,4 @@
+ VERIFY FAILED!
 Assertion failed:
 .*: No such file or directory
 No rule to make target

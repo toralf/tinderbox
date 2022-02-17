@@ -33,3 +33,4 @@ USE=modules and in-kernel ipset support detected.
  \*   One of the postgres_targets_postgresSL_OT use flags must be enabled
  \*   unacceptable USE flag settings
  \*   Please switch to an openmp compatible compiler
+ \* you must set LINGUAS in /etc/portage/make.conf
