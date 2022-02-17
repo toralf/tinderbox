@@ -73,9 +73,8 @@ function Overall() {
     local bgo=$(set +f; ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
 
     local compl=0
-    f=$i/var/log/emerge.log
-    if [[ -f $f ]]; then
-      compl=$(grep -c ' ::: completed emerge' $f) || true
+    if ! compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
+      compl=0
     fi
 
     # count emerge failures based on distinct package name+version+release
@@ -246,7 +245,7 @@ function PackagesPerImagePerRunDay() {
 
 
 function getCoveredPackages() {
-  grep -H '::: completed emerge' ~tinderbox/$1/*/var/log/emerge.log |\
+  grep -H '::: completed emerge' ~tinderbox/$1/*/var/log/emerge.log 2>/dev/null |\
   # handle ::local
   tr -d ':' |\
   awk ' { print $7 } ' |\
@@ -275,8 +274,14 @@ function Coverage() {
 
     local n=$(wc -l < $covered)
     local oldest=$(cat ~tinderbox/$i/17.*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
-    local days=$(( (EPOCHSECONDS-oldest)/3600/24 ))
-    local perc=$(( 100*$n/$N ))
+    local days=0
+    if [[ -n $oldest ]]; then
+      local days=$(( (EPOCHSECONDS-oldest)/3600/24 ))
+    fi
+    local perc=0
+    if [[ $N -gt 0 ]]; then
+      perc=$(( 100*$n/$N ))
+    fi
     printf "%5i packages in ~tinderbox/%s   (%2i%% for last %2i days)" $n $i $perc $days
     echo
   done
@@ -327,7 +332,7 @@ function CountEmergesPerPackages()  {
       }
       print "\n\n $seen package revisions in $total emerges\n";
     }
-  ' ~tinderbox/run/*/var/log/emerge.log
+  ' ~tinderbox/run/*/var/log/emerge.log 2>/dev/null
 }
 
 
