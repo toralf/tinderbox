@@ -174,7 +174,7 @@ function UnpackStage3()  {
   date
   echo " get prefix for $profile"
   local prefix="stage3-amd64-$(sed -e 's,17\../,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
-  if [[ ! $profile =~ "/systemd" ]]; then
+  if [[ ! $profile =~ "/systemd" && ! $profile =~ "/musl" ]]; then
     prefix+="-openrc"
   fi
   if [[ $profile =~ "/desktop" ]]; then
@@ -182,6 +182,9 @@ function UnpackStage3()  {
       # setup from a basic stage3 image instead of a desktop stage3
       prefix=$(sed -e 's,-desktop,,' <<< $prefix)
     fi
+  fi
+  if [[ $profile =~ "17.1/no-multilib/hardened" ]]; then
+    prefix=$(sed -e 's,nomultilib-hardened,hardened-nomultilib,' <<< $prefix)
   fi
   echo " get stage3 name for $prefix"
   local stage3=""
