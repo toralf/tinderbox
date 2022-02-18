@@ -296,11 +296,12 @@ function foundGenericIssue() {
   for x in /tmp/x_????
   do
     if grep -m 1 -a -B 4 -A 2 -f $x $pkglog_stripped > /tmp/issue; then
+      grep -m 1 -f $x /tmp/issue | stripQuotesAndMore > $issuedir/title
       mv /tmp/issue $issuedir
-      sed -n "5p" $issuedir/issue | stripQuotesAndMore > $issuedir/title # works for 5 == B+1 -> at least B+1 lines are expected
       break
     fi
   done
+
   rm -f /tmp/x_????
 }
 
@@ -346,6 +347,7 @@ function ClassifyIssue() {
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
   else
+    # this will be overwritten if a pattern was defined
     grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog_stripped | tee $issuedir/issue |\
     head -n 2 | tail -n 1 > $issuedir/title
     foundGenericIssue
