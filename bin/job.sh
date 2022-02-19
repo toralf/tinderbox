@@ -869,6 +869,11 @@ function syncRepo()  {
   cd /var/db/repos/gentoo
 
   if ! emaint sync --auto &>>$tasklog; then
+    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out'; then
+      last_sync=$EPOCHSECONDS
+      return 1
+    fi
+
     if (git stash; git stash drop; git restore .) &>>$tasklog; then
       Mail "WARN: fixed ::gentoo" $tasklog
       if ! emaint sync --auto &>>$tasklog; then
@@ -959,9 +964,6 @@ do
   if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
     syncRepo
-  fi
-  if [[ $(( EPOCHSECONDS-$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD) )) -ge 86400 ]]; then
-    Finish 13 "repo too old" $tasklog
   fi
 
   echo "#get next task" > $taskfile
