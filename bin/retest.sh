@@ -3,7 +3,7 @@
 
 
 # call this eg by:
-# grep 'setup phase' ~/tb/data/ALREADY_CATCHED | sed -e 's,\[.*\] ,,g' | cut -f1 -d' ' -s | xargs -r qatom -F "%{CATEGORY}/%{PN}" | xargs retest.sh
+# grep 'setup phase' ~/tb/data/ALREADY_CATCHED | sed -e 's,\[.*\] ,,g' | cut -f1 -d' ' | xargs retest.sh
 
 
 set -eu
@@ -29,9 +29,10 @@ sort -u |\
 while read -r item
 do
   echo "$item" >> $result
-  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$item" 2>/dev/null | grep -v -F '<unset>' | sed -e 's,/,\\/,g')
-  if [[ -n "$pkgname" ]]; then
-    if ! sed -i -e "/$pkgname/d" \
+  # reset issue artefacts
+  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$item" 2>/dev/null | grep -v -F '<unset>' | grep ".*/.*")
+  if [[ -n $pkgname ]]; then
+    if ! sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)-[[:digit:]]/d" \
         ~tinderbox/tb/data/ALREADY_CATCHED \
         ~tinderbox/run/*/etc/portage/package.mask/self \
         ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null; then
@@ -41,11 +42,12 @@ do
 done
 
 if [[ -s $result ]]; then
-  for i in $(ls ~tinderbox/run 2>/dev/null)
+  for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.1st 2>/dev/null)
   do
-    bl=~tinderbox/run/$i/var/tmp/tb/backlog.1st
+    tmp=$(mktemp /tmp/bl_XXXXXX)
     # filter out dups, then put new entries after existing ones
-    (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $bl.tmp
-    mv $bl.tmp $bl
+    (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $tmp
+    cp $tmp $bl
+    rm $tmp
   done
 fi
