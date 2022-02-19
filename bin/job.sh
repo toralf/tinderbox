@@ -59,7 +59,9 @@ function Finish()  {
   set +e
 
   if [[ $exit_code -eq 13 ]]; then
-    echo "$subject" >> /var/tmp/tb/REPLACE_ME
+    echo "$subject" >>  /var/tmp/tb/REPLACE_ME
+    chmod g+w           /var/tmp/tb/REPLACE_ME
+    chgrp tinderbox     /var/tmp/tb/REPLACE_ME
   fi
 
   feedPfl
