@@ -28,7 +28,7 @@ function getCandidates()  {
 
     echo $i
   done |\
-  sort -t'-' -k 3,4     # sort by date + time
+  sort -t'-' -k 3,4     # sort by date + time, oldest first
 }
 
 
@@ -76,21 +76,21 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# prune old stage3 files unconditionally
+# prune old stage3 files
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
-  ls ~tinderbox/distfiles/stage3-amd64-*.xz 2>/dev/null |\
+  ls ~tinderbox/distfiles/stage3-amd64-*.tar.* 2>/dev/null |\
   while read -r stage3
   do
     if [[ $latest -nt $stage3 ]]; then
       if ! grep -q -F $(basename $stage3) $latest; then
-        rm $stage3{,.DIGESTS.asc}
+        rm $stage3{,.asc}
       fi
     fi
   done
 fi
 
-# prune distfiles not accessed within 1 yr
+# prune distfiles not accessed within last year
 if pruneNeeded; then
   find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
 fi
@@ -98,7 +98,7 @@ fi
 # prune images with broken setup
 while read -r img && pruneNeeded
 do
-  if [[ ! -f $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
+  if [[ ! -s $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
     pruneDir $img
   fi
 done < <(getCandidates)
@@ -111,7 +111,7 @@ do
   fi
 done < <(getCandidates)
 
-# prune images
+# prune old images
 while read -r img && pruneNeeded
 do
   pruneDir $img
