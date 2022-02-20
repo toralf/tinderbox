@@ -33,7 +33,7 @@ function ThrowUseFlags() {
 function GetProfiles() {
   (
     eselect profile list |\
-    grep -e "default/linux/amd64/17\.1" |\
+    grep -F 'default/linux/amd64/17.1' |\
     grep -v -F -e ' (exp)' -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl' -e '/developer'
 
     # by sam
@@ -187,7 +187,7 @@ function UnpackStage3()  {
     prefix=$(sed -e 's,nomultilib-hardened,hardened-nomultilib,' <<< $prefix)
   fi
   echo " get stage3 name for $prefix"
-  local stage3=""
+  local stage3
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
     echo " failed"
     return 1
@@ -196,16 +196,17 @@ function UnpackStage3()  {
     echo " wrong grep result for $prefix: >>>$stage3<<<"
     return 1
   fi
-  if ! f=$tbhome/distfiles/$(basename $stage3); then
+  local local_stage3
+  if ! local_stage3=$tbhome/distfiles/$(basename $stage3); then
     return 1
   fi
-  if [[ ! -s $f || ! -f $f.asc || ! -f $f.DIGESTS ]]; then
+  if [[ ! -s $local_stage3 || ! -f $local_stage3.asc ]]; then
     echo
     date
-    echo " downloading $stage3 ..."
+    echo " downloading $stage3{,.asc} files ..."
     local wgeturl="$mirror/releases/amd64/autobuilds"
     if ! wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
-      echo " failed !"
+      echo " failed"
       return 1
     fi
   fi
@@ -223,27 +224,29 @@ function UnpackStage3()  {
   echo
   date
   echo " verifying the stage3 file ..."
-  if ! gpg --quiet --verify $f.asc; then
+  if ! gpg --quiet --verify $local_stage3.asc; then
     echo ' failed'
-    mv $f{,.asc} /tmp
+    mv $local_stage3{,.asc} /tmp
     return 1
   fi
 
   CreateImageName
-  if ! mkdir ~tinderbox/img/$name; then
-    return 1
-  fi
   echo
   date
   echo " new image: $name"
+  if ! mkdir ~tinderbox/img/$name; then
+    return 1
+  fi
 
   echo
   date
-  echo " untar'ing $f ..."
-  cd ~tinderbox/img/$name
-  if ! tar -xpf $f --same-owner --xattrs; then
+  echo " untar'ing $local_stage3 ..."
+  if ! cd ~tinderbox/img/$name; then
+    return 1
+  fi
+  if ! tar -xpf $local_stage3 --same-owner --xattrs; then
     echo -e " failed"
-    mv $f{,.asc} /tmp
+    mv $local_stage3{,.asc} /tmp
     return 1
   fi
 }
@@ -325,7 +328,7 @@ PORT_LOGDIR="/var/log/portage"
 
 PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
-PORTAGE_ELOG_MAILURI="root@localhost"
+PORTAGE_ELOG_MAILURI="tinderbox@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
 GENTOO_MIRRORS="$gentoo_mirrors"
