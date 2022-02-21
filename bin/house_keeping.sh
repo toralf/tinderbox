@@ -79,7 +79,7 @@ source $(dirname $0)/lib.sh
 # prune old stage3 files
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
-  ls ~tinderbox/distfiles/stage3-amd64-*.tar.* 2>/dev/null |\
+  ls ~tinderbox/distfiles/stage3-amd64-*.tar.xz 2>/dev/null |\
   while read -r stage3
   do
     if [[ $latest -nt $stage3 ]]; then
