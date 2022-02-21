@@ -19,6 +19,7 @@ function filterPlainPext() {
       s,\x00,\n,g;
       s,\r\n,\n,g;
       s,\r,\n,g;
+      s,‘,,g;
       print;
   '
 }
@@ -655,6 +656,7 @@ function PostEmerge() {
     local h=/var/tmp/tb/@world.history
     if [[ ! -s $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
       add2backlog "@world"
+      add2backlog "app-portage/pfl" # do not install it at setup to increase coverage
     fi
   fi
 }
