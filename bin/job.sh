@@ -868,30 +868,32 @@ function DetectRebuildLoop() {
 
 
 function syncRepo()  {
+  local synclog=/var/tmp/tb/sync.log
+
   cd /var/db/repos/gentoo
 
-  if ! emaint sync --auto &>>$tasklog; then
+  if ! emaint sync --auto &>>$synclog; then
     if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out'; then
       last_sync=$EPOCHSECONDS
       return 1
     fi
 
-    if (git stash; git stash drop; git restore .) &>>$tasklog; then
-      Mail "WARN: fixed ::gentoo" $tasklog
-      if ! emaint sync --auto &>>$tasklog; then
-        Finish 13 "cannot fix it" $tasklog
+    if (git stash; git stash drop; git restore .) &>>$synclog; then
+      Mail "WARN: fixed ::gentoo" $synclog
+      if ! emaint sync --auto &>>$synclog; then
+        Finish 13 "cannot fix it" $synclog
       fi
     else
-      Finish 13 "cannot fix ::gentoo" $tasklog
+      Finish 13 "cannot fix ::gentoo" $synclog
     fi
   fi
   last_sync=$EPOCHSECONDS
 
-  if grep -q -F '* An update to portage is available.' $tasklog; then
+  if grep -q -F '* An update to portage is available.' $synclog; then
     add2backlog "sys-apps/portage"
   fi
 
-  if grep -B 1 '=== Sync completed for gentoo' $tasklog | grep -q 'Already up to date.'; then
+  if grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
     return 0
   fi
 
@@ -949,6 +951,7 @@ fi
 
 # https://bugs.gentoo.org/816303
 echo "#init" > $taskfile
+rm -f $tasklog  # remove any remaining hard links
 if ! systemd-tmpfiles --create &>$tasklog; then
   Finish 13 "init error" $tasklog
 fi
@@ -961,8 +964,6 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
-  (date; echo) > $tasklog
-
   if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
     syncRepo
@@ -972,12 +973,12 @@ do
   getNextTask
   rm -rf /var/tmp/portage/*
 
-  (date; echo) > $tasklog
+  { date; echo; } > $tasklog
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
-  rm $tasklog     # rm needed to detach it from the hard linked file under .../logs
+  rm $tasklog
   truncate -s 0 $taskfile
 
   DetectRebuildLoop
