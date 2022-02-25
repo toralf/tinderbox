@@ -24,16 +24,18 @@ sys-apps/nix                        -etc_profile
 # otherwise https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
-# too much deps which would be installed always immediately at setup
+# too much deps would be installed at setup
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -qt5
 
 # https://bugs.gentoo.org/831346
 sys-kernel/installkernel-gentoo     -grub
 
+# needs hours instead seconds
+dev-libs/gf2x                       -custom-tune
+
 
 #######################################################################
 #
 # temp settings
 #
-

@@ -51,3 +51,4 @@ FAILED:
 ^mv:
 ^iconv:
 ld: cannot find
+ \*   perl_domodule:
