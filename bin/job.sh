@@ -810,7 +810,6 @@ function WorkOnTask() {
       opts+=" --update --changed-use --newuse"
     fi
 
-    feedPfl
     if RunAndCheck "emerge $task $opts" "24h"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
@@ -827,7 +826,6 @@ function WorkOnTask() {
         Finish 13 "$task is broken" $tasklog
       fi
     fi
-    feedPfl
 
   # %<command line>
   elif [[ $task =~ ^% ]]; then
@@ -972,6 +970,10 @@ do
   echo "#get next task" > $taskfile
   getNextTask
   rm -rf /var/tmp/portage/*
+  if [[ $task =~ ^@ ]]; then
+    echo "#feed pfl" > $taskfile
+    feedPfl
+  fi
 
   { date; echo; } > $tasklog
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
@@ -979,6 +981,10 @@ do
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
   rm $tasklog
+  if [[ $task =~ ^@ ]]; then
+    echo "#feed pfl" > $taskfile
+    feedPfl
+  fi
   truncate -s 0 $taskfile
 
   DetectRebuildLoop
