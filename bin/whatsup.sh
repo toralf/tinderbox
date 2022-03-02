@@ -387,6 +387,7 @@ function emergeThruput()  {
 # main
 #
 set -eu
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 unset LC_TIME
 

@@ -67,30 +67,25 @@ function setupNewImage() {
 
 #######################################################################
 set -euf
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
-
-source $(dirname $0)/lib.sh
 
 if [[ "$(whoami)" != "tinderbox" ]]; then
   echo " you must be tinderbox"
   exit 1
 fi
 
-desired_count=13            # number of images to be run
+source $(dirname $0)/lib.sh
 
-while getopts n:o:s: opt
+desired_count=13            # number of images to be run
+while getopts n:u: opt
 do
   case "$opt" in
     n)  desired_count="$OPTARG" ;;
-    o)  echo "user decision" >> ~tinderbox/img/$(basename $OPTARG)/var/tmp/tb/REPLACE_ME  ;;
+    u)  echo "user decision" >> ~tinderbox/img/$(basename $OPTARG)/var/tmp/tb/REPLACE_ME  ;;
     *)  echo " opt not implemented: '$opt'"; exit 1 ;;
   esac
 done
-
-if [[ $desired_count -lt 0 || $desired_count -gt 99 ]]; then
-  echo "desired_count is wrong: $desired_count"
-  exit 1
-fi
 
 # do not run in parallel from here
 lockfile="/tmp/$(basename $0).lck"

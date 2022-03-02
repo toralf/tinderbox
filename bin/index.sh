@@ -87,6 +87,7 @@ EOF
 
 #######################################################################
 set -eu
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 cat << EOF > ~tinderbox/img/robots.txt

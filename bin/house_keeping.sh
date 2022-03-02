@@ -67,6 +67,7 @@ function pruneDir() {
 
 #######################################################################
 set -eu
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 if [[ "$(whoami)" != "root" ]]; then
