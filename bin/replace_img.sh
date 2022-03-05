@@ -104,10 +104,9 @@ while :
 do
   if FreeSlotAvailable; then
     if ! setupNewImage; then
-      rc=$?
-      echo " setup failed with rc=$rc, sleep 10 min ..."
+      echo " setup failed, sleep 10 min ..."
       if ! sleep 600; then
-        : # allowed to be killed
+        : # allow to kill it
       fi
       continue
     fi
