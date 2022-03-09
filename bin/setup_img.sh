@@ -34,13 +34,13 @@ function GetProfiles() {
   (
     eselect profile list |\
     grep -F 'default/linux/amd64/17.1' |\
-    grep -v -F -e ' (exp)' -e '/x32' -e '/selinux' -e '/uclibc' -e '/musl' -e '/developer'
+    grep -v -F ' (exp)'
 
     # by sam
     eselect profile list |\
-    grep -e "default/linux/amd64/17\../musl" |\
-    grep -v -F -e '/selinux'
+    grep -e "default/linux/amd64/17\../musl"
   ) |\
+  grep -v -F -e '/x32' -e '/selinux' -e '/developer' |\
   awk ' { print $2 } ' |\
   cut -f4- -d'/' -s |\
   sort -u
@@ -78,7 +78,7 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
-  # stable image ?
+  # run (rarely) a stable image
   keyword="~amd64"
   if dice 1 160; then
     keyword="amd64"
@@ -173,7 +173,7 @@ function UnpackStage3()  {
   echo
   date
   echo " get prefix for $profile"
-  local prefix="stage3-amd64-$(sed -e 's,17\../,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
+  local prefix="stage3-amd64-$(sed -e 's,17\..[/]*,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
   if [[ ! $profile =~ "/systemd" && ! $profile =~ "/musl" ]]; then
     prefix+="-openrc"
   fi
