@@ -412,6 +412,7 @@ EOF
     cat << EOF > ./etc/portage/env/j$j
 EGO_BUILD_FLAGS="-p $j"
 GO19CONCURRENTCOMPILATION=0
+GOMAXPROCS=$j
 
 MAKEOPTS="-j$j"
 
