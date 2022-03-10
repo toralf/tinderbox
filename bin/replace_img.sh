@@ -34,7 +34,7 @@ function FreeSlotAvailable() {
 }
 
 
-function StopAndUnlinkOldImage() {
+function StopOldImage() {
   local msg="kicked off b/c: $(cat ~tinderbox/img/$oldimg/var/tmp/tb/REPLACE_ME)"
   if __is_running $oldimg; then
     echo
@@ -102,16 +102,7 @@ trap Finish INT QUIT TERM EXIT
 
 while :
 do
-  if FreeSlotAvailable; then
-    if ! setupNewImage; then
-      echo " setup failed, sleep 10 min ..."
-      if ! sleep 600; then
-        : # allow to kill it
-      fi
-      continue
-    fi
-  fi
-
+  # mark images
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
@@ -120,11 +111,40 @@ do
         echo -e "last task $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/REPLACE_ME
       fi
     fi
+  done < <(ImagesInRunShuffled)
 
-    if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
-      if StopAndUnlinkOldImage; then
+  # free slots in ~/run
+  while read -r oldimg
+  do
+    if ! __is_running $oldimg; then
+      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
         rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
-        continue 2
+      fi
+    fi
+  done < <(ImagesInRunShuffled)
+
+  # fill up free slots
+  if FreeSlotAvailable; then
+    if ! setupNewImage; then
+      echo
+      date
+      echo " setup failed, sleep 10 min ..."
+      if ! sleep 600; then
+        : # allow to kill it
+      fi
+      continue
+    fi
+  fi
+
+  # replace running images
+  while read -r oldimg
+  do
+    if __is_running $oldimg; then
+      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
+        if StopOldImage; then
+          rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
+          continue 2
+        fi
       fi
     fi
   done < <(ImagesInRunShuffled)
