@@ -173,7 +173,7 @@ function UnpackStage3()  {
   echo
   date
   echo " get prefix for $profile"
-  local prefix="stage3-amd64-$(sed -e 's,17\..[/]*,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
+  local prefix="stage3-amd64-$(sed -e 's,17\..,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
   if [[ ! $profile =~ "/systemd" && ! $profile =~ "/musl" ]]; then
     prefix+="-openrc"
   fi
@@ -186,6 +186,8 @@ function UnpackStage3()  {
   if [[ $profile =~ "17.1/no-multilib/hardened" ]]; then
     prefix=$(sed -e 's,nomultilib-hardened,hardened-nomultilib,' <<< $prefix)
   fi
+  prefix=$(sed -e 's,--*,-,g' <<< $prefix)
+
   echo " get stage3 name for $prefix"
   local stage3
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
