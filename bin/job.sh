@@ -950,8 +950,9 @@ fi
 # https://bugs.gentoo.org/816303
 echo "#init" > $taskfile
 rm -f $tasklog  # remove any remaining hard links
+
 if ! systemd-tmpfiles --create &>$tasklog; then
-  Finish 13 "init error" $tasklog
+  Mail "WARN: init error" $tasklog
 fi
 
 last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
