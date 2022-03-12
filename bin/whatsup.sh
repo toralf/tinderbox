@@ -292,14 +292,16 @@ function Coverage() {
 
 # whatsup.sh -p
 #
-# package revisions x emerge times
-# 3006x1 824x2 387x3 197x4 171x5 137x6 154x7 136x8 84x9 79x10 109x11 286x12 6x13 6x14 6x15
+# package (revisions) x emerges in ~/run
+#  2477x1 3163x2 3176x3 2548x4 1577x5 1059x6 718x7 454x8 353x9 448x10 437x11 126x12 86x13 21x14 9x15 12x16 25x17 17x18 2x19 1x26 dev-vcs/git-2.35.1
+#
+#  16709 package (revisions) in 67930 emerges
 function CountEmergesPerPackages()  {
-  echo "package revisions x emerge times"
+  echo "package (revisions) x emerges in ~/run"
 
   perl -wane '
     BEGIN {
-      my %pet = ();     # package => emerge times
+      my %pet = ();     # package => emerges
     }
 
     next unless (m/::: completed emerge/);
@@ -317,7 +319,7 @@ function CountEmergesPerPackages()  {
 
       my $total = 0;    # total amount of emerge operations
       my $seen = 0;     # "     "      "  packages
-      my $max = 0;      # emerge times of a package
+      my $max = 0;      # emerges of a package
 
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};
@@ -330,7 +332,7 @@ function CountEmergesPerPackages()  {
       for my $key (sort keys %pet)  {
         print " ", $key if ($max == $pet{$key});
       }
-      print "\n\n $seen package revisions in $total emerges\n";
+      print "\n\n $seen package (revisions) in $total emerges\n";
     }
   ' ~tinderbox/run/*/var/log/emerge.log 2>/dev/null
 }
