@@ -113,7 +113,7 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  # free slots in ~/run
+  # freeing slots
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
@@ -123,7 +123,7 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  # fill up free slots
+  # setup as long as free slots are available
   if FreeSlotAvailable; then
     if ! setupNewImage; then
       echo
@@ -132,8 +132,8 @@ do
       if ! sleep 600; then
         : # allow to kill it
       fi
-      continue
     fi
+    continue
   fi
 
   # replace running images
