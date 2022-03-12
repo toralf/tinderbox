@@ -10,7 +10,7 @@
 */*  QEMU_SOFTMMU_TARGETS:          x86_64 i386
 */*  QEMU_USER_TARGETS:             x86_64 i386
 */*  VIDEO_CARDS:                   -* dummy fbdev
-*/*  RUBY_TARGETS:                  ruby30
+*/*  RUBY_TARGETS:                  ruby31
 
 # 2x faster compile
 */*                                 jumbo-build
