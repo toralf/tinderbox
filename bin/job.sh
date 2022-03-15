@@ -44,10 +44,13 @@ function Mail() {
 
 # http://www.portagefilelist.de
 function feedPfl()  {
+  local tmp=$(mktemp /tmp/feedPfl_XXXXXX)
   if [[ -x /usr/bin/pfl ]]; then
-    /usr/bin/pfl &>/dev/null
-    return 0    # pfl is not mandatory
+    if ! /usr/bin/pfl &>$tmp; then
+      Mail "WARN: pfl failed" $tmp
+    fi
   fi
+  rm $tmp
 }
 
 
