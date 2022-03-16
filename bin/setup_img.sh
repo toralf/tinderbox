@@ -825,6 +825,9 @@ if [[ "$(whoami)" != "root" ]]; then
 fi
 
 echo
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+echo
 date
 echo " $0 started"
 
@@ -866,3 +869,6 @@ chgrp portage ./etc/portage/package.use/*
 chmod g+w,a+r ./etc/portage/package.use/*
 echo -e "\n$(date)\n  setup done\n"
 StartImage
+
+echo
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
