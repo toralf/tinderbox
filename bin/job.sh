@@ -874,18 +874,20 @@ function syncRepo()  {
   cd /var/db/repos/gentoo
 
   if ! emaint sync --auto &>>$synclog; then
+    Mail "WARN: sync failed for ::gentoo" $synclog
     if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out'; then
       last_sync=$EPOCHSECONDS
       return 1
     fi
 
-    if (git stash; git stash drop; git restore .) &>>$synclog; then
-      Mail "WARN: fixed ::gentoo" $synclog
+    if (echo -e "\nTrying to restore ...\n"; git stash; git stash drop; git restore .) &>>$synclog; then
       if ! emaint sync --auto &>>$synclog; then
-        Finish 13 "cannot fix it" $synclog
+        Finish 13 "still unfixed ::gentoo" $synclog
+      else
+        Mail "INFO: fixed ::gentoo" $synclog
       fi
     else
-      Finish 13 "cannot fix ::gentoo" $synclog
+      Finish 13 "cannot restore ::gentoo" $synclog
     fi
   fi
   last_sync=$EPOCHSECONDS
