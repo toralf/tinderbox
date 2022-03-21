@@ -498,8 +498,6 @@ function SendIssueMailIfNotYetReported()  {
     if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       # chain "cat" by "echo" b/c cat has a buffered output which is racy between images
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
-      echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
-      cat $issuedir/issue >> $issuedir/body
       Mail "$(cat $issuedir/title)" $issuedir/body
     fi
   fi
@@ -565,6 +563,10 @@ function WorkAtIssue()  {
   else
     add2backlog "$task"
   fi
+
+  # prepare email body
+  echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
+  cat $issuedir/issue >> $issuedir/body
 
   SendIssueMailIfNotYetReported
 }
@@ -735,7 +737,7 @@ function GetPkgFromTaskLog() {
   pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
-    Mail "INFO: cannot get pkglog for pkg '$pkg' task '$task'" $tasklog_stripped
+    Mail "INFO: cannot get pkglog for pkg=$pkg task=$task" $tasklog
     return 1
   fi
 }
@@ -751,7 +753,7 @@ function RunAndCheck() {
   local rc=$?
   (echo; date) >> $tasklog
 
-  tasklog_stripped="/tmp/tasklog_stripped.log"
+  tasklog_stripped="/tmp/tasklog_stripped.log"    # this is on tmpfs
 
   filterPlainPext < $tasklog > $tasklog_stripped
   PostEmerge
@@ -762,7 +764,7 @@ function RunAndCheck() {
       local core_files_dir=/var/tmp/tb/core/$task_timestamp_prefix
       mkdir -p $core_files_dir
       mv /tmp/core.* $core_files_dir
-      Mail "INFO: kept core files in $core_files_dir" "$(ls -lh $core_files_dir/)" $tasklog_stripped
+      Mail "INFO: kept core files in $core_files_dir" "$(ls -lh $core_files_dir/)" $tasklog
     else
       rm /tmp/core.*
     fi
@@ -773,14 +775,20 @@ function RunAndCheck() {
     local signal=$(( rc-128 ))
     PutDepsIntoWorldFile
     if [[ $signal -eq 9 ]]; then
-      Finish 9 "exiting due to signal $signal" $tasklog_stripped
+      Finish 9 "exiting due to signal $signal" $tasklog
     else
-      Mail "WARN: got signal $signal  task=$task" $tasklog_stripped
+      Mail "WARN: got signal $signal task=$task" $tasklog
+    fi
+
+    pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,')
+    if [[ -n $pkg ]]; then
+      createIssueDir
+      Mail "killed task=$task pkd=$pkg" $tasklog
     fi
 
   # timeout
   elif [[ $rc -eq 124 ]]; then
-    Mail "INFO: timeout  task=$task" $tasklog_stripped
+    Mail "INFO: timeout  task=$task" $tasklog
     PutDepsIntoWorldFile
 
   # emerge failed
@@ -795,7 +803,7 @@ function RunAndCheck() {
   fi
 
   if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
-    Finish 1 "FATAL: $fatal" $tasklog_stripped
+    Finish 1 "FATAL: $fatal" $tasklog
   fi
 
   return $rc
