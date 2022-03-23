@@ -498,6 +498,9 @@ function SendIssueMailIfNotYetReported()  {
     if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
       # chain "cat" by "echo" b/c cat has a buffered output which is racy between images
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
+
+      echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
+      cat $issuedir/issue >> $issuedir/body
       Mail "$(cat $issuedir/title)" $issuedir/body
     fi
   fi
@@ -563,10 +566,6 @@ function WorkAtIssue()  {
   else
     add2backlog "$task"
   fi
-
-  # prepare email body
-  echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
-  cat $issuedir/issue >> $issuedir/body
 
   SendIssueMailIfNotYetReported
 }
@@ -864,15 +863,17 @@ function WorkOnTask() {
 
 # not more than n @preserved-rebuild within N last tasks
 function DetectRebuildLoop() {
-  local histfile=/var/tmp/tb/@preserved-rebuild.history
-  if [[ -s $histfile ]]; then
-    local n=7
-    local N=20
-    if [[ $(tail -n $N $histfile | grep -c '@preserved-rebuild') -ge $n ]]; then
-      echo "$(date) too much rebuilds" >> $histfile
-      Finish 13 "detected a rebuild loop" $histfile
+  local n=7
+  local N=20
+  local histfile=/var/tmp/tb/task.history
+
+  for pattern in 'perl-cleaner' '@world' '@preserved-rebuild'
+  do
+    if [[ $(tail -n $N $histfile | grep -c "$pattern") -ge $n ]]; then
+      echo "$(date) too much $pattern" >> $histfile
+      Finish 13 "detected a repeat in $pattern" $histfile
     fi
-  fi
+  done
 }
 
 
