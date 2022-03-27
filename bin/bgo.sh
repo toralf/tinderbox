@@ -138,7 +138,12 @@ if [[ -d ./files ]]; then
       continue
     # max. size from b.g.o. is 1000 KB
     elif [[ $bytes -gt 1000000 ]]; then
-      echo -e "\nskipped TOO FAT file: $f\n"
+      echo "too fat file: $f"
+      file_size=$(ls -lh $f | awk ' { print $5 } ')
+      file_path=$(realpath $f | sed -e "s,^.*img/,,g")
+      url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
+      comment="The file size of $f is too big ($file_size) for an upload. For about 8 weeks the link $url is valid."
+      timeout 60 bugz modify --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
       continue
     fi
 
