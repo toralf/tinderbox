@@ -9,7 +9,7 @@ function listStat()  {
   echo -e "<h2>few stats</h2>\n<pre>" >> $tmpfile
   echo "<h3>coverage</h3>" >> $tmpfile
   $(dirname $0)/whatsup.sh -c | recode --silent ascii..html >> $tmpfile
-  (cd  ~tinderbox/img; ls packages.*.*covered.txt 2>/dev/null) | recode --silent ascii..html | xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
+  (cd  ~tinderbox/img; ls packages.*.*covered.txt needed*.txt 2>/dev/null) | recode --silent ascii..html | xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
   echo "<h3>overview</h3>" >> $tmpfile
   $(dirname $0)/whatsup.sh -o | recode --silent ascii..html >> $tmpfile
   echo "<h3>packages per day per image</h3>" >> $tmpfile
@@ -26,7 +26,7 @@ function listStat()  {
 
 function listImages()  {
   echo -e "<h2>content of directory ~tinderbox/img</h2>\nHint: Tinderbox data are under ./var/tmp/tb\n<br>\n<pre>"  >> $tmpfile
-  ls ~tinderbox/img/ | recode --silent ascii..html | xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
+  (cd ~tinderbox/img; ls -d 17.* 2>/dev/null) | recode --silent ascii..html | xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
   echo -e "</pre>\n" >> $tmpfile
 }
 
