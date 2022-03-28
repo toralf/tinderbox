@@ -31,7 +31,7 @@ while read -r item
 do
   echo "$item" >> $result
   # reset issue artefacts
-  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$item" 2>/dev/null | grep -v -F '<unset>' | grep ".*/.*")
+  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$item" 2>/dev/null | grep -v -F '<unset>' | grep ".*/.*" || true)
   if [[ -n $pkgname ]]; then
     if ! sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)-[[:digit:]]/d" \
         ~tinderbox/tb/data/ALREADY_CATCHED \
