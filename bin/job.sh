@@ -36,7 +36,7 @@ function Mail() {
   else
     echo -e "$content"
   fi |\
-  if ! (mail -s "$subject   @ $name" -- ${MAILTO:-tinderbox} 1>/dev/null); then
+  if ! (mail -s "$subject   @ $name" ${MAILTO:-tinderbox} 1>/dev/null); then
     { echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2 ; }
   fi
 }
