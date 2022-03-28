@@ -862,13 +862,16 @@ function WorkOnTask() {
 
 
 # not more than n @preserved-rebuild within N last tasks
-function DetectRebuildLoop() {
+function DetectTaskLoop() {
   local n=7
   local N=20
   local histfile=/var/tmp/tb/task.history
 
   for pattern in 'perl-cleaner' '@world' '@preserved-rebuild'
   do
+    if [[ $pattern = '@world' && $name =~ "_test" ]]; then
+      continue
+    fi
     if [[ $(tail -n $N $histfile | grep -c "$pattern") -ge $n ]]; then
       echo "$(date) too much $pattern" >> $histfile
       Finish 13 "detected a repeat in $pattern" $histfile
@@ -1002,5 +1005,5 @@ do
   fi
   truncate -s 0 $taskfile
 
-  DetectRebuildLoop
+  DetectTaskLoop
 done
