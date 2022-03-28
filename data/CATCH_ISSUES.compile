@@ -324,3 +324,5 @@ Unkown OCaml version
 no theme named .* found
 iconv: unrecognized option:
 Unimplemented option:
+: cannot embed irregular file
+go: inconsistent vendoring

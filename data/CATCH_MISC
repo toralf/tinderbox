@@ -2,7 +2,6 @@ SetuptoolsDeprecationWarning: 2to3
 .automake. called by src_prepare
 Automake "maintainer mode" detected:
 cmake-utils_src_prepare has not been run
-configure: WARNING: SSL disabled, you will not be able to use HTTPS, FTPS, NTLM and more.
 dosym target omits basename:
 econf called in .* instead of
 inherited illegally

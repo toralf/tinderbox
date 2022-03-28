@@ -10,15 +10,3 @@
 # no stable version yet
 mail-client/s-nail                  ~amd64
 
-
-#######################################################################
-#
-# temp settings
-#
-
-# by sam, tupone
-dev-lang/ocaml:0/4.12               ~amd64
-dev-ml/camlp4:0/4.12                ~amd64
-
-# Mon Jan 31 07:55:12 PM CET 2022
-~sys-libs/glibc-2.33

@@ -1,3 +1,4 @@
+asciidoctor (LoadError)
 atlas needs all cpu set to performance
 cannot load such file .*asciidoctor
 Configure: unknown option --enable-option-checking=warn

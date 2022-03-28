@@ -9,7 +9,7 @@
 
 */*  QEMU_SOFTMMU_TARGETS:          x86_64 i386
 */*  QEMU_USER_TARGETS:             x86_64 i386
-*/*  VIDEO_CARDS:                   -* dummy fbdev
+*/*  VIDEO_CARDS:                   -* dummy fbdev amdgpu
 */*  RUBY_TARGETS:                  ruby31
 
 # 2x faster compile
@@ -18,10 +18,10 @@
 # MTA of the tinderbox image
 mail-mta/ssmtp                      mta ssl -gnutls
 
-# /etc/profile.d/nix.sh overwrites it
+# /etc/profile.d/nix.sh overwrites /etc/profile
 sys-apps/nix                        -etc_profile
 
-# otherwise https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https
+# https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
 # too much deps would be installed at setup
@@ -34,8 +34,13 @@ sys-kernel/installkernel-gentoo     -grub
 # needs hours instead seconds
 dev-libs/gf2x                       -custom-tune
 
+# git cannot fetch ::gentoo
+net-misc/curl                       ssl
+
 
 #######################################################################
 #
 # temp settings
 #
+
+*/*                                 vala introspection

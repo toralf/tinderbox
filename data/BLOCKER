@@ -36,3 +36,7 @@ foobar
 [TRACKER] cmake-utils.eclass: Last-rites
 834110
 Ignoring extra path from command line
+
+# [Tracker] dev-lang/go-1.18 breakage
+835378
+go: inconsistent vendoring
