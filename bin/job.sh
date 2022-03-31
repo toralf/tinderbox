@@ -66,6 +66,7 @@ function Finish()  {
     echo "$subject" >>  /var/tmp/tb/REPLACE_ME
     chmod g+w           /var/tmp/tb/REPLACE_ME
     chgrp tinderbox     /var/tmp/tb/REPLACE_ME
+    truncate -s 0 $taskfile
   fi
 
   feedPfl
