@@ -521,8 +521,12 @@ function CreateBacklogs()  {
   fi
 
   cat << EOF >> $bl.1st
+# by sam_
+dev-util/checkbashisms
+app-shells/bash-completion
+# basic setup
 @world
-%sed -i -e \\'s,--verbose,--deep --verbose,g\\' /etc/portage/make.conf
+%sed -i -e \\'s,--verbose ,--deep --verbose ,\\' /etc/portage/make.conf
 %emerge -uU sys-devel/gcc
 
 EOF
