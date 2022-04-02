@@ -888,7 +888,7 @@ function syncRepo()  {
 
   cd /var/db/repos/gentoo
 
-  if ! emaint sync --auto &>>$synclog; then
+  if ! emaint sync --auto &>$synclog; then
     Mail "WARN: sync failed for ::gentoo" $synclog
     if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out'; then
       last_sync=$EPOCHSECONDS
@@ -942,7 +942,7 @@ set -eu
 export LANG=C.utf8
 trap Finish INT QUIT TERM EXIT
 
-export -f SwitchGCC                 # to call it eg. from retest.sh
+export -f syncRepo                  # to call it eg. from retest.sh
 
 taskfile=/var/tmp/tb/task           # holds the current task
 tasklog=$taskfile.log               # holds output of it
@@ -962,7 +962,7 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
-# re-schedule $task (non-empty == failed before)
+# re-schedule $task (non-empty == Failed() before)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
