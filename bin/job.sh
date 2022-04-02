@@ -94,7 +94,7 @@ function setBacklog()  {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    Finish 13 "#empty backlogs"
+    Finish 13 "done"
   fi
 }
 
@@ -832,7 +832,9 @@ function WorkOnTask() {
     else
       echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
       if [[ -n "$pkg" ]]; then
-        add2backlog "$task"
+        if [[ $try_again -eq 0 ]]; then
+          add2backlog "$task"
+        fi
       elif [[ $task = "@world" || $task = "@preserved-rebuild" && ! -s /var/tmp/tb/backlog.1st ]]; then
         Finish 13 "$task is broken" $tasklog
       fi
@@ -1000,6 +1002,7 @@ do
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
   rm $tasklog
+
   if [[ $task =~ ^@ ]]; then
     echo "#feed pfl" > $taskfile
     feedPfl
