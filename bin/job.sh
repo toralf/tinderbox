@@ -942,7 +942,7 @@ set -eu
 export LANG=C.utf8
 trap Finish INT QUIT TERM EXIT
 
-export -f syncRepo                  # to call it eg. from retest.sh
+export -f SwitchGCC syncRepo        # to call it from backlog.1st and from retest.sh respectively
 
 taskfile=/var/tmp/tb/task           # holds the current task
 tasklog=$taskfile.log               # holds output of it
