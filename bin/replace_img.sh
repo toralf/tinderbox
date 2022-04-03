@@ -102,7 +102,7 @@ trap Finish INT QUIT TERM EXIT
 
 while :
 do
-  # mark images
+  # mark old stopped images
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
@@ -113,7 +113,7 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  # freeing slots
+  # remove stopped dead images
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
@@ -123,20 +123,19 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  # setup as long as free slots are available
+  # setup a new image as long as a free slot is available
   if FreeSlotAvailable; then
-    if ! setupNewImage; then
+    if setupNewImage; then
+      continue
+    else
       echo
       date
-      echo " setup failed, sleep 10 min ..."
-      if ! sleep 600; then
-        : # allow to kill it
-      fi
+      echo " setup failed"
+      Finish 1
     fi
-    continue
   fi
 
-  # replace running images
+  # stop and replace dead images accidently (re-)started
   while read -r oldimg
   do
     if __is_running $oldimg; then
