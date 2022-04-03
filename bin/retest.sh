@@ -45,7 +45,7 @@ done
 if [[ -s $result ]]; then
   for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.1st 2>/dev/null)
   do
-    tmp=$(mktemp /tmp/bl_XXXXXX)
+    tmp=$(mktemp /tmp/retest.sh_XXXXXX)
     # filter out dups, then put new entries after existing ones
     (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $tmp
     cp $tmp $bl
