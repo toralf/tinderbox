@@ -8,14 +8,13 @@ function Finish() {
   local rc=${1:-$?}
   local pid=$$
 
-  trap - INT QUIT TERM EXIT
-
   if [[ $rc -ne 0 ]]; then
     echo
     date
     echo " pid $pid exited with rc=$rc"
   fi
 
+  trap - INT QUIT TERM EXIT
   rm $lockfile
   exit $rc
 }
