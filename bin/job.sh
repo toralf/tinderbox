@@ -775,15 +775,13 @@ function RunAndCheck() {
     PutDepsIntoWorldFile
     if [[ $signal -eq 9 ]]; then
       Finish 9 "exiting due to signal $signal" $tasklog
-    else
-      Mail "WARN: got signal $signal task=$task" $tasklog
     fi
-
     pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,')
     if [[ -n $pkg ]]; then
       createIssueDir
-      Mail "killed task=$task pkd=$pkg" $tasklog
+      # TODO: collect relevant files here
     fi
+    Mail "WARN: signal $signal task=$task pkg=$pkg" $tasklog
 
   # timeout
   elif [[ $rc -eq 124 ]]; then
