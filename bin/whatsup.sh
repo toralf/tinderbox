@@ -353,7 +353,7 @@ function emergeThruput()  {
 
   perl -F: -wane '
     BEGIN {
-      my %Day = ();
+      my %Days = ();
     }
     {
       next unless (m/::: completed emerge/);
@@ -365,22 +365,49 @@ function emergeThruput()  {
       $mon = "0" . $mon if ($mon < 10);
       $mday = "0" . $mday if ($mday < 10);
 
-      my $key = $year . "-" . $mon . "-" . $mday;
-      $Day{$key}->{$hour}++;
-      $Day{$key}->{"sum"}++;
+      my $day = $year . "-" . $mon . "-" . $mday;
+      $Days{$day}->{$hour}++;
+      $Days{$day}->{"sum"}++;
     }
 
     END {
-      for my $key (sort { $a cmp $b } keys %Day)  {
-        printf("%s %5i  ", $key, $Day{$key}->{"sum"});
-        foreach my $hour(0..23) {
-          printf("%4i", $Day{$key}->{$hour} ? $Day{$key}->{$hour} : 0);
+      my %Mean = ();
+
+      # delete anything in %Days older 2 weeks b/c those values might be incomplete
+      # due to house kept images having no reported bugs
+      if (my $limit = (sort { $b cmp $a } keys %Days)[13])  {
+        foreach my $key (keys %Days) {
+          delete ($Days{$key}) if ($key lt $limit);
+        }
+      }
+
+      # print out the daily values and calculate the mean of them
+      for my $day (sort { $a cmp $b } keys %Days)  {
+        my $value = $Days{$day}->{"sum"};
+        printf("%-10s %5i  ", $day, $value);
+        $Mean{"sum"} += $value;
+
+        foreach my $hour (0..23) {
+          $value = $Days{$day}->{$hour} ? $Days{$day}->{$hour} : 0;
+          printf("%4i", $value);
+          $Mean{$hour} += $value;
         }
         print "\n";
       }
+      print "\n";
+
+      # print out the mean values
+      my $n = scalar keys %Days;
+      foreach my $key (keys %Mean)  {
+        $Mean{$key} /= $n;
+      }
+      printf("%-10s %5i  ", "mean", $Mean{"sum"});
+      foreach my $hour (0..23) {
+        printf("%4i", $Mean{$hour});
+      }
     }
-  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -14 | sort -t '-' -k 3,4) |\
-  tail -n 14
+  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -14 | sort -t '-' -k 3,4)
+  # even if a log file is not older than 14 days its emerges maybe older
 }
 
 
