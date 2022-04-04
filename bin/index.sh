@@ -85,6 +85,20 @@ EOF
 }
 
 
+function developerInfo() {
+  # from _sam (libxcrypt)
+  cd ~tinderbox/img
+
+  find ./*/var/db/pkg/ -name "NEEDED.ELF.2" -not -path '*/-MERGING*' -exec grep -F "libcrypt.so" {} + 2>/dev/null |\
+  sort -u |\
+  tee /tmp/needed.txt |\
+  cut -f6- -d'/' -s |\
+  sort -u > /tmp/needed-short.txt
+
+  cp /tmp/needed*.txt ./
+}
+
+
 #######################################################################
 set -eu
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
@@ -110,3 +124,5 @@ echo -e "\n</html>\n" >> $tmpfile
 
 cp $tmpfile ~tinderbox/img/index.html
 rm $tmpfile
+
+developerInfo
