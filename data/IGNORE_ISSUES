@@ -6,11 +6,9 @@ Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.
 dev-ruby/.*::gentoo failed (install phase)
-FEATURES=test will require fs.aio-max-nr=250000 at minimum!
 gcc version .* found, expected gcc
 gem install kramdown
 Incompatible gcc version found
-internal compiler error:
 Kernel not configured; no .config found in
 Linux .* is the latest supported version
 mingw is needed
@@ -31,5 +29,4 @@ The version of your compiler is not supported at this time
 USE=modules and in-kernel ipset support detected
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
-you must set LINGUAS in /etc/portage/make.conf
 You need one of the following mpi implementations:
