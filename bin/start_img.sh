@@ -46,7 +46,7 @@ do
   fi
 
   if __is_running "$mnt" ; then
-    echo " is locked:  $mnt"
+    echo " is running:  $mnt"
     continue
   fi
 
