@@ -525,6 +525,7 @@ function CreateBacklogs()  {
 dev-util/checkbashisms
 app-shells/bash-completion
 # basic setup
+app-portage/pfl
 @world
 %sed -i -e \\'s,--verbose ,--deep --verbose ,\\' /etc/portage/make.conf
 %emerge -uU sys-devel/gcc

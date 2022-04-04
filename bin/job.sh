@@ -634,7 +634,7 @@ function PostEmerge() {
 
   if grep -q  -e ">>> Installing .* dev-lang/perl-[1-9]" \
               -e 'Use: perl-cleaner' $tasklog_stripped; then
-    add2backlog "@world"      # implies --depclean if successful
+    add2backlog "@world"
     add2backlog "%perl-cleaner --all"
   fi
 
@@ -659,9 +659,8 @@ function PostEmerge() {
   # if 1st prio is empty then schedule the daily update if it is time
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local h=/var/tmp/tb/@world.history
-    if [[ ! -s $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
+    if [[ ! -f $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
       add2backlog "@world"
-      add2backlog "app-portage/pfl" # do not install it at setup to increase coverage
     fi
   fi
 }
