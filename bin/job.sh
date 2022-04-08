@@ -84,7 +84,7 @@ function setBacklog()  {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     backlog=/var/tmp/tb/backlog.1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $(( $RANDOM%4 )) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $(( RANDOM%4 )) -eq 0 ]]; then
     backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then

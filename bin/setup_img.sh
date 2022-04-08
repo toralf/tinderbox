@@ -7,7 +7,7 @@
 
 # $1:$2, eg. 3:5
 function dice() {
-  [[ $(( $RANDOM%$2)) -lt $1 ]]
+  [[ $(( RANDOM%$2)) -lt $1 ]]
 }
 
 
@@ -16,7 +16,7 @@ function ThrowUseFlags() {
   local n=$1        # pass up to n-1
   local m=${2:-4}   # mask 1:m of them
 
-  shuf -n $(( $RANDOM%$n)) |\
+  shuf -n $(( RANDOM%$n)) |\
   sort |\
   while read -r flag
   do
@@ -742,7 +742,7 @@ function ThrowImageUseFlags() {
 
   grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |\
   cut -f1 -d' ' -s |\
-  shuf -n $(( $RANDOM%20 )) |\
+  shuf -n $(( RANDOM%20 )) |\
   sort |\
   xargs |\
   xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
@@ -755,7 +755,7 @@ function ThrowImageUseFlags() {
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |\
-  shuf -n $(( $RANDOM%3000)) |\
+  shuf -n $(( RANDOM%3000)) |\
   sort |\
   while read -r file
   do
