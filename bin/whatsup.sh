@@ -280,7 +280,7 @@ function Coverage() {
     fi
     local perc=0
     if [[ $N -gt 0 ]]; then
-      perc=$(( 100*$n/$N ))
+      perc=$(( 100*n/N ))
     fi
     printf "%5i packages emerged under ~tinderbox/%s   (%2i%% for last %2i days)" $n $i $perc $days
     echo
@@ -375,36 +375,37 @@ function emergeThruput()  {
 
       # delete anything in %Days older 2 weeks b/c those values might be incomplete
       # due to house kept images having no reported bugs
-      if (my $limit = (sort { $b cmp $a } keys %Days)[13])  {
-        foreach my $key (keys %Days) {
-          delete ($Days{$key}) if ($key lt $limit);
-        }
+      my ($youngest, $oldest) = (sort { $b cmp $a } keys %Days)[0,13];
+
+      foreach my $key (keys %Days) {
+        delete ($Days{$key}) if ($key lt $oldest);
       }
 
       # print out the daily values and calculate the mean of them
       for my $day (sort { $a cmp $b } keys %Days)  {
         my $value = $Days{$day}->{"sum"};
         printf("%-10s %5i  ", $day, $value);
-        $Mean{"sum"} += $value;
+        $Mean{"sum"} += $value if ($day ne $youngest);
 
         foreach my $hour (0..23) {
           $value = $Days{$day}->{$hour} ? $Days{$day}->{$hour} : 0;
           printf("%4i", $value);
-          $Mean{$hour} += $value;
+          $Mean{$hour} += $value if ($day ne $youngest);
         }
         print "\n";
       }
       print "\n";
 
       # print out the mean values
-      my $n = scalar keys %Days;
+      my $n = (scalar keys %Days) - 1;
       foreach my $key (keys %Mean)  {
         $Mean{$key} /= $n;
       }
-      printf("%-10s %5i  ", "mean", $Mean{"sum"});
+      printf("%-10s %5i  ", "13d-mean", $Mean{"sum"});
       foreach my $hour (0..23) {
         printf("%4i", $Mean{$hour});
       }
+      print "\n";
     }
   ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -14 | sort -t '-' -k 3,4)
   # even if a log file is not older than 14 days its emerges maybe older
