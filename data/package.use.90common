@@ -37,6 +37,9 @@ dev-libs/gf2x                       -custom-tune
 # git cannot fetch ::gentoo
 net-misc/curl                       ssl
 
+# fails with: you must set LINGUAS
+app-admin/webalizer                 -nls
+
 
 #######################################################################
 #
