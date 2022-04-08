@@ -16,7 +16,7 @@ function ThrowUseFlags() {
   local n=$1        # pass up to n-1
   local m=${2:-4}   # mask 1:m of them
 
-  shuf -n $(( RANDOM%$n)) |\
+  shuf -n $(( RANDOM%n)) |\
   sort |\
   while read -r flag
   do
