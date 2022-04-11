@@ -20,7 +20,7 @@ function getCandidates()  {
     fi
 
     if [[ -s $i/var/log/emerge.log ]]; then
-      # keep emerges of last 2 weeks for "whatsup.sh -e"
+      # keep emerges (not images) of last 2 weeks for a precise "whatsup.sh -e" output
       if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -lt 14 ]]; then
         continue
       fi
@@ -37,10 +37,10 @@ function getCandidates()  {
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded()  {
   local fs=/dev/nvme0n1p4
-  local gb=200000          # have at least free (in GB)
-  local perc=89            # have not more used than (in %t)
+  local free=200000        # in GB
+  local used=89            # in %
 
-  [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < "'"$gb"'" || $5 > "'"$perc"'%")') ]]
+  [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < "'"$free"'" || $5 > "'"$used"'%")') ]]
 }
 
 
@@ -60,7 +60,7 @@ function pruneDir() {
   rm -r $d
   local rc=$?
 
-  sleep 40    # lazy btrfs
+  sleep 30    # lazy btrfs
   return $rc
 }
 
@@ -85,7 +85,7 @@ if [[ -s $latest ]]; then
   do
     if [[ $latest -nt $stage3 ]]; then
       if ! grep -q -F $(basename $stage3) $latest; then
-        rm $stage3{,.asc}
+        rm -f $stage3{,.asc}    # *.asc might not exist
       fi
     fi
   done
