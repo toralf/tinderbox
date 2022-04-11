@@ -40,7 +40,7 @@ function GetProfiles() {
     eselect profile list |\
     grep -e "default/linux/amd64/17\../musl"
   ) |\
-  grep -v -F -e '/x32' -e '/selinux' -e '/developer' |\
+  grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' |\
   awk ' { print $2 } ' |\
   cut -f4- -d'/' -s |\
   sort -u
@@ -172,37 +172,31 @@ function UnpackStage3()  {
 
   echo
   date
-  echo " get prefix for $profile"
-  local prefix="stage3-amd64-$(sed -e 's,17\..,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-' | tr '/' '-')"
+  echo " get stage3 file name prefix for profile $profile"
+  local prefix="stage3-amd64-"
+  prefix+=$(sed -e 's,17\../,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-')
+  prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
+  if [[ $profile =~ "/desktop" ]]; then
+    if dice 1 2; then
+      # plain stage3 instead desktop stage3
+      prefix=$(sed -e 's,/desktop,,' <<< $prefix)
+    fi
+  fi
   if [[ ! $profile =~ "/systemd" && ! $profile =~ "/musl" ]]; then
     prefix+="-openrc"
   fi
-  if [[ $profile =~ "/desktop" ]]; then
-    if dice 1 2; then
-      # setup from a basic stage3 image instead of a desktop stage3
-      prefix=$(sed -e 's,-desktop,,' <<< $prefix)
-    fi
-  fi
-  if [[ $profile =~ "17.1/no-multilib/hardened" ]]; then
-    prefix=$(sed -e 's,nomultilib-hardened,hardened-nomultilib,' <<< $prefix)
-  fi
-  prefix=$(sed -e 's,--*,-,g' <<< $prefix)
+  prefix=$(tr '/' '-' <<< $prefix | sed -e 's,--*,-,g')
 
-  echo " get stage3 name for $prefix"
+  echo
+  date
+  echo " get current stage3 file name for $prefix"
   local stage3
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
     echo " failed"
     return 1
   fi
-  if [[ -z $stage3 || $stage3 =~ ' ' ]]; then
-    echo " wrong grep result for $prefix: >>>$stage3<<<"
-    return 1
-  fi
-  local local_stage3
-  if ! local_stage3=$tbhome/distfiles/$(basename $stage3); then
-    return 1
-  fi
-  if [[ ! -s $local_stage3 || ! -f $local_stage3.asc ]]; then
+  local stage3_filename=$tbhome/distfiles/$(basename $stage3)
+  if [[ ! -s $stage3_filename || ! -f $stage3_filename.asc ]]; then
     echo
     date
     echo " downloading $stage3{,.asc} files ..."
@@ -226,9 +220,9 @@ function UnpackStage3()  {
   echo
   date
   echo " verifying the stage3 file ..."
-  if ! gpg --quiet --verify $local_stage3.asc; then
-    echo ' failed'
-    mv $local_stage3{,.asc} /tmp
+  if ! gpg --quiet --verify $stage3_filename.asc; then
+    echo ' failed, moved to /tmp'
+    mv $stage3_filename{,.asc} /tmp
     return 1
   fi
 
@@ -239,22 +233,20 @@ function UnpackStage3()  {
   if ! mkdir ~tinderbox/img/$name; then
     return 1
   fi
+  cd ~tinderbox/img/$name
 
   echo
   date
-  echo " untar'ing $local_stage3 ..."
-  if ! cd ~tinderbox/img/$name; then
-    return 1
-  fi
-  if ! tar -xpf $local_stage3 --same-owner --xattrs; then
-    echo -e " failed"
-    mv $local_stage3{,.asc} /tmp
+  echo " untar'ing $stage3_filename ..."
+  if ! tar -xpf $stage3_filename --same-owner --xattrs; then
+    echo -e " failed, moved to /tmp"
+    mv $stage3_filename{,.asc} /tmp
     return 1
   fi
 }
 
 
-# only ::gentoo in moment
+# only ::gentoo
 function InitRepository()  {
   mkdir -p ./etc/portage/repos.conf/
 
