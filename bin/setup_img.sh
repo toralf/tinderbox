@@ -174,7 +174,7 @@ function UnpackStage3()  {
   date
   echo " get stage3 file name prefix for profile $profile"
   local prefix="stage3-amd64-"
-  prefix+=$(sed -e 's,17\../,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-')
+  prefix+=$(sed -e 's,17\..,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-')
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
   if [[ $profile =~ "/desktop" ]]; then
     if dice 1 2; then
