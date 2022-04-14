@@ -832,8 +832,10 @@ function WorkOnTask() {
         if [[ $try_again -eq 0 ]]; then
           add2backlog "$task"
         fi
-      elif [[ $task = "@world" || $task = "@preserved-rebuild" && ! -s /var/tmp/tb/backlog.1st ]]; then
+      elif [[ $task = "@world" ]]; then
         Finish 13 "$task is broken" $tasklog
+      elif [[ $task = "@preserved-rebuild" && ! -s /var/tmp/tb/backlog.1st ]]; then
+        Finish 13 "$task is broken after setup" $tasklog
       fi
     fi
 
@@ -841,7 +843,7 @@ function WorkOnTask() {
   elif [[ $task =~ ^% ]]; then
     local cmd="$(cut -c2- <<< $task)"
     if ! RunAndCheck "$cmd"; then
-      if [[ ! $cmd =~ " --depclean" && ! $cmd = "emerge -uU sys-devel/gcc" ]]; then
+      if [[ ! $cmd =~ " --depclean" && ! $cmd = "emerge -uU sys-devel/gcc" && ! $cmd =~ "perl-cleaner" ]]; then
         Mail "command failed: $cmd" $tasklog
       fi
     fi
