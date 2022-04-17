@@ -76,7 +76,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-desired_count=13            # number of images to be run
+desired_count=14            # number of images to be run
 while getopts n:u: opt
 do
   case "$opt" in
