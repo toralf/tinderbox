@@ -213,6 +213,8 @@ function UnpackStage3()  {
   for key in 13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058
   do
     if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $key; then
+      echo
+      date
       echo " notice: could not update gpg key $key"
     fi
   done

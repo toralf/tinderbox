@@ -10,3 +10,7 @@ dev-games/ogre:0/2.1
 
 # soap
 =sys-libs/ncurses-6.3_p20211106-r1
+
+# soap
+~dev-libs/boost-1.79.0
+~dev-util/boost-build-1.79.0
