@@ -15,13 +15,13 @@ function getCandidates()  {
     fi
 
     # keep images of last week
-    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i))/86400 )) -lt 7 ]]; then
+    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i))/86400 )) -le 7 ]]; then
       continue
     fi
 
     if [[ -s $i/var/log/emerge.log ]]; then
       # keep emerges (not images) of last 2 weeks for a precise "whatsup.sh -e" output
-      if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -lt 14 ]]; then
+      if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -le 14 ]]; then
         continue
       fi
     fi
