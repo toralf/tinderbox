@@ -62,17 +62,18 @@ function Finish()  {
   trap - INT QUIT TERM EXIT
   set +e
 
+  subject=$(stripQuotesAndMore <<< $subject)
   if [[ $exit_code -eq 13 ]]; then
     echo "$subject" >>  /var/tmp/tb/REPLACE_ME
     chmod g+w           /var/tmp/tb/REPLACE_ME
     chgrp tinderbox     /var/tmp/tb/REPLACE_ME
     truncate -s 0 $taskfile
+    subject+="; $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null) completed"
+    subject+="; $(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l) .reported"
   fi
 
   feedPfl
-  subject=$(stripQuotesAndMore <<< $subject)
-  subject+="; $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null || echo '0') completed"
-  Mail "finished with exit_code=$exit_code, $subject" ${3:-}
+  Mail "finished, exit_code=$exit_code, $subject" ${3:-}
   rm -f /var/tmp/tb/STOP
 
   exit $exit_code
