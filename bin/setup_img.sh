@@ -195,7 +195,9 @@ function UnpackStage3()  {
     echo " failed"
     return 1
   fi
+
   local stage3_filename=$tbhome/distfiles/$(basename $stage3)
+  echo " using $stage3_filename"
   if [[ ! -s $stage3_filename || ! -f $stage3_filename.asc ]]; then
     echo
     date
@@ -221,9 +223,9 @@ function UnpackStage3()  {
 
   echo
   date
-  echo " verifying the stage3 file ..."
+  echo " verifying stage3 ..."
   if ! gpg --quiet --verify $stage3_filename.asc; then
-    echo ' failed, moved to /tmp'
+    echo " failed, moved to /tmp"
     mv $stage3_filename{,.asc} /tmp
     return 1
   fi
@@ -239,9 +241,9 @@ function UnpackStage3()  {
 
   echo
   date
-  echo " untar'ing $stage3_filename ..."
+  echo " untar'ing stage3 ..."
   if ! tar -xpf $stage3_filename --same-owner --xattrs; then
-    echo -e " failed, moved to /tmp"
+    echo " failed, moved to /tmp"
     mv $stage3_filename{,.asc} /tmp
     return 1
   fi
