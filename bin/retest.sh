@@ -16,30 +16,25 @@ if [[ "$(whoami)" != "tinderbox" ]]; then
 fi
 
 result=/tmp/$(basename $0).txt  # package/s to be scheduled in the backlog of each image
-truncate -s 0 $result
 
 # accept special *lines* w/o any check
-if ! grep -e '^@' -e '^%' -e '^=' <<< ${@} >> $result; then
-  :
-fi
+grep -e '^@' -e '^%' -e '^=' <<< ${@} |\
+sort -u > $result
 
-# work at the the remaining *items*
+# work at regular atoms
 grep -v -e '^@' -e '^%' -e '^=' -e '#' <<< ${@} |\
-xargs --no-run-if-empty -n 1 |\
 sort -u |\
-while read -r item
+xargs qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |\
+grep -v -F '<unset>' |\
+grep ".*/.*" |\
+sort -u |\
+tee -a $result |\
+while read -r pkgname
 do
-  echo "$item" >> $result
-  # reset issue artefacts
-  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" "$item" 2>/dev/null | grep -v -F '<unset>' | grep ".*/.*" || true)
-  if [[ -n $pkgname ]]; then
-    if ! sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)-[[:digit:]]/d" \
-        ~tinderbox/tb/data/ALREADY_CATCHED \
-        ~tinderbox/run/*/etc/portage/package.mask/self \
-        ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null; then
-      :   # ^^ not all of those files might exist
-    fi
-  fi
+  sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)\-[[:digit:]]/d" \
+    ~tinderbox/tb/data/ALREADY_CATCHED \
+    ~tinderbox/run/*/etc/portage/package.mask/self \
+    ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null || true
 done
 
 if [[ -s $result ]]; then
@@ -47,7 +42,7 @@ if [[ -s $result ]]; then
   do
     tmp=$(mktemp /tmp/retest.sh_XXXXXX)
     # filter out dups, then put new entries after existing ones
-    (sort -u $result | grep -v -F -f $bl | shuf; cat $bl) > $tmp
+    (grep -v -F -f $bl $result | shuf; cat $bl) > $tmp
     cp $tmp $bl
     rm $tmp
   done
