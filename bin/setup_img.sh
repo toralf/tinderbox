@@ -561,7 +561,7 @@ useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 date
 echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -webdav" emerge -u dev-vcs/git
-git config --global gc.auto 0   # might reduce COW profit of --reflink
+git config --global gc.auto 0   # not needed for the lifetime of an image
 emaint sync --auto 1>/dev/null
 
 date
@@ -579,7 +579,7 @@ date
 echo "#setup Mail" | tee /var/tmp/tb/task
 # emerge MTA before MUA b/c MUA+virtual/mta together would provide another MTA than sSMTP
 emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # /etc/ssmtp/ssmtp.conf is bind mounted by bwrap.sh
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the local bind mounted file is already in place
 emerge -u mail-client/s-nail
 
 date
