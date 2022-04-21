@@ -1,5 +1,5 @@
 *.pdf
 .~lock*
 data/ALREADY_CATCHED
-data/portage/*-*/
+patches/*
 sdata/ssmtp.conf

@@ -40,3 +40,15 @@ Ignoring extra path from command line
 # [Tracker] dev-lang/go-1.18 breakage
 835378
 go: inconsistent vendoring
+
+# Packages with sandbox failures in src_test without SANDBOX_PREDICT="/"
+839747
+sandbox issue
+
+# (gcc-12) - [TRACKER] sys-devel/gcc-12 porting
+839906
+is not a member of .*std.*
+
+# (bison-3.8) - [TRACKER] Packages failing with sys-devel/bison-3.8.x
+813126
+y.tab.c: .*|YYSYMBOL_YYEMPTY|\.yy

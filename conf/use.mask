@@ -11,6 +11,3 @@ pax-kernel
 rados
 symlink
 valgrind
-
-# https://bugs.gentoo.org/show_bug.cgi?id=828123
-heterogeneous

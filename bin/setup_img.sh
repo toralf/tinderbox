@@ -373,7 +373,7 @@ function CompilePortageFiles()  {
   echo $EPOCHSECONDS > ./var/tmp/tb/setup.timestamp
   echo $name > ./var/tmp/tb/name
 
-  for d in profile package.{accept_keywords,env,mask,unmask,use} env
+  for d in env package.{accept_keywords,env,mask,unmask,use} patches profile
   do
     if [[ ! -d ./etc/portage/$d ]]; then
       mkdir ./etc/portage/$d
@@ -381,6 +381,8 @@ function CompilePortageFiles()  {
     chgrp portage ./etc/portage/$d
     chmod g+w     ./etc/portage/$d
   done
+
+  cp -ar $tbhome/tb/patches/* ./etc/portage/patches
 
   touch       ./etc/portage/package.mask/self     # gets failed packages
   chmod a+rw  ./etc/portage/package.mask/self
@@ -427,32 +429,32 @@ EOF
   echo "*/*         j${jobs}" >> ./etc/portage/package.env/00j${jobs}
 
   if [[ $keyword = '~amd64' ]]; then
-    cpconf $tbhome/tb/data/package.*.??unstable
+    cpconf $tbhome/tb/conf/package.*.??unstable
   else
-    cpconf $tbhome/tb/data/package.*.??stable
+    cpconf $tbhome/tb/conf/package.*.??stable
   fi
 
   if [[ $profile =~ '/systemd' ]]; then
-    cpconf $tbhome/tb/data/package.*.??systemd
+    cpconf $tbhome/tb/conf/package.*.??systemd
   else
-    cpconf $tbhome/tb/data/package.*.??openrc
+    cpconf $tbhome/tb/conf/package.*.??openrc
   fi
 
-  cpconf $tbhome/tb/data/package.*.??common
+  cpconf $tbhome/tb/conf/package.*.??common
 
   if [[ $abi3264 = "y" ]]; then
-    cpconf $tbhome/tb/data/package.*.??abi32+64
+    cpconf $tbhome/tb/conf/package.*.??abi32+64
   fi
 
-  cpconf $tbhome/tb/data/package.*.??test-$testfeature
+  cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
   if [[ $profile =~ "/musl" ]]; then
-    cpconf $tbhome/tb/data/package.*.??musl
+    cpconf $tbhome/tb/conf/package.*.??musl
   fi
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  for f in $tbhome/tb/data/{package.,}use.mask
+  for f in $tbhome/tb/conf/{package.,}use.mask
   do
     cp $f ./etc/portage/profile/$(basename $f)
   done
@@ -694,7 +696,7 @@ function FixPossibleUseFlagIssues() {
     while read -r p u
     do
       q=$(qatom -F "%{CATEGORY}/%{PN}" $p)
-      printf "%-30s %s\n" $q "$u"
+      printf "%-36s %s\n" $q "$u"
     done |\
     sort -u > $fautocirc
 
@@ -711,6 +713,10 @@ function FixPossibleUseFlagIssues() {
     grep -A 100 'The following USE changes are necessary to proceed:' $drylog |\
     grep "^>=" |\
     grep -v -e '>=.* .*_' |\
+    while read -r p u
+    do
+      printf "%-36s %s\n" $p "$u"
+    done |\
     sort -u > $fautoflag
 
     if [[ -s $fautoflag ]]; then
