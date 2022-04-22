@@ -581,23 +581,23 @@ function source_profile(){
 
 
 # helper of PostEmerge()
-# switch to latest GCC
+# switch to highest GCC
 function SwitchGCC() {
-  local latest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$'| tail -n 1)
-  local current=$(gcc -dumpversion | cut -f1 -d'.')
+  local highest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$'| tail -n 1)
 
-  if gcc-config --list-profiles --nocolor | grep -q -F "$latest *"; then
-    echo "SwitchGCC: $current is $latest"
+  if gcc-config --list-profiles --nocolor | grep -q -F "$highest *"; then
+    echo "SwitchGCC: $highest is already choosen" | tee -a $taskfile.history
   else
-    echo "SwitchGCC: switch from $current to $latest" >> $taskfile.history
-    gcc-config --nocolor $latest
+    local current=$(gcc -dumpversion)
+    echo "SwitchGCC: switch from $current to $highest" | tee -a $taskfile.history
+    gcc-config --nocolor $highest
     source_profile
     add2backlog "@preserved-rebuild"
     if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
       add2backlog "sys-devel/slibtool"
     fi
     add2backlog "sys-devel/libtool"
-    add2backlog "%emerge --unmerge sys-devel/gcc:$current"
+    add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f1 -d'.' <<< $current)"
   fi
 }
 
@@ -645,10 +645,10 @@ function PostEmerge() {
 
   if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped; then
     local current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
-    local latest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
+    local highest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
 
-    if [[ "$current" != "$latest" ]]; then
-      add2backlog "%eselect ruby set $latest"
+    if [[ "$current" != "$highest" ]]; then
+      add2backlog "%eselect ruby set $highest"
     fi
   fi
 
