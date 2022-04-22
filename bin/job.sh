@@ -983,6 +983,11 @@ do
     Finish 0 "catched STOP file" /var/tmp/tb/STOP
   fi
 
+  if [[ -f /var/tmp/tb/REPLACE_ME ]]; then
+    echo "#catched REPLACE_ME file" > $taskfile
+    Finish 0 "catched REPLACE_ME file" /var/tmp/tb/REPLACE_ME
+  fi
+
   if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
     echo "#sync repo" > $taskfile
     syncRepo
