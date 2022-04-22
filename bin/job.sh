@@ -585,11 +585,9 @@ function source_profile(){
 function SwitchGCC() {
   local highest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$'| tail -n 1)
 
-  if gcc-config --list-profiles --nocolor | grep -q -F "$highest *"; then
-    echo "SwitchGCC: $highest is already choosen" | tee -a $taskfile.history
-  else
+  if ! gcc-config --list-profiles --nocolor | grep -q -F "$highest *"; then
     local current=$(gcc -dumpversion)
-    echo "SwitchGCC: switch from $current to $highest" | tee -a $taskfile.history
+    echo "$FUNCNAME: major version change detected, switch from $current to $highest" | tee -a $taskfile.history
     gcc-config --nocolor $highest
     source_profile
     add2backlog "@preserved-rebuild"
@@ -734,10 +732,10 @@ function GetPkgFromTaskLog() {
     fi
   fi
 
-  pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
-    Mail "INFO: cannot get pkglog for pkg=$pkg task=$task" $tasklog
+    Mail "INFO: cannot get pkglog for pkg=$pkg task=$task" $tasklog_stripped
     return 1
   fi
 }
