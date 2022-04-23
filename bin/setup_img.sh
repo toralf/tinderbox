@@ -357,7 +357,7 @@ function cpconf() {
   for f in $*
   do
     read -r dummy suffix filename <<<$(tr '.' ' ' <<< $(basename $f))
-    # eg.:  .../package.unmask.??common   ->   package.unmask/??common
+    # eg.: package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
   done
 }
@@ -662,7 +662,7 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
-  for i in {1..9}
+  for i in {1..19}
   do
     # kick off particular packages
     local pkg=$(
