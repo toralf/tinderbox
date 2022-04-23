@@ -277,7 +277,11 @@ function foundSandboxIssue() {
     try_again=1
   fi
   echo "sandbox issue" > $issuedir/title
-  head -n 10 $sandb &> $issuedir/issue
+  if [[ -s $sandb ]]; then
+    head -n 20 $sandb &> $issuedir/issue
+  else
+    grep -A 20 " SANDBOX ACCESS VIOLATION SUMMARY " $tasklog_stripped > $issuedir/issue
+  fi
 }
 
 
@@ -601,7 +605,7 @@ function SwitchGCC() {
 
 
 # helper of RunAndCheck()
-# it schedules follow-ups from the last emerge operation
+# schedules follow-ups from the current emerge operation
 function PostEmerge() {
   # regen locale if eg. a new glibc was installed
   if ls /etc/._cfg????_locale.gen &>/dev/null; then
@@ -621,7 +625,7 @@ function PostEmerge() {
   env-update &>/dev/null
   source_profile
 
-  # the last next task
+  # the least important task
   if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
     add2backlog "@preserved-rebuild"
   fi
@@ -637,6 +641,10 @@ function PostEmerge() {
     add2backlog "%perl-cleaner --all"
   fi
 
+  if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
+    add2backlog "sys-apps/portage"
+  fi
+
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
     add2backlog "%SwitchGCC"
   fi
@@ -650,12 +658,7 @@ function PostEmerge() {
     fi
   fi
 
-  # the first next task
-  if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
-    add2backlog "sys-apps/portage"
-  fi
-
-  # if 1st prio is empty then schedule the daily update if it is time
+  # if 1st prio is empty then schedule the daily update if needed
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     local h=/var/tmp/tb/@world.history
     if [[ ! -f $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
