@@ -137,6 +137,11 @@ function CheckOptions() {
     keyword="~amd64"
     testfeature="n"
   fi
+
+  # by sam
+  if [[ $profile =~ "/hardened" ]]; then
+    cflags+=" -D_GLIBCXX_ASSERTIONS"
+  fi
 }
 
 
@@ -293,7 +298,7 @@ PORTAGE_TMPFS="/dev/shm"
 CFLAGS="$cflags"
 CXXFLAGS="\${CFLAGS}"
 
-FCFLAGS="$cflags_default"
+FCFLAGS="$cflags"
 FFLAGS="\${FCFLAGS}"
 
 # simply enables QA check for LDFLAGS being respected by build system.
@@ -519,9 +524,6 @@ function CreateBacklogs()  {
   fi
 
   cat << EOF >> $bl.1st
-# by sam_
-dev-util/checkbashisms
-app-shells/bash-completion
 # basic setup
 app-portage/pfl
 @world
@@ -848,11 +850,10 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts a:c:j:k:p:t:u: opt
+while getopts a:j:k:p:t:u: opt
 do
   case $opt in
     a)  abi3264="$OPTARG"     ;;
-    c)  cflags="$OPTARG"      ;;
     j)  jobs="$OPTARG"        ;;
     k)  keyword="$OPTARG"     ;;
     p)  profile="$OPTARG"     ;;
