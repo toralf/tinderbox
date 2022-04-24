@@ -20,7 +20,7 @@ function getCandidates()  {
     fi
 
     if [[ -s $i/var/log/emerge.log ]]; then
-      # keep emerges (not images) of last 2 weeks for a precise "whatsup.sh -e" output
+      # keep images having emerge logs within last 2 weeks (for "whatsup.sh -e")
       if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -le 14 ]]; then
         continue
       fi
