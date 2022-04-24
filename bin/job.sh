@@ -278,9 +278,9 @@ function foundSandboxIssue() {
   fi
   echo "sandbox issue" > $issuedir/title
   if [[ -s $sandb ]]; then
-    head -n 20 $sandb &> $issuedir/issue
+    head -v -n 20 $sandb &> $issuedir/issue
   else
-    grep -A 20 " SANDBOX ACCESS VIOLATION SUMMARY " $tasklog_stripped > $issuedir/issue
+    echo "cannot found $sandb" > $issuedir/issue
   fi
 }
 
