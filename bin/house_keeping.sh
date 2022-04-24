@@ -14,8 +14,7 @@ function getCandidates()  {
       continue
     fi
 
-    # keep images of last week
-    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i))/86400 )) -le 7 ]]; then
+    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i))/86400 )) -lt 1 ]]; then
       continue
     fi
 
