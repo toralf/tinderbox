@@ -1,7 +1,7 @@
 asciidoctor (LoadError)
 atlas needs all cpu set to performance
+CONFIG_.*: is not set when it should be
 cannot load such file .*asciidoctor
-Configure: unknown option --enable-option-checking=warn
 Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.

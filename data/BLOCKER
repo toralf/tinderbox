@@ -52,3 +52,7 @@ is not a member of .*std.*
 # (bison-3.8) - [TRACKER] Packages failing with sys-devel/bison-3.8.x
 813126
 y.tab.c: .*|YYSYMBOL_YYEMPTY|\.yy
+
+# [Tracker] Breakage with sys-libs/musl-1.2.3
+839975
+std::nullptr_t

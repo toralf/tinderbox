@@ -15,4 +15,4 @@ dev-games/ogre:0/2.1
 ~dev-libs/boost-1.79.0
 
 # sam
-=sys-devel/gcc-12.0.1*
+#=sys-devel/gcc-12.0.1*
