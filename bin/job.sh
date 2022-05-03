@@ -865,7 +865,7 @@ function WorkOnTask() {
 }
 
 
-# not more than n @preserved-rebuild within N last tasks
+# not more than n attempts of @xy within last N tasks
 function DetectTaskLoop() {
   local n=7
   local N=20
@@ -873,8 +873,10 @@ function DetectTaskLoop() {
 
   for pattern in 'perl-cleaner' '@world' '@preserved-rebuild'
   do
-    if [[ $pattern = '@world' && $name =~ "_test" ]]; then
-      continue
+    if [[ $pattern = '@world' ]]; then
+      if [[ $name =~ "_test" || $name =~ "_debug" ]]; then
+        continue
+      fi
     fi
     if [[ $(tail -n $N $histfile | grep -c "$pattern") -ge $n ]]; then
       echo "$(date) too much $pattern" >> $histfile
