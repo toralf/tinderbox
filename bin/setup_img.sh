@@ -462,9 +462,9 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
-  for f in $tbhome/tb/conf/{package.,}use.mask
+  for f in $tbhome/tb/conf/profile.*
   do
-    cp $f ./etc/portage/profile/$(basename $f)
+    cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,g')
   done
 
   touch ./var/tmp/tb/task

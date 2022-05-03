@@ -1,0 +1,5 @@
+# packages
+#
+
+# sam_:  run a tinderbox with sys-apps/which removed from @system
+-sys-apps/which
