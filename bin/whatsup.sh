@@ -23,7 +23,8 @@ function list_images() {
 
 
 function PrintImageName()  {
-  printf "%-${2}s" $(cut -c-$2 < $1/var/tmp/tb/name 2>/dev/null)
+  local chars=${2:-39}
+  printf "%-${chars}s" $(cut -c-${chars} < $1/var/tmp/tb/name 2>/dev/null)
 }
 
 
@@ -138,7 +139,7 @@ function Tasks()  {
   for i in $images
   do
     local tsk=$i/var/tmp/tb/task
-    if PrintImageName $i 30 && __is_running $i && [[ -s $tsk ]]; then
+    if PrintImageName $i && __is_running $i && [[ -s $tsk ]]; then
       local task=$(cat $tsk)
 
       set +e
@@ -171,7 +172,7 @@ function Tasks()  {
 function LastEmergeOperation()  {
   for i in $images
   do
-    if PrintImageName $i 30 && __is_running $i; then
+    if PrintImageName $i && __is_running $i; then
       tail -n 1 $i/var/log/emerge.log 2>/dev/null |\
       sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |\
       perl -wane '
