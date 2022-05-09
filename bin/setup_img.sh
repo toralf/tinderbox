@@ -414,7 +414,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # max $jobs parallel jobs
+  # limit # of parallel jobs, 1 is the fallback of $jobs is too much for a package
   for j in 1 $jobs
   do
     cat << EOF > ./etc/portage/env/j$j
@@ -803,6 +803,12 @@ function CompileUseFlagFiles() {
       date
       echo "==========================================================="
       local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
+
+      if ! (( attempt % 40 )); then
+        echo "emaint sync" > ~tinderbox/img/$name/var/tmp/tb/sync.sh
+        nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/sync.sh &>/dev/null
+      fi
+
       ThrowImageUseFlags
       if FixPossibleUseFlagIssues $attempt; then
         return 0
