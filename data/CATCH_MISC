@@ -5,6 +5,7 @@ cmake-utils_src_prepare has not been run
 dosym target omits basename:
 econf called in .* instead of
 inherited illegally
+Need at least JDK 9 to compile
 python_.*_all() didn't call
 running automake in configure phase
 warning: python_fix_shebang

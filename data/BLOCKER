@@ -56,3 +56,15 @@ y.tab.c: .*|YYSYMBOL_YYEMPTY|\.yy
 # [Tracker] Breakage with sys-libs/musl-1.2.3
 839975
 std::nullptr_t
+
+# [TRACKER] Packages linking -lcurses (need sys-libs/ncurses compatibility symlink)
+837812
+ld: cannot find -lcurses
+
+# [TRACKER] java packages that provide module-info.java and can otherwise be built with jdk 1.8
+796875
+Need at least JDK 9 to compile
+
+#  (openssl-3.0) - [TRACKER] packages failing with =dev-libs/openssl-3.0.0*
+797325
+too few arguments to function EVP_KDF_derive| RUST_VERSION_OPENSSL_|FIPS_mode|RSA_SSLV23_PADDING undeclared

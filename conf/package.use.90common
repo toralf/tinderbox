@@ -46,6 +46,5 @@ app-admin/webalizer                 -nls
 # temp settings
 #
 
-# */*                                 vala introspection
-
+# sam
 sys-devel/gcc                       openmp

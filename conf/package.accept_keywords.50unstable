@@ -1,18 +1,15 @@
 # package.accept_keywords/50unstable
 #
 
-# sam
-dev-scheme/guile:12/3.0-1           **
 
 # jsmolic
 dev-games/ogre:0/1.12               **
 dev-games/ogre:0/2.1                **
 
-# soap
-=sys-libs/ncurses-6.3_p20211106-r1  **
-
-# soap
-~dev-libs/boost-1.79.0              **
 
 # sam
-#=sys-devel/gcc-12.0.1*              **
+<dev-util/meson-9999                **
+dev-libs/openssl:0/3                **
+dev-scheme/guile:12/3.0-1           **
+~sys-devel/gcc-12.1.0               **
+<sys-libs/ncurses-9999              **

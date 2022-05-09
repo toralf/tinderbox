@@ -1,7 +1,11 @@
 # use.mask
 #
 
-# USE flag mask at all
+
+#######################################################################
+#
+# global settings
+#
 
 cdinstall
 cuda
@@ -11,3 +15,12 @@ pax-kernel
 rados
 symlink
 valgrind
+
+
+#######################################################################
+#
+# temp settings
+#
+
+# sam: openssl:0/3  https://bugs.gentoo.org/797673
+ruby

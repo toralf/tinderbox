@@ -3,4 +3,7 @@
 
 
 # up/downgrade
-<dev-util/ragel-7.0.4-r1
+<dev-util/ragel-7.0.4-r2
+
+# OOM killer and/or task storm
+app-emacs/lsp-mode
