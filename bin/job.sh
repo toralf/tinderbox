@@ -893,8 +893,8 @@ function syncRepo()  {
 
   if ! emaint sync --auto &>$synclog; then
     Mail "WARN: sync failed for ::gentoo" $synclog
-    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out'; then
-      last_sync=$EPOCHSECONDS
+    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error: 500'; then
+      last_sync=$(( EPOCHSECONDS-3600+600 )) # try again in 10 min
       return 1
     fi
 
