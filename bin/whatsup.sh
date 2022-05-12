@@ -440,6 +440,7 @@ do
     o)  Overall                   ;;
     p)  CountEmergesPerPackages   ;;
     t)  Tasks                     ;;
+    *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
   echo
 done

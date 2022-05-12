@@ -49,7 +49,7 @@ do
         newbug=0
         ;;
     s)  severity="$OPTARG";;    # "normal", "QA" and so on
-    *)  echo " not implemented !"; exit 1;;
+    *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
 done
 

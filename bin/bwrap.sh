@@ -179,20 +179,21 @@ mnt=""
 while getopts ce:m: opt
 do
   case $opt in
-    c)    chroot="yes"
-          ;;
-    e)    if [[ ! -s "$OPTARG" ]]; then
-            echo "no valid entry point script given: $OPTARG"
-            exit 1
-          fi
-          entrypoint="$OPTARG"
-          ;;
-    m)    if [[ -z "$OPTARG" || -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
-            echo "argument not accepted"
-            exit 1
-          fi
-          mnt=~tinderbox/img/${OPTARG##*/}
-          ;;
+    c)  chroot="yes"
+        ;;
+    e)  if [[ ! -s "$OPTARG" ]]; then
+          echo "no valid entry point script given: $OPTARG"
+          exit 1
+        fi
+        entrypoint="$OPTARG"
+        ;;
+    m)  if [[ -z "$OPTARG" || -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
+          echo "argument not accepted"
+          exit 1
+        fi
+        mnt=~tinderbox/img/${OPTARG##*/}
+        ;;
+    *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
 done
 

@@ -870,7 +870,7 @@ do
     p)  profile="$OPTARG"     ;;
     t)  testfeature="$OPTARG" ;;
     u)  useflagfile="$OPTARG" ;;    # eg.: /dev/null
-    *)  echo " '$opt' with '$OPTARG' not implemented"; exit 2 ;;
+    *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
 done
 

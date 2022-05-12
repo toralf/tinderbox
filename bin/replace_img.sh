@@ -82,7 +82,7 @@ do
   case "$opt" in
     n)  desired_count="$OPTARG" ;;
     u)  echo "user decision" >> ~tinderbox/img/$(basename $OPTARG)/var/tmp/tb/REPLACE_ME  ;;
-    *)  echo " opt not implemented: '$opt'"; exit 1 ;;
+    *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
 done
 
