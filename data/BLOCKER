@@ -67,4 +67,4 @@ Need at least JDK 9 to compile
 
 #  (openssl-3.0) - [TRACKER] packages failing with =dev-libs/openssl-3.0.0*
 797325
-too few arguments to function EVP_KDF_derive| RUST_VERSION_OPENSSL_|FIPS_mode|RSA_SSLV23_PADDING undeclared
+EVP_|RUST_VERSION_OPENSSL_|FIPS_mode|RSA_SSLV23|get_dh|DSA|FIPS|ERR_GET_FUNC|CRYPTO_MEM_CHECK|openssl/mac.h

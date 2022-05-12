@@ -48,3 +48,6 @@ app-admin/webalizer                 -nls
 
 # sam
 sys-devel/gcc                       openmp
+
+# https://bugs.gentoo.org/840182
+sys-devel/gcc                       -d
