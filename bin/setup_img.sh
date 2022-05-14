@@ -343,7 +343,7 @@ EOF
 
   # requested by sam
   if [[ $keyword = '~amd64' ]]; then
-    if dice 1 80; then
+    if dice 1 10; then
       echo 'LIBTOOL="rdlibtool"'            >> ./etc/portage/make.conf
       echo 'MAKEFLAGS="LIBTOOL=${LIBTOOL}"' >> ./etc/portage/make.conf
     fi
@@ -526,13 +526,10 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-# GCC: do not update an old visible major version
-# GCC: fallback if previous attempt failed eg. due to additional deps like dev-libs/mpfr and/or dev-libs/mpc
   cat << EOF >> $bl.1st
 app-portage/pfl
 @world
 %sed -i -e \\'s,--verbose ,--deep --verbose ,\\' /etc/portage/make.conf
-%emerge -uU sys-devel/gcc
 %emerge -uU =\$(portageq best_visible / sys-devel/gcc)
 
 EOF
