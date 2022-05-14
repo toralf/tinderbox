@@ -25,10 +25,6 @@ guile
 831358
 MPI_
 
-# meson-0.61
-831474
-.*meson.*ERROR: Function does not take positional arguments
-
 # [TRACKER] sys-libs/glibc-2.35 related issues
 832701
 foobar

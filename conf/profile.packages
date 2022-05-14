@@ -1,5 +1,7 @@
 # packages
 #
 
+# https://dev.gentoo.org/~ulm/pms/head/pms.html#x1-490005.2.6
+
 # sam_:  run a tinderbox with sys-apps/which removed from @system
--sys-apps/which
+-*sys-apps/which

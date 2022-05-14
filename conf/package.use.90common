@@ -40,9 +40,6 @@ net-misc/curl                       ssl
 # fails with: you must set LINGUAS
 app-admin/webalizer                 -nls
 
-# <@floppym> Generally speaking, there's no point in testing dev-lang/python[-xml].
-dev-lang/python                     xml
-
 
 #######################################################################
 #
@@ -54,3 +51,6 @@ sys-devel/gcc                       openmp
 
 # https://bugs.gentoo.org/840182
 sys-devel/gcc                       -d
+
+# just for the openssl-3 runs
+dev-lang/python                     -libedit xml
