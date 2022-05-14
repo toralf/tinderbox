@@ -117,7 +117,7 @@ do
     if __is_running $oldimg; then
       if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
         sleep 10
-        continue
+        continue 2
       fi
     fi
   done < <(ImagesInRunShuffled)
