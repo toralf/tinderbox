@@ -8,13 +8,14 @@ function Finish() {
   local rc=${1:-$?}
   local pid=$$
 
+  trap - INT QUIT TERM EXIT
+
   if [[ $rc -ne 0 ]]; then
     echo
     date
     echo " pid $pid exited with rc=$rc"
   fi
 
-  trap - INT QUIT TERM EXIT
   rm $lockfile
   exit $rc
 }
@@ -30,29 +31,6 @@ function FreeSlotAvailable() {
   s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
 
   [[ $(( r+s )) -lt $desired_count && $(ImagesInRunShuffled | wc -l) -lt $desired_count ]]
-}
-
-
-function StopOldImage() {
-  local msg="kicked off b/c: $(cat ~tinderbox/img/$oldimg/var/tmp/tb/REPLACE_ME)"
-  if __is_running $oldimg; then
-    echo
-    date
-    echo " stopping: $oldimg"
-    touch ~tinderbox/img/$oldimg/var/tmp/tb/STOP
-    local i=1800
-    while __is_locked $oldimg
-    do
-      if ! (( --i )); then
-        echo "  give up to wait for $oldimg"
-        return 1
-      fi
-      sleep 1
-    done
-    echo "done"
-  else
-    echo "$oldimg $msg"
-  fi
 }
 
 
@@ -81,7 +59,7 @@ while getopts n:u: opt
 do
   case "$opt" in
     n)  desired_count="$OPTARG" ;;
-    u)  echo "user decision" >> ~tinderbox/img/$(basename $OPTARG)/var/tmp/tb/REPLACE_ME  ;;
+    u)  echo "user decision" >> ~tinderbox/img/$(basename $OPTARG)/var/tmp/tb/REPLACE_ME;;
     *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
 done
@@ -101,7 +79,7 @@ trap Finish INT QUIT TERM EXIT
 
 while :
 do
-  # mark old stopped images
+  # mark a stopped image after 1.5 days as to be replaced
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
@@ -112,7 +90,7 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  # remove stopped dead images
+  # free the slot
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
@@ -122,7 +100,6 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  # setup a new image as long as a free slot is available
   if FreeSlotAvailable; then
     if setupNewImage; then
       continue
@@ -134,15 +111,13 @@ do
     fi
   fi
 
-  # stop and replace dead images accidently (re-)started
+  # are there still running images marked as to be replaced ?
   while read -r oldimg
   do
     if __is_running $oldimg; then
       if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
-        if StopOldImage; then
-          rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
-          continue 2
-        fi
+        sleep 10
+        continue
       fi
     fi
   done < <(ImagesInRunShuffled)
