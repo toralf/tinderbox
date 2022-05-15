@@ -4,12 +4,10 @@
 # create or modify a bug report at http://bugzilla.gentoo.org
 
 function Warn() {
-  local rc=$?
-
-  echo "--------------"
-  echo -e "\n  ${1:-} failed with error code $rc\n\n"
+  echo "  --------------"
+  echo -e "\n  ${1:-<no text given>}, error code: ${2:-$?}\n\n"
   tail -v bgo.sh.*
-  echo "--------------"
+  echo "  --------------"
 }
 
 
@@ -19,8 +17,9 @@ function Exit() {
   trap - INT QUIT TERM EXIT
 
   if [[ $rc -ne 0 ]]; then
-    Warn $rc
+    Warn "an error occurred" $rc
   fi
+
   exit $rc
 }
 
@@ -28,8 +27,9 @@ function Exit() {
 #######################################################################
 
 set -eu
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
+
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 id=""
 block=""
@@ -72,18 +72,20 @@ rm -f bgo.sh.{out,err}
 
 if [[ -n "$id" ]]; then
   # modify an existing bug report
+
   if [[ -z "$comment" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
   timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
 
 else
+  # create a new bug report
+
   if [[ ! -s ./assignee ]]; then
     echo "no assignee given, run check_bgo.sh before !"
     exit 4
   fi
 
-  # create a new bug report
   timeout 60 bugz post \
     --product "Gentoo Linux"          \
     --component "Current packages"    \
