@@ -199,7 +199,6 @@ function LastEmergeOperation()  {
   done
 }
 
-
 # whatsup.sh -d
 #                                                         1d   2d   3d   4d   5d   6d   7d   8d   9d  10d
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
@@ -427,7 +426,7 @@ source $(dirname $0)/lib.sh
 images=$(list_images)
 
 if ! columns=$(tput cols 2>/dev/null); then
-  columns=100
+  columns=120
 fi
 
 while getopts cdelopt opt
