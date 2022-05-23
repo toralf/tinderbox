@@ -11,5 +11,5 @@ dev-games/ogre:0/2.1
 dev-libs/openssl:0/3
 dev-scheme/guile:12/3.0-1
 <dev-util/meson-9999
-~sys-devel/gcc-12.1.0
+<sys-devel/gcc-12.2.9999:12
 <sys-libs/ncurses-9999

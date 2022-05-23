@@ -30,3 +30,5 @@ USE=modules and in-kernel ipset support detected
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
 You need one of the following mpi implementations:
+dev-lang/gnat-gpl-2020
+dev-lang/gnat-gpl-2021-r1
