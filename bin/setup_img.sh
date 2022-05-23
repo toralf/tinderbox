@@ -783,7 +783,8 @@ function CompileUseFlagFiles() {
   if [[ -e $useflagfile ]]; then
     echo
     date
-    echo "dryrun with given USE flag file ==========================================================="
+    echo " +++  one dryrun with given USE flag file  +++"
+
     cp $useflagfile ./etc/portage/package.use/28given_use_flags
     local drylog=./var/tmp/tb/logs/dryrun.log
     FixPossibleUseFlagIssues $attempt
@@ -791,22 +792,22 @@ function CompileUseFlagFiles() {
   else
     while [[ $(( ++attempt )) -le 200 ]]
     do
+      echo
+      date
+      echo "==========================================================="
       if [[ -f ./var/tmp/tb/STOP ]]; then
         echo -e "\n found STOP file"
         rm ./var/tmp/tb/STOP
         return 1
       fi
-      echo
-      date
-      echo "==========================================================="
-      local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
 
-      if ! (( attempt % 40 )); then
-        echo "emaint sync" > ~tinderbox/img/$name/var/tmp/tb/sync.sh
-        nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/sync.sh &>/dev/null
+      if ! (( attempt % 50 )); then
+        echo "emaint sync --auto" > ./var/tmp/tb/sync.sh
+        nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ./var/tmp/tb/sync.sh &> ./var/tmp/tb/logs/sync.$attempt.log
       fi
 
       ThrowImageUseFlags
+      local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
       if FixPossibleUseFlagIssues $attempt; then
         return 0
       fi
