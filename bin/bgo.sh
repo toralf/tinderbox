@@ -76,7 +76,7 @@ if [[ -n "$id" ]]; then
   if [[ -z "$comment" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
-  timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
+  bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
 
 else
   # create a new bug report
@@ -86,7 +86,7 @@ else
     exit 4
   fi
 
-  timeout 60 bugz post \
+  bugz post \
     --product "Gentoo Linux"          \
     --component "Current packages"    \
     --version "unspecified"           \
@@ -110,11 +110,11 @@ else
   fi
 
   if [[ -n "$comment" ]]; then
-    timeout 60 bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
+    bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
   fi
 
   if grep -q -F ' fails test -' $issuedir/title; then
-    timeout 60 bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
+    bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
   fi
 fi
 echo
@@ -127,7 +127,7 @@ if [[ -s bgo.sh.err ]]; then
 fi
 
 if [[ -f emerge-info.txt ]]; then
-  timeout 60 bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bgo.sh.out 2>bgo.sh.err || Warn "info"
+  bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bgo.sh.out 2>bgo.sh.err || Warn "info"
 fi
 
 if [[ -d ./files ]]; then
@@ -145,7 +145,7 @@ if [[ -d ./files ]]; then
       file_path=$(realpath $f | sed -e "s,^.*img/,,g")
       url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
       comment="The file size of $f is too big ($file_size) for an upload. For about 8 weeks the link $url is valid."
-      timeout 60 bugz modify --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
+      bugz modify --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
       continue
     fi
 
@@ -155,12 +155,12 @@ if [[ -d ./files ]]; then
       ct="text/plain"
     fi
     echo "  $f"
-    timeout 60 bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn "attach $f"
+    bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn "attach $f"
   done
 fi
 
 if [[ -n "$block" ]]; then
-  timeout 60 bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
+  bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
 fi
 
 # do this as the very last step to reduce the amount of emails sent out by bugzilla for each record change
@@ -178,7 +178,7 @@ if [[ $newbug -eq 1 ]]; then
     add_cc="--add-cc $(sed 's, , --add-cc ,g' <<< $cc)"
   fi
 
-  timeout 60 bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn "'$assignee' '$add_cc'"
+  bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn "'$assignee' '$add_cc'"
 fi
 
 echo
