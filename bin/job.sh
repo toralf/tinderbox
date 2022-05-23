@@ -486,6 +486,9 @@ function finishTitle()  {
           -e 's,\*, ,g'     \
           -e 's,___*,_,g'   \
           -e 's,\s\s*, ,g'  \
+          -e 's,mmake\..*:.*:,,g' \
+          -e 's,ls[[:digit:]]*:,,g' \
+          -e 's,..:..:..\.... \[error\],,g' \
         $issuedir/title
 
   # prefix title
@@ -874,6 +877,7 @@ function DetectTaskLoop() {
   for pattern in 'perl-cleaner' '@world' '@preserved-rebuild'
   do
     if [[ $pattern = '@world' ]]; then
+      n=12
       if [[ $name =~ "_test" || $name =~ "_debug" ]]; then
         continue
       fi
