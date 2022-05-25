@@ -205,7 +205,12 @@ function LastEmergeOperation()  {
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
   printf "%54s" ""
-  max=$(( (columns-54)/5-1 ))
+
+  local days=$(( ($(date +%s) - $(cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -n | head -n 1))/86400 ))
+  local max=$(( (columns-54)/5-1 ))
+  if [[ $max -gt $days ]]; then
+    max=$days
+  fi
   for i in $(seq 0 $max)
   do
     printf "%4id" $i
@@ -276,14 +281,13 @@ function Coverage() {
     local oldest=$(cat ~tinderbox/$i/17.*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -u -n | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
-      local days=$(( (EPOCHSECONDS-oldest)/3600/24 ))
+      days=$(echo "scale=2.1; ($EPOCHSECONDS - $oldest) / 3600 / 24" | bc)
     fi
     local perc=0
     if [[ $N -gt 0 ]]; then
-      perc=$(( 100*n/N ))
+      perc=$(echo "scale=2.1; 100.0 * $n / $N" | bc)
     fi
-    printf "%5i packages emerged under ~tinderbox/%s   (%2i%% for last %2i days)" $n $i $perc $days
-    echo
+    printf "%5i packages emerged under ~tinderbox/%s   (%3.1f%% for last %3.1f days)\n" $n $i $perc $days
   done
 
   rm $all
