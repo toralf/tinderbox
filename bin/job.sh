@@ -762,6 +762,7 @@ function RunAndCheck() {
   filterPlainPext < $tasklog > $tasklog_stripped
   PostEmerge
   catchMisc
+  pkg=""
 
   if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
     if grep -q -F ' -Og -g' /etc/portage/make.conf; then
@@ -814,8 +815,6 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 function WorkOnTask() {
-  pkg=""
-
   # @set
   if [[ $task =~ ^@ ]]; then
     local opts=""
