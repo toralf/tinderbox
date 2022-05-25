@@ -61,6 +61,14 @@ ld: cannot find -lcurses
 796875
 Need at least JDK 9 to compile
 
-#  (openssl-3.0) - [TRACKER] packages failing with =dev-libs/openssl-3.0.0*
+# (openssl-3.0) - [TRACKER] packages failing with =dev-libs/openssl-3.0.0*
 797325
 EVP_|RUST_VERSION_OPENSSL_|FIPS_mode|RSA_SSLV23|get_dh|DSA|FIPS|ERR_GET_FUNC|CRYPTO_MEM_CHECK|openssl/mac.h
+
+# packages that depend on openjpeg don't pass configure phase
+847058
+openjpeg.h:
+
+# [Tracker] Failures with FORTIFY_SOURCE=3
+847148
+buffer overflow detected
