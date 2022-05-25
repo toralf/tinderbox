@@ -452,10 +452,13 @@ function setWorkDir() {
 }
 
 
-# append onto the file == is the next task
+# append to the end of the file to be the next task, but avoid dups
 function add2backlog()  {
-  # no duplicates
-  if [[ "$(tail -n 1 /var/tmp/tb/backlog.1st)" != "$1" ]]; then
+  if [[ $1 =~ '@' || $1 =~ '%' ]]; then
+    if [[ "$(tail -n 1 /var/tmp/tb/backlog.1st)" != "$1" ]]; then
+      echo "$1" >> /var/tmp/tb/backlog.1st
+    fi
+  elif ! grep -q "^${1}$" /var/tmp/tb/backlog.1st; then
     echo "$1" >> /var/tmp/tb/backlog.1st
   fi
 }
@@ -558,7 +561,7 @@ function WorkAtIssue()  {
   if grep -q -e 'error: perl module .* required' -e 't locate Locale/gettext.pm in' $pkglog_stripped; then
     try_again=1
     add2backlog "$task"
-    add2backlog "%perl-cleaner --all"
+    add2backlog '%perl-cleaner --all'
     return
   fi
 
@@ -640,8 +643,8 @@ function PostEmerge() {
 
   if grep -q  -e ">>> Installing .* dev-lang/perl-[1-9]" \
               -e 'Use: perl-cleaner' $tasklog_stripped; then
-    add2backlog "@world"
-    add2backlog "%perl-cleaner --all"
+    add2backlog '@world'
+    add2backlog '%perl-cleaner --all'
   fi
 
   if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
@@ -658,14 +661,6 @@ function PostEmerge() {
 
     if [[ "$current" != "$highest" ]]; then
       add2backlog "%eselect ruby set $highest"
-    fi
-  fi
-
-  # if 1st prio is empty then schedule the daily update if needed
-  if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
-    local h=/var/tmp/tb/@world.history
-    if [[ ! -f $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
-      add2backlog "@world"
     fi
   fi
 }
@@ -836,10 +831,8 @@ function WorkOnTask() {
         if [[ $try_again -eq 0 ]]; then
           add2backlog "$task"
         fi
-      elif [[ $task = "@world" ]]; then
+      else
         Finish 13 "$task is broken" $tasklog
-      elif [[ $task = "@preserved-rebuild" && ! -s /var/tmp/tb/backlog.1st ]]; then
-        Finish 13 "$task is broken after setup" $tasklog
       fi
     fi
 
@@ -973,10 +966,10 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
-# https://bugs.gentoo.org/816303
 echo "#init" > $taskfile
 rm -f $tasklog  # remove any remaining hard links
 
+# https://bugs.gentoo.org/816303
 if ! systemd-tmpfiles --create &>$tasklog; then
   Mail "WARN: init error" $tasklog
 fi
@@ -998,7 +991,15 @@ do
   fi
 
   echo "#get next task" > $taskfile
+  # if 1st prio is empty then schedule the daily update if needed
+  if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
+    h=/var/tmp/tb/@world.history
+    if [[ ! -s $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
+      add2backlog "@world"
+    fi
+  fi
   getNextTask
+
   rm -rf /var/tmp/portage/*
   if [[ $task =~ ^@ ]]; then
     echo "#feed pfl" > $taskfile
