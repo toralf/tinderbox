@@ -206,12 +206,11 @@ function UnpackStage3()  {
 
   local stage3_filename=$tbhome/distfiles/$(basename $stage3)
   echo " using $stage3_filename"
-  if [[ ! -s $stage3_filename || ! -f $stage3_filename.asc ]]; then
+  if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
     echo
     date
     echo " downloading $stage3{,.asc} files ..."
-    local wgeturl="$mirror/releases/amd64/autobuilds"
-    if ! wget --connect-timeout=10 --quiet --no-clobber $wgeturl/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
+    if ! wget --connect-timeout=10 --quiet --no-clobber $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
       echo " failed"
       return 1
     fi
