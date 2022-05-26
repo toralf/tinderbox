@@ -200,17 +200,12 @@ function LastEmergeOperation()  {
 }
 
 # whatsup.sh -d
-#                                                         1d   2d   3d   4d   5d   6d   7d   8d   9d  10d
+#                                                        0d   1d   2d   3d   4d   5d   6d   7d
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
   printf "%54s" ""
-
-  local days=$(( ($(date +%s) - $(cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -n | head -n 1))/86400 ))
-  local max=$(( (columns-54)/5-1 ))
-  if [[ $max -gt $days ]]; then
-    max=$days
-  fi
+  local max=$(( ($(date +%s) - $(cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -n | head -n 1))/86400 ))
   for i in $(seq 0 $max)
   do
     printf "%4id" $i
@@ -234,7 +229,7 @@ function PackagesPerImagePerRunDay() {
 
         END {
           if ($#packages >= 0) {
-            $packages[$rundays] += 0;
+            $packages[$rundays] += 0;     # auto-vivication
             foreach my $rundays (0..$#packages) {
               ($packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
             }
