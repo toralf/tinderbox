@@ -343,13 +343,13 @@ EOF
   # requested by sam
   if [[ $keyword = '~amd64' ]]; then
     if dice 1 10; then
-      echo 'LIBTOOL="rdlibtool"'            >> ./etc/portage/make.conf
-      echo 'MAKEFLAGS="LIBTOOL=${LIBTOOL}"' >> ./etc/portage/make.conf
+      : blocked by https://bugs.gentoo.org/775596
+#       echo 'LIBTOOL="rdlibtool"'            >> ./etc/portage/make.conf
+#       echo 'MAKEFLAGS="LIBTOOL=${LIBTOOL}"' >> ./etc/portage/make.conf
     fi
   fi
 
-  # requested by mgorny in 822354
-  # Hint: this is unrelated to "test"
+  # requested by mgorny in 822354 - btw, this is unrelated to "test"
   if dice 1 2; then
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
   fi
@@ -778,7 +778,7 @@ function ThrowImageUseFlags() {
 
 function CompileUseFlagFiles() {
   local attempt=0
-  echo 'emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
+  echo 'emerge -uUp =$(portageq best_visible / sys-devel/gcc) && emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
   if [[ -e $useflagfile ]]; then
     echo
     date
