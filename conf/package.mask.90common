@@ -50,6 +50,3 @@ sys-cluster/nullmpi
 
 # https://bugs.gentoo.org/770976 - emerge hangs
 x11-wm/stumpwm
-
-# too much
-<dev-lang/ocaml:0/4.14

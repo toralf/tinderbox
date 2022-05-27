@@ -54,3 +54,6 @@ sys-devel/gcc                       -d
 
 # just for the openssl-3 runs
 dev-lang/python                     -libedit xml
+
+# @world breakage
+dev-lang/ruby                       -rdoc
