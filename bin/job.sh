@@ -95,7 +95,7 @@ function setBacklog()  {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    Finish 13 "done"
+    Finish 0 "all work done"
   fi
 }
 
@@ -110,7 +110,7 @@ function getNextTask() {
     sed -i -e '$d' $backlog
 
     if [[ -z "$task" || $task =~ ^# ]]; then
-      continue  # empty line or comment
+      continue
 
     elif [[ $task =~ ^INFO ]]; then
       Mail "$task"
@@ -123,7 +123,6 @@ function getNextTask() {
       break
 
     elif [[ $task =~ ^= ]]; then
-      # pinned version, nevertheless check validity
       if portageq best_visible / $task &>/dev/null; then
         break
       fi
@@ -152,12 +151,6 @@ function getNextTask() {
       break
     fi
   done
-}
-
-
-# helper of CollectIssueFiles
-function collectPortageDir()  {
-  (cd / && tar -cjpf $issuedir/files/etc.portage.tar.bz2 --dereference etc/portage)
 }
 
 
@@ -528,6 +521,10 @@ function maskPackage()  {
 }
 
 
+function collectPortageDir()  {
+  tar -C / -cjpf $issuedir/files/etc.portage.tar.bz2 --dereference etc/portage
+}
+
 # analyze the issue
 function WorkAtIssue()  {
   local pkglog_stripped=$issuedir/$(tr '/' ':' <<< $pkg).stripped.log
@@ -547,7 +544,7 @@ function WorkAtIssue()  {
   CreateEmergeHistoryFile
   CollectIssueFiles
   if ! ClassifyIssue; then
-    Mail "cannot classify issue for task '$task'" $pkglog_stripped
+    Mail "WARN: cannot classify issue for task '$task'" $pkglog_stripped
   fi
 
   collectPortageDir
@@ -782,7 +779,7 @@ function RunAndCheck() {
       createIssueDir
       # TODO: collect relevant files here
     fi
-    Mail "WARN: signal $signal task=$task pkg=$pkg" $tasklog
+    Mail "INFO: signal $signal task=$task pkg=$pkg" $tasklog
 
   # timeout
   elif [[ $rc -eq 124 ]]; then
@@ -840,15 +837,15 @@ function WorkOnTask() {
   elif [[ $task =~ ^% ]]; then
     local cmd="$(cut -c2- <<< $task)"
     if ! RunAndCheck "$cmd"; then
-      if [[ ! $cmd =~ " --depclean" && ! $cmd = "emerge -uU sys-devel/gcc" && ! $cmd =~ "perl-cleaner" ]]; then
-        Mail "command failed: $cmd" $tasklog
+      if [[ ! $cmd =~ " --depclean" && ! $cmd =~ "perl-cleaner" ]]; then
+        Mail "INFO: command failed: $cmd" $tasklog
       fi
     fi
 
   # pinned version
   elif [[ $task =~ ^= ]]; then
     if ! RunAndCheck "emerge $task"; then
-      Mail "pinned atom failed: $task" $tasklog
+      Mail "INFO: pinned atom failed: $task" $tasklog
     fi
 
   # a common atom
