@@ -567,7 +567,7 @@ useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 
 date
 echo "#setup git" | tee /var/tmp/tb/task
-USE="-cgi -mediawiki -mediawiki-experimental -webdav" emerge -u dev-vcs/git
+USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/git
 git config --global gc.auto 0   # not needed for the lifetime of an image
 emaint sync --auto 1>/dev/null
 
