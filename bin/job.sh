@@ -36,7 +36,7 @@ function Mail() {
   else
     echo -e "$content"
   fi |\
-  if ! (mail -s "$subject   @ $name" ${MAILTO:-tinderbox} 1>/dev/null); then
+  if ! (mail -s "$subject  @  $name" ${MAILTO:-tinderbox} 1>/dev/null); then
     { echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2 ; }
   fi
 }
@@ -69,7 +69,7 @@ function Finish()  {
     chgrp tinderbox     /var/tmp/tb/REPLACE_ME
     truncate -s 0 $taskfile
     subject+="; $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null) completed"
-    subject+="; $(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l) .reported"
+    subject+="; $(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l) bugs reported"
   fi
 
   feedPfl
@@ -95,7 +95,7 @@ function setBacklog()  {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    Finish 0 "all work done"
+    Finish 13 "all work done"   # "13" needed here to trigger a replacement
   fi
 }
 
