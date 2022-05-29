@@ -1,3 +1,4 @@
+buffer overflow detected
 : all warnings being treated as errors
 The futex facility returned an unexpected error code.
 asciidoctor.*cannot load
