@@ -68,11 +68,15 @@ function InitOptions() {
   fi
 
   cflags_default="-pipe -march=native -fno-diagnostics-color"
-  # try to debug:  mr-fox kernel: [361158.269973] conftest[14463]: segfault at 3496a3b0 ip 00007f1199e1c8da sp 00007fffaf7220c8 error 4 in libc-2.33.so[7f1199cef000+142000]
   if dice 1 80; then
-    cflags_default+=" -Og -g"
+    cflags_default+=" -Og -g"   # debug
   else
     cflags_default+=" -O2"
+  fi
+
+  # sam
+  if dice 1 2; then
+    cflags+=" -D_FORTIFY_SOURCE=3"
   fi
 
   cflags=$cflags_default
@@ -152,10 +156,10 @@ function CheckOptions() {
 function CreateImageName()  {
   name="$(tr '/\-' '_' <<< $profile)"
   name+="-j${jobs}"
-  [[ $keyword = '~amd64' ]] || name+="_stable"
-  [[ $abi3264 = "n" ]]      || name+="_abi32+64"
-  [[ $testfeature = "n" ]]  || name+="_test"
-  [[ $cflags =~ O2 ]]       || name+="_debug"
+  [[ $keyword = 'amd64' ]]  && name+="_stable"
+  [[ $abi3264 = "y" ]]      && name+="_abi32+64"
+  [[ $testfeature = "y" ]]  && name+="_test"
+  [[ $cflags =~ " -g" ]]    && name+="_debug"
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
@@ -307,9 +311,6 @@ FFLAGS="\${FCFLAGS}"
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 
 RUSTFLAGS="-Ctarget-cpu=native -v"
-$([[ $profile =~ "/musl" ]] && echo 'RUSTFLAGS=" -C target-feature=-crt-static"')
-
-$([[ $profile =~ "/hardened" ]] || echo 'PAX_MARKINGS="none"')
 
 ACCEPT_KEYWORDS="$keyword"
 
@@ -339,6 +340,10 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
+
+  if [[ $profile =~ "/musl" ]]; then
+    echo 'RUSTFLAGS=" -C target-feature=-crt-static"' >> ./etc/portage/make.conf
+  fi
 
   # requested by sam
   if [[ $keyword = '~amd64' ]]; then
