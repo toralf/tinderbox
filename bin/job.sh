@@ -951,7 +951,6 @@ export OCAML_COLOR="never"
 export PY_FORCE_COLOR="0"
 export PYTEST_ADDOPTS="--color=no"
 
-# https://bugs.gentoo.org/683118
 export TERM=linux
 export TERMINFO=/etc/terminfo
 
@@ -964,12 +963,8 @@ if [[ -s $taskfile ]]; then
 fi
 
 echo "#init" > $taskfile
-rm -f $tasklog  # remove any remaining hard links
-
-# https://bugs.gentoo.org/816303
-if ! systemd-tmpfiles --create &>$tasklog; then
-  Mail "WARN: init error" $tasklog
-fi
+rm -f $tasklog  # remove any remaining hard link
+systemd-tmpfiles --create &>$tasklog
 
 last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :
@@ -1008,7 +1003,7 @@ do
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
-  rm $tasklog
+  rm $tasklog # the hard link target will remain
 
   if [[ $task =~ ^@ ]]; then
     echo "#feed pfl" > $taskfile
