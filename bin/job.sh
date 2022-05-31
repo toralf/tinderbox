@@ -514,7 +514,7 @@ function SendIssueMailIfNotYetReported()  {
 
 function maskPackage()  {
   local self=/etc/portage/package.mask/self
-  # unmask take precedence over mask -> unmasked packages (eg. glibc) cannot be masked in case of a failure
+  # hint: unmask take precedence over mask -> configured unmasked packages cannot be masked even in case of a failure
   if ! grep -q -e "=$pkg$" $self; then
     echo "=$pkg" >> $self
   fi
@@ -610,7 +610,6 @@ function SwitchGCC() {
 # helper of RunAndCheck()
 # schedules follow-ups from the current emerge operation
 function PostEmerge() {
-  # regen locale if eg. a new glibc was installed
   if ls /etc/._cfg????_locale.gen &>/dev/null; then
     locale-gen > /dev/null
     rm /etc/._cfg????_locale.gen
@@ -628,13 +627,13 @@ function PostEmerge() {
   env-update &>/dev/null
   source_profile
 
-  # the least important task
+  # this is the least important task
   if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
     add2backlog "@preserved-rebuild"
   fi
 
-  if grep -q  -e "Please, run 'haskell-updater'" \
-              -e "ghc-pkg check: 'checking for other broken packages:'" $tasklog_stripped; then
+  if grep -q -F -e "Please, run 'haskell-updater'" \
+                -e "ghc-pkg check: 'checking for other broken packages:'" $tasklog_stripped; then
     add2backlog "%haskell-updater"
   fi
 
@@ -775,10 +774,6 @@ function RunAndCheck() {
       Finish 9 "exiting due to signal $signal" $tasklog
     fi
     pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,')
-    if [[ -n $pkg ]]; then
-      createIssueDir
-      # TODO: collect relevant files here
-    fi
     Mail "INFO: signal $signal task=$task pkg=$pkg" $tasklog
 
   # timeout
