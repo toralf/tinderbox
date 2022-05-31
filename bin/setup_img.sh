@@ -75,10 +75,6 @@ function InitOptions() {
   fi
 
   cflags=$cflags_default
-  # sam
-  if dice 1 2; then
-    cflags+=" -D_FORTIFY_SOURCE=3"
-  fi
   # 685160 colon-in-CFLAGS
   if dice 1 80; then
     cflags+=" -falign-functions=32:25:16"
