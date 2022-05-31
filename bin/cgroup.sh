@@ -14,11 +14,7 @@ if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
   exit 1
 fi
 
-# reserve vCPUs, RAM and vRAM
-vcpu=$(( 100000 * ($(nproc)-3) ))
-ram=$(( 128-18 ))G
-vram=$(( 384-64 ))G   # swap is 1/4 TB
-
+# must exist before any cgroup entry is created
 echo 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 
 # cgroup v1 does not cleanup after itself so create a shell script for that
@@ -39,9 +35,14 @@ do
   echo $agent > /sys/fs/cgroup/$i/release_agent
 done
 
-# prefer a generic identifier
+# put all lcoal stuff (tor project, tinderbox) under this item
 name=/local
 cgcreate -g cpu,memory:$name
+
+# reserve 3 vCPUs, 18 GB RAM and 64 GB vRAM
+vcpu=$(( 100000 * ($(nproc)-3) ))
+ram=$(( 128-18 ))G
+vram=$(( 384-64 ))G   # swap is 1/4 TB
 
 cgset -r cpu.cfs_quota_us=$vcpu             $name
 cgset -r memory.limit_in_bytes=$ram         $name
