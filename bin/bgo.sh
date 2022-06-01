@@ -138,8 +138,8 @@ if [[ -d ./files ]]; then
     if [[ $bytes -eq 0 ]]; then
       echo "skipped empty file: $f"
       continue
-    # max. size from b.g.o. is 1000 KB
-    elif [[ $bytes -gt 1000000 ]]; then
+    # max. size from b.g.o. is 1 MB
+    elif [[ $bytes -gt $(( 2**20 )) ]]; then
       echo "too fat file: $f"
       file_size=$(ls -lh $f | awk ' { print $5 } ')
       file_path=$(realpath $f | sed -e "s,^.*img/,,g")
