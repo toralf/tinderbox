@@ -157,8 +157,8 @@ function getNextTask() {
 function CompressIssueFiles()  {
   for f in $(ls $issuedir/files/* 2>/dev/null | grep -v -F '.bz2')
   do
-    # 1/4 MB is ok
-    if [[ $(wc -c < $f) -gt 262144 ]]; then
+    # compress if bigger than 1/4 MB
+    if [[ $(wc -c < $f) -gt $(( 2**18 )) ]]; then
       bzip2 $f
     fi
   done
