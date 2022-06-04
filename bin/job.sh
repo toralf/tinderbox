@@ -485,6 +485,7 @@ function finishTitle()  {
           -e 's,mmake\..*:.*:,,g' \
           -e 's,ls[[:digit:]]*:,,g' \
           -e 's,..:..:..\.... \[error\],,g' \
+          -e 's,config\......./,config.<snip>/,g' \
         $issuedir/title
 
   # prefix title

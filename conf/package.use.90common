@@ -57,3 +57,6 @@ dev-lang/python                     -libedit xml
 
 # @world breakage
 dev-lang/ruby                       -rdoc
+
+# sam for perl-5.36
+*/*                                 perl
