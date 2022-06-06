@@ -36,7 +36,7 @@ function GetProfiles() {
     grep -F 'default/linux/amd64/17.1' |\
     grep -v -F ' (exp)'
 
-    # musl breaks too often in moment
+    # lower probability b/c musl breaks too often short after setup
     if dice 1 10; then
       # by sam
       eselect profile list |\
@@ -45,8 +45,7 @@ function GetProfiles() {
   ) |\
   grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' |\
   awk ' { print $2 } ' |\
-  cut -f4- -d'/' -s |\
-  sort -u
+  cut -f4- -d'/' -s
 }
 
 
@@ -516,7 +515,7 @@ EOF
 function CreateBacklogs()  {
   local bl=./var/tmp/tb/backlog
 
-  touch                   $bl{,.1st,.upd}
+  truncate -s 0           $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
 
