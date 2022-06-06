@@ -156,30 +156,34 @@ function LookupForABlocker() {
 
 function SetAssigneeAndCc() {
   local assignee
-  local cc
+  local cc=""
   local m=$(equery meta -m $pkgname | grep '@' | xargs)
 
   if [[ -z "$m" ]]; then
     assignee="maintainer-needed@gentoo.org"
-    cc=""
   else
     assignee=$(cut -f1 -d' ' <<< $m)
     cc=$(cut -f2- -d' ' -s <<< $m)
   fi
 
-  # for a file collision report both involved sites
+
   if grep -q 'file collision with' $issuedir/title; then
+    # for a file collision report both involved sites
     local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     if [[ -n "$collision_partner_pkgname" ]]; then
       cc="$cc $(equery meta -m $collision_partner_pkgname | grep '@' | xargs)"
     fi
+
+  elif grep -q 'internal compiler error:' $issuedir/title; then
+    cc+=" toolchain@gentoo.org"
   fi
 
   echo "$assignee" > $issuedir/assignee
   if [[ -n "$cc" ]]; then
     xargs -n 1 <<< $cc | sort -u | grep -v "^$assignee$" | xargs > $issuedir/cc
-  else
+  fi
+  if [[ ! -s $issuedir/cc || -z "$cc" ]]; then
     rm -f $issuedir/cc
   fi
 }
