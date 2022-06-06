@@ -19,6 +19,7 @@ No pathcc executable was installed, your hardware is unsupported most likely
 One of the .* use flags must be enabled
 OTP release .* does not match required regex
 Please check to make sure these options are set correctly.
+Please, run haskell-updater to fix broken packages
 Please switch to a gcc version built with USE=graphite
 Please switch to an openmp compatible compiler
 Please use a supported ICD

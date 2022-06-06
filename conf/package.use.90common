@@ -49,7 +49,10 @@ app-admin/webalizer                 -nls
 # sam
 sys-devel/gcc                       openmp
 
-# https://bugs.gentoo.org/840182
+# sam, for the fortify patch
+sys-devel/gcc                       -vanilla
+
+# gcc:12, https://bugs.gentoo.org/840182
 sys-devel/gcc                       -d
 
 # just for the openssl-3 runs
@@ -58,5 +61,5 @@ dev-lang/python                     -libedit xml
 # @world breakage
 dev-lang/ruby                       -rdoc
 
-# sam for perl-5.36
+# sam, for perl-5.36
 */*                                 perl
