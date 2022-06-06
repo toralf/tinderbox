@@ -64,18 +64,18 @@ EOF
   ls -t ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null |\
   while read -r f
   do
-    buguri=$(cat $f 2>/dev/null) || continue    # race with house keeping
-    bugno=$(cut -f2 -d'=' <<< $buguri)
+    uri=$(cat $f 2>/dev/null) || continue    # race with house keeping
+    no=$(cut -f2 -d'=' <<< $uri)
     d=${f%/*}
-    ftitle=$d/title
+    title=$d/title
     image=$(cut -f5 -d'/' <<< $d)
     cat << EOF >> $tmpfile
     <tr>
-      <td><a href="$buguri">$bugno</a></td>
-      <td>$(recode --silent ascii..html < $ftitle)</td>
+      <td><a href="$uri">$no</a></td>
+      <td>$(recode --silent ascii..html < $title)</td>
       <td><a href="./$image/">$image</a></td>
-      <td><a href="./$image/etc/portage/">link</a></td>
-      <td><a href="$(cut -f5- -d'/' <<< $d)/">link</a></td>
+      <td><a href="./$image/etc/portage/">portage</a></td>
+      <td><a href="$(cut -f5- -d'/' <<< $d)/">issue</a></td>
     </tr>
 EOF
 
