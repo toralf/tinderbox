@@ -635,6 +635,7 @@ function PostEmerge() {
 
   if grep -q -F -e "Please, run 'haskell-updater'" \
                 -e "ghc-pkg check: 'checking for other broken packages:'" $tasklog_stripped; then
+    add2backlog '@world'
     add2backlog "%haskell-updater"
   fi
 
