@@ -14,17 +14,19 @@ function getCandidates()  {
       continue
     fi
 
-    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i))/86400 )) -lt 1 ]]; then
+    # maybe setup is creating a new USE flag set
+    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i)) )) -lt 3600 ]]; then
       continue
     fi
 
+    # keep emerge logs of last 2 weeks for "whatsup.sh -e"
     if [[ -s $i/var/log/emerge.log ]]; then
-      # keep images having emerge logs within last 2 weeks (for "whatsup.sh -e")
       if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -le 14 ]]; then
         continue
       fi
     fi
 
+    # it is a candidate
     echo $i
   done |\
   sort -t'-' -k 3,4     # sort by date + time, oldest first
