@@ -11,7 +11,8 @@ function list_images() {
     ls /run/tinderbox/ | sed 's,.lock,,g' | sort
     ls -d /sys/fs/cgroup/cpu/local/17.*   | sort
   ) 2>/dev/null |\
-  xargs -n 1 --no-run-if-empty basename  |\
+  xargs -n 1 --no-run-if-empty basename |\
+  # remove dups
   awk ' !x[$0]++ ' |\
   while read -r i
   do
@@ -422,14 +423,13 @@ unset LC_TIME
 
 source $(dirname $0)/lib.sh
 
-images=$(list_images)
-
 if ! columns=$(tput cols 2>/dev/null); then
   columns=120
 fi
 
 while getopts cdelopt opt
 do
+  images=$(list_images)
   case $opt in
     c)  Coverage                  ;;
     d)  PackagesPerImagePerRunDay ;;
