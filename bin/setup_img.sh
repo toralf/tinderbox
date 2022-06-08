@@ -178,7 +178,7 @@ function UnpackStage3()  {
 
   echo
   date
-  echo " get stage3 file name prefix for profile $profile"
+  echo " get stage3 prefix for profile $profile"
   local prefix="stage3-amd64-"
   prefix+=$(sed -e 's,17\..,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-')
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
@@ -195,7 +195,7 @@ function UnpackStage3()  {
 
   echo
   date
-  echo " get current stage3 file name for $prefix"
+  echo " get stage3 file name for $prefix"
   local stage3
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
     echo " failed"
