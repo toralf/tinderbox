@@ -56,24 +56,24 @@ function feedPfl()  {
 
 # this is the end ...
 function Finish()  {
-  local exit_code=${1:-$?}
-  local subject=${2:-<internal error>}
-
   trap - INT QUIT TERM EXIT
   set +e
 
-  subject=$(stripQuotesAndMore <<< $subject)
+  local exit_code=${1:-$?}
+  local subject=${2:-<internal error>}
+
+  subject="finished, ec=$exit_code, $(stripQuotesAndMore <<< $subject)"
   if [[ $exit_code -eq 13 ]]; then
     echo "$subject" >>  /var/tmp/tb/REPLACE_ME
     chmod g+w           /var/tmp/tb/REPLACE_ME
     chgrp tinderbox     /var/tmp/tb/REPLACE_ME
     truncate -s 0 $taskfile
-    subject+="; $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null) completed"
-    subject+="; $(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l) bugs reported"
+    subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null) completed"
+    subject+=", $(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l) bugs reported"
   fi
 
+  Mail "$subject" ${3:-}
   feedPfl
-  Mail "finished, exit_code=$exit_code, $subject" ${3:-}
   rm -f /var/tmp/tb/STOP
 
   exit $exit_code
@@ -746,7 +746,7 @@ function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  timeout --signal=15 --kill-after=5m ${2:-12h} bash -c "eval $1" &>> $tasklog
+  timeout --signal=15 --kill-after=5m ${2:-8h} bash -c "eval $1" &>> $tasklog
   local rc=$?
   (echo; date) >> $tasklog
 
@@ -811,7 +811,7 @@ function WorkOnTask() {
       opts+=" --update --changed-use --newuse"
     fi
 
-    if RunAndCheck "emerge $task $opts" "24h"; then
+    if RunAndCheck "emerge $task $opts" "12h"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
         add2backlog "%emerge --depclean --verbose=n"
