@@ -92,7 +92,7 @@ if [[ -s $latest ]]; then
   done
 fi
 
-# prune distfiles not accessed within last year
+# prune distfiles not accessed within past 12 months
 if pruneNeeded; then
   find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
 fi
