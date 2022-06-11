@@ -5,11 +5,12 @@
 # up/downgrade
 <dev-util/ragel-7.0.4
 
-# OOM killer and/or task storm
-app-emacs/lsp-mode
-
 # sam, tupone
 <dev-lang/ocaml-4.14.0
 
 # sam
 <dev-libs/openssl-3.0.3
+
+# OOM, fork-bombs, timeouts
+*emacs*/*
+*/*emacs*

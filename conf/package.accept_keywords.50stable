@@ -7,6 +7,8 @@
 # global settings
 #
 
-# no stable version yet
+# needed for the tinderbox, no stable version yet
 mail-client/s-nail                  ~amd64
 
+# sam, tupone
+dev-lang/ocaml:0/4.12               ~amd64
