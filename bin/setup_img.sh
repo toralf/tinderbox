@@ -195,7 +195,7 @@ function UnpackStage3()  {
 
   echo
   date
-  echo " get stage3 file name for $prefix"
+  echo " get stage3 file name for prefix $prefix"
   local stage3
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
     echo " failed"
@@ -203,7 +203,6 @@ function UnpackStage3()  {
   fi
 
   local stage3_filename=$tbhome/distfiles/$(basename $stage3)
-  echo " using $stage3_filename"
   if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
     echo
     date
@@ -212,23 +211,23 @@ function UnpackStage3()  {
       echo " failed"
       return 1
     fi
+  else
+    echo
+    date
+    echo " using $stage3_filename"
   fi
 
   echo
   date
   echo " updating signing keys ..."
-  for key in 13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058
-  do
-    if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $key; then
-      echo
-      date
-      echo " notice: could not update gpg key $key"
-    fi
-  done
+  local keys="13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058"
+  if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $keys; then
+    echo " notice: sth failed ^^"
+  fi
 
   echo
   date
-  echo " verifying stage3 ..."
+  echo " verifying stage3 files ..."
   if ! gpg --quiet --verify $stage3_filename.asc; then
     echo " failed, moved to /tmp"
     mv $stage3_filename{,.asc} /tmp
