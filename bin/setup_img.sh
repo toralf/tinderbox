@@ -31,7 +31,7 @@ function ThrowUseFlags() {
 
 # helper of InitOptions()
 function GetProfiles() {
-  {
+  (
     eselect profile list |\
     grep -F 'default/linux/amd64/17.1' |\
     grep -v -F ' (exp)'
@@ -42,7 +42,7 @@ function GetProfiles() {
       eselect profile list |\
       grep -e "default/linux/amd64/17\../musl"
     fi
-  } |\
+  ) |\
   grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' |\
   awk ' { print $2 } ' |\
   cut -f4- -d'/' -s
@@ -411,7 +411,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # limit # of parallel jobs, 1 is the fallback of $jobs fails for a package or is too much for the host
+  # limit # of parallel jobs, 1 is the fallback of $jobs is too much for a package
   for j in 1 $jobs
   do
     cat << EOF > ./etc/portage/env/j$j
