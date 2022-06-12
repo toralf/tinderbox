@@ -8,7 +8,6 @@ dev-games/ogre:0/2.1                **
 
 
 # sam
-<dev-util/meson-9999                **
 dev-libs/openssl:0/3                **
 dev-scheme/guile:12/3.0-1           **
 <sys-devel/gcc-12.2.9999:12         **
