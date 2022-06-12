@@ -244,9 +244,7 @@ function CollectIssueFiles() {
     )
 
     # ICE
-    if [[ -f $workdir/gcc-build-logs.tar.bz2 ]]; then
-      cp $workdir/gcc-build-logs.tar.bz2 $issuedir/files
-    fi
+    cp $workdir/../gcc-build-logs.tar.bz2 $issuedir/files 2>/dev/null
   fi
 }
 
