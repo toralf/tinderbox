@@ -36,7 +36,7 @@ function GetProfiles() {
     grep -F 'default/linux/amd64/17.1' |\
     grep -v -F ' (exp)'
 
-    # lower probability b/c musl breaks too often short after setup
+    # lower probability b/c musl breaks too often
     if dice 1 10; then
       # by sam
       eselect profile list |\
@@ -411,7 +411,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # limit # of parallel jobs, 1 is the fallback of $jobs is too much for a package
+  # limit # of parallel jobs, 1 is the fallback of $jobs fails for a package or is too much for the host
   for j in 1 $jobs
   do
     cat << EOF > ./etc/portage/env/j$j
