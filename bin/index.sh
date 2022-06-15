@@ -53,7 +53,7 @@ function listBugs() {
       <th>Title</th>
       <th>/</th>
       <th>/etc/portage</th>
-      <th>Issue</th>
+      <th>IssueDir</th>
     </tr>
   </tfoot>
 
