@@ -21,10 +21,9 @@ function ThrowUseFlags() {
   while read -r flag
   do
     if dice 1 $m; then
-      echo -n "-$flag "
-    else
-      echo -n "$flag "
+      echo -n "-"
     fi
+    echo -n "$flag "
   done
 }
 
@@ -36,12 +35,9 @@ function GetProfiles() {
     grep -F 'default/linux/amd64/17.1' |\
     grep -v -F ' (exp)'
 
-    # lower probability b/c musl breaks too often
-    if dice 1 10; then
-      # by sam
-      eselect profile list |\
-      grep -e "default/linux/amd64/17\../musl"
-    fi
+    # by sam
+    eselect profile list |\
+    grep -e "default/linux/amd64/17\../musl"
   ) |\
   grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' |\
   awk ' { print $2 } ' |\
