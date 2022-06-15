@@ -19,17 +19,6 @@ sci-astronomy/psfex
 sci-astronomy/scamp
 sci-astronomy/sextractor
 #
-# creates /vz which annoys me
-#
-app-backup/vzdump
-app-misc/vzstats
-sys-cluster/ploop
-sys-cluster/vzctl
-#
-# musl specific
-#
-sys-libs/musl
-#
 # loong emerge times
 #
 app-office/libreoffice
@@ -38,6 +27,3 @@ dev-libs/gf2x
 dev-db/mongodb
 dev-qt/qtwebengine
 sci-libs/
-#
-dev-java/
-#

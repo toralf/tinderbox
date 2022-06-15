@@ -43,7 +43,7 @@ sandbox issue
 
 # (gcc-12) - [TRACKER] sys-devel/gcc-12 porting
 839906
-is not a member of .*std.*
+is not a member of .*std.*|time was not declared in this scope
 
 # (bison-3.8) - [TRACKER] Packages failing with sys-devel/bison-3.8.x
 813126

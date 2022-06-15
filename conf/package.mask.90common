@@ -48,5 +48,3 @@ www-client/google-chrome
 # sam: nullmpi does not fully implement all of the MPI spec
 sys-cluster/nullmpi
 
-# fishy DNS resolve issue
-app-office/wps-office
