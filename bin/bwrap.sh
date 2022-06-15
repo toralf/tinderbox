@@ -65,7 +65,7 @@ function Exit()  {
 }
 
 
-function mountAll() {
+function ChrootMountAll() {
   (
     set -e
 
@@ -89,7 +89,7 @@ function mountAll() {
 }
 
 
-function umountAll()  {
+function ChrootUmountAll()  {
   (
     set +e
 
@@ -101,30 +101,37 @@ function umountAll()  {
 }
 
 
-function RunUnderChroot() {
-  local rc=1
+function Chroot() {
+  local rc
 
-  if mountAll; then
+  if ChrootMountAll; then
     if [[ -n "$entrypoint" ]]; then
       (/usr/bin/chroot $mnt /bin/bash -l -c "su - root -c /entrypoint")
+      rc=$?
     else
       (/usr/bin/chroot $mnt /bin/bash -l -c "su - root")
+      rc=$?
     fi
-    rc=$?
+  else
+    rc=13
   fi
-  umountAll
+
+  if ! ChrootUmountAll; then
+    (( rc++ ))
+  fi
 
   return $rc
 }
 
 
-function RunUnderBwrap() {
+function Bwrap() {
   local sandbox=(env -i
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
     HOME=/root
     SHELL=/bin/bash
     TERM=linux
     /usr/bin/bwrap
+        --clearenv
         --unshare-cgroup
         --unshare-ipc
         --unshare-pid
@@ -172,14 +179,14 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-chroot="no"
+wrapper="Bwrap"
 entrypoint=""
 mnt=""
 
 while getopts ce:m: opt
 do
   case $opt in
-    c)  chroot="yes"
+    c)  wrapper="Chroot"
         ;;
     e)  if [[ ! -s "$OPTARG" ]]; then
           echo "no valid entry point script given: $OPTARG"
@@ -233,8 +240,4 @@ if [[ -n "$entrypoint" ]]; then
   chmod 744         "$mnt/entrypoint"
 fi
 
-if [[ $chroot = "yes" ]]; then
-  RunUnderChroot
-else
-  RunUnderBwrap
-fi
+$wrapper
