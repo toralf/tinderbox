@@ -126,19 +126,19 @@ function Chroot() {
 
 function Bwrap() {
   local sandbox=(env -i
-    PATH=/usr/sbin:/usr/bin:/sbin:/bin
-    HOME=/root
-    SHELL=/bin/bash
-    TERM=linux
     /usr/bin/bwrap
         --clearenv
+        --setenv HOME "/root"
+        --setenv MAILTO "${MAILTO:-tinderbox}"
+        --setenv SHELL "/bin/bash"
+        --setenv TERM "linux"
+        --hostname "$(cat ${mnt}/etc/conf.d/hostname)"
+        --die-with-parent
+        --chdir /var/tmp/tb
         --unshare-cgroup
         --unshare-ipc
         --unshare-pid
         --unshare-uts
-        --hostname "$(cat ${mnt}/etc/conf.d/hostname)"
-        --die-with-parent
-        --setenv MAILTO "${MAILTO:-tinderbox}"
         --bind "$mnt"                             /
         --dev                                     /dev
         --mqueue                                  /dev/mqueue
@@ -151,7 +151,6 @@ function Bwrap() {
         --perms 1777 --tmpfs                      /tmp
         --bind ~tinderbox/distfiles               /var/cache/distfiles
         --perms 1777 --tmpfs                      /var/tmp/portage
-        --chdir /var/tmp/tb
         /bin/bash -l
   )
 
