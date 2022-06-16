@@ -29,7 +29,7 @@ function getCandidates()  {
     # it is a candidate
     echo $i
   done |\
-  sort -t'-' -k 3,4     # sort by date + time, oldest first
+  sort -t'-' -k 3 # sort by date-time, oldest first
 }
 
 

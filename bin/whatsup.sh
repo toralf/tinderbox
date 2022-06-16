@@ -213,7 +213,7 @@ function PackagesPerImagePerRunDay() {
   done
   echo
 
-  for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3,4)
+  for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3)
   do
     if PrintImageName $i 54; then
       local start_time=$(__getStartTime $i)
@@ -407,7 +407,7 @@ function emergeThruput()  {
       }
       print "\n";
     }
-  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -14 | sort -t '-' -k 3,4)
+  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -14 | sort -t '-' -k 3)
   # even if a log file is not older than 14 days its emerges maybe older
 }
 
