@@ -31,9 +31,15 @@ function ThrowUseFlags() {
 # helper of InitOptions()
 function GetProfiles() {
   (
+    local correction_factor=""
+    # @world breaks for -desktop much more often
+    if dice 1 2; then
+      correction_factor+='-e no-multilib'
+    fi
+
     eselect profile list |\
     grep -F 'default/linux/amd64/17.1' |\
-    grep -v -F ' (exp)'
+    grep -v -F -e ' (exp)' $correction_factor
 
     # by sam
     eselect profile list |\
