@@ -173,6 +173,11 @@ if [[ $newbug -eq 1 ]]; then
   else
     cc="$(cat ./cc 2>/dev/null || true)"
   fi
+
+  if grep -q -F 'meson' ./title; then
+    cc+=" eschwartz93@gmain.com"
+  fi
+
   add_cc=""
   if [[ -n "$cc" ]]; then
     add_cc="--add-cc $(sed 's, , --add-cc ,g' <<< $cc)"
