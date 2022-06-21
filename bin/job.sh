@@ -876,13 +876,12 @@ function DetectTaskLoop() {
 
 function syncRepo()  {
   local synclog=/var/tmp/tb/sync.log
+  local curr_time=$EPOCHSECONDS
 
   cd /var/db/repos/gentoo
 
   if ! emaint sync --auto &>$synclog; then
-    Mail "WARN: sync failed for ::gentoo" $synclog
     if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error: 500'; then
-      last_sync=$(( EPOCHSECONDS-3600+600 )) # try again in 10 min
       return 1
     fi
 
@@ -896,32 +895,31 @@ function syncRepo()  {
       Finish 13 "cannot restore ::gentoo" $synclog
     fi
   fi
-  last_sync=$EPOCHSECONDS
 
   if grep -q -F '* An update to portage is available.' $synclog; then
     add2backlog "sys-apps/portage"
   fi
 
-  if grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
-    return 0
+  if ! grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
+    # get repo changes with an 1 hour timeshift to let download mirrors being synced
+    git diff \
+        --diff-filter="ACM" \
+        --name-only \
+        "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }".."@{ 1 hour ago }" |\
+    grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
+    cut -f1-2 -d'/' -s |\
+    grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
+    sort -u > /tmp/syncRepo.upd
+
+    if [[ -s /tmp/syncRepo.upd ]]; then
+      # mix repo changes and backlog together
+      sort -u /tmp/syncRepo.upd /var/tmp/tb/backlog.upd | shuf > /tmp/backlog.upd
+      # no mv to preserve target file perms
+      cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
+    fi
   fi
 
-  # get repo changes with an 1 hour timeshift to let download mirrors being synced
-  git diff \
-      --diff-filter="ACM" \
-      --name-only \
-      "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }".."@{ 1 hour ago }" |\
-  grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
-  cut -f1-2 -d'/' -s |\
-  grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
-  sort -u > /tmp/syncRepo.upd
-
-  if [[ -s /tmp/syncRepo.upd ]]; then
-    # mix repo changes and backlog together
-    sort -u /tmp/syncRepo.upd /var/tmp/tb/backlog.upd | shuf > /tmp/backlog.upd
-    # no mv to preserve target file perms
-    cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
-  fi
+  last_sync=$curr_time
 }
 
 
