@@ -14,3 +14,6 @@
 # OOM, fork-bombs, timeouts
 *emacs*/*
 */*emacs*
+
+# https://bugs.gentoo.org/770976 - emerge hangs
+x11-wm/stumpwm
