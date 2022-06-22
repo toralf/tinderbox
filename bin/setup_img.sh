@@ -547,7 +547,9 @@ function CreateSetupScript()  {
 export LANG=C.utf8
 set -euf
 
-if [[ ! $profile =~ "/musl" ]]; then
+if [[ $profile =~ "/musl" ]]; then
+  echo -e "=sys-devel/gcc-12.1.1_p20220611\\n=sys-devel/gcc-12.1.1_p20220618\\n" >> /etc/portage/package.mask/gcc
+else
   date
   echo "#setup locale" | tee /var/tmp/tb/task
   echo -e "en_US       ISO-8859-1"  >> /etc/locale.gen
