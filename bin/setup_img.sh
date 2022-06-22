@@ -32,9 +32,13 @@ function ThrowUseFlags() {
 function GetProfiles() {
   (
     local correction_factor=""
-    # @world breaks for -desktop much more often
+    # runs longer than others
     if dice 1 2; then
-      correction_factor+='-e no-multilib'
+      correction_factor+=' -e no-multilib'
+    fi
+    # breaks too often
+    if dice 1 2; then
+      correction_factor+=' -e musl'
     fi
 
     eselect profile list |\
