@@ -552,8 +552,10 @@ if [[ $profile =~ "/musl" ]]; then
 else
   date
   echo "#setup locale" | tee /var/tmp/tb/task
-  echo -e "en_US       ISO-8859-1"  >> /etc/locale.gen
-  echo -e "en_US.UTF-8 UTF-8"       >> /etc/locale.gen      # especially for "test" needed
+  echo -e "en_US ISO-8859-1"  >> /etc/locale.gen
+  if [[ $testfeature = "y" ]]; then
+    echo -e "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+  fi
   locale-gen
 fi
 
