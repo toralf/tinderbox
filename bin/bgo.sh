@@ -175,7 +175,7 @@ if [[ $newbug -eq 1 ]]; then
   fi
 
   if grep -q -F 'meson' ./title; then
-    cc+=" eschwartz93@gmain.com"
+    cc+=" eschwartz93@gmail.com"
   fi
 
   add_cc=""
