@@ -11,3 +11,7 @@ dev-games/ogre:0/2.1
 dev-libs/openssl:0/3
 dev-scheme/guile:12/3.0-1
 <sys-libs/ncurses-9999
+
+
+# ztrawhcse
+~dev-util/meson-0.63.0_rc1

@@ -12,3 +12,7 @@ dev-libs/openssl:0/3                **
 dev-scheme/guile:12/3.0-1           **
 <sys-devel/gcc-12.2.9999:12         **
 <sys-libs/ncurses-9999              **
+
+
+# ztrawhcse
+~dev-util/meson-0.63.0_rc1          **
