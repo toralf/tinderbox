@@ -180,10 +180,10 @@ if [[ $newbug -eq 1 ]]; then
 
   add_cc=""
   if [[ -n "$cc" ]]; then
-    add_cc="--add-cc $(sed 's, , --add-cc ,g' <<< $cc)"
+    add_cc=$(sed 's,  *, --add-cc ,g' <<< " $cc")
   fi
 
-  bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn "'$assignee' '$add_cc'"
+  bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn "to:>$assignee< add_cc:>$add_cc<"
 fi
 
 echo
