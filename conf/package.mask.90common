@@ -48,3 +48,5 @@ www-client/google-chrome
 # sam: nullmpi does not fully implement all of the MPI spec
 sys-cluster/nullmpi
 
+# https://bugs.gentoo.org/770976 - emerge hangs
+x11-wm/stumpwm

@@ -5,15 +5,9 @@
 # up/downgrade
 <dev-util/ragel-7.0.4
 
-# sam, tupone
-<dev-lang/ocaml-4.14.0
-
 # sam
-<dev-libs/openssl-3.0.3
+<dev-libs/openssl-3.0.3                                 # DICE: openssl
 
 # OOM, fork-bombs, timeouts
 *emacs*/*
 */*emacs*
-
-# https://bugs.gentoo.org/770976 - emerge hangs
-x11-wm/stumpwm
