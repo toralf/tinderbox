@@ -15,7 +15,7 @@
 # 2x faster compile
 */*                                 jumbo-build
 
-# MTA of the tinderbox image
+# MTA of the tinderbox
 mail-mta/ssmtp                      mta ssl -gnutls
 
 # /etc/profile.d/nix.sh overwrites /etc/profile
@@ -23,10 +23,6 @@ sys-apps/nix                        -etc_profile
 
 # https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
-
-# too much deps would be installed at setup
-app-portage/pfl                     -network-cron
-app-text/ansifilter                 -qt5
 
 # https://bugs.gentoo.org/831346
 sys-kernel/installkernel-gentoo     -grub
@@ -37,7 +33,7 @@ dev-libs/gf2x                       -custom-tune
 # git cannot fetch ::gentoo
 net-misc/curl                       ssl
 
-# fails with: you must set LINGUAS
+# fails with: "you must set LINGUAS ..."
 app-admin/webalizer                 -nls
 
 
@@ -47,19 +43,10 @@ app-admin/webalizer                 -nls
 #
 
 # sam
-sys-devel/gcc                       openmp
+sys-devel/gcc                       openmp              # DICE: gcc 7 8
 
-# sam, for the fortify patch
-sys-devel/gcc                       -vanilla
+dev-lang/python                     -libedit xml        # DICE: openssl
 
-# gcc:12, https://bugs.gentoo.org/840182
-sys-devel/gcc                       -d
-
-# just for the openssl-3 runs
-dev-lang/python                     -libedit xml
-
-# @world breakage
-dev-lang/ruby                       -rdoc
-
-# sam, for perl-5.36
-*/*                                 perl
+# too much deps installed at setup
+app-portage/pfl                     -network-cron       # DICE: tinderbox_a 9 10
+app-text/ansifilter                 -qt5                # DICE: tinderbox_b 9 10
