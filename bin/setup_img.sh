@@ -455,6 +455,17 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??musl
   fi
 
+  # vary gentoo dev specific test cases
+  grep -hEo '# DICE: .*' ./etc/portage/package.*/* |\
+  awk '{ print $3, $4, $5}' |\
+  sort -u |\
+  while read -r topic x X
+  do
+    if $profile =~ '/musl' || ! dice ${x:-1} ${X:-2}; then
+      sed -i -e "/# DICE: $topic/d" ./etc/portage/package.*/*
+    fi
+  done
+
   echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
 
   for f in $tbhome/tb/conf/profile.*
