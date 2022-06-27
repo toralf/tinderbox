@@ -957,8 +957,11 @@ fi
 
 echo "#init" > $taskfile
 rm -f $tasklog  # remove any remaining hard link
-systemd-tmpfiles --create &>$tasklog
+if ! systemd-tmpfiles --create &>$tasklog; then
+  Mail "NOTICE: tmpfiles issue" $tasklog
+fi
 
+echo "#loop" > $taskfile
 last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :
 do
