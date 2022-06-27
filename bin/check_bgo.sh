@@ -20,7 +20,7 @@ function ExitfBgoIsDown() {
       echo -e "\n b.g.o. is down\n" >&2
       #cat $rawfile >&2
     }
-    return 1
+    exit 2
   fi
 }
 
@@ -246,9 +246,7 @@ fi
 echo
 
 something_found=0
-if SearchForMatchingBugs; then
-  echo -e "\n\ was already filed"
-else
+if ! SearchForMatchingBugs; then
   cmd="$(dirname $0)/bgo.sh -d $issuedir"
   if [[ -n $blocker_bug_no ]]; then
     cmd+=" -b $blocker_bug_no"
