@@ -49,8 +49,8 @@ function GetProfiles() {
 
 # helper of main()
 function InitOptions() {
-  # 1 process in each of M running images is more efficient than *up to* n processes in N images
-  # (given 1 x M = n x N) and it is much easier to catch the error message
+  # for overall evincency 1 process in each of M running images is better than *up to* n processes in N images
+  # (1 x M >= n x N) and it would be much easier to catch the first error message
   # but: the compile times are awefully with -j1
   jobs=4
 
