@@ -25,13 +25,8 @@ function ExitfBgoIsDown() {
 }
 
 
-function IssueWasFiledBefore() {
-  if [[ -s $resultfile ]]; then
-    issue_was_filed_before=1
-    return 0
-  else
-    return 1
-  fi
+function GotFindings() {
+  [[ -s $resultfile ]]
 }
 
 
@@ -47,8 +42,8 @@ function SearchForMatchingBugs() {
         head -n 8 |\
         tee $resultfile
     ExitfBgoIsDown
-    if IssueWasFiledBefore; then
-      return
+    if GotFindings; then
+      return 0
     fi
   fi
 
@@ -69,8 +64,8 @@ function SearchForMatchingBugs() {
         head -n 8 |\
         tee $resultfile
     ExitfBgoIsDown
-    if IssueWasFiledBefore; then
-      return
+    if GotFindings; then
+      return 0
     fi
 
     echo -en "$i DUP                    \r"
@@ -80,9 +75,9 @@ function SearchForMatchingBugs() {
         head -n 3 |\
         tee $resultfile
     ExitfBgoIsDown
-    if IssueWasFiledBefore; then
+    if GotFindings; then
       echo -e " \n^^ DUPLICATE\n"
-      return
+      return 1
     fi
 
     echo -en "$i                        \r"
@@ -92,8 +87,8 @@ function SearchForMatchingBugs() {
         head -n 3 |\
         tee $resultfile
     ExitfBgoIsDown
-    if IssueWasFiledBefore; then
-      return
+    if GotFindings; then
+      return 1
     fi
   done
 
@@ -111,8 +106,8 @@ function SearchForMatchingBugs() {
         head -n 8 |\
         tee $resultfile
     ExitfBgoIsDown
-    if IssueWasFiledBefore; then
-      issue_was_filed_before=2
+    if GotFindings; then
+      something_found=1
     fi
 
     if [[ $(wc -l < $resultfile) -lt 5 ]]; then
@@ -124,11 +119,13 @@ function SearchForMatchingBugs() {
           head -n 5 |\
           tee $resultfile
       ExitfBgoIsDown
-      if IssueWasFiledBefore; then
-        issue_was_filed_before=2
+      if GotFindings; then
+        something_found=1
       fi
     fi
   fi
+
+  return 1
 }
 
 
@@ -248,19 +245,21 @@ else
 fi
 echo
 
-issue_was_filed_before=0
-SearchForMatchingBugs
+something_found=0
+if SearchForMatchingBugs; then
+  echo -e "\n\ was already filed"
+else
+  cmd="$(dirname $0)/bgo.sh -d $issuedir"
+  if [[ -n $blocker_bug_no ]]; then
+    cmd+=" -b $blocker_bug_no"
+  fi
 
-cmd="$(dirname $0)/bgo.sh -d $issuedir"
-if [[ -n $blocker_bug_no ]]; then
-  cmd+=" -b $blocker_bug_no"
-fi
-
-if [[ $issue_was_filed_before -eq 0 ]]; then
-  echo -e "no issues, automatic filing:\n"
-  $cmd
-elif [[ $issue_was_filed_before -eq 2 || $# -eq 2 ]]; then
-  # some closed records were found -> manual inspect needed
-  echo -e "\n\n    ${cmd}\n"
+  if [[ $something_found -eq 0 ]]; then
+    echo -e "\n nothing found in b.g.o -> automatic filing:"
+    $cmd
+  else
+    # some similar records were found -> manual inspect needed
+    echo -e "\n\n    ${cmd}"
+  fi
 fi
 echo
