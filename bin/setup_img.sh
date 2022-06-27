@@ -30,26 +30,18 @@ function ThrowUseFlags() {
 
 # helper of InitOptions()
 function GetProfiles() {
-  (
-    local correction_factor=""
-    # runs longer than others
-    if dice 1 2; then
-      correction_factor+=' -e no-multilib'
-    fi
-    # breaks too often
-    if dice 1 2; then
-      correction_factor+=' -e musl'
-    fi
+  # a flat distribution is fair in a mathematical sense but promote/demote profiles here accordingly to current needs/wishes
+  local tweak=""
+  if dice 1 2; then
+    tweak+=' -e /no-multilib'
+  fi
+  if dice 1 2; then
+    tweak+=' -e /musl'
+  fi
 
-    eselect profile list |\
-    grep -F 'default/linux/amd64/17.1' |\
-    grep -v -F -e ' (exp)' $correction_factor
-
-    # by sam
-    eselect profile list |\
-    grep -e "default/linux/amd64/17\../musl"
-  ) |\
-  grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' |\
+  eselect profile list |\
+  grep -F -e 'default/linux/amd64/17.1' -e 'default/linux/amd64/17.0/musl' |\
+  grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' $tweak |\
   awk ' { print $2 } ' |\
   cut -f4- -d'/' -s
 }
@@ -548,7 +540,7 @@ export LANG=C.utf8
 set -euf
 
 if [[ $profile =~ "/musl" ]]; then
-  echo -e "=sys-devel/gcc-12.1.1_p20220611\\n=sys-devel/gcc-12.1.1_p20220618\\n" >> /etc/portage/package.mask/gcc
+  :
 else
   date
   echo "#setup locale" | tee /var/tmp/tb/task
@@ -786,6 +778,7 @@ function ThrowImageUseFlags() {
 
 function CompileUseFlagFiles() {
   local attempt=0
+
   echo 'emerge -uUp =$(portageq best_visible / sys-devel/gcc) && emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
   if [[ -e $useflagfile ]]; then
     echo
@@ -808,6 +801,7 @@ function CompileUseFlagFiles() {
         return 1
       fi
 
+      # maybe the tree was b0rken and fixed in the mean while ?
       if ! (( attempt % 50 )); then
         echo "emaint sync --auto" > ./var/tmp/tb/sync.sh
         nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ./var/tmp/tb/sync.sh &> ./var/tmp/tb/logs/sync.$attempt.log
