@@ -15,4 +15,4 @@ dev-scheme/guile:12/3.0-1           **                  # DICE: guile
 
 
 # ztrawhcse
-~dev-util/meson-0.63.0_rc1          **                  # DICE: meson
+<dev-util/meson-9999                **                  # DICE: meson
