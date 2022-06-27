@@ -29,8 +29,8 @@ function ThrowUseFlags() {
 
 
 # helper of InitOptions()
-function GetProfiles() {
-  # a flat distribution is fair in a mathematical sense but promote/demote profiles here accordingly to current needs/wishes
+function DiceAProfile() {
+  # promote/demote profiles here accordingly to current needs/wishes
   local tweak=""
   if dice 1 2; then
     tweak+=' -e /no-multilib'
@@ -43,18 +43,19 @@ function GetProfiles() {
   grep -F -e 'default/linux/amd64/17.1' -e 'default/linux/amd64/17.0/musl' |\
   grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' $tweak |\
   awk ' { print $2 } ' |\
-  cut -f4- -d'/' -s
+  cut -f4- -d'/' -s |\
+  shuf -n 1
 }
 
 
 # helper of main()
 function InitOptions() {
-  # for overall evincency 1 process in each of M running images is better than *up to* n processes in N images
-  # (1 x M >= n x N) and it would be much easier to catch the first error message
-  # but: the compile times are awefully with -j1
+  # for overall efficency 1 process in each of M running images is better than *up to* n processes in N images
+  # (1 x M >= n x N) and even more it would be much easier to catch the first error message
+  # but: the compile times are awefully with -j 1
   jobs=4
 
-  profile=$(GetProfiles | shuf -n 1)
+  profile=$(DiceAProfile)
 
   # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
@@ -72,20 +73,21 @@ function InitOptions() {
   fi
 
   cflags=$cflags_default
-  # 685160 colon-in-CFLAGS
-  if dice 1 80; then
-    cflags+=" -falign-functions=32:25:16"
-  fi
 
   # run (rarely) a stable image
   keyword="~amd64"
   if dice 1 160; then
     keyword="amd64"
-  fi
+  else
+    # 685160 colon-in-CFLAGS
+    if dice 1 80; then
+      cflags+=" -falign-functions=32:25:16"
+    fi
 
-  testfeature="n"
-  if dice 1 80; then
-    testfeature="y"
+    testfeature="n"
+    if dice 1 80; then
+      testfeature="y"
+    fi
   fi
 
   useflagfile=""
