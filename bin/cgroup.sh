@@ -17,8 +17,8 @@ fi
 # must exist before any cgroup entry is created
 echo 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 
-# cgroup v1 does not cleanup after itself so create a shell script for that
-# place it in a system wide read + executeable location for other consumers too
+# cgroup v1 does not cleanup after itself so create and use a shell script for that
+# place it in a system wide read + executeable location for every consumer
 agent="/tmp/cgroup-release-agent.sh"
 cat << EOF > $agent
 #!/bin/sh
@@ -35,14 +35,14 @@ do
   echo $agent > /sys/fs/cgroup/$i/release_agent
 done
 
-# put all lcoal stuff (tor project, tinderbox) under this item
+# put all local stuff (fuzzers, tinderbox) under this item
 name=/local
 cgcreate -g cpu,memory:$name
 
 # reserve 3 vCPUs, 18 GB RAM and 64 GB vRAM
-vcpu=$(( 100000 * ($(nproc)-3) ))
+vcpu=$(( 100000 * ($(nproc)-4) ))
 ram=$(( 128-18 ))G
-vram=$(( 384-64 ))G   # swap is 1/4 TB
+vram=$(( 384-64 ))G   # vram=ram+swap at max, swap is 1/4 TB
 
 cgset -r cpu.cfs_quota_us=$vcpu             $name
 cgset -r memory.limit_in_bytes=$ram         $name
