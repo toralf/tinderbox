@@ -116,7 +116,7 @@ function Overall() {
 
     # stop/replace state
     if [[ -f $i/var/tmp/tb/EOL ]]; then
-      flags+="R"
+      flags+="E"
     elif [[ -f $i/var/tmp/tb/STOP ]]; then
       flags+="S"
     elif grep -q "^STOP" $i/var/tmp/tb/backlog.1st 2>/dev/null; then
