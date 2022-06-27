@@ -34,14 +34,6 @@ function FreeSlotAvailable() {
 }
 
 
-function setupNewImage() {
-  echo
-  date
-  echo " setup a new image ..."
-  sudo $(dirname $0)/setup_img.sh
-}
-
-
 #######################################################################
 set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
@@ -79,7 +71,7 @@ trap Finish INT QUIT TERM EXIT
 
 while :
 do
-  # mark a stopped image after 1.5 days as to be replaced
+  # mark a stopped image after a given time as EOL
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
@@ -90,7 +82,7 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  # free the slot
+  # free the slot in ~/run
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
@@ -101,17 +93,17 @@ do
   done < <(ImagesInRunShuffled)
 
   if FreeSlotAvailable; then
-    if setupNewImage; then
+    echo
+    date
+    echo " setup a new image ..."
+    if sudo $(dirname $0)/setup_img.sh; then
       continue
     else
-      echo
-      date
-      echo " setup failed"
       Finish 1
     fi
   fi
 
-  # are there still running images marked as to be replaced ?
+  # loop if there're still running images marked as EOL
   while read -r oldimg
   do
     if __is_running $oldimg; then
