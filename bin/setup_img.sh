@@ -465,7 +465,7 @@ EOF
   do
     if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
       # kick them off entirely
-      sed -i -e "/# DICE:  *$topic/d" ./etc/portage/package.*/*
+      sed -i -e "/# DICE:  *$topic[ ]*$/d" ./etc/portage/package.*/*
     else
       # keep the settings, but remove the marker
       sed -i -e "s,# DICE:  *$topic$,,g" -e "s,# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
@@ -533,7 +533,7 @@ function CreateBacklogs()  {
   chown tinderbox:portage $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
 
-  # requested by Whissi (an non-default virtual/mysql engine)
+  # requested by Whissi (an alternative virtual/mysql engine)
   if dice 1 10; then
     echo "dev-db/percona-server" >> $bl.1st
   fi
@@ -590,7 +590,7 @@ emaint sync --auto 1>/dev/null
 
 date
 echo "#setup portage" | tee /var/tmp/tb/task
-emerge -u app-text/ansifilter
+USE=-qt5 emerge -u app-text/ansifilter
 emerge -u sys-apps/portage
 
 if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
