@@ -457,14 +457,18 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??musl
   fi
 
-  # vary gentoo dev specific test cases
+  # varying gentoo dev specific test cases
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |\
-  awk '{ print $3, $4, $5}' |\
+  awk '{ print $3, $4, $5 }' |\
   sort -u |\
   while read -r topic x X
   do
-    if $profile =~ '/musl' || ! dice ${x:-1} ${X:-2}; then
-      sed -i -e "/# DICE: $topic/d" ./etc/portage/package.*/*
+    if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
+      # kick them off entirely
+      sed -i -e "/# DICE:  *$topic/d" ./etc/portage/package.*/*
+    else
+      # keep the settings, but remove the marker
+      sed -i -e "s,# DICE:  *$topic$,,g" -e "s,# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
     fi
   done
 
