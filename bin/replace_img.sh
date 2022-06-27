@@ -51,7 +51,7 @@ while getopts n:u: opt
 do
   case "$opt" in
     n)  desired_count="$OPTARG" ;;
-    u)  echo "user decision" >> ~tinderbox/img/$(basename $OPTARG)/var/tmp/tb/REPLACE_ME;;
+    u)  echo "user decision" >> ~tinderbox/img/$(basename $OPTARG)/var/tmp/tb/EOL;;
     *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
 done
@@ -77,7 +77,7 @@ do
     if ! __is_running $oldimg; then
       hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task))/3600 ))
       if [[ $hours -ge 36 ]]; then
-        echo -e "last task $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/REPLACE_ME
+        echo -e "last task $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/EOL
       fi
     fi
   done < <(ImagesInRunShuffled)
@@ -86,7 +86,7 @@ do
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
-      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
+      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
         rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
       fi
     fi
@@ -107,7 +107,7 @@ do
   while read -r oldimg
   do
     if __is_running $oldimg; then
-      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/REPLACE_ME ]]; then
+      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
         sleep 10
         continue 2
       fi

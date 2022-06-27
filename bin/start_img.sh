@@ -35,8 +35,8 @@ do
     continue
   fi
 
-  if [[ -f $mnt/var/tmp/tb/REPLACE_ME ]]; then
-    echo " has REPLACE_ME file: $mnt"
+  if [[ -f $mnt/var/tmp/tb/EOL ]]; then
+    echo " has EOL file: $mnt"
     continue
   fi
 

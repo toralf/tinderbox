@@ -115,7 +115,7 @@ function Overall() {
     fi
 
     # stop/replace state
-    if [[ -f $i/var/tmp/tb/REPLACE_ME ]]; then
+    if [[ -f $i/var/tmp/tb/EOL ]]; then
       flags+="R"
     elif [[ -f $i/var/tmp/tb/STOP ]]; then
       flags+="S"

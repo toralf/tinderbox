@@ -64,9 +64,9 @@ function Finish()  {
 
   subject="finished, ec=$exit_code, $(stripQuotesAndMore <<< $subject)"
   if [[ $exit_code -eq 13 ]]; then
-    echo "$subject" >>  /var/tmp/tb/REPLACE_ME
-    chmod g+w           /var/tmp/tb/REPLACE_ME
-    chgrp tinderbox     /var/tmp/tb/REPLACE_ME
+    echo "$subject" >>  /var/tmp/tb/EOL
+    chmod g+w           /var/tmp/tb/EOL
+    chgrp tinderbox     /var/tmp/tb/EOL
     truncate -s 0 $taskfile
     subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null) completed"
     subject+=", $(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l) bugs reported"
@@ -962,7 +962,7 @@ systemd-tmpfiles --create &>$tasklog
 last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :
 do
-  for i in REPLACE_ME STOP
+  for i in EOL STOP
   do
     if [[ -f /var/tmp/tb/$i ]]; then
       echo "#catched $i" > $taskfile
