@@ -516,7 +516,7 @@ set expandtab
 
 EOF
 
-  # include the \n in pasting (sys-libs/readline de-activates that behaviour with v8.x)
+  # include the \n in paste content (sys-libs/readline de-activated that with v8)
   echo "set enable-bracketed-paste off" >> ./root/.inputrc
 }
 
@@ -561,9 +561,9 @@ if [[ $profile =~ "/musl" ]]; then
 else
   date
   echo "#setup locale" | tee /var/tmp/tb/task
-  echo -e "en_US ISO-8859-1"  >> /etc/locale.gen
+  echo "en_US ISO-8859-1" >> /etc/locale.gen
   if [[ $testfeature = "y" ]]; then
-    echo -e "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
   fi
   locale-gen
 fi
