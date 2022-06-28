@@ -513,8 +513,8 @@ function SendIssueMailIfNotYetReported()  {
 
 function maskPackage()  {
   local self=/etc/portage/package.mask/self
-  # hint: unmask take precedence over mask -> configured unmasked packages cannot be masked even in case of a failure
-  if ! grep -q -e "=$pkg$" $self; then
+
+  if [[ ! -s $self ]] || ! grep -q -e "=$pkg$" $self; then
     echo "=$pkg" >> $self
   fi
 }

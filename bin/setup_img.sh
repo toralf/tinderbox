@@ -389,8 +389,7 @@ function CompilePortageFiles()  {
 
   cp -ar $tbhome/tb/patches/* ./etc/portage/patches
 
-  touch       ./etc/portage/package.mask/self     # gets failed packages
-  chmod a+rw  ./etc/portage/package.mask/self
+  touch       ./etc/portage/package.mask/self     # holds failed packages
 
   # setup or dep calculation issues or just broken at all
   echo 'FEATURES="-test"'                 > ./etc/portage/env/notest
