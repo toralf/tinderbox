@@ -25,8 +25,15 @@ function ExitfBgoIsDown() {
 }
 
 
-function GotFindings() {
-  [[ -s $resultfile ]]
+function CheckForResults() {
+  ExitfBgoIsDown
+  if [[ -s $resultfile ]]; then
+    something_found=1
+    return 0
+  else
+    return 1
+  fi
+
 }
 
 
@@ -41,8 +48,7 @@ function SearchForMatchingBugs() {
         sort -u -n -r |\
         head -n 8 |\
         tee $resultfile
-    ExitfBgoIsDown
-    if GotFindings; then
+    if CheckForResults; then
       return 0
     fi
   fi
@@ -63,8 +69,7 @@ function SearchForMatchingBugs() {
         sort -u -n -r |\
         head -n 8 |\
         tee $resultfile
-    ExitfBgoIsDown
-    if GotFindings; then
+    if CheckForResults; then
       return 0
     fi
 
@@ -74,8 +79,7 @@ function SearchForMatchingBugs() {
         sort -u -n -r |\
         head -n 3 |\
         tee $resultfile
-    ExitfBgoIsDown
-    if GotFindings; then
+    if CheckForResults; then
       echo -e " \n^^ DUPLICATE\n"
       return 1
     fi
@@ -86,8 +90,7 @@ function SearchForMatchingBugs() {
         sort -u -n -r |\
         head -n 3 |\
         tee $resultfile
-    ExitfBgoIsDown
-    if GotFindings; then
+    if CheckForResults; then
       return 1
     fi
   done
@@ -105,10 +108,7 @@ function SearchForMatchingBugs() {
         sort -u -n -r |\
         head -n 8 |\
         tee $resultfile
-    ExitfBgoIsDown
-    if GotFindings; then
-      something_found=1
-    fi
+    CheckForResults
 
     if [[ $(wc -l < $resultfile) -lt 5 ]]; then
       echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
@@ -118,10 +118,7 @@ function SearchForMatchingBugs() {
           sort -u -n -r |\
           head -n 5 |\
           tee $resultfile
-      ExitfBgoIsDown
-      if GotFindings; then
-        something_found=1
-      fi
+      CheckForResults
     fi
   fi
 
