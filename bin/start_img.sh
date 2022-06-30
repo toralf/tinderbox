@@ -31,12 +31,12 @@ do
   fi
 
   if [[ -f $mnt/var/tmp/tb/STOP ]]; then
-    echo " has STOP file: $mnt"
+    echo " has STOP file: $mnt/var/tmp/tb/STOP"
     continue
   fi
 
   if [[ -f $mnt/var/tmp/tb/EOL ]]; then
-    echo " has EOL file: $mnt"
+    echo " has EOL file: $mnt/var/tmp/tb/EOL"
     continue
   fi
 

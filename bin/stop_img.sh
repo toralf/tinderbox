@@ -31,7 +31,7 @@ do
   fi
 
   if [[ -f $mnt/var/tmp/tb/STOP ]]; then
-    echo " has STOP file: $mnt"
+    echo " has STOP file: $mnt/var/tmp/tb/STOP"
     continue
   fi
 

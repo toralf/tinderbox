@@ -280,11 +280,16 @@ EOF
     local refdir=$(sed -e 's,metadata/timestamp.chk,,' <<< $ts)
   fi
   echo " cloning ::gentoo at $(cat $refdir/metadata/timestamp.chk)"
-  # "git clone" is at a local machine much slower than a "cp --reflink"
+
+  local curr_path=$PWD
   cd .$reposdir
+  # "git clone" is at a local machine much slower than a "cp --reflink"
   cp -ar --reflink=auto $refdir ./
   rm -f ./gentoo/.git/refs/heads/stable.lock ./gentoo/.git/gc.log.lock
-  cd - 1>/dev/null
+  # avoid "warning: exhaustive rename detection was skipped due to too many files."
+  cd ./gentoo
+  git config diff.renamelimit 0
+  cd $curr_path
 }
 
 
