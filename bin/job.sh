@@ -31,11 +31,16 @@ function Mail() {
 
   if [[ -f $content ]]; then
     echo
-    tail -n 1000 $content | sed -e 's,^>>>, >>>,'
-    echo -e " \n \n \n \n less ~tinderbox/img/$name/$content\n \n \n"
+    if [[ $(wc -l < $content) -gt 1000 ]]; then
+      echo -e " \n \n \n \n full content is in ~tinderbox/img/$name/$content\n \n \n"
+      tail -n 100 $content
+    else
+      cat $content
+    fi
   else
     echo -e "$content"
   fi |\
+  sed -e 's,^>>>, >>>,' |\
   if ! (mail -s "$subject  @  $name" ${MAILTO:-tinderbox} 1>/dev/null); then
     { echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2 ; }
   fi
@@ -503,14 +508,15 @@ function SendIssueMailIfNotYetReported()  {
       # chain "cat" by "echo" b/c cat buffers output which is racy between images
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
 
-      echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
+      echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
-      echo -e "\n\n\n" >>  $issuedir/body
+      echo -e "\n\n" >>  $issuedir/body
 
       local known="bug"
       if createSearchString; then
         if SearchForSameIssue &>> $issuedir/body; then
-          known+=" filed:"
+          known+=" known:"
+          return
         else
           if SearchForSimilarIssue &>> $issuedir/body; then
             known+=" similar:"

@@ -150,6 +150,7 @@ function Bwrap() {
         --ro-bind ~tinderbox/tb/sdata/ssmtp.conf  /etc/ssmtp/ssmtp.conf
         --bind ~tinderbox/tb/data                 /mnt/tb/data
         --proc                                    /proc
+        --ro-bind ~tinderbox/.bugzrc              /root/.bugzrc
         --tmpfs                                   /run
         --ro-bind /sys                            /sys
         --perms 1777 --tmpfs                      /tmp

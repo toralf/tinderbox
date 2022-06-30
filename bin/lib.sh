@@ -44,9 +44,19 @@ function createSearchString() {
 }
 
 
+function GotResults() {
+  if [[ -s $bugz_result ]]; then
+    if ! grep -q "^Traceback" $bugz_result; then
+      return 0
+    fi
+  fi
+  return 1
+}
+
+
 function SearchForSameIssue() {
   bugz_result=$issuedir/bugz_result
-  if [[ ! -f $bugz_search ]]; then
+  if [[ ! -f $bugz_result ]]; then
     truncate -s 0 $bugz_result
     chmod a+rw    $bugz_result
   fi
@@ -64,7 +74,7 @@ function SearchForSameIssue() {
         sort -u -n -r |\
         head -n 4 |\
         tee $bugz_result
-    if [[ -s $bugz_result ]]; then
+    if GotResults; then
       return 0
     fi
   fi
@@ -76,7 +86,7 @@ function SearchForSameIssue() {
         sort -u -n -r |\
         head -n 4 |\
         tee $bugz_result
-    if [[ -s $bugz_result ]]; then
+    if GotResults; then
       return 0
     fi
   done
@@ -103,7 +113,7 @@ function SearchForSimilarIssue() {
         sort -u -n -r |\
         head -n 3 |\
         tee $bugz_result
-    if [[ -s $bugz_result ]]; then
+    if GotResults; then
       echo -e " \n^^ DUPLICATE\n"
       return 0
     fi
@@ -112,7 +122,7 @@ function SearchForSimilarIssue() {
         sort -u -n -r |\
         head -n 3 |\
         tee $bugz_result
-    if [[ -s $bugz_result ]]; then
+    if GotResults; then
       return 0
     fi
   done
@@ -128,7 +138,7 @@ function SearchForSimilarIssue() {
       sort -u -n -r |\
       head -n 12 |\
       tee $bugz_result
-  if [[ -s $bugz_result ]]; then
+  if GotResults; then
     return 0
   fi
 
@@ -139,7 +149,7 @@ function SearchForSimilarIssue() {
         sort -u -n -r |\
         head -n 5 |\
         tee $bugz_result
-    if [[ -s $bugz_result ]]; then
+    if GotResults; then
       return 0
     fi
   fi
