@@ -543,6 +543,7 @@ function CreateBacklogs()  {
   fi
 
   cat << EOF >> $bl.1st
+www-client/pybugz
 app-portage/pfl
 @world
 %sed -i -e \\'s,--verbose ,--deep --verbose ,\\' /etc/portage/make.conf
