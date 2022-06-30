@@ -43,10 +43,16 @@ app-admin/webalizer                 -nls
 #
 
 # sam
-sys-devel/gcc                       openmp              # DICE: gcc 7 8
+sys-devel/gcc                       openmp              # DICE: gcc 3 4
 
 dev-lang/python                     -libedit xml        # DICE: openssl
 
 # too much deps installed at setup
 app-portage/pfl                     -network-cron       # DICE: tinderbox_a 9 10
 app-text/ansifilter                 -qt5                # DICE: tinderbox_b 9 10
+
+# https://bugs.gentoo.org/792234
+net-misc/curl                       -quiche
+
+# https://bugs.gentoo.org/803875
+media-libs/libepoxy                 egl
