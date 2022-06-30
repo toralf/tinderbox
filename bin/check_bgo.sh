@@ -8,121 +8,7 @@ function Exit()  {
   local rc=${1:-$?}
 
   trap - INT QUIT TERM EXIT
-
-  rm -rf $rawfile $resultfile
   exit $rc
-}
-
-
-function ExitfBgoIsDown() {
-  if grep -q -F -e 'Error: Bugzilla error:' $rawfile; then
-    {
-      echo -e "\n b.g.o. is down\n" >&2
-      #cat $rawfile >&2
-    }
-    exit 2
-  fi
-}
-
-
-function CheckForResults() {
-  ExitfBgoIsDown
-  if [[ -s $resultfile ]]; then
-    something_found=1
-    return 0
-  else
-    return 1
-  fi
-
-}
-
-
-function SearchForMatchingBugs() {
-  # for a file collision report both involved sites
-  if grep -q 'file collision with' $issuedir/title; then
-    local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
-    collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
-    bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |\
-        tee $rawfile |\
-        grep -e " CONFIRMED " -e " IN_PROGRESS " |\
-        sort -u -n -r |\
-        head -n 8 |\
-        tee $resultfile
-    if CheckForResults; then
-      return 0
-    fi
-  fi
-
-  local bsi=$issuedir/bugz_search_items     # transform the issue of the title into space separated search items
-  sed -e 's,^.* - ,,'     \
-      -e 's,/\.\.\./, ,'  \
-      -e 's,[\(\)], ,g'   \
-      -e 's,\s\s*, ,g'    \
-      $issuedir/title > $bsi
-
-  # look first for version+revision, then look for category/package name
-  for i in $pkg $pkgname
-  do
-    bugz -q --columns 400 search --show-status -- $i "$(cat $bsi)" |\
-        tee $rawfile |\
-        grep -e " CONFIRMED " -e " IN_PROGRESS " |\
-        sort -u -n -r |\
-        head -n 8 |\
-        tee $resultfile
-    if CheckForResults; then
-      return 0
-    fi
-
-    echo -en "$i DUP                    \r"
-    bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bsi)" |\
-        tee $rawfile |\
-        sort -u -n -r |\
-        head -n 3 |\
-        tee $resultfile
-    if CheckForResults; then
-      echo -e " \n^^ DUPLICATE\n"
-      return 1
-    fi
-
-    echo -en "$i                        \r"
-    bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bsi)" |\
-        tee $rawfile |\
-        sort -u -n -r |\
-        head -n 3 |\
-        tee $resultfile
-    if CheckForResults; then
-      return 1
-    fi
-  done
-
-  if [[ ! -s $resultfile ]]; then
-    # if no findings till now, so search for any bug of that category/package
-
-    local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
-    local g='stabilize|Bump| keyword| bump'
-
-    echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
-    bugz -q --columns 400 search --show-status $pkgname |\
-        tee $rawfile |\
-        grep -v -i -E "$g" |\
-        sort -u -n -r |\
-        head -n 8 |\
-        tee $resultfile
-    CheckForResults
-
-    if [[ $(wc -l < $resultfile) -lt 5 ]]; then
-      echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-      bugz -q --columns 400 search --status RESOLVED $pkgname |\
-          tee $rawfile |\
-          grep -v -i -E "$g" |\
-          sort -u -n -r |\
-          head -n 5 |\
-          tee $resultfile
-      CheckForResults
-    fi
-  fi
-
-  return 1
 }
 
 
@@ -196,14 +82,12 @@ if [[ ! -s $issuedir/title ]]; then
   exit 1
 elif [[ -f $issuedir/.reported ]]; then
   echo "already reported"
-  # a 2nd parameter let continue
-  [[ $# -lt 2 ]] && exit 0
+  exit 0
 fi
 
-resultfile=$(mktemp /tmp/$(basename $0)_XXXXXX.result)
-rawfile=$(mktemp /tmp/$(basename $0)_XXXXXX.raw)
-
 trap Exit INT QUIT TERM EXIT
+
+source $(dirname $0)/lib.sh
 
 name=$(cat $issuedir/../../name)                                          # eg.: 17.1-20201022-101504
 pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,')  # eg.: net-misc/bird-2.0.7-r1
@@ -219,42 +103,46 @@ if [[ -z $versions ]]; then
   exit 1
 fi
 
-blocker_bug_no=""
-LookupForABlocker
 SetAssigneeAndCc
-
 echo
 echo "==========================================="
 echo "    title:    $(cat $issuedir/title)"
 echo "    versions: $versions"
 echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 
-keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
-cmd="$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"
-if best=$(eval $cmd); then
-  if [[ $pkg != $best ]]; then
-    echo -e "\n    is  NOT  latest"
-    [[ $# -lt 2 ]] && exit 0
-  fi
-else
-  echo -e "\n    is  not  KNOWN"
-  [[ $# -lt 2 ]] && exit 0
-fi
-echo
-
-something_found=0
-if ! SearchForMatchingBugs; then
-  cmd="$(dirname $0)/bgo.sh -d $issuedir"
-  if [[ -n $blocker_bug_no ]]; then
-    cmd+=" -b $blocker_bug_no"
-  fi
-
-  if [[ $something_found -eq 0 ]]; then
-    echo -e "\n nothing found in b.g.o -> automatic filing:"
-    $cmd
+# a (dummy) 2nd parameter skips this check
+if [[ $# -lt 2 ]]; then
+  keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
+  cmd="$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"
+  if best=$(eval $cmd); then
+    if [[ $pkg != $best ]]; then
+      echo -e "\n    is  NOT  latest\n"
+      exit 0
+    fi
   else
-    # some similar records were found -> manual inspect needed
-    echo -e "\n\n    ${cmd}"
+    echo -e "\n    is  not  KNOWN\n"
+    exit 0
   fi
 fi
+
 echo
+if createSearchString; then
+  if ! SearchForSameIssue; then
+    cmd="$(dirname $0)/bgo.sh -d $issuedir"
+
+    blocker_bug_no=""
+    LookupForABlocker
+    if [[ -n $blocker_bug_no ]]; then
+      cmd+=" -b $blocker_bug_no"
+    fi
+
+    if SearchForSimilarIssue; then
+      # do manual inspect results before
+      echo -e "\n    ${cmd}\n"
+    else
+      echo -e "\n nothing found in b.g.o -> automatic filing:"
+      $cmd
+    fi
+  fi
+  echo
+fi
