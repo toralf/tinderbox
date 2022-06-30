@@ -61,6 +61,10 @@ function Exit()  {
     rmdir "$lock_dir"
   fi
 
+  if [[ $rc -ne 0 ]]; then
+    echo " $0 failed with $rc"
+  fi
+
   exit $rc
 }
 
@@ -188,10 +192,10 @@ do
     c)  wrapper="Chroot"
         ;;
     e)  if [[ ! -s "$OPTARG" ]]; then
-          echo "no valid entry point script given: $OPTARG"
+          echo "no valid entrypoint script given: $OPTARG"
           exit 1
         fi
-        entrypoint="$OPTARG"
+        entrypoint=$OPTARG
         ;;
     m)  if [[ -z "$OPTARG" || -z "${OPTARG##*/}" || "$OPTARG" =~ [[:space:]] || "$OPTARG" =~ [\\\(\)\`$] ]]; then
           echo "argument not accepted"
@@ -234,9 +238,13 @@ if ! CgroupCreate ${mnt##*/} $$; then
 fi
 
 if [[ -n "$entrypoint" ]]; then
-  rm -f             "$mnt/entrypoint"
-  cp "$entrypoint"  "$mnt/entrypoint"
-  chmod 744         "$mnt/entrypoint"
+  rm -f                           "$mnt/entrypoint"
+  cp "$entrypoint"                "$mnt/entrypoint"
+  chmod 744                       "$mnt/entrypoint"
+
+  rm -f                     "$mnt/lib.sh"
+  cp "$(dirname $0)/lib.sh" "$mnt/lib.sh"
+  chmod 644                 "$mnt/lib.sh"
 fi
 
 $wrapper
