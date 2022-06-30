@@ -17,6 +17,12 @@ fi
 
 result=/tmp/$(basename $0).txt  # package/s to be scheduled in the backlog of each image
 
+first=0
+if [[ "$1" = "1st" ]]; then
+  first=1
+  shift
+fi
+
 # accept special *lines* w/o any check
 grep -e '^@' -e '^%' -e '^=' <<< ${@} |\
 sort -u > $result
@@ -38,12 +44,21 @@ do
 done
 
 if [[ -s $result ]]; then
-  for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.1st 2>/dev/null)
-  do
-    tmp=$(mktemp /tmp/retest.sh_XXXXXX)
-    # filter out dups, then put new entries after existing ones
-    (grep -v -F -f $bl $result | shuf; cat $bl) > $tmp
-    cp $tmp $bl
-    rm $tmp
-  done
+  tmp=$(mktemp /tmp/retest.sh_XXXXXX)
+  if [[ $first -eq 1 ]]; then
+    for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.1st 2>/dev/null)
+    do
+      # put new entries shuffled after existing ones, filter out dups before
+      (grep -v -F -f $bl $result | shuf; cat $bl) > $tmp
+      cp $tmp $bl
+    done
+  else
+    for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.upd 2>/dev/null)
+    do
+      # mix existing and new entries and resolve dups
+      cat $bl $result | sort -u | shuf > $tmp
+      cp $tmp $bl
+    done
+  fi
+  rm $tmp
 fi
