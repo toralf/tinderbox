@@ -1,3 +1,4 @@
+mv: cannot stat
  VERIFY FAILED!
 Assertion failed:
 .*: No such file or directory

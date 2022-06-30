@@ -23,6 +23,7 @@ too few arguments to function
 : redefining predefined macro
 Line indented less than expected
 final link failed: Nonrepresentable section on output
+error:.*has no member named
 error:.*was not declared
 error:.*undeclared
 ld: cannot find
@@ -77,7 +78,7 @@ Error on line
 is not on the classpath.
 Failed Running automake
 error while loading shared libraries
-mv: cannot stat
+: unknown type name
 No CommonLisp implementation found
 Could not link test program to Python
 is banned in EAPI=
