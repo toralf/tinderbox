@@ -14,14 +14,16 @@ function getCandidates()  {
       continue
     fi
 
-    # maybe setup is creating a new USE flag set
-    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i)) )) -lt 3600 ]]; then
+    # keep for at least 24 hours
+    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i)) )) -lt 86400 ]]; then
       continue
     fi
 
-    # keep emerge logs of last 2 weeks for "whatsup.sh -e"
-    if [[ -s $i/var/log/emerge.log ]]; then
-      if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 )) -le 14 ]]; then
+    # keep emerge logs of past 2 weeks for "whatsup.sh -e"
+    local l=$i/var/log/emerge.log
+    if [[ -s $l ]]; then
+      # 19 is heuristic here
+      if [[ $(qlop -mvetH -f $l | wc -l) -gt 19 && $(( (EPOCHSECONDS-$(stat -c %Y $l))/86400 )) -le 14 ]]; then
         continue
       fi
     fi
