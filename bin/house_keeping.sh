@@ -22,7 +22,7 @@ function getCandidates()  {
     # keep emerge logs of past 2 weeks for "whatsup.sh -e"
     local l=$i/var/log/emerge.log
     if [[ -s $l ]]; then
-      # 19 is heuristic here
+      # expect min # of emerges and max age of logfile
       if [[ $(qlop -mvetH -f $l | wc -l) -gt 19 && $(( (EPOCHSECONDS-$(stat -c %Y $l))/86400 )) -le 14 ]]; then
         continue
       fi
@@ -57,7 +57,7 @@ function pruneDir() {
   fi
 
   # https://forums.gentoo.org/viewtopic-p-6072905.html?sid=461188c03d3c4d08de80136a49982d86#6072905
-  if [[ -d $d/tmp/.private  ]]; then
+  if [[ -d $d/tmp/.private ]]; then
     chattr -R -a $d/tmp/.private
   fi
   rm -r $d
@@ -80,7 +80,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# prune old stage3 files
+# 1st prune old stage3 files
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
   ls ~tinderbox/distfiles/stage3-amd64-*.tar.xz 2>/dev/null |\
@@ -94,12 +94,12 @@ if [[ -s $latest ]]; then
   done
 fi
 
-# prune distfiles not accessed within past 12 months
+# 2nd prune distfiles not accessed within past 12 months
 if pruneNeeded; then
   find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
 fi
 
-# prune images with broken setup
+# 3rd prune images with broken setup
 while read -r img && pruneNeeded
 do
   if [[ ! -s $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
@@ -107,7 +107,7 @@ do
   fi
 done < <(getCandidates)
 
-# prune images w/o any reported bug
+# 4th prune images w/o any reported bug
 while read -r img && pruneNeeded
 do
   if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
@@ -115,7 +115,7 @@ do
   fi
 done < <(getCandidates)
 
-# prune old images
+# 5th prune now any else
 while read -r img && pruneNeeded
 do
   pruneDir $img
