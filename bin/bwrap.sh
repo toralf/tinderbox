@@ -52,6 +52,7 @@ function CgroupDelete() {
 }
 
 
+# no "echo" here
 function Exit()  {
   local rc=${1:-$?}
 
@@ -60,11 +61,6 @@ function Exit()  {
   if [[ -d $lock_dir ]]; then
     rmdir "$lock_dir"
   fi
-
-  if [[ $rc -ne 0 ]]; then
-    echo " $0 failed with $rc"
-  fi
-
   exit $rc
 }
 
