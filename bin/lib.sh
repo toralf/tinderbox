@@ -97,7 +97,7 @@ function SearchForSameIssue() {
 
 function SearchForSimilarIssue() {
   bugz_result=$issuedir/bugz_result
-  if [[ ! -f $bugz_search ]]; then
+  if [[ ! -f $bugz_result ]]; then
     truncate -s 0 $bugz_result
     chmod a+rw    $bugz_result
   fi
@@ -114,7 +114,7 @@ function SearchForSimilarIssue() {
         head -n 3 |\
         tee $bugz_result
     if GotResults; then
-      echo -e " \n^^ DUPLICATE\n"
+      echo -e " \n^^ DUPLICATE\n" | tee $bugz_result
       return 0
     fi
 

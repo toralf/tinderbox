@@ -508,6 +508,10 @@ function SendIssueMailIfNotYetReported()  {
       # chain "cat" by "echo" b/c cat buffers output which is racy between images
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
 
+      echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
+      cat $issuedir/issue >> $issuedir/body
+      echo -e "\n\n\n" >> $issuedir/body
+
       local known="bug"
       if createSearchString; then
         if SearchForSameIssue &>> $issuedir/body; then
@@ -520,13 +524,11 @@ function SendIssueMailIfNotYetReported()  {
         else
           known+=" unknown:"
         fi
+        cat $bugz_result >>  $issuedir/body
+        echo -e "\n\n\n" >> $issuedir/body
       else
         known+=" raw:"
       fi
-
-      echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n\n" > $issuedir/body
-      cat $issuedir/issue >> $issuedir/body
-      echo -e "\n\n" >>  $issuedir/body
       Mail "${known} $(cat $issuedir/title)" $issuedir/body
     fi
   fi
