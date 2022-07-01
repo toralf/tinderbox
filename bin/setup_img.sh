@@ -823,8 +823,8 @@ function CompileUseFlagFiles() {
         return 1
       fi
 
-      # maybe the tree was b0rken and fixed in the mean while ?
       if ! (( attempt % 50 )); then
+        echo "sync git tree ..."
         echo "emaint sync --auto" > ./var/tmp/tb/sync.sh
         nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ./var/tmp/tb/sync.sh &> ./var/tmp/tb/logs/sync.$attempt.log
       fi
