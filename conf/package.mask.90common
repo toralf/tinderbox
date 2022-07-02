@@ -37,11 +37,6 @@ app-vim/curcmdmode
 
 # way too long compile times
 dev-libs/aws-sdk-cpp
-sci-libs/atlas
-sci-libs/libint:2
-sci-libs/rocBLAS
-sci-libs/rocFFT
-sci-libs/tensorflow
 www-client/chromium
 www-client/google-chrome
 
@@ -50,3 +45,11 @@ sys-cluster/nullmpi
 
 # https://bugs.gentoo.org/770976 - emerge hangs
 x11-wm/stumpwm
+
+# long compile time and/or often rev bumps
+dev-lang/rust                                           # DICE: long_compile_time_a 4 5
+sci-libs/atlas                                          # DICE: long_compile_time_b 15 16
+sci-libs/libint:2                                       # DICE: long_compile_time_c 15 16
+sci-libs/rocBLAS                                        # DICE: long_compile_time_d 15 16
+sci-libs/rocFFT                                         # DICE: long_compile_time_e 15 16
+sci-libs/tensorflow                                     # DICE: long_compile_time_f 15 16
