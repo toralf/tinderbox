@@ -517,9 +517,6 @@ function SendIssueMailIfNotYetReported()  {
         if SearchForSameIssue &>> $issuedir/body; then
           return
         elif SearchForSimilarIssue &>> $issuedir/body; then
-          if [[ $name =~ "_musl" ]]; then
-            return
-          fi
           known+=" similar:"
         else
           known+=" unknown:"

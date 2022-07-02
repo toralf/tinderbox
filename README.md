@@ -50,7 +50,7 @@ watch whatsup.sh -otl
 ```
 
 ### report findings
-The file *~tinderbox/tb/data/ALREADY_FILED* holds reported findings.
+The file *~tinderbox/tb/data/ALREADY_CAUGHT* holds reported findings.
 A new finding is send via email to the user specified by the variable *MAILTO*.
 The Gentoo bugzilla can be searched by *check_bgo.sh* for dups/similarities.
 A finding can be filed using *bgo.sh*.
@@ -70,7 +70,7 @@ mkdir /opt/tb
 chmod 750 /opt/tb
 chgrp tinderbox /opt/tb
 ```
-Run as user *tinderbox* in ~tinderbox :
+Run as user *tinderbox* in *~tinderbox* :
 
 ```bash
 mkdir distfiles img logs run tb
@@ -81,7 +81,7 @@ Move *./data* and *./sdata* into *~tinderbox/tb/*.
 Move *./bin* under */opt/tb/* as user *root*.
 The user *tinderbox* must not be allowed to edit the scripts in */opt/tb/bin*.
 The user *tinderbox* must have write permissions for files in *~tinderbox/tb/data*.
-Edit the ssmtp credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, set ownership and rwx access of this subdirectory and its files to user *root* only.
+Edit the ssmtp credentials in *~tinderbox/sdata* and strip away the suffix *.sample*, set ownership and grant permissions of this subdirectory and its files to user *root* only.
 Grant the user *tinderbox* these sudo rights:
 
 ```bash
