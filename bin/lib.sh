@@ -114,7 +114,7 @@ function SearchForSimilarIssue() {
         head -n 3 |\
         tee $bugz_result
     if GotResults; then
-      echo -e " \n^^ DUPLICATE\n" | tee $bugz_result
+      echo -e " \n^^ DUPLICATE\n"
       return 0
     fi
 

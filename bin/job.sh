@@ -524,8 +524,6 @@ function SendIssueMailIfNotYetReported()  {
         else
           known+=" unknown:"
         fi
-        cat $bugz_result >>  $issuedir/body
-        echo -e "\n\n\n" >> $issuedir/body
       else
         known+=" raw:"
       fi
