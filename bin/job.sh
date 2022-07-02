@@ -504,9 +504,9 @@ function finishTitle()  {
 
 function SendIssueMailIfNotYetReported()  {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
-    if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CATCHED; then
+    if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CAUGHT; then
       # chain "cat" by "echo" b/c cat buffers output which is racy between images
-      echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CATCHED
+      echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CAUGHT
 
       echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body

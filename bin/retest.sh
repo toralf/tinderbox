@@ -3,7 +3,7 @@
 
 
 # call this eg by:
-# grep 'setup phase' ~/tb/data/ALREADY_CATCHED | sed -e 's,\[.*\] ,,g' | cut -f1 -d' ' | xargs retest.sh
+# grep 'setup phase' ~/tb/data/ALREADY_CAUGHT | sed -e 's,\[.*\] ,,g' | cut -f1 -d' ' | xargs retest.sh
 
 
 set -eu
@@ -38,7 +38,7 @@ tee -a $result |\
 while read -r pkgname
 do
   sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)\-[[:digit:]]/d" \
-    ~tinderbox/tb/data/ALREADY_CATCHED \
+    ~tinderbox/tb/data/ALREADY_CAUGHT \
     ~tinderbox/run/*/etc/portage/package.mask/self \
     ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null || true
 done
