@@ -32,10 +32,10 @@ function ThrowUseFlags() {
 function DiceAProfile() {
   # promote/demote profiles here accordingly to current needs/wishes
   local tweak=""
-  if dice 1 2; then
+  if dice 1 4; then
     tweak+=' -e /no-multilib'
   fi
-  if dice 1 2; then
+  if dice 3 4; then
     tweak+=' -e /musl'
   fi
 
