@@ -30,18 +30,17 @@ function ThrowUseFlags() {
 
 # helper of InitOptions()
 function DiceAProfile() {
-  # promote/demote profiles here accordingly to current needs/wishes
-  local tweak=""
-  if dice 1 4; then
-    tweak+=' -e /no-multilib'
+  local demote=""
+  if dice 1 2; then
+    demote+=' -e /no-multilib'
   fi
   if dice 3 4; then
-    tweak+=' -e /musl'
+    demote+=' -e /musl'
   fi
 
   eselect profile list |\
   grep -F -e 'default/linux/amd64/17.1' -e 'default/linux/amd64/17.0/musl' |\
-  grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' $tweak |\
+  grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' $demote |\
   awk ' { print $2 } ' |\
   cut -f4- -d'/' -s |\
   shuf -n 1
