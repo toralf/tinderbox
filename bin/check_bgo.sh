@@ -138,7 +138,7 @@ if createSearchString; then
 
     if SearchForSimilarIssue; then
       # do manual inspect results before
-      echo -e "\n    ${cmd}\n"
+      echo -e "\n\n    ${cmd}\n"
     else
       echo -e "\n nothing found in b.g.o -> automatic filing:"
       $cmd
