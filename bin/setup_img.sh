@@ -467,10 +467,10 @@ EOF
   while read -r topic x X
   do
     if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
-      # kick them off entirely
-      sed -i -e "/# DICE:  *$topic[ ]*$/d" ./etc/portage/package.*/*
+      # kick it off
+      sed -i -e "/# DICE:  *$topic$/d" -e "/# DICE:  *$topic .*/d" ./etc/portage/package.*/*
     else
-      # keep the settings, but remove the marker
+      # keep it, but remove the marker to not irritate portage
       sed -i -e "s,# DICE:  *$topic$,,g" -e "s,# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
     fi
   done
