@@ -1,7 +1,7 @@
 #!/bin/bash
 # set -x
 
-# check buzilla.gentoo.org whether issue was already reported
+# query buzilla.gentoo.org for given issue
 
 
 function Exit()  {
@@ -81,7 +81,7 @@ if [[ ! -s $issuedir/title ]]; then
   echo "no title"
   exit 1
 elif [[ -f $issuedir/.reported ]]; then
-  echo "already reported"
+  echo "already reported: $(cat $issuedir/.reported)"
   exit 0
 fi
 
@@ -126,23 +126,22 @@ if [[ $# -lt 2 ]]; then
 fi
 
 echo
-if createSearchString; then
-  if ! SearchForSameIssue; then
-    cmd="$(dirname $0)/bgo.sh -d $issuedir"
+createSearchString
+if ! SearchForSameIssue; then
+  cmd="$(dirname $0)/bgo.sh -d $issuedir"
 
-    blocker_bug_no=""
-    LookupForABlocker
-    if [[ -n $blocker_bug_no ]]; then
-      cmd+=" -b $blocker_bug_no"
-    fi
-
-    if SearchForSimilarIssue; then
-      # do manual inspect results before
-      echo -e "\n\n    ${cmd}\n"
-    else
-      echo -e "\n nothing found in b.g.o -> automatic filing:"
-      $cmd
-    fi
+  blocker_bug_no=""
+  LookupForABlocker
+  if [[ -n $blocker_bug_no ]]; then
+    cmd+=" -b $blocker_bug_no"
   fi
-  echo
+
+  if SearchForSimilarIssue; then
+    # do manual inspect results before
+    echo -e "\n\n    ${cmd}\n"
+  else
+    echo -e "\n nothing found in b.g.o -> automatic filing:"
+    $cmd
+  fi
 fi
+echo
