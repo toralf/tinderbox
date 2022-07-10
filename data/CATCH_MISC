@@ -11,3 +11,5 @@ running automake in configure phase
 warning: python_fix_shebang
 One or more CMake variables were not used by the project
 QA Notice: Unrecognized configure options:
+The tmpfiles processor exited with a non-zero exit code
+WARN: postinst
