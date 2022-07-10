@@ -173,8 +173,8 @@ function Tasks()  {
 function LastEmergeOperation()  {
   for i in $images
   do
-    if PrintImageName $i && __is_running $i; then
-      tail -n 1 $i/var/log/emerge.log 2>/dev/null |\
+    if PrintImageName $i && __is_running $i && [[ -s $i/var/log/emerge.log ]]; then
+      tail -n 1 $i/var/log/emerge.log |\
       sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |\
       perl -wane '
         chop ($F[0]);
@@ -230,14 +230,14 @@ function PackagesPerImagePerRunDay() {
 
         END {
           if ($#packages >= 0) {
-            $packages[$rundays] += 0;     # auto-vivication
+            $packages[$rundays] += 0;     # implicit initialize elements which are not already set
             foreach my $rundays (0..$#packages) {
               ($packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
             }
           }
           print "\n";
         }
-      ' $i/var/log/emerge.log 2>/dev/null
+      ' $i/var/log/emerge.log
     else
       echo
     fi
@@ -334,7 +334,7 @@ function CountEmergesPerPackages()  {
       }
       print "\n\n $seen package (revisions) in $total emerges\n";
     }
-  ' ~tinderbox/run/*/var/log/emerge.log 2>/dev/null
+  ' $(ls ~tinderbox/run/*/var/log/emerge.log 2>/dev/null)
 }
 
 
@@ -408,7 +408,6 @@ function emergeThruput()  {
       print "\n";
     }
   ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -14 | sort -t '-' -k 3)
-  # even if a log file is not older than 14 days its emerges maybe older
 }
 
 
