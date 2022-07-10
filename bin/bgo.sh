@@ -61,7 +61,7 @@ fi
 cd $issuedir
 
 if [[ -f ./.reported ]]; then
-  echo -e "\n already reported, for a re-run do:\n\n    rm $issuedir/.reported\n"
+  echo -e "\n already reported: $(cat $issuedir/.reported) , for a re-run do:\n\n    rm $issuedir/.reported\n"
   exit 3
 fi
 
