@@ -24,17 +24,22 @@ function __is_running() {
 }
 
 
-# transform the issue of the title into space separated search items
+# transform the issue of the title into space separated search items and set common vars
 function createSearchString() {
-  bugz_search=$issuedir/bugz_search
-  if [[ ! -f $bugz_search ]]; then
-    truncate -s 0 $bugz_search
-    chmod a+rw    $bugz_search
-  fi
-
   if ! command -v bugz 1>/dev/null; then
     return 2
   fi
+
+  bugz_search=$issuedir/bugz_search
+  bugz_result=$issuedir/bugz_result
+
+  for f in $bugz_search $bugz_result
+  do
+    if [[ ! -f $f ]]; then
+      truncate -s 0 $f
+      chmod a+rw    $f
+    fi
+  done
 
   sed -e 's,^.* - ,,'     \
       -e 's,/\.\.\./, ,'  \
@@ -55,16 +60,6 @@ function GotResults() {
 
 
 function SearchForSameIssue() {
-  bugz_result=$issuedir/bugz_result
-  if [[ ! -f $bugz_result ]]; then
-    truncate -s 0 $bugz_result
-    chmod a+rw    $bugz_result
-  fi
-
-  if ! command -v bugz 1>/dev/null; then
-    return 2
-  fi
-
   if grep -q 'file collision with' $issuedir/title; then
     # for a file collision report both involved sites
     local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
@@ -96,16 +91,6 @@ function SearchForSameIssue() {
 
 
 function SearchForSimilarIssue() {
-  bugz_result=$issuedir/bugz_result
-  if [[ ! -f $bugz_result ]]; then
-    truncate -s 0 $bugz_result
-    chmod a+rw    $bugz_result
-  fi
-
-  if ! command -v bugz 1>/dev/null; then
-    return 2
-  fi
-
   # resolved does not fit "same issue"
   for i in $pkg $pkgname
   do
