@@ -516,6 +516,7 @@ function SendIssueMailIfNotYetReported()  {
       if createSearchString; then
         if SearchForSameIssue &>> $issuedir/body; then
           return
+#           known+=" same:"
         elif SearchForSimilarIssue &>> $issuedir/body; then
           known+=" similar:"
         else
@@ -702,7 +703,9 @@ function catchMisc()  {
       pkg=$( grep -m 1 -F ' * Package: '    $pkglog_stripped | awk ' { print $3 } ')
       repo=$(grep -m 1 -F ' * Repository: ' $pkglog_stripped | awk ' { print $3 } ')
       phase=""
+      pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
 
+      # create for each finding an own issue
       grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |\
       while read -r line
       do
