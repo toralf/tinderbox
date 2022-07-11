@@ -514,10 +514,9 @@ function SendIssueMailIfNotYetReported()  {
 
       local known="bug"
       if createSearchString; then
-        if SearchForSameIssue &>> $issuedir/body; then
+        if SearchForSameIssue 1>> $issuedir/body; then
           return
-#           known+=" same:"
-        elif SearchForSimilarIssue &>> $issuedir/body; then
+        elif SearchForSimilarIssue 1>> $issuedir/body; then
           known+=" similar:"
         else
           known+=" unknown:"
