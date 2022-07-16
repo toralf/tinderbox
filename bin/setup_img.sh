@@ -792,7 +792,7 @@ function ThrowImageUseFlags() {
     grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |\
     ThrowUseFlags 15 3 |\
     xargs |\
-    xargs -I {} --no-run-if-empty printf "%-40s %s\n" "$pkg" "{}"
+    xargs -I {} --no-run-if-empty printf "%-36s %s\n" "$pkg" "{}"
   done > ./etc/portage/package.use/24thrown_package_use_flags
 }
 
