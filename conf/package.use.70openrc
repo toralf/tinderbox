@@ -1,4 +1,4 @@
 # package.use/70openrc
 #
 
-sys-auth/pambase                -homed
+sys-auth/pambase                    -homed

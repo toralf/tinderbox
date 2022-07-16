@@ -51,8 +51,5 @@ dev-lang/python                     -libedit xml        # DICE: openssl
 app-portage/pfl                     -network-cron       # DICE: tinderbox_a 9 10
 app-text/ansifilter                 -qt5                # DICE: tinderbox_b 9 10
 
-# https://bugs.gentoo.org/792234
-net-misc/curl                       -quiche
-
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
