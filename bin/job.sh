@@ -9,17 +9,18 @@
 
 
 function stripQuotesAndMore() {
-  sed -e 's,['\''‘’"`•],,g' -e 's/\xE2\x80\x98|\xE2\x80\x99//g' # UTF-2018+2019 (left+right single quotation mark)
+  sed -e 's,['\''‘’"`•],,g'
 }
 
 
 # filter leftover of ansifilter
 function filterPlainPext() {
+  # UTF-2018+2019 (left+right single quotation mark)
+  sed -e 's,\xE2\x80\x98,,g' -e 's,\xE2\x80\x99,,g' |\
   perl -wne '
       s,\x00,\n,g;
       s,\r\n,\n,g;
       s,\r,\n,g;
-      s,‘,,g;
       print;
   '
 }
