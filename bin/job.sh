@@ -511,6 +511,7 @@ function SendIssueMailIfNotYetReported()  {
       echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
       echo -e "\n\n\n" >> $issuedir/body
+      chmod a+w $issuedir/body
 
       local known="bug"
       if createSearchString; then
