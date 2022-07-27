@@ -31,10 +31,10 @@ function ThrowUseFlags() {
 # helper of InitOptions()
 function DiceAProfile() {
   local demote=""
-  if dice 1 2; then
+  if dice 1 3; then
     demote+=' -e /no-multilib'
   fi
-  if dice 3 4; then
+  if dice 1 2; then
     demote+=' -e /musl'
   fi
 

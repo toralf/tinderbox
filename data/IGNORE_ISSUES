@@ -1,3 +1,4 @@
+Active compiler does not have required support for OpenMP
 asciidoctor (LoadError)
 atlas needs all cpu set to performance
 CONFIG_.*: is not set when it should be
