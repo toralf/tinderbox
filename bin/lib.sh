@@ -64,7 +64,7 @@ function SearchForSameIssue() {
     # for a file collision report both involved sites
     local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
-    bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |\
+    $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |\
         grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r |\
         head -n 4 |\
@@ -76,7 +76,7 @@ function SearchForSameIssue() {
 
   for i in $pkg $pkgname
   do
-    bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |\
+    $bugz_timeout bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |\
         grep -e " CONFIRMED " -e " IN_PROGRESS " |\
         sort -u -n -r |\
         head -n 4 |\
@@ -94,7 +94,7 @@ function SearchForSimilarIssue() {
   # resolved does not fit "same issue"
   for i in $pkg $pkgname
   do
-    bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bugz_search)" |\
+    $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bugz_search)" |\
         sort -u -n -r |\
         head -n 3 |\
         tee $bugz_result
@@ -103,7 +103,7 @@ function SearchForSimilarIssue() {
       return 0
     fi
 
-    bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |\
+    $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |\
         sort -u -n -r |\
         head -n 3 |\
         tee $bugz_result
@@ -118,7 +118,7 @@ function SearchForSimilarIssue() {
   local g='stabilize|Bump| keyword| bump'
 
   echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
-  bugz -q --columns 400 search --show-status $pkgname |\
+  $bugz_timeout bugz -q --columns 400 search --show-status $pkgname |\
       grep -v -i -E "$g" |\
       sort -u -n -r |\
       head -n 12 |\
@@ -129,7 +129,7 @@ function SearchForSimilarIssue() {
 
   if [[ $(wc -l < $bugz_result) -lt 5 ]]; then
     echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-    bugz -q --columns 400 search --status RESOLVED $pkgname |\
+    $bugz_timeout bugz -q --columns 400 search --status RESOLVED $pkgname |\
         grep -v -i -E "$g" |\
         sort -u -n -r |\
         head -n 5 |\
@@ -141,3 +141,5 @@ function SearchForSimilarIssue() {
 
   return 1
 }
+
+export bugz_timeout="timeout --signal=15 --kill-after=1m 3m"   # bugz tends to hang
