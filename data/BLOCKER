@@ -25,10 +25,6 @@ guile
 831358
 MPI_
 
-# [TRACKER] sys-libs/glibc-2.35 related issues
-832701
-foobar
-
 [TRACKER] cmake-utils.eclass: Last-rites
 834110
 Ignoring extra path from command line
@@ -72,3 +68,7 @@ openjpeg.h:
 # [Tracker] Failures with FORTIFY_SOURCE=3
 847148
 buffer overflow detected
+
+# [TRACKER] sys-libs/glibc-2.36
+#863215
+#foobar

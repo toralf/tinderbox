@@ -78,6 +78,7 @@ Error on line
 is not on the classpath.
 Failed Running automake
 error while loading shared libraries
+storage size of .* isn.t known
 : unknown type name
 No CommonLisp implementation found
 Could not link test program to Python
