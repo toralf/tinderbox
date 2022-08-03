@@ -460,17 +460,17 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??musl
   fi
 
-  # varying gentoo dev specific test cases
+  # content of lines with the marker "DICE" will only be kept with a given likelihood (default: 50%)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |\
   awk '{ print $3, $4, $5 }' |\
   sort -u |\
   while read -r topic x X
   do
     if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
-      # kick it off
+      # kick the whole off from the config file
       sed -i -e "/# DICE:  *$topic$/d" -e "/# DICE:  *$topic .*/d" ./etc/portage/package.*/*
     else
-      # keep it, but remove the marker to not irritate portage
+      # keep it, but remove the trailing comment to not irritate portage
       sed -i -e "s,# DICE:  *$topic$,,g" -e "s,# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
     fi
   done
