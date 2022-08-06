@@ -924,7 +924,7 @@ function syncRepo()  {
   fi
 
   if ! grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
-    # get repo changes with an 1 hour timeshift to let download mirrors being synced
+    # retest change ebuilds with an 1 hour timeshift to have download mirrors be synced
     git diff \
         --diff-filter="ACM" \
         --name-only \
