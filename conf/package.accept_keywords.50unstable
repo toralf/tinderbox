@@ -17,3 +17,6 @@ dev-scheme/guile:12/3.0-1           **                  # DICE: guile
 
 # ztrawhcse
 <dev-util/meson-9999                **                  # DICE: meson
+
+# WilliamH:
+dev-lang/go:0/1.19                  **                  # DICE: go_1.19

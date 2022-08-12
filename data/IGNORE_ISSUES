@@ -12,7 +12,7 @@ gem install kramdown
 Incompatible gcc version found
 Kernel not configured; no .config found in
 Linux .* is the latest supported version
-ls: cannot access core/pxelinux.0: No such file or directory
+cannot access core/pxelinux.0: No such file or directory
 mingw is needed
 Missing requested third party patch.
 No LLVM slot <= .* found installed!

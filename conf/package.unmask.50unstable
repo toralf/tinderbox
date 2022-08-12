@@ -79,3 +79,6 @@ dev-ml/async_extra:0/0.15
 dev-ml/core_bench:0/0.15
 dev-ml/patience_diff:0/0.15
 dev-util/patdiff:0/0.15
+
+# WilliamH:
+dev-lang/go:0/1.19                                      # DICE: go_1.19

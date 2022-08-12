@@ -16,11 +16,11 @@ app-laptop/tuxedo-keyboard
 media-tv/v4l-dvb-saa716x
 net-analyzer/openvas
 net-firewall/firehol
-net-firewall/sanewall
-net-misc/r8168
 net-firewall/ipt_netflow
+net-firewall/sanewall
 net-fs/openafs
 net-misc/asterisk
+net-misc/r8168
 net-vpn/wireguard-modules
 sci-libs/linux-gpib-modules
 sys-apps/modutils
@@ -30,10 +30,6 @@ sys-fs/loop-aes
 sys-fs/vhba
 sys-fs/zfs-kmod
 sys-libs/uclibc-ng
-x11-drivers/nvidia-drivers
-
-# annoying
-app-vim/curcmdmode
 
 # way too long compile times
 dev-libs/aws-sdk-cpp
@@ -43,11 +39,11 @@ www-client/google-chrome
 # sam: nullmpi does not fully implement all of the MPI spec
 sys-cluster/nullmpi
 
-# https://bugs.gentoo.org/770976 - emerge hangs
+# https://bugs.gentoo.org/770976 - emerge hangs despite -j1
 x11-wm/stumpwm
 
 # long compile time and/or often rev bumps
-dev-lang/rust                                           # DICE: long_compile_time_a 4 5
+dev-lang/rust                                           # DICE: long_compile_time_a 15 16
 sci-libs/atlas                                          # DICE: long_compile_time_b 15 16
 sci-libs/libint:2                                       # DICE: long_compile_time_c 15 16
 sci-libs/rocBLAS                                        # DICE: long_compile_time_d 15 16

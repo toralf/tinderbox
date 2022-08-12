@@ -70,5 +70,9 @@ openjpeg.h:
 buffer overflow detected
 
 # [TRACKER] sys-libs/glibc-2.36
-#863215
-#foobar
+863215
+redefinition of |redeclaration of
+
+#  [tracker] packages that do not build with dev-lang/go-1.19
+#863482
+#foobarbaz
