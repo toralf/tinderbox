@@ -704,7 +704,10 @@ function catchMisc()  {
       pkg=$( grep -m 1 -F ' * Package: '    $pkglog_stripped | awk ' { print $3 } ')
       repo=$(grep -m 1 -F ' * Repository: ' $pkglog_stripped | awk ' { print $3 } ')
       phase=""
-      pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+      # happened rarely, but ignore this error:
+      # qatom: error while loading shared libraries: libgomp.so.1: cannot open shared object file: No such file or directory
+      #
+      pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
 
       # create for each finding an own issue
       grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |\
