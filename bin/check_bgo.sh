@@ -127,7 +127,7 @@ fi
 
 echo
 createSearchString
-if ! SearchForSameIssue; then
+if ! SearchForSameIssue || [[ ! $# -lt 2 ]]; then
   cmd="$(dirname $0)/bgo.sh -d $issuedir"
 
   blocker_bug_no=""
