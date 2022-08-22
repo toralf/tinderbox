@@ -304,10 +304,13 @@ function foundGenericIssue() {
 
   for x in /tmp/x_????
   do
-    if grep -m 1 -a -B 4 -A 2 -f $x $pkglog_stripped > /tmp/issue; then
-      grep -m 1 -f $x /tmp/issue | stripQuotesAndMore > $issuedir/title
-      mv /tmp/issue $issuedir
-      break
+    # there're still non-ISO chars in stripped log
+    grep -a -m 1 -a -B 4 -A 2 -f $x $pkglog_stripped | strings > /tmp/issue
+    if [[ -s  /tmp/issue ]]; then
+      if grep -m 1 -f $x /tmp/issue | stripQuotesAndMore > $issuedir/title; then
+        mv /tmp/issue $issuedir
+        break
+      fi
     fi
   done
 
