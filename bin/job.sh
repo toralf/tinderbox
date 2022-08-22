@@ -708,9 +708,8 @@ function catchMisc()  {
       repo=$(grep -m 1 -F ' * Repository: ' $pkglog_stripped | awk ' { print $3 } ')
       phase=""
       # happened rarely, but ignore this error:
-      # qatom: error while loading shared libraries: libgomp.so.1: cannot open shared object file: No such file or directory
       #
-      pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+      pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
 
       # create for each finding an own issue
       grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |\
@@ -758,7 +757,8 @@ function GetPkgFromTaskLog() {
     fi
   fi
 
-  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  # qatom: error while loading shared libraries: libgomp.so.1: cannot ...
+  pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
     Mail "INFO: cannot get pkglog for pkg=$pkg task=$task" $tasklog_stripped
