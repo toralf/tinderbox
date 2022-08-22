@@ -1,7 +1,7 @@
 # package.use/80test
 #
 
-# if FEATURES=test is active for a package then these USE flags are required
+# if FEATURES=test is active then these USE flags are required
 
 app-text/docbook-xsl-stylesheets    -ruby
 dev-libs/libzip                     tools
@@ -19,3 +19,6 @@ sys-apps/man-db                     -nls
 sys-apps/dbus                       debug
 sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
+
+# otherwise pybugz doesn't build which would yield to a "bug raw" flood
+dev-lang/python                     readline -libedit

@@ -10,13 +10,5 @@ dev-games/ogre:0/2.1                **                  # DICE: ogre_2
 # sam
 dev-libs/openssl:0/3                **                  # DICE: openssl
 dev-scheme/guile:12/3.0-1           **                  # DICE: guile
-<sys-devel/gcc-12.2.9999:12         **                  # DICE: gcc 3 4
-~sys-libs/glibc-2.36                **                  # DICE: glibc 3 4
+<sys-devel/gcc-12.2.9999:12         **                  # DICE: gcc
 <sys-libs/ncurses-9999              **                  # DICE: ncurses
-
-
-# ztrawhcse
-<dev-util/meson-9999                **                  # DICE: meson
-
-# WilliamH:
-dev-lang/go:0/1.19                  **                  # DICE: go_1.19

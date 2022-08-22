@@ -11,6 +11,7 @@ is not a compiled interface for this version of OCaml
 undefined reference to
 Can't read
 class file .* not found
+error: redeclaration of
 error: redefinition of
 has incomplete type
 undefined symbol:
