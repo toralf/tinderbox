@@ -31,7 +31,7 @@ function ThrowUseFlags() {
 # helper of InitOptions()
 function DiceAProfile() {
   local demote=""
-  if dice 1 3; then
+  if dice 1 2; then
     demote+=' -e /no-multilib'
   fi
   if dice 1 2; then
