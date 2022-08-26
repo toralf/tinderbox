@@ -148,7 +148,8 @@ function getNextTask() {
       # skip if $task would be downgraded
       local installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
-        if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
+        # qatom: error while loading shared libraries: libgomp.so.1: cannot ...
+        if qatom --compare $installed $best_visible 2>/dev/null | grep -q -e ' == ' -e ' > '; then
           continue
         fi
       fi
@@ -300,13 +301,14 @@ function foundGenericIssue() {
       cat /mnt/tb/data/CATCH_ISSUES.$phase
     fi
     cat /mnt/tb/data/CATCH_ISSUES
-  ) | split --lines=1 --suffix-length=4 - /tmp/x_
+  ) |\
+  split --lines=1 --suffix-length=4 - /tmp/x_
 
   for x in /tmp/x_????
   do
     # there're still non-ISO chars in stripped log
     grep -a -m 1 -a -B 4 -A 2 -f $x $pkglog_stripped | strings > /tmp/issue
-    if [[ -s  /tmp/issue ]]; then
+    if [[ -s /tmp/issue ]]; then
       if grep -m 1 -f $x /tmp/issue | stripQuotesAndMore > $issuedir/title; then
         mv /tmp/issue $issuedir
         break
@@ -757,8 +759,7 @@ function GetPkgFromTaskLog() {
     fi
   fi
 
-  # qatom: error while loading shared libraries: libgomp.so.1: cannot ...
-  pkgname=$(qatom --quiet "$pkg" 2>/dev/null | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
     Mail "INFO: cannot get pkglog for pkg=$pkg task=$task" $tasklog_stripped
