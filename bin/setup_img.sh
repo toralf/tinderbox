@@ -298,6 +298,9 @@ function CompileMakeConf()  {
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
 
+# http://trofi.github.io/posts/249-an-update-on-make-shuffle.html
+MAKEFLAGS=--shuffle
+
 CFLAGS="$cflags"
 CXXFLAGS="\${CFLAGS}"
 
