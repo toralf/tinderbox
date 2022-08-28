@@ -345,15 +345,6 @@ EOF
     echo 'RUSTFLAGS=" -C target-feature=-crt-static"' >> ./etc/portage/make.conf
   fi
 
-  # requested by sam
-  if [[ $keyword = '~amd64' ]]; then
-    if dice 1 10; then
-      : blocked by https://bugs.gentoo.org/775596
-#       echo 'LIBTOOL="rdlibtool"'            >> ./etc/portage/make.conf
-#       echo 'MAKEFLAGS="LIBTOOL=${LIBTOOL}"' >> ./etc/portage/make.conf
-    fi
-  fi
-
   # requested by mgorny in 822354 - btw, this is unrelated to "test"
   if dice 1 2; then
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
