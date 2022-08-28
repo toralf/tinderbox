@@ -68,7 +68,7 @@ function Finish()  {
   local exit_code=${1:-$?}
   local subject=${2:-<internal error>}
 
-  subject="finished, ec=$exit_code, $(stripQuotesAndMore <<< $subject)"
+  subject="finished, $(stripQuotesAndMore <<< $subject), ec=$exit_code"
   if [[ $exit_code -eq 13 ]]; then
     echo "$subject" >>  /var/tmp/tb/EOL
     chmod g+w           /var/tmp/tb/EOL
@@ -101,7 +101,7 @@ function setBacklog()  {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    Finish 13 "all work done"   # "13" needed here to trigger a replacement
+    Finish 13 "all work DONE, reached EOL"   # "13" needed here to trigger a replacement
   fi
 }
 
