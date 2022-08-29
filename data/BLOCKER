@@ -13,9 +13,6 @@ ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 765709
 slibtool|rlibtool|rdlibtool|unrecognized command-line option|./shtool:
 
-# [TRACKER] Packages relying on setuptools' use_2to3 option
-812149
-: SetuptoolsDeprecationWarning: 2to3|/site-packages/setuptools/lib2to3_ex.py:
 
 # [Tracker] dev-scheme/guile-3.0.x breakage
 746914
@@ -29,21 +26,9 @@ MPI_
 834110
 Ignoring extra path from command line
 
-# [Tracker] dev-lang/go-1.18 breakage
-835378
-go: inconsistent vendoring
-
-# Packages with sandbox failures in src_test without SANDBOX_PREDICT="/"
-839747
-sandbox issue
-
 # (gcc-12) - [TRACKER] sys-devel/gcc-12 porting
 839906
 is not a member of .*std.*|time was not declared in this scope
-
-# (bison-3.8) - [TRACKER] Packages failing with sys-devel/bison-3.8.x
-813126
-y.tab.c: .*|YYSYMBOL_YYEMPTY|\.yy
 
 # [Tracker] Breakage with sys-libs/musl-1.2.3
 839975
@@ -72,7 +57,3 @@ buffer overflow detected
 # [TRACKER] sys-libs/glibc-2.36
 863215
 redefinition of |redeclaration of
-
-#  [tracker] packages that do not build with dev-lang/go-1.19
-#863482
-#foobarbaz

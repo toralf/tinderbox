@@ -13,6 +13,7 @@ is banned in EAPI
 Missing USE flags in
  \*   needs multilib profile on amd64
 No Python implementation set
+ \*   No supported Python implementation in
 One of the following USE flags is needed:
  \*   One of the postgres_targets_postgresSL_OT use flags must be enabled
 Please install required programs:
