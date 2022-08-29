@@ -462,10 +462,10 @@ EOF
   do
     if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
       # kick the whole off from the config file
-      sed -i -e "/# DICE:  *$topic$/d" -e "/# DICE:  *$topic .*/d" ./etc/portage/package.*/*
+      sed -i -e "/# DICE:  *$topic *$/d" -e "/# DICE:  *$topic .*/d" ./etc/portage/package.*/*
     else
-      # keep it, but remove the trailing comment to not irritate portage
-      sed -i -e "s,# DICE:  *$topic$,,g" -e "s,# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
+      # keep it, but remove the trailing comment + spaces
+      sed -i -e "s, *# DICE:  *$topic *$,,g" -e "s, *# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
     fi
   done
 
