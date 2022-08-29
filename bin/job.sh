@@ -197,7 +197,7 @@ function CollectIssueFiles() {
   envir=$(grep -m 1      'The ebuild environment file is located at'                 $tasklog_stripped                         | cut -f2 -d"'" -s)
   salso=$(grep -m 1 -A 2 ' See also'                                                 $tasklog_stripped | grep -F '.log'        | awk '{ print $1 }' )
   sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY'                                  $tasklog_stripped | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
-  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $tasklog_stripped | grep -F '/LastTest.log' | awk ' { print $2 } ')
+  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $tasklog_stripped | grep -F '/LastTest.log' | awk '{ print $2 }')
 
   for f in $apout $cmlog $cmerr $oracl $envir $salso $sandb $roslg
   do
@@ -679,7 +679,7 @@ function PostEmerge() {
 
   if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped; then
     local current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
-    local highest=$(eselect ruby list | tail -n 1 | awk ' { print $2 } ')
+    local highest=$(eselect ruby list | tail -n 1 | awk '{ print $2 }')
 
     if [[ "$current" != "$highest" ]]; then
       add2backlog "%eselect ruby set $highest"
@@ -706,8 +706,8 @@ function catchMisc()  {
     local pkglog_stripped=/tmp/$(basename $pkglog | sed -e "s,\.log$,.stripped.log,")
     filterPlainPext < $pkglog > $pkglog_stripped
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
-      pkg=$( grep -m 1 -F ' * Package: '    $pkglog_stripped | awk ' { print $3 } ')
-      repo=$(grep -m 1 -F ' * Repository: ' $pkglog_stripped | awk ' { print $3 } ')
+      pkg=$( grep -m 1 -F ' * Package: '    $pkglog_stripped | awk '{ print $3 }')
+      repo=$(grep -m 1 -F ' * Repository: ' $pkglog_stripped | awk '{ print $3 }')
       phase=""
       # happened rarely, but ignore this error:
       #
@@ -748,7 +748,7 @@ EOF
 
 
 function GetPkgFromTaskLog() {
-  pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk ' { print $3 } ')
+  pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk '{ print $3 }')
   if [[ -z "$pkg" ]]; then
     pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
     if [[ -z "$pkg" ]]; then

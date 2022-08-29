@@ -685,7 +685,7 @@ function FixPossibleUseFlagIssues() {
     # kick off particular packages
     local pkg=$(
       grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |\
-      awk ' /^- / { print $2 } ' |\
+      awk '/^- / { print $2 } ' |\
       cut -f1 -d':' -s |\
       xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
       sed -e 's,/,\\/,'

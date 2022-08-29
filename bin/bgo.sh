@@ -141,7 +141,7 @@ if [[ -d ./files ]]; then
     # max. size from b.g.o. is 1 MB
     elif [[ $bytes -gt $(( 2**20 )) ]]; then
       echo "too fat file: $f"
-      file_size=$(ls -lh $f | awk ' { print $5 } ')
+      file_size=$(ls -lh $f | awk '{ print $5 }')
       file_path=$(realpath $f | sed -e "s,^.*img/,,g")
       url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
       comment="The file size of $f is too big ($file_size) for an upload. For about 8 weeks the link $url is valid."

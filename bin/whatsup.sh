@@ -249,7 +249,7 @@ function getCoveredPackages() {
   grep -H '::: completed emerge' ~tinderbox/$1/*/var/log/emerge.log 2>/dev/null |\
   # handle ::local
   tr -d ':' |\
-  awk ' { print $7 } ' |\
+  awk '{ print $7 }' |\
   xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
   sort -u
 }
