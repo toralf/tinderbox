@@ -49,3 +49,6 @@ sci-libs/libint:2                                       # DICE: long_compile_tim
 sci-libs/rocBLAS                                        # DICE: long_compile_time_d 15 16
 sci-libs/rocFFT                                         # DICE: long_compile_time_e 15 16
 sci-libs/tensorflow                                     # DICE: long_compile_time_f 15 16
+
+# hangs (even with -j1)
+dev-lang/lfe
