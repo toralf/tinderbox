@@ -298,9 +298,6 @@ function CompileMakeConf()  {
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
 
-# http://trofi.github.io/posts/249-an-update-on-make-shuffle.html
-MAKEFLAGS=--shuffle
-
 CFLAGS="$cflags"
 CXXFLAGS="\${CFLAGS}"
 
@@ -348,6 +345,12 @@ EOF
   # requested by mgorny in 822354 - btw, this is unrelated to "test"
   if dice 1 2; then
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
+  fi
+
+  # http://trofi.github.io/posts/249-an-update-on-make-shuffle.html
+  # due to https://bugs.gentoo.org/867808 use OPTS instead FLAGS
+  if grep -q 'sys-devel/make-9999' ./etc/portage/package.*/*; then
+    echo 'MAKEOPTS="--shuffle"' >> ./etc/portage/make.conf
   fi
 
   chgrp portage ./etc/portage/make.conf
