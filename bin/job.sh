@@ -214,6 +214,7 @@ function CollectIssueFiles() {
       cd "$workdir/.."
       find ./ -name "*.log" \
           -o -name "testlog.*" \
+          -o -wholename "./temp/syml*" \
           -o -wholename '*/elf/*.out' \
           -o -wholename '*/softmmu-build/*' \
           -o -name "meson-log.txt" |\
