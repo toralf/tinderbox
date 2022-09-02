@@ -412,6 +412,7 @@ EOF
     ghc --version
     echo "php cli:"
     eselect php list cli
+    make --version | head -n 1
 
     for i in /var/db/repos/*/.git
     do
@@ -991,7 +992,9 @@ fi
 echo "#init" > $taskfile
 rm -f $tasklog  # remove any remaining hard link
 if ! systemd-tmpfiles --create &>$tasklog; then
-  Mail "NOTICE: tmpfiles issue" $tasklog
+  if [[ $name =~ _systemd ]]; then
+    Mail "NOTICE: tmpfiles issue" $tasklog
+  fi
 fi
 
 echo "#loop" > $taskfile
