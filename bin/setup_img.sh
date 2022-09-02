@@ -348,10 +348,9 @@ EOF
   fi
 
   # http://trofi.github.io/posts/249-an-update-on-make-shuffle.html
-  # due to https://bugs.gentoo.org/867808 use OPTS instead FLAGS
-  if grep -q 'sys-devel/make-9999' ./etc/portage/package.*/*; then
-    echo 'MAKEOPTS="--shuffle"' >> ./etc/portage/make.conf
-  fi
+#  if grep -q 'sys-devel/make-9999' ./etc/portage/package.*/*; then
+#    echo 'GNUMAKEFLAGS="--shuffle"' >> ./etc/portage/make.conf
+#  fi
 
   chgrp portage ./etc/portage/make.conf
   chmod g+w     ./etc/portage/make.conf
