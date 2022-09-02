@@ -13,6 +13,9 @@ dev-scheme/guile:12/3.0-1           **                  # DICE: guile
 sys-devel/binutils:2.39             **                  # DICE: binutils
 sys-devel/binutils-libs:0/2.39      **                  # DICE: binutils
 <sys-devel/gcc-12.2.9999:12         **                  # DICE: gcc
-sys-devel/make-9999                 **                  # DICE: make
 ~sys-libs/glibc-2.36                **                  # DICE: glibc
 <sys-libs/ncurses-9999              **                  # DICE: ncurses
+
+
+# ajak
+<app-emulation/qemu-9999            **                  # DICE: qemu 1 1

@@ -38,3 +38,4 @@ Error .
 Unsupported kernel version!
  \* ERROR:
  \* FAILED .
+error:.*command not found

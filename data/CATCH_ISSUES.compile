@@ -1,3 +1,4 @@
+make: unrecognized option
 DISTUTILS_IN_SOURCE_BUILD is not supported in PEP517 mode
 buffer overflow detected
 : all warnings being treated as errors
@@ -98,7 +99,6 @@ error: expected expression before
  error: implicit declaration of
  failed: .*glib-genmarshal
 error: signals-marshal.h: No such file or directory
-error:.*command not found
 gck-marshal.list: Permission denied
 This expression has type .* but an expression
 mmap: wanted .* bytes at .*, actually mapped at .*
@@ -333,3 +333,4 @@ Unimplemented option:
 go: inconsistent vendoring
 ex: no python-exec wrapped
 ghc: panic!
+Recursive variable
