@@ -68,7 +68,7 @@ function Finish()  {
   local exit_code=${1:-$?}
   local subject=${2:-<internal error>}
 
-  subject="finished, $(stripQuotesAndMore <<< $subject), ec=$exit_code"
+  subject="finished, $(stripQuotesAndMore <<< $subject)"
   if [[ $exit_code -eq 13 ]]; then
     echo "$subject" >>  /var/tmp/tb/EOL
     chmod g+w           /var/tmp/tb/EOL
@@ -78,7 +78,7 @@ function Finish()  {
     subject+=", $(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l) bugs reported"
   fi
 
-  Mail "$subject" ${3:-}
+  Mail "$subject, ec=$exit_code" ${3:-}
   feedPfl
   rm -f /var/tmp/tb/STOP
 
