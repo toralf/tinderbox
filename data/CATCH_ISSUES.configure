@@ -85,3 +85,4 @@ something is badly wrong at
 configure: line .*:
  \*   Unable to build!
   Looking for .*... not found.
+Package .* was not found in the .* path.

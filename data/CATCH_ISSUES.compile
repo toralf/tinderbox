@@ -275,13 +275,11 @@ Makefile:.* Stop.
 Cannot build with randomized sbrk.
 ^\[error\]
 UnicodeEncodeError:
-Package .* was not found in the .* path.
 ld: i386 architecture of input file
 final link failed:
 ld returned .* exit status
 a: malformed archive
-rdlibtool: command not found
-cp: cannot create regular file
+  cp: cannot create regular file
 Couldn't open
 gdbm_fetch: Item not found
  Illegal qualifier
@@ -322,7 +320,6 @@ Error> .
 There is a programmable error
 Configuration error:
 :: ERROR:
-: command not found
 Invalid value for GENTOO_VM:
  \*   gcl is not supported b
 Unkown OCaml version
