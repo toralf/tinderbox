@@ -992,9 +992,7 @@ fi
 echo "#init" > $taskfile
 rm -f $tasklog  # remove any remaining hard link
 if ! systemd-tmpfiles --create &>$tasklog; then
-  if [[ $name =~ _systemd ]]; then
-    Mail "NOTICE: tmpfiles issue" $tasklog
-  fi
+  : # Mail "NOTICE: tmpfiles issue" $tasklog
 fi
 
 echo "#loop" > $taskfile
