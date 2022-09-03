@@ -318,6 +318,8 @@ ACCEPT_LICENSE="*"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
+SKIP_KERNEL_CHECK="y"
+
 NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
