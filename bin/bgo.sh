@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
 # create or modify a bug report at http://bugzilla.gentoo.org
