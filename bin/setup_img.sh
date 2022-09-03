@@ -539,9 +539,9 @@ function CreateBacklogs()  {
 
   cat << EOF >> $bl.1st
 app-portage/pfl
+www-client/pybugz
 @world
 %sed -i -e \\'s,--verbose ,--deep --verbose ,\\' /etc/portage/make.conf
-www-client/pybugz
 %emerge -uU =\$(portageq best_visible / sys-devel/gcc)
 
 EOF
