@@ -19,19 +19,10 @@ function CgroupCreate() {
     return 1
   fi
 
-  # limit each image having -jX in its name to X+0.1 cpus
+  # the value of -jX of the image name rules
   local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
-  if [[ -z $j ]]; then
-    echo "got no value for -j , use 1"
-    x=1
-  elif [[ $j -gt 10 ]]; then
-    echo "value for -j: $j , use 10"
-    x=10
-  else
-    x=$j
-  fi
 
-  local quota=$(( 100000*x+10000 ))
+  local quota=$(( 100000*${j:-1}+10000 ))
   cgset -r cpu.cfs_quota_us=$quota          $name
   cgset -r memory.limit_in_bytes=40G        $name
   cgset -r memory.memsw.limit_in_bytes=70G  $name
