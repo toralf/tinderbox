@@ -444,9 +444,9 @@ function PutDepsIntoWorldFile() {
 
 # helper of WorkAtIssue()
 function setWorkDir() {
-  workdir=$(fgrep -m 1 " * Working directory: '" $tasklog_stripped | cut -f2 -d"'" -s)
+  workdir=$(grep -F -m 1 ' * Working directory: ' $tasklog_stripped | cut -f2 -d"'" -s)
   if [[ ! -d "$workdir" ]]; then
-    workdir=$(fgrep -m 1 ">>> Source unpacked in " $tasklog_stripped | cut -f5 -d" " -s)
+    workdir=$(grep -F -m 1 '>>> Source unpacked in ' $tasklog_stripped | cut -f5 -d" " -s)
     if [[ ! -d "$workdir" ]]; then
       workdir=/var/tmp/portage/$pkg/work/$(basename $pkg)
       if [[ ! -d "$workdir" ]]; then
