@@ -312,7 +312,7 @@ openjade:.*:E:
 cannot parse
 gprbuild: .* failed
 Extension error:
-\! LaTeX. Error:
+! LaTeX. Error:
 error: cannot enable
 Error> .
   Caused by:
