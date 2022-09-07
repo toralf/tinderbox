@@ -181,7 +181,7 @@ if [[ $newbug -eq 1 ]]; then
 
   add_cc=""
   if [[ -n "$cc" ]]; then
-    add_cc=$(sed 's,  *, --add-cc ,g' <<< " $cc")
+    add_cc=$(sed 's,  *, --add-cc ,g' <<< " $cc")   # leading space is needed
   fi
 
   bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn "to:>$assignee< add_cc:>$add_cc<"
