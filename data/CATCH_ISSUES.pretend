@@ -5,3 +5,5 @@ Space constraints set in the ebuild were not met
  \*   Kernel not configured; no .config found in
  \*   USE Flag .* not in IUSE
  \*   Active compiler does not have required support for OpenMP
+ \*   Please update your kernel
+ \*   CONFIG_.* detected!

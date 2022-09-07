@@ -8,13 +8,15 @@ dev-games/ogre:0/2.1                                    # DICE: ogre_2
 
 
 # sam
+dev-libs/boost:0/1.80.0                                 # DICE: boost
+~dev-util/b2-4.9.2                                      # DICE: boost
 dev-libs/openssl:0/3                                    # DICE: openssl
 dev-scheme/guile:12/3.0-1                               # DICE: guile
 sys-devel/binutils:2.39                                 # DICE: binutils
 sys-devel/binutils-libs:0/2.39                          # DICE: binutils
-<sys-devel/gcc-12.2.9999:12                             # DICE: gcc
+<sys-devel/gcc-12.3.9999:12                             # DICE: gcc
 ~sys-libs/glibc-2.36                                    # DICE: glibc
-<sys-libs/ncurses-9999                                  # DICE: ncurses
+sys-libs/ncurses:0/6                                    # DICE: ncurses
 
 
 # tupone /var/db/repos/gentoo/profiles/package.mask
@@ -77,7 +79,3 @@ dev-ml/async_extra:0/0.15
 dev-ml/core_bench:0/0.15
 dev-ml/patience_diff:0/0.15
 dev-util/patdiff:0/0.15
-
-
-# ajak
-<app-emulation/qemu-9999                                # DICE: qemu 1 1

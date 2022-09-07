@@ -37,6 +37,9 @@ net-misc/curl                       ssl
 # fails with: "you must set LINGUAS ..."
 app-admin/webalizer                 -nls
 
+# bootstrap b0rken
+sys-devel/gcc                       -d
+
 
 #######################################################################
 #

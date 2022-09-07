@@ -1,8 +1,10 @@
 Active compiler does not have required support for OpenMP
 asciidoctor (LoadError)
 atlas needs all cpu set to performance
-CONFIG_.*: is not set when it should be
+cannot access core/pxelinux.0: No such file or directory
 cannot load such file .*asciidoctor
+CONFIG_.* detected!
+CONFIG_.*: is not set when it should be
 Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.
@@ -10,28 +12,31 @@ dev-ruby/.*::gentoo failed (install phase)
 gcc version .* found, expected gcc
 gem install kramdown
 Incompatible gcc version found
+Incorrect kernel configuration options
 Kernel not configured; no .config found in
 Linux .* is the latest supported version
-cannot access core/pxelinux.0: No such file or directory
 mingw is needed
 Missing requested third party patch.
 No LLVM slot <= .* found installed!
 No pathcc executable was installed, your hardware is unsupported most likely
+No support for external modules in
 One of the .* use flags must be enabled
 OTP release .* does not match required regex
 Please check to make sure these options are set correctly.
 Please, run haskell-updater to fix broken packages
 Please switch to a gcc version built with USE=graphite
 Please switch to an openmp compatible compiler
+Please update your kernel
 Please use a supported ICD
 PostgreSQL slot must be set to one of:
+requires at least .* kernel version
 Select exactly one database type out of these:
 some Java tools are not available on some VMs on some architectures
+Sorry, your kernel must be .* or newer!
 The Objective-C compiler does not work o
 The version of your compiler is not supported at this time
 USE=modules and in-kernel ipset support detected
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
 You need one of the following mpi implementations:
-dev-lang/gnat-gpl-2020
-dev-lang/gnat-gpl-2021-r1
+Your kernel is too old.

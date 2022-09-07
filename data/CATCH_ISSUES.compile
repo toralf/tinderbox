@@ -331,3 +331,4 @@ go: inconsistent vendoring
 ex: no python-exec wrapped
 ghc: panic!
 Recursive variable
+You do not appear to have the sources for the .* kernel installed.
