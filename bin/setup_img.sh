@@ -36,7 +36,7 @@ function DiceAProfile() {
   if dice 1 2; then
     exclude+=' -e /no-multilib'
   fi
-  if dice 1 2; then
+  if dice 3 4; then
     exclude+=' -e /musl'
   fi
 
