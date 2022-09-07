@@ -363,8 +363,8 @@ function ClassifyIssue() {
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
   else
-    # this will be overwritten if a pattern was defined
-    grep -m 1 -A 2 " \* ERROR:.* failed (.* phase):" $pkglog_stripped | tee $issuedir/issue |\
+    # this gets been overwritten if a pattern matches
+    grep -m 1 -A 2 "^ \* ERROR:.* failed \(.* phase\):" $pkglog_stripped | tee $issuedir/issue |\
     head -n 2 | tail -n 1 > $issuedir/title
     foundGenericIssue
   fi
@@ -411,7 +411,7 @@ EOF
     java-config --list-available-vms --nocolor
     eselect java-vm list
     ghc --version
-    echo "php cli:"
+    echo "php cli (if any):"
     eselect php list cli
     make --version | head -n 1
 
@@ -583,7 +583,7 @@ function WorkAtIssue()  {
   chmod -R a+rw $issuedir/
   CompressIssueFiles
 
-  if grep -q -e 'error: .* perl module .* required' -e 't locate Locale/gettext.pm in' $pkglog_stripped; then
+  if grep -q -e ': perl module .* required' -e 't locate Locale/gettext.pm in' $pkglog_stripped; then
     try_again=1
     add2backlog "$task"
     add2backlog '%perl-cleaner --all'
