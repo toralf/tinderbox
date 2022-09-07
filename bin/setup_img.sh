@@ -78,6 +78,8 @@ function InitOptions() {
 
   cflags=$cflags_default
 
+  testfeature="n"
+
   # run (rarely) a stable image
   keyword="~amd64"
   if dice 1 160; then
@@ -88,7 +90,6 @@ function InitOptions() {
       cflags+=" -falign-functions=32:25:16"
     fi
 
-    testfeature="n"
     if dice 1 80; then
       testfeature="y"
     fi
