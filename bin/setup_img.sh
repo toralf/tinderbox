@@ -323,8 +323,6 @@ ACCEPT_LICENSE="*"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
-SKIP_KERNEL_CHECK="y"
-
 NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
@@ -352,6 +350,10 @@ EOF
   # requested by mgorny in 822354 - btw, this is unrelated to "test"
   if dice 1 2; then
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
+  fi
+
+  if dice 1 2; then
+    echo 'SKIP_KERNEL_CHECK="y"' >> ./etc/portage/make.conf
   fi
 
   # http://trofi.github.io/posts/249-an-update-on-make-shuffle.html
