@@ -168,20 +168,14 @@ fi
 if [[ $newbug -eq 1 ]]; then
   name=$(cat $issuedir/../../name)
   assignee="$(cat ./assignee)"
-  if [[ $name =~ musl && $assignee != "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC $issuedir/title; then
-    assignee="musl@gentoo.org"
-    cc="$(cat ./assignee ./cc 2>/dev/null | xargs -n 1 | grep -v "musl@gentoo.org" | xargs)"
-  else
-    cc="$(cat ./cc 2>/dev/null || true)"
-  fi
-
+  cc="$(cat ./cc 2>/dev/null || true)"
   if grep -q -F 'meson' ./title; then
     cc+=" eschwartz93@gmail.com"
   fi
 
   add_cc=""
   if [[ -n "$cc" ]]; then
-    add_cc=$(sed 's,  *, --add-cc ,g' <<< " $cc")
+    add_cc=$(sed 's,  *, --add-cc ,g' <<< " $cc")   # leading space is needed
   fi
 
   bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn "to:>$assignee< add_cc:>$add_cc<"
