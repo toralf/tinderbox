@@ -38,5 +38,6 @@ The version of your compiler is not supported at this time
 USE=modules and in-kernel ipset support detected
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
+You do not .* the sources for the .* kernel installed.
 You need one of the following mpi implementations:
 Your kernel is too old.

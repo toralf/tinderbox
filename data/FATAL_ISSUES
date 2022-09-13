@@ -1,3 +1,5 @@
+\*\*\* Cannot open jobserver
 ^out of memory
 ERROR: 17.1 migration has not been performed!!
 PermissionError: \[Errno 13\] Permission denied: /usr/lib/python
+invalid shuffle mode:

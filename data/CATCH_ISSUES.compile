@@ -1,3 +1,4 @@
+^ModuleNotFoundError:
 make: unrecognized option
 DISTUTILS_IN_SOURCE_BUILD is not supported in PEP517 mode
 buffer overflow detected
@@ -331,4 +332,4 @@ go: inconsistent vendoring
 ex: no python-exec wrapped
 ghc: panic!
 Recursive variable
-You do not appear to have the sources for the .* kernel installed.
+You do not .* the sources for the .* kernel installed.

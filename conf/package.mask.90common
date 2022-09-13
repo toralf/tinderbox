@@ -52,3 +52,6 @@ sci-libs/tensorflow                                     # DICE: long_compile_tim
 
 # hangs (even with -j1)
 dev-lang/lfe
+
+# hangs
+dev-util/trace-cmd

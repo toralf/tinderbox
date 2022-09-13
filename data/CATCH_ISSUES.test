@@ -18,8 +18,7 @@ Failing test(s):
 FAILED: .*
 FAILED .*test
 Failed tests:
-^FAIL .*
-^FAIL\t.*
+^FAIL *.*
 ^FAIL: .*
 ^Failure:
  FAIL .*
@@ -41,7 +40,7 @@ ERROR: ld.so: object
 sudo: no tty present and no askpass program specified
 /bin/sh: cppcheck: command not found
 Line .* failed
-\-\- FAIL:
+-- FAIL:
 \[  FAILED  \]
 .*:.*: exit status 1
 missing separator
@@ -92,7 +91,7 @@ t/.*.t.* Dubious,
 Unescaped left brace in regex is illegal here
 .. \[fail\]
 Error: This expression has type .* but an expression was expected
-^\?: .*
+^?: .*
 Test .* failed:
 ModuleNotFoundError:
  FAILED (.*)

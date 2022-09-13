@@ -35,6 +35,7 @@ This ebuild will need the
 This package will need access to .* cds.
 Unable to find version .* of package
  \*   unacceptable USE flag settings
+ \*   Use sys-devel/crossdev to build a musl toolchain
 USE=modules and in-kernel ipset support detected.
  \* WireGuard has been merged upstream into this kernel. Therefore
 You have to install development tools first.
