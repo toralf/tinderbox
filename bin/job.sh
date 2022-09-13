@@ -79,7 +79,7 @@ function Finish()  {
     subject+=", $(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l) bugs reported"
   fi
 
-  Mail "$subject, ec=$exit_code" ${3:-}
+  Mail "$subject" ${3:-}
   feedPfl
   rm -f /var/tmp/tb/STOP
 
