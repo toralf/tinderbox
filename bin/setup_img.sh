@@ -54,58 +54,54 @@ function DiceAProfile() {
 
 # helper of main()
 function InitOptions() {
-  # for overall efficency 1 process in each of M running images is better than *up to* n processes in N images
-  # (1 x M >= n x N) and even more it would be much easier to catch the first error message
-  # but: the compile times are awefully with -j 1
-  jobs=4
-
-  profile=$(DiceAProfile)
-
-  # a "y" activates "*/* ABI_X86: 32 64"
   abi3264="n"
-  if [[ ! $profile =~ "/no-multilib" ]]; then
-    if dice 1 80; then
-      abi3264="y"
-    fi
-  fi
-
   cflags_default="-pipe -march=native -fno-diagnostics-color"
-  if dice 1 80; then
-    cflags_default+=" -Og -g"   # debug
-  else
-    cflags_default+=" -O2"
-  fi
-
   cflags=$cflags_default
-
-  testfeature="n"
-
-  # run (rarely) a stable image
+  jobs=4
   keyword="~amd64"
-  if dice 1 160; then
-    keyword="amd64"
-  else
-    # 685160 colon-in-CFLAGS
-    if dice 1 80; then
-      cflags+=" -falign-functions=32:25:16"
+  profile=$(DiceAProfile)
+  testfeature="n"
+  useflagfile=""
+
+  if [[ ! $profile =~ "/musl" ]]; then
+    # set "*/* ABI_X86: 32 64"
+    if [[ ! $profile =~ "/no-multilib" ]]; then
+      if dice 1 80; then
+        abi3264="y"
+      fi
     fi
 
     if dice 1 80; then
-      testfeature="y"
+      cflags_default+=" -Og -g"   # debug
+    else
+      cflags_default+=" -O2"
+    fi
+
+    cflags=$cflags_default    # till here the fallback (_default) is identical with CFLAGS
+
+    # if run (rarely) a stable image then w/o any special tests
+    if dice 1 160; then
+      keyword="amd64"
+    else
+      # 685160 colon-in-CFLAGS
+      if dice 1 80; then
+        cflags+=" -falign-functions=32:25:16"
+      fi
+      if dice 1 40; then
+        testfeature="y"
+      fi
     fi
   fi
-
-  useflagfile=""
 }
 
 
 # helper of CheckOptions()
 function checkBool()  {
-  var=$1
-  val=$(eval echo \$${var})
+  local var=$1
+  local val=$(eval echo \$${var})
 
   if [[ $val != "y" && $val != "n" ]]; then
-    echo " wrong value for variable \$$var: >>$val<<"
+    echo " wrong boolean for \$$var: >>$val<<"
     return 1
   fi
 }
@@ -113,8 +109,8 @@ function checkBool()  {
 
 # helper of main()
 function CheckOptions() {
-  checkBool "abi3264"
-  checkBool "testfeature"
+  checkBool "abi3264"     || return 1
+  checkBool "testfeature" || return 1
 
   if [[ -z $profile ]]; then
     echo " profile empty!"
@@ -136,12 +132,6 @@ function CheckOptions() {
   if [[ ! $jobs =~ ^[0-9].*$ ]]; then
     echo " jobs is wrong: >>${jobs}<<"
     return 1
-  fi
-
-  if [[ $profile =~ "/musl" ]]; then
-    abi3264="n"
-    keyword="~amd64"
-    testfeature="n"
   fi
 
   # by sam
