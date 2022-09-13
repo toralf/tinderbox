@@ -827,7 +827,7 @@ function RunAndCheck() {
   fi
 
   if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
-    Finish 1 "FATAL: $fatal" $tasklog
+    Finish 13 "FATAL: $fatal" $tasklog
   fi
 
   return $rc
