@@ -915,7 +915,7 @@ function syncRepo()  {
   cd /var/db/repos/gentoo
 
   if ! emaint sync --auto &>$synclog; then
-    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error: 500'; then
+    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error: 500' $synclog; then
       return 1
     fi
 
