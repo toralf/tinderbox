@@ -70,7 +70,8 @@ fi
 echo $$ > "$lockfile" || exit 1
 trap Finish INT QUIT TERM EXIT
 
-while :
+failed=0
+while [[ $failed -lt 3 ]]
 do
   # mark a stopped image after a given time as EOL
   while read -r oldimg
@@ -97,10 +98,8 @@ do
     echo
     date
     echo " setup a new image ..."
-    if sudo $(dirname $0)/setup_img.sh; then
-      continue
-    else
-      Finish 1
+    if ! sudo $(dirname $0)/setup_img.sh; then
+      ((++failed))
     fi
   fi
 
@@ -118,4 +117,4 @@ do
   break
 done
 
-Finish 0
+Finish $failed
