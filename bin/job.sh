@@ -308,17 +308,12 @@ function foundGenericIssue() {
 
   for x in /tmp/x_????
   do
-    # there're still non-ISO chars in stripped log
-    grep -a -m 1 -B 4 -A 2 -f $x $pkglog_stripped | strings > /tmp/issue
-    if [[ -s /tmp/issue ]]; then
-      grep -m 1 -f $x /tmp/issue | stripQuotesAndMore > /tmp/title
-      if [[ -s /tmp/title ]]; then
-        mv /tmp/title /tmp/issue $issuedir
-        break
-      fi
+    if grep -a -m 1 -B 4 -A 2 -f $x $pkglog_stripped > /tmp/issue; then
+      mv /tmp/issue $issuedir/issue
+      grep -m 1 -f $x $issuedir/issue | stripQuotesAndMore > $issuedir/title
+      break
     fi
   done
-
   rm /tmp/x_????
 }
 
