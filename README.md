@@ -124,7 +124,7 @@ Create crontab entries for user _tinderbox_:
 @daily    sudo /opt/tb/bin/house_keeping.sh
 ```
 
-and this as _root_:
+and this as _root_ (because the _local_ cgroup is used by other users too):
 
 ```bash
 @reboot   /opt/tb/bin/cgroup.sh
