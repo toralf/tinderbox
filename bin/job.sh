@@ -508,7 +508,7 @@ function finishTitle()  {
     sed -i -e "s,^,${pkg} - ," $issuedir/title
   fi
   sed -i -e 's,\s\s*, ,g' $issuedir/title
-  truncate -s "<${1:-130}" $issuedir/title    # b.g.o. limits "Summary" length
+  truncate -s "<130" $issuedir/title    # b.g.o. limits "Summary" length
 }
 
 
@@ -567,7 +567,7 @@ function WorkAtIssue()  {
   phase=$(
     grep -m 1 -o " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
     grep -Eo '\(.* ' |\
-    tr -d '[( ]'
+    tr -d '( '
   )
   setWorkDir
   CreateEmergeHistoryFile
@@ -711,7 +711,6 @@ function catchMisc()  {
     filterPlainPext < $pkglog > $pkglog_stripped
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       pkg=$( grep -m 1 -F ' * Package: '    $pkglog_stripped | awk '{ print $3 }')
-      repo=$(grep -m 1 -F ' * Repository: ' $pkglog_stripped | awk '{ print $3 }')
       phase=""
       # happened rarely, but ignore this error:
       #
@@ -919,7 +918,7 @@ function syncRepo()  {
       return 1
     fi
 
-    if (echo -e "\nTrying to restore ...\n"; git stash; git stash drop; git restore .) &>>$synclog; then
+    if { echo -e "\nTrying to restore ...\n"; git stash; git stash drop; git restore .; } &>>$synclog; then
       if ! emaint sync --auto &>>$synclog; then
         Finish 13 "still unfixed ::gentoo" $synclog
       else
