@@ -206,7 +206,7 @@ function LastEmergeOperation()  {
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
-  printf "%54s" ""
+  printf "%55s" ""
   local max=$(( ($(date +%s) - $(cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -n | head -n 1))/86400 ))
   for i in $(seq 0 $max)
   do
@@ -216,7 +216,7 @@ function PackagesPerImagePerRunDay() {
 
   for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3)
   do
-    if PrintImageName $i 54; then
+    if PrintImageName $i 55; then
       local start_time=$(__getStartTime $i)
       perl -F: -wane '
         BEGIN {
