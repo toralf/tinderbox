@@ -25,7 +25,7 @@ function list_images() {
 
 
 function PrintImageName()  {
-  local chars=${2:-39}
+  local chars=${2:-42}
   printf "%-${chars}s" $(cut -c-${chars} < $1/var/tmp/tb/name 2>/dev/null)
 }
 
