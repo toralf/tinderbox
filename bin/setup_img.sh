@@ -878,12 +878,14 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts a:j:k:p:t:u: opt
+no_autostart="n"
+while getopts a:j:k:np:t:u: opt
 do
   case $opt in
     a)  abi3264="$OPTARG"     ;;
     j)  jobs="$OPTARG"        ;;
     k)  keyword="$OPTARG"     ;;
+    n)  no_autostart="y"      ;;
     p)  profile="$OPTARG"     ;;
     t)  testfeature="$OPTARG" ;;
     u)  useflagfile="$OPTARG" ;;    # eg.: /dev/null
@@ -904,7 +906,9 @@ CompileUseFlagFiles
 chgrp portage ./etc/portage/package.use/*
 chmod g+w,a+r ./etc/portage/package.use/*
 echo -e "\n$(date)\n  setup done\n"
-StartImage
+if [[ $no_autostart = "n" ]]; then
+  StartImage
+fi
 
 echo
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
