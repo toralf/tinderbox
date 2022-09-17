@@ -28,7 +28,7 @@ function filterPlainPext() {
 
 
 function Mail() {
-  local subject=$(stripQuotesAndMore <<< $1 | cut -c1-200 | tr '\n' ' ')
+  local subject=$(stripQuotesAndMore <<< $1 | strings -w | cut -c1-200 | tr '\n' ' ')
   local content=${2:-}
 
   if [[ -f $content ]]; then
@@ -41,8 +41,9 @@ function Mail() {
     fi
   else
     echo -e "$content"
-  fi |\
-  sed -e 's,^>>>, >>>,' |\
+  fi |
+  strings -w |
+  sed -e 's,^>>>, >>>,' |
   if ! (mail -s "$subject  @  $name" ${MAILTO:-tinderbox} 1>/dev/null); then
     { echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2 ; }
   fi
