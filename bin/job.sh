@@ -514,7 +514,7 @@ function SendIssueMailIfNotYetReported()  {
       # chain "cat" by "echo" b/c cat buffers output which is racy between images
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CAUGHT
 
-      echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
+      echo -e "\ncheck_bgo.sh ~tinderbox/img/$name/$issuedir   -f\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
       echo -e "\n\n\n" >> $issuedir/body
       chmod a+w $issuedir/body
@@ -757,6 +757,7 @@ function GetPkgFromTaskLog() {
       fi
     fi
   fi
+  pkg=$(sed -e 's,:.*,,' <<< $pkg)  # strip away the slot
 
   pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
