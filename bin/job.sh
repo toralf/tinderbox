@@ -17,7 +17,7 @@ function stripQuotesAndMore() {
 # filter leftover of ansifilter
 function filterPlainPext() {
   # UTF-2018+2019 (left+right single quotation mark)
-  sed -e 's,\xE2\x80\x98,,g' -e 's,\xE2\x80\x99,,g' |\
+  sed -e 's,\xE2\x80\x98,,g' -e 's,\xE2\x80\x99,,g' |
   perl -wne '
       s,\x00,\n,g;
       s,\r\n,\n,g;
@@ -218,7 +218,7 @@ function CollectIssueFiles() {
           -o -wholename "./temp/syml*" \
           -o -wholename '*/elf/*.out' \
           -o -wholename '*/softmmu-build/*' \
-          -o -name "meson-log.txt" |\
+          -o -name "meson-log.txt" |
           sort -u > $f
       if [[ -s $f ]]; then
         tar -cjpf $issuedir/files/logs.tar.bz2 \
@@ -230,7 +230,7 @@ function CollectIssueFiles() {
       rm $f
     )
 
-    # additional cmake files
+    # additional CMake files
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null
 
     # provide the whole temp dir if possible
@@ -262,8 +262,8 @@ function CollectIssueFiles() {
 function foundCollisionIssue() {
   # get the colliding package name
   local s=$(
-    grep -m 1 -A 5 'Press Ctrl-C to Stop' $tasklog_stripped |\
-    tee -a  $issuedir/issue |\
+    grep -m 1 -A 5 'Press Ctrl-C to Stop' $tasklog_stripped |
+    tee -a  $issuedir/issue |
     grep -m 1 '::' | tr ':' ' ' | cut -f3 -d' ' -s
   )
   echo "file collision with $s" > $issuedir/title
@@ -303,7 +303,7 @@ function foundGenericIssue() {
       cat /mnt/tb/data/CATCH_ISSUES.$phase
     fi
     cat /mnt/tb/data/CATCH_ISSUES
-  ) |\
+  ) |
   split --lines=1 --suffix-length=4 - /tmp/x_
 
   for x in /tmp/x_????
@@ -360,7 +360,7 @@ function ClassifyIssue() {
 
   else
     # this gets been overwritten if a pattern matches
-    grep -m 1 -A 2 "^ \* ERROR:.* failed \(.* phase\):" $pkglog_stripped | tee $issuedir/issue |\
+    grep -m 1 -A 2 "^ \* ERROR:.* failed \(.* phase\):" $pkglog_stripped | tee $issuedir/issue |
     head -n 2 | tail -n 1 > $issuedir/title
     foundGenericIssue
   fi
@@ -430,9 +430,9 @@ EOF
 # put world into same state as if the (successfully installed) deps would have been already emerged in previous task/s
 function PutDepsIntoWorldFile() {
   if grep -q '^>>> Installing ' $tasklog_stripped; then
-    emerge --depclean --verbose=n --pretend 2>/dev/null |\
-    grep "^All selected packages: "                     |\
-    cut -f2- -d':' -s                                   |\
+    emerge --depclean --verbose=n --pretend 2>/dev/null |
+    grep "^All selected packages: "                     |
+    cut -f2- -d':' -s                                   |
     xargs --no-run-if-empty emerge -O --noreplace &>/dev/null
   fi
 }
@@ -560,8 +560,8 @@ function WorkAtIssue()  {
   # "-m 1" because for phase "install" grep might have 2 matches ("doins failed" and "newins failed")
   # "-o" is needed for the 1st grep b/c sometimes perl spews a message into the same text line
   phase=$(
-    grep -m 1 -o " \* ERROR:.* failed (.* phase):" $pkglog_stripped |\
-    grep -Eo '\(.* ' |\
+    grep -m 1 -o " \* ERROR:.* failed (.* phase):" $pkglog_stripped |
+    grep -Eo '\(.* ' |
     tr -d '( '
   )
   setWorkDir
@@ -695,7 +695,7 @@ function createIssueDir() {
 
 
 function catchMisc()  {
-  find /var/log/portage/ -mindepth 1 -maxdepth 1 -type f -newer $taskfile |\
+  find /var/log/portage/ -mindepth 1 -maxdepth 1 -type f -newer $taskfile |
   while read -r pkglog
   do
     if [[ $(wc -l < $pkglog) -le 6 ]]; then
@@ -712,7 +712,7 @@ function catchMisc()  {
       pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
 
       # create for each finding an own issue
-      grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |\
+      grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |
       while read -r line
       do
         createIssueDir || continue
@@ -933,10 +933,10 @@ function syncRepo()  {
     git diff \
         --diff-filter="ACM" \
         --name-only \
-        "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }".."@{ 1 hour ago }" |\
-    grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |\
-    cut -f1-2 -d'/' -s |\
-    grep -v -f /mnt/tb/data/IGNORE_PACKAGES |\
+        "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }".."@{ 1 hour ago }" |
+    grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |
+    cut -f1-2 -d'/' -s |
+    grep -v -f /mnt/tb/data/IGNORE_PACKAGES |
     sort -u > /tmp/syncRepo.upd
 
     if [[ -s /tmp/syncRepo.upd ]]; then

@@ -17,8 +17,8 @@ function ThrowUseFlags() {
   local n=$1        # pass up to n-1
   local m=${2:-4}   # mask 1:m of them
 
-  shuf -n $(( RANDOM%n)) |\
-  sort |\
+  shuf -n $(( RANDOM%n)) |
+  sort |
   while read -r flag
   do
     if dice 1 $m; then
@@ -43,11 +43,11 @@ function DiceAProfile() {
   # no stage3 yet, merge-usr script has to be run after untarring
   exclude+=' -e /merged-usr'
 
-  eselect profile list |\
-  grep -F -e 'default/linux/amd64/17.1' -e 'default/linux/amd64/17.0/musl' |\
-  grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' $exclude |\
-  awk ' { print $2 } ' |\
-  cut -f4- -d'/' -s |\
+  eselect profile list |
+  grep -F -e 'default/linux/amd64/17.1' -e 'default/linux/amd64/17.0/musl' |
+  grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' $exclude |
+  awk ' { print $2 } ' |
+  cut -f4- -d'/' -s |
   shuf -n 1
 }
 
@@ -458,9 +458,9 @@ EOF
   fi
 
   # content of lines with the marker "DICE" will only be kept with a given likelihood (default: 50%)
-  grep -hEo '# DICE: .*' ./etc/portage/package.*/* |\
-  awk '{ print $3, $4, $5 }' |\
-  sort -u |\
+  grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
+  awk '{ print $3, $4, $5 }' |
+  sort -u |
   while read -r topic x X
   do
     if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
@@ -687,10 +687,10 @@ function FixPossibleUseFlagIssues() {
   do
     # kick off particular packages
     local pkg=$(
-      grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |\
-      awk '/^- / { print $2 } ' |\
-      cut -f1 -d':' -s |\
-      xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
+      grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
+      awk '/^- / { print $2 } ' |
+      cut -f1 -d':' -s |
+      xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |
       sed -e 's,/,\\/,'
     )
     if [[ -n $pkg ]]; then
@@ -707,18 +707,18 @@ function FixPossibleUseFlagIssues() {
 
     # try to solve a dep cycle
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
-    grep -A 10 "It might be possible to break this cycle" $drylog |\
-    grep -F ' (Change USE: ' |\
-    grep -v -F -e '+' -e 'This change might require ' |\
-    sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |\
-    tr -d ')' |\
-    sort -u |\
-    grep -v ".*-.*/.* .*_.*" |\
+    grep -A 10 "It might be possible to break this cycle" $drylog |
+    grep -F ' (Change USE: ' |
+    grep -v -F -e '+' -e 'This change might require ' |
+    sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |
+    tr -d ')' |
+    sort -u |
+    grep -v ".*-.*/.* .*_.*" |
     while read -r p u
     do
       q=$(qatom -F "%{CATEGORY}/%{PN}" $p)
       printf "%-36s %s\n" $q "$u"
-    done |\
+    done |
     sort -u > $fautocirc
 
     if [[ -s $fautocirc ]]; then
@@ -731,13 +731,13 @@ function FixPossibleUseFlagIssues() {
 
     # follow advices
     local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
-    grep -A 100 'The following USE changes are necessary to proceed:' $drylog |\
-    grep "^>=" |\
-    grep -v -e '>=.* .*_' |\
+    grep -A 100 'The following USE changes are necessary to proceed:' $drylog |
+    grep "^>=" |
+    grep -v -e '>=.* .*_' |
     while read -r p u
     do
       printf "%-36s %s\n" $p "$u"
-    done |\
+    done |
     sort -u > $fautoflag
 
     if [[ -s $fautoflag ]]; then
@@ -763,32 +763,32 @@ function FixPossibleUseFlagIssues() {
 function ThrowImageUseFlags() {
   echo "#setup dryrun $attempt # throw flags ..."
 
-  grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |\
-  cut -f1 -d' ' -s |\
-  shuf -n $(( RANDOM%20 )) |\
-  sort |\
-  xargs |\
+  grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |
+  cut -f1 -d' ' -s |
+  shuf -n $(( RANDOM%20 )) |
+  sort |
+  xargs |
   xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
 
-  grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |\
-  cut -f1 -d' ' -s |\
-  grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |\
-  ThrowUseFlags 250 |\
-  xargs -s 73 |\
+  grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |
+  cut -f1 -d' ' -s |
+  grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
+  ThrowUseFlags 250 |
+  xargs -s 73 |
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
-  grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |\
-  shuf -n $(( RANDOM%3000)) |\
-  sort |\
+  grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |
+  shuf -n $(( RANDOM%3000)) |
+  sort |
   while read -r file
   do
     pkg=$(cut -f6-7 -d'/' <<< $file)
-    grep 'flag name="' $file |\
-    grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |\
-    cut -f2 -d'"' -s |\
-    grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |\
-    ThrowUseFlags 15 3 |\
-    xargs |\
+    grep 'flag name="' $file |
+    grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
+    cut -f2 -d'"' -s |
+    grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
+    ThrowUseFlags 15 3 |
+    xargs |
     xargs -I {} --no-run-if-empty printf "%-36s %s\n" "$pkg" "{}"
   done > ./etc/portage/package.use/24thrown_package_use_flags
 }
