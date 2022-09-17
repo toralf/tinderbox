@@ -25,17 +25,17 @@ if [[ "$1" = "1st" ]]; then
 fi
 
 # accept special *lines* w/o any check
-grep -e '^@' -e '^%' -e '^=' <<< ${@} |\
+grep -e '^@' -e '^%' -e '^=' <<< ${@} |
 sort -u > $result
 
 # work at regular atoms
-grep -v -e '^@' -e '^%' -e '^=' -e '#' <<< ${@} |\
-sort -u |\
-xargs qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |\
-grep -v -F '<unset>' |\
-grep ".*/.*" |\
-sort -u |\
-tee -a $result |\
+grep -v -e '^@' -e '^%' -e '^=' -e '#' <<< ${@} |
+sort -u |
+xargs qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
+grep -v -F '<unset>' |
+grep ".*/.*" |
+sort -u |
+tee -a $result |
 while read -r pkgname
 do
   sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)\-[[:digit:]]/d" \

@@ -66,10 +66,10 @@ function SearchForSameIssue() {
     # for a file collision report both involved sites
     local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
-    $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |\
-        grep -e " CONFIRMED " -e " IN_PROGRESS " |\
-        sort -u -n -r |\
-        head -n 4 |\
+    $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
+        grep -e " CONFIRMED " -e " IN_PROGRESS " |
+        sort -u -n -r |
+        head -n 4 |
         tee $bugz_result
     if GotResults; then
       return 0
@@ -78,10 +78,10 @@ function SearchForSameIssue() {
 
   for i in $pkg $pkgname
   do
-    $bugz_timeout bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |\
-        grep -e " CONFIRMED " -e " IN_PROGRESS " |\
-        sort -u -n -r |\
-        head -n 4 |\
+    $bugz_timeout bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |
+        grep -e " CONFIRMED " -e " IN_PROGRESS " |
+        sort -u -n -r |
+        head -n 4 |
         tee $bugz_result
     if GotResults; then
       return 0
@@ -96,18 +96,18 @@ function SearchForSimilarIssue() {
   # resolved does not fit "same issue"
   for i in $pkg $pkgname
   do
-    $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bugz_search)" |\
-        sort -u -n -r |\
-        head -n 3 |\
+    $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bugz_search)" |
+        sort -u -n -r |
+        head -n 3 |
         tee $bugz_result
     if GotResults; then
       echo -e " \n^^ DUPLICATE\n"
       return 0
     fi
 
-    $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |\
-        sort -u -n -r |\
-        head -n 3 |\
+    $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |
+        sort -u -n -r |
+        head -n 3 |
         tee $bugz_result
     if GotResults; then
       return 0
@@ -120,10 +120,10 @@ function SearchForSimilarIssue() {
   local g='stabilize|Bump| keyword| bump'
 
   echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
-  $bugz_timeout bugz -q --columns 400 search --show-status $pkgname |\
-      grep -v -i -E "$g" |\
-      sort -u -n -r |\
-      head -n 12 |\
+  $bugz_timeout bugz -q --columns 400 search --show-status $pkgname |
+      grep -v -i -E "$g" |
+      sort -u -n -r |
+      head -n 12 |
       tee $bugz_result
   if GotResults; then
     return 0
@@ -131,10 +131,10 @@ function SearchForSimilarIssue() {
 
   if [[ $(wc -l < $bugz_result) -lt 5 ]]; then
     echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-    $bugz_timeout bugz -q --columns 400 search --status RESOLVED $pkgname |\
-        grep -v -i -E "$g" |\
-        sort -u -n -r |\
-        head -n 5 |\
+    $bugz_timeout bugz -q --columns 400 search --status RESOLVED $pkgname |
+        grep -v -i -E "$g" |
+        sort -u -n -r |
+        head -n 5 |
         tee $bugz_result
     if GotResults; then
       return 0

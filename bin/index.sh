@@ -10,7 +10,7 @@ function listStat()  {
   echo -e "<h2>few stats</h2>\n<pre>" >> $tmpfile
   echo "<h3>coverage</h3>" >> $tmpfile
   $(dirname $0)/whatsup.sh -c | recode --silent ascii..html >> $tmpfile
-  (cd  ~tinderbox/img; ls packages.*.*covered.txt needed*.txt 2>/dev/null) | recode --silent ascii..html | xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
+  (cd  ~tinderbox/img; ls | grep -v '17.') | recode --silent ascii..html | xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
   echo "<h3>overview</h3>" >> $tmpfile
   $(dirname $0)/whatsup.sh -o | recode --silent ascii..html >> $tmpfile
   echo "<h3>packages per day per image</h3>" >> $tmpfile
@@ -62,7 +62,7 @@ function listBugs() {
 
 EOF
 
-  ls -t ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null |\
+  ls -t ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null |
   while read -r f
   do
     uri=$(cat $f 2>/dev/null) || continue    # race with house keeping
@@ -90,10 +90,10 @@ function developerInfo() {
   # from _sam (libxcrypt)
   cd ~tinderbox/img
 
-  find ./*/var/db/pkg/ -name "NEEDED.ELF.2" -not -path '*/-MERGING*' -exec grep -F "libcrypt.so" {} + 2>/dev/null |\
-  sort -u |\
-  tee /tmp/needed.txt |\
-  cut -f6- -d'/' -s |\
+  find ./*/var/db/pkg/ -name "NEEDED.ELF.2" -not -path '*/-MERGING*' -exec grep -F "libcrypt.so" {} + 2>/dev/null |
+  sort -u |
+  tee /tmp/needed.txt |
+  cut -f6- -d'/' -s |
   sort -u > /tmp/needed-short.txt
 
   cp /tmp/needed*.txt ./

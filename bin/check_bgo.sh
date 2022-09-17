@@ -93,10 +93,10 @@ source $(dirname $0)/lib.sh
 name=$(cat $issuedir/../../name)                                                            # eg.: 17.1-20201022-101504
 pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,' | cut -f1 -d ':')   # eg.: net-misc/bird-2.0.7-r1:0
 pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                                                # eg.: net-misc/bird
-versions=$(eshowkw --arch amd64 $pkgname |\
-            grep -v -e '^  *|' -e '^-' -e '^Keywords' |\
+versions=$(eshowkw --arch amd64 $pkgname |
+            grep -v -e '^  *|' -e '^-' -e '^Keywords' |
             # + == stable, o == masked, ~ == unstable
-            awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |\
+            awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |
             xargs
           )
 if [[ -z $versions ]]; then

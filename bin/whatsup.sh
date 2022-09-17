@@ -11,10 +11,10 @@ function list_images() {
     ls ~tinderbox/run/                    | sort
     ls /run/tinderbox/ | sed 's,.lock,,g' | sort
     ls -d /sys/fs/cgroup/cpu/local/17.*   | sort
-  ) 2>/dev/null |\
-  xargs -n 1 --no-run-if-empty basename |\
+  ) 2>/dev/null |
+  xargs -n 1 --no-run-if-empty basename |
   # remove dups
-  awk ' !x[$0]++ ' |\
+  awk ' !x[$0]++ ' |
   while read -r i
   do
     if ! ls -d ~tinderbox/run/$i 2>/dev/null; then
@@ -175,8 +175,8 @@ function LastEmergeOperation()  {
   for i in $images
   do
     if PrintImageName $i && __is_running $i && [[ -s $i/var/log/emerge.log ]]; then
-      tail -n 1 $i/var/log/emerge.log |\
-      sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |\
+      tail -n 1 $i/var/log/emerge.log |
+      sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |
       perl -wane '
         chop ($F[0]);
         my $delta = time() - $F[0];
@@ -247,11 +247,11 @@ function PackagesPerImagePerRunDay() {
 
 
 function getCoveredPackages() {
-  grep -H '::: completed emerge' ~tinderbox/$1/*/var/log/emerge.log 2>/dev/null |\
+  grep -H '::: completed emerge' ~tinderbox/$1/*/var/log/emerge.log 2>/dev/null |
   # handle ::local
-  tr -d ':' |\
-  awk '{ print $7 }' |\
-  xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |\
+  tr -d ':' |
+  awk '{ print $7 }' |
+  xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |
   sort -u
 }
 

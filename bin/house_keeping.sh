@@ -4,7 +4,7 @@
 
 
 function getCandidates()  {
-  ls -d ~tinderbox/img/17.*-j*-20??????-?????? 2>/dev/null |\
+  ls -d ~tinderbox/img/17.*-j*-20??????-?????? 2>/dev/null |
   while read -r i
   do
     if [[ -e ~tinderbox/run/$(basename $i) ]]; then
@@ -31,7 +31,7 @@ function getCandidates()  {
 
     # it is a candidate
     echo $i
-  done |\
+  done |
   sort -t'-' -k 3 # sort by date-time, oldest first
 }
 
@@ -84,7 +84,7 @@ source $(dirname $0)/lib.sh
 # 1st prune old stage3 files
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
-  ls ~tinderbox/distfiles/stage3-amd64-*.tar.xz 2>/dev/null |\
+  ls ~tinderbox/distfiles/stage3-amd64-*.tar.xz 2>/dev/null |
   while read -r stage3
   do
     if [[ $latest -nt $stage3 ]]; then
