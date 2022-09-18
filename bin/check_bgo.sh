@@ -22,7 +22,7 @@ function Exit()  {
 function LookupForABlocker() {
   while read -r line
   do
-    if [[ $line =~ ^[0-9].* ]]; then
+    if [[ $line =~ ^[0-9]+$ ]]; then
       read -r number <<< $line
       continue
     fi
@@ -72,17 +72,21 @@ function SetAssigneeAndCc() {
 
 
 #######################################################################
-set -eu
+set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-issuedir=$1
+issuedir=${1?missing issue dir}
+force="n"
+if [[ $# -eq 2 && $2 = "-f" ]]; then
+  force="y"
+fi
 
 if [[ ! -s $issuedir/title ]]; then
-  echo "no title"
+  echo -e "\n no title found\n"
   exit 1
 elif [[ -f $issuedir/.reported ]]; then
-  echo "already reported: $(cat $issuedir/.reported)"
+  echo -e "\n already reported in: $(cat $issuedir/.reported)\n"
   exit 0
 fi
 
@@ -90,9 +94,9 @@ trap Exit INT QUIT TERM EXIT
 
 source $(dirname $0)/lib.sh
 
-name=$(cat $issuedir/../../name)                                                            # eg.: 17.1-20201022-101504
-pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,' | cut -f1 -d ':')   # eg.: net-misc/bird-2.0.7-r1:0
-pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                                                # eg.: net-misc/bird
+name=$(cat $issuedir/../../name)                                           # eg.: 17.1-20201022-101504
+pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,')   # eg.: net-misc/bird-2.0.7-r1
+pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # eg.: net-misc/bird
 versions=$(eshowkw --arch amd64 $pkgname |
             grep -v -e '^  *|' -e '^-' -e '^Keywords' |
             # + == stable, o == masked, ~ == unstable
@@ -112,7 +116,7 @@ echo "    versions: $versions"
 echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 
 # a (dummy) 2nd parameter skips this check
-if [[ $# -lt 2 ]]; then
+if [[ $force = "y" ]]; then
   keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
   cmd="$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"
   if best=$(eval $cmd); then
@@ -126,23 +130,20 @@ if [[ $# -lt 2 ]]; then
   fi
 fi
 
-echo
 createSearchString
-if ! SearchForSameIssue || [[ ! $# -lt 2 ]]; then
-  cmd="$(dirname $0)/bgo.sh -d $issuedir"
+cmd="$(dirname $0)/bgo.sh -d $issuedir"
+blocker_bug_no=""
+LookupForABlocker
+if [[ -n $blocker_bug_no ]]; then
+  cmd+=" -b $blocker_bug_no"
+fi
+echo -e "\n    ${cmd}"
 
-  blocker_bug_no=""
-  LookupForABlocker
-  if [[ -n $blocker_bug_no ]]; then
-    cmd+=" -b $blocker_bug_no"
-  fi
-
-  if SearchForSimilarIssue; then
-    # do manual inspect results before
-    echo -e "\n\n    ${cmd}\n"
-  else
-    echo -e "\n nothing found in b.g.o -> automatic filing:"
-    $cmd
-  fi
+if [[ $force = "y" ]]; then
+  $cmd
+elif ! SearchForSameIssue; then
+ if ! SearchForSimilarIssue; then
+   $cmd
+ fi
 fi
 echo
