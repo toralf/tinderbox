@@ -116,7 +116,7 @@ echo "    versions: $versions"
 echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
 
 # a (dummy) 2nd parameter skips this check
-if [[ $force = "y" ]]; then
+if [[ $force = "n" ]]; then
   keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
   cmd="$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"
   if best=$(eval $cmd); then
@@ -137,7 +137,7 @@ LookupForABlocker
 if [[ -n $blocker_bug_no ]]; then
   cmd+=" -b $blocker_bug_no"
 fi
-echo -e "\n    ${cmd}"
+echo -e "\n    ${cmd}\n"
 
 if [[ $force = "y" ]]; then
   $cmd
