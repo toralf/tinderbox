@@ -1,23 +1,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 function __getStartTime() {
-  local b=$(basename $1)
-
-  cat ~tinderbox/img/$b/var/tmp/tb/setup.timestamp
+  cat ~tinderbox/img/$(basename $1)/var/tmp/tb/setup.timestamp
 }
 
 
 function __is_cgrouped() {
-  local b=$(basename $1)
-
-  [[ -d /sys/fs/cgroup/cpu/local/$b/ ]]
+  [[ -d /sys/fs/cgroup/cpu/local/$(basename $1)/ ]]
 }
 
 
 function __is_locked() {
-  local b=$(basename $1)
-
-  [[ -d /run/tinderbox/$b.lock/ ]]
+  [[ -d /run/tinderbox/$(basename $1).lock/ ]]
 }
 
 
@@ -26,9 +20,9 @@ function __is_running() {
 }
 
 
-# transform the issue of the title into space separated search items and set common vars
+# transform the title into space separated search items + set few common vars
 function createSearchString() {
-  if ! command -v bugz 1>/dev/null; then
+  if ! bugz -h &>/dev/null; then    # either non-existent or b0rken
     return 2
   fi
 
@@ -48,6 +42,32 @@ function createSearchString() {
       -e 's,[\(\)], ,g'   \
       -e 's,\s\s*, ,g'    \
       $issuedir/title > $bugz_search
+}
+
+
+# check for a blocker/tracker bug
+# the BLOCKER file contains tupels like:
+#
+#   # comment
+#   <bug id>
+#   <pattern/s>
+function LookupForABlocker() {
+  local pattern_file=$1
+
+  while read -r line
+  do
+    if [[ $line =~ ^[0-9]+$ ]]; then
+      read -r number <<< $line
+      continue
+    fi
+
+    if grep -q -E "$line" $issuedir/title; then
+      echo $number
+      return
+    fi
+  done < <(grep -v -e '^#' -e '^$' $pattern_file)
+
+  return
 }
 
 
@@ -143,5 +163,6 @@ function SearchForSimilarIssue() {
 
   return 1
 }
+
 
 export bugz_timeout="timeout --signal=15 --kill-after=1m 3m"   # bugz tends to hang
