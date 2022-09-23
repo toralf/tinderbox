@@ -13,28 +13,6 @@ function Exit()  {
 }
 
 
-# check for a blocker/tracker bug
-# the BLOCKER file contains tupels like:
-#
-#   # comment
-#   <bug id>
-#   <pattern/s>
-function LookupForABlocker() {
-  while read -r line
-  do
-    if [[ $line =~ ^[0-9]+$ ]]; then
-      read -r number <<< $line
-      continue
-    fi
-
-    if grep -q -E "$line" $issuedir/title; then
-      blocker_bug_no=$number
-      break
-    fi
-  done < <(grep -v -e '^#' -e '^$' ~tinderbox/tb/data/BLOCKER)
-}
-
-
 function SetAssigneeAndCc() {
   local assignee
   local cc=""
@@ -91,8 +69,8 @@ elif [[ -f $issuedir/.reported ]]; then
 fi
 
 trap Exit INT QUIT TERM EXIT
-
 source $(dirname $0)/lib.sh
+echo -e "\n===========================================\n"
 
 name=$(cat $issuedir/../../name)                                           # eg.: 17.1-20201022-101504
 pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,')   # eg.: net-misc/bird-2.0.7-r1
@@ -109,41 +87,42 @@ if [[ -z $versions ]]; then
 fi
 
 SetAssigneeAndCc
-echo
-echo "==========================================="
-echo "    title:    $(cat $issuedir/title)"
-echo "    versions: $versions"
-echo "    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)"
-
-# a (dummy) 2nd parameter skips this check
-if [[ $force = "n" ]]; then
-  keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
-  cmd="$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"
-  if best=$(eval $cmd); then
-    if [[ $pkg != $best ]]; then
-      echo -e "\n    is  NOT  latest\n"
-      exit 0
-    fi
-  else
-    echo -e "\n    is  not  KNOWN\n"
-    exit 0
-  fi
-fi
-
 createSearchString
 cmd="$(dirname $0)/bgo.sh -d $issuedir"
-blocker_bug_no=""
-LookupForABlocker
+blocker_bug_no=$(LookupForABlocker ~tinderbox/tb/data/BLOCKER)
 if [[ -n $blocker_bug_no ]]; then
   cmd+=" -b $blocker_bug_no"
 fi
-echo -e "\n    ${cmd}\n"
+echo -e "\n  ${cmd}\n\n"
 
 if [[ $force = "y" ]]; then
   $cmd
-elif ! SearchForSameIssue; then
- if ! SearchForSimilarIssue; then
-   $cmd
- fi
+else
+  cat << EOF
+    title:    $(cat $issuedir/title)
+    versions: $versions
+    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)
+EOF
+
+  keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
+  cmd="$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"
+  if [[ $# -eq 1 ]]; then
+    if best=$(eval $cmd); then
+      if [[ $pkg != $best ]]; then
+        echo -e "\n    is  NOT  latest\n"
+        exit 0
+      fi
+    else
+      echo -e "\n    is  not  KNOWN\n"
+      exit 0
+    fi
+  fi
+  echo
+
+  if ! SearchForSameIssue; then
+    if ! SearchForSimilarIssue; then
+      $cmd
+    fi
+  fi
 fi
 echo
