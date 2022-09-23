@@ -514,7 +514,7 @@ function SendIssueMailIfNotYetReported()  {
       # chain "cat" by "echo" b/c cat buffers output which is racy between images
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CAUGHT
 
-      echo -e "\ncheck_bgo.sh ~tinderbox/img/$name/$issuedir   -f\n\n\n" > $issuedir/body
+      echo -e "check_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" > $issuedir/body
       cat $issuedir/issue >> $issuedir/body
       echo -e "\n\n\n" >> $issuedir/body
       chmod a+w $issuedir/body
@@ -530,6 +530,11 @@ function SendIssueMailIfNotYetReported()  {
         fi
       else
         known+=" raw:"
+      fi
+
+      blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER)
+      if [[ -n $blocker_bug_no ]]; then
+        known+=" blocks $blocker_bug_no"
       fi
       Mail "${known} $(cat $issuedir/title)" $issuedir/body
     fi
