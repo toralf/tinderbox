@@ -33,6 +33,8 @@ dev-libs/gf2x                       -custom-tune
 
 # git cannot fetch ::gentoo
 net-misc/curl                       ssl
+# broken
+net-misc/curl                       -quiche
 
 # fails with: "you must set LINGUAS ..."
 app-admin/webalizer                 -nls
@@ -46,17 +48,23 @@ sys-devel/gcc                       -d
 # temp settings
 #
 
-# sam
-sys-devel/gcc                       openmp              # DICE: gcc 3 4
-
 dev-lang/python                     -libedit xml        # DICE: openssl
 
 # too much deps installed at setup
-app-portage/pfl                     -network-cron       # DICE: tinderbox_a 9 10
-app-text/ansifilter                 -qt5                # DICE: tinderbox_b 9 10
+app-portage/pfl                     -network-cron
+app-text/ansifilter                 -qt5
 
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
 
 # b0rken
 dev-lang/ruby                       -rdoc
+
+# too aggressive kernel config check
+*/*                                 -networkmanager
+dev-libs/aws-sdk-cpp                -networkmanager
+dev-qt/qtnetwork                    -networkmanager
+kde-plasma/ksystemstats             -networkmanager
+
+# https://bugs.gentoo.org/869131
+sys-devel/gcc                       -ada

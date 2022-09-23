@@ -1,3 +1,4 @@
+ \*   clang++ is not a supported compiler. Please use sys-devel/gcc instead.
 Add .* to DEPEND
 cannot find package
  \*.*CONFIG_.*is not set when it should be
@@ -42,3 +43,4 @@ You have to install development tools first.
  \* you must set LINGUAS in /etc/portage/make.conf
 You need package
  \*   Your kernel is too old.
+ \*   clang++ is not a supported compiler.

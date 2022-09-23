@@ -1,4 +1,4 @@
-# tupels of (comment, bug number, pattern) to automate the check for a blocker bug in check_bgo.sh
+# tupels of (comment, bug number, pattern) to automate the adding of a bug blocker id
 
 
 # (colon-in-CFLAGS) - (TRACKER) ebuilds using colon (:) as a sed delimiter break on CFLAGS=-falign-functions=32:25:16
@@ -8,11 +8,6 @@ ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 # asciidoctor
 744385
 :in load: cannot load such file -- /usr/lib64/ruby/gems/
-
-#  (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
-765709
-slibtool|rlibtool|rdlibtool|unrecognized command-line option|./shtool:
-
 
 # [Tracker] dev-scheme/guile-3.0.x breakage
 746914
@@ -54,6 +49,6 @@ openjpeg.h:
 847148
 buffer overflow detected
 
-# [TRACKER] sys-libs/glibc-2.36
-863215
-redefinition of |redeclaration of
+# [Tracker] Breakage with Clang 15 (mostly configure script issues)
+870412
+clang-15: error:

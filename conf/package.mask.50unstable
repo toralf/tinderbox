@@ -7,7 +7,3 @@
 
 # sam
 <dev-libs/openssl-3.0.5                                 # DICE: openssl
-
-# OOM, fork-bombs, timeouts
-*emacs*/*
-*/*emacs*

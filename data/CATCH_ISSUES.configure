@@ -1,5 +1,10 @@
+ rules.* file not found
+cannot run C compiled programs
+clang-15: error:
 The futex facility returned an unexpected error code.
 Unknown CMake command
+C compiler does not support
+C++ compiler cannot create executables
 CMake will not be able to correctly generate this project.
 required internal CMake variable not set
 Failed Running autoconf
@@ -32,6 +37,7 @@ meson.build.*ERROR:.*
 Unhandled python exception
  \*   USE Flag .* not in IUSE for
 configure in /.* failed
+GNAT is required to build ada
 This expression has type .* but an expression was
 Please, run .haskell-updater
 Detected broken packages:
@@ -86,3 +92,6 @@ configure: line .*:
  \*   Unable to build!
   Looking for .*... not found.
 Package .* was not found in the .* path.
+imake: Exit code
+: undefined reference to
+C compiler cannot create executables.

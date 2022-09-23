@@ -1,3 +1,6 @@
+Bootstrap comparison failure!
+  call to undeclared function
+: clang: command not found
 ^ModuleNotFoundError:
 make: unrecognized option
 DISTUTILS_IN_SOURCE_BUILD is not supported in PEP517 mode

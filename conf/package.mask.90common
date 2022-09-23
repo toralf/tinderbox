@@ -42,7 +42,7 @@ sys-cluster/nullmpi
 # https://bugs.gentoo.org/770976 - emerge hangs despite -j1
 x11-wm/stumpwm
 
-# long compile time and/or often rev bumps
+# too long compile time
 dev-lang/rust                                           # DICE: long_compile_time_a 15 16
 sci-libs/atlas                                          # DICE: long_compile_time_b 15 16
 sci-libs/libint:2                                       # DICE: long_compile_time_c 15 16
@@ -50,8 +50,13 @@ sci-libs/rocBLAS                                        # DICE: long_compile_tim
 sci-libs/rocFFT                                         # DICE: long_compile_time_e 15 16
 sci-libs/tensorflow                                     # DICE: long_compile_time_f 15 16
 
-# hangs (even with -j1)
-dev-lang/lfe
+# OOM, fork-bomb, timeout
+*emacs*/*
+*/*emacs*
 
-# hangs
-dev-util/trace-cmd
+# https://bugs.gentoo.org/872344
+sys-libs/libcxxabi
+
+# https://bugs.gentoo.org/868789
+dev-lang/gnat-gpl
+=dev-lang/gnat-gpl-2021-r3

@@ -1,8 +1,5 @@
 Active compiler does not have required support for OpenMP
-asciidoctor (LoadError)
-atlas needs all cpu set to performance
-cannot access core/pxelinux.0: No such file or directory
-cannot load such file .*asciidoctor
+asciidoctor
 CONFIG_.* detected!
 CONFIG_.*: is not set when it should be
 Could not find a usable .config in the kernel source directory.
@@ -11,8 +8,10 @@ Couldn't find .* to unmerge.
 dev-ruby/.*::gentoo failed (install phase)
 gcc version .* found, expected gcc
 gem install kramdown
+GNAT is required to build ada
 Incompatible gcc version found
 Incorrect kernel configuration options
+ is not a supported compiler. Please use
 Kernel not configured; no .config found in
 Linux .* is the latest supported version
 mingw is needed
@@ -28,6 +27,7 @@ Please switch to a gcc version built with USE=graphite
 Please switch to an openmp compatible compiler
 Please update your kernel
 Please use a supported ICD
+Please use .* instead.
 PostgreSQL slot must be set to one of:
 requires at least .* kernel version
 Select exactly one database type out of these:
