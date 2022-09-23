@@ -84,11 +84,11 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  # free the slot in ~/run
+  # free the slot in ~/run if stopped
   while read -r oldimg
   do
-    if ! __is_running $oldimg; then
-      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
+    if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
+      if ! __is_running $oldimg; then
         rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
       fi
     fi
@@ -106,11 +106,11 @@ do
   # loop if there're still running images marked as EOL
   while read -r oldimg
   do
-    if __is_running $oldimg; then
-      if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
+    if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
+      if __is_running $oldimg; then
         sleep 10
-        continue 2
       fi
+      continue 2
     fi
   done < <(ImagesInRunShuffled)
 
