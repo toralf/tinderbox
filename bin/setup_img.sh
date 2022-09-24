@@ -12,12 +12,12 @@ function dice() {
 }
 
 
-# helper of ThrowUseFlags
-function ThrowUseFlags() {
+# helper of ThrowFlags
+function ShuffleUseFlags() {
   local n=$1        # pass up to n-1
   local m=${2:-4}   # mask 1:m of them
 
-  shuf -n $(( RANDOM%n)) |
+  shuf -n $(( RANDOM%n )) |
   sort |
   while read -r flag
   do
@@ -346,12 +346,12 @@ EOF
   fi
 
   # http://trofi.github.io/posts/249-an-update-on-make-shuffle.html
-  if grep -q 'sys-devel/make-9999' ./etc/portage/package.*/*; then
-    echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --jobserver-style=pipe"' >> ./etc/portage/make.conf
+#   if grep -q 'sys-devel/make-9999' ./etc/portage/package.*/*; then
+#     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --jobserver-style=pipe"' >> ./etc/portage/make.conf
 #     if dice 1 2; then
-#       echo 'GNUMAKEFLAGS="--shuffle' >> ./etc/portage/make.conf
+#       echo 'GNUMAKEFLAGS=$GNUMAKEFLAGS--shuffle' >> ./etc/portage/make.conf
 #     fi
-  fi
+#   fi
 
   chgrp portage ./etc/portage/make.conf
   chmod g+w     ./etc/portage/make.conf
@@ -760,7 +760,7 @@ function FixPossibleUseFlagIssues() {
 
 
 # varying USE flags till dry run of @world would succeed
-function ThrowImageUseFlags() {
+function ThrowFlags() {
   echo "#setup dryrun $attempt # throw flags ..."
 
   grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |
@@ -773,7 +773,7 @@ function ThrowImageUseFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |
   cut -f1 -d' ' -s |
   grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-  ThrowUseFlags 250 |
+  ShuffleUseFlags 250 |
   xargs -s 73 |
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
@@ -787,7 +787,7 @@ function ThrowImageUseFlags() {
     grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
     cut -f2 -d'"' -s |
     grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    ThrowUseFlags 15 3 |
+    ShuffleUseFlags 15 3 |
     xargs |
     xargs -I {} --no-run-if-empty printf "%-36s %s\n" "$pkg" "{}"
   done > ./etc/portage/package.use/24thrown_package_use_flags
@@ -825,7 +825,7 @@ function CompileUseFlagFiles() {
         nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ./var/tmp/tb/sync.sh &> ./var/tmp/tb/logs/sync.$attempt.log
       fi
 
-      ThrowImageUseFlags
+      ThrowFlags
       local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
       if FixPossibleUseFlagIssues $attempt; then
         return 0
