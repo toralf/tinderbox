@@ -85,6 +85,7 @@ function SearchForSameIssue() {
   if grep -q 'file collision with' $issuedir/title; then
     # for a file collision report both involved sites
     local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
+
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
         grep -e " CONFIRMED " -e " IN_PROGRESS " |
