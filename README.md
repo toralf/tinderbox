@@ -11,12 +11,7 @@ Each image is setup from a recent _stage3_ tarball as an arbitrary combination o
 Within each image all Gentoo packages are scheduled in a randomized order to be emerged.
 
 ## Usage
-create this cron job
-
-```cron
-# check for images to be replaced
-@hourly   f=/tmp/replace_img.$$.log; /opt/tb/bin/replace_img.sh &>$f; cat $f; rm $f
-```
+Setup an image with _replace_img.sh_ or directly with _setup_img.sh_.
 See the status of all images:
 
 ```bash
