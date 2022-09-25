@@ -10,11 +10,6 @@ set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 export LANG=C.utf8
 
-# use cgroup v1 if available
-if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
-  exit 1
-fi
-
 # must exist before any cgroup entry is created
 echo 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 
