@@ -73,18 +73,18 @@ trap Finish INT QUIT TERM EXIT
 failed=0
 while [[ $failed -lt 3 ]]
 do
-  # mark a stopped image after a given time as EOL
+  # mark a stopped image after a day as EOL
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
       hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task))/3600 ))
-      if [[ $hours -ge 36 ]]; then
+      if [[ $hours -ge 24 ]]; then
         echo -e "last task $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/EOL
       fi
     fi
   done < <(ImagesInRunShuffled)
 
-  # free the slot in ~/run if stopped
+  # free the slot
   while read -r oldimg
   do
     if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
@@ -101,6 +101,7 @@ do
     if ! sudo $(dirname $0)/setup_img.sh; then
       ((++failed))
     fi
+    continue
   fi
 
   # loop if there're still running images marked as EOL
