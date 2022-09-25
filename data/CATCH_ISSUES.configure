@@ -95,3 +95,4 @@ Package .* was not found in the .* path.
 imake: Exit code
 : undefined reference to
 C compiler cannot create executables.
+ocamlfind: Package .* not found

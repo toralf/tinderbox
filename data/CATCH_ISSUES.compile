@@ -247,7 +247,6 @@ unlink: .* Permission denied
 RuntimeError: ERROR: Your setuptools version is too old
 python.*: can't open file .*] No such file or directory
 Variable .* not found in the output
-ocamlfind: Package .* not found
 This expression has type .* but an expression was expected
 Makefile.* is required .*.*Stop
 ghc: unrecognised flag:
@@ -336,3 +335,4 @@ ex: no python-exec wrapped
 ghc: panic!
 Recursive variable
 You do not .* the sources for the .* kernel installed.
+ocamlfind: Package .* not found - required by

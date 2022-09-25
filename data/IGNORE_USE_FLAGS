@@ -48,6 +48,10 @@ pax-kernel
 perftools
 prefix
 prefix-guest
+ruby27
+ruby30
+ruby31
+ruby32
 savedconfig
 selinux
 split-usr
