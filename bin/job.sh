@@ -806,18 +806,16 @@ function RunAndCheck() {
     local signal=$(( rc-128 ))
     PutDepsIntoWorldFile
     if [[ $signal -eq 9 ]]; then
-      Finish 9 "exiting due to signal $signal" $tasklog
+      Finish 9 "KILLed" $tasklog
     fi
     pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,')
-    Mail "INFO: signal $signal task=$task pkg=$pkg" $tasklog
+    Mail "INFO:  signal=$signal  task=$task  pkg=$pkg" $tasklog
+  fi
 
-  # timeout
-  elif [[ $rc -eq 124 ]]; then
-    Mail "INFO: timeout  task=$task" $tasklog
-    PutDepsIntoWorldFile
-
-  # emerge failed
-  elif [[ $rc -ne 0 ]]; then
+  if [[ $rc -ne 0 ]]; then
+    if [[ $rc -eq 124 ]]; then
+      Mail "INFO:  timeout  task=$task" $tasklog
+    fi
     if GetPkgFromTaskLog; then
       createIssueDir
       WorkAtIssue
@@ -828,7 +826,7 @@ function RunAndCheck() {
   fi
 
   if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
-    Finish 13 "FATAL: $fatal" $tasklog
+    Finish 13 "FATAL:  $fatal" $tasklog
   fi
 
   return $rc
