@@ -2,71 +2,34 @@
 
 # tinderbox
 
+## Goal
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
-For that a dozen or more Gentoo images are running in parallel using a sandbox ([bubblewrap](https://github.com/containers/bubblewrap) or as non-default the good old _chroot_).
+For that a dozen sandbox'ed Gentoo images are running in parallel.
 
 Each image is setup from a recent _stage3_ tarball as an arbitrary combination of _~amd64_ + _profile_ + _USE flag_ set.
-Within each image all Gentoo packages are scheduled in a randomized order for emerge.
+Within each image all Gentoo packages are scheduled in a randomized order to be emerged.
 
-## usage
+## Usage
+create this cron job
 
-### create a new image
-
-```bash
-setup_img.sh
+```cron
+# check for images to be replaced
+@hourly   f=/tmp/replace_img.$$.log; /opt/tb/bin/replace_img.sh &>$f; cat $f; rm $f
 ```
-
-The current _stage3_ file is downloaded, verified and unpacked.
-Mandatory portage config files will be compiled and few required packages will be installed.
-A backlog is filled up with all recent packages in a randomized order.
-A symlink is made into _~tinderbox/run_ and the image is started.
-
-### start an image
-
-```bash
-start_img.sh <image>
-```
-
-Without any arguments all symlinks in _~tinderbox/run_ are started.
-
-The wrapper _bwrap.sh_ handles all sandbox related actions and starts _job.sh_ within that image.
-
-### stop an image
-
-```bash
-stop_img.sh <image>
-```
-
-A marker file _/var/tmp/tb/STOP_ is created in that image.
-The current emerge operation will be finished before _job.sh_ removes the marker file and exits.
-
-### go into a stopped image
-
-```bash
-sudo /opt/tb/bin/bwrap.sh -m <image>
-```
-
-### removal of an image
-
-Stop the image and remove the symlink in _~tinderbox/run_.
-The image itself will stay in its data dir till that is cleaned up.
-
-### status of all images
+See the status of all images:
 
 ```bash
 whatsup.sh -decp
-watch whatsup.sh -otl
+whatsup.sh -otl
 ```
-
-### report findings
 
 The file _~tinderbox/tb/data/ALREADY_CAUGHT_ holds reported findings.
 A new finding is send via email to the user specified by the variable _MAILTO_.
-The Gentoo bugzilla can be searched by _check_bgo.sh_ for dups/similarities.
+The Gentoo bugzilla can be searched (again) by _check_bgo.sh_ for dups/similarities.
 A finding can be filed using _bgo.sh_.
 
-## installation
+## Installation
 
 Create the user _tinderbox_:
 
@@ -130,6 +93,6 @@ and this as _root_ (because the _local_ cgroup is used by other users too):
 @reboot   /opt/tb/bin/cgroup.sh
 ```
 
-## link(s)
+## Links
 
 https://www.zwiebeltoralf.de/tinderbox.html
