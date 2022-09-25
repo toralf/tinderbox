@@ -22,6 +22,7 @@ function CgroupCreate() {
   # the value of -jX of the image name rules
   local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
 
+  # Hint: /var/tmp/portage is a tmpfs therefore the memory settings are (implicitely) a quota for that directory
   local quota=$(( 100000*${j:-1}+10000 ))
   cgset -r cpu.cfs_quota_us=$quota          $name
   cgset -r memory.limit_in_bytes=40G        $name
