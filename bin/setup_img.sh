@@ -303,7 +303,8 @@ FFLAGS="\${FCFLAGS}"
 # simply enables QA check for LDFLAGS being respected by build system.
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 
-RUSTFLAGS="-Ctarget-cpu=native -v"
+# prepare for debug sessions
+#GNUMAKEFLAGS="\$GNUMAKEFLAGS -d"
 
 ACCEPT_KEYWORDS="$keyword"
 
@@ -337,7 +338,7 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 EOF
 
   if [[ $profile =~ "/musl" ]]; then
-    echo 'RUSTFLAGS=" -C target-feature=-crt-static"' >> ./etc/portage/make.conf
+    echo 'RUSTFLAGS="-C target-feature=-crt-static"' >> ./etc/portage/make.conf
   fi
 
   # requested by mgorny in 822354 - btw, this is unrelated to "test"
