@@ -104,10 +104,9 @@ else
     devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)
 EOF
 
-  keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
-  cmd="$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"
   if [[ $# -eq 1 ]]; then
-    if best=$(eval $cmd); then
+    keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
+    if best=$(eval "$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"); then
       if [[ $pkg != $best ]]; then
         echo -e "\n    is  NOT  latest\n"
         exit 0
@@ -121,6 +120,7 @@ EOF
 
   if ! SearchForSameIssue; then
     if ! SearchForSimilarIssue; then
+      # no bug found for that pkg, so file it
       $cmd
     fi
   fi
