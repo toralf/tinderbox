@@ -918,7 +918,7 @@ function syncRepo()  {
       return 1
     fi
 
-    if { echo -e "\nTrying to restore ...\n"; git stash; git stash drop; git restore .; } &>>$synclog; then
+    if (echo -e "\nTrying to restore ...\n"; git stash; git stash drop; git restore .) &>>$synclog; then
       if ! emaint sync --auto &>>$synclog; then
         Finish 13 "still unfixed ::gentoo" $synclog
       else
@@ -996,7 +996,6 @@ if ! systemd-tmpfiles --create &>$tasklog; then
   : # Mail "NOTICE: tmpfiles issue" $tasklog
 fi
 
-echo "#loop" > $taskfile
 last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :
 do
