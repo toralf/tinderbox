@@ -59,6 +59,7 @@ function InitOptions() {
   cflags=$cflags_default
   jobs=4
   keyword="~amd64"
+  no_autostart="n"
   profile=$(DiceAProfile)
   testfeature="n"
   useflagfile=""
@@ -465,10 +466,10 @@ EOF
   while read -r topic x X
   do
     if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
-      # kick the whole off from the config file
+      # kick the config line off from the config file
       sed -i -e "/# DICE:  *$topic *$/d" -e "/# DICE:  *$topic .*/d" ./etc/portage/package.*/*
     else
-      # keep it, but remove the trailing comment + spaces
+      # keep the config, but remove the trailing comment + spaces
       sed -i -e "s, *# DICE:  *$topic *$,,g" -e "s, *# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
     fi
   done
@@ -479,6 +480,12 @@ EOF
   do
     cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,g')
   done
+
+  local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
+  if [[ -f $b ]]; then
+    cp $b ./etc/portage/
+    (cd ./etc/portage/; ln -s $(basename $b) bashrc)
+  fi
 
   touch ./var/tmp/tb/task
 
@@ -680,6 +687,8 @@ function RunDryrunWrapper() {
 
 
 function FixPossibleUseFlagIssues() {
+  local attempt=$1
+
   if RunDryrunWrapper "#setup dryrun $attempt"; then
     return 0
   fi
@@ -762,6 +771,8 @@ function FixPossibleUseFlagIssues() {
 
 # varying USE flags till dry run of @world would succeed
 function ThrowFlags() {
+  local attempt=$1
+
   echo "#setup dryrun $attempt # throw flags ..."
 
   grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |
@@ -796,55 +807,59 @@ function ThrowFlags() {
 
 
 function CompileUseFlagFiles() {
-  local attempt=0
-
   echo 'emerge -uUp =$(portageq best_visible / sys-devel/gcc) && emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
   if [[ -e $useflagfile ]]; then
     echo
     date
-    echo " +++  one dryrun with given USE flag file  +++"
+    echo " +++  1 dryrun with $useflagfile  +++"
 
-    cp $useflagfile ./etc/portage/package.use/28given_use_flags
     local drylog=./var/tmp/tb/logs/dryrun.log
-    FixPossibleUseFlagIssues $attempt
+    cp $useflagfile ./etc/portage/package.use/28given_use_flags
+    FixPossibleUseFlagIssues 0
     return $?
-  else
-    while [[ $(( ++attempt )) -le 200 ]]
-    do
-      echo
-      date
-      echo "==========================================================="
-      if [[ -f ./var/tmp/tb/STOP ]]; then
-        echo -e "\n found STOP file"
-        rm ./var/tmp/tb/STOP
-        return 1
-      fi
-
-      if ! (( attempt % 50 )); then
-        echo "sync git tree ..."
-        echo "emaint sync --auto" > ./var/tmp/tb/sync.sh
-        nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ./var/tmp/tb/sync.sh &> ./var/tmp/tb/logs/sync.$attempt.log
-      fi
-
-      ThrowFlags
-      local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
-      if FixPossibleUseFlagIssues $attempt; then
-        return 0
-      fi
-    done
-    echo -e "\n max attempts reached"
-    return 1
   fi
+
+  local attempt=0
+  while [[ $(( ++attempt )) -le 200 ]]
+  do
+    echo
+    date
+    echo "==========================================================="
+    if [[ -f ./var/tmp/tb/STOP ]]; then
+      echo -e "\n found STOP file"
+      rm ./var/tmp/tb/STOP
+      return 1
+    fi
+
+    if ! (( attempt % 50 )); then
+      echo "sync git tree ..."
+      echo "emaint sync --auto" > ./var/tmp/tb/sync.sh
+      nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ./var/tmp/tb/sync.sh &> ./var/tmp/tb/logs/sync.$attempt.log
+    fi
+
+    local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
+    ThrowFlags $attempt
+    if FixPossibleUseFlagIssues $attempt; then
+      return 0
+    fi
+  done
+  echo -e "\n max attempts reached"
+  return 1
 }
 
 
-function StartImage() {
-  cd $tbhome/run
-  ln -s ../img/$name
-  wc -l -w $name/etc/portage/package.use/2*
-  echo
-  date
-  su - tinderbox -c "$(dirname $0)/start_img.sh $name"
+function Finalize() {
+  chgrp portage ./etc/portage/package.use/*
+  chmod g+w,a+r ./etc/portage/package.use/*
+
+  if [[ $no_autostart = "n" ]]; then
+    cd $tbhome/run
+    ln -s ../img/$name
+    wc -l -w $name/etc/portage/package.use/2*
+    echo
+    date
+    su - tinderbox -c "$(dirname $0)/start_img.sh $name"
+  fi
 }
 
 
@@ -856,30 +871,16 @@ set -eu
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root"
   exit 1
 fi
 
-echo
-echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-
-echo
-date
-echo " $0 started"
-
-if [[ $# -gt 0 ]]; then
-  echo "   args: '${@}'"
-fi
-
-tbhome=~tinderbox
-reposdir=/var/db/repos
-gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo -e "\n$(date)\n $0 start"
 
 InitOptions
 
-no_autostart="n"
 while getopts a:j:k:np:t:u: opt
 do
   case $opt in
@@ -890,9 +891,13 @@ do
     p)  profile="$OPTARG"     ;;
     t)  testfeature="$OPTARG" ;;
     u)  useflagfile="$OPTARG" ;;    # eg.: /dev/null
-    *)  echo "unknown parameter '${opt}'"; exit 1;;
+    *)  echo "unknown parameter '$opt'"; exit 1;;
   esac
 done
+
+tbhome=~tinderbox
+reposdir=/var/db/repos
+gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
 
 CheckOptions
 UnpackStage3
@@ -904,12 +909,7 @@ CreateBacklogs
 CreateSetupScript
 RunSetupScript
 CompileUseFlagFiles
-chgrp portage ./etc/portage/package.use/*
-chmod g+w,a+r ./etc/portage/package.use/*
-echo -e "\n$(date)\n  setup done\n"
-if [[ $no_autostart = "n" ]]; then
-  StartImage
-fi
+Finalize
 
-echo
-echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo -e "\n$(date)\n  setup done\n"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
