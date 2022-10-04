@@ -192,14 +192,14 @@ EOF
 
 # gather together what's needed for the email and b.g.o.
 function CollectIssueFiles() {
-  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                 $tasklog_stripped | grep -F '.out'        | cut -f5 -d' ' -s)
-  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                   $tasklog_stripped | grep "CMake.*\.log"   | cut -f2 -d'"' -s)
-  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                    $tasklog_stripped | sed  "s/txt./txt/"    | cut -f8 -d' ' -s)
-  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as:' $tasklog_stripped | grep -F '.log'        | cut -f2 -d' ' -s)
-  envir=$(grep -m 1      'The ebuild environment file is located at'                 $tasklog_stripped                         | cut -f2 -d"'" -s)
-  salso=$(grep -m 1 -A 2 ' See also'                                                 $tasklog_stripped | grep -F '.log'        | awk '{ print $1 }' )
-  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY'                                  $tasklog_stripped | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
-  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach the following file: ' $tasklog_stripped | grep -F '/LastTest.log' | awk '{ print $2 }')
+  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of'                $tasklog_stripped | grep -F '.out'          | cut -f5 -d' ' -s)
+  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred'                  $tasklog_stripped | grep "CMake.*\.log"     | cut -f2 -d'"' -s)
+  cmerr=$(grep -m 1      'CMake Error: Parse error in cache file'                   $tasklog_stripped | sed  "s/txt./txt/"      | cut -f8 -d' ' -s)
+  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as' $tasklog_stripped | grep -F '.log'          | cut -f2 -d' ' -s)
+  envir=$(grep -m 1      'The ebuild environment file is located at'                $tasklog_stripped                           | cut -f2 -d"'" -s)
+  salso=$(grep -m 1 -A 2 ' See also'                                                $tasklog_stripped | grep -F '.log'          | awk '{ print $1 }' )
+  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY'                                 $tasklog_stripped | grep "sandbox.*\.log"   | cut -f2 -d'"' -s)
+  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach'         $tasklog_stripped | grep -F '/LastTest.log' | awk '{ print $2 }')
 
   for f in $apout $cmlog $cmerr $oracl $envir $salso $sandb $roslg
   do
@@ -211,7 +211,6 @@ function CollectIssueFiles() {
   if [[ -d "$workdir" ]]; then
     # catch relevant logs
     (
-      set -e
       f=/var/tmp/tb/files
       cd "$workdir/.."
       find ./ -name "*.log" \
@@ -236,7 +235,6 @@ function CollectIssueFiles() {
 
     # provide the whole temp dir if possible
     (
-      set -e
       cd "$workdir/../.."
       if [[ -d ./temp ]]; then
         timeout --signal=15 --kill-after=1m 3m tar -cjpf $issuedir/files/temp.tar.bz2 \
@@ -808,22 +806,22 @@ function RunAndCheck() {
     local signal=$(( rc-128 ))
     PutDepsIntoWorldFile
     if [[ $signal -eq 9 ]]; then
-      Finish 9 "KILLed" $tasklog
+      Finish 9 "KILLed" $tasklog  # usually before a reboot
     fi
     pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,')
     Mail "INFO:  signal=$signal  task=$task  pkg=$pkg" $tasklog
   fi
 
   if [[ $rc -ne 0 ]]; then
-    if [[ $rc -eq 124 ]]; then
-      Mail "INFO:  timeout  task=$task" $tasklog
-    fi
     if GetPkgFromTaskLog; then
       createIssueDir
       WorkAtIssue
       if [[ $try_again -eq 0 ]]; then
         PutDepsIntoWorldFile
       fi
+    fi
+    if [[ $rc -eq 124 ]]; then
+      Finish 13 "INFO:  timeout  task=$task" $tasklog
     fi
   fi
 
@@ -916,8 +914,8 @@ function syncRepo()  {
   cd /var/db/repos/gentoo
 
   if ! emaint sync --auto &>$synclog; then
-    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error: 500' $synclog; then
-      return 1
+    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error:' $synclog; then
+      return 0
     fi
 
     if (echo -e "\nTrying to restore ...\n"; git stash; git stash drop; git restore .) &>>$synclog; then
