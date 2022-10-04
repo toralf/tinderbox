@@ -31,7 +31,7 @@ function FreeSlotAvailable() {
   r=$(ls /run/tinderbox 2>/dev/null | wc -l)
   s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
 
-  [[ $(( r+s )) -lt $desired_count && $(ImagesInRunShuffled | wc -l) -lt $desired_count ]]
+  [[ $(( r+s )) -lt $desired_no_of_images && $(ImagesInRunShuffled | wc -l) -lt $desired_no_of_images ]]
 }
 
 
@@ -47,31 +47,18 @@ fi
 
 source $(dirname $0)/lib.sh
 
-desired_count=10            # number of images to be run
-while getopts n:u: opt
-do
-  case "$opt" in
-    n)  desired_count="$OPTARG" ;;
-    u)  echo "user decision" >> ~tinderbox/img/$(basename $OPTARG)/var/tmp/tb/EOL;;
-    *)  echo "unknown parameter '${opt}'"; exit 1;;
-  esac
-done
-
-# do not run in parallel from here
 lockfile="/tmp/$(basename $0).lck"
 if [[ -s "$lockfile" ]]; then
   if kill -0 $(cat $lockfile) 2>/dev/null; then
-    exit 1    # a previous instance is (still) running
-  else
-    echo " found stale lockfile content:"
-    cat $lockfile
+    exit 1    # a previous instance is running
   fi
 fi
-echo $$ > "$lockfile" || exit 1
+echo $$ > "$lockfile"
 trap Finish INT QUIT TERM EXIT
 
-failed=0
-while [[ $failed -lt 3 ]]
+desired_no_of_images=8
+
+while :
 do
   # mark a stopped image after a day as EOL
   while read -r oldimg
@@ -79,7 +66,7 @@ do
     if ! __is_running $oldimg; then
       hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task))/3600 ))
       if [[ $hours -ge 24 ]]; then
-        echo -e "last task $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/EOL
+        echo -e "last task is $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/EOL
       fi
     fi
   done < <(ImagesInRunShuffled)
@@ -99,7 +86,7 @@ do
     date
     echo " setup a new image ..."
     if ! sudo $(dirname $0)/setup_img.sh; then
-      ((++failed))
+      Finish 1
     fi
     continue
   fi
@@ -118,4 +105,4 @@ do
   break
 done
 
-Finish $failed
+Finish 0
