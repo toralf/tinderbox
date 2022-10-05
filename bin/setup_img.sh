@@ -135,7 +135,7 @@ function CheckOptions() {
     return 1
   fi
 
-  # by sam
+  # by sam_
   if [[ $profile =~ "/hardened" ]]; then
     cflags+=" -D_GLIBCXX_ASSERTIONS"
   fi
@@ -481,10 +481,13 @@ EOF
     cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,g')
   done
 
-  local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
-  if [[ -f $b ]]; then
-    cp $b ./etc/portage/
-    (cd ./etc/portage/; ln -s $(basename $b) bashrc)
+  # special hooks, currently a clang hook from sam_
+  if dice 1 8; then
+    local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
+    if [[ -f $b ]]; then
+      cp $b ./etc/portage/
+      (cd ./etc/portage/; ln -s $(basename $b) bashrc)
+    fi
   fi
 
   touch ./var/tmp/tb/task
@@ -547,6 +550,7 @@ function CreateBacklogs()  {
   fi
 
   cat << EOF >> $bl.1st
+%[[ -f /etc/portage/bashrc.clang ]] && emerge -u sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf
 app-portage/pfl
 www-client/pybugz
 @world

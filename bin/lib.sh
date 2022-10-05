@@ -45,7 +45,7 @@ function createSearchString() {
 }
 
 
-# check for a blocker/tracker bug
+# look for a blocker bug id
 # the BLOCKER file contains tupels like:
 #
 #   # comment
@@ -66,6 +66,11 @@ function LookupForABlocker() {
       return
     fi
   done < <(grep -v -e '^#' -e '^$' $pattern_file)
+
+  if [[ -f $issuedir/files/clang.tar.bz2 ]]; then
+    echo "870412"
+    return
+  fi
 
   return
 }

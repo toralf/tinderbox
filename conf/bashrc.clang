@@ -1,0 +1,100 @@
+pre_src_prepare() {
+	if [[ -n ${CC} && ${CC} != *clang* ]] ; then
+		return
+	fi
+	
+	if ! type -P ansifilter &>/dev/null || ! type -P clang-15 &>/dev/null || ! has_version sys-devel/clang:15 ; then
+		# Avoid issues in early setup when clang:15 hasn't yet been emerged.
+		export CC=gcc
+		export CXX=g++
+		return
+	fi	
+}
+
+pre_src_configure() {
+	# Instructions:
+	# 1. Install clang:15
+	# 2. Install ansifilter
+	# 3. Set CC=clang and CXX=clang in make.conf
+	# 4. File any bugs hit using this hook as a blocker for tracker bug 870412 
+	
+	if [[ -n ${CC} && ${CC} != *clang* ]] ; then
+		return
+	fi
+	
+	if ! type -P ansifilter &>/dev/null || ! type -P clang-15 &>/dev/null || ! has_version sys-devel/clang:15 ; then
+		# Avoid issues in early setup when clang:15 hasn't yet been emerged.
+		export CC=gcc
+		export CXX=g++
+		return
+	fi
+
+	# Avoid noise from intentional ones...
+	export ac_cv_c_undeclared_builtin_options="none needed"
+	export gl_cv_compiler_check_decl_option="-Werror=implicit-function-declaration"
+
+	if [[ ${CHOST} == *musl* ]] ; then
+		if has_version dev-libs/libbsd ; then
+			export ac_cv_func___fpurge=yes
+			export ac_cv_func_fpurge=yes
+			export ac_cv_have_decl_fpurge=no
+			export gl_cv_func_fpurge_works=no
+		fi
+		
+		# These should be fine on glibc IIRC but let's be safe until confirmed.
+		export ac_cv_header_sys_types_h_makedev=no
+		export gl_cv_minmax_in_limits_h=no
+	fi
+
+	cat <<- EOF > "${T}"/clang
+	#!/usr/bin/env bash
+
+	# Need > /dev/null for sys-libs/musl
+	cl1() {
+		clang-15 ${CFLAGS} -Wno-unused-command-line-argument -Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=strict-prototypes \$@ 2>&1 | ansifilter | sed \
+			-e "s:14.0.6:14.ignoreme:g" \
+			-e "s:15.0.0:14.ignoreme:g" \
+			-e "s:conftest-.*\.o:conftest.o:g" \
+			-e "s_conftest\.c\:[0-9]\+\:[0-9]\+_ignoreme_g" \
+			-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang14.log > /dev/null
+	}
+
+	# TODO: No -Werror=strict-prototypes here for now as AC_PROG_LEX, AC_CHECK_FUNCS rely on it
+	# also, I think Clang 15.0.1 (which reverts the other bits) keeps that in anyway.
+	cl2() {
+		clang-15 ${CFLAGS} -Wno-unused-command-line-argument -Werror=implicit-function-declaration -Werror=implicit-int \$@ 2>&1 | ansifilter | sed \
+			-e "s:14.0.6:14.ignoreme:g" \
+			-e "s:15.0.0:14.ignoreme:g" \
+			-e "s:15:14:g" \
+			-e "s:conftest-.*\.o:conftest.o:g" \
+			-e "s_conftest\.c\:[0-9]\+\:[0-9]\+_ignoreme_g" \
+			-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang15.log > /dev/null
+	}
+	
+	# Just run it again as it's easier for anything which wants to parse stdout/stderr,
+	# and we're not concerned about performance for this experiment anyway.
+	# We have to do the tee & pipe dance to not greedily consume stdin: bug 870985.
+	tee >(cl1 "\$@" -o garbage) >(cl2 "\$@" -o garbage2) | clang-15 "\$@"
+	EOF
+
+	chmod +x "${T}"/clang
+
+	# -Werror=strict-prototypes
+	export CFLAGS="${CFLAGS} -Werror=implicit-function-declaration -Werror=implicit-int"
+	export OLD_PATH="${PATH}"
+	export PATH="${T}:${PATH}"
+}
+
+post_src_configure() {
+	if [[ -z ${OLD_PATH} ]] ; then
+		return
+	fi
+
+	export PATH="${OLD_PATH}"
+
+	if [[ -f "${T}"/clang14.log ]] ; then
+		mkdir -p /var/tmp/clang/${CATEGORY}/${PF}
+		cp -rv "${T}"/clang{14,15}.log /var/tmp/clang/${CATEGORY}/${PF}
+		diff -ruN "${T}"/clang{14,15}.log > /var/tmp/clang/${CATEGORY}/${PF}/clang.diff
+	fi
+}

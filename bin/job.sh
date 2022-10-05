@@ -230,6 +230,14 @@ function CollectIssueFiles() {
       rm $f
     )
 
+    # quirk for sam_
+    if [[ -d /var/tmp/clang/$pkg ]]; then
+      (
+        cd /var/tmp/clang/
+        tar -cjpf $issuedir/files/clang.tar.bz2 ./$pkg 2>/dev/null
+      )
+    fi
+
     # additional CMake files
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null
 

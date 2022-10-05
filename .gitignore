@@ -1,6 +1,5 @@
 *.pdf
 .~lock*
-conf/bashrc.*
 data/ALREADY_CAUGHT
 patches/*
 sdata/ssmtp.conf
