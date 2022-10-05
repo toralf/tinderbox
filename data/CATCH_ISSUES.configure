@@ -1,3 +1,4 @@
+make: .*: Permission denied
  rules.* file not found
 cannot run C compiled programs
 clang-15: error:

@@ -9,10 +9,6 @@ ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 744385
 :in load: cannot load such file -- /usr/lib64/ruby/gems/
 
-# [Tracker] dev-scheme/guile-3.0.x breakage
-746914
-guile
-
 # (openmpi-4) - [TRACKER] sys-cluster/openmpi - packages using deprecated MPI symbols (removed in openmpi-4)
 831358
 MPI_
@@ -51,4 +47,4 @@ buffer overflow detected
 
 # [Tracker] Breakage with Clang 15 (mostly configure script issues)
 870412
-clang-15: error:
+clang-15: error:|call to undeclared function|undefined symbol|installation or configuration problem |C compiler cannot create executables |; ISO C99 and|incompatible pointer to integer conversion initializing |use of undeclared identifier| implicit declaration of function |initializing .* with an expression of type |call to undeclared function |argument to .* must |use of bitwise & with boolean operands |variable .* is used |incompatible pointer to integer conversion |return type defaults to |type .* cannot be narrowed to

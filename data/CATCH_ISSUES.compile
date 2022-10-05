@@ -1,3 +1,5 @@
+; ISO C99 and
+clang-15: error:
 Bootstrap comparison failure!
   call to undeclared function
 : clang: command not found
@@ -52,7 +54,6 @@ make inconsistent assumptions over
 file was not found
 Cannot specify link libraries for target .* which is not built
 include called with wrong number of arguments
-: fatal error: .*
 internal error in relocate
 Failure:
  A duplicate ELSE command was found inside an IF block.
@@ -253,7 +254,6 @@ ghc: unrecognised flag:
 trying to run .* on Elixir .* but
 This .* might be unmatched
 iconv:.*Invalid argument
-: fatal error:.*No such file or directory
 Please install it manually.(pip .*
 error: invalid integral value
 DISTUTILS_USE_SETUPTOOLS value is probably incorrect
@@ -336,3 +336,6 @@ ghc: panic!
 Recursive variable
 You do not .* the sources for the .* kernel installed.
 ocamlfind: Package .* not found - required by
+redefinition of .* as different kind of symbol
+member reference base .* is not
+assigning field to itself

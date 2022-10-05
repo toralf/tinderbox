@@ -56,3 +56,14 @@ sys-libs/libcxxabi
 # https://bugs.gentoo.org/868789
 dev-lang/gnat-gpl
 =dev-lang/gnat-gpl-2021-r3
+
+# fails too often
+app-editors/emacs
+app-editors/xemacs
+
+# hangs
+media-sound/jack2
+media-sound/lash
+media-sound/qjackctl
+net-libs/dleyna-connector-dbus
+sys-libs/talloc

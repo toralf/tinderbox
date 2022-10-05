@@ -55,7 +55,6 @@ syntax error near
 : undefined reference to
 Fatal Error by .*
 : error:
-: fatal error:
 make.* Command not found
 test.*NOT ok
 CMake Error at

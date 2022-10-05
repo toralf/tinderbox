@@ -3,7 +3,9 @@
 bindist
 bootstrap
 build
+clang
 compile-locales
+compiler-rt
 custom-cflags
 d3d9
 debug
@@ -15,6 +17,7 @@ exec-static-trampoline
 FreeBSD
 fuse
 gallium
+gcc-symlinks
 ghcbootstrap
 gold
 hardened
@@ -26,6 +29,8 @@ introspection
 ithreads
 jack
 kernel
+libcxx
+llvm-libunwind
 libssp
 livecd
 low-memory
@@ -38,6 +43,7 @@ mono
 monolithic
 multilib
 musl
+native-symlinks
 nvidia
 objc
 objc++
@@ -52,6 +58,7 @@ ruby27
 ruby30
 ruby31
 ruby32
+sanitize
 savedconfig
 selinux
 split-usr
@@ -62,6 +69,7 @@ systemd
 test
 tools
 uclibc
+unwind
 user-session
 vaapi
 vanilla
