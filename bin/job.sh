@@ -977,6 +977,8 @@ name=$(cat /var/tmp/tb/name)        # the image name
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
 
 export CARGO_TERM_COLOR="never"
+export CMAKE_COLOR_DIAGNOSTICS="OFF"
+export CMAKE_COLOR_MAKEFILE="OFF"
 export GCC_COLORS=""
 export OCAML_COLOR="never"
 export PY_FORCE_COLOR="0"
