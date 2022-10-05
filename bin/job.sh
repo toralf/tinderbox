@@ -779,7 +779,10 @@ function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  timeout --signal=15 --kill-after=5m ${2:-6h} bash -c "eval $1" &>> $tasklog
+  # the value of -jX of the image name gives the number of parallel build processes
+  local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
+  local hours=$(( ${2:-24}/j )) # $2 differs usually only for @world
+  timeout --signal=15 --kill-after=5m ${hours}h bash -c "eval $1" &>> $tasklog
   local rc=$?
   (echo; date) >> $tasklog
 
@@ -842,7 +845,7 @@ function WorkOnTask() {
       opts+=" --update --changed-use --newuse"
     fi
 
-    if RunAndCheck "emerge $task $opts" "12h"; then
+    if RunAndCheck "emerge $task $opts" "48"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
         add2backlog "%emerge --depclean --verbose=n"
