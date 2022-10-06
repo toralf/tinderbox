@@ -549,8 +549,11 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
+  if [[ -f ./etc/portage/bashrc.clang ]]; then
+    echo '%emerge -u sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf' >> $bl.1st
+  fi
+
   cat << EOF >> $bl.1st
-%[[ -f /etc/portage/bashrc.clang ]] && emerge -u sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf
 app-portage/pfl
 www-client/pybugz
 @world
