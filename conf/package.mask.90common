@@ -62,8 +62,12 @@ app-editors/emacs
 app-editors/xemacs
 
 # hangs
+media-libs/aubio
 media-sound/jack2
 media-sound/lash
 media-sound/qjackctl
 net-libs/dleyna-connector-dbus
+net-misc/ntpsec
+net-proxy/squirm
+sci-electronics/drahnr-oregano
 sys-libs/talloc
