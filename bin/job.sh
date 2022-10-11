@@ -720,9 +720,8 @@ function catchMisc()  {
     filterPlainPext < $pkglog > $pkglog_stripped
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       pkg=$( grep -m 1 -F ' * Package: '    $pkglog_stripped | awk '{ print $3 }')
+      pkg=$(sed -e 's,:.*,,' <<< $pkg)  # strip away the slot
       phase=""
-      # happened rarely, but ignore this error:
-      #
       pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
 
       # create for each finding an own issue
