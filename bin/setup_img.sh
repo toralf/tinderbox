@@ -45,7 +45,7 @@ function DiceAProfile() {
 
   eselect profile list |
   grep -F -e 'default/linux/amd64/17.1' -e 'default/linux/amd64/17.0/musl' |
-  grep -v -F -e '/clang' -e '/developer' -e '/selinux' -e '/x32' $exclude |
+  grep -v -F -e '/clang' -e '/developer' -e ' (exp)' -e '/selinux' -e '/x32' $exclude |
   awk ' { print $2 } ' |
   cut -f4- -d'/' -s |
   shuf -n 1
