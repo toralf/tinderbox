@@ -342,7 +342,7 @@ EOF
     echo 'RUSTFLAGS="-C target-feature=-crt-static"' >> ./etc/portage/make.conf
   fi
 
-  # requested by mgorny in 822354 - btw, this is unrelated to "test"
+  # requested by mgorny in 822354 (this is unrelated to "test")
   if dice 1 2; then
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
   fi
