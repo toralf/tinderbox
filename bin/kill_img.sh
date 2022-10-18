@@ -15,26 +15,24 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-img=${1?got no img}
-img=$(basename "$img")
-
-echo "user decision at $(date)" >> ~tinderbox/img/$img/var/tmp/tb/EOL
-
-if [[ -d ~tinderbox/img/$img ]]; then
-  if ppid=$(pgrep -f "sudo.*bwrap.*$img"); then
-    if pid=$(pstree -pa $ppid | grep -F 'emerge,' | grep -m1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
-      pstree -UlnspuTa $pid
-      echo
-      kill -9 $pid
-      echo
-      exit 0
+for img in ${*?got no img}
+do
+  img=$(basename "$img")
+  if [[ -d ~tinderbox/img/$img ]]; then
+    echo "user decision at $(date)" >> ~tinderbox/img/$img/var/tmp/tb/EOL
+    if ppid=$(pgrep -f "sudo.*bwrap.*$img"); then
+      if pid=$(pstree -pa $ppid | grep -F 'emerge,' | grep -m1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
+        pstree -UlnspuTa $pid
+        echo
+        kill -9 $pid
+        echo
+      else
+        echo " $img: no pid found for $ppid"
+      fi
     else
-      echo " no pid for $ppid found"
+      echo " $img: no ppid found"
     fi
   else
-    echo " no ppid for $img found"
+    echo " $img: no image found"
   fi
-else
-  echo " no image for $img found"
-fi
-exit 1
+done
