@@ -915,6 +915,14 @@ function DetectTaskLoop() {
       Finish 13 "detected a repeat in $pattern" $histfile
     fi
   done
+
+  local count
+  local name
+  if read -r count package < <(qlop -mv | awk '{ print $3 }' | sort | uniq -c | sort -bn | tail -n 1); then
+    if [[ $count -gt 10 ]]; then
+      Finish 13 "repeated emerges: $count x $package" $histfile
+    fi
+  fi
 }
 
 
