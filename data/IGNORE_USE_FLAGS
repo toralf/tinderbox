@@ -27,7 +27,6 @@ hostname
 i386
 introspection
 ithreads
-jack
 kernel
 libcxx
 llvm-libunwind

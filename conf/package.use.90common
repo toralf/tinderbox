@@ -10,12 +10,15 @@
 */*  QEMU_SOFTMMU_TARGETS:          x86_64 i386
 */*  QEMU_USER_TARGETS:             x86_64 i386
 */*  VIDEO_CARDS:                   -* dummy fbdev amdgpu
-*/*  RUBY_TARGETS:                  ruby30
+*/*  RUBY_TARGETS:                  ruby27 ruby31
 
 # 2x faster compile
 */*                                 jumbo-build
 
-# MTA of the tinderbox
+# rebuild loops
+*/*                                 -deprecated
+
+# used mailer
 mail-client/s-nail                  -kerberos
 mail-mta/ssmtp                      mta ssl -gnutls
 
@@ -25,14 +28,15 @@ sys-apps/nix                        -etc_profile
 # https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
-# https://bugs.gentoo.org/831346
-sys-kernel/installkernel-gentoo     -grub
-
-# needs hours instead seconds
-dev-libs/gf2x                       -custom-tune
-
-# git cannot fetch ::gentoo
+# to let git fetch ::gentoo
 net-misc/curl                       ssl
+
+
+#######################################################################
+#
+# temp settings
+#
+
 # broken
 net-misc/curl                       -quiche
 
@@ -42,11 +46,11 @@ app-admin/webalizer                 -nls
 # bootstrap b0rken
 sys-devel/gcc                       -d
 
+# https://bugs.gentoo.org/831346
+sys-kernel/installkernel-gentoo     -grub
 
-#######################################################################
-#
-# temp settings
-#
+# needs hours instead seconds
+dev-libs/gf2x                       -custom-tune
 
 dev-lang/python                     -libedit xml        # DICE: openssl
 
@@ -66,5 +70,13 @@ dev-libs/aws-sdk-cpp                -networkmanager
 dev-qt/qtnetwork                    -networkmanager
 kde-plasma/ksystemstats             -networkmanager
 
-# https://bugs.gentoo.org/869131
+# https://bugs.gentoo.org/869953
 sys-devel/gcc                       -ada
+
+# perl-cleaner b0rken
+dev-lang/nasm                       -doc
+
+# https://bugs.gentoo.org/868372
+net-firewall/iptables               -conntrack
+
+# perl breakage in app-text/libpaper

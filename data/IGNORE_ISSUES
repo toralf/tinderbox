@@ -15,6 +15,7 @@ Incorrect kernel configuration options
 Kernel not configured; no .config found in
 Linux .* is the latest supported version
 mingw is needed
+Mismatched defaults detected between
 Missing requested third party patch.
 No LLVM slot <= .* found installed!
 No pathcc executable was installed, your hardware is unsupported most likely

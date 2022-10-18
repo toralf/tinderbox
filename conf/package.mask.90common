@@ -62,6 +62,7 @@ app-editors/emacs
 app-editors/xemacs
 
 # hangs
+dev-lang/lfe
 media-libs/aubio
 media-sound/jack2
 media-sound/lash
@@ -71,3 +72,4 @@ net-misc/ntpsec
 net-proxy/squirm
 sci-electronics/drahnr-oregano
 sys-libs/talloc
+sys-libs/tdb
