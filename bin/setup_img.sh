@@ -459,17 +459,17 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??musl
   fi
 
-  # content of lines with the marker "DICE" will only be kept with a given likelihood (default: 50%)
+  # lines with a comment like "DICE: topic x X" will be kept with x/X chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
   awk '{ print $3, $4, $5 }' |
   sort -u |
   while read -r topic x X
   do
     if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
-      # kick the config line off from the config file
+      # kick the whole line off
       sed -i -e "/# DICE:  *$topic *$/d" -e "/# DICE:  *$topic .*/d" ./etc/portage/package.*/*
     else
-      # keep the config, but remove the trailing comment + spaces
+      # keep the line, but remove comment + trailing spaces
       sed -i -e "s, *# DICE:  *$topic *$,,g" -e "s, *# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
     fi
   done
