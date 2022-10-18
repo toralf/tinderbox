@@ -1028,19 +1028,22 @@ do
     fi
   done
 
-  if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
-    echo "#sync repo" > $taskfile
-    syncRepo
-  fi
-
-  echo "#get next task" > $taskfile
-  # if 1st prio is empty then schedule the daily update if needed
+  # if 1st prio is empty then ...
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
+    # ... sync repository hourly
+    if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
+      echo "#sync repo" > $taskfile
+      syncRepo
+    fi
+
+    # ... update @world daily
     h=/var/tmp/tb/@world.history
     if [[ ! -s $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
       add2backlog "@world"
     fi
   fi
+
+  echo "#get next task" > $taskfile
   getNextTask
 
   rm -rf /var/tmp/portage/*
