@@ -788,7 +788,7 @@ function RunAndCheck() {
 
   # the value of -jX of the image name gives the number of parallel build processes
   local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
-  local hours=$(( ${2:-24}/j )) # $2 differs usually only for @world
+  local hours=$(( ${2:-36}/j )) # $2 differs usually only for @world
   timeout --signal=15 --kill-after=5m ${hours}h bash -c "eval $1" &>> $tasklog
   local rc=$?
   (echo; date) >> $tasklog
