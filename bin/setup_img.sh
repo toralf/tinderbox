@@ -8,6 +8,11 @@
 
 # $1:$2, eg. 3:5
 function dice() {
+  if [[ $1 -gt $2 ]]; then
+    echo " $1 > $2 ?!"
+    exit 1
+  fi
+
   [[ $(( RANDOM%$2)) -lt $1 ]]
 }
 
@@ -15,7 +20,7 @@ function dice() {
 # helper of ThrowFlags
 function ShuffleUseFlags() {
   local n=$1        # pass up to n-1
-  local m=${2:-4}   # mask 1:m of them
+  local m=$2        # mask 1:m of them
 
   shuf -n $(( RANDOM%n )) |
   sort |
@@ -553,9 +558,15 @@ function CreateBacklogs()  {
     echo '%emerge -u sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf' >> $bl.1st
   fi
 
+  if dice 1 2; then
+    echo "app-portage/pfl" >> $bl.1st
+  fi
+
+  if dice 7 8; then
+    echo "www-client/pybugz" >> $bl.1st
+  fi
+
   cat << EOF >> $bl.1st
-app-portage/pfl
-www-client/pybugz
 @world
 %sed -i -e \\'s,--verbose ,--deep --verbose ,\\' /etc/portage/make.conf
 %emerge -uU =\$(portageq best_visible / sys-devel/gcc)
@@ -572,9 +583,7 @@ function CreateSetupScript()  {
 export LANG=C.utf8
 set -euf
 
-if [[ $profile =~ "/musl" ]]; then
-  :
-else
+if [[ ! $profile =~ "/musl" ]]; then
   date
   echo "#setup locale" | tee /var/tmp/tb/task
   echo "en_US ISO-8859-1" >> /etc/locale.gen
@@ -586,12 +595,20 @@ fi
 
 date
 echo "#setup timezone" | tee /var/tmp/tb/task
-echo "Europe/Berlin" > /etc/timezone
-emerge --config sys-libs/timezone-data
+if [[ $profile =~ "/systemd" ]]; then
+  cd /etc
+  ln -sf ../usr/share/zoneinfo/UTC /etc/localtime
+  cd -
+else
+  echo "UTC" > /etc/timezone
+  emerge --config sys-libs/timezone-data
+fi
 env-update
 set +u; source /etc/profile; set -u
 
 if [[ $profile =~ "/systemd" ]]; then
+  date
+  echo "#setup id" | tee /var/tmp/tb/task
   systemd-machine-id-setup
 fi
 
@@ -608,12 +625,6 @@ date
 echo "#setup portage" | tee /var/tmp/tb/task
 USE=-qt5 emerge -u app-text/ansifilter
 emerge -u sys-apps/portage
-
-if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
-  date
-  echo "#setup slibtool" | tee /var/tmp/tb/task
-  emerge -u sys-devel/slibtool
-fi
 
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
@@ -792,7 +803,7 @@ function ThrowFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |
   cut -f1 -d' ' -s |
   grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-  ShuffleUseFlags 250 |
+  ShuffleUseFlags 250 4 |
   xargs -s 73 |
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
