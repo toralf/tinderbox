@@ -782,9 +782,9 @@ function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  # the value of -jX of the image name gives the number of parallel build processes
+  # the value of -jX of the image name gives the number of parallel makes
   local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
-  local hours=$(( ${2:-36}/j )) # $2 differs usually only for @world
+  local hours=$(( ${2:-24}/j ))
   timeout --signal=15 --kill-after=5m ${hours}h bash -c "eval $1" &>> $tasklog
   local rc=$?
   (echo; date) >> $tasklog
@@ -885,7 +885,7 @@ function WorkOnTask() {
 
   # a common atom
   else
-    if ! RunAndCheck "emerge --update $task"; then
+    if ! RunAndCheck "emerge --update $task" 36; then
       :
     fi
   fi
