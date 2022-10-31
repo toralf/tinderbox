@@ -56,7 +56,7 @@ fi
 echo $$ > "$lockfile"
 trap Finish INT QUIT TERM EXIT
 
-desired_no_of_images=8
+desired_no_of_images=9
 
 while :
 do
