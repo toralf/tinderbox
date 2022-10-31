@@ -628,17 +628,13 @@ function source_profile(){
 # helper of PostEmerge()
 # switch to highest GCC
 function SwitchGCC() {
-  local highest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$'| tail -n 1)
+  local highest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
 
   if ! gcc-config --list-profiles --nocolor | grep -q -F "$highest *"; then
     local current=$(gcc -dumpversion)
-    echo "$FUNCNAME: major version change detected, switch from $current to $highest" | tee -a $taskfile.history
+    echo "major version change of gcc: $current -> $highest" | tee -a $taskfile.history
     gcc-config --nocolor $highest
     source_profile
-    add2backlog "@preserved-rebuild"
-    if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
-      add2backlog "sys-devel/slibtool"
-    fi
     add2backlog "sys-devel/libtool"
     add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f1 -d'.' <<< $current)"
   fi
