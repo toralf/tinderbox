@@ -462,7 +462,7 @@ EOF
   # lines with a comment like "DICE: topic x X" will be kept with x/X chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
   awk '{ print $3, $4, $5 }' |
-  sort -u |
+  sort -u -r |
   while read -r topic x X
   do
     if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
