@@ -73,3 +73,6 @@ net-proxy/squirm
 sci-electronics/drahnr-oregano
 sys-libs/talloc
 sys-libs/tdb
+
+# hangs
+dev-python/pypy3-exe

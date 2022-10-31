@@ -26,7 +26,6 @@ install: cannot create regular file
 java.lang.NoSuchMethodError:
 error: .* was not declared
 environment: line .*: cd: .* No such file or directory
-: No such file
 Failed to set XATTR_PAX markings
 Fatal error .
 glib-mkenums: command not found
@@ -50,3 +49,4 @@ FAILED:
 ^iconv:
 ld: cannot find
  \*   perl_domodule:
+mv: .* are the same file

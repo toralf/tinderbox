@@ -15,7 +15,7 @@
 # 2x faster compile
 */*                                 jumbo-build
 
-# rebuild loops
+# no old stuff
 */*                                 -deprecated
 
 # used mailer
@@ -28,17 +28,21 @@ sys-apps/nix                        -etc_profile
 # https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
-# to let git fetch ::gentoo
+# ::gentoo requirement
 net-misc/curl                       ssl
+
+# too much deps installed at setup
+app-portage/pfl                     -network-cron
+app-text/ansifilter                 -qt5
+
+# https://bugs.gentoo.org/831346
+sys-kernel/installkernel-gentoo     -grub
 
 
 #######################################################################
 #
-# temp settings
+# temp settings for b0rken packages / USE flags
 #
-
-# broken
-net-misc/curl                       -quiche
 
 # fails with: "you must set LINGUAS ..."
 app-admin/webalizer                 -nls
@@ -46,37 +50,23 @@ app-admin/webalizer                 -nls
 # bootstrap b0rken
 sys-devel/gcc                       -d
 
-# https://bugs.gentoo.org/831346
-sys-kernel/installkernel-gentoo     -grub
+# https://bugs.gentoo.org/869953
+sys-devel/gcc                       -ada
 
 # needs hours instead seconds
 dev-libs/gf2x                       -custom-tune
 
-dev-lang/python                     -libedit xml        # DICE: openssl
-
-# too much deps installed at setup
-app-portage/pfl                     -network-cron
-app-text/ansifilter                 -qt5
-
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
 
-# b0rken
-dev-lang/ruby                       -rdoc
-
 # too aggressive kernel config check
-*/*                                 -networkmanager
 dev-libs/aws-sdk-cpp                -networkmanager
 dev-qt/qtnetwork                    -networkmanager
 kde-plasma/ksystemstats             -networkmanager
 
-# https://bugs.gentoo.org/869953
-sys-devel/gcc                       -ada
-
-# perl-cleaner b0rken
-dev-lang/nasm                       -doc
-
 # https://bugs.gentoo.org/868372
 net-firewall/iptables               -conntrack
 
-# perl breakage in app-text/libpaper
+# ruby ....
+*/*                                 -rdoc
+

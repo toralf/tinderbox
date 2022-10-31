@@ -1,4 +1,4 @@
-# a task matching a pattern will be skipped (except for backlog.1st)
+# a task matching a pattern here will be skipped (except for entries in backlog.1st)
 # this file MUST NOT have empty lines
 #
 # never emerge these explicitely
@@ -27,3 +27,4 @@ dev-libs/gf2x
 dev-db/mongodb
 dev-qt/qtwebengine
 sci-libs/
+#

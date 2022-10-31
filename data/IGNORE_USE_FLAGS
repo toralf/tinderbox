@@ -13,6 +13,7 @@ default-gold
 deprecated
 device-mapper-only
 dist-kernel
+doc
 exec-static-trampoline
 FreeBSD
 fuse
@@ -53,6 +54,7 @@ pax-kernel
 perftools
 prefix
 prefix-guest
+rdoc
 ruby27
 ruby30
 ruby31
@@ -66,6 +68,7 @@ static
 static-libs
 systemd
 test
+text
 tools
 uclibc
 unwind

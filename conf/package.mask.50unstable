@@ -2,8 +2,11 @@
 #
 
 
-# up/downgrade
+# repeating up/downgrade
 <dev-util/ragel-7.0.4
 
 # sam
 <dev-libs/openssl-3.0.5                                 # DICE: openssl
+
+# /me
+<sys-devel/llvm-15.0.3                                  # DICE: llvm
