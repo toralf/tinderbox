@@ -8,6 +8,6 @@ dev-games/ogre:0/2.1                **                  # DICE: ogre_2
 
 
 # sam
-dev-libs/openssl:0/3                **                  # DICE: openssl 3 4
+dev-libs/openssl:0/3                **                  # DICE: openssl
 dev-scheme/guile:12/3.0-1           **                  # DICE: guile
 sys-libs/ncurses:0/6                **                  # DICE: ncurses

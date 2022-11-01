@@ -58,21 +58,20 @@ dev-lang/gnat-gpl
 =dev-lang/gnat-gpl-2021-r3
 
 # fails too often
-app-editors/emacs
-app-editors/xemacs
+app-editors/*emacs
 
 # hangs
 dev-lang/lfe
+dev-python/pypy3-exe
+dev-util/trace-cmd
 media-libs/aubio
 media-sound/jack2
 media-sound/lash
 media-sound/qjackctl
+media-sound/xmms2
 net-libs/dleyna-connector-dbus
 net-misc/ntpsec
 net-proxy/squirm
 sci-electronics/drahnr-oregano
 sys-libs/talloc
 sys-libs/tdb
-
-# hangs
-dev-python/pypy3-exe
