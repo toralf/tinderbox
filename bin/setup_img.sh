@@ -486,10 +486,11 @@ EOF
     cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,g')
   done
 
-  # special hooks, currently a clang hook from sam_
-  if dice 1 8; then
+  # special hooks, currently one for Clang hook from sam_
+  if dice 1 2; then
     local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
     if [[ -f $b ]]; then
+      # keep the original name to have the info which hook was choosen
       cp $b ./etc/portage/
       (cd ./etc/portage/; ln -s $(basename $b) bashrc)
     fi
@@ -554,24 +555,18 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  if [[ -f ./etc/portage/bashrc.clang ]]; then
-    echo '%emerge -u sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf' >> $bl.1st
-  fi
-
-  if dice 1 2; then
-    echo "app-portage/pfl" >> $bl.1st
-  fi
-
-  if dice 7 8; then
-    echo "www-client/pybugz" >> $bl.1st
-  fi
-
   cat << EOF >> $bl.1st
+app-portage/pfl
 @world
+www-client/pybugz
 %sed -i -e \\'s,--verbose ,--deep --verbose ,\\' /etc/portage/make.conf
 %emerge -uU =\$(portageq best_visible / sys-devel/gcc)
 
 EOF
+
+  if [[ -f ./etc/portage/bashrc.clang ]]; then
+    echo '%emerge -u sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf' >> $bl.1st
+  fi
 }
 
 
@@ -612,6 +607,8 @@ if [[ $profile =~ "/systemd" ]]; then
   systemd-machine-id-setup
 fi
 
+date
+echo "#create user" | tee /var/tmp/tb/task
 groupadd -g $(id -g tinderbox)                       tinderbox
 useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 
