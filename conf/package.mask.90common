@@ -62,6 +62,7 @@ app-editors/*emacs
 
 # hangs
 dev-lang/lfe
+dev-libs/crypto++
 dev-python/pypy3-exe
 dev-util/trace-cmd
 media-libs/aubio

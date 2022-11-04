@@ -13,21 +13,23 @@ pre_src_prepare() {
 
 pre_src_configure() {
 	# Instructions:
-	# 1. Install clang:15
+	# 1. Install clang:16
 	# 2. Install ansifilter
-	# 3. Set CC=clang and CXX=clang in make.conf
-	# 4. File any bugs hit using this hook as a blocker for tracker bug 870412 
-	
-	if [[ -n ${CC} && ${CC} != *clang* ]] ; then
+	# 3. Two options:
+	#    - Set CC=clang and CXX=clang in make.conf
+	#    - If you don't want to build your system using Clang, set PORTAGE_USE_CLANG_HOOK_GCC=1 too.
+	# 4. File any bugs hit using this hook as a blocker for tracker bug #870412
+
+	# Set PORTAGE_USE_CLANG_HOOK_GCC=1 to use gcc 'for real' but Clang for the testing
+	if [[ -n ${CC} && ${CC} != *clang* && -z ${PORTAGE_USE_CLANG_HOOK_GCC} ]] ; then
 		return
 	fi
-	
-	if ! type -P ansifilter &>/dev/null || ! type -P clang-15 &>/dev/null || ! has_version sys-devel/clang:15 ; then
-		# Avoid issues in early setup when clang:15 hasn't yet been emerged.
-		export CC=gcc
-		export CXX=g++
+
+	if ! type -P ansifilter &>/dev/null ; then
 		return
 	fi
+
+	ewarn "Clang 16 testing: this build is using a /etc/portage/bashrc hook!"
 
 	# Avoid noise from intentional ones...
 	export ac_cv_c_undeclared_builtin_options="none needed"
@@ -40,61 +42,106 @@ pre_src_configure() {
 			export ac_cv_have_decl_fpurge=no
 			export gl_cv_func_fpurge_works=no
 		fi
-		
+
 		# These should be fine on glibc IIRC but let's be safe until confirmed.
 		export ac_cv_header_sys_types_h_makedev=no
 		export gl_cv_minmax_in_limits_h=no
 	fi
 
-	cat <<- EOF > "${T}"/clang
+	mkdir "${T}"/clang-wrappers
+	cat <<- EOF > "${T}"/clang-wrappers/clang
 	#!/usr/bin/env bash
 
-	# Need > /dev/null for sys-libs/musl
+	# - Need > /dev/null for sys-libs/musl
+	# - No LTO because of the noise it generates in diffs (temps)
 	cl1() {
-		clang-15 ${CFLAGS} -Wno-unused-command-line-argument -Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=strict-prototypes \$@ 2>&1 | ansifilter | sed \
+		clang ${CFLAGS} -fno-lto -Wno-unused-command-line-argument -Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=strict-prototypes \$@ 2>&1 | ansifilter | sed \
 			-e "s:14.0.6:14.ignoreme:g" \
 			-e "s:15.0.0:14.ignoreme:g" \
 			-e "s:conftest-.*\.o:conftest.o:g" \
 			-e "s_conftest\.c\:[0-9]\+\:[0-9]\+_ignoreme_g" \
-			-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang14.log > /dev/null
-	}
+			-e "s:garbage2:ignoreme:" \
+			-e "s:garbage:ignoreme:" \
+			-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang16-safe.log > /dev/null
 
+		if ! [[ \${PIPESTATUS[0]} -eq 0 ]] ; then
+			touch "${T}"/clang16-safe-failed
+		fi
+	}
 	# TODO: No -Werror=strict-prototypes here for now as AC_PROG_LEX, AC_CHECK_FUNCS rely on it
 	# also, I think Clang 15.0.1 (which reverts the other bits) keeps that in anyway.
 	cl2() {
-		clang-15 ${CFLAGS} -Wno-unused-command-line-argument -Werror=implicit-function-declaration -Werror=implicit-int \$@ 2>&1 | ansifilter | sed \
+		clang ${CFLAGS} -fno-lto -Wno-unused-command-line-argument -Werror=implicit-function-declaration -Werror=implicit-int \$@ 2>&1 | ansifilter | sed \
 			-e "s:14.0.6:14.ignoreme:g" \
 			-e "s:15.0.0:14.ignoreme:g" \
 			-e "s:15:14:g" \
 			-e "s:conftest-.*\.o:conftest.o:g" \
 			-e "s_conftest\.c\:[0-9]\+\:[0-9]\+_ignoreme_g" \
-			-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang15.log > /dev/null
+			-e "s:garbage2:ignoreme:" \
+			-e "s:garbage:ignoreme:" \
+			-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang16-errors.log > /dev/null
+
+		if ! [[ \${PIPESTATUS[0]} -eq 0 ]] ; then
+			touch "${T}"/clang16-errors-failed
+		fi
 	}
-	
+
+	real_compiler=clang-16
+
+	if [[ -n ${PORTAGE_USE_CLANG_HOOK_GCC} ]] ; then
+		real_compiler="${BROOT:-/}"/usr/bin/gcc
+	fi
+
 	# Just run it again as it's easier for anything which wants to parse stdout/stderr,
 	# and we're not concerned about performance for this experiment anyway.
 	# We have to do the tee & pipe dance to not greedily consume stdin: bug 870985.
-	tee >(cl1 "\$@" -o garbage) >(cl2 "\$@" -o garbage2) | clang-15 "\$@"
+	tee >(cl1 "\$@" -o "${T}"/garbage) >(cl2 "\$@" -o "${T}"/garbage2) | \${real_compiler} "\$@"
+
+	# If at least one of them succeeded, then complain if *only* one of them did.
+	if [[ -f "${T}"/clang16-safe-failed || -f "${T}"/clang16-errors-failed ]] ; then
+		if ! [[ -f "${T}"/clang16-safe-failed && -f "${T}"/clang16-errors-failed ]] ; then
+			touch "${T}"/clang16-broken
+		fi
+	fi
+
+	rm -f "${T}"/clang16-safe-failed "${T}"/clang16-errors-failed
 	EOF
 
-	chmod +x "${T}"/clang
+	chmod +x "${T}"/clang-wrappers/clang
 
+	#for alias in gcc cc ${CHOST}-gcc ${CHOST}-clang ; do
+	for alias in gcc ${CHOST}-clang ; do
+		ln -s "${T}"/clang-wrappers/clang "${T}"/clang-wrappers/${alias} || exit 1
+		chmod +x "${T}"/clang-wrappers/${alias}
+	done
+
+        # Just delete the wrapper rather than mess with PATH again, as the ebuild
+        # may have modified PATH itself.
+        rm -f "${T}"/clang-wrappers/{clang,gcc,cc,${CHOST}-gcc,${CHOST}-clang}
+	
 	# -Werror=strict-prototypes
+	# Just delete the wrapper rather than mess with PATH again, as the ebuild
 	export CFLAGS="${CFLAGS} -Werror=implicit-function-declaration -Werror=implicit-int"
-	export OLD_PATH="${PATH}"
-	export PATH="${T}:${PATH}"
+	# may have modified PATH itself.
+	export PATH="${T}/clang-wrappers:${PATH}"
 }
 
-post_src_configure() {
-	if [[ -z ${OLD_PATH} ]] ; then
-		return
-	fi
-
-	export PATH="${OLD_PATH}"
-
-	if [[ -f "${T}"/clang14.log ]] ; then
+pre_src_compile() {
+	if [[ -f "${T}"/clang16-errors.log ]] ; then
+		rm -rf /var/tmp/clang/${CATEGORY}/${PF}
 		mkdir -p /var/tmp/clang/${CATEGORY}/${PF}
-		cp -rv "${T}"/clang{14,15}.log /var/tmp/clang/${CATEGORY}/${PF}
-		diff -ruN "${T}"/clang{14,15}.log > /var/tmp/clang/${CATEGORY}/${PF}/clang.diff
+
+		cp -rv "${T}"/clang16-{errors,safe}.log /var/tmp/clang/${CATEGORY}/${PF}
+
+		if diff -ruN "${T}"/clang16-{errors,safe}.log > /var/tmp/clang/${CATEGORY}/${PF}/clang.diff ; then
+			# No point in keeping an empty diff around if no differences.
+			rm /var/tmp/clang/${CATEGORY}/${PF}/clang.diff
+		fi
+
+		[[ -f "${T}"/clang16-broken ]] && touch /var/tmp/clang/${CATEGORY}/${PF}/clang16-broken
 	fi
+
+	# Just delete the wrapper rather than mess with PATH again, as the ebuild
+	# may have modified PATH itself.
+	rm -f "${T}"/clang-wrappers/{clang,gcc,cc,${CHOST}-gcc,${CHOST}-clang}
 }
