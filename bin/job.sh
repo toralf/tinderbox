@@ -223,8 +223,7 @@ function CollectIssueFiles() {
       if [[ -s $f ]]; then
         tar -cjpf $issuedir/files/logs.tar.bz2 \
             --dereference \
-            --warning='no-file-removed' \
-            --warning='no-file-ignored' \
+            --warning='no-all' \
             --files-from $f 2>/dev/null
       fi
       rm $f
@@ -247,8 +246,7 @@ function CollectIssueFiles() {
       if [[ -d ./temp ]]; then
         timeout --signal=15 --kill-after=1m 3m tar -cjpf $issuedir/files/temp.tar.bz2 \
             --dereference \
-            --warning='no-file-ignored'  \
-            --warning='no-file-removed' \
+            --warning='no-all'  \
             --exclude='*/go-build[0-9]*/*' \
             --exclude='*/go-cache/??/*' \
             --exclude='*/kerneldir/*' \
@@ -340,7 +338,7 @@ function handleTestPhase() {
     tar -cjpf $issuedir/files/tests.tar.bz2 \
         --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
         --exclude='*.o' --exclude="*/symlinktest/*" \
-        --dereference --sparse --one-file-system --warning='no-file-ignored' \
+        --dereference --sparse --one-file-system --warning='no-all' \
         $dirs 2>/dev/null
   fi
   popd 1>/dev/null
@@ -501,6 +499,7 @@ function finishTitle()  {
           -e 's,ls[[:digit:]]*:,,g' \
           -e 's,..:..:..\.... \[error\],,g' \
           -e 's,config\......./,config.<snip>/,g' \
+          -e 's,GMfifo.*,GMfifo<snip>,g' \
         $issuedir/title
 
   # prefix title
