@@ -352,13 +352,13 @@ EOF
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
   fi
 
+  if dice 1 2; then
+    echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --jobserver-style=pipe"' >> ./etc/portage/make.conf
+  fi
   # http://trofi.github.io/posts/249-an-update-on-make-shuffle.html
-#   if grep -q 'sys-devel/make-9999' ./etc/portage/package.*/*; then
-#     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --jobserver-style=pipe"' >> ./etc/portage/make.conf
-#     if dice 1 2; then
-#       echo 'GNUMAKEFLAGS=$GNUMAKEFLAGS--shuffle' >> ./etc/portage/make.conf
-#     fi
-#   fi
+  if dice 1 2; then
+    echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >> ./etc/portage/make.conf
+  fi
 
   chgrp portage ./etc/portage/make.conf
   chmod g+w     ./etc/portage/make.conf
