@@ -60,7 +60,7 @@ desired_no_of_images=9
 
 while :
 do
-  # mark a stopped image after a day as EOL
+  # if an image stopped for a day then mark it as EOL
   while read -r oldimg
   do
     if ! __is_running $oldimg; then
@@ -81,17 +81,16 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
+  # got for it
   if FreeSlotAvailable; then
     echo
     date
-    echo " setup a new image ..."
-    if ! sudo $(dirname $0)/setup_img.sh; then
-      Finish 1
-    fi
+    echo " + + + setup a new image + + +"
+    sudo $(dirname $0)/setup_img.sh
     continue
   fi
 
-  # loop if there're still running images marked as EOL
+  # loop as long as there're images marked as EOL
   while read -r oldimg
   do
     if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
