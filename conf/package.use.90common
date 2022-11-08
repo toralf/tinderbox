@@ -38,6 +38,9 @@ app-text/ansifilter                 -qt5
 # https://bugs.gentoo.org/831346
 sys-kernel/installkernel-gentoo     -grub
 
+# by sam_
+sys-devel/clang-common              stricter            # DICE: 1 1
+
 
 #######################################################################
 #

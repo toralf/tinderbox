@@ -1,3 +1,4 @@
+exec: clang-16: not found
 \*\*\* Cannot open jobserver
 ; ISO C99 and
 clang-15: error:
@@ -14,7 +15,6 @@ asciidoctor.*cannot load
 gems.*asciidocter.*LoadError
 is not a compiled interface for this version of OCaml
 : multiple definition of.*: first defined here
-.atal error:
 : internal compiler error:
 undefined reference to
 Can't read
@@ -196,7 +196,6 @@ PermissionError:
 missing separator.  Stop.
 Could not import extension
 is illegal here
-fatal error: .*: No such file or directory
 IOError: Unable to
 OSError:
 Error: Could not find suitable distribution for Requirement
@@ -210,7 +209,6 @@ setup: can't find source for
 RuntimeError: maximum recursion depth exceeded while calling a Python object
 Unable to access the X Display, is $DISPLAY set properly?
 The variable KERN_DIR must be a kernel build folder
-^fatal:
 Compiling .*.erl failed:
 Need to define GLIB_MKENUMS
 mkdir /root/cache: permission denied
@@ -322,8 +320,6 @@ Error> .
   Caused by:
 : file format not recognized
 There is a programmable error
-Configuration error:
-:: ERROR:
 Invalid value for GENTOO_VM:
  \*   gcl is not supported b
 Unkown OCaml version
@@ -344,4 +340,4 @@ use of unknown builtin
 cannot convert between scalar
 returning 'int' from a function
 address of vector element requested
-fatal error: .*: No such file or directory
+: conflicting types for

@@ -64,6 +64,8 @@ app-editors/*emacs
 dev-lang/lfe
 dev-libs/crypto++
 dev-python/pypy3-exe
+dev-util/coccinelle
+dev-util/ddd
 dev-util/trace-cmd
 media-libs/aubio
 media-sound/jack2

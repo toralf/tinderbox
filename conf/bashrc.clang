@@ -51,11 +51,20 @@ pre_src_configure() {
 	mkdir "${T}"/clang-wrappers
 	cat <<- EOF > "${T}"/clang-wrappers/clang
 	#!/usr/bin/env bash
+	real_compiler=clang-15
+	
+	if [[ -n \${PORTAGE_USE_CLANG_HOOK_GCC} ]] ; then
+		real_compiler="${BROOT:-/}"/usr/bin/gcc
+	fi
+
+	if [[ -n \${PORTAGE_CLANG_HOOK_USE_REAL_COMPILER} ]] ; then
+		exec \${real_compiler} "\$@"
+	fi
 
 	# - Need > /dev/null for sys-libs/musl
 	# - No LTO because of the noise it generates in diffs (temps)
 	cl1() {
-		clang ${CFLAGS} -fno-lto -Wno-unused-command-line-argument -Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=strict-prototypes \$@ 2>&1 | ansifilter | sed \
+		clang-15 ${CFLAGS} -fno-lto -Wno-unused-command-line-argument -Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=strict-prototypes \$@ 2>&1 | ansifilter | sed \
 			-e "s:14.0.6:14.ignoreme:g" \
 			-e "s:15.0.0:14.ignoreme:g" \
 			-e "s:conftest-.*\.o:conftest.o:g" \
@@ -71,7 +80,7 @@ pre_src_configure() {
 	# TODO: No -Werror=strict-prototypes here for now as AC_PROG_LEX, AC_CHECK_FUNCS rely on it
 	# also, I think Clang 15.0.1 (which reverts the other bits) keeps that in anyway.
 	cl2() {
-		clang ${CFLAGS} -fno-lto -Wno-unused-command-line-argument -Werror=implicit-function-declaration -Werror=implicit-int \$@ 2>&1 | ansifilter | sed \
+		clang-15 ${CFLAGS} -fno-lto -Wno-unused-command-line-argument -Werror=implicit-function-declaration -Werror=implicit-int \$@ 2>&1 | ansifilter | sed \
 			-e "s:14.0.6:14.ignoreme:g" \
 			-e "s:15.0.0:14.ignoreme:g" \
 			-e "s:15:14:g" \
@@ -86,16 +95,11 @@ pre_src_configure() {
 		fi
 	}
 
-	real_compiler=clang-16
-
-	if [[ -n ${PORTAGE_USE_CLANG_HOOK_GCC} ]] ; then
-		real_compiler="${BROOT:-/}"/usr/bin/gcc
-	fi
-
 	# Just run it again as it's easier for anything which wants to parse stdout/stderr,
 	# and we're not concerned about performance for this experiment anyway.
 	# We have to do the tee & pipe dance to not greedily consume stdin: bug 870985.
 	tee >(cl1 "\$@" -o "${T}"/garbage) >(cl2 "\$@" -o "${T}"/garbage2) | \${real_compiler} "\$@"
+	ret="\${PIPESTATUS[1]}"
 
 	# If at least one of them succeeded, then complain if *only* one of them did.
 	if [[ -f "${T}"/clang16-safe-failed || -f "${T}"/clang16-errors-failed ]] ; then
@@ -105,6 +109,7 @@ pre_src_configure() {
 	fi
 
 	rm -f "${T}"/clang16-safe-failed "${T}"/clang16-errors-failed
+	exit \${ret}
 	EOF
 
 	chmod +x "${T}"/clang-wrappers/clang
@@ -115,14 +120,8 @@ pre_src_configure() {
 		chmod +x "${T}"/clang-wrappers/${alias}
 	done
 
-        # Just delete the wrapper rather than mess with PATH again, as the ebuild
-        # may have modified PATH itself.
-        rm -f "${T}"/clang-wrappers/{clang,gcc,cc,${CHOST}-gcc,${CHOST}-clang}
-	
 	# -Werror=strict-prototypes
-	# Just delete the wrapper rather than mess with PATH again, as the ebuild
 	export CFLAGS="${CFLAGS} -Werror=implicit-function-declaration -Werror=implicit-int"
-	# may have modified PATH itself.
 	export PATH="${T}/clang-wrappers:${PATH}"
 }
 
@@ -141,7 +140,8 @@ pre_src_compile() {
 		[[ -f "${T}"/clang16-broken ]] && touch /var/tmp/clang/${CATEGORY}/${PF}/clang16-broken
 	fi
 
-	# Just delete the wrapper rather than mess with PATH again, as the ebuild
+	# We want to just delete the wrapper rather than mess with PATH again, as the ebuild
 	# may have modified PATH itself.
-	rm -f "${T}"/clang-wrappers/{clang,gcc,cc,${CHOST}-gcc,${CHOST}-clang}
+	export PORTAGE_CLANG_HOOK_USE_REAL_COMPILER=1
+	#rm -f "${T}"/clang-wrappers/{clang,gcc,cc,${CHOST}-gcc,${CHOST}-clang}
 }

@@ -9,6 +9,7 @@ compiler-rt
 custom-cflags
 d3d9
 debug
+default-compiler-rt
 default-gold
 deprecated
 device-mapper-only

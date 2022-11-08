@@ -1,5 +1,7 @@
+without a prototype
+not supported in C2x
+:: ERROR:
 : No such file
-fatal error:
 mv: cannot stat
  VERIFY FAILED!
 Assertion failed:
@@ -26,6 +28,7 @@ The environment is too large for exec
 ln: failed to create symbolic link .*: File exists
 Segmentation fault
 ^Error:
+fatal error:
 : error:
 sed:.*expression.*unknown option
 sed.*failed

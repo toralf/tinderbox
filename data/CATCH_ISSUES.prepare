@@ -5,7 +5,6 @@ must be called in src_prepare
 Failed Running libtoolize
 eapply: no files specified
 The source directory .* doesn.t exist
-rm: cannot remove .*: No such file or directory
 cp: cannot stat
 sed: can't read requirements.txt: No such file or directory
 Please disable .* support in your kernel config and recompile your kernel
