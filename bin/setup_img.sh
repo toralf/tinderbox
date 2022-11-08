@@ -352,6 +352,7 @@ EOF
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
   fi
 
+  # preserve make-4.3 behaviour
   if dice 1 2; then
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --jobserver-style=pipe"' >> ./etc/portage/make.conf
   fi
@@ -486,13 +487,11 @@ EOF
     cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,g')
   done
 
-  # special hooks, currently one for Clang hook from sam_
-  if dice 1 2; then
+  # special hooks
+  if dice 4 5; then
     local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
-    if [[ -f $b ]]; then
-      # keep the original name to have the info which hook was choosen
+    if [[ -n $b && -f $b ]]; then
       cp $b ./etc/portage/
-      (cd ./etc/portage/; ln -s $(basename $b) bashrc)
     fi
   fi
 
@@ -555,6 +554,10 @@ function CreateBacklogs()  {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
+  if [[ -f ./etc/portage/bashrc.clang ]]; then
+    echo '%emerge -uU sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf && cd /etc/portage/ && ln -s bashrc.clang bashrc' >> $bl.1st
+  fi
+
   cat << EOF >> $bl.1st
 app-portage/pfl
 @world
@@ -564,9 +567,6 @@ www-client/pybugz
 
 EOF
 
-  if [[ -f ./etc/portage/bashrc.clang ]]; then
-    echo '%emerge -u sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf' >> $bl.1st
-  fi
 }
 
 
@@ -615,7 +615,7 @@ useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 date
 echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/git
-git config --global gc.auto 0   # not needed for the lifetime of an image
+git config --global gc.auto 0
 emaint sync --auto 1>/dev/null
 
 date
@@ -627,16 +627,15 @@ date
 echo "#setup Mail" | tee /var/tmp/tb/task
 # emerge MTA before MUA b/c MUA+virtual/mta together would provide another MTA than sSMTP
 emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the local bind mounted file is already in place
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the bind mounted file is used
 emerge -u mail-client/s-nail
 
 date
 echo "#setup kernel" | tee /var/tmp/tb/task
 emerge -u sys-kernel/gentoo-kernel-bin
 
-# provides qatom
 date
-echo "#setup portage-utils" | tee /var/tmp/tb/task
+echo "#setup qatom" | tee /var/tmp/tb/task
 emerge -u app-portage/portage-utils
 
 date
@@ -822,7 +821,16 @@ function ThrowFlags() {
 
 
 function CompileUseFlagFiles() {
-  echo 'emerge -uUp =$(portageq best_visible / sys-devel/gcc) && emerge --update --changed-use --newuse --deep @world --pretend' > ./var/tmp/tb/dryrun_wrapper.sh
+  (
+    echo 'set -euf'
+#     if [[ -f ./etc/portage/bashrc.clang ]]; then
+#       echo 'emerge --update --changed-use --pretend sys-devel/clang'
+#     else
+      echo 'emerge --update --changed-use --pretend =$(portageq best_visible / sys-devel/gcc)'
+#     fi
+    echo 'emerge --update --changed-use --newuse --deep @world --pretend'
+  ) > ./var/tmp/tb/dryrun_wrapper.sh
+
   if [[ -e $useflagfile ]]; then
     echo
     date

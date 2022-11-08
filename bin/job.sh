@@ -229,11 +229,16 @@ function CollectIssueFiles() {
       rm $f
     )
 
-    # quirk for sam_
     if [[ -d /var/tmp/clang/$pkg ]]; then
       (
         cd /var/tmp/clang/
-        tar -cjpf $issuedir/files/clang.tar.bz2 ./$pkg 2>/dev/null
+        tar -cjpf $issuedir/files/var.tmp.clang.tar.bz2 ./$pkg 2>/dev/null
+      )
+    fi
+    if [[ -d /etc/clang ]]; then
+      (
+        cd /etc
+        tar -cjpf $issuedir/files/etc.clang.tar.bz2 ./clang 2>/dev/null
       )
     fi
 
@@ -335,7 +340,7 @@ function handleTestPhase() {
   local dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
   if [[ -n "$dirs" ]]; then
     # ignore stderr, eg.:    tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
-    tar -cjpf $issuedir/files/tests.tar.bz2 \
+    timeout --signal=15 --kill-after=1m 3m tar -cjpf $issuedir/files/tests.tar.bz2 \
         --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
         --exclude='*.o' --exclude="*/symlinktest/*" \
         --dereference --sparse --one-file-system --warning='no-all' \
@@ -400,6 +405,7 @@ function CompileIssueComment0() {
 EOF
 
   (
+    grep -e "^CC=" -e "^CXX=" -e "^GNUMAKEFLAGS" /etc/portage/make.conf
     echo "gcc-config -l:"
     gcc-config -l
     echo "clang/llvm (if any):"
@@ -414,7 +420,6 @@ EOF
     ghc --version
     echo "php cli (if any):"
     eselect php list cli
-    make --version | head -n 1
 
     for i in /var/db/repos/*/.git
     do
@@ -500,6 +505,7 @@ function finishTitle()  {
           -e 's,..:..:..\.... \[error\],,g' \
           -e 's,config\......./,config.<snip>/,g' \
           -e 's,GMfifo.*,GMfifo<snip>,g' \
+          -e 's,shuffle=[[:digit:]]*,,g' \
         $issuedir/title
 
   # prefix title
