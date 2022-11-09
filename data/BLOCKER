@@ -45,10 +45,15 @@ openjpeg.h:
 847148
 buffer overflow detected
 
+# [Tracker] Packages which will fail with -std=c2x
+880545
+prototype|not supported in C2|C2XWerror=deprecated-non-prototype
+
 # [Tracker] Breakage with Clang 15 (mostly configure script issues)
 870412
-clang-15: error:|call to undeclared function|undefined symbol|installation or configuration problem |C compiler cannot create executables |; ISO C99 and|incompatible pointer to integer conversion initializing |use of undeclared identifier| implicit declaration of function |initializing .* with an expression of type |call to undeclared function |argument to .* must |use of bitwise & with boolean operands |variable .* is used |incompatible pointer to integer conversion |return type defaults to |type .* cannot be narrowed to|conflicting types for|C compiler cannot create executables|exec: clang-16: not found|without a prototype
+clang-15: error:|call to undeclared function|undefined symbol|installation or configuration problem |C compiler cannot create executables |; ISO C99 and|incompatible pointer to integer conversion|use of undeclared identifier| implicit declaration of function |initializing .* with an expression of type |call to undeclared function |argument to .* must |use of bitwise & with boolean operands |variable .* is used |return type defaults to |type .* cannot be narrowed to|conflicting types for|C compiler cannot create executables|exec: clang-1.: not found|Wimplicit-int|incompatible function pointer types passing
 
 # [Tracker] Build failures with sys-kernel/linux-headers-6.0
 876331
 flexible array member
+

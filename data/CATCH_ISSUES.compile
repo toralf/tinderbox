@@ -226,7 +226,6 @@ NameError:
 build cache is disabled by GOCACHE=off, but required as of Go
 error while opening .* for reading: No such file or directory
 Bad file descriptor, skipping file,
-: file not recognized: File format not recognized
 ^Cannot open assembly
 ^Makefile:.*.* does not exist.
 ValueError: Only strings are accepted for the license field, files are not accepted
@@ -341,3 +340,4 @@ cannot convert between scalar
 returning 'int' from a function
 address of vector element requested
 : conflicting types for
+fatal: the .* library is required

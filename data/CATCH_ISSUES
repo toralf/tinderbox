@@ -1,5 +1,6 @@
+not supported in C2
 without a prototype
-not supported in C2x
+recipe commences before first target.
 :: ERROR:
 : No such file
 mv: cannot stat

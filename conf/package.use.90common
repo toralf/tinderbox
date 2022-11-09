@@ -39,7 +39,7 @@ app-text/ansifilter                 -qt5
 sys-kernel/installkernel-gentoo     -grub
 
 # by sam_
-sys-devel/clang-common              stricter            # DICE: 1 1
+<sys-devel/clang-common-16          stricter
 
 
 #######################################################################
