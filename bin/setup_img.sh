@@ -488,7 +488,7 @@ EOF
   done
 
   # special hooks
-  if dice 1 2; then
+  if dice 1 4; then
     local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
     if [[ -n $b && -f $b ]]; then
       cp $b ./etc/portage/
