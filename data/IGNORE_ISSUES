@@ -6,6 +6,7 @@ Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.
 dev-ruby/.*::gentoo failed (install phase)
+ does not work on clang
 gcc version .* found, expected gcc
 gem install kramdown
 GNAT is required to build ada

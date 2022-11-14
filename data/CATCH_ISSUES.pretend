@@ -8,3 +8,4 @@ Space constraints set in the ebuild were not met
  \*   Please update your kernel
  \*   CONFIG_.* detected!
  \*   Mismatched defaults detected between
+ \*   .* does not work on clang

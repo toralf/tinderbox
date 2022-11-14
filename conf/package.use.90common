@@ -38,8 +38,6 @@ app-text/ansifilter                 -qt5
 # https://bugs.gentoo.org/831346
 sys-kernel/installkernel-gentoo     -grub
 
-# by sam_
-<sys-devel/clang-common-16          stricter
 
 
 #######################################################################
@@ -73,3 +71,8 @@ net-firewall/iptables               -conntrack
 # ruby ....
 */*                                 -rdoc
 
+# by sam_
+<sys-devel/clang-common-16          stricter
+
+# needd for clang
+sys-libs/ncurses                    -gpm

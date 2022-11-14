@@ -14,7 +14,7 @@ The futex facility returned an unexpected error code.
 asciidoctor.*cannot load
 gems.*asciidocter.*LoadError
 is not a compiled interface for this version of OCaml
-: multiple definition of.*: first defined here
+: multiple definition of.*:
 : internal compiler error:
 undefined reference to
 Can't read
@@ -317,7 +317,6 @@ Extension error:
 error: cannot enable
 Error> .
   Caused by:
-: file format not recognized
 There is a programmable error
 Invalid value for GENTOO_VM:
  \*   gcl is not supported b
@@ -341,3 +340,5 @@ returning 'int' from a function
 address of vector element requested
 : conflicting types for
 fatal: the .* library is required
+incompatible function pointer types
+link: cannot find the library

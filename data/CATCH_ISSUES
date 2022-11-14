@@ -1,4 +1,5 @@
-not supported in C2
+prototype is deprecated in all versions of C
+and is not supported in C2x
 without a prototype
 recipe commences before first target.
 :: ERROR:
