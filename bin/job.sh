@@ -506,6 +506,7 @@ function finishTitle()  {
           -e 's,config\......./,config.<snip>/,g' \
           -e 's,GMfifo.*,GMfifo<snip>,g' \
           -e 's,shuffle=[[:digit:]]*,,g' \
+          -e 's,Makefile.*.tmp:[[:digit:]]*,Makefile,g' \
         $issuedir/title
 
   # prefix title
@@ -526,7 +527,7 @@ function SendIssueMailIfNotYetReported()  {
       echo "$(cat $issuedir/title)" >> /mnt/tb/data/ALREADY_CAUGHT
 
       cp $issuedir/issue $issuedir/body
-      echo -e "\n\n\n" >> $issuedir/body
+      echo -e "\n\n" >> $issuedir/body
       chmod a+w $issuedir/body
 
       local known="bug"
@@ -538,12 +539,12 @@ function SendIssueMailIfNotYetReported()  {
         else
           known+=" unknown:"
         fi
-        echo -e "\n\n\ncheck_bgo.sh ~tinderbox/img/$name/$issuedir               -f\n\n\n" >> $issuedir/body
+        echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir                  -f" >> $issuedir/body
       else
         known+=" raw:"
-        echo -e "\n\n\ncheck_bgo.sh ~tinderbox/img/$name/$issuedir\n\n\n" >> $issuedir/body
+        echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir" >> $issuedir/body
       fi
-      echo "EOF" >> $issuedir/body
+      echo -e "\n\n\n." >> $issuedir/body
 
       blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER)
       if [[ -n $blocker_bug_no ]]; then
