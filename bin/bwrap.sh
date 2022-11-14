@@ -141,9 +141,9 @@ function Bwrap() {
         --ro-bind ~tinderbox/.bugzrc              /root/.bugzrc
         --tmpfs                                   /run
         --ro-bind /sys                            /sys
-        --perms 1777 --tmpfs                      /tmp
+        --size $((1*2**30)) --perms 1777 --tmpfs  /tmp
         --bind ~tinderbox/distfiles               /var/cache/distfiles
-        --perms 1777 --tmpfs                      /var/tmp/portage
+        --size $((32*2**30)) --perms 1777 --tmpfs /var/tmp/portage
         /bin/bash -l
   )
 
