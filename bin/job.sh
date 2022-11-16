@@ -150,8 +150,7 @@ function getNextTask() {
       # skip if $task would be downgraded
       local installed=$(portageq best_version / $task)
       if [[ -n "$installed" ]]; then
-        # qatom: error while loading shared libraries: libgomp.so.1: cannot ...
-        if qatom --compare $installed $best_visible 2>/dev/null | grep -q -e ' == ' -e ' > '; then
+        if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
           continue
         fi
       fi
