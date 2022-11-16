@@ -15,9 +15,6 @@
 # 2x faster compile
 */*                                 jumbo-build
 
-# no old stuff
-*/*                                 -deprecated
-
 # used mailer
 mail-client/s-nail                  -kerberos
 mail-mta/ssmtp                      mta ssl -gnutls

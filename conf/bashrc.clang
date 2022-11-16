@@ -54,7 +54,7 @@ pre_src_configure() {
 	real_compiler=clang-15
 	
 	if [[ -n \${PORTAGE_USE_CLANG_HOOK_GCC} ]] ; then
-		real_compiler="${BROOT:-/}"/usr/bin/gcc
+		real_compiler="${BROOT:-/}"/usr/bin/${CHOST}-gcc
 	fi
 
 	if [[ -n \${PORTAGE_CLANG_HOOK_USE_REAL_COMPILER} ]] ; then
@@ -95,6 +95,9 @@ pre_src_configure() {
 		fi
 	}
 
+	# Safety net against recursive calls
+	export PORTAGE_CLANG_HOOK_USE_REAL_COMPILER=1
+
 	# Just run it again as it's easier for anything which wants to parse stdout/stderr,
 	# and we're not concerned about performance for this experiment anyway.
 	# We have to do the tee & pipe dance to not greedily consume stdin: bug 870985.
@@ -114,15 +117,20 @@ pre_src_configure() {
 
 	chmod +x "${T}"/clang-wrappers/clang
 
-	#for alias in gcc cc ${CHOST}-gcc ${CHOST}-clang ; do
-	for alias in gcc ${CHOST}-clang ; do
-		ln -s "${T}"/clang-wrappers/clang "${T}"/clang-wrappers/${alias} || exit 1
-		chmod +x "${T}"/clang-wrappers/${alias}
-	done
+	if in_iuse clang && use clang ; then
+		# No aliases here, please.
+		:;
+	else
+		#for alias in gcc cc ${CHOST}-gcc ${CHOST}-clang ; do
+		for alias in ${CHOST}-gcc gcc ${CHOST}-clang ; do
+			ln -s "${T}"/clang-wrappers/clang "${T}"/clang-wrappers/${alias} || exit 1
+			chmod +x "${T}"/clang-wrappers/${alias}
+		done
 
-	# -Werror=strict-prototypes
-	export CFLAGS="${CFLAGS} -Werror=implicit-function-declaration -Werror=implicit-int"
-	export PATH="${T}/clang-wrappers:${PATH}"
+		# -Werror=strict-prototypes
+		export CFLAGS="${CFLAGS} -Werror=implicit-function-declaration -Werror=implicit-int"
+		export PATH="${T}/clang-wrappers:${PATH}"
+	fi
 }
 
 pre_src_compile() {
@@ -132,7 +140,7 @@ pre_src_compile() {
 
 		cp -rv "${T}"/clang16-{errors,safe}.log /var/tmp/clang/${CATEGORY}/${PF}
 
-		if diff -ruN "${T}"/clang16-{errors,safe}.log > /var/tmp/clang/${CATEGORY}/${PF}/clang.diff ; then
+		if diff -ruN "${T}"/clang16-{safe,errors}.log > /var/tmp/clang/${CATEGORY}/${PF}/clang.diff ; then
 			# No point in keeping an empty diff around if no differences.
 			rm /var/tmp/clang/${CATEGORY}/${PF}/clang.diff
 		fi

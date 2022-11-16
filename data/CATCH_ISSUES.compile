@@ -1,7 +1,6 @@
 exec: clang-16: not found
 \*\*\* Cannot open jobserver
 ; ISO C99 and
-clang-15: error:
 Bootstrap comparison failure!
   call to undeclared function
 : clang: command not found
@@ -342,3 +341,4 @@ address of vector element requested
 fatal: the .* library is required
 incompatible function pointer types
 link: cannot find the library
+Crash dump is being written to: erl

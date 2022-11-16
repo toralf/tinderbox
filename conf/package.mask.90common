@@ -78,3 +78,6 @@ net-proxy/squirm
 sci-electronics/drahnr-oregano
 sys-libs/talloc
 sys-libs/tdb
+dev-haskell/primitive-addr
+dev-haskell/dav
+dev-haskell/unicode-data
