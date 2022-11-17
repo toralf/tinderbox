@@ -559,9 +559,7 @@ function CreateBacklogs()  {
   fi
 
   cat << EOF >> $bl.1st
-app-portage/pfl
 @world
-www-client/pybugz
 %sed -i -e \\'s,--verbose ,--deep --verbose ,\\' /etc/portage/make.conf
 %emerge -uU =\$(portageq best_visible / sys-devel/gcc)
 
@@ -635,8 +633,8 @@ echo "#setup kernel" | tee /var/tmp/tb/task
 emerge -u sys-kernel/gentoo-kernel-bin
 
 date
-echo "#setup qatom" | tee /var/tmp/tb/task
-emerge -u app-portage/portage-utils
+echo "#setup q + bugz" | tee /var/tmp/tb/task
+emerge -u app-portage/portage-utils www-client/pybugz app-portage/pfl
 
 date
 echo "#setup profile, make.conf, backlog" | tee /var/tmp/tb/task
