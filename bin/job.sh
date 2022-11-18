@@ -897,7 +897,7 @@ function WorkOnTask() {
 }
 
 
-# not more than n attempts of @xy within last N tasks
+# bail out if there're more than n attempts of @<set> within last N tasks
 function DetectTaskLoop() {
   local n=7
   local N=20
@@ -918,7 +918,7 @@ function DetectTaskLoop() {
   done
 
   local count
-  local name
+  local package
   if read -r count package < <(qlop -mv | awk '{ print $3 }' | sort | uniq -c | sort -bn | tail -n 1); then
     if [[ $count -gt 10 ]]; then
       Finish 13 "repeated emerges: $count x $package" $histfile
