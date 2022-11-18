@@ -103,7 +103,6 @@ error: expected expression before
  error: narrowing conversion of
  error: implicit declaration of
  failed: .*glib-genmarshal
-error: signals-marshal.h: No such file or directory
 gck-marshal.list: Permission denied
 This expression has type .* but an expression
 mmap: wanted .* bytes at .*, actually mapped at .*
@@ -342,3 +341,6 @@ fatal: the .* library is required
 incompatible function pointer types
 link: cannot find the library
 Crash dump is being written to: erl
+ar: .* malformed archive
+Error in compiling
+ERROR: cannot find

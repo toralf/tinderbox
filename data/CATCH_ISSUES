@@ -1,3 +1,5 @@
+CMake Error at
+CMake Error:
 prototype is deprecated in all versions of C
 and is not supported in C2x
 without a prototype
@@ -39,7 +41,6 @@ sed.*failed
 error: .
 Please fix the ebuild to use correct FHS/Gentoo policy paths
 ^ERROR
-Error .
  \*   .* failed
 Unsupported kernel version!
  \* ERROR:

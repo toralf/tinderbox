@@ -80,8 +80,8 @@ checking version of x86_64-pc-linux-gnu-gcc ... .* - old version, at least .* re
  error: Unable to find
 The following variables are used in this project, but they are set to NOTFOUND.
 configure: error:
-CMake Error at
-CMake Error:
+ModuleNotFoundError:
+ Could not find a configuration file for package
 Configuring incomplete
 cmake failed
  \*   Failed to find configuration

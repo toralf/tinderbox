@@ -22,19 +22,21 @@ mail-mta/ssmtp                      mta ssl -gnutls
 # /etc/profile.d/nix.sh overwrites /etc/profile
 sys-apps/nix                        -etc_profile
 
-# https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https
+# https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https otherwise
 dev-vcs/git                         curl
 
 # ::gentoo requirement
 net-misc/curl                       ssl
 
-# too much deps installed at setup
+# too much deps
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -qt5
 
 # https://bugs.gentoo.org/831346
 sys-kernel/installkernel-gentoo     -grub
 
+# qlop: error while loading shared libraries: libgomp.so.1:
+app-portage/portage-utils           -openmp
 
 
 #######################################################################
