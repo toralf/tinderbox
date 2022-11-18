@@ -93,7 +93,7 @@ function InitOptions() {
       if dice 1 80; then
         cflags+=" -falign-functions=32:25:16"
       fi
-      if dice 1 40; then
+      if dice 1 80; then
         testfeature="y"
       fi
     fi
@@ -490,7 +490,7 @@ EOF
   # special hooks
   if dice 1 4; then
     local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
-    if [[ -n $b && -f $b ]]; then
+    if [[ -f $b ]]; then
       cp $b ./etc/portage/
     fi
   fi
@@ -618,7 +618,7 @@ emaint sync --auto 1>/dev/null
 
 date
 echo "#setup portage" | tee /var/tmp/tb/task
-USE=-qt5 emerge -u app-text/ansifilter
+emerge -u app-text/ansifilter
 emerge -u sys-apps/portage
 
 date
