@@ -248,13 +248,14 @@ function CollectIssueFiles() {
     (
       cd "$workdir/../.."
       if [[ -d ./temp ]]; then
-        timeout --signal=15 --kill-after=1m 3m tar -cjpf $issuedir/files/temp.tar.bz2 \
+        timeout --signal=15 --kill-after=1m 3m tar --warning=none -cjpf $issuedir/files/temp.tar.bz2 \
             --dereference \
             --warning='no-all'  \
             --exclude='*/go-build[0-9]*/*' \
             --exclude='*/go-cache/??/*' \
             --exclude='*/kerneldir/*' \
             --exclude='*/nested_link_to_dir/*' \
+            --exclude='*/syml*' \
             --exclude='*/testdirsymlink/*' \
             --exclude='*/var-tests/*' \
             ./temp
@@ -339,10 +340,10 @@ function handleTestPhase() {
   local dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
   if [[ -n "$dirs" ]]; then
     # ignore stderr, eg.:    tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
-    timeout --signal=15 --kill-after=1m 3m tar -cjpf $issuedir/files/tests.tar.bz2 \
+    timeout --signal=15 --kill-after=1m 3m tar --warning=none -cjpf $issuedir/files/tests.tar.bz2 \
         --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
         --exclude='*.o' --exclude="*/symlinktest/*" \
-        --dereference --sparse --one-file-system --warning='no-all' \
+        --dereference --sparse --one-file-system \
         $dirs 2>/dev/null
   fi
   popd 1>/dev/null
