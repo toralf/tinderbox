@@ -72,16 +72,12 @@ trap Exit INT QUIT TERM EXIT
 rm -f bgo.sh.{out,err}
 
 if [[ -n "$id" ]]; then
-  # modify an existing bug report
-
   if [[ -z "$comment" ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
   bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
 
 else
-  # create a new bug report
-
   if [[ ! -s ./assignee ]]; then
     echo "no assignee given, run check_bgo.sh before !"
     exit 4
@@ -120,8 +116,7 @@ else
 fi
 echo
 
-# avoid duplicate reports
-echo "https://bugs.gentoo.org/show_bug.cgi?id=$id" | tee -a ./.reported
+echo "https://bugs.gentoo.org/$id" | tee -a ./.reported
 
 if [[ -s bgo.sh.err ]]; then
   Exit 5
