@@ -1,3 +1,4 @@
+ install aborted due to severe warnings shown above
 CMake Error at
 CMake Error:
 prototype is deprecated in all versions of C

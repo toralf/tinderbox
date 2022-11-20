@@ -81,3 +81,6 @@ sys-libs/tdb
 dev-haskell/primitive-addr
 dev-haskell/dav
 dev-haskell/unicode-data
+
+# oom
+=sys-devel/gdb-12.1-r2
