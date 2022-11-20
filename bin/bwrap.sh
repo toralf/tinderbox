@@ -24,7 +24,7 @@ function CgroupCreate() {
   local mem=$(( 4*j + 10 ))
   cgset -r memory.limit_in_bytes=${mem}G $name
 
-  # Hint: /var/tmp/portage is a tmpfs therefore this memory settings is (implicitely) a quota for that directory too
+  # Hint: /var/tmp/portage is a tmpfs therefore this memory settings has (implicitly) a quota for that directory too
   cgset -r memory.memsw.limit_in_bytes=70G $name
 
   for i in cpu memory
@@ -219,12 +219,12 @@ if [[ -d $lock_dir ]]; then
 fi
 mkdir -p "$lock_dir"
 
-trap Exit INT QUIT TERM EXIT
-
 if ! CgroupCreate ${mnt##*/} $$; then
-  CgroupDelete
-  exit 1
+  CgroupDelete ${mnt##*/}
+  Exit 1
 fi
+
+trap Exit INT QUIT TERM EXIT
 
 if [[ -n "$entrypoint" ]]; then
   rm -f                           "$mnt/entrypoint"
