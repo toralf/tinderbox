@@ -114,10 +114,7 @@ else
     bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
   fi
 fi
-echo
-
 echo "https://bugs.gentoo.org/$id" | tee -a ./.reported
-
 if [[ -s bgo.sh.err ]]; then
   Exit 5
 fi
