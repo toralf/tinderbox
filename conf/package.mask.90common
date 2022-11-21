@@ -61,6 +61,7 @@ dev-lang/gnat-gpl
 app-editors/*emacs
 
 # hangs
+app-i18n/ibus
 dev-lang/lfe
 dev-libs/crypto++
 dev-python/pypy3-exe
@@ -81,6 +82,3 @@ sys-libs/tdb
 dev-haskell/primitive-addr
 dev-haskell/dav
 dev-haskell/unicode-data
-
-# oom
-=sys-devel/gdb-12.1-r2

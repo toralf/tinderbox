@@ -14,6 +14,7 @@ gem install kramdown
 GNAT is required to build ada
 Incompatible gcc version found
 Incorrect kernel configuration options
+ InterpreterMessages.h
  is not a supported compiler. Please use
 Kernel not configured; no .config found in
 Linux .* is the latest supported version
