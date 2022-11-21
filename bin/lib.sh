@@ -94,7 +94,7 @@ function SearchForSameIssue() {
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
         grep -e " CONFIRMED " -e " IN_PROGRESS " |
-        sort -u -n -r |
+        sort -n -r |
         head -n 4 |
         tee $bugz_result
     if GotResults; then
@@ -106,7 +106,7 @@ function SearchForSameIssue() {
   do
     $bugz_timeout bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |
         grep -e " CONFIRMED " -e " IN_PROGRESS " |
-        sort -u -n -r |
+        sort -n -r |
         head -n 4 |
         tee $bugz_result
     if GotResults; then
@@ -123,7 +123,7 @@ function SearchForSimilarIssue() {
   for i in $pkg $pkgname
   do
     $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bugz_search)" |
-        sort -u -n -r |
+        sort -n -r |
         head -n 3 |
         tee $bugz_result
     if GotResults; then
@@ -132,7 +132,7 @@ function SearchForSimilarIssue() {
     fi
 
     $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |
-        sort -u -n -r |
+        sort -n -r |
         head -n 3 |
         tee $bugz_result
     if GotResults; then
@@ -148,7 +148,7 @@ function SearchForSimilarIssue() {
   echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
   $bugz_timeout bugz -q --columns 400 search --show-status $pkgname |
       grep -v -i -E "$g" |
-      sort -u -n -r |
+      sort -n -r |
       head -n 12 |
       tee $bugz_result
   if GotResults; then
@@ -159,7 +159,7 @@ function SearchForSimilarIssue() {
     echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
     $bugz_timeout bugz -q --columns 400 search --status RESOLVED $pkgname |
         grep -v -i -E "$g" |
-        sort -u -n -r |
+        sort -n -r |
         head -n 5 |
         tee $bugz_result
     if GotResults; then
