@@ -488,10 +488,12 @@ EOF
   done
 
   # special hooks
-  if dice 1 6; then
-    local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
-    if [[ -f $b ]]; then
-      cp $b ./etc/portage/
+  if [[ $keyword = "~amd64" ]]; then
+    if dice 1 6; then
+      local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
+      if [[ -f $b ]]; then
+        cp $b ./etc/portage/
+      fi
     fi
   fi
 
