@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
+
 # kill running emerge process of an image and set it EOL
 
 
@@ -20,19 +21,19 @@ do
   img=$(basename "$img")
   if [[ -d ~tinderbox/img/$img ]]; then
     echo "user decision at $(date)" >> ~tinderbox/img/$img/var/tmp/tb/EOL
-    if ppid=$(pgrep -f "sudo.*bwrap.*$img"); then
-      if pid=$(pstree -pa $ppid | grep -F 'emerge,' | grep -m1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
-        pstree -UlnspuTa $pid
+    if b_pid=$(pgrep -f "sudo.*bwrap.*$img"); then
+      if e_pid=$(pstree -pa $b_pid | grep -F 'emerge,' | grep -m1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
+        pstree -UlnspuTa $e_pid
         echo
-        kill -9 $pid
+        kill -9 $e_pid
         echo
       else
-        echo " $img: no pid found for $ppid"
+        echo " error: $img: no emerge pid found for $b_pid"
       fi
     else
-      echo " $img: no ppid found"
+      echo " info: $img: no bwrap pid found"
     fi
   else
-    echo " $img: no image found"
+    echo " error: $img: no image found"
   fi
 done
