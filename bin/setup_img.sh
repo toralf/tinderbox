@@ -488,7 +488,7 @@ EOF
   done
 
   # special hooks
-  if dice 1 4; then
+  if dice 1 6; then
     local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
     if [[ -f $b ]]; then
       cp $b ./etc/portage/
@@ -614,6 +614,7 @@ date
 echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/git
 git config --global gc.auto 0
+git config --global pull.ff only
 emaint sync --auto 1>/dev/null
 
 date
@@ -821,11 +822,7 @@ function ThrowFlags() {
 function CompileUseFlagFiles() {
   (
     echo 'set -euf'
-#     if [[ -f ./etc/portage/bashrc.clang ]]; then
-#       echo 'emerge --update --changed-use --pretend sys-devel/clang'
-#     else
-      echo 'emerge --update --changed-use --pretend =$(portageq best_visible / sys-devel/gcc)'
-#     fi
+    echo 'emerge --update --changed-use --pretend =$(portageq best_visible / sys-devel/gcc)'
     echo 'emerge --update --changed-use --newuse --deep @world --pretend'
   ) > ./var/tmp/tb/dryrun_wrapper.sh
 
