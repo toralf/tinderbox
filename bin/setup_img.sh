@@ -102,7 +102,7 @@ function InitOptions() {
 
 
 # helper of CheckOptions()
-function checkBool()  {
+function checkBool() {
   local var=$1
   local val=$(eval echo \$${var})
 
@@ -148,7 +148,7 @@ function CheckOptions() {
 
 
 # helper of UnpackStage3()
-function CreateImageName()  {
+function CreateImageName() {
   name="$(tr '/\-' '_' <<< $profile)"
   name+="-j${jobs}"
   [[ $keyword = 'amd64' ]]  && name+="_stable"
@@ -160,7 +160,7 @@ function CreateImageName()  {
 
 
 # download, verify and unpack the stage3 file
-function UnpackStage3()  {
+function UnpackStage3() {
   local latest=$tbhome/distfiles/latest-stage3.txt
 
   for mirror in $gentoo_mirrors
@@ -256,7 +256,7 @@ function UnpackStage3()  {
 
 
 # only ::gentoo
-function InitRepository()  {
+function InitRepository() {
   mkdir -p ./etc/portage/repos.conf/
 
   cat << EOF >> ./etc/portage/repos.conf/all.conf
@@ -294,8 +294,20 @@ EOF
 }
 
 
+# create inderbox related directories + files
+function CompileTinderboxFiles() {
+  mkdir -p ./mnt/tb/data ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
+
+  chgrp portage ./var/tmp/tb/{,logs}
+  chmod ug+rwx  ./var/tmp/tb/{,logs}
+
+  echo $EPOCHSECONDS > ./var/tmp/tb/setup.timestamp
+  echo $name > ./var/tmp/tb/name
+}
+
+
 # compile make.conf
-function CompileMakeConf()  {
+function CompileMakeConf() {
   cat << EOF > ./etc/portage/make.conf
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
@@ -309,12 +321,12 @@ FFLAGS="\${FCFLAGS}"
 # simply enables QA check for LDFLAGS being respected by build system.
 LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
 
-# prepare for debug sessions
+# add this entry for convenience to debug things
 #GNUMAKEFLAGS="\$GNUMAKEFLAGS -d"
 
 ACCEPT_KEYWORDS="$keyword"
 
-# just tinderbox, no re-distribution nor any "usage"
+# just tinderbox'ing, no re-distribution nor any "usage" of software
 ACCEPT_LICENSE="*"
 
 # no manual interaction
@@ -377,16 +389,8 @@ function cpconf() {
 }
 
 
-# create portage and tinderbox related directories + files
-function CompilePortageFiles()  {
-  mkdir -p ./mnt/tb/data ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
-
-  chgrp portage ./var/tmp/tb/{,logs}
-  chmod ug+rwx  ./var/tmp/tb/{,logs}
-
-  echo $EPOCHSECONDS > ./var/tmp/tb/setup.timestamp
-  echo $name > ./var/tmp/tb/name
-
+# create portage related directories + files
+function CompilePortageFiles() {
   for d in env package.{accept_keywords,env,mask,unmask,use} patches profile
   do
     if [[ ! -d ./etc/portage/$d ]]; then
@@ -507,8 +511,7 @@ EOF
 }
 
 
-function CompileMiscFiles()  {
-  # use local host DNS resolver
+function CompileMiscFiles() {
   cat << EOF > ./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
@@ -547,7 +550,7 @@ EOF
 # /var/tmp/tb/backlog     : setup_img.sh
 # /var/tmp/tb/backlog.1st : setup_img.sh          job.sh, retest.sh
 # /var/tmp/tb/backlog.upd :                       job.sh
-function CreateBacklogs()  {
+function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
 
   truncate -s 0           $bl{,.1st,.upd}
@@ -573,7 +576,7 @@ EOF
 }
 
 
-function CreateSetupScript()  {
+function CreateSetupScript() {
   if cat << EOF > ./var/tmp/tb/setup.sh; then
 #!/bin/bash
 # set -x
@@ -925,8 +928,9 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 CheckOptions
 UnpackStage3
 InitRepository
-CompilePortageFiles
+CompileTinderboxFiles
 CompileMakeConf
+CompilePortageFiles
 CompileMiscFiles
 CreateBacklogs
 CreateSetupScript
