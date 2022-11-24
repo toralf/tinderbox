@@ -345,3 +345,7 @@ ar: .* malformed archive
 Error in compiling
 ERROR: cannot find
  use an undefined value as an
+Cannot write to
+Error while loading
+: Unbound variable:
+error: unknown warning option

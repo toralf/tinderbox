@@ -26,6 +26,8 @@
 
 : ${PORTAGE_USE_CLANG_HOOK:=1}
 
+hook_timestamp='2022-11-24T00:04'
+
 pre_src_prepare() {
 	# If CC is set to something other than Clang, we shouldn't try
 	# to override it (could even be done in the ebuild).
@@ -44,7 +46,7 @@ pre_src_prepare() {
 
 	has_version ${hv_args} sys-devel/clang:15 && __PORTAGE_HOOK_CLANG=clang-15
 	has_version ${hv_args} sys-devel/clang:16 && __PORTAGE_HOOK_CLANG=clang-16
-	
+
 	if ! type -P ansifilter &>/dev/null || [[ -z ${__PORTAGE_HOOK_CLANG} ]] || ! type -P ${__PORTAGE_HOOK_CLANG} &>/dev/null ; then
 		# Avoid issues in early setup when clang:15 or clang:16 haven't yet been emerged.
 		export CC=gcc
@@ -63,7 +65,7 @@ pre_src_configure() {
 			return
 		fi
 
-		ewarn "Clang 16 testing: this build is using a /etc/portage/bashrc hook!"
+		ewarn "Clang 16 testing: this build is using a /etc/portage/bashrc hook ($hook_timestamp)!"
 		ewarn "Clang 16 testing: see https://wiki.gentoo.org/wiki/Modern_C_porting for more info."
 
 		# Avoid noise from intentional ones...
@@ -86,6 +88,11 @@ pre_src_configure() {
 		# Weird hangs (see timeout comment below w/ tee)
 		has waf-utils ${INHERITED} && return
 
+		# Issues with CPP, easier to just avoid (bug #882363)
+		if grep -q "x11-misc/imake" <<< "${BDEPEND}" ; then
+			return
+		fi
+
 		mkdir "${T}"/clang-wrappers
 		cat <<- EOF > "${T}"/clang-wrappers/clang
 		#!/usr/bin/env bash
@@ -102,7 +109,14 @@ pre_src_configure() {
 		# - Need > /dev/null for sys-libs/musl
 		# - No LTO because of the noise it generates in diffs (temps)
 		cl1() {
-			${__PORTAGE_HOOK_CLANG} ${CFLAGS} -fno-lto -Wno-unused-command-line-argument -Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=strict-prototypes \$@ 2>&1 | ansifilter | sed \
+			${__PORTAGE_HOOK_CLANG} -fno-lto -Wno-unused-command-line-argument \
+				-Wno-error=implicit-function-declaration \
+				-Wno-error=implicit-int \
+				-Wno-error=int-conversion \
+				-Wno-error=incompatible-function-pointer-types \
+				-Wno-error=strict-prototypes \
+				${CFLAGS} \
+				\$@ 2>&1 | ansifilter | sed \
 				-e "s:14.0.6:14.ignoreme:g" \
 				-e "s:15.0.0:14.ignoreme:g" \
 				-e "s:clang-\(14\|15\|16\):clang-ignoreme:g" \
@@ -127,7 +141,13 @@ pre_src_configure() {
 		# TODO: No -Werror=strict-prototypes here for now as AC_PROG_LEX, AC_CHECK_FUNCS rely on it
 		# also, I think Clang 15.0.1 (which reverts the other bits) keeps that in anyway.
 		cl2() {
-			${__PORTAGE_HOOK_CLANG} ${CFLAGS} -fno-lto -Wno-unused-command-line-argument -Werror=implicit-function-declaration -Werror=implicit-int \$@ 2>&1 | ansifilter | sed \
+			${__PORTAGE_HOOK_CLANG} -fno-lto -Wno-unused-command-line-argument \
+				-Werror=implicit-function-declaration \
+				-Werror=implicit-int \
+				-Werror=int-conversion \
+				-Werror=incompatible-function-pointer-types \
+				${CFLAGS} \
+				\$@ 2>&1 | ansifilter | sed \
 				-e "s:14.0.6:14.ignoreme:g" \
 				-e "s:15.0.0:14.ignoreme:g" \
 				-e "s:clang-\(14\|15\|16\):clang-ignoreme:g" \
@@ -188,6 +208,8 @@ pre_src_configure() {
 			done
 
 			# -Werror=strict-prototypes
+			# TODO: add -Werror=int-conversion?
+			# TODO: add -Werror=incompatible-function-pointer-types here? (Clang only)
 			export CFLAGS="${CFLAGS} -Werror=implicit-function-declaration -Werror=implicit-int"
 			export PATH="${T}/clang-wrappers:${PATH}"
 		fi
@@ -223,3 +245,13 @@ post_src_install() {
 		fi
 	fi
 }
+
+# Local variables:
+# eval: (add-hook 'before-save-hook 'time-stamp)
+# time-stamp-start: "hook_timestamp='"
+# time-stamp-format: "%:y-%02m-%02dT%02H:%02M"
+# time-stamp-time-zone: "UTC"
+# time-stamp-end: "'"
+# time-stamp-line-limit: 32
+# mode: sh
+# End:
