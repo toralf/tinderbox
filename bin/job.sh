@@ -251,6 +251,7 @@ function CollectIssueFiles() {
         timeout --signal=15 --kill-after=1m 3m tar --warning=none -cjpf $issuedir/files/temp.tar.bz2 \
             --dereference \
             --warning='no-all'  \
+            --exclude='*/garbage.*' \
             --exclude='*/go-build[0-9]*/*' \
             --exclude='*/go-cache/??/*' \
             --exclude='*/kerneldir/*' \
@@ -531,6 +532,9 @@ function SendIssueMailIfNotYetReported()  {
       chmod a+w $issuedir/body
 
       local known="bug"
+      if [[ -e /etc/portage/bashrc ]]; then
+        known+=" clang "
+      fi
       if createSearchString; then
         if SearchForSameIssue 1>> $issuedir/body; then
           return
@@ -661,7 +665,7 @@ function PostEmerge() {
   rm -f /etc/._cfg????_{hosts,resolv.conf} /etc/conf.d/._cfg????_hostname /etc/ssmtp/._cfg????_ssmtp.conf /etc/portage/._cfg????_make.conf
 
   # merge the remaining config files automatically
-  etc-update --automode -5 1>/dev/null
+  etc-update --automode -5 &>/dev/null
 
   # update the environment
   env-update &>/dev/null
@@ -939,6 +943,9 @@ function syncRepo()  {
       return 0
     fi
 
+    echo "git status" >> $synclog
+    git status &>>$synclog
+
     if (echo -e "\nTrying to restore ...\n"; git stash; git stash drop; git restore .) &>>$synclog; then
       if ! emaint sync --auto &>>$synclog; then
         Finish 13 "still unfixed ::gentoo" $synclog
@@ -1001,6 +1008,7 @@ export CMAKE_COLOR_DIAGNOSTICS="OFF"
 export CMAKE_COLOR_MAKEFILE="OFF"
 export GCC_COLORS=""
 export OCAML_COLOR="never"
+export NOCOLOR="1"
 export PY_FORCE_COLOR="0"
 export PYTEST_ADDOPTS="--color=no"
 
