@@ -3,7 +3,7 @@
 # set -x
 
 
-# kill running emerge process of an image and set it EOL
+# set an image EOL, kill any running emerge process before
 
 
 #######################################################################
@@ -16,22 +16,18 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-for img in ${*?got no img}
+for img in ${*?got no image}
 do
   img=$(basename "$img")
   if [[ -d ~tinderbox/img/$img ]]; then
     echo "user decision at $(date)" >> ~tinderbox/img/$img/var/tmp/tb/EOL
     if b_pid=$(pgrep -f "sudo.*bwrap.*$img"); then
       if e_pid=$(pstree -pa $b_pid | grep -F 'emerge,' | grep -m1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
-        pstree -UlnspuTa $e_pid
+        pstree -UlnspuTa $e_pid | head -n 500
         echo
         kill -9 $e_pid
         echo
-      else
-        echo " error: $img: no emerge pid found for $b_pid"
       fi
-    else
-      echo " info: $img: no bwrap pid found"
     fi
   else
     echo " error: $img: no image found"
