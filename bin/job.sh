@@ -974,6 +974,8 @@ function syncRepo()  {
   fi
 
   last_sync=$curr_time
+
+  cd - 1>/dev/null
 }
 
 
@@ -987,9 +989,9 @@ trap Finish INT QUIT TERM EXIT
 
 source $(dirname $0)/lib.sh
 
-export -f SwitchGCC syncRepo source_profile add2backlog      # to call it eg. from %SwitchGCC
+export -f SwitchGCC add2backlog source_profile syncRepo   # to call it by eval in RunAndCheck()
 
-taskfile=/var/tmp/tb/task           # holds the current task
+export taskfile=/var/tmp/tb/task    # holds the current task, called by SwitchGCC()
 tasklog=$taskfile.log               # holds output of it
 name=$(cat /var/tmp/tb/name)        # the image name
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
