@@ -830,7 +830,7 @@ function ThrowFlags() {
 function CompileUseFlagFiles() {
   (
     echo 'set -euf'
-    echo 'emerge --update --changed-use --pretend =$(portageq best_visible / sys-devel/gcc)'
+    echo 'emerge --update --changed-use =$(portageq best_visible / sys-devel/gcc) --pretend'
     echo 'emerge --update --changed-use --newuse --deep @world --pretend'
   ) > ./var/tmp/tb/dryrun_wrapper.sh
 
