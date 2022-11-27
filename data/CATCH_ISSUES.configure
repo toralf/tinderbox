@@ -100,3 +100,4 @@ C compiler cannot create executables.
 ocamlfind: Package .* not found
 Cannot find the GNU C library
 missing separator.  Stop.
+setup: Failed parsing
