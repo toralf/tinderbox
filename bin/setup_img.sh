@@ -223,14 +223,14 @@ function UnpackStage3() {
   echo " updating signing keys ..."
   local keys="13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058"
   if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $keys; then
-    echo " notice: sth failed ^^"
+    echo " notice: failed, but will continue"
   fi
 
   echo
   date
   echo " verifying stage3 files ..."
   if ! gpg --quiet --verify $stage3_filename.asc; then
-    echo " failed, moved to /tmp"
+    echo " failed, moving files to /tmp"
     mv $stage3_filename{,.asc} /tmp
     return 1
   fi
@@ -242,20 +242,20 @@ function UnpackStage3() {
   if ! mkdir ~tinderbox/img/$name; then
     return 1
   fi
-  cd ~tinderbox/img/$name
 
+  cd ~tinderbox/img/$name
   echo
   date
   echo " untar'ing stage3 ..."
   if ! tar -xpf $stage3_filename --same-owner --xattrs; then
-    echo " failed, moved to /tmp"
+    echo " failed, moving files to /tmp"
     mv $stage3_filename{,.asc} /tmp
     return 1
   fi
 }
 
 
-# only ::gentoo
+# prefer git over rsync for ::gentoo
 function InitRepository() {
   mkdir -p ./etc/portage/repos.conf/
 
@@ -271,12 +271,13 @@ sync-type = git
 
 EOF
 
+  # "git clone" at a local machine is much slower than "cp --reflink"
+  # use latest synced repo as the reference directory
   echo
   date
-  local ts=$(ls -t $tbhome/img/*${reposdir}/gentoo/metadata/timestamp.chk 2>/dev/null | head -n 1)
+  local ts=$(ls -t $tbhome/img/*/$reposdir/gentoo/metadata/timestamp.chk 2>/dev/null | head -n 1)
   if [[ -z $ts ]]; then
-    # fallback is the build host
-    local refdir=$reposdir/gentoo
+    local refdir=$reposdir/gentoo   # fallback is the host
   else
     local refdir=$(sed -e 's,metadata/timestamp.chk,,' <<< $ts)
   fi
@@ -284,17 +285,17 @@ EOF
 
   local curr_path=$PWD
   cd .$reposdir
-  # "git clone" is at a local machine much slower than a "cp --reflink"
   cp -ar --reflink=auto $refdir ./
-  rm -f ./gentoo/.git/refs/heads/stable.lock ./gentoo/.git/gc.log.lock
-  # avoid "warning: exhaustive rename detection was skipped due to too many files."
   cd ./gentoo
+  rm -f ./.git/refs/heads/stable.lock ./.git/gc.log.lock
   git config diff.renamelimit 0
+  git config gc.auto 0
+  git config pull.ff only
   cd $curr_path
 }
 
 
-# create inderbox related directories + files
+# create tinderbox related directories + files
 function CompileTinderboxFiles() {
   mkdir -p ./mnt/tb/data ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
 
@@ -621,8 +622,6 @@ useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 date
 echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/git
-git config --global gc.auto 0
-git config --global pull.ff only
 emaint sync --auto 1>/dev/null
 
 date
