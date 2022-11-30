@@ -946,7 +946,7 @@ function syncRepo()  {
     echo "git status" >> $synclog
     git status &>>$synclog
 
-    if (echo -e "\nTrying to restore ...\n"; git stash; git stash drop; git restore .) &>>$synclog; then
+    if (echo -e "\nTrying to fix ...\n"; git stash && git stash drop; git restore .) 2>&1 &>>$synclog; then
       if ! emaint sync --auto &>>$synclog; then
         Finish 13 "still unfixed ::gentoo" $synclog
       else
