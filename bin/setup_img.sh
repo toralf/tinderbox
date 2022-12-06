@@ -370,7 +370,7 @@ EOF
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --jobserver-style=pipe"' >> ./etc/portage/make.conf
   fi
   # http://trofi.github.io/posts/249-an-update-on-make-shuffle.html
-  if dice 1 2; then
+  if dice 1 4; then
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >> ./etc/portage/make.conf
   fi
 
@@ -494,7 +494,7 @@ EOF
 
   # special hooks
   if [[ $keyword = '~amd64' ]]; then
-    if dice 1 2; then
+    if dice 1 3; then
       local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
       if [[ -f $b ]]; then
         cp $b ./etc/portage/
