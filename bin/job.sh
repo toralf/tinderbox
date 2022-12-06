@@ -319,7 +319,7 @@ function foundGenericIssue() {
 
   for x in /tmp/x_????
   do
-    if grep -a -m 1 -B 4 -A 2 -f $x $pkglog_stripped > /tmp/issue; then
+    if grep -a -m 1 -B 6 -A 2 -f $x $pkglog_stripped > /tmp/issue; then
       mv /tmp/issue $issuedir/issue
       grep -m 1 -f $x $issuedir/issue | stripQuotesAndMore > $issuedir/title
       break
@@ -949,8 +949,6 @@ function syncRepo()  {
     if (echo -e "\nTrying to fix ...\n"; git stash && git stash drop; git restore .) 2>&1 &>>$synclog; then
       if ! emaint sync --auto &>>$synclog; then
         Finish 13 "still unfixed ::gentoo" $synclog
-      else
-        Mail "INFO: fixed ::gentoo" $synclog
       fi
     else
       Finish 13 "cannot restore ::gentoo" $synclog
