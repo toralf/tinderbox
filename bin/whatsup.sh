@@ -144,7 +144,7 @@ function Tasks()  {
     if PrintImageName $i && __is_running $i && [[ -s $tsk ]]; then
       local task=$(cat $tsk)
 
-      set +e
+      set +e # integer calculation result could be 0
       (( delta = EPOCHSECONDS-$(stat -c %Y $tsk) ))
       (( minutes = delta/60%60 ))
       if [[ $delta -lt 3600 ]]; then
@@ -159,7 +159,11 @@ function Tasks()  {
       if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
         echo -n " "
       fi
-      echo $task | cut -c1-$(( columns-51 ))
+      if [[ ${#task} -ge $(( columns-51 )) ]]; then
+        echo "$(cut -c1-$(( columns-55 )) <<< $task) ..."
+      else
+        echo $task
+      fi
     else
       echo
     fi
