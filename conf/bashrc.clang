@@ -26,7 +26,7 @@
 
 : ${PORTAGE_USE_CLANG_HOOK:=1}
 
-hook_timestamp='2022-11-24T21:47'
+hook_timestamp='2022-12-05T13:24'
 
 pre_src_prepare() {
 	# If CC is set to something other than Clang, we shouldn't try
@@ -96,14 +96,22 @@ pre_src_configure() {
 		mkdir "${T}"/clang-wrappers
 		cat <<- EOF > "${T}"/clang-wrappers/clang
 		#!/usr/bin/env bash
+		hook_clang=${__PORTAGE_HOOK_CLANG}
 		real_compiler=${__PORTAGE_HOOK_CLANG}
 
 		if [[ -n \${PORTAGE_USE_CLANG_HOOK_GCC} ]] ; then
-			if [[ -n \${CC} && \${CC} == *clang* ]] ; then
+			if [[ -n \${CC} && \${CC##*/} == *clang* ]] ; then
 				:;
 			else
 				real_compiler="${BROOT:-/}"/usr/bin/${CHOST}-gcc
 			fi
+		fi
+
+		if [[ \$0 == *++ ]]; then
+			real_compiler=\${real_compiler/clang/clang++}
+			real_compiler=\${real_compiler/gcc/g++}
+			hook_clang=\${hook_clang/clang/clang++}
+			hook_clang=\${hook_clang/gcc/g++}
 		fi
 
 		if [[ -n \${PORTAGE_CLANG_HOOK_USE_REAL_COMPILER} ]] ; then
@@ -113,7 +121,7 @@ pre_src_configure() {
 		# - Need > /dev/null for sys-libs/musl
 		# - No LTO because of the noise it generates in diffs (temps)
 		cl1() {
-			${__PORTAGE_HOOK_CLANG} -fno-lto -Wno-unused-command-line-argument \
+			\${hook_clang} -fno-lto -Wno-unused-command-line-argument \
 				-Wno-error=implicit-function-declaration \
 				-Wno-error=implicit-int \
 				-Wno-error=int-conversion \
@@ -145,7 +153,7 @@ pre_src_configure() {
 		# TODO: No -Werror=strict-prototypes here for now as AC_PROG_LEX, AC_CHECK_FUNCS rely on it
 		# also, I think Clang 15.0.1 (which reverts the other bits) keeps that in anyway.
 		cl2() {
-			${__PORTAGE_HOOK_CLANG} -fno-lto -Wno-unused-command-line-argument \
+			\${hook_clang} -fno-lto -Wno-unused-command-line-argument \
 				-Werror=implicit-function-declaration \
 				-Werror=implicit-int \
 				-Werror=int-conversion \
@@ -206,7 +214,8 @@ pre_src_configure() {
 			:;
 		else
 			# TODO: cc, ${CHOST}-cc?
-			for alias in ${CHOST}-gcc gcc ${CHOST}-clang ; do
+			for alias in ${CHOST}-gcc gcc ${CHOST}-clang \
+				     ${CHOST}-g++ g++ ${CHOST}-clang++; do
 				ln -s "${T}"/clang-wrappers/clang "${T}"/clang-wrappers/${alias} || exit 1
 				chmod +x "${T}"/clang-wrappers/${alias}
 			done

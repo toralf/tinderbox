@@ -38,6 +38,9 @@ sys-kernel/installkernel-gentoo     -grub
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
 
+# eg. bsdtar does not know --warning=none
+app-alternatives/tar                gnu -libarchive
+
 
 #######################################################################
 #
@@ -75,3 +78,6 @@ net-firewall/iptables               -conntrack
 
 # needd for clang
 sys-libs/ncurses                    -gpm
+
+# breaks setup
+sys-apps/man-db                     -nls

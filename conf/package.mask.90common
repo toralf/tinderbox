@@ -55,34 +55,6 @@ sys-libs/libcxxabi
 
 # https://bugs.gentoo.org/868789
 dev-lang/gnat-gpl
-=dev-lang/gnat-gpl-2021-r3
 
 # fails too often
 app-editors/*emacs
-
-# hangs
-app-i18n/ibus
-dev-haskell/primitive-addr
-dev-haskell/dav
-dev-haskell/unicode-data
-dev-lang/lfe
-dev-libs/crypto++
-dev-python/pypy3-exe
-dev-util/coccinelle
-dev-util/ddd
-dev-util/trace-cmd
-media-libs/aubio
-media-sound/jack2
-media-sound/lash
-media-sound/qjackctl
-media-sound/xmms2
-net-libs/dleyna-connector-dbus
-net-misc/ntpsec
-net-proxy/squirm
-sci-electronics/drahnr-oregano
-sys-libs/talloc
-sys-libs/tdb
-
-# OOM
-dev-util/crash
-sys-devel/gdb

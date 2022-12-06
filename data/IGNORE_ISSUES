@@ -1,7 +1,9 @@
 Active compiler does not have required support for OpenMP
 asciidoctor
-cant create bin-blahtex
+Building darktable with GCC requires Graphite support
+Cannot compile with
 cannot create regular file .../vile
+cant create bin-blahtex
 CONFIG_.* detected!
 CONFIG_.*: is not set when it should be
 Could not find a usable .config in the kernel source directory.

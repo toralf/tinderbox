@@ -44,3 +44,4 @@ You have to install development tools first.
 You need package
  \*   Your kernel is too old.
  \*   clang++ is not a supported compiler.
+ \*   Cannot compile with
