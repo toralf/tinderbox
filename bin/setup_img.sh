@@ -424,6 +424,10 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
+  # persist build dir - only /var/tmp/portage is cleaned in job.sh, this content will stay forever
+  mkdir ./var/tmp/notmpfs
+  echo 'PORTAGE_TMPDIR=/var/tmp/notmpfs'  > ./etc/portage/env/notmpfs
+
   # limit # of parallel jobs, 1 is the fallback of $jobs fails for a package or is too much for the host
   for j in 1 $jobs
   do
