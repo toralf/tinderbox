@@ -496,14 +496,16 @@ EOF
     cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,g')
   done
 
-  # special hooks
+  # special portage hooks
   if [[ $keyword = '~amd64' ]]; then
-    if dice 1 3; then
+    if dice 1 6; then
       local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
       if [[ -f $b ]]; then
         cp $b ./etc/portage/
-        if dice 4 5; then
-          echo "PORTAGE_USE_CLANG_HOOK_GCC=1" >> ./etc/portage/make.conf
+        if [[ $b =~ ' .clang' ]]; then
+          if dice 4 5; then
+            echo "PORTAGE_USE_CLANG_HOOK_GCC=1" >> ./etc/portage/make.conf
+          fi
         fi
       fi
     fi
@@ -609,6 +611,9 @@ else
   echo "UTC" > /etc/timezone
   emerge --config sys-libs/timezone-data
 fi
+
+date
+echo "#setup env" | tee /var/tmp/tb/task
 env-update
 set +u; source /etc/profile; set -u
 
@@ -619,13 +624,11 @@ if [[ $profile =~ "/systemd" ]]; then
 fi
 
 date
-echo "#create user" | tee /var/tmp/tb/task
-groupadd -g $(id -g tinderbox)                       tinderbox
-useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
-
-date
 echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/git
+
+date
+echo "#setup sync tree" | tee /var/tmp/tb/task
 emaint sync --auto 1>/dev/null
 
 date
@@ -635,17 +638,22 @@ emerge -u sys-apps/portage
 
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
-# emerge MTA before MUA b/c MUA+virtual/mta together would provide another MTA than sSMTP
+# emerge MTA before MUA b/c virtual/mta does not use sSMTP as the default
 emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the bind mounted file is used
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the already bind mounted file is used instead this
 emerge -u mail-client/s-nail
+
+date
+echo "#setup user" | tee /var/tmp/tb/task
+groupadd -g $(id -g tinderbox)                       tinderbox
+useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 
 date
 echo "#setup kernel" | tee /var/tmp/tb/task
 emerge -u sys-kernel/gentoo-kernel-bin
 
 date
-echo "#setup q + bugz" | tee /var/tmp/tb/task
+echo "#setup q and bugz" | tee /var/tmp/tb/task
 emerge -u app-portage/portage-utils www-client/pybugz app-portage/pfl
 
 date
