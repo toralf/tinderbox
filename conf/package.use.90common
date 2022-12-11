@@ -12,6 +12,8 @@
 */*  VIDEO_CARDS:                   -* dummy fbdev amdgpu
 */*  RUBY_TARGETS:                  ruby27 ruby31
 
+x11-libs/libdrm                     video_cards_intel video_cards_nouveau video_cards_radeon
+
 # 2x faster compile
 */*                                 jumbo-build
 
@@ -28,7 +30,7 @@ dev-vcs/git                         curl
 # ::gentoo requirement
 net-misc/curl                       ssl
 
-# too much deps
+# too much deps, which would lover coverity
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -qt5
 
@@ -38,7 +40,7 @@ sys-kernel/installkernel-gentoo     -grub
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
 
-# eg. bsdtar does not know --warning=none
+# eg. bsdtar does not know --warning=none, so do not symlink it to tar
 app-alternatives/tar                gnu -libarchive
 
 
@@ -70,14 +72,11 @@ kde-plasma/ksystemstats             -networkmanager
 # https://bugs.gentoo.org/868372
 net-firewall/iptables               -conntrack
 
-# ruby ....
-*/*                                 -rdoc
-
 # by sam_
 <sys-devel/clang-common-16          stricter
 
 # needd for clang
 sys-libs/ncurses                    -gpm
 
-# breaks setup
+# breaks image setup
 sys-apps/man-db                     -nls

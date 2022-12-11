@@ -68,7 +68,6 @@ Unable to find Qt
 Package dependency requirement '.* could not be satisfied.
 A required package was not found
 .* will not be built.
- was not found.
 sed:
 The version of your compiler is not supported at this time
 Could not create Makefile due to some reason

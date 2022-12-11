@@ -58,3 +58,7 @@ dev-lang/gnat-gpl
 
 # fails too often
 app-editors/*emacs
+
+# hangs
+# https://bugs.gentoo.org/690150, hang with -j1 too
+dev-util/trace-cmd
