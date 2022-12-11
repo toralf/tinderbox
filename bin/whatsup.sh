@@ -159,7 +159,7 @@ function Tasks()  {
       if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
         echo -n " "
       fi
-      if [[ ${#task} -ge $(( columns-51 )) ]]; then
+      if [[ ${#task} -ge $(( columns-50 )) ]]; then
         echo "$(cut -c1-$(( columns-55 )) <<< $task) ..."
       else
         echo $task
