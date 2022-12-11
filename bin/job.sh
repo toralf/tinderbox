@@ -45,7 +45,7 @@ function Mail() {
   strings -w |
   sed -e 's,^>>>, >>>,' |
   if ! (mail -s "$subject  @  $name" ${MAILTO:-tinderbox} 1>/dev/null); then
-    { echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2 ; }
+    echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
   fi
 }
 
@@ -787,14 +787,17 @@ function GetPkgFromTaskLog() {
 
 
 # helper of WorkOnTask()
-# run $1 in a subshell and act on result, timeout after $2
+# run $1 and act on its results, but timeout after $2 hours
 function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  # the value of -jX of the image name gives the number of parallel makes
+  # the value of -jX of the image name gives the number of parallel build jobs
   local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
   local hours=$(( ${2:-24}/j ))
+  if [[ $name =~ '_abi32+64' ]]; then
+    (( hours *= 2 ))
+  fi
   timeout --signal=15 --kill-after=5m ${hours}h bash -c "eval $1" &>> $tasklog
   local rc=$?
   (echo; date) >> $tasklog
