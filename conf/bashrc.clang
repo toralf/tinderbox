@@ -26,7 +26,7 @@
 
 : ${PORTAGE_USE_CLANG_HOOK:=1}
 
-hook_timestamp='2022-12-05T13:24'
+hook_timestamp='2022-12125T02:07'
 
 pre_src_prepare() {
 	# If CC is set to something other than Clang, we shouldn't try
@@ -87,6 +87,10 @@ pre_src_configure() {
 
 		# Weird hangs (see timeout comment below w/ tee)
 		has waf-utils ${INHERITED} && return
+		# bug #885497
+		has qmake-utils ${INHERITED} && return
+		# bug #885497
+		has qt5-build ${INHERITED} && return
 
 		# Issues with CPP, easier to just avoid (bug #882363)
 		if grep -q "x11-misc/imake" <<< "${BDEPEND}" ; then

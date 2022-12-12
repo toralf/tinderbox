@@ -29,6 +29,7 @@ No pathcc executable was installed, your hardware is unsupported most likely
 No support for external modules in
 One of the .* use flags must be enabled
 OTP release .* does not match required regex
+perl.h: fatal error:
 Please check to make sure these options are set correctly.
 Please, run haskell-updater to fix broken packages
 Please switch to a gcc version built with USE=graphite

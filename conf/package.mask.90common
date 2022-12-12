@@ -59,6 +59,10 @@ dev-lang/gnat-gpl
 # fails too often
 app-editors/*emacs
 
-# hangs
+# hangs (maybe bashrc-clang related)
+dev-scheme/gambit
 # https://bugs.gentoo.org/690150, hang with -j1 too
 dev-util/trace-cmd
+
+# OOM (maybe bashrc-clang related)
+sys-devel/gdb
