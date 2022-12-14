@@ -383,7 +383,7 @@ function ClassifyIssue() {
   fi
 
   if [[ ! -s $issuedir/issue || ! -s $issuedir/title ]]; then
-    return 1
+    echo "emerge failed, but no clue, why" | tee /tmp/issue > $issuedir/title
   fi
 }
 
@@ -591,10 +591,7 @@ function WorkAtIssue()  {
   setWorkDir
   CreateEmergeHistoryFile
   CollectIssueFiles
-  if ! ClassifyIssue; then
-    Mail "WARN: cannot classify issue for task '$task'" $pkglog_stripped
-  fi
-
+  ClassifyIssue
   collectPortageDir
   finishTitle
   CompileIssueComment0
