@@ -45,9 +45,6 @@ function DiceAProfile() {
     exclude+=' -e /musl'
   fi
 
-  # no stage3 yet, merge-usr script has to be run after untarring
-  exclude+=' -e /merged-usr'
-
   eselect profile list |
   grep -F -e 'default/linux/amd64/17.1' -e 'default/linux/amd64/17.0/musl' |
   grep -v -F -e '/clang' -e '/developer' -e ' (exp)' -e '/selinux' -e '/x32' $exclude |
