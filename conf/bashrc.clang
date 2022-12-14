@@ -26,7 +26,7 @@
 
 : ${PORTAGE_USE_CLANG_HOOK:=1}
 
-hook_timestamp='2022-12125T02:07'
+hook_timestamp='2022-12-12T18:32'
 
 pre_src_prepare() {
 	# If CC is set to something other than Clang, we shouldn't try
@@ -189,6 +189,8 @@ pre_src_configure() {
 
 		# Safety net against recursive calls
 		export PORTAGE_CLANG_HOOK_USE_REAL_COMPILER=1
+		# Because clang can invoke GCC
+		export PORTAGE_USE_CLANG_HOOK_GCC=1
 
 		# - Just run it again as it's easier for anything which wants to parse stdout/stderr,
 		# and we're not concerned about performance for this experiment anyway.
@@ -251,6 +253,7 @@ pre_src_compile() {
 	# We want to just delete the wrapper rather than mess with PATH again, as the ebuild
 	# may have modified PATH itself.
 	export PORTAGE_CLANG_HOOK_USE_REAL_COMPILER=1
+	# TODO: commented out because CMake hardcodes the path to the discovered binary
 	#rm -f "${T}"/clang-wrappers/{clang,gcc,cc,${CHOST}-gcc,${CHOST}-clang}
 }
 

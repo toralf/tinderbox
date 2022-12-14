@@ -65,4 +65,5 @@ dev-scheme/gambit
 dev-util/trace-cmd
 
 # OOM (maybe bashrc-clang related)
+dev-util/mingw64-toolchain
 sys-devel/gdb
