@@ -180,19 +180,19 @@ function UnpackStage3() {
   echo
   date
   echo " get stage3 prefix for profile $profile"
-  local prefix="stage3-amd64-"
-  prefix+=$(sed -e 's,17\..,,' -e 's,/plasma,,' -e 's,/gnome,,' <<< $profile | tr -d '-')
+  local prefix="stage3-amd64"
+  prefix+=$(sed -e 's,17\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<< $profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
   if [[ $profile =~ "/desktop" ]]; then
     if dice 1 2; then
-      # plain stage3 instead desktop stage3
+      # use plain instead desktop stage3
       prefix=$(sed -e 's,/desktop,,' <<< $prefix)
     fi
   fi
   if [[ ! $profile =~ "/systemd" && ! $profile =~ "/musl" ]]; then
     prefix+="-openrc"
   fi
-  prefix=$(tr '/' '-' <<< $prefix | sed -e 's,--*,-,g')
+  prefix=$(tr '/' '-' <<< $prefix)
 
   echo
   date
