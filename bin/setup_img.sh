@@ -39,10 +39,15 @@ function DiceAProfile() {
   local exclude=""
 
   if dice 1 2; then
-    exclude+=' -e /no-multilib'
+    exclude+=' -e /no-multilib'     # EOL is much higher than for desktop
   fi
-  if dice 3 4; then
-    exclude+=' -e /musl'
+  if dice 1 2; then
+    exclude+=' -e /musl'            # no stable profile yet
+  fi
+  if dice 1 2; then                 # do not overweight systemd over openrc
+    exclude+=' -e /systemd/merged-usr'
+  else
+    exclude+=' -e /systemd\ '
   fi
 
   eselect profile list |
@@ -178,11 +183,11 @@ function UnpackStage3() {
   date
   echo " get stage3 prefix for profile $profile"
   local prefix="stage3-amd64"
-  prefix+=$(sed -e 's,17\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<< $profile)
+  prefix+=$(sed -e 's,17\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' -e '/split-usr' <<< $profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
   if [[ $profile =~ "/desktop" ]]; then
-    if dice 1 2; then
-      # use plain instead desktop stage3
+    if dice 1 2 || [[ $profile =~ 'merged-usr' ]]; then
+      # build up from plain instead from desktop stage
       prefix=$(sed -e 's,/desktop,,' <<< $prefix)
     fi
   fi
