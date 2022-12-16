@@ -87,7 +87,7 @@ function InitOptions() {
 
     cflags=$cflags_default    # till here the fallback (_default) is identical with CFLAGS
 
-    # if run (rarely) a stable image then w/o any special tests
+    # no special games with stable images
     if dice 1 160; then
       keyword="amd64"
     else
@@ -631,8 +631,7 @@ emaint sync --auto 1>/dev/null
 
 date
 echo "#setup portage" | tee /var/tmp/tb/task
-emerge -u app-text/ansifilter
-emerge -u sys-apps/portage
+emerge -u app-text/ansifilter sys-apps/portage
 
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
