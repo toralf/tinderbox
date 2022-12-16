@@ -240,7 +240,7 @@ function UnpackStage3() {
   CreateImageName
   echo
   date
-  echo " new image: $name"
+  echo -e "\n +++ new image:    $name    +++\n"
   if ! mkdir ~tinderbox/img/$name; then
     return 1
   fi
@@ -283,7 +283,7 @@ EOF
   else
     local refdir=$(sed -e 's,metadata/timestamp.chk,,' <<< $ts)
   fi
-  echo " cloning ::gentoo at $(cat $refdir/metadata/timestamp.chk)"
+  echo " get ::gentoo from $(cut -f5 -d'/' <<< $refdir) at $(cat $refdir/metadata/timestamp.chk)"
 
   local curr_path=$PWD
   cd .$reposdir
@@ -322,10 +322,7 @@ FCFLAGS="$cflags"
 FFLAGS="\${FCFLAGS}"
 
 # simply enables QA check for LDFLAGS being respected by build system.
-LDFLAGS="\${LDFLAGS} -Wl,--defsym=__gentoo_check_ldflags__=0"
-
-# add this entry for convenience to debug things
-#GNUMAKEFLAGS="\$GNUMAKEFLAGS -d"
+LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0"
 
 ACCEPT_KEYWORDS="$keyword"
 
@@ -362,7 +359,7 @@ EOF
     echo 'RUSTFLAGS="-C target-feature=-crt-static"' >> ./etc/portage/make.conf
   fi
 
-  # requested by mgorny in 822354 (this is unrelated to "test")
+  # requested by mgorny in 822354 (this is unrelated to FEATURES="test")
   if dice 1 2; then
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
   fi
@@ -371,7 +368,6 @@ EOF
   if dice 1 2; then
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --jobserver-style=pipe"' >> ./etc/portage/make.conf
   fi
-  # http://trofi.github.io/posts/249-an-update-on-make-shuffle.html
   if dice 1 4; then
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >> ./etc/portage/make.conf
   fi
@@ -577,7 +573,7 @@ function CreateBacklogs() {
 
   cat << EOF >> $bl.1st
 @world
-%sed -i -e \\'s,--verbose ,--deep --verbose ,\\' /etc/portage/make.conf
+%echo 'EMERGE_DEFAULT_OPTS=\\"\\\$EMERGE_DEFAULT_OPTS --deep\\"' >> /etc/portage/make.conf
 %emerge -uU =\$(portageq best_visible / sys-devel/gcc)
 
 EOF
@@ -655,7 +651,7 @@ echo "#setup kernel" | tee /var/tmp/tb/task
 emerge -u sys-kernel/gentoo-kernel-bin
 
 date
-echo "#setup q and bugz" | tee /var/tmp/tb/task
+echo "#setup q, bugz and pfl" | tee /var/tmp/tb/task
 emerge -u app-portage/portage-utils www-client/pybugz app-portage/pfl
 
 date
@@ -668,6 +664,7 @@ fi
 
 if [[ $name =~ "debug" ]]; then
   sed -i -e 's,FEATURES=",FEATURES="splitdebug compressdebug ,g' /etc/portage/make.conf
+  echo 'GNUMAKEFLAGS="\$GNUMAKEFLAGS -d"' >> /etc/portage/make.conf
 fi
 
 # sort -u is needed if a package is in several repositories
