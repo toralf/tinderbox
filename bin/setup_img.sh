@@ -494,19 +494,19 @@ EOF
   done
 
   # special portage hooks
-  if [[ $keyword = '~amd64' ]]; then
-    if dice 1 6; then
-      local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
-      if [[ -f $b ]]; then
-        cp $b ./etc/portage/
-        if [[ $b =~ ' .clang' ]]; then
-          if dice 4 5; then
-            echo "PORTAGE_USE_CLANG_HOOK_GCC=1" >> ./etc/portage/make.conf
-          fi
-        fi
-      fi
-    fi
-  fi
+#   if [[ $keyword = '~amd64' ]]; then
+#     if dice 1 6; then
+#       local b=$(ls $tbhome/tb/conf/bashrc.* 2>/dev/null | shuf -n 1)
+#       if [[ -f $b ]]; then
+#         cp $b ./etc/portage/
+#         if [[ $b =~ ' .clang' ]]; then
+#           if dice 4 5; then
+#             echo "PORTAGE_USE_CLANG_HOOK_GCC=1" >> ./etc/portage/make.conf
+#           fi
+#         fi
+#       fi
+#     fi
+#   fi
 
   touch ./var/tmp/tb/task
 
