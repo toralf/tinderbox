@@ -72,11 +72,11 @@ kde-plasma/ksystemstats             -networkmanager
 # https://bugs.gentoo.org/868372
 net-firewall/iptables               -conntrack
 
-# by sam_
-<sys-devel/clang-common-16          stricter
-
-# needd for clang
+# needed for clang
 sys-libs/ncurses                    -gpm
 
 # breaks image setup
 sys-apps/man-db                     -nls
+
+# https://bugs.gentoo.org/868372
+net-dns/dnsmasq                     -conntrack

@@ -26,7 +26,7 @@
 
 : ${PORTAGE_USE_CLANG_HOOK:=1}
 
-hook_timestamp='2022-12-12T18:32'
+hook_timestamp='2022-12-15T20:11'
 
 pre_src_prepare() {
 	# If CC is set to something other than Clang, we shouldn't try
@@ -46,6 +46,9 @@ pre_src_prepare() {
 
 	has_version ${hv_args} sys-devel/clang:15 && __PORTAGE_HOOK_CLANG=clang-15
 	has_version ${hv_args} sys-devel/clang:16 && __PORTAGE_HOOK_CLANG=clang-16
+
+	# Change to the full path to avoid recursion
+	__PORTAGE_HOOK_CLANG=$(type -P "${__PORTAGE_HOOK_CLANG}")
 
 	if ! type -P ansifilter &>/dev/null || [[ -z ${__PORTAGE_HOOK_CLANG} ]] || ! type -P ${__PORTAGE_HOOK_CLANG} &>/dev/null ; then
 		# Avoid issues in early setup when clang:15 or clang:16 haven't yet been emerged.
@@ -96,6 +99,9 @@ pre_src_configure() {
 		if grep -q "x11-misc/imake" <<< "${BDEPEND}" ; then
 			return
 		fi
+		
+		# Change to the full path to avoid recursion
+		__PORTAGE_HOOK_CLANG=$(type -P "${__PORTAGE_HOOK_CLANG}")
 
 		mkdir "${T}"/clang-wrappers
 		cat <<- EOF > "${T}"/clang-wrappers/clang
