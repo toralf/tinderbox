@@ -44,11 +44,6 @@ function DiceAProfile() {
   if dice 1 2; then
     exclude+=' -e /musl'            # no stable profile yet
   fi
-  if dice 1 2; then                 # do not overweight systemd over openrc
-    exclude+=' -e /systemd/merged-usr'
-  else
-    exclude+=' -e /systemd\ '
-  fi
 
   eselect profile list |
   grep -F -e 'default/linux/amd64/' |
@@ -68,6 +63,11 @@ function InitOptions() {
   keyword="~amd64"
   no_autostart="n"
   profile=$(DiceAProfile)
+  if [[ $profile =~ "/merged-usr" ]]; then
+    if dice 1 2; then
+      profile=$(sed -e 's,17.1,23.0,' -e 's,/merged-usr,,' <<< $profile)
+    fi
+  fi
   testfeature="n"
   useflagfile=""
 
@@ -91,9 +91,6 @@ function InitOptions() {
     if dice 1 160; then
       keyword="amd64"
     else
-#       if dice 1 4; then
-#         profile=$(sed -e 's,17.1,23.0,' -e 's,/merged-usr,,' <<< $profile)
-#       fi
       # 685160 colon-in-CFLAGS
       if dice 1 80; then
         cflags+=" -falign-functions=32:25:16"
