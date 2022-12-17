@@ -10,7 +10,7 @@ function list_images() {
   (
     ls ~tinderbox/run/                    | sort
     ls /run/tinderbox/ | sed 's,.lock,,g' | sort
-    ls -d /sys/fs/cgroup/cpu/local/17.*   | sort
+    ls -d /sys/fs/cgroup/cpu/local/??.*   | sort
   ) 2>/dev/null |
   xargs -n 1 --no-run-if-empty basename |
   # remove dups
@@ -279,7 +279,7 @@ function Coverage() {
     diff $covered $all | grep -F '>' | cut -f2 -d' ' -s > $uncovered
 
     local n=$(wc -l < $covered)
-    local oldest=$(cat ~tinderbox/$i/17.*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -n | head -n 1)
+    local oldest=$(cat ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -n | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
       days=$(echo "scale=2.1; ($EPOCHSECONDS - $oldest) / 3600 / 24" | bc)

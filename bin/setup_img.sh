@@ -51,7 +51,7 @@ function DiceAProfile() {
   fi
 
   eselect profile list |
-  grep -F -e 'default/linux/amd64/17.1' -e 'default/linux/amd64/17.0/musl' |
+  grep -F -e 'default/linux/amd64/' |
   grep -v -F -e '/clang' -e '/developer' -e ' (exp)' -e '/selinux' -e '/x32' $exclude |
   awk ' { print $2 } ' |
   cut -f4- -d'/' -s |
@@ -91,6 +91,9 @@ function InitOptions() {
     if dice 1 160; then
       keyword="amd64"
     else
+#       if dice 1 4; then
+#         profile=$(sed -e 's,17.1,23.0,' -e 's,/merged-usr,,' <<< $profile)
+#       fi
       # 685160 colon-in-CFLAGS
       if dice 1 80; then
         cflags+=" -falign-functions=32:25:16"
@@ -183,7 +186,7 @@ function UnpackStage3() {
   date
   echo " get stage3 prefix for profile $profile"
   local prefix="stage3-amd64"
-  prefix+=$(sed -e 's,17\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' -e '/split-usr' <<< $profile)
+  prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' -e 's,/split-usr,,' <<< $profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
   if [[ $profile =~ "/desktop" ]]; then
     if dice 1 2 || [[ $profile =~ 'merged-usr' ]]; then
@@ -914,6 +917,10 @@ fi
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo -e "\n$(date)\n $0 start"
 
+tbhome=~tinderbox
+reposdir=/var/db/repos
+gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
+
 InitOptions
 
 while getopts a:j:k:np:t:u: opt
@@ -929,10 +936,6 @@ do
     *)  echo "unknown parameter '$opt'"; exit 1;;
   esac
 done
-
-tbhome=~tinderbox
-reposdir=/var/db/repos
-gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
 
 CheckOptions
 UnpackStage3
