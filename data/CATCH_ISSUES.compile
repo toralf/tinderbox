@@ -351,3 +351,4 @@ Error while loading
 error: unknown warning option
 error: failed to run custom build
  GLib-CRITICAL
+invalid option:

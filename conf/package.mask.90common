@@ -63,10 +63,3 @@ app-editors/*emacs
 dev-lang/lfe
 dev-scheme/gambit
 dev-util/trace-cmd
-
-# oom clang
-dev-util/crash
-dev-util/mingw64-toolchain
-
-# oom
-sys-devel/gdb

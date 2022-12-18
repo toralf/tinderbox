@@ -195,6 +195,9 @@ function UnpackStage3() {
     prefix+="-openrc"
   fi
   prefix=$(tr '/' '-' <<< $prefix)
+  if [[ $profile =~ "23.0" ]]; then
+    prefix+="-mergedusr"
+  fi
 
   echo
   date
