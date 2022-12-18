@@ -820,9 +820,12 @@ function RunAndCheck() {
   # got a signal
   if [[ $rc -ge 128 ]]; then
     local signal=$(( rc-128 ))
-    PutDepsIntoWorldFile
+    if [[ "$(runlevel)" = "N 3" ]] ; then # host is not rebooting
+      maskPackage
+      PutDepsIntoWorldFile
+    fi
     if [[ $signal -eq 9 ]]; then
-      Finish 9 "KILLed" $tasklog  # usually before a reboot
+      Finish 9 "KILLed" $tasklog
     fi
     pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,')
     pkg=$(sed -e 's,:.*,,' <<< $pkg)  # strip away the slot
