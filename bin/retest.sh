@@ -56,7 +56,7 @@ if [[ -s $result ]]; then
   else
     for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.upd 2>/dev/null)
     do
-      # mix existing and new entries and resolve dups
+      # mix existing and new entries, resolve dups
       cat $bl $result | sort -u | shuf > $tmp
       cp $tmp $bl
     done
