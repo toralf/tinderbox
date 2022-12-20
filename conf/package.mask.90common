@@ -32,7 +32,6 @@ sys-fs/zfs-kmod
 sys-libs/uclibc-ng
 
 # way too long compile times
-dev-libs/aws-sdk-cpp
 www-client/chromium
 www-client/google-chrome
 
@@ -42,7 +41,7 @@ sys-cluster/nullmpi
 # https://bugs.gentoo.org/770976 - emerge hangs despite -j1
 x11-wm/stumpwm
 
-# too long compile time
+# long compile time
 dev-lang/rust                                           # DICE: long_compile_time_a 15 16
 sci-libs/atlas                                          # DICE: long_compile_time_b 15 16
 sci-libs/libint:2                                       # DICE: long_compile_time_c 15 16

@@ -65,7 +65,6 @@ dev-libs/gf2x                       -custom-tune
 media-libs/libepoxy                 egl
 
 # too aggressive kernel config check
-dev-libs/aws-sdk-cpp                -networkmanager
 dev-qt/qtnetwork                    -networkmanager
 kde-plasma/ksystemstats             -networkmanager
 
