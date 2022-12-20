@@ -47,8 +47,8 @@ function DiceAProfile() {
 
   eselect profile list |
   grep -F -e 'default/linux/amd64/' |
-  grep -v -F -e '/clang' -e '/developer' -e ' (exp)' -e '/selinux' -e '/x32' $exclude |
-  awk ' { print $2 } ' |
+  grep -v -F -e '/clang' -e '/developer' -e ' (exp)' -e '/selinux' -e '/x32' -e '/split-usr' $exclude |
+  awk '{ print $2 }' |
   cut -f4- -d'/' -s |
   shuf -n 1
 }
@@ -70,7 +70,6 @@ function InitOptions() {
   fi
   testfeature="n"
   useflagfile=""
-
   if [[ ! $profile =~ "/musl" ]]; then
     # set "*/* ABI_X86: 32 64"
     if [[ ! $profile =~ "/no-multilib" ]]; then
@@ -183,7 +182,7 @@ function UnpackStage3() {
   date
   echo " get stage3 prefix for profile $profile"
   local prefix="stage3-amd64"
-  prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' -e 's,/split-usr,,' <<< $profile)
+  prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<< $profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
   if [[ $profile =~ "/desktop" ]]; then
     if dice 1 2 || [[ $profile =~ 'merged-usr' ]]; then
