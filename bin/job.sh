@@ -997,9 +997,9 @@ trap Finish INT QUIT TERM EXIT
 
 source $(dirname $0)/lib.sh
 
-export -f SwitchGCC add2backlog source_profile syncRepo   # to call it by eval in RunAndCheck()
+export -f SwitchGCC add2backlog source_profile syncRepo   # called in eval of RunAndCheck() or in SwitchGCC()
 
-export taskfile=/var/tmp/tb/task    # holds the current task, called by SwitchGCC()
+export taskfile=/var/tmp/tb/task    # holds the current task, used in SwitchGCC()
 tasklog=$taskfile.log               # holds output of it
 name=$(cat /var/tmp/tb/name)        # the image name
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
