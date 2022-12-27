@@ -38,11 +38,8 @@ function ShuffleUseFlags() {
 function DiceAProfile() {
   local exclude=""
 
-  if dice 1 2; then
-    exclude+=' -e /no-multilib'     # EOL is much higher than for desktop
-  fi
-  if dice 1 2; then
-    exclude+=' -e /musl'            # no stable profile yet
+  if dice 1 2; then                 # no stable profile
+    exclude+=' -e /musl'
   fi
 
   eselect profile list |
