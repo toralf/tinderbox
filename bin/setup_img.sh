@@ -346,7 +346,7 @@ SKIP_KERNEL_CHECK="y"
 NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
-FEATURES="cgroup protect-owned xattr -collision-protect -news"
+FEATURES="xattr -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 CLEAN_DELAY=0
