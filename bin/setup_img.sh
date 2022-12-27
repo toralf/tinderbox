@@ -164,9 +164,7 @@ function UnpackStage3() {
   for mirror in $gentoo_mirrors
   do
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
-      echo
-      date
-      echo " got latest-stage3.txt from $mirror"
+      echo -e "\n$(date) got latest-stage3.txt from $mirror"
       break
     fi
   done
@@ -175,9 +173,7 @@ function UnpackStage3() {
     return 1
   fi
 
-  echo
-  date
-  echo " get stage3 prefix for profile $profile"
+  echo -e "\n$(date) get stage3 prefix for profile $profile"
   local prefix="stage3-amd64"
   prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<< $profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
@@ -195,9 +191,7 @@ function UnpackStage3() {
     prefix+="-mergedusr"
   fi
 
-  echo
-  date
-  echo " get stage3 file name for prefix $prefix"
+  echo -e "\n$(date) get stage3 file name for prefix $prefix"
   local stage3
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
     echo " failed"
@@ -206,9 +200,7 @@ function UnpackStage3() {
 
   local stage3_filename=$tbhome/distfiles/$(basename $stage3)
   if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
-    echo
-    date
-    echo " downloading $stage3{,.asc} files ..."
+    echo -e "\n$(date) downloading $stage3{,.asc} files ..."
     for mirror in $gentoo_mirrors
     do
       if wget --connect-timeout=10 --quiet --no-clobber $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
@@ -216,29 +208,21 @@ function UnpackStage3() {
       fi
     done
     if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
-      echo
-      date
-      echo " failed to download stage3 file(s)"
+      echo -e "\n$(date) failed to download stage3 file(s)"
       ls -l $tbhome/distfiles/$stage3{,.asc}
       return 1
     fi
   else
-    echo
-    date
-    echo " using already downloaded file $stage3_filename"
+    echo -e "\n$(date) using already downloaded file $stage3_filename"
   fi
 
-  echo
-  date
-  echo " updating signing keys ..."
+  echo -e "\n$(date) updating signing keys ..."
   local keys="13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058"
   if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $keys; then
     echo " notice: failed, but will continue"
   fi
 
-  echo
-  date
-  echo " verifying stage3 files ..."
+  echo -e "\n$(date) verifying stage3 files ..."
   if ! gpg --quiet --verify $stage3_filename.asc; then
     echo " failed, moving files to /tmp"
     mv $stage3_filename{,.asc} /tmp
@@ -246,17 +230,13 @@ function UnpackStage3() {
   fi
 
   CreateImageName
-  echo
-  date
-  echo -e "\n +++ new image:    $name    +++\n"
+  echo -e "\n$(date)\n +++ new image:    $name    +++\n"
   if ! mkdir ~tinderbox/img/$name; then
     return 1
   fi
 
   cd ~tinderbox/img/$name
-  echo
-  date
-  echo " untar'ing stage3 ..."
+  echo -e "\n$(date) untar'ing stage3 ..."
   if ! tar -xpf $stage3_filename --same-owner --xattrs; then
     echo " failed, moving files to /tmp"
     mv $stage3_filename{,.asc} /tmp
