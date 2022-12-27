@@ -164,7 +164,7 @@ function UnpackStage3() {
   for mirror in $gentoo_mirrors
   do
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
-      echo -e "\n$(date) got latest-stage3.txt from $mirror"
+      echo -e "\n$(date) got latest-stage3.txt from mirror $mirror"
       break
     fi
   done
