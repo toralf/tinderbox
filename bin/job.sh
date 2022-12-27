@@ -791,7 +791,7 @@ function RunAndCheck() {
 
   # the value of -jX of the image name gives the number of parallel build jobs
   local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
-  local hours=$(( ${2:-24}/j ))
+  local hours=$(( ${2:-36}/j ))
   if [[ $name =~ '_abi32+64' ]]; then
     (( hours *= 2 ))
   fi
@@ -862,7 +862,7 @@ function WorkOnTask() {
       opts+=" --update --changed-use --newuse"
     fi
 
-    if RunAndCheck "emerge $task $opts" "48"; then
+    if RunAndCheck "emerge $task $opts" "60"; then
       echo "$(date) ok" >> /var/tmp/tb/$task.history
       if [[ $task = "@world" ]]; then
         add2backlog "%emerge --depclean --verbose=n"
@@ -898,7 +898,7 @@ function WorkOnTask() {
 
   # a common atom
   else
-    if ! RunAndCheck "emerge --update $task" 36; then
+    if ! RunAndCheck "emerge --update $task"; then
       :
     fi
   fi
