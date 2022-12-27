@@ -166,7 +166,7 @@ function UnpackStage3() {
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
       echo
       date
-      echo " using mirror $mirror"
+      echo " got latest-stage3.txt from $mirror"
       break
     fi
   done
@@ -209,14 +209,23 @@ function UnpackStage3() {
     echo
     date
     echo " downloading $stage3{,.asc} files ..."
-    if ! wget --connect-timeout=10 --quiet --no-clobber $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
-      echo " failed"
+    for mirror in $gentoo_mirrors
+    do
+      if wget --connect-timeout=10 --quiet --no-clobber $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
+        break
+      fi
+    done
+    if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
+      echo
+      date
+      echo " failed to download stage3 file(s)"
+      ls -l $tbhome/distfiles/$stage3{,.asc}
       return 1
     fi
   else
     echo
     date
-    echo " using $stage3_filename"
+    echo " using already downloaded file $stage3_filename"
   fi
 
   echo
