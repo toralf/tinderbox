@@ -62,3 +62,6 @@ app-editors/*emacs
 dev-lang/lfe
 dev-scheme/gambit
 dev-util/trace-cmd
+
+# ignore packages, needing the older compiler
+<sys-devel/gcc-12.2

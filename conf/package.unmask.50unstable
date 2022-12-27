@@ -18,7 +18,7 @@ sys-libs/ncurses:0/6                                    # DICE: ncurses
 # New release of janestreet packages need to tested
 dev-ml/sexplib0:0/0.15
 dev-ml/sexplib:0/0.15
-dev-ml/base:0/0.15                                      # DICE: ocaml
+dev-ml/base:0/0.15
 dev-ml/stdio:0/0.15
 dev-ml/ppx_sexp_conv:0/0.15
 dev-ml/ppx_enumerate:0/0.15
