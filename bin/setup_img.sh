@@ -696,6 +696,9 @@ function RunSetupScript() {
 
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > ./var/tmp/tb/setup_wrapper.sh
   if nice -n 1 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
+    if grep ' Invalid atom ' ./var/tmp/tb/setup.sh.log; then
+      return 1
+    fi
     echo -e " OK"
   else
     echo -e "$(date)\n $FUNCNAME was NOT ok\n"
