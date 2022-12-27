@@ -15,15 +15,15 @@ function getCandidates()  {
       continue
     fi
 
-    # keep for at least 24 hours
-    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i)) )) -lt 86400 ]]; then
+    # keep for 5 days to inspect a broken setup
+    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i)) )) -lt $(( 5*86400 )) ]]; then
       continue
     fi
 
     # keep emerge logs of past 2 weeks for "whatsup.sh -e"
     local l=$i/var/log/emerge.log
     if [[ -s $l ]]; then
-      # expect min # of emerges and max age of logfile
+      # test min count of emerges and max age of logfile
       if [[ $(qlop -mvetH -f $l | wc -l) -gt 19 && $(( (EPOCHSECONDS-$(stat -c %Y $l))/86400 )) -le 14 ]]; then
         continue
       fi
@@ -32,7 +32,7 @@ function getCandidates()  {
     # it is a candidate
     echo $i
   done |
-  sort -t'-' -k 3 # sort by date-time, oldest first
+  sort -t'-' -k 3 # sort by <date>-<time>, oldest first
 }
 
 
