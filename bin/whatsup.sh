@@ -13,8 +13,8 @@ function list_images() {
     ls -d /sys/fs/cgroup/cpu/local/??.*   | sort
   ) 2>/dev/null |
   xargs -n 1 --no-run-if-empty basename |
-  # remove dups
-  awk ' !x[$0]++ ' |
+  # sort -u would mix ~/img and ~/run, so use this
+  awk '!x[$0]++' |
   while read -r i
   do
     if ! ls -d ~tinderbox/run/$i 2>/dev/null; then
