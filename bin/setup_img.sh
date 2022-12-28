@@ -161,11 +161,14 @@ function CreateImageName() {
 function UnpackStage3() {
   local latest=$tbhome/distfiles/latest-stage3.txt
 
+  echo -e "\n$(date) get latest-stage3.txt "
   for mirror in $gentoo_mirrors
   do
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
-      echo -e "\n$(date) got latest-stage3.txt from mirror $mirror"
+      echo -e " got from mirror $mirror"
       break
+    else
+      echo -e " failed from mirror $mirror"
     fi
   done
   if [[ ! -s $latest ]]; then
@@ -204,7 +207,10 @@ function UnpackStage3() {
     for mirror in $gentoo_mirrors
     do
       if wget --connect-timeout=10 --quiet --no-clobber $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
+        echo -e "$(date) succeeded from mirror $mirror"
         break
+      else
+        echo -e "$(date) failed from mirror $mirror"
       fi
     done
     if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
@@ -938,5 +944,5 @@ RunSetupScript
 CompileUseFlagFiles
 Finalize
 
-echo -e "\n$(date)\n  setup done\n"
+echo -e "\n$(date)\n  setup done"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
