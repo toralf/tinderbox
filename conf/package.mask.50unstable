@@ -6,7 +6,10 @@
 <dev-util/ragel-7.0.4
 
 # sam
-<dev-libs/openssl-3.0.5                                 # DICE: openssl
+dev-libs/openssl:0/1.1                                  # DICE: openssl
 
 # /me
 <sys-devel/llvm-15.0.3                                  # DICE: llvm
+
+# ignore packages, needing the older compiler
+<sys-devel/gcc-12.2                                     # DICE: gcc
