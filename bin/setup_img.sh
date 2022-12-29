@@ -36,15 +36,11 @@ function ShuffleUseFlags() {
 
 # helper of InitOptions()
 function DiceAProfile() {
-  local exclude=""
-
-  if dice 1 2; then                 # no stable profile
-    exclude+=' -e /musl'
-  fi
+  local exclude="-e /clang -e /developer -e ' (exp)' -e /selinux -e /x32 -e /split-usr"
 
   eselect profile list |
   grep -F -e 'default/linux/amd64/' |
-  grep -v -F -e '/clang' -e '/developer' -e ' (exp)' -e '/selinux' -e '/x32' -e '/split-usr' $exclude |
+  grep -v -F $exclude |
   awk '{ print $2 }' |
   cut -f4- -d'/' -s |
   shuf -n 1
