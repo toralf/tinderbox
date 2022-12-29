@@ -36,11 +36,9 @@ function ShuffleUseFlags() {
 
 # helper of InitOptions()
 function DiceAProfile() {
-  local exclude="-e /clang -e /developer -e ' (exp)' -e /selinux -e /x32 -e /split-usr"
-
   eselect profile list |
   grep -F -e 'default/linux/amd64/' |
-  grep -v -F $exclude |
+  grep -v -F -e '/clang' -e '/developer' -e ' (exp)' -e '/selinux' -e '/x32' -e '/split-usr' |
   awk '{ print $2 }' |
   cut -f4- -d'/' -s |
   shuf -n 1
