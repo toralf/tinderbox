@@ -607,14 +607,6 @@ function WorkAtIssue()  {
     return
   fi
 
-  # https://bugs.gentoo.org/show_bug.cgi?id=828872
-  if grep -q -e 'internal compiler error:' $issuedir/title; then
-    if ! grep -q -e "^=$pkg " /etc/portage/package.env/j1 2>/dev/null; then
-      try_again=1
-      printf "%-50s %s\n" "=$pkg" "j1" >> /etc/portage/package.env/j1
-    fi
-  fi
-
   if [[ $try_again -eq 0 ]]; then
     maskPackage
   else
