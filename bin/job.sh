@@ -722,8 +722,7 @@ function catchMisc()  {
     local pkglog_stripped=/tmp/$(basename $pkglog | sed -e "s,\.log$,.stripped.log,")
     filterPlainPext < $pkglog > $pkglog_stripped
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
-      pkg=$( grep -m 1 -F ' * Package: '    $pkglog_stripped | awk '{ print $3 }')
-      pkg=$(sed -e 's,:.*,,' <<< $pkg)  # strip away the slot
+      pkg=$( grep -m 1 -F ' * Package: '    $pkglog_stripped | awk '{ print $3 }' | sed -e 's,:.*,,')
       phase=""
       pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
 
@@ -761,6 +760,22 @@ EOF
 }
 
 
+function GetPkglog() {
+  if [[ -z "$pkg" ]]; then
+    return 1
+  fi
+  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
+  if [[ ! -f $pkglog ]]; then
+    pkglog=$(ls -1 /var/log/portage/$(tr '/' ':' <<< $pkgname)*.log 2>/dev/null | sort | tail -n 1)
+  fi
+  if [[ ! -f $pkglog ]]; then
+    Mail "INFO: failed to get pkglog=$pkglog  pkg=$pkg  pkgname=$pkgname  task=$task" $tasklog_stripped
+    return 1
+  fi
+}
+
+
 function GetPkgFromTaskLog() {
   pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk '{ print $3 }')
   if [[ -z "$pkg" ]]; then
@@ -773,13 +788,7 @@ function GetPkgFromTaskLog() {
     fi
   fi
   pkg=$(sed -e 's,:.*,,' <<< $pkg)  # strip away the slot
-
-  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
-  pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<< $pkgname).*\.log" $tasklog_stripped)
-  if [[ ! -f $pkglog ]]; then
-    Mail "INFO: cannot get pkglog for pkg=$pkg task=$task" $tasklog_stripped
-    return 1
-  fi
+  GetPkglog
 }
 
 
@@ -827,12 +836,14 @@ function RunAndCheck() {
     if [[ $signal -eq 9 ]]; then
       Finish 9 "KILLed" $tasklog
     fi
-    pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,')
-    pkg=$(sed -e 's,:.*,,' <<< $pkg)  # strip away the slot
-    Mail "INFO:  signal=$signal  task=$task  pkg=$pkg" $tasklog
-  fi
+    pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
+    Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
+    if GetPkglog; then
+      createIssueDir
+      WorkAtIssue
+    fi
 
-  if [[ $rc -ne 0 ]]; then
+  elif [[ $rc -gt 0 ]]; then
     if GetPkgFromTaskLog; then
       createIssueDir
       WorkAtIssue
