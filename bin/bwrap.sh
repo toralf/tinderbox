@@ -117,14 +117,21 @@ function Chroot() {
 
 
 function Bwrap() {
+  if [[ $mnt =~ "merged_usr" || $mnt =~ "23.0" ]]; then
+    local path="/usr/sbin:/usr/bin"
+  else
+    local path="/usr/sbin:/usr/bin:/sbin:/bin:"
+  fi
+
   local sandbox=(env -i
     /usr/bin/bwrap
         --clearenv
         --setenv HOME "/root"
         --setenv MAILTO "${MAILTO:-tinderbox}"
+        --setenv PATH "$path"
         --setenv SHELL "/bin/bash"
         --setenv TERM "linux"
-        --hostname "$(cat ${mnt}/etc/conf.d/hostname)"
+        --hostname "$(cat $mnt/etc/conf.d/hostname)"
         --die-with-parent
         --chdir /var/tmp/tb
         --unshare-cgroup
@@ -192,7 +199,7 @@ do
         fi
         mnt=~tinderbox/img/${OPTARG##*/}
         ;;
-    *)  echo "unknown parameter '${opt}'"; exit 1;;
+    *)  echo "unknown parameter '$opt'"; exit 1;;
   esac
 done
 
