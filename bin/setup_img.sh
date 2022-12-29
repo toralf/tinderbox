@@ -49,7 +49,6 @@ function DiceAProfile() {
 function InitOptions() {
   abi3264="n"
   cflags_default="-pipe -march=native -fno-diagnostics-color"
-  cflags=$cflags_default
   jobs=4
   keyword="~amd64"
   no_autostart="n"
@@ -75,18 +74,17 @@ function InitOptions() {
       cflags_default+=" -O2"
     fi
 
-    cflags=$cflags_default    # till here the fallback (_default) is identical with CFLAGS
+    cflags=$cflags_default
 
-    # no special games with stable images
     if dice 1 160; then
       keyword="amd64"
+      # no games at stable images
     else
-      # 685160 colon-in-CFLAGS
       if dice 1 80; then
-        cflags+=" -falign-functions=32:25:16"
+        cflags+=" -falign-functions=32:25:16"   # force bug 685160 (colon in CFLAGS)
       fi
       if dice 1 80; then
-        testfeature="y"
+        testfeature="y"                         # not very fruitful but do it now and then
       fi
     fi
   fi
