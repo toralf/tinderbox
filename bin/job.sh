@@ -439,7 +439,7 @@ EOF
 
 
 # put world into same state as if the (successfully installed) deps would have been already emerged in previous task/s
-function PutDepsIntoWorldFile() {
+function KeepInstalledDeps() {
   if grep -q '^>>> Installing ' $tasklog_stripped; then
     emerge --depclean --verbose=n --pretend 2>/dev/null |
     grep "^All selected packages: "                     |
@@ -831,7 +831,9 @@ function RunAndCheck() {
     local signal=$(( rc-128 ))
     if [[ "$(runlevel)" = "N 3" ]] ; then # host is not rebooting
       maskPackage
-      PutDepsIntoWorldFile
+      if [[ $try_again -eq 0 ]]; then
+        KeepInstalledDeps
+      fi
     fi
     if [[ $signal -eq 9 ]]; then
       Finish 9 "KILLed" $tasklog
@@ -848,7 +850,7 @@ function RunAndCheck() {
       createIssueDir
       WorkAtIssue
       if [[ $try_again -eq 0 ]]; then
-        PutDepsIntoWorldFile
+        KeepInstalledDeps
       fi
     fi
     if [[ $rc -eq 124 ]]; then
@@ -917,7 +919,7 @@ function WorkOnTask() {
 
 
 # bail out if there're more than n attempts of @<set> within last N tasks
-function DetectTaskLoop() {
+function DetectRepeats() {
   local n=7
   local N=20
   local histfile=/var/tmp/tb/task.history
@@ -931,8 +933,7 @@ function DetectTaskLoop() {
       fi
     fi
     if [[ $(tail -n $N $histfile | grep -c "$pattern") -ge $n ]]; then
-      echo "$(date) too much $pattern" >> $histfile
-      Finish 13 "detected a repeat in $pattern" $histfile
+      Finish 13 "repeated task: $pattern" $histfile
     fi
   done
 
@@ -940,7 +941,7 @@ function DetectTaskLoop() {
   local package
   if read -r count package < <(qlop -mv | awk '{ print $3 }' | sort | uniq -c | sort -bn | tail -n 1); then
     if [[ $count -gt 10 ]]; then
-      Finish 13 "repeated emerges: $count x $package" $histfile
+      Finish 13 "package emerged too often: $count x $package" $histfile
     fi
   fi
 }
@@ -1010,7 +1011,7 @@ source $(dirname $0)/lib.sh
 
 export -f SwitchGCC add2backlog source_profile syncRepo   # called in eval of RunAndCheck() or in SwitchGCC()
 
-export taskfile=/var/tmp/tb/task    # holds the current task, used in SwitchGCC()
+export taskfile=/var/tmp/tb/task    # holds the current task, and is exported, b/c used in SwitchGCC()
 tasklog=$taskfile.log               # holds output of it
 name=$(cat /var/tmp/tb/name)        # the image name
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
@@ -1036,10 +1037,8 @@ if [[ -s $taskfile ]]; then
 fi
 
 echo "#init" > $taskfile
-rm -f $tasklog  # remove any remaining hard link
-if ! systemd-tmpfiles --create &>$tasklog; then
-  : # Mail "NOTICE: tmpfiles issue" $tasklog
-fi
+rm -f $tasklog  # remove a left over hard link
+systemd-tmpfiles --create &>$tasklog || true
 
 last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :
@@ -1089,5 +1088,5 @@ do
   fi
   truncate -s 0 $taskfile
 
-  DetectTaskLoop
+  DetectRepeats
 done
