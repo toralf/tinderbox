@@ -5,7 +5,7 @@
 # create the index file ~tinderbox/img/index.html
 
 
-function listStat()  {
+function listStat() {
   date >> $tmpfile
   echo "<h2>few stats</h2>" >> $tmpfile
   echo "<pre>" >> $tmpfile
@@ -25,7 +25,7 @@ function listStat()  {
 }
 
 
-function listFiles()  {
+function listFiles() {
   echo "<h2>downloadable files</h2>" >> $tmpfile
   echo "<pre>" >> $tmpfile
   (cd ~tinderbox/img; find . -maxdepth 1 -type f) | recode --silent ascii..html |

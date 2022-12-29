@@ -3,7 +3,7 @@
 # set -x
 
 
-function getCandidates()  {
+function getCandidates() {
   ls -d ~tinderbox/img/??.*-j*-20??????-?????? 2>/dev/null |
   while read -r i
   do
@@ -39,7 +39,7 @@ function getCandidates()  {
 # $ df -m /dev/nvme0n1p4
 # Filesystem     1M-blocks    Used Available Use% Mounted on
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
-function pruneNeeded()  {
+function pruneNeeded() {
   local fs=/dev/nvme0n1p4
   local free=200000        # in GB
   local used=89            # in %

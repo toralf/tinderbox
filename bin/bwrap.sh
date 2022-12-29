@@ -45,7 +45,7 @@ function CgroupDelete() {
 
 
 # no "echo" here
-function Exit()  {
+function Exit() {
   local rc=${1:-$?}
 
   trap - INT QUIT TERM EXIT
@@ -81,7 +81,7 @@ function ChrootMountAll() {
 }
 
 
-function ChrootUmountAll()  {
+function ChrootUmountAll() {
   (
     set +e
 

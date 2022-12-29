@@ -24,13 +24,13 @@ function list_images() {
 }
 
 
-function PrintImageName()  {
+function PrintImageName() {
   local chars=${2:-42}
   printf "%-${chars}s" $(cut -c-${chars} < $1/var/tmp/tb/name 2>/dev/null)
 }
 
 
-function check_history()  {
+function check_history() {
   local file=$1
   local flag=$2
 
@@ -137,7 +137,7 @@ function Overall() {
 # whatsup.sh -t
 # 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
-function Tasks()  {
+function Tasks() {
   for i in $images
   do
     local tsk=$i/var/tmp/tb/task
@@ -175,7 +175,7 @@ function Tasks()  {
 #
 # 17.1_desktop_plasma_s  0:02 m  >>> AUTOCLEAN: media-sound/toolame:0
 # 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
-function LastEmergeOperation()  {
+function LastEmergeOperation() {
   for i in $images
   do
     if PrintImageName $i && __is_running $i && [[ -s $i/var/log/emerge.log ]]; then
@@ -301,7 +301,7 @@ function Coverage() {
 #  2477x1 3163x2 3176x3 2548x4 1577x5 1059x6 718x7 454x8 353x9 448x10 437x11 126x12 86x13 21x14 9x15 12x16 25x17 17x18 2x19 1x26 dev-vcs/git-2.35.1
 #
 #  16709 package (revisions) in 67930 emerges
-function CountEmergesPerPackages()  {
+function CountEmergesPerPackages() {
   echo "package (revisions) x emerges in ~/run"
 
   perl -wane '
@@ -348,7 +348,7 @@ function CountEmergesPerPackages()  {
 #
 # 2021-04-31    15   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  15   0   0   0
 # 2021-05-01  2790  28  87  91  41   4  13   0   1  15  29  78  35  62  46  75   9   0 193 104 234 490 508 459 188
-function emergeThruput()  {
+function emergeThruput() {
   echo -n "yyyy-mm-dd   sum  "
   for i in {0..23}
   do

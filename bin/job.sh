@@ -51,7 +51,7 @@ function Mail() {
 
 
 # http://www.portagefilelist.de
-function feedPfl()  {
+function feedPfl() {
   local tmp=$(mktemp /tmp/feedPfl_XXXXXX)
   if [[ -x /usr/bin/pfl ]]; then
     if ! /usr/bin/pfl &>$tmp; then
@@ -63,7 +63,7 @@ function feedPfl()  {
 
 
 # this is the end ...
-function Finish()  {
+function Finish() {
   trap - INT QUIT TERM EXIT
   set +e
 
@@ -89,7 +89,7 @@ function Finish()  {
 
 
 # helper of getNextTask()
-function setBacklog()  {
+function setBacklog() {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     backlog=/var/tmp/tb/backlog.1st
 
@@ -162,7 +162,7 @@ function getNextTask() {
 }
 
 
-function CompressIssueFiles()  {
+function CompressIssueFiles() {
   for f in $(ls $issuedir/files/* 2>/dev/null | grep -v -F '.bz2')
   do
     # compress if bigger than 1/4 MB
@@ -177,7 +177,7 @@ function CompressIssueFiles()  {
 }
 
 
-function CreateEmergeHistoryFile()  {
+function CreateEmergeHistoryFile() {
   local ehist=$issuedir/files/emerge-history.txt
   local cmd="qlop --nocolor --verbose --merge --unmerge"
 
@@ -465,7 +465,7 @@ function setWorkDir() {
 
 
 # append to the end of the file to be the next task, but avoid dups
-function add2backlog()  {
+function add2backlog() {
   if [[ $1 =~ '@' || $1 =~ '%' ]]; then
     if [[ "$(tail -n 1 /var/tmp/tb/backlog.1st)" != "$1" ]]; then
       echo "$1" >> /var/tmp/tb/backlog.1st
@@ -476,7 +476,7 @@ function add2backlog()  {
 }
 
 
-function finishTitle()  {
+function finishTitle() {
   # strip away hex addresses, loong path names, line and time numbers and other stuff
   sed -i  -e 's,0x[0-9a-f]*,<snip>,g'         \
           -e 's,: line [0-9]*:,:line <snip>:,g' \
@@ -521,7 +521,7 @@ function finishTitle()  {
 }
 
 
-function SendIssueMailIfNotYetReported()  {
+function SendIssueMailIfNotYetReported() {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CAUGHT; then
       # chain "cat" by "echo" b/c cat buffers output which is racy between images
@@ -560,7 +560,7 @@ function SendIssueMailIfNotYetReported()  {
 }
 
 
-function maskPackage()  {
+function maskPackage() {
   local self=/etc/portage/package.mask/self
 
   if [[ ! -s $self ]] || ! grep -q -e "=$pkg$" $self; then
@@ -569,12 +569,12 @@ function maskPackage()  {
 }
 
 
-function collectPortageDir()  {
+function collectPortageDir() {
   tar -C / -cjpf $issuedir/files/etc.portage.tar.bz2 --dereference etc/portage
 }
 
 # analyze the issue
-function WorkAtIssue()  {
+function WorkAtIssue() {
   local pkglog_stripped=$issuedir/$(tr '/' ':' <<< $pkg).stripped.log
   filterPlainPext < $pkglog > $pkglog_stripped
 
@@ -703,7 +703,7 @@ function createIssueDir() {
 }
 
 
-function catchMisc()  {
+function catchMisc() {
   find /var/log/portage/ -mindepth 1 -maxdepth 1 -type f -newer $taskfile |
   while read -r pkglog
   do
@@ -939,7 +939,7 @@ function DetectRepeats() {
 }
 
 
-function syncRepo()  {
+function syncRepo() {
   local synclog=/var/tmp/tb/sync.log
   local curr_time=$EPOCHSECONDS
 
