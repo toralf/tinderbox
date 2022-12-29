@@ -220,7 +220,7 @@ function CollectIssueFiles() {
           -o -name "meson-log.txt" |
           sort -u > $f
       if [[ -s $f ]]; then
-        tar -cjpf $issuedir/files/logs.tar.bz2 \
+        gtar -cjpf $issuedir/files/logs.tar.bz2 \
             --dereference \
             --warning='no-all' \
             --files-from $f 2>/dev/null
@@ -248,7 +248,7 @@ function CollectIssueFiles() {
     (
       cd "$workdir/../.."
       if [[ -d ./temp ]]; then
-        timeout --signal=15 --kill-after=1m 3m tar --warning=none -cjpf $issuedir/files/temp.tar.bz2 \
+        timeout --signal=15 --kill-after=1m 3m gtar --warning=none -cjpf $issuedir/files/temp.tar.bz2 \
             --dereference \
             --warning='no-all'  \
             --exclude='*/garbage.*' \
@@ -336,12 +336,12 @@ function handleTestPhase() {
     try_again=1
   fi
 
-  # tar returns an error if it can't find at least one directory, therefore feed only existing dirs to it
+  # gtar returns an error if it can't find any directory, therefore feed only existing dirs to it
   pushd "$workdir" 1>/dev/null
   local dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
   if [[ -n "$dirs" ]]; then
     # ignore stderr, eg.:    tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
-    timeout --signal=15 --kill-after=1m 3m tar --warning=none -cjpf $issuedir/files/tests.tar.bz2 \
+    timeout --signal=15 --kill-after=1m 3m gtar --warning=none -cjpf $issuedir/files/tests.tar.bz2 \
         --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
         --exclude='*.o' --exclude="*/symlinktest/*" \
         --dereference --sparse --one-file-system \
