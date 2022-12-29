@@ -8,7 +8,5 @@ dev-games/ogre:0/2.1                **                  # DICE: ogre_2
 
 
 # sam
-dev-libs/openssl:0/3                **                  # DICE: openssl
 dev-scheme/guile:12/3.0-1           **                  # DICE: guile
 <dev-util/meson-9999                **                  # DICE: meson
-sys-libs/ncurses:0/6                **                  # DICE: ncurses

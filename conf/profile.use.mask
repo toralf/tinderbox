@@ -22,8 +22,5 @@ valgrind
 # temp settings
 #
 
-# sam: openssl:0/3  https://bugs.gentoo.org/797673
-ruby
-
-# ionen https://bugs.gentoo.org/show_bug.cgi?id=846941
+# ionen https://bugs.gentoo.org/846941
 crossdev-mingw

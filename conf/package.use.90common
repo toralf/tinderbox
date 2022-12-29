@@ -40,9 +40,6 @@ sys-kernel/installkernel-gentoo     -grub
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
 
-# eg. bsdtar does not know --warning=none, so do not symlink it to tar
-app-alternatives/tar                gnu -libarchive
-
 
 #######################################################################
 #
@@ -67,15 +64,3 @@ media-libs/libepoxy                 egl
 # too aggressive kernel config check
 dev-qt/qtnetwork                    -networkmanager
 kde-plasma/ksystemstats             -networkmanager
-
-# https://bugs.gentoo.org/868372
-net-firewall/iptables               -conntrack
-
-# needed for clang
-sys-libs/ncurses                    -gpm
-
-# breaks image setup
-sys-apps/man-db                     -nls
-
-# https://bugs.gentoo.org/868372
-net-dns/dnsmasq                     -conntrack
