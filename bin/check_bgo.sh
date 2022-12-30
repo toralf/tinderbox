@@ -60,6 +60,15 @@ if [[ $# -eq 2 && $2 = "-f" ]]; then
   force="y"
 fi
 
+trap Exit INT QUIT TERM EXIT
+source $(dirname $0)/lib.sh
+echo -e "\n===========================================\n"
+
+name=$(cat $issuedir/../../name)                                           # eg.: 17.1-20201022-101504
+pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,')   # eg.: net-misc/bird-2.0.7-r1
+pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # eg.: net-misc/bird
+SetAssigneeAndCc
+
 if [[ ! -s $issuedir/title ]]; then
   echo -e "\n no title found\n"
   exit 1
@@ -68,13 +77,6 @@ elif [[ -f $issuedir/.reported ]]; then
   exit 0
 fi
 
-trap Exit INT QUIT TERM EXIT
-source $(dirname $0)/lib.sh
-echo -e "\n===========================================\n"
-
-name=$(cat $issuedir/../../name)                                           # eg.: 17.1-20201022-101504
-pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,')   # eg.: net-misc/bird-2.0.7-r1
-pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # eg.: net-misc/bird
 versions=$(eshowkw --arch amd64 $pkgname |
             grep -v -e '^  *|' -e '^-' -e '^Keywords' |
             # + == stable, o == masked, ~ == unstable
@@ -86,7 +88,6 @@ if [[ -z $versions ]]; then
   exit 1
 fi
 
-SetAssigneeAndCc
 createSearchString
 cmd="$(dirname $0)/bgo.sh -d $issuedir"
 blocker_bug_no=$(LookupForABlocker ~tinderbox/tb/data/BLOCKER)
