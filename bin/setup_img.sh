@@ -53,40 +53,63 @@ function InitOptions() {
   keyword="~amd64"
   no_autostart="n"
   profile=$(DiceAProfile)
+  testfeature="n"
+  useflagfile=""
+
+  # no games
+  if [[ $profile =~ "/musl" ]]; then
+    cflags_default+=" -O2"
+    cflags=$cflags_default
+    return
+  fi
+
+  # upcoming
   if [[ $profile =~ "/merged-usr" ]]; then
     if dice 1 2; then
       profile=$(sed -e 's,17.1,23.0,' -e 's,/merged-usr,,' <<< $profile)
     fi
   fi
-  testfeature="n"
-  useflagfile=""
-  if [[ ! $profile =~ "/musl" ]]; then
-    # set "*/* ABI_X86: 32 64"
-    if [[ ! $profile =~ "/no-multilib" ]]; then
-      if dice 1 80; then
-        abi3264="y"
-      fi
-    fi
 
+  # set "*/* ABI_X86: 32 64"
+  if [[ ! $profile =~ "/no-multilib" ]]; then
     if dice 1 80; then
-      cflags_default+=" -Og -g"   # debug
-    else
-      cflags_default+=" -O2"
+      abi3264="y"
     fi
+  fi
 
+  # stable image
+  if dice 1 160; then
+    keyword="amd64"
+    cflags_default+=" -O2"
     cflags=$cflags_default
+    return
+  fi
 
-    if dice 1 160; then
-      keyword="amd64"
-      # no games at stable images
-    else
-      if dice 1 80; then
-        cflags+=" -falign-functions=32:25:16"   # force bug 685160 (colon in CFLAGS)
-      fi
-      if dice 1 80; then
-        testfeature="y"                         # not very fruitful but do it now and then
-      fi
+  # debug
+  if dice 1 80; then
+    cflags_default+=" -Og -g"
+  else
+    cflags_default+=" -O2"
+  fi
+  cflags=$cflags_default
+
+  # force bug 685160 (colon in CFLAGS)
+  if dice 1 80; then
+    cflags+=" -falign-functions=32:25:16"
+  fi
+
+  # by sam_
+  # https://bugs.gentoo.org/876895
+  if [[ $profile =~ "/hardened" ]]; then
+    if dice 1 2; then
+      cflags+=" -D_GLIBCXX_ASSERTIONS"
     fi
+  el
+  fi
+
+  # not very fruitful but do it now and then
+  if dice 1 80; then
+    testfeature="y"
   fi
 }
 
@@ -133,11 +156,6 @@ function CheckOptions() {
   if [[ ! $jobs =~ ^[0-9].*$ ]]; then
     echo " jobs is wrong: >>${jobs}<<"
     return 1
-  fi
-
-  # by sam_
-  if [[ $profile =~ "/hardened" ]]; then
-    cflags+=" -D_GLIBCXX_ASSERTIONS"
   fi
 }
 
