@@ -109,7 +109,12 @@ function CheckOptions() {
   checkBool "testfeature" || return 1
 
   if [[ -z $profile ]]; then
-    echo " profile empty!"
+    echo " empty profile"
+    return 1
+  fi
+
+  if grep -q "/$" <<< $profile; then
+    echo " trailing slash in profile >>$profile<<"
     return 1
   fi
 
