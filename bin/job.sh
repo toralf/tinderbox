@@ -184,8 +184,9 @@ function CreateEmergeHistoryFile() {
   cat << EOF > $ehist
 # This file contains the emerge history got with:
 # $cmd
+# at $(date)
 EOF
-  ($cmd) &>> $ehist
+  $cmd &>> $ehist
 }
 
 
