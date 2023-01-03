@@ -402,6 +402,8 @@ function cpconf() {
 
 # create portage related directories + files
 function CompilePortageFiles() {
+  cp -ar $tbhome/tb/patches ./etc/portage
+
   for d in env package.{accept_keywords,env,mask,unmask,use} patches profile
   do
     if [[ ! -d ./etc/portage/$d ]]; then
@@ -410,8 +412,6 @@ function CompilePortageFiles() {
     chgrp portage ./etc/portage/$d
     chmod g+w     ./etc/portage/$d
   done
-
-  cp -ar $tbhome/tb/patches/* ./etc/portage/patches
 
   touch ./etc/portage/package.mask/self     # holds failed packages
 
@@ -486,7 +486,7 @@ EOF
 
   # lines with a comment like "DICE: topic x X" will be kept with x/X chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
-  awk '{ print $3, $4, $5 }' |
+  cut -f 3- -d ' ' |
   sort -u -r |
   while read -r topic x X
   do
