@@ -77,12 +77,11 @@ function LookupForABlocker() {
 
 
 function GotResults() {
-  if [[ -s $bugz_result ]]; then
-    if ! grep -q "^Traceback" $bugz_result; then
-      return 0
-    fi
+  if [[ ! -s $bugz_result ]] || grep -q -e "^Traceback" -e "# Error: Bugzilla error:" $bugz_result; then
+    return 1
+  else
+    return 0
   fi
-  return 1
 }
 
 
