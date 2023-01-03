@@ -103,7 +103,7 @@ function setBacklog() {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    Finish 13 "all work DONE, reached EOL"   # "13" needed here to trigger a replacement
+    Finish 13 "all work DONE"   # "13" needed here to trigger a replacement
   fi
 }
 
@@ -822,20 +822,19 @@ function RunAndCheck() {
   # got a signal
   if [[ $rc -ge 128 ]]; then
     local signal=$(( rc-128 ))
-    if [[ "$(runlevel)" = "N 3" ]] ; then # host is not rebooting
-      maskPackage
-      if [[ $try_again -eq 0 ]]; then
-        KeepInstalledDeps
-      fi
-    fi
     if [[ $signal -eq 9 ]]; then
-      Finish 9 "KILLed" $tasklog
+      Finish 9 "KILLed" $tasklog    # usuall shutdown of the host
+    else
+      maskPackage
     fi
     pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
     Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     if GetPkglog; then
       createIssueDir
       WorkAtIssue
+    fi
+    if [[ $try_again -eq 0 ]]; then
+      KeepInstalledDeps
     fi
 
   elif [[ $rc -gt 0 ]]; then
