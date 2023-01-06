@@ -104,7 +104,6 @@ function InitOptions() {
     if dice 1 2; then
       cflags+=" -D_GLIBCXX_ASSERTIONS"
     fi
-  el
   fi
 
   # not very fruitful but do it now and then
