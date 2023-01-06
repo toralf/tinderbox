@@ -7,12 +7,14 @@
 # global settings
 #
 
-*/*  QEMU_SOFTMMU_TARGETS:          x86_64 i386
-*/*  QEMU_USER_TARGETS:             x86_64 i386
-*/*  VIDEO_CARDS:                   -* dummy fbdev amdgpu
-*/*  RUBY_TARGETS:                  ruby27 ruby31
+*/*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
+*/*                                 QEMU_USER_TARGETS:    x86_64 i386
+*/*                                 VIDEO_CARDS:          -* dummy fbdev amdgpu
+*/*                                 RUBY_TARGETS:         ruby27                  # DICE: ruby27
+*/*                                 RUBY_TARGETS:         ruby30                  # DICE: ruby30
+*/*                                 RUBY_TARGETS:         ruby31                  # DICE: ruby31
 
-x11-libs/libdrm                     video_cards_intel video_cards_nouveau video_cards_radeon
+x11-libs/libdrm                     VIDEO_CARDS: intel nouveau radeon
 
 # 2x faster compile
 */*                                 jumbo-build
@@ -24,7 +26,7 @@ mail-mta/ssmtp                      mta ssl -gnutls
 # /etc/profile.d/nix.sh overwrites /etc/profile
 sys-apps/nix                        -etc_profile
 
-# https pull/fetch fails due to missing /usr/libexec/git-core/git-remote-https otherwise
+# https pull/fetch would fail otherwise due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
 # ::gentoo requirement
@@ -40,20 +42,20 @@ sys-kernel/installkernel-gentoo     -grub
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
 
+# https://bugs.gentoo.org/869953
+sys-devel/gcc                       -ada
+
 
 #######################################################################
 #
-# temp settings for b0rken packages / USE flags
+# temp settings
 #
 
 # fails with: "you must set LINGUAS ..."
 app-admin/webalizer                 -nls
 
-# bootstrap b0rken
+# bootstrap
 sys-devel/gcc                       -d
-
-# https://bugs.gentoo.org/869953
-sys-devel/gcc                       -ada
 
 # needs hours instead seconds
 dev-libs/gf2x                       -custom-tune
@@ -64,3 +66,6 @@ media-libs/libepoxy                 egl
 # too aggressive kernel config check
 dev-qt/qtnetwork                    -networkmanager
 kde-plasma/ksystemstats             -networkmanager
+
+# setup
+*/*                                 -rdoc

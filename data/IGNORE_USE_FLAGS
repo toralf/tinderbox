@@ -17,6 +17,7 @@ deprecated
 device-mapper-only
 dist-kernel
 doc
+emacs
 exec-static-trampoline
 FreeBSD
 fuse
@@ -58,10 +59,6 @@ perftools
 prefix
 prefix-guest
 rdoc
-ruby27
-ruby30
-ruby31
-ruby32
 sanitize
 savedconfig
 selinux
@@ -82,4 +79,5 @@ vdpau
 vim-syntax
 vulkan
 x32
+xemacs
 zink

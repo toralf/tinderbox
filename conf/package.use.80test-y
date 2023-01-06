@@ -1,7 +1,7 @@
 # package.use/80test
 #
 
-# if FEATURES=test is active then these USE flags are required
+# if FEATURES=test is active then these USE flags are required or at least helpful to let setup succeed
 
 app-text/docbook-xsl-stylesheets    -ruby
 dev-libs/libzip                     tools
@@ -13,12 +13,13 @@ media-libs/libheif                  go libde265
 media-libs/soxr                     examples
 media-libs/tiff                     jpeg
 media-sound/pulseaudio              -equalizer
-net-nds/openldap                    berkdb -minimal
+net-nds/openldap                    berkdb -minimal sasl
 net-misc/openssh                    -xmss
 sys-apps/man-db                     -nls
 sys-apps/dbus                       debug
+sys-apps/shadow                     -cracklib
 sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
 
-# otherwise pybugz doesn't build which would yield to a "bug raw" flood
+# otherwise pybugz doesn't build which would yield to a "bug raw" flood in test
 dev-lang/python                     readline -libedit

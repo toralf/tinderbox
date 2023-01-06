@@ -31,6 +31,9 @@ sys-fs/vhba
 sys-fs/zfs-kmod
 sys-libs/uclibc-ng
 
+# clang cannot deal with it https://bugs.gentoo.org/872344
+sys-libs/libcxxabi
+
 # way too long compile times
 www-client/chromium
 www-client/google-chrome
@@ -42,18 +45,11 @@ sys-cluster/nullmpi
 x11-wm/stumpwm
 
 # long compile time
-dev-lang/rust                                           # DICE: long_compile_time_a 15 16
 sci-libs/atlas                                          # DICE: long_compile_time_b 15 16
 sci-libs/libint:2                                       # DICE: long_compile_time_c 15 16
 sci-libs/rocBLAS                                        # DICE: long_compile_time_d 15 16
 sci-libs/rocFFT                                         # DICE: long_compile_time_e 15 16
 sci-libs/tensorflow                                     # DICE: long_compile_time_f 15 16
-
-# https://bugs.gentoo.org/872344
-sys-libs/libcxxabi
-
-# https://bugs.gentoo.org/868789
-dev-lang/gnat-gpl
 
 # fails too often
 app-editors/*emacs
@@ -61,5 +57,9 @@ app-editors/*emacs
 # hangs
 dev-lang/lfe
 dev-scheme/gambit
+# https://bugs.gentoo.org/888779
+dev-util/coccinelle
 dev-util/trace-cmd
 
+# fails too often
+<dev-lang/ghc-9.0.2
