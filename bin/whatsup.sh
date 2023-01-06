@@ -380,7 +380,7 @@ function emergeThruput() {
 
       # delete anything in %Days older 2 weeks b/c those values might be incomplete
       # due to house kept images having no reported bugs
-      my ($youngest, $oldest) = (sort { $b cmp $a } keys %Days)[0,13];
+      my ($youngest, $oldest) = (sort { $b cmp $a } keys %Days)[0,14];
 
       foreach my $key (keys %Days) {
         delete ($Days{$key}) if ($key lt $oldest);
@@ -406,13 +406,13 @@ function emergeThruput() {
       foreach my $key (keys %Mean)  {
         $Mean{$key} /= $n;
       }
-      printf("%-10s %5i  ", "13d-mean", $Mean{"sum"});
+      printf("%-10s %5i  ", "14d-mean", $Mean{"sum"});
       foreach my $hour (0..23) {
         printf("%4i", $Mean{$hour});
       }
       print "\n";
     }
-  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -14 | sort -t '-' -k 3)
+  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -15 | sort -t '-' -k 3)
 }
 
 

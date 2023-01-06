@@ -15,18 +15,9 @@ function getCandidates() {
       continue
     fi
 
-    # keep for 5 days to inspect a broken setup
-    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i)) )) -lt $(( 5*86400 )) ]]; then
+    # keep past 2 weeks for "whatsup.sh -e"
+    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i)) )) -lt $(( 15*86400 )) ]]; then
       continue
-    fi
-
-    # keep emerge logs of past 2 weeks for "whatsup.sh -e"
-    local l=$i/var/log/emerge.log
-    if [[ -s $l ]]; then
-      # test min count of emerges and max age of logfile
-      if [[ $(qlop -mvetH -f $l | wc -l) -gt 19 && $(( (EPOCHSECONDS-$(stat -c %Y $l))/86400 )) -le 14 ]]; then
-        continue
-      fi
     fi
 
     # it is a candidate
@@ -64,7 +55,7 @@ function pruneDir() {
   rm -r $d
   local rc=$?
 
-  sleep 30    # lazy btrfs
+  sleep 30    # btrfs reports lazy of free space
   return $rc
 }
 
@@ -116,7 +107,7 @@ do
   fi
 done < <(getCandidates)
 
-# 5th prune now any else
+# 5th prune oldest first
 while read -r img && pruneNeeded
 do
   pruneDir $img
