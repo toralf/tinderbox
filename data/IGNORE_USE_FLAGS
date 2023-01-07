@@ -48,6 +48,7 @@ monolithic
 multilib
 musl
 native-symlinks
+networkmanager
 nvidia
 objc
 objc++

@@ -10,9 +10,10 @@
 */*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
 */*                                 QEMU_USER_TARGETS:    x86_64 i386
 */*                                 VIDEO_CARDS:          -* dummy fbdev amdgpu
-*/*                                 RUBY_TARGETS:         ruby27                  # DICE: ruby27
+# */*                                 RUBY_TARGETS:         ruby27                  # DICE: ruby27
 */*                                 RUBY_TARGETS:         ruby30                  # DICE: ruby30
 */*                                 RUBY_TARGETS:         ruby31                  # DICE: ruby31
+*/*                                 RUBY_TARGETS:         ruby32                  # DICE: ruby32
 
 x11-libs/libdrm                     VIDEO_CARDS: intel nouveau radeon
 
@@ -45,6 +46,9 @@ app-portage/portage-utils           -openmp
 # https://bugs.gentoo.org/869953
 sys-devel/gcc                       -ada
 
+# required by (sys-apps/portage-3.0.43:0/0::gentoo, installed)
+dev-lang/python                     ssl
+
 
 #######################################################################
 #
@@ -63,9 +67,8 @@ dev-libs/gf2x                       -custom-tune
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
 
-# too aggressive kernel config check
-dev-qt/qtnetwork                    -networkmanager
-kde-plasma/ksystemstats             -networkmanager
+# too aggressive kernel config check: CONFIG_SYSFS_DEPRECATED_V2 support detected!
+*/*                                 -networkmanager
 
 # setup
 */*                                 -rdoc
