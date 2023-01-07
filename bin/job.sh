@@ -932,8 +932,8 @@ function DetectRepeats() {
   local count
   local package
   if read -r count package < <(qlop -mv | awk '{ print $3 }' | sort | uniq -c | sort -bn | tail -n 1); then
-    if [[ $count -gt 10 ]]; then
-      Finish 13 "package emerged too often: $count x $package" $histfile
+    if [[ $count -gt 5 ]]; then
+      Finish 13 "to often emerged: $count x $package" $histfile
     fi
   fi
 }
