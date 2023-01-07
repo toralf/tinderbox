@@ -16,7 +16,7 @@ function getCandidates() {
     fi
 
     # keep past 2 weeks for "whatsup.sh -e"
-    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i)) )) -lt $(( 15*86400 )) ]]; then
+    if [[ $(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log)) )) -lt $(( 15*86400 )) ]]; then
       continue
     fi
 
