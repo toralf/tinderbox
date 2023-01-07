@@ -268,11 +268,11 @@ function UnpackStage3() {
 }
 
 
-# prefer git over rsync for ::gentoo
+# prefer git over rsync
 function InitRepository() {
   mkdir -p ./etc/portage/repos.conf/
 
-  cat << EOF >> ./etc/portage/repos.conf/all.conf
+  cat << EOF > ./etc/portage/repos.conf/all.conf
 [DEFAULT]
 main-repo = gentoo
 auto-sync = yes
@@ -284,23 +284,11 @@ sync-type = git
 
 EOF
 
-  # "git clone" at a local machine is much slower than "cp --reflink"
-  # use latest synced repo as the reference directory
-  echo
-  date
-  local ts=$(ls -t $tbhome/img/*/$reposdir/gentoo/metadata/timestamp.chk 2>/dev/null | head -n 1)
-  if [[ -z $ts ]]; then
-    local refdir=$reposdir/gentoo   # fallback is the host
-  else
-    local refdir=$(sed -e 's,metadata/timestamp.chk,,' <<< $ts)
-  fi
-  echo " get ::gentoo from $(cut -f5 -d'/' <<< $refdir) at $(cat $refdir/metadata/timestamp.chk)"
-
   local curr_path=$PWD
   cd .$reposdir
-  cp -ar --reflink=auto $refdir ./
+  cp -ar --reflink=auto $reposdir/gentoo ./     # way faster and cheaper than "emaint sync --auto 1>/dev/null"
   cd ./gentoo
-  rm -f ./.git/refs/heads/stable.lock ./.git/gc.log.lock
+  rm -f ./.git/refs/heads/stable.lock ./.git/gc.log.lock    # race with git operations at the host
   git config diff.renamelimit 0
   git config gc.auto 0
   git config pull.ff only
