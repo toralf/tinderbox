@@ -72,8 +72,9 @@ SetAssigneeAndCc
 if [[ ! -s $issuedir/title ]]; then
   echo -e "\n no title found\n"
   exit 1
-elif [[ -f $issuedir/.reported ]]; then
-  echo -e "\n already reported in: $(cat $issuedir/.reported)\n"
+fi
+if [[ -f $issuedir/.reported ]]; then
+  echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n"
   exit 0
 fi
 

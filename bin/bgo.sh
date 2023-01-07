@@ -54,17 +54,12 @@ do
   esac
 done
 
-if [[ -z "$issuedir" ]]; then
-  echo "no issuedir given"
-  exit 1
+if [[ -f $issuedir/.reported ]]; then
+  echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n"
+  exit 0
 fi
 
 cd $issuedir
-
-if [[ -f ./.reported ]]; then
-  echo -e "\n already reported: $(cat $issuedir/.reported) , for a re-run do:\n\n    rm $issuedir/.reported\n"
-  exit 3
-fi
 
 trap Exit INT QUIT TERM EXIT
 
