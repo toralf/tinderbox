@@ -564,8 +564,10 @@ function SendIssueMailIfNotYetReported() {
 function maskPackage() {
   local self=/etc/portage/package.mask/self
 
-  if [[ ! -s $self ]] || ! grep -q -e "=$pkg$" $self; then
-    echo "=$pkg" >> $self
+  if [[ -n "$pkg" ]]; then
+    if [[ ! -s $self ]] || ! grep -q -e "=$pkg$" $self; then
+      echo "=$pkg" >> $self
+    fi
   fi
 }
 
@@ -824,11 +826,11 @@ function RunAndCheck() {
     local signal=$(( rc-128 ))
     if [[ $signal -eq 9 ]]; then
       Finish 9 "KILLed" $tasklog    # usuall shutdown of the host
-    else
-      maskPackage
     fi
+
     pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
     Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
+    maskPackage
     if GetPkglog; then
       createIssueDir
       WorkAtIssue
