@@ -15,9 +15,14 @@ function getCandidates() {
       continue
     fi
 
-    if [[ -s $i/var/log/emerge.log && $(qlop -mvetH -f $i/var/log/emerge.log | wc -l) -gt 20 ]]; then
-      # keep past 2 weeks for "whatsup.sh -e"
-      if [[ $(( EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log) )) -lt $(( 15*86400 )) ]]; then
+    if [[ -f $i/var/log/emerge.log ]]; then
+      days=$(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 ))
+      if [[ $days -lt 15 ]]; then
+        continue
+      fi
+    else
+      days=$(( (EPOCHSECONDS-$(stat -c %Y $i))/86400 ))
+      if [[ $days -lt 1 ]]; then
         continue
       fi
     fi
@@ -34,10 +39,10 @@ function getCandidates() {
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded() {
   local fs=/dev/nvme0n1p4
-  local free=200000        # in GB
+  local free=200000        # in MB
   local used=89            # in %
 
-  [[ -n $(df -m $fs | awk ' $1 == "'"$fs"'" && ($4 < "'"$free"'" || $5 > "'"$used"'%")') ]]
+  [[ -n $(df -m $fs | awk '$1 == "'"$fs"'" && ($4 < "'"$free"'" || $5 > "'"$used"'%")') ]]
 }
 
 
@@ -57,7 +62,7 @@ function pruneDir() {
   rm -r $d
   local rc=$?
 
-  sleep 30    # btrfs reports lazy of free space
+  sleep 30    # btrfs is lazy in reporting free space
   return $rc
 }
 
