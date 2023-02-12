@@ -66,7 +66,18 @@ do
     if ! __is_running $oldimg; then
       hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task))/3600 ))
       if [[ $hours -ge 24 ]]; then
-        echo -e "last task is $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/EOL
+        echo -e "image stoppend, last task is $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/EOL
+      fi
+    fi
+  done < <(ImagesInRunShuffled)
+
+  # if an image hangs for >2 days then kill it
+  while read -r oldimg
+  do
+    if __is_running $oldimg; then
+      hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task))/3600 ))
+      if [[ $hours -ge 49 ]]; then
+        sudo $(dirname $0)/kill_img.sh $oldimg
       fi
     fi
   done < <(ImagesInRunShuffled)
