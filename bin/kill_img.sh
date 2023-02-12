@@ -21,6 +21,8 @@ do
   img=$(basename "$img")
   if [[ -d ~tinderbox/img/$img ]]; then
     echo "user decision at $(date)" >> ~tinderbox/img/$img/var/tmp/tb/EOL
+    chmod g+w ~tinderbox/img/$img/var/tmp/tb/EOL
+    chgrp tinderbox ~tinderbox/img/$img/var/tmp/tb/EOL
     if b_pid=$(pgrep -f "sudo.*bwrap.*$img"); then
       if e_pid=$(pstree -pa $b_pid | grep -F 'emerge,' | grep -m1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
         pstree -UlnspuTa $e_pid | head -n 500
