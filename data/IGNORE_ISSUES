@@ -16,6 +16,7 @@ gcc version .* found, expected gcc
 gem install kramdown
 GNAT is required to build ada
 Incompatible gcc version found
+incompatible gcc/plugin versions
 Incorrect kernel configuration options
  InterpreterMessages.h
  is not a supported compiler. Please use
