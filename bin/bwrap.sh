@@ -131,6 +131,7 @@ function Bwrap() {
         --setenv PATH "$path"
         --setenv SHELL "/bin/bash"
         --setenv TERM "linux"
+        --setenv USER "root"
         --hostname "$(cat $mnt/etc/conf.d/hostname)"
         --die-with-parent
         --chdir /var/tmp/tb
