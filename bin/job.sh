@@ -532,30 +532,41 @@ function SendIssueMailIfNotYetReported() {
       echo -e "\n\n" >> $issuedir/body
       chmod a+w $issuedir/body
 
-      local known="bug"
+      local hints="bug"
+      local force=""
+
       if [[ -e /etc/portage/bashrc ]]; then
-        known+=" clang "
+        hints+=" clang"
       fi
       if createSearchString; then
         if SearchForSameIssue 1>> $issuedir/body; then
           return
-        elif SearchForSimilarIssue 1>> $issuedir/body; then
-          known+=" similar:"
-        else
-          known+=" unknown:"
         fi
-        echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir                  -f" >> $issuedir/body
+        if [[ $? -eq 2 ]]; then
+          hints+=" bgo down"
+        else
+          if SearchForSimilarIssue 1>> $issuedir/body; then
+            hints+=" similar"
+            force="                        -f"
+          else
+            if [[ $? -eq 2 ]]; then
+              hints+=" bgo down"
+            else
+              hints+=" unknown"
+              force="                        -f"
+            fi
+          fi
+        fi
       else
-        known+=" raw:"
-        echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir" >> $issuedir/body
+        hints+=" raw"
       fi
-      echo -e "\n\n\n." >> $issuedir/body
+      echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n." >> $issuedir/body
 
       blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER)
       if [[ -n $blocker_bug_no ]]; then
-        known+=" blocks $blocker_bug_no"
+        hints+=" blocks $blocker_bug_no"
       fi
-      Mail "${known} $(cat $issuedir/title)" $issuedir/body
+      Mail "$hints $(cat $issuedir/title)" $issuedir/body
     fi
   fi
 }
@@ -575,6 +586,7 @@ function maskPackage() {
 function collectPortageDir() {
   tar -C / -cjpf $issuedir/files/etc.portage.tar.bz2 --dereference etc/portage
 }
+
 
 # analyze the issue
 function WorkAtIssue() {
@@ -598,7 +610,6 @@ function WorkAtIssue() {
   collectPortageDir
   finishTitle
   CompileIssueComment0
-  # grant write permissions to all artifacts
   chmod    777  $issuedir/{,files}
   chmod -R a+rw $issuedir/
   CompressIssueFiles
@@ -788,22 +799,16 @@ function GetPkgFromTaskLog() {
 
 
 # helper of WorkOnTask()
-# run $1 and act on its results, but timeout after $2 hours
+# run $1 and act on its results
 function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  # the value of -jX of the image name gives the number of parallel build jobs
-  local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
-  local hours=$(( ${2:-36}/j ))
-  if [[ $name =~ '_abi32+64' ]]; then
-    (( hours *= 2 ))
-  fi
-  timeout --signal=15 --kill-after=5m ${hours}h bash -c "eval $1" &>> $tasklog
+  timeout --signal=15 --kill-after=5m 48h bash -c "eval $1" &>> $tasklog
   local rc=$?
   (echo; date) >> $tasklog
 
-  tasklog_stripped="/tmp/tasklog_stripped.log"    # this is on tmpfs
+  tasklog_stripped="/tmp/tasklog_stripped.log"
 
   filterPlainPext < $tasklog > $tasklog_stripped
   PostEmerge
@@ -821,7 +826,7 @@ function RunAndCheck() {
     fi
   fi
 
-  # got a signal
+  # exited on signal
   if [[ $rc -ge 128 ]]; then
     local signal=$(( rc-128 ))
     if [[ $signal -eq 9 ]]; then
@@ -867,26 +872,26 @@ function WorkOnTask() {
     local opts=""
     if [[ $task = "@world" ]]; then
       opts+=" --update --changed-use --newuse"
-    fi
+  fi
 
-    if RunAndCheck "emerge $task $opts" "60"; then
-      echo "$(date) ok" >> /var/tmp/tb/$task.history
-      if [[ $task = "@world" ]]; then
-        add2backlog "%emerge --depclean --verbose=n"
-        if tail -n 1 /var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " NOT ok $"; then
-          add2backlog "@preserved-rebuild"
-        fi
+  if RunAndCheck "emerge $task $opts"; then
+    echo "$(date) ok" >> /var/tmp/tb/$task.history
+    if [[ $task = "@world" ]]; then
+      add2backlog "%emerge --depclean --verbose=n"
+      if tail -n 1 /var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " NOT ok $"; then
+        add2backlog "@preserved-rebuild"
+      fi
+    fi
+  else
+    echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
+    if [[ -n "$pkg" ]]; then
+      if [[ $try_again -eq 0 ]]; then
+        add2backlog "$task"
       fi
     else
-      echo "$(date) NOT ok $pkg" >> /var/tmp/tb/$task.history
-      if [[ -n "$pkg" ]]; then
-        if [[ $try_again -eq 0 ]]; then
-          add2backlog "$task"
-        fi
-      else
-        Finish 13 "$task is broken" $tasklog
-      fi
+      Finish 13 "$task is broken" $tasklog
     fi
+  fi
 
   # %<command line>
   elif [[ $task =~ ^% ]]; then
@@ -905,38 +910,34 @@ function WorkOnTask() {
 
   # a common atom
   else
-    if ! RunAndCheck "emerge --update $task"; then
-      :
-    fi
+    RunAndCheck "emerge --update $task" || true
   fi
 }
 
 
-# bail out if there're more than n attempts of @<set> within last N tasks
+# bail out if there's a loop
 function DetectRepeats() {
-  local n=7
-  local N=20
-  local histfile=/var/tmp/tb/task.history
-
-  for pattern in 'perl-cleaner' '@world' '@preserved-rebuild'
+  for pattern in 'perl-cleaner' '@preserved-rebuild'
   do
-    if [[ $pattern = '@world' ]]; then
-      n=12
-      if [[ $name =~ "_test" || $name =~ "_debug" ]]; then
-        continue
-      fi
-    fi
-    if [[ $(tail -n $N $histfile | grep -c "$pattern") -ge $n ]]; then
-      Finish 13 "repeated task: $pattern" $histfile
+    if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge 7 ]]; then
+      Finish 13 "too often repeated: $pattern"
     fi
   done
 
+  pattern='@world'
+  if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge 18 ]]; then
+    Finish 13 "too often repeated: $pattern"
+  fi
+
+  if [[ $(grep 'rebuilds:' /var/tmp/tb/logs/* | wc -l) -ge 50 ]]; then
+    Finish 13 "too often 'rebuilds:'"
+  fi
+
   local count
   local package
-  if read -r count package < <(qlop -mv | awk '{ print $3 }' | sort | uniq -c | sort -bn | tail -n 1); then
-    if [[ $count -gt 5 ]]; then
-      Finish 13 "to often emerged: $count x $package" $histfile
-    fi
+  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 1000 | sort | uniq -c | sort -bn | tail -n 1)
+  if [[ $count -gt 7 ]]; then
+    Finish 13 "too often emerged: $count x $package"
   fi
 }
 
