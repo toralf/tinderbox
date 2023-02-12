@@ -121,7 +121,13 @@ EOF
   echo
 
   if ! SearchForSameIssue; then
+    if [[ $? -eq 2 ]]; then
+      exit 2
+    fi
     if ! SearchForSimilarIssue; then
+      if [[ $? -eq 2 ]]; then
+        exit 2
+      fi
       # no bug found for that pkg, so file it
       $cmd
     fi

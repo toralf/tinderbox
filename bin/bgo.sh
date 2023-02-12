@@ -105,7 +105,7 @@ else
     bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
   fi
 
-  if grep -q -F ' fails test -' $issuedir/title; then
+  if grep -q -F ' fails test -' ./title; then
     bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
   fi
 fi
@@ -153,9 +153,9 @@ fi
 
 # do this as the very last step to reduce the amount of emails sent out by bugzilla for each record change
 if [[ $newbug -eq 1 ]]; then
-  name=$(cat $issuedir/../../name)
+  name=$(cat ../../name)
   assignee="$(cat ./assignee)"
-  if [[ $name =~ musl && $assignee != "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC $issuedir/title; then
+  if [[ $name =~ musl && $assignee != "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC ./title; then
     assignee="musl@gentoo.org"
     cc="$(cat ./assignee ./cc 2>/dev/null | xargs -n 1 | grep -v "musl@gentoo.org" | xargs)"
   else

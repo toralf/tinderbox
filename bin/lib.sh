@@ -77,11 +77,10 @@ function LookupForABlocker() {
 
 
 function GotResults() {
-  if [[ ! -s $bugz_result ]] || grep -q -e "^Traceback" -e "# Error: Bugzilla error:" $bugz_result; then
-    return 1
-  else
-    return 0
+  if grep -q -e "^Traceback" -e "# Error: Bugzilla error:" $bugz_result; then
+    return 2
   fi
+  [[ -s $bugz_result ]]
 }
 
 
@@ -98,6 +97,8 @@ function SearchForSameIssue() {
         tee $bugz_result
     if GotResults; then
       return 0
+    elif [[ $? -eq 2 ]]; then
+      return 2
     fi
   fi
 
@@ -110,6 +111,8 @@ function SearchForSameIssue() {
         tee $bugz_result
     if GotResults; then
       return 0
+    elif [[ $? -eq 2 ]]; then
+      return 2
     fi
   done
 
@@ -128,6 +131,8 @@ function SearchForSimilarIssue() {
     if GotResults; then
       echo -e " \n^^ DUPLICATE\n"
       return 0
+    elif [[ $? -eq 2 ]]; then
+      return 2
     fi
 
     $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |
@@ -136,6 +141,8 @@ function SearchForSimilarIssue() {
         tee $bugz_result
     if GotResults; then
       return 0
+    elif [[ $? -eq 2 ]]; then
+      return 2
     fi
   done
 
@@ -152,6 +159,8 @@ function SearchForSimilarIssue() {
       tee $bugz_result
   if GotResults; then
     return 0
+  elif [[ $? -eq 2 ]]; then
+    return 2
   fi
 
   if [[ $(wc -l < $bugz_result) -lt 5 ]]; then
@@ -163,6 +172,8 @@ function SearchForSimilarIssue() {
         tee $bugz_result
     if GotResults; then
       return 0
+    elif [[ $? -eq 2 ]]; then
+      return 2
     fi
   fi
 
