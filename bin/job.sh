@@ -220,6 +220,11 @@ function CollectIssueFiles() {
           -o -wholename '*/softmmu-build/*' \
           -o -name "meson-log.txt" |
           sort -u > $f
+      # To help with hunting down bugs in /proc/self/cgroup parsing
+      # code of packages, include its contents.
+      if [[ -r /proc/self/cgroup ]]; then
+        echo /proc/self/cgroup > $f
+      fi
       if [[ -s $f ]]; then
         $gtar -cjpf $issuedir/files/logs.tar.bz2 \
             --dereference \
