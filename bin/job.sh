@@ -229,17 +229,16 @@ function CollectIssueFiles() {
       rm $f
     )
 
+    # by Flow
+    if [[ $pkg =~ "dev-java/scala-cli-bin" ]]; then
+      cat /proc/self/cgroup > $issuedir/files/proc_self_cgroup.txt
+    fi
+
     if [[ -d /var/tmp/clang/$pkg ]]; then
-      (
-        cd /var/tmp/clang/
-        tar -cjpf $issuedir/files/var.tmp.clang.tar.bz2 ./$pkg 2>/dev/null
-      )
+      tar -C /var/tmp/clang/ -cjpf $issuedir/files/var.tmp.clang.tar.bz2 ./$pkg 2>/dev/null
     fi
     if [[ -d /etc/clang ]]; then
-      (
-        cd /etc
-        tar -cjpf $issuedir/files/etc.clang.tar.bz2 ./clang 2>/dev/null
-      )
+      tar -C /etc -cjpf $issuedir/files/etc.clang.tar.bz2 ./clang 2>/dev/null
     fi
 
     # additional CMake files
@@ -929,8 +928,8 @@ function DetectRepeats() {
     Finish 13 "too often repeated: $pattern"
   fi
 
-  if [[ $(grep 'rebuilds:' /var/tmp/tb/logs/* | wc -l) -ge 50 ]]; then
-    Finish 13 "too often 'rebuilds:'"
+  if [[ $(grep 'are causing rebuilds:' /var/tmp/tb/logs/* | wc -l) -ge 50 ]]; then
+    Finish 13 'too often "are causing rebuilds"'
   fi
 
   local count
