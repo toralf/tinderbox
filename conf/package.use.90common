@@ -9,11 +9,9 @@
 
 */*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
 */*                                 QEMU_USER_TARGETS:    x86_64 i386
-*/*                                 VIDEO_CARDS:          -* dummy fbdev amdgpu
-# */*                                 RUBY_TARGETS:         ruby27                  # DICE: ruby27
+*/*                                 VIDEO_CARDS:          -* dummy fbdev intel amdgpu
 */*                                 RUBY_TARGETS:         ruby30                  # DICE: ruby30
 */*                                 RUBY_TARGETS:         ruby31                  # DICE: ruby31
-*/*                                 RUBY_TARGETS:         ruby32                  # DICE: ruby32
 
 x11-libs/libdrm                     VIDEO_CARDS: intel nouveau radeon
 

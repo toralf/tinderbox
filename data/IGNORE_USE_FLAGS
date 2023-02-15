@@ -67,9 +67,11 @@ split-usr
 ssp
 static
 static-libs
+system-wlroots
 systemd
 test
 text
+threads
 tools
 uclibc
 unwind

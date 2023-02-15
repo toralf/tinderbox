@@ -10,3 +10,4 @@ dev-games/ogre:0/2.1                **                  # DICE: ogre_2
 # sam
 dev-scheme/guile:12/3.0-1           **                  # DICE: guile
 <dev-util/meson-9999                **                  # DICE: meson
+<sys-devel/gcc-13.0.1.9999:13       **                  # DICE: gcc13
