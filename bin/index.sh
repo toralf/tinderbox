@@ -36,7 +36,7 @@ function listFiles() {
 
 function listBugs() {
   cat << EOF >> $tmpfile
-<h2><a href="https://bugs.gentoo.org/">Gentoo Bugs</a> and links to inspect the image content</h2>
+<h2><a href="https://bugs.gentoo.org/">Gentoo bugzilla</a> and direct links to the image files</h2>
 
 <table border="0" align="left" class="list_table">
 
@@ -45,7 +45,6 @@ function listBugs() {
       <th>Bug</th>
       <th>Title</th>
       <th>/</th>
-      <th>/etc/portage/</th>
       <th>IssueDir</th>
     </tr>
   </thead>
@@ -55,7 +54,6 @@ function listBugs() {
       <th>Bug</th>
       <th>Title</th>
       <th>/</th>
-      <th>/etc/portage</th>
       <th>IssueDir</th>
     </tr>
   </tfoot>
@@ -68,17 +66,17 @@ EOF
   while read -r f
   do
     uri=$(cat $f 2>/dev/null) || continue    # race with house keeping
-    no=$(cut -f2 -d'=' <<< $uri)
+    no=$(cut -f4 -d'/' <<< $uri)
     d=${f%/*}
     title=$d/title
     image=$(cut -f5 -d'/' <<< $d)
+    pkg=$(basename $d)
     cat << EOF >> $tmpfile
     <tr>
       <td><a href="$uri">$no</a></td>
       <td>$(recode --silent ascii..html < $title)</td>
       <td><a href="./$image/">$image</a></td>
-      <td><a href="./$image/etc/portage/">portage</a></td>
-      <td><a href="$(cut -f5- -d'/' <<< $d)/">issue</a></td>
+      <td><a href="$(cut -f5- -d'/' <<< $d)/">$pkg</a></td>
     </tr>
 EOF
 
@@ -102,6 +100,17 @@ EOF
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 cat << EOF >> $tmpfile
 <html>
+<meta http-equiv="refresh" content="3600">
+<script>
+    var current = new Date();
+    var future = new Date();
+    future.setTime(future.getTime() + 3600000 + 60000); //3600000 = 1 hour
+    future.setMinutes(0);
+    future.setSeconds(0);
+
+    var timeout = (future.getTime() - current.getTime());
+    setTimeout(function() { window.location.reload(true); }, timeout);
+</script>
 
 <h1>recent <a href="https://zwiebeltoralf.de/tinderbox.html">tinderbox</a> data</h1>
 
