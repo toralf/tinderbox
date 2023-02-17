@@ -100,17 +100,6 @@ EOF
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 cat << EOF >> $tmpfile
 <html>
-<meta http-equiv="refresh" content="3600">
-<script>
-    var current = new Date();
-    var future = new Date();
-    future.setTime(future.getTime() + 3600000 + 60000); //3600000 = 1 hour
-    future.setMinutes(0);
-    future.setSeconds(0);
-
-    var timeout = (future.getTime() - current.getTime());
-    setTimeout(function() { window.location.reload(true); }, timeout);
-</script>
 
 <h1>recent <a href="https://zwiebeltoralf.de/tinderbox.html">tinderbox</a> data</h1>
 
