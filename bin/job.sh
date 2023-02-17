@@ -918,7 +918,7 @@ function WorkOnTask() {
 function DetectRepeats() {
   for pattern in 'perl-cleaner' '@preserved-rebuild'
   do
-    if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge 7 ]]; then
+    if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge 6 ]]; then
       Finish 13 "too often repeated: $pattern"
     fi
   done
@@ -926,10 +926,6 @@ function DetectRepeats() {
   pattern='@world'
   if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge 18 ]]; then
     Finish 13 "too often repeated: $pattern"
-  fi
-
-  if [[ $(grep 'are causing rebuilds:' /var/tmp/tb/logs/* | wc -l) -ge 50 ]]; then
-    Finish 13 'too often "are causing rebuilds"'
   fi
 
   local count
