@@ -42,7 +42,7 @@ function pruneNeeded() {
   local free=200000        # in MB
   local used=89            # in %
 
-  [[ -n $(df -m $fs | awk '$1 == "'"$fs"'" && ($4 < "'"$free"'" || $5 > "'"$used"'%")') ]]
+  [[ -n $(df -m $fs | awk '$1 == "'$fs'" && ($4 < "'$free'" || $5 > "'$used'%")') ]]
 }
 
 
