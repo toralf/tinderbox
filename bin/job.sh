@@ -995,7 +995,6 @@ function syncRepo() {
 #
 set -eu
 export LANG=C.utf8
-trap Finish INT QUIT TERM EXIT
 
 if [[ -x "$(command -v gtar)" ]]; then
   gtar=gtar
@@ -1027,7 +1026,7 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
-# re-schedule $task (non-empty == Failed() before)
+# re-schedule $task (if non-empty then Failed() was called before)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
@@ -1035,6 +1034,8 @@ fi
 echo "#init" > $taskfile
 rm -f $tasklog  # remove a left over hard link
 systemd-tmpfiles --create &>$tasklog || true
+
+trap Finish INT QUIT TERM EXIT
 
 last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :
@@ -1049,13 +1050,12 @@ do
 
   # if 1st prio is empty then ...
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
-    # ... sync repository hourly
+    # ... hourly sync repository
     if [[ $(( EPOCHSECONDS-last_sync )) -ge 3600 ]]; then
       echo "#sync repo" > $taskfile
       syncRepo
     fi
-
-    # ... update @world daily
+    # ... and daily update @world
     h=/var/tmp/tb/@world.history
     if [[ ! -s $h || $(( EPOCHSECONDS-$(stat -c %Y $h) )) -ge 86400 ]]; then
       add2backlog "@world"
@@ -1073,10 +1073,10 @@ do
 
   { date; echo; } > $tasklog
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<< $task | tr -c '[:alnum:]' '_')
-  ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log
+  ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # the later will remain if the former is deleted
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
-  rm $tasklog # the hard link target will remain
+  rm $tasklog
 
   if [[ $task =~ ^@ ]]; then
     echo "#feed pfl" > $taskfile
