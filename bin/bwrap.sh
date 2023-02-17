@@ -120,7 +120,7 @@ function Bwrap() {
   if [[ $mnt =~ "merged_usr" || $mnt =~ "23.0" ]]; then
     local path="/usr/sbin:/usr/bin"
   else
-    local path="/usr/sbin:/usr/bin:/sbin:/bin:"
+    local path="/sbin:/bin:/usr/sbin:/usr/bin"
   fi
 
   local sandbox=(env -i
