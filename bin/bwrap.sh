@@ -3,7 +3,7 @@
 # set -x
 
 
-# wrap (bubblewrap or chroot) into an image to run a script in it -or- work interactively within it
+# bubblewrap/chroot into an image to either run a script / to work interactively in it
 
 
 function CgroupCreate() {
@@ -14,17 +14,17 @@ function CgroupCreate() {
     return 1
   fi
 
-  # the value of -jX of the image name gives the number of parallel build processes
+  # the value of -jX of the image name gives the number of configured parallel build processes
   local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
 
-  # the slice is 10us
+  # j+0.1 vCPU, slice is 10us
   local cpu=$(( 100000*j + 10000 ))
   cgset -r cpu.cfs_quota_us=$cpu $name
 
   local mem=$(( 4*j + 10 ))
   cgset -r memory.limit_in_bytes=${mem}G $name
 
-  # Hint: /var/tmp/portage is a tmpfs therefore this memory settings has (implicitly) a quota for that directory too
+  # this setting implies the quota for /var/tmp/portage too (because it is a tmpfs)
   cgset -r memory.memsw.limit_in_bytes=70G $name
 
   for i in cpu memory
@@ -227,17 +227,17 @@ if [[ -d $lock_dir ]]; then
 fi
 mkdir -p "$lock_dir"
 
-if ! CgroupCreate ${mnt##*/} $$; then
-  CgroupDelete ${mnt##*/}
-  Exit 1
-fi
-
 trap Exit INT QUIT TERM EXIT
 
+if ! CgroupCreate ${mnt##*/} $$; then
+  CgroupDelete ${mnt##*/}
+  exit 1
+fi
+
 if [[ -n "$entrypoint" ]]; then
-  rm -f                           "$mnt/entrypoint"
-  cp "$entrypoint"                "$mnt/entrypoint"
-  chmod 744                       "$mnt/entrypoint"
+  rm -f             "$mnt/entrypoint"
+  cp "$entrypoint"  "$mnt/entrypoint"
+  chmod 744         "$mnt/entrypoint"
 
   rm -f                     "$mnt/lib.sh"
   cp "$(dirname $0)/lib.sh" "$mnt/lib.sh"
