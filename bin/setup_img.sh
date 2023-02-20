@@ -63,10 +63,11 @@ function InitOptions() {
     return
   fi
 
-  # upcoming
-  if [[ $profile =~ "/merged-usr" ]]; then
-    if dice 1 2; then
-      profile=$(sed -e 's,17.1,23.0,' -e 's,/merged-usr,,' <<< $profile)
+  if [[ $profile =~ "/systemd" ]]; then
+    if [[ ! $profile =~ "/merged-usr" ]]; then
+      if dice 1 2; then
+        profile=$(sed -e 's,17.1,23.0,' <<< $profile)
+      fi
     fi
   fi
 
@@ -194,7 +195,7 @@ function UnpackStage3() {
   local prefix="stage3-amd64"
   prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<< $profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
-  if [[ $profile =~ "23.0" || $profile =~ "/merged-usr" ]]; then
+  if [[ $profile =~ "23.0/" && $profile =~ "/desktop" ]]; then
     prefix=$(sed -e 's,/desktop,,' <<< $prefix)
   fi
   if [[ $profile =~ "/desktop" ]]; then
@@ -204,11 +205,14 @@ function UnpackStage3() {
     fi
   fi
   prefix=$(tr '/' '-' <<< $prefix)
-  if [[ ! $profile =~ "/systemd" && ! $profile =~ "/musl" ]]; then
-    prefix+="-openrc"
-  fi
-  if [[ $profile =~ "23.0" ]]; then
-    prefix+="-mergedusr"
+  if [[ $profile =~ "/systemd" ]]; then
+    if [[ $profile =~ "23.0/" ]]; then
+      prefix+="-mergedusr"
+    fi
+  else
+    if [[ ! $profile =~ "/musl" ]]; then
+      prefix+="-openrc"
+    fi
   fi
 
   echo -e "\n$(date) get stage3 file name for prefix $prefix"
