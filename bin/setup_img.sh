@@ -102,14 +102,6 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
-  # by sam_
-  # https://bugs.gentoo.org/876895
-  if [[ $profile =~ "/hardened" ]]; then
-    if dice 1 2; then
-      cflags+=" -D_GLIBCXX_ASSERTIONS"
-    fi
-  fi
-
   # not very fruitful but do it now and then
   if dice 1 80; then
     testfeature="y"
@@ -370,11 +362,8 @@ EOF
     echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
   fi
 
-  # preserve make-4.3 behaviour
-  if dice 1 2; then
-    echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --jobserver-style=pipe"' >> ./etc/portage/make.conf
-  fi
-  if dice 1 4; then
+  # rarely b/c it yields to much different error messages for the same issue
+  if dice 1 40; then
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >> ./etc/portage/make.conf
   fi
 
