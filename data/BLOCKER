@@ -1,29 +1,13 @@
-# tupels of (comment, bug number, pattern) to automate the adding of a bug blocker id
+# tupels of (comment, bug number, pattern) to automate adding to a tracker bug
 
 
 # (colon-in-CFLAGS) - (TRACKER) ebuilds using colon (:) as a sed delimiter break on CFLAGS=-falign-functions=32:25:16
 685160
 ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 
-# asciidoctor
-744385
-:in load: cannot load such file -- /usr/lib64/ruby/gems/
-
 # (openmpi-4) - [TRACKER] sys-cluster/openmpi - packages using deprecated MPI symbols (removed in openmpi-4)
 831358
 MPI_
-
-[TRACKER] cmake-utils.eclass: Last-rites
-834110
-Ignoring extra path from command line
-
-# (gcc-12) - [TRACKER] sys-devel/gcc-12 porting
-839906
-is not a member of .*std.*|time was not declared in this scope
-
-# [Tracker] Breakage with sys-libs/musl-1.2.3
-839975
-std::nullptr_t
 
 # [TRACKER] Packages linking -lcurses (need sys-libs/ncurses compatibility symlink)
 837812
@@ -37,22 +21,14 @@ Need at least JDK 9 to compile
 797325
 EVP_|RUST_VERSION_OPENSSL_|FIPS_mode|RSA_SSLV23|get_dh|DSA|FIPS|ERR_GET_FUNC|CRYPTO_MEM_CHECK|openssl/mac.h
 
-# packages that depend on openjpeg don't pass configure phase
-847058
-openjpeg.h:
-
-# [Tracker] Failures with FORTIFY_SOURCE=3
-847148
-buffer overflow detected
-
 # [Tracker] Packages which will fail with -std=c2x
 880545
-prototype|not supported in C2|C2X|C2x|Werror=deprecated-non-prototype
-
-# [Tracker] Upcoming breakage with Clang 16
-870412
-clang-15: error:|call to undeclared function|undefined symbol|installation or configuration problem |C compiler cannot create executables |; ISO C99 and|incompatible .* to .* conversion|use of undeclared identifier| implicit declaration of function |initializing .* with an expression of type |call to undeclared function |argument to .* must |use of bitwise & with boolean operands |variable .* is used |return type defaults to |type .* cannot be narrowed to|conflicting types for|C compiler cannot create executables|exec: clang-1.: not found|Wimplicit-int|incompatible function pointer|install aborted due to severe warnings shown above
+ prototype| not supported in C2|C2X|C2x|Werror=deprecated-non-prototype
 
 # [Tracker] Build failures with sys-kernel/linux-headers-6.0
 876331
-flexible array member
+ flexible array member
+
+# (gcc-13) - [TRACKER] sys-devel/gcc-13 porting
+865117
+ is not a member of std| was not declared in this scope| does not name a type| has not been declared| taking address of temporary array| has incomplete type std::string
