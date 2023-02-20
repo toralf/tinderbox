@@ -39,9 +39,6 @@ function DiceAProfile() {
   eselect profile list |
   grep -F -e 'default/linux/amd64/' |
   grep -v -F -e '/clang' -e '/developer' -e ' (exp)' -e '/selinux' -e '/x32' -e '/split-usr' |
-  if dice 1 2; then
-    grep -v '/musl'
-  fi |
   awk '{ print $2 }' |
   cut -f4- -d'/' -s |
   shuf -n 1
