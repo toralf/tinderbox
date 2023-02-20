@@ -49,7 +49,7 @@ function DiceAProfile() {
 function InitOptions() {
   abi3264="n"
   cflags_default="-pipe -march=native -fno-diagnostics-color"
-  jobs=4
+  jobs=5
   keyword="~amd64"
   no_autostart="n"
   profile=$(DiceAProfile)
