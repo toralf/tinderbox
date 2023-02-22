@@ -559,7 +559,7 @@ function SendIssueMailIfNotYetReported() {
       else
         hints+=" raw"
       fi
-      echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n." >> $issuedir/body
+      echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n;" >> $issuedir/body
 
       blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER)
       if [[ -n $blocker_bug_no ]]; then
