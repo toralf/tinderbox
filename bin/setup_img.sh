@@ -187,11 +187,10 @@ function UnpackStage3() {
   local prefix="stage3-amd64"
   prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<< $profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
-  if [[ $profile =~ "23.0/" && $profile =~ "/desktop" ]]; then
-    prefix=$(sed -e 's,/desktop,,' <<< $prefix)
-  fi
   if [[ $profile =~ "/desktop" ]]; then
-    if dice 1 2 ]]; then
+    if [[ $profile =~ "23.0/" ]]; then
+      prefix=$(sed -e 's,/desktop,,' <<< $prefix)
+    elif dice 1 2; then
       # build up from plain instead from desktop stage
       prefix=$(sed -e 's,/desktop,,' <<< $prefix)
     fi
