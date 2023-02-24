@@ -37,11 +37,11 @@ function ShuffleUseFlags() {
 # helper of InitOptions()
 function DiceAProfile() {
   eselect profile list |
-  grep -F -e 'default/linux/amd64/' |
-  grep -v -F -e '/clang' -e '/developer' -e ' (exp)' -e '/selinux' -e '/x32' -e '/split-usr' |
+  grep -F -e ' default/linux/amd64/' |
+  grep -v -F -e ' (exp)' -e '/clang' -e '/developer' -e '/llvm' -e '/musl' -e '/selinux' -e '/x32' |
+  shuf -n 1 |
   awk '{ print $2 }' |
-  cut -f4- -d'/' -s |
-  shuf -n 1
+  cut -f4- -d'/' -s
 }
 
 
