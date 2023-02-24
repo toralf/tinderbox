@@ -8,7 +8,7 @@
 function listStat() {
   date >> $tmpfile
   echo "<h2>few stats</h2>" >> $tmpfile
-  echo "<pre>" >> $tmpfile
+  echo -e "\n<pre>\n" >> $tmpfile
   echo "<h3>coverage</h3>" >> $tmpfile
   $(dirname $0)/whatsup.sh -c | recode --silent ascii..html >> $tmpfile
   echo "<h3>overview</h3>" >> $tmpfile
@@ -21,7 +21,7 @@ function listStat() {
   $(dirname $0)/whatsup.sh -t | recode --silent ascii..html >> $tmpfile
   echo "<h3>current package</h3>" >> $tmpfile
   $(dirname $0)/whatsup.sh -l | recode --silent ascii..html >> $tmpfile
-  echo -e "\n</pre>\n" >> $tmpfile
+  echo -e "</pre>\n" >> $tmpfile
 }
 
 
@@ -30,15 +30,17 @@ function listFiles() {
   echo "<pre>" >> $tmpfile
   (cd ~tinderbox/img; find . -maxdepth 1 -type f) | recode --silent ascii..html |
   xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >> $tmpfile
-  echo -e "\n</pre>\n" >> $tmpfile
+  echo -e "</pre>\n" >> $tmpfile
 }
 
 
 function listBugs() {
-  cat << EOF >> $tmpfile
-<h2><a href="https://bugs.gentoo.org/">Gentoo bugzilla</a> and direct links to the image files</h2>
+  local files=$(ls -t -- ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null)
 
-<table border="0" align="left" class="list_table">
+  cat << EOF >> $tmpfile
+<h2>latest $(wc -l <<< $files) <a href="https://bugs.gentoo.org/">Gentoo bugs</a> and image links</h2>
+
+  <table border="0" align="left" class="list_table">
 
   <thead align="left">
     <tr>
@@ -59,30 +61,28 @@ function listBugs() {
   </tfoot>
 
   <tbody>
-
 EOF
 
-  ls -t -- ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null |
   while read -r f
   do
     uri=$(cat $f 2>/dev/null) || continue    # race with house keeping
-    no=$(cut -f4 -d'/' <<< $uri)
+    no=${uri##*/}
     d=${f%/*}
     title=$d/title
-    image=$(cut -f5 -d'/' <<< $d)
-    pkg=$(basename $d)
+    imagedir=$(cut -f5- -d'/' <<< $d)
+    image=${imagedir%%/*}
+    pkg=${d##*/}
     cat << EOF >> $tmpfile
-    <tr>
-      <td><a href="$uri">$no</a></td>
-      <td>$(recode --silent ascii..html < $title)</td>
-      <td><a href="./$image/">$image</a></td>
-      <td><a href="$(cut -f5- -d'/' <<< $d)/">$pkg</a></td>
-    </tr>
+  <tr>
+    <td><a href="$uri">$no</a></td>
+    <td>$(recode --silent ascii..html < $title)</td>
+    <td><a href="./$image/">$image</a></td>
+    <td><a href="$imagedir/">$pkg</a></td>
+  </tr>
 EOF
+  done <<< $files
 
-  done
-
-  echo -e "  </tbody>\n</table>\n" >> $tmpfile
+  echo -e "  </tbody>\n  </table>\n" >> $tmpfile
 }
 
 
@@ -107,7 +107,7 @@ EOF
 listStat
 listFiles
 listBugs
-echo -e "\n</html>\n" >> $tmpfile
+echo -e "</html>" >> $tmpfile
 
 cp $tmpfile ~tinderbox/img/index.html
 rm $tmpfile
