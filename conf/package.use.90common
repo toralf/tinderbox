@@ -3,15 +3,13 @@
 
 
 #######################################################################
-#
 # global settings
-#
 
 */*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
 */*                                 QEMU_USER_TARGETS:    x86_64 i386
 */*                                 VIDEO_CARDS:          -* dummy fbdev intel amdgpu
 
-x11-libs/libdrm                     VIDEO_CARDS: intel nouveau radeon
+x11-libs/libdrm                     VIDEO_CARDS: intel nouveau radeon amdgpu
 
 # 2x faster compile
 */*                                 jumbo-build
@@ -42,20 +40,15 @@ app-portage/portage-utils           -openmp
 # https://bugs.gentoo.org/869953
 */*                                 -ada
 
-# required by (sys-apps/portage-3.0.43:0/0::gentoo, installed)
+# required by sys-apps/portage
 dev-lang/python                     ssl
 
-# needed by dracut
-sys-apps/coreutils                  xattr
+# dep at dracut which would require "xattr" for coreutils
+sys-kernel/gentoo-kernel-bin        -initramfs
 
 
 #######################################################################
-#
 # temp settings
-#
-
-# fails with: "you must set LINGUAS ..."
-app-admin/webalizer                 -nls
 
 # bootstrap
 sys-devel/gcc                       -d
@@ -66,9 +59,5 @@ dev-libs/gf2x                       -custom-tune
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
 
-# too aggressive kernel config check: CONFIG_SYSFS_DEPRECATED_V2 support detected!
-*/*                                 -networkmanager
-
 # setup issues
-*/*                                 -rdoc
-#dev-ruby/json                       -ruby_targets_ruby31
+*/*                                 -rdoc -ruby

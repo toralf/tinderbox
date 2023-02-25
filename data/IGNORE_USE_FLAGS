@@ -60,6 +60,7 @@ perftools
 prefix
 prefix-guest
 rdoc
+ruby
 sanitize
 savedconfig
 selinux

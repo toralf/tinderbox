@@ -7,7 +7,7 @@ sys-fs/static-dev
 # calls for trouble by sneaking into PATH
 dev-util/plan9port
 
-# outdated, br0ken, breaks revdep-rebuild, old kernel, needs special kernel config, needs kernel module build w/ same GCC version, ...
+# outdated, br0ken, breaks revdep-rebuild, old kernel, needs special kernel config, needs kernel module build w/ same GCC version, clang cannot deal with it, ...
 */s6
 app-admin/ryzen_smu
 app-benchmarks/stress-ng
@@ -25,23 +25,13 @@ net-vpn/wireguard-modules
 sci-libs/linux-gpib-modules
 sys-apps/modutils
 sys-cluster/lustre
+sys-cluster/nullmpi
 sys-fs/encfs
 sys-fs/loop-aes
 sys-fs/vhba
 sys-fs/zfs-kmod
-sys-libs/uclibc-ng
-
-# clang cannot deal with it https://bugs.gentoo.org/872344
 sys-libs/libcxxabi
-
-# way too long compile times
-www-client/chromium
-www-client/google-chrome
-
-# sam: nullmpi does not fully implement all of the MPI spec
-sys-cluster/nullmpi
-
-# https://bugs.gentoo.org/770976 - emerge hangs despite -j1
+sys-libs/uclibc-ng
 x11-wm/stumpwm
 
 # long compile time
@@ -50,9 +40,14 @@ sci-libs/libint:2                                       # DICE: long_compile_tim
 sci-libs/rocBLAS                                        # DICE: long_compile_time_d 15 16
 sci-libs/rocFFT                                         # DICE: long_compile_time_e 15 16
 sci-libs/tensorflow                                     # DICE: long_compile_time_f 15 16
+www-client/chromium                                     # DICE: long_compile_time_b 15 16
 
-# fails too often
+# way too long and QA is up to Google
+www-client/google-chrome
+
+# mask for now, fails too often
 app-editors/*emacs
+<dev-lang/ghc-9.0.2
 
 # hangs
 dev-lang/lfe
@@ -60,6 +55,3 @@ dev-scheme/gambit
 # https://bugs.gentoo.org/888779
 dev-util/coccinelle
 dev-util/trace-cmd
-
-# fails too often
-<dev-lang/ghc-9.0.2
