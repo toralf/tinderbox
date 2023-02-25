@@ -861,7 +861,7 @@ function Finalize() {
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
 
-  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ' ./etc/portage/make.conf
+  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ./etc/portage/make.conf
 
   if [[ $no_autostart = "n" ]]; then
     cd $tbhome/run
