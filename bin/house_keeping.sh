@@ -22,12 +22,11 @@ function getCandidates() {
       fi
     else
       days=$(( (EPOCHSECONDS-$(stat -c %Y $i))/86400 ))
-      if [[ $days -lt 1 ]]; then
+      if [[ $days -lt 3 ]]; then
         continue
       fi
     fi
 
-    # it is a candidate
     echo $i
   done |
   sort -t'-' -k 3 # sort by <date>-<time>, oldest first
