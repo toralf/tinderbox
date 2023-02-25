@@ -333,7 +333,7 @@ NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
 FEATURES="xattr -news"
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --deep"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 CLEAN_DELAY=0
 PKGSYSTEM_ENABLE_FSYNC=0
@@ -860,6 +860,8 @@ function CompileUseFlagFiles() {
 function Finalize() {
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
+
+  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ' ./etc/portage/make.conf
 
   if [[ $no_autostart = "n" ]]; then
     cd $tbhome/run
