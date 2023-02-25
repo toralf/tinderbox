@@ -25,18 +25,18 @@ do
     echo "user decision at $(date)" >> ~tinderbox/img/$img/var/tmp/tb/EOL
     chmod g+w ~tinderbox/img/$img/var/tmp/tb/EOL
     chgrp tinderbox ~tinderbox/img/$img/var/tmp/tb/EOL
-    if pid_bwrap=$(pgrep -f "bwrap.*$img" | head -n 1); then
-      if [[ -n $pid_bwrap ]]; then
+    if pid_bwrap=$(pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <<< $img)"); then
+      if [[ -n $pid_bwrap && $(wc -l <<< $pid_bwrap) -eq 1 ]]; then
         if pid_emerge=$(pstree -pa $pid_bwrap | grep -F 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
           if [[ -n $pid_emerge ]]; then
-            pstree -UlnpuTa $pid_emerge | head -n 20
+            pstree -UlnspuTa $pid_emerge | head -n 20 | cut -c1-200
             echo
             kill -9 $pid_emerge
           else
             echo " warning: empty emerge pid from $pid_bwrap"
             if pid_entrypoint=$(pstree -pa $pid_bwrap | grep -F 'entrypoint,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
               if [[ -n $pid_entrypoint ]]; then
-                pstree -UlnpuTa $pid_entrypoint | head -n 20
+                pstree -UlnspuTa $pid_entrypoint | head -n 20 | cut -c1-200
                 echo
                 kill -15 $pid_entrypoint
                 sleep 60
