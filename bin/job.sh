@@ -464,14 +464,25 @@ function setWorkDir() {
 }
 
 
-# append to the end of the file to be the next task, but avoid dups
+# append given arg to the end of the high prio backlog
 function add2backlog() {
+  local bl=/var/tmp/tb/backlog.1st
+
+  # this is always the very last step
+  if [[ $1 = '@preserved-rebuild' ]]; then
+    # be the very last and most unimportant task
+    sed -i -e "/@preserved-rebuild/d" $bl
+    sed -i -e "1 i\@preserved-rebuild" $bl
+    return
+  fi
+
+    # avoid dups with the last line / the whole file respectively
   if [[ $1 =~ '@' || $1 =~ '%' ]]; then
-    if [[ "$(tail -n 1 /var/tmp/tb/backlog.1st)" != "$1" ]]; then
-      echo "$1" >> /var/tmp/tb/backlog.1st
+    if [[ ! "$(tail -n 1 $bl)" = "$1" ]]; then
+      echo "$1" >> $bl
     fi
-  elif ! grep -q "^${1}$" /var/tmp/tb/backlog.1st; then
-    echo "$1" >> /var/tmp/tb/backlog.1st
+  elif ! grep -q "^${1}$" $bl; then
+    echo "$1" >> $bl
   fi
 }
 
@@ -673,7 +684,6 @@ function PostEmerge() {
   env-update &>/dev/null
   source_profile
 
-  # this is the least important task
   if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
     add2backlog "@preserved-rebuild"
   fi

@@ -333,7 +333,7 @@ NOCOLOR="true"
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
 FEATURES="xattr -news"
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
+EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n --deep"
 
 CLEAN_DELAY=0
 PKGSYSTEM_ENABLE_FSYNC=0
@@ -543,14 +543,9 @@ function CreateBacklogs() {
     echo "dev-db/percona-server" >> $bl.1st
   fi
 
-  if [[ -f ./etc/portage/bashrc.clang ]]; then
-    echo '%emerge -uU sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf && cd /etc/portage/ && ln -s bashrc.clang bashrc' >> $bl.1st
-  fi
-
   cat << EOF >> $bl.1st
 @world
-%echo 'EMERGE_DEFAULT_OPTS=\\"\\\$EMERGE_DEFAULT_OPTS --deep\\"' >> /etc/portage/make.conf
-%emerge -uU =\$(portageq best_visible / sys-devel/gcc)
+%emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 
 EOF
 
