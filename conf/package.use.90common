@@ -58,6 +58,3 @@ dev-libs/gf2x                       -custom-tune
 
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
-
-# setup issues
-*/*                                 -rdoc -ruby
