@@ -16,6 +16,8 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+set -x
+
 for img in ${*?got no image}
 do
   img=$(basename "$img")
@@ -23,18 +25,18 @@ do
     echo "user decision at $(date)" >> ~tinderbox/img/$img/var/tmp/tb/EOL
     chmod g+w ~tinderbox/img/$img/var/tmp/tb/EOL
     chgrp tinderbox ~tinderbox/img/$img/var/tmp/tb/EOL
-    if pid_bwrap=$(pgrep -f "sudo.*bwrap.*$img"); then
+    if pid_bwrap=$(pgrep -f "bwrap.*$img" | head -n 1); then
       if [[ -n $pid_bwrap ]]; then
-        if pid_emerge=$(pstree -pa $pid_bwrap | grep -F 'emerge,' | grep -m1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
+        if pid_emerge=$(pstree -pa $pid_bwrap | grep -F 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
           if [[ -n $pid_emerge ]]; then
-            pstree -UlnspuTa $pid_emerge | head -n 500
+            pstree -UlnpuTa $pid_emerge | head -n 20
             echo
             kill -9 $pid_emerge
           else
             echo " warning: empty emerge pid from $pid_bwrap"
-            if pid_entrypoint=$(pstree -pa $pid_bwrap | grep -F 'entrypoint,' | grep -m1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
+            if pid_entrypoint=$(pstree -pa $pid_bwrap | grep -F 'entrypoint,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
               if [[ -n $pid_entrypoint ]]; then
-                pstree -UlnspuTa $pid_entrypoint | head -n 500
+                pstree -UlnpuTa $pid_entrypoint | head -n 20
                 echo
                 kill -15 $pid_entrypoint
                 sleep 60
