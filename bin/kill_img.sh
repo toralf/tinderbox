@@ -16,8 +16,6 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-set -x
-
 for img in ${*?got no image}
 do
   img=$(basename "$img")
@@ -39,10 +37,16 @@ do
                 pstree -UlnspuTa $pid_entrypoint | head -n 20 | cut -c1-200
                 echo
                 kill -15 $pid_entrypoint
-                sleep 60
+                i=60
+                while (( i-- )) && kill -0 $pid_entrypoint
+                do
+                  sleep 1
+                done
                 echo
-                kill -0 $pid_entrypoint && kill -9 $pid_entrypoint
-                echo
+                if kill -0 $pid_entrypoint; then
+                  kill -9 $pid_entrypoint
+                  echo
+                fi
               else
                 echo " error: empty entrypoint pid from $pid_bwrap"
               fi
