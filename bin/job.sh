@@ -813,7 +813,7 @@ function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0           # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  timeout --signal=15 --kill-after=5m 48h bash -c "eval $1" &>> $tasklog
+  timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>> $tasklog
   local rc=$?
   (echo; date) >> $tasklog
 
