@@ -533,11 +533,6 @@ function CreateBacklogs() {
   chown tinderbox:portage $bl{,.1st,.upd}
   chmod 664               $bl{,.1st,.upd}
 
-  # requested by Whissi (an alternative virtual/mysql engine)
-  if dice 1 10; then
-    echo "dev-db/percona-server" >> $bl.1st
-  fi
-
   cat << EOF >> $bl.1st
 @world
 sys-devel/gcc
