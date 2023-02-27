@@ -536,7 +536,7 @@ function CreateBacklogs() {
   cat << EOF >> $bl.1st
 @world
 sys-devel/gcc
-%emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
+%USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 
 EOF
 
