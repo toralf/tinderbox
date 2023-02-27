@@ -8,12 +8,7 @@
 
 # $1:$2, eg. 3:5
 function dice() {
-  if [[ $1 -gt $2 ]]; then
-    echo " $1 > $2 ?!"
-    exit 1
-  fi
-
-  [[ $(( RANDOM%$2)) -lt $1 ]]
+  [[ $1 -lt $2 && $(( RANDOM%$2)) -lt $1 ]]
 }
 
 
