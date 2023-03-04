@@ -350,7 +350,7 @@ EOF
 function cpconf() {
   for f in $*
   do
-    read -r dummy suffix filename <<<$(tr '.' ' ' <<< $(basename $f))
+    read -r dummy suffix filename <<<$(tr '.' ' ' <<< $(basename $f) )
     # eg.: package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
   done
@@ -786,7 +786,7 @@ function ThrowFlags() {
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |
-  shuf -n $(( RANDOM%3000)) |
+  shuf -n $(( RANDOM%3000 )) |
   sort |
   while read -r file
   do
@@ -795,7 +795,7 @@ function ThrowFlags() {
     grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
     cut -f2 -d'"' -s |
     grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    ShuffleUseFlags 15 3 |
+    ShuffleUseFlags 30 3 |
     xargs |
     xargs -I {} --no-run-if-empty printf "%-36s %s\n" "$pkg" "{}"
   done > ./etc/portage/package.use/24thrown_package_use_flags

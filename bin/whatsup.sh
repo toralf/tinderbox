@@ -211,7 +211,7 @@ function LastEmergeOperation() {
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
   printf "%57s" ""
-  local max=$(( ($(date +%s) - $(cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -n | head -n 1))/86400 ))
+  local max=$(( ($(date +%s)-$(cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -n | head -n 1) )/86400 ))
   for i in $(seq 0 $max)
   do
     printf "%4id" $i

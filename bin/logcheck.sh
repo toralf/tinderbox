@@ -6,9 +6,8 @@ set -eu
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
-n=$(wc -l < <(cat ~tinderbox/logs/*.log 2>/dev/null))
 f=/tmp/$(basename $0).out
-
+n=$(wc -l < <(cat ~tinderbox/logs/*.log 2>/dev/null) )
 if [[ $n -gt 0 ]]; then
   if [[ ! -s $f ]]; then
     (

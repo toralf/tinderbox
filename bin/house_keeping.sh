@@ -16,12 +16,12 @@ function getCandidates() {
     fi
 
     if [[ -f $i/var/log/emerge.log ]]; then
-      days=$(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log))/86400 ))
+      days=$(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log) )/86400 ))
       if [[ $days -lt 15 ]]; then
         continue
       fi
     else
-      days=$(( (EPOCHSECONDS-$(stat -c %Y $i))/86400 ))
+      days=$(( (EPOCHSECONDS-$(stat -c %Y $i) )/86400 ))
       if [[ $days -lt 3 ]]; then
         continue
       fi

@@ -18,13 +18,13 @@ function CgroupCreate() {
   local j=$(grep -Eo '\-j[0-9]+' <<< $name | cut -c3-)
 
   # j+0.1 vCPU, slice is 10us
-  local cpu=$(( 100000*j + 10000 ))
+  local cpu=$(( 100000*j+10000 ))
   cgset -r cpu.cfs_quota_us=$cpu $name
 
-  local mem=$(( 4*j + 10 ))
+  local mem=$(( 4*j+10 ))
   cgset -r memory.limit_in_bytes=${mem}G $name
 
-  # this setting implies the quota for /var/tmp/portage too (because it is a tmpfs)
+  # this setting implies a quota for /var/tmp/portage too (because that dir is a tmpfs)
   cgset -r memory.memsw.limit_in_bytes=70G $name
 
   for i in cpu memory
@@ -149,9 +149,9 @@ function Bwrap() {
         --ro-bind ~tinderbox/.bugzrc              /root/.bugzrc
         --tmpfs                                   /run
         --ro-bind /sys                            /sys
-        --size $((1*2**30)) --perms 1777 --tmpfs  /tmp
+        --size $(( 2**30 )) --perms 1777 --tmpfs  /tmp
         --bind ~tinderbox/distfiles               /var/cache/distfiles
-        --size $((32*2**30)) --perms 1777 --tmpfs /var/tmp/portage
+        --size $(( 2**35 )) --perms 1777 --tmpfs  /var/tmp/portage
         /bin/bash -l
   )
 
@@ -219,7 +219,7 @@ if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   exit 1
 fi
 
-# this is usually the 2nd barrier but would be the 1st if no cgroup is in place
+# this is usually the 2nd barrier but would be the 1st and only one barrier if cgroup v1 is not in place
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 if [[ -d $lock_dir ]]; then
   echo "lock dir found: $lock_dir"
@@ -230,6 +230,7 @@ mkdir -p "$lock_dir"
 trap Exit INT QUIT TERM EXIT
 
 if ! CgroupCreate ${mnt##*/} $$; then
+  # if created usccesfully then the cgroup is reaped automatically by /tmp/cgroup-release-agent.sh
   CgroupDelete ${mnt##*/}
   exit 1
 fi
