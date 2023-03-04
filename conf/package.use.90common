@@ -58,3 +58,9 @@ dev-libs/gf2x                       -custom-tune
 
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
+
+# https://bugs.gentoo.org/884193
+media-libs/mesa                     -opencl
+
+# https://bugs.gentoo.org/384869
+app-admin/webalizer                 -nls
