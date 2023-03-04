@@ -888,16 +888,16 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts a:j:k:np:t:u: opt
+while getopts a:j:k:n:p:t:u: opt
 do
   case $opt in
-    a)  abi3264="$OPTARG"     ;;
-    j)  jobs="$OPTARG"        ;;
-    k)  keyword="$OPTARG"     ;;
-    n)  no_autostart="y"      ;;
-    p)  profile="$OPTARG"     ;;
-    t)  testfeature="$OPTARG" ;;
-    u)  useflagfile="$OPTARG" ;;    # eg.: /dev/null
+    a)  abi3264="$OPTARG"       ;;
+    j)  jobs="$OPTARG"          ;;
+    k)  keyword="$OPTARG"       ;;
+    n)  no_autostart="$OPTARG"  ;;
+    p)  profile="$OPTARG"       ;;
+    t)  testfeature="$OPTARG"   ;;
+    u)  useflagfile="$OPTARG"   ;;    # eg.: /dev/null
     *)  echo "unknown parameter '$opt'"; exit 1;;
   esac
 done
