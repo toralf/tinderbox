@@ -42,10 +42,8 @@ function InitOptions() {
   fi
 
   if [[ $profile =~ "/systemd" ]]; then
-    if [[ ! $profile =~ "/merged-usr" ]]; then
-      if dice 1 2; then
-        profile=$(sed -e 's,17.1,23.0,' <<< $profile)
-      fi
+    if dice 1 2; then
+      profile=$(sed -e 's,17.1,23.0,' -e 's,/merged-usr,,' <<< $profile)
     fi
   fi
 
