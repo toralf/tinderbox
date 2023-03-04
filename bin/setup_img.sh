@@ -8,24 +8,7 @@
 
 # $1:$2, eg. 3:5
 function dice() {
-  [[ $1 -lt $2 && $(( RANDOM%$2)) -lt $1 ]]
-}
-
-
-# helper of ThrowFlags
-function ShuffleUseFlags() {
-  local n=$1        # pass up to n-1
-  local m=$2        # mask 1:m of them
-
-  shuf -n $(( RANDOM%n )) |
-  sort |
-  while read -r flag
-  do
-    if dice 1 $m; then
-      echo -n "-"
-    fi
-    echo -n "$flag "
-  done
+  [[ $1 -lt $2 && $(( RANDOM%$2 )) -lt $1 ]]
 }
 
 
@@ -764,6 +747,24 @@ function FixPossibleUseFlagIssues() {
 }
 
 
+
+# helper of ThrowFlags
+function ShuffleUseFlags() {
+  local n=$1        # pass up to n-1
+  local m=$2        # mask 1:m of them
+  local o=${3:-0}        # minimum for n
+
+  shuf -n $(( RANDOM%n+o )) |
+  sort |
+  while read -r flag
+  do
+    if dice 1 $m; then
+      echo -n "-"
+    fi
+    echo -n "$flag "
+  done
+}
+
 # varying USE flags till dry run of @world would succeed
 function ThrowFlags() {
   local attempt=$1
@@ -780,7 +781,7 @@ function ThrowFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |
   cut -f1 -d' ' -s |
   grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-  ShuffleUseFlags 250 4 |
+  ShuffleUseFlags 250 4 50 |
   xargs -s 73 |
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
