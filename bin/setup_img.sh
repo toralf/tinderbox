@@ -578,10 +578,10 @@ emerge -u app-text/ansifilter sys-apps/portage
 
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
-# emerge MTA before MUA b/c virtual/mta does not use sSMTP as the default
+# emerge MTA before MUA b/c virtual/mta does not pull sSMTP per default
 emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # the already bind mounted file is used instead this
-emerge -u mail-client/s-nail
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead of this
+USE=-kerberos emerge -u mail-client/s-nail
 
 date
 echo "#setup user" | tee /var/tmp/tb/task
