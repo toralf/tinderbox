@@ -784,7 +784,7 @@ function ThrowFlags() {
   sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |
-  shuf -n $(( RANDOM%3000 )) |
+  shuf -n $(( RANDOM%1800+200 )) |
   sort |
   while read -r file
   do
