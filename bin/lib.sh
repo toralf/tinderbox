@@ -21,10 +21,9 @@ function __is_running() {
 
 
 function checkBgo() {
-  if ! bugz -h 1>/dev/null || ! bugz -q get 2 1>/dev/null; then  # bugz b0rken or b.g.o is down ?
-    return 2
-  fi
+  bugz -h 1>/dev/null && bugz -q get 2 1>/dev/null    # check b0rken bugz too
 }
+
 
 # transform the title into space separated search items + set few common vars
 function createSearchString() {
