@@ -64,11 +64,11 @@ function feedPfl() {
 
 # this is the end ...
 function Finish() {
+  local exit_code=${1:-$?}
+  local subject=${2:-"<INTERNAL ERROR>"}
+
   trap - INT QUIT TERM EXIT
   set +e
-
-  local exit_code=${1:-$?}
-  local subject=${2:-<internal error>}
 
   subject="finished, $(stripQuotesAndMore <<< $subject)"
   if [[ $exit_code -eq 13 ]]; then
@@ -548,7 +548,8 @@ function SendIssueMailIfNotYetReported() {
       if [[ -e /etc/portage/bashrc ]]; then
         hints+=" clang"
       fi
-      if createSearchString; then
+      if checkBgo; then
+        createSearchString
         if SearchForSameIssue 1>> $issuedir/body; then
           return
         fi

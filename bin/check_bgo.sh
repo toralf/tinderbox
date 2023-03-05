@@ -62,6 +62,8 @@ fi
 
 trap Exit INT QUIT TERM EXIT
 source $(dirname $0)/lib.sh
+checkBgo
+
 echo -e "\n===========================================\n"
 
 name=$(cat $issuedir/../../name)                                           # eg.: 17.1-20201022-101504

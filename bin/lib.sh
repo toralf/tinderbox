@@ -20,12 +20,14 @@ function __is_running() {
 }
 
 
-# transform the title into space separated search items + set few common vars
-function createSearchString() {
-  if ! bugz -h &>/dev/null; then    # either non-existent or b0rken
+function checkBgo() {
+  if ! bugz -h 1>/dev/null || ! bugz -q get 2 1>/dev/null; then  # bugz b0rken or b.g.o is down ?
     return 2
   fi
+}
 
+# transform the title into space separated search items + set few common vars
+function createSearchString() {
   bugz_search=$issuedir/bugz_search
   bugz_result=$issuedir/bugz_result
 

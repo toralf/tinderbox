@@ -27,10 +27,13 @@ function Exit() {
 
 #######################################################################
 
-set -eu
+set -euf
 export LANG=C.utf8
 
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+
+source $(dirname $0)/lib.sh
+checkBgo
 
 id=""
 block=""
@@ -120,6 +123,7 @@ fi
 
 if [[ -d ./files ]]; then
   echo
+  set +f
   for f in ./files/*
   do
     bytes=$(wc --bytes < $f)
@@ -145,6 +149,7 @@ if [[ -d ./files ]]; then
     echo "  $f"
     bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn "attach $f"
   done
+  set -f
 fi
 
 if [[ -n "$block" ]]; then
