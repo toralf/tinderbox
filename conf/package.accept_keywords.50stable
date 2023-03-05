@@ -6,6 +6,3 @@
 #
 # global settings
 #
-
-# needed for the tinderbox, no stable version yet
-mail-client/s-nail                  ~amd64

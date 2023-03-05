@@ -7,15 +7,12 @@
 
 */*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
 */*                                 QEMU_USER_TARGETS:    x86_64 i386
-*/*                                 VIDEO_CARDS:          -* dummy fbdev intel amdgpu
-
-x11-libs/libdrm                     VIDEO_CARDS: intel nouveau radeon amdgpu
+*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeon radeonsi
 
 # 2x faster compile
 */*                                 jumbo-build
 
 # used mailer
-mail-client/s-nail                  -kerberos
 mail-mta/ssmtp                      mta ssl -gnutls
 
 # /etc/profile.d/nix.sh overwrites /etc/profile

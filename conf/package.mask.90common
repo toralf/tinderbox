@@ -55,3 +55,4 @@ dev-scheme/gambit
 # https://bugs.gentoo.org/888779
 dev-util/coccinelle
 dev-util/trace-cmd
+
