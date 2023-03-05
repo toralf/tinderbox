@@ -31,7 +31,7 @@ do
             echo
             kill -9 $pid_emerge
           else
-            echo " warning: empty emerge pid from $pid_bwrap"
+            echo " notice: empty emerge pid from $pid_bwrap"
             if pid_entrypoint=$(pstree -pa $pid_bwrap | grep -F 'entrypoint,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
               if [[ -n $pid_entrypoint ]]; then
                 pstree -UlnspuTa $pid_entrypoint | head -n 20 | cut -c1-200
@@ -48,20 +48,20 @@ do
                   echo
                 fi
               else
-                echo " error: empty entrypoint pid from $pid_bwrap"
+                echo " notice: empty entrypoint pid from $pid_bwrap"
               fi
             else
-              echo " error: could not get entrypoint pid from $pid_bwrap"
+              echo " notice: could not get entrypoint pid from $pid_bwrap"
             fi
           fi
         else
-          echo " error: could not get emerge pid from $pid_bwrap"
+          echo " notice: could not get emerge pid from $pid_bwrap"
         fi
       else
-        echo " error: empty bwrap pid"
+        echo " notice: empty bwrap pid"
       fi
     else
-      echo " error: could not get bwrap pid"
+      echo " info: could not get bwrap pid"
     fi
   else
     echo " error: $img: image not found"
