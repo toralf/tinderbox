@@ -38,7 +38,7 @@ function listBugs() {
   local files=$(ls -t -- ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null)
 
   cat << EOF >> $tmpfile
-<h2>latest $(wc -l <<< $files) <a href="https://bugs.gentoo.org/">Gentoo bugs</a> and image links</h2>
+<h2>links to the last $(wc -l <<< $files) discovered new <a href="https://bugs.gentoo.org/">bugs</a></h2>
 
   <table border="0" align="left" class="list_table">
 
