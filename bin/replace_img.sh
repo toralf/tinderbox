@@ -63,7 +63,7 @@ do
   # if an image stopped for a day then mark it as EOL
   while read -r oldimg
   do
-    if ! __is_running $oldimg; then
+    if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && ! __is_running $oldimg; then
       hours=$(( (EPOCHSECONDS-$(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task) )/3600 ))
       if [[ $hours -ge 24 ]]; then
         echo -e "image stoppend, last task is $hours hour/s ago" >> ~tinderbox/img/$oldimg/var/tmp/tb/EOL
@@ -92,7 +92,6 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  # got for it
   if FreeSlotAvailable; then
     echo
     date
