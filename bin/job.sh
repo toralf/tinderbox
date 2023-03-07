@@ -691,22 +691,20 @@ function PostEmerge() {
 
   if grep -q -F -e "Please, run 'haskell-updater'" \
                 -e "ghc-pkg check: 'checking for other broken packages:'" $tasklog_stripped; then
-    add2backlog '@world'
     add2backlog "%haskell-updater"
   fi
 
-  if grep -q  -e ">>> Installing .* dev-lang/perl-[1-9]" \
-              -e 'Use: perl-cleaner' $tasklog_stripped; then
-    add2backlog '@world'
-    add2backlog '%perl-cleaner --all'
+  if grep -q ">>> Installing .* dev-lang/go-[1-9]" $tasklog_stripped; then
+    add2backlog "@golang-rebuild"
   fi
 
   if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
     add2backlog "sys-apps/portage"
   fi
 
-  if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
-    add2backlog "%SwitchGCC"
+  if grep -q  -e ">>> Installing .* dev-lang/perl-[1-9]" \
+              -e 'Use: perl-cleaner' $tasklog_stripped; then
+    add2backlog '%perl-cleaner --all'
   fi
 
   if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped; then
@@ -717,6 +715,11 @@ function PostEmerge() {
       add2backlog "%eselect ruby set $highest"
     fi
   fi
+
+  if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
+    add2backlog "%SwitchGCC"
+  fi
+
 }
 
 
