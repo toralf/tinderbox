@@ -651,6 +651,10 @@ function RunDryrunWrapper() {
   nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &> $drylog
   local rc=$?
 
+  if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
+    (( ++rc ))
+  fi
+
   if [[ $rc -eq 0 ]]; then
     echo " OK"
   else
