@@ -26,7 +26,8 @@ function DiceAProfile() {
 # helper of main()
 function InitOptions() {
   abi3264="n"
-  cflags_default="-pipe -march=native -fno-diagnostics-color"
+  cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
+  cflags=$cflags_default
   jobs=5
   keyword="~amd64"
   no_autostart="n"
@@ -36,8 +37,6 @@ function InitOptions() {
 
   # no games
   if [[ $profile =~ "/musl" ]]; then
-    cflags_default+=" -O2"
-    cflags=$cflags_default
     return
   fi
 
@@ -53,22 +52,6 @@ function InitOptions() {
       abi3264="y"
     fi
   fi
-
-  # stable image
-  if dice 1 160; then
-    keyword="amd64"
-    cflags_default+=" -O2"
-    cflags=$cflags_default
-    return
-  fi
-
-  # debug
-  if dice 1 80; then
-    cflags_default+=" -Og -g"
-  else
-    cflags_default+=" -O2"
-  fi
-  cflags=$cflags_default
 
   # force bug 685160 (colon in CFLAGS)
   if dice 1 80; then
@@ -135,7 +118,6 @@ function CreateImageName() {
   [[ $keyword = 'amd64' ]]  && name+="_stable"
   [[ $abi3264 = "y" ]]      && name+="_abi32+64"
   [[ $testfeature = "y" ]]  && name+="_test"
-  [[ $cflags =~ " -g" ]]    && name+="_debug"
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
@@ -602,11 +584,6 @@ eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
   sed -i -e 's,FEATURES=",FEATURES="test ,g' /etc/portage/make.conf
-fi
-
-if [[ $name =~ "debug" ]]; then
-  sed -i -e 's,FEATURES=",FEATURES="splitdebug compressdebug ,g' /etc/portage/make.conf
-  echo 'GNUMAKEFLAGS="\$GNUMAKEFLAGS -d"' >> /etc/portage/make.conf
 fi
 
 # sort -u is needed if a package is in several repositories
