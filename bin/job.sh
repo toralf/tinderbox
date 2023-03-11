@@ -433,8 +433,6 @@ EOF
     echo "emerge -qpvO $pkgname"
     emerge -qpvO $pkgname | head -n 1
   ) >> $issuedir/comment0 2>/dev/null
-
-  tail -v */etc/portage/package.*/??$keyword >> $issuedir/comment0 2>/dev/null
 }
 
 
@@ -632,12 +630,9 @@ function WorkAtIssue() {
     return
   fi
 
-  if [[ $try_again -eq 0 ]]; then
-    maskPackage
-  else
+  if [[ $try_again -ne 0 ]]; then
     add2backlog "$task"
   fi
-
   SendIssueMailIfNotYetReported
 }
 
@@ -694,7 +689,7 @@ function PostEmerge() {
     add2backlog "%haskell-updater"
   fi
 
-  if grep -q ">>> Installing .* dev-lang/go-[1-9]" $tasklog_stripped; then
+  if grep -q ">>> Installing .* dev-lang/go-[1-9]" $tasklog_stripped && ! grep -q -F '[ebuild .*UD ]  *dev-lang/go' $tasklog_stripped; then
     add2backlog "@golang-rebuild"
   fi
 
@@ -707,7 +702,7 @@ function PostEmerge() {
     add2backlog '%perl-cleaner --all'
   fi
 
-  if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped; then
+  if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped && ! grep -q -F '[ebuild .*UD ]  *dev-lang/ruby' $tasklog_stripped; then
     local current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
     local highest=$(eselect ruby list | tail -n 1 | awk '{ print $2 }')
 
@@ -841,37 +836,32 @@ function RunAndCheck() {
 
   # exited on signal
   if [[ $rc -ge 128 ]]; then
-    local signal=$(( rc-128 ))
-    if [[ $signal -eq 9 ]]; then
-      Finish 9 "KILLed" $tasklog    # usuall shutdown of the host
-    fi
-
     pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
-    Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
-    maskPackage
     if GetPkglog; then
       createIssueDir
       WorkAtIssue
     fi
-    if [[ $try_again -eq 0 ]]; then
-      KeepInstalledDeps
+    local signal=$(( rc-128 ))
+    if [[ $signal -eq 9 ]]; then
+      Finish 9 "KILLed" $tasklog  # no mask, b/c killed by us or by reboot process
+    else
+      Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     fi
 
+  # an error occurred
   elif [[ $rc -gt 0 ]]; then
     if GetPkgFromTaskLog; then
       createIssueDir
       WorkAtIssue
-      if [[ $try_again -eq 0 ]]; then
-        KeepInstalledDeps
-      fi
     fi
     if [[ $rc -eq 124 ]]; then
       Finish 13 "INFO:  timeout  task=$task" $tasklog
     fi
   fi
 
-  if fatal=$(grep -m 1 -f /mnt/tb/data/FATAL_ISSUES $tasklog_stripped); then
-    Finish 13 "FATAL:  $fatal" $tasklog
+  if [[ $try_again -eq 0 ]]; then
+    maskPackage
+    KeepInstalledDeps
   fi
 
   return $rc
@@ -945,7 +935,7 @@ function DetectRepeats() {
   local count
   local package
   read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 1000 | sort | uniq -c | sort -bn | tail -n 1)
-  if [[ $count -gt 7 ]]; then
+  if [[ $count -ge 6 ]]; then
     Finish 13 "too often emerged: $count x $package"
   fi
 }
