@@ -16,12 +16,12 @@ function getCandidates() {
     fi
 
     if [[ -f $i/var/log/emerge.log ]]; then
-      days=$(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log) )/86400 ))
+      local days=$(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log) )/86400 ))
       if [[ $days -lt 15 ]]; then
         continue
       fi
     else
-      days=$(( (EPOCHSECONDS-$(stat -c %Y $i) )/86400 ))
+      local days=$(( (EPOCHSECONDS-$(stat -c %Y $i) )/86400 ))
       if [[ $days -lt 3 ]]; then
         continue
       fi
@@ -51,7 +51,7 @@ function pruneDir() {
 
   if [[ ! -d $d ]]; then
     echo "$d is not a dir !"
-    exit 1
+    return 1
   fi
 
   # https://forums.gentoo.org/viewtopic-p-6072905.html?sid=461188c03d3c4d08de80136a49982d86#6072905
