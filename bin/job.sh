@@ -77,7 +77,12 @@ function Finish() {
     chgrp tinderbox     /var/tmp/tb/EOL
     truncate -s 0 $taskfile
     subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null) completed"
-    subject+=", $(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l) bugs reported"
+    local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
+    if [[ $new -gt 0 ]]; then
+      subject+=", $new new bug/s"
+    else
+      subject+=", nothing new"
+    fi
   fi
 
   Mail "$subject" ${3:-}
@@ -93,7 +98,7 @@ function setBacklog() {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     backlog=/var/tmp/tb/backlog.1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $(( RANDOM%4 )) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $(( RANDOM%2 )) -eq 0 ]]; then
     backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
