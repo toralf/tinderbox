@@ -31,7 +31,7 @@ function FreeSlotAvailable() {
   r=$(ls /run/tinderbox 2>/dev/null | wc -l)
   s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
 
-  [[ $(( r+s )) -lt $desired_no_of_images && $(ImagesInRunShuffled | wc -l) -lt $desired_no_of_images ]]
+  [[ $(( r+s )) -lt $desired_count && $(ImagesInRunShuffled | wc -l) -lt $desired_count ]]
 }
 
 
@@ -56,8 +56,7 @@ fi
 echo $$ > "$lockfile"
 trap Finish INT QUIT TERM EXIT
 
-desired_no_of_images=${1:-9}
-
+desired_count=${1:-11}
 while :
 do
   # if an image stopped for a day then mark it as EOL
