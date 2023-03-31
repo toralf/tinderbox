@@ -7,20 +7,17 @@
 
 
 function printMetrics() {
-  sum=0
-  var="tinderbox_emerge_completed_img"
+  local var="tinderbox_emerge_completed_img"
   echo -e "# HELP $var Total number of completed emerges of an image\n# TYPE $var gauge"
   for img in $(ls -d ~tinderbox/run/* 2>/dev/null)
   do
-    n=$(grep -c -F -e '::: completed emerge' $img/var/log/emerge.log)
-    (( sum+=n ))
-
-    echo "$var{img=\"$(basename $img)\"} $n"
+    local m=$(grep -c -F -e '::: completed emerge' $img/var/log/emerge.log)
+    echo "$var{img=\"$(basename $img)\"} $m"
   done
 
   var="tinderbox_images_running"
   echo -e "# HELP $var Total number of running images\n# TYPE $var gauge"
-  n=0
+  local n=0
   for img in $(ls -d ~tinderbox/run/* 2>/dev/null)
   do
     if __is_running $img; then
@@ -41,7 +38,7 @@ source $(dirname $0)/lib.sh
 datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
 cd $datadir
 
-tmpfile=$(mktemp /tmp/metrics_XXXXXX.tmp)
+tmpfile=$(mktemp /tmp/metrics_tinderbox_XXXXXX.tmp)
 echo "# $0   $(date -R)" > $tmpfile
 printMetrics >> $tmpfile
 chmod a+r $tmpfile
