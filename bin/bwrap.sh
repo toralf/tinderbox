@@ -94,22 +94,17 @@ function ChrootUmountAll() {
 
 
 function Chroot() {
-  local rc
-
   if ChrootMountAll; then
     if [[ -n "$entrypoint" ]]; then
-      (/usr/bin/chroot $mnt /bin/bash -l -c "su - root -c /entrypoint")
-      rc=$?
+      /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c /entrypoint"
     else
-      (/usr/bin/chroot $mnt /bin/bash -l -c "su - root")
-      rc=$?
+      /usr/bin/chroot $mnt /bin/bash -l -c "su - root"
     fi
-  else
-    rc=13
   fi
+  local rc=$?
 
   if ! ChrootUmountAll; then
-    (( rc++ ))
+    (( ++rc ))
   fi
 
   return $rc
@@ -117,10 +112,9 @@ function Chroot() {
 
 
 function Bwrap() {
-  if [[ $mnt =~ "merged_usr" || $mnt =~ "23.0" ]]; then
-    local path="/usr/sbin:/usr/bin"
-  else
-    local path="/sbin:/bin:/usr/sbin:/usr/bin"
+  local path="/usr/sbin:/usr/bin"
+  if [[ ! $mnt =~ "merged_usr" && ! $mnt =~ "23.0" ]]; then
+    path+="/sbin:/bin"
   fi
 
   local sandbox=(env -i
@@ -179,15 +173,13 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-wrapper="Bwrap"
 entrypoint=""
 mnt=""
+wrapper="Bwrap"
 
-while getopts ce:m: opt
+while getopts e:m:w opt
 do
   case $opt in
-    c)  wrapper="Chroot"
-        ;;
     e)  if [[ ! -s "$OPTARG" ]]; then
           echo "no valid entrypoint script given: $OPTARG"
           exit 1
@@ -199,6 +191,8 @@ do
           exit 1
         fi
         mnt=~tinderbox/img/${OPTARG##*/}
+        ;;
+    w)  wrapper="Chroot"
         ;;
     *)  echo "unknown parameter '$opt'"; exit 1;;
   esac
@@ -219,7 +213,7 @@ if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   exit 1
 fi
 
-# this is usually the 2nd barrier but would be the 1st and only one barrier if cgroup v1 is not in place
+# this is usually the 2nd barrier but would be the 1st and the only one barrier if cgroup v1 is not used
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 if [[ -d $lock_dir ]]; then
   echo "lock dir found: $lock_dir"
@@ -230,7 +224,6 @@ mkdir -p "$lock_dir"
 trap Exit INT QUIT TERM EXIT
 
 if ! CgroupCreate ${mnt##*/} $$; then
-  # if created usccesfully then the cgroup is reaped automatically by /tmp/cgroup-release-agent.sh
   CgroupDelete ${mnt##*/}
   exit 1
 fi
