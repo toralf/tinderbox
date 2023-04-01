@@ -3,7 +3,7 @@
 # set -x
 
 
-# use node_exporter's "textfile" feature to pump metrics into Prometheus
+# use node_exporter's "textfile" feature to send metrics to Prometheus
 
 
 function printMetrics() {
@@ -11,7 +11,7 @@ function printMetrics() {
   echo -e "# HELP $var Total number of completed emerges of an image\n# TYPE $var gauge"
   for img in $(ls -d ~tinderbox/run/* 2>/dev/null)
   do
-    local m=$(grep -c -F -e '::: completed emerge' $img/var/log/emerge.log)
+    local m=$(grep -c -F '::: completed emerge' $img/var/log/emerge.log)
     echo "$var{img=\"$(basename $img)\"} $m"
   done
 
