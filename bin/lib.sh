@@ -21,12 +21,20 @@ function __is_running() {
 
 
 function checkBgo() {
-  bugz -h 1>/dev/null && bugz -q get 2 1>/dev/null    # check b0rken bugz too
+  if ! bugz -h 1>/dev/null; then
+    echo "www-client/pybugz installation is b0rken" >&2
+    return 1
+
+  elif ! bugz -q get 2 1>/dev/null; then
+    { echo "b.g.o is down"; } >&2
+    return 2
+  fi
 }
 
 
 # transform the title into space separated search items + set few common vars
 function createSearchString() {
+  # no local here
   bugz_search=$issuedir/bugz_search
   bugz_result=$issuedir/bugz_result
 

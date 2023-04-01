@@ -551,7 +551,7 @@ function SendIssueMailIfNotYetReported() {
       if [[ -e /etc/portage/bashrc ]]; then
         hints+=" clang"
       fi
-      if checkBgo; then
+      if checkBgo &>/dev/null; then
         createSearchString
         if SearchForSameIssue 1>> $issuedir/body; then
           return
