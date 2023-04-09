@@ -125,6 +125,9 @@ function getNextTask() {
     if [[ -z "$task" || $task =~ ^# ]]; then
       continue
 
+    elif [[ $task =~ ^EOL ]]; then
+      Finish 13 "$task"
+
     elif [[ $task =~ ^INFO ]]; then
       Mail "$task"
       continue
