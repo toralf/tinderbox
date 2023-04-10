@@ -117,6 +117,16 @@ function Bwrap() {
     path+="/sbin:/bin"
   fi
 
+  local hostname="$(cat $mnt/etc/conf.d/hostname)"
+  if [[ -z $hostname || $hostname =~ ' ' ]]; then
+    hostname="wrong-hostname"
+  fi
+
+  local home_dir="/var/tmp/tb"
+  if [[ ! -d $mnt/$home_dir ]]; then
+    home_dir="/"
+  fi
+
   local sandbox=(env -i
     /usr/bin/bwrap
         --clearenv
@@ -126,9 +136,9 @@ function Bwrap() {
         --setenv SHELL "/bin/bash"
         --setenv TERM "linux"
         --setenv USER "root"
-        --hostname "$(cat $mnt/etc/conf.d/hostname)"
+        --hostname "$hostname"
         --die-with-parent
-        --chdir /var/tmp/tb
+        --chdir "$home_dir"
         --unshare-cgroup
         --unshare-ipc
         --unshare-pid
@@ -177,9 +187,11 @@ entrypoint=""
 mnt=""
 wrapper="Bwrap"
 
-while getopts e:m:w opt
+while getopts ce:m: opt
 do
   case $opt in
+    c)  wrapper="Chroot"
+        ;;
     e)  if [[ ! -s "$OPTARG" ]]; then
           echo "no valid entrypoint script given: $OPTARG"
           exit 1
@@ -191,8 +203,6 @@ do
           exit 1
         fi
         mnt=~tinderbox/img/${OPTARG##*/}
-        ;;
-    w)  wrapper="Chroot"
         ;;
     *)  echo "unknown parameter '$opt'"; exit 1;;
   esac
