@@ -50,46 +50,47 @@ function Exit() {
 
   trap - INT QUIT TERM EXIT
 
-  if [[ -d $lock_dir ]]; then
-    rmdir "$lock_dir"
+  if [[ $wrapper = "Chroot" ]]; then
+    ChrootUmountAll
   fi
+
+  if [[ -d $lock_dir ]]; then
+    rmdir -- $lock_dir
+  fi
+
   exit $rc
 }
 
 
 function ChrootMountAll() {
-  (
-    set -e
+  set -e
 
-    mount -o size=16G -t tmpfs  tmpfs $mnt/run
-    mount             -t proc   proc  $mnt/proc
-    mount --rbind               /sys  $mnt/sys
-    mount --make-rslave               $mnt/sys
+  mount -o size=16G -t tmpfs  tmpfs $mnt/run
+  mount             -t proc   proc  $mnt/proc
+  mount --rbind               /sys  $mnt/sys
+  mount --make-rslave               $mnt/sys
 
-    mount --rbind               /dev  $mnt/dev
-    mount --make-rslave               $mnt/dev
+  mount --rbind               /dev  $mnt/dev
+  mount --make-rslave               $mnt/dev
 
-    mount -o bind     ~tinderbox/tb/data              $mnt/mnt/tb/data
-    mount -o bind,ro  ~tinderbox/tb/sdata/ssmtp.conf  $mnt/etc/ssmtp/ssmtp.conf
-    mount -o bind     ~tinderbox/distfiles            $mnt/var/cache/distfiles
+  mount -o bind     ~tinderbox/tb/data              $mnt/mnt/tb/data
+  mount -o bind,ro  ~tinderbox/tb/sdata/ssmtp.conf  $mnt/etc/ssmtp/ssmtp.conf
+  mount -o bind     ~tinderbox/distfiles            $mnt/var/cache/distfiles
 
-    mount -o size=16G -t tmpfs  tmpfs   $mnt/tmp
-    mount -o size=16G -t tmpfs  tmpfs   $mnt/var/tmp/portage
-  )
+  mount -o size=16G -t tmpfs  tmpfs   $mnt/tmp
+  mount -o size=16G -t tmpfs  tmpfs   $mnt/var/tmp/portage
 
   return $?
 }
 
 
 function ChrootUmountAll() {
-  (
-    set +e
+  set +e
 
-    umount -l $mnt/var/tmp/portage $mnt/tmp
-    umount -l $mnt/var/cache/distfiles $mnt/etc/ssmtp/ssmtp.conf $mnt/mnt/tb/data
-    umount -l $mnt/dev{/pts,/shm,/mqueue,}
-    umount -l $mnt/{sys,proc,run}
-  )
+  umount -l $mnt/var/tmp/portage $mnt/tmp \
+      $mnt/var/cache/distfiles $mnt/etc/ssmtp/ssmtp.conf $mnt/mnt/tb/data \
+      $mnt/dev{/pts,/shm,/mqueue,} \
+      $mnt/{sys,proc,run}
 }
 
 
