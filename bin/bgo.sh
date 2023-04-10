@@ -135,7 +135,7 @@ if [[ -d ./files ]]; then
       echo "too fat file: $f"
       file_size=$(ls -lh $f | awk '{ print $5 }')
       file_path=$(realpath $f | sed -e "s,^.*img/,,g")
-      url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
+      url="http://65.21.94.49:31560/$file_path"
       comment="The file size of $f is too big ($file_size) for an upload. For about 8 weeks the link $url is valid."
       bugz modify --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
       continue
