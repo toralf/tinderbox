@@ -339,8 +339,13 @@ function foundGenericIssue() {
 
 # helper of ClassifyIssue()
 function handleTestPhase() {
-  if ! grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
-    printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+  if grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
+    if ! grep -q "=$pkg " /etc/portage/package.env/notest 2>/dev/null; then
+      printf "%-50s %s\n" "=$pkg" "notest" >> /etc/portage/package.env/notest
+      try_again=1
+    fi
+  else
+    printf "%-50s %s\n" "=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
   fi
 
