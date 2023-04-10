@@ -8,3 +8,4 @@ asciidoctor
 failure unpacking
 unpack: .* does not exist
  \*   Unsigned distfiles found
+BAD_TAR_INVOCATION

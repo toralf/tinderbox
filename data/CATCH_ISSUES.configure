@@ -67,7 +67,6 @@ C compiler cannot create executables
 Unable to find Qt
 Package dependency requirement '.* could not be satisfied.
 A required package was not found
-.* will not be built.
 sed:
 The version of your compiler is not supported at this time
 Could not create Makefile due to some reason

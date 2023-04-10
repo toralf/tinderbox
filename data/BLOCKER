@@ -32,3 +32,7 @@ EVP_|RUST_VERSION_OPENSSL_|FIPS_mode|RSA_SSLV23|get_dh|DSA|FIPS|ERR_GET_FUNC|CRY
 # (gcc-13) - [TRACKER] sys-devel/gcc-13 porting
 865117
  is not a member of std| was not declared in this scope| does not name a type| has not been declared| taking address of temporary array| has incomplete type std::string
+
+# (tar-without-file) - [TRACKER] Packages calling tar without -f
+903921
+BAD_TAR_INVOCATION
