@@ -352,6 +352,10 @@ function CompilePortageFiles() {
 
   touch ./etc/portage/package.mask/self     # holds failed packages
 
+  # https://bugs.gentoo.org/903631
+  mkdir -p ./etc/portage/env/app-arch/
+  echo 'EXTRA_ECONF="DEFAULT_ARCHIVE=/dev/null/BAD_TAR_INVOCATION"' > ./etc/portage/env/app-arch/tar
+
   # setup or dep calculation issues or just broken at all
   echo 'FEATURES="-test"'                 > ./etc/portage/env/notest
 
@@ -784,8 +788,8 @@ function ThrowFlags() {
 function CompileUseFlagFiles() {
   (
     echo 'set -euf'
-    echo 'emerge --update --changed-use =$(portageq best_visible / sys-devel/gcc) --pretend'
-    echo 'emerge --update --changed-use --newuse --deep @world --pretend'
+    echo 'USE="-mpi -opencl" emerge --deep=0 -uU =$(portageq best_visible / sys-devel/gcc) --pretend'
+    echo 'emerge --update --changed-use --newuse @world --pretend'
   ) > ./var/tmp/tb/dryrun_wrapper.sh
 
   if [[ -e $useflagfile ]]; then
@@ -831,8 +835,6 @@ function CompileUseFlagFiles() {
 function Finalize() {
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
-
-  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ./etc/portage/make.conf
 
   if [[ $no_autostart = "n" ]]; then
     cd $tbhome/run
@@ -891,6 +893,7 @@ CompileMiscFiles
 CreateBacklogs
 CreateSetupScript
 RunSetupScript
+sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ./etc/portage/make.conf
 CompileUseFlagFiles
 Finalize
 
