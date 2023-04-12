@@ -341,11 +341,11 @@ function foundGenericIssue() {
 function handleTestPhase() {
   if grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
     if ! grep -q "=$pkg " /etc/portage/package.env/notest 2>/dev/null; then
-      printf "%-50s %s\n" "=$pkg" "notest" >> /etc/portage/package.env/notest
+      printf "%-50s %s\n" "<=$pkg" "notest" >> /etc/portage/package.env/notest
       try_again=1
     fi
   else
-    printf "%-50s %s\n" "=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
+    printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >> /etc/portage/package.env/test-fail-continue
     try_again=1
   fi
 
@@ -434,6 +434,7 @@ EOF
     ghc --version
     echo "php cli (if any):"
     eselect php list cli
+    go version
 
     for i in /var/db/repos/*/.git
     do
@@ -933,6 +934,12 @@ function WorkOnTask() {
 
 # bail out if there's a loop
 function DetectRepeats() {
+  local w_max=18
+
+  if [[ $name =~ _test ]]; then
+    (( w_max = 30 ))
+  fi
+
   for pattern in 'perl-cleaner' '@preserved-rebuild'
   do
     if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge 6 ]]; then
@@ -941,7 +948,7 @@ function DetectRepeats() {
   done
 
   pattern='@world'
-  if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge 18 ]]; then
+  if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge $w_max ]]; then
     Finish 13 "too often repeated: $pattern"
   fi
 
