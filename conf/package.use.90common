@@ -7,7 +7,7 @@
 
 */*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
 */*                                 QEMU_USER_TARGETS:    x86_64 i386
-*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeon radeonsi
+*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeonsi
 
 # 2x faster compile
 */*                                 jumbo-build
