@@ -5,25 +5,6 @@
 # print tinderbox statistics
 
 
-# list if locked and/or symlinked to ~run
-function list_images() {
-  (
-    ls ~tinderbox/run/                    | sort
-    ls /run/tinderbox/ | sed 's,.lock,,g' | sort
-    ls -d /sys/fs/cgroup/cpu/local/??.*   | sort
-  ) 2>/dev/null |
-  xargs -n 1 --no-run-if-empty basename |
-  # sort -u would mix ~/img and ~/run, so use this
-  awk '!x[$0]++' |
-  while read -r i
-  do
-    if ! ls -d ~tinderbox/run/$i 2>/dev/null; then
-      ls -d ~tinderbox/img/$i
-    fi
-  done
-}
-
-
 function PrintImageName() {
   local chars=${2:-42}
   printf "%-${chars}s" $(cut -c-${chars} < $1/var/tmp/tb/name 2>/dev/null)
