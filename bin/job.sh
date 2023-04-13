@@ -379,7 +379,7 @@ function ClassifyIssue() {
     foundSandboxIssue
 
   # special forced issues
-  elif [[ -n "$(grep -m 1 -B 4 -A 1 'sed:.*expression.*unknown option' $pkglog_stripped | tee $issuedir/issue)" ]]; then
+  elif [[ -n "$(grep -m 1 -B 4 -A 1 -e 'sed:.*expression.*unknown option' -e 'error:.*falign-functions=32:25:16' $pkglog_stripped | tee $issuedir/issue)" ]]; then
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
   else
