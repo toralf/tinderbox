@@ -9,10 +9,12 @@
 function printMetrics() {
   local var="tinderbox_emerge_completed_img"
   echo -e "# HELP $var Total number of completed emerges of an image\n# TYPE $var gauge"
-  for img in $(ls -d ~tinderbox/run/* 2>/dev/null)
+  for img in $(ls ~tinderbox/run/ 2>/dev/null)
   do
-    local m=$(grep -c -F '::: completed emerge' $img/var/log/emerge.log 2>/dev/null)
-    echo "$var{img=\"$(basename $img)\"} ${m:-0}"
+    local m=$(grep -F '::: completed emerge' ~tinderbox/run/$img/var/log/emerge.log 2>/dev/null | wc -l)
+    if [[ -n $m ]]; then
+      echo "$var{img=\"$img\"} $m"
+    fi
   done
 
   var="tinderbox_images"
@@ -25,7 +27,7 @@ function printMetrics() {
 
 
 #######################################################################
-set -eu
+set -euf
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
