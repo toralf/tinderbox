@@ -1,5 +1,3 @@
-Please submit a full bug report
-internal compiler error
 exec: clang-16: not found
 \*\*\* Cannot open jobserver
 ; ISO C99 and
@@ -16,7 +14,6 @@ asciidoctor.*cannot load
 gems.*asciidocter.*LoadError
 is not a compiled interface for this version of OCaml
 : multiple definition of.*:
-: internal compiler error:
 undefined reference to
 Can't read
 class file .* not found

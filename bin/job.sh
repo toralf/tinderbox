@@ -320,10 +320,11 @@ function foundCflagsIssue() {
 function foundGenericIssue() {
   # the order of the pattern within the file/s rules
   (
+    cat /mnt/tb/data/CATCH_ISSUES-pre
     if [[ -n "$phase" ]]; then
       cat /mnt/tb/data/CATCH_ISSUES.$phase
     fi
-    cat /mnt/tb/data/CATCH_ISSUES
+    cat /mnt/tb/data/CATCH_ISSUES-post
   ) |
   split --lines=1 --suffix-length=4 - /tmp/x_
 
