@@ -86,7 +86,9 @@ function Finish() {
   fi
 
   Mail "$subject" ${3:-}
-  feedPfl
+  if [[ -n $2 ]]; then
+    feedPfl
+  fi
   rm -f /var/tmp/tb/STOP
 
   exit $exit_code
@@ -332,6 +334,7 @@ function foundGenericIssue() {
       grep -m 1 -f $x $issuedir/issue | stripQuotesAndMore > $issuedir/title
       break
     fi
+    rm /tmp/issue
   done
   rm /tmp/x_????
 }
@@ -395,8 +398,8 @@ function ClassifyIssue() {
     mv /tmp/issue $issuedir/issue
   fi
 
-  if [[ ! -s $issuedir/issue || ! -s $issuedir/title ]]; then
-    echo "emerge failed, but no clue, why" | tee /tmp/issue > $issuedir/title
+  if [[ ! -s $issuedir/title ]]; then
+    Mail "INFO: no title in $name/$issuedir" $issuedir/issue
   fi
 }
 
@@ -545,6 +548,10 @@ function finishTitle() {
 
 
 function SendIssueMailIfNotYetReported() {
+  if [[ -z $issuedir/title ]]; then
+    Mail "WARN: no title in ~tinderbox/img/$name/$issuedir" $issuedir/body
+    return
+  fi
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CAUGHT; then
       # chain "cat" by "echo" b/c cat buffers output which is racy between images

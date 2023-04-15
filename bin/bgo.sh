@@ -61,6 +61,10 @@ if [[ -f $issuedir/.reported ]]; then
   echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n"
   exit 0
 fi
+if [[ ! -s $issuedir/title ]]; then
+  echo -e "\n no title found\n"
+  exit 1
+fi
 
 cd $issuedir
 

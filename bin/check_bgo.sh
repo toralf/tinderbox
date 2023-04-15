@@ -71,13 +71,13 @@ pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,')   # eg.
 pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # eg.: net-misc/bird
 SetAssigneeAndCc
 
-if [[ ! -s $issuedir/title ]]; then
-  echo -e "\n no title found\n"
-  exit 1
-fi
 if [[ -f $issuedir/.reported ]]; then
   echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n"
   exit 0
+fi
+if [[ ! -s $issuedir/title ]]; then
+  echo -e "\n no title found\n"
+  exit 1
 fi
 
 versions=$(eshowkw --arch amd64 $pkgname |
