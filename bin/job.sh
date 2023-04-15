@@ -1101,6 +1101,7 @@ do
   echo "$task" | tee -a $taskfile.history $tasklog > $taskfile
   WorkOnTask
   rm $tasklog
+  find /var/log/portage -name '*.log' -exec bzip2 {} +
 
   if [[ $task =~ ^@ ]]; then
     echo "#feed pfl" > $taskfile
