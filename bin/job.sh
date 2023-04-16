@@ -33,7 +33,7 @@ function Mail() {
 
   if [[ -f $content ]]; then
     echo
-    if [[ $(wc -l < $content) -gt 1000 ]]; then
+    if [[ $(wc -l < $content) -gt 100 ]]; then
       echo -e " \n \n \n \n full content is in ~tinderbox/img/$name/$content\n \n \n"
       tail -n 100 $content
     else
