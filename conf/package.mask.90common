@@ -1,6 +1,10 @@
 # package.mask/90common
 #
 
+
+#######################################################################
+# global settings
+
 # /dev is a tmpfs at tinderbox
 sys-fs/static-dev
 
@@ -45,6 +49,13 @@ www-client/chromium                                     # DICE: long_compile_tim
 # way too long and QA is up to Google
 www-client/google-chrome
 
+
+#######################################################################
+# temp
+
+# GCC 12.x
+<sys-devel/gcc-13*
+
 # mask for now, fails too often
 app-editors/*emacs
 <dev-lang/ghc-9.0.2
@@ -55,4 +66,3 @@ dev-scheme/gambit
 # https://bugs.gentoo.org/888779
 dev-util/coccinelle
 dev-util/trace-cmd
-

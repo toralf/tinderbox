@@ -7,7 +7,7 @@
 
 */*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
 */*                                 QEMU_USER_TARGETS:    x86_64 i386
-*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeonsi
+*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeon radeonsi
 
 # 2x faster compile
 */*                                 jumbo-build
@@ -37,21 +37,24 @@ app-portage/portage-utils           -openmp
 # https://bugs.gentoo.org/869953
 */*                                 -ada
 
+# D needed to be bootstraped
+sys-devel/gcc                       -d
+
 # required by sys-apps/portage
 dev-lang/python                     ssl
 
 # dep at dracut which would require "xattr" for coreutils
 sys-kernel/gentoo-kernel-bin        -initramfs
 
-
-#######################################################################
-# temp settings
-
-# bootstrap
-sys-devel/gcc                       -d
-
 # needs hours instead seconds
 dev-libs/gf2x                       -custom-tune
+
+
+#######################################################################
+# open bugs
+
+# https://bugs.gentoo.org/903896
+sys-devel/gcc                       -go
 
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
