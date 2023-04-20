@@ -35,6 +35,12 @@ function FreeSlotAvailable() {
 }
 
 
+function loadIsNotHigherThan() {
+  local load15=$(printf "%.0f" $(sar -q 1 1 | grep "^Average" | awk '{ print $6 }'))
+  [[ $load15 -le $1 ]]
+}
+
+
 #######################################################################
 set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
@@ -91,7 +97,7 @@ do
     fi
   done < <(ImagesInRunShuffled)
 
-  if FreeSlotAvailable; then
+  if FreeSlotAvailable && loadIsNotHigherThan 27; then
     echo
     date
     echo " + + + setup a new image + + +"
