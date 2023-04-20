@@ -788,6 +788,7 @@ function ThrowFlags() {
 function CompileUseFlagFiles() {
   (
     echo 'set -euf'
+    echo 'portageq best_visible / sys-devel/gcc'
     echo 'USE="-mpi -opencl" emerge --deep=0 -uU =$(portageq best_visible / sys-devel/gcc) --pretend'
     echo 'emerge --update --changed-use --newuse @world --pretend'
   ) > ./var/tmp/tb/dryrun_wrapper.sh
@@ -813,12 +814,6 @@ function CompileUseFlagFiles() {
       echo -e "\n found STOP file"
       rm ./var/tmp/tb/STOP
       return 1
-    fi
-
-    if ! (( attempt % 50 )); then
-      echo "sync git tree ..."
-      echo "emaint sync --auto" > ./var/tmp/tb/sync.sh
-      nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ./var/tmp/tb/sync.sh &> ./var/tmp/tb/logs/sync.$attempt.log
     fi
 
     local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
