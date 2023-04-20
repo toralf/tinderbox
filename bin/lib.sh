@@ -54,6 +54,7 @@ function list_images() {
 # transform the title into space separated search items + set few common vars
 function createSearchString() {
   # no local here
+  # shellcheck disable=SC2154
   bugz_search=$issuedir/bugz_search
   bugz_result=$issuedir/bugz_result
 
@@ -118,6 +119,7 @@ function SearchForSameIssue() {
     local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
 
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
+    # shellcheck disable=SC2154
     $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
         grep -e " CONFIRMED " -e " IN_PROGRESS " |
         sort -n -r |
@@ -130,6 +132,7 @@ function SearchForSameIssue() {
     fi
   fi
 
+  # shellcheck disable=SC2154
   for i in $pkg $pkgname
   do
     $bugz_timeout bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |

@@ -146,6 +146,7 @@ function UnpackStage3() {
   prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<< $profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
   if [[ $profile =~ "/desktop" ]]; then
+    # shellcheck disable=SC2076
     if [[ $profile =~ "23.0/" ]]; then
       prefix=$(sed -e 's,/desktop,,' <<< $prefix)
     elif dice 1 2; then
@@ -155,6 +156,7 @@ function UnpackStage3() {
   fi
   prefix=$(tr '/' '-' <<< $prefix)
   if [[ $profile =~ "/systemd" ]]; then
+    # shellcheck disable=SC2076
     if [[ $profile =~ "23.0/" ]]; then
       prefix+="-mergedusr"
     fi
@@ -330,6 +332,7 @@ EOF
 function cpconf() {
   for f in $*
   do
+    # shellcheck disable=SC2034
     read -r dummy suffix filename <<<$(tr '.' ' ' <<< $(basename $f) )
     # eg.: package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
@@ -617,7 +620,7 @@ function RunSetupScript() {
     fi
     echo -e " OK"
   else
-    echo -e "$(date)\n $FUNCNAME was NOT ok\n"
+    echo -e "$(date)\n setup was NOT ok\n"
     tail -v -n 100 ./var/tmp/tb/setup.sh.log
     echo
     return 1
@@ -669,7 +672,7 @@ function FixPossibleUseFlagIssues() {
       local before=$(wc -l < $f)
       sed -i -e "/$pkg /d" $f
       local after=$(wc -l < $f)
-      if [[ $before != $after ]]; then
+      if [[ $before != "$after" ]]; then
         if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
           return 0
         fi
@@ -786,12 +789,17 @@ function ThrowFlags() {
 
 
 function CompileUseFlagFiles() {
-  (
-    echo 'set -euf'
-    echo 'portageq best_visible / sys-devel/gcc'
-    echo 'USE="-mpi -opencl" emerge --deep=0 -uU =$(portageq best_visible / sys-devel/gcc) --pretend'
-    echo 'emerge --update --changed-use --newuse @world --pretend'
-  ) > ./var/tmp/tb/dryrun_wrapper.sh
+  cat << EOF > ./var/tmp/tb/dryrun_wrapper.sh
+set -euf
+
+if ! portageq best_visible / sys-devel/gcc; then
+  echo "no visible gcc"
+  exit 13
+fi
+USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
+emerge --update --changed-use --newuse @world --pretend
+
+EOF
 
   if [[ -e $useflagfile ]]; then
     echo
@@ -805,7 +813,7 @@ function CompileUseFlagFiles() {
   fi
 
   local attempt=0
-  while [[ $(( ++attempt )) -le 200 ]]
+  while [[ $(( ++attempt )) -le 100 ]]
   do
     echo
     date

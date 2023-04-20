@@ -113,7 +113,8 @@ function Overall() {
 
     # images during setup are not yet symlinked to ~tinderbox/run
     local b=$(basename $i)
-    [[ -e ~tinderbox/run/$b ]] && d="~/run" || d="~/img"  # shorten output
+    # shellcheck disable=SC2088
+    [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'  # shorten output
     printf "%5i %4i %3i %4.1f %7i %4i %4i %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
   done
 }

@@ -5,8 +5,9 @@
 # create or modify a bug report at http://bugzilla.gentoo.org
 
 function Warn() {
+  local rc=$?
   echo "  --------------"
-  echo -e "\n  ${1:-<no text given>}, error code: ${2:-$?}\n\n"
+  echo -e "\n  ${1:-<no text given>}, error code: ${2:-$rc}\n\n"
   tail -v bgo.sh.*
   echo "  --------------"
 }

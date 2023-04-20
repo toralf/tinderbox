@@ -10,6 +10,7 @@
 
 
 function stripQuotesAndMore() {
+  # shellcheck disable=SC1112
   sed -e 's,['\''‘’"`•],,g'
 }
 
@@ -173,6 +174,7 @@ function getNextTask() {
 
 
 function CompressIssueFiles() {
+  # shellcheck disable=SC2010
   for f in $(ls $issuedir/files/* 2>/dev/null | grep -v -F '.bz2')
   do
     # compress if bigger than 1/4 MB
@@ -983,7 +985,7 @@ function syncRepo() {
     echo "git status" >> $synclog
     git status &>>$synclog
 
-    if (echo -e "\nTrying to fix ...\n"; git stash && git stash drop; git restore .) 2>&1 &>>$synclog; then
+    if (echo -e "\nTrying to fix ...\n"; git stash && git stash drop; git restore .) &>>$synclog; then
       if ! emaint sync --auto &>>$synclog; then
         Finish 13 "still unfixed ::gentoo" $synclog
       fi
@@ -1001,7 +1003,7 @@ function syncRepo() {
     git diff \
         --diff-filter="ACM" \
         --name-only \
-        "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }".."@{ 1 hour ago }" |
+        "@{ $(( EPOCHSECONDS-last_sync+3600 )) second ago }..@{ 1 hour ago }" |
     grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |
     cut -f1-2 -d'/' -s |
     grep -v -f /mnt/tb/data/IGNORE_PACKAGES |
