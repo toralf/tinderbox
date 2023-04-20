@@ -81,7 +81,7 @@ configure: error:
 ModuleNotFoundError:
  Could not find a configuration file for package
 Configuring incomplete
-cmake failed
+cmake: symbol lookup error:
  \*   Failed to find configuration
 Reason: UndefinedError
 Exception:

@@ -67,3 +67,6 @@ app-admin/webalizer                 -nls
 
 # https://bugs.gentoo.org/900429
 dev-lang/python                     -pgo
+
+# request by sam
+sys-devel/gcc                       debug               # DICE: gcc_debug
