@@ -16,7 +16,7 @@ if [[ "$(whoami)" != "tinderbox" ]]; then
   exit 1
 fi
 
-result=/tmp/$(basename $0).txt  # package/s to be scheduled in the backlog of each image
+result=/tmp/$(basename $0)  # package/s to be scheduled in the backlog of each image
 
 first=0
 if [[ "$1" = "1st" ]]; then
@@ -24,9 +24,9 @@ if [[ "$1" = "1st" ]]; then
   shift
 fi
 
-# accept special *lines* w/o any check
+# accept 1st *lines* w/o any check
 grep -e '^@' -e '^%' -e '^=' <<< ${@} |
-sort -u > $result
+sort -u > $result.1st
 
 # work at regular atoms
 grep -v -e '^@' -e '^%' -e '^=' -e '#' <<< ${@} |
@@ -35,7 +35,7 @@ xargs qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
 grep -v -F '<unset>' |
 grep ".*/.*" |
 sort -u |
-tee -a $result |
+tee $result |
 while read -r pkgname
 do
   sed -i -e "/$(sed -e 's,/,\\/,' <<< $pkgname)\-[[:digit:]]/d" \
@@ -63,3 +63,12 @@ if [[ -s $result ]]; then
   fi
   rm $tmp
 fi
+
+if [[ -s $result.1st ]]; then
+  for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.1st 2>/dev/null)
+  do
+    shuf $result.1st >> $bl
+  done
+fi
+
+rm $result{,.1st}
