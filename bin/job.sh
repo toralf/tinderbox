@@ -124,7 +124,7 @@ function getNextTask() {
     task=$(tail -n 1 $backlog)
     sed -i -e '$d' $backlog
 
-    if [[ -z "$task" || $task =~ ^# ]]; then
+    if [[ -z $task || $task =~ ^# ]]; then
       continue
 
     elif [[ $task =~ ^EOL ]]; then
@@ -147,7 +147,7 @@ function getNextTask() {
 
     else
       local best_visible=$(portageq best_visible / $task 2>/dev/null)
-      if [[ $? -ne 0 || -z "$best_visible" ]]; then
+      if [[ $? -ne 0 || -z $best_visible ]]; then
         continue
       fi
 
@@ -549,7 +549,7 @@ function finishTitle() {
 
 
 function SendIssueMailIfNotYetReported() {
-  if [[ -z $issuedir/title ]]; then
+  if [[ ! -s $issuedir/title ]]; then
     Mail "WARN: no title in ~tinderbox/img/$name/$issuedir" $issuedir/body
     return
   fi
@@ -797,7 +797,7 @@ EOF
 
 
 function GetPkglog() {
-  if [[ -z "$pkg" ]]; then
+  if [[ -z $pkg ]]; then
     return 1
   fi
   pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
@@ -814,9 +814,9 @@ function GetPkglog() {
 
 function GetPkgFromTaskLog() {
   pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk '{ print $3 }')
-  if [[ -z "$pkg" ]]; then
+  if [[ -z $pkg ]]; then
     pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
-    if [[ -z "$pkg" ]]; then
+    if [[ -z $pkg ]]; then
       pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
       if [[ -z $pkg ]]; then
         return 1
