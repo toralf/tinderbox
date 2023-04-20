@@ -2,49 +2,44 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-
 function getCandidates() {
   ls -d ~tinderbox/img/??.*-j*-20??????-?????? 2>/dev/null |
-  while read -r i
-  do
-    if [[ -e ~tinderbox/run/$(basename $i) ]]; then
-      continue
-    fi
-
-    if __is_running $i; then
-      continue
-    fi
-
-    if [[ -f $i/var/log/emerge.log ]]; then
-      local days=$(( (EPOCHSECONDS-$(stat -c %Y $i/var/log/emerge.log) )/86400 ))
-      if [[ $days -lt 15 ]]; then
+    while read -r i; do
+      if [[ -e ~tinderbox/run/$(basename $i) ]]; then
         continue
       fi
-    else
-      local days=$(( (EPOCHSECONDS-$(stat -c %Y $i) )/86400 ))
-      if [[ $days -lt 3 ]]; then
+
+      if __is_running $i; then
         continue
       fi
-    fi
 
-    echo $i
-  done |
-  sort -t'-' -k 3 # sort by <date>-<time>, oldest first
+      if [[ -f $i/var/log/emerge.log ]]; then
+        local days=$(((EPOCHSECONDS - $(stat -c %Y $i/var/log/emerge.log)) / 86400))
+        if [[ $days -lt 15 ]]; then
+          continue
+        fi
+      else
+        local days=$(((EPOCHSECONDS - $(stat -c %Y $i)) / 86400))
+        if [[ $days -lt 3 ]]; then
+          continue
+        fi
+      fi
+
+      echo $i
+    done |
+    sort -t'-' -k 3 # sort by <date>-<time>, oldest first
 }
-
 
 # $ df -m /dev/nvme0n1p4
 # Filesystem     1M-blocks    Used Available Use% Mounted on
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded() {
   local fs=/dev/nvme0n1p4
-  local free=200000        # in MB
-  local used=89            # in %
+  local free=200000 # in MB
+  local used=89     # in %
 
   [[ -n $(df -m $fs | awk '$1 == "'$fs'" && ($4 < "'$free'" || $5 > "'$used'%")') ]]
 }
-
-
 
 function pruneDir() {
   local d=$1
@@ -61,10 +56,9 @@ function pruneDir() {
   rm -r $d
   local rc=$?
 
-  sleep 30    # btrfs is lazy in reporting free space
+  sleep 30 # btrfs is lazy in reporting free space
   return $rc
 }
-
 
 #######################################################################
 set -eu
@@ -82,14 +76,13 @@ source $(dirname $0)/lib.sh
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
   ls ~tinderbox/distfiles/stage3-amd64-*.tar.xz 2>/dev/null |
-  while read -r stage3
-  do
-    if [[ $latest -nt $stage3 ]]; then
-      if ! grep -q -F $(basename $stage3) $latest; then
-        rm -f $stage3{,.asc}    # *.asc might not exist
+    while read -r stage3; do
+      if [[ $latest -nt $stage3 ]]; then
+        if ! grep -q -F $(basename $stage3) $latest; then
+          rm -f $stage3{,.asc} # *.asc might not exist
+        fi
       fi
-    fi
-  done
+    done
 fi
 
 # 2nd prune distfiles not accessed within past 12 months
@@ -98,23 +91,20 @@ if pruneNeeded; then
 fi
 
 # 3rd prune images with broken setup
-while read -r img && pruneNeeded
-do
+while read -r img && pruneNeeded; do
   if [[ ! -s $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
     pruneDir $img
   fi
 done < <(getCandidates)
 
 # 4th prune images w/o any reported bug
-while read -r img && pruneNeeded
-do
+while read -r img && pruneNeeded; do
   if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
     pruneDir $img
   fi
 done < <(getCandidates)
 
 # 5th prune oldest first
-while read -r img && pruneNeeded
-do
+while read -r img && pruneNeeded; do
   pruneDir $img
 done < <(getCandidates)

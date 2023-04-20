@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-
 # stop tinderbox image/s
-
 
 #############################################################################
 #
@@ -21,8 +19,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}
-do
+for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}; do
   echo -n "$(date +%X) "
   mnt=~tinderbox/img/$(basename $i)
 
@@ -36,7 +33,7 @@ do
     continue
   fi
 
-  if ! __is_running "$mnt" ; then
+  if ! __is_running "$mnt"; then
     echo " is not running: $mnt"
     continue
   fi

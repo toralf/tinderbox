@@ -4,7 +4,6 @@
 
 # query buzilla.gentoo.org for given issue
 
-
 function Exit() {
   local rc=${1:-$?}
 
@@ -12,25 +11,23 @@ function Exit() {
   exit $rc
 }
 
-
 function SetAssigneeAndCc() {
   local assignee
   local cc=""
   local m=$(equery meta -m $pkgname | grep '@' | xargs)
 
-  if [[ -z "$m" ]]; then
+  if [[ -z $m ]]; then
     assignee="maintainer-needed@gentoo.org"
   else
-    assignee=$(cut -f1 -d' ' <<< $m)
-    cc=$(cut -f2- -d' ' -s <<< $m)
+    assignee=$(cut -f1 -d' ' <<<$m)
+    cc=$(cut -f2- -d' ' -s <<<$m)
   fi
-
 
   if grep -q 'file collision with' $issuedir/title; then
     # for a file collision report both involved sites
-    local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
+    local collision_partner=$(sed -e 's,.*file collision with ,,' <$issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
-    if [[ -n "$collision_partner_pkgname" ]]; then
+    if [[ -n $collision_partner_pkgname ]]; then
       cc="$cc $(equery meta -m $collision_partner_pkgname | grep '@' | xargs)"
     fi
 
@@ -38,16 +35,14 @@ function SetAssigneeAndCc() {
     cc+=" toolchain@gentoo.org"
   fi
 
-  echo "$assignee" > $issuedir/assignee
-  if [[ -n "$cc" ]]; then
-    xargs -n 1 <<< $cc | sort -u | grep -v "^$assignee$" | xargs > $issuedir/cc
+  echo "$assignee" >$issuedir/assignee
+  if [[ -n $cc ]]; then
+    xargs -n 1 <<<$cc | sort -u | grep -v "^$assignee$" | xargs >$issuedir/cc
   fi
-  if [[ ! -s $issuedir/cc || -z "$cc" ]]; then
+  if [[ ! -s $issuedir/cc || -z $cc ]]; then
     rm -f $issuedir/cc
   fi
 }
-
-
 
 #######################################################################
 set -euf
@@ -56,7 +51,7 @@ export LANG=C.utf8
 
 issuedir=${1?missing issue dir}
 force="n"
-if [[ $# -eq 2 && $2 = "-f" ]]; then
+if [[ $# -eq 2 && $2 == "-f" ]]; then
   force="y"
 fi
 
@@ -66,9 +61,9 @@ checkBgo
 
 echo -e "\n===========================================\n"
 
-name=$(cat $issuedir/../../name)                                           # eg.: 17.1-20201022-101504
-pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,')   # eg.: net-misc/bird-2.0.7-r1
-pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # eg.: net-misc/bird
+name=$(cat $issuedir/../../name)                                         # eg.: 17.1-20201022-101504
+pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,') # eg.: net-misc/bird-2.0.7-r1
+pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                             # eg.: net-misc/bird
 SetAssigneeAndCc
 
 if [[ -f $issuedir/.reported ]]; then
@@ -80,12 +75,13 @@ if [[ ! -s $issuedir/title ]]; then
   exit 1
 fi
 
-versions=$(eshowkw --arch amd64 $pkgname |
-            grep -v -e '^  *|' -e '^-' -e '^Keywords' |
-            # + == stable, o == masked, ~ == unstable
-            awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |
-            xargs
-          )
+versions=$(
+  eshowkw --arch amd64 $pkgname |
+    grep -v -e '^  *|' -e '^-' -e '^Keywords' |
+    # + == stable, o == masked, ~ == unstable
+    awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |
+    xargs
+)
 if [[ -z $versions ]]; then
   echo "$pkg is unknown"
   exit 1
@@ -99,10 +95,10 @@ if [[ -n $blocker_bug_no ]]; then
 fi
 echo -e "\n  ${cmd}\n\n"
 
-if [[ $force = "y" ]]; then
+if [[ $force == "y" ]]; then
   $cmd
 else
-  cat << EOF
+  cat <<EOF
     title:    $(cat $issuedir/title)
     versions: $versions
     devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)

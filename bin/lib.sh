@@ -4,21 +4,17 @@ function __getStartTime() {
   cat ~tinderbox/img/$(basename $1)/var/tmp/tb/setup.timestamp
 }
 
-
 function __is_cgrouped() {
   [[ -d /sys/fs/cgroup/cpu/local/$(basename $1)/ ]]
 }
-
 
 function __is_locked() {
   [[ -d /run/tinderbox/$(basename $1).lock/ ]]
 }
 
-
 function __is_running() {
   __is_cgrouped $1 || __is_locked $1
 }
-
 
 function checkBgo() {
   if ! bugz -h 1>/dev/null; then
@@ -31,25 +27,22 @@ function checkBgo() {
   fi
 }
 
-
 # list if locked and/or symlinked to ~run
 function list_images() {
   (
-    ls ~tinderbox/run/                    | sort
+    ls ~tinderbox/run/ | sort
     ls /run/tinderbox/ | sed 's,.lock,,g' | sort
-    ls -d /sys/fs/cgroup/cpu/local/??.*   | sort
+    ls -d /sys/fs/cgroup/cpu/local/??.* | sort
   ) 2>/dev/null |
-  xargs -n 1 --no-run-if-empty basename |
-  # sort -u would mix ~/img and ~/run, so use this
-  awk '!x[$0]++' |
-  while read -r i
-  do
-    if ! ls -d ~tinderbox/run/$i 2>/dev/null; then
-      ls -d ~tinderbox/img/$i
-    fi
-  done
+    xargs -n 1 --no-run-if-empty basename |
+    # sort -u would mix ~/img and ~/run, so use this
+    awk '!x[$0]++' |
+    while read -r i; do
+      if ! ls -d ~tinderbox/run/$i 2>/dev/null; then
+        ls -d ~tinderbox/img/$i
+      fi
+    done
 }
-
 
 # transform the title into space separated search items + set few common vars
 function createSearchString() {
@@ -58,21 +51,19 @@ function createSearchString() {
   bugz_search=$issuedir/bugz_search
   bugz_result=$issuedir/bugz_result
 
-  for f in $bugz_search $bugz_result
-  do
+  for f in $bugz_search $bugz_result; do
     if [[ ! -f $f ]]; then
       truncate -s 0 $f
-      chmod a+rw    $f
+      chmod a+rw $f
     fi
   done
 
-  sed -e 's,^.* - ,,'     \
-      -e 's,/\.\.\./, ,'  \
-      -e 's,[\(\)], ,g'   \
-      -e 's,\s\s*, ,g'    \
-      $issuedir/title > $bugz_search
+  sed -e 's,^.* - ,,' \
+    -e 's,/\.\.\./, ,' \
+    -e 's,[\(\)], ,g' \
+    -e 's,\s\s*, ,g' \
+    $issuedir/title >$bugz_search
 }
-
 
 # look for a blocker bug id
 # the BLOCKER file contains tupels like:
@@ -83,10 +74,9 @@ function createSearchString() {
 function LookupForABlocker() {
   local pattern_file=$1
 
-  while read -r line
-  do
+  while read -r line; do
     if [[ $line =~ ^[0-9]+$ ]]; then
-      read -r number <<< $line
+      read -r number <<<$line
       continue
     fi
 
@@ -104,7 +94,6 @@ function LookupForABlocker() {
   return
 }
 
-
 function GotResults() {
   if grep -q -e "^Traceback" -e "# Error: Bugzilla error:" $bugz_result; then
     return 2
@@ -112,19 +101,18 @@ function GotResults() {
   [[ -s $bugz_result ]]
 }
 
-
 function SearchForSameIssue() {
   if grep -q 'file collision with' $issuedir/title; then
     # for a file collision report both involved sites
-    local collision_partner=$(sed -e 's,.*file collision with ,,' < $issuedir/title)
+    local collision_partner=$(sed -e 's,.*file collision with ,,' <$issuedir/title)
 
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     # shellcheck disable=SC2154
     $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
-        grep -e " CONFIRMED " -e " IN_PROGRESS " |
-        sort -n -r |
-        head -n 4 |
-        tee $bugz_result
+      grep -e " CONFIRMED " -e " IN_PROGRESS " |
+      sort -n -r |
+      head -n 4 |
+      tee $bugz_result
     if GotResults; then
       return 0
     elif [[ $? -eq 2 ]]; then
@@ -133,13 +121,12 @@ function SearchForSameIssue() {
   fi
 
   # shellcheck disable=SC2154
-  for i in $pkg $pkgname
-  do
+  for i in $pkg $pkgname; do
     $bugz_timeout bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |
-        grep -e " CONFIRMED " -e " IN_PROGRESS " |
-        sort -n -r |
-        head -n 4 |
-        tee $bugz_result
+      grep -e " CONFIRMED " -e " IN_PROGRESS " |
+      sort -n -r |
+      head -n 4 |
+      tee $bugz_result
     if GotResults; then
       return 0
     elif [[ $? -eq 2 ]]; then
@@ -150,15 +137,13 @@ function SearchForSameIssue() {
   return 1
 }
 
-
 function SearchForSimilarIssue() {
   # resolved does not fit "same issue"
-  for i in $pkg $pkgname
-  do
+  for i in $pkg $pkgname; do
     $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bugz_search)" |
-        sort -n -r |
-        head -n 3 |
-        tee $bugz_result
+      sort -n -r |
+      head -n 3 |
+      tee $bugz_result
     if GotResults; then
       echo -e " \n^^ DUPLICATE\n"
       return 0
@@ -167,9 +152,9 @@ function SearchForSimilarIssue() {
     fi
 
     $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |
-        sort -n -r |
-        head -n 3 |
-        tee $bugz_result
+      sort -n -r |
+      head -n 3 |
+      tee $bugz_result
     if GotResults; then
       return 0
     elif [[ $? -eq 2 ]]; then
@@ -184,23 +169,23 @@ function SearchForSimilarIssue() {
 
   echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
   $bugz_timeout bugz -q --columns 400 search --show-status $pkgname |
-      grep -v -i -E "$g" |
-      sort -n -r |
-      head -n 12 |
-      tee $bugz_result
+    grep -v -i -E "$g" |
+    sort -n -r |
+    head -n 12 |
+    tee $bugz_result
   if GotResults; then
     return 0
   elif [[ $? -eq 2 ]]; then
     return 2
   fi
 
-  if [[ $(wc -l < $bugz_result) -lt 5 ]]; then
+  if [[ $(wc -l <$bugz_result) -lt 5 ]]; then
     echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
     $bugz_timeout bugz -q --columns 400 search --status RESOLVED $pkgname |
-        grep -v -i -E "$g" |
-        sort -n -r |
-        head -n 5 |
-        tee $bugz_result
+      grep -v -i -E "$g" |
+      sort -n -r |
+      head -n 5 |
+      tee $bugz_result
     if GotResults; then
       return 0
     elif [[ $? -eq 2 ]]; then
@@ -211,5 +196,4 @@ function SearchForSimilarIssue() {
   return 1
 }
 
-
-export bugz_timeout="timeout --signal=15 --kill-after=1m 3m"   # bugz tends to hang
+export bugz_timeout="timeout --signal=15 --kill-after=1m 3m" # bugz tends to hang

@@ -2,15 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-
 # setup a new tinderbox image
-
 
 # $1:$2, eg. 3:5
 function dice() {
-  [[ $1 -lt $2 && $(( RANDOM%$2 )) -lt $1 ]]
+  [[ $1 -lt $2 && $((RANDOM % $2)) -lt $1 ]]
 }
-
 
 # helper of InitOptions()
 function DiceAProfile() {
@@ -21,7 +18,6 @@ function DiceAProfile() {
     cut -f4- -d'/' -s |
     shuf -n 1
 }
-
 
 # helper of main()
 function InitOptions() {
@@ -42,7 +38,7 @@ function InitOptions() {
 
   if [[ $profile =~ "/systemd" ]]; then
     if dice 1 2; then
-      profile=$(sed -e 's,17.1,23.0,' -e 's,/merged-usr,,' <<< $profile)
+      profile=$(sed -e 's,17.1,23.0,' -e 's,/merged-usr,,' <<<$profile)
     fi
   fi
 
@@ -64,7 +60,6 @@ function InitOptions() {
   fi
 }
 
-
 # helper of CheckOptions()
 function checkBool() {
   local var=$1
@@ -76,10 +71,9 @@ function checkBool() {
   fi
 }
 
-
 # helper of main()
 function CheckOptions() {
-  checkBool "abi3264"     || return 1
+  checkBool "abi3264" || return 1
   checkBool "testfeature" || return 1
 
   if [[ -z $profile ]]; then
@@ -87,7 +81,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if grep -q "/$" <<< $profile; then
+  if grep -q "/$" <<<$profile; then
     echo " trailing slash in profile >>$profile<<"
     return 1
   fi
@@ -97,7 +91,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ $abi3264 = "y" ]]; then
+  if [[ $abi3264 == "y" ]]; then
     if [[ $profile =~ "/no-multilib" ]]; then
       echo " ABI_X86 mismatch: >>$profile<<"
       return 1
@@ -110,25 +104,22 @@ function CheckOptions() {
   fi
 }
 
-
 # helper of UnpackStage3()
 function CreateImageName() {
-  name="$(tr '/\-' '_' <<< $profile)"
+  name="$(tr '/\-' '_' <<<$profile)"
   name+="-j${jobs}"
-  [[ $keyword = 'amd64' ]]  && name+="_stable"
-  [[ $abi3264 = "y" ]]      && name+="_abi32+64"
-  [[ $testfeature = "y" ]]  && name+="_test"
+  [[ $keyword == 'amd64' ]] && name+="_stable"
+  [[ $abi3264 == "y" ]] && name+="_abi32+64"
+  [[ $testfeature == "y" ]] && name+="_test"
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
-
 
 # download, verify and unpack the stage3 file
 function UnpackStage3() {
   local latest=$tbhome/distfiles/latest-stage3.txt
 
   echo -e "\n$(date) get latest-stage3.txt "
-  for mirror in $gentoo_mirrors
-  do
+  for mirror in $gentoo_mirrors; do
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
       echo -e " got from mirror $mirror"
       break
@@ -143,18 +134,18 @@ function UnpackStage3() {
 
   echo -e "\n$(date) get stage3 prefix for profile $profile"
   local prefix="stage3-amd64"
-  prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<< $profile)
-  prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<< $prefix)
+  prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<<$profile)
+  prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<<$prefix)
   if [[ $profile =~ "/desktop" ]]; then
     # shellcheck disable=SC2076
     if [[ $profile =~ "23.0/" ]]; then
-      prefix=$(sed -e 's,/desktop,,' <<< $prefix)
+      prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     elif dice 1 2; then
       # build up from plain instead from desktop stage
-      prefix=$(sed -e 's,/desktop,,' <<< $prefix)
+      prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     fi
   fi
-  prefix=$(tr '/' '-' <<< $prefix)
+  prefix=$(tr '/' '-' <<<$prefix)
   if [[ $profile =~ "/systemd" ]]; then
     # shellcheck disable=SC2076
     if [[ $profile =~ "23.0/" ]]; then
@@ -176,8 +167,7 @@ function UnpackStage3() {
   local stage3_filename=$tbhome/distfiles/$(basename $stage3)
   if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
     echo -e "\n$(date) downloading $stage3{,.asc} files ..."
-    for mirror in $gentoo_mirrors
-    do
+    for mirror in $gentoo_mirrors; do
       if wget --connect-timeout=10 --quiet --no-clobber $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
         echo -e "$(date) succeeded from mirror $mirror"
         break
@@ -222,12 +212,11 @@ function UnpackStage3() {
   fi
 }
 
-
 # prefer git over rsync
 function InitRepository() {
   mkdir -p ./etc/portage/repos.conf/
 
-  cat << EOF > ./etc/portage/repos.conf/all.conf
+  cat <<EOF >./etc/portage/repos.conf/all.conf
 [DEFAULT]
 main-repo = gentoo
 auto-sync = yes
@@ -241,31 +230,29 @@ EOF
 
   local curr_path=$PWD
   cd .$reposdir
-  cp -ar --reflink=auto $reposdir/gentoo ./     # way faster and cheaper than "emaint sync --auto 1>/dev/null"
+  cp -ar --reflink=auto $reposdir/gentoo ./ # way faster and cheaper than "emaint sync --auto 1>/dev/null"
   cd ./gentoo
-  rm -f ./.git/refs/heads/stable.lock ./.git/gc.log.lock    # race with git operations at the host
+  rm -f ./.git/refs/heads/stable.lock ./.git/gc.log.lock # race with git operations at the host
   git config diff.renamelimit 0
   git config gc.auto 0
   git config pull.ff only
   cd $curr_path
 }
 
-
 # create tinderbox related directories + files
 function CompileTinderboxFiles() {
   mkdir -p ./mnt/tb/data ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
 
   chgrp portage ./var/tmp/tb/{,logs}
-  chmod ug+rwx  ./var/tmp/tb/{,logs}
+  chmod ug+rwx ./var/tmp/tb/{,logs}
 
-  echo $EPOCHSECONDS > ./var/tmp/tb/setup.timestamp
-  echo $name > ./var/tmp/tb/name
+  echo $EPOCHSECONDS >./var/tmp/tb/setup.timestamp
+  echo $name >./var/tmp/tb/name
 }
-
 
 # compile make.conf
 function CompileMakeConf() {
-  cat << EOF > ./etc/portage/make.conf
+  cat <<EOF >./etc/portage/make.conf
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
 
@@ -310,66 +297,62 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 EOF
 
   if [[ $profile =~ "/musl" ]]; then
-    echo 'RUSTFLAGS="-C target-feature=-crt-static"' >> ./etc/portage/make.conf
+    echo 'RUSTFLAGS="-C target-feature=-crt-static"' >>./etc/portage/make.conf
   fi
 
   # requested by mgorny in 822354 (this is unrelated to FEATURES="test")
   if dice 1 2; then
-    echo 'ALLOW_TEST="network"' >> ./etc/portage/make.conf
+    echo 'ALLOW_TEST="network"' >>./etc/portage/make.conf
   fi
 
   # rarely b/c it yields to much different error messages for the same issue
   if dice 1 40; then
-    echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >> ./etc/portage/make.conf
+    echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >>./etc/portage/make.conf
   fi
 
   chgrp portage ./etc/portage/make.conf
-  chmod g+w     ./etc/portage/make.conf
+  chmod g+w ./etc/portage/make.conf
 }
-
 
 # helper of CompilePortageFiles()
 function cpconf() {
-  for f in $*
-  do
+  for f in $*; do
     # shellcheck disable=SC2034
-    read -r dummy suffix filename <<<$(tr '.' ' ' <<< $(basename $f) )
+    read -r dummy suffix filename <<<$(tr '.' ' ' <<<$(basename $f))
     # eg.: package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
   done
 }
 
-
 # create portage related directories + files
 function CompilePortageFiles() {
   cp -ar $tbhome/tb/patches ./etc/portage
 
-  for d in env package.{accept_keywords,env,mask,unmask,use} patches profile
-  do
+  for d in env package.{accept_keywords,env,mask,unmask,use} patches profile; do
     if [[ ! -d ./etc/portage/$d ]]; then
       mkdir ./etc/portage/$d
     fi
     chgrp portage ./etc/portage/$d
-    chmod g+w     ./etc/portage/$d
+    chmod g+w ./etc/portage/$d
   done
 
-  touch ./etc/portage/package.mask/self     # holds failed packages
+  touch ./etc/portage/package.mask/self # holds failed packages
 
   # https://bugs.gentoo.org/903631
   mkdir -p ./etc/portage/env/app-arch/
-  echo 'EXTRA_ECONF="DEFAULT_ARCHIVE=/dev/null/BAD_TAR_INVOCATION"' > ./etc/portage/env/app-arch/tar
+  echo 'EXTRA_ECONF="DEFAULT_ARCHIVE=/dev/null/BAD_TAR_INVOCATION"' >./etc/portage/env/app-arch/tar
 
   # setup or dep calculation issues or just broken at all
-  echo 'FEATURES="-test"'                 > ./etc/portage/env/notest
+  echo 'FEATURES="-test"' >./etc/portage/env/notest
 
   # continue an expected failed test of a package while preserving the dependency tree
-  echo 'FEATURES="test-fail-continue"'    > ./etc/portage/env/test-fail-continue
+  echo 'FEATURES="test-fail-continue"' >./etc/portage/env/test-fail-continue
 
   # retry w/o sandbox'ing
-  echo 'FEATURES="-sandbox -usersandbox"' > ./etc/portage/env/nosandbox
+  echo 'FEATURES="-sandbox -usersandbox"' >./etc/portage/env/nosandbox
 
   # retry with sane defaults
-  cat <<EOF                               > ./etc/portage/env/cflags_default
+  cat <<EOF >./etc/portage/env/cflags_default
 CFLAGS="$cflags_default"
 CXXFLAGS="\${CFLAGS}"
 
@@ -380,12 +363,11 @@ EOF
 
   # persist build dir - only /var/tmp/portage is cleaned in job.sh, this content will stay forever
   mkdir ./var/tmp/notmpfs
-  echo 'PORTAGE_TMPDIR=/var/tmp/notmpfs'  > ./etc/portage/env/notmpfs
+  echo 'PORTAGE_TMPDIR=/var/tmp/notmpfs' >./etc/portage/env/notmpfs
 
   # limit # of parallel jobs, 1 is the fallback of $jobs fails for a package or is too much for the host
-  for j in 1 $jobs
-  do
-    cat << EOF > ./etc/portage/env/j$j
+  for j in 1 $jobs; do
+    cat <<EOF >./etc/portage/env/j$j
 EGO_BUILD_FLAGS="-p $j"
 GO19CONCURRENTCOMPILATION=0
 GOMAXPROCS=$j
@@ -402,9 +384,9 @@ RUST_TEST_TASKS=$j
 EOF
 
   done
-  echo "*/*         j${jobs}" >> ./etc/portage/package.env/00j${jobs}
+  echo "*/*         j${jobs}" >>./etc/portage/package.env/00j${jobs}
 
-  if [[ $keyword = '~amd64' ]]; then
+  if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
   else
     cpconf $tbhome/tb/conf/package.*.??stable
@@ -418,7 +400,7 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??common
 
-  if [[ $abi3264 = "y" ]]; then
+  if [[ $abi3264 == "y" ]]; then
     cpconf $tbhome/tb/conf/package.*.??abi32+64
   fi
 
@@ -430,23 +412,21 @@ EOF
 
   # lines with a comment like "DICE: topic x X" will be kept with x/X chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
-  cut -f 3- -d ' ' |
-  sort -u -r |
-  while read -r topic x X
-  do
-    if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
-      # kick the whole line off
-      sed -i -e "/# DICE:  *$topic *$/d" -e "/# DICE:  *$topic .*/d" ./etc/portage/package.*/*
-    else
-      # keep the line, but remove comment + trailing spaces
-      sed -i -e "s, *# DICE:  *$topic *$,,g" -e "s, *# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
-    fi
-  done
+    cut -f 3- -d ' ' |
+    sort -u -r |
+    while read -r topic x X; do
+      if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
+        # kick the whole line off
+        sed -i -e "/# DICE:  *$topic *$/d" -e "/# DICE:  *$topic .*/d" ./etc/portage/package.*/*
+      else
+        # keep the line, but remove comment + trailing spaces
+        sed -i -e "s, *# DICE:  *$topic *$,,g" -e "s, *# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
+      fi
+    done
 
-  echo "*/*  $(cpuid2cpuflags)" > ./etc/portage/package.use/99cpuflags
+  echo "*/*  $(cpuid2cpuflags)" >./etc/portage/package.use/99cpuflags
 
-  for f in $tbhome/tb/conf/profile.*
-  do
+  for f in $tbhome/tb/conf/profile.*; do
     cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,g')
   done
 
@@ -456,26 +436,25 @@ EOF
   chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
 }
 
-
 function CompileMiscFiles() {
-  cat << EOF > ./etc/resolv.conf
+  cat <<EOF >./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
 
   local image_hostname=$(echo $name | tr -d '\n' | tr '[:upper:]' '[:lower:]' | tr -c '[^a-z0-9\-]' '-' | cut -c-63)
-  echo $image_hostname > ./etc/conf.d/hostname
+  echo $image_hostname >./etc/conf.d/hostname
 
   local host_hostname=$(hostname)
 
-  cat << EOF > ./etc/hosts
+  cat <<EOF >./etc/hosts
 127.0.0.1 localhost $host_hostname $host_hostname.localdomain $image_hostname $image_hostname.localdomain
 ::1       localhost $host_hostname $host_hostname.localdomain $image_hostname $image_hostname.localdomain
 
 EOF
 
   # avoid interactive question of vim
-  cat << EOF > ./root/.vimrc
+  cat <<EOF >./root/.vimrc
 autocmd BufEnter *.txt set textwidth=0
 cnoreabbrev X x
 let g:session_autosave = 'no'
@@ -487,9 +466,8 @@ set expandtab
 EOF
 
   # include the \n in paste content (sys-libs/readline de-activated that with v8)
-  echo "set enable-bracketed-paste off" >> ./root/.inputrc
+  echo "set enable-bracketed-paste off" >>./root/.inputrc
 }
-
 
 # what                      filled once by        updated by
 #
@@ -499,11 +477,11 @@ EOF
 function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
 
-  truncate -s 0           $bl{,.1st,.upd}
+  truncate -s 0 $bl{,.1st,.upd}
   chown tinderbox:portage $bl{,.1st,.upd}
-  chmod 664               $bl{,.1st,.upd}
+  chmod 664 $bl{,.1st,.upd}
 
-  cat << EOF >> $bl.1st
+  cat <<EOF >>$bl.1st
 @world
 sys-devel/gcc
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
@@ -512,9 +490,8 @@ EOF
 
 }
 
-
 function CreateSetupScript() {
-  if cat << EOF > ./var/tmp/tb/setup.sh; then
+  if cat <<EOF >./var/tmp/tb/setup.sh; then
 #!/bin/bash
 # set -x
 
@@ -607,13 +584,12 @@ EOF
   fi
 }
 
-
 function RunSetupScript() {
   echo
   date
   echo " run setup script ..."
 
-  echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' > ./var/tmp/tb/setup_wrapper.sh
+  echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' >./var/tmp/tb/setup_wrapper.sh
   if nice -n 1 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
     if grep ' Invalid atom ' ./var/tmp/tb/setup.sh.log; then
       return 1
@@ -627,16 +603,15 @@ function RunSetupScript() {
   fi
 }
 
-
 function RunDryrunWrapper() {
   local message=$1
 
   echo "$message" | tee ./var/tmp/tb/task
-  nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &> $drylog
+  nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog
   local rc=$?
 
   if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
-    (( ++rc ))
+    ((++rc))
   fi
 
   if [[ $rc -eq 0 ]]; then
@@ -649,7 +624,6 @@ function RunDryrunWrapper() {
   return $rc
 }
 
-
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
@@ -657,21 +631,20 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
-  for i in {1..19}
-  do
+  for i in {1..19}; do
     # kick off particular packages
     local pkg=$(
       grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
-      awk '/^- / { print $2 } ' |
-      cut -f1 -d':' -s |
-      xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |
-      sed -e 's,/,\\/,'
+        awk '/^- / { print $2 } ' |
+        cut -f1 -d':' -s |
+        xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |
+        sed -e 's,/,\\/,'
     )
     if [[ -n $pkg ]]; then
       local f=./etc/portage/package.use/24thrown_package_use_flags
-      local before=$(wc -l < $f)
+      local before=$(wc -l <$f)
       sed -i -e "/$pkg /d" $f
-      local after=$(wc -l < $f)
+      local after=$(wc -l <$f)
       if [[ $before != "$after" ]]; then
         if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
           return 0
@@ -682,18 +655,17 @@ function FixPossibleUseFlagIssues() {
     # try to solve a dep cycle
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
     grep -A 10 "It might be possible to break this cycle" $drylog |
-    grep -F ' (Change USE: ' |
-    grep -v -F -e '+' -e 'This change might require ' |
-    sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |
-    tr -d ')' |
-    sort -u |
-    grep -v ".*-.*/.* .*_.*" |
-    while read -r p u
-    do
-      q=$(qatom -F "%{CATEGORY}/%{PN}" $p)
-      printf "%-36s %s\n" $q "$u"
-    done |
-    sort -u > $fautocirc
+      grep -F ' (Change USE: ' |
+      grep -v -F -e '+' -e 'This change might require ' |
+      sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |
+      tr -d ')' |
+      sort -u |
+      grep -v ".*-.*/.* .*_.*" |
+      while read -r p u; do
+        q=$(qatom -F "%{CATEGORY}/%{PN}" $p)
+        printf "%-36s %s\n" $q "$u"
+      done |
+      sort -u >$fautocirc
 
     if [[ -s $fautocirc ]]; then
       if RunDryrunWrapper "#setup dryrun $attempt-$i # solved circ dep"; then
@@ -706,13 +678,12 @@ function FixPossibleUseFlagIssues() {
     # follow advices
     local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
     grep -A 100 'The following USE changes are necessary to proceed:' $drylog |
-    grep "^>=" |
-    grep -v -e '>=.* .*_' |
-    while read -r p u
-    do
-      printf "%-36s %s\n" $p "$u"
-    done |
-    sort -u > $fautoflag
+      grep "^>=" |
+      grep -v -e '>=.* .*_' |
+      while read -r p u; do
+        printf "%-36s %s\n" $p "$u"
+      done |
+      sort -u >$fautoflag
 
     if [[ -s $fautoflag ]]; then
       if RunDryrunWrapper "#setup dryrun $attempt-$i # solved flag change"; then
@@ -732,23 +703,20 @@ function FixPossibleUseFlagIssues() {
   return 1
 }
 
-
-
 # helper of ThrowFlags
 function ShuffleUseFlags() {
-  local n=$1        # pass up to n-1
-  local m=$2        # mask 1:m of them
-  local o=${3:-0}        # minimum for n
+  local n=$1      # pass up to n-1
+  local m=$2      # mask 1:m of them
+  local o=${3:-0} # minimum for n
 
-  shuf -n $(( RANDOM%n+o )) |
-  sort |
-  while read -r flag
-  do
-    if dice 1 $m; then
-      echo -n "-"
-    fi
-    echo -n "$flag "
-  done
+  shuf -n $((RANDOM % n + o)) |
+    sort |
+    while read -r flag; do
+      if dice 1 $m; then
+        echo -n "-"
+      fi
+      echo -n "$flag "
+    done
 }
 
 # varying USE flags till dry run of @world would succeed
@@ -758,38 +726,36 @@ function ThrowFlags() {
   echo "#setup dryrun $attempt # throw flags ..."
 
   grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |
-  cut -f1 -d' ' -s |
-  shuf -n $(( RANDOM%20 )) |
-  sort |
-  xargs |
-  xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" > ./etc/portage/package.use/22thrown_l10n
+    cut -f1 -d' ' -s |
+    shuf -n $((RANDOM % 20)) |
+    sort |
+    xargs |
+    xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" >./etc/portage/package.use/22thrown_l10n
 
   grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |
-  cut -f1 -d' ' -s |
-  grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-  ShuffleUseFlags 250 4 50 |
-  xargs -s 73 |
-  sed -e "s,^,*/*  ,g" > ./etc/portage/package.use/23thrown_global_use_flags
+    cut -f1 -d' ' -s |
+    grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
+    ShuffleUseFlags 250 4 50 |
+    xargs -s 73 |
+    sed -e "s,^,*/*  ,g" >./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |
-  shuf -n $(( RANDOM%1800+200 )) |
-  sort |
-  while read -r file
-  do
-    pkg=$(cut -f6-7 -d'/' <<< $file)
-    grep 'flag name="' $file |
-    grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
-    cut -f2 -d'"' -s |
-    grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    ShuffleUseFlags 30 3 |
-    xargs |
-    xargs -I {} --no-run-if-empty printf "%-36s %s\n" "$pkg" "{}"
-  done > ./etc/portage/package.use/24thrown_package_use_flags
+    shuf -n $((RANDOM % 1800 + 200)) |
+    sort |
+    while read -r file; do
+      pkg=$(cut -f6-7 -d'/' <<<$file)
+      grep 'flag name="' $file |
+        grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
+        cut -f2 -d'"' -s |
+        grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
+        ShuffleUseFlags 30 3 |
+        xargs |
+        xargs -I {} --no-run-if-empty printf "%-36s %s\n" "$pkg" "{}"
+    done >./etc/portage/package.use/24thrown_package_use_flags
 }
 
-
 function CompileUseFlagFiles() {
-  cat << EOF > ./var/tmp/tb/dryrun_wrapper.sh
+  cat <<EOF >./var/tmp/tb/dryrun_wrapper.sh
 set -euf
 
 if ! portageq best_visible / sys-devel/gcc; then
@@ -813,8 +779,7 @@ EOF
   fi
 
   local attempt=0
-  while [[ $(( ++attempt )) -le 100 ]]
-  do
+  while [[ $((++attempt)) -le 100 ]]; do
     echo
     date
     echo "==========================================================="
@@ -834,12 +799,11 @@ EOF
   return 1
 }
 
-
 function Finalize() {
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
 
-  if [[ $no_autostart = "n" ]]; then
+  if [[ $no_autostart == "n" ]]; then
     cd $tbhome/run
     ln -s ../img/$name
     wc -l -w $name/etc/portage/package.use/2*
@@ -848,7 +812,6 @@ function Finalize() {
     su - tinderbox -c "$(dirname $0)/start_img.sh $name"
   fi
 }
-
 
 #############################################################################
 #
@@ -872,17 +835,19 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts a:j:k:n:p:t:u: opt
-do
+while getopts a:j:k:n:p:t:u: opt; do
   case $opt in
-    a)  abi3264="$OPTARG"       ;;
-    j)  jobs="$OPTARG"          ;;
-    k)  keyword="$OPTARG"       ;;
-    n)  no_autostart="$OPTARG"  ;;
-    p)  profile="$OPTARG"       ;;
-    t)  testfeature="$OPTARG"   ;;
-    u)  useflagfile="$OPTARG"   ;;    # eg.: /dev/null
-    *)  echo "unknown parameter '$opt'"; exit 1;;
+  a) abi3264="$OPTARG" ;;
+  j) jobs="$OPTARG" ;;
+  k) keyword="$OPTARG" ;;
+  n) no_autostart="$OPTARG" ;;
+  p) profile="$OPTARG" ;;
+  t) testfeature="$OPTARG" ;;
+  u) useflagfile="$OPTARG" ;; # eg.: /dev/null
+  *)
+    echo "unknown parameter '$opt'"
+    exit 1
+    ;;
   esac
 done
 

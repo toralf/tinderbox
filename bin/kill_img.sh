@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-
 # set an image EOL, kill a running emerge process -or- the entrypoint script itself
-
 
 #######################################################################
 set -euf
@@ -16,15 +14,14 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-for img in ${*?got no image}
-do
+for img in ${*?got no image}; do
   img=$(basename "$img")
   if [[ -d ~tinderbox/img/$img ]]; then
-    echo "user decision at $(date)" >> ~tinderbox/img/$img/var/tmp/tb/EOL
+    echo "user decision at $(date)" >>~tinderbox/img/$img/var/tmp/tb/EOL
     chmod g+w ~tinderbox/img/$img/var/tmp/tb/EOL
     chgrp tinderbox ~tinderbox/img/$img/var/tmp/tb/EOL
-    if pid_bwrap=$(pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <<< $img)"); then
-      if [[ -n $pid_bwrap && $(wc -l <<< $pid_bwrap) -eq 1 ]]; then
+    if pid_bwrap=$(pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <<<$img)"); then
+      if [[ -n $pid_bwrap && $(wc -l <<<$pid_bwrap) -eq 1 ]]; then
         if pid_emerge=$(pstree -pa $pid_bwrap | grep -F 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
           if [[ -n $pid_emerge ]]; then
             pstree -UlnspuTa $pid_emerge | head -n 20 | cut -c1-200
@@ -38,8 +35,7 @@ do
                 echo
                 kill -15 $pid_entrypoint
                 i=60
-                while (( i-- )) && kill -0 $pid_entrypoint
-                do
+                while ((i--)) && kill -0 $pid_entrypoint; do
                   sleep 1
                 done
                 echo

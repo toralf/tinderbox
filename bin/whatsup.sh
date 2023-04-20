@@ -4,12 +4,10 @@
 
 # print tinderbox statistics
 
-
 function PrintImageName() {
   local chars=${2:-42}
-  printf "%-${chars}s" $(cut -c-${chars} < $1/var/tmp/tb/name 2>/dev/null)
+  printf "%-${chars}s" $(cut -c-${chars} <$1/var/tmp/tb/name 2>/dev/null)
 }
-
 
 function check_history() {
   local file=$1
@@ -23,14 +21,14 @@ function check_history() {
   # ? = internal error
   if [[ -s $file ]]; then
     local line=$(tail -n 1 $file)
-    if grep -q " NOT ok " <<< $line; then
-      if grep -q " NOT ok $" <<< $line; then
-        local uflag=$(tr '[:lower:]' '[:upper:]' <<< $flag)
+    if grep -q " NOT ok " <<<$line; then
+      if grep -q " NOT ok $" <<<$line; then
+        local uflag=$(tr '[:lower:]' '[:upper:]' <<<$flag)
         flags+="$uflag"
       else
         flags+="$flag"
       fi
-    elif grep -q " ok$" <<< $line; then
+    elif grep -q " ok$" <<<$line; then
       flags+=" "
     else
       flags+="?"
@@ -40,7 +38,6 @@ function check_history() {
   fi
 }
 
-
 # whatsup.sh -o
 #
 # compl fail new day backlog .upd .1st wp rls 7#7 locked
@@ -48,13 +45,15 @@ function check_history() {
 #  4042   26   0 5.1   17774   12    2    r   ~/run/17.1_desktop_gnome-20210306-091529
 function Overall() {
   local locked=$(ls -d /run/tinderbox/*.lock 2>/dev/null | wc -l)
-  local all=$(wc -w <<< $images)
+  local all=$(wc -w <<<$images)
   echo "compl fail new  day backlog .upd .1st wp cls $locked#$all locked"
 
-  for i in $images
-  do
-    local days=$(bc <<< "scale=1; ( $EPOCHSECONDS - $(__getStartTime $i) ) / 86400.0")
-    local bgo=$(set +f; ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
+  for i in $images; do
+    local days=$(bc <<<"scale=1; ( $EPOCHSECONDS - $(__getStartTime $i) ) / 86400.0")
+    local bgo=$(
+      set +f
+      ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l
+    )
 
     local compl=0
     if ! compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
@@ -68,9 +67,9 @@ function Overall() {
       fail=$(ls -1 $i/var/tmp/tb/issues | while read -r i; do echo $(basename $i); done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
-    local bl=$( wc -l 2>/dev/null < $i/var/tmp/tb/backlog     || echo 0)
-    local bl1=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.1st || echo 0)
-    local blu=$(wc -l 2>/dev/null < $i/var/tmp/tb/backlog.upd || echo 0)
+    local bl=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog || echo 0)
+    local bl1=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.1st || echo 0)
+    local blu=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.upd || echo 0)
 
     # "r" image is in ~rrunning
     # "l" image is locked
@@ -82,15 +81,15 @@ function Overall() {
     # lower case: just a package failed
     # "." not yet run
     # " " ok
-    check_history $i/var/tmp/tb/@world.history              w
-    check_history $i/var/tmp/tb/@preserved-rebuild.history  p
+    check_history $i/var/tmp/tb/@world.history w
+    check_history $i/var/tmp/tb/@preserved-rebuild.history p
     flags+=" "
-    if __is_cgrouped $i ; then
+    if __is_cgrouped $i; then
       flags+="c"
     else
       flags+=" "
     fi
-    if __is_locked $i ; then
+    if __is_locked $i; then
       flags+="l"
     else
       flags+=" "
@@ -114,30 +113,28 @@ function Overall() {
     # images during setup are not yet symlinked to ~tinderbox/run
     local b=$(basename $i)
     # shellcheck disable=SC2088
-    [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'  # shorten output
+    [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img' # shorten output
     printf "%5i %4i %3i %4.1f %7i %4i %4i %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
   done
 }
-
 
 # whatsup.sh -t
 # 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks() {
-  for i in $images
-  do
+  for i in $images; do
     local tsk=$i/var/tmp/tb/task
     if PrintImageName $i && __is_running $i && [[ -s $tsk ]]; then
       local task=$(cat $tsk)
 
       set +e # integer calculation result could be 0
-      (( delta = EPOCHSECONDS-$(stat -c %Y $tsk) ))
-      (( minutes = delta/60%60 ))
+      ((delta = EPOCHSECONDS - $(stat -c %Y $tsk)))
+      ((minutes = delta / 60 % 60))
       if [[ $delta -lt 3600 ]]; then
-        (( seconds = delta%60 ))
+        ((seconds = delta % 60))
         printf "%3i:%02i m " $minutes $seconds
       else
-        (( hours = delta/3600 ))
+        ((hours = delta / 3600))
         printf "%3i:%02i h " $hours $minutes
       fi
       set -e
@@ -145,8 +142,8 @@ function Tasks() {
       if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
         echo -n " "
       fi
-      if [[ ${#task} -gt $(( columns-58 )) ]]; then
-        echo "$(cut -c1-$(( columns-55 )) <<< $task)..."
+      if [[ ${#task} -gt $((columns - 58)) ]]; then
+        echo "$(cut -c1-$((columns - 55)) <<<$task)..."
       else
         echo $task
       fi
@@ -156,18 +153,16 @@ function Tasks() {
   done
 }
 
-
 # whatsup.sh -l
 #
 # 17.1_desktop_plasma_s  0:02 m  >>> AUTOCLEAN: media-sound/toolame:0
 # 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation() {
-  for i in $images
-  do
+  for i in $images; do
     if PrintImageName $i && __is_running $i && [[ -s $i/var/log/emerge.log ]]; then
       tail -n 1 $i/var/log/emerge.log |
-      sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |
-      perl -wane '
+        sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |
+        perl -wane '
         chop ($F[0]);
         my $delta = time() - $F[0];
         if ($delta < 0) {
@@ -183,7 +178,7 @@ function LastEmergeOperation() {
           printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");    # (exclamation) mark long runtimes
         }
         my $line = join (" ", @F[2..$#F]);
-        print substr ($line, 0, '"'$(( columns-38 ))'"'), "\n";
+        print substr ($line, 0, '"'$((columns - 38))'"'), "\n";
       '
     else
       echo
@@ -197,15 +192,13 @@ function LastEmergeOperation() {
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
   printf "%57s" ""
-  local max=$(( ($(date +%s)-$(cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -n | head -n 1) )/86400 ))
-  for i in $(seq 0 $max)
-  do
+  local max=$((($(date +%s) - $(cat ~tinderbox/run/*/var/tmp/tb/setup.timestamp | sort -n | head -n 1)) / 86400))
+  for i in $(seq 0 $max); do
     printf "%4id" $i
   done
   echo
 
-  for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3)
-  do
+  for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3); do
     if PrintImageName $i 57; then
       local start_time=$(__getStartTime $i)
       perl -F: -wane '
@@ -235,36 +228,37 @@ function PackagesPerImagePerRunDay() {
   done
 }
 
-
 function getCoveredPackages() {
   grep -H '::: completed emerge' ~tinderbox/$1/*/var/log/emerge.log 2>/dev/null |
-  # handle ::local
-  tr -d ':' |
-  awk '{ print $7 }' |
-  xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |
-  sort -u
+    # handle ::local
+    tr -d ':' |
+    awk '{ print $7 }' |
+    xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |
+    sort -u
 }
-
 
 #  whatsup.sh -c
 # 19506 packages available in ::gentoo
 # 16081 packages emerged under ~tinderbox/run   (82% for last 10 days)
 # 17835 packages emerged under ~tinderbox/img   (91% for last 55 days)
 function Coverage() {
-  local all=$(mktemp  /tmp/$(basename $0)_XXXXXX.all)
-  (cd /var/db/repos/gentoo; ls -d *-*/*; ls -d virtual/*) | grep -v -F 'metadata.xml' | sort > $all
-  local N=$(wc -l < $all)
+  local all=$(mktemp /tmp/$(basename $0)_XXXXXX.all)
+  (
+    cd /var/db/repos/gentoo
+    ls -d *-*/*
+    ls -d virtual/*
+  ) | grep -v -F 'metadata.xml' | sort >$all
+  local N=$(wc -l <$all)
   printf "%5i packages available in ::gentoo\n" $N
 
-  for i in run img
-  do
+  for i in run img; do
     local covered=~tinderbox/img/packages.$i.covered.txt
-    local uncovered=~tinderbox/img/packages.$i.uncovered.txt    # used in index.sh
+    local uncovered=~tinderbox/img/packages.$i.uncovered.txt # used in index.sh
 
-    getCoveredPackages $i > $covered
-    diff $covered $all | grep -F '>' | cut -f2 -d' ' -s > $uncovered
+    getCoveredPackages $i >$covered
+    diff $covered $all | grep -F '>' | cut -f2 -d' ' -s >$uncovered
 
-    local n=$(wc -l < $covered)
+    local n=$(wc -l <$covered)
     local oldest=$(cat ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -n | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
@@ -279,7 +273,6 @@ function Coverage() {
 
   rm $all
 }
-
 
 # whatsup.sh -p
 #
@@ -328,7 +321,6 @@ function CountEmergesPerPackages() {
   ' $(ls ~tinderbox/run/*/var/log/emerge.log 2>/dev/null)
 }
 
-
 # whatsup.sh -e
 # yyyy-mm-dd   sum   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
 #
@@ -336,8 +328,7 @@ function CountEmergesPerPackages() {
 # 2021-05-01  2790  28  87  91  41   4  13   0   1  15  29  78  35  62  46  75   9   0 193 104 234 490 508 459 188
 function emergeThruput() {
   echo -n "yyyy-mm-dd   sum  "
-  for i in {0..23}
-  do
+  for i in {0..23}; do
     printf "  %2i" $i
   done
   echo -e "\n"
@@ -401,7 +392,6 @@ function emergeThruput() {
   ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -15 | sort -t '-' -k 3)
 }
 
-
 #############################################################################
 #
 # main
@@ -417,18 +407,20 @@ if ! columns=$(tput cols 2>/dev/null); then
   columns=120
 fi
 
-while getopts cdelopt opt
-do
+while getopts cdelopt opt; do
   images=$(list_images)
   case $opt in
-    c)  Coverage                  ;;
-    d)  PackagesPerImagePerRunDay ;;
-    e)  emergeThruput             ;;
-    l)  LastEmergeOperation       ;;
-    o)  Overall                   ;;
-    p)  CountEmergesPerPackages   ;;
-    t)  Tasks                     ;;
-    *)  echo "unknown parameter '${opt}'"; exit 1;;
+  c) Coverage ;;
+  d) PackagesPerImagePerRunDay ;;
+  e) emergeThruput ;;
+  l) LastEmergeOperation ;;
+  o) Overall ;;
+  p) CountEmergesPerPackages ;;
+  t) Tasks ;;
+  *)
+    echo "unknown parameter '${opt}'"
+    exit 1
+    ;;
   esac
   echo
 done

@@ -12,7 +12,6 @@ function Warn() {
   echo "  --------------"
 }
 
-
 function Exit() {
   local rc=${1:-$?}
 
@@ -24,7 +23,6 @@ function Exit() {
 
   exit $rc
 }
-
 
 #######################################################################
 
@@ -42,19 +40,22 @@ comment=""
 issuedir=""
 severity="Normal"
 
-newbug=1    # if set to 1 then do neither change To: nor cc:
+newbug=1 # if set to 1 then do neither change To: nor cc:
 
-while getopts b:c:d:i:s: opt
-do
+while getopts b:c:d:i:s: opt; do
   case $opt in
-    b)  block="$OPTARG";;       # (b)lock that bug (id or alias)
-    c)  comment="$OPTARG";;     # (c)omment, used with -a
-    d)  issuedir="$OPTARG";;    # (d)irectory with all files
-    i)  id="$OPTARG"            # (i)d of an existing bug
-        newbug=0
-        ;;
-    s)  severity="$OPTARG";;    # "normal", "QA" and so on
-    *)  echo "unknown parameter '${opt}'"; exit 1;;
+  b) block="$OPTARG" ;;    # (b)lock that bug (id or alias)
+  c) comment="$OPTARG" ;;  # (c)omment, used with -a
+  d) issuedir="$OPTARG" ;; # (d)irectory with all files
+  i)
+    id="$OPTARG" # (i)d of an existing bug
+    newbug=0
+    ;;
+  s) severity="$OPTARG" ;; # "normal", "QA" and so on
+  *)
+    echo "unknown parameter '${opt}'"
+    exit 1
+    ;;
   esac
 done
 
@@ -74,8 +75,8 @@ trap Exit INT QUIT TERM EXIT
 # cleanup of a previous run
 rm -f bgo.sh.{out,err}
 
-if [[ -n "$id" ]]; then
-  if [[ -z "$comment" ]]; then
+if [[ -n $id ]]; then
+  if [[ -z $comment ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
   bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
@@ -87,29 +88,29 @@ else
   fi
 
   bugz post \
-    --product "Gentoo Linux"          \
-    --component "Current packages"    \
-    --version "unspecified"           \
-    --title "$(cat ./title)"          \
-    --op-sys "Linux"                  \
-    --platform "All"                  \
-    --priority "Normal"               \
-    --severity "$severity"            \
-    --alias ""                        \
-    --description-from "./comment0"   \
-    --batch                           \
-    --default-confirm n               \
+    --product "Gentoo Linux" \
+    --component "Current packages" \
+    --version "unspecified" \
+    --title "$(cat ./title)" \
+    --op-sys "Linux" \
+    --platform "All" \
+    --priority "Normal" \
+    --severity "$severity" \
+    --alias "" \
+    --description-from "./comment0" \
+    --batch \
+    --default-confirm n \
     1>bgo.sh.out 2>bgo.sh.err
 
   id=$(grep "Info: Bug .* submitted" bgo.sh.out | sed 's/[^0-9]//g')
-  if [[ -z "$id" ]]; then
+  if [[ -z $id ]]; then
     echo
     echo "empty bug id"
     echo
     Exit 4
   fi
 
-  if [[ -n "$comment" ]]; then
+  if [[ -n $comment ]]; then
     bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
   fi
 
@@ -129,14 +130,13 @@ fi
 if [[ -d ./files ]]; then
   echo
   set +f
-  for f in ./files/*
-  do
-    bytes=$(wc --bytes < $f)
+  for f in ./files/*; do
+    bytes=$(wc --bytes <$f)
     if [[ $bytes -eq 0 ]]; then
       echo "skipped empty file: $f"
       continue
     # max. size from b.g.o. is 1 MB
-    elif [[ $bytes -gt $(( 2**20 )) ]]; then
+    elif [[ $bytes -gt $((2 ** 20)) ]]; then
       echo "too fat file: $f"
       file_size=$(ls -lh $f | awk '{ print $5 }')
       file_path=$(realpath $f | sed -e "s,^.*img/,,g")
@@ -146,7 +146,7 @@ if [[ -d ./files ]]; then
       continue
     fi
 
-    if grep -q -e "bz2$" -e "xz$" <<< $f; then
+    if grep -q -e "bz2$" -e "xz$" <<<$f; then
       ct="application/x-bzip"
     else
       ct="text/plain"
@@ -157,7 +157,7 @@ if [[ -d ./files ]]; then
   set -f
 fi
 
-if [[ -n "$block" ]]; then
+if [[ -n $block ]]; then
   bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
 fi
 
@@ -177,8 +177,8 @@ if [[ $newbug -eq 1 ]]; then
   fi
 
   add_cc=""
-  if [[ -n "$cc" ]]; then
-    add_cc=$(sed 's,  *, --add-cc ,g' <<< " $cc")   # leading space is needed
+  if [[ -n $cc ]]; then
+    add_cc=$(sed 's,  *, --add-cc ,g' <<<" $cc") # leading space is needed
   fi
 
   bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn "to:>$assignee< add_cc:>$add_cc<"

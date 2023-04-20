@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-
 # start tinderbox image/s
-
 
 #############################################################################
 #
@@ -21,8 +19,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}
-do
+for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}; do
   echo -n "$(date +%X) "
   mnt=~tinderbox/img/$(basename $i)
 
@@ -46,7 +43,7 @@ do
     continue
   fi
 
-  if __is_running "$mnt" ; then
+  if __is_running "$mnt"; then
     echo " is running:  $mnt"
     continue
   fi
@@ -54,7 +51,7 @@ do
   echo " starting: $mnt"
 
   # nice makes sysstat graphs better readable
-  nice -n 3 sudo $(dirname $0)/bwrap.sh -m "$(basename $mnt)" -e "$(dirname $0)/job.sh" &> ~tinderbox/logs/$(basename $mnt).log &
+  nice -n 3 sudo $(dirname $0)/bwrap.sh -m "$(basename $mnt)" -e "$(dirname $0)/job.sh" &>~tinderbox/logs/$(basename $mnt).log &
 done
 
 # avoid an invisible prompt
