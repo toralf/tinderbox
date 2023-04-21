@@ -3,7 +3,7 @@
 # set -x
 
 # call this eg by:
-# grep 'setup phase' ~/tb/data/ALREADY_CAUGHT | sed -e 's,\[.*\] ,,g' | cut -f1 -d' ' | xargs retest.sh
+# retest.sh $(tail -n 20 ~/tb/data/ALREADY_CAUGHT | cut -f 1 -d ' ')
 
 set -eu
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
@@ -18,10 +18,12 @@ result=/tmp/$(basename $0) # package/s to be scheduled in the backlog of each im
 
 # accept special atoms w/o any check
 grep -e '^@' -e '^%' -e '^=' <<<$* |
+  xargs -n 1 |
   sort -u >$result.1st
 
 # work at regular atoms
 grep -v -e '^@' -e '^%' -e '^=' -e '#' <<<$* |
+  xargs -n 1 |
   sort -u |
   xargs qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
   grep -v -F '<unset>' |
