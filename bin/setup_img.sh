@@ -137,7 +137,6 @@ function UnpackStage3() {
   prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<<$profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<<$prefix)
   if [[ $profile =~ "/desktop" ]]; then
-    # shellcheck disable=SC2076
     if [[ $profile =~ "23.0/" ]]; then
       prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     elif dice 1 2; then
@@ -147,7 +146,6 @@ function UnpackStage3() {
   fi
   prefix=$(tr '/' '-' <<<$prefix)
   if [[ $profile =~ "/systemd" ]]; then
-    # shellcheck disable=SC2076
     if [[ $profile =~ "23.0/" ]]; then
       prefix+="-mergedusr"
     fi
@@ -307,6 +305,7 @@ EOF
 
   # rarely b/c it yields to much different error messages for the same issue
   if dice 1 40; then
+    # shellcheck disable=SC2016
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >>./etc/portage/make.conf
   fi
 
@@ -426,7 +425,7 @@ EOF
 
   echo "*/*  $(cpuid2cpuflags)" >./etc/portage/package.use/99cpuflags
 
-  for f in $tbhome/tb/conf/profile.*; do
+  for f in "$tbhome"/tb/conf/profile.*; do
     cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,g')
   done
 
@@ -442,7 +441,7 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname=$(echo $name | tr -d '\n' | tr '[:upper:]' '[:lower:]' | tr -c '[^a-z0-9\-]' '-' | cut -c-63)
+  local image_hostname=$(echo $name | tr -d '\n' | tr '[:upper:]' '[:lower:]' | tr -c '^a-z0-9\-' '-' | cut -c-63)
   echo $image_hostname >./etc/conf.d/hostname
 
   local host_hostname=$(hostname)

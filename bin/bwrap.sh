@@ -101,11 +101,11 @@ function Chroot() {
   fi
 
   return $rc
+
 }
 
 function Bwrap() {
   local path="/usr/sbin:/usr/bin"
-  # shellcheck disable=SC2076
   if [[ ! $mnt =~ "merged_usr" && ! $mnt =~ "23.0" ]]; then
     path+="/sbin:/bin"
   fi
