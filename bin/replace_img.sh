@@ -92,7 +92,7 @@ while :; do
     fi
   done < <(ImagesInRunShuffled)
 
-  if FreeSlotAvailable && loadIsNotHigherThan 27; then
+  if FreeSlotAvailable && loadIsNotHigherThan 26; then
     echo
     date
     echo " + + + setup a new image + + +"
