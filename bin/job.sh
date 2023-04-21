@@ -529,6 +529,7 @@ function SendIssueMailIfNotYetReported() {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CAUGHT; then
       # chain "cat" by "echo" b/c cat buffers output which is racy between images
+      # shellcheck disable=SC2005
       echo "$(cat $issuedir/title)" >>/mnt/tb/data/ALREADY_CAUGHT
 
       cp $issuedir/issue $issuedir/body
@@ -541,20 +542,20 @@ function SendIssueMailIfNotYetReported() {
       if [[ -e /etc/portage/bashrc ]]; then
         hints+=" clang"
       fi
-      if checkBgo &>/dev/null; then
+      if checkBgo; then
         createSearchString
         if SearchForSameIssue 1>>$issuedir/body; then
           return
         fi
         if [[ $? -eq 2 ]]; then
-          hints+=" bgo down"
+          hints+=" b.g.o. issue"
         else
           if SearchForSimilarIssue 1>>$issuedir/body; then
             hints+=" similar"
             force="                        -f"
           else
             if [[ $? -eq 2 ]]; then
-              hints+=" bgo down"
+              hints+=" b.g.o. issue"
             else
               hints+=" unknown"
               force="                        -f"
@@ -713,30 +714,29 @@ function createIssueDir() {
 }
 
 function catchMisc() {
-  find /var/log/portage/ -mindepth 1 -maxdepth 1 -type f -newer $taskfile |
-    while read -r pkglog; do
-      if [[ $(wc -l <$pkglog) -le 6 ]]; then
-        continue
-      fi
+  while read -r pkglog; do
+    if [[ $(wc -l <$pkglog) -le 6 ]]; then
+      continue
+    fi
 
-      local pkglog_stripped=/tmp/$(basename $pkglog | sed -e "s,\.log$,.stripped.log,")
-      filterPlainPext <$pkglog >$pkglog_stripped
-      if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
-        pkg=$(grep -m 1 -F ' * Package: ' $pkglog_stripped | awk '{ print $3 }' | sed -e 's,:.*,,')
-        phase=""
-        pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+    local pkglog_stripped=/tmp/$(basename $pkglog | sed -e "s,\.log$,.stripped.log,")
+    filterPlainPext <$pkglog >$pkglog_stripped
+    if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
+      pkg=$(grep -m 1 -F ' * Package: ' $pkglog_stripped | awk '{ print $3 }' | sed -e 's,:.*,,')
+      phase=""
+      pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
 
-        # create for each finding an own issue
-        grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |
-          while read -r line; do
-            createIssueDir || continue
-            echo "$line" >$issuedir/title
-            grep -m 1 -F -e "$line" $pkglog_stripped >$issuedir/issue
-            cp $pkglog $issuedir/files
-            cp $pkglog_stripped $issuedir
-            finishTitle
-            cp $issuedir/issue $issuedir/comment0
-            cat <<EOF >>$issuedir/comment0
+      # create for each finding an own issue
+      grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |
+        while read -r line; do
+          createIssueDir || continue
+          echo "$line" >$issuedir/title
+          grep -m 1 -F -e "$line" $pkglog_stripped >$issuedir/issue
+          cp $pkglog $issuedir/files
+          cp $pkglog_stripped $issuedir
+          finishTitle
+          cp $issuedir/issue $issuedir/comment0
+          cat <<EOF >>$issuedir/comment0
 
   -------------------------------------------------------------------
 
@@ -748,14 +748,14 @@ function catchMisc() {
   The log matches a QA pattern or a pattern requested by a Gentoo developer.
 
 EOF
-            collectPortageDir
-            CreateEmergeHistoryFile
-            CompressIssueFiles
-            SendIssueMailIfNotYetReported
-          done
-      fi
-      rm $pkglog_stripped
-    done
+          collectPortageDir
+          CreateEmergeHistoryFile
+          CompressIssueFiles
+          SendIssueMailIfNotYetReported
+        done
+    fi
+    rm $pkglog_stripped
+  done < <(find /var/log/portage/ -mindepth 1 -maxdepth 1 -type f -newer $taskfile)
 }
 
 function GetPkglog() {
@@ -828,7 +828,7 @@ function RunAndCheck() {
     fi
     local signal=$((rc - 128))
     if [[ $signal -eq 9 ]]; then
-      Finish 9 "KILLed" $tasklog # no mask, b/c killed by us or by reboot process
+      Finish 9 "KILLed" $tasklog
     else
       Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     fi
