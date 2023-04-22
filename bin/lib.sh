@@ -25,7 +25,7 @@ function checkBgo() {
   elif ! bugz -q get 2 1>/dev/null; then
     {
       echo "b.g.o is down"
-      delv +vtrace bugs.gentoo.org
+      # hash -r delv && delv +vtrace bugs.gentoo.org || true
     } >&2
     return 2
   fi
