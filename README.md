@@ -3,6 +3,7 @@
 # tinderbox
 
 ## Goal
+
 The goal is to detect build issues of and conflicts between Gentoo Linux packages.
 
 For that a dozen sandbox'ed Gentoo images are running in parallel.
@@ -11,6 +12,7 @@ Each image is setup from a recent _stage3_ tarball as an arbitrary combination o
 Within each image all Gentoo packages are scheduled in a randomized order to be emerged.
 
 ## Usage
+
 Setup an image with _replace_img.sh_ or directly with _setup_img.sh_.
 See the status of all images:
 
@@ -53,7 +55,8 @@ Move _./data_ and _./sdata_ into _~tinderbox/tb/_.
 Move _./bin_ under _/opt/tb/_ as user _root_.
 The user _tinderbox_ must not be allowed to edit the scripts in _/opt/tb/bin_.
 The user _tinderbox_ must have write permissions for files in _~tinderbox/tb/data_.
-Edit the ssmtp credentials in _~tinderbox/sdata_ and strip away the suffix _.sample_, set ownership and grant permissions of this subdirectory and its files to user _root_ only.
+Edit the ssmtp credentials in _~tinderbox/sdata_ and strip away the suffix _.sample_,
+set ownership and grant permissions of this subdirectory and its files to user _root_ only.
 Grant the user _tinderbox_ these sudo rights:
 
 ```bash
@@ -90,4 +93,4 @@ and this as _root_ (because the _local_ cgroup is used by other users too):
 
 ## Links
 
-https://www.zwiebeltoralf.de/tinderbox.html
+[homepage](https://www.zwiebeltoralf.de/tinderbox.html)
