@@ -7,7 +7,7 @@
 function listStat() {
   {
     date
-    echo "<h2>few stats</h2>" >>$tmpfile
+    echo "<h2>few stats</h2>"
     echo -e "\n<pre>\n"
     echo "<h3>coverage</h3>"
     $(dirname $0)/whatsup.sh -c | recode --silent ascii..html
