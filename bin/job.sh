@@ -468,7 +468,7 @@ function add2backlog() {
   fi
 
   # avoid dups with the last line / the whole file respectively
-  if [[ $1 =~ '@' || $1 =~ '%' ]]; then
+  if [[ $1 =~ ^@ || $1 =~ ^% ]]; then
     if [[ "$(tail -n 1 $bl)" != "$1" ]]; then
       echo "$1" >>$bl
     fi

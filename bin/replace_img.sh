@@ -36,8 +36,8 @@ function FreeSlotAvailable() {
 }
 
 function loadIsNotHigherThan() {
-  local load15=$(printf "%.0f" $(sar -q 1 1 | grep "^Average" | awk '{ print $6 }'))
-  [[ $load15 -le $1 ]]
+  local load15=$(printf "%.0f" $(sar -q -i 3600 24 | grep -B 1 "Average:" | head -n 1 | awk '{ print $7 }'))
+  [[ -n $load15 && $load15 -le $1 ]]
 }
 
 #######################################################################

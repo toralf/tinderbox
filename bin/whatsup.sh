@@ -64,7 +64,7 @@ function Overall() {
     # example of an issue directory name: 20200313-044024-net-analyzer_iptraf-ng-1.1.4-r3
     local fail=0
     if [[ -d $i/var/tmp/tb/issues ]]; then
-      fail=$(ls -1 $i/var/tmp/tb/issues | while read -r i; do echo $(basename $i); done | cut -f3- -d'-' -s | sort -u | wc -w)
+      fail=$(ls -1 $i/var/tmp/tb/issues | while read -r j; do basename $j; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
     local bl=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog || echo 0)

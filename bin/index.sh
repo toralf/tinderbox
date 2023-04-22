@@ -5,33 +5,37 @@
 # create the index file ~tinderbox/img/index.html
 
 function listStat() {
-  date >>$tmpfile
-  echo "<h2>few stats</h2>" >>$tmpfile
-  echo -e "\n<pre>\n" >>$tmpfile
-  echo "<h3>coverage</h3>" >>$tmpfile
-  $(dirname $0)/whatsup.sh -c | recode --silent ascii..html >>$tmpfile
-  echo "<h3>overview</h3>" >>$tmpfile
-  $(dirname $0)/whatsup.sh -o | recode --silent ascii..html >>$tmpfile
-  echo "<h3>packages per day</h3>" >>$tmpfile
-  $(dirname $0)/whatsup.sh -d | recode --silent ascii..html >>$tmpfile
-  echo "<h3>packages per hour</h3>" >>$tmpfile
-  $(dirname $0)/whatsup.sh -e | recode --silent ascii..html >>$tmpfile
-  echo "<h3>current task</h3>" >>$tmpfile
-  $(dirname $0)/whatsup.sh -t | recode --silent ascii..html >>$tmpfile
-  echo "<h3>current package</h3>" >>$tmpfile
-  $(dirname $0)/whatsup.sh -l | recode --silent ascii..html >>$tmpfile
-  echo -e "</pre>\n" >>$tmpfile
+  {
+    date
+    echo "<h2>few stats</h2>" >>$tmpfile
+    echo -e "\n<pre>\n"
+    echo "<h3>coverage</h3>"
+    $(dirname $0)/whatsup.sh -c | recode --silent ascii..html
+    echo "<h3>overview</h3>"
+    $(dirname $0)/whatsup.sh -o | recode --silent ascii..html
+    echo "<h3>packages per day</h3>"
+    $(dirname $0)/whatsup.sh -d | recode --silent ascii..html
+    echo "<h3>packages per hour</h3>"
+    $(dirname $0)/whatsup.sh -e | recode --silent ascii..html
+    echo "<h3>current task</h3>"
+    $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
+    echo "<h3>current package</h3>"
+    $(dirname $0)/whatsup.sh -l | recode --silent ascii..html
+    echo -e "</pre>\n"
+  } >>$tmpfile
 }
 
 function listFiles() {
-  echo "<h2>downloadable files</h2>" >>$tmpfile
-  echo "<pre>" >>$tmpfile
-  (
-    cd ~tinderbox/img
-    find . -maxdepth 1 -type f
-  ) | recode --silent ascii..html |
-    xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>' >>$tmpfile
-  echo -e "</pre>\n" >>$tmpfile
+  {
+    echo "<h2>downloadable files</h2>"
+    echo "<pre>"
+    (
+      cd ~tinderbox/img
+      find . -maxdepth 1 -type f
+    ) | recode --silent ascii..html |
+      xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>'
+    echo -e "</pre>\n"
+  } >>$tmpfile
 }
 
 function listBugs() {
