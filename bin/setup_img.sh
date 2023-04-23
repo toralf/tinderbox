@@ -164,7 +164,7 @@ function UnpackStage3() {
 
   local stage3_filename=$tbhome/distfiles/$(basename $stage3)
   if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
-    echo -e "\n$(date) downloading $stage3{,.asc} files ..."
+    echo -e "\n$(date) downloading $stage3{,.asc} ..."
     for mirror in $gentoo_mirrors; do
       if wget --connect-timeout=10 --quiet --no-clobber $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
         echo -e "$(date) succeeded from mirror $mirror"
@@ -173,14 +173,14 @@ function UnpackStage3() {
         echo -e "$(date) failed from mirror $mirror"
       fi
     done
+
     if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
-      echo -e "\n$(date) failed to download stage3 file(s)"
+      echo -e "\n$(date) failed to download stage3"
       ls -l $tbhome/distfiles/$stage3{,.asc}
       return 1
     fi
-  else
-    echo -e "\n$(date) using already downloaded file $stage3_filename"
   fi
+  echo -e "\n$(date) using $stage3_filename"
 
   echo -e "\n$(date) updating signing keys ..."
   local keys="13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058"
