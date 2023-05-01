@@ -821,7 +821,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 if [[ "$(whoami)" != "root" ]]; then
-  echo " you must be root"
+  echo " you must be root" >&2
   exit 1
 fi
 

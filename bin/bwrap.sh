@@ -171,7 +171,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 if [[ "$(whoami)" != "root" ]]; then
-  echo " you must be root"
+  echo " you must be root" >&2
   exit 1
 fi
 
@@ -186,37 +186,37 @@ while getopts ce:m: opt; do
     ;;
   e)
     if [[ ! -s $OPTARG ]]; then
-      echo "no valid entrypoint script given: $OPTARG"
+      echo "no valid entrypoint script given: $OPTARG" >&2
       exit 1
     fi
     entrypoint=$OPTARG
     ;;
   m)
     if [[ -z $OPTARG || -z ${OPTARG##*/} || $OPTARG =~ [[:space:]] || $OPTARG =~ [\\\(\)\`$] ]]; then
-      echo "argument not accepted"
+      echo "argument not accepted" >&2
       exit 1
     fi
     mnt=~tinderbox/img/${OPTARG##*/}
     ;;
   *)
-    echo "unknown parameter '$opt'"
+    echo "unknown parameter '$opt'" >&2
     exit 1
     ;;
   esac
 done
 
 if [[ -z $mnt ]]; then
-  echo "no mnt given!"
+  echo "no mnt given!" >&2
   exit 1
 fi
 
 if [[ ! -e $mnt ]]; then
-  echo "no valid mount point given"
+  echo "no valid mount point given" >&2
   exit 1
 fi
 
 if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
-  echo "wrong ownership of mount point"
+  echo "wrong ownership of mount point" >&2
   exit 1
 fi
 

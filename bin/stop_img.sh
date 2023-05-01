@@ -13,7 +13,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 if [[ "$(whoami)" != "tinderbox" ]]; then
-  echo " you must be tinderbox"
+  echo " you must be tinderbox" >&2
   exit 1
 fi
 
@@ -24,7 +24,7 @@ for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}; do
   mnt=~tinderbox/img/$(basename $i)
 
   if [[ ! -d $mnt ]]; then
-    echo "no valid mount point found for $mnt"
+    echo "no valid mount point found for $mnt" >&2
     continue
   fi
 
