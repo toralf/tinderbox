@@ -380,7 +380,7 @@ function ClassifyIssue() {
   fi
 
   if [[ ! -s $issuedir/title ]]; then
-    Mail "INFO: no title in $name/$issuedir" $issuedir/issue
+    Mail "INFO: no title got in ClassifyIssue() for $name/$issuedir" $issuedir/issue
   fi
 }
 
