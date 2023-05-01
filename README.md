@@ -63,34 +63,6 @@ Grant the user _tinderbox_ these sudo rights:
 tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh
 ```
 
-Create crontab entries for user _tinderbox_:
-
-```bash
-# crontab of tinderbox
-#
-
-# start web service
-@reboot   cd ~/img && nice /opt/fuzz-utils/simple-http-server.py --address x.y.z --port 12345 &>/tmp/web-tinderbox.log
-
-# start images
-@reboot   rm -f ~tinderbox/run/*/var/tmp/tb/STOP; /opt/tb/bin/start_img.sh
-
-# check logs
-@reboot   while :; do sleep 60; /opt/tb/bin/logcheck.sh; done
-
-# run 13 images in parallel
-@hourly   f=$(mktemp /tmp/XXXXXX); /opt/tb/bin/replace_img.sh -n 13 &>$f; cat $f; rm $f
-
-# house keeping
-@daily    sudo /opt/tb/bin/house_keeping.sh
-```
-
-and this as _root_ (because the _local_ cgroup is used by other users too):
-
-```bash
-@reboot   /opt/tb/bin/cgroup.sh
-```
-
 ## Links
 
 [homepage](https://www.zwiebeltoralf.de/tinderbox.html)
