@@ -53,12 +53,8 @@ www-client/google-chrome
 #######################################################################
 # temp
 
-# GCC 12.x
-<sys-devel/gcc-13
-
 # mask for now, fails too often
-app-editors/*emacs
-<dev-lang/ghc-9.0.2
+<dev-lang/ghc-9.0.2-r4
 
 # hangs
 dev-lang/lfe
