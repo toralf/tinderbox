@@ -46,17 +46,6 @@ function Mail() {
     fi
 }
 
-# http://www.portagefilelist.de
-function feedPfl() {
-  local tmp=$(mktemp /tmp/feedPfl_XXXXXX)
-  if [[ -x /usr/bin/pfl ]]; then
-    if ! /usr/bin/pfl &>$tmp; then
-      Mail "WARN: pfl failed" $tmp
-    fi
-  fi
-  rm $tmp
-}
-
 # this is the end ...
 function Finish() {
   local exit_code=${1:-$?}
@@ -81,11 +70,9 @@ function Finish() {
   fi
 
   Mail "$subject" ${3:-}
-  if [[ -n $2 ]]; then
-    feedPfl
-  fi
-  rm -f /var/tmp/tb/STOP
+  /usr/bin/pfl &>/dev/null
 
+  rm -f /var/tmp/tb/STOP
   exit $exit_code
 }
 
@@ -1058,10 +1045,6 @@ while :; do
   getNextTask
 
   rm -rf /var/tmp/portage/*
-  if [[ $task =~ ^@ ]]; then
-    echo "#feed pfl" >$taskfile
-    feedPfl
-  fi
 
   {
     date
@@ -1074,10 +1057,6 @@ while :; do
   rm $tasklog
   find /var/log/portage -name '*.log' -exec bzip2 {} +
 
-  if [[ $task =~ ^@ ]]; then
-    echo "#feed pfl" >$taskfile
-    feedPfl
-  fi
   truncate -s 0 $taskfile
 
   DetectRepeats
