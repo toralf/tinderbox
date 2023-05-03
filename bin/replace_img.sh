@@ -28,6 +28,14 @@ function ImagesInRunShuffled() {
   )
 }
 
+function ImagesInRunEOLShuffled() {
+  (
+    set +f
+    cd ~tinderbox/run
+    ls */var/tmp/tb/EOL 2>/dev/null | cut -f 1 -d '/' | shuf
+  )
+}
+
 function FreeSlotAvailable() {
   r=$(ls /run/tinderbox 2>/dev/null | wc -l)
   s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
@@ -95,12 +103,10 @@ while :; do
 
   # free the slot
   while read -r oldimg; do
-    if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
-      if ! __is_running $oldimg; then
-        rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
-      fi
+    if ! __is_running $oldimg; then
+      rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
     fi
-  done < <(ImagesInRunShuffled)
+  done < <(ImagesInRunEOLShuffled)
 
   if FreeSlotAvailable && loadIsNotHigherThan 27; then
     echo
@@ -112,13 +118,11 @@ while :; do
 
   # loop as long as there're images marked as EOL
   while read -r oldimg; do
-    if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
-      if ! __is_running $oldimg; then
-        continue 2
-      fi
+    if ! __is_running $oldimg; then
+      continue 2
     fi
     sleep 60
-  done < <(ImagesInRunShuffled)
+  done < <(ImagesInRunEOLShuffled)
 
   break
 done
