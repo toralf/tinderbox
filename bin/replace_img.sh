@@ -36,10 +36,19 @@ function FreeSlotAvailable() {
 }
 
 function loadIsNotHigherThan() {
-  local load15_last_hour=$(printf "%.0f" $(sar -q -i 3600 24 | grep -B 1 "Average:" | head -n 1 | awk '{ print $7 }'))
-  local load15_current=$(  printf "%.0f" $(sar -q 1 1        | grep "Average:"      | tail -n 1 | awk '{ print $6 }'))
-  [[ -n $load15_last_hour && $load15_last_hour -lt $1 && $load15_current -le $1 ]]
+  local load15_current=$(  printf "%.0f" $(sar -q 1 1 | grep "Average:" | tail -n 1 | awk '{ print $6 }'))
+  if [[ -n $load15_current && $load15_current -le $1 ]]; then
+    local load15_last_hour=$(printf "%.0f" $(sar -q -i 3600 24 | grep -B 1 "Average:" | head -n 1 | awk '{ print $7 }'))
+    if [[ -n $load15_last_hour ]]; then
+      [[ $load15_last_hour -le $1 ]]
+    else
+      true
+    fi
+  else
+    false
+  fi
 }
+
 
 #######################################################################
 set -euf
@@ -93,7 +102,7 @@ while :; do
     fi
   done < <(ImagesInRunShuffled)
 
-  if FreeSlotAvailable && loadIsNotHigherThan 26; then
+  if FreeSlotAvailable && loadIsNotHigherThan 27; then
     echo
     date
     echo " + + + setup a new image + + +"
@@ -104,11 +113,11 @@ while :; do
   # loop as long as there're images marked as EOL
   while read -r oldimg; do
     if [[ -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
-      if __is_running $oldimg; then
-        sleep 10
+      if ! __is_running $oldimg; then
+        continue 2
       fi
-      continue 2
     fi
+    sleep 60
   done < <(ImagesInRunShuffled)
 
   break
