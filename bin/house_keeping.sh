@@ -35,8 +35,8 @@ function getCandidates() {
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded() {
   local fs=/dev/nvme0n1p4
-  local free=200000 # in MB
-  local used=89     # in %
+  local free=200000 # MiB
+  local used=79     # %
 
   [[ -n $(df -m $fs | awk '$1 == "'$fs'" && ($4 < "'$free'" || $5 > "'$used'%")') ]]
 }
@@ -56,7 +56,9 @@ function pruneDir() {
   rm -r $d
   local rc=$?
 
-  sleep 30 # btrfs is lazy in reporting free space
+  sync
+  btrfs filesystem sync /mnt/data
+  sleep 60 # btrfs is lazy in reporting free space
   return $rc
 }
 
