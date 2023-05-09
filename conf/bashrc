@@ -1,0 +1,24 @@
+post_src_install() {
+  (
+    if grep -E -q 'internal compiler error' "${WORKDIR}"/*/config.log &> /dev/null ; then
+      echo "${CATEGORY}/${PF}: Found ICE in config.log?!"
+    fi
+
+    if [[ -f "${S}"/meson.build ]] && ! grep -q "dev-util/meson" <<< "${BDEPEND}" ; then
+      echo "${CATEGORY}/${PF}: meson.build found but ebuild doesn't use meson?"
+    fi
+
+    if grep -r -q "dejagnu" "${S}" &> /dev/null && ! grep -q "dejagnu" <<< "${BDEPEND}" ; then
+      echo "${CATEGORY}/${PF}: Missing dejagnu tests?"
+    fi
+
+    if grep -r -q "test" "${S}/meson_options.txt" &> /dev/null && ! grep -q "test" <<< "${IUSE}" ; then
+      echo "${CATEGORY}/${PF}: Missing test option wiring for meson?"
+    fi
+
+    if grep -E -r -q -- "(disable|enable)-test(s?)" configure.ac &> /dev/null && ! grep -q "test" <<< "${IUSE}" ; then
+      echo "${CATEGORY}/${PF}: Missing test option wiring for autoconf?"
+    fi
+
+  ) &>> /var/tmp/sam.txt
+}

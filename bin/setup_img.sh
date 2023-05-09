@@ -118,13 +118,14 @@ function CreateImageName() {
 function UnpackStage3() {
   local latest=$tbhome/distfiles/latest-stage3.txt
 
-  echo -e "\n$(date) get latest-stage3.txt "
+  echo -en "\n$(date) get latest-stage3.txt from"
   for mirror in $gentoo_mirrors; do
+    echo -n " $mirror"
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
-      echo -e " got from mirror $mirror"
+      echo " done"
       break
     else
-      echo -e " failed from mirror $mirror"
+      echo -n " failed "
     fi
   done
   if [[ ! -s $latest ]]; then
@@ -398,6 +399,10 @@ EOF
   fi
 
   cpconf $tbhome/tb/conf/package.*.??common
+
+  if [[ -s $tbhome/tb/conf/bashrc ]]; then
+    cp $tbhome/tb/conf/bashrc ./etc/portage/
+  fi
 
   if [[ $abi3264 == "y" ]]; then
     cpconf $tbhome/tb/conf/package.*.??abi32+64
