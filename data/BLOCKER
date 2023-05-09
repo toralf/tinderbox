@@ -36,3 +36,7 @@ EVP_|RUST_VERSION_OPENSSL_|FIPS_mode|RSA_SSLV23|get_dh|DSA|FIPS|ERR_GET_FUNC|CRY
 # (tar-without-file) - [TRACKER] Packages calling tar without -f
 903921
 BAD_TAR_INVOCATION
+
+# Breakage with sys-libs/musl-1.2.4 (9999) LFS shims being removed
+903611
+stat64|lstat64|off64_t|fstat64|pwrite64|open64|ftruncate64|lseek64|pread64|readdir64

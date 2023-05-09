@@ -49,6 +49,9 @@ sys-kernel/gentoo-kernel-bin        -initramfs
 # needs hours instead seconds
 dev-libs/gf2x                       -custom-tune
 
+# takes >1 hour
+app-doc/gimp-help                   -nls                # DICE: gimp_help 1 10
+
 
 #######################################################################
 # open bugs
