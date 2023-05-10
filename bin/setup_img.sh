@@ -12,10 +12,10 @@ function dice() {
 # helper of InitOptions()
 function DiceAProfile() {
   eselect profile list |
-    grep -F -e ' (stable)' |
-    grep -v -F -e '/selinux' |
+    grep -F -e ' (stable)' -e ' (dev)' |
+    grep -v -F -e '/selinux' -e '/x32' |
     awk '{ print $2 }' |
-    cut -f4- -d'/' -s |
+    cut -f 4- -d '/' -s |
     shuf -n 1
 }
 
@@ -414,17 +414,17 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??musl
   fi
 
-  # lines with a comment like "DICE: topic x X" will be kept with x/X chance (default: 1/2)
+  # lines with a comment like "DICE: topic x X" will be kept with m/N chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
     cut -f 3- -d ' ' |
     sort -u -r |
-    while read -r topic x X; do
-      if [[ $profile =~ '/musl' ]] || ! dice ${x:-1} ${X:-2}; then
-        # kick the whole line off
-        sed -i -e "/# DICE:  *$topic *$/d" -e "/# DICE:  *$topic .*/d" ./etc/portage/package.*/*
+    while read -r topic m N; do
+      if dice ${m:-1} ${N:-2}; then
+        # keep start of the line, but remove comment + any trailing spaces
+        sed -i -e "s, *# DICE: $topic *$,,g" -e "s, *# DICE: $topic .*,,g" ./etc/portage/package.*/*
       else
-        # keep the line, but remove comment + trailing spaces
-        sed -i -e "s, *# DICE:  *$topic *$,,g" -e "s, *# DICE:  *$topic .*,,g" ./etc/portage/package.*/*
+        # delete the whole line
+        sed -i -e "/# DICE: $topic *$/d" -e "/# DICE: $topic .*/d" ./etc/portage/package.*/*
       fi
     done
 
@@ -548,9 +548,9 @@ emerge -u app-text/ansifilter sys-apps/portage
 
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
-# emerge MTA before MUA b/c virtual/mta does not pull sSMTP per default
+# emerge MTA before MUA b/c default of virtual/mta does not point to sSMTP
 emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead of this
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead
 USE=-kerberos emerge -u mail-client/s-nail
 
 date
