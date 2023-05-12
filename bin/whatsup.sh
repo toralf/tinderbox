@@ -321,77 +321,6 @@ function CountEmergesPerPackages() {
   ' $(ls ~tinderbox/run/*/var/log/emerge.log 2>/dev/null)
 }
 
-# whatsup.sh -e
-# yyyy-mm-dd   sum   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
-#
-# 2021-04-31    15   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  15   0   0   0
-# 2021-05-01  2790  28  87  91  41   4  13   0   1  15  29  78  35  62  46  75   9   0 193 104 234 490 508 459 188
-function emergeThruput() {
-  echo -n "yyyy-mm-dd   sum  "
-  for i in {0..23}; do
-    printf "  %2i" $i
-  done
-  echo -e "\n"
-
-  perl -F: -wane '
-    BEGIN {
-      my %Days = ();
-    }
-    {
-      next unless (m/::: completed emerge/);
-
-      my $epoch_time = $F[0];
-      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($epoch_time);
-      $year += 1900;
-      $mon += 1;
-      $mon = "0" . $mon if ($mon < 10);
-      $mday = "0" . $mday if ($mday < 10);
-
-      my $day = $year . "-" . $mon . "-" . $mday;
-      $Days{$day}->{$hour}++;
-      $Days{$day}->{"sum"}++;
-    }
-
-    END {
-      my %Mean = ();
-
-      # delete anything in %Days older 2 weeks b/c those values might be incomplete
-      # due to house kept images having no reported bugs
-      my ($youngest, $oldest) = (sort { $b cmp $a } keys %Days)[0,14];
-
-      foreach my $key (keys %Days) {
-        delete ($Days{$key}) if ($key lt $oldest);
-      }
-
-      # print out the daily values and calculate the mean of them
-      for my $day (sort { $a cmp $b } keys %Days)  {
-        my $value = $Days{$day}->{"sum"};
-        printf("%-10s %5i  ", $day, $value);
-        $Mean{"sum"} += $value if ($day ne $youngest);
-
-        foreach my $hour (0..23) {
-          $value = $Days{$day}->{$hour} ? $Days{$day}->{$hour} : 0;
-          printf("%4i", $value);
-          $Mean{$hour} += $value if ($day ne $youngest);
-        }
-        print "\n";
-      }
-      print "\n";
-
-      # print out the mean values
-      my $n = (scalar keys %Days) - 1;
-      foreach my $key (keys %Mean)  {
-        $Mean{$key} /= $n;
-      }
-      printf("%-10s %5i  ", "14d-mean", $Mean{"sum"});
-      foreach my $hour (0..23) {
-        printf("%4i", $Mean{$hour});
-      }
-      print "\n";
-    }
-  ' $(find ~tinderbox/img/*/var/log/emerge.log -mtime -15 | sort -t '-' -k 3)
-}
-
 #############################################################################
 #
 # main
@@ -407,12 +336,11 @@ if ! columns=$(tput cols 2>/dev/null); then
   columns=120
 fi
 
-while getopts cdelopt opt; do
+while getopts cdlopt opt; do
   images=$(list_images)
   case $opt in
   c) Coverage ;;
   d) PackagesPerImagePerRunDay ;;
-  e) emergeThruput ;;
   l) LastEmergeOperation ;;
   o) Overall ;;
   p) CountEmergesPerPackages ;;

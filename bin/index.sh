@@ -15,8 +15,6 @@ function listStat() {
     $(dirname $0)/whatsup.sh -o | recode --silent ascii..html
     echo "<h3>packages per day</h3>"
     $(dirname $0)/whatsup.sh -d | recode --silent ascii..html
-    echo "<h3>packages per hour</h3>"
-    $(dirname $0)/whatsup.sh -e | recode --silent ascii..html
     echo "<h3>current task</h3>"
     $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
     echo "<h3>current package</h3>"
