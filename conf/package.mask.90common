@@ -11,7 +11,7 @@ sys-fs/static-dev
 # calls for trouble by sneaking into PATH
 dev-util/plan9port
 
-# outdated, br0ken, breaks revdep-rebuild, old kernel, needs special kernel config, needs kernel module build w/ same GCC version, clang cannot deal with it, ...
+# outdated, br0ken, breaks rebuild, old kernel, needs special kernel config, needs kernel module build w/ same GCC version, clang cannot deal with it, ...
 */s6
 app-admin/ryzen_smu
 app-benchmarks/stress-ng
@@ -39,16 +39,15 @@ sys-libs/uclibc-ng
 x11-wm/stumpwm
 
 # long compile time
-sci-libs/atlas                                          # DICE: long_compile_time_b 15 16
-sci-libs/libint:2                                       # DICE: long_compile_time_c 15 16
-sci-libs/rocBLAS                                        # DICE: long_compile_time_d 15 16
-sci-libs/rocFFT                                         # DICE: long_compile_time_e 15 16
-sci-libs/tensorflow                                     # DICE: long_compile_time_f 15 16
-www-client/chromium                                     # DICE: long_compile_time_b 15 16
+sci-libs/atlas                                          # DICE: long_compile_time_sci 15 16
+sci-libs/libint:2                                       # DICE: long_compile_time_sci 15 16
+sci-libs/rocBLAS                                        # DICE: long_compile_time_roc 15 16
+sci-libs/rocFFT                                         # DICE: long_compile_time_roc 15 16
+sci-libs/tensorflow                                     # DICE: long_compile_time_tef 15 16
 
 # way too long and QA is up to Google
 www-client/google-chrome
-
+www-client/chromium
 
 #######################################################################
 # temp

@@ -16,9 +16,24 @@ post_src_install() {
       echo "${CATEGORY}/${PF}: Missing test option wiring for meson?"
     fi
 
-    if grep -E -r -q -- "(disable|enable)-test(s?)" configure.ac &> /dev/null && ! grep -q "test" <<< "${IUSE}" ; then
+    if grep -E -r -q -- "(disable|enable|with(out)?)-(unit)?test(s?)" configure.ac &> /dev/null && ! grep -q "test" <<< "${IUSE}" ; then
       echo "${CATEGORY}/${PF}: Missing test option wiring for autoconf?"
     fi
 
+    if grep -E -r -q -- "(disable|enable)-valgrind" configure.ac &> /dev/null && ! grep -q "valgrind" <<< "${IUSE}" ; then
+      echo "${CATEGORY}/${PF}: Missing valgrind option wiring for autoconf?"
+    fi
+
+    if grep -r -q "valgrind" "${S}/meson_options.txt" &> /dev/null && ! grep -q "valgrind" <<< "${IUSE}" ; then
+      echo "${CATEGORY}/${PF}: Missing valgrind option wiring for meson?"
+    fi
+
+    if grep -E -r -q -- "(disable|enable)-fuzz" configure.ac &> /dev/null && ! grep -q "fuzz" <<< "${EBUILD}" ; then
+      echo "${CATEGORY}/${PF}: Missing fuzz option wiring for autoconf?"
+    fi
+
+    if grep -r -q "fuzz" "${S}/meson_options.txt" &> /dev/null && ! grep -q "fuzz" <<< "${EBUILD}" ; then
+      echo "${CATEGORY}/${PF}: Missing fuzz option wiring for meson?"
+    fi
   ) &>> /var/tmp/sam.txt
 }

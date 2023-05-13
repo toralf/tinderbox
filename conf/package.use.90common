@@ -24,7 +24,7 @@ dev-vcs/git                         curl
 # ::gentoo requirement
 net-misc/curl                       ssl
 
-# too much deps, which would decrease coverity
+# too much deps at setup, which would decrease coverity
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -qt5
 
@@ -35,9 +35,9 @@ sys-kernel/installkernel-gentoo     -grub
 app-portage/portage-utils           -openmp
 
 # https://bugs.gentoo.org/869953
-*/*                                 -ada
+sys-devel/gcc                       -ada
 
-# D needed to be bootstraped
+# D needs to be bootstraped
 sys-devel/gcc                       -d
 
 # required by sys-apps/portage
@@ -52,6 +52,11 @@ dev-libs/gf2x                       -custom-tune
 # takes >1 hour
 app-doc/gimp-help                   -nls                # DICE: gimp_help 1 10
 
+# too often broken setup: at-most-one-of ( cracklib pam )
+sys-apps/shadow                     -cracklib pam       # DICE: cracklib 9 10
+
+# pretend phase
+net-misc/openssh                    -sctp
 
 #######################################################################
 # open bugs
@@ -73,3 +78,6 @@ dev-lang/python                     -pgo
 
 # request by sam
 sys-devel/gcc                       debug               # DICE: gcc_debug
+
+# https://bugs.gentoo.org/900731
+media-libs/libjpeg-turbo            -java

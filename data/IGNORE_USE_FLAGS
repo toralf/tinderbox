@@ -1,6 +1,5 @@
 32
 64
-ada
 bindist
 bootstrap
 build
@@ -34,9 +33,9 @@ introspection
 ithreads
 kernel
 libcxx
-llvm-libunwind
 libssp
 livecd
+llvm-libunwind
 low-memory
 lto
 make-symlinks
@@ -68,8 +67,8 @@ split-usr
 ssp
 static
 static-libs
-system-wlroots
 systemd
+system-wlroots
 test
 text
 threads
