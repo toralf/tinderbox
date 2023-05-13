@@ -13,16 +13,9 @@ function getCandidates() {
         continue
       fi
 
-      if [[ -f $i/var/log/emerge.log ]]; then
-        local days=$(((EPOCHSECONDS - $(stat -c %Y $i/var/log/emerge.log)) / 86400))
-        if [[ $days -lt 15 ]]; then
-          continue
-        fi
-      else
-        local days=$(((EPOCHSECONDS - $(stat -c %Y $i)) / 86400))
-        if [[ $days -lt 3 ]]; then
-          continue
-        fi
+      local days=$(((EPOCHSECONDS - $(stat -c %Y $i)) / 86400))
+      if [[ $days -lt 3 ]]; then
+        continue
       fi
 
       echo $i
@@ -35,8 +28,8 @@ function getCandidates() {
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded() {
   local fs=/dev/nvme0n1p4
-  local free=200000 # MiB
-  local used=79     # %
+  local free=${2:-256000} # MiB
+  local used=${1:-89}     # %
 
   [[ -n $(df -m $fs | awk '$1 == "'$fs'" && ($4 < "'$free'" || $5 > "'$used'%")') ]]
 }
@@ -74,7 +67,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# 1st prune old stage3 files
+# prune old stage3 files
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
   ls ~tinderbox/distfiles/stage3-amd64-*.tar.xz 2>/dev/null |
@@ -87,26 +80,26 @@ if [[ -s $latest ]]; then
     done
 fi
 
-# 2nd prune distfiles not accessed within past 12 months
-if pruneNeeded; then
-  find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
-fi
-
-# 3rd prune images with broken setup
-while read -r img && pruneNeeded; do
+# prune images with broken setup
+while read -r img && pruneNeeded 49; do
   if [[ ! -s $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
     pruneDir $img
   fi
 done < <(getCandidates)
 
-# 4th prune images w/o any reported bug
-while read -r img && pruneNeeded; do
+# prune images w/o any reported bug
+while read -r img && pruneNeeded 59; do
   if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
     pruneDir $img
   fi
 done < <(getCandidates)
 
-# 5th prune oldest first
+# prune distfiles not accessed within past 12 months
+if pruneNeeded 69; then
+  find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
+fi
+
+# prune oldest first
 while read -r img && pruneNeeded; do
   pruneDir $img
 done < <(getCandidates)
