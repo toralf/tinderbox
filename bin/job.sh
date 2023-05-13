@@ -46,32 +46,36 @@ function Mail() {
     fi
 }
 
+# 13 triggers a replacement
+function ReachedEndfOfLife() {
+  local subject=${1:-"EOL"}
+  local attachment=${2:-}
+
+  echo "$subject" >>/var/tmp/tb/EOL
+  chmod g+w /var/tmp/tb/EOL
+  chgrp tinderbox /var/tmp/tb/EOL
+  truncate -s 0 $taskfile
+  subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null) completed"
+  local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
+  subject+=", $new new bug(s)"
+
+  Finish 13 "$subject" $attachment
+}
+
 # this is the end ...
 function Finish() {
   local exit_code=${1:-$?}
   local subject=${2:-"<INTERNAL ERROR>"}
+  local attachment=${3:-}
 
   trap - INT QUIT TERM EXIT
   set +e
 
   subject="finished, $(stripQuotesAndMore <<<$subject)"
-  if [[ $exit_code -eq 13 ]]; then
-    echo "$subject" >>/var/tmp/tb/EOL
-    chmod g+w /var/tmp/tb/EOL
-    chgrp tinderbox /var/tmp/tb/EOL
-    truncate -s 0 $taskfile
-    subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null) completed"
-    local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
-    if [[ $new -gt 0 ]]; then
-      subject+=", $new new bug/s"
-    else
-      subject+=", nothing new"
-    fi
+  Mail "$subject" $attachment
+  if [[ $exit_code -ne 9 ]]; then
+    /usr/bin/pfl &>/dev/null
   fi
-
-  Mail "$subject" ${3:-}
-  /usr/bin/pfl &>/dev/null
-
   rm -f /var/tmp/tb/STOP
   exit $exit_code
 }
@@ -91,7 +95,7 @@ function setBacklog() {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    Finish 13 "all work DONE" # "13" needed here to trigger a replacement
+    ReachedEndfOfLife "all work DONE"
   fi
 }
 
@@ -107,7 +111,7 @@ function getNextTask() {
       continue
 
     elif [[ $task =~ ^EOL ]]; then
-      Finish 13 "$task"
+      ReachedEndfOfLife "$task"
 
     elif [[ $task =~ ^INFO ]]; then
       Mail "$task"
@@ -552,6 +556,7 @@ function SendIssueMailIfNotYetReported() {
       else
         hints+=" raw"
       fi
+
       echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n;" >>$issuedir/body
 
       blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER)
@@ -808,15 +813,15 @@ function RunAndCheck() {
 
   # exited on signal
   if [[ $rc -ge 128 ]]; then
-    pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
-    if GetPkglog; then
-      createIssueDir
-      WorkAtIssue
-    fi
     local signal=$((rc - 128))
     if [[ $signal -eq 9 ]]; then
       Finish 9 "KILLed" $tasklog
     else
+      pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
+      if GetPkglog; then
+        createIssueDir
+        WorkAtIssue
+      fi
       Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     fi
 
@@ -827,7 +832,7 @@ function RunAndCheck() {
       WorkAtIssue
     fi
     if [[ $rc -eq 124 ]]; then
-      Finish 13 "INFO:  timeout  task=$task" $tasklog
+      ReachedEndfOfLife "INFO:  timeout  task=$task" $tasklog
     fi
   fi
 
@@ -863,7 +868,7 @@ function WorkOnTask() {
           add2backlog "$task"
         fi
       else
-        Finish 13 "$task is broken" $tasklog
+        ReachedEndfOfLife "$task is broken" $tasklog
       fi
     fi
 
@@ -898,20 +903,20 @@ function DetectRepeats() {
 
   for pattern in 'perl-cleaner' '@preserved-rebuild'; do
     if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge 6 ]]; then
-      Finish 13 "too often repeated: $pattern"
+      ReachedEndfOfLife "too often repeated: $pattern"
     fi
   done
 
   pattern='@world'
   if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge $w_max ]]; then
-    Finish 13 "too often repeated: $pattern"
+    ReachedEndfOfLife "too often repeated: $pattern"
   fi
 
   local count
   local package
   read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 1000 | sort | uniq -c | sort -bn | tail -n 1)
   if [[ $count -ge 6 ]]; then
-    Finish 13 "too often emerged: $count x $package"
+    ReachedEndfOfLife "too often emerged: $count x $package"
   fi
 }
 
@@ -935,10 +940,10 @@ function syncRepo() {
       git restore .
     ) &>>$synclog; then
       if ! emaint sync --auto &>>$synclog; then
-        Finish 13 "still unfixed ::gentoo" $synclog
+        ReachedEndfOfLife "still unfixed ::gentoo" $synclog
       fi
     else
-      Finish 13 "cannot restore ::gentoo" $synclog
+      ReachedEndfOfLife "cannot restore ::gentoo" $synclog
     fi
   fi
 
