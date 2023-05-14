@@ -17,14 +17,14 @@ Setup an image with _replace_img.sh_ or directly with _setup_img.sh_.
 See the status of all images:
 
 ```bash
-whatsup.sh -decp
+whatsup.sh -dcp
 whatsup.sh -otl
 ```
 
 The file _~tinderbox/tb/data/ALREADY_CAUGHT_ holds reported findings.
 A new finding is send via email to the user specified by the variable _MAILTO_.
-The Gentoo bugzilla can be searched (again) by _check_bgo.sh_ for dups/similarities.
 A finding can be filed using _bgo.sh_.
+The Gentoo bugzilla should be searched before by _check_bgo.sh_ for duplicates.
 
 ## Installation
 
@@ -62,6 +62,11 @@ Grant the user _tinderbox_ these sudo rights:
 ```bash
 tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh
 ```
+
+## Doc
+
+Few calculations were made about [coverage](./doc/coverage.ods) and lifetimes of an image respectively.
+See [doc](./doc) for details.
 
 ## Links
 
