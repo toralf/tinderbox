@@ -895,27 +895,27 @@ function WorkOnTask() {
 
 # bail out if there's a loop
 function DetectRepeats() {
+  local p_max=5
   local w_max=18
+
+  for pattern in 'perl-cleaner' '@preserved-rebuild'; do
+    if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge $p_max ]]; then
+      ReachedEndfOfLife "too often ($p_max x) repeated: $pattern"
+    fi
+  done
 
   if [[ $name =~ _test ]]; then
     ((w_max = 30))
   fi
-
-  for pattern in 'perl-cleaner' '@preserved-rebuild'; do
-    if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge 6 ]]; then
-      ReachedEndfOfLife "too often repeated: $pattern"
-    fi
-  done
-
   pattern='@world'
   if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge $w_max ]]; then
-    ReachedEndfOfLife "too often repeated: $pattern"
+    ReachedEndfOfLife "too often ($w_max x) repeated: $pattern"
   fi
 
   local count
   local package
   read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 1000 | sort | uniq -c | sort -bn | tail -n 1)
-  if [[ $count -ge 6 ]]; then
+  if [[ $count -ge $p_max ]]; then
     ReachedEndfOfLife "too often emerged: $count x $package"
   fi
 }
