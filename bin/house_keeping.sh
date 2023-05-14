@@ -99,7 +99,7 @@ if pruneNeeded 69; then
   find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
 fi
 
-# prune oldest first
+# prune oldest images first
 while read -r img && pruneNeeded; do
   pruneDir $img
 done < <(getCandidates)
