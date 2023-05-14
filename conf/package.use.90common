@@ -52,11 +52,15 @@ dev-libs/gf2x                       -custom-tune
 # takes >1 hour
 app-doc/gimp-help                   -nls                # DICE: gimp_help 1 10
 
-# too often broken setup: at-most-one-of ( cracklib pam )
+# common setup blocker: at-most-one-of ( cracklib pam )
 sys-apps/shadow                     -cracklib pam       # DICE: cracklib 9 10
 
 # pretend phase
 net-misc/openssh                    -sctp
+
+# common setup blocker: at-most-one-of ( libedit readline )
+dev-libs/libpcre                    -libedit   # DICE: pcre 9 10
+dev-libs/libpcre2                   -libedit   # DICE: pcre 9 10
 
 #######################################################################
 # open bugs

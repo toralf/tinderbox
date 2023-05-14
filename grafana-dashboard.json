@@ -84,7 +84,6 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -156,9 +155,21 @@
           },
           "editorMode": "builder",
           "expr": "sum(rate(tinderbox_emerge_completed_img[1h])) * 3600",
-          "legendFormat": "pkgs",
+          "legendFormat": "1h",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "sum(rate(tinderbox_emerge_completed_img[24h])) * 3600",
+          "hide": false,
+          "legendFormat": "24h",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "emerges / hr",
@@ -507,8 +518,6 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 32,
-            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -734,13 +743,13 @@
     "list": []
   },
   "time": {
-    "from": "now-30d",
+    "from": "now-14d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tinderbox",
   "uid": "tm9JS5B4z",
-  "version": 79,
+  "version": 85,
   "weekStart": ""
 }
