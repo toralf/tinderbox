@@ -608,6 +608,7 @@ function WorkAtIssue() {
   chmod -R a+rw $issuedir/
   CompressIssueFiles
 
+  # https://bugs.gentoo.org/592880
   if grep -q -e ' perl module .* required' -e 't locate Locale/gettext.pm in' $pkglog_stripped; then
     try_again=1
     add2backlog "$task"
