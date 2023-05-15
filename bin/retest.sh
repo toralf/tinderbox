@@ -31,20 +31,25 @@ xargs -n 1 <<<$* |
   grep ".*/.*" |
   sort -u >$result
 
+# retest few atoms immediately otherwise put them in the (lower prioritized) .upd backlog
 if [[ -s $result ]]; then
-  # emerge new atoms shuffled after existings
-  tmp=$(mktemp /tmp/retest.sh_XXXXXX)
-  for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.1st 2>/dev/null); do
-    (
-      # grep out dups
-      grep -v -F -f $bl $result | shuf
-      cat $bl
-    ) >$tmp
+  if [[ $(wc -l <$result) -le 3 ]]; then
+    suffix="1st"
+  else
+    suffix="upd"
+  fi
+
+  # put new atoms shuffled after existings
+  tmp=$(mktemp /tmp/$(basename $0)_XXXXXX)
+  for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.$suffix 2>/dev/null); do
+    # grep out dups
+    grep -v -F -f $bl $result | shuf >$tmp
+    cat $bl >>$tmp
     uniq $tmp >$bl
   done
   rm $tmp
 
-  # reset atom in image specific files
+  # delete atom entry in image specific files
   while read -r pkgname; do
     sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkgname)\-[[:digit:]]/d" \
       ~tinderbox/tb/data/ALREADY_CAUGHT \
@@ -53,9 +58,9 @@ if [[ -s $result ]]; then
   done <$result
 fi
 
+# put special entries always on top of .1st
 if [[ -s $result.special ]]; then
-  # emerge special entries before existings
-  tmp=$(mktemp /tmp/retest.sh_XXXXXX)
+  tmp=$(mktemp /tmp/$(basename $0)_XXXXXX)
   for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.1st 2>/dev/null); do
     cp $bl $tmp
     shuf $result.special >>$tmp
