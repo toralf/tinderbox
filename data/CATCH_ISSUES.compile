@@ -352,3 +352,4 @@ error: failed to run custom build
  GLib-CRITICAL
 invalid option:
 cp: cannot stat
+ \*   Unknown backend:
