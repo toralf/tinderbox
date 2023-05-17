@@ -13,7 +13,11 @@ function getCandidates() {
         continue
       fi
 
-      local days=$(((EPOCHSECONDS - $(stat -c %Y $i)) / 86400))
+      if [[ -f $i/var/log/emerge.log ]]; then
+        days=$(((EPOCHSECONDS - $(stat -c %Y $i/var/log/emerge.log)) / 86400))
+      else
+        days=$(((EPOCHSECONDS - $(stat -c %Y $i)) / 86400))
+      fi
       if [[ $days -lt 3 ]]; then
         continue
       fi
@@ -48,10 +52,8 @@ function pruneDir() {
   fi
   rm -r $d
   local rc=$?
-
   sync
-  btrfs filesystem sync /mnt/data
-  sleep 60 # btrfs is lazy in reporting free space
+
   return $rc
 }
 
