@@ -37,26 +37,28 @@ function ImagesInRunEOLShuffled() {
 }
 
 function FreeSlotAvailable() {
-  r=$(ls /run/tinderbox 2>/dev/null | wc -l)
-  s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
+  local r=$(ls /run/tinderbox 2>/dev/null | wc -l)
+  local s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
 
   [[ $((r + s)) -lt $desired_count && $(ImagesInRunShuffled | wc -l) -lt $desired_count ]]
 }
 
-function loadIsNotHigherThan() {
-  local load15_current=$(  printf "%.0f" $(sar -q 1 1 | grep "Average:" | tail -n 1 | awk '{ print $6 }'))
-  if [[ -n $load15_current && $load15_current -le $1 ]]; then
-    local load15_last_hour=$(printf "%.0f" $(sar -q -i 3600 24 | grep -B 1 "Average:" | head -n 1 | awk '{ print $7 }'))
-    if [[ -n $load15_last_hour ]]; then
-      [[ $load15_last_hour -le $1 ]]
-    else
-      true
-    fi
-  else
-    false
-  fi
-}
+function load15IsNotGreaterThan() {
+  local max=${1:-$(nproc)}
 
+  while read -r value; do
+    if [[ $value -gt $max ]]; then
+      return 1
+    fi
+  done < <(
+    # latest
+    sar -q 1 1 | awk '/Average:/ { printf ("%.0f\n", $6) }'
+    # average of current and previous hour
+    sar -q -i 3600 24 | grep -B 2 "Average:" | grep -v -e 'ldavg-15' -e 'Average' | awk '{ printf ("%.0f\n", $7) }'
+  )
+
+  return 0
+}
 
 #######################################################################
 set -euf
@@ -108,7 +110,7 @@ while :; do
     fi
   done < <(ImagesInRunEOLShuffled)
 
-  if FreeSlotAvailable && loadIsNotHigherThan 27; then
+  if FreeSlotAvailable && load15IsNotGreaterThan 27; then
     echo
     date
     echo " + + + setup a new image + + +"
