@@ -37,30 +37,30 @@ app-portage/portage-utils           -openmp
 # https://bugs.gentoo.org/869953
 sys-devel/gcc                       -ada
 
-# D needs to be bootstraped
+# D would need to be bootstraped
 sys-devel/gcc                       -d
 
 # required by sys-apps/portage
 dev-lang/python                     ssl
 
-# dep at dracut which would require "xattr" for coreutils
+# dracut which would require "xattr" for coreutils
 sys-kernel/gentoo-kernel-bin        -initramfs
 
 # needs hours instead seconds
 dev-libs/gf2x                       -custom-tune
 
 # takes >1 hour
-app-doc/gimp-help                   -nls                # DICE: gimp_help 1 10
+app-doc/gimp-help                   -nls                # DICE: gimp_help 9 10
 
 # common setup blocker: at-most-one-of ( cracklib pam )
-sys-apps/shadow                     -cracklib pam       # DICE: cracklib 9 10
+sys-apps/shadow                     -cracklib           # DICE: cracklib 9 10
 
 # pretend phase
 net-misc/openssh                    -sctp
 
 # common setup blocker: at-most-one-of ( libedit readline )
-dev-libs/libpcre                    -libedit   # DICE: pcre 9 10
-dev-libs/libpcre2                   -libedit   # DICE: pcre 9 10
+dev-libs/libpcre                    -libedit            # DICE: pcre 9 10
+dev-libs/libpcre2                   -libedit            # DICE: pcre 9 10
 
 #######################################################################
 # open bugs
