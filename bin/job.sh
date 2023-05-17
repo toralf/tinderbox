@@ -156,16 +156,17 @@ function getNextTask() {
 
 function CompressIssueFiles() {
   # shellcheck disable=SC2010
-  for f in $(ls $issuedir/files/* 2>/dev/null | grep -v -F '.bz2'); do
-    # compress if bigger than 1/4 MB
-    if [[ $(wc -c <$f) -gt $((2 ** 18)) ]]; then
-      bzip2 $f
-    fi
-  done
+  ls $issuedir/files/ |
+    grep -v -F '.bz2' |
+    while read -r f; do
+      # compress if bigger than 1/4 MB
+      if [[ $(wc -c <$issuedir/files/$f) -gt $((2 ** 18)) ]]; then
+        bzip2 $issuedir/files/$f
+      fi
+    done
 
-  # grant write permissions to all artifacts
   chmod 777 $issuedir/{,files}
-  chmod -R a+rw $issuedir/
+  chmod -R a+rw $issuedir/ # allow manual editing of e.g. title/body
 }
 
 function CreateEmergeHistoryFile() {
