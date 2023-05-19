@@ -43,19 +43,18 @@ function FreeSlotAvailable() {
   [[ $((r + s)) -lt $desired_count && $(ImagesInRunShuffled | wc -l) -lt $desired_count ]]
 }
 
-function load15IsNotGreaterThan() {
+function load15IsNotHigherThan() {
   local max=${1:-$(nproc)}
 
-  while read -r value; do
-    if [[ $value -gt $max ]]; then
-      return 1
-    fi
-  done < <(
-    # latest
-    sar -q 1 1 | awk '/Average:/ { printf ("%.0f\n", $6) }'
-    # average of current and previous hour
-    sar -q -i 3600 24 | grep -B 2 "Average:" | grep -v -e 'ldavg-15' -e 'Average' | awk '{ printf ("%.0f\n", $7) }'
-  )
+  # current load15
+  if ! sar -q 1 1 | awk '/Average:/ { if ($6 > '$max') exit 1 }'; then
+    return 1
+  fi
+
+  # average of the current and the hour before
+  if ! sar -q -i 3600 24 | grep -B 2 "Average:" | grep -v -e 'ldavg-15' -e 'Average' | awk '{ if ($7 > '$max') exit 1 }'; then
+    return 1
+  fi
 
   return 0
 }
@@ -110,7 +109,8 @@ while :; do
     fi
   done < <(ImagesInRunEOLShuffled)
 
-  if FreeSlotAvailable && load15IsNotGreaterThan 27; then
+  # shellcheck disable=SC2154
+  if FreeSlotAvailable && load15IsNotHigherThan $(($(nproc) - 6)); then
     echo
     date
     echo " + + + setup a new image + + +"

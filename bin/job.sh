@@ -788,6 +788,11 @@ function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0 # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
+  if awk '{ if ($3 > '$(nproc)-6') exit 1 }' /proc/loadavg; then
+    export MAKEOPTS="-j2"
+  else
+    unset MAKEOPTS
+  fi
   timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
   local rc=$?
   (
