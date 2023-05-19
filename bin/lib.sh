@@ -17,20 +17,6 @@ function __is_running() {
   __is_cgrouped $1 || __is_locked $1
 }
 
-function checkBgo() {
-  if ! bugz -h 1>/dev/null; then
-    echo "www-client/pybugz installation is b0rken" >&2
-    return 1
-
-  elif ! bugz -q get 2 1>/dev/null; then
-    {
-      echo "b.g.o is down"
-      # hash -r delv && delv +vtrace bugs.gentoo.org || true
-    } >&2
-    return 2
-  fi
-}
-
 # list if locked and/or symlinked to ~run
 function list_images() {
   (
@@ -46,6 +32,20 @@ function list_images() {
         ls -d ~tinderbox/img/$i
       fi
     done
+}
+
+function checkBgo() {
+  if ! bugz -h 1>/dev/null; then
+    echo "www-client/pybugz installation is b0rken" >&2
+    return 1
+
+  elif ! bugz -q get 2 1>/dev/null; then
+    {
+      echo "b.g.o is down"
+      # hash -r delv && delv +vtrace bugs.gentoo.org || true
+    } >&2
+    return 2
+  fi
 }
 
 # transform the title into space separated search items + set few common vars
