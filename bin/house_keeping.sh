@@ -89,15 +89,22 @@ while read -r img && pruneNeeded 49; do
   fi
 done < <(getCandidates)
 
-# prune images w/o any reported bug
+# prune images w/o any found issue
 while read -r img && pruneNeeded 59; do
+  if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
+    pruneDir $img
+  fi
+done < <(getCandidates)
+
+# prune images w/o any reported bug
+while read -r img && pruneNeeded 69; do
   if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
     pruneDir $img
   fi
 done < <(getCandidates)
 
 # prune distfiles not accessed within past 12 months
-if pruneNeeded 69; then
+if pruneNeeded 79; then
   find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
 fi
 
