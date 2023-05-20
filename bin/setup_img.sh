@@ -24,7 +24,7 @@ function InitOptions() {
   abi3264="n"
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=$cflags_default
-  jobs=4
+  jobs=$((3 + RANDOM % 4 ))
   keyword="~amd64"
   no_autostart="n"
   profile=$(DiceAProfile)
