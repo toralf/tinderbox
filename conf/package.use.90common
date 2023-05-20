@@ -49,8 +49,8 @@ sys-kernel/gentoo-kernel-bin        -initramfs
 # needs hours instead seconds
 dev-libs/gf2x                       -custom-tune
 
-# takes >1 hour
-app-doc/gimp-help                   -nls                # DICE: gimp_help 9 10
+# takes 2 hours
+app-doc/gimp-help                   -nls                # DICE: gimp_help 19 20
 
 # common setup blocker: at-most-one-of ( cracklib pam )
 sys-apps/shadow                     -cracklib           # DICE: cracklib 9 10
