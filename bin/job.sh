@@ -788,7 +788,7 @@ function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0 # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  if awk '{ if ($3 > '$(nproc)-6') exit 1 }' /proc/loadavg; then
+  if awk '{ if ($3 < '$(nproc)-6') exit 1 }' /proc/loadavg; then
     export MAKEOPTS="-j2"
   else
     unset MAKEOPTS
