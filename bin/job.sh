@@ -647,11 +647,13 @@ function SwitchGCC() {
 # helper of RunAndCheck()
 # schedules follow-ups from the current emerge operation
 function PostEmerge() {
-  if ls /etc/._cfg????_locale.gen &>/dev/null; then
-    locale-gen >/dev/null
-    rm /etc/._cfg????_locale.gen
-  elif grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $tasklog_stripped; then
-    locale-gen >/dev/null
+  if [[ ! $name =~ "musl" ]]; then
+    if ls /etc/._cfg????_locale.gen &>/dev/null; then
+      locale-gen >/dev/null
+      rm /etc/._cfg????_locale.gen
+    elif grep -q "IMPORTANT: config file '/etc/locale.gen' needs updating." $tasklog_stripped; then
+      locale-gen >/dev/null
+    fi
   fi
 
   # don't change these config files after image setup
@@ -788,8 +790,9 @@ function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0 # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  if awk '{ if ($3 < '$(nproc)-6') exit 1 }' /proc/loadavg; then
+  if ! awk '{ if ($3 > '$(nproc)-6') exit 1 }' /proc/loadavg; then
     export MAKEOPTS="-j2"
+    sed -i -e 's,^,-j2 ,' $taskfile
   else
     unset MAKEOPTS
   fi
@@ -1052,6 +1055,12 @@ while :; do
       add2backlog "@world"
     fi
   fi
+
+  echo "#next round $(date -R)" >$taskfile
+  while ! awk '{ if ($1 > '$(nproc)') exit 1 }' /proc/loadavg; do
+    sleep 60
+    continue
+  done
 
   echo "#get next task" >$taskfile
   getNextTask
