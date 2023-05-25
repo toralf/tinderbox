@@ -1,11 +1,14 @@
 # package.use/80test
 #
 
-# if FEATURES=test is active then these USE flags are required or at least helpful to let setup succeed
+# if FEATURES=test is set then these USE flags helps to let setup succeed
 
+app-doc/doxygen                     doc
+app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
 dev-libs/libzip                     tools
 dev-libs/openssl                    -sctp
+dev-libs/weston                     xwayland
 dev-util/strace                     -unwind
 media-gfx/imagemagick               corefonts truetype
 media-libs/harfbuzz                 icu
@@ -13,14 +16,18 @@ media-libs/libheif                  go libde265
 media-libs/soxr                     examples
 media-libs/tiff                     jpeg
 media-sound/pulseaudio              -equalizer
+media-video/ffmpeg                  encode
+net-analyzer/rrdtool                rrdcached
 net-nds/openldap                    berkdb -minimal sasl
 net-misc/openssh                    -xmss
 sys-apps/man-db                     -nls
 sys-apps/dbus                       debug
 sys-apps/shadow                     -cracklib
 sys-libs/libseccomp                 -python
+sys-libs/ldb                        python
 x11-base/xorg-server                xvfb
+x11-libs/gtk+                       X
 
-# otherwise pybugz doesn't build which would yield to a "bug raw" flood in test
+# otherwise pybugz doesn't build which would yield to "bug raw" floods for +test
 dev-lang/python                     readline -libedit
 
