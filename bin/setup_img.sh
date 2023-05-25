@@ -6,14 +6,14 @@
 
 # $1:$2, eg. 3:5
 function dice() {
-  [[ $1 -lt $2 && $((RANDOM % $2)) -lt $1 ]]
+  [[ $((RANDOM % $2)) -lt $1 ]]
 }
 
 # helper of InitOptions()
 function DiceAProfile() {
   eselect profile list |
     grep -F -e ' (stable)' -e ' (dev)' |
-    grep -v -F -e '/selinux' -e '/x32' |
+    grep -v -F -e '/selinux' -e '/x32' -e '/musl' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
     shuf -n 1
@@ -24,7 +24,7 @@ function InitOptions() {
   abi3264="n"
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=$cflags_default
-  jobs=$((3 + RANDOM % 4 ))
+  jobs="5"
   keyword="~amd64"
   no_autostart="n"
   profile=$(DiceAProfile)
@@ -783,7 +783,7 @@ EOF
   fi
 
   local attempt=0
-  while [[ $((++attempt)) -le 100 ]]; do
+  while [[ $((++attempt)) -le 200 ]]; do
     echo
     date
     echo "==========================================================="
