@@ -139,9 +139,10 @@ function Tasks() {
       fi
       set -e
 
-      if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
+      if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" && ! $task =~ "-j" ]]; then
         echo -n " "
       fi
+
       if [[ ${#task} -gt $((columns - 58)) ]]; then
         echo "$(cut -c1-$((columns - 55)) <<<$task)..."
       else
