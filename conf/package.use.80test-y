@@ -8,6 +8,7 @@ app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
 dev-libs/libzip                     tools
 dev-libs/openssl                    -sctp
+dev-libs/openssl-compat             -sctp
 dev-libs/weston                     xwayland
 dev-util/strace                     -unwind
 media-gfx/imagemagick               corefonts truetype
@@ -28,6 +29,6 @@ sys-libs/ldb                        python
 x11-base/xorg-server                xvfb
 x11-libs/gtk+                       X
 
-# otherwise pybugz doesn't build which would yield to "bug raw" floods for +test
+# otherwise pybugz doesn't build which would yield to "bug raw"
 dev-lang/python                     readline -libedit
 
