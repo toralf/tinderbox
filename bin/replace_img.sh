@@ -80,7 +80,7 @@ fi
 echo $$ >"$lockfile"
 trap Finish INT QUIT TERM EXIT
 
-desired_count=${1:-11}
+desired_count=${1:-12}
 while :; do
   # if an image stopped for a day then mark it as EOL
   while read -r oldimg; do
