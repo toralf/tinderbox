@@ -514,10 +514,6 @@ function finishTitle() {
 }
 
 function SendIssueMailIfNotYetReported() {
-  if [[ ! -s $issuedir/title ]]; then
-    Mail "WARN: no title in ~tinderbox/img/$name/$issuedir" $issuedir/body
-    return
-  fi
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CAUGHT; then
       # chain "cat" by "echo" b/c cat buffers output which is racy between images
@@ -620,7 +616,12 @@ function WorkAtIssue() {
   if [[ $try_again -ne 0 ]]; then
     add2backlog "$task"
   fi
-  SendIssueMailIfNotYetReported
+
+  if [[ -s $issuedir/title ]]; then
+    SendIssueMailIfNotYetReported
+  else
+    Mail "NOTICE: no title in ~tinderbox/img/$name/$issuedir" $issuedir/body
+  fi
 }
 
 function source_profile() {
@@ -807,8 +808,6 @@ function RunAndCheck() {
 
   filterPlainPext <$tasklog >$tasklog_stripped
   PostEmerge
-  catchMisc
-  pkg=""
 
   if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
     if grep -q -F ' -Og -g' /etc/portage/make.conf; then
@@ -820,6 +819,8 @@ function RunAndCheck() {
       rm /tmp/core.*
     fi
   fi
+
+  pkg=""
 
   # exited on signal
   if [[ $rc -ge 128 ]]; then
@@ -845,6 +846,8 @@ function RunAndCheck() {
       ReachedEndfOfLife "INFO:  timeout  task=$task" $tasklog
     fi
   fi
+
+  catchMisc
 
   if [[ $try_again -eq 0 ]]; then
     maskPackage
@@ -1057,7 +1060,7 @@ while :; do
   fi
 
   echo "#next round $(date -R)" >$taskfile
-  while ! awk '{ if ($1 > '$(nproc)') exit 1 }' /proc/loadavg; do
+  while ! awk '{ if ($1 > '$(nproc)-2') exit 1 }' /proc/loadavg; do
     sleep 60
     continue
   done
