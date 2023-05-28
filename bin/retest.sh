@@ -41,12 +41,13 @@ if [[ -s $result ]]; then
 
   # put new atoms shuffled after existings
   tmp=$(mktemp /tmp/$(basename $0)_XXXXXX)
-  for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.$suffix 2>/dev/null); do
+
+  while read -r bl; do
     # grep out dups
     grep -v -F -f $bl $result | shuf >$tmp
     cat $bl >>$tmp
     uniq $tmp >$bl
-  done
+  done < <(find ~tinderbox/run/*/var/tmp/tb/ -name "backlog.$suffix")
   rm $tmp
 
   # delete atom entry in image specific files
@@ -61,11 +62,11 @@ fi
 # put special entries always on top of .1st
 if [[ -s $result.special ]]; then
   tmp=$(mktemp /tmp/$(basename $0)_XXXXXX)
-  for bl in $(ls ~tinderbox/run/*/var/tmp/tb/backlog.1st 2>/dev/null); do
+  while read -r bl; do
     cp $bl $tmp
     shuf $result.special >>$tmp
     uniq $tmp >$bl
-  done
+  done < <(find ~tinderbox/run/*/var/tmp/tb/ -name "backlog.1st")
   rm $tmp
 fi
 

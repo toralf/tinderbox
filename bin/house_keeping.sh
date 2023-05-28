@@ -3,7 +3,7 @@
 # set -x
 
 function getCandidates() {
-  ls -d ~tinderbox/img/??.*-j*-20??????-?????? 2>/dev/null |
+  find ~tinderbox/img/ -type d -name '??.*-j*-20??????-??????' |
     while read -r i; do
       if [[ -e ~tinderbox/run/$(basename $i) ]]; then
         continue
@@ -72,7 +72,7 @@ source $(dirname $0)/lib.sh
 # prune old stage3 files
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
-  ls ~tinderbox/distfiles/stage3-amd64-*.tar.xz 2>/dev/null |
+  find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' |
     while read -r stage3; do
       if [[ $latest -nt $stage3 ]]; then
         if ! grep -q -F $(basename $stage3) $latest; then
