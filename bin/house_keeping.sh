@@ -3,7 +3,7 @@
 # set -x
 
 function getCandidates() {
-  find ~tinderbox/img/ -type d -name '??.*-j*-20??????-??????' |
+  find ~tinderbox/img/ -type d -maxdepth 1 -name '??.*-j*-20??????-??????' |
     while read -r i; do
       if [[ -e ~tinderbox/run/$(basename $i) ]]; then
         continue

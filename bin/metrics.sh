@@ -13,7 +13,7 @@ function printMetrics() {
     if [[ $c -gt 0 ]]; then
       echo "$var{img=\"$img\"} $c"
     fi
-  done < <(find ~tinderbox/run/)
+  done < <(find ~tinderbox/run/ | xargs -n 1 basename)
 
   var="tinderbox_images"
   echo -e "# HELP $var Total number of running images\n# TYPE $var gauge"
