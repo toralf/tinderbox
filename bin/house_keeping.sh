@@ -3,7 +3,7 @@
 # set -x
 
 function getCandidates() {
-  find ~tinderbox/img/ -type d -maxdepth 1 -name '??.*-j*-20??????-??????' |
+  find ~tinderbox/img/ -maxdepth 1 -type d -name '??.*-j*-20??????-??????' |
     while read -r i; do
       if [[ -e ~tinderbox/run/$(basename $i) ]]; then
         continue
@@ -13,43 +13,47 @@ function getCandidates() {
         continue
       fi
 
-      if [[ -f $i/var/log/emerge.log ]]; then
-        days=$(((EPOCHSECONDS - $(stat -c %Y $i/var/log/emerge.log)) / 86400))
+      if [[ -s $i/var/log/emerge.log ]]; then
+        target=$i/var/log/emerge.log
       else
-        days=$(((EPOCHSECONDS - $(stat -c %Y $i)) / 86400))
+        target=$i
       fi
-      if [[ $days -lt 3 ]]; then
+      if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -lt 3 ]]; then
         continue
       fi
 
       echo $i
     done |
-    sort -t'-' -k 3 # sort by <date>-<time>, oldest first
+    sort -t '-' -k 3 # sort by <date>-<time>, oldest first
 }
 
 # $ df -m /dev/nvme0n1p4
 # Filesystem     1M-blocks    Used Available Use% Mounted on
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded() {
-  local fs=/dev/nvme0n1p4
-  local free=${2:-256000} # MiB
-  local used=${1:-89}     # %
+  local used=${1:-89} # %
+  local free=256000   # MiB
+  local mnt="/mnt/data"
 
-  [[ -n $(df -m $fs | awk '$1 == "'$fs'" && ($4 < "'$free'" || $5 > "'$used'%")') ]]
+  local values=$(df -m $mnt | tr -d '%' | grep -v "^Filesystem")
+  if [[ -n $values ]]; then
+    awk '{ if ($4 < '$free' || $5 > '$used') exit 0; else exit 1 }' <<<$values
+  else
+    echo " something wrong with $mnt" >&2
+    exit 2
+  fi
 }
 
 function pruneDir() {
   local d=$1
-
-  if [[ ! -d $d ]]; then
-    echo "$d is not a dir !"
-    return 1
-  fi
+  local reason=${2:-""}
 
   # https://forums.gentoo.org/viewtopic-p-6072905.html?sid=461188c03d3c4d08de80136a49982d86#6072905
   if [[ -d $d/tmp/.private ]]; then
     chattr -R -a $d/tmp/.private
   fi
+
+  echo " $(date) $reason prune: $d"
   rm -r $d
   local rc=$?
   sync
@@ -82,33 +86,27 @@ if [[ -s $latest ]]; then
     done
 fi
 
-# prune images with broken setup
+# prune distfiles older than 1 yr
+find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
+
 while read -r img && pruneNeeded 49; do
   if [[ ! -s $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
-    pruneDir $img
+    pruneDir $img "broken setup"
   fi
 done < <(getCandidates)
 
-# prune images w/o any found issue
 while read -r img && pruneNeeded 59; do
   if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
-    pruneDir $img
+    pruneDir $img "no issue"
   fi
 done < <(getCandidates)
 
-# prune images w/o any reported bug
 while read -r img && pruneNeeded 69; do
   if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
-    pruneDir $img
+    pruneDir $img "no bug reported"
   fi
 done < <(getCandidates)
 
-# prune distfiles not accessed within past 12 months
-if pruneNeeded 79; then
-  find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
-fi
-
-# prune oldest images first
 while read -r img && pruneNeeded; do
-  pruneDir $img
+  pruneDir $img "space needed"
 done < <(getCandidates)
