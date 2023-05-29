@@ -21,6 +21,7 @@ Incorrect kernel configuration options
  InterpreterMessages.h
  is not a supported compiler. Please use
 Kernel not configured; no .config found in
+kernel sources are required to build kernel modules
 Linux .* is the latest supported version
 mingw is needed
 Mismatched defaults detected between
