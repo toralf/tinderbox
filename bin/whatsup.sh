@@ -139,7 +139,7 @@ function Tasks() {
       fi
       set -e
 
-      if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" && ! $task =~ "-j" ]]; then
+      if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" && ! $task =~ "-j2 " ]]; then
         echo -n " "
       fi
 
@@ -176,7 +176,7 @@ function LastEmergeOperation() {
           printf (" %2i:%02i m  ", $minutes, $seconds);
         } else  {
           my $hours = $delta / 3600;
-          printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 7200 ? " " : "!");    # (exclamation) mark long runtimes
+          printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 3*3600 ? " " : "!");    # (exclamation) mark long runtimes
         }
         my $line = join (" ", @F[2..$#F]);
         print substr ($line, 0, '"'$((columns - 38))'"'), "\n";
