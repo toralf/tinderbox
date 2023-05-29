@@ -809,17 +809,6 @@ function RunAndCheck() {
   filterPlainPext <$tasklog >$tasklog_stripped
   PostEmerge
 
-  if [[ -n "$(ls /tmp/core.* 2>/dev/null)" ]]; then
-    if grep -q -F ' -Og -g' /etc/portage/make.conf; then
-      local core_files_dir=/var/tmp/tb/core/$task_timestamp_prefix
-      mkdir -p $core_files_dir
-      mv /tmp/core.* $core_files_dir
-      Mail "INFO: kept core files in $core_files_dir" "$(ls -lh $core_files_dir/)" $tasklog
-    else
-      rm /tmp/core.*
-    fi
-  fi
-
   pkg=""
 
   # exited on signal
@@ -1030,7 +1019,7 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
-echo "#init" >$taskfile
+echo "# init" >$taskfile
 rm -f $tasklog # remove a left over hard link
 systemd-tmpfiles --create &>$tasklog || true
 
@@ -1040,7 +1029,7 @@ last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :; do
   for i in EOL STOP; do
     if [[ -f /var/tmp/tb/$i ]]; then
-      echo "#catched $i" >$taskfile
+      echo "# catched $i" >$taskfile
       Finish 0 "catched $i" /var/tmp/tb/$i
     fi
   done
@@ -1049,7 +1038,7 @@ while :; do
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     # ... hourly sync repository
     if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
-      echo "#sync repo" >$taskfile
+      echo "# syncing repo" >$taskfile
       syncRepo
     fi
     # ... and daily update @world
@@ -1059,29 +1048,27 @@ while :; do
     fi
   fi
 
-  echo "#next round $(date -R)" >$taskfile
-  while ! awk '{ if ($1 > '$(nproc)-2') exit 1 }' /proc/loadavg; do
-    sleep 60
+  if ! awk '{ if ($1 > '$(nproc)-2') exit 1 }' /proc/loadavg; then
+    echo "# waiting" >$taskfile
+    sleep $((60 + RANDOM % 120))
     continue
-  done
+  fi
 
-  echo "#get next task" >$taskfile
-  getNextTask
-
+  echo "# clean up tmp" >$taskfile
   rm -rf /var/tmp/portage/*
 
-  {
-    date
-    echo
-  } >$tasklog
+  echo "# get next task" >$taskfile
+  getNextTask
+  echo "$task" | tee -a $taskfile.history >$taskfile
+  { date; echo $task; } >$tasklog
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<<$task | tr -c '[:alnum:]' '_')
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # the later will remain if the former is deleted
-  echo "$task" | tee -a $taskfile.history $tasklog >$taskfile
   WorkOnTask
   rm $tasklog
+
+  echo "# compress logs" >$taskfile
   find /var/log/portage -name '*.log' -exec bzip2 {} +
 
-  truncate -s 0 $taskfile
-
+  echo "# detecting repeats" >$taskfile
   DetectRepeats
 done
