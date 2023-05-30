@@ -619,8 +619,6 @@ function WorkAtIssue() {
 
   if [[ -s $issuedir/title ]]; then
     SendIssueMailIfNotYetReported
-  else
-    Mail "NOTICE: no title in ~tinderbox/img/$name/$issuedir" $issuedir/body
   fi
 }
 
