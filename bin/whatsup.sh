@@ -4,7 +4,11 @@
 
 # print tinderbox statistics
 
-function PrintImageName() {
+function getStartTime() {
+  cat ~tinderbox/img/$(basename $1)/var/tmp/tb/setup.timestamp
+}
+
+function printImageName() {
   local chars=${2:-42}
   printf "%-${chars}s" $(cut -c-${chars} <$1/var/tmp/tb/name 2>/dev/null)
 }
@@ -49,7 +53,7 @@ function Overall() {
   echo "compl fail new  day backlog .upd .1st wp cls $locked#$all locked"
 
   for i in $images; do
-    local days=$(bc <<<"scale=1; ( $EPOCHSECONDS - $(__getStartTime $i) ) / 86400.0")
+    local days=$(bc <<<"scale=1; ( $EPOCHSECONDS - $(getStartTime $i) ) / 86400.0")
     local bgo=$(
       set +f
       ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l
@@ -124,7 +128,7 @@ function Overall() {
 function Tasks() {
   for i in $images; do
     local tsk=$i/var/tmp/tb/task
-    if PrintImageName $i && __is_running $i && [[ -s $tsk ]]; then
+    if printImageName $i && __is_running $i && [[ -s $tsk ]]; then
       local task=$(cat $tsk)
 
       set +e # integer calculation result could be 0
@@ -139,7 +143,7 @@ function Tasks() {
       fi
       set -e
 
-      if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" && ! $task =~ "-j2 " ]]; then
+      if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
         echo -n " "
       fi
 
@@ -160,7 +164,7 @@ function Tasks() {
 # 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation() {
   for i in $images; do
-    if PrintImageName $i && __is_running $i && [[ -s $i/var/log/emerge.log ]]; then
+    if printImageName $i && __is_running $i && [[ -s $i/var/log/emerge.log ]]; then
       tail -n 1 $i/var/log/emerge.log |
         sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |
         perl -wane '
@@ -200,8 +204,8 @@ function PackagesPerImagePerRunDay() {
   echo
 
   for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3); do
-    if PrintImageName $i 57; then
-      local start_time=$(__getStartTime $i)
+    if printImageName $i 57; then
+      local start_time=$(getStartTime $i)
       perl -F: -wane '
         BEGIN {
           @packages   = ();  # helds the amount of emerge operations per runday

@@ -1,10 +1,6 @@
 # shellcheck shell=bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-function __getStartTime() {
-  cat ~tinderbox/img/$(basename $1)/var/tmp/tb/setup.timestamp
-}
-
 function __is_cgrouped() {
   [[ -d /sys/fs/cgroup/cpu/local/$(basename $1)/ ]]
 }
@@ -25,11 +21,13 @@ function list_images() {
     ls -d /sys/fs/cgroup/cpu/local/??.* | sort
   ) 2>/dev/null |
     xargs -n 1 --no-run-if-empty basename |
-    # sort -u would mix ~/img and ~/run, so use this
+    # sort -u would mix ~/img and ~/run, uniq does only detect subsequent dups, therefore use awk
     awk '!x[$0]++' |
     while read -r i; do
-      if ! ls -d ~tinderbox/run/$i 2>/dev/null; then
-        ls -d ~tinderbox/img/$i
+      if [[ -d ~tinderbox/run/$i ]]; then
+        echo ~tinderbox/run/$i
+      else
+        echo ~tinderbox/img/$i
       fi
     done
 }

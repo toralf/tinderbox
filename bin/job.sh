@@ -789,12 +789,6 @@ function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0 # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  if ! awk '{ if ($3 > '$(nproc)-6') exit 1 }' /proc/loadavg; then
-    export MAKEOPTS="-j2"
-    sed -i -e 's,^,-j2 ,' $taskfile
-  else
-    unset MAKEOPTS
-  fi
   timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
   local rc=$?
   (
@@ -895,7 +889,7 @@ function WorkOnTask() {
 
 # bail out if there's a loop
 function DetectRepeats() {
-  local p_max=5
+  local p_max=4
   local w_max=18
 
   for pattern in 'perl-cleaner' '@preserved-rebuild'; do
@@ -921,30 +915,16 @@ function DetectRepeats() {
 }
 
 function syncRepo() {
+  cd /var/db/repos/gentoo
+
   local synclog=/var/tmp/tb/sync.log
   local curr_time=$EPOCHSECONDS
-
-  cd /var/db/repos/gentoo
 
   if ! emaint sync --auto &>$synclog; then
     if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error:' $synclog; then
       return 0
     fi
-
-    echo "git status" >>$synclog
-    git status &>>$synclog
-
-    if (
-      echo -e "\nTrying to fix ...\n"
-      git stash && git stash drop
-      git restore .
-    ) &>>$synclog; then
-      if ! emaint sync --auto &>>$synclog; then
-        ReachedEndfOfLife "still unfixed ::gentoo" $synclog
-      fi
-    else
-      ReachedEndfOfLife "cannot restore ::gentoo" $synclog
-    fi
+    ReachedEndfOfLife "broken ::gentoo" $synclog
   fi
 
   if grep -q -F '* An update to portage is available.' $synclog; then
@@ -952,20 +932,20 @@ function syncRepo() {
   fi
 
   if ! grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
-    # retest change ebuilds with an 1 hour timeshift to have download mirrors be synced
+    # retest changed ebuilds with a timeshift of 1h to have download mirrors being synced before
     git diff \
       --diff-filter="ACM" \
       --name-only \
       "@{ $((EPOCHSECONDS - last_sync + 3600)) second ago }..@{ 1 hour ago }" |
       grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |
-      cut -f1-2 -d'/' -s |
+      cut -f 1-2 -d '/' -s |
       grep -v -f /mnt/tb/data/IGNORE_PACKAGES |
       sort -u >/tmp/syncRepo.upd
 
     if [[ -s /tmp/syncRepo.upd ]]; then
       # mix repo changes and backlog together
       sort -u /tmp/syncRepo.upd /var/tmp/tb/backlog.upd | shuf >/tmp/backlog.upd
-      # no mv to preserve target file perms
+      # use cp to preserve target file perms
       cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
     fi
   fi
@@ -1046,9 +1026,9 @@ while :; do
     fi
   fi
 
-  if ! awk '{ if ($1 > '$(nproc)-2') exit 1 }' /proc/loadavg; then
-    echo "# waiting" >$taskfile
-    sleep $((60 + RANDOM % 120))
+  if ! awk '{ if ($1 >= '$(nproc)-1') exit 1 }' /proc/loadavg; then
+    echo "# wait" >$taskfile
+    sleep $((60 + RANDOM % 60))
     continue
   fi
 
@@ -1058,7 +1038,10 @@ while :; do
   echo "# get next task" >$taskfile
   getNextTask
   echo "$task" | tee -a $taskfile.history >$taskfile
-  { date; echo $task; } >$tasklog
+  {
+    date
+    echo $task
+  } >$tasklog
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<<$task | tr -c '[:alnum:]' '_')
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # the later will remain if the former is deleted
   WorkOnTask
