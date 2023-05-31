@@ -27,11 +27,11 @@ function listFiles() {
   {
     echo "<h2>downloadable files</h2>"
     echo "<pre>"
-    (
+    {
       cd ~tinderbox/img
       find . -maxdepth 1 -type f
-    ) | recode --silent ascii..html |
-      xargs --no-run-if-empty -I{} echo '<a href="./{}">{}</a>'
+    } | recode --silent ascii..html |
+      xargs --no-run-if-empty -I {} echo '<a href="./{}">{}</a>'
     echo -e "</pre>\n"
   } >>$tmpfile
 }
