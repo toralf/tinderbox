@@ -15,23 +15,30 @@ function printMetrics() {
   done < <(find ~tinderbox/run/ -type l | xargs -r -n 1 basename)
 
   var="tinderbox_images"
-  echo -e "# HELP $var Total number of running images\n# TYPE $var gauge"
-  local i=0
+  echo -e "# HELP $var Total number of active images\n# TYPE $var gauge"
+  local o=0
   local r=0
+  local s=0
   local w=0
   while read -r img; do
-    if [[ $img =~ "/run" ]]; then
-      ((++r))
+    if __is_running $img; then
+      if [[ $img =~ "/run" ]]; then
+        if [[ $(cat $img/var/tmp/tb/task) =~ '# wait' ]]; then
+          ((++w))
+        else
+          ((++r))
+        fi
+      else
+        ((++o))
+      fi
     else
-      ((++i))
-    fi
-    if [[ $(cat $img/var/tmp/tb/task) =~ '# wait' ]]; then
-      ((++w))
+      ((++s))
     fi
   done < <(list_images)
-  echo "$var{state=\"img\"} $i"
-  echo "$var{state=\"run\"} $r"
-  echo "$var{state=\"wait\"} $w"
+  echo "$var{state=\"other\"} $o"
+  echo "$var{state=\"running\"} $r"
+  echo "$var{state=\"stopped\"} $s"
+  echo "$var{state=\"waiting\"} $w"
 }
 
 #######################################################################
