@@ -1065,7 +1065,9 @@ while :; do
   rm $tasklog
 
   echo "# compress logs" >$taskfile
-  find /var/log/portage -name '*.log' -exec bzip2 {} +
+  if ! find /var/log/portage -name '*.log' -exec bzip2 {} +; then
+    ReachedEndfOfLife "error in compressing logs"
+  fi
 
   echo "# detecting repeats" >$taskfile
   DetectRepeats
