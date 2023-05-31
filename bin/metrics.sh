@@ -16,23 +16,26 @@ function printMetrics() {
 
   var="tinderbox_images"
   echo -e "# HELP $var Total number of running images\n# TYPE $var gauge"
-  local r=0
   local i=0
+  local r=0
+  local w=0
   while read -r img; do
-    if __is_running $img; then
-      if [[ $img =~ "/run" ]]; then
-        ((++r))
-      else
-        ((++i))
-      fi
+    if [[ $img =~ "/run" ]]; then
+      ((++r))
+    else
+      ((++i))
+    fi
+    if [[ $(cat $img/var/tmp/tb/task) =~ '# wait' ]]; then
+      ((++w))
     fi
   done < <(list_images)
-  echo "$var{state=\"run\"} $r"
   echo "$var{state=\"img\"} $i"
+  echo "$var{state=\"run\"} $r"
+  echo "$var{state=\"wait\"} $w"
 }
 
 #######################################################################
-set -euf
+set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
