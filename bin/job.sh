@@ -1026,7 +1026,7 @@ while :; do
     fi
   fi
 
-  if ! awk '{ if ($1 >= '$(nproc)-1') exit 1 }' /proc/loadavg; then
+  if ! awk '{ if ($1 >= '$(nproc)-2') exit 1 }' /proc/loadavg; then
     echo "# wait" >$taskfile
     sleep $((60 + RANDOM % 60))
     continue
