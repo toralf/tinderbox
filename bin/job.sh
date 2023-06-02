@@ -889,7 +889,7 @@ function WorkOnTask() {
 
 # bail out if there's a loop
 function DetectRepeats() {
-  local p_max=4
+  local p_max=5
   local w_max=18
 
   for pattern in 'perl-cleaner' '@preserved-rebuild'; do
@@ -1027,8 +1027,9 @@ while :; do
   fi
 
   if ! awk '{ if ($1 >= '$(nproc)-2') exit 1 }' /proc/loadavg; then
-    echo "# wait" >$taskfile
-    sleep $((60 + RANDOM % 60))
+    seconds=$((30 + RANDOM % 90))
+    echo "# wait $seconds" >$taskfile
+    sleep $seconds
     continue
   fi
 
