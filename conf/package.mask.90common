@@ -71,3 +71,6 @@ dev-scheme/gambit
 # https://bugs.gentoo.org/888779
 dev-util/coccinelle
 dev-util/trace-cmd
+
+# OpenSSL 3.x
+<dev-libs/openssl-3.0.8                                 # DICE: openssl

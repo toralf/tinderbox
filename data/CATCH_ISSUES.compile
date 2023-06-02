@@ -142,7 +142,7 @@ Failed setting classpath from Ant task
 Option .* requires an argument
 parser error : .* not defined
  invalid option
-This BEAM file was compiled for a later version of the run-time system than
+This BEAM file was compiled for a later version of the run
 Uncaught error in
 Project ERROR: .* package not found
 .*:.*:.*: error:

@@ -7,7 +7,8 @@
 
 */*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
 */*                                 QEMU_USER_TARGETS:    x86_64 i386
-*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeon radeonsi
+*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeon radeonsi     # DICE: video
+*/*                                 RUBY_TARGETS:         -ruby30
 
 # 2x faster compile
 */*                                 jumbo-build
@@ -24,7 +25,7 @@ dev-vcs/git                         curl
 # ::gentoo requirement
 net-misc/curl                       ssl
 
-# too much deps at setup, which would decrease coverity
+# too much deps at setup, lowers coverity
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -qt5
 
@@ -43,14 +44,14 @@ sys-devel/gcc                       -d
 # required by sys-apps/portage
 dev-lang/python                     ssl
 
-# dracut which would require "xattr" for coreutils
+# dracut would require "xattr" for coreutils
 sys-kernel/gentoo-kernel-bin        -initramfs
 
 # needs hours instead seconds
 dev-libs/gf2x                       -custom-tune
 
-# takes 2 hours
-app-doc/gimp-help                   -nls                # DICE: gimp_help 19 20
+# takes 2 hours insteads seconds
+app-doc/gimp-help                   -nls
 
 # common setup blocker: at-most-one-of ( cracklib pam )
 sys-apps/shadow                     -cracklib           # DICE: cracklib 9 10
@@ -61,6 +62,7 @@ net-misc/openssh                    -sctp
 # common setup blocker: at-most-one-of ( libedit readline )
 dev-libs/libpcre                    -libedit            # DICE: pcre 9 10
 dev-libs/libpcre2                   -libedit            # DICE: pcre 9 10
+
 
 #######################################################################
 # open bugs
