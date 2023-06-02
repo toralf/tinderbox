@@ -53,7 +53,7 @@ function pruneDir() {
     chattr -R -a $d/tmp/.private
   fi
 
-  echo " $(date) $reason prune: $d"
+  echo " $(date) $reason : $d"
   rm -r $d
   local rc=$?
   sync
