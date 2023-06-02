@@ -2,11 +2,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# set overall cgroup v1 limits for tinderbox images, fuzzers et al.
+# set overall cgroup v1 limits for fuzzers, tinderbox et al.
 
 set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 export LANG=C.utf8
+
+if [[ "$(whoami)" != "root" ]]; then
+  echo " you must be root" >&2
+  exit 1
+fi
 
 # must exist before any cgroup entry is created
 echo 1 >/sys/fs/cgroup/memory/memory.use_hierarchy
@@ -14,6 +19,7 @@ echo 1 >/sys/fs/cgroup/memory/memory.use_hierarchy
 # cgroup v1 does not cleanup after itself so create and use a shell script for that
 # place it in a system wide read + executeable location for every consumer
 agent="/tmp/cgroup-release-agent.sh"
+rm -f $agent
 cat <<EOF >$agent
 #!/bin/sh
 
@@ -21,7 +27,6 @@ cgdelete -g cpu,memory:\$1
 
 EOF
 
-chown root:root $agent
 chmod 755 $agent
 
 for i in cpu memory; do
@@ -33,7 +38,7 @@ name=/local
 cgcreate -g cpu,memory:$name
 
 # reserve resources for the host system
-vcpu=$((100000 * ($(nproc) - 5)))
+vcpu=$((100000 * ($(nproc) - 4)))
 ram=$((128 - 24))G
 vram=$((384 - 64))G # vram=ram+swap, swap is 0.25 TB
 cgset -r cpu.cfs_quota_us=$vcpu $name
