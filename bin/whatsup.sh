@@ -180,7 +180,7 @@ function LastEmergeOperation() {
           printf (" %2i:%02i m  ", $minutes, $seconds);
         } else  {
           my $hours = $delta / 3600;
-          printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 3*3600 ? " " : "!");    # (exclamation) mark long runtimes
+          printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 2*3600 ? " " : "!");    # mark too long emerge times
         }
         my $line = join (" ", @F[2..$#F]);
         print substr ($line, 0, '"'$((columns - 38))'"'), "\n";
