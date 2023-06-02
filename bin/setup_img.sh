@@ -418,7 +418,7 @@ EOF
     sort -u -r |
     while read -r topic m N; do
       if dice ${m:-1} ${N:-2}; then
-        # keep start of the line, but remove comment + any trailing spaces
+        # keep start of the line, but remove comment + spaces before
         sed -i -e "s, *# DICE: $topic *$,,g" -e "s, *# DICE: $topic .*,,g" ./etc/portage/package.*/*
       else
         # delete the whole line
