@@ -3,7 +3,8 @@
 # set -x
 
 function getCandidates() {
-  find ~tinderbox/img/ -maxdepth 1 -type d -name '[12][0-9].[0-9]?*-202[3-9][0-1][0-9][0-3][0-9]-[0-2][0-9][0-5][0-9][0-5][0-9]' |
+  ls -dt ~tinderbox/img/[12]?.?* 2>/dev/null |
+    tac |
     while read -r i; do
       if [[ -e ~tinderbox/run/$(basename $i) ]]; then
         continue
@@ -23,8 +24,7 @@ function getCandidates() {
       fi
 
       echo $i
-    done |
-    sort -t '-' -k 3 # sort by <date>-<time>, oldest first
+    done
 }
 
 # $ df -m /dev/nvme0n1p4

@@ -203,7 +203,7 @@ function PackagesPerImagePerRunDay() {
   done
   echo
 
-  for i in $(ls -d ~tinderbox/run/* 2>/dev/null | sort -t '-' -k 3); do
+  for i in $(ls -dt ~tinderbox/run/[12]?.?* 2>/dev/null | tac); do
     if printImageName $i 57; then
       local start_time=$(getStartTime $i)
       perl -F: -wane '
