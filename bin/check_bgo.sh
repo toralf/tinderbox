@@ -67,11 +67,11 @@ pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                             # eg.: 
 SetAssigneeAndCc
 
 if [[ -f $issuedir/.reported ]]; then
-  echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n"
+  echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n" >&2
   exit 0
 fi
 if [[ ! -s $issuedir/title ]]; then
-  echo -e "\n no title found\n"
+  echo -e "\n no title found\n" >&2
   exit 1
 fi
 
@@ -83,7 +83,7 @@ versions=$(
     xargs
 )
 if [[ -z $versions ]]; then
-  echo "$pkg is unknown"
+  echo "$pkg is unknown" >&2
   exit 1
 fi
 

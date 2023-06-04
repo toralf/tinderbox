@@ -229,7 +229,7 @@ fi
 # this is the 1st barrier (the 2nd is cgroup)
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 if ! mkdir "$lock_dir"; then
-  echo "lock dir cannot be created: $lock_dir"
+  echo "lock dir cannot be created: $lock_dir" >&2
   exit 1
 fi
 

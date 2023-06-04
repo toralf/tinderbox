@@ -53,7 +53,7 @@ while getopts b:c:d:i:s: opt; do
     ;;
   s) severity="$OPTARG" ;; # "normal", "QA" and so on
   *)
-    echo "unknown parameter '${opt}'"
+    echo "unknown parameter '${opt}'" >&2
     exit 1
     ;;
   esac
@@ -64,7 +64,7 @@ if [[ -f $issuedir/.reported ]]; then
   exit 0
 fi
 if [[ ! -s $issuedir/title ]]; then
-  echo -e "\n no title found\n"
+  echo -e "\n no title found\n" >&2
   exit 1
 fi
 
@@ -83,7 +83,7 @@ if [[ -n $id ]]; then
 
 else
   if [[ ! -s ./assignee ]]; then
-    echo "no assignee given, run check_bgo.sh before !"
+    echo "no assignee given, run check_bgo.sh before !" >&2
     exit 4
   fi
 
@@ -105,7 +105,7 @@ else
   id=$(grep "Info: Bug .* submitted" bgo.sh.out | sed 's/[^0-9]//g')
   if [[ -z $id ]]; then
     echo
-    echo "empty bug id"
+    echo "empty bug id" >&2
     echo
     Exit 4
   fi
