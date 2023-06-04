@@ -32,12 +32,16 @@ function list_images() {
     done
 }
 
+function loadIsNotTooHigh() {
+  awk '{ if ($1 >= '$(nproc)-2') exit 1 }' /proc/loadavg
+}
+
 function checkBgo() {
-  if ! bugz -h 1>/dev/null; then
+  if ! bugz -h >/dev/null; then
     echo "www-client/pybugz installation is b0rken" >&2
     return 1
 
-  elif ! bugz -q get 2 1>/dev/null; then
+  elif ! bugz -q get 2 >/dev/null; then
     {
       echo "b.g.o is down"
       # hash -r delv && delv +vtrace bugs.gentoo.org || true
@@ -87,13 +91,6 @@ function LookupForABlocker() {
       return
     fi
   done < <(grep -v -e '^#' -e '^$' $pattern_file)
-
-  if [[ -f $issuedir/files/clang.tar.bz2 ]]; then
-    echo "870412"
-    return
-  fi
-
-  return
 }
 
 function GotResults() {

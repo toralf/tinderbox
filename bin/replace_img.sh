@@ -43,22 +43,6 @@ function FreeSlotAvailable() {
   [[ $((r + s)) -lt $desired_count && $(ImagesInRunShuffled | wc -l) -lt $desired_count ]]
 }
 
-function load15IsNotHigherThan() {
-  local max=${1:-$(nproc)}
-
-  # current load15
-  if ! sar -q 1 1 | awk '/Average:/ { if ($6 > '$max') exit 1 }'; then
-    return 1
-  fi
-
-  # average of the current and the hour before
-  if ! sar -q -i 3600 24 | grep -B 2 "Average:" | grep -v -e 'ldavg-15' -e 'Average' | awk '{ if ($7 > '$max') exit 1 }'; then
-    return 1
-  fi
-
-  return 0
-}
-
 #######################################################################
 set -euf
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
@@ -110,7 +94,7 @@ while :; do
   done < <(ImagesInRunEOLShuffled)
 
   # shellcheck disable=SC2154
-  if FreeSlotAvailable && load15IsNotHigherThan $(($(nproc) - 6)); then
+  if FreeSlotAvailable && loadIsNotTooHigh; then
     echo
     date
     echo " + + + setup a new image + + +"
