@@ -3,6 +3,8 @@
 # set -x
 
 function getCandidates() {
+  local keepdays=${1:-3}
+
   ls -dt ~tinderbox/img/[12]?.?* 2>/dev/null |
     tac |
     while read -r i; do
@@ -19,7 +21,7 @@ function getCandidates() {
       else
         target=$i
       fi
-      if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -lt 3 ]]; then
+      if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -le $keepdays ]]; then
         continue
       fi
 
@@ -105,8 +107,8 @@ while read -r img && pruneNeeded 69; do
   if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
     pruneDir $img "no bug reported"
   fi
-done < <(getCandidates)
+done < <(getCandidates 7)
 
 while read -r img && pruneNeeded; do
   pruneDir $img "space needed"
-done < <(getCandidates)
+done < <(getCandidates 14)
