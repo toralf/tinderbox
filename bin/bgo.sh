@@ -28,7 +28,6 @@ function Exit() {
 
 set -euf
 export LANG=C.utf8
-
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 source $(dirname $0)/lib.sh
@@ -53,7 +52,7 @@ while getopts b:c:d:i:s: opt; do
     ;;
   s) severity="$OPTARG" ;; # "normal", "QA" and so on
   *)
-    echo "unknown parameter '${opt}'" >&2
+    echo " unknown parameter '${opt}'" >&2
     exit 1
     ;;
   esac
@@ -62,10 +61,6 @@ done
 if [[ -f $issuedir/.reported ]]; then
   echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n"
   exit 0
-fi
-if [[ ! -s $issuedir/title ]]; then
-  echo -e "\n no title found\n" >&2
-  exit 1
 fi
 
 cd $issuedir
@@ -77,14 +72,20 @@ rm -f bgo.sh.{out,err}
 
 if [[ -n $id ]]; then
   if [[ -z $comment ]]; then
-    comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
+    comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f 5 -d '/')"
   fi
   bugz modify --status CONFIRMED --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
+  bugz modify --status CONFIRMED --comment-from ./comment0 $id >bgo.sh.out 2>bgo.sh.err
 
 else
   if [[ ! -s ./assignee ]]; then
-    echo "no assignee given, run check_bgo.sh before !" >&2
-    exit 4
+    echo " no assignee given, run check_bgo.sh before" >&2
+    exit 2
+  fi
+
+  if [[ ! -s ./title ]]; then
+    echo -e "\n no title found\n" >&2
+    exit 2
   fi
 
   bugz post \
@@ -105,7 +106,7 @@ else
   id=$(grep "Info: Bug .* submitted" bgo.sh.out | sed 's/[^0-9]//g')
   if [[ -z $id ]]; then
     echo
-    echo "empty bug id" >&2
+    echo " empty bug id" >&2
     echo
     Exit 4
   fi
