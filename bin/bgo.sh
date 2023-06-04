@@ -79,7 +79,7 @@ if [[ -n $id ]]; then
   if [[ -z $comment ]]; then
     comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f5 -d'/')"
   fi
-  bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
+  bugz modify --status CONFIRMED --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
 
 else
   if [[ ! -s ./assignee ]]; then
@@ -100,7 +100,7 @@ else
     --description-from "./comment0" \
     --batch \
     --default-confirm n \
-    1>bgo.sh.out 2>bgo.sh.err
+    >bgo.sh.out 2>bgo.sh.err
 
   id=$(grep "Info: Bug .* submitted" bgo.sh.out | sed 's/[^0-9]//g')
   if [[ -z $id ]]; then
@@ -111,11 +111,11 @@ else
   fi
 
   if [[ -n $comment ]]; then
-    bugz modify --status CONFIRMED --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
+    bugz modify --status CONFIRMED --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
   fi
 
   if grep -q -F ' fails test -' ./title; then
-    bugz modify --set-keywords "TESTFAILURE" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
+    bugz modify --set-keywords "TESTFAILURE" $id >bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
   fi
 fi
 echo "https://bugs.gentoo.org/$id" | tee -a ./.reported
@@ -124,7 +124,7 @@ if [[ -s bgo.sh.err ]]; then
 fi
 
 if [[ -f emerge-info.txt ]]; then
-  bugz attach --content-type "text/plain" --description "" $id emerge-info.txt 1>bgo.sh.out 2>bgo.sh.err || Warn "info"
+  bugz attach --content-type "text/plain" --description "" $id emerge-info.txt >bgo.sh.out 2>bgo.sh.err || Warn "info"
 fi
 
 if [[ -d ./files ]]; then
@@ -133,32 +133,29 @@ if [[ -d ./files ]]; then
   for f in ./files/*; do
     bytes=$(wc --bytes <$f)
     if [[ $bytes -eq 0 ]]; then
-      echo "skipped empty file: $f"
-      continue
-    # max. size from b.g.o. is 1 MB
+      echo "skipped empty file: $f" >&2
     elif [[ $bytes -gt $((2 ** 20)) ]]; then
-      echo "too fat file: $f"
+      echo "too fat file for b.g.o.: $f"
       file_size=$(ls -lh $f | awk '{ print $5 }')
       file_path=$(realpath $f | sed -e "s,^.*img/,,g")
       url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
-      comment="The file size of $f is too big ($file_size) for an upload. For about 8 weeks the link $url is valid."
-      bugz modify --comment "$comment" $id 1>bgo.sh.out 2>bgo.sh.err
-      continue
-    fi
-
-    if grep -q -e "bz2$" -e "xz$" <<<$f; then
-      ct="application/x-bzip"
+      comment="The file size of $f is too big ($file_size) for an upload. For few weeks the link $url is valid."
+      bugz modify --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
     else
-      ct="text/plain"
+      if [[ $f =~ '.bz2' || $f =~ '.xz' ]]; then
+        ct="application/x-bzip"
+      else
+        ct="text/plain"
+      fi
+      echo "  $f"
+      bugz attach --content-type "$ct" --description "" $id $f >bgo.sh.out 2>bgo.sh.err || Warn "attach $f"
     fi
-    echo "  $f"
-    bugz attach --content-type "$ct" --description "" $id $f 1>bgo.sh.out 2>bgo.sh.err || Warn "attach $f"
   done
   set -f
 fi
 
 if [[ -n $block ]]; then
-  bugz modify --add-blocked "$block" $id 1>bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
+  bugz modify --add-blocked "$block" $id >bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
 fi
 
 # do this as the very last step to reduce the amount of emails sent out by bugzilla for each record change
@@ -181,7 +178,7 @@ if [[ $newbug -eq 1 ]]; then
     add_cc=$(sed 's,  *, --add-cc ,g' <<<" $cc") # leading space is needed
   fi
 
-  bugz modify -a $assignee $add_cc $id 1>bgo.sh.out 2>bgo.sh.err || Warn "to:>$assignee< add_cc:>$add_cc<"
+  bugz modify -a $assignee $add_cc $id >bgo.sh.out 2>bgo.sh.err || Warn "to:>$assignee< add_cc:>$add_cc<"
 fi
 
 echo

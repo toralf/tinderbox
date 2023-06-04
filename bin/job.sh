@@ -41,7 +41,7 @@ function Mail() {
   fi |
     strings -w |
     sed -e 's,^>>>, >>>,' |
-    if ! (mail -s "$subject  @  $name" ${MAILTO:-tinderbox} 1>/dev/null); then
+    if ! (mail -s "$subject  @  $name" ${MAILTO:-tinderbox} >/dev/null); then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
     fi
 }
@@ -157,11 +157,11 @@ function getNextTask() {
 function CompressIssueFiles() {
   # shellcheck disable=SC2010
   ls $issuedir/files/ |
-    grep -v -F '.bz2' |
+    grep -v -F '.xz' |
     while read -r f; do
       # compress if bigger than 1/4 MB
       if [[ $(wc -c <$issuedir/files/$f) -gt $((2 ** 18)) ]]; then
-        bzip2 $issuedir/files/$f
+        xz $issuedir/files/$f
       fi
     done
 
@@ -211,7 +211,7 @@ function CollectIssueFiles() {
         -o -name "meson-log.txt" |
         sort -u >$f
       if [[ -s $f ]]; then
-        $gtar -cjpf $issuedir/files/logs.tar.bz2 \
+        $gtar -cJpf $issuedir/files/logs.tar.xz \
           --dereference \
           --warning='no-all' \
           --files-from $f 2>/dev/null
@@ -225,10 +225,10 @@ function CollectIssueFiles() {
     fi
 
     if [[ -d /var/tmp/clang/$pkg ]]; then
-      tar -C /var/tmp/clang/ -cjpf $issuedir/files/var.tmp.clang.tar.bz2 ./$pkg 2>/dev/null
+      tar -C /var/tmp/clang/ -cJpf $issuedir/files/var.tmp.clang.tar.xz ./$pkg 2>/dev/null
     fi
     if [[ -d /etc/clang ]]; then
-      tar -C /etc -cjpf $issuedir/files/etc.clang.tar.bz2 ./clang 2>/dev/null
+      tar -C /etc -cJpf $issuedir/files/etc.clang.tar.xz ./clang 2>/dev/null
     fi
 
     # additional CMake files
@@ -238,7 +238,7 @@ function CollectIssueFiles() {
     (
       cd "$workdir/../.."
       if [[ -d ./temp ]]; then
-        timeout --signal=15 --kill-after=1m 3m $gtar --warning=none -cjpf $issuedir/files/temp.tar.bz2 \
+        timeout --signal=15 --kill-after=1m 3m $gtar --warning=none -cJpf $issuedir/files/temp.tar.xz \
           --dereference \
           --warning='no-all' \
           --exclude='*/garbage.*' \
@@ -254,7 +254,7 @@ function CollectIssueFiles() {
     )
 
     # ICE
-    cp $workdir/../gcc-build-logs.tar.bz2 $issuedir/files 2>/dev/null
+    cp $workdir/../gcc-build-logs.tar.* $issuedir/files 2>/dev/null
   fi
 }
 
@@ -328,17 +328,17 @@ function handleTestPhase() {
   fi
 
   # gtar returns an error if it can't find any directory, therefore feed only existing dirs to it
-  pushd "$workdir" 1>/dev/null
+  pushd "$workdir" >/dev/null
   local dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
   if [[ -n $dirs ]]; then
     # ignore stderr, eg.:    tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
-    timeout --signal=15 --kill-after=1m 3m $gtar --warning=none -cjpf $issuedir/files/tests.tar.bz2 \
+    timeout --signal=15 --kill-after=1m 3m $gtar --warning=none -cJpf $issuedir/files/tests.tar.xz \
       --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
       --exclude='*.o' --exclude="*/symlinktest/*" \
       --dereference --sparse --one-file-system \
       $dirs 2>/dev/null
   fi
-  popd 1>/dev/null
+  popd >/dev/null
 }
 
 # helper of WorkAtIssue()
@@ -527,18 +527,15 @@ function SendIssueMailIfNotYetReported() {
       local hints="bug"
       local force=""
 
-      if [[ -e /etc/portage/bashrc ]]; then
-        hints+=" clang"
-      fi
       if checkBgo; then
         createSearchString
-        if SearchForSameIssue 1>>$issuedir/body; then
+        if SearchForSameIssue >>$issuedir/body; then
           return
         fi
         if [[ $? -eq 2 ]]; then
           hints+=" b.g.o. issue"
         else
-          if SearchForSimilarIssue 1>>$issuedir/body; then
+          if SearchForSimilarIssue >>$issuedir/body; then
             hints+=" similar"
             force="                        -f"
           else
@@ -576,7 +573,7 @@ function maskPackage() {
 }
 
 function collectPortageDir() {
-  tar -C / -cjpf $issuedir/files/etc.portage.tar.bz2 --dereference etc/portage
+  tar -C / -cJpf $issuedir/files/etc.portage.tar.xz --dereference etc/portage
 }
 
 # analyze the issue
@@ -952,7 +949,7 @@ function syncRepo() {
 
   last_sync=$curr_time
 
-  cd - 1>/dev/null
+  cd - >/dev/null
 }
 
 #############################################################################
@@ -992,6 +989,12 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
+jobs=$(
+  set +f
+  sed 's,^.*j,,' /etc/portage/package.env/00j*
+)
+export XZ_OPT="-9 -T$jobs"
+
 # re-schedule $task (if non-empty then Failed() was called before)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
@@ -1026,8 +1029,8 @@ while :; do
     fi
   fi
 
-  if ! awk '{ if ($1 >= '$(nproc)-2') exit 1 }' /proc/loadavg; then
-    seconds=$((30 + RANDOM % 90))
+  if ! loadIsNotTooHigh; then
+    seconds=$((30 + RANDOM % 150))
     echo "# wait $seconds" >$taskfile
     sleep $seconds
     continue
@@ -1049,7 +1052,7 @@ while :; do
   rm $tasklog
 
   echo "# compress logs" >$taskfile
-  if ! find /var/log/portage -name '*.log' -exec bzip2 {} +; then
+  if ! find /var/log/portage -name '*.log' -exec xz {} +; then
     ReachedEndfOfLife "error in compressing logs"
   fi
 

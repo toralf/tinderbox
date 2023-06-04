@@ -13,7 +13,7 @@ function dice() {
 function DiceAProfile() {
   eselect profile list |
     grep -F -e ' (stable)' -e ' (dev)' |
-    grep -v -F -e '/selinux' -e '/x32' -e '/musl' |
+    grep -v -F -e '/musl' -e '/selinux' -e '/x32' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
     shuf -n 1
@@ -107,7 +107,6 @@ function CheckOptions() {
 # helper of UnpackStage3()
 function CreateImageName() {
   name="$(tr '/\-' '_' <<<$profile)"
-  name+="-j${jobs}"
   [[ $keyword == 'amd64' ]] && name+="_stable"
   [[ $abi3264 == "y" ]] && name+="_abi32+64"
   [[ $testfeature == "y" ]] && name+="_test"
@@ -229,7 +228,7 @@ EOF
 
   local curr_path=$PWD
   cd .$reposdir
-  cp -ar --reflink=auto $reposdir/gentoo ./ # way faster and cheaper than "emaint sync --auto 1>/dev/null"
+  cp -ar --reflink=auto $reposdir/gentoo ./ # way faster and cheaper than "emaint sync --auto >/dev/null"
   cd ./gentoo
   rm -f ./.git/refs/heads/stable.lock ./.git/gc.log.lock # race with git operations at the host
   git config diff.renamelimit 0
@@ -363,7 +362,7 @@ EOF
   mkdir ./var/tmp/notmpfs
   echo 'PORTAGE_TMPDIR=/var/tmp/notmpfs' >./etc/portage/env/notmpfs
 
-  # limit # of parallel jobs, 1 is the fallback of $jobs fails for a package or is too much for the host
+  # prepare to have "j1" as a fallback for an important package failing too often in parallel build
   for j in 1 $jobs; do
     cat <<EOF >./etc/portage/env/j$j
 EGO_BUILD_FLAGS="-p $j"
@@ -382,7 +381,7 @@ RUST_TEST_TASKS=$j
 EOF
 
   done
-  echo "*/*         j${jobs}" >>./etc/portage/package.env/00j${jobs}
+  echo "*/*         j${jobs}" >>./etc/portage/package.env/00jobs
 
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
@@ -538,7 +537,7 @@ USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/gi
 
 date
 echo "# setup sync tree" | tee /var/tmp/tb/task
-emaint sync --auto 1>/dev/null
+emaint sync --auto >/dev/null
 
 date
 echo "# setup portage" | tee /var/tmp/tb/task
@@ -561,8 +560,8 @@ echo "# setup kernel" | tee /var/tmp/tb/task
 emerge -u sys-kernel/gentoo-kernel-bin
 
 date
-echo "# setup q, bugz and pfl" | tee /var/tmp/tb/task
-emerge -u app-portage/portage-utils www-client/pybugz app-portage/pfl
+echo "# setup xz, q, bugz and pfl" | tee /var/tmp/tb/task
+emerge -u app-arch/xz-utils app-portage/portage-utils www-client/pybugz app-portage/pfl
 
 date
 echo "# setup profile, make.conf, backlog" | tee /var/tmp/tb/task
@@ -592,7 +591,7 @@ function RunSetupScript() {
   echo " run setup script ..."
 
   echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' >./var/tmp/tb/setup_wrapper.sh
-  if nice -n 1 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
+  if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
     if grep ' Invalid atom ' ./var/tmp/tb/setup.sh.log; then
       return 1
     fi
@@ -609,7 +608,7 @@ function RunDryrunWrapper() {
   local message=$1
 
   echo "$message" | tee ./var/tmp/tb/task
-  nice -n 1 sudo $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog
+  nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog
   local rc=$?
 
   if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
