@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# bubblewrap/chroot into an image to either run a script / to work interactively in it
+# bubblewrap/chroot into an image to either run a script -or- to work interactively in it
 
 function CgroupCreate() {
   local name=local/$1
@@ -12,21 +12,23 @@ function CgroupCreate() {
     return 1
   fi
 
-  # the value of -jX of the image name gives the number of configured parallel build processes
-  local j=$(grep -Eo '\-j[0-9]+' <<<$name | cut -c3-)
+  local jobs=$(
+    set +f
+    sed 's,^.*j,,' $mnt/etc/portage/package.env/00j*
+  )
 
   # j+0.1 vCPU, slice is 10us
-  local cpu=$((100000 * j + 10000))
+  local cpu=$((100000 * jobs + 10000))
   cgset -r cpu.cfs_quota_us=$cpu $name
 
-  local mem=$((4 * j + 10))
+  local mem=$((4 * jobs + 10))
   cgset -r memory.limit_in_bytes=${mem}G $name
 
   # this setting implies a quota for /var/tmp/portage too (because that dir is a tmpfs)
   cgset -r memory.memsw.limit_in_bytes=70G $name
 
   for i in cpu memory; do
-    echo 1 >/sys/fs/cgroup/$i/$name/notify_on_release
+    echo "1" >/sys/fs/cgroup/$i/$name/notify_on_release
     if ! echo "$pid" >/sys/fs/cgroup/$i/$name/tasks; then
       return 1
     fi
@@ -220,13 +222,16 @@ if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   exit 1
 fi
 
-# this is usually the 2nd barrier but would be the 1st and the only one barrier if cgroup v1 is not used
+if [[ ! -d /run/tinderbox/ ]]; then
+  mkdir /run/tinderbox/
+fi
+
+# this is the 1st barrier (the 2nd is cgroup)
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
-if [[ -d $lock_dir ]]; then
-  echo "lock dir found: $lock_dir"
+if ! mkdir "$lock_dir"; then
+  echo "lock dir cannot be created: $lock_dir"
   exit 1
 fi
-mkdir -p "$lock_dir"
 
 trap Exit INT QUIT TERM EXIT
 
