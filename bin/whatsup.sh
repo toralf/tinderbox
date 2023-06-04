@@ -43,14 +43,14 @@ function check_history() {
 }
 
 # whatsup.sh -o
-#
-# compl fail new day backlog .upd .1st wp rls 7#7 locked
-#  4402   36   1 4.8   16529    7    0 W  r   ~/run/17.1-20210306-163653
-#  4042   26   0 5.1   17774   12    2    r   ~/run/17.1_desktop_gnome-20210306-091529
+#  compl fail new  day backlog .upd .1st wp lcs 11#12 locked
+#   1124    6   0  0.9   17802  186    0  . lc  ~/run/17.1-j5-20230602-204005
+#   7020   56   2  6.7   12988   68    0  . lc  ~/run/17.1_desktop-j5-20230527-234505
+#   4612   36   2  5.0   15954  116    0  . lc  ~/run/17.1_desktop_gnome-j5-20230529-171537
 function Overall() {
   local locked=$(ls -d /run/tinderbox/*.lock 2>/dev/null | wc -l)
   local all=$(wc -w <<<$images)
-  echo "compl fail new  day backlog .upd .1st wp cls $locked#$all locked"
+  echo "compl fail new  day backlog .upd .1st wp lcs $locked#$all locked"
 
   for i in $images; do
     local days=$(bc <<<"scale=1; ( $EPOCHSECONDS - $(getStartTime $i) ) / 86400.0")
@@ -75,8 +75,8 @@ function Overall() {
     local bl1=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.1st || echo 0)
     local blu=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.upd || echo 0)
 
-    # "r" image is in ~rrunning
     # "l" image is locked
+    # "c" image is under cgroup control
     local flags=""
 
     # result of last run of @world and @preserved-rebuild respectively:
@@ -88,13 +88,13 @@ function Overall() {
     check_history $i/var/tmp/tb/@world.history w
     check_history $i/var/tmp/tb/@preserved-rebuild.history p
     flags+=" "
-    if __is_cgrouped $i; then
-      flags+="c"
+    if __is_locked $i; then
+      flags+="l"
     else
       flags+=" "
     fi
-    if __is_locked $i; then
-      flags+="l"
+    if __is_cgrouped $i; then
+      flags+="c"
     else
       flags+=" "
     fi

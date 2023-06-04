@@ -10,7 +10,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 if [[ "$(whoami)" != "tinderbox" ]]; then
-  echo " you must be tinderbox"
+  echo " you must be tinderbox" >&2
   exit 1
 fi
 

@@ -50,7 +50,6 @@ for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}; do
 
   echo " starting: $mnt"
 
-  # nice makes sysstat graphs better readable
   nice -n 3 sudo $(dirname $0)/bwrap.sh -m "$(basename $mnt)" -e "$(dirname $0)/job.sh" &>~tinderbox/logs/$(basename $mnt).log &
 done
 

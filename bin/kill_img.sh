@@ -39,6 +39,7 @@ for img in ${*?got no image}; do
                 done
                 echo
                 if kill -0 $pid_entrypoint; then
+                  echo " notice: get roughly for $pid_entrypoint"
                   kill -9 $pid_entrypoint
                   echo
                 fi
@@ -59,6 +60,6 @@ for img in ${*?got no image}; do
       echo " info: could not get bwrap pid"
     fi
   else
-    echo " error: $img: image not found"
+    echo " error: $img: image not found" >&2
   fi
 done
