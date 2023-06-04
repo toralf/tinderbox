@@ -45,14 +45,14 @@ x11-wm/stumpwm
 # high load
 media-libs/libva-intel-media-driver
 
-# long compile time
+# too long compile time
 sci-libs/atlas                                          # DICE: long_compile_time_sci 15 16
 sci-libs/libint:2                                       # DICE: long_compile_time_sci 15 16
 sci-libs/rocBLAS                                        # DICE: long_compile_time_roc 15 16
 sci-libs/rocFFT                                         # DICE: long_compile_time_roc 15 16
 sci-libs/tensorflow                                     # DICE: long_compile_time_tef 15 16
 
-# way too long and QA is up to Google
+# way too long
 www-client/google-chrome
 www-client/chromium
 

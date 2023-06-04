@@ -44,6 +44,9 @@ sys-devel/gcc                       -d
 # required by sys-apps/portage
 dev-lang/python                     ssl
 
+# required by www-client/pybugz
+dev-lang/python                     readline
+
 # dracut would require "xattr" for coreutils
 sys-kernel/gentoo-kernel-bin        -initramfs
 
