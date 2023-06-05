@@ -143,8 +143,10 @@ if [[ -d ./files ]]; then
       comment="The file size of $f is too big ($file_size) for an upload. For few weeks the link $url is valid."
       bugz modify --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
     else
-      if [[ $f =~ '.bz2' || $f =~ '.xz' ]]; then
+      if [[ $f =~ '.bz2' ]]; then
         ct="application/x-bzip"
+      elif [[ $f =~ '.xz' ]]; then
+        ct="application/x-xz"
       else
         ct="text/plain"
       fi
