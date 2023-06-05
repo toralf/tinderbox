@@ -37,20 +37,13 @@ id=""
 block=""
 comment=""
 issuedir=""
-severity="Normal"
 
-newbug=1 # if set to 1 then do neither change To: nor cc:
-
-while getopts b:c:d:i:s: opt; do
+while getopts b:c:d:i: opt; do
   case $opt in
   b) block="$OPTARG" ;;    # (b)lock that bug (id or alias)
   c) comment="$OPTARG" ;;  # (c)omment, used with -a
   d) issuedir="$OPTARG" ;; # (d)irectory with all files
-  i)
-    id="$OPTARG" # (i)d of an existing bug
-    newbug=0
-    ;;
-  s) severity="$OPTARG" ;; # "normal", "QA" and so on
+  i) id="$OPTARG" ;;       # (i)d of an existing bug
   *)
     echo " unknown parameter '${opt}'" >&2
     exit 1
@@ -79,7 +72,7 @@ if [[ -n $id ]]; then
 
 else
   if [[ ! -s ./assignee ]]; then
-    echo " no assignee given, run check_bgo.sh before" >&2
+    echo " no assignee given, run first check_bgo.sh" >&2
     exit 2
   fi
 
@@ -96,9 +89,9 @@ else
     --op-sys "Linux" \
     --platform "All" \
     --priority "Normal" \
-    --severity "$severity" \
+    --severity "Normal" \
     --alias "" \
-    --description-from "./comment0" \
+    --description-from ./comment0 \
     --batch \
     --default-confirm n \
     >bgo.sh.out 2>bgo.sh.err
@@ -144,7 +137,7 @@ if [[ -d ./files ]]; then
       bugz modify --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
     else
       if [[ $f =~ '.bz2' ]]; then
-        ct="application/x-bzip"
+        ct="application/x-bzip2"
       elif [[ $f =~ '.xz' ]]; then
         ct="application/x-xz"
       else
@@ -162,7 +155,7 @@ if [[ -n $block ]]; then
 fi
 
 # do this as the very last step to reduce the amount of emails sent out by bugzilla for each record change
-if [[ $newbug -eq 1 ]]; then
+if [[ ! -n $id ]]; then
   name=$(cat ../../name)
   assignee="$(cat ./assignee)"
   if [[ $name =~ musl && $assignee != "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC ./title; then
