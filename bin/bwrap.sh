@@ -12,27 +12,28 @@ function CgroupCreate() {
     return 1
   fi
 
-  local jobs=$(
-    set +f
-    sed 's,^.*j,,' $mnt/etc/portage/package.env/00j*
-  )
-
-  # j+0.1 vCPU, slice is 10us
-  local cpu=$((100000 * jobs + 10000))
-  cgset -r cpu.cfs_quota_us=$cpu $name
-
-  local mem=$((4 * jobs + 10))
-  cgset -r memory.limit_in_bytes=${mem}G $name
-
-  # this setting implies a quota for /var/tmp/portage too (because that dir is a tmpfs)
-  cgset -r memory.memsw.limit_in_bytes=70G $name
-
   for i in cpu memory; do
     echo "1" >/sys/fs/cgroup/$i/$name/notify_on_release
     if ! echo "$pid" >/sys/fs/cgroup/$i/$name/tasks; then
       return 1
     fi
   done
+
+  local jobs=$(
+    set +f
+    sed 's,^.*j,,' $mnt/etc/portage/package.env/00j*
+  )
+
+  # jobs+0.1 vCPU, slice is 10us
+  local cpu=$((100000 * jobs + 10000))
+  cgset -r cpu.cfs_quota_us=$cpu $name
+
+  # 2 GB per compiler thread
+  local mem=$((2 * jobs + 10))
+  cgset -r memory.limit_in_bytes=${mem}G $name
+
+  # memory+swap, consider tmpfs
+  cgset -r memory.memsw.limit_in_bytes=$((mem + 2 * 16))G $name
 }
 
 function CgroupDelete() {
@@ -56,10 +57,10 @@ function Exit() {
   fi
 
   if [[ $rc -eq 13 ]]; then
-    exec $(dirname $0)/replace_img.sh
-  else
-    exit $rc
+    echo "sudo -u tinderbox $(dirname $0)/replace_img.sh" | at -m -u tinderbox now
   fi
+
+  exit $rc
 }
 
 function ChrootMountAll() {
@@ -79,8 +80,6 @@ function ChrootMountAll() {
 
   mount -o size=16G -t tmpfs tmpfs $mnt/tmp
   mount -o size=16G -t tmpfs tmpfs $mnt/var/tmp/portage
-
-  return $?
 }
 
 function ChrootUmountAll() {
@@ -89,7 +88,7 @@ function ChrootUmountAll() {
   umount -l $mnt/var/tmp/portage $mnt/tmp \
     $mnt/var/cache/distfiles $mnt/etc/ssmtp/ssmtp.conf $mnt/mnt/tb/data \
     $mnt/dev{/pts,/shm,/mqueue,} \
-    $mnt/{sys,proc,run}
+    $mnt/{sys,proc,run} 2>/dev/null
 }
 
 function Chroot() {
@@ -107,7 +106,6 @@ function Chroot() {
   fi
 
   return $rc
-
 }
 
 function Bwrap() {
