@@ -8,7 +8,7 @@ function Warn() {
   local rc=$?
   echo "  --------------"
   echo -e "\n  ${1:-<no text given>}, error code: ${2:-$rc}\n\n"
-  tail -v bgo.sh.*
+  tail -v bgo.sh.{out,err}
   echo "  --------------"
 }
 
@@ -24,63 +24,14 @@ function Exit() {
   exit $rc
 }
 
-#######################################################################
 
-set -euf
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
-export LANG=C.utf8
-
-source $(dirname $0)/lib.sh
-checkBgo
-
-id=""
-block=""
-comment=""
-issuedir=""
-
-while getopts b:c:d:i: opt; do
-  case $opt in
-  b) block="$OPTARG" ;;    # (b)lock that bug (id or alias)
-  c) comment="$OPTARG" ;;  # (c)omment, used with -a
-  d) issuedir="$OPTARG" ;; # (d)irectory with all files
-  i) id="$OPTARG" ;;       # (i)d of an existing bug
-  *)
-    echo " unknown parameter '${opt}'" >&2
-    exit 1
-    ;;
-  esac
-done
-
-if [[ -f $issuedir/.reported ]]; then
-  echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n"
-  exit 0
-fi
-
-cd $issuedir
-
-trap Exit INT QUIT TERM EXIT
-
-# cleanup of a previous run
-rm -f bgo.sh.{out,err}
-
-if [[ -n $id ]]; then
-  if [[ -z $comment ]]; then
-    comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f 5 -d '/')"
-  fi
+function append(){
+  local comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f 5 -d '/')"
   bugz modify --status CONFIRMED --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
   bugz modify --status CONFIRMED --comment-from ./comment0 $id >bgo.sh.out 2>bgo.sh.err
+}
 
-else
-  if [[ ! -s ./assignee ]]; then
-    echo " no assignee given, run first check_bgo.sh" >&2
-    exit 2
-  fi
-
-  if [[ ! -s ./title ]]; then
-    echo -e "\n no title found\n" >&2
-    exit 2
-  fi
-
+function create() {
   bugz post \
     --product "Gentoo Linux" \
     --component "Current packages" \
@@ -96,32 +47,20 @@ else
     --default-confirm n \
     >bgo.sh.out 2>bgo.sh.err
 
-  id=$(grep "Info: Bug .* submitted" bgo.sh.out | sed 's/[^0-9]//g')
-  if [[ -z $id ]]; then
+  id=$(awk '/ * Info: Bug .* submitted/ { print $4 }' bgo.sh.out)
+  if [[ -z $id || ! $id =~ ^[0-9]+$ ]]; then
     echo
-    echo " empty bug id" >&2
+    echo " wrong bug id: '$id'" >&2
     echo
     Exit 4
-  fi
-
-  if [[ -n $comment ]]; then
-    bugz modify --status CONFIRMED --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
   fi
 
   if grep -q -F ' fails test -' ./title; then
     bugz modify --set-keywords "TESTFAILURE" $id >bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
   fi
-fi
-echo "https://bugs.gentoo.org/$id" | tee -a ./.reported
-if [[ -s bgo.sh.err ]]; then
-  Exit 5
-fi
+}
 
-if [[ -f emerge-info.txt ]]; then
-  bugz attach --content-type "text/plain" --description "" $id emerge-info.txt >bgo.sh.out 2>bgo.sh.err || Warn "info"
-fi
-
-if [[ -d ./files ]]; then
+function attach() {
   echo
   set +f
   for f in ./files/*; do
@@ -148,14 +87,9 @@ if [[ -d ./files ]]; then
     fi
   done
   set -f
-fi
+}
 
-if [[ -n $block ]]; then
-  bugz modify --add-blocked "$block" $id >bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
-fi
-
-# do this as the very last step to reduce the amount of emails sent out by bugzilla for each record change
-if [[ ! -n $id ]]; then
+function assign() {
   name=$(cat ../../name)
   assignee="$(cat ./assignee)"
   if [[ $name =~ musl && $assignee != "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC ./title; then
@@ -175,6 +109,83 @@ if [[ ! -n $id ]]; then
   fi
 
   bugz modify -a $assignee $add_cc $id >bgo.sh.out 2>bgo.sh.err || Warn "to:>$assignee< add_cc:>$add_cc<"
+}
+
+#######################################################################
+
+set -euf
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+export LANG=C.utf8
+
+source $(dirname $0)/lib.sh
+checkBgo
+
+block=""
+issuedir=""
+id=""
+
+while getopts b:d:i: opt; do
+  case $opt in
+  b) block="$OPTARG" ;;    # (b)lock that bug (id or alias)
+  d) issuedir="$OPTARG" ;; # (d)irectory with all files
+  i) id="$OPTARG" ;;       # (i)d of an existing bug
+  *)
+    echo " unknown parameter '$opt'" >&2
+    exit 1
+    ;;
+  esac
+done
+
+if [[ -z "$issuedir" || ! -d $issuedir ]]; then
+  echo " wrong issuedir '$issuedir'" >&2
+  exit 1
+fi
+cd $issuedir
+
+if [[ -f .reported ]]; then
+  echo -e "\n already reported: $(cat .reported)\n .reported\n"
+  exit 0
+fi
+
+
+trap Exit INT QUIT TERM EXIT
+
+# cleanup of a previous run
+rm -f bgo.sh.{out,err}
+
+if [[ -n $id ]]; then
+  new_bug=0
+  append
+else
+  if [[ ! -s ./assignee ]]; then
+    echo " no assignee given, run first check_bgo.sh" >&2
+    exit 2
+  fi
+  if [[ ! -s ./title ]]; then
+    echo -e "\n no title found\n" >&2
+    exit 2
+  fi
+  new_bug=1
+  create
+fi
+
+echo "https://bugs.gentoo.org/$id" | tee -a ./.reported
+if [[ -s bgo.sh.err ]]; then
+  Exit 5
+fi
+
+bugz attach --content-type "text/plain" --description "" $id emerge-info.txt >bgo.sh.out 2>bgo.sh.err || Warn "info"
+if [[ -d ./files ]]; then
+  attach
+fi
+
+if [[ -n $block ]]; then
+  bugz modify --add-blocked "$block" $id >bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
+fi
+
+# do this as the very last step to reduce the amount of emails automatically send out by bugzilla
+if [[ $new_bug -eq 1 ]]; then
+  assign
 fi
 
 echo
