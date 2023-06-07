@@ -201,60 +201,51 @@ function CollectIssueFiles() {
   if [[ -d $workdir ]]; then
     # catch relevant logs
     (
-      f=/var/tmp/tb/files
+      f=/tmp/files
       cd "$workdir/.."
       find ./ -name "*.log" \
+        -o -name "meson-log.txt" \
         -o -name "testlog.*" \
-        -o -wholename "./temp/syml*" \
         -o -wholename '*/elf/*.out' \
         -o -wholename '*/softmmu-build/*' \
-        -o -name "meson-log.txt" |
+        -o -wholename "./temp/syml*" |
         sort -u >$f
       if [[ -s $f ]]; then
         $gtar -cJpf $issuedir/files/logs.tar.xz \
           --dereference \
           --warning='no-all' \
-          --files-from $f 2>/dev/null
+          --files-from $f
       fi
       rm $f
     )
 
-    # by Flow
-    if [[ $pkg =~ "dev-java/scala-cli-bin" ]]; then
-      cat /proc/self/cgroup >$issuedir/files/proc_self_cgroup.txt
-    fi
-
+    # requested by sam_
     if [[ -d /var/tmp/clang/$pkg ]]; then
-      tar -C /var/tmp/clang/ -cJpf $issuedir/files/var.tmp.clang.tar.xz ./$pkg 2>/dev/null
+      tar -C /var/tmp/clang/ -cJpf $issuedir/files/var.tmp.clang.tar.xz ./$pkg
     fi
     if [[ -d /etc/clang ]]; then
-      tar -C /etc -cJpf $issuedir/files/etc.clang.tar.xz ./clang 2>/dev/null
+      tar -C /etc -cJpf $issuedir/files/etc.clang.tar.xz ./clang
     fi
 
     # additional CMake files
-    cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null
+    cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null || true
 
-    # provide the whole temp dir if possible
-    (
-      cd "$workdir/../.."
-      if [[ -d ./temp ]]; then
-        timeout --signal=15 --kill-after=1m 3m $gtar --warning=none -cJpf $issuedir/files/temp.tar.xz \
-          --dereference \
-          --warning='no-all' \
-          --exclude='*/garbage.*' \
-          --exclude='*/go-build[0-9]*/*' \
-          --exclude='*/go-cache/??/*' \
-          --exclude='*/kerneldir/*' \
-          --exclude='*/nested_link_to_dir/*' \
-          --exclude='*/syml*' \
-          --exclude='*/testdirsymlink/*' \
-          --exclude='*/var-tests/*' \
-          ./temp
-      fi
-    )
+    if [[ -d $workdir/../../temp ]]; then
+      timeout --signal=15 --kill-after=1m 3m $gtar -C $workdir/../.. --warning=none -cJpf $issuedir/files/temp.tar.xz \
+        --dereference --warning='no-all' \
+        --exclude='*/garbage.*' \
+        --exclude='*/go-build[0-9]*/*' \
+        --exclude='*/go-cache/??/*' \
+        --exclude='*/kerneldir/*' \
+        --exclude='*/nested_link_to_dir/*' \
+        --exclude='*/syml*' \
+        --exclude='*/testdirsymlink/*' \
+        --exclude='*/var-tests/*' \
+        ./temp
+    fi
 
     # ICE
-    cp $workdir/../gcc-build-logs.tar.* $issuedir/files 2>/dev/null
+    cp $workdir/../gcc-build-logs.tar.* $issuedir/files 2>/dev/null || true
   fi
 }
 
@@ -264,7 +255,7 @@ function foundCollisionIssue() {
   local s=$(
     grep -m 1 -A 5 'Press Ctrl-C to Stop' $tasklog_stripped |
       tee -a $issuedir/issue |
-      grep -m 1 '::' | tr ':' ' ' | cut -f3 -d' ' -s
+      grep -m 1 '::' | tr ':' ' ' | cut -f 3 -d ' ' -s
   )
   echo "file collision with $s" >$issuedir/title
 }
@@ -295,13 +286,13 @@ function foundCflagsIssue() {
 # helper of ClassifyIssue()
 function foundGenericIssue() {
   # the order of the pattern within the file/s rules
-  (
+  {
     cat /mnt/tb/data/CATCH_ISSUES-pre
     if [[ -n $phase ]]; then
       cat /mnt/tb/data/CATCH_ISSUES.$phase
     fi
     cat /mnt/tb/data/CATCH_ISSUES-post
-  ) |
+  } |
     split --lines=1 --suffix-length=4 - /tmp/x_
 
   for x in /tmp/x_????; do
@@ -328,17 +319,21 @@ function handleTestPhase() {
   fi
 
   # gtar returns an error if it can't find any directory, therefore feed only existing dirs to it
-  pushd "$workdir" >/dev/null
-  local dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
-  if [[ -n $dirs ]]; then
-    # ignore stderr, eg.:    tar: ./automake-1.13.4/t/instspc.dir/a: Cannot stat: No such file or directory
-    timeout --signal=15 --kill-after=1m 3m $gtar --warning=none -cJpf $issuedir/files/tests.tar.xz \
-      --exclude="*/dev/*" --exclude="*/proc/*" --exclude="*/sys/*" --exclude="*/run/*" \
-      --exclude='*.o' --exclude="*/symlinktest/*" \
-      --dereference --sparse --one-file-system \
-      $dirs 2>/dev/null
-  fi
-  popd >/dev/null
+  (
+    cd "$workdir"
+    dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
+    if [[ -n $dirs ]]; then
+      timeout --signal=15 --kill-after=1m 3m $gtar --warning=none -cJpf $issuedir/files/tests.tar.xz \
+        --dereference --one-file-system --sparse \
+        --exclude='*.o' \
+        --exclude="*/dev/*" \
+        --exclude="*/proc/*" \
+        --exclude="*/run/*" \
+        --exclude="*/symlinktest/*" \
+        --exclude="*/sys/*" \
+        $dirs
+    fi
+  )
 }
 
 # helper of WorkAtIssue()
@@ -351,7 +346,7 @@ function ClassifyIssue() {
   if grep -q -m 1 -F ' * Detected file collision(s):' $pkglog_stripped; then
     foundCollisionIssue
 
-  elif [[ -n $sandb ]]; then # no "-f" b/c it might not exist
+  elif [[ -n $sandb ]]; then # no "-f" b/c it might not been created
     foundSandboxIssue
 
   # special forced issues
@@ -359,9 +354,10 @@ function ClassifyIssue() {
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
   else
-    # this gets been overwritten if a pattern matches
-    grep -m 1 -A 2 "^ \* ERROR:.* failed \(.* phase\):" $pkglog_stripped | tee $issuedir/issue |
-      head -n 2 | tail -n 1 >$issuedir/title
+    # this will be overwritten if a generic pattern matches
+    grep -m 1 -A 2 "^ \* ERROR:.* failed \(.* phase\):" $pkglog_stripped |
+      tee $issuedir/issue |
+      sed -n -e '2p' >$issuedir/title
     foundGenericIssue
   fi
 
@@ -435,9 +431,9 @@ function KeepInstalledDeps() {
 
 # helper of WorkAtIssue()
 function setWorkDir() {
-  workdir=$(grep -F -m 1 ' * Working directory: ' $tasklog_stripped | cut -f2 -d"'" -s)
+  workdir=$(grep -F -m 1 ' * Working directory: ' $tasklog_stripped | cut -f 2 -d "'" -s)
   if [[ ! -d $workdir ]]; then
-    workdir=$(grep -F -m 1 '>>> Source unpacked in ' $tasklog_stripped | cut -f5 -d" " -s)
+    workdir=$(grep -F -m 1 '>>> Source unpacked in ' $tasklog_stripped | cut -f 5 -d " " -s)
     if [[ ! -d $workdir ]]; then
       workdir=/var/tmp/portage/$pkg/work/$(basename $pkg)
       if [[ ! -d $workdir ]]; then
@@ -525,7 +521,7 @@ function SendIssueMailIfNotYetReported() {
       chmod a+w $issuedir/body
 
       local hints="bug"
-      local force=""
+      local force="                        "
 
       if checkBgo; then
         createSearchString
@@ -537,18 +533,23 @@ function SendIssueMailIfNotYetReported() {
         else
           if SearchForSimilarIssue >>$issuedir/body; then
             hints+=" similar"
-            force="                        -f"
+            force+=" -f"
           else
             if [[ $? -eq 2 ]]; then
               hints+=" b.g.o. issue"
             else
               hints+=" unknown"
-              force="                        -f"
+              force+=" -f"
             fi
           fi
         fi
       else
-        hints+=" raw"
+        rc=$?
+        if [[ $rc -eq 1 ]]; then
+          hints+=" check pybugz"
+        elif [[ $rc -eq 2 ]]; then
+          hints+=" b.g.o. issue"
+        fi
       fi
 
       echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n;" >>$issuedir/body
@@ -563,9 +564,8 @@ function SendIssueMailIfNotYetReported() {
 }
 
 function maskPackage() {
-  local self=/etc/portage/package.mask/self
-
   if [[ -n $pkg ]]; then
+    local self=/etc/portage/package.mask/self
     if [[ ! -s $self ]] || ! grep -q -e "=$pkg$" $self; then
       echo "=$pkg" >>$self
     fi
@@ -628,7 +628,7 @@ function source_profile() {
 # helper of PostEmerge()
 # switch to highest GCC
 function SwitchGCC() {
-  local highest=$(gcc-config --list-profiles --nocolor | cut -f3 -d' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
+  local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
 
   if ! gcc-config --list-profiles --nocolor | grep -q -F "$highest *"; then
     local current=$(gcc -dumpversion)
@@ -636,7 +636,7 @@ function SwitchGCC() {
     gcc-config --nocolor $highest
     source_profile
     add2backlog "sys-devel/libtool"
-    add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f1 -d'.' <<<$current)"
+    add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f 1 -d '.' <<<$current)"
   fi
 }
 
@@ -656,10 +656,14 @@ function PostEmerge() {
   rm -f /etc/._cfg????_{hosts,resolv.conf} /etc/conf.d/._cfg????_hostname /etc/ssmtp/._cfg????_ssmtp.conf /etc/portage/._cfg????_make.conf
 
   # merge the remaining config files automatically
-  etc-update --automode -5 &>/dev/null
+  if ! etc-update --automode -5 &>/dev/null; then
+    Mail "INFO: etc-update failed" $tasklog_stripped
+  fi
 
   # update the environment
-  env-update &>/dev/null
+  if ! env-update &>/dev/null; then
+    Mail "INFO: env-update failed" $tasklog_stripped
+  fi
   source_profile
 
   if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
@@ -685,11 +689,12 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped && ! grep -q -F '[ebuild .*UD ]  *dev-lang/ruby' $tasklog_stripped; then
-    local current=$(eselect ruby show | head -n 2 | tail -n 1 | xargs)
     local highest=$(eselect ruby list | tail -n 1 | awk '{ print $2 }')
-
-    if [[ $current != "$highest" ]]; then
-      add2backlog "%eselect ruby set $highest"
+    if [[ -n $highest ]]; then
+      local current=$(eselect ruby show | sed -n -e '2p' | xargs)
+      if [[ $current != "$highest" ]]; then
+        add2backlog "%eselect ruby set $highest"
+      fi
     fi
   fi
 
@@ -702,7 +707,7 @@ function PostEmerge() {
 function createIssueDir() {
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<<$pkg)
   mkdir -p $issuedir/files || return $?
-  chmod 777 $issuedir # allow to edit title etc. manually
+  chmod 777 $issuedir # allow to manually edit title etc. later
 }
 
 function catchMisc() {
@@ -716,12 +721,12 @@ function catchMisc() {
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       pkg=$(grep -m 1 -F ' * Package: ' $pkglog_stripped | awk '{ print $3 }' | sed -e 's,:.*,,')
       phase=""
-      pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+      pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
 
       # create for each finding an own issue
       grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |
         while read -r line; do
-          createIssueDir || continue
+          createIssueDir
           echo "$line" >$issuedir/title
           grep -m 1 -F -e "$line" $pkglog_stripped >$issuedir/issue
           cp $pkglog $issuedir/files
@@ -754,7 +759,7 @@ function GetPkglog() {
   if [[ -z $pkg ]]; then
     return 1
   fi
-  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f1-2 -d' ' -s | tr ' ' '/')
+  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<<$pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
     pkglog=$(ls -1 /var/log/portage/$(tr '/' ':' <<<$pkgname)*.log 2>/dev/null | sort | tail -n 1)
@@ -768,7 +773,7 @@ function GetPkglog() {
 function GetPkgFromTaskLog() {
   pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk '{ print $3 }')
   if [[ -z $pkg ]]; then
-    pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f5 -d' ' -s | cut -f1 -d',' -s)
+    pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f 5 -d ' ' -s | cut -f 1 -d ',' -s)
     if [[ -z $pkg ]]; then
       pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
       if [[ -z $pkg ]]; then
