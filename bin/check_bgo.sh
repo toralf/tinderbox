@@ -50,6 +50,11 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
 
 issuedir=${1?missing issue dir}
+if [[ -z "$issuedir" || ! -d $issuedir ]]; then
+  echo " wrong issuedir '$issuedir'" >&2
+  exit 1
+fi
+
 force="n"
 if [[ $# -eq 2 && $2 == "-f" ]]; then
   force="y"
