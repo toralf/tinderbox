@@ -131,7 +131,7 @@ function Tasks() {
     if printImageName $i && __is_running $i && [[ -s $tsk ]]; then
       local task=$(cat $tsk)
 
-      set +e # integer calculation result could be 0
+      set +e
       ((delta = EPOCHSECONDS - $(stat -c %Y $tsk)))
       ((minutes = delta / 60 % 60))
       if [[ $delta -lt 3600 ]]; then
@@ -183,7 +183,7 @@ function LastEmergeOperation() {
           printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 2*3600 ? " " : "!");    # mark too long emerge times
         }
         my $line = join (" ", @F[2..$#F]);
-        print substr ($line, 0, '"'$((columns - 38))'"'), "\n";
+        print substr ($line, 0, '$((columns - 38))'), "\n";
       '
     else
       echo
@@ -351,7 +351,7 @@ while getopts cdlopt opt; do
   p) CountEmergesPerPackages ;;
   t) Tasks ;;
   *)
-    echo "unknown parameter '${opt}'"
+    echo "unknown parameter '$opt'"
     exit 1
     ;;
   esac
