@@ -675,10 +675,6 @@ function PostEmerge() {
     add2backlog "%haskell-updater"
   fi
 
-  if grep -q ">>> Installing .* dev-lang/go-[1-9]" $tasklog_stripped && ! grep -q -F '[ebuild .*UD ]  *dev-lang/go' $tasklog_stripped; then
-    add2backlog "@golang-rebuild"
-  fi
-
   if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
     add2backlog "sys-apps/portage"
   fi
