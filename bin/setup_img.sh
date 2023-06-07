@@ -98,7 +98,7 @@ function CheckOptions() {
     fi
   fi
 
-  if [[ ! $jobs =~ ^[0-9].*$ ]]; then
+  if [[ ! $jobs =~ ^[0-9]+$ ]]; then
     echo " jobs is wrong: >>${jobs}<<"
     return 1
   fi
@@ -492,7 +492,7 @@ EOF
 }
 
 function CreateSetupScript() {
-  if cat <<EOF >./var/tmp/tb/setup.sh; then
+  cat <<EOF >./var/tmp/tb/setup.sh || return 1
 #!/bin/bash
 # set -x
 
@@ -579,10 +579,7 @@ echo "# setup done" | tee /var/tmp/tb/task
 
 EOF
 
-    chmod u+x ./var/tmp/tb/setup.sh
-  else
-    return 1
-  fi
+  chmod u+x ./var/tmp/tb/setup.sh
 }
 
 function RunSetupScript() {
@@ -590,7 +587,7 @@ function RunSetupScript() {
   date
   echo " run setup script ..."
 
-  echo '/var/tmp/tb/setup.sh &> /var/tmp/tb/setup.sh.log' >./var/tmp/tb/setup_wrapper.sh
+  echo '/var/tmp/tb/setup.sh &>/var/tmp/tb/setup.sh.log' >./var/tmp/tb/setup_wrapper.sh
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
     if grep ' Invalid atom ' ./var/tmp/tb/setup.sh.log; then
       return 1
@@ -632,12 +629,12 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
-  for i in $(seq -w 1 19); do
+  for i in {1..9}; do
     # kick off particular packages
     local pkg=$(
       grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 } ' |
-        cut -f1 -d':' -s |
+        cut -f 1 -d ':' -s |
         xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |
         sed -e 's,/,\\/,'
     )
