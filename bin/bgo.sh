@@ -24,8 +24,7 @@ function Exit() {
   exit $rc
 }
 
-
-function append(){
+function append() {
   local comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f 5 -d '/')"
   bugz modify --status CONFIRMED --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
   bugz modify --status CONFIRMED --comment-from ./comment0 $id >bgo.sh.out 2>bgo.sh.err
@@ -136,7 +135,7 @@ while getopts b:d:i: opt; do
   esac
 done
 
-if [[ -z "$issuedir" || ! -d $issuedir ]]; then
+if [[ -z $issuedir || ! -d $issuedir ]]; then
   echo " wrong issuedir '$issuedir'" >&2
   exit 1
 fi
@@ -146,7 +145,6 @@ if [[ -f .reported ]]; then
   echo -e "\n already reported: $(cat .reported)\n .reported\n"
   exit 0
 fi
-
 
 trap Exit INT QUIT TERM EXIT
 
