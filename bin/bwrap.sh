@@ -55,7 +55,11 @@ function Exit() {
     rmdir -- $lock_dir
   fi
 
-  exit $rc
+  if [[ $rc -eq 13 ]]; then
+    exec $(dirname $0)/replace_img.sh
+  else
+    exit $rc
+  fi
 }
 
 function ChrootMountAll() {
