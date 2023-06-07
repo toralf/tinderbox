@@ -4,3 +4,4 @@
 
 # sam
 <dev-util/meson-9999                                    # DICE: meson
+<media-video/ffmpeg-9999                                # DICE: ffmpeg
