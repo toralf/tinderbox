@@ -194,4 +194,4 @@ function SearchForSimilarIssue() {
   return 1
 }
 
-export bugz_timeout="timeout --signal=15 --kill-after=1m 3m" # bugz tends to hang
+export bugz_timeout="timeout --signal=15 --kill-after=1m 3m" # when bugz hangs
