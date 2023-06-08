@@ -142,17 +142,18 @@ function Bwrap() {
     --unshare-uts
     --bind "$mnt" /
     --dev /dev
+    --dev-bind /dev/console /dev/console
     --mqueue /dev/mqueue
     --perms 1777 --tmpfs /dev/shm
-    --ro-bind ~tinderbox/tb/sdata/ssmtp.conf /etc/ssmtp/ssmtp.conf
-    --bind ~tinderbox/tb/data /mnt/tb/data
     --proc /proc
-    --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
     --tmpfs /run
     --ro-bind /sys /sys
     --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
-    --bind ~tinderbox/distfiles /var/cache/distfiles
     --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
+    --ro-bind ~tinderbox/tb/sdata/ssmtp.conf /etc/ssmtp/ssmtp.conf
+    --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
+    --bind ~tinderbox/tb/data /mnt/tb/data
+    --bind ~tinderbox/distfiles /var/cache/distfiles
     /bin/bash -l
   )
 
