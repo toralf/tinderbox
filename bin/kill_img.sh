@@ -63,3 +63,5 @@ for img in ${*?got no image}; do
     echo " error: $img: image not found" >&2
   fi
 done
+
+echo "sudo -u tinderbox $(dirname $0)/replace_img.sh" | at -m -u tinderbox now
