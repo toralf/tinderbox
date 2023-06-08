@@ -21,7 +21,7 @@ function getCandidates() {
       else
         target=$i
       fi
-      if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -le $keepdays ]]; then
+      if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -lt $keepdays ]]; then
         continue
       fi
 
