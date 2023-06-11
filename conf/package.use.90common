@@ -27,7 +27,7 @@ net-misc/curl                       ssl
 
 # too much deps at setup, lowers coverity
 app-portage/pfl                     -network-cron
-app-text/ansifilter                 -qt5
+app-text/ansifilter                 -qt5 -qt6
 
 # https://bugs.gentoo.org/831346
 sys-kernel/installkernel-gentoo     -grub
