@@ -19,26 +19,22 @@ fi
 
 source $(dirname $0)/lib.sh
 
-for i in ${@:-$(ls ~tinderbox/run 2>/dev/null)}; do
-  echo -n "$(date +%X) "
+for i in ${@:-$(ls ~tinderbox/run)}; do
   mnt=~tinderbox/img/$(basename $i)
 
   if [[ ! -d $mnt ]]; then
-    echo "no valid mount point found for $mnt" >&2
+    echo " no valid mount point found for $mnt" >&2
     continue
   fi
 
   if [[ -f $mnt/var/tmp/tb/STOP ]]; then
-    echo " has STOP file: $mnt/var/tmp/tb/STOP"
     continue
   fi
 
   if ! __is_running "$mnt"; then
-    echo " is not running: $mnt"
     continue
   fi
 
-  echo "stopping $mnt"
-
+  echo " $(date +%X) stopping $mnt"
   touch $mnt/var/tmp/tb/STOP
 done

@@ -28,16 +28,16 @@ function ImagesInRunShuffled() {
   )
 }
 
-function ImagesInRunEOLShuffled() {
+function ImagesInRunButEOL() {
   (
     set +f
     cd ~tinderbox/run
-    ls */var/tmp/tb/EOL 2>/dev/null | cut -f 1 -d '/' | shuf
+    ls */var/tmp/tb/EOL 2>/dev/null | cut -f 1 -d '/' -s
   )
 }
 
 function FreeSlotAvailable() {
-  local r=$(ls /run/tinderbox 2>/dev/null | wc -l)
+  local r=$(ls /run/tinderbox | wc -l)
   local s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
 
   [[ $((r + s)) -lt $desired_count && $(ImagesInRunShuffled | wc -l) -lt $desired_count ]]
@@ -56,9 +56,18 @@ fi
 source $(dirname $0)/lib.sh
 
 lockfile="/tmp/$(basename $0).lck"
-if [[ -s $lockfile ]]; then
-  if kill -0 $(cat $lockfile) 2>/dev/null; then
-    exit 1 # a previous instance is running
+if [[ -f $lockfile ]]; then
+  if [[ -s $lockfile ]]; then
+    pid=$(cat $lockfile)
+    if kill -0 $pid 2>/dev/null; then
+      echo " already running at '$pid'" >&2
+      exit 1
+    else
+      echo " stale pid '$pid'" >&2
+    fi
+  else
+    echo " empty lockfile '$lockfile'" >&2
+    exit 1
   fi
 fi
 echo $$ >"$lockfile"
@@ -76,7 +85,7 @@ while :; do
     fi
   done < <(ImagesInRunShuffled)
 
-  # if an image hangs for >2 days then kill it
+  # if emerge runs for >2 days then replace the image
   while read -r oldimg; do
     if __is_running $oldimg; then
       hours=$(((EPOCHSECONDS - $(stat -c %Y ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
@@ -91,14 +100,23 @@ while :; do
     if ! __is_running $oldimg; then
       rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
     fi
-  done < <(ImagesInRunEOLShuffled)
+  done < <(ImagesInRunButEOL)
 
-  # shellcheck disable=SC2154
-  if FreeSlotAvailable && loadIsNotTooHigh; then
-    echo
-    date
-    echo " + + + setup a new image + + +"
-    sudo $(dirname $0)/setup_img.sh
+  if FreeSlotAvailable; then
+    if loadIsNotTooHigh; then
+      echo
+      date
+      echo " + + + setup a new image + + +"
+      if sudo $(dirname $0)/setup_img.sh; then
+        $(dirname $0)/start_img.sh
+      else
+        rc=$?
+        echo " setup_img.sh returned $rc" >&2
+        Finish $rc
+      fi
+    else
+      sleep 60
+    fi
     continue
   fi
 
@@ -108,8 +126,9 @@ while :; do
       continue 2
     fi
     sleep 60
-  done < <(ImagesInRunEOLShuffled)
+  done < <(ImagesInRunButEOL)
 
+  # if we reached this line then there's nothing (more) to do
   break
 done
 

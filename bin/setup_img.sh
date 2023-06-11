@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# setup a new tinderbox image
+# setup (but not start) a new tinderbox image
 
 # $1:$2, eg. 3:5
 function dice() {
@@ -26,7 +26,6 @@ function InitOptions() {
   cflags=$cflags_default
   jobs="5"
   keyword="~amd64"
-  no_autostart="n"
   profile=$(DiceAProfile)
   testfeature="n"
   useflagfile=""
@@ -629,7 +628,7 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
-  for i in {1..9}; do
+  for i in {1..29}; do
     # kick off particular packages
     local pkg=$(
       grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
@@ -801,14 +800,11 @@ function Finalize() {
   chgrp portage ./etc/portage/package.use/*
   chmod g+w,a+r ./etc/portage/package.use/*
 
-  if [[ $no_autostart == "n" ]]; then
-    cd $tbhome/run
-    ln -s ../img/$name
-    wc -l -w $name/etc/portage/package.use/2*
-    echo
-    date
-    su - tinderbox -c "$(dirname $0)/start_img.sh $name"
-  fi
+  cd $tbhome/run
+  ln -s ../img/$name
+  wc -l -w $name/etc/portage/package.use/2*
+  echo
+  date
 }
 
 #############################################################################
@@ -833,12 +829,11 @@ gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' 
 
 InitOptions
 
-while getopts a:j:k:n:p:t:u: opt; do
+while getopts a:j:k:p:t:u: opt; do
   case $opt in
   a) abi3264="$OPTARG" ;;
   j) jobs="$OPTARG" ;;
   k) keyword="$OPTARG" ;;
-  n) no_autostart="$OPTARG" ;;
   p) profile="$OPTARG" ;;
   t) testfeature="$OPTARG" ;;
   u) useflagfile="$OPTARG" ;; # eg.: /dev/null
