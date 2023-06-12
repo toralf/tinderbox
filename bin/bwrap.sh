@@ -19,10 +19,7 @@ function CgroupCreate() {
     fi
   done
 
-  local jobs=$(
-    set +f
-    sed 's,^.*j,,' $mnt/etc/portage/package.env/00j*
-  )
+  local jobs=$(sed 's,^.*j,,' $mnt/etc/portage/package.env/00jobs)
 
   # jobs+0.1 vCPU, slice is 10us
   local cpu=$((100000 * jobs + 10000))
