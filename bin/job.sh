@@ -1031,11 +1031,17 @@ while :; do
   fi
 
   if ! loadIsNotTooHigh; then
-    touch /run/tinderbox/$name.lock/wait
-    waiting=$(ls /run/tinderbox/*.lock/wait | wc -l)
-    echo "# wait $waiting x 2 min" >$taskfile
-    sleep $((waiting * 120))
-    rm /run/tinderbox/$name.lock/wait
+    # wait 90 sec longer than the last waiter if there's one
+    last=$(sort -n /run/tinderbox/*.lock/wait 2>/dev/null | tail -n 1)
+    sec=70
+    if [[ -n $last ]]; then
+      ((sec += last - EPOCHSECONDS))
+    fi
+    me=$((EPOCHSECONDS + sec))
+    echo "$me" >/run/lock_dir/wait
+    echo "# wait till $(date +%T -d@$me)" >$taskfile
+    sleep $sec
+    rm /run/lock_dir/wait
     continue
   fi
 
@@ -1050,13 +1056,13 @@ while :; do
     echo $task
   } >$tasklog
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<<$task | tr -c '[:alnum:]' '_')
-  ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # the later will remain if the former is deleted
+  ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # no symlink here
   WorkOnTask
   rm $tasklog
 
-  echo "# compress logs" >$taskfile
+  echo "# compressing logs" >$taskfile
   if ! find /var/log/portage -name '*.log' -exec xz {} +; then
-    ReachedEndfOfLife "error in compressing logs"
+    ReachedEndfOfLife "error rc=$? in compressing logs"
   fi
 
   echo "# detecting repeats" >$taskfile

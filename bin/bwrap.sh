@@ -143,7 +143,8 @@ function Bwrap() {
     --proc /proc
     --tmpfs /run
     --ro-bind /sys /sys
-    --bind /run/tinderbox /run/tinderbox
+    --bind "$lock_dir" /run/lock_dir
+    --ro-bind /run/tinderbox /run/tinderbox
     --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
     --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
     --ro-bind ~tinderbox/tb/sdata/ssmtp.conf /etc/ssmtp/ssmtp.conf
