@@ -53,7 +53,7 @@ function Exit() {
   fi
 
   if [[ -d $lock_dir ]]; then
-    rmdir -- $lock_dir
+    rm -rf -- $lock_dir
   fi
 
   if [[ $rc -eq 13 ]]; then
@@ -114,11 +114,6 @@ function Bwrap() {
     path+="/sbin:/bin"
   fi
 
-  local hostname="$(cat $mnt/etc/conf.d/hostname)"
-  if [[ -z $hostname || $hostname =~ ' ' ]]; then
-    hostname="wrong-hostname"
-  fi
-
   local home_dir="/var/tmp/tb"
   if [[ ! -d $mnt/$home_dir ]]; then
     home_dir="/"
@@ -133,7 +128,7 @@ function Bwrap() {
     --setenv SHELL "/bin/bash"
     --setenv TERM "linux"
     --setenv USER "root"
-    --hostname "$hostname"
+    --hostname "$(cat $mnt/etc/conf.d/hostname)"
     --die-with-parent
     --chdir "$home_dir"
     --unshare-cgroup
@@ -148,6 +143,7 @@ function Bwrap() {
     --proc /proc
     --tmpfs /run
     --ro-bind /sys /sys
+    --bind /run/tinderbox /run/tinderbox
     --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
     --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
     --ro-bind ~tinderbox/tb/sdata/ssmtp.conf /etc/ssmtp/ssmtp.conf
@@ -191,37 +187,37 @@ while getopts ce:m: opt; do
     ;;
   e)
     if [[ ! -s $OPTARG ]]; then
-      echo "no valid entrypoint script given: $OPTARG" >&2
+      echo " no valid entrypoint script given: $OPTARG" >&2
       exit 1
     fi
     entrypoint=$OPTARG
     ;;
   m)
     if [[ -z $OPTARG || -z ${OPTARG##*/} || $OPTARG =~ [[:space:]] || $OPTARG =~ [\\\(\)\`$] ]]; then
-      echo "argument not accepted" >&2
+      echo " mount point not accepted" >&2
       exit 1
     fi
     mnt=~tinderbox/img/${OPTARG##*/}
     ;;
   *)
-    echo "unknown parameter '$opt'" >&2
+    echo " unknown parameter '$opt'" >&2
     exit 1
     ;;
   esac
 done
 
 if [[ -z $mnt ]]; then
-  echo "no mnt given!" >&2
+  echo " mount point is empty" >&2
   exit 1
 fi
 
 if [[ ! -e $mnt ]]; then
-  echo "no valid mount point given" >&2
+  echo " no valid mount point given" >&2
   exit 1
 fi
 
 if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
-  echo "wrong ownership of mount point" >&2
+  echo " wrong ownership of mount point" >&2
   exit 1
 fi
 
@@ -232,7 +228,7 @@ fi
 # this is the 1st barrier (the 2nd is cgroup)
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 if ! mkdir "$lock_dir"; then
-  echo "lock dir cannot be created: $lock_dir" >&2
+  echo " lock dir cannot be created: $lock_dir" >&2
   exit 1
 fi
 

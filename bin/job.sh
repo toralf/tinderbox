@@ -1031,9 +1031,11 @@ while :; do
   fi
 
   if ! loadIsNotTooHigh; then
-    seconds=$((30 + RANDOM % 150))
-    echo "# wait $seconds" >$taskfile
-    sleep $seconds
+    touch /run/tinderbox/$name.lock/wait
+    waiting=$(ls /run/tinderbox/*.lock/wait | wc -l)
+    echo "# wait $waiting x 2 min" >$taskfile
+    sleep $((waiting * 120))
+    rm /run/tinderbox/$name.lock/wait
     continue
   fi
 
