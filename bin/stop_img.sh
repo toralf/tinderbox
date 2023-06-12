@@ -35,6 +35,6 @@ for i in ${@:-$(ls ~tinderbox/run)}; do
     continue
   fi
 
-  echo " $(date +%X) stopping $mnt"
+  echo " $(date +%T) stopping $mnt"
   touch $mnt/var/tmp/tb/STOP
 done

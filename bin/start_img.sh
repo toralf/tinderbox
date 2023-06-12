@@ -44,6 +44,6 @@ for i in ${@:-$(ls ~tinderbox/run)}; do
     continue
   fi
 
-  echo " $(date +%X) starting: $mnt"
+  echo " $(date +%T) starting: $mnt"
   nice -n 3 sudo $(dirname $0)/bwrap.sh -m "$mnt" -e "$(dirname $0)/job.sh" &>~tinderbox/logs/$(basename $mnt).log &
 done
