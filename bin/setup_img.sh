@@ -803,8 +803,6 @@ function Finalize() {
   cd $tbhome/run
   ln -s ../img/$name
   wc -l -w $name/etc/portage/package.use/2*
-  echo
-  date
 }
 
 #############################################################################
