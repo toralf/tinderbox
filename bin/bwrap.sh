@@ -54,7 +54,7 @@ function Exit() {
   fi
 
   if [[ $rc -eq 13 ]]; then
-    echo "sudo -u tinderbox $(dirname $0)/replace_img.sh" | at -m -u tinderbox now
+    echo "sudo -u tinderbox $(dirname $0)/replace_img.sh" | at -m -u tinderbox now 2>/dev/null
   fi
 
   exit $rc
