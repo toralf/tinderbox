@@ -56,18 +56,9 @@ fi
 source $(dirname $0)/lib.sh
 
 lockfile="/tmp/$(basename $0).lck"
-if [[ -f $lockfile ]]; then
-  if [[ -s $lockfile ]]; then
-    pid=$(cat $lockfile)
-    if kill -0 $pid 2>/dev/null; then
-      echo " already running at '$pid'" >&2
-      exit 1
-    else
-      echo " stale pid '$pid'" >&2
-    fi
-  else
-    echo " empty lockfile '$lockfile'" >&2
-    exit 1
+if [[ -s $lockfile ]]; then
+  if kill -0 $(cat $lockfile) 2>/dev/null; then
+    exit 0
   fi
 fi
 echo $$ >"$lockfile"
