@@ -3,7 +3,7 @@
 # set -x
 
 function getCandidates() {
-  local keepdays=${1:-3}
+  local keepdays=${1?}
 
   ls -dt ~tinderbox/img/[12]?.?* 2>/dev/null |
     tac |
@@ -16,10 +16,9 @@ function getCandidates() {
         continue
       fi
 
+      target=$i
       if [[ -s $i/var/log/emerge.log ]]; then
-        target=$i/var/log/emerge.log
-      else
-        target=$i
+        target+=/var/log/emerge.log
       fi
       if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -lt $keepdays ]]; then
         continue
@@ -33,7 +32,7 @@ function getCandidates() {
 # Filesystem     1M-blocks    Used Available Use% Mounted on
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded() {
-  local used=${1:-89} # %
+  local used=${1?} # %
   local free=256000   # MiB
   local mnt="/mnt/data"
 
@@ -81,7 +80,7 @@ if [[ -s $latest ]]; then
   find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' |
     while read -r stage3; do
       if [[ $latest -nt $stage3 ]]; then
-        if ! grep -q -F $(basename $stage3) $latest; then
+        if ! grep -q -F "/$(basename $stage3) " $latest; then
           rm -f $stage3{,.asc} # *.asc might not exist
         fi
       fi
@@ -95,13 +94,13 @@ while read -r img && pruneNeeded 49; do
   if [[ ! -s $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
     pruneDir $img "broken setup"
   fi
-done < <(getCandidates)
+done < <(getCandidates 3)
 
 while read -r img && pruneNeeded 59; do
   if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
     pruneDir $img "no issue"
   fi
-done < <(getCandidates)
+done < <(getCandidates 3)
 
 while read -r img && pruneNeeded 69; do
   if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
@@ -109,6 +108,6 @@ while read -r img && pruneNeeded 69; do
   fi
 done < <(getCandidates 7)
 
-while read -r img && pruneNeeded; do
+while read -r img && pruneNeeded 89; do
   pruneDir $img "space needed"
 done < <(getCandidates 14)
