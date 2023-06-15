@@ -45,8 +45,8 @@ function FreeSlotAvailable() {
 
 #######################################################################
 set -euf
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 if [[ "$(whoami)" != "tinderbox" ]]; then
   echo " you must be tinderbox" >&2

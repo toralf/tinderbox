@@ -88,8 +88,8 @@ EOF
 
 #######################################################################
 set -eu
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 echo -e "User-agent: *\nDisallow: /\n" >~tinderbox/img/robots.txt
 

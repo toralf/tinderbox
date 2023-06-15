@@ -54,7 +54,7 @@ function Exit() {
   fi
 
   if [[ $rc -eq 13 ]]; then
-    echo "sudo -u tinderbox $(dirname $0)/replace_img.sh" | at -m -u tinderbox now 2>/dev/null
+    echo "sudo -u tinderbox $(dirname $0)/replace_img.sh" | at -u tinderbox now 2>/dev/null
   fi
 
   exit $rc
@@ -162,12 +162,9 @@ function Bwrap() {
 }
 
 #############################################################################
-#
-# main
-#
 set -euf
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root" >&2

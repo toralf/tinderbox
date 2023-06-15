@@ -3,8 +3,8 @@
 # set -x
 
 set -eu
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 f=/tmp/$(basename $0).out
 n=$(wc -l < <(cat ~tinderbox/logs/*.log 2>/dev/null))

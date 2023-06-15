@@ -43,8 +43,8 @@ function printMetrics() {
 
 #######################################################################
 set -eu
-export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 export LANG=C.utf8
+export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 source $(dirname $0)/lib.sh
 

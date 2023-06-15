@@ -32,8 +32,8 @@ function getCandidates() {
 # Filesystem     1M-blocks    Used Available Use% Mounted on
 # /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded() {
-  local used=${1?} # %
-  local free=256000   # MiB
+  local used=${1?}  # %
+  local free=256000 # MiB
   local mnt="/mnt/data"
 
   local values=$(df -m $mnt | tr -d '%' | grep -v "^Filesystem")
@@ -64,8 +64,8 @@ function pruneDir() {
 
 #######################################################################
 set -eu
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root" >&2
