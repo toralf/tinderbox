@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.5.1"
+      "version": "9.5.3"
     },
     {
       "type": "datasource",
@@ -150,8 +150,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum(rate(tinderbox_emerge_completed_img[10m])) * 86400",
-          "legendFormat": "10 min",
+          "expr": "sum(rate(tinderbox_emerge_completed_img[1h])) * 86400",
+          "legendFormat": "1h",
           "range": true,
           "refId": "A"
         },
@@ -360,7 +360,7 @@
               },
               {
                 "color": "#EAB839",
-                "value": 27
+                "value": 28
               },
               {
                 "color": "red",
@@ -422,7 +422,7 @@
           },
           "editorMode": "builder",
           "expr": "node_load15",
-          "hide": false,
+          "hide": true,
           "legendFormat": "load15",
           "range": true,
           "refId": "C"
@@ -566,6 +566,9 @@
               "viz": false
             },
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -835,6 +838,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -928,13 +932,13 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tinderbox",
   "uid": "tm9JS5B4z",
-  "version": 130,
+  "version": 138,
   "weekStart": ""
 }
