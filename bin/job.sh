@@ -47,7 +47,7 @@ function Mail() {
 }
 
 # 13 triggers a replacement
-function ReachedEndfOfLife() {
+function ReachedEOL() {
   local subject=${1:-"EOL"}
   local attachment=${2:-}
 
@@ -95,7 +95,7 @@ function setBacklog() {
     backlog=/var/tmp/tb/backlog.upd
 
   else
-    ReachedEndfOfLife "all work DONE"
+    ReachedEOL "all work DONE"
   fi
 }
 
@@ -111,7 +111,7 @@ function getNextTask() {
       continue
 
     elif [[ $task =~ ^EOL ]]; then
-      ReachedEndfOfLife "$task"
+      ReachedEOL "$task"
 
     elif [[ $task =~ ^INFO ]]; then
       Mail "$task"
@@ -181,15 +181,15 @@ EOF
   $cmd &>>$ehist
 }
 
-# gather together what's needed for the email and b.g.o.
+# gather together what might be relevant for b.g.o.
 function CollectIssueFiles() {
-  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of' $tasklog_stripped | grep -F '.out' | cut -f5 -d' ' -s)
-  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred' $tasklog_stripped | grep "CMake.*\.log" | cut -f2 -d'"' -s)
-  cmerr=$(grep -m 1 'CMake Error: Parse error in cache file' $tasklog_stripped | sed "s/txt./txt/" | cut -f8 -d' ' -s)
-  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as' $tasklog_stripped | grep -F '.log' | cut -f2 -d' ' -s)
-  envir=$(grep -m 1 'The ebuild environment file is located at' $tasklog_stripped | cut -f2 -d"'" -s)
+  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of' $tasklog_stripped | grep -F '.out' | cut -f 5 -d ' ' -s)
+  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred' $tasklog_stripped | grep "CMake.*\.log" | cut -f 2 -d '"' -s)
+  cmerr=$(grep -m 1 'CMake Error: Parse error in cache file' $tasklog_stripped | sed "s/txt./txt/" | cut -f 8 -d ' ' -s)
+  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as' $tasklog_stripped | grep -F '.log' | cut -f 2 -d ' ' -s)
+  envir=$(grep -m 1 'The ebuild environment file is located at' $tasklog_stripped | cut -f 2 -d "'" -s)
   salso=$(grep -m 1 -A 2 ' See also' $tasklog_stripped | grep -F '.log' | awk '{ print $1 }')
-  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $tasklog_stripped | grep "sandbox.*\.log" | cut -f2 -d'"' -s)
+  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $tasklog_stripped | grep "sandbox.*\.log" | cut -f 2 -d '"' -s)
   roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach' $tasklog_stripped | grep -F '/LastTest.log' | awk '{ print $2 }')
 
   for f in $apout $cmlog $cmerr $oracl $envir $salso $sandb $roslg; do
@@ -199,7 +199,6 @@ function CollectIssueFiles() {
   done
 
   if [[ -d $workdir ]]; then
-    # catch relevant logs
     (
       f=/tmp/files
       cd "$workdir/.."
@@ -424,7 +423,7 @@ function KeepInstalledDeps() {
   if grep -q '^>>> Installing ' $tasklog_stripped; then
     emerge --depclean --verbose=n --pretend 2>/dev/null |
       grep "^All selected packages: " |
-      cut -f2- -d':' -s |
+      cut -f 2- -d ':' -s |
       xargs --no-run-if-empty emerge -O --noreplace &>/dev/null
   fi
 }
@@ -822,7 +821,7 @@ function RunAndCheck() {
       WorkAtIssue
     fi
     if [[ $rc -eq 124 ]]; then
-      ReachedEndfOfLife "INFO:  timeout  task=$task" $tasklog
+      ReachedEOL "INFO:  timeout  task=$task" $tasklog
     fi
   fi
 
@@ -860,7 +859,7 @@ function WorkOnTask() {
           add2backlog "$task"
         fi
       else
-        ReachedEndfOfLife "$task is broken" $tasklog
+        ReachedEOL "$task is broken" $tasklog
       fi
     fi
 
@@ -892,7 +891,7 @@ function DetectRepeats() {
 
   for pattern in 'perl-cleaner' '@preserved-rebuild'; do
     if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge $p_max ]]; then
-      ReachedEndfOfLife "too often ($p_max x) repeated: $pattern"
+      ReachedEOL "too often ($p_max x) repeated: $pattern"
     fi
   done
 
@@ -901,14 +900,14 @@ function DetectRepeats() {
   fi
   pattern='@world'
   if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge $w_max ]]; then
-    ReachedEndfOfLife "too often ($w_max x) repeated: $pattern"
+    ReachedEOL "too often ($w_max x) repeated: $pattern"
   fi
 
   local count
   local package
   read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 1000 | sort | uniq -c | sort -bn | tail -n 1)
   if [[ $count -ge $p_max ]]; then
-    ReachedEndfOfLife "too often emerged: $count x $package"
+    ReachedEOL "too often emerged: $count x $package"
   fi
 }
 
@@ -922,7 +921,7 @@ function syncRepo() {
     if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error:' $synclog; then
       return 0
     fi
-    ReachedEndfOfLife "broken ::gentoo" $synclog
+    ReachedEOL "broken ::gentoo" $synclog
   fi
 
   if grep -q -F '* An update to portage is available.' $synclog; then
@@ -1070,7 +1069,7 @@ while :; do
 
   echo "# compressing logs" >$taskfile
   if ! find /var/log/portage -name '*.log' -exec xz {} +; then
-    ReachedEndfOfLife "error rc=$? in compressing logs"
+    ReachedEOL "error rc=$? in compressing logs"
   fi
 
   echo "# detecting repeats" >$taskfile
