@@ -33,7 +33,9 @@ function list_images() {
 }
 
 function loadIsNotTooHigh() {
-  awk '{ if ($1 >= '$(nproc)-2') exit 1 }' /proc/loadavg
+  local limit=$(($(nproc) - 2))
+
+  awk '{ if ($1 >= '"$limit"') { if ($2 >= '"$limit"') { if ($3 >= '"$limit"') { exit 15 } else exit 5 } else exit 1 } }' /proc/loadavg
 }
 
 function checkBgo() {

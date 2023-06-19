@@ -1016,6 +1016,29 @@ while :; do
     fi
   done
 
+  set +e
+  loadIsNotTooHigh
+  rc=$?
+  set -e
+  if [[ $rc -gt 0 ]]; then
+    case $rc in
+    15) sec=60 ;;
+    5) sec=40 ;;
+    1) sec=20 ;;
+    esac
+    # wait sec longer than the last waiter, but at least sec
+    last=$(sort -n /run/tinderbox/*.lock/wait 2>/dev/null | tail -n 1)
+    if [[ -n $last ]]; then
+      ((sec += last - EPOCHSECONDS))
+    fi
+    me=$((EPOCHSECONDS + sec))
+    echo "$me" >/run/lock_dir/wait
+    echo "# wait till $(date +%T -d@$me)" >$taskfile
+    sleep $sec
+    rm /run/lock_dir/wait
+    continue
+  fi
+
   # if 1st prio is empty then ...
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     # ... hourly sync repository
@@ -1028,21 +1051,6 @@ while :; do
     if [[ ! -s $h || $((EPOCHSECONDS - $(stat -c %Y $h))) -ge 86400 ]]; then
       add2backlog "@world"
     fi
-  fi
-
-  if ! loadIsNotTooHigh; then
-    # wait 90 sec longer than the last waiter if there's one
-    last=$(sort -n /run/tinderbox/*.lock/wait 2>/dev/null | tail -n 1)
-    sec=70
-    if [[ -n $last ]]; then
-      ((sec += last - EPOCHSECONDS))
-    fi
-    me=$((EPOCHSECONDS + sec))
-    echo "$me" >/run/lock_dir/wait
-    echo "# wait till $(date +%T -d@$me)" >$taskfile
-    sleep $sec
-    rm /run/lock_dir/wait
-    continue
   fi
 
   echo "# clean up tmp" >$taskfile
