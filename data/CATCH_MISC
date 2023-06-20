@@ -13,4 +13,4 @@ One or more CMake variables were not used by the project
 QA Notice: Unrecognized configure options:
 The tmpfiles processor exited with a non-zero exit code
 WARN: postinst
-.ebuild.*dev-util/ragel-6.10
+.ebuild.*UD ..* dev-util/ragel-6.10::gentoo

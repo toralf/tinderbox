@@ -57,14 +57,14 @@ dev-libs/gf2x                       -custom-tune
 app-doc/gimp-help                   -nls
 
 # common setup blocker: at-most-one-of ( cracklib pam )
-sys-apps/shadow                     -cracklib           # DICE: cracklib 9 10
+sys-apps/shadow                     -cracklib           # DICE: cracklib 4 5
 
 # pretend phase
 net-misc/openssh                    -sctp
 
 # common setup blocker: at-most-one-of ( libedit readline )
-dev-libs/libpcre                    -libedit            # DICE: pcre 9 10
-dev-libs/libpcre2                   -libedit            # DICE: pcre 9 10
+dev-libs/libpcre                    -libedit            # DICE: pcre 4 5
+dev-libs/libpcre2                   -libedit            # DICE: pcre 4 5
 
 
 #######################################################################
@@ -90,3 +90,6 @@ sys-devel/gcc                       debug               # DICE: gcc_debug
 
 # https://bugs.gentoo.org/900731
 media-libs/libjpeg-turbo            -java
+
+# world b0rken early and often
+dev-lang/ruby                       -rdoc               # DICE: rdoc

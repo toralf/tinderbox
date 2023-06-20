@@ -3,10 +3,7 @@
 
 
 # https://bugs.gentoo.org/794235
-<dev-util/ragel-7.0.4-r2
-
-# /me
-<sys-devel/llvm-15.0.7-r3                               # DICE: llvm
+<dev-util/ragel-7.0.4-r2                                # DICE: ragel 3 4
 
 # mask for now, fails too often
 <dev-lang/ghc-9.0.2-r4

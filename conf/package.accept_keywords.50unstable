@@ -5,3 +5,6 @@
 # sam
 <dev-util/meson-9999                **                  # DICE: meson
 <media-video/ffmpeg-9999            **                  # DICE: ffmpeg
+
+# dilfridge
+~dev-lang/perl-5.38.0_rc1 **

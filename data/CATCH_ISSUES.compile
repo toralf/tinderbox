@@ -353,3 +353,4 @@ error: failed to run custom build
 invalid option:
 cp: cannot stat
  \*   Unknown backend:
+ is not a valid C format string
