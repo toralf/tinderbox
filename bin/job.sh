@@ -859,7 +859,26 @@ function WorkOnTask() {
           add2backlog "$task"
         fi
       else
-        ReachedEOL "$task is broken" $tasklog
+        grep -B 200 'Use --autounmask-write to write changes to config files' $tasklog_stripped |
+          grep -A 200 'The following USE changes are necessary to proceed:' |
+          grep "^>=" |
+          grep -v -e '>=.* .*_' |
+          while read -r p u; do
+            printf "%-36s %s\n" $p "$u"
+          done |
+          sort -u >/tmp/world
+        if [[ -s /tmp/world ]]; then
+          cat /tmp/world >>/etc/portage/package.use/world
+          if [[ $(wc -l </etc/portage/package.use/world) -gt 50 ]]; then
+            ReachedEOL "$task cannot be fixed" $tasklog
+          else
+            Mail "INFO: changed USE flags for world" /tmp/world
+            rm /tmp/world
+            add2backlog "$task"
+          fi
+        else
+          ReachedEOL "$task is broken" $tasklog
+        fi
       fi
     fi
 

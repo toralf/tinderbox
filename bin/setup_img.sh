@@ -649,13 +649,12 @@ function FixPossibleUseFlagIssues() {
       fi
     fi
 
-    # try to solve a dep cycle
+    # try to solve a dep cycle by *un*setting a USE flag
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
-    grep -A 10 "It might be possible to break this cycle" $drylog |
+    grep -A 20 "It might be possible to break this cycle" $drylog |
       grep -F ' (Change USE: ' |
       grep -v -F -e '+' -e 'This change might require ' |
-      sed -e "s,^- ,,g" -e "s, (Change USE:,,g" |
-      tr -d ')' |
+      sed -e "s,^- ,,g" -e "s, (Change USE:,,g" -e 's,),,' |
       sort -u |
       grep -v ".*-.*/.* .*_.*" |
       while read -r p u; do
@@ -674,7 +673,8 @@ function FixPossibleUseFlagIssues() {
 
     # follow advices
     local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
-    grep -A 20 'The following USE changes are necessary to proceed:' $drylog |
+    grep -B 200 'Use --autounmask-write to write changes to config files' $drylog |
+      grep -A 200 'The following USE changes are necessary to proceed:' |
       grep "^>=" |
       grep -v -e '>=.* .*_' |
       while read -r p u; do
