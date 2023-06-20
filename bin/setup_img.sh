@@ -674,7 +674,7 @@ function FixPossibleUseFlagIssues() {
 
     # follow advices
     local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
-    grep -A 100 'The following USE changes are necessary to proceed:' $drylog |
+    grep -A 20 'The following USE changes are necessary to proceed:' $drylog |
       grep "^>=" |
       grep -v -e '>=.* .*_' |
       while read -r p u; do
