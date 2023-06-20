@@ -1019,7 +1019,7 @@ if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
-echo "# init" >$taskfile
+echo "#init" >$taskfile
 rm -f $tasklog # remove a left over hard link
 systemd-tmpfiles --create &>$tasklog || true
 
@@ -1029,7 +1029,7 @@ last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :; do
   for i in EOL STOP; do
     if [[ -f /var/tmp/tb/$i ]]; then
-      echo "# catched $i" >$taskfile
+      echo "#catched $i" >$taskfile
       Finish 0 "catched $i" /var/tmp/tb/$i
     fi
   done
@@ -1051,7 +1051,7 @@ while :; do
     fi
     me=$((EPOCHSECONDS + sec))
     echo "$me" >/run/lock_dir/wait
-    echo "# wait till $(date +%T -d@$me)" >$taskfile
+    echo "#wait till $(date +%T -d@$me)" >$taskfile
     sleep $sec
     rm /run/lock_dir/wait
     continue
@@ -1061,7 +1061,7 @@ while :; do
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     # ... hourly sync repository
     if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
-      echo "# syncing repo" >$taskfile
+      echo "#syncing repo" >$taskfile
       syncRepo
     fi
     # ... and daily update @world
@@ -1071,10 +1071,10 @@ while :; do
     fi
   fi
 
-  echo "# clean up tmp" >$taskfile
+  echo "#clean up tmp" >$taskfile
   rm -rf /var/tmp/portage/*
 
-  echo "# get next task" >$taskfile
+  echo "#get next task" >$taskfile
   getNextTask
   echo "$task" | tee -a $taskfile.history >$taskfile
   {
@@ -1086,11 +1086,11 @@ while :; do
   WorkOnTask
   rm $tasklog
 
-  echo "# compressing logs" >$taskfile
+  echo "#compressing logs" >$taskfile
   if ! find /var/log/portage -name '*.log' -exec xz {} +; then
     ReachedEOL "error rc=$? in compressing logs"
   fi
 
-  echo "# detecting repeats" >$taskfile
+  echo "#detecting repeats" >$taskfile
   DetectRepeats
 done
