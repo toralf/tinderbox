@@ -859,8 +859,7 @@ function WorkOnTask() {
           add2backlog "$task"
         fi
       else
-        grep -B 200 'Use --autounmask-write to write changes to config files' $tasklog_stripped |
-          grep -A 200 'The following USE changes are necessary to proceed:' |
+        grep -A 300 'The following USE changes are necessary to proceed:' $tasklog_stripped |
           grep "^>=" |
           grep -v -e '>=.* .*_' |
           while read -r p u; do
