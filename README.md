@@ -26,6 +26,13 @@ A new finding is send via email to the user specified by the variable _MAILTO_.
 A finding can be filed using _bgo.sh_.
 The Gentoo bugzilla should be searched before by _check_bgo.sh_ for duplicates.
 
+Login interactively into an image with
+
+```bash
+sudo /opt/tb/bin/bwrap.sh -m <path to img>
+```
+
+
 ## Installation
 
 Create the user _tinderbox_:
