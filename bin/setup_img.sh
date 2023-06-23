@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# setup (but not start) a new tinderbox image
+# setup a new tinderbox image
 
 # $1:$2, eg. 3:5
 function dice() {
@@ -500,7 +500,7 @@ set -euf
 
 if [[ ! $profile =~ "/musl" ]]; then
   date
-  echo "# setup locale" | tee /var/tmp/tb/task
+  echo "#setup locale" | tee /var/tmp/tb/task
   echo "en_US ISO-8859-1" >> /etc/locale.gen
   if [[ $testfeature = "y" ]]; then
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
@@ -509,7 +509,7 @@ if [[ ! $profile =~ "/musl" ]]; then
 fi
 
 date
-echo "# setup timezone" | tee /var/tmp/tb/task
+echo "#setup timezone" | tee /var/tmp/tb/task
 if [[ $profile =~ "/systemd" ]]; then
   cd /etc
   ln -sf ../usr/share/zoneinfo/UTC /etc/localtime
@@ -520,50 +520,50 @@ else
 fi
 
 date
-echo "# setup env" | tee /var/tmp/tb/task
+echo "#setup env" | tee /var/tmp/tb/task
 env-update
 set +u; source /etc/profile; set -u
 
 if [[ $profile =~ "/systemd" ]]; then
   date
-  echo "# setup id" | tee /var/tmp/tb/task
+  echo "#setup id" | tee /var/tmp/tb/task
   systemd-machine-id-setup
 fi
 
 date
-echo "# setup git" | tee /var/tmp/tb/task
+echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/git
 
 date
-echo "# setup sync tree" | tee /var/tmp/tb/task
+echo "#setup sync tree" | tee /var/tmp/tb/task
 emaint sync --auto >/dev/null
 
 date
-echo "# setup portage" | tee /var/tmp/tb/task
+echo "#setup portage" | tee /var/tmp/tb/task
 emerge -u app-text/ansifilter sys-apps/portage
 
 date
-echo "# setup Mail" | tee /var/tmp/tb/task
+echo "#setup Mail" | tee /var/tmp/tb/task
 # emerge MTA before MUA b/c default of virtual/mta does not point to sSMTP
 emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead
 USE=-kerberos emerge -u mail-client/s-nail
 
 date
-echo "# setup user" | tee /var/tmp/tb/task
+echo "#setup user" | tee /var/tmp/tb/task
 groupadd -g $(id -g tinderbox)                       tinderbox
 useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
 
 date
-echo "# setup kernel" | tee /var/tmp/tb/task
+echo "#setup kernel" | tee /var/tmp/tb/task
 emerge -u sys-kernel/gentoo-kernel-bin
 
 date
-echo "# setup xz, q, bugz and pfl" | tee /var/tmp/tb/task
+echo "#setup xz, q, bugz and pfl" | tee /var/tmp/tb/task
 emerge -u app-arch/xz-utils app-portage/portage-utils www-client/pybugz app-portage/pfl
 
 date
-echo "# setup profile, make.conf, backlog" | tee /var/tmp/tb/task
+echo "#setup profile, make.conf, backlog" | tee /var/tmp/tb/task
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
@@ -574,7 +574,7 @@ fi
 qsearch --all --nocolor --name-only --quiet | grep -v -F -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf > /var/tmp/tb/backlog
 
 date
-echo "# setup done" | tee /var/tmp/tb/task
+echo "#setup done" | tee /var/tmp/tb/task
 
 EOF
 
@@ -624,7 +624,7 @@ function RunDryrunWrapper() {
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
-  if RunDryrunWrapper "# setup dryrun $attempt"; then
+  if RunDryrunWrapper "#setup dryrun $attempt"; then
     return 0
   fi
 
@@ -639,7 +639,7 @@ function FixPossibleUseFlagIssues() {
     local f=./etc/portage/package.use/24thrown_package_use_flags
     if [[ -n $pkg ]] && grep -q "$pkg" $f; then
       sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkg) /d" $f
-      if RunDryrunWrapper "# setup dryrun $attempt-$i # solved unmet requirements"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
         return 0
       fi
     fi
@@ -658,7 +658,7 @@ function FixPossibleUseFlagIssues() {
       sort -u >$fautocirc
 
     if [[ -s $fautocirc ]]; then
-      if RunDryrunWrapper "# setup dryrun $attempt-$i # solved circ dep"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved circ dep"; then
         return 0
       fi
     else
@@ -676,7 +676,7 @@ function FixPossibleUseFlagIssues() {
       sort -u >$fautoflag
 
     if [[ -s $fautoflag ]]; then
-      if RunDryrunWrapper "# setup dryrun $attempt-$i # solved flag change"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved flag change"; then
         return 0
       fi
     else
@@ -713,7 +713,7 @@ function ShuffleUseFlags() {
 function ThrowFlags() {
   local attempt=$1
 
-  echo "# setup dryrun $attempt # throw flags ..."
+  echo "#setup throw flags ..."
 
   grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |
     cut -f1 -d' ' -s |
