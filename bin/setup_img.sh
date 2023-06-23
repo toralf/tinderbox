@@ -629,37 +629,31 @@ function FixPossibleUseFlagIssues() {
   fi
 
   for i in {1..29}; do
-    # kick off particular packages
+    # kick off particular packages from package specific use flag file
     local pkg=$(
       grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 } ' |
         cut -f 1 -d ':' -s |
-        xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |
-        sed -e 's,/,\\/,'
+        xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}"
     )
-    if [[ -n $pkg ]]; then
-      local f=./etc/portage/package.use/24thrown_package_use_flags
-      local before=$(wc -l <$f)
-      sed -i -e "/$pkg /d" $f
-      local after=$(wc -l <$f)
-      if [[ $before != "$after" ]]; then
-        if RunDryrunWrapper "# setup dryrun $attempt-$i # solved unmet requirements"; then
-          return 0
-        fi
+    local f=./etc/portage/package.use/24thrown_package_use_flags
+    if [[ -n $pkg ]] && grep -q "$pkg" $f; then
+      sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkg) /d" $f
+      if RunDryrunWrapper "# setup dryrun $attempt-$i # solved unmet requirements"; then
+        return 0
       fi
     fi
 
-    # try to solve a dep cycle by *un*setting a USE flag
+    # try to solve a dep cycle if an *un*setting of a USE flag is advised
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
     grep -A 20 "It might be possible to break this cycle" $drylog |
       grep -F ' (Change USE: ' |
       grep -v -F -e '+' -e 'This change might require ' |
-      sed -e "s,^- ,,g" -e "s, (Change USE:,,g" -e 's,),,' |
+      sed -e "s,^- ,>=,g" -e "s, (Change USE:,,g" -e 's,),,' |
       sort -u |
       grep -v ".*-.*/.* .*_.*" |
       while read -r p u; do
-        q=$(qatom -F "%{CATEGORY}/%{PN}" $p)
-        printf "%-36s %s\n" $q "$u"
+        printf "%-36s %s\n" $p "$u"
       done |
       sort -u >$fautocirc
 
