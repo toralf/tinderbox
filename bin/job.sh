@@ -246,6 +246,8 @@ function CollectIssueFiles() {
     # ICE
     cp $workdir/../gcc-build-logs.tar.* $issuedir/files 2>/dev/null || true
   fi
+
+#   find $workdir/.. -ls 2>&1 | xz >$issuedir/files/content-of-portage-dir.txt.xz
 }
 
 # helper of ClassifyIssue()
