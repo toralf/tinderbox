@@ -5,7 +5,7 @@
 function getCandidates() {
   local keepdays=${1?}
 
-  ls -dt ~tinderbox/img/[12]?.?* 2>/dev/null |
+  ls -dt ~tinderbox/img/{17,23}.[0-9]*/ 2>/dev/null |
     tac |
     while read -r i; do
       if [[ -e ~tinderbox/run/$(basename $i) ]]; then
