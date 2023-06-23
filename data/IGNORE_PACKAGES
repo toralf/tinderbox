@@ -13,7 +13,6 @@ sys-kernel/
 virtual/
 #
 # https://bugs.gentoo.org/801223
-#
 sci-libs/atlas
 sci-astronomy/psfex
 sci-astronomy/scamp
@@ -21,10 +20,8 @@ sci-astronomy/sextractor
 #
 # loong emerge times
 #
-app-office/libreoffice
-dev-db/mongodb
-dev-libs/gf2x
-dev-db/mongodb
 dev-qt/qtwebengine
 sci-libs/
 #
+# breaks @world too often in moment - 20th of June 2022
+dev-ml/
