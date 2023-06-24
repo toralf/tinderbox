@@ -247,7 +247,10 @@ function CollectIssueFiles() {
     cp $workdir/../gcc-build-logs.tar.* $issuedir/files 2>/dev/null || true
   fi
 
-#   find $workdir/.. -ls 2>&1 | xz >$issuedir/files/content-of-portage-dir.txt.xz
+  if grep -q "^$pkgname$" /mnt/tb/data/KEEP_BUILD_ARTEFACTS; then
+    find $workdir/.. -ls 2>&1 | xz >$issuedir/files/var-tmp-portage.txt.xz
+    tar -cJpf $issuedir/files/var-tmp-portage.tar.xz /var/tmp/portage/*
+  fi
 }
 
 # helper of ClassifyIssue()
@@ -887,7 +890,9 @@ function WorkOnTask() {
   elif [[ $task =~ ^% ]]; then
     local cmd="$(cut -c2- <<<$task)"
     if ! RunAndCheck "$cmd"; then
-      if [[ ! $cmd =~ " --depclean" && ! $cmd =~ "perl-cleaner" ]]; then
+      if [[ $pkg =~ "sys-devel/gcc" ]]; then
+        ReachedEOL "INFO: gcc update broken" $tasklog
+      elif [[ ! $cmd =~ " --depclean" && ! $cmd =~ "perl-cleaner" ]]; then
         Mail "INFO: command failed: $cmd" $tasklog
       fi
     fi

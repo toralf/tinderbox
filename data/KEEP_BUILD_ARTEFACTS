@@ -1,0 +1,4 @@
+# keep /var/tmp/portage for a failed package matching a pattern here
+# this file MUST NOT have empty lines
+#
+sys-devel/gcc
