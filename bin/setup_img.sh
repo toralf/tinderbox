@@ -28,7 +28,7 @@ function InitOptions() {
   keyword="~amd64"
   profile=$(DiceAProfile)
   testfeature="n"
-  useflagfile=""
+  useflagsfrom=""
 
   # no games
   if [[ $profile =~ "/musl" ]]; then
@@ -98,7 +98,12 @@ function CheckOptions() {
   fi
 
   if [[ ! $jobs =~ ^[0-9]+$ ]]; then
-    echo " jobs is wrong: >>${jobs}<<"
+    echo " jobs is wrong: >>$jobs<<"
+    return 1
+  fi
+
+  if [[ -n $useflagsfrom && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
+    echo " useflagsfrom is wrong: >>$useflagsfrom<<"
     return 1
   fi
 }
@@ -483,7 +488,6 @@ function CreateBacklogs() {
 
   cat <<EOF >>$bl.1st
 @world
-sys-devel/gcc
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 
 EOF
@@ -757,13 +761,13 @@ emerge --update --changed-use --newuse @world --pretend
 
 EOF
 
-  if [[ -e $useflagfile ]]; then
+  if [[ -n $useflagsfrom ]]; then
     echo
     date
-    echo " +++  1 dryrun with $useflagfile  +++"
+    echo " +++  1 dryrun with USE flags from $useflagsfrom  +++"
 
     local drylog=./var/tmp/tb/logs/dryrun.log
-    cp $useflagfile ./etc/portage/package.use/28given_use_flags
+    cp ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/* ./etc/portage/package.use/
     FixPossibleUseFlagIssues 0
     return $?
   fi
@@ -795,7 +799,7 @@ function Finalize() {
 
   cd $tbhome/run
   ln -s ../img/$name
-  wc -l -w $name/etc/portage/package.use/2*
+  wc -l -w ../img/$name/etc/portage/package.use/2*
 }
 
 #############################################################################
@@ -819,12 +823,12 @@ InitOptions
 
 while getopts a:j:k:p:t:u: opt; do
   case $opt in
-  a) abi3264="$OPTARG" ;;
-  j) jobs="$OPTARG" ;;
-  k) keyword="$OPTARG" ;;
-  p) profile="$OPTARG" ;;
-  t) testfeature="$OPTARG" ;;
-  u) useflagfile="$OPTARG" ;; # eg.: /dev/null
+  a) abi3264="$OPTARG" ;;      # y
+  j) jobs="$OPTARG" ;;         # 4
+  k) keyword="$OPTARG" ;;      # amd64
+  p) profile="$OPTARG" ;;      # 23.0/desktop/systemd
+  t) testfeature="$OPTARG" ;;  # y
+  u) useflagsfrom="$OPTARG" ;; # ~/img/23.0_desktop_systemd-20230624-014416
   *)
     echo "unknown parameter '$opt'"
     exit 1
