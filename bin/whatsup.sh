@@ -100,7 +100,9 @@ function Overall() {
     fi
 
     # stop/replace state
-    if [[ -f $i/var/tmp/tb/EOL ]]; then
+    if [[ -f $i/var/tmp/tb/KEEP ]]; then
+      flags+="K"
+    elif [[ -f $i/var/tmp/tb/EOL ]]; then
       flags+="E"
     elif grep -q "^EOL" $i/var/tmp/tb/backlog* 2>/dev/null; then
       flags+="e"

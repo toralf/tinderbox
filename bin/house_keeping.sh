@@ -24,6 +24,10 @@ function getCandidates() {
         continue
       fi
 
+      if [[ -f $i/var/tmp/tb/KEEP ]]; then
+        continue
+      fi
+
       echo $i
     done
 }
@@ -74,10 +78,10 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# prune old stage3 files
+# prune outdated stage3 files
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
-  find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' |
+  find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' -mtime +31 |
     while read -r stage3; do
       if [[ $latest -nt $stage3 ]]; then
         if ! grep -q -F "/$(basename $stage3) " $latest; then
