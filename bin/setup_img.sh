@@ -478,7 +478,7 @@ EOF
 #
 # /var/tmp/tb/backlog     : setup_img.sh
 # /var/tmp/tb/backlog.1st : setup_img.sh          job.sh, retest.sh
-# /var/tmp/tb/backlog.upd :                       job.sh
+# /var/tmp/tb/backlog.upd :                       job.sh, retest.sh
 function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
 
@@ -488,6 +488,7 @@ function CreateBacklogs() {
 
   cat <<EOF >>$bl.1st
 @world
+sys-devel/gcc
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 
 EOF
