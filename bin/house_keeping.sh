@@ -32,21 +32,12 @@ function getCandidates() {
     done
 }
 
-# $ df -m /dev/nvme0n1p4
-# Filesystem     1M-blocks    Used Available Use% Mounted on
-# /dev/nvme0n1p4   6800859 5989215    778178  89% /mnt/data
 function pruneNeeded() {
-  local used=${1?}  # %
-  local free=256000 # MiB
-  local mnt="/mnt/data"
+  local avail
+  local pcent
 
-  local values=$(df -m $mnt | tr -d '%' | grep -v "^Filesystem")
-  if [[ -n $values ]]; then
-    awk '{ if ($4 < '$free' || $5 > '$used') exit 0; else exit 1 }' <<<$values
-  else
-    echo " something wrong with $mnt" >&2
-    exit 2
-  fi
+  read -r avail pcent < <(df -m /mnt/data --output=avail,pcent | tail -n 1 | tr -d '%')
+  [[ $avail -lt 256000 || $pcent -gt $1 ]]
 }
 
 function pruneDir() {
@@ -115,3 +106,7 @@ done < <(getCandidates 7)
 while read -r img && pruneNeeded 89; do
   pruneDir $img "space needed"
 done < <(getCandidates 14)
+
+if pruneNeeded 95; then
+  echo "Warning: fs nearly fullfilled" >&2
+fi
