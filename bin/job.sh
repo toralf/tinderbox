@@ -26,7 +26,7 @@ function filterPlainPext() {
 
 function Mail() {
   local subject=$(stripQuotesAndMore <<<$1 | strings -w | cut -c1-200 | tr '\n' ' ')
-  local content=${2:-}
+  local content=${2-}
 
   if [[ -f $content ]]; then
     echo
@@ -40,7 +40,7 @@ function Mail() {
     echo -e "$content"
   fi |
     strings -w |
-    sed -e 's,^>>>, >>>,' |
+    sed -e 's,^>, >,' |
     if ! (mail -s "$subject  @  $name" ${MAILTO:-tinderbox} >/dev/null); then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
     fi
@@ -49,7 +49,7 @@ function Mail() {
 # 13 triggers a replacement
 function ReachedEOL() {
   local subject=${1:-"EOL"}
-  local attachment=${2:-}
+  local attachment=${2-}
 
   echo "$subject" >>/var/tmp/tb/EOL
   chmod g+w /var/tmp/tb/EOL
@@ -66,7 +66,7 @@ function ReachedEOL() {
 function Finish() {
   local exit_code=${1:-$?}
   local subject=${2:-"<INTERNAL ERROR>"}
-  local attachment=${3:-}
+  local attachment=${3-}
 
   trap - INT QUIT TERM EXIT
   set +e
@@ -210,28 +210,25 @@ function CollectIssueFiles() {
         -o -wholename "./temp/syml*" |
         sort -u >$f
       if [[ -s $f ]]; then
-        $gtar -cJpf $issuedir/files/logs.tar.xz \
-          --dereference \
-          --warning='no-all' \
-          --files-from $f
+        $tar -cJpf $issuedir/files/logs.tar.xz --files-from $f --dereference --warning=none
       fi
       rm $f
     )
 
     # requested by sam_
     if [[ -d /var/tmp/clang/$pkg ]]; then
-      tar -C /var/tmp/clang/ -cJpf $issuedir/files/var.tmp.clang.tar.xz ./$pkg
+      $tar -C /var/tmp/clang/ -cJpf $issuedir/files/var.tmp.clang.tar.xz ./$pkg
     fi
     if [[ -d /etc/clang ]]; then
-      tar -C /etc -cJpf $issuedir/files/etc.clang.tar.xz ./clang
+      $tar -C /etc -cJpf $issuedir/files/etc.clang.tar.xz ./clang
     fi
 
-    # additional CMake files
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null || true
 
     if [[ -d $workdir/../../temp ]]; then
-      timeout --signal=15 --kill-after=1m 3m $gtar -C $workdir/../.. --warning=none -cJpf $issuedir/files/temp.tar.xz \
-        --dereference --warning='no-all' \
+      timeout --signal=15 --kill-after=1m 3m \
+        $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
+        --dereference --warning=none \
         --exclude='*/garbage.*' \
         --exclude='*/go-build[0-9]*/*' \
         --exclude='*/go-cache/??/*' \
@@ -249,7 +246,7 @@ function CollectIssueFiles() {
 
   if grep -q "^$pkgname$" /mnt/tb/data/KEEP_BUILD_ARTEFACTS; then
     find $workdir/.. -ls 2>&1 | xz >$issuedir/files/var-tmp-portage.txt.xz
-    tar -cJpf $issuedir/files/var-tmp-portage.tar.xz /var/tmp/portage/*
+    $tar --warning=none -C /var/tmp/portage/ -cJpf $issuedir/files/var-tmp-portage.tar.xz .
   fi
 }
 
@@ -327,7 +324,7 @@ function handleTestPhase() {
     cd "$workdir"
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
     if [[ -n $dirs ]]; then
-      timeout --signal=15 --kill-after=1m 3m $gtar --warning=none -cJpf $issuedir/files/tests.tar.xz \
+      timeout --signal=15 --kill-after=1m 3m $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
         --dereference --one-file-system --sparse \
         --exclude='*.o' \
         --exclude="*/dev/*" \
@@ -872,14 +869,11 @@ function WorkOnTask() {
           done |
           sort -u >/tmp/world
         if [[ -s /tmp/world ]]; then
+          echo "# $(date)" >>/etc/portage/package.use/world
           cat /tmp/world >>/etc/portage/package.use/world
-          if [[ $(wc -l </etc/portage/package.use/world) -gt 50 ]]; then
-            ReachedEOL "$task cannot be fixed" $tasklog
-          else
-            Mail "INFO: changed USE flags for world" /tmp/world
-            rm /tmp/world
-            add2backlog "$task"
-          fi
+          Mail "INFO: changed USE flags for world" /tmp/world
+          rm /tmp/world
+          add2backlog "$task"
         else
           ReachedEOL "$task is broken" $tasklog
         fi
@@ -985,19 +979,24 @@ set -eu
 export LANG=C.utf8
 
 if [[ -x "$(command -v gtar)" ]]; then
-  gtar=gtar
+  tar=gtar
 else
-  gtar=tar # hopefully this knows --warning=none et al.
+  tar=tar # hopefully this handles "--warning=none" too
 fi
 
 source $(dirname $0)/lib.sh
 
-export -f SwitchGCC add2backlog source_profile syncRepo # called in eval of RunAndCheck() or in SwitchGCC()
+export -f SwitchGCC syncRepo         # valid backlog entry, called in RunAndCheck()
+export -f add2backlog source_profile # called by SwitchGCC()
 
-export taskfile=/var/tmp/tb/task # holds the current task, and is exported, b/c used in SwitchGCC()
-tasklog=$taskfile.log            # holds output of it
-name=$(cat /var/tmp/tb/name)     # the image name
+taskfile=/var/tmp/tb/task    # holds the current task
+tasklog=$taskfile.log        # holds output of it
+name=$(cat /var/tmp/tb/name) # the image name
 grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
+jobs=$(
+  set +f
+  sed 's,^.*j,,' /etc/portage/package.env/00j*
+)
 
 export CARGO_TERM_COLOR="never"
 export CMAKE_COLOR_DIAGNOSTICS="OFF"
@@ -1014,13 +1013,9 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
-jobs=$(
-  set +f
-  sed 's,^.*j,,' /etc/portage/package.env/00j*
-)
 export XZ_OPT="-9 -T$jobs"
 
-# re-schedule $task (if non-empty then Failed() was called before)
+# re-schedule $task (non-empty if Finish() was called due to an internal error)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi

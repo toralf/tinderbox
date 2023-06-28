@@ -69,7 +69,7 @@ function attach() {
     elif [[ $bytes -gt $((2 ** 20)) ]]; then
       echo "too fat file for b.g.o.: $f"
       file_size=$(ls -lh $f | awk '{ print $5 }')
-      file_path=$(realpath $f | sed -e "s,^.*img/,,g")
+      file_path=$(realpath $f | sed -e "s,^.*img/,,")
       url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
       comment="The file size of $f is too big ($file_size) for an upload. For few weeks the link $url is valid."
       bugz modify --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err

@@ -422,7 +422,7 @@ EOF
     while read -r topic m N; do
       if dice ${m:-1} ${N:-2}; then
         # keep start of the line, but remove comment + spaces before
-        sed -i -e "s, *# DICE: $topic *$,,g" -e "s, *# DICE: $topic .*,,g" ./etc/portage/package.*/*
+        sed -i -e "s, *# DICE: $topic *$,," -e "s, *# DICE: $topic .*,," ./etc/portage/package.*/*
       else
         # delete the whole line
         sed -i -e "/# DICE: $topic *$/d" -e "/# DICE: $topic .*/d" ./etc/portage/package.*/*
@@ -432,7 +432,7 @@ EOF
   echo "*/*  $(cpuid2cpuflags)" >./etc/portage/package.use/99cpuflags
 
   for f in "$tbhome"/tb/conf/profile.*; do
-    cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,g')
+    cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
   done
 
   touch ./var/tmp/tb/task
@@ -572,7 +572,7 @@ echo "#setup profile, make.conf, backlog" | tee /var/tmp/tb/task
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature = "y" ]]; then
-  sed -i -e 's,FEATURES=",FEATURES="test ,g' /etc/portage/make.conf
+  sed -i -e 's,FEATURES=",FEATURES="test ,' /etc/portage/make.conf
 fi
 
 # sort -u is needed if a package is in several repositories
@@ -654,7 +654,7 @@ function FixPossibleUseFlagIssues() {
     grep -A 20 "It might be possible to break this cycle" $drylog |
       grep -F ' (Change USE: ' |
       grep -v -F -e '+' -e 'This change might require ' |
-      sed -e "s,^- ,>=,g" -e "s, (Change USE:,,g" -e 's,),,' |
+      sed -e "s,^- ,>=," -e "s, (Change USE:,," -e 's,),,' |
       sort -u |
       grep -v ".*-.*/.* .*_.*" |
       while read -r p u; do
@@ -732,7 +732,7 @@ function ThrowFlags() {
     grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
     ShuffleUseFlags 250 4 50 |
     xargs -s 73 |
-    sed -e "s,^,*/*  ,g" >./etc/portage/package.use/23thrown_global_use_flags
+    sed -e "s,^,*/*  ," >./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |
     shuf -n $((RANDOM % 1800 + 200)) |

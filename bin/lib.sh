@@ -17,7 +17,7 @@ function __is_running() {
 function list_images() {
   (
     ls ~tinderbox/run/ | sort
-    ls /run/tinderbox/ | sed 's,.lock,,g' | sort
+    ls /run/tinderbox/ | sed -e 's,.lock,,' | sort
     ls -d /sys/fs/cgroup/cpu/local/??.* | sort
   ) 2>/dev/null |
     xargs -n 1 --no-run-if-empty basename |
@@ -44,9 +44,7 @@ function checkBgo() {
     return 1
 
   elif ! bugz -q get 2 >/dev/null; then
-    {
-      echo "b.g.o is down"
-    } >&2
+    echo "b.g.o is down" >&2
     return 2
   fi
 }
@@ -103,10 +101,8 @@ function GotResults() {
 
 function SearchForSameIssue() {
   if grep -q 'file collision with' $issuedir/title; then
-    # for a file collision report both involved sites
     local collision_partner=$(sed -e 's,.*file collision with ,,' <$issuedir/title)
-
-    collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
+    local collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     # shellcheck disable=SC2154
     $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
       grep -e " CONFIRMED " -e " IN_PROGRESS " |

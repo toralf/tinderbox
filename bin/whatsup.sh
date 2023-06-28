@@ -168,7 +168,7 @@ function LastEmergeOperation() {
   for i in $images; do
     if printImageName $i && __is_running $i && [[ -s $i/var/log/emerge.log ]]; then
       tail -n 1 $i/var/log/emerge.log |
-        sed -e 's,::.*,,g' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |
+        sed -e 's,::.*,,' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |
         perl -wane '
         chop ($F[0]);
         my $delta = time() - $F[0];
