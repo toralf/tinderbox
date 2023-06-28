@@ -1,4 +1,5 @@
-# keep /var/tmp/portage for a failed package matching a pattern here
-# this file MUST NOT have empty lines
+# if failed keep /var/tmp/portage/* for these package(s)
 #
+
+# https://bugs.gentoo.org/909060
 sys-devel/gcc
