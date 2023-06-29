@@ -169,7 +169,7 @@ function CompressIssueFiles() {
   chmod -R a+rw $issuedir/ # allow manual editing of e.g. title/body
 }
 
-function CreateEmergeHistoryFile() {
+function CreateEmergeInfo() {
   local ehist=$issuedir/files/emerge-history.txt
   local cmd="qlop --nocolor --verbose --merge --unmerge"
 
@@ -179,6 +179,8 @@ function CreateEmergeHistoryFile() {
 # at $(date)
 EOF
   $cmd &>>$ehist
+
+  emerge -p --info $pkgname &>$issuedir/emerge-info.txt
 }
 
 # gather together what might be relevant for b.g.o.
@@ -376,8 +378,6 @@ function ClassifyIssue() {
 # helper of WorkAtIssue()
 # creates an email containing convenient links and a command line ready for copy+paste
 function CompileIssueComment0() {
-  emerge -p --info $pkgname &>$issuedir/emerge-info.txt
-
   cp $issuedir/issue $issuedir/comment0
   cat <<EOF >>$issuedir/comment0
 
@@ -593,7 +593,7 @@ function WorkAtIssue() {
       tr -d '( '
   )
   setWorkDir
-  CreateEmergeHistoryFile
+  CreateEmergeInfo
   CollectIssueFiles
   ClassifyIssue
   collectPortageDir
@@ -743,7 +743,7 @@ function catchMisc() {
 
 EOF
           collectPortageDir
-          CreateEmergeHistoryFile
+          CreateEmergeInfo
           CompressIssueFiles
           SendIssueMailIfNotYetReported
         done
