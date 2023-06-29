@@ -32,7 +32,6 @@ Login interactively into an image with
 sudo /opt/tb/bin/bwrap.sh -m <path to img>
 ```
 
-
 ## Installation
 
 Create the user _tinderbox_:
