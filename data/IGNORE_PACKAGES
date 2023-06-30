@@ -25,3 +25,6 @@ sci-libs/
 #
 # breaks @world too often in moment - 20th of June 2022
 dev-ml/
+#
+# https://bugs.gentoo.org/909309
+app-emacs/

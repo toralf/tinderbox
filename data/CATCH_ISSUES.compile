@@ -354,3 +354,4 @@ invalid option:
 cp: cannot stat
  \*   Unknown backend:
  is not a valid C format string
+Try '/usr/bin/msgfmt

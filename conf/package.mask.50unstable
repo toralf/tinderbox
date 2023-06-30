@@ -14,3 +14,8 @@
 
 <sys-devel/clang-16.0.6                                 # DICE: clang16 3 4
 <sys-devel/llvm-16.0.6                                  # DICE: clang16 3 4
+
+# https://bugs.gentoo.org/909309
+app-emacs/*
+app-emacs/elscreen
+app-emacs/navi2ch
