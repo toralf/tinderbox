@@ -861,22 +861,7 @@ function WorkOnTask() {
           add2backlog "$task"
         fi
       else
-        grep -A 300 'The following USE changes are necessary to proceed:' $tasklog_stripped |
-          grep "^>=" |
-          grep -v -e '>=.* .*_' |
-          while read -r p u; do
-            printf "%-36s %s\n" $p "$u"
-          done |
-          sort -u >/tmp/world
-        if [[ -s /tmp/world ]]; then
-          echo "# $(date)" >>/etc/portage/package.use/world
-          cat /tmp/world >>/etc/portage/package.use/world
-          Mail "INFO: changed USE flags for world" /tmp/world
-          rm /tmp/world
-          add2backlog "$task"
-        else
-          ReachedEOL "$task is broken" $tasklog
-        fi
+        ReachedEOL "$task is broken" $tasklog
       fi
     fi
 
