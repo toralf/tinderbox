@@ -33,11 +33,14 @@ function getCandidates() {
 }
 
 function pruneNeeded() {
-  local avail
-  local pcent
+  local desired=${1?}
 
-  read -r avail pcent < <(df -m /mnt/data --output=avail,pcent | tail -n 1 | tr -d '%')
-  [[ $avail -lt 256000 || $pcent -gt $1 ]]
+  if read -r size used < <(df -m /mnt/data --output=size,used | tail -n 1); then
+    local limit=$((size * desired / 100))
+    [[ $used -ge $limit ]]
+  else
+    return 1
+  fi
 }
 
 function pruneDir() {
