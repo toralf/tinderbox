@@ -33,11 +33,11 @@ function getCandidates() {
 }
 
 function pruneNeeded() {
-  local desired=${1?}
+  local desired=${1?} # in percent
 
-  if read -r size used < <(df -m /mnt/data --output=size,used | tail -n 1); then
-    local limit=$((size * desired / 100))
-    [[ $used -ge $limit ]]
+  if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
+    local limit=$((size * (100 - desired) / 100))
+    [[ $avail -lt $limit ]]
   else
     return 1
   fi
