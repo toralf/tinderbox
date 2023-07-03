@@ -48,3 +48,4 @@ Unsupported kernel version!
  \* FAILED .
 error:.*command not found
  \*\*\* No rule to make target
+ error:.*:
