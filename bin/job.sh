@@ -1000,12 +1000,14 @@ export PAGER="cat"
 
 export XZ_OPT="-9 -T$jobs"
 
-# re-schedule $task (non-empty if Finish() was called due to an internal error)
+# re-schedule $task (non-empty if Finish() was called by an internal error)
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
 
 echo "#init" >$taskfile
+add2backlog "%emaint merges --fix" # fix any unclean shutdown
+
 rm -f $tasklog # remove a left over hard link
 systemd-tmpfiles --create &>$tasklog || true
 
