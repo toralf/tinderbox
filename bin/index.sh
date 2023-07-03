@@ -31,7 +31,9 @@ function listFiles() {
       cd ~tinderbox/img
       find . -maxdepth 1 -type f
     } | recode --silent ascii..html |
-      xargs --no-run-if-empty -I {} echo '<a href="./{}">{}</a>'
+      while read -r f; do
+        echo "<a href=\"$f\">$f ($(ls -lh ./img/$f | awk '{ print $5 }'))</a>"
+      done
     echo -e "</pre>\n"
   } >>$tmpfile
 }
