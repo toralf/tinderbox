@@ -31,3 +31,6 @@ dev-lang/ruby                       -rdoc               # DICE: rdoc
 
 # sam, negril
 sci-libs/vtk                        cuda,ffmpeg,imaging,logging,mpi,qt5,rendering,sdl,tbb,threads,views,vtkm
+
+# sam
+*/*                                 perl
