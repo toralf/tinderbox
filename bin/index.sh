@@ -27,12 +27,11 @@ function listFiles() {
   {
     echo "<h2>downloadable files</h2>"
     echo "<pre>"
-    {
-      cd ~tinderbox/img
-      find . -maxdepth 1 -type f
-    } | recode --silent ascii..html |
+    find ~tinderbox/img/ -maxdepth 1 -type f |
+      xargs -r -n 1 basename |
+      recode --silent ascii..html |
       while read -r f; do
-        echo "<a href=\"$f\">$f ($(ls -lh ./img/$f | awk '{ print $5 }'))</a>"
+        echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f | awk '{ print $5 }'))</a>"
       done
     echo -e "</pre>\n"
   } >>$tmpfile
