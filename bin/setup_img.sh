@@ -633,7 +633,7 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
-  for i in {1..29}; do
+  for i in {1..9}; do
     # kick off particular packages from package specific use flag file
     local pkg=$(
       grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
