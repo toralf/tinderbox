@@ -27,10 +27,10 @@ sys-devel/gcc                       debug               # DICE: gcc_debug
 media-libs/libjpeg-turbo            -java
 
 # world b0rken early and often
-dev-lang/ruby                       -rdoc               # DICE: rdoc
+# dev-lang/ruby                       -rdoc               # DICE: rdoc
 
-# sam, negril
+# sam, negril OOM
 sci-libs/vtk                        cuda,ffmpeg,imaging,logging,mpi,qt5,rendering,sdl,tbb,threads,views,vtkm
 
-# sam
+# sam, few tests for upcoming perl-5.38
 */*                                 perl
