@@ -1028,9 +1028,9 @@ while :; do
   set -e
   if [[ $rc -gt 0 ]]; then
     case $rc in
-    15) sec=60 ;;
-    5) sec=40 ;;
-    1) sec=20 ;;
+    15) sec=45 ;;
+    5) sec=30 ;;
+    1) sec=15 ;;
     esac
     # wait sec longer than the last waiter, but at least sec
     last=$(sort -n /run/tinderbox/*.lock/wait 2>/dev/null | tail -n 1)
