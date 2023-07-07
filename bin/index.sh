@@ -29,9 +29,23 @@ function listFiles() {
     echo "<pre>"
     find ~tinderbox/img/ -maxdepth 1 -type f -print0 |
       xargs -r -n 1 --null basename |
-      recode --silent ascii..html |
       while read -r f; do
         echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f | awk '{ print $5 }'))</a>"
+      done
+    echo -e "</pre>\n"
+  } >>$tmpfile
+}
+
+function listImages() {
+  {
+    echo "<h2>images without reported bugs</h2>"
+    echo "<pre>"
+    find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
+      xargs -r -n 1 --null basename |
+      while read -r f; do
+        if ! ls ~tinderbox/img/$f/var/tmp/tb/issues/*/.reported &>/dev/null; then
+          echo "<a href=\"$f\">$f</a>"
+        fi
       done
     echo -e "</pre>\n"
   } >>$tmpfile
@@ -103,7 +117,9 @@ cat <<EOF >>$tmpfile
 EOF
 listStat
 listFiles
+listImages
 listBugs
+
 echo -e "</html>" >>$tmpfile
 
 cp $tmpfile ~tinderbox/img/index.html
