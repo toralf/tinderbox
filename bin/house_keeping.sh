@@ -72,10 +72,10 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# prune outdated stage3 files
+# always prune stage3 files
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
-  find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' -mtime +31 |
+  find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' -mtime +15 |
     while read -r stage3; do
       if [[ $latest -nt $stage3 ]]; then
         if ! grep -q -F "/$(basename $stage3) " $latest; then
@@ -85,8 +85,8 @@ if [[ -s $latest ]]; then
     done
 fi
 
-# prune distfiles older than 1 yr
-find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +365 -delete
+# always prune distfiles
+find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
 while read -r img && pruneNeeded 49; do
   if [[ ! -s $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
