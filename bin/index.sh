@@ -63,8 +63,8 @@ function listBugs() {
     <tr>
       <th>Bug</th>
       <th>Title</th>
-      <th>/</th>
-      <th>IssueDir</th>
+      <th>Image /</th>
+      <th>Issue Dir</th>
     </tr>
   </thead>
 
@@ -72,8 +72,8 @@ function listBugs() {
     <tr>
       <th>Bug</th>
       <th>Title</th>
-      <th>/</th>
-      <th>IssueDir</th>
+      <th>Image /</th>
+      <th>Issue Dir</th>
     </tr>
   </tfoot>
 
@@ -81,11 +81,13 @@ function listBugs() {
 EOF
 
   while read -r f; do
-    uri=$(cat $f 2>/dev/null) || continue # race with house keeping
+    if ! uri=$(cat $f 2>/dev/null); then
+      continue # race with house keeping
+    fi
     no=${uri##*/}
     d=${f%/*}
     title=$d/title
-    imagedir=$(cut -f5- -d'/' <<<$d)
+    imagedir=$(cut -f 5- -d '/' <<<$d)
     image=${imagedir%%/*}
     pkg=${d##*/}
     cat <<EOF >>$tmpfile
