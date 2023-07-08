@@ -636,16 +636,18 @@ function FixPossibleUseFlagIssues() {
   for i in {1..9}; do
     # kick off particular packages from package specific use flag file
     local pkg=$(
-      grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
-        awk '/^- / { print $2 } ' |
+      grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
+        awk '/^- / { print $2 }' |
         cut -f 1 -d ':' -s |
         xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}"
     )
-    local f=./etc/portage/package.use/24thrown_package_use_flags
-    if [[ -n $pkg ]] && grep -q "$pkg" $f; then
-      sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkg) /d" $f
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
-        return 0
+    if [[ -n $pkg ]]; then
+      local f=./etc/portage/package.use/24thrown_package_use_flags
+      if grep -q "$pkg " $f; then
+        sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkg) /d" $f
+        if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
+          return 0
+        fi
       fi
     fi
 
