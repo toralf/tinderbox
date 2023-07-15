@@ -685,7 +685,7 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped && ! grep -q -F '[ebuild .*UD ]  *dev-lang/ruby' $tasklog_stripped; then
-    local highest=$(eselect ruby list | tail -n 1 | awk '{ print $2 }')
+    local highest=$(eselect ruby list | awk 'END { print $2 }')
     if [[ -n $highest ]]; then
       local current=$(eselect ruby show | sed -n -e '2p' | xargs)
       if [[ $current != "$highest" ]]; then
