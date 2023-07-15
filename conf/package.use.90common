@@ -32,9 +32,6 @@ sys-kernel/installkernel-gentoo     -grub
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
 
-# https://bugs.gentoo.org/869953
-sys-devel/gcc                       -ada
-
 # D would need to be bootstraped
 sys-devel/gcc                       -d
 
@@ -54,7 +51,7 @@ dev-libs/gf2x                       -custom-tune
 app-doc/gimp-help                   -nls
 
 # common setup blocker: at-most-one-of ( cracklib pam )
-sys-apps/shadow                     -cracklib           # DICE: cracklib 4 5
+sys-apps/shadow                     -cracklib           # DICE: shadow 4 5
 
 # pretend phase
 net-misc/openssh                    -sctp

@@ -23,7 +23,7 @@ EVP_|RUST_VERSION_OPENSSL_|FIPS_mode|RSA_SSLV23|get_dh|DSA|FIPS|ERR_GET_FUNC|CRY
 
 # [Tracker] Packages which will fail with -std=c2x
 880545
- prototype| not supported in C2|C2X|C2x|Werror=deprecated-non-prototype
+ prototype| not supported in C2|C2X|C2x
 
 # [Tracker] Build failures with sys-kernel/linux-headers-6.0
 876331

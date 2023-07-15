@@ -11,26 +11,20 @@ sys-devel/gcc                       -go
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
 
-# https://bugs.gentoo.org/884193
-media-libs/mesa                     -opencl
-
 # https://bugs.gentoo.org/384869
 app-admin/webalizer                 -nls
 
-# https://bugs.gentoo.org/900429
-dev-lang/python                     -pgo
-
 # request by sam
-sys-devel/gcc                       debug               # DICE: gcc_debug
+sys-devel/gcc                       debug               # DICE: gcc
 
 # https://bugs.gentoo.org/900731
 media-libs/libjpeg-turbo            -java
 
 # sam, negril OOM
-sci-libs/vtk                        cuda,ffmpeg,imaging,logging,mpi,qt5,rendering,sdl,tbb,threads,views,vtkm
-
-# sam, few tests for upcoming perl-5.38
-*/*                                 perl
+sci-libs/vtk                        cuda,ffmpeg,imaging,logging,mpi,qt5,rendering,sdl,tbb,threads,views,vtkm  # DICE: vtk
 
 # sandbox violation ?
 sys-libs/glibc                      vanilla             # DICE: glibc
+
+# https://bugs.gentoo.org/869953
+sys-devel/gcc                       -ada
