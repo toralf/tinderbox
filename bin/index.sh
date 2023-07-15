@@ -55,7 +55,7 @@ function listBugs() {
   local files=$(ls -t -- ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null)
 
   cat <<EOF >>$tmpfile
-<h2>details of latest $(wc -l <<<$files) reported <a href="https://bugs.gentoo.org/">bugs</a></h2>
+<h2>build artefacts of $(wc -l <<<$files) latest <a href="https://bugs.gentoo.org/">bugs</a></h2>
 
   <table border="0" align="left" class="list_table">
 
@@ -64,7 +64,7 @@ function listBugs() {
       <th>Bug</th>
       <th>Title</th>
       <th>Image /</th>
-      <th>Issue Dir</th>
+      <th>Artefacts</th>
     </tr>
   </thead>
 
@@ -73,7 +73,7 @@ function listBugs() {
       <th>Bug</th>
       <th>Title</th>
       <th>Image /</th>
-      <th>Issue Dir</th>
+      <th>Artefacts</th>
     </tr>
   </tfoot>
 
