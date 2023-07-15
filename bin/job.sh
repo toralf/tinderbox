@@ -1026,15 +1026,16 @@ while :; do
   rc=$?
   set -e
   if [[ $rc -gt 0 ]]; then
-    case $rc in
-    15) sec=45 ;;
-    5) sec=30 ;;
-    1) sec=15 ;;
-    esac
-    # wait sec longer than the last waiter, but at least sec
     last=$(sort -n /run/tinderbox/*.lock/wait 2>/dev/null | tail -n 1)
     if [[ -n $last ]]; then
-      ((sec += last - EPOCHSECONDS))
+      ((sec = last - EPOCHSECONDS + 15)) # wait 15 sec longer than the longest waiter
+    else
+      # wait depending on the current load
+      case $rc in
+      15) sec=45 ;;
+      5) sec=30 ;;
+      1) sec=15 ;;
+      esac
     fi
     me=$((EPOCHSECONDS + sec))
     echo "$me" >/run/lock_dir/wait
