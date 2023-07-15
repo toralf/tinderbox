@@ -680,8 +680,7 @@ function PostEmerge() {
     add2backlog "sys-apps/portage"
   fi
 
-  if grep -q -e ">>> Installing .* dev-lang/perl-[1-9]" \
-    -e 'Use: perl-cleaner' $tasklog_stripped; then
+  if grep -q -e 'Use: perl-cleaner' $tasklog_stripped; then
     add2backlog '%perl-cleaner --all'
   fi
 
