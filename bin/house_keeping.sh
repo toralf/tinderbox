@@ -8,6 +8,10 @@ function getCandidates() {
   ls -dt ~tinderbox/img/{17,23}.[0-9]*/ 2>/dev/null |
     tac |
     while read -r i; do
+      if [[ -f $i/var/tmp/tb/KEEP ]]; then
+        continue
+      fi
+
       if [[ -e ~tinderbox/run/$(basename $i) ]]; then
         continue
       fi
@@ -16,15 +20,17 @@ function getCandidates() {
         continue
       fi
 
-      target=$i
-      if [[ -s $i/var/log/emerge.log ]]; then
-        target+=/var/log/emerge.log
-      fi
-      if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -lt $keepdays ]]; then
-        continue
+      youngest_reported=$(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | sort | tail -n 1)
+      youngest_issue=$(ls $i/var/tmp/tb/issues 2>/dev/null | sort | tail -n 1)
+      if [[ -f $youngest_reported ]]; then
+        target=$youngest_reported
+      elif [[ -d $youngest_issue ]]; then
+        target=$youngest_issue
+      else
+        target=$i
       fi
 
-      if [[ -f $i/var/tmp/tb/KEEP ]]; then
+      if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -lt $keepdays ]]; then
         continue
       fi
 
