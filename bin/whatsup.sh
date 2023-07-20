@@ -262,8 +262,9 @@ function Coverage() {
     local covered=~tinderbox/img/packages.$i.covered.txt
     local uncovered=~tinderbox/img/packages.$i.uncovered.txt # used in index.sh
 
+    # covered + uncovered != all     e.g. due to package deletions
     getCoveredPackages $i >$covered
-    diff $covered $all | grep -F '>' | cut -f2 -d' ' -s >$uncovered
+    diff $covered $all | grep -F '>' | cut -f 2 -d ' ' -s >$uncovered
 
     local n=$(wc -l <$covered)
     local oldest=$(cat ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -n | head -n 1)
