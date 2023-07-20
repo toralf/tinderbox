@@ -29,6 +29,7 @@ function listFiles() {
     echo "<pre>"
     find ~tinderbox/img/ -maxdepth 1 -type f -print0 |
       xargs -r -n 1 --null basename |
+      sort |
       while read -r f; do
         echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f | awk '{ print $5 }'))</a>"
       done
@@ -42,6 +43,7 @@ function listImages() {
     echo "<pre>"
     find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
       xargs -r -n 1 --null basename |
+      sort |
       while read -r f; do
         if ! ls ~tinderbox/img/$f/var/tmp/tb/issues/*/.reported &>/dev/null; then
           echo "<a href=\"$f\">$f</a>"

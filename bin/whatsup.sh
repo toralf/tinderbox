@@ -267,7 +267,7 @@ function Coverage() {
     diff $covered $all | grep -F '>' | cut -f 2 -d ' ' -s >$uncovered
 
     local n=$(wc -l <$covered)
-    local oldest=$(cat ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | sort -n | head -n 1)
+    local oldest=$(sort -n ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
       days=$(echo "scale=2.1; ($EPOCHSECONDS - $oldest) / 3600 / 24" | bc)
