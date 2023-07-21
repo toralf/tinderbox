@@ -25,12 +25,12 @@ function CgroupCreate() {
   local cpu=$((100000 * jobs + 10000))
   cgset -r cpu.cfs_quota_us=$cpu $name
 
-  # 2 GB per compiler thread
-  local mem=$((2 * jobs + 10))
+  # 2 GB per build job
+  local mem=$((2 * jobs + 16))
   cgset -r memory.limit_in_bytes=${mem}G $name
 
   # memory+swap, consider tmpfs
-  cgset -r memory.memsw.limit_in_bytes=$((mem + 2 * 16))G $name
+  cgset -r memory.memsw.limit_in_bytes=$((mem + 16))G $name
 }
 
 function CgroupDelete() {
