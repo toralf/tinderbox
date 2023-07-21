@@ -62,6 +62,7 @@ rdoc
 ruby
 sanitize
 savedconfig
+secureboot
 selinux
 split-usr
 ssp

@@ -59,3 +59,6 @@ net-misc/openssh                    -sctp
 # common setup blocker: at-most-one-of ( libedit readline )
 dev-libs/libpcre                    -libedit            # DICE: pcre 4 5
 dev-libs/libpcre2                   -libedit            # DICE: pcre 4 5
+
+# otherwise: USE=secureboot enabled but SECUREBOOT_SIGN_KEY and/or SECUREBOOT_SIGN_CERT not set.
+*/*                                 -secureboot
