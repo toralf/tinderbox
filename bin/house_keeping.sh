@@ -5,7 +5,7 @@
 function getCandidates() {
   local keepdays=${1?}
 
-  ls -dt ~tinderbox/img/{17,23}.[0-9]*/ 2>/dev/null |
+  ls -dt ~tinderbox/img/{17,23}.[0-9]*/var/tmp/tb/issues 2>/dev/null |
     tac |
     while read -r i; do
       if [[ -f $i/var/tmp/tb/KEEP ]]; then
@@ -20,26 +20,23 @@ function getCandidates() {
         continue
       fi
 
-      youngest_reported=$(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | sort | tail -n 1)
-      youngest_issue=$(ls $i/var/tmp/tb/issues 2>/dev/null | sort | tail -n 1)
+      youngest_reported=$(ls $i/*/.reported 2>/dev/null | sort | tail -n 1)
       if [[ -f $youngest_reported ]]; then
         target=$youngest_reported
-      elif [[ -d $youngest_issue ]]; then
-        target=$youngest_issue
       else
         target=$i
       fi
-
       if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -lt $keepdays ]]; then
         continue
       fi
 
-      echo $i
+      echo $i | sed -e 's,/var/tmp/tb/issues,,'
     done
 }
 
+# available space is less than 100 - "% value of the df command"
 function pruneNeeded() {
-  local maxperc=${1?} # Use% value of the df command
+  local maxperc=${1?}
 
   if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
     local mb=$((size * (100 - maxperc) / 100)) # MB
@@ -94,7 +91,7 @@ fi
 # always prune distfiles
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
-while read -r img && pruneNeeded 49; do
+while read -r img; do
   if [[ ! -s $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
     pruneDir $img "broken setup"
   fi
