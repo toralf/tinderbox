@@ -46,3 +46,4 @@ You need package
  \*   clang++ is not a supported compiler.
  \*   Cannot compile with
  \*   kernel sources are required to build kernel modules
+ \*   No suitable POSTGRES_TARGETS enabled

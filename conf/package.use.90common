@@ -2,10 +2,11 @@
 #
 
 
+*/*                                 POSTGRES_TARGETS: postgres14                                          # DICE: postgres_targets
 */*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
 */*                                 QEMU_USER_TARGETS:    x86_64 i386
-*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeon radeonsi     # DICE: video
 */*                                 RUBY_TARGETS:         -ruby30
+*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeon radeonsi     # DICE: video_cards
 
 # 2x faster compile
 */*                                 jumbo-build

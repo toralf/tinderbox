@@ -27,7 +27,6 @@ The ebuild phase .* has exited unexpectedly. This type of
 ecompress-file failed
 Unsupported EAPI
 Files matching a file type that is not allowed:
-ninja: build stopped:
 The environment is too large for exec
  \* ERROR: .* failed:
 ln: failed to create symbolic link .*: File exists
@@ -49,3 +48,4 @@ Unsupported kernel version!
 error:.*command not found
  \*\*\* No rule to make target
  error:.*:
+ninja: build stopped:

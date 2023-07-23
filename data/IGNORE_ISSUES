@@ -28,6 +28,7 @@ Mismatched defaults detected between
 Missing requested third party patch.
 No LLVM slot <= .* found installed!
 No pathcc executable was installed, your hardware is unsupported most likely
+No suitable POSTGRES_TARGETS enabled
 No support for external modules in
 One of the .* use flags must be enabled
 OTP release .* does not match required regex
