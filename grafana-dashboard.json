@@ -931,7 +931,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
+  "refresh": "5m",
   "revision": 1,
   "schemaVersion": 38,
   "style": "dark",
@@ -940,13 +940,13 @@
     "list": []
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tinderbox",
   "uid": "tm9JS5B4z",
-  "version": 140,
+  "version": 142,
   "weekStart": ""
 }
