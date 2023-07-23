@@ -697,7 +697,6 @@ function PostEmerge() {
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
     add2backlog "%SwitchGCC"
   fi
-
 }
 
 function createIssueDir() {
