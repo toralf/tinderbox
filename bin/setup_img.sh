@@ -41,9 +41,9 @@ function InitOptions() {
     fi
   fi
 
-  # set "*/* ABI_X86: 32 64"
   if [[ ! $profile =~ "/no-multilib" ]]; then
     if dice 1 80; then
+      # this sets "*/* ABI_X86: 32 64"
       abi3264="y"
     fi
   fi
@@ -54,7 +54,7 @@ function InitOptions() {
   fi
 
   # not very fruitful but do it now and then
-  if dice 1 80; then
+  if dice 1 60; then
     testfeature="y"
   fi
 }
@@ -243,7 +243,7 @@ EOF
 
 # create tinderbox related directories + files
 function CompileTinderboxFiles() {
-  mkdir -p ./mnt/tb/data ./var/tmp/{portage,tb,tb/logs} ./var/cache/distfiles
+  mkdir -p ./mnt/tb/data ./var/tmp/{portage,tb,tb/issues,tb/logs} ./var/cache/distfiles
 
   chgrp portage ./var/tmp/tb/{,logs}
   chmod ug+rwx ./var/tmp/tb/{,logs}
@@ -470,7 +470,7 @@ set expandtab
 
 EOF
 
-  echo "PS1='(~/img/$name)\n$> '" >> ./root/.profile
+  echo "PS1='(~/img/$name)\n$> '" >>./root/.profile
 
   # include the \n in paste content (sys-libs/readline de-activated that with v8)
   echo "set enable-bracketed-paste off" >>./root/.inputrc
@@ -758,9 +758,10 @@ function CompileUseFlagFiles() {
 set -euf
 
 if ! portageq best_visible / sys-devel/gcc; then
-  echo "no visible gcc"
+  echo "no visible gcc - this setup image will be replaced"
   exit 13
 fi
+
 USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
 emerge --update --changed-use --newuse @world --pretend
 
