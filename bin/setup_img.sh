@@ -470,7 +470,7 @@ set expandtab
 
 EOF
 
-  echo "PS1='(~/img/$name)\n$> '" >>./root/.profile
+  echo "PS1='(~/img/$name)\n\w $> '" >>./root/.profile
 
   # include the \n in paste content (sys-libs/readline de-activated that with v8)
   echo "set enable-bracketed-paste off" >>./root/.inputrc
