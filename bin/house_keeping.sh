@@ -2,36 +2,34 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-function getCandidates() {
-  local keepdays=${1?}
+function listImages() {
+  ls -dt ~tinderbox/img/{17,23}.[0-9]*/ 2>/dev/null |
+    tac
+}
 
-  ls -dt ~tinderbox/img/{17,23}.[0-9]*/var/tmp/tb/issues 2>/dev/null |
-    tac |
-    while read -r i; do
-      if [[ -f $i/var/tmp/tb/KEEP ]]; then
-        continue
-      fi
+function keepIt() {
+  local img=${1?}
 
-      if [[ -e ~tinderbox/run/$(basename $i) ]]; then
-        continue
-      fi
+  if [[ -f $img/var/tmp/tb/KEEP ]]; then
+    return 0
+  fi
 
-      if __is_running $i; then
-        continue
-      fi
+  if [[ -e ~tinderbox/run/$(basename $img) ]]; then
+    return 0
+  fi
 
-      youngest_reported=$(ls $i/*/.reported 2>/dev/null | sort | tail -n 1)
-      if [[ -f $youngest_reported ]]; then
-        target=$youngest_reported
-      else
-        target=$i
-      fi
-      if [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -lt $keepdays ]]; then
-        continue
-      fi
+  if __is_running $img; then
+    return 0
+  fi
 
-      echo $i | sed -e 's,/var/tmp/tb/issues,,'
-    done
+  return 1
+}
+
+function olderThan() {
+  local target=${1?}
+  local days=${2?}
+
+  [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -gt $days ]]
 }
 
 # available space is less than 100 - "% value of the df command"
@@ -46,17 +44,22 @@ function pruneNeeded() {
   fi
 }
 
-function pruneDir() {
-  local d=$1
-  local reason=${2:-""}
+function pruneIt() {
+  local img=$1
+  local reason=${2?}
 
-  # https://forums.gentoo.org/viewtopic-p-6072905.html?sid=461188c03d3c4d08de80136a49982d86#6072905
-  if [[ -d $d/tmp/.private ]]; then
-    chattr -R -a $d/tmp/.private
+  # needed again here
+  if keepIt $img; then
+    return 0
   fi
 
-  echo " $(date) $reason : $d"
-  rm -r $d
+  # https://forums.gentoo.org/viewtopic-p-6072905.html?sid=461188c03d3c4d08de80136a49982d86#6072905
+  if [[ -d $img/tmp/.private ]]; then
+    chattr -R -a $img/tmp/.private
+  fi
+
+  echo " $(date) $reason : $img"
+  rm -r $img
   local rc=$?
   sync
 
@@ -75,7 +78,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# always prune stage3 files
+# prune stage3 files
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
   find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' -mtime +15 |
@@ -88,31 +91,41 @@ if [[ -s $latest ]]; then
     done
 fi
 
-# always prune distfiles
+# prune distfiles
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
-while read -r img; do
-  if [[ ! -s $img/var/log/emerge.log || ! -d $img/var/tmp/tb ]]; then
-    pruneDir $img "broken setup"
+while read -r img && pruneNeeded 29; do
+  if ! ls $img/var/tmp/tb/logs/dryrun*.log &>/dev/null; then
+    if olderThan $img 3; then
+      pruneIt $img "broken setup"
+    fi
   fi
-done < <(getCandidates 3)
+done < <(listImages)
 
-while read -r img && pruneNeeded 59; do
-  if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
-    pruneDir $img "no issue"
-  fi
-done < <(getCandidates 3)
+# for higher coverage keep images for a while even if no bug was reported
 
 while read -r img && pruneNeeded 69; do
-  if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
-    pruneDir $img "no bug reported"
+  if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
+    if olderThan $img 7; then
+      pruneIt $img "no issue"
+    fi
   fi
-done < <(getCandidates 7)
+done < <(listImages)
+
+while read -r img && pruneNeeded 79; do
+  if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
+    if olderThan $img 14; then
+      pruneIt $img "no bug reported"
+    fi
+  fi
+done < <(listImages)
 
 while read -r img && pruneNeeded 89; do
-  pruneDir $img "space needed"
-done < <(getCandidates 14)
+  if olderThan $img 21; then
+    pruneIt $img "space needed"
+  fi
+done < <(listImages)
 
-if pruneNeeded 95; then
+if pruneNeeded 93; then
   echo "Warning: fs nearly fullfilled" >&2
 fi
