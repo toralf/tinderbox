@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# bubblewrap/chroot into an image to either run a script -or- to work interactively in it
+# bubblewrap/chroot into an image to run a script -or- to work interactively in it
 
 function CgroupCreate() {
   local name=local/$1
@@ -107,11 +107,6 @@ function Bwrap() {
     path+="/sbin:/bin"
   fi
 
-  local home_dir="/var/tmp/tb"
-  if [[ ! -d $mnt/$home_dir ]]; then
-    home_dir="/"
-  fi
-
   local sandbox=(env -i
     /usr/bin/bwrap
     --clearenv
@@ -123,7 +118,6 @@ function Bwrap() {
     --setenv USER "root"
     --hostname "$(cat $mnt/etc/conf.d/hostname)"
     --die-with-parent
-    --chdir "$home_dir"
     --unshare-cgroup
     --unshare-ipc
     --unshare-pid

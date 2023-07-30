@@ -35,7 +35,7 @@ else
   xargs -n 1 <<<$* |
     grep -v -e '@' -e '%' -e '=' -e '#' |
     sort -u |
-    xargs qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
+    xargs -r qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
     grep -v -F '<unset>' |
     grep ".*/.*" |
     sort -u >$result

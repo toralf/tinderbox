@@ -426,7 +426,7 @@ function KeepInstalledDeps() {
     emerge --depclean --verbose=n --pretend 2>/dev/null |
       grep "^All selected packages: " |
       cut -f 2- -d ':' -s |
-      xargs --no-run-if-empty emerge -O --noreplace &>/dev/null
+      xargs -r emerge -O --noreplace &>/dev/null
   fi
 }
 
@@ -907,7 +907,7 @@ function DetectRepeats() {
 
   local count
   local package
-  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 1000 | sort | uniq -c | sort -bn | tail -n 1)
+  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 500 | sort | uniq -c | sort -bn | tail -n 1)
   if [[ $count -ge $p_max ]]; then
     ReachedEOL "too often emerged: $count x $package"
   fi

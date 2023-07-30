@@ -20,7 +20,7 @@ function list_images() {
     ls /run/tinderbox/ | sed -e 's,.lock,,' | sort
     ls -d /sys/fs/cgroup/cpu/local/??.* | sort
   ) 2>/dev/null |
-    xargs -n 1 --no-run-if-empty basename |
+    xargs -r -n 1 basename |
     # sort -u would mix ~/img and ~/run, uniq does only detect subsequent dups, therefore use awk
     awk '!x[$0]++' |
     while read -r i; do
@@ -77,7 +77,7 @@ function createSearchString() {
 #   <bug id>
 #   <pattern/s>
 function LookupForABlocker() {
-  local pattern_file=$1
+  local pattern_file=${1?}
 
   while read -r line; do
     if [[ $line =~ ^[0-9]+$ ]]; then
@@ -86,7 +86,7 @@ function LookupForABlocker() {
     fi
 
     if grep -q -E "$line" $issuedir/title; then
-      echo $number
+      echo "$number"
       return
     fi
   done < <(grep -v -e '^#' -e '^$' $pattern_file)

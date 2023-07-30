@@ -240,7 +240,7 @@ function getCoveredPackages() {
     # handle ::local
     tr -d ':' |
     awk '{ print $7 }' |
-    xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}" |
+    xargs -r qatom -F "%{CATEGORY}/%{PN}" |
     sort -u
 }
 
