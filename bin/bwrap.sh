@@ -87,7 +87,7 @@ function ChrootUmountAll() {
 function Chroot() {
   if ChrootMountAll; then
     if [[ -n $entrypoint ]]; then
-      /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c /entrypoint"
+      /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c /root/entrypoint"
     else
       /usr/bin/chroot $mnt /bin/bash -l -c "su - ${SUDO_USER:-root}"
     fi
@@ -142,7 +142,7 @@ function Bwrap() {
   )
 
   if [[ -n $entrypoint ]]; then
-    ("${sandbox[@]}" -c "/entrypoint")
+    ("${sandbox[@]}" -c "/root/entrypoint")
   else
     ("${sandbox[@]}" -c "su - ${SUDO_USER:-root}")
   fi
@@ -168,7 +168,9 @@ wrapper="Bwrap"
 while getopts ce:m: opt; do
   case $opt in
   c)
-    wrapper="Chroot"
+    if [[ "$(whoami)" != "tinderbox" ]]; then
+      wrapper="Chroot"
+    fi
     ;;
   e)
     if [[ ! -s $OPTARG ]]; then
@@ -225,13 +227,13 @@ if ! CgroupCreate ${mnt##*/} $$; then
 fi
 
 if [[ -n $entrypoint ]]; then
-  rm -f "$mnt/entrypoint"
-  cp "$entrypoint" "$mnt/entrypoint"
-  chmod 744 "$mnt/entrypoint"
+  rm -f "$mnt/root/entrypoint"
+  cp "$entrypoint" "$mnt/root/entrypoint"
+  chmod 744 "$mnt/root/entrypoint"
 
-  rm -f "$mnt/lib.sh"
-  cp "$(dirname $0)/lib.sh" "$mnt/lib.sh"
-  chmod 644 "$mnt/lib.sh"
+  rm -f "$mnt/root/lib.sh"
+  cp "$(dirname $0)/lib.sh" "$mnt/root/lib.sh"
+  chmod 644 "$mnt/root/lib.sh"
 fi
 
 $wrapper
