@@ -9,15 +9,15 @@ set -eu
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
-if [[ "$(whoami)" != "tinderbox" ]]; then
-  echo " you must be tinderbox" >&2
+if [[ "$(whoami)" != "root" ]]; then
+  echo " you must be root" >&2
   exit 1
 fi
 
 result=/tmp/$(basename $0) # package/s to be scheduled in the backlog of each image
 
 # accept special atoms w/o any check
-grep -e '^@' -e '^%' -e '^=' <<<$* |
+grep -e '^@' -e '^=' <<<$* |
   sort -u >$result.special
 
 # put special entries always on top of .1st
@@ -33,8 +33,7 @@ if [[ -s $result.special ]]; then
 else
   # work at regular atoms
   xargs -n 1 <<<$* |
-    grep -v -e '^@' -e '^%' -e '^=' -e '#' |
-    xargs -n 1 |
+    grep -v -e '@' -e '%' -e '=' -e '#' |
     sort -u |
     xargs qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
     grep -v -F '<unset>' |

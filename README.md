@@ -41,32 +41,22 @@ useradd -m tinderbox
 usermod -a -G portage tinderbox
 ```
 
-Run as _root_:
-
-```bash
-mkdir /opt/tb
-chmod 750 /opt/tb
-chgrp tinderbox /opt/tb
-```
-
-Run as user _tinderbox_ in _~tinderbox_ :
-
-```bash
-mkdir distfiles img logs run tb
-```
-
+Create as user _tinderbox_ in its HOME the directories _distfiles_, _img_, _logs_, _run_, _tb_.
 Clone this Git repository.
+Move _./data_ and _./sdata_ into _~tinderbox/tb/_ and _./bin_ under _/opt/tb/_.
+Edit the ssmtp credentials in _~tinderbox/sdata_ and strip away the suffix _.sample_ from the file,
+set ownership and grant permissions of this subdirectory and its files e.g. to user _root_ instead _tinderbox_.
 
-Move _./data_ and _./sdata_ into _~tinderbox/tb/_.
-Move _./bin_ under _/opt/tb/_ as user _root_.
-The user _tinderbox_ must not be allowed to edit the scripts in _/opt/tb/bin_.
-The user _tinderbox_ must have write permissions for files in _~tinderbox/tb/data_.
-Edit the ssmtp credentials in _~tinderbox/sdata_ and strip away the suffix _.sample_,
-set ownership and grant permissions of this subdirectory and its files to user _root_ only.
-Grant the user _tinderbox_ these sudo rights:
+The user _tinderbox_:
+
+1. must not be allowed to edit files under in _/opt/tb/_
+1. needs to be granted to read/execute the scripts under _/opt/tb/bin/_
+1. must have read/write permissions for files under _~tinderbox/tb/_ except the subdirectory _/sdata_
+
+Grant to the user _tinderbox_ these sudo rights:
 
 ```bash
-tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh
+tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh,/opt/tb/bin/kill_img.sh,/opt/tb/bin/retest.sh
 ```
 
 ## Doc

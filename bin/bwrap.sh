@@ -89,7 +89,7 @@ function Chroot() {
     if [[ -n $entrypoint ]]; then
       /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c /entrypoint"
     else
-      /usr/bin/chroot $mnt /bin/bash -l -c "su - root"
+      /usr/bin/chroot $mnt /bin/bash -l -c "su - ${SUDO_USER:-root}"
     fi
   fi
   local rc=$?
@@ -150,7 +150,7 @@ function Bwrap() {
   if [[ -n $entrypoint ]]; then
     ("${sandbox[@]}" -c "/entrypoint")
   else
-    ("${sandbox[@]}")
+    ("${sandbox[@]}" -c "su - ${SUDO_USER:-root}")
   fi
   local rc=$?
 

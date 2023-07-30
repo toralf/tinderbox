@@ -435,10 +435,10 @@ EOF
     cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
   done
 
-  touch ./var/tmp/tb/task
+  truncate -s 0 ./var/tmp/tb/task
 
-  chgrp portage ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
-  chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/* ./var/tmp/tb/task
+  chgrp portage ./etc/portage/package.*/* ./etc/portage/env/*
+  chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/*
 }
 
 function CompileMiscFiles() {
@@ -485,8 +485,8 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
 
   truncate -s 0 $bl{,.1st,.upd}
-  chown tinderbox:portage $bl{,.1st,.upd}
-  chmod 664 $bl{,.1st,.upd}
+  chgrp portage $bl{,.1st,.upd}
+  chmod 644 $bl{,.1st,.upd}
 
   cat <<EOF >>$bl.1st
 @world
