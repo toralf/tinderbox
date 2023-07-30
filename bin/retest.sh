@@ -16,11 +16,13 @@ fi
 
 result=/tmp/$(basename $0) # package/s to be scheduled in the backlog of each image
 
-# accept special atoms w/o any check
-grep -e '^@' -e '^=' <<<$* |
+# accept special atoms w/o qatom check
+xargs -n 1 <<<$* |
+  grep -v -e "^[@=+-\./[[:alnum:]]]" |
+  grep -e '^@' -e '^=' |
   sort -u >$result.special
 
-# put special entries always on top of .1st
+# run special entries shuffled after existing ones of .1st
 if [[ -s $result.special ]]; then
   tmp=$(mktemp /tmp/$(basename $0)_XXXXXX)
   while read -r bl; do
@@ -33,14 +35,14 @@ if [[ -s $result.special ]]; then
 else
   # work at regular atoms
   xargs -n 1 <<<$* |
-    grep -v -e '@' -e '%' -e '=' -e '#' |
+    grep -v -e "^[+-\./[[:alnum:]]]" |
     sort -u |
     xargs -r qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
     grep -v -F '<unset>' |
-    grep ".*/.*" |
+    grep ".*-.*/.*" |
     sort -u >$result
 
-  # for few atoms re-test them immediately otherwise put all in the (lower prioritized) .upd backlog
+  # for few atoms re-test them immediately otherwise put them into the (lower prioritized) .upd backlog
   if [[ -s $result ]]; then
     if [[ $(wc -l <$result) -le 3 ]]; then
       suffix="1st"
@@ -48,7 +50,7 @@ else
       suffix="upd"
     fi
 
-    # put new atoms shuffled after existings
+    # shuffle new atoms and put them after existing ones
     tmp=$(mktemp /tmp/$(basename $0)_XXXXXX)
 
     while read -r bl; do
