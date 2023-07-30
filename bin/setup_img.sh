@@ -41,10 +41,12 @@ function InitOptions() {
     fi
   fi
 
-  if [[ ! $profile =~ "/no-multilib" ]]; then
-    if dice 1 80; then
-      # this sets "*/* ABI_X86: 32 64"
-      abi3264="y"
+  if zgrep "^CONFIG_IA32_EMULATION=y" /proc/config.gz; then
+    if [[ ! $profile =~ "/no-multilib" ]]; then
+      if dice 1 80; then
+        # this sets "*/* ABI_X86: 32 64"
+        abi3264="y"
+      fi
     fi
   fi
 
@@ -53,9 +55,10 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
-  # not very fruitful but do it now and then
-  if dice 1 60; then
-    testfeature="y"
+  if zgrep "^CONFIG_COMPAT_32BIT_TIME=y" /proc/config.gz; then
+    if dice 1 80; then
+      testfeature="y"
+    fi
   fi
 }
 
@@ -498,6 +501,18 @@ EOF
 }
 
 function CreateSetupScript() {
+  # use the host kernel
+  if dice 1 2; then
+    echo -e "\n$(date) use host kernel ..."
+    local kv=$(realpath /usr/src/linux)
+    rsync -aq $kv ./usr/src
+    (
+      cd ./usr/src
+      ln -s $(basename $kv) linux
+    )
+    echo 'sys-kernel/vanilla-sources-9999' >./etc/portage/profile/package.provided
+  fi
+
   cat <<EOF >./var/tmp/tb/setup.sh || return 1
 #!/bin/bash
 # set -x
@@ -558,12 +573,14 @@ USE=-kerberos emerge -u mail-client/s-nail
 
 date
 echo "#setup user" | tee /var/tmp/tb/task
-groupadd -g $(id -g tinderbox)                       tinderbox
-useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) tinderbox
+groupadd -g $(id -g tinderbox) tinderbox
+useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) -G \$(id -g portage) tinderbox
 
-date
-echo "#setup kernel" | tee /var/tmp/tb/task
-emerge -u sys-kernel/gentoo-kernel-bin
+if [[ ! -e /usr/src/linux ]]; then
+  date
+  echo "#setup kernel" | tee /var/tmp/tb/task
+  emerge -u sys-kernel/gentoo-kernel-bin
+fi
 
 date
 echo "#setup xz, q, bugz and pfl" | tee /var/tmp/tb/task
@@ -641,7 +658,7 @@ function FixPossibleUseFlagIssues() {
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 }' |
         cut -f 1 -d ':' -s |
-        xargs --no-run-if-empty qatom -F "%{CATEGORY}/%{PN}"
+        xargs -r qatom -F "%{CATEGORY}/%{PN}"
     )
     if [[ -n $pkg ]]; then
       local f=./etc/portage/package.use/24thrown_package_use_flags
@@ -729,7 +746,7 @@ function ThrowFlags() {
     shuf -n $((RANDOM % 20)) |
     sort |
     xargs |
-    xargs -I {} --no-run-if-empty echo "*/*  L10N: {}" >./etc/portage/package.use/22thrown_l10n
+    xargs -I {} -r echo "*/*  L10N: {}" >./etc/portage/package.use/22thrown_l10n
 
   grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |
     cut -f1 -d' ' -s |
@@ -749,7 +766,7 @@ function ThrowFlags() {
         grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
         ShuffleUseFlags 30 3 |
         xargs |
-        xargs -I {} --no-run-if-empty printf "%-36s %s\n" "$pkg" "{}"
+        xargs -I {} -r printf "%-36s %s\n" "$pkg" "{}"
     done >./etc/portage/package.use/24thrown_package_use_flags
 }
 
