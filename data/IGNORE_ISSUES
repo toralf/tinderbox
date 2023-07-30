@@ -40,16 +40,19 @@ Please switch to an openmp compatible compiler
 Please update your kernel
 Please use a supported ICD
 Please use .* instead.
+Please verify that this is the intended kernel version
 PostgreSQL slot must be set to one of:
 requires at least .* kernel version
 Select exactly one database type out of these:
 some Java tools are not available on some VMs on some architectures
 Sorry, your kernel must be .* or newer!
 The Objective-C compiler does not work o
+The present kernel disabled CONFIG_MODULES.
 The version of your compiler is not supported at this time
 USE=modules and in-kernel ipset support detected
 Use sys-devel/crossdev to build a .* toolchain
 We have detected that you currently use udev or devfs or devtmpfs
+You cannot build or install external modules.
 You do not .* the sources for the .* kernel installed.
 You need one of the following mpi implementations:
 Your kernel is too old.

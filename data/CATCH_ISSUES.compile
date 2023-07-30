@@ -354,3 +354,5 @@ cp: cannot stat
  \*   Unknown backend:
  is not a valid C format string
 Try '/usr/bin/msgfmt
+ \* The present kernel disabled CONFIG_MODULES.
+ \* You cannot build or install external modules.

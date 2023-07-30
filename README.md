@@ -4,7 +4,7 @@
 
 ## Goal
 
-The goal is to detect build issues of and conflicts between Gentoo Linux packages.
+The goal is to detect build issues/conflicts of Gentoo Linux packages.
 
 For that a dozen sandbox'ed Gentoo images are running in parallel.
 
@@ -24,7 +24,7 @@ whatsup.sh -otl
 The file _~tinderbox/tb/data/ALREADY_CAUGHT_ holds reported findings.
 A new finding is send via email to the user specified by the variable _MAILTO_.
 A finding can be filed using _bgo.sh_.
-The Gentoo bugzilla should be searched before by _check_bgo.sh_ for duplicates.
+Before the Gentoo bugzilla should be searched by _check_bgo.sh_ for duplicates.
 
 Login interactively into an image with
 
@@ -58,11 +58,6 @@ Grant to the user _tinderbox_ these sudo rights:
 ```bash
 tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh,/opt/tb/bin/kill_img.sh,/opt/tb/bin/retest.sh
 ```
-
-## Doc
-
-Few calculations were made about [coverage](./doc/coverage.ods) and lifetimes of an image respectively.
-See [doc](./doc) for details.
 
 ## Links
 

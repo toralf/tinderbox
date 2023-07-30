@@ -40,7 +40,7 @@ sys-devel/gcc                       -d
 dev-lang/python                     ssl
 
 # required by www-client/pybugz
-dev-lang/python                     readline
+dev-lang/python                     -libedit readline
 
 # dracut would require "xattr" for coreutils
 sys-kernel/gentoo-kernel-bin        -initramfs
@@ -63,3 +63,8 @@ dev-libs/libpcre2                   -libedit            # DICE: pcre 4 5
 
 # otherwise: USE=secureboot enabled but SECUREBOOT_SIGN_KEY and/or SECUREBOOT_SIGN_CERT not set.
 */*                                 -secureboot
+
+# common setup blocker
+sys-apps/util-linux                 pam                 # DICE: util-linux 4 5
+dev-vcs/git                         -subversion         # DICE: git 4 5
+#app-admin/sudo                      pam -skey -sssd

@@ -28,3 +28,7 @@ dev-ml/
 #
 # https://bugs.gentoo.org/909309
 app-emacs/
+#
+# trouble, if e.g. headless-awt is set differently for different JDKs
+dev-java/openjdk
+dev-java/openjdk-jre-bin

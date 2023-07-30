@@ -28,7 +28,4 @@ sys-libs/libseccomp                 -python
 sys-libs/ldb                        python
 x11-base/xorg-server                xvfb
 x11-libs/gtk+                       X
-
-# otherwise pybugz doesn't build which would yield to "bug raw"
-dev-lang/python                     readline -libedit
-
+x11-libs/pixman                     openmp
