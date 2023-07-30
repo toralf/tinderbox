@@ -25,9 +25,9 @@ function list_images() {
     awk '!x[$0]++' |
     while read -r i; do
       if [[ -d ~tinderbox/run/$i ]]; then
-        echo ~tinderbox/run/$i
+        echo ~tinderbox/run/"$i"
       else
-        echo ~tinderbox/img/$i
+        echo ~tinderbox/img/"$i"
       fi
     done
 }
