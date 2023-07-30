@@ -18,7 +18,7 @@ result=/tmp/$(basename $0) # package/s to be scheduled in the backlog of each im
 
 # accept special atoms w/o qatom check
 xargs -n 1 <<<$* |
-  grep -v -e "^[@=+-\./[[:alnum:]]]" |
+  grep -v -e "^[@=+-_\./[[:alnum:]]]" |
   grep -e '^@' -e '^=' |
   sort -u >$result.special
 
@@ -35,7 +35,7 @@ if [[ -s $result.special ]]; then
 else
   # work at regular atoms
   xargs -n 1 <<<$* |
-    grep -v -e "^[+-\./[[:alnum:]]]" |
+    grep -v -e "^[+-_\./[[:alnum:]]]" |
     sort -u |
     xargs -r qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
     grep -v -F '<unset>' |
