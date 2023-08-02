@@ -89,7 +89,8 @@ while :; do
   # free the slot
   while read -r oldimg; do
     if ! __is_running $oldimg; then
-      rm ~tinderbox/run/$oldimg ~tinderbox/logs/$oldimg.log
+      rm ~tinderbox/run/$oldimg
+      mv ~tinderbox/logs/$oldimg.log ~tinderbox/$oldimg/var/tmp/tb
     fi
   done < <(ImagesInRunButEOL)
 
