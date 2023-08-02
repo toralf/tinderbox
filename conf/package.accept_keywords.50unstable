@@ -1,2 +1,5 @@
 # package.accept_keywords/50unstable
 #
+
+# sam
+~sys-libs/glibc-2.38                          **        # DICE: glibc-2.38

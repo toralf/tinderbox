@@ -44,3 +44,7 @@ dev-util/ragel-6.10
 # [Tracker] dev-lang/perl-5.38* related issues
 908724
 perl
+
+# (cython3-tracker) - [TRACKER] Breakage with >=dev-python/cython-3
+897934
+Cannot assign type void|cython

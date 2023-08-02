@@ -356,3 +356,5 @@ cp: cannot stat
 Try '/usr/bin/msgfmt
  \* The present kernel disabled CONFIG_MODULES.
  \* You cannot build or install external modules.
+: Cannot assign type
+Exception in thread
