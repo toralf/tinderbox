@@ -2,4 +2,4 @@
 #
 
 # sam
-~sys-libs/glibc-2.38                          **        # DICE: glibc-2.38
+~sys-libs/glibc-2.38                          **        # DICE: glibc-2.38 3 4

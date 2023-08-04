@@ -99,3 +99,4 @@ ocamlfind: Package .* not found
 Cannot find the GNU C library
 missing separator.  Stop.
 setup: Failed parsing
+ERROR: Feature .* was enabled

@@ -38,6 +38,7 @@ mips
 modules
 mono
 monolithic
+multiarch
 multilib
 musl
 native-symlinks

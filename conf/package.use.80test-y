@@ -29,3 +29,6 @@ sys-libs/ldb                        python
 x11-base/xorg-server                xvfb
 x11-libs/gtk+                       X
 x11-libs/pixman                     openmp
+
+# https://bugs.gentoo.org/840529
+sys-devel/binutils                  cet pgo -plugins multitarget

@@ -354,7 +354,14 @@ cp: cannot stat
  \*   Unknown backend:
  is not a valid C format string
 Try '/usr/bin/msgfmt
- \* The present kernel disabled CONFIG_MODULES.
- \* You cannot build or install external modules.
+\*** The present kernel disabled CONFIG_MODULES.
+\*** You cannot build or install external modules.
 : Cannot assign type
 Exception in thread
+ \* No such plugin directory
+make -j is not supported
+Error compiling Cython file:
+Error 2 shuffle=.*
+Cython.Compiler.Errors.CompileError:
+mv: cannot move
+ \*   Failed to run command:

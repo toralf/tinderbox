@@ -20,7 +20,7 @@ sys-apps/nix                        -etc_profile
 # https pull/fetch would fail otherwise due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
-# ::gentoo requirement
+# needed for ::gentoo
 net-misc/curl                       ssl
 
 # too much deps at setup, lowers coverity
@@ -51,20 +51,19 @@ dev-libs/gf2x                       -custom-tune
 # takes 2 hours insteads seconds
 app-doc/gimp-help                   -nls
 
-# common setup blocker: at-most-one-of ( cracklib pam )
-sys-apps/shadow                     -cracklib           # DICE: shadow 4 5
-
-# pretend phase
+# failed otherwise in phase "pretend"
 net-misc/openssh                    -sctp
-
-# common setup blocker: at-most-one-of ( libedit readline )
-dev-libs/libpcre                    -libedit            # DICE: pcre 4 5
-dev-libs/libpcre2                   -libedit            # DICE: pcre 4 5
 
 # otherwise: USE=secureboot enabled but SECUREBOOT_SIGN_KEY and/or SECUREBOOT_SIGN_CERT not set.
 */*                                 -secureboot
 
 # common setup blocker
-sys-apps/util-linux                 pam                 # DICE: util-linux 4 5
-dev-vcs/git                         -subversion         # DICE: git 4 5
-#app-admin/sudo                      pam -skey -sssd
+dev-libs/libpcre                    -libedit                                                              # DICE: pcre 4 5
+dev-libs/libpcre2                   -libedit                                                              # DICE: pcre 4 5
+dev-vcs/git                         -cgi -mediawiki -mediawiki-experimental -perl -subversion -webdav     # DICE: git 4 5
+media-libs/libsdl2                  gles2                                                                 # DICE: libsdl2 4 5
+sys-apps/shadow                     -cracklib                                                             # DICE: shadow 4 5
+sys-apps/util-linux                 pam                                                                   # DICE: util-linux 4 5
+
+# https://bugs.gentoo.org/911580
+sys-libs/glibc                      multiarch                                                             # DICE: glibc-2.38

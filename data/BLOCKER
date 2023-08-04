@@ -47,4 +47,8 @@ perl
 
 # (cython3-tracker) - [TRACKER] Breakage with >=dev-python/cython-3
 897934
-Cannot assign type void|cython
+Cannot assign type void|cython|Error compiling Cython file:|Cython.Compiler.Errors.CompileError:
+
+# [TRACKER] sys-libs/glibc-2.38 related issues
+911592
+undefined reference to .*memset_chk

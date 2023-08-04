@@ -19,3 +19,6 @@
 app-emacs/*
 app-emacs/elscreen
 app-emacs/navi2ch
+
+# https://bugs.gentoo.org/908593
+net-print/foo2zjs
