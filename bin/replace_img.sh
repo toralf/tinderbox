@@ -90,7 +90,7 @@ while :; do
   while read -r oldimg; do
     if ! __is_running $oldimg; then
       rm ~tinderbox/run/$oldimg
-      mv ~tinderbox/logs/$oldimg.log ~tinderbox/$oldimg/var/tmp/tb
+      mv ~tinderbox/logs/$oldimg.log ~tinderbox/img/$oldimg/var/tmp/tb
     fi
   done < <(ImagesInRunButEOL)
 
