@@ -25,18 +25,17 @@ fi
 
 # every few months the next 2 lines should be commented out for 1 run to avoid growing those files infinitely
 scope="run"
-since="-cmin -65" # job runs hourly
+since="-cmin -65" # job runs hourly, so use a 5 min overlap
 
 cp ~tinderbox/img/needed.ELF.2.txt $tmpfile
-find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED.ELF.2 ${since:-} -exec cat {} + >>$tmpfile
+find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED.ELF.2 ${since:-} -a ! -wholename '*/-MERGING-*' -exec cat {} + >>$tmpfile
 sort -u <$tmpfile >~tinderbox/img/needed.ELF.2.txt
 
 cp ~tinderbox/img/needed.txt $tmpfile
-find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED ${since:-} |
+find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED ${since:-} -a ! -wholename '*/-MERGING-*' |
   while read -r file; do
-    if pkg=$(sed -e 's,.*/var/db/pkg/,,' -e 's,/NEEDED,,' <<<$file); then # -MERGING race
-      sed -e "s,^,$pkg ," $file
-    fi
+    pkg=$(sed -e 's,.*/var/db/pkg/,,' -e 's,/NEEDED,,' <<<$file)
+    sed -e "s,^,$pkg ," $file
   done >>$tmpfile
 sort -u <$tmpfile >~tinderbox/img/needed.txt
 
