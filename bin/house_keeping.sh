@@ -103,16 +103,14 @@ while read -r img && pruneNeeded 29; do
 done < <(listImages)
 
 # for higher coverage keep images for a while even if no bug was reported
-
-while read -r img && pruneNeeded 69; do
+while read -r img && pruneNeeded 89; do
   if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
     if olderThan $img 7; then
       pruneIt $img "no issue"
     fi
   fi
 done < <(listImages)
-
-while read -r img && pruneNeeded 79; do
+while read -r img && pruneNeeded 89; do
   if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
     if olderThan $img 14; then
       pruneIt $img "no bug reported"
