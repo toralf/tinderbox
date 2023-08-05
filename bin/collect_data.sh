@@ -23,16 +23,19 @@ fi
 # sam + flow
 #
 
-# every few months the next 2 lines should be commented out for 1 run to avoid growing those files infinitely
+# every few months comment out the next 2 lines for a run to avoid infinite growing of the file size
 scope="run"
 since="-cmin -65" # job runs hourly, so use a 5 min overlap
 
 cp ~tinderbox/img/needed.ELF.2.txt $tmpfile
-find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED.ELF.2 ${since:-} -a ! -wholename '*/-MERGING-*' -exec cat {} + >>$tmpfile
+find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED.ELF.2 ${since:-} |
+  grep -v -F '/-MERGING-' |
+  xargs cat >>$tmpfile
 sort -u <$tmpfile >~tinderbox/img/needed.ELF.2.txt
 
 cp ~tinderbox/img/needed.txt $tmpfile
-find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED ${since:-} -a ! -wholename '*/-MERGING-*' |
+find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED ${since:-} |
+  grep -v -F '/-MERGING-' |
   while read -r file; do
     pkg=$(sed -e 's,.*/var/db/pkg/,,' -e 's,/NEEDED,,' <<<$file)
     sed -e "s,^,$pkg ," $file
