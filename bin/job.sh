@@ -1019,7 +1019,7 @@ systemd-tmpfiles --create &>$tasklog || true
 
 trap Finish INT QUIT TERM EXIT
 
-last_sync=$(stat -c %Y /var/db/repos/gentoo/.git/FETCH_HEAD)
+last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :; do
   for i in EOL STOP; do
     if [[ -f /var/tmp/tb/$i ]]; then
@@ -1061,7 +1061,7 @@ while :; do
     fi
     # ... and daily update @world
     h=/var/tmp/tb/@world.history
-    if [[ ! -s $h || $((EPOCHSECONDS - $(stat -c %Y $h))) -ge 86400 ]]; then
+    if [[ ! -s $h || $((EPOCHSECONDS - $(stat -c %Z $h))) -ge 86400 ]]; then
       add2backlog "@world"
     fi
   fi

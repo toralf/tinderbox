@@ -134,7 +134,7 @@ function Tasks() {
       local task=$(cat $tsk)
 
       set +e
-      ((delta = EPOCHSECONDS - $(stat -c %Y $tsk)))
+      ((delta = EPOCHSECONDS - $(stat -c %Z $tsk)))
       ((minutes = delta / 60 % 60))
       if [[ $delta -lt 3600 ]]; then
         ((seconds = delta % 60))

@@ -29,7 +29,7 @@ function olderThan() {
   local target=${1?}
   local days=${2?}
 
-  [[ $(((EPOCHSECONDS - $(stat -c %Y $target)) / 86400)) -gt $days ]]
+  [[ $(((EPOCHSECONDS - $(stat -c %Z $target)) / 86400)) -gt $days ]]
 }
 
 # available space is less than 100 - "% value of the df command"
