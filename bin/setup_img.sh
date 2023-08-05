@@ -610,13 +610,14 @@ function RunSetupScript() {
 
   echo '/var/tmp/tb/setup.sh &>/var/tmp/tb/setup.sh.log' >./var/tmp/tb/setup_wrapper.sh
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
-    if grep ' Invalid atom ' ./var/tmp/tb/setup.sh.log; then
+    if grep -m 1 ' Invalid atom ' ./var/tmp/tb/setup.sh.log; then
+      echo -e "$(date)\n  OK - but ^^\n"
       return 1
     fi
-    echo -e " OK"
+    echo -e "$(date)\n  OK\n"
   else
-    echo -e "$(date)\n setup was NOT ok\n"
-    tail -v -n 100 ./var/tmp/tb/setup.sh.log
+    echo -e "$(date)\n  FAILED\n"
+    tail -n 100 ./var/tmp/tb/setup.sh.log
     echo
     return 1
   fi
@@ -794,7 +795,7 @@ EOF
   fi
 
   local attempt=0
-  while [[ $((++attempt)) -le 200 ]]; do
+  while [[ $((++attempt)) -le 300 ]]; do
     echo
     date
     echo "==========================================================="

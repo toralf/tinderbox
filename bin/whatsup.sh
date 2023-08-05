@@ -50,7 +50,7 @@ function check_history() {
 function Overall() {
   local locked=$(ls -d /run/tinderbox/*.lock 2>/dev/null | wc -l)
   local all=$(wc -w <<<$images)
-  echo "compl fail new  day backlog .upd .1st wp lcs $locked#$all locked          $(date)"
+  echo "compl fail new  day backlog .upd .1st status $locked#$all locked  +++  $(date)"
 
   for i in $images; do
     local days=$(bc <<<"scale=1; ( $EPOCHSECONDS - $(getStartTime $i) ) / 86400.0")
