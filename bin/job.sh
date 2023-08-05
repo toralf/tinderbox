@@ -911,6 +911,11 @@ function DetectRepeats() {
   if [[ $count -ge $p_max ]]; then
     ReachedEOL "too often emerged: $count x $package"
   fi
+
+  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 15 | sort | uniq -c | sort -bn | tail -n 1)
+  if [[ $count -ge $p_max ]]; then
+    ReachedEOL "too often repeated: $count x $package"
+  fi
 }
 
 function syncRepo() {
@@ -997,6 +1002,9 @@ export GIT_PAGER="cat"
 export PAGER="cat"
 
 export XZ_OPT="-9 -T$jobs"
+
+# this will appear in the emerge info output
+export TINDERBOX_IMAGE_NAME=$name
 
 # re-schedule $task (non-empty if Finish() was called by an internal error)
 if [[ -s $taskfile ]]; then
