@@ -1,9 +1,0 @@
----
-# MD013/line-length - Line length
-MD013:
-  code_blocks: false
-  line_length: 160
-  tables: false
-
-# first line
-MD041: false

@@ -1,6 +1,8 @@
 *.pdf
 .~lock*
 .trunk/
+.shellcheckrc
+.markdownlint.yaml
 data/ALREADY_CAUGHT
 patches/*
 sdata/ssmtp.conf
