@@ -30,7 +30,6 @@ if [[ -s $result.special ]]; then
     shuf $result.special >>$tmp
     uniq $tmp >$bl
   done < <(find ~tinderbox/run/*/var/tmp/tb/ -name "backlog.1st")
-  rm $tmp $result.special
 
 else
   # work at regular atoms
@@ -69,5 +68,8 @@ else
         ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null || true
     done <$result
   fi
+
   rm $result
 fi
+
+rm $tmp $result.special
