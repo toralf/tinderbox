@@ -58,12 +58,12 @@ net-misc/openssh                    -sctp
 */*                                 -secureboot
 
 # common setup blocker
-dev-libs/libpcre                    -libedit                                                              # DICE: pcre 4 5
-dev-libs/libpcre2                   -libedit                                                              # DICE: pcre 4 5
-dev-vcs/git                         -cgi -mediawiki -mediawiki-experimental -perl -subversion -webdav     # DICE: git 4 5
-media-libs/libsdl2                  gles2                                                                 # DICE: libsdl2 4 5
-sys-apps/shadow                     -cracklib                                                             # DICE: shadow 4 5
-sys-apps/util-linux                 pam                                                                   # DICE: util-linux 4 5
+dev-libs/libpcre                    -libedit            # DICE: pcre 4 5
+dev-libs/libpcre2                   -libedit            # DICE: pcre 4 5
+dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: git 4 5
+media-libs/libsdl2                  gles2               # DICE: libsdl2 4 5
+sys-apps/shadow                     -cracklib           # DICE: shadow 4 5
+sys-apps/util-linux                 pam                 # DICE: util-linux 4 5
 
 # https://bugs.gentoo.org/911580
-sys-libs/glibc                      multiarch                                                             # DICE: glibc-2.38
+sys-libs/glibc                      multiarch           # DICE: glibc-2.38
