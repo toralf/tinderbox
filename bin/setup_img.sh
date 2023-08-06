@@ -247,10 +247,6 @@ EOF
 # create tinderbox related directories + files
 function CompileTinderboxFiles() {
   mkdir -p ./mnt/tb/data ./var/tmp/{portage,tb,tb/issues,tb/logs} ./var/cache/distfiles
-
-  chgrp portage ./var/tmp/tb/{,logs}
-  chmod ug+rwx ./var/tmp/tb/{,logs}
-
   echo $EPOCHSECONDS >./var/tmp/tb/setup.timestamp
   echo $name >./var/tmp/tb/name
 }
@@ -313,9 +309,6 @@ EOF
     # shellcheck disable=SC2016
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >>./etc/portage/make.conf
   fi
-
-  chgrp portage ./etc/portage/make.conf
-  chmod g+w ./etc/portage/make.conf
 }
 
 # helper of CompilePortageFiles()
@@ -332,12 +325,10 @@ function cpconf() {
 function CompilePortageFiles() {
   cp -ar $tbhome/tb/patches ./etc/portage
 
-  for d in env package.{accept_keywords,env,mask,unmask,use} patches profile; do
+  for d in env package.{,env,unmask} patches; do
     if [[ ! -d ./etc/portage/$d ]]; then
       mkdir ./etc/portage/$d
     fi
-    chgrp portage ./etc/portage/$d
-    chmod g+w ./etc/portage/$d
   done
 
   touch ./etc/portage/package.mask/self # holds failed packages
@@ -439,9 +430,6 @@ EOF
   done
 
   truncate -s 0 ./var/tmp/tb/task
-
-  chgrp portage ./etc/portage/package.*/* ./etc/portage/env/*
-  chmod a+r,g+w ./etc/portage/package.*/* ./etc/portage/env/*
 }
 
 function CompileMiscFiles() {
@@ -486,8 +474,6 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
 
   truncate -s 0 $bl{,.1st,.upd}
-  chgrp portage $bl{,.1st,.upd}
-  chmod 644 $bl{,.1st,.upd}
 
   cat <<EOF >>$bl.1st
 @world
@@ -640,7 +626,6 @@ function RunDryrunWrapper() {
     echo " NOT ok"
   fi
 
-  chmod a+r $drylog
   return $rc
 }
 
@@ -816,9 +801,6 @@ EOF
 }
 
 function Finalize() {
-  chgrp portage ./etc/portage/package.use/*
-  chmod g+w,a+r ./etc/portage/package.use/*
-
   cd $tbhome/run
   ln -s ../img/$name
   wc -l -w ../img/$name/etc/portage/package.use/2*
