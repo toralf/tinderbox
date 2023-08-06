@@ -67,7 +67,7 @@ function attach() {
     if [[ $bytes -eq 0 ]]; then
       echo "skipped empty file: $f" >&2
     elif [[ $bytes -gt $((2 ** 20)) ]]; then
-      echo "too fat file for b.g.o.: $f"
+      echo "too fat file for b.g.o. ($bytes Bytes): $f"
       file_size=$(ls -lh $f | awk '{ print $5 }')
       file_path=$(realpath $f | sed -e "s,^.*img/,,")
       url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
