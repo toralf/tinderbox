@@ -276,7 +276,6 @@ ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
 NOCOLOR="true"
-PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
 FEATURES="xattr -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
@@ -290,6 +289,8 @@ PORTAGE_ELOG_CLASSES="qa"
 PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="tinderbox@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
+
+#PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
 GENTOO_MIRRORS="$gentoo_mirrors"
 
@@ -504,6 +505,11 @@ function CreateSetupScript() {
 export LANG=C.utf8
 set -euf
 
+date
+echo "#setup user" | tee /var/tmp/tb/task
+groupadd -g $(id -g tinderbox) tinderbox
+useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) -G \$(id -g portage) tinderbox
+
 if [[ ! $profile =~ "/musl" ]]; then
   date
   echo "#setup locale" | tee /var/tmp/tb/task
@@ -546,7 +552,12 @@ emaint sync --auto >/dev/null
 
 date
 echo "#setup portage" | tee /var/tmp/tb/task
-emerge -u app-text/ansifilter sys-apps/portage
+emerge -u sys-apps/portage
+
+date
+echo "#setup ansifilter" | tee /var/tmp/tb/task
+USE="-gui" emerge -u app-text/ansifilter
+sed -i -e 's,#PORTAGE_LOG_FILTER_FILE_CMD,PORTAGE_LOG_FILTER_FILE_CMD,' /etc/portage/make.conf
 
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
@@ -554,11 +565,6 @@ echo "#setup Mail" | tee /var/tmp/tb/task
 emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead
 USE=-kerberos emerge -u mail-client/s-nail
-
-date
-echo "#setup user" | tee /var/tmp/tb/task
-groupadd -g $(id -g tinderbox) tinderbox
-useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) -G \$(id -g portage) tinderbox
 
 if [[ ! -e /usr/src/linux ]]; then
   date
