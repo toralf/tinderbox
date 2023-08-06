@@ -51,4 +51,4 @@ Cannot assign type void|cython|Error compiling Cython file:|Cython.Compiler.Erro
 
 # [TRACKER] sys-libs/glibc-2.38 related issues
 911592
-undefined reference to .*memset_chk|conflicting types for memmem
+undefined reference to .*memset_chk|conflicting types for memmem|expected declaration specifiers or
