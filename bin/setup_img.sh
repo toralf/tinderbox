@@ -784,11 +784,12 @@ EOF
     echo
     date
     echo "==========================================================="
-    if [[ -f ./var/tmp/tb/STOP ]]; then
-      echo -e "\n found STOP file"
-      rm ./var/tmp/tb/STOP
-      return 1
-    fi
+    for i in EOL STOP; do
+      if [[ -f ./var/tmp/tb/$i ]]; then
+        echo -e "\n found $i file"
+        return 1
+      fi
+    done
 
     local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
     ThrowFlags $attempt
