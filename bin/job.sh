@@ -912,7 +912,7 @@ function DetectRepeats() {
     ReachedEOL "too often emerged: $count x $package"
   fi
 
-  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 15 | sort | uniq -c | sort -bn | tail -n 1)
+  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n $((2 * $p_max)) | sort | uniq -c | sort -bn | tail -n 1)
   if [[ $count -ge $p_max ]]; then
     ReachedEOL "too often repeated: $count x $package"
   fi
