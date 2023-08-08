@@ -169,36 +169,34 @@ function UnpackStage3() {
     return 1
   fi
 
-  local stage3_filename=$tbhome/distfiles/$(basename $stage3)
-  if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
-    echo -e "\n$(date) downloading $stage3{,.asc} ..."
-    for mirror in $gentoo_mirrors; do
-      if wget --connect-timeout=10 --quiet --no-clobber $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
-        echo -e "$(date) succeeded from mirror $mirror"
-        break
-      else
-        echo -e "$(date) failed from mirror $mirror"
-      fi
-    done
-
-    if [[ ! -s $stage3_filename || ! -s $stage3_filename.asc ]]; then
-      echo -e "\n$(date) failed to download stage3"
-      ls -l $tbhome/distfiles/$stage3{,.asc}
-      return 1
-    fi
-  fi
-  echo -e "\n$(date) using $stage3_filename"
-
   echo -e "\n$(date) updating signing keys ..."
   local keys="13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058"
   if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $keys; then
     echo " notice: failed, but will continue"
   fi
 
+  local local_stage3=$tbhome/distfiles/$(basename $stage3)
+  if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
+    rm -f $local_stage3{,.asc}
+    for mirror in $gentoo_mirrors; do
+      echo -e "\n$(date) downloading $stage3{,.asc} from mirror $mirror ..."
+      if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
+        echo -e "$(date) finished"
+        break
+      fi
+    done
+  fi
+  if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
+    echo -e "\n$(date) missing stage3 file"
+    ls -l $tbhome/distfiles/$stage3{,.asc}
+    return 1
+  fi
+  echo -e "\n$(date) using $local_stage3"
+
   echo -e "\n$(date) verifying stage3 files ..."
-  if ! gpg --quiet --verify $stage3_filename.asc; then
-    echo " failed, moving files to /tmp"
-    mv $stage3_filename{,.asc} /tmp
+  if ! gpg --quiet --verify $local_stage3.asc; then
+    mv -f $local_stage3{,.asc} /tmp
+    echo " FAILED"
     return 1
   fi
 
@@ -210,9 +208,9 @@ function UnpackStage3() {
 
   cd ~tinderbox/img/$name
   echo -e "\n$(date) untar'ing stage3 ..."
-  if ! tar -xpf $stage3_filename --same-owner --xattrs; then
+  if ! tar -xpf $local_stage3 --same-owner --xattrs; then
     echo " failed, moving files to /tmp"
-    mv $stage3_filename{,.asc} /tmp
+    mv $local_stage3{,.asc} /tmp
     return 1
   fi
 }
