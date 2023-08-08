@@ -41,7 +41,7 @@ useradd -m tinderbox
 usermod -a -G portage tinderbox
 ```
 
-Create as user _tinderbox_ in its HOME the directories _distfiles_, _img_, _logs_, _run_, _tb_.
+Then create as user _tinderbox_ in its HOME the directories _distfiles_, _img_, _logs_, _run_, _tb_.
 Clone this Git repository.
 Move _./data_ and _./sdata_ into _~tinderbox/tb/_ and _./bin_ under _/opt/tb/_.
 Edit the ssmtp credentials in _~tinderbox/sdata_ and strip away the suffix _.sample_ from the file,
