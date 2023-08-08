@@ -10,3 +10,4 @@ Space constraints set in the ebuild were not met
  \*   Mismatched defaults detected between
  \*   .* does not work on clang
  \* Building darktable with GCC requires Graphite support.
+ \* Please switch to a newer JDK

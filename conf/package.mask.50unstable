@@ -22,3 +22,6 @@ app-emacs/navi2ch
 
 # https://bugs.gentoo.org/908593
 net-print/foo2zjs
+
+# https://bugs.gentoo.org/897934
+<dev-python/cython-3.0.0                                # DICE: cython 3 4

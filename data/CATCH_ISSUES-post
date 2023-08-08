@@ -49,3 +49,4 @@ error:.*command not found
  \*\*\* No rule to make target
  error:.*:
 ninja: build stopped:
+Error . shuffle=.*

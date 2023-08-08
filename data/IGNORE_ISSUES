@@ -36,6 +36,7 @@ perl.h: fatal error:
 Please check to make sure these options are set correctly.
 Please, run haskell-updater to fix broken packages
 Please switch to a gcc version built with USE=graphite
+Please switch to a newer JDK
 Please switch to an openmp compatible compiler
 Please update your kernel
 Please use a supported ICD

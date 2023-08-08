@@ -23,10 +23,6 @@ dev-vcs/git                         curl
 # needed for ::gentoo
 net-misc/curl                       ssl
 
-# too much deps at setup, lowers coverity
-app-portage/pfl                     -network-cron
-app-text/ansifilter                 -qt5 -qt6
-
 # https://bugs.gentoo.org/831346
 sys-kernel/installkernel-gentoo     -grub
 
@@ -56,6 +52,10 @@ net-misc/openssh                    -sctp
 
 # otherwise: USE=secureboot enabled but SECUREBOOT_SIGN_KEY and/or SECUREBOOT_SIGN_CERT not set.
 */*                                 -secureboot
+
+# too much deps at setup, would lower coverity
+app-portage/pfl                     -network-cron       # DICE: ansifilter 9 10
+app-text/ansifilter                 -gui                # DICE: ansifilter 9 10
 
 # common setup blocker
 dev-libs/libpcre                    -libedit            # DICE: pcre 4 5

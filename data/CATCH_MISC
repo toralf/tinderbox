@@ -1,16 +1,17 @@
-SetuptoolsDeprecationWarning: 2to3
 .automake. called by src_prepare
 Automake "maintainer mode" detected:
 cmake-utils_src_prepare has not been run
 dosym target omits basename:
+.ebuild.*UD ..* dev-util/ragel-6.10::gentoo
 econf called in .* instead of
 inherited illegally
 Need at least JDK 9 to compile
-python_.*_all() didn't call
-running automake in configure phase
-warning: python_fix_shebang
 One or more CMake variables were not used by the project
+pkgconf: --modversion requested with multiple packages, output would be ambiguous
+python_.*_all() didn't call
 QA Notice: Unrecognized configure options:
+running automake in configure phase
+SetuptoolsDeprecationWarning: 2to3
 The tmpfiles processor exited with a non-zero exit code
+warning: python_fix_shebang
 WARN: postinst
-.ebuild.*UD ..* dev-util/ragel-6.10::gentoo

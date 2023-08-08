@@ -97,7 +97,7 @@ error adding symbols:
 pdflatex failed
 An exception has occurred in the compiler
 error in .* command
-Can't locate .* in @INC
+Can.t locate .* in @INC
 error: expected expression before
  error: narrowing conversion of
  error: implicit declaration of
@@ -361,7 +361,8 @@ Exception in thread
  \* No such plugin directory
 make -j is not supported
 Error compiling Cython file:
-Error 2 shuffle=.*
 Cython.Compiler.Errors.CompileError:
 mv: cannot move
  \*   Failed to run command:
+ fatal error:
+ar:.*: No such file or directory
