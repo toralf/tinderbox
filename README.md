@@ -54,7 +54,6 @@ The user _tinderbox_:
 1. must not be allowed to read the file under _/opt/tb/sdata/_.
 
 Edit the credentials in _ssmtp.conf.sample_ and strip away the suffix _.sample_ from the file.
-Ensure, that this file is only readable by user _root_.
 Grant to the user _tinderbox_ these sudo rights:
 
 ```bash
