@@ -27,7 +27,7 @@ cgdelete -g cpu,memory:\$1
 
 EOF
 
-chmod 755 $agent
+chmod u+x $agent
 
 for i in cpu memory; do
   echo $agent >/sys/fs/cgroup/$i/release_agent

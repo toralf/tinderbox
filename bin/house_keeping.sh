@@ -7,24 +7,6 @@ function listImages() {
     tac
 }
 
-function keepIt() {
-  local img=${1?}
-
-  if [[ -f $img/var/tmp/tb/KEEP ]]; then
-    return 0
-  fi
-
-  if [[ -e ~tinderbox/run/$(basename $img) ]]; then
-    return 0
-  fi
-
-  if __is_running $img; then
-    return 0
-  fi
-
-  return 1
-}
-
 function olderThan() {
   local target=${1?}
   local days=${2?}
@@ -48,8 +30,7 @@ function pruneIt() {
   local img=$1
   local reason=${2?}
 
-  # needed again here
-  if keepIt $img; then
+  if [[ -f $img/var/tmp/tb/KEEP || -e ~tinderbox/run/$(basename $img) ]] || __is_running $img; then
     return 0
   fi
 
@@ -59,11 +40,11 @@ function pruneIt() {
   fi
 
   echo " $(date) $reason : $img"
-  rm -r $img
-  local rc=$?
-  sync
-
-  return $rc
+  if rm -r $img; then
+    sync
+  else
+    return $?
+  fi
 }
 
 #######################################################################
@@ -94,9 +75,9 @@ fi
 # prune distfiles
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
-while read -r img && pruneNeeded 29; do
+while read -r img; do
   if ! ls $img/var/tmp/tb/logs/dryrun*.log &>/dev/null; then
-    if olderThan $img 3; then
+    if olderThan $img 1; then
       pruneIt $img "broken setup"
     fi
   fi

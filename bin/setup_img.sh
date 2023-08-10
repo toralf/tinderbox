@@ -244,9 +244,10 @@ EOF
 
 # create tinderbox related directories + files
 function CompileTinderboxFiles() {
-  mkdir -p ./mnt/tb/data ./var/tmp/{portage,tb,tb/issues,tb/logs} ./var/cache/distfiles
+  mkdir -p ./mnt/tb/data ./var/tmp/tb/{,issues,logs} ./var/cache/distfiles
   echo $EPOCHSECONDS >./var/tmp/tb/setup.timestamp
   echo $name >./var/tmp/tb/name
+  chmod a+rwx ./var/tmp/tb/
 }
 
 # compile make.conf
@@ -317,6 +318,7 @@ function cpconf() {
     read -r dummy suffix filename <<<$(tr '.' ' ' <<<$(basename $f))
     # eg.: package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
+    chmod a+r ./etc/portage/package.$suffix/$filename
   done
 }
 
@@ -425,7 +427,9 @@ EOF
   echo "*/*  $(cpuid2cpuflags)" >./etc/portage/package.use/99cpuflags
 
   for f in "$tbhome"/tb/conf/profile.*; do
-    cp $f ./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
+    local target=./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
+    cp $f $target
+    chmod a+r $target
   done
 
   truncate -s 0 ./var/tmp/tb/task
@@ -503,6 +507,7 @@ function CreateSetupScript() {
 export LANG=C.utf8
 set -euf
 
+# use same user and group id as at the host to avoid confusion
 date
 echo "#setup user" | tee /var/tmp/tb/task
 groupadd -g $(id -g tinderbox) tinderbox
@@ -511,9 +516,9 @@ useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) -G \$(id -g portage) tinder
 if [[ ! $profile =~ "/musl" ]]; then
   date
   echo "#setup locale" | tee /var/tmp/tb/task
-  echo "en_US ISO-8859-1" >> /etc/locale.gen
-  if [[ $testfeature = "y" ]]; then
-    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+  echo "en_US ISO-8859-1" >>/etc/locale.gen
+  if [[ $testfeature == "y" ]]; then
+    echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
   fi
   locale-gen
 fi
@@ -525,7 +530,7 @@ if [[ $profile =~ "/systemd" ]]; then
   ln -sf ../usr/share/zoneinfo/UTC /etc/localtime
   cd -
 else
-  echo "UTC" > /etc/timezone
+  echo "UTC" >/etc/timezone
   emerge --config sys-libs/timezone-data
 fi
 
@@ -557,12 +562,12 @@ echo "#setup ansifilter" | tee /var/tmp/tb/task
 USE="-gui" emerge -u app-text/ansifilter
 sed -i -e 's,#PORTAGE_LOG_FILTER_FILE_CMD,PORTAGE_LOG_FILTER_FILE_CMD,' /etc/portage/make.conf
 
+# emerge MTA before MUA b/c virtual/mta does not defaults to sSMTP
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
-# emerge MTA before MUA b/c default of virtual/mta does not point to sSMTP
 emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead
-USE=-kerberos emerge -u mail-client/s-nail
+USE="-kerberos" emerge -u mail-client/s-nail
 
 if [[ ! -e /usr/src/linux ]]; then
   date
@@ -571,19 +576,23 @@ if [[ ! -e /usr/src/linux ]]; then
 fi
 
 date
-echo "#setup xz, q, bugz and pfl" | tee /var/tmp/tb/task
-emerge -u app-arch/xz-utils app-portage/portage-utils www-client/pybugz app-portage/pfl
+echo "#setup xz, q, bugz" | tee /var/tmp/tb/task
+emerge -u app-arch/xz-utils app-portage/portage-utils www-client/pybugz
+
+date
+echo "#setup pfl" | tee /var/tmp/tb/task
+USE="-network-cron" emerge -u app-portage/pfl
 
 date
 echo "#setup profile, make.conf, backlog" | tee /var/tmp/tb/task
 eselect profile set --force default/linux/amd64/$profile
 
-if [[ $testfeature = "y" ]]; then
+if [[ $testfeature == "y" ]]; then
   sed -i -e 's,FEATURES=",FEATURES="test ,' /etc/portage/make.conf
 fi
 
 # sort -u is needed if a package is in several repositories
-qsearch --all --nocolor --name-only --quiet | grep -v -F -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf > /var/tmp/tb/backlog
+qsearch --all --nocolor --name-only --quiet | grep -v -F -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
 
 date
 echo "#setup done" | tee /var/tmp/tb/task
@@ -826,7 +835,10 @@ echo -e "\n$(date)\n $0 start"
 
 tbhome=~tinderbox
 reposdir=/var/db/repos
-gentoo_mirrors=$(grep "^GENTOO_MIRRORS=" /etc/portage/make.conf | cut -f2 -d'"' -s | xargs -n 1 | shuf | xargs)
+gentoo_mirrors=$(
+  source /etc/portage/make.conf
+  xargs -n 1 <<<$GENTOO_MIRRORS | grep '^http' | shuf | xargs
+)
 
 InitOptions
 
@@ -859,5 +871,5 @@ sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ./etc/portage/
 CompileUseFlagFiles
 Finalize
 
-echo -e "\n$(date)\n  setup done"
+echo -e "\n$(date)\n  setup done for $name"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"

@@ -19,12 +19,12 @@ function SetAssigneeAndCc() {
   if [[ -z $m ]]; then
     assignee="maintainer-needed@gentoo.org"
   else
-    assignee=$(cut -f1 -d' ' <<<$m)
-    cc=$(cut -f2- -d' ' -s <<<$m)
+    assignee=$(cut -f 1 -d ' ' <<<$m)
+    cc=$(cut -f 2- -d ' ' -s <<<$m)
   fi
 
   if grep -q 'file collision with' $issuedir/title; then
-    local collision_partner=$(sed -e 's,.*file collision with ,,' <$issuedir/title)
+    local collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     local collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     if [[ -n $collision_partner_pkgname ]]; then
       cc="$cc $(equery meta -m $collision_partner_pkgname | grep '@' | xargs)"
@@ -35,8 +35,10 @@ function SetAssigneeAndCc() {
   fi
 
   echo "$assignee" >$issuedir/assignee
+  chmod a+rw $issuedir/assignee
   if [[ -n $cc ]]; then
     xargs -n 1 <<<$cc | sort -u | grep -v "^$assignee$" | xargs >$issuedir/cc
+    chmod a+rw $issuedir/cc
   fi
   if [[ ! -s $issuedir/cc || -z $cc ]]; then
     rm -f $issuedir/cc
@@ -65,9 +67,9 @@ checkBgo
 
 echo -e "\n===========================================\n"
 
-name=$(cat $issuedir/../../name)                                         # eg.: 17.1-20201022-101504
-pkg=$(basename $(realpath $issuedir) | cut -f3- -d'-' -s | sed 's,_,/,') # eg.: net-misc/bird-2.0.7-r1
-pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                             # eg.: net-misc/bird
+name=$(cat $issuedir/../../name)                                           # eg.: 17.1-20201022-101504
+pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # eg.: net-misc/bird-2.0.7-r1
+pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # eg.: net-misc/bird
 SetAssigneeAndCc
 
 if [[ -f $issuedir/.reported ]]; then
@@ -93,8 +95,7 @@ fi
 
 createSearchString
 cmd="$(dirname $0)/bgo.sh -d $issuedir"
-blocker_bug_no=$(LookupForABlocker ~tinderbox/tb/data/BLOCKER)
-if [[ -n $blocker_bug_no ]]; then
+if blocker_bug_no=$(LookupForABlocker ~tinderbox/tb/data/BLOCKER); then
   cmd+=" -b $blocker_bug_no"
 fi
 echo -e "\n  ${cmd}\n\n"

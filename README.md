@@ -41,18 +41,20 @@ useradd -m tinderbox
 usermod -a -G portage tinderbox
 ```
 
-Then create as user _tinderbox_ in its HOME the directories _distfiles_, _img_, _logs_, _run_, _tb_.
-Clone this Git repository.
-Move _./data_ and _./sdata_ into _~tinderbox/tb/_ and _./bin_ under _/opt/tb/_.
-Edit the ssmtp credentials in _~tinderbox/sdata_ and strip away the suffix _.sample_ from the file,
-set ownership and grant permissions of this subdirectory and its files e.g. to user _root_ instead _tinderbox_.
+Create in its HOME the directories: _./distfiles/_, _./img/_, _./logs/_, _./run/_ and _./tb/_.
+Clone this Git repository or unpack a release artefact.
+Move _./conf_, _./data_ and _./patches_ to _~tinderbox/tb/_.
+Move _./bin_ and _./sdata_ to _/opt/tb/_ and set ownership to _root_.
 
 The user _tinderbox_:
 
-1. must not be allowed to edit files under in _/opt/tb/_
+1. must not be allowed to edit files under _/opt/tb/_
 1. needs to be granted to read/execute the scripts under _/opt/tb/bin/_
-1. must have read/write permissions for files under _~tinderbox/tb/_ except the subdirectory _/sdata_
+1. must have read/write permissions for files under _~tinderbox/tb/_
+1. must not be allowed to read the file under _/opt/tb/sdata/_.
 
+Edit the credentials in _ssmtp.conf.sample_ and strip away the suffix _.sample_ from the file.
+Ensure, that this file is only readable by user _root_.
 Grant to the user _tinderbox_ these sudo rights:
 
 ```bash

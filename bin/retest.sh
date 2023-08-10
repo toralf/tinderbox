@@ -21,14 +21,14 @@ xargs -n 1 <<<$* |
   grep -e '^@' -e '^=' |
   sort -u >$result.special
 if [[ -s $result.special ]]; then
-  tmp=$(mktemp /tmp/$(basename $0)_XXXXXX)
+  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
   # run special entries shuffled after existing ones of .1st
   while read -r bl; do
-    cp $bl $tmp
-    shuf $result.special >>$tmp
-    uniq $tmp >$bl
+    cp $bl $tmpfile
+    shuf $result.special >>$tmpfile
+    uniq $tmpfile >$bl
   done < <(find ~tinderbox/run/*/var/tmp/tb/ -name "backlog.1st")
-  rm $tmp
+  rm $tmpfile
 fi
 rm $result.special
 
@@ -49,14 +49,14 @@ if [[ -s $result.packages ]]; then
   fi
 
   # shuffle new atoms and put them after existing ones
-  tmp=$(mktemp /tmp/$(basename $0)_XXXXXX)
+  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
   while read -r bl; do
     # grep out dups
-    grep -v -F -f $bl $result.packages | shuf >$tmp
-    cat $bl >>$tmp
-    uniq $tmp >$bl
+    grep -v -F -f $bl $result.packages | shuf >$tmpfile
+    cat $bl >>$tmpfile
+    uniq $tmpfile >$bl
   done < <(find ~tinderbox/run/*/var/tmp/tb/ -name "backlog.$suffix")
-  rm $tmp
+  rm $tmpfile
 
   # delete atom entry in image specific files
   while read -r pkgname; do

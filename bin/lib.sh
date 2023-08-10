@@ -87,9 +87,11 @@ function LookupForABlocker() {
 
     if grep -q -E "$line" $issuedir/title; then
       echo "$number"
-      return
+      return 0
     fi
   done < <(grep -v -e '^#' -e '^$' $pattern_file)
+
+  return 1
 }
 
 function GotResults() {
@@ -101,7 +103,7 @@ function GotResults() {
 
 function SearchForSameIssue() {
   if grep -q 'file collision with' $issuedir/title; then
-    local collision_partner=$(sed -e 's,.*file collision with ,,' <$issuedir/title)
+    local collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     local collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     # shellcheck disable=SC2154
     $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |

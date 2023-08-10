@@ -68,7 +68,7 @@ function ChrootMountAll() {
   mount --make-rslave $mnt/dev
 
   mount -o bind ~tinderbox/tb/data $mnt/mnt/tb/data
-  mount -o bind,ro ~tinderbox/tb/sdata/ssmtp.conf $mnt/etc/ssmtp/ssmtp.conf
+  mount -o bind,ro $(dirname $0)/../sdata/ssmtp.conf $mnt/etc/ssmtp/ssmtp.conf
   mount -o bind ~tinderbox/distfiles $mnt/var/cache/distfiles
 
   mount -o size=16G -t tmpfs tmpfs $mnt/tmp
@@ -134,7 +134,7 @@ function Bwrap() {
     --ro-bind /run/tinderbox /run/tinderbox
     --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
     --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
-    --ro-bind ~tinderbox/tb/sdata/ssmtp.conf /etc/ssmtp/ssmtp.conf
+    --ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
     --bind ~tinderbox/tb/data /mnt/tb/data
     --bind ~tinderbox/distfiles /var/cache/distfiles

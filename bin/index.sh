@@ -8,7 +8,7 @@ function listStat() {
   {
     date
     echo "<h2>few stats</h2>"
-    echo -e "\n<pre>\n"
+    echo "<pre>"
     echo "<h3>coverage</h3>"
     $(dirname $0)/whatsup.sh -c | recode --silent ascii..html
     echo "<h3>overview</h3>"
@@ -59,7 +59,7 @@ function listBugs() {
   cat <<EOF >>$tmpfile
 <h2>latest $(wc -l <<<$files) reported <a href="https://bugs.gentoo.org/">bugs</a></h2>
 
-  <table border="0" align="left" class="list_table">
+  <table border="0" align="left" class="list_table" width="100%">
 
   <thead align="left">
     <tr>
@@ -78,7 +78,6 @@ function listBugs() {
       <th>Artefacts</th>
     </tr>
   </tfoot>
-
   <tbody>
 EOF
 
@@ -102,7 +101,10 @@ EOF
 EOF
   done <<<$files
 
-  echo -e "  </tbody>\n  </table>\n" >>$tmpfile
+  cat <<EOF >>$tmpfile
+  </tbody>
+  </table>
+EOF
 }
 
 #######################################################################
@@ -115,16 +117,19 @@ echo -e "User-agent: *\nDisallow: /\n" >~tinderbox/img/robots.txt
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 cat <<EOF >>$tmpfile
 <html>
-
+<body>
 <h1>recent <a href="https://zwiebeltoralf.de/tinderbox.html">tinderbox</a> data</h1>
 
 EOF
 listStat
 listFiles
-listImages
 listBugs
+listImages
 
-echo -e "</html>" >>$tmpfile
+cat <<EOF >>$tmpfile
+</body>
+</html>
+EOF
 
 cp $tmpfile ~tinderbox/img/index.html
 rm $tmpfile

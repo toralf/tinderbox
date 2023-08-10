@@ -11,11 +11,8 @@ function Finish() {
   trap - INT QUIT TERM EXIT
 
   if [[ $rc -ne 0 ]]; then
-    echo
-    date
     echo " pid $pid exited with rc=$rc"
   fi
-
   rm $lockfile
   exit $rc
 }
@@ -57,7 +54,7 @@ source $(dirname $0)/lib.sh
 
 lockfile="/tmp/$(basename $0).lck"
 if [[ -s $lockfile ]]; then
-  if kill -0 $(cat $lockfile) 2>/dev/null; then
+  if kill -0 $(cat $lockfile) &>/dev/null; then
     exit 0
   fi
 fi
@@ -99,13 +96,17 @@ while :; do
       echo
       date
       echo " + + + setup a new image + + +"
-      if sudo $(dirname $0)/setup_img.sh; then
-        $(dirname $0)/start_img.sh
+      tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+      sudo $(dirname $0)/setup_img.sh 2>&1 | tee $tmpfile
+      img=$(grep -F 'setup done for ' $tmpfile | awk '{ print $4 }')
+      if [[ -e ~tinderbox/run/$img ]]; then
+        $(dirname $0)/start_img.sh $img
+        cat $tmpfile | mail -s "INFO: new tinderbox image" ${MAILTO:-tinderbox}
       else
-        rc=$?
-        echo " setup_img.sh returned $rc" >&2
-        Finish $rc
+        mail -s "NOTICE: tinderbox setup failed" -m $tmpfile ${MAILTO:-tinderbox}
+        sleep $((3 * 3600))
       fi
+      rm $tmpfile
     else
       sleep 60
     fi

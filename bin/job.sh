@@ -155,6 +155,8 @@ function getNextTask() {
 }
 
 function CompressIssueFiles() {
+  chmod a+rw $issuedir/{comment0,issue,title}
+  chmod a+r $issuedir/files/*
   # shellcheck disable=SC2010
   ls $issuedir/files/ |
     grep -v -F '.xz' |
@@ -164,9 +166,6 @@ function CompressIssueFiles() {
         xz $issuedir/files/$f
       fi
     done
-
-  chmod 777 $issuedir/{,files}
-  chmod -R a+rw $issuedir/ # allow manual editing of e.g. title/body
 }
 
 function CreateEmergeInfo() {
@@ -599,8 +598,6 @@ function WorkAtIssue() {
   collectPortageDir
   finishTitle
   CompileIssueComment0
-  chmod 777 $issuedir/{,files}
-  chmod -R a+rw $issuedir/
   CompressIssueFiles
 
   # https://bugs.gentoo.org/592880
@@ -701,8 +698,8 @@ function PostEmerge() {
 
 function createIssueDir() {
   issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<<$pkg)
-  mkdir -p $issuedir/files || return $?
-  chmod 777 $issuedir # allow to manually edit title etc. later
+  mkdir -p $issuedir/files
+  chmod 777 $issuedir
 }
 
 function catchMisc() {
@@ -711,7 +708,7 @@ function catchMisc() {
       continue
     fi
 
-    local pkglog_stripped=/tmp/$(basename $pkglog | sed -e "s,\.log$,.stripped.log,")
+    local pkglog_stripped=/tmp/$(basename $pkglog).stripped
     filterPlainPext <$pkglog >$pkglog_stripped
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       pkg=$(grep -m 1 -F ' * Package: ' $pkglog_stripped | awk '{ print $3 }' | sed -e 's,:.*,,')
@@ -747,7 +744,7 @@ EOF
         done
     fi
     rm $pkglog_stripped
-  done < <(find /var/log/portage/ -mindepth 1 -maxdepth 1 -type f -newer $taskfile)
+  done < <(find /var/log/portage/ -type f -name '*.log')
 }
 
 function GetPkglog() {
@@ -820,9 +817,6 @@ function RunAndCheck() {
       createIssueDir
       WorkAtIssue
     fi
-    if [[ $rc -eq 124 ]]; then
-      ReachedEOL "INFO:  timeout  task=$task" $tasklog
-    fi
   fi
 
   catchMisc
@@ -830,6 +824,10 @@ function RunAndCheck() {
   if [[ $try_again -eq 0 ]]; then
     maskPackage
     KeepInstalledDeps
+  fi
+
+  if [[ $rc -eq 124 ]]; then
+    ReachedEOL "INFO:  timeout  task=$task" $tasklog
   fi
 
   return $rc
@@ -1054,12 +1052,12 @@ while :; do
 
   # if 1st prio is empty then ...
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
-    # ... hourly sync repository
+    # ... sync repository hourly
     if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
       echo "#syncing repo" >$taskfile
       syncRepo
     fi
-    # ... and daily update @world
+    # ... update @world daily
     h=/var/tmp/tb/@world.history
     if [[ ! -s $h || $((EPOCHSECONDS - $(stat -c %Z $h))) -ge 86400 ]]; then
       add2backlog "@world"
@@ -1072,10 +1070,8 @@ while :; do
   echo "#get next task" >$taskfile
   getNextTask
   echo "$task" | tee -a $taskfile.history >$taskfile
-  {
-    date
-    echo $task
-  } >$tasklog
+  date >$tasklog
+  echo "$task" >>$tasklog
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<<$task | tr -c '[:alnum:]' '_')
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # no symlink here
   WorkOnTask

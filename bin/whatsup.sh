@@ -249,13 +249,13 @@ function getCoveredPackages() {
 # 16081 packages emerged under ~tinderbox/run   (82% for last 10 days)
 # 17835 packages emerged under ~tinderbox/img   (91% for last 55 days)
 function Coverage() {
-  local all=$(mktemp /tmp/$(basename $0)_XXXXXX.all)
+  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
   (
     cd /var/db/repos/gentoo
     ls -d *-*/*
     ls -d virtual/*
-  ) | grep -v -F 'metadata.xml' | sort >$all
-  local N=$(wc -l <$all)
+  ) | grep -v -F 'metadata.xml' | sort >$tmpfile
+  local N=$(wc -l <$tmpfile)
   printf "%5i packages available in ::gentoo\n" $N
 
   for i in run img; do
@@ -264,7 +264,7 @@ function Coverage() {
 
     # covered + uncovered != all     e.g. due to package deletions
     getCoveredPackages $i >$covered
-    diff $covered $all | grep -F '>' | cut -f 2 -d ' ' -s >$uncovered
+    diff $covered $tmpfile | grep -F '>' | cut -f 2 -d ' ' -s >$uncovered
 
     local n=$(wc -l <$covered)
     local oldest=$(sort -n ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
@@ -279,7 +279,7 @@ function Coverage() {
     printf "%5i packages emerged under ~tinderbox/%s   (%3.1f%% for last %3.1f days)\n" $n $i $perc $days
   done
 
-  rm $all
+  rm $tmpfile
 }
 
 # whatsup.sh -p
