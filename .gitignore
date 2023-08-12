@@ -1,6 +1,7 @@
 *.pdf
 .~lock*
 .trunk/
+.prettierignore
 .shellcheckrc
 .markdownlint.yaml
 data/ALREADY_CAUGHT
