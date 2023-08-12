@@ -46,7 +46,6 @@ function Mail() {
     fi
 }
 
-# 13 triggers a replacement
 function ReachedEOL() {
   local subject=${1:-"EOL"}
   local attachment=${2-}
@@ -59,7 +58,7 @@ function ReachedEOL() {
   local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
   subject+=", $new new bug(s)"
 
-  Finish 13 "$subject" $attachment
+  Finish 0 "$subject" $attachment
 }
 
 # this is the end ...
