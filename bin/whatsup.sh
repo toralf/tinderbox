@@ -27,7 +27,7 @@ function check_history() {
     local line=$(tail -n 1 $file)
     if grep -q " NOT ok " <<<$line; then
       if grep -q " NOT ok $" <<<$line; then
-        local uflag=$(tr '[:lower:]' '[:upper:]' <<<$flag)
+        local uflag=${flag,,}
         flags+="$uflag"
       else
         flags+="$flag"
