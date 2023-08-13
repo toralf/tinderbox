@@ -4,6 +4,19 @@
 
 # setup a new tinderbox image
 
+function Exit() {
+  local rc=${1:-$?}
+
+  trap - INT QUIT TERM EXIT
+  if [[ $rc -eq 0 ]]; then
+    echo -e "\n$(date)\n  setup done for $name"
+  else
+    echo -e "\n$(date)\n  setup failed for $name"
+  fi
+  echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  exit $rc
+}
+
 # $1:$2, eg. 3:5
 function dice() {
   [[ $((RANDOM % $2)) -lt $1 ]]
@@ -147,7 +160,7 @@ function UnpackStage3() {
     if [[ $profile =~ "23.0/" ]]; then
       prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     elif dice 1 2; then
-      # build up from plain instead from desktop stage
+      # build up from a plain instead from a desktop stage3
       prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     fi
   fi
@@ -160,6 +173,9 @@ function UnpackStage3() {
     if [[ ! $profile =~ "/musl" ]]; then
       prefix+="-openrc"
     fi
+  fi
+  if [[ $profile =~ "/clang" ]]; then
+    prefix=$(sed -e 's,amd64,amd64-llvm,' -e 's,-clang,,' <<<$prefix)
   fi
 
   echo -e "\n$(date) get stage3 file name for prefix $prefix"
@@ -248,7 +264,7 @@ function CompileTinderboxFiles() {
   mkdir -p ./mnt/tb/data ./var/tmp/tb/{,issues,logs} ./var/cache/distfiles
   echo $EPOCHSECONDS >./var/tmp/tb/setup.timestamp
   echo $name >./var/tmp/tb/name
-  chmod a+rwx ./var/tmp/tb/
+  chmod a+wx ./var/tmp/tb/
 }
 
 # compile make.conf
@@ -429,10 +445,11 @@ EOF
 
   for f in "$tbhome"/tb/conf/profile.*; do
     local target=./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
-    cp $f $target
+    cp "$f" $target
     chmod a+r $target
   done
 
+  chmod 777 ./etc/portage/package.*/ # e.g. to add "notest" packages
   truncate -s 0 ./var/tmp/tb/task
 }
 
@@ -442,9 +459,8 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname=$(echo $name | tr -d '\n' | tr '[:upper:]' '[:lower:]' | tr -c '^a-z0-9\-' '-' | cut -c-63)
-  echo $image_hostname >./etc/conf.d/hostname
-
+  local image_hostname=$(tr -c 'a-z0-9\-' '-' <<<${name,,})
+  cut -c -63 <<<$image_hostname >./etc/conf.d/hostname
   local host_hostname=$(hostname)
 
   cat <<EOF >./etc/hosts
@@ -453,7 +469,7 @@ EOF
 
 EOF
 
-  # avoid interactive question of vim
+  # avoid question of vim if run in that image
   cat <<EOF >./root/.vimrc
 autocmd BufEnter *.txt set textwidth=0
 cnoreabbrev X x
@@ -479,26 +495,34 @@ function CreateBacklogs() {
 
   truncate -s 0 $bl{,.1st,.upd}
 
-  cat <<EOF >>$bl.1st
+  if [[ $profile =~ "/clang" ]]; then
+    cat <<EOF >>$bl.1st
 @world
-sys-devel/gcc
+sys-devel/clang
+sys-devel/llvm
+EOF
+
+  else
+    cat <<EOF >>$bl.1st
+@world
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 
 EOF
-
+  fi
 }
 
 function CreateSetupScript() {
-  # use the host kernel
-  if dice 1 2; then
-    echo -e "\n$(date) use host kernel ..."
-    local kv=$(realpath /usr/src/linux)
-    rsync -aq $kv ./usr/src
-    (
-      cd ./usr/src
-      ln -s $(basename $kv) linux
-    )
-    echo 'sys-kernel/vanilla-sources-9999' >./etc/portage/profile/package.provided
+  if [[ ! $profile =~ "/clang" ]]; then
+    if dice 1 2; then
+      echo -e "\n$(date) use host kernel ..."
+      local kv=$(realpath /usr/src/linux)
+      rsync -aq $kv ./usr/src
+      (
+        cd ./usr/src
+        ln -s $(basename $kv) linux
+      )
+      echo 'sys-kernel/vanilla-sources-9999' >./etc/portage/profile/package.provided
+    fi
   fi
 
   cat <<EOF >./var/tmp/tb/setup.sh || return 1
@@ -566,8 +590,13 @@ sed -i -e 's,#PORTAGE_LOG_FILTER_FILE_CMD,PORTAGE_LOG_FILTER_FILE_CMD,' /etc/por
 # emerge MTA before MUA b/c virtual/mta does not defaults to sSMTP
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
-emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead
+if emerge -u mail-mta/ssmtp; then
+  rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead
+else
+  if [[ ! $profile =~ "/clang" ]]; then
+    exit 1
+  fi
+fi
 USE="-kerberos" emerge -u mail-client/s-nail
 
 if [[ ! -e /usr/src/linux ]]; then
@@ -740,14 +769,14 @@ function ThrowFlags() {
   echo "#setup throw flags ..."
 
   grep -v -e '^$' -e '^#' .$reposdir/gentoo/profiles/desc/l10n.desc |
-    cut -f1 -d' ' -s |
+    cut -f 1 -d ' ' -s |
     shuf -n $((RANDOM % 20)) |
     sort |
     xargs |
     xargs -I {} -r echo "*/*  L10N: {}" >./etc/portage/package.use/22thrown_l10n
 
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
-    cut -f1 -d' ' -s |
+    cut -f 1 -d ' ' -s |
     grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
     ShuffleUseFlags 250 4 50 |
     xargs -s 73 |
@@ -760,7 +789,7 @@ function ThrowFlags() {
       pkg=$(cut -f6-7 -d'/' <<<$file)
       grep 'flag name="' $file |
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
-        cut -f2 -d'"' -s |
+        cut -f 2 -d '"' -s |
         grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
         ShuffleUseFlags 30 3 |
         xargs |
@@ -773,12 +802,16 @@ function CompileUseFlagFiles() {
 set -euf
 
 if ! portageq best_visible / sys-devel/gcc; then
-  echo "no visible gcc - this setup image will be replaced"
-  exit 13
+  echo "no visible gcc ?!"
+  exit 1
 fi
 
-USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
-emerge --update --changed-use --newuse @world --pretend
+if [[ $profile =~ "/clang" ]]; then
+  emerge --deep=0 -uU sys-devel/llvm sys-devel/clang --pretend
+else
+  USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
+fi
+emerge --newuse -uU @world --pretend
 
 EOF
 
@@ -831,6 +864,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+trap Exit INT QUIT TERM EXIT
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo -e "\n$(date)\n $0 start"
 
@@ -871,6 +905,3 @@ RunSetupScript
 sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ./etc/portage/make.conf
 CompileUseFlagFiles
 Finalize
-
-echo -e "\n$(date)\n  setup done for $name"
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
