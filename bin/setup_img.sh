@@ -233,12 +233,13 @@ EOF
 
   local curr_path=$PWD
   cd .$reposdir
-  cp -ar --reflink=auto $reposdir/gentoo ./ # way faster and cheaper than "emaint sync --auto >/dev/null"
+  cp -ar --reflink=auto $reposdir/gentoo ./ # way faster and cheaper than "emaint sync --auto"
   cd ./gentoo
   rm -f ./.git/refs/heads/stable.lock ./.git/gc.log.lock # race with git operations at the host
   git config diff.renamelimit 0
   git config gc.auto 0
   git config pull.ff only
+  git pull -q
   cd $curr_path
 }
 
@@ -738,21 +739,21 @@ function ThrowFlags() {
 
   echo "#setup throw flags ..."
 
-  grep -v -e '^$' -e '^#' $reposdir/gentoo/profiles/desc/l10n.desc |
+  grep -v -e '^$' -e '^#' .$reposdir/gentoo/profiles/desc/l10n.desc |
     cut -f1 -d' ' -s |
     shuf -n $((RANDOM % 20)) |
     sort |
     xargs |
     xargs -I {} -r echo "*/*  L10N: {}" >./etc/portage/package.use/22thrown_l10n
 
-  grep -v -e '^$' -e '^#' -e 'internal use only' $reposdir/gentoo/profiles/use.desc |
+  grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f1 -d' ' -s |
     grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
     ShuffleUseFlags 250 4 50 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23thrown_global_use_flags
 
-  grep -Hl 'flag name="' $reposdir/gentoo/*/*/metadata.xml |
+  grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
     shuf -n $((RANDOM % 1800 + 200)) |
     sort |
     while read -r file; do
