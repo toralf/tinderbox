@@ -62,7 +62,7 @@ source $(dirname $0)/lib.sh
 # stage3 are relased weekly, keep the ones from the week before too
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
-  find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' -atime +15 |
+  find ~tinderbox/distfiles/ -maxdepth 1 -name 'stage3-amd64-*.tar.xz' -atime +15 |
     while read -r stage3; do
       if [[ $latest -nt $stage3 ]]; then
         if ! grep -q -F "/$(basename $stage3) " $latest; then

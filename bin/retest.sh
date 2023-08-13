@@ -27,7 +27,7 @@ if [[ -s $result.special ]]; then
     cp $bl $tmpfile
     shuf $result.special >>$tmpfile
     uniq $tmpfile >$bl
-  done < <(find ~tinderbox/run/*/var/tmp/tb/ -name "backlog.1st")
+  done < <(find ~tinderbox/run/*/var/tmp/tb/ -maxdepth 1 -name "backlog.1st")
   rm $tmpfile
 fi
 rm $result.special
@@ -55,7 +55,7 @@ if [[ -s $result.packages ]]; then
     grep -v -F -f $bl $result.packages | shuf >$tmpfile
     cat $bl >>$tmpfile
     uniq $tmpfile >$bl
-  done < <(find ~tinderbox/run/*/var/tmp/tb/ -name "backlog.$suffix")
+  done < <(find ~tinderbox/run/*/var/tmp/tb/ -maxdepth 1 -name "backlog.$suffix")
   rm $tmpfile
 
   # delete atom entry in image specific files

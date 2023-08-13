@@ -41,7 +41,7 @@ function Mail() {
   fi |
     strings -w |
     sed -e 's,^>, >,' |
-    if ! (mail -s "$subject  @  $name" ${MAILTO:-tinderbox} >/dev/null); then
+    if ! mail -s "$subject  @  $name" ${MAILTO:-tinderbox} >/dev/null; then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
     fi
 }
@@ -51,13 +51,11 @@ function ReachedEOL() {
   local attachment=${2-}
 
   echo "$subject" >>/var/tmp/tb/EOL
-  chmod g+w /var/tmp/tb/EOL
-  chgrp tinderbox /var/tmp/tb/EOL
+  chmod a+w /var/tmp/tb/EOL
   truncate -s 0 $taskfile
-  subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log 2>/dev/null) completed"
+  subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log) completed"
   local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
   subject+=", $new new bug(s)"
-
   Finish 0 "$subject" $attachment
 }
 
@@ -154,7 +152,7 @@ function getNextTask() {
 }
 
 function CompressIssueFiles() {
-  chmod a+rw $issuedir/{comment0,issue,title}
+  chmod a+w $issuedir/{comment0,issue,title}
   chmod a+r $issuedir/files/*
   # shellcheck disable=SC2010
   ls $issuedir/files/ |
@@ -743,7 +741,7 @@ EOF
         done
     fi
     rm $pkglog_stripped
-  done < <(find /var/log/portage/ -type f -name '*.log')
+  done < <(find /var/log/portage/ -type f -name '*.log') # "-newer" not needed, b/c previous logs are compressed
 }
 
 function GetPkglog() {

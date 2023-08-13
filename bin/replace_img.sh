@@ -98,12 +98,12 @@ while :; do
       echo " + + + setup a new image + + +"
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       sudo $(dirname $0)/setup_img.sh 2>&1 | tee $tmpfile
-      img=$(grep -F 'setup done for ' $tmpfile | awk '{ print $4 }')
+      img=$(grep "^  setup .* for .*$" $tmpfile | awk '{ print $4 }')
       if [[ -e ~tinderbox/run/$img ]]; then
         $(dirname $0)/start_img.sh $img
-        cat $tmpfile | mail -s "INFO: new tinderbox image" ${MAILTO:-tinderbox}
+        cat $tmpfile | mail -s "INFO: started new $img" ${MAILTO:-tinderbox}
       else
-        mail -s "NOTICE: tinderbox setup failed" -m $tmpfile ${MAILTO:-tinderbox}
+        cat $tmpfile | mail -s "NOTICE: setup failed for $img" ${MAILTO:-tinderbox}
         sleep $((3 * 3600))
       fi
       rm $tmpfile

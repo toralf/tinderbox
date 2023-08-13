@@ -35,10 +35,10 @@ function SetAssigneeAndCc() {
   fi
 
   echo "$assignee" >$issuedir/assignee
-  chmod a+rw $issuedir/assignee
+  chmod a+w $issuedir/assignee
   if [[ -n $cc ]]; then
     xargs -n 1 <<<$cc | sort -u | grep -v "^$assignee$" | xargs >$issuedir/cc
-    chmod a+rw $issuedir/cc
+    chmod a+w $issuedir/cc
   fi
   if [[ ! -s $issuedir/cc || -z $cc ]]; then
     rm -f $issuedir/cc

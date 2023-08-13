@@ -59,7 +59,7 @@ function createSearchString() {
   for f in $bugz_search $bugz_result; do
     if [[ ! -f $f ]]; then
       truncate -s 0 $f
-      chmod a+rw $f
+      chmod a+w $f
     fi
   done
 

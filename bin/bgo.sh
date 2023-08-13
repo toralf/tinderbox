@@ -148,7 +148,7 @@ trap Exit INT QUIT TERM EXIT
 
 # cleanup of a previous run
 truncate -s 0 bgo.sh.{out,err}
-chmod a+rw bgo.sh.{out,err}
+chmod a+w bgo.sh.{out,err}
 
 if [[ -n $id ]]; then
   new_bug=0
