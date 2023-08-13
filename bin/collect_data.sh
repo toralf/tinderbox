@@ -12,6 +12,10 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+if ls /tmp/$(basename $0)_* 2>/dev/null; then
+  echo "another instance seems to run" >&2
+  exit 1
+fi
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
 # sam
@@ -24,27 +28,35 @@ fi
 #
 
 if [[ ${1-} == "reset" ]]; then
-  # run this every then and when to get rid of old stuff in the files
+  # run this monthly to get rid of old stuff in the files
   scope=""
   since=""
 else
   scope="run"
-  since="-cmin -65" # job runs hourly, so use a 5 min overlap
+  since="-cmin -65" # job runs hourly for about a minute, so use a 5 min overlap
 fi
 
-cp ~tinderbox/img/needed.ELF.2.txt $tmpfile
-find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED.ELF.2 ${since-} |
+if [[ ${1-} == "reset" ]]; then
+  truncate -s 0 $tmpfile
+else
+  cp ~tinderbox/img/needed.ELF.2.txt $tmpfile
+fi
+find ~tinderbox/${scope:-img}/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" ${since-} |
   grep -v -F '/-MERGING-' |
-  xargs cat >>$tmpfile
-sort -u <$tmpfile >~tinderbox/img/needed.ELF.2.txt
+  xargs -r cat 2>/dev/null |
+  sort -u >>$tmpfile
+cp $tmpfile ~tinderbox/img/needed.ELF.2.txt
 
-cp ~tinderbox/img/needed.txt $tmpfile
-find ~tinderbox/${scope:-img}/*/var/db/pkg/ -name NEEDED ${since-} |
+if [[ ${1-} == "reset" ]]; then
+  truncate -s 0 $tmpfile
+else
+  cp ~tinderbox/img/needed.txt $tmpfile
+fi
+find ~tinderbox/${scope:-img}/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED" ${since-} |
   grep -v -F '/-MERGING-' |
-  while read -r file; do
-    pkg=$(sed -e 's,.*/var/db/pkg/,,' -e 's,/NEEDED,,' <<<$file)
-    sed -e "s,^,$pkg ," $file
-  done >>$tmpfile
-sort -u <$tmpfile >~tinderbox/img/needed.txt
+  xargs -r grep -H . 2>/dev/null |
+  sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,' |
+  sort -u >>$tmpfile
+cp $tmpfile ~tinderbox/img/needed.txt
 
 rm $tmpfile
