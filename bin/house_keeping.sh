@@ -59,10 +59,10 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# prune stage3 files
+# stage3 are relased weekly, keep the ones from the week before too
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
-  find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' -mtime +15 |
+  find ~tinderbox/distfiles/ -name 'stage3-amd64-*.tar.xz' -atime +15 |
     while read -r stage3; do
       if [[ $latest -nt $stage3 ]]; then
         if ! grep -q -F "/$(basename $stage3) " $latest; then
@@ -72,28 +72,29 @@ if [[ -s $latest ]]; then
     done
 fi
 
-# prune distfiles
+# mtime might be evem older than the host age
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
 while read -r img; do
-  if ! ls $img/var/tmp/tb/logs/dryrun*.log &>/dev/null; then
-    if olderThan $img 1; then
+  if olderThan $img 1; then
+    if [[ ! -s $img/var/log/emerge.log || $(qlop -cmqC -f $img/var/log/emerge.log | grep "^total" | cut -f 4 -d ' ') -lt 50 ]]; then
       pruneIt $img "broken setup"
     fi
   fi
 done < <(listImages)
 
 # for higher coverage keep images for a while even if no bug was reported
+
 while read -r img && pruneNeeded 89; do
-  if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
-    if olderThan $img 7; then
+  if olderThan $img 7; then
+    if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
       pruneIt $img "no issue"
     fi
   fi
 done < <(listImages)
 while read -r img && pruneNeeded 89; do
-  if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
-    if olderThan $img 14; then
+  if olderThan $img 14; then
+    if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneIt $img "no bug reported"
     fi
   fi
@@ -105,6 +106,6 @@ while read -r img && pruneNeeded 89; do
   fi
 done < <(listImages)
 
-if pruneNeeded 93; then
+if pruneNeeded 90; then
   echo "Warning: fs nearly fullfilled" >&2
 fi
