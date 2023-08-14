@@ -136,8 +136,8 @@ function Bwrap() {
     --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
     --ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
-    --bind ~tinderbox/tb/data /mnt/tb/data
     --bind ~tinderbox/distfiles /var/cache/distfiles
+    --bind ~tinderbox/tb/data /mnt/tb/data
     /bin/bash -l
   )
 
