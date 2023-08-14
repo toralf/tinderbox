@@ -130,7 +130,7 @@ function CreateImageName() {
   [[ $keyword == 'amd64' ]] && name+="_stable"
   [[ $abi3264 == "y" ]] && name+="_abi32+64"
   [[ $testfeature == "y" ]] && name+="_test"
-  name+="-$(date +%Y%m%d-%H%M%S)"
+  name+="-$(date +%Y%m%d-%H%M%S | tr -d '\n')"
 }
 
 # download, verify and unpack the stage3 file
@@ -459,7 +459,7 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname=$(tr -d '\n' <<<${name,,} | tr -c 'a-z0-9\-' '-')
+  local image_hostname=$(tr -c 'a-z0-9\-' '-' <<<${name,,})
   cut -c -63 <<<$image_hostname >./etc/conf.d/hostname
   local host_hostname=$(hostname)
 
