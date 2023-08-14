@@ -118,7 +118,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ -n $useflagsfrom && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
+  if [[ -n $useflagsfrom && ! $useflagsfrom == "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
     echo " useflagsfrom is wrong: >>$useflagsfrom<<"
     return 1
   fi
@@ -821,7 +821,9 @@ EOF
     echo " +++  1 dryrun with USE flags from $useflagsfrom  +++"
 
     local drylog=./var/tmp/tb/logs/dryrun.log
-    cp ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/* ./etc/portage/package.use/
+    if [[ ! $useflagsfrom == "null" ]]; then
+      cp ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/* ./etc/portage/package.use/
+    fi
     FixPossibleUseFlagIssues 0
     return $?
   fi
