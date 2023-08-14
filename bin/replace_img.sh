@@ -97,7 +97,7 @@ while :; do
       date
       echo " + + + setup a new image + + +"
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-      sudo $(dirname $0)/setup_img.sh 2>&1 | tee $tmpfile
+      sudo $(dirname $0)/setup_img.sh 2>&1 | tee $tmpfile >/dev/null
       img=$(grep "^  setup .* for .*$" $tmpfile | awk '{ print $4 }')
       if [[ -e ~tinderbox/run/$img ]]; then
         $(dirname $0)/start_img.sh $img
