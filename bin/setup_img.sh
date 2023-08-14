@@ -459,7 +459,7 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname=$(tr -c 'a-z0-9\-' '-' <<<${name,,})
+  local image_hostname=$(tr -d '\n' <<<${name,,} | tr -c 'a-z0-9\-' '-')
   cut -c -63 <<<$image_hostname >./etc/conf.d/hostname
   local host_hostname=$(hostname)
 
