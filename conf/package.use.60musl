@@ -9,3 +9,6 @@
 
 # https://bugs.gentoo.org/828580
 sys-devel/gcc                       -go -jit
+
+# https://bugs.gentoo.org/828812
+sys-devel/gcc                       -systemtap
