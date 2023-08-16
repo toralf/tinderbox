@@ -41,7 +41,7 @@ function Mail() {
   fi |
     strings -w |
     sed -e 's,^>, >,' |
-    if ! mail -s "$subject  @  $name" ${MAILTO:-tinderbox} >/dev/null; then
+    if ! timeout --signal=15 --kill-after=5m 6m mail -s "$subject @ $name" ${MAILTO:-tinderbox} >/dev/null; then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
     fi
 }
@@ -124,6 +124,9 @@ function getNextTask() {
       if portageq best_visible / $task &>/dev/null; then
         break
       fi
+
+    elif [[ $task =~ ' ' ]]; then
+      break
 
     else
       local best_visible=$(portageq best_visible / $task 2>/dev/null)
@@ -508,10 +511,10 @@ function finishTitle() {
 
 function SendIssueMailIfNotYetReported() {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
-    if ! grep -q -F -f $issuedir/title /mnt/tb/data/ALREADY_CAUGHT; then
+    if ! grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
       # chain "cat" by "echo" b/c cat buffers output which is racy between images
       # shellcheck disable=SC2005
-      echo "$(cat $issuedir/title)" >>/mnt/tb/data/ALREADY_CAUGHT
+      echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
 
       cp $issuedir/issue $issuedir/body
       echo -e "\n\n" >>$issuedir/body
@@ -932,10 +935,11 @@ function syncRepo() {
 
   if ! grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
     # retest changed ebuilds with a timeshift of 1h to have download mirrors being synced before
+    # ignore stderr due to "warning: log for 'stable' only goes back to"
     git diff \
       --diff-filter="ACM" \
       --name-only \
-      "@{ $((EPOCHSECONDS - last_sync + 3600)) second ago }..@{ 1 hour ago }" |
+      "@{ $((EPOCHSECONDS - last_sync + 3600)) second ago }..@{ 1 hour ago }" 2>/dev/null |
       grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |
       cut -f 1-2 -d '/' -s |
       grep -v -f /mnt/tb/data/IGNORE_PACKAGES |
@@ -1001,13 +1005,13 @@ export XZ_OPT="-9 -T$jobs"
 # this will appear in the emerge info output
 export TINDERBOX_IMAGE_NAME=$name
 
-# re-schedule $task (non-empty if Finish() was called by an internal error)
+# non-empty if Finish() was called by an internal error
 if [[ -s $taskfile ]]; then
-  add2backlog "$(cat $taskfile)"
+  add2backlog "$(cat $taskfile)"     # re-schedule $task
+  add2backlog "%emaint merges --fix" # fix any unclean shutdown
 fi
 
 echo "#init" >$taskfile
-add2backlog "%emaint merges --fix" # fix any unclean shutdown
 
 rm -f $tasklog # remove a left over hard link
 systemd-tmpfiles --create &>$tasklog || true
