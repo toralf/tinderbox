@@ -4,6 +4,6 @@
 .prettierignore
 .shellcheckrc
 .markdownlint.yaml
-data/ALREADY_CAUGHT
+findings/ALREADY_CAUGHT
 patches/*
 sdata/ssmtp.conf

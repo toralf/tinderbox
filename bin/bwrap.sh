@@ -137,7 +137,8 @@ function Bwrap() {
     --ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
     --bind ~tinderbox/distfiles /var/cache/distfiles
-    --bind ~tinderbox/tb/data /mnt/tb/data
+    --ro-bind ~tinderbox/tb/data /mnt/tb/data
+    --bind ~tinderbox/tb/findings /mnt/tb/findings
     /bin/bash -l
   )
 

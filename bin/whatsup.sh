@@ -17,7 +17,7 @@ function check_history() {
   local file=$1
   local flag=$2
 
-  # eg.:
+  # e.g.:
   # X = @x failed even to start
   # x = @x failed due to a package
   # . = never run before

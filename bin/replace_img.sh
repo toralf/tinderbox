@@ -61,14 +61,14 @@ fi
 echo $$ >"$lockfile"
 trap Finish INT QUIT TERM EXIT
 
-desired_count=${1:-12}
+desired_count=${1:-13}
 while :; do
-  # if an image stopped for a day then mark it as EOL
+  # if an image has stopped more than one day before then mark it as EOL
   while read -r oldimg; do
     if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && ! __is_running $oldimg; then
       hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
       if [[ $hours -ge 24 ]]; then
-        echo -e "image stoppend, last task is $hours hour/s ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
+        echo -e "image stoppend, last task was $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
       fi
     fi
   done < <(ImagesInRunShuffled)
@@ -95,14 +95,18 @@ while :; do
     if loadIsNotTooHigh; then
       echo
       date
-      echo " + + + setup a new image + + +"
+      echo " setup a new image"
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       sudo $(dirname $0)/setup_img.sh 2>&1 | tee $tmpfile >/dev/null
       img=$(grep "^  setup .* for .*$" $tmpfile | awk '{ print $4 }')
+      echo
+      date
       if [[ -e ~tinderbox/run/$img ]]; then
+        echo " new $img"
         $(dirname $0)/start_img.sh $img
-        cat $tmpfile | mail -s "INFO: started new $img" ${MAILTO:-tinderbox}
+        cat $tmpfile | mail -s "INFO: setup new $img" ${MAILTO:-tinderbox}
       else
+        echo " failed $img"
         cat $tmpfile | mail -s "NOTICE: setup failed for $img" ${MAILTO:-tinderbox}
         sleep $((3 * 3600))
       fi

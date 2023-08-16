@@ -9,15 +9,15 @@ function Exit() {
 
   trap - INT QUIT TERM EXIT
   if [[ $rc -eq 0 ]]; then
-    echo -e "\n$(date)\n  setup done for $name"
+    echo -e "\n$(date)\n  setup done for ${name:-}"
   else
-    echo -e "\n$(date)\n  setup failed for $name"
+    echo -e "\n$(date)\n  setup failed for ${name:-}"
   fi
   echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   exit $rc
 }
 
-# $1:$2, eg. 3:5
+# $1:$2, e.g. 3:5
 function dice() {
   [[ $((RANDOM % $2)) -lt $1 ]]
 }
@@ -34,6 +34,7 @@ function DiceAProfile() {
 
 # helper of main()
 function InitOptions() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   abi3264="n"
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=$cflags_default
@@ -118,7 +119,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ -n $useflagsfrom && ! $useflagsfrom == "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
+  if [[ -n $useflagsfrom && $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
     echo " useflagsfrom is wrong: >>$useflagsfrom<<"
     return 1
   fi
@@ -130,11 +131,12 @@ function CreateImageName() {
   [[ $keyword == 'amd64' ]] && name+="_stable"
   [[ $abi3264 == "y" ]] && name+="_abi32+64"
   [[ $testfeature == "y" ]] && name+="_test"
-  name+="-$(date +%Y%m%d-%H%M%S | tr -d '\n')"
+  name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
 # download, verify and unpack the stage3 file
 function UnpackStage3() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   local latest=$tbhome/distfiles/latest-stage3.txt
 
   echo -en "\n$(date) get latest-stage3.txt from"
@@ -217,7 +219,7 @@ function UnpackStage3() {
   fi
 
   CreateImageName
-  echo -e "\n$(date)\n +++ new image:    $name    +++\n"
+  echo -e "\n$(date) new image: $name"
   if ! mkdir ~tinderbox/img/$name; then
     return 1
   fi
@@ -233,6 +235,7 @@ function UnpackStage3() {
 
 # prefer git over rsync
 function InitRepository() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   mkdir -p ./etc/portage/repos.conf/
 
   cat <<EOF >./etc/portage/repos.conf/all.conf
@@ -249,18 +252,17 @@ EOF
 
   local curr_path=$PWD
   cd .$reposdir
-  cp -ar --reflink=auto $reposdir/gentoo ./ # way faster and cheaper than "emaint sync --auto"
+  git clone -q --depth=1 https://github.com/gentoo-mirror/gentoo.git
   cd ./gentoo
-  rm -f ./.git/refs/heads/stable.lock ./.git/gc.log.lock # race with git operations at the host
   git config diff.renamelimit 0
   git config gc.auto 0
   git config pull.ff only
-  git pull -q
   cd $curr_path
 }
 
 # create tinderbox related directories + files
 function CompileTinderboxFiles() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   mkdir -p ./mnt/tb/data ./var/tmp/tb/{,issues,logs} ./var/cache/distfiles
   echo $EPOCHSECONDS >./var/tmp/tb/setup.timestamp
   echo $name >./var/tmp/tb/name
@@ -269,6 +271,7 @@ function CompileTinderboxFiles() {
 
 # compile make.conf
 function CompileMakeConf() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   cat <<EOF >./etc/portage/make.conf
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
@@ -312,7 +315,10 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-  if [[ $profile =~ "/musl" ]]; then
+
+  if [[ $profile =~ "/clang" ]]; then
+    sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--backtrack=500 ,' ./etc/portage/make.conf
+  elif [[ $profile =~ "/musl" ]]; then
     echo 'RUSTFLAGS="-C target-feature=-crt-static"' >>./etc/portage/make.conf
   fi
 
@@ -330,10 +336,11 @@ EOF
 
 # helper of CompilePortageFiles()
 function cpconf() {
-  for f in $*; do
+  # shellcheck disable=SC2045
+  for f in $(ls $* 2>/dev/null); do
     # shellcheck disable=SC2034
     read -r dummy suffix filename <<<$(tr '.' ' ' <<<$(basename $f))
-    # eg.: package.unmask.??common   ->   package.unmask/??common
+    # e.g.: package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
     chmod a+r ./etc/portage/package.$suffix/$filename
   done
@@ -341,9 +348,10 @@ function cpconf() {
 
 # create portage related directories + files
 function CompilePortageFiles() {
-  cp -ar $tbhome/tb/patches ./etc/portage
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
 
-  for d in env package.{,env,unmask} patches; do
+  cp -ar $tbhome/tb/patches ./etc/portage
+  for d in env package.{,env,unmask}; do
     if [[ ! -d ./etc/portage/$d ]]; then
       mkdir ./etc/portage/$d
     fi
@@ -423,11 +431,15 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
-  if [[ $profile =~ "/musl" ]]; then
+  if [[ $profile =~ "/clang" ]]; then
+    cpconf $tbhome/tb/conf/package.*.??clang
+  elif [[ $profile =~ "/musl" ]]; then
     cpconf $tbhome/tb/conf/package.*.??musl
+  else
+    cpconf $tbhome/tb/conf/package.*.??gcc
   fi
 
-  # lines with a comment like "DICE: topic x X" will be kept with m/N chance (default: 1/2)
+  # keep lines with "# DICE: topic x X" with an m/N chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
     cut -f 3- -d ' ' |
     sort -u -r |
@@ -454,12 +466,13 @@ EOF
 }
 
 function CompileMiscFiles() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   cat <<EOF >./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname=$(tr -c 'a-z0-9\-' '-' <<<${name,,})
+  local image_hostname=$(tr -d '\n' <<<${name,,} | tr -c 'a-z0-9\-' '-')
   cut -c -63 <<<$image_hostname >./etc/conf.d/hostname
   local host_hostname=$(hostname)
 
@@ -491,27 +504,28 @@ EOF
 # /var/tmp/tb/backlog.1st : setup_img.sh          job.sh, retest.sh
 # /var/tmp/tb/backlog.upd :                       job.sh, retest.sh
 function CreateBacklogs() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   local bl=./var/tmp/tb/backlog
 
   truncate -s 0 $bl{,.1st,.upd}
 
-  if [[ $profile =~ "/clang" ]]; then
-    cat <<EOF >>$bl.1st
+  cat <<EOF >>$bl.1st
 @world
-sys-devel/clang
-sys-devel/llvm
 EOF
 
+  if [[ $profile =~ "/clang" ]]; then
+    cat <<EOF >>$bl.1st
+# %emerge --deep=0 -uU sys-devel/llvm sys-devel/clang
+EOF
   else
     cat <<EOF >>$bl.1st
-@world
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
-
 EOF
   fi
 }
 
 function CreateSetupScript() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   if [[ ! $profile =~ "/clang" ]]; then
     if dice 1 2; then
       echo -e "\n$(date) use host kernel ..."
@@ -633,19 +647,18 @@ EOF
 }
 
 function RunSetupScript() {
-  echo
-  date
-  echo " run setup script ..."
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
 
   echo '/var/tmp/tb/setup.sh &>/var/tmp/tb/setup.sh.log' >./var/tmp/tb/setup_wrapper.sh
+  chmod u+x ./var/tmp/tb/setup_wrapper.sh
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
     if grep -m 1 ' Invalid atom ' ./var/tmp/tb/setup.sh.log; then
-      echo -e "$(date)\n  OK - but ^^\n"
+      echo -e "$(date)   OK - but ^^"
       return 1
     fi
-    echo -e "$(date)\n  OK\n"
+    echo -e "$(date)   OK"
   else
-    echo -e "$(date)\n  FAILED\n"
+    echo -e "$(date)   FAILED"
     tail -n 100 ./var/tmp/tb/setup.sh.log
     echo
     return 1
@@ -679,8 +692,9 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
-  for i in {1..9}; do
-    # kick off particular packages from package specific use flag file
+  for i in {1..19}; do
+
+    # kick off a particular package from package specific use flag file
     local pkg=$(
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 }' |
@@ -697,7 +711,7 @@ function FixPossibleUseFlagIssues() {
       fi
     fi
 
-    # try to solve a dep cycle if an *un*setting of a USE flag is advised
+    # if *un*setting of an USE flag is advised then do it
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
     grep -A 20 "It might be possible to break this cycle" $drylog |
       grep -F ' (Change USE: ' |
@@ -798,6 +812,7 @@ function ThrowFlags() {
 }
 
 function CompileUseFlagFiles() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   cat <<EOF >./var/tmp/tb/dryrun_wrapper.sh
 set -euf
 
@@ -807,21 +822,23 @@ if ! portageq best_visible / sys-devel/gcc; then
 fi
 
 if [[ $profile =~ "/clang" ]]; then
-  emerge --deep=0 -uU sys-devel/llvm sys-devel/clang --pretend
+  : emerge --deep=0 -uU sys-devel/llvm sys-devel/clang --pretend
 else
   USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
 fi
 emerge --newuse -uU @world --pretend
 
 EOF
+  chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
+
+  local drylog=./var/tmp/tb/logs/dryrun.log
 
   if [[ -n $useflagsfrom ]]; then
     echo
     date
-    echo " +++  1 dryrun with USE flags from $useflagsfrom  +++"
+    echo " +++  run dryrun once with USE flags from $useflagsfrom  +++"
 
-    local drylog=./var/tmp/tb/logs/dryrun.log
-    if [[ ! $useflagsfrom == "null" ]]; then
+    if [[ $useflagsfrom != "null" ]]; then
       cp ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/* ./etc/portage/package.use/
     fi
     FixPossibleUseFlagIssues 0
@@ -829,7 +846,7 @@ EOF
   fi
 
   local attempt=0
-  while [[ $((++attempt)) -le 300 ]]; do
+  while [[ $((++attempt)) -le 200 ]]; do
     echo
     date
     echo "==========================================================="
@@ -840,8 +857,10 @@ EOF
       fi
     done
 
-    local drylog=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
     ThrowFlags $attempt
+    local current=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
+    touch $current
+    ln -f $current $drylog
     if FixPossibleUseFlagIssues $attempt; then
       return 0
     fi
@@ -851,9 +870,11 @@ EOF
 }
 
 function Finalize() {
+  echo -e "\n$(date) ${FUNCNAME[0]} ..."
   cd $tbhome/run
   ln -s ../img/$name
   wc -l -w ../img/$name/etc/portage/package.use/2*
+  truncate -s 0 $name/var/tmp/tb/task
 }
 
 #############################################################################

@@ -67,9 +67,9 @@ checkBgo
 
 echo -e "\n===========================================\n"
 
-name=$(cat $issuedir/../../name)                                           # eg.: 17.1-20201022-101504
-pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # eg.: net-misc/bird-2.0.7-r1
-pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # eg.: net-misc/bird
+name=$(cat $issuedir/../../name)                                           # e.g.: 17.1-20201022-101504
+pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # e.g.: net-misc/bird-2.0.7-r1
+pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # e.g.: net-misc/bird
 SetAssigneeAndCc
 
 if [[ -f $issuedir/.reported ]]; then
