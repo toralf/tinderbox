@@ -1,0 +1,16 @@
+# package.use/60clang
+#
+
+
+#######################################################################
+#
+# global settings
+#
+
+# common setup blocker
+sys-devel/llvm                      -libedit -z3 -zstd  # DICE: llvm 4 5
+
+# start slowly
+*/*                                 -doc -emacs -ruby
+app-text/docbook-xsl-ns-stylesheets -ruby
+app-text/docbook-xsl-stylesheets    -ruby

@@ -23,6 +23,7 @@ hardened
 headers-only
 homed
 hostname
+hpn
 i386
 ithreads
 kernel
@@ -53,6 +54,7 @@ perftools
 prefix
 prefix-guest
 rdoc
+ruby
 sanitize
 savedconfig
 secureboot

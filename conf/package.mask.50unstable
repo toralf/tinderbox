@@ -8,15 +8,7 @@
 # mask for now, fails too often
 <dev-lang/ghc-9.0.2-r4
 
-# /me
-<sys-devel/clang-15.0.7-r3                              # DICE: clang15 3 4
-<sys-devel/llvm-15.0.7-r3                               # DICE: clang15 3 4
-
-<sys-devel/clang-16.0.5                                 # DICE: clang16 3 4
-<sys-devel/llvm-16.0.5                                  # DICE: clang16 3 4
-
 # https://bugs.gentoo.org/909309
-app-emacs/*
 app-emacs/elscreen
 app-emacs/navi2ch
 

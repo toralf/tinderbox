@@ -1,0 +1,13 @@
+# package.use/60gcc
+#
+
+
+#######################################################################
+#
+# global settings
+#
+
+# common setup blocker
+
+# https://bugs.gentoo.org/911580
+sys-libs/glibc                      multiarch           # DICE: glibc-2.38

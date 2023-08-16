@@ -37,7 +37,6 @@ sys-fs/encfs
 sys-fs/loop-aes
 sys-fs/vhba
 sys-fs/zfs-kmod
-sys-libs/libcxxabi
 sys-libs/uclibc-ng
 x11-drivers/nvidia-drivers
 x11-wm/stumpwm
