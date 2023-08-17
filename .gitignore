@@ -5,5 +5,4 @@
 .shellcheckrc
 .markdownlint.yaml
 findings/ALREADY_CAUGHT
-patches/*
 sdata/ssmtp.conf

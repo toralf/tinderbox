@@ -9,9 +9,9 @@ function Exit() {
 
   trap - INT QUIT TERM EXIT
   if [[ $rc -eq 0 ]]; then
-    echo -e "\n$(date)\n  setup done for ${name:-}"
+    echo -e "\n$(date)\n  setup done for $name"
   else
-    echo -e "\n$(date)\n  setup failed for ${name:-}"
+    echo -e "\n$(date)\n  setup failed for $name"
   fi
   echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   exit $rc
@@ -40,6 +40,7 @@ function InitOptions() {
   cflags=$cflags_default
   jobs="5"
   keyword="~amd64"
+  name=""
   profile=$(DiceAProfile)
   testfeature="n"
   useflagsfrom=""
@@ -315,7 +316,6 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-
   if [[ $profile =~ "/clang" ]]; then
     sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--backtrack=500 ,' ./etc/portage/make.conf
   elif [[ $profile =~ "/musl" ]]; then
@@ -350,7 +350,7 @@ function cpconf() {
 function CompilePortageFiles() {
   echo -e "\n$(date) ${FUNCNAME[0]} ..."
 
-  cp -ar $tbhome/tb/patches ./etc/portage
+  cp -r $tbhome/tb/patches ./etc/portage
   for d in env package.{,env,unmask}; do
     if [[ ! -d ./etc/portage/$d ]]; then
       mkdir ./etc/portage/$d
@@ -604,13 +604,8 @@ sed -i -e 's,#PORTAGE_LOG_FILTER_FILE_CMD,PORTAGE_LOG_FILTER_FILE_CMD,' /etc/por
 # emerge MTA before MUA b/c virtual/mta does not defaults to sSMTP
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
-if emerge -u mail-mta/ssmtp; then
-  rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead
-else
-  if [[ ! $profile =~ "/clang" ]]; then
-    exit 1
-  fi
-fi
+emerge -u mail-mta/ssmtp
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the bind mounted file
 USE="-kerberos" emerge -u mail-client/s-nail
 
 if [[ ! -e /usr/src/linux ]]; then
