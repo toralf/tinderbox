@@ -34,11 +34,11 @@ for img in ${*?got no image}; do
                 echo
                 kill -15 $pid_entrypoint
                 i=60
-                while ((i--)) && kill -0 $pid_entrypoint; do
+                while ((i--)) && kill -0 $pid_entrypoint 2>/dev/null; do
                   sleep 1
                 done
                 echo
-                if kill -0 $pid_entrypoint; then
+                if kill -0 $pid_entrypoint 2>/dev/null; then
                   echo " notice: get roughly for $pid_entrypoint"
                   kill -9 $pid_entrypoint
                   echo
@@ -63,5 +63,3 @@ for img in ${*?got no image}; do
     echo " error: $img: image not found" >&2
   fi
 done
-
-echo "sudo -u tinderbox $(dirname $0)/replace_img.sh" | at -m -u tinderbox now
