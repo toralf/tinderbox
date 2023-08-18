@@ -104,10 +104,10 @@ while :; do
       if [[ -e ~tinderbox/run/$img ]]; then
         echo " new $img"
         $(dirname $0)/start_img.sh $img
-        cat $tmpfile | mail -s "INFO: setup new $img" ${MAILTO:-tinderbox}
+        cat $tmpfile | mail -s "INFO: setup new $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       else
         echo " failed $img"
-        cat $tmpfile | mail -s "NOTICE: setup failed for $img" ${MAILTO:-tinderbox}
+        cat $tmpfile | mail -s "NOTICE: setup failed for $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
         sleep $((3 * 3600))
       fi
       rm $tmpfile
