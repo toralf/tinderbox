@@ -8,7 +8,7 @@
 #
 
 # common setup blocker
-sys-devel/llvm                      -libedit -z3 -zstd  # DICE: llvm 4 5
+#sys-devel/llvm                      -libedit -z3 -zstd  # DICE: llvm 4 5
 
 # start slowly
 */*                                 -doc -emacs -ruby
