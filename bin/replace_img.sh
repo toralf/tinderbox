@@ -63,21 +63,20 @@ trap Finish INT QUIT TERM EXIT
 
 desired_count=${1:-13}
 while :; do
-  # if an image has stopped more than one day before then mark it as EOL
   while read -r oldimg; do
     if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && ! __is_running $oldimg; then
       hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
       if [[ $hours -ge 24 ]]; then
-        echo -e "image stoppend, last task was $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
+        echo -e "image stopped and last task was $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
       fi
     fi
   done < <(ImagesInRunShuffled)
 
-  # if emerge runs for >2 days then replace the image
   while read -r oldimg; do
     if __is_running $oldimg; then
       hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
       if [[ $hours -ge 49 ]]; then
+        echo -e "task runs longer than $hours hours" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
         sudo $(dirname $0)/kill_img.sh $oldimg
       fi
     fi
@@ -95,19 +94,19 @@ while :; do
     if loadIsNotTooHigh; then
       echo
       date
-      echo " setup a new image"
+      echo " call setup"
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       sudo $(dirname $0)/setup_img.sh 2>&1 | tee $tmpfile >/dev/null
       img=$(grep "^  setup .* for .*$" $tmpfile | awk '{ print $4 }')
       echo
       date
       if [[ -e ~tinderbox/run/$img ]]; then
-        echo " new $img"
+        echo " got $img"
         $(dirname $0)/start_img.sh $img
-        cat $tmpfile | mail -s "INFO: setup new $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+        cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       else
         echo " failed $img"
-        cat $tmpfile | mail -s "NOTICE: setup failed for $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+        cat $tmpfile | mail -s "NOTICE: setup failed: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
         sleep $((3 * 3600))
       fi
       rm $tmpfile
