@@ -117,6 +117,10 @@ echo -e "User-agent: *\nDisallow: /\n" >~tinderbox/img/robots.txt
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 cat <<EOF >>$tmpfile
 <html>
+<head>
+  <meta http-equiv="refresh" content="300">
+</head>
+
 <body>
 <h1>recent <a href="https://zwiebeltoralf.de/tinderbox.html">tinderbox</a> data</h1>
 
