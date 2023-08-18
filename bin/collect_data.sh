@@ -41,7 +41,7 @@ if [[ ${1-} == "reset" ]]; then
 else
   cp ~tinderbox/img/needed.ELF.2.txt $tmpfile
 fi
-find ~tinderbox/${scope:-img}/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" ${since-} |
+find ~tinderbox/${scope:-img}/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" ${since-} 2>/dev/null |
   grep -v -F '/-MERGING-' |
   xargs -r cat 2>/dev/null |
   sort -u >>$tmpfile
@@ -52,7 +52,7 @@ if [[ ${1-} == "reset" ]]; then
 else
   cp ~tinderbox/img/needed.txt $tmpfile
 fi
-find ~tinderbox/${scope:-img}/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED" ${since-} |
+find ~tinderbox/${scope:-img}/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED" ${since-} 2>/dev/null |
   grep -v -F '/-MERGING-' |
   xargs -r grep -H . 2>/dev/null |
   sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,' |
