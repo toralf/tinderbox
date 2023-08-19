@@ -26,7 +26,7 @@ function dice() {
 function DiceAProfile() {
   eselect profile list |
     grep -F -e ' (stable)' -e ' (dev)' |
-    grep -v -F -e '/musl' -e '/selinux' -e '/x32' |
+    grep -v -F -e '/selinux' -e '/x32' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
     shuf -n 1
