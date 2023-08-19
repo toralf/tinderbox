@@ -812,7 +812,7 @@ function RunAndCheck() {
     fi
 
   # an error occurred
-  elif [[ $rc -gt 0 ]]; then
+  elif [[ $rc -gt 0 && $rc -ne 42 ]]; then
     if GetPkgFromTaskLog; then
       createIssueDir
       WorkAtIssue
@@ -826,7 +826,9 @@ function RunAndCheck() {
     KeepInstalledDeps
   fi
 
-  if [[ $rc -eq 124 ]]; then
+  if [[ $rc -eq 42 ]]; then
+    Finish 0 "INFO: catched signal 42"
+  elif [[ $rc -eq 124 ]]; then
     ReachedEOL "INFO:  timeout  task=$task" $tasklog
   fi
 
