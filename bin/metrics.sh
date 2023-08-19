@@ -16,7 +16,7 @@ function printMetrics() {
   local var="tinderbox_age_img"
   echo -e "# HELP $var Age of an image in ~/run\n# TYPE $var counter"
   while read -r img; do
-    if c=$((EPOCHSECONDS - $(stat -c %Z ~tinderbox/run/$img))); then
+    if c=$((EPOCHSECONDS - $(getStartTime $img))); then
       echo "$var{img=\"$img\"} $c"
     fi
   done < <(find ~tinderbox/run/ -type l -print0 | xargs -r -n 1 --null basename)

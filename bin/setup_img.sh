@@ -11,7 +11,7 @@ function Exit() {
   if [[ $rc -eq 0 ]]; then
     echo -e "\n$(date)\n  setup done for $name"
   else
-    echo -e "\n$(date)\n  setup failed for $name"
+    echo -e "\n$(date)\n  setup failed for $name with rc=$rc"
   fi
   echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   exit $rc
@@ -668,13 +668,13 @@ function RunDryrunWrapper() {
   local rc=$?
 
   if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
-    ((++rc))
+    ((rc += 200))
   fi
 
   if [[ $rc -eq 0 ]]; then
     echo " OK"
   else
-    echo " NOT ok"
+    echo " rc=$rc"
   fi
 
   return $rc

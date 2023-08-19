@@ -4,10 +4,6 @@
 
 # print tinderbox statistics
 
-function getStartTime() {
-  cat ~tinderbox/img/$(basename $1)/var/tmp/tb/setup.timestamp
-}
-
 function printImageName() {
   local chars=${2:-42}
   printf "%-${chars}s" $(cut -c-${chars} <$1/var/tmp/tb/name 2>/dev/null)

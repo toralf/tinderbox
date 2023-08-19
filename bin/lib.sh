@@ -13,6 +13,10 @@ function __is_running() {
   __is_cgrouped $1 || __is_locked $1
 }
 
+function getStartTime() {
+  cat ~tinderbox/img/$(basename $1)/var/tmp/tb/setup.timestamp
+}
+
 # list if locked and/or symlinked to ~run
 function list_images() {
   (

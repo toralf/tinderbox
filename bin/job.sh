@@ -41,7 +41,7 @@ function Mail() {
   fi |
     strings -w |
     sed -e 's,^>, >,' |
-    if ! timeout --signal=15 --kill-after=5m 6m mail -s "$subject @ $name" ${MAILTO:-tinderbox} >/dev/null; then
+    if ! timeout --signal=15 --kill-after=1m 5m mail -s "$subject @ $name" ${MAILTO:-tinderbox} >/dev/null; then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
     fi
 }
@@ -70,7 +70,7 @@ function Finish() {
 
   subject="finished, $(stripQuotesAndMore <<<$subject)"
   Mail "$subject" $attachment
-  if [[ $exit_code -ne 9 ]]; then
+  if [[ $exit_code -eq 0 || -f /var/tmp/tb/EOL ]]; then
     /usr/bin/pfl &>/dev/null
   fi
   rm -f /var/tmp/tb/STOP
@@ -783,7 +783,7 @@ function RunAndCheck() {
   unset phase pkgname pkglog
   try_again=0 # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
 
-  timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
+  timeout --signal=15 --kill-after=5m 24h bash -c "$1" &>>$tasklog
   local rc=$?
   (
     echo
@@ -811,7 +811,7 @@ function RunAndCheck() {
       Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     fi
 
-  # STOP/EOL catched by bashrc
+  # STOP/EOL catched by portage's bashrc
   elif [[ $rc -eq 42 ]]; then
     Finish 0 "INFO: catched signal 42"
 
@@ -1063,8 +1063,8 @@ while :; do
       syncRepo
     fi
     # ... update @world daily
-    h=/var/tmp/tb/@world.history
-    if [[ ! -s $h || $((EPOCHSECONDS - $(stat -c %Z $h))) -ge 86400 ]]; then
+    wh=/var/tmp/tb/@world.history
+    if [[ ! -s $wh || $((EPOCHSECONDS - $(stat -c %Z $wh))) -ge 86400 ]]; then
       add2backlog "@world"
     fi
   fi

@@ -75,7 +75,7 @@ while :; do
   while read -r oldimg; do
     if __is_running $oldimg; then
       hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
-      if [[ $hours -ge 49 ]]; then
+      if [[ $hours -ge 25 ]]; then
         echo -e "task runs longer than $hours hours" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
         sudo $(dirname $0)/kill_img.sh $oldimg
       fi
@@ -105,8 +105,8 @@ while :; do
         $(dirname $0)/start_img.sh $img
         cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       else
-        echo " failed $img"
-        cat $tmpfile | mail -s "NOTICE: setup failed: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+        echo " failed $img  rc=$rc"
+        cat $tmpfile | mail -s "NOTICE: setup failed: $img  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
         sleep $((3 * 3600))
       fi
       rm $tmpfile

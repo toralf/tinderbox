@@ -8,10 +8,10 @@ function listImages() {
 }
 
 function olderThan() {
-  local target=${1?}
+  local img=${1?}
   local days=${2?}
 
-  [[ $(((EPOCHSECONDS - $(stat -c %Z $target)) / 86400)) -gt $days ]]
+  [[ $(((EPOCHSECONDS - $(getStartTime $img)) / 86400)) -gt $days ]]
 }
 
 # available space is less than 100 - "% value of the df command"
@@ -27,7 +27,7 @@ function pruneNeeded() {
 }
 
 function pruneIt() {
-  local img=$1
+  local img=${1?}
   local reason=${2?}
 
   if [[ -f $img/var/tmp/tb/KEEP || -e ~tinderbox/run/$(basename $img) ]] || __is_running $img; then
