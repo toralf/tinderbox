@@ -15,7 +15,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-for i in ${@:-$(ls ~tinderbox/run)}; do
+for i in ${@:-$(list_images)}; do
   mnt=~tinderbox/img/$(basename $i)
 
   if [[ ! -d $mnt ]]; then
