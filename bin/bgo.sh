@@ -25,17 +25,21 @@ function Exit() {
 }
 
 function append() {
-  local comment="appeared recently at the tinderbox image $(realpath $issuedir | cut -f 5 -d '/')"
+  local comment="appeared recently at the tinderbox image $name"
   bugz modify --status CONFIRMED --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
   bugz modify --status CONFIRMED --comment-from ./comment0 $id >bgo.sh.out 2>bgo.sh.err
 }
 
 function create() {
+  local title=$(cat ./title)
+  if [[ $name =~ "/clang" ]]; then
+    title=$(sed -e 's, - , - [clang] ,' <<<$title)
+  fi
   bugz post \
     --product "Gentoo Linux" \
     --component "Current packages" \
     --version "unspecified" \
-    --title "$(cat ./title)" \
+    --title "$title" \
     --op-sys "Linux" \
     --platform "All" \
     --priority "Normal" \
@@ -88,9 +92,8 @@ function attach() {
 }
 
 function assign() {
-  name=$(cat ../../name)
   assignee="$(cat ./assignee)"
-  if [[ $name =~ musl && $assignee != "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC ./title; then
+  if [[ $name =~ "musl" && $assignee != "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC ./title; then
     assignee="musl@gentoo.org"
     cc="$(cat ./assignee ./cc 2>/dev/null | xargs -n 1 | grep -v "musl@gentoo.org" | xargs)"
   else
@@ -149,6 +152,7 @@ trap Exit INT QUIT TERM EXIT
 # cleanup of a previous run
 truncate -s 0 bgo.sh.{out,err}
 chmod a+w bgo.sh.{out,err}
+name=$(cat ../../name)
 
 if [[ -n $id ]]; then
   new_bug=0
