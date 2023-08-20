@@ -316,9 +316,7 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-  if [[ $profile =~ "/clang" ]]; then
-    sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--backtrack=500 ,' ./etc/portage/make.conf
-  elif [[ $profile =~ "/musl" ]]; then
+  if [[ $profile =~ "/musl" ]]; then
     echo 'RUSTFLAGS="-C target-feature=-crt-static"' >>./etc/portage/make.conf
   fi
 
@@ -589,7 +587,7 @@ echo "#setup git" | tee /var/tmp/tb/task
 USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/git
 
 date
-echo "#setup sync tree" | tee /var/tmp/tb/task
+echo "#setup sync" | tee /var/tmp/tb/task
 emaint sync --auto >/dev/null
 
 date
