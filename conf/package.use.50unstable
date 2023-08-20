@@ -14,13 +14,13 @@ media-libs/libepoxy                 egl
 # https://bugs.gentoo.org/384869
 app-admin/webalizer                 -nls
 
-# request by sam
+# request by sam_
 sys-devel/gcc                       debug               # DICE: gcc
 
 # https://bugs.gentoo.org/900731
 media-libs/libjpeg-turbo            -java
 
-# sam, negril OOM
+# sam_, negril OOM
 sci-libs/vtk                        cuda,ffmpeg,imaging,logging,mpi,qt5,rendering,sdl,tbb,threads,views,vtkm  # DICE: vtk
 
 # sandbox violation ?
