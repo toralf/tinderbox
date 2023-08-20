@@ -812,11 +812,15 @@ function RunAndCheck() {
   elif [[ $rc -gt 0 ]]; then
     if phase=$(grep -e " * The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
       Finish 0 "phase $phase died"
-    fi
-    if GetPkgFromTaskLog; then
+
+    elif GetPkgFromTaskLog; then
       GetPkglog
       createIssueDir
       WorkAtIssue
+      if [[ $try_again -eq 0 ]]; then
+        maskPackage
+        KeepInstalledDeps
+      fi
     fi
 
   else
@@ -825,10 +829,6 @@ function RunAndCheck() {
   fi
 
   catchMisc
-  if [[ $try_again -eq 0 ]]; then
-    maskPackage
-    KeepInstalledDeps
-  fi
   return $rc
 }
 
