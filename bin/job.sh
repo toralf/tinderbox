@@ -435,7 +435,7 @@ function setWorkDir() {
     if [[ ! -d $workdir ]]; then
       workdir=/var/tmp/portage/$pkg/work/$(basename $pkg)
       if [[ ! -d $workdir ]]; then
-        Mail "NOTICE: could not get workdir pkg=$pkg" $tasklog_stripped
+        # no work dir, if "fetch" phase failed
         workdir=""
       fi
     fi
@@ -957,6 +957,34 @@ function syncRepo() {
   cd - >/dev/null
 }
 
+function loadIsOk() {
+  set +e
+  loadIsNotTooHigh
+  local rc=$?
+  set -e
+  if [[ $rc -ne 0 ]]; then
+    local last=$(sort -n /run/tinderbox/*.lock/wait 2>/dev/null | tail -n 1)
+    if [[ -n $last ]]; then
+      ((sec = last - EPOCHSECONDS + 15)) # wait xx seconds longer than the longest waiter
+    else
+      # wait xx seconds
+      case $rc in
+      15) sec=45 ;;
+      5) sec=30 ;;
+      1) sec=15 ;;
+      *) Finish 1 "rc=$rc not implemented" ;;
+      esac
+    fi
+    local me=$((EPOCHSECONDS + sec))
+    echo "$me" >/run/lock_dir/wait
+    echo "#wait till $(date +%T -d@$me)" >$taskfile
+    sleep $sec
+    rm /run/lock_dir/wait
+  fi
+
+  return $rc
+}
+
 #############################################################################
 #
 #       main
@@ -1019,34 +1047,14 @@ trap Finish INT QUIT TERM EXIT
 
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :; do
-  for i in EOL STOP; do
-    if [[ -f /var/tmp/tb/$i ]]; then
-      echo "#catched $i" >$taskfile
-      Finish 0 "catched $i" /var/tmp/tb/$i
-    fi
-  done
+  if [[ -f /var/tmp/tb/EOL ]]; then
+    echo "#catched EOL" >$taskfile
+    ReachedEOL "catched EOL"
+  elif [[ -f /var/tmp/tb/STOP ]]; then
+    Finish 0 "catched STOP" /var/tmp/tb/STOP
+  fi
 
-  set +e
-  loadIsNotTooHigh
-  rc=$?
-  set -e
-  if [[ $rc -gt 0 ]]; then
-    last=$(sort -n /run/tinderbox/*.lock/wait 2>/dev/null | tail -n 1)
-    if [[ -n $last ]]; then
-      ((sec = last - EPOCHSECONDS + 15)) # wait 15 sec longer than the longest waiter
-    else
-      # wait depending on the current load
-      case $rc in
-      15) sec=45 ;;
-      5) sec=30 ;;
-      1) sec=15 ;;
-      esac
-    fi
-    me=$((EPOCHSECONDS + sec))
-    echo "$me" >/run/lock_dir/wait
-    echo "#wait till $(date +%T -d@$me)" >$taskfile
-    sleep $sec
-    rm /run/lock_dir/wait
+  if ! loadIsOk; then
     continue
   fi
 
