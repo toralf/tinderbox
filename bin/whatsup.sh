@@ -50,7 +50,7 @@ function Overall() {
   echo "compl fail new  day backlog .upd .1st status $locked#$all locked  +++  $(date)"
 
   for i in $images; do
-    local days=$(bc <<<"scale=1; ( $EPOCHSECONDS - $(getStartTime $i) ) / 86400.0")
+    local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0") # the printf rounds to %.1f
     local bgo=$(
       set +f
       ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l
