@@ -37,7 +37,7 @@ function list_active_images() {
 }
 
 function list_images_by_age() {
-  ls -d ~tinderbox/$1/* 2>/dev/null |
+  ls -d ~tinderbox/${1?}/*/ 2>/dev/null |
     sort -k 2 -t '-'
 }
 
