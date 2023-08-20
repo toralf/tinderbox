@@ -19,6 +19,8 @@ function listStat() {
     $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
     echo "<h3>current package</h3>"
     $(dirname $0)/whatsup.sh -l | recode --silent ascii..html
+    echo "<h3>fs</h3>"
+    df -h /mnt/data | recode --silent ascii..html
     echo -e "</pre>\n"
   } >>$tmpfile
 }
