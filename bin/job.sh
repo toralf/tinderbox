@@ -435,6 +435,7 @@ function setWorkDir() {
     if [[ ! -d $workdir ]]; then
       workdir=/var/tmp/portage/$pkg/work/$(basename $pkg)
       if [[ ! -d $workdir ]]; then
+        Mail "NOTICE: could not get workdir pkg=$pkg" $tasklog_stripped
         workdir=""
       fi
     fi
@@ -445,21 +446,20 @@ function setWorkDir() {
 function add2backlog() {
   local bl=/var/tmp/tb/backlog.1st
 
-  # this is always the very last step
   if [[ $1 == '@preserved-rebuild' ]]; then
-    # be the very last and most unimportant task
+    #  it is the very last and lowest prio task
     sed -i -e "/@preserved-rebuild/d" $bl
     sed -i -e "1 i\@preserved-rebuild" $bl
-    return
-  fi
-
-  # avoid dups with the last line / the whole file respectively
-  if [[ $1 =~ ^@ || $1 =~ ^% ]]; then
-    if [[ "$(tail -n 1 $bl)" != "$1" ]]; then
+  else
+    if [[ $1 =~ ^@ || $1 =~ ^% ]]; then
+      # avoid duplicate the current last line (==next task)
+      if [[ "$(tail -n 1 $bl)" != "$1" ]]; then
+        echo "$1" >>$bl
+      fi
+    elif ! grep -q "^${1}$" $bl; then
+      # avoid dups in the file
       echo "$1" >>$bl
     fi
-  elif ! grep -q "^${1}$" $bl; then
-    echo "$1" >>$bl
   fi
 }
 
@@ -759,12 +759,12 @@ function GetPkgFromTaskLog() {
     if [[ -z $pkg ]]; then
       pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
       if [[ -z $pkg ]]; then
+        # common if dep resolution failed
         return 1
       fi
     fi
   fi
   pkg=$(sed -e 's,:.*,,' <<<$pkg) # strip away the slot
-  GetPkglog
 }
 
 # helper of WorkOnTask()
@@ -792,12 +792,17 @@ function RunAndCheck() {
     if [[ $signal -eq 9 ]]; then
       Finish 9 "KILLed" $tasklog
     else
-      pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | head -n 1 | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
-      if GetPkglog; then
-        createIssueDir
-        WorkAtIssue
+      pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
+      if [[ $(wc -w <<<$pkg) -eq 1 ]]; then
+        if GetPkglog; then
+          createIssueDir
+          WorkAtIssue
+        fi
+        Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
+      else
+        Mail "NOTICE: killed=$signal  task=$task  too much: pkg=$pkg" $tasklog
+        pkg=""
       fi
-      Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     fi
 
   elif [[ $rc -eq 124 ]]; then
@@ -809,6 +814,7 @@ function RunAndCheck() {
       Finish 0 "phase $phase died"
     fi
     if GetPkgFromTaskLog; then
+      GetPkglog
       createIssueDir
       WorkAtIssue
     fi
