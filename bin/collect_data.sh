@@ -24,8 +24,10 @@ if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile 2>/dev/null; then
   cp $tmpfile ~tinderbox/img/sam.txt
 fi
 
-# sam + flow
-#
+# xgqt
+if sort -u ~tinderbox/img/*/var/tmp/xgqt.txt >$tmpfile 2>/dev/null; then
+  sort -nr $tmpfile >~tinderbox/img/xgqt.txt
+fi
 
 if [[ ${1-} == "reset" ]]; then
   # run this monthly to get rid of old stuff in the files

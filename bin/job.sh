@@ -821,6 +821,10 @@ function RunAndCheck() {
       createIssueDir
       WorkAtIssue
     fi
+
+  else
+    # requested by xgqt via IRC, needs FEATURE="noclean"
+    du -hs /var/tmp/portage/*/* 2>/dev/null | grep "^.*G\s" | sed -e 's,/var/tmp/portage/,,' >>/var/tmp/xgqt.txt
   fi
 
   catchMisc
