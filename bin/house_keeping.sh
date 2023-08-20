@@ -2,11 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-function listImages() {
-  ls -dt ~tinderbox/img/{17,23}.[0-9]*/ 2>/dev/null |
-    tac
-}
-
 function olderThan() {
   local img=${1?}
   local days=${2?}
@@ -81,7 +76,7 @@ while read -r img; do
       pruneIt $img "broken setup"
     fi
   fi
-done < <(listImages)
+done < <(list_images_by_age "img")
 
 # for higher coverage keep images for a while even if no bug was reported
 
@@ -91,20 +86,20 @@ while read -r img && pruneNeeded 89; do
       pruneIt $img "no issue"
     fi
   fi
-done < <(listImages)
+done < <(list_images_by_age "img")
 while read -r img && pruneNeeded 89; do
   if olderThan $img 14; then
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneIt $img "no bug reported"
     fi
   fi
-done < <(listImages)
+done < <(list_images_by_age "img")
 
 while read -r img && pruneNeeded 89; do
   if olderThan $img 21; then
     pruneIt $img "space needed"
   fi
-done < <(listImages)
+done < <(list_images_by_age "img")
 
 if pruneNeeded 90; then
   echo "Warning: fs nearly fullfilled" >&2

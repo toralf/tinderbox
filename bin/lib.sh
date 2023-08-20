@@ -18,14 +18,14 @@ function getStartTime() {
 }
 
 # list if locked and/or symlinked to ~run
-function list_images() {
+function list_active_images() {
   (
     ls ~tinderbox/run/ | sort
     ls /run/tinderbox/ | sed -e 's,.lock,,' | sort
     ls -d /sys/fs/cgroup/cpu/local/??.* | sort
   ) 2>/dev/null |
     xargs -r -n 1 basename |
-    # sort -u would mix ~/img and ~/run, uniq does only detect subsequent dups, therefore use awk
+    # sort -u would mix ~/img and ~/run, uniq would not detect all dups, therefore use awk
     awk '!x[$0]++' |
     while read -r i; do
       if [[ -d ~tinderbox/run/$i ]]; then
@@ -34,6 +34,11 @@ function list_images() {
         echo ~tinderbox/img/"$i"
       fi
     done
+}
+
+function list_images_by_age() {
+  ls -d ~tinderbox/$1/* 2>/dev/null |
+    sort -k 2 -t '-'
 }
 
 function loadIsNotTooHigh() {

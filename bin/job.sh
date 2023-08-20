@@ -56,7 +56,8 @@ function ReachedEOL() {
   subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log) completed"
   local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
   subject+=", $new new bug(s)"
-  Finish 0 "$subject" $attachment
+  /usr/bin/pfl &>/dev/null
+  Finish 0 "EOL $subject" $attachment
 }
 
 # this is the end ...
@@ -68,11 +69,8 @@ function Finish() {
   trap - INT QUIT TERM EXIT
   set +e
 
-  subject="finished, $(stripQuotesAndMore <<<$subject)"
+  subject="finished $exit_code $(stripQuotesAndMore <<<$subject)"
   Mail "$subject" $attachment
-  if [[ $exit_code -eq 0 || -f /var/tmp/tb/EOL ]]; then
-    /usr/bin/pfl &>/dev/null
-  fi
   rm -f /var/tmp/tb/STOP
   exit $exit_code
 }
@@ -370,7 +368,7 @@ function ClassifyIssue() {
   fi
 
   if [[ ! -s $issuedir/title ]]; then
-    Mail "INFO: no title got in ClassifyIssue() for $name/$issuedir" $issuedir/issue
+    Mail "INFO: no title for $name/$issuedir" $issuedir/issue
   fi
 }
 
@@ -650,18 +648,10 @@ function PostEmerge() {
     fi
   fi
 
-  # don't change these config files after image setup
-  rm -f /etc/._cfg????_{hosts,resolv.conf} /etc/conf.d/._cfg????_hostname /etc/ssmtp/._cfg????_ssmtp.conf /etc/portage/._cfg????_make.conf
-
-  # merge the remaining config files automatically
-  if ! etc-update --automode -5 &>/dev/null; then
-    Mail "INFO: etc-update failed" $tasklog_stripped
-  fi
-
-  # update the environment
-  if ! env-update &>/dev/null; then
-    Mail "INFO: env-update failed" $tasklog_stripped
-  fi
+  # pinned by image setup
+  rm -f /etc/._cfg????_{hosts,resolv.conf} /etc/conf.d/._cfg????_hostname /etc/portage/._cfg????_make.conf /etc/ssmtp/._cfg????_ssmtp.conf
+  etc-update --automode -5 &>/dev/null
+  env-update &>/dev/null
   source_profile
 
   if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
@@ -781,23 +771,22 @@ function GetPkgFromTaskLog() {
 # run $1 and act on its results
 function RunAndCheck() {
   unset phase pkgname pkglog
-  try_again=0 # "1" means to retry same task, but with possible changed USE/ENV/FEATURE/CFLAGS
+  try_again=0 # "1" means to retry same task, but possibly with changed USE/ENV/FEATURE/CFLAGS file(s)
 
   timeout --signal=15 --kill-after=5m 24h bash -c "$1" &>>$tasklog
   local rc=$?
   (
-    echo
+    echo -e "\n--"
     date
+    echo "rc=$rc"
   ) >>$tasklog
 
   tasklog_stripped="/tmp/tasklog_stripped.log"
-
   filterPlainPext <$tasklog >$tasklog_stripped
   PostEmerge
-
   pkg=""
 
-  # exited on signal
+  # exited on kill signal
   if [[ $rc -ge 128 ]]; then
     local signal=$((rc - 128))
     if [[ $signal -eq 9 ]]; then
@@ -811,12 +800,14 @@ function RunAndCheck() {
       Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     fi
 
-  # STOP/EOL catched by portage's bashrc
-  elif [[ $rc -eq 42 ]]; then
-    Finish 0 "INFO: catched signal 42"
+  elif [[ $rc -eq 124 ]]; then
+    ReachedEOL "timeout  task=$task" $tasklog
 
   # an error occurred
-  elif [[ $rc -gt 0 && $rc -ne 42 ]]; then
+  elif [[ $rc -gt 0 ]]; then
+    if phase=$(grep -e " * The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
+      Finish 0 "phase $phase died"
+    fi
     if GetPkgFromTaskLog; then
       createIssueDir
       WorkAtIssue
@@ -828,16 +819,10 @@ function RunAndCheck() {
   fi
 
   catchMisc
-
   if [[ $try_again -eq 0 ]]; then
     maskPackage
     KeepInstalledDeps
   fi
-
-  if [[ $rc -eq 124 ]]; then
-    ReachedEOL "INFO:  timeout  task=$task" $tasklog
-  fi
-
   return $rc
 }
 
@@ -874,7 +859,7 @@ function WorkOnTask() {
     local cmd="$(cut -c2- <<<$task)"
     if ! RunAndCheck "$cmd"; then
       if [[ $pkg =~ "sys-devel/gcc" ]]; then
-        ReachedEOL "INFO: gcc update broken" $tasklog
+        ReachedEOL "gcc update broken" $tasklog
       elif [[ ! $cmd =~ " --depclean" && ! $cmd =~ "perl-cleaner" ]]; then
         Mail "INFO: command failed: $cmd" $tasklog
       fi
@@ -1069,12 +1054,10 @@ while :; do
     # ... update @world daily
     wh=/var/tmp/tb/@world.history
     if [[ ! -s $wh || $((EPOCHSECONDS - $(stat -c %Z $wh))) -ge 86400 ]]; then
+      /usr/bin/pfl &>/dev/null
       add2backlog "@world"
     fi
   fi
-
-  echo "#clean up tmp" >$taskfile
-  rm -rf /var/tmp/portage/*
 
   echo "#get next task" >$taskfile
   getNextTask
@@ -1090,6 +1073,8 @@ while :; do
   if ! find /var/log/portage -name '*.log' -exec xz {} +; then
     ReachedEOL "error rc=$? in compressing logs"
   fi
+
+  rm -rf /var/tmp/portage/* # "-f" needed if "pretend" phase fails
 
   echo "#detecting repeats" >$taskfile
   DetectRepeats

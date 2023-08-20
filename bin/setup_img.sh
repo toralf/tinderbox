@@ -297,7 +297,7 @@ ACCEPT_RESTRICT="-fetch"
 
 NOCOLOR="true"
 
-FEATURES="xattr -news"
+FEATURES="noclean xattr -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 CLEAN_DELAY=0
@@ -653,10 +653,11 @@ function RunSetupScript() {
     fi
     echo -e "$(date)   OK"
   else
-    echo -e "$(date)   FAILED"
+    local rc=$?
+    echo -e "$(date)   FAILED $rc"
     tail -n 100 ./var/tmp/tb/setup.sh.log
     echo
-    return 1
+    return $rc
   fi
 }
 

@@ -41,7 +41,7 @@ function printMetrics() {
     else
       ((++s))
     fi
-  done < <(list_images)
+  done < <(list_active_images)
   echo "$var{state=\"other\"} $o"
   echo "$var{state=\"running\"} $r"
   echo "$var{state=\"stopped\"} $s"

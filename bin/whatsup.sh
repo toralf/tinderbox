@@ -6,7 +6,7 @@
 
 function printImageName() {
   local chars=${2:-42}
-  printf "%-${chars}s" $(cut -c-${chars} <$1/var/tmp/tb/name 2>/dev/null)
+  printf "%-${chars}s" $(cut -c -${chars} <$1/var/tmp/tb/name 2>/dev/null)
 }
 
 function check_history() {
@@ -39,6 +39,7 @@ function check_history() {
 }
 
 # whatsup.sh -o
+#
 #  compl fail new  day backlog .upd .1st wp lcs 11#12 locked
 #   1124    6   0  0.9   17802  186    0  . lc  ~/run/17.1-j5-20230602-204005
 #   7020   56   2  6.7   12988   68    0  . lc  ~/run/17.1_desktop-j5-20230527-234505
@@ -112,7 +113,6 @@ function Overall() {
       flags+=" "
     fi
 
-    # images during setup are not yet symlinked to ~tinderbox/run
     local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img' # shorten output
@@ -121,6 +121,7 @@ function Overall() {
 }
 
 # whatsup.sh -t
+#
 # 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks() {
@@ -168,17 +169,14 @@ function LastEmergeOperation() {
         perl -wane '
         chop ($F[0]);
         my $delta = time() - $F[0];
-        if ($delta < 0) {
-          # scary but needed
-          $delta=0;
-        }
+#        $delta = 0 if ($delta < 0); # scary but needed
         my $minutes = $delta / 60 % 60;
         if ($delta < 3600) {
           my $seconds = $delta % 60;
           printf (" %2i:%02i m  ", $minutes, $seconds);
         } else  {
           my $hours = $delta / 3600;
-          printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 2*3600 ? " " : "!");    # mark too long emerge times
+          printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 2*3600 ? " " : "!"); # mark too long emerge times
         }
         my $line = join (" ", @F[2..$#F]);
         print substr ($line, 0, '$((columns - 38))'), "\n";
@@ -201,23 +199,21 @@ function PackagesPerImagePerRunDay() {
   done
   echo
 
-  for i in $(ls -dt ~tinderbox/run/[12]?.?* 2>/dev/null | tac); do
+  for i in $(list_images_by_age "run"); do
     if printImageName $i 57; then
       local start_time=$(getStartTime $i)
       perl -F: -wane '
         BEGIN {
-          @packages   = ();  # helds the amount of emerge operations per runday
+          @packages = (); # emerges per runday
         }
 
         my $epoch_time = $F[0];
         next unless (m/::: completed emerge/);
-
         my $rundays = int( ($epoch_time - '$start_time') / 86400);
         $packages[$rundays]++;
 
         END {
           if ($#packages >= 0) {
-            $packages[$rundays] += 0;     # implicit initialize elements which are not already set
             foreach my $rundays (0..$#packages) {
               ($packages[$rundays]) ? printf "%5i", $packages[$rundays] : printf "    -";
             }
@@ -233,14 +229,15 @@ function PackagesPerImagePerRunDay() {
 
 function getCoveredPackages() {
   grep -H '::: completed emerge' ~tinderbox/$1/*/var/log/emerge.log 2>/dev/null |
-    # handle ::local
+    # handle "::local"
     tr -d ':' |
     awk '{ print $7 }' |
     xargs -r qatom -F "%{CATEGORY}/%{PN}" |
     sort -u
 }
 
-#  whatsup.sh -c
+# whatsup.sh -c
+#
 # 19506 packages available in ::gentoo
 # 16081 packages emerged under ~tinderbox/run   (82% for last 10 days)
 # 17835 packages emerged under ~tinderbox/img   (91% for last 55 days)
@@ -289,25 +286,24 @@ function CountEmergesPerPackages() {
 
   perl -wane '
     BEGIN {
-      my %pet = ();     # package => emerges
+      my %pet = (); # package => emerges
     }
 
     next unless (m/::: completed emerge/);
-
     my $pkg = $F[7];
     $pet{$pkg}++;
 
     END {
-      my %h = ();       # pet => occurrence
+      my %h = (); # pet => occurrence
 
       for my $key (sort keys %pet)  {
         my $value = $pet{$key};
         $h{$value}++;
       }
 
-      my $total = 0;    # total amount of emerge operations
-      my $seen = 0;     # "     "      "  packages
-      my $max = 0;      # emerges of a package
+      my $total = 0; # total amount of emerge operations
+      my $seen = 0;  # "     "      "  packages
+      my $max = 0;   # emerges of a package
 
       for my $key (sort { $a <=> $b } keys %h)  {
         my $value = $h{$key};
@@ -338,7 +334,7 @@ if ! columns=$(tput cols 2>/dev/null); then
 fi
 
 while getopts cdlopt opt; do
-  images=$(list_images)
+  images=$(list_active_images)
   case $opt in
   c) Coverage ;;
   d) PackagesPerImagePerRunDay ;;

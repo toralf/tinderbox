@@ -18,8 +18,7 @@ if ls /tmp/$(basename $0)_* 2>/dev/null; then
 fi
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
-# sam
-#
+# sam_
 if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile 2>/dev/null; then
   cp $tmpfile ~tinderbox/img/sam.txt
 fi
@@ -29,13 +28,14 @@ if sort -u ~tinderbox/img/*/var/tmp/xgqt.txt >$tmpfile 2>/dev/null; then
   sort -nr $tmpfile >~tinderbox/img/xgqt.txt
 fi
 
+# sam_ + flow
 if [[ ${1-} == "reset" ]]; then
-  # run this monthly to get rid of old stuff in the files
+  # run this monthly or so to get rid of old stuff
   scope=""
   since=""
 else
   scope="run"
-  since="-cmin -65" # job runs hourly for about a minute, so use a 5 min overlap
+  since="-cmin -65" # job runs hourly for <1min, so a 5 min overlap seems sufficient
 fi
 
 if [[ ${1-} == "reset" ]]; then
