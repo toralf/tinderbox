@@ -17,7 +17,7 @@ if [[ $n -gt 0 ]]; then
       echo
       echo -e "\n\nto re-activate this test again, do:\n\n  truncate -s 0 ~tinderbox/logs/*\n\n"
     ) |
-      mail -s "INFO: tinderbox logs" ${MAILTO:-tinderbox}
+      mail -s "INFO: tinderbox logs" ${MAILTO:-tinderbox@zwiebeltoralf.de}
   fi
 else
   # remove obsolete file

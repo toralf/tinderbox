@@ -41,7 +41,7 @@ function Mail() {
   fi |
     strings -w |
     sed -e 's,^>, >,' |
-    if ! timeout --signal=15 --kill-after=1m 5m mail -s "$subject @ $name" ${MAILTO:-tinderbox} >/dev/null; then
+    if ! timeout --signal=15 --kill-after=1m 5m mail -s "$subject @ $name" ${MAILTO:-tinderbox@zwiebeltoralf.de} >/dev/null; then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
     fi
 }
