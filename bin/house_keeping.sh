@@ -9,9 +9,9 @@ function olderThan() {
   [[ $(((EPOCHSECONDS - $(getStartTime $img)) / 86400)) -gt $days ]]
 }
 
-# available space is less than 100 - "% value of the df command"
+# value of available space in percent is often lower than 100-"percent value of df"
 function pruneNeeded() {
-  local maxperc=${1?}
+  local maxperc=${1:-89}
 
   if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
     local mb=$((size * (100 - maxperc) / 100)) # MB
@@ -80,14 +80,14 @@ done < <(list_images_by_age "img")
 
 # for higher coverage keep images for a while even if no bug was reported
 
-while read -r img && pruneNeeded 89; do
+while read -r img && pruneNeeded; do
   if olderThan $img 7; then
     if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
       pruneIt $img "no issue"
     fi
   fi
 done < <(list_images_by_age "img")
-while read -r img && pruneNeeded 89; do
+while read -r img && pruneNeeded; do
   if olderThan $img 14; then
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneIt $img "no bug reported"
@@ -95,12 +95,12 @@ while read -r img && pruneNeeded 89; do
   fi
 done < <(list_images_by_age "img")
 
-while read -r img && pruneNeeded 89; do
+while read -r img && pruneNeeded; do
   if olderThan $img 21; then
     pruneIt $img "space needed"
   fi
 done < <(list_images_by_age "img")
 
-if pruneNeeded 90; then
+if pruneNeeded 91; then
   echo "Warning: fs nearly fullfilled" >&2
 fi
