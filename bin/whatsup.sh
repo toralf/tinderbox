@@ -51,10 +51,7 @@ function Overall() {
 
   for i in $images; do
     local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0") # the printf rounds to %.1f
-    local bgo=$(
-      set +f
-      ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l
-    )
+    local bgo=$(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
 
     local compl=0
     if ! compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
