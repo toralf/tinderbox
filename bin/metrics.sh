@@ -30,7 +30,7 @@ function printMetrics() {
   while read -r img; do
     if __is_running $img; then
       if [[ $img =~ "/run" ]]; then
-        if [[ $(cat $img/var/tmp/tb/task) =~ '#wait' ]]; then
+        if [[ -f $img/var/tmp/tb/WAIT ]]; then
           ((++w))
         else
           ((++r))

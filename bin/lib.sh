@@ -41,12 +41,6 @@ function list_images_by_age() {
     sort -k 2 -t '-'
 }
 
-function loadIsNotTooHigh() {
-  local limit=$(($(nproc) - 2))
-
-  awk '{ if ($1 >= '"$limit"') { if ($2 >= '"$limit"') { if ($3 >= '"$limit"') { exit 15 } else exit 5 } else exit 1 } }' /proc/loadavg
-}
-
 function checkBgo() {
   if ! bugz -h >/dev/null; then
     echo "www-client/pybugz installation is b0rken" >&2

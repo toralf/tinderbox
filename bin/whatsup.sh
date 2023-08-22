@@ -81,7 +81,12 @@ function Overall() {
     # " " ok
     check_history $i/var/tmp/tb/@world.history w
     check_history $i/var/tmp/tb/@preserved-rebuild.history p
-    flags+=" "
+    if [[ -f $i/var/tmp/tb/WAIT ]]; then
+      flags+="W"
+    else
+      flags+=" "
+    fi
+
     if __is_locked $i; then
       flags+="l"
     else

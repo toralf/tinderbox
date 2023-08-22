@@ -946,34 +946,6 @@ function syncRepo() {
   cd - >/dev/null
 }
 
-function loadIsOk() {
-  set +e
-  loadIsNotTooHigh
-  local rc=$?
-  set -e
-  if [[ $rc -ne 0 ]]; then
-    local last=$(sort -n /run/tinderbox/*.lock/wait 2>/dev/null | tail -n 1)
-    if [[ -n $last ]]; then
-      ((sec = last - EPOCHSECONDS + 15)) # wait xx seconds longer than the longest waiter
-    else
-      # wait xx seconds
-      case $rc in
-      15) sec=45 ;;
-      5) sec=30 ;;
-      1) sec=15 ;;
-      *) Finish 1 "rc=$rc not implemented" ;;
-      esac
-    fi
-    local me=$((EPOCHSECONDS + sec))
-    echo "$me" >/run/lock_dir/wait
-    echo "#wait till $(date +%T -d@$me)" >$taskfile
-    sleep $sec
-    rm /run/lock_dir/wait
-  fi
-
-  return $rc
-}
-
 #############################################################################
 #
 #       main
@@ -1043,10 +1015,6 @@ while :; do
     ReachedEOL "catched EOL"
   elif [[ -f /var/tmp/tb/STOP ]]; then
     Finish 0 "catched STOP" /var/tmp/tb/STOP
-  fi
-
-  if ! loadIsOk; then
-    continue
   fi
 
   # if 1st prio is empty then ...
