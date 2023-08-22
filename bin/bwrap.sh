@@ -25,11 +25,11 @@ function CgroupCreate() {
   local cpu=$((100000 * jobs + 10000))
   cgset -r cpu.cfs_quota_us=$cpu $name
 
-  # 2 GB per build job
-  local mem=$((2 * jobs + 16))
+  # 2 GB per build job + xx for /var/tmp/portage (being a tmpfs)
+  local mem=$((2 * jobs + 20))
   cgset -r memory.limit_in_bytes=${mem}G $name
 
-  # memory+swap, consider tmpfs
+  # memory+swap, add another safety limit, host system has 256 GB swap at all
   cgset -r memory.memsw.limit_in_bytes=$((mem + 16))G $name
 }
 
