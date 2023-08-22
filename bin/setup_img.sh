@@ -297,7 +297,7 @@ ACCEPT_RESTRICT="-fetch"
 
 NOCOLOR="true"
 
-FEATURES="noclean xattr -news"
+FEATURES="xattr -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 CLEAN_DELAY=0
