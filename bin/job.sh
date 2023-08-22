@@ -417,16 +417,6 @@ EOF
   ) >>$issuedir/comment0 2>/dev/null
 }
 
-# put world into same state as if the (successfully installed) deps would have been already emerged in previous task/s
-function KeepInstalledDeps() {
-  if grep -q '^>>> Installing ' $tasklog_stripped; then
-    emerge --depclean --verbose=n --pretend 2>/dev/null |
-      grep "^All selected packages: " |
-      cut -f 2- -d ':' -s |
-      xargs -r emerge -O --noreplace &>/dev/null
-  fi
-}
-
 # helper of WorkAtIssue()
 function setWorkDir() {
   workdir=$(grep -F -m 1 ' * Working directory: ' $tasklog_stripped | cut -f 2 -d "'" -s)
@@ -557,15 +547,6 @@ function SendIssueMailIfNotYetReported() {
         hints+=" blocks $blocker_bug_no"
       fi
       Mail "$hints $(cat $issuedir/title)" $issuedir/body
-    fi
-  fi
-}
-
-function maskPackage() {
-  if [[ -n $pkg ]]; then
-    local self=/etc/portage/package.mask/self
-    if [[ ! -s $self ]] || ! grep -q -e "=$pkg$" $self; then
-      echo "=$pkg" >>$self
     fi
   fi
 }
@@ -770,9 +751,6 @@ function GetPkgFromTaskLog() {
 # helper of WorkOnTask()
 # run $1 and act on its results
 function RunAndCheck() {
-  unset phase pkgname pkglog
-  try_again=0 # "1" means to retry same task, but possibly with changed USE/ENV/FEATURE/CFLAGS file(s)
-
   timeout --signal=15 --kill-after=5m 24h bash -c "$1" &>>$tasklog
   local rc=$?
   (
@@ -781,10 +759,11 @@ function RunAndCheck() {
     echo "rc=$rc"
   ) >>$tasklog
 
-  tasklog_stripped="/tmp/tasklog_stripped.log"
+  pkg=""
+  unset phase pkgname pkglog
+  try_again=0 # "1" means to retry same task, but possibly with changed USE/ENV/FEATURE/CFLAGS file(s)
   filterPlainPext <$tasklog >$tasklog_stripped
   PostEmerge
-  pkg=""
 
   # exited on kill signal
   if [[ $rc -ge 128 ]]; then
@@ -817,15 +796,25 @@ function RunAndCheck() {
       GetPkglog
       createIssueDir
       WorkAtIssue
-      if [[ $try_again -eq 0 ]]; then
-        maskPackage
-        KeepInstalledDeps
+    fi
+  fi
+
+  if [[ $rc -gt 0 ]]; then
+    if [[ $try_again -eq 0 ]]; then
+      if [[ -n $pkg ]]; then
+        local self=/etc/portage/package.mask/self
+        if [[ ! -s $self ]] || ! grep -q -e "=$pkg$" $self; then
+          echo "=$pkg" >>$self
+        fi
+      fi
+      # put world file into same state as if the (previously successfully installed) deps would have been already emerged in separate previous task/s
+      if grep -q '^>>> Installing ' $tasklog_stripped; then
+        emerge --depclean --verbose=n --pretend 2>/dev/null |
+          grep "^All selected packages: " |
+          cut -f 2- -d ':' -s |
+          xargs -r emerge -O --noreplace &>/dev/null
       fi
     fi
-
-  else
-    # requested by xgqt via IRC, needs FEATURE="noclean"
-    du -hs /var/tmp/portage/*/* 2>/dev/null | grep "^.*G\s" | sed -e 's,/var/tmp/portage/,,' >>/var/tmp/xgqt.txt
   fi
 
   catchMisc
@@ -1000,17 +989,19 @@ fi
 
 source $(dirname $0)/lib.sh
 
-export -f SwitchGCC syncRepo         # valid backlog entry, called in RunAndCheck()
-export -f add2backlog source_profile # called by SwitchGCC()
+export -f SwitchGCC                  # added to backlog by PostEmerge()
+export -f add2backlog source_profile # used by SwitchGCC()
 
-taskfile=/var/tmp/tb/task    # holds the current task
-tasklog=$taskfile.log        # holds output of it
-name=$(cat /var/tmp/tb/name) # the image name
-grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf && keyword="unstable" || keyword="stable"
-jobs=$(
-  set +f
-  sed 's,^.*j,,' /etc/portage/package.env/00j*
-)
+jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00j* | sort -bn | head -n 1)
+if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
+  keyword="unstable"
+else
+  keyword="stable"
+fi
+name=$(cat /var/tmp/tb/name)               # the image name
+taskfile=/var/tmp/tb/task                  # the current task
+tasklog=$taskfile.log                      # holds output of it
+tasklog_stripped=/tmp/tasklog_stripped.log # filtered plain text variant
 
 export CARGO_TERM_COLOR="never"
 export CMAKE_COLOR_DIAGNOSTICS="OFF"
@@ -1088,7 +1079,7 @@ while :; do
     ReachedEOL "error rc=$? in compressing logs"
   fi
 
-  rm -rf /var/tmp/portage/* # "-f" needed if "pretend" phase fails
+  rm -rf /var/tmp/portage/* # "-f" needed if e.g. "pretend" phase fails or fetch
 
   echo "#detecting repeats" >$taskfile
   DetectRepeats
