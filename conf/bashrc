@@ -57,8 +57,8 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
     tinderbox_check_eol
     touch /var/tmp/tb/WAIT
     sleep 15
+    rm -f /var/tmp/tb/WAIT
   done
 fi
-rm -f /var/tmp/tb/WAIT
 
 tinderbox_check_eol

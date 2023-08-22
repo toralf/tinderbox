@@ -71,7 +71,7 @@ function Finish() {
 
   subject="finished $exit_code $(stripQuotesAndMore <<<$subject)"
   Mail "$subject" $attachment
-  rm -f /var/tmp/tb/STOP
+  rm -f /var/tmp/tb/{STOP,WAIT}
   exit $exit_code
 }
 
