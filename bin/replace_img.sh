@@ -52,10 +52,13 @@ fi
 
 source $(dirname $0)/lib.sh
 
-lockfile="/tmp/$(basename $0).lck"
+lockfile="/tmp/$(basename $0).lock"
 if [[ -s $lockfile ]]; then
-  if kill -0 $(cat $lockfile) &>/dev/null; then
+  pid=$(cat $lockfile)
+  if kill -0 $pid &>/dev/null; then
     exit 0
+  else
+    echo "ignore lock file, pid=$pid" >&2
   fi
 fi
 echo $$ >"$lockfile"
@@ -95,19 +98,21 @@ while :; do
       echo
       date
       echo " call setup"
-      tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-      sudo $(dirname $0)/setup_img.sh 2>&1 | tee $tmpfile >/dev/null
+      tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp)
+      # shellcheck disable=SC2024
+      sudo $(dirname $0)/setup_img.sh &>$tmpfile
+      rc=$?
       img=$(grep "^  setup .* for .*$" $tmpfile | awk '{ print $4 }')
       echo
       date
-      if [[ -e ~tinderbox/run/$img ]]; then
+      if [[ $rc -eq 0 ]]; then
         echo " got $img"
         $(dirname $0)/start_img.sh $img
         cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       else
         echo " failed $img  rc=$rc"
         cat $tmpfile | mail -s "NOTICE: setup failed: $img  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
-        sleep $((3 * 3600))
+        sleep $((1 * 3600))
       fi
       rm $tmpfile
     else
