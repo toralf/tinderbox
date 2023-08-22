@@ -11,6 +11,7 @@ Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
 Couldn't find .* to unmerge.
 dev-ruby/.*::gentoo failed (install phase)
+dial tcp: lookup proxy.golang.org
  does not work on clang
 gcc version .* found, expected gcc
 gem install kramdown

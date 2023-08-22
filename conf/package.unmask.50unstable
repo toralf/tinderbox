@@ -3,4 +3,4 @@
 
 # sam_
 ~sys-libs/glibc-2.38                                    # DICE: glibc-2.38
-~sys-libs/zlib-1.3                                      # DICE: zlib 7 8
+~sys-libs/zlib-1.3                                      # DICE: zlib
