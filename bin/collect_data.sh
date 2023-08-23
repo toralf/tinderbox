@@ -20,8 +20,8 @@ if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile 2>/dev/null; then
 fi
 
 # xgqt
-if sort -u ~tinderbox/img/*/var/tmp/xgqt.txt >$tmpfile 2>/dev/null; then
-  sort -nr $tmpfile >~tinderbox/img/xgqt.txt
+if grep -h -e '^[1-9][0-9]' -e '^[5-9]' ~tinderbox/img/*/var/tmp/xgqt.txt >$tmpfile 2>/dev/null; then
+  sort -nr $tmpfile | uniq | column -t >~tinderbox/img/xgqt.txt
 fi
 
 # sam_ + flow, run "reset" from time to time to clean up, otherwise run this hourly (65 == 5 min overlap)
