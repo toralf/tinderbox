@@ -681,6 +681,11 @@ function catchMisc() {
 
     local pkglog_stripped=/tmp/$(basename $pkglog).stripped
     filterPlainPext <$pkglog >$pkglog_stripped
+
+    # feed the list of xgqt
+    grep -F ' Final size of build directory' $pkglog_stripped |
+      grep -Eo '[0-9\.]+ GiB'>>/var/tmp/xgqt.txt
+
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       pkg=$(grep -m 1 -F ' * Package: ' $pkglog_stripped | awk '{ print $3 }' | sed -e 's,:.*,,')
       phase=""

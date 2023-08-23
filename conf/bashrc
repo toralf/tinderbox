@@ -46,14 +46,8 @@ tinderbox_check_eol() {
   fi
 }
 
-if [[ ${EBUILD_PHASE} == "clean" ]]; then
-  du -hs /var/tmp/portage/*/* 2>/dev/null |
-    grep "^.*G\s" |
-    sed -e 's,/var/tmp/portage/,,' >>/var/tmp/xgqt.txt
-fi
-
 if [[ ${EBUILD_PHASE} == "setup" ]]; then
-  while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 30 ]]; do
+  while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 29 ]]; do
     tinderbox_check_eol
     touch /var/tmp/tb/WAIT
     sleep 15
