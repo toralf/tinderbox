@@ -50,7 +50,9 @@ function Exit() {
   fi
 
   if [[ -d $lock_dir ]]; then
-    rm -rf -- $lock_dir
+    rm -r -- $lock_dir
+  else
+    echo " no lock dir $lock_dir found" >&2
   fi
 
   exit $rc
@@ -130,7 +132,6 @@ function Bwrap() {
     --proc /proc
     --tmpfs /run
     --ro-bind /sys /sys
-    --bind "$lock_dir" /run/lock_dir
     --ro-bind /run/tinderbox /run/tinderbox
     --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
     --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
