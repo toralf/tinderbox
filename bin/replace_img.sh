@@ -64,7 +64,7 @@ fi
 echo $$ >"$lockfile"
 trap Finish INT QUIT TERM EXIT
 
-desired_count=${1:-13}
+desired_count=${1:-12}
 while :; do
   while read -r oldimg; do
     if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && ! __is_running $oldimg; then
