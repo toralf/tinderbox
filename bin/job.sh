@@ -489,9 +489,9 @@ function finishTitle() {
 
   # prefix title
   if [[ $phase == "test" ]]; then
-    sed -i -e "s,^,${pkg} fails test - ," $issuedir/title
+    sed -i -e "s,^,$pkg fails test - ," $issuedir/title
   else
-    sed -i -e "s,^,${pkg} - ," $issuedir/title
+    sed -i -e "s,^,$pkg - ," $issuedir/title
   fi
   sed -i -e 's,\s\s*, ,g' $issuedir/title
   truncate -s "<130" $issuedir/title # b.g.o. limits "Summary" length
@@ -680,9 +680,8 @@ function catchMisc() {
     fi
 
     local pkglog_stripped=/tmp/$(basename $pkglog).stripped
+    pkg=$(basename $pkglog | cut -f 1-2 -d ':' -s | tr ':' '/')
     filterPlainPext <$pkglog >$pkglog_stripped
-
-    pkg=$(grep -m 1 -F ' * Package: ' $pkglog_stripped | awk '{ print $3 }' | sed -e 's,:.*,,')
 
     # feed the list of xgqt
     grep -F ' Final size of build directory' $pkglog_stripped |
@@ -698,7 +697,7 @@ function catchMisc() {
         while read -r line; do
           createIssueDir
           echo "$line" >$issuedir/title
-          grep -m 1 -F -e "$line" $pkglog_stripped >$issuedir/issue
+          grep -m 1 -A 7 -F -e "$line" $pkglog_stripped >$issuedir/issue
           cp $pkglog $issuedir/files
           cp $pkglog_stripped $issuedir
           finishTitle
