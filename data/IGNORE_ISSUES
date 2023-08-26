@@ -48,6 +48,7 @@ requires at least .* kernel version
 Select exactly one database type out of these:
 some Java tools are not available on some VMs on some architectures
 Sorry, your kernel must be .* or newer!
+systemd-cron no longer supports split-usr
 The Objective-C compiler does not work o
 The present kernel disabled CONFIG_MODULES.
 The version of your compiler is not supported at this time

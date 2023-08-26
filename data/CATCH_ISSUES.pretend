@@ -11,3 +11,4 @@ Space constraints set in the ebuild were not met
  \*   .* does not work on clang
  \* Building darktable with GCC requires Graphite support.
  \* Please switch to a newer JDK
+ \* systemd-cron no longer supports split-usr
