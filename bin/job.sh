@@ -832,26 +832,31 @@ function WorkOnTask() {
   # @set
   if [[ $task =~ ^@ ]]; then
     local opts=""
-    if [[ $task == "@world" ]]; then
+    if [[ $task =~ "@world" ]]; then
       opts+=" --update --changed-use --newuse"
     fi
 
+    local histfile=/var/tmp/tb/$(cut -f 1 -d ' ' <<<$task).history
     if RunAndCheck "emerge $task $opts"; then
-      echo "$(date) ok" >>/var/tmp/tb/$task.history
-      if [[ $task == "@world" ]]; then
+      echo "$(date) ok" >>$histfile
+      if [[ $task =~ "@world" ]]; then
         add2backlog "%emerge --depclean --verbose=n"
         if tail -n 1 /var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " NOT ok $"; then
           add2backlog "@preserved-rebuild"
         fi
       fi
     else
-      echo "$(date) NOT ok $pkg" >>/var/tmp/tb/$task.history
+      echo "$(date) NOT ok $pkg" >>$histfile
       if [[ -n $pkg ]]; then
         if [[ $try_again -eq 0 ]]; then
           add2backlog "$task"
         fi
       else
-        ReachedEOL "$task is broken" $tasklog
+        if [[ ! $task =~ "--backtrack" ]] && grep -q -F ' --backtrack=30' $tasklog; then
+          add2backlog "$task --backtrack=100"
+        else
+          ReachedEOL "$task is broken" $tasklog
+        fi
       fi
     fi
 
