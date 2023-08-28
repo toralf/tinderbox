@@ -933,12 +933,12 @@ function syncRepo() {
   fi
 
   if ! grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
-    # retest changed ebuilds with a timeshift of 1h to have download mirrors being synced before
-    # ignore stderr due to "warning: log for 'stable' only goes back to"
+    # retest changed ebuilds with a timeshift of 2 hours to have download mirrors being in sync
+    # ignore stderr here due to "warning: log for 'stable' only goes back to"
     git diff \
       --diff-filter="ACM" \
       --name-only \
-      "@{ $((EPOCHSECONDS - last_sync + 3600)) second ago }..@{ 1 hour ago }" 2>/dev/null |
+      "@{ $((EPOCHSECONDS - last_sync + 2*3600)) second ago }..@{ 2 hour ago }" 2>/dev/null |
       grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |
       cut -f 1-2 -d '/' -s |
       grep -v -f /mnt/tb/data/IGNORE_PACKAGES |
