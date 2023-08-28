@@ -20,8 +20,25 @@ if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile 2>/dev/null; then
 fi
 
 # xgqt
-if grep -h -e '^[1-9][0-9]' -e '^[5-9]' ~tinderbox/img/*/var/tmp/xgqt.txt >$tmpfile 2>/dev/null; then
-  sort -nr $tmpfile | uniq | column -t >~tinderbox/img/xgqt.txt
+if find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + >$tmpfile 2>/dev/null; then
+  perl -wane '
+    chomp;
+    next if ($#F != 2);
+    my $u = $F[1];                 # unit
+    next unless ($u =~ m/GiB/);
+    my $s = $F[0];                 # size
+    my $p = $F[2];                 # package
+    $h{$p}->{$s} = 1 if ($s >= 5); # a hash is always uniq
+
+    END {
+      foreach my $p (sort keys %h) {
+        printf "%-50s ", $p;
+        foreach my $s (sort { $b <=> $a } keys %{$h{$p}}) {
+          printf "%7.1f", $s;
+        }
+        print "\n";
+      }
+    }' <$tmpfile >~tinderbox/img/xgqt.txt
 fi
 
 # sam_ + flow, run "reset" from time to time to clean up, otherwise run this hourly (65 == 5 min overlap)
