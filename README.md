@@ -5,11 +5,9 @@
 ## Goal
 
 The goal is to detect build issues/conflicts of Gentoo Linux packages.
-
-For that a dozen sandbox'ed Gentoo images are running in parallel.
-
+For that about a dozen sandbox'ed Gentoo images are running in parallel.
 Each image is setup from a recent _stage3_ tarball as an arbitrary combination of _~amd64_ + _profile_ + _USE flag_ set.
-Within each image all Gentoo packages are scheduled in a randomized order to be emerged.
+Within each image all Gentoo packages are in a randomized order being scheduled for an _emerge_"_.
 
 ## Usage
 
@@ -21,10 +19,10 @@ whatsup.sh -dcp
 whatsup.sh -otl
 ```
 
-The file _~tinderbox/tb/data/ALREADY_CAUGHT_ holds reported findings.
+The file _~tinderbox/tb/findings/ALREADY_CAUGHT_ holds reported findings.
 A new finding is send via email to the user specified by the variable _MAILTO_.
 A finding can be filed using _bgo.sh_.
-Before the Gentoo bugzilla should be searched by _check_bgo.sh_ for duplicates.
+But before the Gentoo bug tracker has to be searched for duplicates using _check_bgo.sh_.
 
 Login interactively into an image with
 
