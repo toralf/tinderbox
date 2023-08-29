@@ -12,6 +12,12 @@
   "__elements": {},
   "__requires": [
     {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
@@ -84,6 +90,8 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": 25000,
+            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -186,7 +194,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 70,
+            "axisSoftMax": 81,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -360,7 +368,7 @@
               },
               {
                 "color": "#EAB839",
-                "value": 28
+                "value": 29
               },
               {
                 "color": "red",
@@ -446,6 +454,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -457,6 +466,9 @@
               "viz": false
             },
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -486,7 +498,7 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "rothz"
         },
         "overrides": []
       },
@@ -496,7 +508,7 @@
         "x": 12,
         "y": 6
       },
-      "id": 15,
+      "id": 17,
       "options": {
         "legend": {
           "calcs": [],
@@ -517,25 +529,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum(rate(node_disk_written_bytes_total{device=~\"nvme0n1|nvme1n1\"}[$__rate_interval]))",
-          "legendFormat": "1 min",
+          "expr": "max by(cpu) (node_cpu_scaling_frequency_hertz)",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum(rate(node_disk_written_bytes_total{device=~\"nvme0n1|nvme1n1\"}[24h]))",
-          "hide": false,
-          "legendFormat": "1 d",
-          "range": true,
-          "refId": "C"
         }
       ],
-      "title": "Disk ",
+      "title": "CPU freq",
       "type": "timeseries"
     },
     {
@@ -553,7 +553,6 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 12,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -634,7 +633,7 @@
           "refId": "A"
         }
       ],
-      "title": "bwrap'ed images",
+      "title": "active images",
       "type": "timeseries"
     },
     {
@@ -675,7 +674,7 @@
               "mode": "none"
             },
             "thresholdsStyle": {
-              "mode": "dashed"
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -687,16 +686,12 @@
                 "value": null
               },
               {
-                "color": "#EAB839",
-                "value": 89
-              },
-              {
                 "color": "red",
-                "value": 97
+                "value": 80
               }
             ]
           },
-          "unit": "percent"
+          "unit": "binBps"
         },
         "overrides": []
       },
@@ -706,7 +701,7 @@
         "x": 12,
         "y": 12
       },
-      "id": 16,
+      "id": 15,
       "options": {
         "legend": {
           "calcs": [],
@@ -727,13 +722,26 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "100 - node_filesystem_avail_bytes{mountpoint=\"/mnt/data\"} / 7131217141760 * 100",
-          "legendFormat": "{{mountpoint}}",
+          "expr": "sum(rate(node_disk_written_bytes_total{device=~\"nvme0n1|nvme1n1\"}[$__rate_interval]))",
+          "hide": true,
+          "legendFormat": "1 min",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "sum(rate(node_disk_written_bytes_total{device=~\"nvme0n1|nvme1n1\"}[24h]))",
+          "hide": false,
+          "legendFormat": "1 d",
+          "range": true,
+          "refId": "C"
         }
       ],
-      "title": "used space",
+      "title": "Write ",
       "type": "timeseries"
     },
     {
@@ -751,6 +759,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": 250,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -846,7 +855,6 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -858,9 +866,6 @@
               "viz": false
             },
             "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -873,7 +878,7 @@
               "mode": "none"
             },
             "thresholdsStyle": {
-              "mode": "off"
+              "mode": "dashed"
             }
           },
           "mappings": [],
@@ -885,12 +890,16 @@
                 "value": null
               },
               {
+                "color": "#EAB839",
+                "value": 89
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 97
               }
             ]
           },
-          "unit": "rothz"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -900,7 +909,7 @@
         "x": 12,
         "y": 18
       },
-      "id": 17,
+      "id": 16,
       "options": {
         "legend": {
           "calcs": [],
@@ -921,14 +930,116 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "max by(cpu) (node_cpu_scaling_frequency_hertz)",
-          "legendFormat": "__auto",
+          "expr": "100 - node_filesystem_avail_bytes{mountpoint=\"/mnt/data\"} / 7131217141760 * 100",
+          "legendFormat": "{{mountpoint}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "CPU freq",
+      "title": "used space",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 14,
+            "axisSoftMin": 0,
+            "axisWidth": 80,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 18,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "width": 80
+        },
+        "orientation": "vertical",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "sort(tinderbox_age_img / 86400)",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{img}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Age in days",
+      "type": "barchart"
     }
   ],
   "refresh": "5m",
@@ -947,6 +1058,6 @@
   "timezone": "utc",
   "title": "Tinderbox",
   "uid": "tm9JS5B4z",
-  "version": 142,
+  "version": 153,
   "weekStart": ""
 }
