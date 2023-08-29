@@ -7,7 +7,7 @@
 The goal is to detect build issues/conflicts of Gentoo Linux packages.
 For that about a dozen sandbox'ed Gentoo images are running in parallel.
 Each image is setup from a recent _stage3_ tarball as an arbitrary combination of _~amd64_ + _profile_ + _USE flag_ set.
-Within each image all Gentoo packages are in a randomized order being scheduled for an _emerge_"_.
+Within each image all Gentoo packages are in a randomized order being scheduled for an _emerge_.
 
 ## Usage
 
