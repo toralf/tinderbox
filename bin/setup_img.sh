@@ -56,12 +56,10 @@ function InitOptions() {
     fi
   fi
 
-  if zgrep "^CONFIG_IA32_EMULATION=y" /proc/config.gz; then
-    if [[ ! $profile =~ "/no-multilib" ]]; then
-      if dice 1 80; then
-        # this sets "*/* ABI_X86: 32 64"
-        abi3264="y"
-      fi
+  if [[ ! $profile =~ "/no-multilib" ]]; then
+    if dice 1 80; then
+      # this sets "*/* ABI_X86: 32 64"
+      abi3264="y"
     fi
   fi
 
@@ -70,10 +68,8 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
-  if zgrep "^CONFIG_COMPAT_32BIT_TIME=y" /proc/config.gz; then
-    if dice 1 80; then
-      testfeature="y"
-    fi
+  if dice 1 80; then
+    testfeature="y"
   fi
 }
 
@@ -620,16 +616,33 @@ date
 echo "#setup pfl" | tee /var/tmp/tb/task
 USE="-network-cron" emerge -u app-portage/pfl
 
+# sam_
+if [[ $(($RANDOM % 2)) -eq 0 ]]; then
+  date
+  echo "#setup slibtool" | tee /var/tmp/tb/task
+  emerge -u sys-devel/slibtool
+  cat << EOF2 >> /etc/portage/make.conf
+
+LIBTOOL="rdlibtool"
+MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
+
+EOF2
+fi
+
 date
-echo "#setup profile, make.conf, backlog" | tee /var/tmp/tb/task
+echo "#setup profile" | tee /var/tmp/tb/task
 eselect profile set --force default/linux/amd64/$profile
 
 if [[ $testfeature == "y" ]]; then
   sed -i -e 's,FEATURES=",FEATURES="test ,' /etc/portage/make.conf
 fi
 
+date
+echo "#setup backlog" | tee /var/tmp/tb/task
 # sort -u is needed if a package is in several repositories
 qsearch --all --nocolor --name-only --quiet | grep -v -F -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
+
+sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' /etc/portage/make.conf
 
 date
 echo "#setup done" | tee /var/tmp/tb/task
@@ -867,7 +880,7 @@ function Finalize() {
   echo -e "\n$(date) ${FUNCNAME[0]} ..."
   cd $tbhome/run
   ln -s ../img/$name
-  wc -l -w ../img/$name/etc/portage/package.use/2*
+  wc -l -w ../img/$name/etc/portage/package.use/2* || true # maybe not needed
   truncate -s 0 $name/var/tmp/tb/task
 }
 
@@ -919,6 +932,5 @@ CompileMiscFiles
 CreateBacklogs
 CreateSetupScript
 RunSetupScript
-sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ./etc/portage/make.conf
 CompileUseFlagFiles
 Finalize
