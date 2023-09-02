@@ -64,7 +64,7 @@ fi
 echo $$ >"$lockfile"
 trap Finish INT QUIT TERM EXIT
 
-desired_count=${1:-12}
+desired_count=${1:-13}
 while :; do
   while read -r oldimg; do
     if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && ! __is_running $oldimg; then
@@ -99,18 +99,21 @@ while :; do
     echo " call setup"
     tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp)
     # shellcheck disable=SC2024
-    sudo $(dirname $0)/setup_img.sh &>$tmpfile
-    rc=$?
-    img=$(grep "^  setup .* for .*$" $tmpfile | awk '{ print $4 }')
-    echo
-    date
-    if [[ $rc -eq 0 ]]; then
-      echo " got $img"
-      $(dirname $0)/start_img.sh $img
-      cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+    if sudo $(dirname $0)/setup_img.sh &>$tmpfile; then
+      img=$(grep "^  setup done for .*$" $tmpfile | awk '{ print $4 }')
+      echo
+      date
+      if [[ -n $img ]]; then
+        echo " got $img"
+        $(dirname $0)/start_img.sh $img
+        cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+      else
+        echo " got NO image name"
+        cat $tmpfile | mail -s "NOTICE: no image name" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+      fi
     else
-      echo " failed $img  rc=$rc"
-      cat $tmpfile | mail -s "NOTICE: setup failed: $img  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+      echo " failed rc=$rc"
+      cat $tmpfile | mail -s "NOTICE: setup failed  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       sleep $((1 * 3600))
     fi
     rm $tmpfile
