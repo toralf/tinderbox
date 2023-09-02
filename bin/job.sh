@@ -613,6 +613,10 @@ function SwitchGCC() {
     gcc-config --nocolor $highest
     source_profile
     add2backlog "sys-devel/libtool"
+    # sam_
+    if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
+      add2backlog "sys-devel/slibtool"
+    fi
     add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f 1 -d '.' <<<$current)"
   fi
 }
@@ -684,9 +688,11 @@ function catchMisc() {
     filterPlainPext <$pkglog >$pkglog_stripped
 
     # feed the list of xgqt
-    grep -F ' Final size of build directory' $pkglog_stripped |
-      grep -Eo '[0-9\.]+ GiB' |
-      sed -e "s,$, $pkg," >>/var/tmp/xgqt.txt
+    read -r size_build size_install <<<$(grep -A 1 -e ' Final size of build directory: .* GiB' $pkglog_stripped | grep -Eo '[0-9\.]+ KiB' | cut -f 1 -d ' ' -s | xargs)
+    if [[ -n $size_build && -n $size_install ]]; then
+      size_sum=$(echo "scale=1; ($size_build + $size_install) / 1024.0 / 1024.0" | bc)
+      echo "$size_sum GiB $pkg" >>/var/tmp/xgqt.txt
+    fi
 
     if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
       phase=""
