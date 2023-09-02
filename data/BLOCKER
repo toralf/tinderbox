@@ -5,10 +5,6 @@
 685160
 ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 
-# (openmpi-4) - [TRACKER] sys-cluster/openmpi - packages using deprecated MPI symbols (removed in openmpi-4)
-831358
-MPI_
-
 # [TRACKER] Packages linking -lcurses (need sys-libs/ncurses compatibility symlink)
 837812
 ld: cannot find -lcurses
@@ -17,17 +13,9 @@ ld: cannot find -lcurses
 796875
 Need at least JDK 9 to compile
 
-# (openssl-3.0) - [TRACKER] packages failing with =dev-libs/openssl-3.0.0*
-797325
-EVP_|RUST_VERSION_OPENSSL_|FIPS_mode|RSA_SSLV23|get_dh|DSA|FIPS|ERR_GET_FUNC|CRYPTO_MEM_CHECK|openssl/mac.h
-
 # [Tracker] Packages which will fail with -std=c2x
 880545
  prototype| not supported in C2|C2X|C2x
-
-# [Tracker] Build failures with sys-kernel/linux-headers-6.0
-876331
- flexible array member
 
 # (tar-without-file) - [TRACKER] Packages calling tar without -f
 903921
@@ -37,14 +25,6 @@ BAD_TAR_INVOCATION
 903611
 stat64|lstat64|off64_t|fstat64|pwrite64|open64|ftruncate64|lseek64|pread64|readdir64
 
-# up/down
-794235
-dev-util/ragel-6.10
-
-# [Tracker] dev-lang/perl-5.38* related issues
-908724
-perl
-
 # (cython3-tracker) - [TRACKER] Breakage with >=dev-python/cython-3
 897934
 Cannot assign type void|cython|Error compiling Cython file:|Cython.Compiler.Errors.CompileError:
@@ -52,3 +32,7 @@ Cannot assign type void|cython|Error compiling Cython file:|Cython.Compiler.Erro
 # [TRACKER] sys-libs/glibc-2.38 related issues
 911592
 undefined reference to .*memset_chk|conflicting types for |expected declaration specifiers or
+
+#  (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
+765709
+rdlibtool
