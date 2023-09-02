@@ -35,6 +35,10 @@ function create() {
   if [[ $name =~ "/clang" ]]; then
     title=$(sed -e 's, - , - [clang] ,' <<<$title)
   fi
+  # sam_
+  if grep -q '^LIBTOOL="rdlibtool"' ../../../../../etc/portage/make.conf; then
+    title=$(sed -e 's, - , - [slibtool] ,' <<<$title)
+  fi
   bugz post \
     --product "Gentoo Linux" \
     --component "Current packages" \
