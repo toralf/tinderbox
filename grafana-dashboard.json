@@ -332,6 +332,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMax": 32,
+            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -1010,9 +1011,7 @@
         "orientation": "vertical",
         "showValue": "auto",
         "stacking": "none",
-        "text": {
-          "valueSize": 12
-        },
+        "text": {},
         "tooltip": {
           "mode": "single",
           "sort": "none"
@@ -1046,7 +1045,9 @@
   "revision": 1,
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "tinderbox"
+  ],
   "templating": {
     "list": []
   },
@@ -1058,6 +1059,6 @@
   "timezone": "utc",
   "title": "Tinderbox",
   "uid": "tm9JS5B4z",
-  "version": 153,
+  "version": 159,
   "weekStart": ""
 }
