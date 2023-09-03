@@ -32,7 +32,7 @@ function append() {
 
 function create() {
   local title=$(cat ./title)
-  if [[ $name =~ "/clang" ]]; then
+  if [[ $name =~ "_clang" ]]; then
     title=$(sed -e 's, - , - [clang] ,' <<<$title)
   fi
   # sam_
