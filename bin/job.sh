@@ -858,7 +858,7 @@ function WorkOnTask() {
           add2backlog "$task"
         fi
       else
-        if [[ ! $task =~ "--backtrack" ]] && grep -q -F ' --backtrack=30' $tasklog; then
+        if [[ ! $task =~ "--backtrack" ]] && grep -q -F -e ' --backtrack=30' -e 'backtracking has terminated early' $tasklog; then
           add2backlog "$task --backtrack=100"
         else
           ReachedEOL "$task is broken" $tasklog
@@ -944,7 +944,7 @@ function syncRepo() {
     git diff \
       --diff-filter="ACM" \
       --name-only \
-      "@{ $((EPOCHSECONDS - last_sync + 2*3600)) second ago }..@{ 2 hour ago }" 2>/dev/null |
+      "@{ $((EPOCHSECONDS - last_sync + 2 * 3600)) second ago }..@{ 2 hour ago }" 2>/dev/null |
       grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |
       cut -f 1-2 -d '/' -s |
       grep -v -f /mnt/tb/data/IGNORE_PACKAGES |

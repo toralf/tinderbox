@@ -45,13 +45,13 @@ function check_history() {
 #   7020   56   2  6.7   12988   68    0  . lc  ~/run/17.1_desktop-j5-20230527-234505
 #   4612   36   2  5.0   15954  116    0  . lc  ~/run/17.1_desktop_gnome-j5-20230529-171537
 function Overall() {
-  local locked=$(ls -d /run/tinderbox/*.lock 2>/dev/null | wc -l)
+  local locked=$(wc -l < <(ls -d /run/tinderbox/*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
   echo "compl fail new  day backlog .upd .1st status $locked#$all locked  +++  $(date)"
 
   for i in $images; do
     local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0") # the printf rounds to %.1f
-    local bgo=$(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
+    local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
 
     local compl=0
     if ! compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then

@@ -23,7 +23,7 @@ for i in ${@:-$(ls ~tinderbox/run)}; do
     continue
   fi
 
-  if [[ $(cat $mnt/var/tmp/tb/backlog{,,1st,.upd} $mnt/var/tmp/tb/task 2>/dev/null | wc -l) -eq 0 ]]; then
+  if [[ $(wc -l < <(cat $mnt/var/tmp/tb/backlog{,,1st,.upd} $mnt/var/tmp/tb/task 2>/dev/null)) -eq 0 ]]; then
     echo " all backlogs are empty: $mnt" >&2
     continue
   fi

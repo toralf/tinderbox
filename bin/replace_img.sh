@@ -37,7 +37,7 @@ function FreeSlotAvailable() {
   local r=$(ls /run/tinderbox | wc -l)
   local s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
 
-  [[ $((r + s)) -lt $desired_count && $(ImagesInRunShuffled | wc -l) -lt $desired_count ]]
+  [[ $((r + s)) -lt $desired_count && $(wc -l < <(ImagesInRunShuffled)) -lt $desired_count ]]
 }
 
 #######################################################################
