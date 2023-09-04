@@ -11,11 +11,11 @@ function olderThan() {
 
 # value of available space in percent is often lower than 100-"percent value of df"
 function pruneNeeded() {
-  local maxperc=${1:-89}
+  local maxperc=${1:-79}
 
   if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
-    local mb=$((size * (100 - maxperc) / 100)) # MB
-    [[ $avail -lt $mb ]]
+    local wanted=$((size * (100 - maxperc) / 100)) # size is in MiB
+    [[ $avail -lt $wanted ]]
   else
     return 1
   fi
