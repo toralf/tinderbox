@@ -54,7 +54,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# stage3 are relased weekly, keep the ones from the week before too
+# stage3 are relased weekly, keep those from the week before too
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
   find ~tinderbox/distfiles/ -maxdepth 1 -name 'stage3-amd64-*.tar.xz' -atime +15 |
@@ -67,18 +67,19 @@ if [[ -s $latest ]]; then
     done
 fi
 
-# mtime might be evem older than the host age
+# mtime is allowed to be even older than the host itself
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
+# kick off if less than X packages were emerged
 while read -r img; do
   if olderThan $img 1; then
-    if [[ ! -s $img/var/log/emerge.log || $(qlop -cmqC -f $img/var/log/emerge.log | grep "^total" | cut -f 4 -d ' ') -lt 50 ]]; then
+    if [[ ! -s $img/var/log/emerge.log || $(wc -l < <(qlop -mqC -f $img/var/log/emerge.log)) -lt 50 ]]; then
       pruneIt $img "broken setup"
     fi
   fi
 done < <(list_images_by_age "img")
 
-# for higher coverage keep images for a while even if no bug was reported
+# for a precise coverage value keep images even if no bug was reported
 
 while read -r img && pruneNeeded; do
   if olderThan $img 7; then
@@ -87,6 +88,7 @@ while read -r img && pruneNeeded; do
     fi
   fi
 done < <(list_images_by_age "img")
+
 while read -r img && pruneNeeded; do
   if olderThan $img 14; then
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
