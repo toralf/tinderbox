@@ -587,7 +587,7 @@ function WorkAtIssue() {
     return
   fi
 
-  if [[ $try_again -ne 0 ]]; then
+  if [[ $try_again -eq 1 ]]; then
     add2backlog "$task"
   fi
 
@@ -859,7 +859,7 @@ function WorkOnTask() {
         fi
       else
         if [[ ! $task =~ "--backtrack" ]] && grep -q -F -e ' --backtrack=30' -e 'backtracking has terminated early' $tasklog; then
-          add2backlog "$task --backtrack=100"
+          add2backlog "$task --backtrack=50"
         else
           ReachedEOL "$task is broken" $tasklog
         fi
