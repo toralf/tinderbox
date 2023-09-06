@@ -609,8 +609,8 @@ if [[ ! -e /usr/src/linux ]]; then
 fi
 
 date
-echo "#setup xz, q, bugz" | tee /var/tmp/tb/task
-emerge -u app-arch/xz-utils app-portage/portage-utils www-client/pybugz
+echo "#setup tools" | tee /var/tmp/tb/task
+emerge -u app-arch/xz-utils app-portage/portage-utils www-client/pybugz sys-devel/bc
 
 date
 echo "#setup pfl" | tee /var/tmp/tb/task
