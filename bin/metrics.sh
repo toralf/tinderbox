@@ -46,6 +46,10 @@ function printMetrics() {
   echo "$var{state=\"running\"} $r"
   echo "$var{state=\"stopped\"} $s"
   echo "$var{state=\"waiting\"} $w"
+
+  var="tinderbox_cpu_frequency"
+  echo -e "# HELP Current scaled cpu thread frequency in hertz.\n# TYPE $var gauge"
+  grep "MHz" /proc/cpuinfo | awk '{ print NR-1, $4 }' | sed -e "s,^,$var{cpu=\"," -e 's, ,"} ,'
 }
 
 #######################################################################
