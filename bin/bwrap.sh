@@ -8,7 +8,6 @@ function CgroupCreate() {
   local name=/local/tb/${1?}
   local pid=${2?}
 
-  CgroupDelete $name || true
   if ! cgcreate -g cpu,memory:$name; then
     return 1
   fi
@@ -32,13 +31,6 @@ function CgroupCreate() {
 
   # memory+swap, add another safety limit, host system has 256 GB swap at all
   cgset -r memory.memsw.limit_in_bytes=$((mem + 16))G $name
-}
-
-function CgroupDelete() {
-  local name=/local/tb/$1
-
-  cgdelete memory:$name
-  cgdelete cpu:$name
 }
 
 # no "echo" here
@@ -165,6 +157,8 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+export CGROUP_LOGLEVEL=ERROR
+
 entrypoint=""
 mnt=""
 wrapper="Bwrap"
@@ -216,7 +210,7 @@ if [[ ! -d /run/tinderbox/ ]]; then
   mkdir /run/tinderbox/
 fi
 
-# this is the 1st barrier (the 2nd is cgroup)
+# this is the 1st barrier (the 2nd is that a cgroup can be created)
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
 if ! mkdir "$lock_dir"; then
   echo " lock dir cannot be created: $lock_dir" >&2
@@ -224,12 +218,7 @@ if ! mkdir "$lock_dir"; then
 fi
 
 trap Exit INT QUIT TERM EXIT
-
-if ! CgroupCreate ${mnt##*/} $$; then
-  CgroupDelete ${mnt##*/}
-  exit 1
-fi
-
+CgroupCreate ${mnt##*/} $$
 if [[ -n $entrypoint ]]; then
   rm -f "$mnt/root/entrypoint"
   cp "$entrypoint" "$mnt/root/entrypoint"

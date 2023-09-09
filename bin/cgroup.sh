@@ -13,6 +13,8 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+export CGROUP_LOGLEVEL=ERROR
+
 # must exist before any cgroup entry is created
 echo 1 >/sys/fs/cgroup/memory/memory.use_hierarchy
 
@@ -24,9 +26,12 @@ cat <<EOF >$agent
 #!/bin/bash
 
 set +e
+export CGROUP_LOGLEVEL=ERROR
 
 cgdelete memory:/\$1
 cgdelete cpu:/\$1
+
+exit 0
 
 EOF
 
@@ -41,7 +46,7 @@ name=/local
 cgcreate -g cpu,memory:$name
 
 # reserve resources for the host system
-vcpu=$((100000 * ($(nproc) - 5)))
+vcpu=$((100000 * ($(nproc) - 4)))
 ram=$((128 - 24))G
 vram=$((128 + 256 - 64))G # swap is 256 GB
 cgset -r cpu.cfs_quota_us=$vcpu $name
