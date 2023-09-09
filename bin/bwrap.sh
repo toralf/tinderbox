@@ -5,9 +5,10 @@
 # bubblewrap/chroot into an image to run a script -or- to work interactively in it
 
 function CgroupCreate() {
-  local name=local/$1
-  local pid=$2
+  local name=/local/tb/${1?}
+  local pid=${2?}
 
+  CgroupDelete $name || true
   if ! cgcreate -g cpu,memory:$name; then
     return 1
   fi
@@ -34,9 +35,10 @@ function CgroupCreate() {
 }
 
 function CgroupDelete() {
-  local name=local/$1
+  local name=/local/tb/$1
 
-  cgdelete -g cpu,memory:$name
+  cgdelete memory:$name
+  cgdelete cpu:$name
 }
 
 # no "echo" here

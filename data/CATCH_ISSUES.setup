@@ -48,3 +48,4 @@ You need package
  \*   kernel sources are required to build kernel modules
  \*   No suitable POSTGRES_TARGETS enabled
  \* Please verify that this is the intended kernel version
+ \*   No LLVM slot <=

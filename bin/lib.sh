@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 function __is_cgrouped() {
-  [[ -d /sys/fs/cgroup/cpu/local/$(basename $1)/ ]]
+  [[ -d /sys/fs/cgroup/cpu/local/tb/$(basename $1)/ ]]
 }
 
 function __is_locked() {
@@ -22,7 +22,7 @@ function list_active_images() {
   (
     ls ~tinderbox/run/ | sort
     ls /run/tinderbox/ | sed -e 's,.lock,,' | sort
-    ls -d /sys/fs/cgroup/cpu/local/??.* | sort
+    ls -d /sys/fs/cgroup/cpu/local/tb/??.* | sort
   ) 2>/dev/null |
     xargs -r -n 1 basename |
     # sort -u would mix ~/img and ~/run, uniq would not detect all dups, therefore use awk

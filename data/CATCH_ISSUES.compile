@@ -367,3 +367,4 @@ mv: cannot move
  fatal error:
 ar:.*: No such file or directory
 Reason:
+gtkdoc-mktmpl: command not found

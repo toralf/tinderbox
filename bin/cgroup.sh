@@ -21,9 +21,12 @@ echo 1 >/sys/fs/cgroup/memory/memory.use_hierarchy
 agent="/tmp/cgroup-release-agent.sh"
 rm -f $agent
 cat <<EOF >$agent
-#!/bin/sh
+#!/bin/bash
 
-cgdelete -g cpu,memory:\$1
+set +e
+
+cgdelete memory:/\$1
+cgdelete cpu:/\$1
 
 EOF
 
@@ -38,7 +41,7 @@ name=/local
 cgcreate -g cpu,memory:$name
 
 # reserve resources for the host system
-vcpu=$((100000 * ($(nproc) - 4)))
+vcpu=$((100000 * ($(nproc) - 5)))
 ram=$((128 - 24))G
 vram=$((128 + 256 - 64))G # swap is 256 GB
 cgset -r cpu.cfs_quota_us=$vcpu $name

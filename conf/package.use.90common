@@ -60,6 +60,9 @@ net-misc/openssh-contrib            -hpn
 app-portage/pfl                     -network-cron       # DICE: ansifilter 9 10
 app-text/ansifilter                 -gui                # DICE: ansifilter 9 10
 
+# needed by us
+sys-devel/bc                        readline -libedit -static
+
 # common setup blocker
 dev-libs/libpcre                    -libedit            # DICE: pcre 4 5
 dev-libs/libpcre2                   -libedit            # DICE: pcre 4 5
