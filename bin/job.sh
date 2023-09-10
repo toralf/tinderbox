@@ -1014,7 +1014,7 @@ export TINDERBOX_IMAGE_NAME=$name
 
 # non-empty if Finish() was called by an internal error -or- emerge bashrc scheduled a sleep
 if [[ -s $taskfile ]]; then
-  add2backlog "$(cat $taskfile)"     # re-schedule $task
+  add2backlog "$(cat $taskfile)" # re-schedule $task
   if [[ -f /var/tmp/tb/WAIT ]]; then
     rm /var/tmp/tb/WAIT
   else
