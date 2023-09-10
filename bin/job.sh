@@ -71,7 +71,7 @@ function Finish() {
 
   subject="finished $exit_code $(stripQuotesAndMore <<<$subject)"
   Mail "$subject" $attachment
-  rm -f /var/tmp/tb/{STOP,WAIT}
+  rm -f /var/tmp/tb/STOP
   exit $exit_code
 }
 
@@ -1012,10 +1012,14 @@ export XZ_OPT="-9 -T$jobs"
 # this will appear in the emerge info output
 export TINDERBOX_IMAGE_NAME=$name
 
-# non-empty if Finish() was called by an internal error
+# non-empty if Finish() was called by an internal error -or- emerge bashrc scheduled a sleep
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"     # re-schedule $task
-  add2backlog "%emaint merges --fix" # fix any unclean shutdown
+  if [[ -f /var/tmp/tb/WAIT ]]; then
+    rm /var/tmp/tb/WAIT
+  else
+    add2backlog "%emaint merges --fix" # fix any unclean shutdown before
+  fi
 fi
 
 echo "#init" >$taskfile
