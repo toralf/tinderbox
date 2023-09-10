@@ -53,6 +53,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
     sleep 15
     rm -f /var/tmp/tb/WAIT
   done
+  rm -f /var/tmp/tb/WAIT # remove a left over from previous run
 fi
 
 tinderbox_check_eol
