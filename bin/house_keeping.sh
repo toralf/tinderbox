@@ -9,11 +9,11 @@ function olderThan() {
   [[ $(((EPOCHSECONDS - $(getStartTime $img)) / 86400)) -gt $days ]]
 }
 
-# value of available space in percent is often lower than 100-"percent value of df"
 function pruneNeeded() {
-  local maxperc=${1:-74}
+  local maxperc=${1:-75} # max used space in %
 
   if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
+    # value of available space in percent is often lower than 100-"percent value of df"
     local wanted=$((size * (100 - maxperc) / 100)) # size is in MiB
     [[ $avail -lt $wanted ]]
   else
