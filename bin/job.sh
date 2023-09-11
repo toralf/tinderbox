@@ -246,6 +246,8 @@ function CollectIssueFiles() {
   if grep -q "^$pkgname$" /mnt/tb/data/KEEP_BUILD_ARTEFACTS; then
     find $workdir/.. -ls 2>&1 | xz >$issuedir/files/var-tmp-portage.txt.xz
     $tar --warning=none -C /var/tmp/portage/ -cJpf $issuedir/files/var-tmp-portage.tar.xz .
+    Mail "INFO: keep artefacts in $issuedir" $tasklog_stripped
+    echo "$issuedir" >>/var/tmp/tb/KEEP
   fi
 }
 
