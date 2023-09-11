@@ -54,6 +54,10 @@ fi
 
 source $(dirname $0)/lib.sh
 
+if ! pruneNeeded; then
+  exit 0
+fi
+
 # stage3 are relased weekly, keep those from the week before too
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
@@ -67,7 +71,7 @@ if [[ -s $latest ]]; then
     done
 fi
 
-# mtime is allowed to be even older than the host itself
+# mtime is allowed to be even older than the host itself, so use atime
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
 # kick off if less than X packages were emerged
@@ -82,7 +86,7 @@ done < <(list_images_by_age "img")
 # for a precise coverage value keep images even if no bug was reported
 
 while read -r img && pruneNeeded; do
-  if olderThan $img 7; then
+  if olderThan $img 3; then
     if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
       pruneIt $img "no issue"
     fi
@@ -90,7 +94,7 @@ while read -r img && pruneNeeded; do
 done < <(list_images_by_age "img")
 
 while read -r img && pruneNeeded; do
-  if olderThan $img 14; then
+  if olderThan $img 7; then
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneIt $img "no bug reported"
     fi
@@ -98,7 +102,7 @@ while read -r img && pruneNeeded; do
 done < <(list_images_by_age "img")
 
 while read -r img && pruneNeeded; do
-  if olderThan $img 21; then
+  if olderThan $img 14; then
     pruneIt $img "space needed"
   fi
 done < <(list_images_by_age "img")
