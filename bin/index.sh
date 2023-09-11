@@ -39,7 +39,23 @@ function listFiles() {
   } >>$tmpfile
 }
 
-function listImages() {
+function listImagesWithoutBugs() {
+  {
+    echo "<h2>images without bugs</h2>"
+    echo "<pre>"
+    find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
+      xargs -r -n 1 --null basename |
+      sort |
+      while read -r f; do
+        if ! ls ~tinderbox/img/$f/var/tmp/tb/issues/* &>/dev/null; then
+          echo "<a href=\"$f\">$f</a>"
+        fi
+      done
+    echo -e "</pre>\n"
+  } >>$tmpfile
+}
+
+function listImagesWithoutReportedBugs() {
   {
     echo "<h2>images without reported bugs</h2>"
     echo "<pre>"
@@ -47,7 +63,7 @@ function listImages() {
       xargs -r -n 1 --null basename |
       sort |
       while read -r f; do
-        if ! ls ~tinderbox/img/$f/var/tmp/tb/issues/*/.reported &>/dev/null; then
+        if ls ~tinderbox/img/$f/var/tmp/tb/issues/* &>/dev/null && ! ls ~tinderbox/img/$f/var/tmp/tb/issues/*/.reported &>/dev/null; then
           echo "<a href=\"$f\">$f</a>"
         fi
       done
@@ -130,7 +146,8 @@ EOF
 listStat
 listFiles
 listBugs
-listImages
+listImagesWithoutReportedBugs
+listImagesWithoutBugs
 
 cat <<EOF >>$tmpfile
 </body>
