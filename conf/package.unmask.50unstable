@@ -3,3 +3,13 @@
 
 # sam_
 ~sys-libs/zlib-1.3                                      # DICE: zlib
+
+# matts88
+>=dev-libs/gjs-1.77
+>=dev-libs/glib-2.77
+>=dev-libs/gobject-introspection-1.77
+>=dev-libs/gobject-introspection-common-1.77
+>=dev-util/gdbus-codegen-2.77
+>=dev-util/glib-utils-2.77
+>=gui-libs/gtk-4.11
+>=x11-libs/pango-1.51.0

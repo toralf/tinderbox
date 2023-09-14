@@ -50,10 +50,9 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
   while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 29 ]]; do
     tinderbox_check_eol
     touch /var/tmp/tb/WAIT
-    sleep 15
+    sleep 20
     rm -f /var/tmp/tb/WAIT
   done
-  rm -f /var/tmp/tb/WAIT # remove a left over from previous run
 fi
 
 tinderbox_check_eol

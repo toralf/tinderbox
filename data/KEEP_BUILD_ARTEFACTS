@@ -3,6 +3,3 @@
 
 # https://bugs.gentoo.org/909060
 sys-devel/gcc
-
-# https://bugs.gentoo.org/909535
-net-analyzer/fail2ban
