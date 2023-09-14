@@ -433,7 +433,7 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??gcc
   fi
 
-  # keep lines with "# DICE: topic x X" with an m/N chance (default: 1/2)
+  # keep lines with "# DICE: topic m N" with an m/N chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
     cut -f 3- -d ' ' |
     sort -u -r |
