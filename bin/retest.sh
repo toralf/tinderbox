@@ -61,7 +61,7 @@ if [[ -s $result.packages ]]; then
   # delete atom entry in image specific files
   while read -r pkgname; do
     sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkgname)\-[[:digit:]]/d" \
-      ~tinderbox/tb/data/ALREADY_CAUGHT \
+      ~tinderbox/tb/findings/ALREADY_CAUGHT \
       ~tinderbox/run/*/etc/portage/package.mask/self \
       ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null || true
   done <$result.packages
