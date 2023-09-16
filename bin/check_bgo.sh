@@ -63,7 +63,6 @@ fi
 
 trap Exit INT QUIT TERM EXIT
 source $(dirname $0)/lib.sh
-checkBgo
 
 echo -e "\n===========================================\n"
 
@@ -81,19 +80,6 @@ if [[ ! -s $issuedir/title ]]; then
   exit 1
 fi
 
-versions=$(
-  eshowkw --arch amd64 $pkgname |
-    grep -v -e '^  *|' -e '^-' -e '^Keywords' |
-    # + == stable, o == masked, ~ == unstable
-    awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |
-    xargs
-)
-if [[ -z $versions ]]; then
-  echo "$pkg is unknown" >&2
-  exit 1
-fi
-
-createSearchString
 cmd="$(dirname $0)/bgo.sh -d $issuedir"
 if blocker_bug_no=$(LookupForABlocker ~tinderbox/tb/data/BLOCKER); then
   cmd+=" -b $blocker_bug_no"
@@ -103,6 +89,20 @@ echo -e "\n  ${cmd}\n\n"
 if [[ $force == "y" ]]; then
   $cmd
 else
+  checkBgo
+  createSearchString
+  versions=$(
+    eshowkw --arch amd64 $pkgname |
+      grep -v -e '^  *|' -e '^-' -e '^Keywords' |
+      # + == stable, o == masked, ~ == unstable
+      awk '{ if ($3 == "+") { print $1 } else if ($3 == "o") { print "**"$1 } else { print $3$1 } }' |
+      xargs
+  )
+  if [[ -z $versions ]]; then
+    echo -e "\n $pkg is has no version ?!\n" >&2
+    exit 1
+  fi
+
   cat <<EOF
     title:    $(cat $issuedir/title)
     versions: $versions
