@@ -1,2 +1,3 @@
 ERROR: .* failed (pretend phase):
 ERROR: .* failed (setup phase):
+The present kernel disabled CONFIG_MODULES.
