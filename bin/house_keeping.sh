@@ -10,7 +10,7 @@ function olderThan() {
 }
 
 function pruneNeeded() {
-  local maxperc=${1:-75} # max used space in %
+  local maxperc=${1:-70} # max used space in %
 
   if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
     # value of available space in percent is often lower than 100-"percent value of df"
@@ -107,6 +107,6 @@ while read -r img && pruneNeeded; do
   fi
 done < <(list_images_by_age "img")
 
-if pruneNeeded 91; then
+if pruneNeeded 89; then
   echo "Warning: fs nearly fullfilled" >&2
 fi
