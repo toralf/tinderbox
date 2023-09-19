@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# bubblewrap/chroot into an image to run a script -or- to work interactively in it
+# much better than chroot: https://github.com/containers/bubblewrap
 
 function CgroupCreate() {
   local name=/local/tb/${1?}
@@ -39,10 +39,6 @@ function Exit() {
 
   trap - INT QUIT TERM EXIT
 
-  if [[ $wrapper == "Chroot" ]]; then
-    ChrootUmountAll
-  fi
-
   if [[ -d $lock_dir ]]; then
     rm -r -- $lock_dir
   else
@@ -50,51 +46,6 @@ function Exit() {
   fi
 
   exit $rc
-}
-
-function ChrootMountAll() {
-  set -e
-
-  mount -o size=16G -t tmpfs tmpfs $mnt/run
-  mount -t proc proc $mnt/proc
-  mount --rbind /sys $mnt/sys
-  mount --make-rslave $mnt/sys
-
-  mount --rbind /dev $mnt/dev
-  mount --make-rslave $mnt/dev
-
-  mount -o bind ~tinderbox/tb/data $mnt/mnt/tb/data
-  mount -o bind,ro $(dirname $0)/../sdata/ssmtp.conf $mnt/etc/ssmtp/ssmtp.conf
-  mount -o bind ~tinderbox/distfiles $mnt/var/cache/distfiles
-
-  mount -o size=16G -t tmpfs tmpfs $mnt/tmp
-  mount -o size=16G -t tmpfs tmpfs $mnt/var/tmp/portage
-}
-
-function ChrootUmountAll() {
-  set +e
-
-  umount -l $mnt/var/tmp/portage $mnt/tmp \
-    $mnt/var/cache/distfiles $mnt/etc/ssmtp/ssmtp.conf $mnt/mnt/tb/data \
-    $mnt/dev{/pts,/shm,/mqueue,} \
-    $mnt/{sys,proc,run} 2>/dev/null
-}
-
-function Chroot() {
-  if ChrootMountAll; then
-    if [[ -n $entrypoint ]]; then
-      /usr/bin/chroot $mnt /bin/bash -l -c "su - root -c /root/entrypoint"
-    else
-      /usr/bin/chroot $mnt /bin/bash -l -c "su - ${SUDO_USER:-root}"
-    fi
-  fi
-  local rc=$?
-
-  if ! ChrootUmountAll; then
-    ((++rc))
-  fi
-
-  return $rc
 }
 
 function Bwrap() {
@@ -161,15 +112,9 @@ export CGROUP_LOGLEVEL=ERROR
 
 entrypoint=""
 mnt=""
-wrapper="Bwrap"
 
-while getopts ce:m: opt; do
+while getopts e:m: opt; do
   case $opt in
-  c)
-    if [[ "$(whoami)" != "tinderbox" ]]; then
-      wrapper="Chroot"
-    fi
-    ;;
   e)
     if [[ ! -s $OPTARG ]]; then
       echo " no valid entrypoint script given: $OPTARG" >&2
@@ -229,4 +174,4 @@ if [[ -n $entrypoint ]]; then
   chmod 644 "$mnt/root/lib.sh"
 fi
 
-$wrapper
+Bwrap
