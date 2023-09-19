@@ -496,7 +496,7 @@ function finishTitle() {
     sed -i -e "s,^,$pkg - ," $issuedir/title
   fi
   sed -i -e 's,\s\s*, ,g' $issuedir/title
-  truncate -s "<130" $issuedir/title # b.g.o. limits "Summary" length
+  truncate -s "<150" $issuedir/title # b.g.o. limits "Summary" length
 }
 
 function SendIssueMailIfNotYetReported() {
