@@ -712,7 +712,7 @@ function FixPossibleUseFlagIssues() {
       local f=./etc/portage/package.use/24thrown_package_use_flags
       if grep -q "$pkg " $f; then
         sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkg) /d" $f
-        if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements"; then
+        if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements of $pkg"; then
           return 0
         fi
       fi
