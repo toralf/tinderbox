@@ -20,27 +20,30 @@ function SetAssigneeAndCc() {
     assignee="maintainer-needed@gentoo.org"
   else
     assignee=$(cut -f 1 -d ' ' <<<$m)
-    cc=$(cut -f 2- -d ' ' -s <<<$m)
+    cc+=" $(cut -f 2- -d ' ' -s <<<$m)"
   fi
 
   if grep -q 'file collision with' $issuedir/title; then
     local collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     local collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     if [[ -n $collision_partner_pkgname ]]; then
-      cc="$cc $(equery meta -m $collision_partner_pkgname | grep '@' | xargs)"
+      cc+=" $(equery meta -m $collision_partner_pkgname | grep '@' | xargs)"
     fi
 
   elif grep -q 'internal compiler error:' $issuedir/title; then
     cc+=" toolchain@gentoo.org"
   fi
 
+  if [[ $pkgname =~ "dotnet" ]]; then
+    cc+=" xgqt@gentoo.org"
+  fi
+
   echo "$assignee" >$issuedir/assignee
   chmod a+w $issuedir/assignee
-  if [[ -n $cc ]]; then
-    xargs -n 1 <<<$cc | sort -u | grep -v "^$assignee$" | xargs >$issuedir/cc
+  xargs -n 1 <<<$cc | sort -u | grep -v "^$assignee$" | xargs >$issuedir/cc
+  if [[ -s $issuedir/cc ]]; then
     chmod a+w $issuedir/cc
-  fi
-  if [[ ! -s $issuedir/cc || -z $cc ]]; then
+  else
     rm -f $issuedir/cc
   fi
 }
