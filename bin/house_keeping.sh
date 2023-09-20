@@ -25,7 +25,11 @@ function pruneIt() {
   local img=${1?}
   local reason=${2?}
 
-  if [[ -f $img/var/tmp/tb/KEEP || -e ~tinderbox/run/$(basename $img) ]] || __is_running $img; then
+  if [[ -f $img/var/tmp/tb/KEEP ]]; then
+    echo " $(date) $reason but kept: $img"
+    return 0
+  fi
+  if [[ -e ~tinderbox/run/$(basename $img) ]] || __is_running $img; then
     return 0
   fi
 
