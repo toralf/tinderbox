@@ -112,7 +112,7 @@ while :; do
         cat $tmpfile | mail -s "NOTICE: no image name" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       fi
     else
-      echo " failed rc=$rc"
+      echo " failed rc=$?"
       cat $tmpfile | mail -s "NOTICE: setup failed  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       sleep $((1 * 3600))
     fi
