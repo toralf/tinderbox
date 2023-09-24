@@ -40,9 +40,9 @@ function Exit() {
   trap - INT QUIT TERM EXIT
 
   if [[ -d $lock_dir ]]; then
-    rm -r -- $lock_dir
+    rm -r -- "$lock_dir"
   else
-    echo " no lock dir $lock_dir found" >&2
+    echo " Notice: lock dir '$lock_dir' not found" >&2
   fi
 
   exit $rc
@@ -151,18 +151,13 @@ if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   exit 1
 fi
 
-if [[ ! -d /run/tinderbox/ ]]; then
-  mkdir /run/tinderbox/
-fi
-
-# this is the 1st barrier (the 2nd is that a cgroup can be created)
+# 1st barrier to avoid running in parallel at the same image
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
-if ! mkdir "$lock_dir"; then
-  echo " lock dir cannot be created: $lock_dir" >&2
-  exit 1
-fi
+mkdir -p "$lock_dir"
 
 trap Exit INT QUIT TERM EXIT
+
+# 2nd barrier
 CgroupCreate ${mnt##*/} $$
 if [[ -n $entrypoint ]]; then
   rm -f "$mnt/root/entrypoint"
