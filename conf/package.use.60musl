@@ -14,4 +14,6 @@ app-editors/vim-core                -nls
 sys-devel/gcc                       -go -jit
 
 # https://bugs.gentoo.org/828812
+*/*                                 -systemtap
+dev-libs/glib                       -systemtap
 sys-devel/gcc                       -systemtap
