@@ -4,9 +4,14 @@
 
 # much better than chroot: https://github.com/containers/bubblewrap
 
-function CgroupCreate() {
+function CreateCgroup() {
   local name=/local/tb/${1?}
   local pid=${2?}
+
+  if [[ $(cgget -g cpu,memory:$name | wc -l) -gt 2 ]]; then
+    echo " cgroup '$name' does already exist" >&2
+    return 1
+  fi
 
   if ! cgcreate -g cpu,memory:$name; then
     return 1
@@ -29,7 +34,7 @@ function CgroupCreate() {
   local mem=$((2 * jobs + 20))
   cgset -r memory.limit_in_bytes=${mem}G $name
 
-  # memory+swap, add another safety limit, host system has 256 GiB swap at all
+  # memory+swap, add a safety limit
   cgset -r memory.memsw.limit_in_bytes=$((mem + 16))G $name
 }
 
@@ -152,7 +157,7 @@ if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
 fi
 
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
-if [[ -d "$lock_dir" ]]; then
+if [[ -d $lock_dir ]]; then
   echo " lock dir '$lock_dir' does already exist" >&2
   exit 1
 fi
@@ -160,7 +165,7 @@ mkdir -p "$lock_dir"
 
 trap Exit INT QUIT TERM EXIT
 
-CgroupCreate ${mnt##*/} $$
+CreateCgroup ${mnt##*/} $$
 if [[ -n $entrypoint ]]; then
   rm -f "$mnt/root/entrypoint"
   cp "$entrypoint" "$mnt/root/entrypoint"
