@@ -38,21 +38,20 @@ post_src_install() {
   ) &>> /var/tmp/sam.txt
 }
 
-tinderbox_check_eol() {
+checkEOL() {
   if [[ -f /var/tmp/tb/EOL || -f /var/tmp/tb/STOP ]]; then
-    case ${EBUILD_PHASE} in
-    setup|unpack|prepare|configure|compile|test) exit 42 ;;
-    esac
+    exit 42
   fi
 }
 
-if [[ ${EBUILD_PHASE} == "setup" ]]; then
-  while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 29 ]]; do
-    tinderbox_check_eol
-    touch /var/tmp/tb/WAIT
-    sleep 30
+case ${EBUILD_PHASE} in
+  setup|unpack|prepare|configure|compile)
+    while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 29 ]]; do
+      checkEOL
+      touch /var/tmp/tb/WAIT
+      sleep 30
+    done
     rm -f /var/tmp/tb/WAIT
-  done
-fi
-
-tinderbox_check_eol
+    checkEOL
+  ;;
+esac
