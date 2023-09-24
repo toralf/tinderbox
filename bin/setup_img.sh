@@ -159,7 +159,7 @@ function UnpackStage3() {
     if [[ $profile =~ "23.0/" ]]; then
       prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     elif dice 1 2; then
-      # build up from a plain instead from a desktop stage3
+      # start with the plain instead the desktop stage3
       prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     fi
   fi
@@ -699,7 +699,7 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
-  for i in {1..19}; do
+  for i in {1..29}; do
 
     # kick off a particular package from package specific use flag file
     local pkg=$(
