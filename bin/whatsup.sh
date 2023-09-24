@@ -254,14 +254,14 @@ function Coverage() {
   printf "%5i packages available in ::gentoo\n" $N
 
   for i in run img; do
-    local covered=~tinderbox/img/packages.$i.covered.txt
-    local uncovered=~tinderbox/img/packages.$i.uncovered.txt # used in index.sh
+    local emerged=~tinderbox/img/packages.$i.emerged.txt
+    local not_emerged=~tinderbox/img/packages.$i.not_emerged.txt
 
-    # covered + uncovered != all     e.g. due to package deletions
-    getCoveredPackages $i >$covered
-    diff $covered $tmpfile | grep -F '>' | cut -f 2 -d ' ' -s >$uncovered
+    # emerged + not_emerged != all e.g. due to package deletions
+    getCoveredPackages $i >$emerged
+    diff $emerged $tmpfile | grep -F '>' | cut -f 2 -d ' ' -s >$not_emerged
 
-    local n=$(wc -l <$covered)
+    local n=$(wc -l <$emerged)
     local oldest=$(sort -n ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
