@@ -202,6 +202,7 @@ function CollectIssueFiles() {
       f=/tmp/files
       cd "$workdir/.."
       find ./ -name "*.log" \
+        -o -name "*.binlog" \
         -o -name "meson-log.txt" \
         -o -name "testlog.*" \
         -o -wholename '*/elf/*.out' \
