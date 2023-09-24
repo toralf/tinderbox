@@ -48,7 +48,7 @@ cgcreate -g cpu,memory:$name
 # reserve resources for the host system
 vcpu=$((100000 * ($(nproc) - 4)))
 ram=$((128 - 24))G
-vram=$((128 + 256 - 64))G # swap is 256 GB
+vram=$((128 + 256 - 64))G # swap is 256 GiB
 cgset -r cpu.cfs_quota_us=$vcpu $name
 cgset -r memory.limit_in_bytes=$ram $name
 cgset -r memory.memsw.limit_in_bytes=$vram $name
