@@ -151,13 +151,15 @@ if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   exit 1
 fi
 
-# 1st barrier to avoid running in parallel at the same image
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
+if [[ -d "$lock_dir" ]]; then
+  echo " lock dir '$lock_dir' does already exist" >&2
+  exit 1
+fi
 mkdir -p "$lock_dir"
 
 trap Exit INT QUIT TERM EXIT
 
-# 2nd barrier
 CgroupCreate ${mnt##*/} $$
 if [[ -n $entrypoint ]]; then
   rm -f "$mnt/root/entrypoint"
