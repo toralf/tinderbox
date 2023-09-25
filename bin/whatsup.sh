@@ -5,8 +5,12 @@
 # print tinderbox statistics
 
 function printImageName() {
-  local chars=${2:-42}
-  printf "%-${chars}s" $(cut -c -${chars} <$1/var/tmp/tb/name 2>/dev/null)
+  if [[ -s $1/var/tmp/tb/name ]]; then
+    local chars=${2:-42}
+    printf "%-${chars}s" $(cut -c -${chars} <$1/var/tmp/tb/name)
+  else
+    return 1
+  fi
 }
 
 function check_history() {
@@ -54,7 +58,7 @@ function Overall() {
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
 
     local compl=0
-    if ! compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
+    if ! compl=$(grep -c -F ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
       compl=0
     fi
 
