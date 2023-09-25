@@ -46,7 +46,7 @@ checkEOL() {
 
 case ${EBUILD_PHASE} in
   setup|unpack|prepare|configure|compile)
-    while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 29 ]]; do
+    while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 30 ]]; do
       checkEOL
       touch /var/tmp/tb/WAIT
       sleep 30
