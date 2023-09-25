@@ -41,7 +41,7 @@ function InitOptions() {
   jobs="5"
   keyword="~amd64"
   name=""
-  profile=$(DiceAProfile)
+  profile=$(DiceAProfile | grep -v -F 'musl') # https://bugs.gentoo.org/911233
   testfeature="n"
   useflagsfrom=""
 
@@ -880,7 +880,7 @@ function Finalize() {
   echo -e "\n$(date) ${FUNCNAME[0]} ..."
   cd $tbhome/run
   ln -s ../img/$name
-  wc -l -w ../img/$name/etc/portage/package.use/2* || true # maybe not needed
+  wc -l -w ../img/$name/etc/portage/package.use/2* 2>/dev/null || true
   truncate -s 0 $name/var/tmp/tb/task
 }
 
