@@ -740,7 +740,7 @@ function GetPkglog() {
   pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<<$pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
-    pkglog=$(ls -1 /var/log/portage/$(tr '/' ':' <<<$pkgname)*.log 2>/dev/null | sort | tail -n 1)
+    pkglog=$(ls -1 /var/log/portage/$(tr '/' ':' <<<$pkgname)*.log 2>/dev/null | sort -r | head -n 1)
   fi
   if [[ ! -f $pkglog ]]; then
     Mail "INFO: failed to get pkglog=$pkglog  pkg=$pkg  pkgname=$pkgname  task=$task" $tasklog_stripped
@@ -913,12 +913,12 @@ function DetectRepeats() {
 
   local count
   local package
-  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 500 | sort | uniq -c | sort -bn | tail -n 1)
+  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 500 | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge $p_max ]]; then
     ReachedEOL "too often emerged: $count x $package"
   fi
 
-  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n $((2 * p_max)) | sort | uniq -c | sort -bn | tail -n 1)
+  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n $((2 * p_max)) | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge $p_max ]]; then
     ReachedEOL "too often repeated: $count x $package"
   fi
