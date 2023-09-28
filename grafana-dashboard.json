@@ -324,7 +324,7 @@
           "refId": "D"
         }
       ],
-      "title": "CPU",
+      "title": "CPU usage",
       "type": "timeseries"
     },
     {
@@ -1091,6 +1091,6 @@
   "timezone": "utc",
   "title": "Tinderbox",
   "uid": "tm9JS5B4z",
-  "version": 195,
+  "version": 198,
   "weekStart": ""
 }
