@@ -250,9 +250,7 @@ EOF
   local curr_path=$PWD
   cd .$reposdir
   if ! git clone -q --depth=1 https://github.com/gentoo-mirror/gentoo.git; then
-    if ! source=$(ls -td ~/img/*/var/db/repos/gentoo /var/db/repos/gentoo | head -n 1); then
-      return 1
-    fi
+    local source=$(ls -td ~/img/*/var/db/repos/gentoo /var/db/repos/gentoo | head -n 1)
     if ! cp -ar $source .; then
       return 1
     fi
