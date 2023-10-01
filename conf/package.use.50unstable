@@ -18,13 +18,10 @@ app-admin/webalizer                 -nls
 sys-devel/gcc                       debug               # DICE: gcc
 
 # https://bugs.gentoo.org/900731
-media-libs/libjpeg-turbo            -java
+media-libs/libjpeg-turbo            -java               # DICE: libjpeg-turbo
 
 # sam_, negril OOM
 sci-libs/vtk                        cuda,ffmpeg,imaging,logging,mpi,qt5,rendering,sdl,tbb,threads,views,vtkm  # DICE: vtk
-
-# sandbox violation ?
-sys-libs/glibc                      vanilla             # DICE: glibc
 
 # https://bugs.gentoo.org/869953
 sys-devel/gcc                       -ada
