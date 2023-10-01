@@ -112,9 +112,10 @@ while :; do
         cat $tmpfile | mail -s "NOTICE: no image name" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       fi
     else
-      echo " failed rc=$?"
+      rc=$?
+      echo " failed rc=$rc"
       cat $tmpfile | mail -s "NOTICE: setup failed  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
-      sleep $((1 * 3600))
+      sleep $((1 * 3600)) || true # killing this is ok
     fi
     rm $tmpfile
     continue
@@ -128,7 +129,7 @@ while :; do
     sleep 60
   done < <(ImagesInRunButEOL)
 
-  # if we reached this line then there's nothing (more) to do
+  # reaching this line means then there's nothing (more) to do
   break
 done
 

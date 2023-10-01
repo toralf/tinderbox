@@ -249,7 +249,9 @@ EOF
 
   local curr_path=$PWD
   cd .$reposdir
-  git clone -q --depth=1 https://github.com/gentoo-mirror/gentoo.git
+  if ! git clone -q --depth=1 https://github.com/gentoo-mirror/gentoo.git; then
+    cp -ar /var/db/repos/gentoo .
+  fi
   cd ./gentoo
   git config diff.renamelimit 0
   git config gc.auto 0
@@ -584,7 +586,7 @@ USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/gi
 
 date
 echo "#setup sync" | tee /var/tmp/tb/task
-emaint sync --auto >/dev/null
+emaint sync --auto >/dev/null || true
 
 date
 echo "#setup portage" | tee /var/tmp/tb/task
