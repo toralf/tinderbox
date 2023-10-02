@@ -250,10 +250,8 @@ EOF
   local curr_path=$PWD
   cd .$reposdir
   if ! git clone -q --depth=1 https://github.com/gentoo-mirror/gentoo.git; then
-    local source=$(ls -td ~/img/*/var/db/repos/gentoo /var/db/repos/gentoo | head -n 1)
-    if ! cp -ar $source .; then
-      return 1
-    fi
+    local source=$(set -o pipefail; ls -td ~/img/*/$reposdir/gentoo $reposdir/gentoo/ | head -n 1)
+    cp -ar --reflink=auto $source .
   fi
   cd ./gentoo
   git config diff.renamelimit 0
