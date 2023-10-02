@@ -28,18 +28,18 @@ function printMetrics() {
   local s=0
   local w=0
   while read -r img; do
-    if __is_running $img; then
-      if [[ $img =~ "/run" ]]; then
+    if [[ $img =~ "/run" ]]; then
+      if __is_running $img; then
         if [[ -f $img/var/tmp/tb/WAIT ]]; then
           ((++w))
         else
           ((++r))
         fi
       else
-        ((++o))
+        ((++s))
       fi
     else
-      ((++s))
+      ((++o))
     fi
   done < <(list_active_images)
   echo "$var{state=\"other\"} $o"
