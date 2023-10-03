@@ -24,10 +24,12 @@ function check_history() {
   #   = no issues
   # ? = internal error
   if [[ -s $file ]]; then
-    local line=$(tail -n 1 $file)
+    local line
+    line=$(tail -n 1 $file)
     if grep -q " NOT ok " <<<$line; then
       if grep -q " NOT ok $" <<<$line; then
-        local uflag=${flag,,}
+        local uflag
+        uflag=${flag,,}
         flags+="$uflag"
       else
         flags+="$flag"
@@ -49,15 +51,18 @@ function check_history() {
 #   7020   56   2  6.7   12988   68    0  . lc  ~/run/17.1_desktop-j5-20230527-234505
 #   4612   36   2  5.0   15954  116    0  . lc  ~/run/17.1_desktop_gnome-j5-20230529-171537
 function Overall() {
-  local locked=$(wc -l < <(ls -d /run/tinderbox/*.lock 2>/dev/null))
-  local all=$(wc -w <<<$images)
+  local locked
+  locked=$(wc -l < <(ls -d /run/tinderbox/*.lock 2>/dev/null))
+  local all
+  all=$(wc -w <<<$images)
   echo "compl fail new  day backlog .upd .1st status $locked#$all locked  +++  $(date)"
 
   for i in $images; do
-    local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0") # the printf rounds to %.1f
-    local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
-
-    local compl=0
+    local days
+    days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0") # the printf rounds to %.1f
+    local bgo
+    bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
+    local compl
     if ! compl=$(grep -c -F ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
       compl=0
     fi
@@ -69,9 +74,12 @@ function Overall() {
       fail=$(ls -1 $i/var/tmp/tb/issues | while read -r j; do basename $j; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
-    local bl=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog || echo 0)
-    local bl1=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.1st || echo 0)
-    local blu=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.upd || echo 0)
+    local bl
+    bl=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog || echo 0)
+    local bl1
+    bl1=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.1st || echo 0)
+    local blu
+    blu=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.upd || echo 0)
 
     # "l" image is locked
     # "c" image is under cgroup control
@@ -119,7 +127,8 @@ function Overall() {
       flags+=" "
     fi
 
-    local b=$(basename $i)
+    local b
+    b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img' # shorten output
     printf "%5i %4i %3i %4.1f %7i %4i %4i %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
@@ -134,7 +143,8 @@ function Tasks() {
   for i in $images; do
     local tsk=$i/var/tmp/tb/task
     if printImageName $i && __is_running $i && [[ -s $tsk ]]; then
-      local task=$(cat $tsk)
+      local task
+      task=$(cat $tsk)
 
       set +e
       ((delta = EPOCHSECONDS - $(stat -c %Z $tsk)))
@@ -199,7 +209,8 @@ function LastEmergeOperation() {
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
   printf "%57s" ""
-  local days=$(((EPOCHSECONDS - $(sort -n ~tinderbox/run/*/var/tmp/tb/setup.timestamp | head -n 1)) / 86400))
+  local days
+  days=$(((EPOCHSECONDS - $(sort -n ~tinderbox/run/*/var/tmp/tb/setup.timestamp | head -n 1)) / 86400))
   for i in $(seq 0 $days); do
     printf "%4id" $i
   done
@@ -207,7 +218,8 @@ function PackagesPerImagePerRunDay() {
 
   for i in $(list_images_by_age "run"); do
     if printImageName $i 57; then
-      local start_time=$(getStartTime $i)
+      local start_time
+      start_time=$(getStartTime $i)
       perl -F: -wane '
         BEGIN {
           @packages = (); # emerges per runday
@@ -248,13 +260,16 @@ function getCoveredPackages() {
 # 16081 packages emerged under ~tinderbox/run   (82% for last 10 days)
 # 17835 packages emerged under ~tinderbox/img   (91% for last 55 days)
 function Coverage() {
-  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
+  local tmpfile
+  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
   (
     cd /var/db/repos/gentoo
     ls -d *-*/*
     ls -d virtual/*
   ) | grep -v -F 'metadata.xml' | sort >$tmpfile
-  local N=$(wc -l <$tmpfile)
+
+  local N
+  N=$(wc -l <$tmpfile)
   printf "%5i packages available in ::gentoo\n" $N
 
   for i in run img; do
@@ -265,8 +280,10 @@ function Coverage() {
     getCoveredPackages $i >$emerged
     diff $emerged $tmpfile | grep -F '>' | cut -f 2 -d ' ' -s >$not_emerged
 
-    local n=$(wc -l <$emerged)
-    local oldest=$(sort -n ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
+    local n
+    n=$(wc -l <$emerged)
+    local oldest
+    oldest=$(sort -n ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
       days=$(echo "scale=2.1; ($EPOCHSECONDS - $oldest) / 3600 / 24" | bc)

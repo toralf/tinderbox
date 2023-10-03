@@ -14,7 +14,9 @@ function __is_running() {
 }
 
 function getStartTime() {
-  cat ~tinderbox/img/$(basename $1)/var/tmp/tb/setup.timestamp
+  local img
+  img=~tinderbox/img/$(basename $1)
+  cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img
 }
 
 # list if locked and/or symlinked to ~run
@@ -106,8 +108,8 @@ function GotResults() {
 
 function SearchForSameIssue() {
   if grep -q 'file collision with' $issuedir/title; then
-    local collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
-    local collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
+    collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
+    collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     # shellcheck disable=SC2154
     $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
       grep -e " CONFIRMED " -e " IN_PROGRESS " |
@@ -197,4 +199,5 @@ function SearchForSimilarIssue() {
   return 1
 }
 
-export bugz_timeout="timeout --signal=15 --kill-after=1m 3m" # if bugz/b.g.o. hangs
+# handle bugz/b.g.o. hang
+export bugz_timeout="timeout --signal=15 --kill-after=1m 3m"

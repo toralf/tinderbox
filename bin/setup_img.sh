@@ -76,8 +76,9 @@ function InitOptions() {
 # helper of CheckOptions()
 function checkBool() {
   local var=$1
-  local val=$(eval echo \$${var})
 
+  local val
+  val=$(eval echo \$${var})
   if [[ $val != "y" && $val != "n" ]]; then
     echo " wrong boolean for \$$var: >>$val<<"
     return 1
@@ -250,7 +251,11 @@ EOF
   local curr_path=$PWD
   cd .$reposdir
   if ! git clone -q --depth=1 https://github.com/gentoo-mirror/gentoo.git; then
-    local source=$(set -o pipefail; ls -td ~/img/*/$reposdir/gentoo $reposdir/gentoo/ | head -n 1)
+    local source
+    source=$(
+      set -o pipefail
+      ls -td ~/img/*/$reposdir/gentoo $reposdir/gentoo/ | head -n 1
+    )
     cp -ar --reflink=auto $source .
   fi
   cd ./gentoo
@@ -469,9 +474,11 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname=$(tr -d '\n' <<<${name,,} | tr -c 'a-z0-9\-' '-')
+  local image_hostname
+  image_hostname=$(tr -d '\n' <<<${name,,} | tr -c 'a-z0-9\-' '-')
   cut -c -63 <<<$image_hostname >./etc/conf.d/hostname
-  local host_hostname=$(hostname)
+  local host_hostname
+  host_hostname=$(hostname)
 
   cat <<EOF >./etc/hosts
 127.0.0.1 localhost $host_hostname $host_hostname.localdomain $image_hostname $image_hostname.localdomain
@@ -526,7 +533,8 @@ function CreateSetupScript() {
   if [[ ! $profile =~ "/clang" ]]; then
     if dice 1 2; then
       echo -e "\n$(date) use host kernel ..."
-      local kv=$(realpath /usr/src/linux)
+      local kv
+      kv=$(realpath /usr/src/linux)
       rsync -aq $kv ./usr/src
       (
         cd ./usr/src
@@ -705,7 +713,8 @@ function FixPossibleUseFlagIssues() {
   for i in {1..29}; do
 
     # kick off a particular package from package specific use flag file
-    local pkg=$(
+    local pkg
+    pkg=$(
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 }' |
         cut -f 1 -d ':' -s |

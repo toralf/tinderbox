@@ -24,7 +24,13 @@ function CreateCgroup() {
     fi
   done
 
-  local jobs=$(sed 's,^.*j,,' $mnt/etc/portage/package.env/00jobs)
+  local jobs
+  jobs=$(sed 's,^.*j,,' $mnt/etc/portage/package.env/00jobs)
+
+  if [[ ! $jobs =~ ^[0-9]+$ ]]; then
+    echo " 'jobs' is invalid: '$jobs'" >&2
+    return 1
+  fi
 
   # jobs+0.1 vCPU, slice is 10us
   local cpu=$((100000 * jobs + 10000))

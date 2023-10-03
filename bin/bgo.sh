@@ -31,7 +31,8 @@ function append() {
 }
 
 function create() {
-  local title=$(cat ./title)
+  local title
+  title=$(cat ./title)
   if [[ $name =~ "_clang" ]]; then
     title=$(sed -e 's, - , - [clang] ,' <<<$title)
   fi
@@ -54,6 +55,7 @@ function create() {
     --default-confirm n \
     >bgo.sh.out 2>bgo.sh.err
 
+  local id
   id=$(awk '/ * Info: Bug .* submitted/ { print $4 }' bgo.sh.out)
   if [[ -z $id || ! $id =~ ^[0-9]+$ ]]; then
     echo
@@ -71,17 +73,23 @@ function attach() {
   echo
   set +f
   for f in ./files/*; do
+    local bytes
     bytes=$(wc --bytes <$f)
     if [[ $bytes -eq 0 ]]; then
       echo "skipped empty file: $f" >&2
     elif [[ $bytes -gt $((2 ** 20)) ]]; then
       echo "too fat file for b.g.o. ($((bytes / 2 ** 10)) KB): $f"
+      local file_size
       file_size=$(ls -lh $f | awk '{ print $5 }')
+      local file_path
       file_path=$(realpath $f | sed -e "s,^.*img/,,")
+      local url
       url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
+      local comment
       comment="The file size of $f is too big ($file_size) for an upload. For few weeks the link $url is valid."
       bugz modify --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
     else
+      local ct
       case $f in
       *.bz2) ct="application/x-bzip2" ;;
       *.gzip) ct="application/x-gzip" ;;
@@ -96,6 +104,8 @@ function attach() {
 }
 
 function assign() {
+  local assignee
+  local cc
   assignee="$(cat ./assignee)"
   if [[ $name =~ "musl" && $assignee != "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC ./title; then
     assignee="musl@gentoo.org"
@@ -108,7 +118,7 @@ function assign() {
     cc+=" eschwartz93@gmail.com"
   fi
 
-  add_cc=""
+  local add_cc=""
   if [[ -n $cc ]]; then
     add_cc=$(sed 's,  *, --add-cc ,g' <<<" $cc") # leading space is needed
   fi

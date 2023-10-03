@@ -6,8 +6,9 @@ function olderThan() {
   local img=${1?}
   local days=${2?}
 
-  if starttime=$(getStartTime $img); then
-    [[ $(((EPOCHSECONDS - starttime) / 86400)) -gt $days ]]
+  local start_time
+  if start_time=$(getStartTime $img); then
+    [[ $(((EPOCHSECONDS - start_time) / 86400)) -gt $days ]]
   else
     return 1
   fi
@@ -18,7 +19,8 @@ function pruneNeeded() {
 
   if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
     # value of available space in percent is often lower than 100-"percent value of df"
-    local wanted=$((size * (100 - maxperc) / 100)) # size is in MiB
+    local wanted
+    wanted=$((size * (100 - maxperc) / 100)) # size is in MiB
     [[ $avail -lt $wanted ]]
   else
     return 1

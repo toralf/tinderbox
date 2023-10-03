@@ -25,8 +25,10 @@ function filterPlainPext() {
 }
 
 function Mail() {
-  local subject=$(stripQuotesAndMore <<<$1 | strings -w | cut -c1-200 | tr '\n' ' ')
   local content=${2-}
+
+  local subject
+  subject=$(stripQuotesAndMore <<<$1 | strings -w | cut -c 1-200 | tr '\n' ' ')
 
   if [[ -f $content ]]; then
     echo
@@ -53,8 +55,9 @@ function ReachedEOL() {
   echo "$subject" >>/var/tmp/tb/EOL
   chmod a+w /var/tmp/tb/EOL
   truncate -s 0 $taskfile
-  subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log) completed"
-  local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
+  subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log || true) completed"
+  local new
+  new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
   subject+=", $new new bug(s)"
   /usr/bin/pfl &>/dev/null
   Finish 0 "EOL $subject" $attachment
@@ -127,8 +130,11 @@ function getNextTask() {
       break
 
     else
-      local best_visible=$(portageq best_visible / $task 2>/dev/null)
-      if [[ $? -ne 0 || -z $best_visible ]]; then
+      # skip if no package version for $task is visible
+      if ! best_visible=$(portageq best_visible / $task 2>/dev/null); then
+        continue
+      fi
+      if [[ -z $best_visible ]]; then
         continue
       fi
 
@@ -139,10 +145,11 @@ function getNextTask() {
       fi
 
       # skip if $task would be downgraded
-      local installed=$(portageq best_version / $task)
-      if [[ -n $installed ]]; then
-        if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
-          continue
+      if installed=$(portageq best_version / $task); then
+        if [[ -n $installed ]]; then
+          if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
+            continue
+          fi
         fi
       fi
 
@@ -226,7 +233,7 @@ function CollectIssueFiles() {
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null || true
 
     if [[ -d $workdir/../../temp ]]; then
-      timeout --signal=15 --kill-after=1m 3m \
+      if ! timeout --signal=15 --kill-after=1m 3m \
         $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
         --dereference --warning=none \
         --exclude='*/garbage.*' \
@@ -237,7 +244,9 @@ function CollectIssueFiles() {
         --exclude='*/syml*' \
         --exclude='*/testdirsymlink/*' \
         --exclude='*/var-tests/*' \
-        ./temp
+        ./temp; then
+        Mail "NOTICE: tar issue with $workdir/../../temp" $tasklog_stripped
+      fi
     fi
 
     # ICE
@@ -254,12 +263,13 @@ function CollectIssueFiles() {
 
 # helper of ClassifyIssue()
 function foundCollisionIssue() {
-  # get the colliding package name
-  local s=$(
+  local s
+  s=$(
     grep -m 1 -A 5 'Press Ctrl-C to Stop' $tasklog_stripped |
       tee -a $issuedir/issue |
       grep -m 1 '::' | tr ':' ' ' | cut -f 3 -d ' ' -s
   )
+  # colliding package name
   echo "file collision with $s" >$issuedir/title
 }
 
@@ -326,7 +336,7 @@ function handleTestPhase() {
     cd "$workdir"
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
     if [[ -n $dirs ]]; then
-      timeout --signal=15 --kill-after=1m 3m $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
+      if ! timeout --signal=15 --kill-after=1m 3m $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
         --dereference --one-file-system --sparse \
         --exclude='*.o' \
         --exclude="*/dev/*" \
@@ -334,7 +344,9 @@ function handleTestPhase() {
         --exclude="*/run/*" \
         --exclude="*/symlinktest/*" \
         --exclude="*/sys/*" \
-        $dirs
+        $dirs; then
+        Mail "NOTICE: tar issue with $workdir" $dirs
+      fi
     fi
   )
 }
@@ -608,10 +620,12 @@ function source_profile() {
 # helper of PostEmerge()
 # switch to highest GCC
 function SwitchGCC() {
-  local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
+  local highest
+  highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
 
   if ! gcc-config --list-profiles --nocolor | grep -q -F "$highest *"; then
-    local current=$(gcc -dumpversion)
+    local current
+    current=$(gcc -dumpversion)
     echo "major version change of gcc: $current -> $highest" | tee -a $taskfile.history
     gcc-config --nocolor $highest
     source_profile
@@ -660,9 +674,11 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped && ! grep -q -F '[ebuild .*UD ]  *dev-lang/ruby' $tasklog_stripped; then
-    local highest=$(eselect ruby list | awk 'END { print $2 }')
+    local highest
+    highest=$(eselect ruby list | awk 'END { print $2 }')
     if [[ -n $highest ]]; then
-      local current=$(eselect ruby show | sed -n -e '2p' | xargs)
+      local current
+      current=$(eselect ruby show | sed -n -e '2p' | xargs)
       if [[ $current != "$highest" ]]; then
         add2backlog "%eselect ruby set $highest"
       fi
@@ -766,13 +782,14 @@ function GetPkgFromTaskLog() {
 # helper of WorkOnTask()
 # run $1 and act on its results
 function RunAndCheck() {
+  set +e
   timeout --signal=15 --kill-after=5m 24h bash -c "$1" &>>$tasklog
   local rc=$?
-  (
-    echo -e "\n--"
-    date
-    echo "rc=$rc"
-  ) >>$tasklog
+  set -e
+
+  if [[ $rc -ne 0 ]]; then
+    echo -e "\n--\n$(date)\nrc=$rc" >>$tasklog
+  fi
 
   pkg=""
   unset phase pkgname pkglog
@@ -781,8 +798,9 @@ function RunAndCheck() {
   PostEmerge
 
   # exited on kill signal
-  if [[ $rc -ge 128 ]]; then
-    local signal=$((rc - 128))
+  if [[ $rc -gt 128 ]]; then
+    local signal
+    signal=$((rc - 128))
     if [[ $signal -eq 9 ]]; then
       Finish 9 "KILLed" $tasklog
     else
@@ -845,7 +863,8 @@ function WorkOnTask() {
       opts+=" --update --changed-use --newuse"
     fi
 
-    local histfile=/var/tmp/tb/$(cut -f 1 -d ' ' <<<$task).history
+    local histfile
+    histfile=/var/tmp/tb/$(cut -f 1 -d ' ' <<<$task).history
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >>$histfile
       if [[ $task =~ "@world" ]]; then
@@ -903,9 +922,10 @@ function DetectRepeats() {
     fi
   done
 
-  if [[ $name =~ _test ]]; then
+  if [[ $name =~ "_test" ]]; then
     ((w_max = 30))
   fi
+
   pattern='@world'
   if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge $w_max ]]; then
     ReachedEOL "too often ($w_max x) repeated: $pattern"
@@ -917,7 +937,6 @@ function DetectRepeats() {
   if [[ $count -ge $p_max ]]; then
     ReachedEOL "too often emerged: $count x $package"
   fi
-
   read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n $((2 * p_max)) | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge $p_max ]]; then
     ReachedEOL "too often repeated: $count x $package"
@@ -1012,8 +1031,12 @@ export PAGER="cat"
 
 export XZ_OPT="-9 -T$jobs"
 
-# this will appear in the emerge info output
-export TINDERBOX_IMAGE_NAME=$name
+# this will appear in the emerge info output and is used in bashrc too
+export TINDERBOX_IMAGE_NAME="$name"
+
+if [[ $name =~ "_test" ]]; then
+  export XRD_LOGLEVEL="Debug"
+fi
 
 # non-empty if Finish() was called by an internal error -or- emerge bashrc scheduled a sleep
 if [[ -s $taskfile ]]; then

@@ -34,9 +34,10 @@ function ImagesInRunButEOL() {
 }
 
 function FreeSlotAvailable() {
-  local r=$(ls /run/tinderbox | wc -l)
-  local s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
-
+  local r
+  r=$(ls /run/tinderbox | wc -l)
+  local s
+  s=$(pgrep -c -f $(dirname $0)/setup_img.sh || true)
   [[ $((r + s)) -lt $desired_count && $(wc -l < <(ImagesInRunShuffled)) -lt $desired_count ]]
 }
 
