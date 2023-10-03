@@ -526,41 +526,29 @@ function SendIssueMailIfNotYetReported() {
       local hints="bug"
       local force="                        "
 
-      if checkBgo; then
+      if checkBgo &>>$issuedir/body; then
         createSearchString
         if SearchForSameIssue >>$issuedir/body; then
-          return
-        fi
-        if [[ $? -eq 2 ]]; then
-          hints+=" b.g.o. issue"
-        else
+          hints+=" same"
+        elif ! BgoIssue; then
           if SearchForSimilarIssue >>$issuedir/body; then
             hints+=" similar"
             force+=" -f"
-          else
-            if [[ $? -eq 2 ]]; then
-              hints+=" b.g.o. issue"
-            else
-              hints+=" unknown"
-              force+=" -f"
-            fi
+          elif ! BgoIssue; then
+            hints+=" unknown"
+            force+=" -f"
+          fi
+
+          echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n;" >>$issuedir/body
+          if blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER); then
+            hints+=" blocks $blocker_bug_no"
           fi
         fi
-      else
-        rc=$?
-        if [[ $rc -eq 1 ]]; then
-          hints+=" check pybugz"
-        elif [[ $rc -eq 2 ]]; then
-          hints+=" b.g.o. issue"
-        fi
+      fi
+      if BgoIssue; then
+        hints=" b.g.o issue"
       fi
 
-      echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n;" >>$issuedir/body
-
-      blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER)
-      if [[ -n $blocker_bug_no ]]; then
-        hints+=" blocks $blocker_bug_no"
-      fi
       Mail "$hints $(cat $issuedir/title)" $issuedir/body
     fi
   fi

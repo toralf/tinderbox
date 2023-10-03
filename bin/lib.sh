@@ -45,12 +45,13 @@ function list_images_by_age() {
 
 function checkBgo() {
   if ! bugz -h >/dev/null; then
-    echo "www-client/pybugz installation is b0rken" >&2
+    echo "pybugz is b0rken" >&2
     return 1
+  fi
 
-  elif ! bugz -q get 2 >/dev/null; then
-    echo "b.g.o is down" >&2
-    return 2
+  if ! bugz -q get 2 >/dev/null; then
+    echo "b.g.o cannot be queried" >&2
+    return 1
   fi
 }
 
@@ -99,10 +100,11 @@ function LookupForABlocker() {
   return 1
 }
 
+function BgoIssue() {
+  grep -q -e "^Traceback" -e "# Error: Bugzilla error:" $bugz_result
+}
+
 function GotResults() {
-  if grep -q -e "^Traceback" -e "# Error: Bugzilla error:" $bugz_result; then
-    return 2
-  fi
   [[ -s $bugz_result ]]
 }
 
@@ -112,30 +114,31 @@ function SearchForSameIssue() {
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     # shellcheck disable=SC2154
     $bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
-      grep -e " CONFIRMED " -e " IN_PROGRESS " |
+      grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
       sort -n -r |
       head -n 4 |
       tee $bugz_result
-    if GotResults; then
+    if BgoIssue; then
+      return 1
+    elif GotResults; then
       return 0
-    elif [[ $? -eq 2 ]]; then
-      return 2
     fi
-  fi
 
-  # shellcheck disable=SC2154
-  for i in $pkg $pkgname; do
-    $bugz_timeout bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |
-      grep -e " CONFIRMED " -e " IN_PROGRESS " |
-      sort -n -r |
-      head -n 4 |
-      tee $bugz_result
-    if GotResults; then
-      return 0
-    elif [[ $? -eq 2 ]]; then
-      return 2
-    fi
-  done
+  else
+    # shellcheck disable=SC2154
+    for i in $pkg $pkgname; do
+      $bugz_timeout bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |
+        grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
+        sort -n -r |
+        head -n 4 |
+        tee $bugz_result
+      if BgoIssue; then
+        return 1
+      elif GotResults; then
+        return 0
+      fi
+    done
+  fi
 
   return 1
 }
@@ -147,21 +150,21 @@ function SearchForSimilarIssue() {
       sort -n -r |
       head -n 3 |
       tee $bugz_result
-    if GotResults; then
+    if BgoIssue; then
+      return 1
+    elif GotResults; then
       echo -e " \n^^ DUPLICATE\n"
       return 0
-    elif [[ $? -eq 2 ]]; then
-      return 2
     fi
 
     $bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |
       sort -n -r |
       head -n 3 |
       tee $bugz_result
-    if GotResults; then
+    if BgoIssue; then
+      return 1
+    elif GotResults; then
       return 0
-    elif [[ $? -eq 2 ]]; then
-      return 2
     fi
   done
 
@@ -176,10 +179,10 @@ function SearchForSimilarIssue() {
     sort -n -r |
     head -n 12 |
     tee $bugz_result
-  if GotResults; then
+  if BgoIssue; then
+    return 1
+  elif GotResults; then
     return 0
-  elif [[ $? -eq 2 ]]; then
-    return 2
   fi
 
   if [[ $(wc -l <$bugz_result) -lt 5 ]]; then
@@ -189,10 +192,10 @@ function SearchForSimilarIssue() {
       sort -n -r |
       head -n 5 |
       tee $bugz_result
-    if GotResults; then
+    if BgoIssue; then
+      return 1
+    elif GotResults; then
       return 0
-    elif [[ $? -eq 2 ]]; then
-      return 2
     fi
   fi
 

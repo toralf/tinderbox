@@ -95,7 +95,6 @@ echo -e "\n  ${cmd}\n\n"
 if [[ $force == "y" ]]; then
   $cmd
 else
-  checkBgo
   createSearchString
   versions=$(
     eshowkw --arch amd64 $pkgname |
@@ -130,15 +129,13 @@ EOF
   echo
 
   if ! SearchForSameIssue; then
-    if [[ $? -eq 2 ]]; then
-      exit 2
-    fi
-    if ! SearchForSimilarIssue; then
-      if [[ $? -eq 2 ]]; then
-        exit 2
+    if ! BgoIssue; then
+      if ! SearchForSimilarIssue; then
+        if ! BgoIssue; then
+          # no bug found for that pkg, so file it
+          $cmd
+        fi
       fi
-      # no bug found for that pkg, so file it
-      $cmd
     fi
   fi
 fi
