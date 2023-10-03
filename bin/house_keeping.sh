@@ -6,7 +6,11 @@ function olderThan() {
   local img=${1?}
   local days=${2?}
 
-  [[ $(((EPOCHSECONDS - $(getStartTime $img)) / 86400)) -gt $days ]]
+  if starttime=$(getStartTime $img 2>/dev/null); then
+    [[ $(((EPOCHSECONDS - starttime) / 86400)) -gt $days ]]
+  else
+    return 0
+  fi
 }
 
 function pruneNeeded() {
