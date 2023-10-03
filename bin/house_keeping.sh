@@ -6,10 +6,10 @@ function olderThan() {
   local img=${1?}
   local days=${2?}
 
-  if starttime=$(getStartTime $img 2>/dev/null); then
+  if starttime=$(getStartTime $img); then
     [[ $(((EPOCHSECONDS - starttime) / 86400)) -gt $days ]]
   else
-    return 0
+    return 1
   fi
 }
 
