@@ -191,7 +191,8 @@ function UnpackStage3() {
     echo " notice: failed, but will continue"
   fi
 
-  local local_stage3=$tbhome/distfiles/$(basename $stage3)
+  local local_stage3
+  local_stage3=$tbhome/distfiles/$(basename $stage3)
   if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
     rm -f $local_stage3{,.asc}
     for mirror in $gentoo_mirrors; do
@@ -458,7 +459,8 @@ EOF
   echo "*/*  $(cpuid2cpuflags)" >./etc/portage/package.use/99cpuflags
 
   for f in "$tbhome"/tb/conf/profile.*; do
-    local target=./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
+    local target
+    target=./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
     cp "$f" $target
     chmod a+r $target
   done
