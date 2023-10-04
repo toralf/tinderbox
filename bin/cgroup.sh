@@ -35,7 +35,8 @@ exit 0
 
 EOF
 
-chmod u+x $agent
+chmod 544 $agent
+chattr +i $agent
 
 for i in cpu memory; do
   echo $agent >/sys/fs/cgroup/$i/release_agent
