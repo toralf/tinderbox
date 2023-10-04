@@ -23,13 +23,16 @@ function printMetrics() {
 
   var="tinderbox_images"
   echo -e "# HELP $var Total number of active images\n# TYPE $var gauge"
+  local c=0
   local o=0
   local r=0
   local s=0
   local w=0
   while read -r img; do
     if [[ $img =~ "/run" ]]; then
-      if __is_running $img; then
+      if __is_crashed $img; then
+        ((++c))
+      elif __is_running $img; then
         if [[ -f $img/var/tmp/tb/WAIT ]]; then
           ((++w))
         else
@@ -42,6 +45,7 @@ function printMetrics() {
       ((++o))
     fi
   done < <(list_active_images)
+  echo "$var{state=\"crashed\"} $c"
   echo "$var{state=\"other\"} $o"
   echo "$var{state=\"running\"} $r"
   echo "$var{state=\"stopped\"} $s"

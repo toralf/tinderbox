@@ -10,7 +10,29 @@ function __is_locked() {
 }
 
 function __is_running() {
-  __is_cgrouped $1 || __is_locked $1
+  if __is_locked $1; then
+    if __is_cgrouped $1; then
+      return 0
+    else
+      sleep 1
+      __is_locked $1 && __is_cgrouped $1
+    fi
+  else
+    return 1
+  fi
+}
+
+function __is_crashed() {
+  if ! __is_locked $1; then
+    if __is_cgrouped $1; then
+      sleep 1
+      ! __is_locked $1 && __is_cgrouped $1
+    else
+      return 1
+    fi
+  else
+    return 1
+  fi
 }
 
 function getStartTime() {
@@ -19,7 +41,7 @@ function getStartTime() {
   cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img
 }
 
-# list if locked and/or symlinked to ~run
+# list if locked and/or symlinked to ~run and/or have a cgroup
 function list_active_images() {
   (
     ls ~tinderbox/run/ | sort

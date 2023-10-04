@@ -36,7 +36,7 @@ for i in ${@:-$(ls ~tinderbox/run)}; do
     continue
   fi
 
-  if __is_running "$mnt"; then
+  if __is_running "$mnt" || __is_crashed "$mnt"; then
     continue
   fi
 
