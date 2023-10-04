@@ -55,7 +55,6 @@ function create() {
     --default-confirm n \
     >bgo.sh.out 2>bgo.sh.err
 
-  local id
   id=$(awk '/ * Info: Bug .* submitted/ { print $4 }' bgo.sh.out)
   if [[ -z $id || ! $id =~ ^[0-9]+$ ]]; then
     echo
@@ -71,7 +70,6 @@ function create() {
 
 function attach() {
   echo
-  set +f
   for f in ./files/*; do
     local bytes
     bytes=$(wc --bytes <$f)
@@ -127,7 +125,7 @@ function assign() {
 }
 
 #######################################################################
-set -euf
+set -eu
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
@@ -156,11 +154,6 @@ if [[ -z $issuedir || ! -d $issuedir ]]; then
 fi
 cd $issuedir
 
-if [[ -f .reported ]]; then
-  echo -e "\n already reported: $(cat .reported)\n .reported\n"
-  exit 0
-fi
-
 trap Exit INT QUIT TERM EXIT
 
 # cleanup of a previous run
@@ -172,6 +165,11 @@ if [[ -n $id ]]; then
   new_bug=0
   append
 else
+  if [[ -f .reported ]]; then
+    echo -e "\n already reported: $(cat .reported)\n .reported\n"
+    exit 0
+  fi
+
   if [[ ! -s ./assignee ]]; then
     echo " no assignee given, run first check_bgo.sh" >&2
     exit 2
@@ -183,8 +181,8 @@ else
   new_bug=1
   create
 fi
-
 echo "https://bugs.gentoo.org/$id" | tee -a ./.reported
+
 if [[ -s bgo.sh.err ]]; then
   Exit 5
 fi
