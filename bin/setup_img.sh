@@ -385,11 +385,11 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # persist build dir - only /var/tmp/portage is cleaned in job.sh, this content will stay forever
+  # use persistent build dir instead /var/tmp/portage
   mkdir ./var/tmp/notmpfs
   echo 'PORTAGE_TMPDIR=/var/tmp/notmpfs' >./etc/portage/env/notmpfs
 
-  # prepare to have "j1" as a fallback for an important package failing too often in parallel build
+  # "j1" is the fallback for packages failing in parallel build
   for j in 1 $jobs; do
     cat <<EOF >./etc/portage/env/j$j
 EGO_BUILD_FLAGS="-p $j"
