@@ -13,6 +13,7 @@ The futex facility returned an unexpected error code.
 asciidoctor.*cannot load
 gems.*asciidocter.*LoadError
 is not a compiled interface for this version of OCaml
+ocamlopt: No such
 : multiple definition of.*:
 undefined reference to
 Can't read
