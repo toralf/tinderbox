@@ -849,44 +849,42 @@ fi
 emerge --newuse -uU @world --pretend
 
 EOF
-  chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
 
+  chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
   local drylog=./var/tmp/tb/logs/dryrun.log
 
   if [[ -n $useflagsfrom ]]; then
     echo
     date
     echo " +++  run dryrun once with USE flags from $useflagsfrom  +++"
-
     if [[ $useflagsfrom != "null" ]]; then
       cp ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/* ./etc/portage/package.use/
     fi
     FixPossibleUseFlagIssues 0
-    return $?
-  fi
 
-  local attempt=0
-  while [[ $((++attempt)) -le 200 ]]; do
-    echo
-    date
-    echo "==========================================================="
-    for i in EOL STOP; do
-      if [[ -f ./var/tmp/tb/$i ]]; then
-        echo -e "\n found $i file"
-        return 1
+  else
+    local attempt=0
+    while [[ $((++attempt)) -le 200 ]]; do
+      echo
+      date
+      echo "==========================================================="
+      for i in EOL STOP; do
+        if [[ -f ./var/tmp/tb/$i ]]; then
+          echo -e "\n found $i file"
+          return 1
+        fi
+      done
+      ThrowFlags $attempt
+      local current=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
+      touch $current
+      ln -f $current $drylog
+      if FixPossibleUseFlagIssues $attempt; then
+        return 0
       fi
     done
-
-    ThrowFlags $attempt
-    local current=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
-    touch $current
-    ln -f $current $drylog
-    if FixPossibleUseFlagIssues $attempt; then
-      return 0
-    fi
-  done
-  echo -e "\n max attempts reached"
-  return 1
+    echo -e "\n max attempts reached"
+    return 1
+  fi
 }
 
 function Finalize() {

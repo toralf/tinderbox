@@ -45,11 +45,10 @@ function pruneIt() {
   fi
 
   echo " $(date) $reason : $img"
-  if rm -r $img; then
-    sync
-  else
-    return $?
+  if ! rm -r $img; then
+    return 1
   fi
+  sync
 }
 
 #######################################################################

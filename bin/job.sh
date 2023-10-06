@@ -233,7 +233,8 @@ function CollectIssueFiles() {
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null || true
 
     if [[ -d $workdir/../../temp ]]; then
-      if ! timeout --signal=15 --kill-after=1m 3m \
+      # needed due to
+      if ! timeout --signal=15 --kill-after=1m 30m \
         $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
         --dereference --warning=none \
         --exclude='*/garbage.*' \
@@ -244,8 +245,8 @@ function CollectIssueFiles() {
         --exclude='*/syml*' \
         --exclude='*/testdirsymlink/*' \
         --exclude='*/var-tests/*' \
-        ./temp; then
-        Mail "NOTICE: tar issue with $workdir/../../temp" $tasklog_stripped
+        ./temp &>/tmp/tar.log; then
+        Mail "NOTICE: tar issue with $workdir/../../temp" /tmp/tar.log
       fi
     fi
 
@@ -344,8 +345,8 @@ function handleTestPhase() {
         --exclude="*/run/*" \
         --exclude="*/symlinktest/*" \
         --exclude="*/sys/*" \
-        $dirs; then
-        Mail "NOTICE: tar issue with $workdir" $dirs
+        $dirs &>/tmp/tar.log; then
+        Mail "NOTICE: tar issue with $workdir" /tmp/tar.log
       fi
     fi
   )
@@ -895,7 +896,9 @@ function WorkOnTask() {
 
   # a common atom
   else
-    RunAndCheck "emerge --update $task" || true
+    if ! RunAndCheck "emerge --update $task"; then
+      : # no info needed
+    fi
   fi
 }
 
@@ -1078,11 +1081,11 @@ while :; do
   rm $tasklog
 
   echo "#compressing logs" >$taskfile
-  if ! find /var/log/portage -name '*.log' -exec xz {} +; then
-    ReachedEOL "error rc=$? in compressing logs"
+  if ! find /var/log/portage -name '*.log' -exec xz {} + &>>$taskfile; then
+    Mail "NOTICE: error while compressing logs" $taskfile
   fi
 
-  rm -rf /var/tmp/portage/* # "-f" needed if e.g. "pretend" phase fails or fetch
+  rm -rf /var/tmp/portage/* # "-f" needed if e.g. "pretend" or "fetch" phase failed
 
   echo "#detecting repeats" >$taskfile
   DetectRepeats
