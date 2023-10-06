@@ -51,13 +51,9 @@ function Exit() {
   local rc=${1:-$?}
 
   trap - INT QUIT TERM EXIT
-
   if [[ -d $lock_dir ]]; then
     rm -r -- "$lock_dir"
-  else
-    echo " Notice: lock dir '$lock_dir' not found" >&2
   fi
-
   exit $rc
 }
 
@@ -70,12 +66,10 @@ function Bwrap() {
   local sandbox=(env -i
     /usr/bin/bwrap
     --clearenv
-    --setenv HOME "/root"
     --setenv MAILTO "${MAILTO:-tinderbox}"
     --setenv PATH "$path"
     --setenv SHELL "/bin/bash"
     --setenv TERM "linux"
-    --setenv USER "root"
     --hostname "$(cat $mnt/etc/conf.d/hostname)"
     --unshare-cgroup
     --unshare-ipc
@@ -89,30 +83,40 @@ function Bwrap() {
     --proc /proc
     --tmpfs /run
     --ro-bind /sys /sys
-    --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
+    --size $((2 ** 25)) --perms 1777 --tmpfs /tmp
     --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
-    --ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf
-    --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
     --bind ~tinderbox/distfiles /var/cache/distfiles
     --ro-bind ~tinderbox/tb/data /mnt/tb/data
     --bind ~tinderbox/tb/findings /mnt/tb/findings
-    /bin/bash -l
   )
+  if [[ -n $entrypoint || -z ${SUDO_USER-} ]]; then
+    sandbox+=(--setenv HOME "/root")
+    sandbox+=(--setenv USER "root")
+    sandbox+=(--ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf)
+    sandbox+=(--ro-bind ~tinderbox/.bugzrc /root/.bugzrc)
+  fi
+  if [[ -n $entrypoint ]]; then
+    sandbox+=(--new-session)
+  fi
+  sandbox+=(/bin/bash -l)
 
   if [[ -n $entrypoint ]]; then
-    ("${sandbox[@]}" -c "/root/entrypoint")
+    "${sandbox[@]}" "-c" "/root/entrypoint"
   else
-    ("${sandbox[@]}" -c "su - ${SUDO_USER:-root}")
+    if [[ -n ${SUDO_USER-} ]]; then
+      "${sandbox[@]}" "-c" "su - $SUDO_USER"
+    else
+      "${sandbox[@]}"
+    fi
   fi
-  local rc=$?
-
-  return $rc
 }
 
 #############################################################################
 set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+
+trap Exit INT QUIT TERM EXIT
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root" >&2
@@ -166,8 +170,6 @@ if [[ -d $lock_dir ]]; then
   exit 1
 fi
 mkdir -p "$lock_dir"
-
-trap Exit INT QUIT TERM EXIT
 
 CreateCgroup ${mnt##*/} $$
 if [[ -n $entrypoint ]]; then
