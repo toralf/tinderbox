@@ -8,6 +8,8 @@ function CreateCgroup() {
   local name=/local/tb/${1?}
   local pid=${2?}
 
+  export CGROUP_LOGLEVEL=ERROR
+
   if [[ $(cgget -g cpu,memory:$name | wc -l) -gt 2 ]]; then
     echo " cgroup '$name' does already exist" >&2
     return 1
@@ -75,7 +77,6 @@ function Bwrap() {
     --setenv TERM "linux"
     --setenv USER "root"
     --hostname "$(cat $mnt/etc/conf.d/hostname)"
-    --die-with-parent
     --unshare-cgroup
     --unshare-ipc
     --unshare-pid
@@ -88,7 +89,6 @@ function Bwrap() {
     --proc /proc
     --tmpfs /run
     --ro-bind /sys /sys
-    --ro-bind /run/tinderbox /run/tinderbox
     --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
     --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
     --ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf
@@ -118,8 +118,6 @@ if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root" >&2
   exit 1
 fi
-
-export CGROUP_LOGLEVEL=ERROR
 
 entrypoint=""
 mnt=""
