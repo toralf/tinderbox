@@ -23,13 +23,12 @@ function dice() {
 }
 
 # helper of InitOptions()
-function DiceAProfile() {
+function GetVAlidProfiles() {
   eselect profile list |
     grep -F -e ' (stable)' -e ' (dev)' |
-    grep -v -F -e '/selinux' -e '/x32' |
+    grep -v -F -e '/selinux' -e '/x32' -e '/musl' |
     awk '{ print $2 }' |
-    cut -f 4- -d '/' -s |
-    shuf -n 1
+    cut -f 4- -d '/' -s
 }
 
 # helper of main()
@@ -41,7 +40,7 @@ function InitOptions() {
   jobs="5"
   keyword="~amd64"
   name=""
-  profile=$(DiceAProfile | grep -v -F 'musl') # https://bugs.gentoo.org/911233
+  profile=$(GetVAlidProfiles | shuf -n 1)
   testfeature="n"
   useflagsfrom=""
 
