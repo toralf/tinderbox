@@ -83,7 +83,7 @@ function Bwrap() {
     --proc /proc
     --tmpfs /run
     --ro-bind /sys /sys
-    --size $((2 ** 25)) --perms 1777 --tmpfs /tmp
+    --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
     --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
     --bind ~tinderbox/distfiles /var/cache/distfiles
     --ro-bind ~tinderbox/tb/data /mnt/tb/data
