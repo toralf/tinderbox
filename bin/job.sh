@@ -43,8 +43,9 @@ function Mail() {
   fi |
     strings -w |
     sed -e 's,^>, >,' |
-    if ! timeout --signal=15 --kill-after=1m 5m mail -s "$subject @ $name" ${MAILTO:-tinderbox@zwiebeltoralf.de} >/dev/null; then
+    if ! timeout --signal=15 --kill-after=1m 5m mail -s "$subject @ $name" ${MAILTO:-tinderbox@zwiebeltoralf.de} &>/tmp/mail.log; then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
+      cat /tmp/mail.log >&2
     fi
 }
 
@@ -59,7 +60,9 @@ function ReachedEOL() {
   local new
   new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
   subject+=", $new new bug(s)"
-  /usr/bin/pfl &>/dev/null
+  if ! /usr/bin/pfl &>/dev/null; then
+    echo "pfl failed" >&2
+  fi
   Finish 0 "EOL $subject" $attachment
 }
 
@@ -233,9 +236,7 @@ function CollectIssueFiles() {
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null || true
 
     if [[ -d $workdir/../../temp ]]; then
-      # needed due to
-      if ! timeout --signal=15 --kill-after=1m 30m \
-        $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
+      if ! $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
         --dereference --warning=none \
         --exclude='*/garbage.*' \
         --exclude='*/go-build[0-9]*/*' \
@@ -243,6 +244,8 @@ function CollectIssueFiles() {
         --exclude='*/kerneldir/*' \
         --exclude='*/nested_link_to_dir/*' \
         --exclude='*/syml*' \
+        --exclude='*/temp/NuGetScratchportage/*' \
+        --exclude='*/temp/nugets/*' \
         --exclude='*/testdirsymlink/*' \
         --exclude='*/var-tests/*' \
         ./temp &>/tmp/tar.log; then
@@ -1065,7 +1068,9 @@ while :; do
     # ... update @world daily
     wh=/var/tmp/tb/@world.history
     if [[ ! -s $wh || $((EPOCHSECONDS - $(stat -c %Z $wh))) -ge 86400 ]]; then
-      /usr/bin/pfl &>/dev/null
+      if ! /usr/bin/pfl &>/dev/null; then
+        echo "pfl failed" >&2
+      fi
       add2backlog "@world"
     fi
   fi
