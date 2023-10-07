@@ -51,8 +51,8 @@ checkEOL() {
         checkEOL
         touch /var/tmp/tb/WAIT
         sleep 30
+        rm /var/tmp/tb/WAIT
       done
-      rm -f /var/tmp/tb/WAIT
       checkEOL
     ;;
   esac
