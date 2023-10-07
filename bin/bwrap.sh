@@ -88,13 +88,11 @@ function Bwrap() {
     --bind ~tinderbox/distfiles /var/cache/distfiles
     --ro-bind ~tinderbox/tb/data /mnt/tb/data
     --bind ~tinderbox/tb/findings /mnt/tb/findings
+    --setenv HOME "/root"
+    --setenv USER "root"
+    --ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf
+    --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
   )
-  if [[ -n $entrypoint || -z ${SUDO_USER-} ]]; then
-    sandbox+=(--setenv HOME "/root")
-    sandbox+=(--setenv USER "root")
-    sandbox+=(--ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf)
-    sandbox+=(--ro-bind ~tinderbox/.bugzrc /root/.bugzrc)
-  fi
   if [[ -n $entrypoint ]]; then
     sandbox+=(--new-session)
   fi
@@ -103,11 +101,7 @@ function Bwrap() {
   if [[ -n $entrypoint ]]; then
     "${sandbox[@]}" "-c" "/root/entrypoint"
   else
-    if [[ -n ${SUDO_USER-} ]]; then
-      "${sandbox[@]}" "-c" "su - $SUDO_USER"
-    else
-      "${sandbox[@]}"
-    fi
+    "${sandbox[@]}"
   fi
 }
 
@@ -148,6 +142,12 @@ while getopts e:m: opt; do
     ;;
   esac
 done
+lock_dir="/run/tinderbox/${mnt##*/}.lock"
+
+if [[ -z $entrypoint && -n ${SUDO_USER-} ]]; then
+  echo " non-root interactive login is not allowed" >&2
+  exit 1
+fi
 
 if [[ -z $mnt ]]; then
   echo " mount point is empty" >&2
@@ -164,7 +164,6 @@ if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   exit 1
 fi
 
-lock_dir="/run/tinderbox/${mnt##*/}.lock"
 if [[ -d $lock_dir ]]; then
   echo " lock dir '$lock_dir' does already exist" >&2
   exit 1
