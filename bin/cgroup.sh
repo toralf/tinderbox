@@ -13,13 +13,10 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-export CGROUP_LOGLEVEL=ERROR
-
-# must exist before any cgroup entry is created
+# must exist before any cgroup memory entry is created
 echo 1 >/sys/fs/cgroup/memory/memory.use_hierarchy
 
-# cgroup v1 does not cleanup after itself so create and use a shell script for that
-# place it in a system wide read + executeable location for every consumer
+# cgroup v1 does not clean up automatically
 agent="/tmp/cgroup-release-agent.sh"
 rm -f $agent
 cat <<EOF >$agent
