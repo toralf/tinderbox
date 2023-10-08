@@ -676,32 +676,23 @@ function RunSetupScript() {
     fi
     echo -e "$(date)   OK"
   else
-    local rc=$?
-    echo -e "$(date)   FAILED $rc"
+    echo -e "$(date)   FAILED"
     tail -n 100 ./var/tmp/tb/setup.sh.log
     echo
-    return $rc
+    return 1
   fi
 }
 
 function RunDryrunWrapper() {
-  local message=$1
+  echo "$1" | tee ./var/tmp/tb/task
 
-  echo "$message" | tee ./var/tmp/tb/task
-  nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog
-  local rc=$?
-
-  if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
-    ((rc += 200))
+  if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog; then
+    if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
+      echo " OK"
+      return 0
+    fi
   fi
-
-  if [[ $rc -eq 0 ]]; then
-    echo " OK"
-  else
-    echo " rc=$rc"
-  fi
-
-  return $rc
+  return 1
 }
 
 function FixPossibleUseFlagIssues() {
@@ -712,8 +703,7 @@ function FixPossibleUseFlagIssues() {
   fi
 
   for i in {1..29}; do
-
-    # kick off a particular package from package specific use flag file
+    # kick off a package from the package specific use flag file
     local pkg
     pkg=$(
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
