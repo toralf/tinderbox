@@ -910,20 +910,20 @@ function DetectRepeats() {
   local p_max=5
   local w_max=18
 
+  if [[ $name =~ "_test" ]]; then
+    ((w_max = 30))
+  fi
+
+  local pattern='@world'
+  if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge $w_max ]]; then
+    ReachedEOL "too often ($w_max x) repeated: $pattern"
+  fi
+
   for pattern in 'perl-cleaner' '@preserved-rebuild'; do
     if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge $p_max ]]; then
       ReachedEOL "too often ($p_max x) repeated: $pattern"
     fi
   done
-
-  if [[ $name =~ "_test" ]]; then
-    ((w_max = 30))
-  fi
-
-  pattern='@world'
-  if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge $w_max ]]; then
-    ReachedEOL "too often ($w_max x) repeated: $pattern"
-  fi
 
   local count
   local package
