@@ -8,12 +8,17 @@ function CreateCgroup() {
   local name=/local/tb/${1?}
   local pid=${2?}
 
-  export CGROUP_LOGLEVEL=ERROR
-
-  if [[ $(cgget -g cpu,memory:$name | wc -l) -gt 2 ]]; then
-    echo " cgroup '$name' does already exist" >&2
-    return 1
-  fi
+  local i=0
+  while [[ $(cgget -g cpu,memory:$name | wc -l) -gt 2 ]]; do
+    ((++i))
+    echo -n " cgroup '$name' does already exist, " >&2
+    if [[ $i -gt 10 ]]; then
+      echo "giving up" >&2
+      return 1
+    fi
+    echo "waiting" >&2
+    sleep 1
+  done
 
   if ! cgcreate -g cpu,memory:$name; then
     return 1
