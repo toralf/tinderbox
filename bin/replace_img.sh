@@ -77,6 +77,15 @@ while :; do
   done < <(ImagesInRunShuffled)
 
   while read -r oldimg; do
+    if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && __is_crashed $oldimg; then
+      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
+      if [[ $hours -ge 24 ]]; then
+        echo -e "image is crashed and last task was $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
+      fi
+    fi
+  done < <(ImagesInRunShuffled)
+
+  while read -r oldimg; do
     if __is_running $oldimg; then
       hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
       if [[ $hours -ge 25 ]]; then
