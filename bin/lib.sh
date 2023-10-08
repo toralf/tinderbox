@@ -15,23 +15,22 @@ function __is_running() {
       return 0
     else
       sleep 1
-      __is_locked $1 && __is_cgrouped $1
     fi
-  else
-    return 1
   fi
+  __is_locked $1 && __is_cgrouped $1
 }
 
 function __is_crashed() {
   if ! __is_locked $1; then
     if __is_cgrouped $1; then
       sleep 1
-      ! __is_locked $1 && __is_cgrouped $1
-    else
-      return 1
     fi
+    ! __is_locked $1 && __is_cgrouped $1
   else
-    return 1
+    if ! __is_cgrouped $1; then
+      sleep 1
+    fi
+    __is_locked $1 && ! __is_cgrouped $1
   fi
 }
 
