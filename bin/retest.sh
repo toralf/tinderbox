@@ -15,9 +15,9 @@ fi
 
 result=/tmp/$(basename $0) # package/s to be scheduled in the backlog of each image
 
-# accept special atoms w/o qatom check
-xargs -n 1 <<<$* |
-  grep -v -e "^[@=+-_\./[[:alnum:]]]" |
+# special atoms
+tr -c -d '+-_./[:alnum:][:blank:]\n' <<<$* |
+  xargs -n 1 |
   grep -e '^@' -e '^=' |
   sort -u >$result.special
 if [[ -s $result.special ]]; then
@@ -32,16 +32,16 @@ if [[ -s $result.special ]]; then
 fi
 rm $result.special
 
-# work at regular atoms
-xargs -n 1 <<<$* |
-  grep -v -e "^[+-_\./[[:alnum:]]]" |
+# regular atoms
+tr -c -d '+-_./[:alnum:][:blank:]\n=@' <<<$* |
+  xargs -n 1 |
   sort -u |
   xargs -r qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
   grep -v -F '<unset>' |
   grep ".*-.*/.*" |
   sort -u >$result.packages
 if [[ -s $result.packages ]]; then
-  # for few atoms re-test them immediately otherwise put them into the (lower prioritized) .upd backlog
+  # if there're only few atoms then schedule them for an asap emerge
   if [[ $(wc -l <$result.packages) -le 3 ]]; then
     suffix="1st"
   else
