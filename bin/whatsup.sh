@@ -283,7 +283,7 @@ function Coverage() {
     local n
     n=$(wc -l <$emerged)
     local oldest
-    oldest=$(sort -n ~tinderbox/$i/??.*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
+    oldest=$(sort -n ~tinderbox/$i/*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
       days=$(echo "scale=2.1; ($EPOCHSECONDS - $oldest) / 3600 / 24" | bc)
