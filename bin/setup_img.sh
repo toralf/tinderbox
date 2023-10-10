@@ -37,7 +37,7 @@ function InitOptions() {
   abi3264="n"
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=$cflags_default
-  jobs="5"
+  jobs="4"
   keyword="~amd64"
   name=""
   profile=$(GetVAlidProfiles | shuf -n 1)
