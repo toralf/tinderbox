@@ -368,7 +368,8 @@ function CompilePortageFiles() {
   # setup or dep calculation issues or just broken at all
   echo 'FEATURES="-test"' >./etc/portage/env/notest
 
-  # continue an expected failed test of a package while preserving the dependency tree
+  # continue after a (expected to fail) test phase of a particular package
+  # instead setting "notest" for that package and therefore may have a changed dependency tree
   echo 'FEATURES="test-fail-continue"' >./etc/portage/env/test-fail-continue
 
   # retry w/o sandbox'ing
@@ -384,7 +385,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # use persistent build dir instead /var/tmp/portage
+  # use persistent build dir instead /var/tmp/portage (build artefacts will stay forever)
   mkdir ./var/tmp/notmpfs
   echo 'PORTAGE_TMPDIR=/var/tmp/notmpfs' >./etc/portage/env/notmpfs
 
