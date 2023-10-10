@@ -12,7 +12,7 @@ function CreateCgroup() {
   while [[ $(cgget -g cpu,memory:$name | wc -l) -gt 2 ]]; do
     ((++i))
     echo -n " cgroup '$name' does already exist, " >&2
-    if [[ $i -gt 10 ]]; then
+    if [[ $i -gt 5 ]]; then
       echo "giving up" >&2
       return 1
     fi
