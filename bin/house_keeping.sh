@@ -54,7 +54,7 @@ function pruneIt() {
 #######################################################################
 set -eu
 export LANG=C.utf8
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root" >&2

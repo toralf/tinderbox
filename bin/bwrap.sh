@@ -113,7 +113,7 @@ function Bwrap() {
 #############################################################################
 set -euf
 export LANG=C.utf8
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 trap Exit INT QUIT TERM EXIT
 

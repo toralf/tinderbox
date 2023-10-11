@@ -348,7 +348,7 @@ function CountEmergesPerPackages() {
 set -eu
 export LANG=C.utf8
 unset LC_TIME
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 source $(dirname $0)/lib.sh
 
