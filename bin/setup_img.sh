@@ -9,9 +9,9 @@ function Exit() {
 
   trap - INT QUIT TERM EXIT
   if [[ $rc -eq 0 ]]; then
-    echo -e "\n$(date)\n  setup done for $name"
+    echo -e "$(date)\n  setup done for $name"
   else
-    echo -e "\n$(date)\n  setup failed for $name with rc=$rc"
+    echo -e "$(date)\n  setup failed for $name with rc=$rc"
   fi
   echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   exit $rc
@@ -33,7 +33,7 @@ function GetVAlidProfiles() {
 
 # helper of main()
 function InitOptions() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   abi3264="n"
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   cflags=$cflags_default
@@ -111,11 +111,6 @@ function CheckOptions() {
     fi
   fi
 
-  if [[ ! $jobs =~ ^[0-9]+$ ]]; then
-    echo " jobs is wrong: >>$jobs<<"
-    return 1
-  fi
-
   if [[ -n $useflagsfrom && $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
     echo " useflagsfrom is wrong: >>$useflagsfrom<<"
     return 1
@@ -133,10 +128,10 @@ function CreateImageName() {
 
 # download, verify and unpack the stage3 file
 function UnpackStage3() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   local latest=$tbhome/distfiles/latest-stage3.txt
 
-  echo -en "\n$(date) get latest-stage3.txt from"
+  echo -n "$(date)   get latest-stage3.txt from"
   for mirror in $gentoo_mirrors; do
     echo -n " $mirror"
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
@@ -151,7 +146,7 @@ function UnpackStage3() {
     return 1
   fi
 
-  echo -e "\n$(date) get stage3 prefix for profile $profile"
+  echo "$(date)   get stage3 prefix for profile $profile"
   local prefix="stage3-amd64"
   prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<<$profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<<$prefix)
@@ -177,14 +172,14 @@ function UnpackStage3() {
     prefix=$(sed -e 's,amd64,amd64-llvm,' -e 's,-clang,,' <<<$prefix)
   fi
 
-  echo -e "\n$(date) get stage3 file name for prefix $prefix"
+  echo "$(date)   get stage3 file name for prefix $prefix"
   local stage3
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
     echo " failed"
     return 1
   fi
 
-  echo -e "\n$(date) updating signing keys ..."
+  echo "$(date)   updating signing keys ..."
   local keys="13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058"
   if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $keys; then
     echo " notice: failed, but will continue"
@@ -195,7 +190,7 @@ function UnpackStage3() {
   if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
     rm -f $local_stage3{,.asc}
     for mirror in $gentoo_mirrors; do
-      echo -e "\n$(date) downloading $stage3{,.asc} from mirror $mirror ..."
+      echo "$(date)   downloading $stage3{,.asc} from mirror $mirror ..."
       if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
         echo -e "$(date) finished"
         break
@@ -203,13 +198,13 @@ function UnpackStage3() {
     done
   fi
   if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
-    echo -e "\n$(date) missing stage3 file"
+    echo "$(date)   missing stage3 file"
     ls -l $tbhome/distfiles/$stage3{,.asc}
     return 1
   fi
-  echo -e "\n$(date) using $local_stage3"
+  echo "$(date)   using $local_stage3"
 
-  echo -e "\n$(date) verifying stage3 files ..."
+  echo "$(date)   verifying stage3 files ..."
   if ! gpg --quiet --verify $local_stage3.asc; then
     mv -f $local_stage3{,.asc} /tmp
     echo " FAILED"
@@ -217,13 +212,13 @@ function UnpackStage3() {
   fi
 
   CreateImageName
-  echo -e "\n$(date) new image: $name"
+  echo "$(date)   new image: $name"
   if ! mkdir ~tinderbox/img/$name; then
     return 1
   fi
 
   cd ~tinderbox/img/$name
-  echo -e "\n$(date) untar'ing stage3 ..."
+  echo "$(date)   untar'ing stage3 ..."
   if ! tar -xpf $local_stage3 --same-owner --xattrs; then
     echo " failed, moving files to /tmp"
     mv $local_stage3{,.asc} /tmp
@@ -233,7 +228,7 @@ function UnpackStage3() {
 
 # prefer git over rsync
 function InitRepository() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   mkdir -p ./etc/portage/repos.conf/
 
   cat <<EOF >./etc/portage/repos.conf/all.conf
@@ -267,7 +262,7 @@ EOF
 
 # create tinderbox related directories + files
 function CompileTinderboxFiles() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   mkdir -p ./mnt/tb/data ./var/tmp/tb/{,issues,logs} ./var/cache/distfiles
   echo $EPOCHSECONDS >./var/tmp/tb/setup.timestamp
   echo $name >./var/tmp/tb/name
@@ -276,7 +271,7 @@ function CompileTinderboxFiles() {
 
 # compile make.conf
 function CompileMakeConf() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   cat <<EOF >./etc/portage/make.conf
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
@@ -350,7 +345,7 @@ function cpconf() {
 
 # create portage related directories + files
 function CompilePortageFiles() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
 
   cp -r $tbhome/tb/patches ./etc/portage
   for d in env package.{,env,unmask}; do
@@ -408,7 +403,7 @@ RUST_TEST_TASKS=$j
 EOF
 
   done
-  echo "*/*         j${jobs}" >>./etc/portage/package.env/00jobs
+  echo "*/*         j$jobs" >>./etc/portage/package.env/00jobs
 
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
@@ -470,7 +465,7 @@ EOF
 }
 
 function CompileMiscFiles() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   cat <<EOF >./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
@@ -510,7 +505,7 @@ EOF
 # /var/tmp/tb/backlog.1st : setup_img.sh          job.sh, retest.sh
 # /var/tmp/tb/backlog.upd :                       job.sh, retest.sh
 function CreateBacklogs() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   local bl=./var/tmp/tb/backlog
 
   truncate -s 0 $bl{,.1st,.upd}
@@ -531,10 +526,10 @@ EOF
 }
 
 function CreateSetupScript() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   if [[ ! $profile =~ "/clang" ]]; then
     if dice 1 2; then
-      echo -e "\n$(date) use host kernel ..."
+      echo "$(date)   use host kernel ..."
       local kv
       kv=$(realpath /usr/src/linux)
       rsync -aq $kv ./usr/src
@@ -666,7 +661,7 @@ EOF
 }
 
 function RunSetupScript() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
 
   echo '/var/tmp/tb/setup.sh &>/var/tmp/tb/setup.sh.log' >./var/tmp/tb/setup_wrapper.sh
   chmod u+x ./var/tmp/tb/setup_wrapper.sh
@@ -811,7 +806,7 @@ function ThrowFlags() {
     shuf -n $((RANDOM % 1800 + 200)) |
     sort |
     while read -r file; do
-      pkg=$(cut -f6-7 -d'/' <<<$file)
+      pkg=$(cut -f 6-7 -d '/' -s <<<$file)
       grep 'flag name="' $file |
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
         cut -f 2 -d '"' -s |
@@ -823,7 +818,7 @@ function ThrowFlags() {
 }
 
 function CompileUseFlagFiles() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   cat <<EOF >./var/tmp/tb/dryrun_wrapper.sh
 set -euf
 
@@ -879,7 +874,7 @@ EOF
 }
 
 function Finalize() {
-  echo -e "\n$(date) ${FUNCNAME[0]} ..."
+  echo "$(date) ${FUNCNAME[0]} ..."
   cd $tbhome/run
   ln -s ../img/$name
   wc -l -w ../img/$name/etc/portage/package.use/2* 2>/dev/null || true
@@ -897,8 +892,7 @@ if [[ "$(whoami)" != "root" ]]; then
 fi
 
 trap Exit INT QUIT TERM EXIT
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echo -e "\n$(date)\n $0 start"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++$(date)\n $0 start"
 
 tbhome=~tinderbox
 reposdir=/var/db/repos
@@ -909,14 +903,13 @@ gentoo_mirrors=$(
 
 InitOptions
 
-while getopts a:j:k:p:t:u: opt; do
+while getopts a:k:p:t:u: opt; do
   case $opt in
-  a) abi3264="$OPTARG" ;;      # y
-  j) jobs="$OPTARG" ;;         # 4
-  k) keyword="$OPTARG" ;;      # amd64
-  p) profile="$OPTARG" ;;      # 23.0/desktop/systemd
-  t) testfeature="$OPTARG" ;;  # y
-  u) useflagsfrom="$OPTARG" ;; # ~/img/23.0_desktop_systemd-20230624-014416
+  a) abi3264="$OPTARG" ;;      # "y" or "n"
+  k) keyword="$OPTARG" ;;      # "amd64"
+  p) profile="$OPTARG" ;;      # "23.0/desktop/systemd"
+  t) testfeature="$OPTARG" ;;  # "y" or "n"
+  u) useflagsfrom="$OPTARG" ;; # "~/img/23.0_desktop_systemd-20230624-014416"
   *)
     echo "unknown parameter '$opt'"
     exit 1
