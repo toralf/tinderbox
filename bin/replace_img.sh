@@ -119,13 +119,13 @@ while :; do
         cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       else
         echo " got NO image name"
-        cat $tmpfile | mail -s "NOTICE: no image name" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+        cat $tmpfile | mail -s "NOTICE: setup succeeded but got no image name" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       fi
     else
       rc=$?
       echo " failed rc=$rc"
       cat $tmpfile | mail -s "NOTICE: setup failed  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
-      sleep $((1 * 3600)) || true # killing this is ok
+      sleep $((1 * 3600))
     fi
     rm $tmpfile
     continue
