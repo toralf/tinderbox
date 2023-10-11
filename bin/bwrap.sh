@@ -106,7 +106,11 @@ function Bwrap() {
   if [[ -n $entrypoint ]]; then
     "${sandbox[@]}" "-c" "/root/entrypoint"
   else
-    "${sandbox[@]}"
+    if [[ -n ${SUDO_USER-} ]]; then
+      "${sandbox[@]}" "-c" "su - $SUDO_USER"
+    else
+      "${sandbox[@]}"
+    fi
   fi
 }
 
@@ -148,11 +152,6 @@ while getopts e:m: opt; do
   esac
 done
 lock_dir="/run/tinderbox/${mnt##*/}.lock"
-
-if [[ -z $entrypoint && -n ${SUDO_USER-} ]]; then
-  echo " non-root interactive login is not allowed" >&2
-  exit 1
-fi
 
 if [[ -z $mnt ]]; then
   echo " mount point is empty" >&2
