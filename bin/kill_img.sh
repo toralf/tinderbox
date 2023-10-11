@@ -23,7 +23,7 @@ for img in ${*?got no image}; do
       if [[ -n $pid_bwrap && $(wc -l <<<$pid_bwrap) -eq 1 ]]; then
         if pid_emerge=$(pstree -pa $pid_bwrap | grep -F 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','); then
           if [[ -n $pid_emerge ]]; then
-            pstree -UlnspuTa $pid_emerge | head -n 20 | cut -c1-200
+            pstree -UlnspuTa $pid_emerge | head -n 20 | cut -c 1-200 | tee ~tinderbox/img/$img/var/tmp/tb/killed_process.log
             echo
             kill -9 $pid_emerge
           else
