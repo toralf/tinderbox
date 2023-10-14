@@ -1049,6 +1049,7 @@ while :; do
     echo "#catched EOL" >$taskfile
     ReachedEOL "catched EOL" /var/tmp/tb/EOL
   elif [[ -f /var/tmp/tb/STOP ]]; then
+    echo "" >$taskfile
     Finish 0 "catched STOP" /var/tmp/tb/STOP
   fi
 
