@@ -50,7 +50,7 @@ function Mail() {
 }
 
 function ReachedEOL() {
-  local subject=${1:-"EOL"}
+  local subject=${1:-"<NO SUBJECT>"}
   local attachment=${2-}
 
   echo "$subject" >>/var/tmp/tb/EOL
@@ -340,7 +340,7 @@ function handleTestPhase() {
     cd "$workdir"
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
     if [[ -n $dirs ]]; then
-      if ! timeout --signal=15 --kill-after=1m 3m $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
+      if ! $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
         --dereference --one-file-system --sparse \
         --exclude='*.o' \
         --exclude="*/dev/*" \
@@ -519,7 +519,7 @@ function finishTitle() {
 function SendIssueMailIfNotYetReported() {
   if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
     if ! grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
-      # chain "cat" by "echo" b/c cat buffers output which is racy between images
+      # chain "cat" by "echo" b/c "echo" is racy whilst "cat" buffers output till newline
       # shellcheck disable=SC2005
       echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
 
@@ -528,31 +528,25 @@ function SendIssueMailIfNotYetReported() {
       chmod a+w $issuedir/body
 
       local hints="bug"
-      local force="                        "
+      local force=""
 
+      createSearchString
       if checkBgo &>>$issuedir/body; then
-        createSearchString
         if SearchForSameIssue >>$issuedir/body; then
-          hints+=" same"
+          hints+="   same"
         elif ! BgoIssue; then
+          force="                                -f"
           if SearchForSimilarIssue >>$issuedir/body; then
             hints+=" similar"
-            force+=" -f"
           elif ! BgoIssue; then
             hints+=" unknown"
-            force+=" -f"
-          fi
-
-          echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n;" >>$issuedir/body
-          if blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER); then
-            hints+=" blocks $blocker_bug_no"
           fi
         fi
       fi
-      if BgoIssue; then
-        hints=" b.g.o issue"
+      if blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER); then
+        hints+=" blocks $blocker_bug_no"
       fi
-
+      echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n;" >>$issuedir/body
       Mail "$hints $(cat $issuedir/title)" $issuedir/body
     fi
   fi
@@ -1053,7 +1047,7 @@ last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :; do
   if [[ -f /var/tmp/tb/EOL ]]; then
     echo "#catched EOL" >$taskfile
-    ReachedEOL "catched EOL"
+    ReachedEOL "catched EOL" /var/tmp/tb/EOL
   elif [[ -f /var/tmp/tb/STOP ]]; then
     Finish 0 "catched STOP" /var/tmp/tb/STOP
   fi
