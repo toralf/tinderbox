@@ -33,7 +33,7 @@ for i in ${@:-$(ls ~tinderbox/run)}; do
   fi
 
   if [[ -f $mnt/var/tmp/tb/STOP ]]; then
-    if ! __is_not_running "$mnt"; then
+    if __is_not_running "$mnt"; then
       echo " found STOP file for stopped image: $mnt" >&2
     fi
     continue
