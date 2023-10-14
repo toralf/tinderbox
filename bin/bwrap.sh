@@ -119,8 +119,6 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-trap Exit INT QUIT TERM EXIT
-
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root" >&2
   exit 1
@@ -172,6 +170,7 @@ if [[ -d $lock_dir ]]; then
   echo " lock dir '$lock_dir' does already exist" >&2
   exit 1
 fi
+trap Exit INT QUIT TERM EXIT
 mkdir -p "$lock_dir"
 
 CreateCgroup ${mnt##*/} $$
