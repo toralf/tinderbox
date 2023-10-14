@@ -178,7 +178,7 @@ function CompressIssueFiles() {
 
 function CreateEmergeInfo() {
   local ehist=$issuedir/files/emerge-history.txt
-  local cmd="qlop --nocolor --verbose --merge --unmerge --summary"
+  local cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, that forces sorting
 
   cat <<EOF >$ehist
 # This file contains the emerge history got with:
