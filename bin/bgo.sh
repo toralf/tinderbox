@@ -154,6 +154,11 @@ if [[ -z $issuedir || ! -d $issuedir ]]; then
 fi
 cd $issuedir
 
+if [[ ! -s emerge-info.txt ]]; then
+  echo " missing emerge-info.txt" >&2
+  exit 1
+fi
+
 trap Exit INT QUIT TERM EXIT
 
 # cleanup of a previous run
