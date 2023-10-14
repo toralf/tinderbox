@@ -68,7 +68,7 @@ trap Finish INT QUIT TERM EXIT
 desired_count=${1:-12}
 while :; do
   while read -r oldimg; do
-    if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && ! __is_running $oldimg; then
+    if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && __is_not_running $oldimg; then
       hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
       if [[ $hours -ge 24 ]]; then
         echo -e "image is not running and last task was $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
@@ -97,7 +97,7 @@ while :; do
 
   # free the slot
   while read -r oldimg; do
-    if ! __is_running $oldimg; then
+    if __is_not_running $oldimg; then
       rm ~tinderbox/run/$oldimg
       mv ~tinderbox/logs/$oldimg.log ~tinderbox/img/$oldimg/var/tmp/tb
     fi
@@ -131,7 +131,6 @@ while :; do
     continue
   fi
 
-  # loop as long as there're images marked as EOL
   while read -r oldimg; do
     if ! __is_running $oldimg; then
       continue 2
@@ -139,7 +138,7 @@ while :; do
     sleep 60
   done < <(ImagesInRunButEOL)
 
-  # reaching this line means then there's nothing (more) to do
+  # reaching this line means then there's nothing more to do (for now)
   break
 done
 

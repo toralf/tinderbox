@@ -10,28 +10,15 @@ function __is_locked() {
 }
 
 function __is_running() {
-  if __is_locked $1; then
-    if __is_cgrouped $1; then
-      return 0
-    else
-      sleep 1
-    fi
-  fi
   __is_locked $1 && __is_cgrouped $1
 }
 
+function __is_not_running() {
+  ! __is_locked $1 && ! __is_cgrouped $1
+}
+
 function __is_crashed() {
-  if ! __is_locked $1; then
-    if __is_cgrouped $1; then
-      sleep 1
-    fi
-    ! __is_locked $1 && __is_cgrouped $1
-  else
-    if ! __is_cgrouped $1; then
-      sleep 1
-    fi
-    __is_locked $1 && ! __is_cgrouped $1
-  fi
+  ! __is_running $1 && ! __is_not_running $1
 }
 
 function getStartTime() {
