@@ -43,9 +43,9 @@ function Mail() {
   fi |
     strings -w |
     sed -e 's,^>, >,' |
-    if ! timeout --signal=15 --kill-after=1m 5m mail -s "$subject @ $name" ${MAILTO:-tinderbox@zwiebeltoralf.de} &>/tmp/mail.log; then
+    if ! timeout --signal=15 --kill-after=1m 5m mail -s "$subject @ $name" ${MAILTO:-tinderbox@zwiebeltoralf.de} &>/var/tmp/mail.log; then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
-      cat /tmp/mail.log >&2
+      cat /var/tmp/mail.log >&2
     fi
 }
 
@@ -248,8 +248,8 @@ function CollectIssueFiles() {
         --exclude='*/temp/nugets/*' \
         --exclude='*/testdirsymlink/*' \
         --exclude='*/var-tests/*' \
-        ./temp &>/tmp/tar.log; then
-        Mail "NOTICE: tar issue with $workdir/../../temp" /tmp/tar.log
+        ./temp &>/var/tmp/tar.log; then
+        Mail "NOTICE: tar issue with $workdir/../../temp" /var/tmp/tar.log
       fi
     fi
 
@@ -348,8 +348,8 @@ function handleTestPhase() {
         --exclude="*/run/*" \
         --exclude="*/symlinktest/*" \
         --exclude="*/sys/*" \
-        $dirs &>/tmp/tar.log; then
-        Mail "NOTICE: tar issue with $workdir" /tmp/tar.log
+        $dirs &>/var/tmp/tar.log; then
+        Mail "NOTICE: tar issue with $workdir" /var/tmp/tar.log
       fi
     fi
   )
