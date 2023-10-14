@@ -27,7 +27,7 @@ for i in ${@:-$(list_active_images)}; do
     continue
   fi
 
-  if ! __is_running "$mnt"; then
+  if ! __is_locked "$mnt" && ! __is_cgrouped "$mnt"; then
     continue
   fi
 
