@@ -543,9 +543,9 @@ function SendIssueMailIfNotYetReported() {
         if SearchForSameIssue >>$issuedir/body; then
           hints+="   same"
         elif ! BgoIssue; then
-          force="                                -f"
           if SearchForSimilarIssue >>$issuedir/body; then
             hints+=" similar"
+            force="                                -f"
           elif ! BgoIssue; then
             hints+=" unknown"
           fi
