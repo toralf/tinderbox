@@ -177,15 +177,23 @@ function CompressIssueFiles() {
 }
 
 function CreateEmergeInfo() {
-  local ehist=$issuedir/files/emerge-history.txt
-  local cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, that forces sorting
-
-  cat <<EOF >$ehist
+  local outfile=$issuedir/files/emerge-history.txt
+  local cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, it would sort alphabetically
+  cat <<EOF >$outfile
 # This file contains the emerge history got with:
 # $cmd
 # at $(date)
 EOF
-  $cmd &>>$ehist
+  $cmd &>>$outfile
+
+  outfile=$issuedir/files/qlist-info.txt
+  cmd="qlist --installed --nocolor --verbose --umap --slots --slots"
+  cat <<EOF >$outfile
+# This file contains the qlist info got with:
+# $cmd
+# at $(date)
+EOF
+  $cmd &>>$outfile
 
   emerge -p --info $pkgname &>$issuedir/emerge-info.txt
 }
