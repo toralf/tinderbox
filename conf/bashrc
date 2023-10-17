@@ -38,13 +38,13 @@ post_src_install() {
   ) &>> /var/tmp/sam.txt
 }
 
-if [[ -n ${TINDERBOX_IMAGE_NAME:-} ]]; then
 checkEOL() {
   if [[ -f /var/tmp/tb/EOL || -f /var/tmp/tb/STOP ]]; then
     exit 42
   fi
 }
 
+if [[ -n ${TINDERBOX_IMAGE_NAME:-} ]]; then
   case ${EBUILD_PHASE} in
     setup|unpack|prepare|configure|compile)
       while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 30 ]]; do
