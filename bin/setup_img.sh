@@ -698,7 +698,7 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
-  for i in {1..29}; do
+  for i in $(seq -w 1 29); do
     # kick off a package from the package specific use flag file
     local pkg
     pkg=$(
