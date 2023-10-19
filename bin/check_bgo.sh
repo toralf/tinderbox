@@ -132,7 +132,7 @@ EOF
     if ! BgoIssue; then
       if ! SearchForSimilarIssue; then
         if ! BgoIssue; then
-          # no bug found for that pkg, so file it
+          echo -e "\n  nothing found for that pkg\n"
           $cmd
         fi
       fi
