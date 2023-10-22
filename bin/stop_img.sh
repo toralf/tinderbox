@@ -27,7 +27,7 @@ for i in ${@:-$(ls ~tinderbox/run/)}; do
     continue
   fi
 
-  if __is_not_running "$mnt"; then
+  if __is_stopped "$mnt"; then
     continue
   fi
 

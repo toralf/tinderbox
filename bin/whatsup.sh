@@ -142,7 +142,7 @@ function Overall() {
 function Tasks() {
   for i in $images; do
     local tsk=$i/var/tmp/tb/task
-    if printImageName $i && [[ -s $tsk ]]; then
+    if printImageName $i && ! __is_stopped $i && [[ -s $tsk ]]; then
       local task
       task=$(cat $tsk)
 
@@ -179,7 +179,7 @@ function Tasks() {
 # 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation() {
   for i in $images; do
-    if printImageName $i && [[ -s $i/var/log/emerge.log ]]; then
+    if printImageName $i && ! __is_stopped $i  && [[ -s $i/var/log/emerge.log ]]; then
       tail -n 1 $i/var/log/emerge.log |
         sed -e 's,::.*,,' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |
         perl -wane '

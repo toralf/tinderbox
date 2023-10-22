@@ -13,12 +13,12 @@ function __is_running() {
   __is_locked $1 && __is_cgrouped $1
 }
 
-function __is_not_running() {
+function __is_stopped() {
   ! __is_locked $1 && ! __is_cgrouped $1
 }
 
 function __is_crashed() {
-  ! __is_running $1 && ! __is_not_running $1
+  ! __is_running $1 && ! __is_stopped $1
 }
 
 function getStartTime() {
