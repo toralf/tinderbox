@@ -888,7 +888,11 @@ function WorkOnTask() {
     if ! RunAndCheck "$cmd"; then
       if [[ $pkg =~ "sys-devel/gcc" ]]; then
         ReachedEOL "gcc update broken" $tasklog
-      elif [[ ! $cmd =~ " --depclean" && ! $cmd =~ "perl-cleaner" ]]; then
+      elif [[ $cmd =~ "haskell-updater" ]]; then
+        ReachedEOL "haskell update broken" $tasklog
+      elif [[ $cmd =~ " --depclean" || $cmd =~ "perl-cleaner" ]]; then
+        :
+      else
         Mail "INFO: command failed: $cmd" $tasklog
       fi
     fi
