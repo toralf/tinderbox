@@ -245,7 +245,8 @@ function CollectIssueFiles() {
 
     if [[ -d $workdir/../../temp ]]; then
       if ! $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
-        --dereference --warning=none \
+        --dereference --warning=none --sparse \
+        --exclude='*/.tmp??????/*' \
         --exclude='*/garbage.*' \
         --exclude='*/go-build[0-9]*/*' \
         --exclude='*/go-cache/??/*' \
