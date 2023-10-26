@@ -13,6 +13,8 @@ default-gold
 deprecated
 device-mapper-only
 dist-kernel
+doc
+dot
 exec-static-trampoline
 FreeBSD
 fuse

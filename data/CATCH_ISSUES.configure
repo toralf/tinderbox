@@ -41,7 +41,7 @@ Unhandled python exception
 configure in /.* failed
 GNAT is required to build ada
 This expression has type .* but an expression was
-Please, run .haskell-updater
+setup: Encountered missing or private dependencies:
 Detected broken packages:
 error: unsupported
 error: setupterm:

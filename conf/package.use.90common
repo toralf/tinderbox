@@ -2,11 +2,11 @@
 #
 
 
-*/*                                 POSTGRES_TARGETS: postgres15                                          # DICE: postgres_targets
-*/*                                 QEMU_SOFTMMU_TARGETS: x86_64 i386
-*/*                                 QEMU_USER_TARGETS:    x86_64 i386
-*/*                                 RUBY_TARGETS:         -ruby30
-*/*                                 VIDEO_CARDS:          -* amdgpu dummy fbdev intel radeon radeonsi     # DICE: video_cards 1 4
+*/*                                 POSTGRES_TARGETS:       postgres15
+*/*                                 QEMU_SOFTMMU_TARGETS:   x86_64 i386
+*/*                                 QEMU_USER_TARGETS:      x86_64 i386
+*/*                                 RUBY_TARGETS:           -ruby30
+*/*                                 VIDEO_CARDS:            -* amdgpu dummy fbdev intel radeon radeonsi
 
 # 2x faster compile
 */*                                 jumbo-build
@@ -57,16 +57,17 @@ net-misc/openssh                    -sctp
 net-misc/openssh-contrib            -hpn
 
 # too much deps at setup, would lower coverity
-app-portage/pfl                     -network-cron       # DICE: ansifilter 9 10
-app-text/ansifilter                 -gui                # DICE: ansifilter 9 10
+app-portage/pfl                     -network-cron
+app-text/ansifilter                 -gui
 
 # needed by us
 sys-devel/bc                        readline -libedit -static
 
-# common setup blocker
-dev-libs/libpcre                    -libedit            # DICE: pcre 4 5
-dev-libs/libpcre2                   -libedit            # DICE: pcre 4 5
-dev-qt/qtgui                        egl -gles2-only     # DICE: qtgui 4 5
-dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: git 4 5
-sys-apps/shadow                     -cracklib           # DICE: shadow 4 5
-sys-apps/util-linux                 pam                 # DICE: util-linux 4 5
+#######################################################################
+# setup blocker
+dev-libs/libpcre                    -libedit            # DICE: setup 4 5
+dev-libs/libpcre2                   -libedit            # DICE: setup 4 5
+dev-qt/qtgui                        egl -gles2-only     # DICE: setup 4 5
+dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup 4 5
+sys-apps/shadow                     -cracklib           # DICE: setup 4 5
+sys-apps/util-linux                 pam                 # DICE: setup 4 5
