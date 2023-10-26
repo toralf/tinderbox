@@ -681,6 +681,14 @@ function PostEmerge() {
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
     add2backlog "%SwitchGCC"
   fi
+
+  for p in dirmngr gpg-agent; do
+    if pgrep -a $p &>/var/tmp/pkill.log; then
+      if ! pkill -e $p &>>/var/tmp/pkill.log; then
+        Mail " kill $p failed" /var/tmp/pkill.log
+      fi
+    fi
+  done
 }
 
 function createIssueDir() {
