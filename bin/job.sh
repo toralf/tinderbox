@@ -590,10 +590,19 @@ function WorkAtIssue() {
   CompressIssueFiles
 
   # https://bugs.gentoo.org/592880
-  if grep -q -e ' perl module .* required' -e 't locate Locale/gettext.pm in' $pkglog_stripped; then
+  if grep -q -e ' perl module .* required' \
+    -e 't locate Locale/gettext.pm in' $pkglog_stripped; then
     try_again=1
     add2backlog "$task"
     add2backlog '%perl-cleaner --all'
+    return
+  fi
+
+  if grep -q -F -e "Please, run 'haskell-updater'" \
+    -e "ghc-pkg check: 'checking for other broken packages:'" $pkglog_stripped; then
+    try_again=1
+    add2backlog "$task"
+    add2backlog "%haskell-updater"
     return
   fi
 
@@ -653,11 +662,6 @@ function PostEmerge() {
 
   if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
     add2backlog "@preserved-rebuild"
-  fi
-
-  if grep -q -F -e "Please, run 'haskell-updater'" \
-    -e "ghc-pkg check: 'checking for other broken packages:'" $tasklog_stripped; then
-    add2backlog "%haskell-updater"
   fi
 
   if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
