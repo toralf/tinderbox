@@ -918,35 +918,19 @@ function WorkOnTask() {
   fi
 }
 
-# bail out if there's a loop
+# EOL if there's a loop
 function DetectRepeats() {
-  local p_max=5
-  local w_max=18
-
-  if [[ $name =~ "_test" ]]; then
-    ((w_max = 30))
-  fi
-
-  local pattern='@world'
-  if [[ $(tail -n 40 /var/tmp/tb/task.history | grep -c "$pattern") -ge $w_max ]]; then
-    ReachedEOL "too often ($w_max x) repeated: $pattern"
-  fi
-
-  for pattern in 'perl-cleaner' '@preserved-rebuild'; do
-    if [[ $(tail -n 20 /var/tmp/tb/task.history | grep -c "$pattern") -ge $p_max ]]; then
-      ReachedEOL "too often ($p_max x) repeated: $pattern"
-    fi
-  done
-
   local count
-  local package
-  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n 500 | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge $p_max ]]; then
-    ReachedEOL "too often emerged: $count x $package"
+  local item
+
+  read -r count item < <(qlop -mv | tail -n 500 | awk '{ print $3 }' | sort | uniq -c | sort -bnr | head -n 1)
+  if [[ $count -ge 5 ]]; then
+    ReachedEOL "package too often ($count) emerged: $count x $item"
   fi
-  read -r count package < <(qlop -mv | awk '{ print $3 }' | tail -n $((2 * p_max)) | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge $p_max ]]; then
-    ReachedEOL "too often repeated: $count x $package"
+
+  read -r count item < <(tail -n 40 /var/tmp/tb/task.history | sort | uniq -c | sort -bnr | head -n 1)
+  if [[ $count -ge 18 ]]; then
+    ReachedEOL "task too often ($count) repeated: $count x $item"
   fi
 }
 
