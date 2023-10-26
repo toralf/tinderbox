@@ -105,6 +105,9 @@ EOF
       continue # race with house keeping
     fi
     no=${uri##*/}
+    if [[ -z $no ]]; then
+      continue
+    fi
     d=${f%/*}
     title=$d/title
     imagedir=$(cut -f 5- -d '/' <<<$d)
