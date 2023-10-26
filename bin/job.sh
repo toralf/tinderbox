@@ -312,13 +312,7 @@ function foundCflagsIssue() {
 # helper of ClassifyIssue()
 function foundGenericIssue() {
   # the order of the pattern within the file/s rules
-  {
-    cat /mnt/tb/data/CATCH_ISSUES-pre
-    if [[ -n $phase ]]; then
-      cat /mnt/tb/data/CATCH_ISSUES.$phase
-    fi
-    cat /mnt/tb/data/CATCH_ISSUES-post
-  } |
+  cat /mnt/tb/data/CATCH_ISSUES-pre /mnt/tb/data/CATCH_ISSUES.${phase:-compile} /mnt/tb/data/CATCH_ISSUES-post |
     split --lines=1 --suffix-length=4 - /tmp/x_
 
   for x in /tmp/x_????; do
