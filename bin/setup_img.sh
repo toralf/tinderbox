@@ -240,6 +240,7 @@ auto-sync = yes
 location  = $reposdir/gentoo
 sync-uri  = https://github.com/gentoo-mirror/gentoo.git
 sync-type = git
+sync-git-verify-commit-signature = false
 
 EOF
 
@@ -850,7 +851,7 @@ EOF
 
   else
     local attempt=0
-    while [[ $((++attempt)) -le 200 ]]; do
+    while [[ $((++attempt)) -le 300 ]]; do
       echo
       date
       echo "==========================================================="
@@ -860,6 +861,10 @@ EOF
           return 1
         fi
       done
+      if ! ((attempt % 100)); then
+        echo -e " sync repo"
+        (cd .$reposdir/gentoo && git pull 1>/dev/null)
+      fi
       ThrowFlags $attempt
       local current=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
       touch $current
@@ -868,7 +873,7 @@ EOF
         return 0
       fi
     done
-    echo -e "\n max attempts reached"
+    echo -e "\n max attempts reached, giving up"
     return 1
   fi
 }
