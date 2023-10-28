@@ -209,8 +209,8 @@ function LastEmergeOperation() {
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
   printf "%57s" ""
-  local days
-  days=$(((EPOCHSECONDS - $(sort -n ~tinderbox/run/*/var/tmp/tb/setup.timestamp | head -n 1)) / 86400))
+  local oldest=$(set -o pipefail; sort -n ~tinderbox/run/*/var/tmp/tb/setup.timestamp | head -n 1)
+  local days=$(((EPOCHSECONDS - ${oldest:-$EPOCHSECONDS}) / 86400))
   for i in $(seq 0 $days); do
     printf "%4id" $i
   done
