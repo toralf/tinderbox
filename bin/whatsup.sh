@@ -185,7 +185,6 @@ function LastEmergeOperation() {
         perl -wane '
         chop ($F[0]);
         my $delta = time() - $F[0];
-#        $delta = 0 if ($delta < 0); # scary but needed
         my $minutes = $delta / 60 % 60;
         if ($delta < 3600) {
           my $seconds = $delta % 60;
@@ -195,7 +194,7 @@ function LastEmergeOperation() {
           printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 2*3600 ? " " : "!"); # mark too long emerge times
         }
         my $line = join (" ", @F[2..$#F]);
-        print substr ($line, 0, '$((columns - 38))'), "\n";
+        print substr ($line, 0, '$columns' - 38), "\n";
       '
     else
       echo
