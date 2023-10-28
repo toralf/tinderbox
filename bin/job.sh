@@ -800,8 +800,7 @@ function RunAndCheck() {
 
   # exited on kill signal
   if [[ $rc -gt 128 ]]; then
-    local signal
-    signal=$((rc - 128))
+    local signal=$((rc - 128))
     if [[ $signal -eq 9 ]]; then
       Finish 9 "KILLed" $tasklog
     else
