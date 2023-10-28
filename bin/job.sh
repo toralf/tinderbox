@@ -592,8 +592,7 @@ function WorkAtIssue() {
     return
   fi
 
-  if grep -q -F -e "Please, run 'haskell-updater'" \
-    -e "ghc-pkg check: 'checking for other broken packages:'" $pkglog_stripped; then
+  if grep -q -F -e "Please, run 'haskell-updater'" $pkglog_stripped; then
     try_again=1
     add2backlog "$task"
     add2backlog "%haskell-updater"
