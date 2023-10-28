@@ -783,7 +783,7 @@ function GetPkgFromTaskLog() {
 # run $1 and act on its results
 function RunAndCheck() {
   set +e
-  timeout --signal=15 --kill-after=5m 24h bash -c "$1" &>>$tasklog
+  timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
   local rc=$?
   set -e
 
