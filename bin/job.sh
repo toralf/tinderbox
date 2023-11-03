@@ -535,10 +535,11 @@ function SendIssueMailIfNotYetReported() {
 
       createSearchString
       if checkBgo &>>$issuedir/body; then
-        if SearchForSameIssue >>$issuedir/body; then
-          hints+="   same"
+        echo -e "https://bugs.gentoo.org/buglist.cgi?quicksearch=$pkgname\n" >>$issuedir/body
+        if SearchForSameIssue &>>$issuedir/body; then
+          hints+=" same"
         elif ! BgoIssue; then
-          if SearchForSimilarIssue >>$issuedir/body; then
+          if SearchForSimilarIssue &>>$issuedir/body; then
             hints+=" similar"
             force="                                -f"
           elif ! BgoIssue; then
