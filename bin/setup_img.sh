@@ -34,11 +34,15 @@ function GetVAlidProfiles() {
 # helper of main()
 function InitOptions() {
   echo "$(date) ${FUNCNAME[0]} ..."
-  abi3264="n"
+
+  # fixed for now
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
-  cflags=$cflags_default
   jobs="4"
   keyword="~amd64"
+
+  # arbitrary
+  abi3264="n"
+  cflags=$cflags_default
   name=""
   profile=$(GetVAlidProfiles | shuf -n 1)
   testfeature="n"
@@ -47,6 +51,10 @@ function InitOptions() {
   # no games
   if [[ $profile =~ "/musl" ]]; then
     return
+  fi
+
+  if dice 1 5; then
+    cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
   fi
 
   if [[ $profile =~ "/systemd" ]]; then
