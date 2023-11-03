@@ -3,7 +3,7 @@
 
 
 # requested by sam_
-sys-devel/gcc                       debug               # DICE: gcc
+sys-devel/gcc                       debug               # DICE: gcc-debug
 
 # sam_, negril OOM
 sci-libs/vtk                        cuda,ffmpeg,imaging,logging,mpi,qt5,rendering,sdl,tbb,threads,views,vtkm      # DICE: vtk
