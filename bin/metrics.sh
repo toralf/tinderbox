@@ -61,12 +61,14 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+tmpfile=$(mktemp /tmp/metrics_tinderbox_XXXXXX.tmp)
+trap 'rm $tmpfile' INT QUIT TERM EXIT
+
 source $(dirname $0)/lib.sh
 
 datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
 cd $datadir
 
-tmpfile=$(mktemp /tmp/metrics_tinderbox_XXXXXX.tmp)
 echo "# $0   $(date -R)" >$tmpfile
 printMetrics >>$tmpfile
 chmod a+r $tmpfile
