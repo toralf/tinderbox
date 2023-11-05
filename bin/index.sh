@@ -41,7 +41,7 @@ function listFiles() {
 
 function listImagesWithoutBugs() {
   {
-    echo "<h2>images without bugs</h2>"
+    echo "<h2>images without any bug</h2>"
     echo "<pre>"
     find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
       xargs -r -n 1 --null basename |
@@ -85,7 +85,7 @@ function listBugs() {
       <th>Bug</th>
       <th>Title</th>
       <th>Image /</th>
-      <th>Artefacts</th>
+      <th>Artifacts</th>
     </tr>
   </thead>
 
@@ -94,7 +94,7 @@ function listBugs() {
       <th>Bug</th>
       <th>Title</th>
       <th>Image /</th>
-      <th>Artefacts</th>
+      <th>Artifacts</th>
     </tr>
   </tfoot>
   <tbody>
