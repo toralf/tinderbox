@@ -33,6 +33,10 @@ Cannot assign type void|cython|Error compiling Cython file:|Cython.Compiler.Erro
 911592
 undefined reference to .*memset_chk|conflicting types for |expected declaration specifiers or
 
-#  (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
+# (slibtool) - [tracker] Packages failing to build with sys-devel/slibtool
 765709
 rdlibtool
+
+# (gcc-14) - [TRACKER] sys-devel/gcc-14 porting
+914580
+any_of is not a member of std
