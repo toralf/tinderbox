@@ -662,7 +662,8 @@ function PostEmerge() {
     add2backlog "sys-apps/portage"
   fi
 
-  if grep -q -e 'Use: perl-cleaner' $tasklog_stripped; then
+  # https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-lang/perl/perl-5.38.0-r1.ebuild#n129
+  if grep -q -e ">>> Installing .* dev-lang/perl-[1-9]" $tasklog_stripped -e 'Use: perl-cleaner' $tasklog_stripped; then
     add2backlog '%perl-cleaner --all'
   fi
 
