@@ -463,8 +463,7 @@ EOF
   echo "*/*  $(cpuid2cpuflags)" >./etc/portage/package.use/99cpuflags
 
   for f in "$tbhome"/tb/conf/profile.*; do
-    local target
-    target=./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
+    local target=./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
     cp "$f" $target
     chmod a+r $target
   done
@@ -480,8 +479,7 @@ domain localdomain
 nameserver 127.0.0.1
 EOF
 
-  local image_hostname
-  image_hostname=$(tr -d '\n' <<<${name,,} | tr -c 'a-z0-9\-' '-')
+  local image_hostname=$(tr -d '\n' <<<${name,,} | tr -c 'a-z0-9\-' '-')
   cut -c -63 <<<$image_hostname >./etc/conf.d/hostname
   local host_hostname
   host_hostname=$(hostname)

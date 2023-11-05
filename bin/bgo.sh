@@ -77,10 +77,8 @@ function attach() {
       echo "skipped empty file: $f" >&2
     elif [[ $bytes -gt $((2 ** 20)) ]]; then
       echo "too fat file for b.g.o. ($((bytes / 2 ** 10)) KB): $f"
-      local file_size
-      file_size=$(ls -lh $f | awk '{ print $5 }')
-      local file_path
-      file_path=$(realpath $f | sed -e "s,^.*img/,,")
+      local file_size=$(ls -lh $f | awk '{ print $5 }')
+      local file_path=$(realpath $f | sed -e "s,^.*img/,,")
       local url
       url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
       local comment

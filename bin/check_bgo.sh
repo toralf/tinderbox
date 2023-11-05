@@ -15,8 +15,7 @@ function SetAssigneeAndCc() {
   local assignee
   local cc=""
 
-  local m
-  m=$(equery meta -m $pkgname | grep '@' | xargs)
+  local m=$(equery meta -m $pkgname | grep '@' | xargs)
   if [[ -z $m ]]; then
     assignee="maintainer-needed@gentoo.org"
   else

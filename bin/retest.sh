@@ -29,6 +29,7 @@ if [[ -s $result.special ]]; then
     uniq $tmpfile >$bl
   done < <(find ~tinderbox/run/*/var/tmp/tb/ -maxdepth 1 -name "backlog.1st")
   rm $tmpfile
+  echo " added $(wc -l < $result.special) special entries" >&2
 fi
 rm $result.special
 
@@ -65,5 +66,6 @@ if [[ -s $result.packages ]]; then
       ~tinderbox/run/*/etc/portage/package.mask/self \
       ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null || true
   done <$result.packages
+  echo " added $(wc -l < $result.packages) package entries" >&2
 fi
 rm $result.packages

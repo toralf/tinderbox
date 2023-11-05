@@ -27,8 +27,7 @@ function filterPlainPext() {
 function Mail() {
   local content=${2-}
 
-  local subject
-  subject=$(stripQuotesAndMore <<<$1 | strings -w | cut -c 1-200 | tr '\n' ' ')
+  local subject=$(stripQuotesAndMore <<<$1 | strings -w | cut -c 1-200 | tr '\n' ' ')
 
   if [[ -f $content ]]; then
     echo
@@ -57,8 +56,7 @@ function ReachedEOL() {
   chmod a+w /var/tmp/tb/EOL
   truncate -s 0 $taskfile
   subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log || true) completed"
-  local new
-  new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
+  local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
   subject+=", $new new bug(s)"
   if ! /usr/bin/pfl &>/dev/null; then
     echo "pfl failed" >&2
@@ -618,8 +616,7 @@ function source_profile() {
 # helper of PostEmerge()
 # switch to highest GCC
 function SwitchGCC() {
-  local highest
-  highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
+  local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
 
   if ! gcc-config --list-profiles --nocolor | grep -q -F "$highest *"; then
     local current
@@ -667,12 +664,10 @@ function PostEmerge() {
     add2backlog '%perl-cleaner --all'
   fi
 
-  if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped && ! grep -q -F '[ebuild .*UD ]  *dev-lang/ruby' $tasklog_stripped; then
-    local highest
-    highest=$(eselect ruby list | awk 'END { print $2 }')
+  if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped; then
+    local highest=$(eselect ruby list | awk 'END { print $2 }')
     if [[ -n $highest ]]; then
-      local current
-      current=$(eselect ruby show | sed -n -e '2p' | xargs)
+      local current=$(eselect ruby show | sed -n -e '2p' | xargs)
       if [[ $current != "$highest" ]]; then
         add2backlog "%eselect ruby set $highest"
       fi

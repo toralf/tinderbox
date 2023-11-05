@@ -74,12 +74,9 @@ function Overall() {
       fail=$(ls -1 $i/var/tmp/tb/issues | while read -r j; do basename $j; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
 
-    local bl
-    bl=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog || echo 0)
-    local bl1
-    bl1=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.1st || echo 0)
-    local blu
-    blu=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.upd || echo 0)
+    local bl=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog || echo 0)
+    local bl1=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.1st || echo 0)
+    local blu=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.upd || echo 0)
 
     # "l" image is locked
     # "c" image is under cgroup control
@@ -281,8 +278,7 @@ function Coverage() {
 
     local n
     n=$(wc -l <$emerged)
-    local oldest
-    oldest=$(sort -n ~tinderbox/$i/*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
+    local oldest=$(sort -n ~tinderbox/$i/*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
       days=$(echo "scale=2.1; ($EPOCHSECONDS - $oldest) / 3600 / 24" | bc)
