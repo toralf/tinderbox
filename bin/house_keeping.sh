@@ -15,7 +15,7 @@ function olderThan() {
 }
 
 function pruneNeeded() {
-  local maxperc=${1:-70} # max used space in %
+  local maxperc=${1:-80} # max used space in %
 
   if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
     # value of available space in percent is often lower than 100-"percent value of df"
@@ -63,10 +63,6 @@ fi
 
 source $(dirname $0)/lib.sh
 
-if ! pruneNeeded; then
-  exit 0
-fi
-
 # stage3 are relased weekly, keep those from the week before too
 latest=~tinderbox/distfiles/latest-stage3.txt
 if [[ -s $latest ]]; then
@@ -91,6 +87,10 @@ while read -r img; do
     fi
   fi
 done < <(list_images_by_age "img")
+
+if ! pruneNeeded; then
+  exit 0
+fi
 
 while read -r img && pruneNeeded; do
   if olderThan $img 3; then
