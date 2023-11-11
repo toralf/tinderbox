@@ -176,7 +176,7 @@ function Tasks() {
 # 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation() {
   for i in $images; do
-    if printImageName $i && ! __is_stopped $i  && [[ -s $i/var/log/emerge.log ]]; then
+    if printImageName $i && ! __is_stopped $i && [[ -s $i/var/log/emerge.log ]]; then
       tail -n 1 $i/var/log/emerge.log |
         sed -e 's,::.*,,' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |
         perl -wane '
@@ -205,7 +205,10 @@ function LastEmergeOperation() {
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
   printf "%57s" ""
-  local oldest=$(set -o pipefail; sort -n ~tinderbox/run/*/var/tmp/tb/setup.timestamp | head -n 1)
+  local oldest=$(
+    set -o pipefail
+    sort -n ~tinderbox/run/*/var/tmp/tb/setup.timestamp | head -n 1
+  )
   local days=$(((EPOCHSECONDS - ${oldest:-$EPOCHSECONDS}) / 86400))
   for i in $(seq 0 $days); do
     printf "%4id" $i
