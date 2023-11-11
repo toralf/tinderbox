@@ -2,11 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 function __is_cgrouped() {
-  [[ -d /sys/fs/cgroup/cpu/local/tb/$(basename $1)/ ]]
+  local name=/sys/fs/cgroup/tb/$(basename $1)
+
+  [[ -d $name ]] && ! grep -q 'populated 0' $name/cgroup.events
 }
 
 function __is_locked() {
-  [[ -d /run/tinderbox/$(basename $1).lock/ ]]
+  [[ -d /run/tb/$(basename $1).lock/ ]]
 }
 
 function __is_running() {
@@ -22,8 +24,8 @@ function __is_crashed() {
 }
 
 function getStartTime() {
-  local img
-  img=~tinderbox/img/$(basename $1)
+  local img=~tinderbox/img/$(basename $1)
+
   cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img
 }
 
@@ -31,8 +33,8 @@ function getStartTime() {
 function list_active_images() {
   (
     ls ~tinderbox/run/ | sort
-    ls /run/tinderbox/ | sed -e 's,.lock,,' | sort
-    ls -d /sys/fs/cgroup/cpu/local/tb/??.* | sort
+    ls /run/tb/ | sed -e 's,.lock,,' | sort
+    ls -d /sys/fs/cgroup/tb/[12]?.* | sort
   ) 2>/dev/null |
     xargs -r -n 1 basename |
     # sort -u would mix ~/img and ~/run, uniq would not detect all dups, therefore use awk

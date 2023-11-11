@@ -681,7 +681,7 @@ function PostEmerge() {
   for p in dirmngr gpg-agent; do
     if pgrep -a $p &>/var/tmp/pkill.log; then
       if ! pkill -e $p &>>/var/tmp/pkill.log; then
-        Mail " kill $p failed" /var/tmp/pkill.log
+        Mail "INFO: kill $p failed" /var/tmp/pkill.log
       fi
     fi
   done

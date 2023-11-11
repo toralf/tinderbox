@@ -52,7 +52,7 @@ function check_history() {
 #   4612   36   2  5.0   15954  116    0  . lc  ~/run/17.1_desktop_gnome-j5-20230529-171537
 function Overall() {
   local locked
-  locked=$(wc -l < <(ls -d /run/tinderbox/*.lock 2>/dev/null))
+  locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
   local all
   all=$(wc -w <<<$images)
   echo "compl fail new  day backlog .upd .1st status $locked#$all locked  +++  $(date)"
