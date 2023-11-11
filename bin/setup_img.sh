@@ -23,7 +23,7 @@ function dice() {
 }
 
 # helper of InitOptions()
-function GetVAlidProfiles() {
+function GetValidProfiles() {
   eselect profile list |
     grep -F -e ' (stable)' -e ' (dev)' |
     grep -v -F -e '/selinux' -e '/x32' -e '/musl' |
@@ -44,7 +44,7 @@ function InitOptions() {
   abi3264="n"
   cflags=$cflags_default
   name=""
-  profile=$(GetVAlidProfiles | shuf -n 1)
+  profile=$(GetValidProfiles | shuf -n 1)
   testfeature="n"
   useflagsfrom=""
 
@@ -446,16 +446,16 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??gcc
   fi
 
-  # keep lines with "# DICE: topic m N" with an m/N chance (default: 1/2)
+  # dice topics tagged with "# DICE: <topic> <m> <N>" with an m/N chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
     cut -f 3- -d ' ' |
     sort -u -r |
     while read -r topic m N; do
       if dice ${m:-1} ${N:-2}; then
-        # keep start of the line, but remove comment + spaces before
+        # keep values, but delete comment
         sed -i -e "s, *# DICE: $topic *$,," -e "s, *# DICE: $topic .*,," ./etc/portage/package.*/*
       else
-        # delete the whole line
+        # delete topic everywhere
         sed -i -e "/# DICE: $topic *$/d" -e "/# DICE: $topic .*/d" ./etc/portage/package.*/*
       fi
     done
@@ -693,9 +693,16 @@ function RunDryrunWrapper() {
     if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
       echo " OK"
       return 0
+    else
+      return 1
     fi
+  elif grep -q -m 1 "# start dryrun" $drylog; then
+    return 1
+  else
+    echo -e "\n fatal:\n" >&2
+    cat $drylog >&2
+    exit 1
   fi
-  return 1
 }
 
 function FixPossibleUseFlagIssues() {
@@ -828,6 +835,8 @@ function CompileUseFlagFiles() {
   echo "$(date) ${FUNCNAME[0]} ..."
   cat <<EOF >./var/tmp/tb/dryrun_wrapper.sh
 set -euf
+
+echo "# start dryrun"
 
 if ! portageq best_visible / sys-devel/gcc; then
   echo "no visible gcc ?!"
