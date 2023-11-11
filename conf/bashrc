@@ -47,7 +47,7 @@ checkEOL() {
 if [[ -n ${TINDERBOX_IMAGE_NAME:-} ]]; then
   case ${EBUILD_PHASE} in
     setup|unpack|prepare|configure|compile)
-      while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 30 ]]; do
+      while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 31 ]]; do
         checkEOL
         touch /var/tmp/tb/WAIT
         sleep 30
