@@ -11,7 +11,7 @@ function CreateCgroup() {
     mkdir $cgdomain
     echo "+cpu +memory" >$cgdomain/cgroup.subtree_control
 
-    echo "2700" >$cgdomain/cpu.weight
+    echo "2800" >$cgdomain/cpu.weight
     echo "96G" >$cgdomain/memory.max
     echo "192G" >$cgdomain/memory.swap.max
   fi
