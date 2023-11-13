@@ -50,17 +50,17 @@ function Exit() {
 
   trap - INT QUIT TERM EXIT
 
-  KillCgroup
   if [[ -d $lock_dir ]]; then
     rmdir "$lock_dir"
   fi
+  KillCgroup
   exit $rc
 }
 
 function Bwrap() {
   local path="/usr/sbin:/usr/bin"
-  if [[ ! $mnt =~ "merged_usr" && ! $mnt =~ "23.0" ]]; then
-    path+="/sbin:/bin"
+  if [[ $mnt =~ "17." || $mnt =~ "split_usr" ]]; then
+    path+=":/sbin:/bin"
   fi
 
   local sandbox=(env -i
