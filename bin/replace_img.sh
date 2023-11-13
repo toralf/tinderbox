@@ -113,8 +113,8 @@ while :; do
       date
       if [[ -n $img ]]; then
         echo " got $img"
-        $(dirname $0)/start_img.sh $img
         cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+        $(dirname $0)/start_img.sh $img
       else
         echo " got NO image name"
         cat $tmpfile | mail -s "NOTICE: setup succeeded but got no image name" ${MAILTO:-tinderbox@zwiebeltoralf.de}
