@@ -677,7 +677,6 @@ function RunSetupScript() {
       echo -e "$(date)   OK - but ^^"
       return 1
     fi
-    echo -e "$(date)   OK"
   else
     echo -e "$(date)   FAILED"
     tail -n 100 ./var/tmp/tb/setup.sh.log
@@ -782,14 +781,14 @@ function FixPossibleUseFlagIssues() {
 
 # helper of ThrowFlags
 function ShuffleUseFlags() {
-  local n=$1      # pass up to n-1
-  local m=$2      # mask 1:m of them
-  local o=${3:-0} # minimum for n
+  local m=$1      # mask 1:m of them
+  local n=$2      # pass up to n-1
+  local o=${3:-0} # lower limit
 
-  shuf -n $((RANDOM % n + o)) |
+  shuf -n $((RANDOM % m + o)) |
     sort |
     while read -r flag; do
-      if dice 1 $m; then
+      if dice 1 $n; then
         echo -n "-"
       fi
       echo -n "$flag "
@@ -927,9 +926,9 @@ while getopts a:k:p:t:u: opt; do
   case $opt in
   a) abi3264="$OPTARG" ;;      # "y" or "n"
   k) keyword="$OPTARG" ;;      # "amd64"
-  p) profile="$OPTARG" ;;      # "23.0/desktop/systemd"
+  p) profile="$OPTARG" ;;      # "17.1/desktop"
   t) testfeature="$OPTARG" ;;  # "y" or "n"
-  u) useflagsfrom="$OPTARG" ;; # "~/img/23.0_desktop_systemd-20230624-014416"
+  u) useflagsfrom="$OPTARG" ;; # "null" or "~/img/17.1_desktop_systemd-20230624-014416"
   *)
     echo "unknown parameter '$opt'"
     exit 1
