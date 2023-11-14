@@ -58,16 +58,11 @@ function Exit() {
 }
 
 function Bwrap() {
-  local path="/usr/sbin:/usr/bin"
-  if [[ $mnt =~ "17." || $mnt =~ "split_usr" ]]; then
-    path+=":/sbin:/bin"
-  fi
-
   local sandbox=(env -i
     /usr/bin/bwrap
     --clearenv
     --setenv MAILTO "${MAILTO:-tinderbox}"
-    --setenv PATH "$path"
+    --setenv PATH "/usr/sbin:/usr/bin:/sbin:/bin"
     --setenv SHELL "/bin/bash"
     --setenv TERM "linux"
     --hostname "$(cat $mnt/etc/conf.d/hostname)"
