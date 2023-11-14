@@ -18,6 +18,7 @@ ocamlopt: No such
 undefined reference to
 Can't read
 class file .* not found
+Intel CET not available
 error: redeclaration of
 error: redefinition of
 has incomplete type
