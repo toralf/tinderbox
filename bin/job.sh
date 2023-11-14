@@ -49,7 +49,7 @@ function Mail() {
 }
 
 function ReachedEOL() {
-  local subject=${1:-"<NO SUBJECT>"}
+  local subject=${1:-"NO SUBJECT"}
   local attachment=${2-}
 
   echo "$subject" >>/var/tmp/tb/EOL
@@ -67,7 +67,7 @@ function ReachedEOL() {
 # this is the end ...
 function Finish() {
   local exit_code=${1:-$?}
-  local subject=${2:-"<INTERNAL ERROR>"}
+  local subject=${2:-"INTERNAL ERROR"}
   local attachment=${3-}
 
   trap - INT QUIT TERM EXIT
