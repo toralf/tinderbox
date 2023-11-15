@@ -93,7 +93,7 @@ if ! pruneNeeded; then
 fi
 
 while read -r img && pruneNeeded; do
-  if olderThan $img 3; then
+  if olderThan $img 2; then
     if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
       pruneIt $img "no issue"
     fi
