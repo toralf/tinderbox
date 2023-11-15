@@ -57,12 +57,6 @@ function InitOptions() {
     cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
   fi
 
-  if [[ $profile =~ "/systemd" ]]; then
-    if dice 1 2; then
-      profile=$(sed -e 's,17.1,23.0,' -e 's,/merged-usr,,' <<<$profile)
-    fi
-  fi
-
   if [[ ! $profile =~ "/no-multilib" ]]; then
     if dice 1 80; then
       # this sets "*/* ABI_X86: 32 64"
@@ -134,12 +128,9 @@ function CreateImageName() {
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
-# download, verify and unpack the stage3 file
-function UnpackStage3() {
-  echo "$(date) ${FUNCNAME[0]} ..."
-  local latest=$tbhome/distfiles/latest-stage3.txt
-
+function getStage3Latest() {
   echo -n "$(date)   get latest-stage3.txt from"
+  latest=$tbhome/distfiles/latest-stage3.txt
   for mirror in $gentoo_mirrors; do
     echo -n " $mirror"
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
@@ -153,47 +144,41 @@ function UnpackStage3() {
     echo " empty: $latest"
     return 1
   fi
+}
 
+function getStage3Prefix() {
   echo "$(date)   get stage3 prefix for profile $profile"
   local prefix="stage3-amd64"
   prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<<$profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<<$prefix)
   if [[ $profile =~ "/desktop" ]]; then
-    if [[ $profile =~ "23.0/" ]]; then
-      prefix=$(sed -e 's,/desktop,,' <<<$prefix)
-    elif dice 1 2; then
-      # start with the plain instead the desktop stage3
+    if dice 1 2; then
+      # start from plain
       prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     fi
   fi
   prefix=$(tr '/' '-' <<<$prefix)
-  if [[ $profile =~ "/systemd" ]]; then
-    if [[ $profile =~ "23.0/" ]]; then
-      prefix+="-mergedusr"
-    fi
-  else
-    if [[ ! $profile =~ "/musl" ]]; then
-      prefix+="-openrc"
-    fi
+  if [[ ! $profile =~ "/musl" && ! $profile =~ "/systemd" ]]; then
+    prefix+="-openrc"
   fi
   if [[ $profile =~ "/clang" ]]; then
     prefix=$(sed -e 's,amd64,amd64-llvm,' -e 's,-clang,,' <<<$prefix)
   fi
 
   echo "$(date)   get stage3 file name for prefix $prefix"
-  local stage3
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
     echo " failed"
     return 1
   fi
+}
 
+function checkStage3() {
   echo "$(date)   updating signing keys ..."
   local keys="13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058"
   if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $keys; then
     echo " notice: failed, but will continue"
   fi
 
-  local local_stage3
   local_stage3=$tbhome/distfiles/$(basename $stage3)
   if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
     rm -f $local_stage3{,.asc}
@@ -218,6 +203,26 @@ function UnpackStage3() {
     echo " FAILED"
     return 1
   fi
+}
+
+# download, verify and unpack the stage3 file
+function UnpackStage3() {
+  echo "$(date) ${FUNCNAME[0]} ..."
+
+  local latest
+  if ! getStage3Latest; then
+    return 1
+  fi
+
+  local stage3
+  if ! getStage3Prefix; then
+    return 1
+  fi
+
+  local local_stage3
+  if ! checkStage3; then
+    return 1
+  fi
 
   CreateImageName
   echo "$(date)   new image: $name"
@@ -228,8 +233,7 @@ function UnpackStage3() {
   cd ~tinderbox/img/$name
   echo "$(date)   untar'ing stage3 ..."
   if ! tar -xpf $local_stage3 --same-owner --xattrs; then
-    echo " failed, moving files to /tmp"
-    mv $local_stage3{,.asc} /tmp
+    echo " failed"
     return 1
   fi
 }
@@ -781,9 +785,9 @@ function FixPossibleUseFlagIssues() {
 
 # helper of ThrowFlags
 function ShuffleUseFlags() {
-  local m=$1      # mask 1:m of them
-  local n=$2      # pass up to n-1
-  local o=${3:-0} # lower limit
+  local m=$1      # pick up to m-1 + o
+  local n=$2      # mask 1:n of them
+  local o=${3:-0} # minimum
 
   shuf -n $((RANDOM % m + o)) |
     sort |
@@ -795,7 +799,7 @@ function ShuffleUseFlags() {
     done
 }
 
-# varying USE flags till dry run of @world would succeed
+# throw USE flags till a dry run of @world succeeds
 function ThrowFlags() {
   local attempt=$1
 
