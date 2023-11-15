@@ -44,16 +44,14 @@ checkEOL() {
   fi
 }
 
-if [[ -n ${TINDERBOX_IMAGE_NAME:-} ]]; then
-  case ${EBUILD_PHASE} in
-    setup|unpack|prepare|configure|compile)
-      while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 31 ]]; do
-        checkEOL
-        touch /var/tmp/tb/WAIT
-        sleep 30
-        rm /var/tmp/tb/WAIT
-      done
+case ${EBUILD_PHASE} in
+  setup|unpack|prepare|configure|compile)
+    while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 31 ]]; do
       checkEOL
-    ;;
-  esac
-fi
+      touch /var/tmp/tb/WAIT
+      sleep 30
+      rm /var/tmp/tb/WAIT
+    done
+    checkEOL
+  ;;
+esac

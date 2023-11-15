@@ -989,7 +989,7 @@ source $(dirname $0)/lib.sh
 export -f SwitchGCC                  # added to backlog by PostEmerge()
 export -f add2backlog source_profile # used by SwitchGCC()
 
-jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00j* | sort -bn | head -n 1)
+jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00jobs)
 if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
   keyword="unstable"
 else
@@ -1004,8 +1004,8 @@ export CARGO_TERM_COLOR="never"
 export CMAKE_COLOR_DIAGNOSTICS="OFF"
 export CMAKE_COLOR_MAKEFILE="OFF"
 export GCC_COLORS=""
+export NO_COLOR="1"
 export OCAML_COLOR="never"
-export NOCOLOR="1"
 export PY_FORCE_COLOR="0"
 export PYTEST_ADDOPTS="--color=no"
 
@@ -1017,26 +1017,23 @@ export PAGER="cat"
 
 export XZ_OPT="-9 -T$jobs"
 
-# this will appear in the emerge info output and is used in bashrc too
-export TINDERBOX_IMAGE_NAME="$name"
-
 if [[ $name =~ "_test" ]]; then
   export XRD_LOGLEVEL="Debug"
 fi
 
-# non-empty if Finish() was called by an internal error -or- emerge bashrc scheduled a sleep
+# non-empty if Finish() was called by an internal error -or- bashrc catched a STOP during sleep
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)" # re-schedule $task
   if [[ -f /var/tmp/tb/WAIT ]]; then
     rm /var/tmp/tb/WAIT
   else
-    add2backlog "%emaint merges --fix" # fix any unclean shutdown before
+    add2backlog "%emaint merges --fix" # fix a possible unclean shutdown
   fi
 fi
 
 echo "#init" >$taskfile
 
-rm -f $tasklog # remove a left over hard link
+rm -f $tasklog # remove a possible left over hard link
 systemd-tmpfiles --create &>$tasklog || true
 
 trap Finish INT QUIT TERM EXIT
