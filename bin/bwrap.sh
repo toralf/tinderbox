@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# much better than chroot: https://github.com/containers/bubblewrap
+# https://github.com/containers/bubblewrap
 
 function CreateCgroup() {
   local name=$cgdomain/${mnt##*/}
@@ -20,7 +20,7 @@ function CreateCgroup() {
   while [[ -d $name ]] && ((i--)); do
     sleep 1
   done
-  mkdir $name
+  mkdir $name || return 13
   echo "$$" >$name/cgroup.procs
 
   local jobs=$(sed 's,^.*j,,' $mnt/etc/portage/package.env/00jobs)
@@ -28,8 +28,8 @@ function CreateCgroup() {
     echo " jobs is invalid: '$jobs', set to 1" >&2
     jobs=1
   fi
-  # 1 CPU per job job + 10%
-  echo $((100 * jobs + 10)) >$name/cpu.weight
+  # 1 CPU per job
+  echo $((100 * jobs)) >$name/cpu.weight
 
   # 2 GiB per job + /var/tmp/portage
   echo $((2 * jobs + 24))G >$name/memory.max
