@@ -455,11 +455,8 @@ EOF
     cut -f 3- -d ' ' |
     sort -u -r |
     while read -r topic m N; do
-      if dice ${m:-1} ${N:-2}; then
-        # keep values, but delete comment
-        sed -i -e "s, *# DICE: $topic *$,," -e "s, *# DICE: $topic .*,," ./etc/portage/package.*/*
-      else
-        # delete topic everywhere
+      if ! dice ${m:-1} ${N:-2}; then
+        # delete topic line everywhere
         sed -i -e "/# DICE: $topic *$/d" -e "/# DICE: $topic .*/d" ./etc/portage/package.*/*
       fi
     done
