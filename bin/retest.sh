@@ -42,12 +42,13 @@ tr -c -d '+-_./[:alnum:][:blank:]\n=@' <<<$* |
   grep ".*-.*/.*" |
   sort -u >$result.packages
 if [[ -s $result.packages ]]; then
-  # if there're only few atoms then schedule them for an asap emerge
+  # if there're only few atoms then emrge them asap
   if [[ $(wc -l <$result.packages) -le 3 ]]; then
     suffix="1st"
   else
     suffix="upd"
   fi
+  echo " add $(wc -l <$result.packages) package/s to $suffix ..." >&2
 
   # shuffle new atoms and put them after existing ones
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
@@ -66,6 +67,5 @@ if [[ -s $result.packages ]]; then
       ~tinderbox/run/*/etc/portage/package.mask/self \
       ~tinderbox/run/*/etc/portage/package.env/{cflags_default,nosandbox,test-fail-continue} 2>/dev/null || true
   done <$result.packages
-  echo " added $(wc -l <$result.packages) package entries" >&2
 fi
 rm $result.packages
