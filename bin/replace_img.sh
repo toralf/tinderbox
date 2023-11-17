@@ -115,6 +115,7 @@ while :; do
         echo " got $img"
         cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
         $(dirname $0)/start_img.sh $img
+        mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
       else
         echo " got NO image name"
         cat $tmpfile | mail -s "NOTICE: setup succeeded but got no image name" ${MAILTO:-tinderbox@zwiebeltoralf.de}
@@ -125,7 +126,6 @@ while :; do
       cat $tmpfile | mail -s "NOTICE: setup failed  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       sleep $((1 * 3600))
     fi
-    rm $tmpfile
     continue
   fi
 
