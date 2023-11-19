@@ -804,6 +804,7 @@ function RunAndCheck() {
       if [[ $(wc -w <<<$pkg) -eq 1 ]]; then
         if GetPkglog; then
           createIssueDir
+          echo "$pkg - emerge killed=$signal" >$issuedir/title
           WorkAtIssue
         fi
         Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
