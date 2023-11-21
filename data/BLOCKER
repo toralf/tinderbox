@@ -39,4 +39,4 @@ rdlibtool
 
 # (gcc-14) - [TRACKER] sys-devel/gcc-14 porting
 914580
-is not a member of std
+is not a member of std|std::

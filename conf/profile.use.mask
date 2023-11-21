@@ -8,11 +8,7 @@
 #
 
 cdinstall
-cuda
-external-hsm
-firmware
 pax-kernel
-rados
 symlink
 valgrind
 
@@ -22,5 +18,5 @@ valgrind
 # temp settings
 #
 
-# ionen https://bugs.gentoo.org/846941
+# ionen: https://bugs.gentoo.org/846941
 crossdev-mingw
