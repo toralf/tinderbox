@@ -374,11 +374,12 @@ function ClassifyIssue() {
     foundCflagsIssue 'ebuild uses colon (:) as a sed delimiter'
 
   else
-    # this will be overwritten if a generic pattern matches
-    grep -m 1 -A 2 "^ \* ERROR:.* failed \(.* phase\):" $pkglog_stripped |
-      tee $issuedir/issue |
-      sed -n -e '2p' >$issuedir/title
     foundGenericIssue
+    if [[ ! -s $issuedir/title ]]; then
+      grep -m 1 -A 2 "^ \* ERROR:.* failed \(.* phase\):" $pkglog_stripped |
+        tee $issuedir/issue |
+        sed -n -e '2p' >$issuedir/title
+    fi
   fi
 
   if [[ $(wc -c <$issuedir/issue) -gt 1024 ]]; then
