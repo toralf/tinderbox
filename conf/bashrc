@@ -1,3 +1,4 @@
+# from sam_ : meson hook
 post_src_install() {
   (
     if grep -E -q 'internal compiler error' "${WORKDIR}"/*/config.log &> /dev/null ; then
@@ -38,6 +39,7 @@ post_src_install() {
   ) &>> /var/tmp/sam.txt
 }
 
+# from me: bail out if load is too high
 checkEOL() {
   if [[ -f /var/tmp/tb/EOL || -f /var/tmp/tb/STOP ]]; then
     exit 42

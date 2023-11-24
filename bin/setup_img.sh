@@ -432,9 +432,7 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??common
 
-  if [[ -s $tbhome/tb/conf/bashrc ]]; then
-    cp $tbhome/tb/conf/bashrc ./etc/portage/
-  fi
+  cp $tbhome/tb/conf/bashrc* ./etc/portage/
 
   if [[ $abi3264 == "y" ]]; then
     cpconf $tbhome/tb/conf/package.*.??abi32+64
@@ -518,11 +516,22 @@ function CreateBacklogs() {
 
   truncate -s 0 $bl{,.1st,.upd}
 
+  if [[ ! $profile =~ "/clang" ]]; then
+    if dice 1 2; then
+      cat <<EOF >>$bl.1st
+%emerge -u sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf && cp /etc/portage/bashrc.clang /etc/portage/bashrc
+EOF
+    else
+      rm ./etc/portage/bashrc.clang
+    fi
+  fi
+
   cat <<EOF >>$bl.1st
 @world
 EOF
 
   if [[ $profile =~ "/clang" ]]; then
+    cp ./etc/portage/bashrc.clang ./etc/portage/bashrc
     cat <<EOF >>$bl.1st
 # %emerge --deep=0 -uU sys-devel/llvm sys-devel/clang
 EOF

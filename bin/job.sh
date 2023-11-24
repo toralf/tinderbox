@@ -231,7 +231,7 @@ function CollectIssueFiles() {
       rm $f
     )
 
-    # requested by sam_
+    # requested by sam_ (clang hook in bashrc)
     if [[ -d /var/tmp/clang/$pkg ]]; then
       $tar -C /var/tmp/clang/ -cJpf $issuedir/files/var.tmp.clang.tar.xz ./$pkg
     fi
