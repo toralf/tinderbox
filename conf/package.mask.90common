@@ -64,6 +64,8 @@ dev-util/nvidia-cuda-toolkit
 
 # hangs
 dev-lang/lfe
+# https://bugs.gentoo.org/917495
+dev-lisp/sbcl
 dev-scheme/gambit
 # https://bugs.gentoo.org/888779
 dev-util/coccinelle

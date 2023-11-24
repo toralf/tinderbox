@@ -5,14 +5,6 @@
 685160
 ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 
-# [TRACKER] Packages linking -lcurses (need sys-libs/ncurses compatibility symlink)
-837812
-ld: cannot find -lcurses
-
-# [TRACKER] java packages that provide module-info.java and can otherwise be built with jdk 1.8
-796875
-Need at least JDK 9 to compile
-
 # [Tracker] Packages which will fail with -std=c2x
 880545
  prototype| not supported in C2|C2X|C2x
@@ -40,3 +32,7 @@ rdlibtool
 # (gcc-14) - [TRACKER] sys-devel/gcc-14 porting
 914580
 is not a member of std|std::
+
+# (c99-porting, clang-16-porting) - [Tracker] Modern C (C99) porting (default -Werror=implicit-function-declaration,implicit-int,int-conversion; includes but not limited to Clang 16)
+870412
+; ISO C99 and|Clang .* testing:|C compiler cannot create executables|implicit declaration of function

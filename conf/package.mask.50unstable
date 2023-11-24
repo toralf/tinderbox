@@ -3,7 +3,7 @@
 
 
 # https://bugs.gentoo.org/794235
-<dev-util/ragel-7.0.4-r2
+<dev-util/ragel-7.0.4-r3                                # DICE: ragel 4 5
 
 # mask for now, fails too often
 <dev-lang/ghc-9.0.2-r4
@@ -14,6 +14,3 @@ app-emacs/navi2ch
 
 # https://bugs.gentoo.org/908593
 net-print/foo2zjs
-
-# https://bugs.gentoo.org/897934
-<dev-python/cython-3.0.0                                # DICE: cython 7 8

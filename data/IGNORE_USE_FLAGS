@@ -21,6 +21,7 @@ fuse
 gcc-symlinks
 ghcbootstrap
 gold
+gtk-doc
 hardened
 headers-only
 homed
