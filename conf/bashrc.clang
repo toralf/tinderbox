@@ -1,10 +1,11 @@
 # from sam_ : clang hook
 # https://gist.githubusercontent.com/thesamesam/4ddaa95f3f42c2be312b676476cbf505/raw/bashrc
-# https://bugs.gentoo.org/885761#c5
+
+#######################################################################
 
 : ${PORTAGE_USE_CLANG_HOOK:=1}
 
-hook_timestamp='2022-12-12T18:32'
+hook_timestamp='2023-11-24T18:39'
 
 pre_src_prepare() {
 	# If CC is set to something other than Clang, we shouldn't try
@@ -22,11 +23,19 @@ pre_src_prepare() {
 			;;
 	esac
 
-	has_version ${hv_args} sys-devel/clang:15 && __PORTAGE_HOOK_CLANG=clang-15
-	has_version ${hv_args} sys-devel/clang:16 && __PORTAGE_HOOK_CLANG=clang-16
-	has_version ${hv_args} sys-devel/clang:17 && __PORTAGE_HOOK_CLANG=clang-17
+	local ver
+	for ver in 15 16 17 ; do
+		has_version ${hv_args} sys-devel/clang:${ver} && __PORTAGE_HOOK_CLANG=clang-${ver}
+	done
 
-	if ! type -P ansifilter &>/dev/null || [[ -z ${__PORTAGE_HOOK_CLANG} ]] || ! type -P ${__PORTAGE_HOOK_CLANG} &>/dev/null ; then
+	# Change to the full path to avoid recursion
+	__PORTAGE_HOOK_CLANG=$(type -P "${__PORTAGE_HOOK_CLANG}")
+
+	if ! type -P ansifilter &>/dev/null ; then
+		return
+	fi
+
+	if [[ -z ${__PORTAGE_HOOK_CLANG} ]] || ! type -P ${__PORTAGE_HOOK_CLANG} &>/dev/null ; then
 		# Avoid issues in early setup when clang:15 or clang:16 haven't yet been emerged.
 		export CC=gcc
 		export CXX=g++
@@ -44,8 +53,8 @@ pre_src_configure() {
 			return
 		fi
 
-		ewarn "Clang 17 testing: this build is using a /etc/portage/bashrc hook ($hook_timestamp)!"
-		ewarn "Clang 17 testing: see https://wiki.gentoo.org/wiki/Modern_C_porting for more info."
+		ewarn "Modern C testing: this build is using a /etc/portage/bashrc hook ($hook_timestamp)!"
+		ewarn "Modern C testing: see https://wiki.gentoo.org/wiki/Modern_C_porting for more info."
 
 		# Avoid noise from intentional ones...
 		export ac_cv_c_undeclared_builtin_options="none needed"
@@ -62,6 +71,8 @@ pre_src_configure() {
 			# These should be fine on glibc IIRC but let's be safe until confirmed.
 			export ac_cv_header_sys_types_h_makedev=no
 			export gl_cv_minmax_in_limits_h=no
+		else
+			export ac_cv_have_decl_strerror_r="yes" # -Wint-conversion
 		fi
 
 		# Weird hangs (see timeout comment below w/ tee)
@@ -75,6 +86,9 @@ pre_src_configure() {
 		if grep -q "x11-misc/imake" <<< "${BDEPEND}" ; then
 			return
 		fi
+
+		# Change to the full path to avoid recursion
+		__PORTAGE_HOOK_CLANG=$(type -P "${__PORTAGE_HOOK_CLANG}")
 
 		mkdir "${T}"/clang-wrappers
 		cat <<- EOF > "${T}"/clang-wrappers/clang
@@ -101,6 +115,9 @@ pre_src_configure() {
 			exec \${real_compiler} "\$@"
 		fi
 
+		export CFLAGS="${CFLAGS/-fdiagnostics-color=always}"
+		export CFLAGS="${CFLAGS/-fdiagnostics-urls=never}"
+
 		# - Need > /dev/null for sys-libs/musl
 		# - No LTO because of the noise it generates in diffs (temps)
 		cl1() {
@@ -111,26 +128,27 @@ pre_src_configure() {
 				-Wno-error=incompatible-function-pointer-types \
 				-Wno-error=strict-prototypes \
 				${CFLAGS} \
-				\$@ 2>&1 | ansifilter | sed \
+				\$@ 2>&1 \
+                                -fdiagnostics-color=never | ansifilter | sed \
 				-e "s:14.0.6:14.ignoreme:g" \
 				-e "s:15.0.0:14.ignoreme:g" \
-				-e "s:clang-\(15\|16\|17\):clang-ignoreme:g" \
+				-e "s:clang-\(14\|15\|16\):clang-ignoreme:g" \
 				-e 's:clang version \([0-9]\+\)\.[0-9]\.[0-9]:clang version ignoreme:' \
-				-e "s:/usr/lib/llvm/\(15\|16\|17\)/:/usr/lib/llvm/ignoreme/:g" \
+				-e "s:/usr/lib/llvm/\(14\|15\|16\)/:/usr/lib/llvm/ignoreme/:g" \
 				-e "s:conftest-.*\.o:conftest.o:g" \
 				-e "s_conftest\.c\:[0-9]\+\:[0-9]\+_ignoreme_g" \
 				-e "s:garbage2:ignoreme:" \
 				-e "s:garbage:ignoreme:" \
 				-e "/ac_nonexistent.h/d" \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: no input files/d' \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: unsupported option/d' \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: unknown argument/d' \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: no such file or directory/d' \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: linker command failed/d' \
-				-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang17-safe.log > /dev/null
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: no input files/d' \
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: unsupported option/d' \
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: unknown argument/d' \
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: no such file or directory/d' \
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: linker command failed/d' \
+				-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang16-safe.log > /dev/null
 
 			if ! [[ \${PIPESTATUS[0]} -eq 0 ]] ; then
-				touch "${T}"/clang17-safe-failed
+				touch "${T}"/clang16-safe-failed
 			fi
 		}
 		# TODO: No -Werror=strict-prototypes here for now as AC_PROG_LEX, AC_CHECK_FUNCS rely on it
@@ -142,27 +160,28 @@ pre_src_configure() {
 				-Werror=int-conversion \
 				-Werror=incompatible-function-pointer-types \
 				${CFLAGS} \
-				\$@ 2>&1 | ansifilter | sed \
+				\$@ 2>&1 \
+				-fdiagnostics-color=never | ansifilter | sed \
 				-e "s:14.0.6:14.ignoreme:g" \
 				-e "s:15.0.0:14.ignoreme:g" \
-				-e "s:clang-\(15\|16\|17\):clang-ignoreme:g" \
+				-e "s:clang-\(14\|15\|16\):clang-ignoreme:g" \
 				-e 's:clang version \([0-9]\+\)\.[0-9]\.[0-9]:clang version ignoreme:' \
-				-e "s:/usr/lib/llvm/\(15\|16\|17\)/:/usr/lib/llvm/ignoreme/:g" \
+				-e "s:/usr/lib/llvm/\(14\|15\|16\)/:/usr/lib/llvm/ignoreme/:g" \
 				-e "s:15:14:g" \
 				-e "s:conftest-.*\.o:conftest.o:g" \
 				-e "s_conftest\.c\:[0-9]\+\:[0-9]\+_ignoreme_g" \
 				-e "s:garbage2:ignoreme:" \
 				-e "s:garbage:ignoreme:" \
 				-e "/ac_nonexistent.h/d" \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: no input files/d' \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: unsupported option/d' \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: unknown argument/d' \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: no such file or directory/d' \
-				-e '/clang-\(15\|16\|17\|ignoreme\): error: linker command failed/d' \
-				-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang17-errors.log > /dev/null
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: no input files/d' \
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: unsupported option/d' \
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: unknown argument/d' \
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: no such file or directory/d' \
+				-e '/clang-\(14\|15\|16\|ignoreme\): error: linker command failed/d' \
+				-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang16-errors.log > /dev/null
 
 			if ! [[ \${PIPESTATUS[0]} -eq 0 ]] ; then
-				touch "${T}"/clang17-errors-failed
+				touch "${T}"/clang16-errors-failed
 			fi
 		}
 
@@ -180,13 +199,13 @@ pre_src_configure() {
 		ret="\${PIPESTATUS[1]}"
 
 		# If at least one of them succeeded, then complain if *only* one of them did.
-		if [[ -f "${T}"/clang17-safe-failed || -f "${T}"/clang17-errors-failed ]] ; then
-			if ! [[ -f "${T}"/clang17-safe-failed && -f "${T}"/clang17-errors-failed ]] ; then
-				touch "${T}"/clang17-broken
+		if [[ -f "${T}"/clang16-safe-failed || -f "${T}"/clang16-errors-failed ]] ; then
+			if ! [[ -f "${T}"/clang16-safe-failed && -f "${T}"/clang16-errors-failed ]] ; then
+				touch "${T}"/clang16-broken
 			fi
 		fi
 
-		rm -f "${T}"/clang17-safe-failed "${T}"/clang17-errors-failed
+		rm -f "${T}"/clang16-safe-failed "${T}"/clang16-errors-failed
 		exit \${ret}
 		EOF
 
@@ -215,18 +234,18 @@ pre_src_configure() {
 }
 
 pre_src_compile() {
-	if [[ -f "${T}"/clang17-errors.log ]] ; then
+	if [[ -f "${T}"/clang16-errors.log ]] ; then
 		rm -rf "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}
 		mkdir -p "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}
 
-		cp -rv "${T}"/clang17-{errors,safe}.log "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}
+		cp -rv "${T}"/clang16-{errors,safe}.log "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}
 
-		if diff -ruN "${T}"/clang17-{safe,errors}.log > "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang.diff ; then
+		if diff -ruN "${T}"/clang16-{safe,errors}.log > "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang.diff ; then
 			# No point in keeping an empty diff around if no differences.
 			rm "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang.diff
 		fi
 
-		[[ -f "${T}"/clang17-broken ]] && touch "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang17-broken
+		[[ -f "${T}"/clang16-broken ]] && touch "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang16-broken
 	fi
 
 	# We want to just delete the wrapper rather than mess with PATH again, as the ebuild
@@ -237,14 +256,20 @@ pre_src_compile() {
 }
 
 post_src_install() {
-	if [[ ${PORTAGE_USE_CLANG_HOOK} == 1 && -f "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang17-broken ]] ; then
+	if [[ ${PORTAGE_USE_CLANG_HOOK} == 1 && -f "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang16-broken ]] ; then
 		if grep -q "error:.*C99" "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang.diff ; then
-			eqawarn "Clang 17 testing: Found possible issues in configure!"
-			eqawarn "Clang 17 testing: Please check "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang.diff"
+			eqawarn "Clang 16 testing: Found possible issues in configure!"
+			eqawarn "Clang 16 testing: Please check "${EROOT}"/var/tmp/clang/${CATEGORY}/${PF}/clang.diff"
 		fi
 	fi
 
+	__tinderbox_meson
+}
+
+#######################################################################
+
 # from sam_ : meson hook
+__tinderbox_meson() {
   (
     if grep -E -q 'internal compiler error' "${WORKDIR}"/*/config.log &> /dev/null ; then
       echo "${CATEGORY}/${PF}: Found ICE in config.log?!"
@@ -285,7 +310,7 @@ post_src_install() {
 }
 
 # from me: bail out if load is too high
-checkEOL() {
+__tinderbox_checkEOL() {
   if [[ -f /var/tmp/tb/EOL || -f /var/tmp/tb/STOP ]]; then
     exit 42
   fi
@@ -294,11 +319,11 @@ checkEOL() {
 case ${EBUILD_PHASE} in
   setup|unpack|prepare|configure|compile)
     while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 31 ]]; do
-      checkEOL
+      __tinderbox_checkEOL
       touch /var/tmp/tb/WAIT
       sleep 30
       rm /var/tmp/tb/WAIT
     done
-    checkEOL
+    __tinderbox_checkEOL
   ;;
 esac
