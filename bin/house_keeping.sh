@@ -93,7 +93,7 @@ if ! pruneNeeded; then
 fi
 
 while read -r img && pruneNeeded; do
-  if olderThan $img 2; then
+  if olderThan $img 3; then
     if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
       pruneIt $img "no issue"
     fi
@@ -101,7 +101,7 @@ while read -r img && pruneNeeded; do
 done < <(list_images_by_age "img")
 
 while read -r img && pruneNeeded; do
-  if olderThan $img 5; then
+  if olderThan $img 7; then
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneIt $img "no bug reported"
     fi
