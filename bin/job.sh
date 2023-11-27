@@ -196,6 +196,16 @@ EOF
   emerge -p --info $pkgname &>$issuedir/emerge-info.txt
 }
 
+function CollectClangFiles() {
+  # requested by sam_ (clang hook in bashrc)
+  if [[ -d /var/tmp/clang/$pkg ]]; then
+    $tar -C /var/tmp/clang/ -cJpf $issuedir/files/var.tmp.clang.tar.xz ./$pkg
+  fi
+  if [[ -d /etc/clang ]]; then
+    $tar -C /etc -cJpf $issuedir/files/etc.clang.tar.xz ./clang
+  fi
+}
+
 # gather together what might be relevant for b.g.o.
 function CollectIssueFiles() {
   apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of' $tasklog_stripped | grep -F '.out' | cut -f 5 -d ' ' -s)
@@ -231,14 +241,6 @@ function CollectIssueFiles() {
       rm $f
     )
 
-    # requested by sam_ (clang hook in bashrc)
-    if [[ -d /var/tmp/clang/$pkg ]]; then
-      $tar -C /var/tmp/clang/ -cJpf $issuedir/files/var.tmp.clang.tar.xz ./$pkg
-    fi
-    if [[ -d /etc/clang ]]; then
-      $tar -C /etc -cJpf $issuedir/files/etc.clang.tar.xz ./clang
-    fi
-
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null || true
 
     if [[ -d $workdir/../../temp ]]; then
@@ -270,6 +272,10 @@ function CollectIssueFiles() {
     Mail "INFO: keep artefacts in $issuedir" $tasklog_stripped
     echo "$issuedir" >>/var/tmp/tb/KEEP
   fi
+}
+
+function collectPortageFiles() {
+  tar -C / -cJpf $issuedir/files/etc.portage.tar.xz --dereference etc/portage
 }
 
 # helper of ClassifyIssue()
@@ -534,7 +540,6 @@ function SendIssueMailIfNotYetReported() {
 
       createSearchString
       if checkBgo &>>$issuedir/body; then
-        echo -e "https://bugs.gentoo.org/buglist.cgi?quicksearch=$pkgname\n" >>$issuedir/body
         if SearchForSameIssue &>>$issuedir/body; then
           hints+=" same"
         elif ! BgoIssue; then
@@ -549,14 +554,21 @@ function SendIssueMailIfNotYetReported() {
       if blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER); then
         hints+=" blocks $blocker_bug_no"
       fi
-      echo -e "\n\n\n check_bgo.sh ~tinderbox/img/$name/$issuedir $force\n\n\n;" >>$issuedir/body
+      cat <<EOF >>$issuedir/body
+
+
+ direct link: http://tinderbox.zwiebeltoralf.de:31560/$name/$issuedir
+
+
+ check_bgo.sh ~tinderbox/img/$name/$issuedir $force
+
+
+;
+
+EOF
       Mail "$hints $(cat $issuedir/title)" $issuedir/body
     fi
   fi
-}
-
-function collectPortageDir() {
-  tar -C / -cJpf $issuedir/files/etc.portage.tar.xz --dereference etc/portage
 }
 
 # analyze the issue
@@ -576,9 +588,10 @@ function WorkAtIssue() {
   )
   setWorkDir
   CreateEmergeInfo
+  CollectClangFiles
   CollectIssueFiles
+  collectPortageFiles
   ClassifyIssue
-  collectPortageDir
   finishTitle
   CompileIssueComment0
   CompressIssueFiles
@@ -737,7 +750,8 @@ function catchMisc() {
   The log matches a QA pattern or a pattern requested by a Gentoo developer.
 
 EOF
-          collectPortageDir
+          CollectClangFiles
+          collectPortageFiles
           CreateEmergeInfo
           CompressIssueFiles
           SendIssueMailIfNotYetReported
@@ -769,7 +783,7 @@ function GetPkgFromTaskLog() {
     if [[ -z $pkg ]]; then
       pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
       if [[ -z $pkg ]]; then
-        # common if dep resolution failed
+        # happened if emerge failed in dependency resolution
         return 1
       fi
     fi
@@ -799,6 +813,7 @@ function RunAndCheck() {
   if [[ $rc -gt 128 ]]; then
     local signal=$((rc - 128))
     if [[ $signal -eq 9 ]]; then
+      ps faux | xz >/var/tmp/tb/ps-faux-after-being-killed-9.log.xz
       Finish 9 "KILLed" $tasklog
     else
       pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
