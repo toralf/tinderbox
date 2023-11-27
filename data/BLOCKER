@@ -35,4 +35,4 @@ is not a member of std|std::
 
 # (c99-porting, clang-16-porting) - [Tracker] Modern C (C99) porting (default -Werror=implicit-function-declaration,implicit-int,int-conversion; includes but not limited to Clang 16)
 870412
-; ISO C99 and|Clang .* testing:|C compiler cannot create executables|implicit declaration of function
+; ISO C99 and|Clang .* testing:|C compiler cannot create executables|implicit declaration of function|undefined reference to

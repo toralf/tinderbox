@@ -15,4 +15,4 @@ SetuptoolsDeprecationWarning: 2to3
 The tmpfiles processor exited with a non-zero exit code
 warning: python_fix_shebang
 WARN: postinst
-Clang .* testing:
+Clang 16 testing: Found possible issues in configure
