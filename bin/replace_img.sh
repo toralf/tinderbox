@@ -124,7 +124,7 @@ while :; do
       rc=$?
       echo " failed rc=$rc"
       cat $tmpfile | mail -s "NOTICE: setup failed  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
-      sleep $((1 * 3600))
+      exit $rc
     fi
     continue
   fi
