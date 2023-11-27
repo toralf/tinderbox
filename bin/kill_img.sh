@@ -7,7 +7,7 @@
 function killPid() {
   local pid=$1
 
-  pstree -UlnspuTa $pid | head -n 20 | cut -c 1-200 | tee ~tinderbox/img/$img/var/tmp/tb/killed_process.log
+  pstree -UlnspuTa $pid | tee ~tinderbox/img/$img/var/tmp/tb/killed_process.log | head -n 20 | cut -c 1-200
   echo
   echo -n " stopping $pid "
   kill -15 $pid
@@ -34,50 +34,45 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-while [[ $# -gt 0 ]]; do
-  img=$(basename $1)
-  shift
-  if [[ -z $img || ! -d ~tinderbox/img/$img ]]; then
-    echo " error: $img: image not found" >&2
-    continue
-  fi
+[[ $# -eq 1 ]]
 
-  echo "user decision at $(date)" >>~tinderbox/img/$img/var/tmp/tb/EOL
-  chmod g+w ~tinderbox/img/$img/var/tmp/tb/EOL
-  chgrp tinderbox ~tinderbox/img/$img/var/tmp/tb/EOL
+img=$(basename $1)
 
-  if pid_bwrap=$(pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <<<$img)"); then
-    if [[ -n $pid_bwrap && $(wc -l <<<$pid_bwrap) -eq 1 ]]; then
-      if pid_emerge=$(
-        set -o pipefail
-        pstree -pa $pid_bwrap | grep -F 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
-      ); then
-        if [[ -n $pid_emerge ]]; then
-          echo " kill emerge"
-          killPid $pid_emerge
-        else
-          echo " notice: empty emerge pid from $pid_bwrap"
-          if pid_entrypoint=$(
-            set -o pipefail
-            pstree -pa $pid_bwrap | grep -F 'entrypoint,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
-          ); then
-            if [[ -n $pid_entrypoint ]]; then
-              echo " kill entrypoint"
-              killPid $pid_entrypoint
-            else
-              echo " notice: empty entrypoint pid from $pid_bwrap"
-            fi
-          else
-            echo " notice: could not get entrypoint pid from $pid_bwrap"
-          fi
-        fi
+echo "user decision at $(date)" >>~tinderbox/img/$img/var/tmp/tb/EOL
+chmod g+w ~tinderbox/img/$img/var/tmp/tb/EOL
+chgrp tinderbox ~tinderbox/img/$img/var/tmp/tb/EOL
+
+if pid_bwrap=$(pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <<<$img)"); then
+  if [[ -n $pid_bwrap && $(wc -l <<<$pid_bwrap) -eq 1 ]]; then
+    if pid_emerge=$(
+      set -o pipefail
+      pstree -pa $pid_bwrap | grep -F 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
+    ); then
+      if [[ -n $pid_emerge ]]; then
+        echo " kill emerge"
+        killPid $pid_emerge
       else
-        echo " notice: could not get emerge pid from $pid_bwrap"
+        echo " notice: empty emerge pid from $pid_bwrap"
+        if pid_entrypoint=$(
+          set -o pipefail
+          pstree -pa $pid_bwrap | grep -F 'entrypoint,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
+        ); then
+          if [[ -n $pid_entrypoint ]]; then
+            echo " kill entrypoint"
+            killPid $pid_entrypoint
+          else
+            echo " notice: empty entrypoint pid from $pid_bwrap"
+          fi
+        else
+          echo " notice: could not get entrypoint pid from $pid_bwrap"
+        fi
       fi
     else
-      echo " notice: empty or non.unique bwrap pid"
+      echo " notice: could not get emerge pid from $pid_bwrap"
     fi
   else
-    echo " info: could not query bwrap pid"
+    echo " notice: empty or non-unique bwrap pid"
   fi
-done
+else
+  echo " info: could not get bwrap pid"
+fi
