@@ -5,7 +5,7 @@
 
 : ${PORTAGE_USE_CLANG_HOOK:=1}
 
-hook_timestamp='2023-11-24T18:39'
+hook_timestamp='2023-11-28T01:06'
 
 pre_src_prepare() {
 	# If CC is set to something other than Clang, we shouldn't try
@@ -111,7 +111,20 @@ pre_src_configure() {
 			hook_clang=\${hook_clang/gcc/g++}
 		fi
 
-		if [[ -n \${PORTAGE_CLANG_HOOK_USE_REAL_COMPILER} ]] ; then
+		if [[ \${PORTAGE_CLANG_HOOK_USE_REAL_COMPILER} -gt 1 ]]; then
+			# clang's self recursing... try your best!
+			case "\${real_compiler}" in
+				*++*) real_compiler="/usr/bin/\${CHOST+\${CHOST}-}g++" ;;
+				*) real_compiler="/usr/bin/\${CHOST+\${CHOST}-}gcc" ;;
+			esac
+			real_compiler="\${real_compiler/clang/gcc}"
+		fi
+
+		# Safety net against recursive calls
+		PORTAGE_orig_USE_REAL_COMP="\${PORTAGE_CLANG_HOOK_USE_REAL_COMPILER}"
+		export PORTAGE_CLANG_HOOK_USE_REAL_COMPILER=\$((PORTAGE_CLANG_HOOK_USE_REAL_COMPILER+1))
+
+		if [[ \${PORTAGE_orig_USE_REAL_COMP} ]]; then
 			exec \${real_compiler} "\$@"
 		fi
 
@@ -132,19 +145,19 @@ pre_src_configure() {
                                 -fdiagnostics-color=never | ansifilter | sed \
 				-e "s:14.0.6:14.ignoreme:g" \
 				-e "s:15.0.0:14.ignoreme:g" \
-				-e "s:clang-\(14\|15\|16\):clang-ignoreme:g" \
+				-e "s:clang-\(14\|15\|16\|17\):clang-ignoreme:g" \
 				-e 's:clang version \([0-9]\+\)\.[0-9]\.[0-9]:clang version ignoreme:' \
-				-e "s:/usr/lib/llvm/\(14\|15\|16\)/:/usr/lib/llvm/ignoreme/:g" \
+				-e "s:/usr/lib/llvm/\(14\|15\|16\|17\)/:/usr/lib/llvm/ignoreme/:g" \
 				-e "s:conftest-.*\.o:conftest.o:g" \
 				-e "s_conftest\.c\:[0-9]\+\:[0-9]\+_ignoreme_g" \
 				-e "s:garbage2:ignoreme:" \
 				-e "s:garbage:ignoreme:" \
 				-e "/ac_nonexistent.h/d" \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: no input files/d' \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: unsupported option/d' \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: unknown argument/d' \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: no such file or directory/d' \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: linker command failed/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: no input files/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: unsupported option/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: unknown argument/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: no such file or directory/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: linker command failed/d' \
 				-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang16-safe.log > /dev/null
 
 			if ! [[ \${PIPESTATUS[0]} -eq 0 ]] ; then
@@ -195,7 +208,7 @@ pre_src_configure() {
 		# - We have to do the tee & pipe dance to not greedily consume stdin: bug 870985.
 		# - Timeout as a safety net because we don't ever want to make a build hang. Occurs
 		# with waf sometimes (being investigated), but we should keep the timeout after that anyway.
-		timeout --preserve-status -s PIPE 10 tee >(cl1 "\$@" -o "${T}"/garbage.\$\$) >(cl2 "\$@" -o "${T}"/garbage2.\$\$) | \${real_compiler} "\$@"
+		timeout --preserve-status -s PIPE 10 tee -p >(cl1 "\$@" -o "${T}"/garbage.\$\$) >(cl2 "\$@" -o "${T}"/garbage2.\$\$) | \${real_compiler} "\$@"
 		ret="\${PIPESTATUS[1]}"
 
 		# If at least one of them succeeded, then complain if *only* one of them did.
