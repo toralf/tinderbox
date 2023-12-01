@@ -84,7 +84,7 @@ function setBacklog() {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     backlog=/var/tmp/tb/backlog.1st
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $((RANDOM % 2)) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd && $((RANDOM % 3)) -eq 0 ]]; then
     backlog=/var/tmp/tb/backlog.upd
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
@@ -1072,7 +1072,7 @@ while :; do
       echo "#syncing repo" >$taskfile
       syncRepo
     fi
-    # ... update @world daily
+    # ... update @world (and then later again always 24 hrs after the previous @world finished)
     wh=/var/tmp/tb/@world.history
     if [[ ! -s $wh || $((EPOCHSECONDS - $(stat -c %Z $wh))) -ge 86400 ]]; then
       if ! /usr/bin/pfl &>/dev/null; then

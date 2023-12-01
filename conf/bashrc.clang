@@ -5,7 +5,7 @@
 
 : ${PORTAGE_USE_CLANG_HOOK:=1}
 
-hook_timestamp='2023-11-28T01:06'
+hook_timestamp='2023-11-30T22:24'
 
 pre_src_prepare() {
 	# If CC is set to something other than Clang, we shouldn't try
@@ -139,7 +139,8 @@ pre_src_configure() {
 				-Wno-error=implicit-int \
 				-Wno-error=int-conversion \
 				-Wno-error=incompatible-function-pointer-types \
-				-Wno-error=strict-prototypes \
+				-Wno-error=incompatible-pointer-types \
+				-Wno-error=return-type \
 				${CFLAGS} \
 				\$@ 2>&1 \
                                 -fdiagnostics-color=never | ansifilter | sed \
@@ -172,25 +173,27 @@ pre_src_configure() {
 				-Werror=implicit-int \
 				-Werror=int-conversion \
 				-Werror=incompatible-function-pointer-types \
+				-Werror=incompatible-pointer-types \
+				-Werror=return-type \
 				${CFLAGS} \
 				\$@ 2>&1 \
 				-fdiagnostics-color=never | ansifilter | sed \
 				-e "s:14.0.6:14.ignoreme:g" \
 				-e "s:15.0.0:14.ignoreme:g" \
-				-e "s:clang-\(14\|15\|16\):clang-ignoreme:g" \
+				-e "s:clang-\(14\|15\|16\|17\):clang-ignoreme:g" \
 				-e 's:clang version \([0-9]\+\)\.[0-9]\.[0-9]:clang version ignoreme:' \
-				-e "s:/usr/lib/llvm/\(14\|15\|16\)/:/usr/lib/llvm/ignoreme/:g" \
+				-e "s:/usr/lib/llvm/\(14\|15\|16\|17\)/:/usr/lib/llvm/ignoreme/:g" \
 				-e "s:15:14:g" \
 				-e "s:conftest-.*\.o:conftest.o:g" \
 				-e "s_conftest\.c\:[0-9]\+\:[0-9]\+_ignoreme_g" \
 				-e "s:garbage2:ignoreme:" \
 				-e "s:garbage:ignoreme:" \
 				-e "/ac_nonexistent.h/d" \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: no input files/d' \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: unsupported option/d' \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: unknown argument/d' \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: no such file or directory/d' \
-				-e '/clang-\(14\|15\|16\|ignoreme\): error: linker command failed/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: no input files/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: unsupported option/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: unknown argument/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: no such file or directory/d' \
+				-e '/clang-\(14\|15\|16\|17\|ignoreme\): error: linker command failed/d' \
 				-e '/[0-9]\+ \(warning\|error\) generated/d' | tee -a "${T}"/clang16-errors.log > /dev/null
 
 			if ! [[ \${PIPESTATUS[0]} -eq 0 ]] ; then

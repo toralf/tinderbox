@@ -25,7 +25,7 @@ function dice() {
 # helper of InitOptions()
 function GetValidProfiles() {
   eselect profile list |
-    grep -F -e ' (stable)' -e ' (dev)' |
+    grep -F -e ' (stable)' -e ' (dev)' -e '/clang' |
     grep -v -F -e '/selinux' -e '/x32' -e '/musl' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s
@@ -113,9 +113,11 @@ function CheckOptions() {
     fi
   fi
 
-  if [[ -n $useflagsfrom && $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
-    echo " useflagsfrom is wrong: >>$useflagsfrom<<"
-    return 1
+  if [[ -n $useflagsfrom ]]; then
+    if [[ $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
+      echo " useflagsfrom is wrong: >>$useflagsfrom<<"
+      return 1
+    fi
   fi
 }
 
@@ -128,25 +130,21 @@ function CreateImageName() {
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
-function getStage3Latest() {
-  echo -n "$(date)   get latest-stage3.txt from"
+function getLatest() {
   latest=$tbhome/distfiles/latest-stage3.txt
   for mirror in $gentoo_mirrors; do
-    echo -n " $mirror"
+    echo "$(date)   get latest-stage3.txt from $mirror"
     if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
-      echo " done"
       break
-    else
-      echo -n " failed "
     fi
   done
   if [[ ! -s $latest ]]; then
-    echo " empty: $latest"
+    echo "$(date)   failed: $latest"
     return 1
   fi
 }
 
-function getStage3Prefix() {
+function getStage3Filename() {
   echo "$(date)   get stage3 prefix for profile $profile"
   local prefix="stage3-amd64"
   prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<<$profile)
@@ -167,16 +165,17 @@ function getStage3Prefix() {
 
   echo "$(date)   get stage3 file name for prefix $prefix"
   if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
-    echo " failed"
+    echo "$(date)   failed"
     return 1
   fi
 }
 
-function checkStage3() {
+function verifyStage3File() {
   echo "$(date)   updating signing keys ..."
   local keys="13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058"
   if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $keys; then
-    echo " notice: failed, but will continue"
+    echo "$(date)   failed"
+    return 1
   fi
 
   local_stage3=$tbhome/distfiles/$(basename $stage3)
@@ -185,13 +184,13 @@ function checkStage3() {
     for mirror in $gentoo_mirrors; do
       echo "$(date)   downloading $stage3{,.asc} from mirror $mirror ..."
       if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
-        echo -e "$(date) finished"
+        echo "$(date)   finished"
         break
       fi
     done
   fi
   if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
-    echo "$(date)   missing stage3 file"
+    echo "$(date)   missing local stage3 file(s)"
     ls -l $tbhome/distfiles/$stage3{,.asc}
     return 1
   fi
@@ -199,8 +198,8 @@ function checkStage3() {
 
   echo "$(date)   verifying stage3 files ..."
   if ! gpg --quiet --verify $local_stage3.asc; then
-    mv -f $local_stage3{,.asc} /tmp
-    echo " FAILED"
+    echo "$(date)   failed"
+    rm -f $local_stage3{,.asc}
     return 1
   fi
 }
@@ -210,17 +209,17 @@ function UnpackStage3() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
   local latest
-  if ! getStage3Latest; then
+  if ! getLatest; then
     return 1
   fi
 
   local stage3
-  if ! getStage3Prefix; then
+  if ! getStage3Filename; then
     return 1
   fi
 
   local local_stage3
-  if ! checkStage3; then
+  if ! verifyStage3File; then
     return 1
   fi
 
@@ -233,7 +232,7 @@ function UnpackStage3() {
   cd ~tinderbox/img/$name
   echo "$(date)   untar'ing stage3 ..."
   if ! tar -xpf $local_stage3 --same-owner --xattrs; then
-    echo " failed"
+    echo "$(date)   failed"
     return 1
   fi
 }
@@ -432,7 +431,11 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??common
 
-  cp $tbhome/tb/conf/bashrc* ./etc/portage/
+  if [[ $profile =~ "/clang" ]]; then
+    cp $tbhome/tb/conf/bashrc.clang ./etc/portage/bashrc
+  else
+    cp $tbhome/tb/conf/bashrc ./etc/portage/
+  fi
 
   if [[ $abi3264 == "y" ]]; then
     cpconf $tbhome/tb/conf/package.*.??abi32+64
@@ -463,7 +466,7 @@ EOF
 
   for f in "$tbhome"/tb/conf/profile.*; do
     local target=./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
-    cp "$f" $target
+    cp $f $target
     chmod a+r $target
   done
 
@@ -501,7 +504,7 @@ set expandtab
 
 EOF
 
-  # include the \n in paste content (sys-libs/readline de-activated that with v8)
+  # include the \n in the pasted content (sys-libs/readline de-activated that with v8)
   echo -e "\$include /etc/inputrc\nset enable-bracketed-paste off" >./root/.inputrc
 }
 
@@ -513,27 +516,24 @@ EOF
 function CreateBacklogs() {
   echo "$(date) ${FUNCNAME[0]} ..."
   local bl=./var/tmp/tb/backlog
-
   truncate -s 0 $bl{,.1st,.upd}
-
-  if [[ ! $profile =~ "/clang" ]]; then
-    if dice 1 2; then
-      cat <<EOF >>$bl.1st
-%emerge -u sys-devel/clang && echo CC=clang >> /etc/portage/make.conf && echo CXX=clang++ >> /etc/portage/make.conf && cp /etc/portage/bashrc.clang /etc/portage/bashrc
-EOF
-    else
-      rm ./etc/portage/bashrc.clang
-    fi
-  fi
 
   cat <<EOF >>$bl.1st
 @world
 EOF
 
+  if [[ ! $profile =~ "/clang" ]]; then
+    if dice 1 2; then
+      cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
+      cat <<EOF >>$bl.1st
+%emerge -u sys-devel/clang && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && mv /etc/portage/bashrc.clang /etc/portage/bashrc
+EOF
+    fi
+  fi
+
   if [[ $profile =~ "/clang" ]]; then
-    cp ./etc/portage/bashrc.clang ./etc/portage/bashrc
     cat <<EOF >>$bl.1st
-# %emerge --deep=0 -uU sys-devel/llvm sys-devel/clang
+%emerge --deep=0 -uU sys-devel/llvm sys-devel/clang
 EOF
   else
     cat <<EOF >>$bl.1st
@@ -646,7 +646,7 @@ if [[ $((RANDOM % 8)) -eq 0 ]]; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
   emerge -u sys-devel/slibtool
-  cat << EOF2 >> /etc/portage/make.conf
+  cat << EOF2 >>/etc/portage/make.conf
 
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
