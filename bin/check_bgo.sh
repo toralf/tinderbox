@@ -73,8 +73,8 @@ echo -e "\n===========================================\n"
 
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
 if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
-  emaint sync --auto
-  echo
+  echo "run before:    emaint sync --auto"
+  exit 1
 fi
 
 name=$(cat $issuedir/../../name)                                           # e.g.: 17.1-20201022-101504
