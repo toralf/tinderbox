@@ -14,12 +14,15 @@ fi
 
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
-# sam_
+# sam_ : bashrc meson hook
+#
 if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile 2>/dev/null; then
   cp $tmpfile ~tinderbox/img/sam.txt
 fi
+rm $tmpfile
 
-# xgqt
+# xgqt : big package size
+#
 if find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + >$tmpfile 2>/dev/null; then
   perl -wane '
     chomp;
@@ -40,8 +43,10 @@ if find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + 
       }
     }' <$tmpfile >~tinderbox/img/xgqt.txt
 fi
+rm $tmpfile
 
-# sam_ + flow, run "reset" from time to time to clean up, otherwise run this hourly (65 == 5 min overlap)
+# sam_ + flow
+#
 (
   if [[ ${1-} == "reset" ]]; then
     find ~tinderbox/img/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" 2>/dev/null |
@@ -55,6 +60,7 @@ fi
   fi
 ) | sort -u >$tmpfile
 cp $tmpfile ~tinderbox/img/needed.ELF.2.txt
+rm $tmpfile
 
 (
   if [[ ${1-} == "reset" ]]; then
@@ -71,5 +77,15 @@ cp $tmpfile ~tinderbox/img/needed.ELF.2.txt
   fi
 ) | sort -u >$tmpfile
 cp $tmpfile ~tinderbox/img/needed.txt
+rm $tmpfile
 
+# sam bashrc.clang hook
+#
+if [[ ${1-} == "reset" ]]; then
+  opt="-c"
+else
+  opt="-r"
+fi
+tar $opt -f $tmpfile ~tinderbox/run/*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz 2>/dev/null
+cp $tmpfile ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
 rm $tmpfile
