@@ -71,9 +71,9 @@ source $(dirname $0)/lib.sh
 
 echo -e "\n===========================================\n"
 
-# the max time diff should be lower than the one used in in job.sh
+# the time diff should match the one used in syncRepo() of job.sh
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
-if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
+if [[ $((EPOCHSECONDS - last_sync)) -ge $((2 * 3600)) ]]; then
   sudo /usr/sbin/emaint sync --auto
 fi
 
