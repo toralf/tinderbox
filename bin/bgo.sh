@@ -33,7 +33,7 @@ function append() {
 function create() {
   local title
   title=$(cat ./title)
-  if [[ $name =~ "_clang" ]]; then
+  if [[ $name =~ "_clang" ]] || grep -q -e "^CC=clang" -e "^CXX=clang++" ../../../../../etc/portage/make.conf; then
     title=$(sed -e 's, - , - [clang] ,' <<<$title)
   fi
   # sam_
