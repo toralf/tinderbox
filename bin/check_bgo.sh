@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# query buzilla.gentoo.org for given issue
+# query https://bugzilla.gentoo.org for a given issue and prepare bug filing by bgo.sh
 
 function Exit() {
   local rc=${1:-$?}
@@ -71,6 +71,7 @@ source $(dirname $0)/lib.sh
 
 echo -e "\n===========================================\n"
 
+# the max time diff should be lower than the one used in in job.sh
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
 if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
   sudo /usr/sbin/emaint sync --auto
