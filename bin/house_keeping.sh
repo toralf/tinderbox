@@ -31,7 +31,7 @@ function pruneIt() {
   local reason=${2?}
 
   if [[ -f $img/var/tmp/tb/KEEP ]]; then
-    echo " $(date) $reason but has to be kept: $img"
+    echo " $(date) $reason but has to be kept: $img" >&2 # stdout is suppressed in cron job
     return 0
   fi
 
