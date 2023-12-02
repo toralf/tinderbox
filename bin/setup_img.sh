@@ -306,7 +306,7 @@ ACCEPT_LICENSE="*"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
-NOCOLOR="true"
+NO_COLOR="true"
 
 FEATURES="xattr -news"
 EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
@@ -792,7 +792,7 @@ function FixPossibleUseFlagIssues() {
 # helper of ThrowFlags
 function ShuffleUseFlags() {
   local m=$1      # pick up to m-1 + o
-  local n=$2      # mask 1:n of them
+  local n=$2      # mask about 1/n of them
   local o=${3:-0} # minimum
 
   shuf -n $((RANDOM % m + o)) |
@@ -821,12 +821,13 @@ function ThrowFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
     grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    ShuffleUseFlags 250 4 50 |
+    ShuffleUseFlags 280 5 70 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
-    shuf -n $((RANDOM % 1800 + 200)) |
+    grep -v -w -f $tbhome/tb/data/IGNORE_PACKAGES |
+    shuf -n $((RANDOM % 1800 + 400)) |
     sort |
     while read -r file; do
       pkg=$(cut -f 6-7 -d '/' -s <<<$file)
