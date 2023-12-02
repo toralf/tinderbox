@@ -54,13 +54,13 @@ function list_images_by_age() {
 }
 
 function checkBgo() {
-  if ! bugz -h >/dev/null; then
-    echo "pybugz is b0rken" >&2
+  if ! bugz -h &>/dev/null; then
+    echo " issue: pybugz is b0rken" >&2
     return 1
   fi
 
-  if ! bugz -q get 2 >/dev/null; then
-    echo "b.g.o cannot be queried" >&2
+  if ! bugz -q get 2 &>/dev/null; then
+    echo " issue: b.g.o cannot be queried" >&2
     return 1
   fi
 }
@@ -111,7 +111,7 @@ function LookupForABlocker() {
 }
 
 function BgoIssue() {
-  grep -q -e "^Traceback" -e "# Error: Bugzilla error:" $bugz_result
+  grep -q -e "^Traceback" -e " issue: " $bugz_result
 }
 
 function GotResults() {
