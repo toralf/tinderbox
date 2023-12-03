@@ -519,7 +519,7 @@ function CreateBacklogs() {
   truncate -s 0 $bl{,.1st,.upd}
 
   if [[ ! $profile =~ "/clang" ]]; then
-    if dice 1 2; then
+    if dice 1 4; then
       cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
       cat <<EOF >>$bl.1st
 %emerge -u sys-devel/clang && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && mv /etc/portage/bashrc.clang /etc/portage/bashrc
@@ -854,7 +854,7 @@ if ! portageq best_visible / sys-devel/gcc; then
 fi
 
 if [[ $profile =~ "/clang" ]]; then
-  : emerge --deep=0 -uU sys-devel/llvm sys-devel/clang --pretend
+  emerge --deep=0 -uU sys-devel/llvm sys-devel/clang --pretend
 else
   USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
 fi
