@@ -518,10 +518,6 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
-  cat <<EOF >>$bl.1st
-@world
-EOF
-
   if [[ ! $profile =~ "/clang" ]]; then
     if dice 1 2; then
       cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
@@ -530,6 +526,10 @@ EOF
 EOF
     fi
   fi
+
+  cat <<EOF >>$bl.1st
+@world
+EOF
 
   if [[ $profile =~ "/clang" ]]; then
     cat <<EOF >>$bl.1st
