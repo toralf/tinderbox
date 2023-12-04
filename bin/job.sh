@@ -563,7 +563,7 @@ function SendIssueMailIfNotYetReported() {
  check_bgo.sh ~tinderbox/img/$name/$issuedir $force
 
 
-;
+:
 
 EOF
       Mail "$hints $(cat $issuedir/title)" $issuedir/body
