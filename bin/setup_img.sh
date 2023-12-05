@@ -518,25 +518,21 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
-  if [[ ! $profile =~ "/clang" ]]; then
-    if dice 1 4; then
-      cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
-      cat <<EOF >>$bl.1st
-%emerge -u sys-devel/clang && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && mv /etc/portage/bashrc.clang /etc/portage/bashrc
-EOF
-    fi
-  fi
-
-  cat <<EOF >>$bl.1st
-@world
-EOF
-
   if [[ $profile =~ "/clang" ]]; then
     cat <<EOF >>$bl.1st
-%emerge --deep=0 -uU sys-devel/llvm sys-devel/clang
+@world
+%emerge -uU sys-devel/llvm sys-devel/clang
 EOF
+
   else
+    if dice 1 4 && ! grep -q -F 'gcc-14' ./etc/portage/package.unmask/50unstable; then
+      cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
+      cat <<EOF >>$bl.1st
+%emerge -uU sys-devel/llvm sys-devel/clang && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && mv /etc/portage/bashrc.clang /etc/portage/bashrc
+EOF
+    fi
     cat <<EOF >>$bl.1st
+@world
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
@@ -854,7 +850,7 @@ if ! portageq best_visible / sys-devel/gcc; then
 fi
 
 if [[ $profile =~ "/clang" ]]; then
-  emerge --deep=0 -uU sys-devel/llvm sys-devel/clang --pretend
+  emerge -uU sys-devel/llvm sys-devel/clang --pretend
 else
   USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
 fi
