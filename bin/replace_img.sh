@@ -105,7 +105,7 @@ while :; do
     echo
     date
     echo " call setup"
-    tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp)
+    tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp) # intentionally not removed in case of an issue
     # shellcheck disable=SC2024
     if sudo $(dirname $0)/setup_img.sh &>$tmpfile; then
       img=$(grep "^  setup done for .*$" $tmpfile | awk '{ print $4 }')
