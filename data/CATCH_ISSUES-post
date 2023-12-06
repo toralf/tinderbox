@@ -32,7 +32,7 @@ ln: failed to create symbolic link .*: File exists
 Segmentation fault
 ^Error:
 fatal error:
-: error:
+: error:.
 sed:.*expression.*unknown option
 sed.*failed
 ^ERROR:
@@ -47,6 +47,6 @@ Unsupported kernel version!
  \* FAILED .
 error:.*command not found
  \*\*\* No rule to make target
- error:.*:
+ error:.*:.
 ninja: build stopped:
 Error . shuffle=.*
