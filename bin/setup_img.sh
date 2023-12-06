@@ -525,7 +525,7 @@ function CreateBacklogs() {
 EOF
 
   else
-    if dice 1 4 && ! grep -q -F 'gcc-14' ./etc/portage/package.unmask/50unstable; then
+    if dice 1 8 && ! grep -q -F 'gcc-14' ./etc/portage/package.unmask/50unstable; then
       cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
       cat <<EOF >>$bl.1st
 %emerge -uU sys-devel/llvm sys-devel/clang && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && mv /etc/portage/bashrc.clang /etc/portage/bashrc
