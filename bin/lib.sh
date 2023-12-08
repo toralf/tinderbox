@@ -29,6 +29,11 @@ function getStartTime() {
   cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img
 }
 
+function stripQuotesAndMore() {
+  # shellcheck disable=SC1112
+  sed -e 's,['\''‘’"`•],,g'
+}
+
 # list if locked and/or symlinked to ~run and/or have a cgroup
 function list_active_images() {
   (

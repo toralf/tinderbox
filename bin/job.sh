@@ -7,11 +7,6 @@
 # The remaining code just parses the output.
 # That's all.
 
-function stripQuotesAndMore() {
-  # shellcheck disable=SC1112
-  sed -e 's,['\''‘’"`•],,g'
-}
-
 # filter leftover of ansifilter
 function filterPlainPext() {
   # UTF-2018+2019 (left+right single quotation mark)
