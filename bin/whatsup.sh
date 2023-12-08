@@ -185,10 +185,15 @@ function LastEmergeOperation() {
         my $minutes = $delta / 60 % 60;
         if ($delta < 3600) {
           my $seconds = $delta % 60;
-          printf (" %2i:%02i m  ", $minutes, $seconds);
+          printf (" %2i:%02i m ", $minutes, $seconds);
         } else  {
           my $hours = $delta / 3600;
-          printf (" %2i:%02i h%s ", $hours, $minutes, $delta < 2*3600 ? " " : "!"); # mark too long emerge times
+          printf (" %2i:%02i h%s", $hours, $minutes, $delta < 2*3600 ? " " : "!"); # mark too long emerge times
+        }
+        if (-f "'$i'/var/tmp/tb/WAIT") {
+          printf ("W");
+        } else {
+          printf (" ");
         }
         my $line = join (" ", @F[2..$#F]);
         print substr ($line, 0, '$columns' - 38), "\n";
