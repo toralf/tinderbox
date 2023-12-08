@@ -60,6 +60,10 @@ if [[ -z $issuedir || ! -d $issuedir ]]; then
   echo " wrong issuedir '$issuedir'" >&2
   exit 1
 fi
+if [[ -f $issuedir/.reported ]]; then
+  echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n" >&2
+  exit 0
+fi
 
 force="n"
 if [[ $# -eq 2 && $2 == "-f" ]]; then
@@ -82,10 +86,6 @@ pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # e.g
 pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # e.g.: net-misc/bird
 SetAssigneeAndCc
 
-if [[ -f $issuedir/.reported ]]; then
-  echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n" >&2
-  exit 0
-fi
 if [[ ! -s $issuedir/title ]]; then
   echo -e "\n no title found\n" >&2
   exit 1
