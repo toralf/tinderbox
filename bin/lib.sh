@@ -128,7 +128,8 @@ function SearchForSameIssue() {
     collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     # shellcheck disable=SC2154
-    $__tinderbox_bugz_timeout bugz -q --columns 400 search --show-status -- "file collision $pkgname $collision_partner_pkgname" |
+    $__tinderbox_bugz_search_cmd --show-status -- "file collision $pkgname $collision_partner_pkgname" |
+      stripQuotesAndMore |
       grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
       sort -n -r |
       head -n 4 |
@@ -142,7 +143,8 @@ function SearchForSameIssue() {
   else
     # shellcheck disable=SC2154
     for i in $pkg $pkgname; do
-      $__tinderbox_bugz_timeout bugz -q --columns 400 search --show-status -- $i "$(cat $bugz_search)" |
+      $__tinderbox_bugz_search_cmd --show-status -- $i "$(cat $bugz_search)" |
+        stripQuotesAndMore |
         grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
         sort -n -r |
         head -n 4 |
@@ -161,7 +163,8 @@ function SearchForSameIssue() {
 function SearchForSimilarIssue() {
   # resolved does not fit "same issue"
   for i in $pkg $pkgname; do
-    $__tinderbox_bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bugz_search)" |
+    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bugz_search)" |
+      stripQuotesAndMore |
       sort -n -r |
       head -n 3 |
       tee $bugz_result
@@ -172,7 +175,8 @@ function SearchForSimilarIssue() {
       return 0
     fi
 
-    $__tinderbox_bugz_timeout bugz -q --columns 400 search --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |
+    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |
+      stripQuotesAndMore |
       sort -n -r |
       head -n 3 |
       tee $bugz_result
@@ -189,7 +193,7 @@ function SearchForSimilarIssue() {
   local g='stabilize|Bump| keyword| bump'
 
   echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
-  $__tinderbox_bugz_timeout bugz -q --columns 400 search --show-status $pkgname |
+  $__tinderbox_bugz_search_cmd --show-status $pkgname |
     grep -v -i -E "$g" |
     sort -n -r |
     head -n 12 |
@@ -202,7 +206,8 @@ function SearchForSimilarIssue() {
 
   if [[ $(wc -l <$bugz_result) -lt 5 ]]; then
     echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-    $__tinderbox_bugz_timeout bugz -q --columns 400 search --status RESOLVED $pkgname |
+    $__tinderbox_bugz_search_cmd --status RESOLVED $pkgname |
+      stripQuotesAndMore |
       grep -v -i -E "$g" |
       sort -n -r |
       head -n 5 |
@@ -217,5 +222,5 @@ function SearchForSimilarIssue() {
   return 1
 }
 
-# handle bugz/b.g.o. hang
-export __tinderbox_bugz_timeout="timeout --signal=15 --kill-after=1m 3m"
+# handle b.g.o. hang
+__tinderbox_bugz_search_cmd="timeout --signal=15 --kill-after=1m 3m bugz -q --columns 400 search"
