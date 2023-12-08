@@ -8,6 +8,9 @@
 #
 
 # start slowly
-*/*                                 -doc -emacs -ruby
+*/*                                 -doc -emacs -ruby -vala
+app-crypt/gcr                       -vala
+app-crypt/libsecret                 -vala
 app-text/docbook-xsl-ns-stylesheets -ruby
 app-text/docbook-xsl-stylesheets    -ruby
+gnome-base/librsvg                  -vala

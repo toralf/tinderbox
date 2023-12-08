@@ -2,7 +2,7 @@
 #
 
 # ztrawhcs: "we want to test all upstream release candidates"
-<dev-util/meson-9999                                    # DICE: meson 1 3
+<dev-util/meson-9999                                    # DICE: meson 1 4
 
 # sam_
-<sys-devel/gcc-14.0.0.9999:14                           # DICE: gcc-14 1 6
+<sys-devel/gcc-14.0.0.9999:14                           # DICE: gcc-14 1 8
