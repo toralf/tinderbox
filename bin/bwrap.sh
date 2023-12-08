@@ -18,7 +18,7 @@ function CreateCgroup() {
 
   local i=5
   while [[ -d $name ]] && ((i--)); do
-    sleep 1
+    sleep 0.5
   done
   mkdir $name || return 13
   echo "$$" >$name/cgroup.procs
@@ -28,7 +28,7 @@ function CreateCgroup() {
     echo " jobs is invalid: '$jobs', set to 1" >&2
     jobs=1
   fi
-  # 1 CPU per job
+  # 1 vCPU per job
   echo $((100 * jobs)) >$name/cpu.weight
 
   # 2 GiB per job + /var/tmp/portage
@@ -41,10 +41,10 @@ function CreateCgroup() {
 function KillCgroup() {
   local name=$cgdomain/${mnt##*/}
 
-  echo "while [[ -d $name ]]; do grep -q 'populated 0' $name/cgroup.events && rmdir $name || sleep 1; done" | at now 2>/dev/null
+  echo "while [[ -d $name ]]; do grep -q 'populated 0' $name/cgroup.events && rmdir $name || sleep 0.5; done" | at now 2>/dev/null
 }
 
-# no "echo" here
+# no echo here
 function Exit() {
   local rc=${1:-$?}
 
