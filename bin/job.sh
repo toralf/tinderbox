@@ -468,15 +468,14 @@ function add2backlog() {
       if [[ "$(tail -n 1 $bl)" != "$1" ]]; then
         echo "$1" >>$bl
       fi
-    elif ! grep -q "^${1}$" $bl; then
-      # avoid dups in the file
+    elif ! grep -q "^${1}$" $bl; then  # avoid dups in the file
       echo "$1" >>$bl
     fi
   fi
 }
 
 function finishTitle() {
-  # strip away hex addresses, loong path names, line and time numbers and other stuff
+  # strip away hex addresses, line numbers, timestamps, shrink loong path names etc.
   sed -i -e 's,0x[0-9a-f]*,<snip>,g' \
     -e 's,: line [0-9]*:,:line <snip>:,g' \
     -e 's,[0-9]* Segmentation fault,<snip> Segmentation fault,g' \
@@ -978,6 +977,7 @@ function syncRepo() {
     fi
   fi
 
+  # this includes that the update of the backlog succeeded
   last_sync=$curr_time
 
   cd - >/dev/null
