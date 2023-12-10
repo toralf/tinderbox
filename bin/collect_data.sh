@@ -18,6 +18,7 @@ tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 #
 if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile 2>/dev/null; then
   mv $tmpfile ~tinderbox/img/sam.txt
+  chmod a+r ~tinderbox/img/sam.txt
 fi
 
 # xgqt : big package size
@@ -41,6 +42,7 @@ if find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + 
         print "\n";
       }
     }' <$tmpfile >~tinderbox/img/xgqt.txt
+    chmod a+r ~tinderbox/img/xgqt.txt
   rm $tmpfile
 fi
 
@@ -59,6 +61,7 @@ fi
   fi
 ) | sort -u >$tmpfile
 mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
+chmod a+r ~tinderbox/img/needed.ELF.2.txt
 
 (
   if [[ ${1-} == "reset" ]]; then
@@ -75,15 +78,10 @@ mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
   fi
 ) | sort -u >$tmpfile
 mv $tmpfile ~tinderbox/img/needed.txt
+chmod a+r ~tinderbox/img/needed.txt
 
 # sam bashrc.clang hook
 #
-if [[ ${1-} == "reset" ]]; then
-  opt="-c"
-  what="img"
-else
-  opt="-r"
-  what="run"
-fi
-tar $opt -f $tmpfile ~tinderbox/$what/*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz 2>/dev/null
+tar -c -f $tmpfile ~tinderbox/img/*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz 2>/dev/nul
 mv $tmpfile ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
+chmod a+r ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
