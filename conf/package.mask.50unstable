@@ -3,7 +3,7 @@
 
 
 # https://bugs.gentoo.org/794235
-<dev-util/ragel-7.0.4-r3                                # DICE: ragel 4 5
+<dev-util/ragel-7.0.4-r3
 
 # mask for now, fails too often
 <dev-lang/ghc-9.0.2-r4

@@ -31,8 +31,8 @@ rdlibtool
 
 # (gcc-14) - [TRACKER] sys-devel/gcc-14 porting
 914580
-is not a member of std|std::
+is not a member of std
 
 # (c99-porting, clang-16-porting) - [Tracker] Modern C (C99) porting (default -Werror=implicit-function-declaration,implicit-int,int-conversion; includes but not limited to Clang 16)
 870412
-; ISO C99 and|Clang .* testing:|C compiler cannot create executables|implicit declaration of function|undefined reference to|call to undeclared library function|incompatible pointer type|call to undeclared function|incompatible integer to pointer conversion|incompatible pointer type|type specifier missing, defaults to int|should return a value|incompatible function pointer types|return-mismatch|passing argument .* of|type defaults to int|expected parameter declarator|non-constant-expression cannot be narrowed from|argument to .* must be a constant integer| assignment to .* from|pointer type mismatch in
+; ISO C99 and|C compiler cannot create executables|implicit declaration of function|undefined reference to|call to undeclared library function|incompatible pointer type|call to undeclared function|incompatible integer to pointer conversion|incompatible pointer type|type specifier missing, defaults to int|should return a value|incompatible function pointer types|return-mismatch|passing argument .* of|type defaults to int|expected parameter declarator|non-constant-expression cannot be narrowed from|argument to .* must be a constant integer| assignment to .* from|pointer type mismatch in
