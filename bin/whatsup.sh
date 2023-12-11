@@ -55,7 +55,7 @@ function Overall() {
   locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
   local all
   all=$(wc -w <<<$images)
-  echo "compl fail new  day backlog .upd .1st status $locked#$all locked  +++  $(date)"
+  echo "compl fail new  day backlog .upd .1st state $locked#$all locked  +++  $(date)"
 
   for i in $images; do
     local days
@@ -90,11 +90,6 @@ function Overall() {
     # " " ok
     check_history $i/var/tmp/tb/@world.history w
     check_history $i/var/tmp/tb/@preserved-rebuild.history p
-    if [[ -f $i/var/tmp/tb/WAIT ]]; then
-      flags+="W"
-    else
-      flags+=" "
-    fi
 
     if __is_locked $i; then
       flags+="l"
@@ -112,8 +107,6 @@ function Overall() {
       flags+="K"
     elif [[ -f $i/var/tmp/tb/EOL ]]; then
       flags+="E"
-    elif grep -q "^EOL" $i/var/tmp/tb/backlog* 2>/dev/null; then
-      flags+="e"
     elif [[ -f $i/var/tmp/tb/STOP ]]; then
       flags+="S"
     elif grep -q "^STOP" $i/var/tmp/tb/backlog* 2>/dev/null; then
