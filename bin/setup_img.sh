@@ -730,13 +730,13 @@ function FixPossibleUseFlagIssues() {
       local f=./etc/portage/package.use/24thrown_package_use_flags
       if grep -q "$pkg " $f; then
         sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkg) /d" $f
-        if RunDryrunWrapper "#setup dryrun $attempt-$i # solved unmet requirements of $pkg"; then
+        if RunDryrunWrapper "#setup dryrun $attempt-$i # unmet requirements: $pkg"; then
           return 0
         fi
       fi
     fi
 
-    # if *un*setting of an USE flag is advised then do it
+    # if *un*setting of an USE flag is advised then try it
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
     grep -A 20 "It might be possible to break this cycle" $drylog |
       grep -F ' (Change USE: ' |
@@ -750,7 +750,7 @@ function FixPossibleUseFlagIssues() {
       sort -u >$fautocirc
 
     if [[ -s $fautocirc ]]; then
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved circ dep"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve circ dep"; then
         return 0
       fi
     else
@@ -768,7 +768,7 @@ function FixPossibleUseFlagIssues() {
       sort -u >$fautoflag
 
     if [[ -s $fautoflag ]]; then
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # solved flag change"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve USE changes"; then
         return 0
       fi
     else
@@ -872,7 +872,7 @@ EOF
 
   else
     local attempt=0
-    while [[ $((++attempt)) -le 300 ]]; do
+    while [[ $((++attempt)) -lt 200 ]]; do
       echo
       date
       echo "==========================================================="
@@ -882,7 +882,7 @@ EOF
           return 1
         fi
       done
-      if ! ((attempt % 100)); then
+      if ! ((attempt % 50)); then
         echo -e " sync repo"
         (cd .$reposdir/gentoo && git pull 1>/dev/null)
       fi
