@@ -27,7 +27,7 @@ function listStat() {
 
 function listFiles() {
   {
-    echo "<h2>downloadable files</h2>"
+    echo "<h2>dev data</h2>"
     echo "<pre>"
     find ~tinderbox/img/ -maxdepth 1 -type f -print0 |
       xargs -r -n 1 --null basename |
