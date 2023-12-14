@@ -253,16 +253,15 @@ function getCoveredPackages() {
 
 # whatsup.sh -c
 #
-# 19506 packages available in ::gentoo
-# 16081 packages emerged under ~tinderbox/run   (82% for last 10 days)
-# 17835 packages emerged under ~tinderbox/img   (91% for last 55 days)
+# 19025 packages available in ::gentoo
+# 12128 emerged packages under ~tinderbox/run in the last  8.6 days (63.7%)
+# 16643 emerged packages under ~tinderbox/img in the last 52.0 days (87.5%)
 function Coverage() {
   local tmpfile
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
   (
     cd /var/db/repos/gentoo
-    ls -d *-*/*
-    ls -d virtual/*
+    ls -d *-*/* virtual/*
   ) | grep -v -F 'metadata.xml' | sort >$tmpfile
 
   local N
@@ -282,13 +281,13 @@ function Coverage() {
     local oldest=$(sort -n ~tinderbox/$i/*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
-      days=$(echo "scale=2.1; ($EPOCHSECONDS - $oldest) / 3600 / 24" | bc)
+      days=$(echo "scale=2.1; ($EPOCHSECONDS.0 - $oldest) / 3600 / 24" | bc)
     fi
     local perc=0
     if [[ $N -gt 0 ]]; then
       perc=$(echo "scale=2.1; 100.0 * $n / $N" | bc)
     fi
-    printf "%5i packages emerged under ~tinderbox/%s   (%3.1f%% for last %3.1f days)\n" $n $i $perc $days
+    printf "%5i emerged packages under ~tinderbox/%s in the last %4.1f days (%4.1f%%)\n" $n $i $days $perc
   done
 
   rm $tmpfile
