@@ -5,4 +5,4 @@
 <dev-util/meson-9999                                    # DICE: meson 1 4
 
 # sam_
-<sys-devel/gcc-14.0.0.9999:14                           # DICE: gcc-14 1 8
+<sys-devel/gcc-14.0.0.9999:14                           # DICE: gcc-14 1 4

@@ -6,7 +6,7 @@
 sys-devel/gcc                       debug               # DICE: gcc-debug
 
 # sam_, negril OOM
-sci-libs/vtk                        cuda,ffmpeg,imaging,logging,mpi,qt5,rendering,sdl,tbb,threads,views,vtkm      # DICE: vtk
+sci-libs/vtk                        X,cuda,ffmpeg,imaging,logging,mpi,video_cards_nvidia,python,qt5,-qt6,rendering,sdl,tbb,threads,views,vtkm      # DICE: vtk
 sci-libs/cgnslib                    hdf5                                                                          # DICE: vtk
 sci-libs/hdf5                       mpi                                                                           # DICE: vtk
 sys-cluster/openmpi                 cxx                                                                           # DICE: vtk

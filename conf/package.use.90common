@@ -63,6 +63,13 @@ app-text/ansifilter                 -gui
 # needed by us
 sys-devel/bc                        readline -libedit -static
 
+# tar needs "xz"
+app-arch/libarchive                 bzip2 lzma zstd
+
+# su (alternative would be sys-apps/shadow)
+sys-apps/util-linux                 su suid
+
+
 #######################################################################
 # setup blocker
 dev-libs/libpcre                    -libedit            # DICE: setup 4 5
