@@ -23,9 +23,10 @@ function dice() {
 }
 
 # helper of InitOptions()
+#  -e '/clang'
 function GetValidProfiles() {
   eselect profile list |
-    grep -F -e ' (stable)' -e ' (dev)' -e '/clang' |
+    grep -F -e ' (stable)' -e ' (dev)' |
     grep -v -F -e '/selinux' -e '/x32' -e '/musl' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s
@@ -525,7 +526,7 @@ function CreateBacklogs() {
 EOF
 
   else
-    if dice 1 8 && ! grep -q -F 'gcc-14' ./etc/portage/package.unmask/50unstable; then
+    if dice 1 16 && ! grep -q -F 'gcc-14' ./etc/portage/package.unmask/50unstable && [[ ! $profile =~ "/musl" ]]; then
       cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
       cat <<EOF >>$bl.1st
 %emerge -uU sys-devel/llvm sys-devel/clang && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && mv /etc/portage/bashrc.clang /etc/portage/bashrc
@@ -660,8 +661,8 @@ fi
 
 date
 echo "#setup backlog" | tee /var/tmp/tb/task
-# sort -u is needed if a package is in several repositories
-qsearch --all --nocolor --name-only --quiet | grep -v -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
+# sort is needed if a package is in several repositories
+qsearch --all --nocolor --name-only --quiet | grep -v -e -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
 
 sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' /etc/portage/make.conf
 
@@ -718,6 +719,12 @@ function FixPossibleUseFlagIssues() {
   fi
 
   for i in $(seq -w 1 29); do
+    for k in EOL STOP; do
+      if [[ -f ./var/tmp/tb/$k ]]; then
+        echo -e "\n found $k file"
+        exit 1
+      fi
+    done
     # kick off a package from the package specific use flag file
     local pkg
     pkg=$(
@@ -844,16 +851,21 @@ set -euf
 
 echo "# start dryrun"
 
-if ! portageq best_visible / sys-devel/gcc; then
-  echo "no visible gcc ?!"
-  exit 1
-fi
+EOF
 
-if [[ $profile =~ "/clang" ]]; then
-  emerge -uU sys-devel/llvm sys-devel/clang --pretend
-else
-  USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
-fi
+  if [[ $profile =~ "/clang" ]]; then
+    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+emerge -uU sys-devel/llvm sys-devel/clang --pretend
+
+EOF
+  else
+    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
+
+EOF
+  fi
+
+  cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge --newuse -uU @world --pretend
 
 EOF
@@ -876,12 +888,6 @@ EOF
       echo
       date
       echo "==========================================================="
-      for i in EOL STOP; do
-        if [[ -f ./var/tmp/tb/$i ]]; then
-          echo -e "\n found $i file"
-          return 1
-        fi
-      done
       if ! ((attempt % 50)); then
         echo -e " sync repo"
         (cd .$reposdir/gentoo && git pull 1>/dev/null)
