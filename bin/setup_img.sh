@@ -662,7 +662,7 @@ fi
 date
 echo "#setup backlog" | tee /var/tmp/tb/task
 # sort is needed if a package is in several repositories
-qsearch --all --nocolor --name-only --quiet | grep -v -e -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
+qsearch --all --nocolor --name-only --quiet | grep -v -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
 
 sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' /etc/portage/make.conf
 
