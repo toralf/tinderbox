@@ -15,7 +15,7 @@ function olderThan() {
 }
 
 function pruneNeeded() {
-  local maxperc=${1:-80} # max used space in %
+  local maxperc=${1:-75} # max used space of whole FS in % (BTRFS is special!)
 
   if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
     # value of available space in percent is often lower than 100-"percent value of df"
@@ -76,7 +76,7 @@ if [[ -s $latest ]]; then
     done
 fi
 
-# mtime is allowed to be even older than the host itself, so use atime
+# mtime value can be older than the host itself, so use atime
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
 # kick off if less than X packages were emerged
