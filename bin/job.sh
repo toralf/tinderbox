@@ -468,7 +468,7 @@ function add2backlog() {
       if [[ "$(tail -n 1 $bl)" != "$1" ]]; then
         echo "$1" >>$bl
       fi
-    elif ! grep -q "^${1}$" $bl; then  # avoid dups in the file
+    elif ! grep -q "^${1}$" $bl; then # avoid dups in the file
       echo "$1" >>$bl
     fi
   fi
@@ -858,6 +858,11 @@ function RunAndCheck() {
   fi
 
   catchMisc
+
+  if grep -q -F 'Please run emaint --check world' $tasklog_stripped; then
+    add2backlog "%emaint --check world"
+  fi
+
   return $rc
 }
 
