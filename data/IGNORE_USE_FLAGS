@@ -6,6 +6,7 @@ build
 compile-locales
 compiler-rt
 conntrack
+crossdev-mingw
 custom-cflags
 debug
 default-compiler-rt

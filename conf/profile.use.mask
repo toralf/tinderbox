@@ -12,11 +12,11 @@ pax-kernel
 symlink
 valgrind
 
+# ionen: https://bugs.gentoo.org/846941
+crossdev-mingw
+
 
 #######################################################################
 #
 # temp settings
 #
-
-# ionen: https://bugs.gentoo.org/846941
-crossdev-mingw
