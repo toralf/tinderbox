@@ -11,13 +11,13 @@ function listStat() {
     echo "<pre>"
     echo "<h3>coverage</h3>"
     $(dirname $0)/whatsup.sh -c | recode --silent ascii..html
-    echo "<h3>overview</h3>"
-    $(dirname $0)/whatsup.sh -o | recode --silent ascii..html
-    echo "<h3>packages per day</h3>"
+    echo "<h3>packages per (image run) day</h3>"
     $(dirname $0)/whatsup.sh -d | recode --silent ascii..html
+    echo "<h3>running</h3>"
+    $(dirname $0)/whatsup.sh -o | recode --silent ascii..html
     echo "<h3>current task</h3>"
     $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
-    echo "<h3>current package</h3>"
+    echo "<h3>current step</h3>"
     $(dirname $0)/whatsup.sh -l | recode --silent ascii..html
     echo "<h3>fs</h3>"
     df -h /mnt/data | recode --silent ascii..html
@@ -39,7 +39,7 @@ function listFiles() {
   } >>$tmpfile
 }
 
-function listImagesWithoutBugs() {
+function listImagesWithoutAnyBug() {
   {
     echo "<h2>images without any bug</h2>"
     echo "<pre>"
@@ -71,12 +71,28 @@ function listImagesWithoutReportedBugs() {
   } >>$tmpfile
 }
 
+function listImagesWithReportedBugs() {
+  {
+    echo "<h2>images with reported bugs</h2>"
+    echo "<pre>"
+    find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
+      xargs -r -n 1 --null basename |
+      sort |
+      while read -r f; do
+        if ls ~tinderbox/img/$f/var/tmp/tb/issues/*/.reported &>/dev/null; then
+          echo "<a href=\"$f\">$f</a>"
+        fi
+      done
+    echo -e "</pre>\n"
+  } >>$tmpfile
+}
+
 function listBugs() {
   local files
   files=$(ls -t -- ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null)
 
   cat <<EOF >>$tmpfile
-<h2>latest $(wc -l <<<$files) reported bugs at <a href="https://bugs.gentoo.org/">b.g.o</a></h2>
+<h2>latest $(wc -l <<<$files) <a href="https://bugs.gentoo.org/">reported</a> bugs</h2>
 
   <table border="0" align="left" class="list_table" width="100%">
 
@@ -109,16 +125,15 @@ EOF
       continue
     fi
     d=${f%/*}
-    title=$d/title
-    imagedir=$(cut -f 5- -d '/' <<<$d)
-    image=${imagedir%%/*}
+    issuedir=$(cut -f 5- -d '/' <<<$d)
+    image=${issuedir%%/*}
     pkg=${d##*/}
     cat <<EOF >>$tmpfile
   <tr>
     <td><a href="$uri">$no</a></td>
-    <td>$(recode --silent ascii..html <$title)</td>
+    <td>$(recode --silent ascii..html <$d/title)</td>
     <td><a href="./$image/">$image</a></td>
-    <td><a href="$imagedir/">$pkg</a></td>
+    <td><a href="$issuedir/">$pkg</a></td>
   </tr>
 EOF
   done <<<$files
@@ -149,10 +164,10 @@ cat <<EOF >>$tmpfile
 EOF
 listStat
 listFiles
-listBugs
+listImagesWithoutAnyBug
 listImagesWithoutReportedBugs
-listImagesWithoutBugs
-
+listImagesWithReportedBugs
+listBugs
 cat <<EOF >>$tmpfile
 </body>
 </html>
