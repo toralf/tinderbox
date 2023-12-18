@@ -959,8 +959,13 @@ function syncRepo() {
   if ! emaint sync --auto &>$synclog; then
     if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error:' $synclog; then
       return 0
+    else
+      if ! emaint merges --fix &>>$synclog; then
+        ReachedEOL "broken repo, cannot be fixed" $synclog
+      elif ! emaint sync --auto &>>$synclog; then
+        ReachedEOL "broken sync of repo" $synclog
+      fi
     fi
-    ReachedEOL "broken ::gentoo" $synclog
   fi
 
   if grep -q -F '* An update to portage is available.' $synclog; then
@@ -1045,12 +1050,7 @@ fi
 
 # non-empty if Finish() was called by an internal error -or- bashrc catched a STOP during sleep
 if [[ -s $taskfile ]]; then
-  add2backlog "$(cat $taskfile)" # re-schedule $task
-  if [[ -f /var/tmp/tb/WAIT ]]; then
-    rm /var/tmp/tb/WAIT
-  else
-    add2backlog "%emaint merges --fix" # fix a possible unclean shutdown
-  fi
+  add2backlog "$(cat $taskfile)"
 fi
 
 echo "#init" >$taskfile
