@@ -944,8 +944,8 @@ function DetectRepeats() {
     ReachedEOL "package too often ($count) emerged: $count x $item"
   fi
 
-  read -r count item < <(tail -n 40 /var/tmp/tb/task.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 18 ]]; then
+  read -r count item < <(tail -n 60 /var/tmp/tb/task.history | sort | uniq -c | sort -bnr | head -n 1)
+  if [[ $count -ge 29 ]]; then
     ReachedEOL "task too often ($count) repeated: $count x $item"
   fi
 }
