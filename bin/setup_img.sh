@@ -497,12 +497,11 @@ EOF
   cat <<EOF >./root/.vimrc
 autocmd BufEnter *.txt set textwidth=0
 cnoreabbrev X x
-let g:session_autosave = 'no'
-let g:tex_flavor = 'latex'
+let g:session_autosave="no"
+let g:tex_flavor="latex"
 set softtabstop=2
 set shiftwidth=2
 set expandtab
-
 EOF
 
   # include the \n in the pasted content (sys-libs/readline de-activated that with v8)
