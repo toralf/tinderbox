@@ -857,8 +857,6 @@ function RunAndCheck() {
     fi
   fi
 
-  catchMisc
-
   if grep -q -F 'Please run emaint --check world' $tasklog_stripped; then
     add2backlog "%emaint --check world"
   fi
@@ -1091,6 +1089,9 @@ while :; do
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # no symlink here
   WorkOnTask
   rm $tasklog
+
+  echo "#catch misc" >$taskfile
+  catchMisc
 
   echo "#compressing logs" >$taskfile
   if ! find /var/log/portage -name '*.log' -exec xz {} + &>>$taskfile; then
