@@ -916,7 +916,11 @@ function WorkOnTask() {
   # pinned version
   elif [[ $task =~ ^= ]]; then
     if ! RunAndCheck "emerge $task"; then
-      Mail "INFO: pinned atom failed: $task" $tasklog
+      if [[ $pkg =~ "^=$task-" ]]; then
+        Mail "INFO: pinned atom failed: $task" $tasklog
+      else
+        Mail "INFO: dependency of pinned atom $task failed: $pkg" $tasklog
+      fi
     fi
 
   # a common atom
