@@ -927,7 +927,7 @@ function WorkOnTask() {
   else
     if ! RunAndCheck "emerge --update $task"; then
       # repeat atom if (one of) its dependency failed
-      if [[ ! $pkg =~ "^$task-" ]]; then
+      if [[ -n $pkg && ! $pkg =~ "^$task-" ]]; then
         add2backlog "$task"
       fi
     fi
