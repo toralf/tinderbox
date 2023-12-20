@@ -42,7 +42,7 @@ if find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + 
         print "\n";
       }
     }' <$tmpfile >~tinderbox/img/xgqt.txt
-    chmod a+r ~tinderbox/img/xgqt.txt
+  chmod a+r ~tinderbox/img/xgqt.txt
   rm $tmpfile
 fi
 
