@@ -285,6 +285,13 @@ function CompileTinderboxFiles() {
 # compile make.conf
 function CompileMakeConf() {
   echo "$(date) ${FUNCNAME[0]} ..."
+
+  # sam:
+  if grep -q -F 'gcc-14' ./etc/portage/package.unmask/*; then
+    if dice 1 2; then
+      cflags+=" -fpermissive"
+    fi
+  fi
   cat <<EOF >./etc/portage/make.conf
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
@@ -525,7 +532,7 @@ function CreateBacklogs() {
 EOF
 
   else
-    if dice 1 16 && ! grep -q -F 'gcc-14' ./etc/portage/package.unmask/50unstable && [[ ! $profile =~ "/musl" ]]; then
+    if dice 1 16 && ! grep -q -F 'gcc-14' ./etc/portage/package.unmask/* && [[ ! $profile =~ "/musl" ]]; then
       cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
       cat <<EOF >>$bl.1st
 %emerge -uU sys-devel/llvm sys-devel/clang && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && mv /etc/portage/bashrc.clang /etc/portage/bashrc
@@ -742,7 +749,7 @@ function FixPossibleUseFlagIssues() {
       fi
     fi
 
-    # if *un*setting of an USE flag is advised then try it
+    # follow advises of masking USE flags but ignore those where USE flags do contain underscore(s)
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
     grep -A 20 "It might be possible to break this cycle" $drylog |
       grep -F ' (Change USE: ' |
@@ -763,7 +770,7 @@ function FixPossibleUseFlagIssues() {
       rm $fautocirc
     fi
 
-    # follow advices
+    # follow advices of changing USE flag(s) ">=package USE flag(s)..." but ignore those where USE flags do contain underscore(s)
     local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
     grep -A 300 'The following USE changes are necessary to proceed:' $drylog |
       grep "^>=" |
@@ -952,8 +959,8 @@ CheckOptions
 UnpackStage3
 InitRepository
 CompileTinderboxFiles
-CompileMakeConf
 CompilePortageFiles
+CompileMakeConf
 CompileMiscFiles
 CreateBacklogs
 CreateSetupScript
