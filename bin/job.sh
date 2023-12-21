@@ -222,7 +222,7 @@ function CollectIssueFiles() {
     (
       f=/tmp/files
       cd "$workdir/.."
-      find ./ -name "*.log" \
+      find ./ -name "*.log" -print0 \
         -o -name "*.binlog" \
         -o -name "meson-log.txt" \
         -o -name "testlog.*" \
@@ -231,7 +231,7 @@ function CollectIssueFiles() {
         -o -wholename "./temp/syml*" |
         sort -u >$f
       if [[ -s $f ]]; then
-        $tar -cJpf $issuedir/files/logs.tar.xz --files-from $f --dereference --warning=none
+        $tar -cJpf $issuedir/files/logs.tar.xz --files-from $f --null --dereference --warning=none
       fi
       rm $f
     )
