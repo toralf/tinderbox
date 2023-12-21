@@ -228,8 +228,7 @@ function CollectIssueFiles() {
         -o -name "testlog.*" \
         -o -wholename '*/elf/*.out' \
         -o -wholename '*/softmmu-build/*' \
-        -o -wholename "./temp/syml*" |
-        sort -u >$f
+        -o -wholename "./temp/syml*" >$f
       if [[ -s $f ]]; then
         $tar -cJpf $issuedir/files/logs.tar.xz --null --files-from $f --dereference --warning=none
       fi
