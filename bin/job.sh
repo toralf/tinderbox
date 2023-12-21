@@ -231,7 +231,7 @@ function CollectIssueFiles() {
         -o -wholename "./temp/syml*" |
         sort -u >$f
       if [[ -s $f ]]; then
-        $tar -cJpf $issuedir/files/logs.tar.xz --files-from $f --null --dereference --warning=none
+        $tar -cJpf $issuedir/files/logs.tar.xz --null --files-from $f --dereference --warning=none
       fi
       rm $f
     )
