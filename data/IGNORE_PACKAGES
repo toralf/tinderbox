@@ -1,9 +1,10 @@
 # a task matching a pattern here will be skipped (except for entries in backlog.1st)
 # this file MUST NOT have empty lines
 #
-# never emerge these explicitely
+# do not emerge these explicitely
 #
-acct-*/*
+acct-.*/
+app-alternatives/
 app-eselect/
 dev-embedded/
 java-virtuals/
