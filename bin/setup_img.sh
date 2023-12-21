@@ -287,9 +287,10 @@ function CompileMakeConf() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
   # sam:
+  local cxxflags=""
   if grep -q -F 'gcc-14' ./etc/portage/package.unmask/*; then
     if dice 1 2; then
-      cflags+=" -fpermissive"
+      cxxflags+=" -fpermissive"
     fi
   fi
   cat <<EOF >./etc/portage/make.conf
@@ -297,7 +298,7 @@ LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
 
 CFLAGS="$cflags"
-CXXFLAGS="\${CFLAGS}"
+CXXFLAGS="\${CFLAGS}\${cxxflags}"
 
 FCFLAGS="$cflags"
 FFLAGS="\${FCFLAGS}"
