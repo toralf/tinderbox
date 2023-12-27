@@ -286,22 +286,15 @@ function CompileTinderboxFiles() {
 function CompileMakeConf() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  # sam:
-  local cxxflags=""
-  if grep -q -F 'gcc-14' ./etc/portage/package.unmask/*; then
-    if dice 1 2; then
-      cxxflags+=" -fpermissive"
-    fi
-  fi
   cat <<EOF >./etc/portage/make.conf
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
 
+# set these explicitely to only tweak e.g. CFLAGS for gcc-14 later
 CFLAGS="$cflags"
-CXXFLAGS="\${CFLAGS}\${cxxflags}"
-
+CXXFLAGS="$cflags"
 FCFLAGS="$cflags"
-FFLAGS="\${FCFLAGS}"
+FFLAGS="$cflags"
 
 # simply enables QA check for LDFLAGS being respected by build system.
 LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0"
@@ -526,21 +519,33 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
-  if [[ $profile =~ "/clang" ]]; then
-    cat <<EOF >>$bl.1st
+  # update world as the last step
+  cat <<EOF >>$bl.1st
 @world
-%emerge -uU sys-devel/llvm sys-devel/clang
 EOF
 
+  # update system compiler as the first step
+  if [[ $profile =~ "/clang" ]]; then
+    cat <<EOF >>$bl.1st
+%emerge -uU sys-devel/llvm sys-devel/clang
+EOF
   else
-    if dice 1 16 && ! grep -q -F 'gcc-14' ./etc/portage/package.unmask/* && [[ ! $profile =~ "/musl" ]]; then
+    # sam
+    if grep -q -F 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
+      if dice 1 2; then
+        cat <<EOF >>$bl.1st
+%sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' /etc/portage/make.conf
+EOF
+      fi
+    elif dice 1 32 && [[ ! $profile =~ "/musl" ]]; then
       cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
       cat <<EOF >>$bl.1st
 %emerge -uU sys-devel/llvm sys-devel/clang && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && mv /etc/portage/bashrc.clang /etc/portage/bashrc
 EOF
     fi
+
+    # update GCC
     cat <<EOF >>$bl.1st
-@world
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
