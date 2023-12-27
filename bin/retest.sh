@@ -48,17 +48,19 @@ if [[ -s $result.packages ]]; then
   else
     suffix="upd"
   fi
-  echo " add $(wc -l <$result.packages) package/s to $suffix ..." >&2
+  echo -n " add $(wc -l <$result.packages) package/s to $suffix " >&2
 
   # shuffle new atoms and put them after existing ones
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
   while read -r bl; do
+    echo -n "."
     # grep out duplicates
     grep -v -F -f $bl $result.packages | shuf >$tmpfile
     cat $bl >>$tmpfile
     uniq $tmpfile >$bl
   done < <(find ~tinderbox/run/*/var/tmp/tb/ -maxdepth 1 -name "backlog.$suffix")
   rm $tmpfile
+  echo
 
   # delete atom entry in image specific files
   while read -r pkgname; do
