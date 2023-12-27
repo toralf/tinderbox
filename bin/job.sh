@@ -52,7 +52,8 @@ function ReachedEOL() {
   truncate -s 0 $taskfile
   subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log || true) completed"
   local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
-  subject+=", $new new bug(s)"
+  local all=$(ls -d /var/tmp/tb/issues/* 2>/dev/null | wc -l)
+  subject+=", $new#$all bug(s) new"
   if ! /usr/bin/pfl &>/dev/null; then
     echo "pfl failed" >&2
   fi
@@ -686,7 +687,7 @@ function PostEmerge() {
   fi
 
   for p in dirmngr gpg-agent; do
-    if pgrep -a $p &>/var/tmp/pkill.log; then
+    if pgrep -a $p &>>/var/tmp/pkill.log; then
       if ! pkill -e $p &>>/var/tmp/pkill.log; then
         Mail "INFO: kill $p failed" /var/tmp/pkill.log
       fi
@@ -905,9 +906,11 @@ function WorkOnTask() {
         ReachedEOL "gcc update broken" $tasklog
       elif [[ $cmd =~ "haskell-updater" ]]; then
         ReachedEOL "haskell update broken" $tasklog
-      elif [[ $cmd =~ " --depclean" || $cmd =~ "perl-cleaner" ]]; then
-        :
-      else
+      elif [[ $cmd =~ "perl-cleaner" ]]; then
+        if grep -q 'The following USE changes are necessary to proceed' $tasklog; then
+          ReachedEOL "$task is broken" $tasklog
+        fi
+      elif [[ ! $cmd =~ " --depclean" ]]; then
         Mail "INFO: command failed: $cmd" $tasklog
       fi
     fi
