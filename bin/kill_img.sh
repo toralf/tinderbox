@@ -46,7 +46,7 @@ if pid_bwrap=$(pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <
   if [[ -n $pid_bwrap && $(wc -l <<<$pid_bwrap) -eq 1 ]]; then
     if pid_emerge=$(
       set -o pipefail
-      pstree -pa $pid_bwrap | grep -F 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
+      pstree -pa $pid_bwrap | grep 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
     ); then
       if [[ -n $pid_emerge ]]; then
         echo " kill emerge"
@@ -55,7 +55,7 @@ if pid_bwrap=$(pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <
         echo " notice: empty emerge pid from $pid_bwrap"
         if pid_entrypoint=$(
           set -o pipefail
-          pstree -pa $pid_bwrap | grep -F 'entrypoint,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
+          pstree -pa $pid_bwrap | grep 'entrypoint,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
         ); then
           if [[ -n $pid_entrypoint ]]; then
             echo " kill entrypoint"

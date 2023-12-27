@@ -443,7 +443,7 @@ EOF
 function setWorkDir() {
   workdir=$(grep -F -m 1 ' * Working directory: ' $tasklog_stripped | cut -f 2 -d "'" -s)
   if [[ ! -d $workdir ]]; then
-    workdir=$(grep -F -m 1 '>>> Source unpacked in ' $tasklog_stripped | cut -f 5 -d " " -s)
+    workdir=$(grep -m 1 '>>> Source unpacked in ' $tasklog_stripped | cut -f 5 -d " " -s)
     if [[ ! -d $workdir ]]; then
       workdir=/var/tmp/portage/$pkg/work/$(basename $pkg)
       if [[ ! -d $workdir ]]; then
@@ -599,7 +599,7 @@ function WorkAtIssue() {
     return
   fi
 
-  if grep -q -F -e "Please, run 'haskell-updater'" $pkglog_stripped; then
+  if grep -q -e "Please, run 'haskell-updater'" $pkglog_stripped; then
     try_again=1
     add2backlog "$task"
     add2backlog "%haskell-updater"
@@ -659,7 +659,7 @@ function PostEmerge() {
   env-update &>/dev/null
   source_profile
 
-  if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
+  if grep -q 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
     add2backlog "@preserved-rebuild"
   fi
 
@@ -857,7 +857,7 @@ function RunAndCheck() {
     fi
   fi
 
-  if grep -q -F 'Please run emaint --check world' $tasklog_stripped; then
+  if grep -q 'Please run emaint --check world' $tasklog_stripped; then
     add2backlog "%emaint --check world"
   fi
 
@@ -890,7 +890,7 @@ function WorkOnTask() {
           add2backlog "$task"
         fi
       else
-        if [[ ! $task =~ "--backtrack" ]] && grep -q -F -e ' --backtrack=30' -e 'backtracking has terminated early' $tasklog; then
+        if [[ ! $task =~ "--backtrack" ]] && grep -q -e ' --backtrack=30' -e 'backtracking has terminated early' $tasklog; then
           add2backlog "$task --backtrack=50"
         else
           ReachedEOL "$task is broken" $tasklog

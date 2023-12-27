@@ -63,7 +63,7 @@ function create() {
     Exit 4
   fi
 
-  if grep -q -F ' fails test -' ./title; then
+  if grep -q ' fails test -' ./title; then
     bugz modify --set-keywords "TESTFAILURE" $id >bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
   fi
 }
@@ -110,7 +110,7 @@ function assign() {
     cc="$(cat ./cc 2>/dev/null || true)"
   fi
 
-  if grep -q -F 'meson' ./title; then
+  if grep -q 'meson' ./title; then
     cc+=" eschwartz93@gmail.com"
   fi
 

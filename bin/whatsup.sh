@@ -63,7 +63,7 @@ function Overall() {
     local bgo
     bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
     local compl
-    if ! compl=$(grep -c -F ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
+    if ! compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
       compl=0
     fi
 
@@ -274,7 +274,7 @@ function Coverage() {
 
     # emerged + not_emerged != all e.g. due to package deletions
     getCoveredPackages $i >$emerged
-    diff $emerged $tmpfile | grep -F '>' | cut -f 2 -d ' ' -s >$not_emerged
+    diff $emerged $tmpfile | grep '>' | cut -f 2 -d ' ' -s >$not_emerged
 
     local n
     n=$(wc -l <$emerged)

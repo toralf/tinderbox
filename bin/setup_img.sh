@@ -531,7 +531,7 @@ EOF
 EOF
   else
     # sam
-    if grep -q -F 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
+    if grep -q 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
       if dice 1 2; then
         cat <<EOF >>$bl.1st
 %sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' /etc/portage/make.conf

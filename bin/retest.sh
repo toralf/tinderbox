@@ -38,7 +38,7 @@ tr -c -d '+-_./[:alnum:][:blank:]\n=@' <<<$* |
   xargs -n 1 |
   sort -u |
   xargs -r qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
-  grep -v -F '<unset>' |
+  grep -v '<unset>' |
   grep ".*-.*/.*" |
   sort -u >$result.packages
 if [[ -s $result.packages ]]; then

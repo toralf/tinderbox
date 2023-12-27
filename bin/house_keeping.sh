@@ -69,7 +69,7 @@ if [[ -s $latest ]]; then
   find ~tinderbox/distfiles/ -maxdepth 1 -name 'stage3-amd64-*.tar.xz' -atime +15 |
     while read -r stage3; do
       if [[ $latest -nt $stage3 ]]; then
-        if ! grep -q -F "/$(basename $stage3) " $latest; then
+        if ! grep -q "/$(basename $stage3) " $latest; then
           rm -f $stage3{,.asc} # *.asc might not exist
         fi
       fi
