@@ -841,7 +841,7 @@ function ThrowFlags() {
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
-    grep -v -w -f $tbhome/tb/data/IGNORE_PACKAGES |
+    grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
     shuf -n $((RANDOM % 1800 + 400)) |
     sort |
     while read -r file; do
@@ -901,8 +901,12 @@ EOF
       date
       echo "==========================================================="
       if ! ((attempt % 50)); then
-        echo -e " sync repo"
+        echo
+        date
+        echo " sync repo"
         (cd .$reposdir/gentoo && git pull 1>/dev/null)
+        echo
+        date
       fi
       ThrowFlags $attempt
       local current=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
