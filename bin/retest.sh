@@ -16,9 +16,9 @@ fi
 result=/tmp/$(basename $0) # package/s to be scheduled in the backlog of each image
 
 # special atoms
-tr -c -d '+-_./[:alnum:][:blank:]\n' <<<$* |
+tr -c -d '+-_./%[:alnum:][:blank:]\n' <<<$* |
   xargs -n 1 |
-  grep -e '^@' -e '^=' |
+  grep -e '^@' -e '^=' -e '^%' |
   sort -u >$result.special
 if [[ -s $result.special ]]; then
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
@@ -29,7 +29,7 @@ if [[ -s $result.special ]]; then
     uniq $tmpfile >$bl
   done < <(find ~tinderbox/run/*/var/tmp/tb/ -maxdepth 1 -name "backlog.1st")
   rm $tmpfile
-  echo " added $(wc -l <$result.special) special entries" >&2
+  echo " added $(wc -l <$result.special) special item(s)" >&2
 fi
 rm $result.special
 
