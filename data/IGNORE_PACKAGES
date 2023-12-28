@@ -4,6 +4,7 @@
 # do not emerge these explicitely
 #
 acct-.*/
+app-alternatives/
 app-eselect/
 dev-embedded/
 java-virtuals/
