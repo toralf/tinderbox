@@ -1017,7 +1017,7 @@ fi
 
 source $(dirname $0)/lib.sh
 
-export -f SwitchGCC                  # added to backlog by PostEmerge()
+export -f SwitchGCC syncRepo         # added to backlog by PostEmerge() or by retest.sh respectively
 export -f add2backlog source_profile # used by SwitchGCC()
 
 jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00jobs)
