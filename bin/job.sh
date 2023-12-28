@@ -660,7 +660,9 @@ function PostEmerge() {
   source_profile
 
   if grep -q 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
+    # [2:34:02 pm] <josef64> SigHunter: I think yes - always run depclean first before run preserved-rebuild
     add2backlog "@preserved-rebuild"
+    add2backlog "%emerge --depclean --verbose=n"
   fi
 
   if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
@@ -946,8 +948,8 @@ function DetectRepeats() {
     ReachedEOL "package too often ($count) emerged: $count x $item"
   fi
 
-  read -r count item < <(tail -n 60 /var/tmp/tb/task.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 29 ]]; then
+  read -r count item < <(tail -n 70 /var/tmp/tb/task.history | sort | uniq -c | sort -bnr | head -n 1)
+  if [[ $count -ge 27 ]]; then
     ReachedEOL "task too often ($count) repeated: $count x $item"
   fi
 }
