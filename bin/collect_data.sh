@@ -17,13 +17,13 @@ tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 # sam_ : bashrc meson hook
 #
 if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile 2>/dev/null; then
+  chmod a+r $tmpfile
   mv $tmpfile ~tinderbox/img/sam.txt
-  chmod a+r ~tinderbox/img/sam.txt
 fi
 
 # xgqt : big package size
 #
-if find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + >$tmpfile 2>/dev/null; then
+find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + 2>/dev/null |
   perl -wane '
     chomp;
     next if ($#F != 2);
@@ -31,7 +31,7 @@ if find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + 
     next unless ($u =~ m/GiB/);
     my $s = $F[0];                 # size (integer)
     my $p = $F[2];                 # package (string)
-    $h{$p}->{$s} = 1 if ($s >= 4); # a hash is always uniq
+    $h{$p}->{$s} = 1 if ($s >= 4);
 
     END {
       foreach my $p (sort keys %h) {
@@ -41,10 +41,9 @@ if find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + 
         }
         print "\n";
       }
-    }' <$tmpfile >~tinderbox/img/xgqt.txt
-  chmod a+r ~tinderbox/img/xgqt.txt
-  rm $tmpfile
-fi
+    }' >$tmpfile
+chmod a+r $tmpfile
+mv $tmpfile ~tinderbox/img/xgqt.txt
 
 # sam_ + flow
 #
@@ -60,8 +59,8 @@ fi
       xargs -r cat 2>/dev/null
   fi
 ) | sort -u >$tmpfile
+chmod a+r $tmpfile
 mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
-chmod a+r ~tinderbox/img/needed.ELF.2.txt
 
 (
   if [[ ${1-} == "reset" ]]; then
@@ -77,11 +76,11 @@ chmod a+r ~tinderbox/img/needed.ELF.2.txt
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   fi
 ) | sort -u >$tmpfile
+chmod a+r $tmpfile
 mv $tmpfile ~tinderbox/img/needed.txt
-chmod a+r ~tinderbox/img/needed.txt
 
 # sam bashrc.clang hook
 #
 tar -c -f $tmpfile ~tinderbox/img/*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz 2>/dev/nul
+chmod a+r $tmpfile
 mv $tmpfile ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
-chmod a+r ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
