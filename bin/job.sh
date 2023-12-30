@@ -617,14 +617,16 @@ function WorkAtIssue() {
 
 function source_profile() {
   set +u
-  source /etc/profile 2>/dev/null
+  source /etc/profile
   set -u
 }
 
-# helper of PostEmerge()
-# switch to highest GCC
 function SwitchGCC() {
   local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
+  if [[ -z $highest ]]; then
+    Mail "${FUNCNAME[0]}: cannot get GCC version"
+    return
+  fi
 
   if ! gcc-config --list-profiles --nocolor | grep -q -F "$highest *"; then
     local current
