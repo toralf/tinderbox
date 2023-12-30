@@ -13,7 +13,7 @@ function CreateCgroup() {
 
     echo "2800" >$cgdomain/cpu.weight
     echo "96G" >$cgdomain/memory.max
-    echo "192G" >$cgdomain/memory.swap.max
+    echo "192G" >$cgdomain/memory.swap.max # e.g. rust needs 15 GiB
   fi
 
   local i=5
