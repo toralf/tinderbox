@@ -302,7 +302,7 @@ LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0"
 ACCEPT_KEYWORDS="$keyword"
 
 # just tinderbox'ing, no re-distribution nor any "usage" of software
-ACCEPT_LICENSE="*"
+ACCEPT_LICENSE="* -@EULA"
 
 # no manual interaction
 ACCEPT_PROPERTIES="-interactive"
@@ -370,15 +370,11 @@ function CompilePortageFiles() {
 
   touch ./etc/portage/package.mask/self # holds failed packages
 
-  # https://bugs.gentoo.org/903631
-  mkdir -p ./etc/portage/env/app-arch/
-  echo 'EXTRA_ECONF="DEFAULT_ARCHIVE=/dev/null/BAD_TAR_INVOCATION"' >./etc/portage/env/app-arch/tar
-
-  # setup or dep calculation issues or just broken at all
+  # handle broken setup or particular package issue
   echo 'FEATURES="-test"' >./etc/portage/env/notest
 
-  # continue after a (expected to fail) test phase of a particular package
-  # instead setting "notest" for that package and therefore may have a changed dependency tree
+  # continue after a (known) test phase failure rather than setting "notest"
+  # for that package and therefore risk a changed dependency tree
   echo 'FEATURES="test-fail-continue"' >./etc/portage/env/test-fail-continue
 
   # retry w/o sandbox'ing
