@@ -896,7 +896,7 @@ EOF
       echo
       date
       echo "==========================================================="
-      if ! ((attempt % 50)); then
+      if ! ((attempt % 150)); then
         echo
         date
         echo " sync repo"
