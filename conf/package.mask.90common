@@ -52,7 +52,6 @@ sci-libs/rocFFT                                         # DICE: long_compile_tim
 sci-libs/tensorflow                                     # DICE: long_compile_time_tef 15 16
 
 # way too long
-www-client/google-chrome
 www-client/chromium
 
 # wants older compiler and is special
