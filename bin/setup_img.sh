@@ -363,12 +363,10 @@ function CompilePortageFiles() {
 
   cp -r $tbhome/tb/patches ./etc/portage
   for d in env package.{,env,unmask}; do
-    if [[ ! -d ./etc/portage/$d ]]; then
-      mkdir ./etc/portage/$d
-    fi
+    mkdir ./etc/portage/$d
   done
 
-  touch ./etc/portage/package.mask/self # holds failed packages
+  touch ./etc/portage/package.mask/self # will hold failed packages
 
   # handle broken setup or particular package issue
   echo 'FEATURES="-test"' >./etc/portage/env/notest
