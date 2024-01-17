@@ -6,7 +6,7 @@
 */*                                 QEMU_SOFTMMU_TARGETS:   x86_64 i386
 */*                                 QEMU_USER_TARGETS:      x86_64 i386
 */*                                 RUBY_TARGETS:           -ruby30
-*/*                                 VIDEO_CARDS:            -* amdgpu dummy fbdev intel radeon radeonsi
+*/*                                 VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi nouveau
 
 # 2x faster compile
 */*                                 jumbo-build
@@ -69,6 +69,9 @@ app-arch/libarchive                 bzip2 lzma zstd
 # su (alternative would be sys-apps/shadow)
 sys-apps/util-linux                 su suid
 
+sys-kernel/gentoo-kernel            -initramfs -kernel-install
+sys-kernel/gentoo-kernel-bin        -initramfs -kernel-install
+sys-kernel/vanilla-kernel           -initramfs -kernel-install
 
 #######################################################################
 # setup blocker
@@ -79,6 +82,13 @@ dev-qt/qtgui                        egl -gles2-only     # DICE: setup 4 5
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup 4 5
 sys-apps/shadow                     -cracklib           # DICE: setup 4 5
 sys-apps/util-linux                 pam                 # DICE: setup 4 5
+
+
+#######################################################################
+# gcc14
+#
+media-libs/gstreamer                -caps               # DICE:
+
 
 #######################################################################
 # too rarely built otherwise

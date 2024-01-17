@@ -63,9 +63,16 @@ dev-util/nvidia-cuda-toolkit
 
 # hangs
 dev-lang/lfe
+
 # https://bugs.gentoo.org/917495
 dev-lisp/sbcl
 dev-scheme/gambit
+
 # https://bugs.gentoo.org/888779
 dev-util/coccinelle
 dev-util/trace-cmd
+
+# https://bugs.gentoo.org/921309
+dev-db/mysql-connector-c++
+dev-ruby/grpc
+sci-libs/ignition-math

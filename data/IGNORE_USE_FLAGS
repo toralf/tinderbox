@@ -29,8 +29,10 @@ homed
 hostname
 hpn
 i386
+initramfs
 ithreads
 kernel
+kernel-install
 libcxx
 libssp
 livecd
@@ -41,6 +43,7 @@ make-symlinks
 minimal
 mips
 modules
+modules-compress
 mono
 monolithic
 multiarch

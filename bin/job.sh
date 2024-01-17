@@ -883,8 +883,7 @@ function WorkOnTask() {
       fi
     fi
 
-    local histfile
-    histfile=/var/tmp/tb/$(cut -f 1 -d ' ' <<<$task).history
+    local histfile=/var/tmp/tb/$(cut -f 1 -d ' ' <<<$task).history
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >>$histfile
       if [[ $task =~ "@world" ]]; then
@@ -960,7 +959,7 @@ function DetectRepeats() {
     ReachedEOL "package too often ($count) emerged: $count x $item"
   fi
 
-  read -r count item < <(tail -n 70 /var/tmp/tb/task.history | sort | uniq -c | sort -bnr | head -n 1)
+  read -r count item < <(tail -n 70 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge 27 ]]; then
     ReachedEOL "task too often ($count) repeated: $count x $item"
   fi
