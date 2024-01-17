@@ -113,7 +113,7 @@ while :; do
       date
       if [[ -n $img ]]; then
         echo " got $img"
-        cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+        # cat $tmpfile | mail -s "INFO: new: $img" ${MAILTO:-tinderbox@zwiebeltoralf.de}
         $(dirname $0)/start_img.sh $img
         mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
       else
