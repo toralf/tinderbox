@@ -876,6 +876,11 @@ function WorkOnTask() {
     local opts=""
     if [[ $task =~ "@world" ]]; then
       opts+=" --update --changed-use --newuse"
+      if [[ ! $task =~ " --backtrack=50" ]]; then
+        if grep -q '@world --backtrack=' $taskfile.history; then
+          task+=" --backtrack=50"
+        fi
+      fi
     fi
 
     local histfile
@@ -895,7 +900,7 @@ function WorkOnTask() {
           add2backlog "$task"
         fi
       else
-        if [[ ! $task =~ "--backtrack" ]] && grep -q -e ' --backtrack=30' -e 'backtracking has terminated early' $tasklog; then
+        if [[ ! $task =~ " --backtrack=" ]] && grep -q -e ' --backtrack=30' -e 'backtracking has terminated early' $tasklog; then
           add2backlog "$task --backtrack=50"
         else
           ReachedEOL "$task is broken" $tasklog
