@@ -661,14 +661,19 @@ function PostEmerge() {
   env-update &>/dev/null
   source_profile
 
-  if grep -q 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
-    # [2:34:02 pm] <josef64> SigHunter: I think yes - always run depclean first before run preserved-rebuild
-    add2backlog "@preserved-rebuild"
-    add2backlog "%emerge --depclean --verbose=n"
-  fi
+  for p in dirmngr gpg-agent; do
+    if pgrep -a $p &>>/var/tmp/pkill.log; then
+      if ! pkill -e $p &>>/var/tmp/pkill.log; then
+        Mail "INFO: kill $p failed" /var/tmp/pkill.log
+      fi
+    fi
+  done
 
-  if grep -q -F '* An update to portage is available.' $tasklog_stripped; then
-    add2backlog "sys-apps/portage"
+  if grep -q 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
+    add2backlog "@preserved-rebuild"
+    # [2:34:02 pm] <josef64> SigHunter: I think yes - always run depclean first before run preserved-rebuild
+    add2backlog "%emerge --depclean --verbose=n"
+    # no @world here
   fi
 
   # https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-lang/perl/perl-5.38.0-r1.ebuild#n129
@@ -690,13 +695,9 @@ function PostEmerge() {
     add2backlog "%SwitchGCC"
   fi
 
-  for p in dirmngr gpg-agent; do
-    if pgrep -a $p &>>/var/tmp/pkill.log; then
-      if ! pkill -e $p &>>/var/tmp/pkill.log; then
-        Mail "INFO: kill $p failed" /var/tmp/pkill.log
-      fi
-    fi
-  done
+  if grep -q ' An update to portage is available.' $tasklog_stripped; then
+    add2backlog "%emerge --oneshot sys-apps/portage"
+  fi
 }
 
 function createIssueDir() {
