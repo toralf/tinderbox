@@ -41,7 +41,8 @@ function CreateCgroup() {
 function KillCgroup() {
   local name=$cgdomain/${mnt##*/}
 
-  echo "while [[ -d $name ]]; do grep -q 'populated 0' $name/cgroup.events && rmdir $name || sleep 0.5; done" | at now 2>/dev/null
+  # sleep 0.1 due to: rmdir: failed to remove '/sys/fs/cgroup/tb/17.1_desktop_systemd_merged_usr-20240113-104516': Device or resource busy
+  echo "while [[ -d $name ]]; do if grep -q 'populated 0' $name/cgroup.events; then sleep 0.1; rmdir $name; else sleep 0.5; fi; done" | at now 2>/dev/null
 }
 
 # no echo here
