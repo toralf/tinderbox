@@ -920,7 +920,11 @@ function WorkOnTask() {
         if grep -q 'The following USE changes are necessary to proceed' $tasklog; then
           ReachedEOL "$task is broken" $tasklog
         fi
-      elif [[ ! $cmd =~ " --depclean" ]]; then
+      elif [[ $cmd =~ " --depclean" ]]; then
+        if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
+          ReachedEOL "$task is broken" $tasklog
+        fi
+      else
         Mail "INFO: command failed: $cmd" $tasklog
       fi
     fi
