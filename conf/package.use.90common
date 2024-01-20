@@ -6,7 +6,7 @@
 */*                                 QEMU_SOFTMMU_TARGETS:   x86_64 i386
 */*                                 QEMU_USER_TARGETS:      x86_64 i386
 */*                                 RUBY_TARGETS:           -ruby30
-*/*                                 VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi nouveau
+*/*                                 VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi
 
 # 2x faster compile
 */*                                 jumbo-build
@@ -24,7 +24,7 @@ dev-vcs/git                         curl
 net-misc/curl                       ssl
 
 # https://bugs.gentoo.org/831346
-sys-kernel/installkernel-gentoo     -grub
+sys-kernel/installkernel            -grub
 
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
@@ -69,6 +69,7 @@ app-arch/libarchive                 bzip2 lzma zstd
 # su (alternative would be sys-apps/shadow)
 sys-apps/util-linux                 su suid
 
+# no kernel install
 sys-kernel/gentoo-kernel            -initramfs -kernel-install
 sys-kernel/gentoo-kernel-bin        -initramfs -kernel-install
 sys-kernel/vanilla-kernel           -initramfs -kernel-install
@@ -76,6 +77,7 @@ sys-kernel/vanilla-kernel           -initramfs -kernel-install
 #######################################################################
 # setup blocker
 #
+dev-libs/libclc                     -spirv              # DICE: setup 4 5
 dev-libs/libpcre                    -libedit            # DICE: setup 4 5
 dev-libs/libpcre2                   -libedit            # DICE: setup 4 5
 dev-qt/qtgui                        egl -gles2-only     # DICE: setup 4 5
@@ -83,97 +85,98 @@ dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental
 sys-apps/shadow                     -cracklib           # DICE: setup 4 5
 sys-apps/util-linux                 pam                 # DICE: setup 4 5
 
+# (unicode)
+sys-process/procps                  ncurses
 
 #######################################################################
 # gcc14
 #
 media-libs/gstreamer                -caps               # DICE:
 
-
 #######################################################################
 # too rarely built otherwise
 #
 
 # FF
-app-text/poppler                    cairo               # DICE: firefox 1 8
-dev-lang/python                     sqlite              # DICE: firefox 1 8
-dev-libs/libusb                     udev                # DICE: firefox 1 8
-media-libs/gd                       fontconfig truetype # DICE: firefox 1 8
-media-libs/gst-plugins-base         egl                 # DICE: firefox 1 8
-media-libs/libglvnd                 X                   # DICE: firefox 1 8
-media-libs/libpng                   apng                # DICE: firefox 1 8
-media-libs/libvpx                   postproc            # DICE: firefox 1 8
-media-libs/libpulse                 glib X              # DICE: firefox 1 8
-media-libs/libsdl2                  sound video         # DICE: firefox 1 8
-media-libs/mesa                     llvm                # DICE: firefox 1 8
-media-libs/opus                     custom-modes        # DICE: firefox 1 8
-media-plugins/alsa-plugins          pulseaudio          # DICE: firefox 1 8
-media-video/ffmpeg                  nvec                # DICE: firefox 1 8
-media-video/pipewire                dbus extra          # DICE: firefox 1 8
-media-video/rav1e                   capi                # DICE: firefox 1 8
-net-fs/samba                        client              # DICE: firefox 1 8
-net-misc/networkmanager             -gnutls nss         # DICE: firefox 1 8
-www-client/firefox                  dbus                # DICE: firefox 1 8
-x11-libs/cairo                      X                   # DICE: firefox 1 8
-x11-libs/libxkbcommon               X                   # DICE: firefox 1 8
+app-text/poppler                    cairo               # DICE: firefox 1 6
+dev-lang/python                     sqlite              # DICE: firefox 1 6
+dev-libs/libusb                     udev                # DICE: firefox 1 6
+media-libs/gd                       fontconfig truetype # DICE: firefox 1 6
+media-libs/gst-plugins-base         egl                 # DICE: firefox 1 6
+media-libs/libglvnd                 X                   # DICE: firefox 1 6
+media-libs/libpng                   apng                # DICE: firefox 1 6
+media-libs/libvpx                   postproc            # DICE: firefox 1 6
+media-libs/libpulse                 glib X              # DICE: firefox 1 6
+media-libs/libsdl2                  sound video         # DICE: firefox 1 6
+media-libs/mesa                     llvm                # DICE: firefox 1 6
+media-libs/opus                     custom-modes        # DICE: firefox 1 6
+media-plugins/alsa-plugins          pulseaudio          # DICE: firefox 1 6
+media-video/ffmpeg                  nvec                # DICE: firefox 1 6
+media-video/pipewire                dbus extra          # DICE: firefox 1 6
+media-video/rav1e                   capi                # DICE: firefox 1 6
+net-fs/samba                        client              # DICE: firefox 1 6
+net-misc/networkmanager             -gnutls nss         # DICE: firefox 1 6
+www-client/firefox                  dbus                # DICE: firefox 1 6
+x11-libs/cairo                      X                   # DICE: firefox 1 6
+x11-libs/libxkbcommon               X                   # DICE: firefox 1 6
 
 # TB
-app-text/poppler                    cairo               # DICE: thunderbird 1 8
-dev-lang/python                     sqlite              # DICE: thunderbird 1 8
-dev-lang/rust                       rustfmt             # DICE: thunderbird 1 8
-dev-libs/libusb                     udev                # DICE: thunderbird 1 8
-dev-libs/libxml2                    python              # DICE: thunderbird 1 8
-dev-qt/qtcore                       icu                 # DICE: thunderbird 1 8
-kde-frameworks/kwindowsystem        X                   # DICE: thunderbird 1 8
-media-video/ffmpeg                  zlib                # DICE: thunderbird 1 8
-media-libs/freetype                 png                 # DICE: thunderbird 1 8
-media-libs/gd                       truetype fontconfig # DICE: thunderbird 1 8
-media-libs/libglvnd                 X                   # DICE: thunderbird 1 8
-media-libs/gst-plugins-base         egl                 # DICE: thunderbird 1 8
-media-libs/libpng                   apng                # DICE: thunderbird 1 8
-media-libs/libpulse                 glib X              # DICE: thunderbird 1 8
-media-libs/libvpx                   postproc            # DICE: thunderbird 1 8
-media-libs/mesa                     llvm                # DICE: thunderbird 1 8
-media-libs/openh264                 plugin              # DICE: thunderbird 1 8
-media-libs/opus                     custom-modes        # DICE: thunderbird 1 8
-media-libs/libsdl2                  sound video         # DICE: thunderbird 1 8
-media-plugins/alsa-plugins          pulseaudio          # DICE: thunderbird 1 8
-media-sound/pulseaudio-daemon       alsa                # DICE: thunderbird 1 8
-media-video/ffmpeg                  nvenc               # DICE: thunderbird 1 8
-media-video/rav1e                   capi                # DICE: thunderbird 1 8
-net-fs/samba                        client              # DICE: thunderbird 1 8
-net-misc/networkmanager             -gnutls nss         # DICE: thunderbird 1 8
-sys-libs/tdb                        python              # DICE: thunderbird 1 8
-sys-libs/tevent                     python              # DICE: thunderbird 1 8
-x11-libs/cairo                      X glib              # DICE: thunderbird 1 8
-x11-libs/libxkbcommon               X                   # DICE: thunderbird 1 8
+app-text/poppler                    cairo               # DICE: thunderbird 1 6
+dev-lang/python                     sqlite              # DICE: thunderbird 1 6
+dev-lang/rust                       rustfmt             # DICE: thunderbird 1 6
+dev-libs/libusb                     udev                # DICE: thunderbird 1 6
+dev-libs/libxml2                    python              # DICE: thunderbird 1 6
+dev-qt/qtcore                       icu                 # DICE: thunderbird 1 6
+kde-frameworks/kwindowsystem        X                   # DICE: thunderbird 1 6
+media-video/ffmpeg                  zlib                # DICE: thunderbird 1 6
+media-libs/freetype                 png                 # DICE: thunderbird 1 6
+media-libs/gd                       truetype fontconfig # DICE: thunderbird 1 6
+media-libs/libglvnd                 X                   # DICE: thunderbird 1 6
+media-libs/gst-plugins-base         egl                 # DICE: thunderbird 1 6
+media-libs/libpng                   apng                # DICE: thunderbird 1 6
+media-libs/libpulse                 glib X              # DICE: thunderbird 1 6
+media-libs/libvpx                   postproc            # DICE: thunderbird 1 6
+media-libs/mesa                     llvm                # DICE: thunderbird 1 6
+media-libs/openh264                 plugin              # DICE: thunderbird 1 6
+media-libs/opus                     custom-modes        # DICE: thunderbird 1 6
+media-libs/libsdl2                  sound video         # DICE: thunderbird 1 6
+media-plugins/alsa-plugins          pulseaudio          # DICE: thunderbird 1 6
+media-sound/pulseaudio-daemon       alsa                # DICE: thunderbird 1 6
+media-video/ffmpeg                  nvenc               # DICE: thunderbird 1 6
+media-video/rav1e                   capi                # DICE: thunderbird 1 6
+net-fs/samba                        client              # DICE: thunderbird 1 6
+net-misc/networkmanager             -gnutls nss         # DICE: thunderbird 1 6
+sys-libs/tdb                        python              # DICE: thunderbird 1 6
+sys-libs/tevent                     python              # DICE: thunderbird 1 6
+x11-libs/cairo                      X glib              # DICE: thunderbird 1 6
+x11-libs/libxkbcommon               X                   # DICE: thunderbird 1 6
 
 # LO
 app-arch/libarchive                 bzip2
-app-crypt/gpgme                     cxx qt5                               # DICE: libreoffice 1 8
-app-crypt/qca                       qt5                                   # DICE: libreoffice 1 8
-app-office/libreoffice              odk                                   # DICE: libreoffice 1 8
-app-text/ghostscript                cups                                  # DICE: libreoffice 1 8
-app-text/poppler                    cairo                                 # DICE: libreoffice 1 8
-app-text/xmlto                      text                                  # DICE: libreoffice 1 8
-dev-db/firebird                     server                                # DICE: libreoffice 1 8
-dev-db/postgresql                   kerberos                              # DICE: libreoffice 1 8
-dev-libs/boost                      nls zlib                              # DICE: libreoffice 1 8
-dev-libs/libusb                     udev                                  # DICE: libreoffice 1 8
-dev-libs/xmlsec                     nss                                   # DICE: libreoffice 1 8
-dev-qt/qtnetwork                    ssl                                   # DICE: libreoffice 1 8
-gnome-base/gnome-control-center     gnome-online-accounts                 # DICE: libreoffice 1 8
-gnome-base/gnome-settings-daemon    colord                                # DICE: libreoffice 1 8
-kde-frameworks/kconfig              dbus                                  # DICE: libreoffice 1 8
-kde-frameworks/kwindowsystem        X                                     # DICE: libreoffice 1 8
-media-libs/freetype                 fontforge harfbuzz png                # DICE: libreoffice 1 8
-media-libs/harfbuzz                 icu                                   # DICE: libreoffice 1 8
-media-libs/libepoxy                 X                                     # DICE: libreoffice 1 8
-media-libs/libglvnd                 X                                     # DICE: libreoffice 1 8
-media-libs/mesa                     llvm                                  # DICE: libreoffice 1 8
-sys-apps/systemd                    policykit                             # DICE: libreoffice 1 8
-sys-fs/cryptsetup                   -gcrypt -kernel -nettle openssl       # DICE: libreoffice 1 8
-sys-libs/libblockdev                lvm nvme cryptsetup                   # DICE: libreoffice 1 8
-virtual/mpi                         threads                               # DICE: libreoffice 1 8
-x11-libs/cairo                      X                                     # DICE: libreoffice 1 8
-x11-libs/gtk+                       X                                     # DICE: libreoffice 1 8
+app-crypt/gpgme                     cxx qt5                               # DICE: libreoffice 1 6
+app-crypt/qca                       qt5                                   # DICE: libreoffice 1 6
+app-office/libreoffice              odk                                   # DICE: libreoffice 1 6
+app-text/ghostscript                cups                                  # DICE: libreoffice 1 6
+app-text/poppler                    cairo                                 # DICE: libreoffice 1 6
+app-text/xmlto                      text                                  # DICE: libreoffice 1 6
+dev-db/firebird                     server                                # DICE: libreoffice 1 6
+dev-db/postgresql                   kerberos                              # DICE: libreoffice 1 6
+dev-libs/boost                      nls zlib                              # DICE: libreoffice 1 6
+dev-libs/libusb                     udev                                  # DICE: libreoffice 1 6
+dev-libs/xmlsec                     nss                                   # DICE: libreoffice 1 6
+dev-qt/qtnetwork                    ssl                                   # DICE: libreoffice 1 6
+gnome-base/gnome-control-center     gnome-online-accounts                 # DICE: libreoffice 1 6
+gnome-base/gnome-settings-daemon    colord                                # DICE: libreoffice 1 6
+kde-frameworks/kconfig              dbus                                  # DICE: libreoffice 1 6
+kde-frameworks/kwindowsystem        X                                     # DICE: libreoffice 1 6
+media-libs/freetype                 fontforge harfbuzz png                # DICE: libreoffice 1 6
+media-libs/harfbuzz                 icu                                   # DICE: libreoffice 1 6
+media-libs/libepoxy                 X                                     # DICE: libreoffice 1 6
+media-libs/libglvnd                 X                                     # DICE: libreoffice 1 6
+media-libs/mesa                     llvm                                  # DICE: libreoffice 1 6
+sys-apps/systemd                    policykit                             # DICE: libreoffice 1 6
+sys-fs/cryptsetup                   -gcrypt -kernel -nettle openssl       # DICE: libreoffice 1 6
+sys-libs/libblockdev                lvm nvme cryptsetup                   # DICE: libreoffice 1 6
+virtual/mpi                         threads                               # DICE: libreoffice 1 6
+x11-libs/cairo                      X                                     # DICE: libreoffice 1 6
+x11-libs/gtk+                       X                                     # DICE: libreoffice 1 6
