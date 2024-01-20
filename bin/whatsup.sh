@@ -242,15 +242,6 @@ function PackagesPerImagePerRunDay() {
   done
 }
 
-function getCoveredPackages() {
-  grep -H '::: completed emerge' ~tinderbox/$1/*/var/log/emerge.log 2>/dev/null |
-    # handle "::local"
-    tr -d ':' |
-    awk '{ print $7 }' |
-    xargs -r qatom -F "%{CATEGORY}/%{PN}" |
-    sort -u
-}
-
 # whatsup.sh -c
 #
 # 19025 packages available in ::gentoo
@@ -272,8 +263,14 @@ function Coverage() {
     local emerged=~tinderbox/img/packages.$i.emerged.txt
     local not_emerged=~tinderbox/img/packages.$i.not_emerged.txt
 
-    # emerged + not_emerged != all e.g. due to package deletions
-    getCoveredPackages $i >$emerged
+    grep -H '::: completed emerge' ~tinderbox/$i/*/var/log/emerge.log 2>/dev/null |
+      awk '{ print $8 }' |
+      sort -u |
+      tee ~tinderbox/img/packages-versions.$i.emerged.txt |
+      xargs -r qatom -F "%{CATEGORY}/%{PN}" |
+      sort -u >$emerged
+
+    # emerged + not_emerged != all e.g. due to unmerges
     diff $emerged $tmpfile | grep '>' | cut -f 2 -d ' ' -s >$not_emerged
 
     local n
