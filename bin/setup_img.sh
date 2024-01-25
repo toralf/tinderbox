@@ -172,13 +172,6 @@ function getStage3Filename() {
 }
 
 function verifyStage3File() {
-  echo "$(date)   updating signing keys ..."
-  local keys="13EBBDBEDE7A12775DFDB1BABB572E0E2D182910 D99EAC7379A850BCE47DA5F29E6438C817072058"
-  if ! gpg --keyserver hkps://keys.gentoo.org --recv-keys $keys; then
-    echo "$(date)   failed"
-    return 1
-  fi
-
   local_stage3=$tbhome/distfiles/$(basename $stage3)
   if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
     rm -f $local_stage3{,.asc}
