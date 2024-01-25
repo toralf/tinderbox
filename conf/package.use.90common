@@ -2,10 +2,10 @@
 #
 
 
-*/*                                 POSTGRES_TARGETS:       postgres15
-*/*                                 QEMU_SOFTMMU_TARGETS:   x86_64 i386
-*/*                                 QEMU_USER_TARGETS:      x86_64 i386
-*/*                                 RUBY_TARGETS:           -ruby30
+*/*                                 POSTGRES_TARGETS:       postgres15 postgres16
+*/*                                 QEMU_SOFTMMU_TARGETS:   x86_64 i386 aarch64 arm
+*/*                                 QEMU_USER_TARGETS:      x86_64 i386 aarch64 arm
+*/*                                 RUBY_TARGETS:           ruby31 ruby32 ruby33
 */*                                 VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi
 
 # 2x faster compile
@@ -69,9 +69,10 @@ app-arch/libarchive                 bzip2 lzma zstd
 # su (alternative would be sys-apps/shadow)
 sys-apps/util-linux                 su suid
 
-# no kernel install
+# no install
 sys-kernel/gentoo-kernel            -initramfs -kernel-install
 sys-kernel/gentoo-kernel-bin        -initramfs -kernel-install
+sys-kernel/installkernel            -dracut
 sys-kernel/vanilla-kernel           -initramfs -kernel-install
 
 #######################################################################
