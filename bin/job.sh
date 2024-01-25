@@ -50,13 +50,10 @@ function ReachedEOL() {
   echo "$subject" >>/var/tmp/tb/EOL
   chmod a+w /var/tmp/tb/EOL
   truncate -s 0 $taskfile
-  subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log || true) completed"
   local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
   local all=$(ls -d /var/tmp/tb/issues/* 2>/dev/null | wc -l)
-  subject+=", $new#$all bug(s) new"
-  if ! /usr/bin/pfl &>/dev/null; then
-    echo "pfl failed" >&2
-  fi
+  /usr/bin/pfl &>/dev/null || true
+  subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log) completed, $new#$all bug(s) new"
   Finish 0 "EOL $subject" $attachment
 }
 
@@ -671,9 +668,7 @@ function PostEmerge() {
 
   if grep -q 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
     add2backlog "@preserved-rebuild"
-    # [2:34:02 pm] <josef64> SigHunter: I think yes - always run depclean first before run preserved-rebuild
-    add2backlog "%emerge --depclean --verbose=n"
-    # no @world here
+    # no @world and no deplean here
   fi
 
   # https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-lang/perl/perl-5.38.0-r1.ebuild#n129
@@ -954,7 +949,7 @@ function DetectRepeats() {
   local count
   local item
 
-  read -r count item < <(qlop -mv | tail -n 500 | awk '{ print $3 }' | sort | uniq -c | sort -bnr | head -n 1)
+  read -r count item < <(qlop --nocolor --merge --verbose | tail -n 500 | awk '{ print $3 }' | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge 5 ]]; then
     ReachedEOL "package too often ($count) emerged: $count x $item"
   fi
@@ -1085,7 +1080,7 @@ while :; do
     Finish 0 "catched STOP" /var/tmp/tb/STOP
   fi
 
-  # if 1st prio is empty then ...
+  # if 1st prio backlog is empty then ...
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
     # ... sync repository hourly
     if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
@@ -1095,9 +1090,7 @@ while :; do
     # ... update @world (and then later again always 24 hrs after the previous @world finished)
     wh=/var/tmp/tb/@world.history
     if [[ ! -s $wh || $((EPOCHSECONDS - $(stat -c %Z $wh))) -ge 86400 ]]; then
-      if ! /usr/bin/pfl &>/dev/null; then
-        echo "pfl failed" >&2
-      fi
+      /usr/bin/pfl &>/dev/null || true
       add2backlog "@world"
     fi
   fi
@@ -1108,7 +1101,7 @@ while :; do
   date >$tasklog
   echo "$task" >>$tasklog
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<<$task | tr -c '[:alnum:]' '_')
-  ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # no symlink here
+  ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # no symlink here to keep its content when $tasklog is removed
   WorkOnTask
   rm $tasklog
 
