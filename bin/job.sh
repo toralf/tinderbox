@@ -631,10 +631,10 @@ function SwitchGCC() {
     echo "major version change of gcc: $current -> $highest" | tee -a $taskfile.history
     gcc-config --nocolor $highest
     source_profile
-    add2backlog "sys-devel/libtool"
+    add2backlog "dev-build/libtool"
     # sam_
     if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
-      add2backlog "sys-devel/slibtool"
+      add2backlog "dev-build/slibtool"
     fi
     add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f 1 -d '.' <<<$current)"
   fi
