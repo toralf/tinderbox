@@ -78,7 +78,9 @@ sys-kernel/vanilla-kernel           -initramfs -kernel-install
 #######################################################################
 # setup blocker
 #
+app-crypt/gcr                       -vala               # DICE: setup 4 5
 dev-libs/libclc                     -spirv              # DICE: setup 4 5
+dev-libs/libical                    -vala               # DICE: setup 4 5
 dev-libs/libpcre                    -libedit            # DICE: setup 4 5
 dev-libs/libpcre2                   -libedit            # DICE: setup 4 5
 dev-qt/qtgui                        egl -gles2-only     # DICE: setup 4 5
