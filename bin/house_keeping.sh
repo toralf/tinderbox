@@ -82,7 +82,7 @@ find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 # kick off if less than X packages were emerged
 while read -r img; do
   if olderThan $img 1; then
-    if [[ ! -s $img/var/log/emerge.log || $(wc -l < <(qlop -mqC -f $img/var/log/emerge.log)) -lt 50 ]]; then
+    if [[ ! -s $img/var/log/emerge.log || $(wc -l < <(qlop --merge --quiet --nocolor -f $img/var/log/emerge.log)) -lt 50 ]]; then
       pruneIt $img "broken setup"
     fi
   fi
