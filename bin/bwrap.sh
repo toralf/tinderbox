@@ -7,18 +7,22 @@
 function CreateCgroup() {
   local name=$cgdomain/${mnt##*/}
 
+  # put all images under 1 sub group
   if [[ ! -d $cgdomain ]]; then
     mkdir $cgdomain
-    echo "+cpu +memory" >$cgdomain/cgroup.subtree_control
+    echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-    echo "2800" >$cgdomain/cpu.weight
+    # 28 vCPU for all
+    echo "$((28 * 100))" >$cgdomain/cpu.weight
+    echo "$((28 * 100000)) 100000" >$cgdomain/cpu.max
     echo "96G" >$cgdomain/memory.max
     echo "192G" >$cgdomain/memory.swap.max # e.g. rust needs 15 GiB
   fi
 
-  local i=5
+  # previous cgroup entry is not yet reaped e.g. from setup process
+  local i=10
   while [[ -d $name ]] && ((i--)); do
-    sleep 0.5
+    sleep 0.25
   done
   mkdir $name || return 13
   echo "$$" >$name/cgroup.procs
@@ -28,11 +32,12 @@ function CreateCgroup() {
     echo " jobs is invalid: '$jobs', set to 1" >&2
     jobs=1
   fi
-  # 1 vCPU per job
-  echo $((100 * jobs)) >$name/cpu.weight
+  # 1 vCPU per -jX
+  echo "$((100 * jobs))" >$name/cpu.weight
+  echo "$((100000 * jobs))" >$name/cpu.max
 
   # 2 GiB per job + /var/tmp/portage
-  echo $((2 * jobs + 24))G >$name/memory.max
+  echo "$((2 * jobs + 24))G" >$name/memory.max
 
   # swap
   echo "16G" >$name/memory.swap.max
@@ -41,7 +46,8 @@ function CreateCgroup() {
 function KillCgroup() {
   local name=$cgdomain/${mnt##*/}
 
-  # sleep 0.1 due to: rmdir: failed to remove '/sys/fs/cgroup/tb/17.1_desktop_systemd_merged_usr-20240113-104516': Device or resource busy
+  # schedule a reaper via atd, sleep 0.1 due to:
+  # rmdir: failed to remove '/sys/fs/cgroup/tb/17.1_desktop_systemd_merged_usr-20240113-104516': Device or resource busy
   echo "while [[ -d $name ]]; do if grep -q 'populated 0' $name/cgroup.events 2>/dev/null; then sleep 0.1; rmdir $name; else sleep 0.5; fi; done" | at now 2>/dev/null
 }
 
