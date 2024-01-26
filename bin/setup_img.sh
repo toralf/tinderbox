@@ -45,7 +45,8 @@ function InitOptions() {
   abi3264="n"
   cflags=$cflags_default
   name=""
-  profile=$(GetValidProfiles | shuf -n 1)
+  # desktop profiles dies earlier with a current ratio of 46:64
+  profile=$(GetValidProfiles | if [[ $((RANDOM % 5)) -le 3 ]]; then grep 'desktop'; else grep '.'; fi | shuf -n 1)
   testfeature="n"
   useflagsfrom=""
 
@@ -641,7 +642,7 @@ USE="-network-cron" emerge -u app-portage/pfl
 if [[ $((RANDOM % 8)) -eq 0 ]]; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
-  emerge -u sys-devel/slibtool
+  emerge -u dev-build/slibtool
   cat << EOF2 >>/etc/portage/make.conf
 
 LIBTOOL="rdlibtool"
