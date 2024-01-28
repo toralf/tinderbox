@@ -49,6 +49,11 @@ if [[ "$(whoami)" != "tinderbox" ]]; then
   exit 1
 fi
 
+if [[ ! -d /run/tb ]]; then
+  # just rebooted ?
+  exit 1
+fi
+
 source $(dirname $0)/lib.sh
 
 lockfile="/tmp/$(basename $0).lock"
