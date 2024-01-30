@@ -792,10 +792,7 @@ function RunAndCheck() {
   timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
   local rc=$?
   set -e
-
-  if [[ $rc -ne 0 ]]; then
-    echo -e "\n--\n$(date)\nrc=$rc" >>$tasklog
-  fi
+  echo -e "\n--\n$(date)\nrc=$rc" >>$tasklog
 
   pkg=""
   unset phase pkgname pkglog
