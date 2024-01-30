@@ -45,8 +45,8 @@ function InitOptions() {
   abi3264="n"
   cflags=$cflags_default
   name=""
-  # desktop profiles dies earlier with a current ratio of 46:64
-  profile=$(GetValidProfiles | if [[ $((RANDOM % 5)) -le 3 ]]; then grep 'desktop'; else grep '.'; fi | shuf -n 1)
+  # desktop profiles dies earlier
+  profile=$(GetValidProfiles | if [[ $((RANDOM % 3)) -lt 2 ]]; then grep 'desktop'; else grep '.'; fi | shuf -n 1)
   testfeature="n"
   useflagsfrom=""
 
@@ -617,7 +617,7 @@ echo "#setup ansifilter" | tee /var/tmp/tb/task
 USE="-gui" emerge -u app-text/ansifilter
 sed -i -e 's,#PORTAGE_LOG_FILTER_FILE_CMD,PORTAGE_LOG_FILTER_FILE_CMD,' /etc/portage/make.conf
 
-# emerge MTA before MUA b/c virtual/mta does not defaults to sSMTP
+# emerge MTA before MUA b/c virtual/mta does not default to sSMTP
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
 emerge -u mail-mta/ssmtp
@@ -639,7 +639,7 @@ echo "#setup pfl" | tee /var/tmp/tb/task
 USE="-network-cron" emerge -u app-portage/pfl
 
 # sam_
-if [[ $((RANDOM % 8)) -eq 0 ]]; then
+if [[ $((RANDOM % 32)) -eq 0 ]]; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
   emerge -u dev-build/slibtool
