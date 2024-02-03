@@ -46,7 +46,7 @@ function check_history() {
 
 # whatsup.sh -o
 #
-#  compl fail new  day backlog .upd .1st wp lcs 11#12 locked
+#  compl fail bgo  day backlog .upd .1st wp lcs 11#12 locked
 #   1124    6   0  0.9   17802  186    0  . lc  ~/run/17.1-j5-20230602-204005
 #   7020   56   2  6.7   12988   68    0  . lc  ~/run/17.1_desktop-j5-20230527-234505
 #   4612   36   2  5.0   15954  116    0  . lc  ~/run/17.1_desktop_gnome-j5-20230529-171537
@@ -55,13 +55,16 @@ function Overall() {
   locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
   local all
   all=$(wc -w <<<$images)
-  echo "compl fail new  day backlog .upd .1st state $locked#$all locked  +++  $(date)"
+  echo "compl fail bgo  day backlog .upd .1st state $locked#$all locked  +++  $(date)"
 
   for i in $images; do
     local days
     days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0") # the printf rounds to %.1f
     local bgo
     bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
+    if [[ $bgo == "0" ]]; then
+      bgo="-"
+    fi
     local compl
     if ! compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
       compl=0
@@ -121,7 +124,7 @@ function Overall() {
     b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img' # shorten output
-    printf "%5i %4i %3i %4.1f %7i %4i %4i %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
+    printf "%5i %4i %3s %4.1f %7i %4i %4i %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
   done
 }
 
