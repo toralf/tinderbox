@@ -24,7 +24,12 @@ function CreateCgroup() {
   while [[ -d $name ]] && ((i--)); do
     sleep 0.25
   done
-  mkdir $name || return 13
+  if ! mkdir $name; then
+    # while...done...mkdir is still (rarely) racy
+    if [[ ! -d $name ]]; then
+      return 13
+    fi
+  fi
   echo "$$" >$name/cgroup.procs
 
   local jobs=$(sed 's,^.*j,,' $mnt/etc/portage/package.env/00jobs)
