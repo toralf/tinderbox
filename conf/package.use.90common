@@ -78,15 +78,15 @@ sys-kernel/vanilla-kernel           -initramfs -kernel-install
 #######################################################################
 # setup blocker
 #
-app-crypt/gcr                       -vala               # DICE: setup 4 5
+*/*                                 -vala               # DICE: setup 4 5
 dev-libs/libclc                     -spirv              # DICE: setup 4 5
-dev-libs/libical                    -vala               # DICE: setup 4 5
 dev-libs/libpcre                    -libedit            # DICE: setup 4 5
 dev-libs/libpcre2                   -libedit            # DICE: setup 4 5
 dev-qt/qtgui                        egl -gles2-only     # DICE: setup 4 5
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup 4 5
-sys-apps/shadow                     -cracklib           # DICE: setup 4 5
+sys-apps/shadow                     pam -cracklib       # DICE: setup 4 5
 sys-apps/util-linux                 pam                 # DICE: setup 4 5
+sys-devel/llvm                      -xar                # DICE: setup 4 5
 
 # (unicode)
 sys-process/procps                  ncurses

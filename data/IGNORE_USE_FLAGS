@@ -71,6 +71,7 @@ split-usr
 static
 static-libs
 systemd
+systemd-kernel-install
 system-wlroots
 test
 threads
@@ -78,5 +79,6 @@ tools
 uclibc
 unwind
 user-session
+vala
 vanilla
 x32

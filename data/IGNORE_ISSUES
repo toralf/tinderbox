@@ -1,3 +1,4 @@
+asciidoctor
 Clang 16 testing:
 ERROR: .* failed (pretend phase):
 ERROR: .* failed (setup phase):

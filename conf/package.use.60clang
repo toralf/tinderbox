@@ -10,10 +10,7 @@
 # start slowly
 */*                                 -doc -emacs -gpm -icu -ruby -vala
 
-app-crypt/gcr                       -vala
-app-crypt/libsecret                 -vala
-app-text/docbook-xsl-ns-stylesheets -ruby
-app-text/docbook-xsl-stylesheets    -ruby
-dev-libs/libxml2                    -icu
-gnome-base/librsvg                  -vala
-sys-libs/ncurses                    -gpm
+app-text/docbook-xsl-ns-stylesheets -ruby               # DICE: clang
+app-text/docbook-xsl-stylesheets    -ruby               # DICE: clang
+dev-libs/libxml2                    -icu                # DICE: clang
+sys-libs/ncurses                    -gpm                # DICE: clang
