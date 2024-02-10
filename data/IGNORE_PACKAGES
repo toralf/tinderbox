@@ -14,7 +14,8 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# https://bugs.gentoo.org/801223
+# ultra-long compile time https://bugs.gentoo.org/801223
+#
 sci-libs/atlas
 sci-astronomy/psfex
 sci-astronomy/scamp
@@ -25,9 +26,15 @@ sci-astronomy/sextractor
 dev-qt/qtwebengine
 sci-libs/
 #
-# https://bugs.gentoo.org/909309
+# hangs, e.g.  https://bugs.gentoo.org/909309
+#
 app-emacs/
 #
 # trouble, if e.g. headless-awt is set differently for different JDKs
+#
 dev-java/openjdk
 dev-java/openjdk-jre-bin
+#
+# kernel signing issues https://bugs.gentoo.org/922618
+#
+app-crypt/sbctl
