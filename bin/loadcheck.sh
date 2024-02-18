@@ -12,7 +12,7 @@ if [[ ! -d $tmpdir ]]; then
   mkdir $tmpdir
 fi
 
-max=$(($(nproc) * 4 / 3))
+max=${1:-$(($(nproc) * 4 / 3))}
 while :; do
   load=$(cut -f 1 -d '.' /proc/loadavg)
   if [[ $load -ge $max ]]; then

@@ -11,13 +11,13 @@ function listStat() {
     echo "<pre>"
     echo "<h3>coverage</h3>"
     $(dirname $0)/whatsup.sh -c | recode --silent ascii..html
-    echo "<h3>packages per (image run) day</h3>"
+    echo "<h3>packages per image per run day</h3>"
     $(dirname $0)/whatsup.sh -d | recode --silent ascii..html
-    echo "<h3>running</h3>"
+    echo "<h3>stats about packages, filed bugs at b.g.o and more</h3>"
     $(dirname $0)/whatsup.sh -o | recode --silent ascii..html
     echo "<h3>current task</h3>"
     $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
-    echo "<h3>current step</h3>"
+    echo "<h3>current emerge step</h3>"
     $(dirname $0)/whatsup.sh -l | recode --silent ascii..html
     echo "<h3>fs</h3>"
     df -h /mnt/data | recode --silent ascii..html
