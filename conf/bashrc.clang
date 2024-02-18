@@ -337,7 +337,7 @@ case ${EBUILD_PHASE} in
     while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 31 ]]; do
       __tinderbox_checkEOL
       touch /var/tmp/tb/WAIT
-      sleep 20
+      sleep 15
       rm /var/tmp/tb/WAIT
     done
     __tinderbox_checkEOL
