@@ -356,7 +356,7 @@ function CompilePortageFiles() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
   cp -r $tbhome/tb/patches ./etc/portage
-  for d in env package.{,env,unmask}; do
+  for d in env package.{env,unmask}; do
     mkdir ./etc/portage/$d
   done
 
