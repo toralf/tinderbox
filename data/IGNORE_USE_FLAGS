@@ -7,6 +7,7 @@ compile-locales
 compiler-rt
 conntrack
 crossdev-mingw
+cuda
 custom-cflags
 debug
 default-compiler-rt

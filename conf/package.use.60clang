@@ -7,9 +7,6 @@
 # global settings
 #
 
-# start slowly
-*/*                                 -doc -emacs -gpm -icu -ruby -vala
-
 app-text/docbook-xsl-ns-stylesheets -ruby               # DICE: clang
 app-text/docbook-xsl-stylesheets    -ruby               # DICE: clang
 dev-libs/libxml2                    -icu                # DICE: clang
