@@ -46,7 +46,7 @@ function InitOptions() {
   cflags=$cflags_default
   name=""
   # desktop profiles dies earlier
-  profile=$(GetValidProfiles | if [[ $((RANDOM % 3)) -lt 2 ]]; then grep 'desktop'; else grep -v 'desktop'; fi | shuf -n 1)
+  profile=$(GetValidProfiles | if [[ $((RANDOM % 3)) -eq 0 ]]; then grep 'desktop'; else grep '.'; fi | shuf -n 1)
   testfeature="n"
   useflagsfrom=""
 
