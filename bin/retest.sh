@@ -13,7 +13,7 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-result=/tmp/$(basename $0) # package/s to be scheduled in the backlog of each image
+result=/tmp/$(basename $0) # hold package(s) to be scheduled
 
 # special atoms
 tr -c -d '+-_./%[:alnum:][:blank:]\n' <<<$* |
@@ -33,7 +33,7 @@ if [[ -s $result.special ]]; then
 fi
 rm $result.special
 
-# regular atoms
+# regular packages
 tr -c -d '+-_./[:alnum:][:blank:]\n=@' <<<$* |
   xargs -n 1 |
   sort -u |
@@ -42,18 +42,17 @@ tr -c -d '+-_./[:alnum:][:blank:]\n=@' <<<$* |
   grep ".*-.*/.*" |
   sort -u >$result.packages
 if [[ -s $result.packages ]]; then
-  # if there're only few atoms then emrge them asap
+  # if there're only few packages then emerge them immediately
   if [[ $(wc -l <$result.packages) -le 3 ]]; then
     suffix="1st"
   else
     suffix="upd"
   fi
-  echo -n " add $(wc -l <$result.packages) package/s to $suffix " >&2
+  echo -n " adding $(wc -l <$result.packages) package/s to $suffix ..." >&2
 
-  # shuffle new atoms and put them after existing ones
+  # shuffle new packages, put them after the existing entries
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
   while read -r bl; do
-    echo -n "."
     # grep out duplicates
     grep -v -F -f $bl $result.packages | shuf >$tmpfile
     cat $bl >>$tmpfile
@@ -62,7 +61,7 @@ if [[ -s $result.packages ]]; then
   rm $tmpfile
   echo
 
-  # delete atom entry in image specific files
+  # delete the package in each image specific file
   while read -r pkgname; do
     sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkgname)\-[[:digit:]]/d" \
       ~tinderbox/tb/findings/ALREADY_CAUGHT \
