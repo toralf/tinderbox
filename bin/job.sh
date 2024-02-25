@@ -477,8 +477,8 @@ function finishTitle() {
     -e 's,: line [0-9]*:,:line <snip>:,g' \
     -e 's,[0-9]* Segmentation fault,<snip> Segmentation fault,g' \
     -e 's,Makefile:[0-9]*,Makefile:<snip>,g' \
-    -e 's,:[[:digit:]]*): ,:<snip>:, g' \
-    -e 's,([[:digit:]]* of [[:digit:]]*),(<snip> of <snip)>,g' \
+    -e 's,:[0-9]*): ,:<snip>:, g' \
+    -e 's,([0-9]* of [0-9]*),(<snip> of <snip)>,g' \
     -e 's,[0-9]*[\.][0-9]* sec,,g' \
     -e 's,[0-9]*[\.][0-9]* s,,g' \
     -e 's,([0-9]*[\.][0-9]*s),,g' \
@@ -491,18 +491,19 @@ function finishTitle() {
     -e 's,object index [0-9].*,object index <snip>,g' \
     -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
     -e 's,ninja: error: /.*/,ninja error: .../,' \
-    -e 's,:[[:digit:]]*:[[:digit:]]*: ,: ,' \
+    -e 's,:[0-9]*:[0-9]*: ,: ,' \
     -e 's, \w*/.*/\(.*\) , .../\1 ,g' \
     -e 's,\*, ,g' \
     -e 's,___*,_,g' \
     -e 's,\s\s*, ,g' \
     -e 's,mmake\..*:.*:,,g' \
-    -e 's,ls[[:digit:]]*:,,g' \
+    -e 's,ls[0-9]*:,,g' \
     -e 's,..:..:..\.... \[error\],,g' \
     -e 's,config\......./,config.<snip>/,g' \
     -e 's,GMfifo.*,GMfifo<snip>,g' \
-    -e 's,shuffle=[[:digit:]]*,,g' \
-    -e 's,Makefile.*.tmp:[[:digit:]]*,Makefile,g' \
+    -e 's,shuffle=[0-9]*,,g' \
+    -e 's,Makefile.*.tmp:[0-9]*,Makefile,g' \
+    -e 's,QA Notice: , ,' \
     $issuedir/title
 
   # prefix title
