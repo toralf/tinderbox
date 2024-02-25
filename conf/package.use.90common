@@ -2,10 +2,10 @@
 #
 
 
-*/*                                 POSTGRES_TARGETS:       postgres15 postgres16
-*/*                                 QEMU_SOFTMMU_TARGETS:   x86_64 i386 aarch64 arm
-*/*                                 QEMU_USER_TARGETS:      x86_64 i386 aarch64 arm
-*/*                                 RUBY_TARGETS:           ruby31 ruby32 ruby33
+*/*                                 POSTGRES_TARGETS:       postgres16
+*/*                                 QEMU_SOFTMMU_TARGETS:   x86_64
+*/*                                 QEMU_USER_TARGETS:      x86_64
+*/*                                 RUBY_TARGETS:           ruby31 ruby33
 */*                                 VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi
 
 # 2x faster compile
