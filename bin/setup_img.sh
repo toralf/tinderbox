@@ -939,11 +939,13 @@ gentoo_mirrors=$(
 
 InitOptions
 
-while getopts a:k:p:t:u: opt; do
+start_it="n"
+while getopts a:k:p:st:u: opt; do
   case $opt in
-  a) abi3264="$OPTARG" ;;      # "y" or "n"
-  k) keyword="$OPTARG" ;;      # "amd64"
-  p) profile="$OPTARG" ;;      # "17.1/desktop"
+  a) abi3264="$OPTARG" ;;                                       # "y" or "n"
+  k) keyword="$OPTARG" ;;                                       # "amd64"
+  p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "17.1/desktop"
+  s) start_it="y" ;;
   t) testfeature="$OPTARG" ;;  # "y" or "n"
   u) useflagsfrom="$OPTARG" ;; # "null" or "~/img/17.1_desktop_systemd-20230624-014416"
   *)
@@ -965,3 +967,10 @@ CreateSetupScript
 RunSetupScript
 CompileUseFlagFiles
 Finalize
+
+if [[ $start_it == "y" ]]; then
+  sleep 1 # cgroup cleanup
+  echo
+  sudo -u tinderbox $(dirname $0)/start_img.sh $name
+  echo
+fi

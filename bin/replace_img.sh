@@ -112,19 +112,9 @@ while :; do
     echo " call setup"
     tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp) # intentionally not removed in case of an issue
     # shellcheck disable=SC2024
-    if sudo $(dirname $0)/setup_img.sh &>$tmpfile; then
+    if sudo $(dirname $0)/setup_img.sh -s &>$tmpfile; then
       img=$(grep "^  setup done for .*$" $tmpfile | awk '{ print $4 }')
-      echo
-      date
-      if [[ -n $img ]]; then
-        echo " got $img"
-        sleep 1 # cgroup cleanup
-        $(dirname $0)/start_img.sh $img
-        mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
-      else
-        echo " got NO image name"
-        cat $tmpfile | mail -s "NOTICE: setup succeeded but got no image name" ${MAILTO:-tinderbox@zwiebeltoralf.de}
-      fi
+      mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
     else
       rc=$?
       echo " failed rc=$rc"
