@@ -7,82 +7,106 @@
 function listStat() {
   {
     date
-    echo "<h2>few stats</h2>"
-    echo "<pre>"
-    echo "<h3>coverage</h3>"
+    echo '<h2>few stats</h2>'
+    echo '<pre>'
+    echo '<h3>coverage</h3>'
     $(dirname $0)/whatsup.sh -c | recode --silent ascii..html
-    echo "<h3>packages per image per run day</h3>"
+    echo '<h3>packages per image per run day</h3>'
     $(dirname $0)/whatsup.sh -d | recode --silent ascii..html
-    echo "<h3>stats about packages, filed bugs at b.g.o and more</h3>"
+    echo '<h3>stats about completed and failed packages, reported bugs at <a href="https://bugs.gentoo.org/">b.g.o</a> and more</h3>'
     $(dirname $0)/whatsup.sh -o | recode --silent ascii..html
-    echo "<h3>current task</h3>"
+    echo '<h3>current task</h3>'
     $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
-    echo "<h3>current emerge step</h3>"
+    echo '<h3>current emerge step</h3>'
     $(dirname $0)/whatsup.sh -l | recode --silent ascii..html
-    echo "<h3>fs</h3>"
+    echo '<h3>fs</h3>'
     df -h /mnt/data | recode --silent ascii..html
-    echo -e "</pre>\n"
+    echo -e '</pre>\n'
   } >>$tmpfile
 }
 
 function listFiles() {
-  {
-    echo "<h2>dev data</h2>"
-    echo "<pre>"
+  local files=$(
     find ~tinderbox/img/ -maxdepth 1 -type f -print0 |
       xargs -r -n 1 --null basename |
       sort |
       while read -r f; do
-        echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f | awk '{ print $5 }'))</a>"
+        echo $f
       done
+  )
+  local n=$(wc -l <<<$files)
+  {
+    echo "<h2>$n files for gentoo devs</h2>"
+    echo "<pre>"
+    for f in $files; do
+      echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f | awk '{ print $5 }'))</a>"
+    done
     echo -e "</pre>\n"
   } >>$tmpfile
 }
 
 function listImagesWithoutAnyBug() {
-  {
-    echo "<h2>images without any bug</h2>"
-    echo "<pre>"
+  local files=$(
     find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
       xargs -r -n 1 --null basename |
       sort |
       while read -r f; do
         if ! ls ~tinderbox/img/$f/var/tmp/tb/issues/* &>/dev/null; then
-          echo "<a href=\"$f\">$f</a>"
+          echo $f
         fi
       done
+  )
+  local n=$(wc -l <<<$files)
+  {
+    echo "<h2>$n images without any bug (too young or b0rken setup)</h2>"
+    echo "<pre>"
+    for f in $files; do
+      echo "<a href=\"$f\">$f</a>"
+    done
     echo -e "</pre>\n"
   } >>$tmpfile
 }
 
 function listImagesWithoutReportedBugs() {
-  {
-    echo "<h2>images without reported bugs</h2>"
-    echo "<pre>"
+  local files=$(
     find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
       xargs -r -n 1 --null basename |
       sort |
       while read -r f; do
         if ls ~tinderbox/img/$f/var/tmp/tb/issues/* &>/dev/null && ! ls ~tinderbox/img/$f/var/tmp/tb/issues/*/.reported &>/dev/null; then
-          echo "<a href=\"$f\">$f</a>"
+          echo $f
         fi
       done
+  )
+  local n=$(wc -l <<<$files)
+  {
+    echo "<h2>$n images with no reported bug (yet)</h2>"
+    echo "<pre>"
+    for f in $files; do
+      echo "<a href=\"$f\">$f</a>"
+    done
     echo -e "</pre>\n"
   } >>$tmpfile
 }
 
 function listImagesWithReportedBugs() {
-  {
-    echo "<h2>images with reported bugs</h2>"
-    echo "<pre>"
+  local files=$(
     find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
       xargs -r -n 1 --null basename |
       sort |
       while read -r f; do
         if ls ~tinderbox/img/$f/var/tmp/tb/issues/*/.reported &>/dev/null; then
-          echo "<a href=\"$f\">$f</a>"
+          echo $f
         fi
       done
+  )
+  local n=$(wc -l <<<$files)
+  {
+    echo "<h2>$n images with reported bugs</h2>"
+    echo "<pre>"
+    for f in $files; do
+      echo "<a href=\"$f\">$f</a>"
+    done
     echo -e "</pre>\n"
   } >>$tmpfile
 }
@@ -92,7 +116,7 @@ function listBugs() {
   files=$(ls -t -- ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null)
 
   cat <<EOF >>$tmpfile
-<h2>latest $(wc -l <<<$files) <a href="https://bugs.gentoo.org/">reported</a> bugs</h2>
+<h2>latest $(wc -l <<<$files) reported bugs</h2>
 
   <table border="0" align="left" class="list_table" width="100%">
 
