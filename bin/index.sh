@@ -34,7 +34,7 @@ function listFiles() {
         echo $f
       done
   )
-  local n=$(wc -l <<<$files)
+  local n=$(wc -w <<<$files)
   {
     echo "<h2>$n files for gentoo devs</h2>"
     echo "<pre>"
@@ -56,7 +56,7 @@ function listImagesWithoutAnyBug() {
         fi
       done
   )
-  local n=$(wc -l <<<$files)
+  local n=$(wc -w <<<$files)
   {
     echo "<h2>$n images without any bug (too young or b0rken setup)</h2>"
     echo "<pre>"
@@ -78,7 +78,7 @@ function listImagesWithoutReportedBugs() {
         fi
       done
   )
-  local n=$(wc -l <<<$files)
+  local n=$(wc -w <<<$files)
   {
     echo "<h2>$n images with no reported bug (yet)</h2>"
     echo "<pre>"
@@ -100,7 +100,7 @@ function listImagesWithReportedBugs() {
         fi
       done
   )
-  local n=$(wc -l <<<$files)
+  local n=$(wc -w <<<$files)
   {
     echo "<h2>$n images with reported bugs</h2>"
     echo "<pre>"
