@@ -1,31 +1,37 @@
 # package.use/80test
 #
 
-# if FEATURES=test is set then these USE flags helps to let setup succeed
+# if FEATURES=test is set then these USE flags seems to be needed
 
-app-doc/doxygen                     doc
 app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
+app-text/doxygen                    doc
 dev-libs/libzip                     tools
 dev-libs/openssl                    -sctp
 dev-libs/openssl-compat             -sctp
-dev-libs/weston                     xwayland
+dev-libs/thrift                     libevent
+dev-libs/weston                     lcms xwayland
+dev-qt/qtbase                       icu
 dev-util/strace                     -unwind
 media-gfx/imagemagick               corefonts truetype
+media-libs/gd                       png
 media-libs/harfbuzz                 icu
 media-libs/libheif                  go libde265
 media-libs/soxr                     examples
 media-libs/tiff                     jpeg
 media-sound/pulseaudio              -equalizer
 media-video/ffmpeg                  encode
-net-analyzer/rrdtool                rrdcached
-net-nds/openldap                    berkdb -minimal sasl
+net-analyzer/rrdtool                graph rrdcached
+net-firewall/iptables               conntrack nftables
 net-misc/openssh                    -xmss
-sys-apps/man-db                     -nls
+net-nds/openldap                    berkdb -minimal sasl
 sys-apps/dbus                       debug
+sys-apps/iproute2                   conntrack nftables
+sys-apps/man-db                     -nls
 sys-apps/shadow                     -cracklib
-sys-libs/libseccomp                 -python
+sys-auth/sssd                       sudo
 sys-libs/ldb                        python
+sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
 x11-libs/gtk+                       X
 x11-libs/pixman                     openmp
