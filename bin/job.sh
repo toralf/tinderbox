@@ -644,6 +644,10 @@ function SwitchGCC() {
 # helper of RunAndCheck()
 # schedules follow-ups from the current emerge operation
 function PostEmerge() {
+  # immediately needed for a 17.1->23.0 transition
+  env-update >/dev/null 2>>$tasklog
+  source_profile
+
   if [[ ! $name =~ "musl" ]]; then
     if ls /etc/._cfg????_locale.gen &>/dev/null; then
       locale-gen >/dev/null
@@ -652,13 +656,15 @@ function PostEmerge() {
       locale-gen >/dev/null
     fi
   fi
-
   # pinned by image setup
   rm -f /etc/._cfg????_{hosts,resolv.conf} /etc/conf.d/._cfg????_hostname /etc/portage/._cfg????_make.conf /etc/ssmtp/._cfg????_ssmtp.conf
-  etc-update --automode -5 &>/dev/null
-  env-update &>/dev/null
+  etc-update --automode -5 >/dev/null 2>>$tasklog
+
+  # catch the updates in /etc
+  env-update >/dev/null 2>>$tasklog
   source_profile
 
+  # quirk for left over processes
   for p in dirmngr gpg-agent; do
     if pgrep -a $p &>>/var/tmp/pkill.log; then
       if ! pkill -e $p &>>/var/tmp/pkill.log; then
@@ -902,22 +908,19 @@ function WorkOnTask() {
 
   # %<command line>
   elif [[ $task =~ ^% ]]; then
-    local cmd="$(cut -c2- <<<$task)"
-    if ! RunAndCheck "$cmd"; then
-      if [[ $pkg =~ "sys-devel/gcc" ]]; then
-        ReachedEOL "gcc update broken" $tasklog
-      elif [[ $cmd =~ "haskell-updater" ]]; then
-        ReachedEOL "haskell update broken" $tasklog
-      elif [[ $cmd =~ "perl-cleaner" ]]; then
+    if ! RunAndCheck "$(cut -c 2- <<<$task)"; then
+      if [[ $pkg =~ "sys-devel/gcc" || $task =~ " -1" || $task =~ "haskell-updater" ]]; then
+        ReachedEOL "broken: $task" $tasklog
+      elif [[ $task =~ "perl-cleaner" ]]; then
         if grep -q 'The following USE changes are necessary to proceed' $tasklog; then
-          ReachedEOL "$task is broken" $tasklog
+          ReachedEOL "broken: $task" $tasklog
         fi
-      elif [[ $cmd =~ " --depclean" ]]; then
+      elif [[ $task =~ " --depclean" ]]; then
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
-          ReachedEOL "$task is broken" $tasklog
+          ReachedEOL "broken: $task" $tasklog
         fi
       else
-        Mail "INFO: command failed: $cmd" $tasklog
+        Mail "INFO: failed: $task" $tasklog
       fi
     fi
 
@@ -925,9 +928,9 @@ function WorkOnTask() {
   elif [[ $task =~ ^= ]]; then
     if ! RunAndCheck "emerge $task"; then
       if [[ $pkg =~ "^=$task-" ]]; then
-        Mail "INFO: pinned atom failed: $task" $tasklog
+        Mail "INFO: failed: $task" $tasklog
       else
-        Mail "INFO: dependency of pinned atom $task failed: $pkg" $tasklog
+        Mail "INFO: dependency of $task failed: $pkg" $tasklog
       fi
     fi
 
