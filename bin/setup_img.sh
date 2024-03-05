@@ -23,11 +23,13 @@ function dice() {
 }
 
 # helper of InitOptions()
-#  -e '/clang'
 function GetValidProfiles() {
-  eselect profile list |
-    grep -F -e ' (stable)' -e ' (dev)' |
-    grep -v -F -e '/selinux' -e '/x32' -e '/musl' |
+  if dice 1 2; then
+    eselect profile list | grep -F '/23.' | grep -F '/split-usr'
+  else
+    eselect profile list | grep -F '/17.1' | grep -F -e ' (stable)' -e ' (dev)'
+  fi |
+    grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s
 }
@@ -36,24 +38,19 @@ function GetValidProfiles() {
 function InitOptions() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  # fixed for now
+  # pinned
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   jobs="4"
   keyword="~amd64"
 
-  # arbitrary
+  # variable
   abi3264="n"
   cflags=$cflags_default
   name=""
-  # desktop profiles dies earlier
+  # overweight desktop profiles, b/c they break faster
   profile=$(GetValidProfiles | if [[ $((RANDOM % 3)) -eq 0 ]]; then grep 'desktop'; else grep '.'; fi | shuf -n 1)
   testfeature="n"
   useflagsfrom=""
-
-  # no games
-  if [[ $profile =~ "/musl" ]]; then
-    return
-  fi
 
   if dice 1 5; then
     cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
@@ -71,8 +68,10 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
-  if dice 1 80; then
-    testfeature="y"
+  if [[ ! $profile =~ "23." ]]; then
+    if dice 1 40; then
+      testfeature="y"
+    fi
   fi
 }
 
@@ -93,13 +92,12 @@ function CheckOptions() {
   checkBool "abi3264" || return 1
   checkBool "testfeature" || return 1
 
-  if [[ -z $profile ]]; then
-    echo " empty profile"
-    return 1
+  if grep -q "/$" <<<$profile; then
+    profile=$(sed -e 's,/$,,' <<<$profile)
   fi
 
-  if grep -q "/$" <<<$profile; then
-    echo " trailing slash in profile >>$profile<<"
+  if [[ -z $profile ]]; then
+    echo " empty profile"
     return 1
   fi
 
@@ -108,18 +106,19 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ $abi3264 == "y" ]]; then
-    if [[ $profile =~ "/no-multilib" ]]; then
-      echo " ABI_X86 mismatch: >>$profile<<"
-      return 1
-    fi
+  if [[ $abi3264 == "y" && $profile =~ "/no-multilib" ]]; then
+    echo " ABI_X86 mismatch: >>$profile<<"
+    return 1
   fi
 
-  if [[ -n $useflagsfrom ]]; then
-    if [[ $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
-      echo " useflagsfrom is wrong: >>$useflagsfrom<<"
-      return 1
-    fi
+  if [[ -n $useflagsfrom && $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
+    echo " useflagsfrom is wrong: >>$useflagsfrom<<"
+    return 1
+  fi
+
+  if [[ $profile =~ "23." && $testfeature == "y" ]]; then
+    echo " 23. profile and testfeature=$testfeature don't play well together"
+    return 1
   fi
 }
 
@@ -148,21 +147,21 @@ function getLatest() {
 
 function getStage3Filename() {
   echo "$(date)   get stage3 prefix for profile $profile"
+
   local prefix="stage3-amd64"
-  prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<<$profile)
+  prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,/split-usr,,' -e 's,-,,g' <<<$profile)
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<<$prefix)
   if [[ $profile =~ "/desktop" ]]; then
     if dice 1 2; then
-      # start from plain
+      # start from plain stage3
       prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     fi
   fi
+
   prefix=$(tr '/' '-' <<<$prefix)
-  if [[ ! $profile =~ "/musl" && ! $profile =~ "/systemd" ]]; then
+
+  if [[ ! $profile =~ "/systemd" ]]; then
     prefix+="-openrc"
-  fi
-  if [[ $profile =~ "/clang" ]]; then
-    prefix=$(sed -e 's,amd64,amd64-llvm,' -e 's,-clang,,' <<<$prefix)
   fi
 
   echo "$(date)   get stage3 file name for prefix $prefix"
@@ -323,10 +322,6 @@ GENTOO_MIRRORS="$gentoo_mirrors"
 
 EOF
 
-  if [[ $profile =~ "/musl" ]]; then
-    echo 'RUSTFLAGS="-C target-feature=-crt-static"' >>./etc/portage/make.conf
-  fi
-
   # requested by mgorny in 822354 (this is unrelated to FEATURES="test")
   if dice 1 2; then
     echo 'ALLOW_TEST="network"' >>./etc/portage/make.conf
@@ -357,7 +352,7 @@ function CompilePortageFiles() {
 
   cp -r $tbhome/tb/patches ./etc/portage
   for d in env package.{env,unmask}; do
-    mkdir ./etc/portage/$d
+    [[ ! -d ./etc/portage/$d ]] && mkdir ./etc/portage/$d
   done
 
   touch ./etc/portage/package.mask/self # will hold failed packages
@@ -421,11 +416,7 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??common
 
-  if [[ $profile =~ "/clang" ]]; then
-    cp $tbhome/tb/conf/bashrc.clang ./etc/portage/bashrc
-  else
-    cp $tbhome/tb/conf/bashrc ./etc/portage/
-  fi
+  cp $tbhome/tb/conf/bashrc ./etc/portage/
 
   if [[ $abi3264 == "y" ]]; then
     cpconf $tbhome/tb/conf/package.*.??abi32+64
@@ -433,13 +424,7 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
-  if [[ $profile =~ "/clang" ]]; then
-    cpconf $tbhome/tb/conf/package.*.??clang
-  elif [[ $profile =~ "/musl" ]]; then
-    cpconf $tbhome/tb/conf/package.*.??musl
-  else
-    cpconf $tbhome/tb/conf/package.*.??gcc
-  fi
+  cpconf $tbhome/tb/conf/package.*.??gcc
 
   # dice topics tagged with "# DICE: <topic> <m> <N>" with an m/N chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
@@ -512,27 +497,23 @@ function CreateBacklogs() {
 @world
 EOF
 
-  # update system compiler as the first step
-  if [[ $profile =~ "/clang" ]]; then
+  # sam
+  if dice 1 2 && grep -q 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
     cat <<EOF >>$bl.1st
-%emerge -uU sys-devel/llvm sys-devel/clang
-EOF
-  else
-    # sam
-    if grep -q 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
-      if dice 1 2; then
-        cat <<EOF >>$bl.1st
 %sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' /etc/portage/make.conf
 EOF
-      fi
-    elif dice 1 32 && [[ ! $profile =~ "/musl" ]]; then
-      cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
-      cat <<EOF >>$bl.1st
-%emerge -uU sys-devel/llvm sys-devel/clang && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && mv /etc/portage/bashrc.clang /etc/portage/bashrc
-EOF
-    fi
+  fi
 
-    # update GCC
+  if [[ $profile =~ "23." ]]; then
+    # https://wiki.gentoo.org/wiki/Project:Toolchain/23.0_update_instructions
+    cat <<EOF >>$bl.1st
+%emerge --deep=0 -1 dev-build/libtool
+%emerge --deep=0 -1 sys-libs/glibc && env-update && source /etc/profile
+%emerge --deep=0 -1 sys-devel/gcc
+%emerge --deep=0 -1 sys-devel/binutils
+EOF
+  else
+    # update GCC first
     cat <<EOF >>$bl.1st
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 EOF
@@ -541,18 +522,16 @@ EOF
 
 function CreateSetupScript() {
   echo "$(date) ${FUNCNAME[0]} ..."
-  if [[ ! $profile =~ "/clang" ]]; then
-    if dice 1 2; then
-      echo "$(date)   use host kernel ..."
-      local kv
-      kv=$(realpath /usr/src/linux)
-      rsync -aq $kv ./usr/src
-      (
-        cd ./usr/src
-        ln -s $(basename $kv) linux
-      )
-      echo 'sys-kernel/vanilla-sources-9999' >./etc/portage/profile/package.provided
-    fi
+  if dice 1 2; then
+    echo "$(date)   use host kernel ..."
+    local kv
+    kv=$(realpath /usr/src/linux)
+    rsync -aq $kv ./usr/src
+    (
+      cd ./usr/src
+      ln -s $(basename $kv) linux
+    )
+    echo 'sys-kernel/vanilla-sources-9999' >./etc/portage/profile/package.provided
   fi
 
   cat <<EOF >./var/tmp/tb/setup.sh || return 1
@@ -568,15 +547,13 @@ echo "#setup user" | tee /var/tmp/tb/task
 groupadd -g $(id -g tinderbox) tinderbox
 useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) -G \$(id -g portage) tinderbox
 
-if [[ ! $profile =~ "/musl" ]]; then
-  date
-  echo "#setup locale" | tee /var/tmp/tb/task
-  echo "en_US ISO-8859-1" >>/etc/locale.gen
-  if [[ $testfeature == "y" ]]; then
-    echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
-  fi
-  locale-gen
+date
+echo "#setup locale" | tee /var/tmp/tb/task
+echo "en_US ISO-8859-1" >>/etc/locale.gen
+if [[ $testfeature == "y" ]]; then
+  echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
 fi
+locale-gen
 
 date
 echo "#setup timezone" | tee /var/tmp/tb/task
@@ -663,8 +640,6 @@ date
 echo "#setup backlog" | tee /var/tmp/tb/task
 # sort is needed if a package is in several repositories
 qsearch --all --nocolor --name-only --quiet | grep -v -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
-
-sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' /etc/portage/make.conf
 
 date
 echo "#setup done" | tee /var/tmp/tb/task
@@ -853,17 +828,11 @@ echo "# start dryrun"
 
 EOF
 
-  if [[ $profile =~ "/clang" ]]; then
-    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-emerge -uU sys-devel/llvm sys-devel/clang --pretend
+  # do not waste time to update the current gcc:slot if gcc:slot+1 is visible
+  cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+USE="-mpi -opencl" emerge -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
 
 EOF
-  else
-    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-USE="-mpi -opencl" emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
-
-EOF
-  fi
 
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge --newuse -uU @world --pretend
@@ -911,10 +880,13 @@ EOF
 
 function Finalize() {
   echo "$(date) ${FUNCNAME[0]} ..."
+  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ../img/$name/etc/portage/make.conf
+  if ! wc -l -w ../img/$name/etc/portage/package.use/2*; then
+    echo -e "\n Notice: no image specific USE flags found"
+  fi
+  truncate -s 0 ../img/$name/var/tmp/tb/task
   cd $tbhome/run
-  ln -s ../img/$name
-  wc -l -w ../img/$name/etc/portage/package.use/2* 2>/dev/null || true
-  truncate -s 0 $name/var/tmp/tb/task
+  ln -sf ../img/$name
 }
 
 #############################################################################
@@ -969,7 +941,7 @@ CompileUseFlagFiles
 Finalize
 
 if [[ $start_it == "y" ]]; then
-  sleep 1 # cgroup cleanup
+  sleep 1 # wait for cgroup deletion
   echo
   sudo -u tinderbox $(dirname $0)/start_img.sh $name
   echo
