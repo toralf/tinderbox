@@ -880,13 +880,11 @@ EOF
 
 function Finalize() {
   echo "$(date) ${FUNCNAME[0]} ..."
-  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ../img/$name/etc/portage/make.conf
-  if ! wc -l -w ../img/$name/etc/portage/package.use/2*; then
+  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ./etc/portage/make.conf
+  if ! wc -l -w ./etc/portage/package.use/2*; then
     echo -e "\n Notice: no image specific USE flags found"
   fi
-  truncate -s 0 ../img/$name/var/tmp/tb/task
-  cd $tbhome/run
-  ln -sf ../img/$name
+  truncate -s 0 ./var/tmp/tb/task
 }
 
 #############################################################################
@@ -941,6 +939,8 @@ CompileUseFlagFiles
 Finalize
 
 if [[ $start_it == "y" ]]; then
+  cd $tbhome/run
+  ln -sf ../img/$name
   sleep 1 # wait for cgroup deletion
   echo
   sudo -u tinderbox $(dirname $0)/start_img.sh $name
