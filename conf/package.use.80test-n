@@ -2,5 +2,3 @@
 #
 
 # if FEATURES=test is NOT set then these USE flags helps to let setup succeed
-
-dev-libs/glib                       -gtk-doc
