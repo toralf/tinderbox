@@ -632,6 +632,8 @@ date
 echo "#setup profile" | tee /var/tmp/tb/task
 eselect profile set --force default/linux/amd64/$profile
 
+sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' /etc/portage/make.conf
+
 if [[ $testfeature == "y" ]]; then
   sed -i -e 's,FEATURES=",FEATURES="test ,' /etc/portage/make.conf
 fi
@@ -830,7 +832,7 @@ EOF
 
   # do not waste time to update the current gcc:slot if gcc:slot+1 is visible
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-USE="-mpi -opencl" emerge -uU =\$(portageq best_visible / sys-devel/gcc) --pretend
+USE="-mpi -opencl" emerge -uU =\$(portageq best_visible / sys-devel/gcc) --pretend --deep=0
 
 EOF
 
@@ -880,7 +882,6 @@ EOF
 
 function Finalize() {
   echo "$(date) ${FUNCNAME[0]} ..."
-  sed -i -e 's,EMERGE_DEFAULT_OPTS=",EMERGE_DEFAULT_OPTS="--deep ,' ./etc/portage/make.conf
   if ! wc -l -w ./etc/portage/package.use/2*; then
     echo -e "\n Notice: no image specific USE flags found"
   fi
