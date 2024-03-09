@@ -115,6 +115,7 @@ while :; do
     if sudo $(dirname $0)/setup_img.sh -s &>$tmpfile; then
       img=$(grep "^  setup done for .*$" $tmpfile | awk '{ print $4 }')
       mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
+      echo " $img"
     else
       rc=$?
       echo " failed rc=$rc"
