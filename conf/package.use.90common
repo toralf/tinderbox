@@ -79,17 +79,15 @@ sys-kernel/vanilla-kernel           -initramfs -kernel-install
 # setup blocker
 #
 */*                                 -vala               # DICE: setup 4 5
-dev-libs/libclc                     -spirv              # DICE: setup 4 5
-dev-libs/libpcre                    -libedit            # DICE: setup 4 5
-dev-libs/libpcre2                   -libedit            # DICE: setup 4 5
-dev-qt/qtgui                        egl -gles2-only     # DICE: setup 4 5
-dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup 4 5
-sys-apps/shadow                     pam -cracklib       # DICE: setup 4 5
-sys-apps/util-linux                 pam                 # DICE: setup 4 5
-sys-devel/llvm                      -xar                # DICE: setup 4 5
+dev-libs/libpcre                    -libedit            # DICE: setup_pcre 4 5
+dev-libs/libpcre2                   -libedit            # DICE: setup_pcre2 4 5
+dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
+sys-apps/shadow                     pam -cracklib       # DICE: setup_shadow 4 5
+sys-apps/util-linux                 pam                 # DICE: setup_util_linux 4 5
+sys-devel/llvm                      -xar                # DICE: setup_llvm 4 5
 
 # (unicode)
-sys-process/procps                  ncurses
+sys-process/procps                  ncurses             # DICE: setup_procps 4 5
 
 #######################################################################
 # gcc14

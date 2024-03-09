@@ -22,13 +22,7 @@ app-admin/webalizer                 -nls
 media-libs/libepoxy                 egl
 
 # https://bugs.gentoo.org/869953
-sys-devel/gcc                       -ada
-
-# https://bugs.gentoo.org/900731
-media-libs/libjpeg-turbo            -java               # DICE: libjpeg-turbo
+#sys-devel/gcc                       -ada
 
 # https://bugs.gentoo.org/903896
-sys-devel/gcc                       -go
-
-# https://bugs.gentoo.org/915858
-media-sound/mpg123                  -pulseaudio -sdl
+#sys-devel/gcc                       -go
