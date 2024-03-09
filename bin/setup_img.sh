@@ -41,7 +41,12 @@ function InitOptions() {
 
   # const
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
-  jobs="4"
+  case $(nproc) in
+  32) jobs="4" ;;
+  96) jobs="8" ;;
+  *) jobs=$(($(nproc) / 8)) ;;
+  esac
+
   keyword="~amd64"
 
   # variable

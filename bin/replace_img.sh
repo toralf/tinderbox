@@ -68,7 +68,12 @@ fi
 echo $$ >"$lockfile"
 trap Finish INT QUIT TERM EXIT
 
-desired_count=${1:-$(($(nproc) * 3 / 8))}
+case $(nproc) in
+32) desired_count=12 ;;
+96) desired_count=16 ;;
+*) desired_count=$(($(nproc) * 3 / 8)) ;;
+esac
+
 while :; do
   while read -r oldimg; do
     if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && __is_stopped $oldimg; then
