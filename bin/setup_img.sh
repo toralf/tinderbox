@@ -24,10 +24,11 @@ function dice() {
 
 # helper of InitOptions()
 function GetValidProfiles() {
+  local all=$(eselect profile list)
   if dice 1 2; then
-    eselect profile list | grep -F '/23.' | grep -F '/split-usr'
+    grep -F '/23.0' <<<$all | grep -F -e '/split-usr' -e '/systemd' | grep -v -F -e 'hardened/systemd'
   else
-    eselect profile list | grep -F '/17.1' | grep -F -e ' (stable)' -e ' (dev)'
+    grep -F '/17.1' <<<$all | grep -F -e ' (stable)' -e ' (dev)'
   fi |
     grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
     awk '{ print $2 }' |
@@ -38,7 +39,7 @@ function GetValidProfiles() {
 function InitOptions() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  # pinned
+  # const
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
   jobs="4"
   keyword="~amd64"
@@ -47,8 +48,7 @@ function InitOptions() {
   abi3264="n"
   cflags=$cflags_default
   name=""
-  # overweight desktop profiles, b/c they break faster
-  profile=$(GetValidProfiles | if [[ $((RANDOM % 3)) -eq 0 ]]; then grep 'desktop'; else grep '.'; fi | shuf -n 1)
+  profile=$(GetValidProfiles | shuf -n 1)
   testfeature="n"
   useflagsfrom=""
 
@@ -58,7 +58,7 @@ function InitOptions() {
 
   if [[ ! $profile =~ "/no-multilib" ]]; then
     if dice 1 80; then
-      # this sets "*/* ABI_X86: 32 64"
+      # this sets "*/* ABI_X86: 32 64" via package.use.40abi32+64
       abi3264="y"
     fi
   fi
@@ -68,10 +68,8 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
-  if [[ ! $profile =~ "23." ]]; then
-    if dice 1 40; then
-      testfeature="y"
-    fi
+  if dice 1 20; then
+    testfeature="y"
   fi
 }
 
@@ -116,8 +114,8 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ $profile =~ "23." && $testfeature == "y" ]]; then
-    echo " 23. profile and testfeature=$testfeature don't play well together"
+  if [[ $profile =~ "23.0" && $testfeature == "y" ]]; then
+    echo " 23.0 profile and testfeature=$testfeature don't play well together"
     return 1
   fi
 }
@@ -160,8 +158,14 @@ function getStage3Filename() {
 
   prefix=$(tr '/' '-' <<<$prefix)
 
-  if [[ ! $profile =~ "/systemd" ]]; then
-    prefix+="-openrc"
+  if [[ $profile =~ "23.0" ]]; then
+    if [[ ! $profile =~ "/split-usr" ]]; then
+      prefix+="-mergedusr"
+    fi
+  else
+    if [[ ! $profile =~ "/systemd" ]]; then
+      prefix+="-openrc"
+    fi
   fi
 
   echo "$(date)   get stage3 file name for prefix $prefix"
@@ -234,6 +238,7 @@ function UnpackStage3() {
 # prefer git over rsync
 function InitRepository() {
   echo "$(date) ${FUNCNAME[0]} ..."
+
   mkdir -p ./etc/portage/repos.conf/
 
   cat <<EOF >./etc/portage/repos.conf/all.conf
@@ -269,6 +274,7 @@ EOF
 # create tinderbox related directories + files
 function CompileTinderboxFiles() {
   echo "$(date) ${FUNCNAME[0]} ..."
+
   mkdir -p ./mnt/tb/data ./var/tmp/tb/{,issues,logs} ./var/cache/distfiles
   echo $EPOCHSECONDS >./var/tmp/tb/setup.timestamp
   echo $name >./var/tmp/tb/name
@@ -451,6 +457,7 @@ EOF
 
 function CompileMiscFiles() {
   echo "$(date) ${FUNCNAME[0]} ..."
+
   cat <<EOF >./etc/resolv.conf
 domain localdomain
 nameserver 127.0.0.1
@@ -489,6 +496,7 @@ EOF
 # /var/tmp/tb/backlog.upd :                       job.sh, retest.sh
 function CreateBacklogs() {
   echo "$(date) ${FUNCNAME[0]} ..."
+
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
@@ -497,18 +505,11 @@ function CreateBacklogs() {
 @world
 EOF
 
-  # sam
-  if dice 1 2 && grep -q 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
+  if [[ $profile =~ "23.0" ]]; then
+    # https://wiki.gentoo.org/wiki/Project:Toolchain/23.00_update_instructions
     cat <<EOF >>$bl.1st
-%sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' /etc/portage/make.conf
-EOF
-  fi
-
-  if [[ $profile =~ "23." ]]; then
-    # https://wiki.gentoo.org/wiki/Project:Toolchain/23.0_update_instructions
-    cat <<EOF >>$bl.1st
-%emerge --deep=0 -1 dev-build/libtool
-%emerge --deep=0 -1 sys-libs/glibc && env-update && source /etc/profile
+%emerge -1 dev-build/libtool
+%emerge -1 sys-libs/glibc
 %emerge --deep=0 -1 sys-devel/gcc
 %emerge --deep=0 -1 sys-devel/binutils
 EOF
@@ -522,6 +523,7 @@ EOF
 
 function CreateSetupScript() {
   echo "$(date) ${FUNCNAME[0]} ..."
+
   if dice 1 2; then
     echo "$(date)   use host kernel ..."
     local kv
@@ -823,6 +825,7 @@ function ThrowFlags() {
 
 function CompileUseFlagFiles() {
   echo "$(date) ${FUNCNAME[0]} ..."
+
   cat <<EOF >./var/tmp/tb/dryrun_wrapper.sh
 set -euf
 
@@ -882,10 +885,16 @@ EOF
 
 function Finalize() {
   echo "$(date) ${FUNCNAME[0]} ..."
+
   if ! wc -l -w ./etc/portage/package.use/2*; then
     echo -e "\n Notice: no image specific USE flags found"
   fi
   truncate -s 0 ./var/tmp/tb/task
+
+  # sam
+  if dice 1 2 && grep -q 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
+    sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' ./etc/portage/make.conf
+  fi
 }
 
 #############################################################################
@@ -942,8 +951,12 @@ Finalize
 if [[ $start_it == "y" ]]; then
   cd $tbhome/run
   ln -sf ../img/$name
-  sleep 1 # wait for cgroup deletion
+  sleep 1 # wait for deletion of currently used cgroup
   echo
   sudo -u tinderbox $(dirname $0)/start_img.sh $name
   echo
+fi
+
+if ls -l ~/img/$name/etc/portage/*/._cfg0000_* 2>/dev/null 1>&2; then
+  echo -e "\n ^^ config file fix needed\n" >&2
 fi
