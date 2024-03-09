@@ -7,18 +7,6 @@
 # The remaining code just parses the output.
 # That's all.
 
-# filter leftover of ansifilter
-function filterPlainPext() {
-  # UTF-2018+2019 (left+right single quotation mark)
-  sed -e 's,\xE2\x80\x98,,g' -e 's,\xE2\x80\x99,,g' |
-    perl -wne '
-      s,\x00,\n,g;
-      s,\r\n,\n,g;
-      s,\r,\n,g;
-      print;
-  '
-}
-
 function Mail() {
   local content=${2-}
 
@@ -566,7 +554,7 @@ EOF
 # analyze the issue
 function WorkAtIssue() {
   local pkglog_stripped=$issuedir/$(tr '/' ':' <<<$pkg).stripped.log
-  filterPlainPext <$pkglog >$pkglog_stripped
+  filterPlainText <$pkglog >$pkglog_stripped
 
   cp $pkglog $issuedir/files
   cp $tasklog $issuedir
@@ -714,32 +702,31 @@ function catchMisc() {
       continue
     fi
 
-    local pkglog_stripped=/tmp/$(basename $pkglog).stripped
+    local stripped=/tmp/$(basename $pkglog).stripped
+    filterPlainText <$pkglog >$stripped
+
     pkg=$(basename $pkglog | cut -f 1-2 -d ':' -s | tr ':' '/')
-    filterPlainPext <$pkglog >$pkglog_stripped
+    phase=""
+    pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
 
     # feed the list of xgqt
-    read -r size_build size_install <<<$(grep -A 1 -e ' Final size of build directory: .* GiB' $pkglog_stripped | grep -Eo '[0-9\.]+ KiB' | cut -f 1 -d ' ' -s | xargs)
+    read -r size_build size_install <<<$(grep -A 1 -e ' Final size of build directory: .* GiB' $stripped | grep -Eo '[0-9\.]+ KiB' | cut -f 1 -d ' ' -s | xargs)
     if [[ -n $size_build && -n $size_install ]]; then
       size_sum=$(echo "scale=1; ($size_build + $size_install) / 1024.0 / 1024.0" | bc)
       echo "$size_sum GiB $pkg" >>/var/tmp/xgqt.txt
     fi
 
-    if grep -q -f /mnt/tb/data/CATCH_MISC $pkglog_stripped; then
-      phase=""
-      pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
-
-      # create for each finding an own issue
-      grep -f /mnt/tb/data/CATCH_MISC $pkglog_stripped |
-        while read -r line; do
-          createIssueDir
-          echo "$line" >$issuedir/title
-          grep -m 1 -A 7 -F -e "$line" $pkglog_stripped >$issuedir/issue
-          cp $pkglog $issuedir/files
-          cp $pkglog_stripped $issuedir
-          finishTitle
-          cp $issuedir/issue $issuedir/comment0
-          cat <<EOF >>$issuedir/comment0
+    # create for each finding an own issue
+    grep -f /mnt/tb/data/CATCH_MISC $stripped |
+      while read -r line; do
+        createIssueDir
+        echo "$line" >$issuedir/title
+        grep -m 1 -A 7 -F -e "$line" $stripped >$issuedir/issue
+        cp $pkglog $issuedir/files
+        cp $stripped $issuedir
+        finishTitle
+        cp $issuedir/issue $issuedir/comment0
+        cat <<EOF >>$issuedir/comment0
 
   -------------------------------------------------------------------
 
@@ -751,14 +738,13 @@ function catchMisc() {
   The log matches a QA pattern or a pattern requested by a Gentoo developer.
 
 EOF
-          CollectClangFiles
-          collectPortageFiles
-          CreateEmergeInfo
-          CompressIssueFiles
-          SendIssueMailIfNotYetReported
-        done
-    fi
-    rm $pkglog_stripped
+        CollectClangFiles
+        collectPortageFiles
+        CreateEmergeInfo
+        CompressIssueFiles
+        SendIssueMailIfNotYetReported
+      done
+    rm $stripped
   done < <(find /var/log/portage/ -type f -name '*.log') # "-newer" not needed, b/c previous logs are compressed
 }
 
@@ -804,7 +790,7 @@ function RunAndCheck() {
   pkg=""
   unset phase pkgname pkglog
   try_again=0 # "1" means to retry same task, but possibly with changed USE/ENV/FEATURE/CFLAGS file(s)
-  filterPlainPext <$tasklog >$tasklog_stripped
+  filterPlainText <$tasklog >$tasklog_stripped
   PostEmerge
 
   # exited on kill signal
@@ -892,12 +878,16 @@ function WorkOnTask() {
         fi
       fi
     else
-      echo "$(date) NOT ok $pkg" >>$histfile
       if [[ -n $pkg ]]; then
+        if tail -n 1 $histfile 2>/dev/null | grep " NOT ok $pkg$"; then
+          ReachedEOL "$task is broken by $pkg" $tasklog
+        fi
+        echo "$(date) NOT ok $pkg" >>$histfile
         if [[ $try_again -eq 0 ]]; then
           add2backlog "$task"
         fi
       else
+        echo "$(date) NOT ok" >>$histfile
         if [[ ! $task =~ " --backtrack=" ]] && grep -q -e ' --backtrack=30' -e 'backtracking has terminated early' $tasklog; then
           add2backlog "$task --backtrack=50"
         else
@@ -909,7 +899,7 @@ function WorkOnTask() {
   # %<command line>
   elif [[ $task =~ ^% ]]; then
     if ! RunAndCheck "$(cut -c 2- <<<$task)"; then
-      if [[ $pkg =~ "sys-devel/gcc" || $task =~ " -1" || $task =~ "haskell-updater" ]]; then
+      if [[ -n $pkg && $task =~ $pkg || $task =~ "haskell-updater" || $pkg =~ "sys-devel/gcc" ]]; then
         ReachedEOL "broken: $task" $tasklog
       elif [[ $task =~ "perl-cleaner" ]]; then
         if grep -q 'The following USE changes are necessary to proceed' $tasklog; then
@@ -950,14 +940,18 @@ function DetectRepeats() {
   local count
   local item
 
+  # repeated package
   read -r count item < <(qlop --nocolor --merge --verbose | tail -n 500 | awk '{ print $3 }' | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge 5 ]]; then
     ReachedEOL "package too often ($count) emerged: $count x $item"
   fi
 
-  read -r count item < <(tail -n 70 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 27 ]]; then
-    ReachedEOL "task too often ($count) repeated: $count x $item"
+  # task-loop
+  if [[ ! $name =~ "_test" ]]; then
+    read -r count item < <(tail -n 50 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
+    if [[ $count -ge 21 ]]; then
+      ReachedEOL "task too often ($count) repeated: $count x $item"
+    fi
   fi
 }
 

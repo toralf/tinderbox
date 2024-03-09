@@ -58,6 +58,18 @@ function list_images_by_age() {
     sort -k 2 -t '-'
 }
 
+# filter leftover of ansifilter
+function filterPlainText() {
+  # UTF-2018+2019 (left+right single quotation mark)
+  sed -e 's,\xE2\x80\x98,,g' -e 's,\xE2\x80\x99,,g' |
+    perl -wne '
+      s,\x00,\n,g;
+      s,\r\n,\n,g;
+      s,\r,\n,g;
+      print;
+  '
+}
+
 function checkBgo() {
   if ! bugz -h &>/dev/null; then
     echo " issue: pybugz is b0rken" >&2
@@ -133,6 +145,7 @@ function SearchForSameIssue() {
       grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
       sort -n -r |
       head -n 4 |
+      filterPlainText |
       tee $bugz_result
     if BgoIssue; then
       return 1
@@ -148,6 +161,7 @@ function SearchForSameIssue() {
         grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
         sort -n -r |
         head -n 4 |
+        filterPlainText |
         tee $bugz_result
       if BgoIssue; then
         return 1
@@ -167,6 +181,7 @@ function SearchForSimilarIssue() {
       stripQuotesAndMore |
       sort -n -r |
       head -n 3 |
+      filterPlainText |
       tee $bugz_result
     if BgoIssue; then
       return 1
@@ -179,6 +194,7 @@ function SearchForSimilarIssue() {
       stripQuotesAndMore |
       sort -n -r |
       head -n 3 |
+      filterPlainText |
       tee $bugz_result
     if BgoIssue; then
       return 1
@@ -197,6 +213,7 @@ function SearchForSimilarIssue() {
     grep -v -i -E "$g" |
     sort -n -r |
     head -n 12 |
+    filterPlainText |
     tee $bugz_result
   if BgoIssue; then
     return 1
@@ -211,6 +228,7 @@ function SearchForSimilarIssue() {
       grep -v -i -E "$g" |
       sort -n -r |
       head -n 5 |
+      filterPlainText |
       tee $bugz_result
     if BgoIssue; then
       return 1
