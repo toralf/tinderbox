@@ -51,9 +51,8 @@ function CreateCgroup() {
 function KillCgroup() {
   local name=$cgdomain/${mnt##*/}
 
-  # schedule a reaper via atd, sleep 0.1 due to:
-  # rmdir: failed to remove '/sys/fs/cgroup/tb/17.1_desktop_systemd_merged_usr-20240113-104516': Device or resource busy
-  echo "while [[ -d $name ]]; do if grep -q 'populated 0' $name/cgroup.events 2>/dev/null; then sleep 0.1; rmdir $name; else sleep 0.5; fi; done" | at now 2>/dev/null
+  # reap our cgroup dir, the rmdir is racy and might fail, that is ok
+  echo "while [[ -d $name ]]; do if grep -q 'populated 0' $name/cgroup.events 2>/dev/null; then rmdir $name 2>/dev/null; break; fi; sleep 0.3; done" | at now 2>/dev/null
 }
 
 # no echo here
