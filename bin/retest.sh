@@ -37,7 +37,7 @@ rm $result.special
 tr -c -d '+-_./[:alnum:][:blank:]\n=@' <<<$* |
   xargs -n 1 |
   sort -u |
-  xargs -r qatom -F "%{CATEGORY}/%{PN}" 2>/dev/null |
+  xargs -r qatom -F "%{CATEGORY}/%{PN}" |
   grep -v '<unset>' |
   grep ".*-.*/.*" |
   sort -u >$result.packages

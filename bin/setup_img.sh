@@ -389,17 +389,13 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # use persistent build dir instead /var/tmp/portage (build artefacts will stay forever)
+  # if persistent build dir is needed
   mkdir ./var/tmp/notmpfs
   echo 'PORTAGE_TMPDIR=/var/tmp/notmpfs' >./etc/portage/env/notmpfs
 
   # "j1" is the fallback for packages failing in parallel build
   for j in 1 $jobs; do
     cat <<EOF >./etc/portage/env/j$j
-EGO_BUILD_FLAGS="-p $j"
-GO19CONCURRENTCOMPILATION=0
-GOMAXPROCS=$j
-
 MAKEOPTS="\$MAKEOPTS -j$j"
 
 OMP_DYNAMIC=FALSE

@@ -20,9 +20,3 @@ app-admin/webalizer                 -nls
 
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
-
-# https://bugs.gentoo.org/869953
-#sys-devel/gcc                       -ada
-
-# https://bugs.gentoo.org/903896
-#sys-devel/gcc                       -go

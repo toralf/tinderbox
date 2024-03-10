@@ -910,7 +910,12 @@ function WorkOnTask() {
           ReachedEOL "broken: $task" $tasklog
         fi
       else
-        Mail "INFO: failed: $task" $tasklog
+        if [[ -n $pkg && ! $task =~ $pkg ]]; then
+          Mail "INFO: repeating $task" $tasklog
+          add2backlog "$task"
+        else
+          Mail "INFO: failed $task" $tasklog
+        fi
       fi
     fi
 
