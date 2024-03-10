@@ -76,10 +76,19 @@ function Overall() {
     if [[ -d $i/var/tmp/tb/issues ]]; then
       fail=$(ls -1 $i/var/tmp/tb/issues | while read -r j; do basename $j; done | cut -f3- -d'-' -s | sort -u | wc -w)
     fi
+    if [[ $fail == "0" ]]; then
+      fail="-"
+    fi
 
     local bl=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog || echo 0)
     local bl1=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.1st || echo 0)
+    if [[ $bl1 == "0" ]]; then
+      bl1="-"
+    fi
     local blu=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.upd || echo 0)
+    if [[ $blu == "0" ]]; then
+      blu="-"
+    fi
 
     # "l" image is locked
     # "c" image is under cgroup control
@@ -124,7 +133,7 @@ function Overall() {
     b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img' # shorten output
-    printf "%5i %4i %3s %4.1f %7i %4i %4i %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
+    printf "%5i %4s %3s %4.1f %7i %4s %4s %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
   done
 }
 
