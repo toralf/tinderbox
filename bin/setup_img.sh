@@ -25,7 +25,8 @@ function dice() {
 # helper of InitOptions()
 function GetValidProfiles() {
   local all=$(eselect profile list)
-  if dice 1 2; then
+  if dice 1 3; then
+    # not every 23.0 has a partner in 17.1
     grep -F '/23.0' <<<$all | grep -F -e '/split-usr' -e '/systemd' | grep -v -F -e 'hardened/systemd'
   else
     grep -F '/17.1' <<<$all | grep -F -e ' (stable)' -e ' (dev)'
