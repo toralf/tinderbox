@@ -738,6 +738,7 @@ function FixPossibleUseFlagIssues() {
       while read -r p u; do
         printf "%-36s %s\n" $p "$u"
       done |
+      xargs -r qatom -F "%{CATEGORY}/%{PN}" |
       sort -u >$fautocirc
 
     if [[ -s $fautocirc ]]; then
@@ -756,6 +757,7 @@ function FixPossibleUseFlagIssues() {
       while read -r p u; do
         printf "%-36s %s\n" $p "$u"
       done |
+      xargs -r qatom -F "%{CATEGORY}/%{PN}" |
       sort -u >$fautoflag
 
     if [[ -s $fautoflag ]]; then
