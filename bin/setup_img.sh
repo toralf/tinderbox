@@ -168,10 +168,9 @@ function getStage3Filename() {
     if [[ ! $profile =~ "/split-usr" ]]; then
       prefix+="-mergedusr"
     fi
-  else
-    if [[ ! $profile =~ "/systemd" ]]; then
-      prefix+="-openrc"
-    fi
+  fi
+  if [[ ! $profile =~ "/systemd" ]]; then
+    prefix+="-openrc"
   fi
 
   echo "$(date)   get stage3 file name for prefix $prefix"
@@ -508,7 +507,8 @@ function CreateBacklogs() {
 EOF
 
   if [[ $profile =~ "23.0" ]]; then
-    # https://wiki.gentoo.org/wiki/Project:Toolchain/23.00_update_instructions
+    # https://wiki.gentoo.org/wiki/Project:Toolchain/23.0_update_instructions
+    # https://wiki.gentoo.org/wiki/Project:Toolchain/23.0_update_table
     cat <<EOF >>$bl.1st
 %emerge -1 dev-build/libtool
 %emerge -1 sys-libs/glibc
