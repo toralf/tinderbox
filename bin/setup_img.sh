@@ -106,7 +106,7 @@ function CheckOptions() {
   fi
 
   if [[ ! -d $reposdir/gentoo/profiles/default/linux/amd64/$profile ]]; then
-    echo " wrong profile: >>$profile<<"
+    echo " unknown profile: >>$profile<<"
     return 1
   fi
 
@@ -117,11 +117,6 @@ function CheckOptions() {
 
   if [[ -n $useflagsfrom && $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
     echo " useflagsfrom is wrong: >>$useflagsfrom<<"
-    return 1
-  fi
-
-  if [[ $profile =~ "23.0" && $testfeature == "y" ]]; then
-    echo " 23.0 profile and testfeature=$testfeature don't play well together"
     return 1
   fi
 }
