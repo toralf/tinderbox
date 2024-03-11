@@ -40,19 +40,15 @@ function create() {
   if grep -q '^LIBTOOL="rdlibtool"' ../../../../../etc/portage/make.conf; then
     title=$(sed -e 's, - , - [slibtool] ,' <<<$title)
   fi
+  # --assigned-to "unassigned@gentoo.org"
   bugz post \
+    --batch \
+    --default-confirm "n" \
+    --title "$title" \
     --product "Gentoo Linux" \
     --component "Current packages" \
     --version "unspecified" \
-    --title "$title" \
-    --op-sys "Linux" \
-    --platform "All" \
-    --priority "Normal" \
-    --severity "Normal" \
-    --alias "" \
     --description-from ./comment0 \
-    --batch \
-    --default-confirm n \
     >bgo.sh.out 2>bgo.sh.err
 
   id=$(awk '/ * Info: Bug .* submitted/ { print $4 }' bgo.sh.out)
@@ -70,7 +66,10 @@ function create() {
 
 function attach() {
   echo
-  for f in ./files/*; do
+  for f in $(
+    set +f
+    ls ./files/*
+  ); do
     local bytes
     bytes=$(wc --bytes <$f)
     if [[ $bytes -eq 0 ]]; then
@@ -79,10 +78,8 @@ function attach() {
       echo "too fat file for b.g.o. ($((bytes / 2 ** 10)) KB): $f"
       local file_size=$(ls -lh $f | awk '{ print $5 }')
       local file_path=$(realpath $f | sed -e "s,^.*img/,,")
-      local url
-      url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
-      local comment
-      comment="The file size of $f is too big ($file_size) for an upload. For few weeks the link $url is valid."
+      local url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
+      local comment="The file size of $f is too big ($file_size) for an upload. For few weeks the link $url is valid."
       bugz modify --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
     else
       local ct
@@ -96,7 +93,6 @@ function attach() {
       bugz attach --content-type "$ct" --description "" $id $f >bgo.sh.out 2>bgo.sh.err || Warn "attach $f"
     fi
   done
-  set -f
 }
 
 function assign() {
@@ -123,7 +119,7 @@ function assign() {
 }
 
 #######################################################################
-set -eu
+set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -199,7 +195,7 @@ if [[ -n $block ]]; then
   bugz modify --add-blocked "$block" $id >bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
 fi
 
-# do this as the very last step to reduce the amount of emails automatically send out by bugzilla
+# do this as the very last step to reduce the amount of emails to the package maintainer(s)
 if [[ $new_bug -eq 1 ]]; then
   assign
 fi
