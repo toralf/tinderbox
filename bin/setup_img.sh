@@ -25,7 +25,7 @@ function dice() {
 # helper of InitOptions()
 function GetValidProfiles() {
   local all=$(eselect profile list)
-  if dice 1 3; then
+  if dice 1 4; then
     # not every 23.0 has a partner in 17.1
     grep -F '/23.0' <<<$all | grep -F -e '/split-usr' -e '/systemd' | grep -v -F -e 'hardened/systemd'
   else
@@ -666,6 +666,11 @@ function RunSetupScript() {
     echo
     return 1
   fi
+
+  # sam
+  if dice 1 2 && grep -q 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
+    sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' ./etc/portage/make.conf
+  fi
 }
 
 function RunDryrunWrapper() {
@@ -707,7 +712,8 @@ function FixPossibleUseFlagIssues() {
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 }' |
         cut -f 1 -d ':' -s |
-        xargs -r qatom -F "%{CATEGORY}/%{PN}"
+        xargs -r qatom -F "%{CATEGORY}/%{PN}" |
+        grep -v -F '<unset>/'
     )
     if [[ -n $pkg ]]; then
       local f=./etc/portage/package.use/24thrown_package_use_flags
@@ -721,16 +727,15 @@ function FixPossibleUseFlagIssues() {
 
     # follow advises of masking USE flags but ignore those where USE flags do contain underscore(s)
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
-    grep -A 20 "It might be possible to break this cycle" $drylog |
+    grep -m 1 -A 20 "It might be possible to break this cycle" $drylog |
       grep -F ' (Change USE: ' |
       grep -v -F -e '+' -e 'This change might require ' |
       sed -e "s,^- ,>=," -e "s, (Change USE:,," -e 's,),,' |
       sort -u |
       grep -v ".*-.*/.* .*_.*" |
       while read -r p u; do
-        printf "%-36s %s\n" $p "$u"
+        printf "%-36s %s\n" $(qatom -F "%{CATEGORY}/%{PN}" $p) "$u"
       done |
-      xargs -r qatom -F "%{CATEGORY}/%{PN}" |
       sort -u >$fautocirc
 
     if [[ -s $fautocirc ]]; then
@@ -747,9 +752,8 @@ function FixPossibleUseFlagIssues() {
       grep "^>=" |
       grep -v -e '>=.* .*_' |
       while read -r p u; do
-        printf "%-36s %s\n" $p "$u"
+        printf "%-36s %s\n" $(qatom -F "%{CATEGORY}/%{PN}" $p) "$u"
       done |
-      xargs -r qatom -F "%{CATEGORY}/%{PN}" |
       sort -u >$fautoflag
 
     if [[ -s $fautoflag ]]; then
@@ -889,11 +893,6 @@ function Finalize() {
     echo -e "\n Notice: no image specific USE flags found"
   fi
   truncate -s 0 ./var/tmp/tb/task
-
-  # sam
-  if dice 1 2 && grep -q 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
-    sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' ./etc/portage/make.conf
-  fi
 }
 
 #############################################################################
