@@ -56,11 +56,11 @@ net-misc/openssh                    -sctp
 # no, not at all
 net-misc/openssh-contrib            -hpn
 
-# too much deps at setup, would lower coverity
+# too much deps would be build already at setup, lowering coverity
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -gui
 
-# needed by us
+# needed by tb scripts and the kernel
 sys-devel/bc                        readline -libedit -static
 
 # tar needs "xz"
@@ -78,12 +78,11 @@ sys-kernel/vanilla-kernel           -initramfs -kernel-install
 #######################################################################
 # setup blocker
 #
-*/*                                 -vala               # DICE: setup 4 5
 dev-libs/libpcre                    -libedit            # DICE: setup_pcre 4 5
-dev-libs/libpcre2                   -libedit            # DICE: setup_pcre2 4 5
+dev-libs/libpcre2                   -libedit            # DICE: setup_pcre 4 5
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
-sys-apps/shadow                     pam -cracklib       # DICE: setup_shadow 4 5
-sys-apps/util-linux                 pam                 # DICE: setup_util_linux 4 5
+sys-apps/shadow                     pam -cracklib       # DICE: setup_pam 4 5
+sys-apps/util-linux                 pam                 # DICE: setup_pam 4 5
 sys-devel/llvm                      -xar                # DICE: setup_llvm 4 5
 
 # (unicode)
