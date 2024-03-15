@@ -9,14 +9,16 @@ function CreateCgroup() {
 
   # put all images under 1 sub group
   if [[ ! -d $cgdomain ]]; then
-    mkdir $cgdomain
-    echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
+    # this is still racy
+    if mkdir $cgdomain; then
+      echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-    # 28 vCPU for all
-    echo "$((28 * 100))" >$cgdomain/cpu.weight
-    echo "$((28 * 100000)) 100000" >$cgdomain/cpu.max
-    echo "96G" >$cgdomain/memory.max
-    echo "192G" >$cgdomain/memory.swap.max # e.g. rust needs 15 GiB
+      # 28 vCPU for all
+      echo "$((28 * 100))" >$cgdomain/cpu.weight
+      echo "$((28 * 100000)) 100000" >$cgdomain/cpu.max
+      echo "96G" >$cgdomain/memory.max
+      echo "192G" >$cgdomain/memory.swap.max # e.g. rust needs 15 GiB
+    fi
   fi
 
   # previous cgroup entry is not yet reaped e.g. from setup process
