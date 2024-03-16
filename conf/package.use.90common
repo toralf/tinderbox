@@ -30,7 +30,7 @@ sys-kernel/installkernel            -grub
 app-portage/portage-utils           -openmp
 
 # D would need to be bootstraped
-sys-devel/gcc                       -d
+sys-devel/gcc                       -ada -d
 
 # required by sys-apps/portage
 dev-lang/python                     ssl
@@ -78,11 +78,11 @@ sys-kernel/vanilla-kernel           -initramfs -kernel-install
 #######################################################################
 # setup blocker
 #
-dev-libs/libpcre                    -libedit            # DICE: setup_pcre 4 5
-dev-libs/libpcre2                   -libedit            # DICE: setup_pcre 4 5
+dev-libs/libpcre                    -libedit            # DICE: setup_pcre 9 10
+dev-libs/libpcre2                   -libedit            # DICE: setup_pcre 9 10
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
-sys-apps/shadow                     pam -cracklib       # DICE: setup_pam 4 5
-sys-apps/util-linux                 pam                 # DICE: setup_pam 4 5
+sys-apps/shadow                     pam -cracklib       # DICE: setup_pam 9 10
+sys-apps/util-linux                 su pam              # DICE: setup_pam 9 10
 sys-devel/llvm                      -xar                # DICE: setup_llvm 4 5
 
 # (unicode)
@@ -169,7 +169,7 @@ gnome-base/gnome-control-center     gnome-online-accounts                 # DICE
 gnome-base/gnome-settings-daemon    colord                                # DICE: libreoffice 1 6
 kde-frameworks/kconfig              dbus                                  # DICE: libreoffice 1 6
 kde-frameworks/kwindowsystem        X                                     # DICE: libreoffice 1 6
-media-libs/freetype                 fontforge harfbuzz png                # DICE: libreoffice 1 6
+media-libs/freetype                 fontforge png                         # DICE: libreoffice 1 6
 media-libs/harfbuzz                 icu                                   # DICE: libreoffice 1 6
 media-libs/libepoxy                 X                                     # DICE: libreoffice 1 6
 media-libs/libglvnd                 X                                     # DICE: libreoffice 1 6
