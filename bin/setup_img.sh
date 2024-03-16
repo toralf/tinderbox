@@ -390,6 +390,10 @@ EOF
   # "j1" is the fallback for packages failing in parallel build
   for j in 1 $jobs; do
     cat <<EOF >./etc/portage/env/j$j
+EGO_BUILD_FLAGS="-p $j"
+GO19CONCURRENTCOMPILATION=0
+GOMAXPROCS=$j
+
 MAKEOPTS="\$MAKEOPTS -j$j"
 
 OMP_DYNAMIC=FALSE
