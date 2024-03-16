@@ -729,7 +729,9 @@ function FixPossibleUseFlagIssues() {
       fi
     fi
 
-    # follow advises of masking USE flags but ignore those where USE flags do contain underscore(s)
+    # follow advises of masking/changing USE flags but ignore USE flags having underscores
+    local fixes=./tmp/fix-use-flags
+
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
     grep -m 1 -A 20 "It might be possible to break this cycle" $drylog |
       grep -F ' (Change USE: ' |
@@ -740,17 +742,18 @@ function FixPossibleUseFlagIssues() {
       while read -r p u; do
         printf "%-36s %s\n" $(qatom -F "%{CATEGORY}/%{PN}" $p) "$u"
       done |
-      sort -u >$fautocirc
+      sort -u >$fixes
 
-    if [[ -s $fautocirc ]]; then
+    if [[ -s $fixes ]]; then
+      if grep -q -F -f $fixes ./etc/portage/package.use/27-$attempt*-*-a-circ-dep 2>/dev/null; then
+        break
+      fi
+      mv $fixes $fautocirc
       if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve circ dep"; then
         return 0
       fi
-    else
-      rm $fautocirc
     fi
 
-    # follow advices of changing USE flag(s) ">=package USE flag(s)..." but ignore those where USE flags do contain underscore(s)
     local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
     grep -A 300 'The following USE changes are necessary to proceed:' $drylog |
       grep "^>=" |
@@ -758,14 +761,16 @@ function FixPossibleUseFlagIssues() {
       while read -r p u; do
         printf "%-36s %s\n" $(qatom -F "%{CATEGORY}/%{PN}" $p) "$u"
       done |
-      sort -u >$fautoflag
+      sort -u >$fixes
 
-    if [[ -s $fautoflag ]]; then
+    if [[ -s $fixes ]]; then
+      if grep -q -F -f $fixes ./etc/portage/package.use/27-$attempt-*-b-necessary-use-flag 2>/dev/null; then
+        break
+      fi
+      mv $fixes $fautoflag
       if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve USE changes"; then
         return 0
       fi
-    else
-      rm $fautoflag
     fi
 
     # if no change in this round was made then give up
