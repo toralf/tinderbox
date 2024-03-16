@@ -25,9 +25,12 @@ function dice() {
 # helper of InitOptions()
 function GetValidProfiles() {
   local all=$(eselect profile list)
-  if dice 1 4; then
-    # not every 23.0 has a partner in 17.1
-    grep -F '/23.0' <<<$all | grep -F -e '/split-usr' -e '/systemd' | grep -v -F -e 'hardened/systemd'
+  if dice 1 2; then
+    if [[ $migrated == "y" ]]; then
+      grep -F '/23.0' <<<$all | grep -F -e '/split-usr' -e '/systemd' | grep -v -F -e 'hardened/systemd'
+    else
+      grep -F '/23.0' <<<$all
+    fi
   else
     grep -F '/17.1' <<<$all | grep -F -e ' (stable)' -e ' (dev)'
   fi |
@@ -53,7 +56,8 @@ function InitOptions() {
   # variable
   abi3264="n"
   cflags=$cflags_default
-  name=""
+  migrated="n"
+  name="n/a"
   profile=$(GetValidProfiles | shuf -n 1)
   testfeature="n"
   useflagsfrom=""
@@ -77,6 +81,12 @@ function InitOptions() {
   if dice 1 20; then
     testfeature="y"
   fi
+
+  if [[ $profile =~ "23.0" && $profile =~ "/split-usr" ]]; then
+    if dice 1 2; then
+      migrated="y"
+    fi
+  fi
 }
 
 # helper of CheckOptions()
@@ -94,6 +104,7 @@ function checkBool() {
 # helper of main()
 function CheckOptions() {
   checkBool "abi3264" || return 1
+  checkBool "migrated" || return 1
   checkBool "testfeature" || return 1
 
   if grep -q "/$" <<<$profile; then
@@ -115,6 +126,13 @@ function CheckOptions() {
     return 1
   fi
 
+  if [[ $migrated == "y" ]]; then
+    if [[ ! $profile =~ "23.0" || ! $profile =~ "/split-usr" ]]; then
+      echo " migrated mismatch: >>$profile<<"
+      return 1
+    fi
+  fi
+
   if [[ -n $useflagsfrom && $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
     echo " useflagsfrom is wrong: >>$useflagsfrom<<"
     return 1
@@ -124,22 +142,22 @@ function CheckOptions() {
 # helper of UnpackStage3()
 function CreateImageName() {
   name="$(tr '/\-' '_' <<<$profile)"
+  [[ $migrated == 'y' ]] && name+="_migrated"
   [[ $keyword == 'amd64' ]] && name+="_stable"
   [[ $abi3264 == "y" ]] && name+="_abi32+64"
   [[ $testfeature == "y" ]] && name+="_test"
   name+="-$(date +%Y%m%d-%H%M%S)"
 }
 
-function getLatest() {
-  latest=$tbhome/distfiles/latest-stage3.txt
-  for mirror in $gentoo_mirrors; do
-    echo "$(date)   get latest-stage3.txt from $mirror"
-    if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/latest-stage3.txt --output-document=$latest; then
+function getStage3List() {
+  for mirror in $mirrors; do
+    echo "$(date)   get $(basename $stage3_list) from $mirror"
+    if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$(basename $stage3_list) --output-document=$stage3_list; then
       break
     fi
   done
-  if [[ ! -s $latest ]]; then
-    echo "$(date)   failed: $latest"
+  if [[ ! -s $stage3_list ]]; then
+    echo "$(date)   empty: $stage3_list"
     return 1
   fi
 }
@@ -160,7 +178,7 @@ function getStage3Filename() {
   prefix=$(tr '/' '-' <<<$prefix)
 
   if [[ $profile =~ "23.0" ]]; then
-    if [[ ! $profile =~ "/split-usr" ]]; then
+    if [[ $migrated == "y" && ! $profile =~ "/split-usr" ]]; then
       prefix+="-mergedusr"
     fi
   fi
@@ -169,35 +187,66 @@ function getStage3Filename() {
   fi
 
   echo "$(date)   get stage3 file name for prefix $prefix"
-  if ! stage3=$(grep -o "^20.*T.*Z/$prefix-20.*T.*Z\.tar\.\w*" $latest); then
+  if ! stage3=$(grep -o "$prefix-20.*T.*Z\.tar\.\w*" $stage3_list); then
     echo "$(date)   failed"
     return 1
   fi
 }
 
-function verifyStage3File() {
+function downloadStage3File() {
   local_stage3=$tbhome/distfiles/$(basename $stage3)
-  if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
-    rm -f $local_stage3{,.asc}
-    for mirror in $gentoo_mirrors; do
-      echo "$(date)   downloading $stage3{,.asc} from mirror $mirror ..."
-      if wget --connect-timeout=10 --quiet $mirror/releases/amd64/autobuilds/$stage3{,.asc} --directory-prefix=$tbhome/distfiles; then
+
+  if [[ ! -s $local_stage3 ]]; then
+    rm -f $local_stage3
+    for mirror in $mirrors; do
+      echo "$(date)   downloading $stage3,.asc} from mirror $mirror ..."
+      if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$stage3 --directory-prefix=$tbhome/distfiles; then
         echo "$(date)   finished"
         break
       fi
     done
   fi
-  if [[ ! -s $local_stage3 || ! -s $local_stage3.asc ]]; then
-    echo "$(date)   missing local stage3 file(s)"
-    ls -l $tbhome/distfiles/$stage3{,.asc}
+  if [[ ! -s $local_stage3 ]]; then
+    echo "$(date)   missing or empty local stage3 file"
     return 1
   fi
-  echo "$(date)   using $local_stage3"
+}
 
-  echo "$(date)   verifying stage3 files ..."
-  if ! gpg --quiet --verify $local_stage3.asc; then
+function verifyStage3Old() {
+  if [[ ! -s $local_stage3.asc ]]; then
+    rm -f $local_stage3.asc
+    for mirror in $mirrors; do
+      echo "$(date)   downloading $stage3.asc from mirror $mirror ..."
+      if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$stage3.asc --directory-prefix=$tbhome/distfiles; then
+        echo "$(date)   finished"
+        break
+      fi
+    done
+  fi
+  if [[ ! -s $local_stage3.asc ]]; then
+    echo "$(date)   missing local stage3 checksum file"
+    return 1
+  fi
+
+  echo "$(date)   verify stage3 file ..."
+  if ! gpg --verify $local_stage3.asc &>/dev/null; then
     echo "$(date)   failed"
-    rm -f $local_stage3{,.asc}
+    rm $local_stage3{,.asc}
+    return 1
+  fi
+}
+
+function verifyStage3New() {
+  echo "$(date)   verify stage3 list file ..."
+  if ! gpg --verify $stage3_list &>/dev/null; then
+    echo "$(date)   failed"
+    return 1
+  fi
+  echo "$(date)   verify stage3 file ..."
+  local sum=$(cd $tbhome/distfiles && sha512sum $stage3)
+  if ! grep -q -F "$sum" $stage3_list; then
+    echo "$(date)   failed"
+    rm $local_stage3
     return 1
   fi
 }
@@ -206,19 +255,33 @@ function verifyStage3File() {
 function UnpackStage3() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  local latest
-  if ! getLatest; then
-    return 1
-  fi
-
+  local stage3_list
+  local mirrors
   local stage3
-  if ! getStage3Filename; then
+  local local_stage3
+
+  if [[ $profile =~ "23.0" && $migrated == "n" ]]; then
+    stage3_list="$tbhome/distfiles/round2-stage3-sha512.txt"
+    mirrors="https://distfiles.gentoo.org https://gentoo.osuosl.org"
+    mirror_path="experimental/x86/23.0_stages"
+  else
+    stage3_list="$tbhome/distfiles/latest-stage3.txt"
+    mirrors=$gentoo_mirrors
+    mirror_path="releases/amd64/autobuilds"
+  fi
+  if ! getStage3List || ! getStage3Filename || ! downloadStage3File; then
     return 1
   fi
 
-  local local_stage3
-  if ! verifyStage3File; then
-    return 1
+  echo "$(date)   using $local_stage3"
+  if [[ $profile =~ "23.0" && $migrated == "n" ]]; then
+    if ! verifyStage3New; then
+      return 1
+    fi
+  else
+    if ! verifyStage3Old; then
+      return 1
+    fi
   fi
 
   CreateImageName
@@ -505,9 +568,7 @@ function CreateBacklogs() {
 @world
 EOF
 
-  if [[ $profile =~ "23.0" ]]; then
-    # https://wiki.gentoo.org/wiki/Project:Toolchain/23.0_update_instructions
-    # https://wiki.gentoo.org/wiki/Project:Toolchain/23.0_update_table
+  if [[ $profile =~ "23.0" && $migrated == "y" ]]; then
     cat <<EOF >>$bl.1st
 %emerge -1 dev-build/libtool
 %emerge -1 sys-libs/glibc
@@ -930,10 +991,11 @@ gentoo_mirrors=$(
 InitOptions
 
 start_it="n"
-while getopts a:k:p:st:u: opt; do
+while getopts a:k:p:m:st:u: opt; do
   case $opt in
   a) abi3264="$OPTARG" ;;                                       # "y" or "n"
   k) keyword="$OPTARG" ;;                                       # "amd64"
+  m) migrated="$OPTARG" ;;                                      # "y" or "n"
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "17.1/desktop"
   s) start_it="y" ;;
   t) testfeature="$OPTARG" ;;  # "y" or "n"
