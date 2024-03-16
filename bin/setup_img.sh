@@ -847,11 +847,14 @@ EOF
 
   # do not waste time to update the current gcc:slot if gcc:slot+1 is visible
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+cat /var/tmp/tb/task
+
+echo "-------"
+
 USE="-mpi -opencl" emerge -uU =\$(portageq best_visible / sys-devel/gcc) --pretend --deep=0
 
-EOF
+echo "-------"
 
-  cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge --newuse -uU @world --pretend
 
 EOF
