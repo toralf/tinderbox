@@ -873,19 +873,16 @@ function WorkOnTask() {
       echo "$(date) ok" >>$histfile
       if [[ $task =~ "@world" ]]; then
         add2backlog "%emerge --depclean --verbose=n"
-        if tail -n 1 /var/tmp/tb/@preserved-rebuild.history 2>/dev/null | grep -q " NOT ok $"; then
-          add2backlog "@preserved-rebuild"
-        fi
       fi
     else
       if [[ -n $pkg ]]; then
-        if tail -n 1 $histfile 2>/dev/null | grep " NOT ok $pkg$"; then
+        if tail -n 1 $histfile 2>/dev/null | grep -q " NOT ok $pkg$"; then
           ReachedEOL "$task is broken by $pkg" $tasklog
         fi
-        echo "$(date) NOT ok $pkg" >>$histfile
         if [[ $try_again -eq 0 ]]; then
           add2backlog "$task"
         fi
+        echo "$(date) NOT ok $pkg" >>$histfile
       else
         echo "$(date) NOT ok" >>$histfile
         if [[ ! $task =~ " --backtrack=" ]] && grep -q -e ' --backtrack=30' -e 'backtracking has terminated early' $tasklog; then
@@ -911,10 +908,10 @@ function WorkOnTask() {
         fi
       else
         if [[ -n $pkg && ! $task =~ $pkg ]]; then
-          Mail "INFO: repeating $task" $tasklog
+          Mail "INFO: repeate $task for $pkg" $tasklog
           add2backlog "$task"
         else
-          Mail "INFO: failed $task" $tasklog
+          Mail "INFO: failed $task at $pkg" $tasklog
         fi
       fi
     fi
