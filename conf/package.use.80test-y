@@ -1,18 +1,19 @@
 # package.use/80test-y
 #
 
-# if FEATURES=test is set then these USE flags seems to be needed
+# if FEATURES=test is set then these USE flags are needed
 
 app-accessibility/flite             alsa
 app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
 app-text/doxygen                    doc
+dev-db/mariadb                      extraengine
 dev-libs/libzip                     tools
 dev-libs/openssl                    -sctp
 dev-libs/openssl-compat             -sctp
 dev-libs/thrift                     libevent ssl
 dev-libs/weston                     lcms xwayland
-dev-qt/qtbase                       icu
+dev-qt/qtbase                       icu sql sqlite
 dev-util/strace                     -unwind
 media-gfx/imagemagick               corefonts truetype
 media-libs/gd                       png
@@ -24,7 +25,7 @@ media-sound/pulseaudio              -equalizer
 media-video/ffmpeg                  encode
 net-analyzer/rrdtool                graph -lua rrdcached
 net-firewall/iptables               conntrack nftables
-net-misc/openssh                    -xmss
+net-misc/openssh                    ssl -xmss
 net-dns/bind-tools                  -gssapi
 net-nds/openldap                    berkdb -minimal sasl
 net-libs/rabbitmq                   static-libs
@@ -34,6 +35,7 @@ sys-apps/man-db                     -nls
 sys-apps/shadow                     -cracklib
 sys-auth/sssd                       sudo
 sys-libs/ldb                        python
+sys-libs/libblockdev                introspection lvm
 sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
 x11-libs/gtk+                       X
