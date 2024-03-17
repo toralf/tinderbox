@@ -57,7 +57,7 @@ function InitOptions() {
   abi3264="n"
   cflags=$cflags_default
   migrated="n"
-  name="n/a"
+  name="n/a name"
   profile=$(GetValidProfiles | shuf -n 1)
   testfeature="n"
   useflagsfrom=""
@@ -103,9 +103,9 @@ function checkBool() {
 
 # helper of main()
 function CheckOptions() {
-  checkBool "abi3264" || return 1
-  checkBool "migrated" || return 1
-  checkBool "testfeature" || return 1
+  checkBool "abi3264"
+  checkBool "migrated"
+  checkBool "testfeature"
 
   if grep -q "/$" <<<$profile; then
     profile=$(sed -e 's,/$,,' <<<$profile)
@@ -157,7 +157,7 @@ function getStage3List() {
     fi
   done
   if [[ ! -s $stage3_list ]]; then
-    echo "$(date)   empty: $stage3_list"
+    echo "$(date)   empty or missing: $stage3_list"
     return 1
   fi
 }
@@ -199,33 +199,25 @@ function downloadStage3File() {
   if [[ ! -s $local_stage3 ]]; then
     rm -f $local_stage3
     for mirror in $mirrors; do
-      echo "$(date)   downloading $stage3,.asc} from mirror $mirror ..."
+      echo "$(date)   downloading $stage3 from $mirror ..."
       if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$stage3 --directory-prefix=$tbhome/distfiles; then
         echo "$(date)   finished"
         break
       fi
     done
   fi
-  if [[ ! -s $local_stage3 ]]; then
-    echo "$(date)   missing or empty local stage3 file"
-    return 1
-  fi
 }
 
-function verifyStage3Old() {
+function verify17() {
   if [[ ! -s $local_stage3.asc ]]; then
     rm -f $local_stage3.asc
     for mirror in $mirrors; do
-      echo "$(date)   downloading $stage3.asc from mirror $mirror ..."
+      echo "$(date)   downloading $stage3.asc from $mirror ..."
       if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$stage3.asc --directory-prefix=$tbhome/distfiles; then
         echo "$(date)   finished"
         break
       fi
     done
-  fi
-  if [[ ! -s $local_stage3.asc ]]; then
-    echo "$(date)   missing local stage3 checksum file"
-    return 1
   fi
 
   echo "$(date)   verify stage3 file ..."
@@ -236,12 +228,13 @@ function verifyStage3Old() {
   fi
 }
 
-function verifyStage3New() {
+function verify23() {
   echo "$(date)   verify stage3 list file ..."
   if ! gpg --verify $stage3_list &>/dev/null; then
     echo "$(date)   failed"
     return 1
   fi
+
   echo "$(date)   verify stage3 file ..."
   local sum=$(cd $tbhome/distfiles && sha512sum $stage3)
   if ! grep -q -F "$sum" $stage3_list; then
@@ -272,29 +265,21 @@ function UnpackStage3() {
     mirrors=$GENTOO_MIRRORS
     mirror_path="releases/amd64/autobuilds"
   fi
-  if ! getStage3List || ! getStage3Filename || ! downloadStage3File; then
-    return 1
-  fi
-
+  getStage3List
+  getStage3Filename
+  downloadStage3File
   echo "$(date)   using $local_stage3"
   if [[ $profile =~ "23.0" && $migrated == "n" ]]; then
-    if ! verifyStage3New; then
-      return 1
-    fi
+    verify23
   else
-    if ! verifyStage3Old; then
-      return 1
-    fi
+    verify17
   fi
 
   CreateImageName
   echo "$(date)   new image: $name"
-  if ! mkdir ~tinderbox/img/$name; then
-    return 1
-  fi
-
+  mkdir ~tinderbox/img/$name
   cd ~tinderbox/img/$name
-  echo "$(date)   untar'ing stage3 ..."
+  echo "$(date)   unpacking stage3 ..."
   if ! tar -xpf $local_stage3 --same-owner --xattrs; then
     echo "$(date)   failed"
     return 1
@@ -366,7 +351,7 @@ LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0"
 
 ACCEPT_KEYWORDS="$keyword"
 
-# just tinderbox'ing, no re-distribution nor any "usage" of software
+# just tinderbox'ing, no re-distribution nor any kind of "use"
 ACCEPT_LICENSE="* -@EULA"
 
 # no manual interaction
@@ -601,7 +586,7 @@ function CreateSetupScript() {
     echo 'sys-kernel/vanilla-sources-9999' >./etc/portage/profile/package.provided
   fi
 
-  cat <<EOF >./var/tmp/tb/setup.sh || return 1
+  cat <<EOF >./var/tmp/tb/setup.sh
 #!/bin/bash
 # set -x
 
