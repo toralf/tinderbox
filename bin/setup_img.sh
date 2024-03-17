@@ -260,13 +260,16 @@ function UnpackStage3() {
   local stage3
   local local_stage3
 
+  echo "$(date)   getting mirrors"
+  eval $(mirrorselect --https --output --quiet --servers 4 | tr -d '\\\n')
+
   if [[ $profile =~ "23.0" && $migrated == "n" ]]; then
     stage3_list="$tbhome/distfiles/round2-stage3-sha512.txt"
     mirrors="https://distfiles.gentoo.org https://gentoo.osuosl.org"
     mirror_path="experimental/x86/23.0_stages"
   else
     stage3_list="$tbhome/distfiles/latest-stage3.txt"
-    mirrors=$gentoo_mirrors
+    mirrors=$GENTOO_MIRRORS
     mirror_path="releases/amd64/autobuilds"
   fi
   if ! getStage3List || ! getStage3Filename || ! downloadStage3File; then
@@ -387,7 +390,7 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
 #PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
-GENTOO_MIRRORS="$gentoo_mirrors"
+GENTOO_MIRRORS="$GENTOO_MIRRORS"
 
 EOF
 
@@ -983,13 +986,8 @@ echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++$(dat
 
 tbhome=~tinderbox
 reposdir=/var/db/repos
-gentoo_mirrors=$(
-  source /etc/portage/make.conf
-  xargs -n 1 <<<$GENTOO_MIRRORS | grep '^http' | shuf | xargs
-)
 
 InitOptions
-
 start_it="n"
 while getopts a:k:p:m:st:u: opt; do
   case $opt in
