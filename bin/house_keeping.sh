@@ -3,8 +3,8 @@
 # set -x
 
 function olderThan() {
-  local img=${1?}
-  local days=${2?}
+  local img=${1?IMG NOT SET}
+  local days=${2?DAYS NOT SET}
 
   local start_time
   if start_time=$(getStartTime $img); then
@@ -70,29 +70,28 @@ if [[ -s $latest ]]; then
     while read -r stage3; do
       if [[ $latest -nt $stage3 ]]; then
         if ! grep -q "/$(basename $stage3) " $latest; then
-          rm -f $stage3{,.asc} # *.asc might not exist
+          rm -f $stage3{,.asc} # *.asc is 17. specific
         fi
       fi
     done
 fi
 
-# mtime value can be older than the host itself, so use atime
+# mtime value could be even older than the host itself
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
-# kick off if less than X packages were emerged
 while read -r img; do
-  if olderThan $img 0; then
-    if [[ ! -s $img/var/log/emerge.log || $(wc -l < <(qlop --merge --quiet --nocolor -f $img/var/log/emerge.log)) -lt 50 ]]; then
-      pruneIt $img "broken setup"
-    fi
+  if [[ ! -s $img/var/log/emerge.log && $((EPOCHSECONDS - $(stat -c %Z $img))) -gt 7200 ]]; then
+    pruneIt $img "broken unpack"
   fi
 done < <(list_images_by_age "img")
 
-if ! pruneNeeded; then
-  exit 0
-fi
+while read -r img; do
+  if olderThan $img 0 && [[ $(wc -l < <(qlop --merge --quiet --nocolor -f $img/var/log/emerge.log)) -lt 50 ]] && ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
+    pruneIt $img "broken setup"
+  fi
+done < <(list_images_by_age "img")
 
-while read -r img && pruneNeeded; do
+while pruneNeeded && read -r img; do
   if olderThan $img 3; then
     if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
       pruneIt $img "no issue"
@@ -100,7 +99,7 @@ while read -r img && pruneNeeded; do
   fi
 done < <(list_images_by_age "img")
 
-while read -r img && pruneNeeded; do
+while pruneNeeded && read -r img; do
   if olderThan $img 7; then
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneIt $img "no bug reported"
@@ -108,7 +107,7 @@ while read -r img && pruneNeeded; do
   fi
 done < <(list_images_by_age "img")
 
-while read -r img && pruneNeeded; do
+while pruneNeeded && read -r img; do
   if olderThan $img 14; then
     pruneIt $img "space needed"
   fi
