@@ -17,13 +17,13 @@ function olderThan() {
 function pruneNeeded() {
   local maxperc=${1:-75} # max used space of whole FS in % (BTRFS is special!)
 
-  if read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1); then
-    # value of available space in percent is often lower than 100-"percent value of df"
-    local wanted=$((size * (100 - maxperc) / 100)) # size is in MiB
-    [[ $avail -lt $wanted ]]
-  else
-    return 1
-  fi
+  local size avail
+  read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1)
+
+  # value of available space in percent is often lower than 100-"percent value of df"
+  local wanted
+  wanted=$((size * (100 - maxperc) / 100)) # size is in MiB
+  [[ $avail -lt $wanted ]]
 }
 
 function pruneIt() {
