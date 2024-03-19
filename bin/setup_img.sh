@@ -23,20 +23,28 @@ function dice() {
 }
 
 # helper of InitOptions()
-function GetValidProfiles() {
+function DiceAProfile() {
   local all=$(eselect profile list)
+  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
+
   if dice 1 2; then
-    if [[ $migrated == "y" ]]; then
-      grep -F '/23.0' <<<$all | grep -F -e '/split-usr' -e '/systemd' | grep -v -F -e 'hardened/systemd'
+    if dice 1 2; then
+      migrated="y"
+      grep -F '/23.0' <<<$all | grep -F -e '/split-usr'
+      grep -F '/23.0' <<<$all | grep -F -e '/systemd' | grep -v -F -e '/hardened'
     else
       grep -F '/23.0' <<<$all
     fi
   else
     grep -F '/17.1' <<<$all | grep -F -e ' (stable)' -e ' (dev)'
   fi |
+    sort -u |
     grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
     awk '{ print $2 }' |
-    cut -f 4- -d '/' -s
+    cut -f 4- -d '/' -s >$tmpfile
+
+  profile=$(shuf -n 1 <$tmpfile)
+  rm $tmpfile
 }
 
 # helper of main()
@@ -57,10 +65,12 @@ function InitOptions() {
   abi3264="n"
   cflags=$cflags_default
   migrated="n"
-  name="n/a name"
-  profile=$(GetValidProfiles | shuf -n 1)
+  name="n/a" # set in CreateImageName)
+  start_it="n"
   testfeature="n"
   useflagsfrom=""
+
+  DiceAProfile
 
   if dice 1 5; then
     cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
@@ -82,7 +92,7 @@ function InitOptions() {
     testfeature="y"
   fi
 
-  if [[ $profile =~ "23.0" && $profile =~ "/split-usr" ]]; then
+  if [[ $profile =~ "23.0" ]]; then
     if dice 1 2; then
       migrated="y"
     fi
@@ -126,11 +136,9 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ $migrated == "y" ]]; then
-    if [[ ! $profile =~ "23.0" || ! $profile =~ "/split-usr" ]]; then
-      echo " migrated mismatch: >>$profile<<"
-      return 1
-    fi
+  if [[ ! $profile =~ "23.0" && $migrated == "y" ]]; then
+    echo " migrated mismatch: >>$profile<<"
+    return 1
   fi
 
   if [[ -n $useflagsfrom && $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
@@ -151,13 +159,16 @@ function CreateImageName() {
 
 function getStage3List() {
   for mirror in $mirrors; do
-    echo "$(date)   get $(basename $stage3_list) from $mirror"
+    echo "$(date)   downloading $(basename $stage3_list) from $mirror"
     if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$(basename $stage3_list) --output-document=$stage3_list; then
-      break
+      echo "$(date)   finished"
+      return 0
     fi
   done
-  if [[ ! -s $stage3_list ]]; then
-    echo "$(date)   empty or missing: $stage3_list"
+
+  echo "$(date)   verify stage3 list file ..."
+  if ! gpg --verify $stage3_list &>/dev/null; then
+    echo "$(date)   failed"
     return 1
   fi
 }
@@ -187,7 +198,13 @@ function getStage3Filename() {
   fi
 
   echo "$(date)   get stage3 file name for prefix $prefix"
-  if ! stage3=$(grep -o "$prefix-20.*T.*Z\.tar\.\w*" $stage3_list); then
+  if [[ $stage3_list =~ "latest" ]]; then
+    stage3=$(grep -o "^20.*/$prefix-20.*T.*Z\.tar\.\w*" $stage3_list)
+  else
+    stage3=$(grep -o "$prefix-20.*T.*Z\.tar\.\w*" $stage3_list)
+  fi
+
+  if [[ -z $stage3 ]]; then
     echo "$(date)   failed"
     return 1
   fi
@@ -202,10 +219,13 @@ function downloadStage3File() {
       echo "$(date)   downloading $stage3 from $mirror ..."
       if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$stage3 --directory-prefix=$tbhome/distfiles; then
         echo "$(date)   finished"
-        break
+        return 0
       fi
     done
   fi
+
+  echo "$(date)   failed"
+  return 1
 }
 
 function verify17() {
@@ -229,12 +249,6 @@ function verify17() {
 }
 
 function verify23() {
-  echo "$(date)   verify stage3 list file ..."
-  if ! gpg --verify $stage3_list &>/dev/null; then
-    echo "$(date)   failed"
-    return 1
-  fi
-
   echo "$(date)   verify stage3 file ..."
   local sum=$(cd $tbhome/distfiles && sha512sum $stage3)
   if ! grep -q -F "$sum" $stage3_list; then
@@ -254,7 +268,11 @@ function UnpackStage3() {
   local local_stage3
 
   echo "$(date)   getting mirrors"
-  eval $(mirrorselect --https --output --quiet --servers 4 | tr -d '\\\n')
+  eval $(mirrorselect --https --output --quiet --servers 4 2>&1 | tr -d '\\\n')
+  if [[ -z $GENTOO_MIRRORS || $GENTOO_MIRRORS =~ "Traceback" ]]; then
+    echo "$(date)   failed"
+    return 1
+  fi
 
   if [[ $profile =~ "23.0" && $migrated == "n" ]]; then
     stage3_list="$tbhome/distfiles/round2-stage3-sha512.txt"
@@ -954,6 +972,19 @@ function Finalize() {
     echo -e "\n Notice: no image specific USE flags found"
   fi
   truncate -s 0 ./var/tmp/tb/task
+
+  if [[ $start_it == "y" ]]; then
+    cd $tbhome/run
+    ln -sf ../img/$name
+    sleep 1 # wait for deletion of currently used cgroup
+    echo
+    sudo -u tinderbox $(dirname $0)/start_img.sh $name
+    echo
+  fi
+
+  if ls -l ~/img/$name/etc/portage/*/._cfg0000_* 2>/dev/null 1>&2; then
+    echo -e "\n ^^ config file fix needed\n" >&2
+  fi
 }
 
 #############################################################################
@@ -973,7 +1004,6 @@ tbhome=~tinderbox
 reposdir=/var/db/repos
 
 InitOptions
-start_it="n"
 while getopts a:k:p:m:st:u: opt; do
   case $opt in
   a) abi3264="$OPTARG" ;;                                       # "y" or "n"
@@ -1002,16 +1032,3 @@ CreateSetupScript
 RunSetupScript
 CompileUseFlagFiles
 Finalize
-
-if [[ $start_it == "y" ]]; then
-  cd $tbhome/run
-  ln -sf ../img/$name
-  sleep 1 # wait for deletion of currently used cgroup
-  echo
-  sudo -u tinderbox $(dirname $0)/start_img.sh $name
-  echo
-fi
-
-if ls -l ~/img/$name/etc/portage/*/._cfg0000_* 2>/dev/null 1>&2; then
-  echo -e "\n ^^ config file fix needed\n" >&2
-fi
