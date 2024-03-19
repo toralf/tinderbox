@@ -32,6 +32,7 @@ hostname
 hpn
 i386
 initramfs
+installkernel
 ithreads
 kernel
 kernel-install
