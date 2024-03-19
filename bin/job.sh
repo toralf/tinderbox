@@ -908,7 +908,7 @@ function WorkOnTask() {
         fi
       else
         if [[ -n $pkg && ! $task =~ $pkg ]]; then
-          Mail "INFO: repeate $task for $pkg" $tasklog
+          Mail "INFO: will repeat $task for $pkg" $tasklog
           add2backlog "$task"
         else
           Mail "INFO: failed $task at $pkg" $tasklog
