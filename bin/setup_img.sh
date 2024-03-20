@@ -27,10 +27,10 @@ function DiceTheProfile() {
   local all=$(eselect profile list)
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
 
-  migrated="n"
+  echo "n" >$tmpfile # migrated
   if dice 1 2; then
     if dice 1 2; then
-      migrated="y"
+      echo "y" >$tmpfile
       grep -F '/23.0' <<<$all | grep -F -e '/split-usr'
       grep -F '/23.0' <<<$all | grep -F -e '/systemd' | grep -v -F -e '/hardened'
     else
@@ -41,9 +41,10 @@ function DiceTheProfile() {
   fi |
     grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
     awk '{ print $2 }' |
-    cut -f 4- -d '/' -s >$tmpfile
+    cut -f 4- -d '/' -s |
+    shuf -n 1 >>$tmpfile # profile
 
-  profile=$(shuf -n 1 <$tmpfile)
+  read -r migrated profile < <(cat $tmpfile | xargs)
   rm $tmpfile
 }
 
@@ -64,7 +65,6 @@ function InitOptions() {
   # variable
   abi3264="n"
   cflags=$cflags_default
-  migrated="n"
   name="n/a" # set in CreateImageName)
   start_it="n"
   testfeature="n"
