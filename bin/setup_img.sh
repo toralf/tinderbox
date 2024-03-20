@@ -64,7 +64,7 @@ function InitOptions() {
   # variable
   abi3264="n"
   cflags=$cflags_default
-  migrated="n/a"
+  migrated="n"
   name="n/a" # set in CreateImageName)
   start_it="n"
   testfeature="n"
@@ -130,7 +130,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ $migrated == "y" && ! $profile =~ "23.0" ]]; then
+  if [[ $migrated == "y" && ! $profile =~ "23.0" ]] || [[ $migrated == "n" && $profile =~ "/split-usr" ]]; then
     echo " migrated mismatch: >>$migrated<< >>$profile<<"
     return 1
   fi
