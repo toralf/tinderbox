@@ -23,22 +23,22 @@ function dice() {
 }
 
 # helper of InitOptions()
-function DiceAProfile() {
+function DiceTheProfile() {
   local all=$(eselect profile list)
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
 
+  migrated="n"
   if dice 1 2; then
     if dice 1 2; then
       migrated="y"
       grep -F '/23.0' <<<$all | grep -F -e '/split-usr'
       grep -F '/23.0' <<<$all | grep -F -e '/systemd' | grep -v -F -e '/hardened'
     else
-      grep -F '/23.0' <<<$all
+      grep -F '/23.0' <<<$all | grep -v -F -e '/split-usr'
     fi
   else
     grep -F '/17.1' <<<$all | grep -F -e ' (stable)' -e ' (dev)'
   fi |
-    sort -u |
     grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s >$tmpfile
@@ -64,13 +64,13 @@ function InitOptions() {
   # variable
   abi3264="n"
   cflags=$cflags_default
-  migrated="n"
+  migrated="n/a"
   name="n/a" # set in CreateImageName)
   start_it="n"
   testfeature="n"
   useflagsfrom=""
 
-  DiceAProfile
+  DiceTheProfile
 
   if dice 1 5; then
     cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
@@ -90,12 +90,6 @@ function InitOptions() {
 
   if dice 1 20; then
     testfeature="y"
-  fi
-
-  if [[ $profile =~ "23.0" ]]; then
-    if dice 1 2; then
-      migrated="y"
-    fi
   fi
 }
 
@@ -132,12 +126,12 @@ function CheckOptions() {
   fi
 
   if [[ $abi3264 == "y" && $profile =~ "/no-multilib" ]]; then
-    echo " ABI_X86 mismatch: >>$profile<<"
+    echo " ABI_X86 mismatch: >>$abi3264<< >>$profile<<"
     return 1
   fi
 
-  if [[ ! $profile =~ "23.0" && $migrated == "y" ]]; then
-    echo " migrated mismatch: >>$profile<<"
+  if [[ $migrated == "y" && ! $profile =~ "23.0" ]]; then
+    echo " migrated mismatch: >>$migrated<< >>$profile<<"
     return 1
   fi
 
@@ -188,10 +182,8 @@ function getStage3Filename() {
 
   prefix=$(tr '/' '-' <<<$prefix)
 
-  if [[ $profile =~ "23.0" ]]; then
-    if [[ $migrated == "y" && ! $profile =~ "/split-usr" ]]; then
-      prefix+="-mergedusr"
-    fi
+  if [[ $migrated == "y" && ! $profile =~ "/split-usr" ]]; then
+    prefix+="-mergedusr"
   fi
   if [[ ! $profile =~ "/systemd" ]]; then
     prefix+="-openrc"
@@ -199,30 +191,33 @@ function getStage3Filename() {
 
   echo "$(date)   get stage3 file name for prefix $prefix"
   if [[ $stage3_list =~ "latest" ]]; then
-    stage3=$(grep -o "^20.*/$prefix-20.*T.*Z\.tar\.\w*" $stage3_list)
+    if ! stage3=$(grep -o "^20.*/$prefix-20.*T.*Z\.tar\.\w*" $stage3_list); then
+      echo "$(date)   failed"
+      return 1
+    fi
   else
-    stage3=$(grep -o "$prefix-20.*T.*Z\.tar\.\w*" $stage3_list)
-  fi
-
-  if [[ -z $stage3 ]]; then
-    echo "$(date)   failed"
-    return 1
+    if ! stage3=$(grep -o "$prefix-20.*T.*Z\.tar\.\w*" $stage3_list); then
+      echo "$(date)   failed"
+      return 1
+    fi
   fi
 }
 
 function downloadStage3File() {
   local_stage3=$tbhome/distfiles/$(basename $stage3)
 
-  if [[ ! -s $local_stage3 ]]; then
-    rm -f $local_stage3
-    for mirror in $mirrors; do
-      echo "$(date)   downloading $stage3 from $mirror ..."
-      if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$stage3 --directory-prefix=$tbhome/distfiles; then
-        echo "$(date)   finished"
-        return 0
-      fi
-    done
+  if [[ -s $local_stage3 ]]; then
+    return 0
   fi
+
+  rm -f $local_stage3
+  for mirror in $mirrors; do
+    echo "$(date)   downloading $stage3 from $mirror ..."
+    if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$stage3 --directory-prefix=$tbhome/distfiles; then
+      echo "$(date)   finished"
+      return 0
+    fi
+  done
 
   echo "$(date)   failed"
   return 1
@@ -269,6 +264,7 @@ function UnpackStage3() {
 
   echo "$(date)   getting mirrors"
   eval $(mirrorselect --https --output --quiet --servers 4 2>&1 | tr -d '\\\n')
+  #GENTOO_MIRRORS="https://mirror.netcologne.de/gentoo/" # for debug purpose
   if [[ -z $GENTOO_MIRRORS || $GENTOO_MIRRORS =~ "Traceback" ]]; then
     echo "$(date)   failed"
     return 1
@@ -574,7 +570,7 @@ function CreateBacklogs() {
 @world
 EOF
 
-  if [[ $profile =~ "23.0" && $migrated == "y" ]]; then
+  if [[ $migrated == "y" ]]; then
     cat <<EOF >>$bl.1st
 %emerge -1 dev-build/libtool
 %emerge -1 sys-libs/glibc
