@@ -71,17 +71,11 @@ if [[ -s $latest ]]; then
     done
 fi
 
-# mtime value could be even older than the host itself
+# mtime could be much older than even the host
 find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
 
 while read -r img; do
-  if [[ ! -s $img/var/log/emerge.log && $((EPOCHSECONDS - $(stat -c %Z $img))) -gt 7200 ]]; then
-    pruneIt $img "broken unpack"
-  fi
-done < <(list_images_by_age "img")
-
-while read -r img; do
-  if olderThan $img 0 && [[ $(wc -l < <(qlop --merge --quiet --nocolor -f $img/var/log/emerge.log)) -lt 50 ]] && ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
+  if [[ ! -s $img/var/log/emerge.log && $((EPOCHSECONDS - $(stat -c %Z $img))) -gt 3600 ]]; then
     pruneIt $img "broken setup"
   fi
 done < <(list_images_by_age "img")
