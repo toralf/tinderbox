@@ -928,10 +928,8 @@ function WorkOnTask() {
   # a common atom
   else
     if ! RunAndCheck "emerge --update $task"; then
-      # repeat atom if (one of) its dependency failed
-      if [[ -n $pkg && ! $pkg =~ "^$task-" ]]; then
-        add2backlog "$task"
-      fi
+      :
+      # do not repeat it, it might be a download (and not a dependency) issue
     fi
   fi
 }
