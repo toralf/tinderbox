@@ -24,6 +24,7 @@ media-libs/tiff                     jpeg
 media-sound/pulseaudio              -equalizer
 media-video/ffmpeg                  encode
 net-analyzer/rrdtool                graph -lua rrdcached
+dev-ruby/rrdtool-bindings           graph
 net-firewall/iptables               conntrack nftables
 net-misc/openssh                    ssl -xmss
 net-dns/bind-tools                  -gssapi
