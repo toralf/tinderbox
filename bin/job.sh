@@ -311,18 +311,19 @@ function foundGenericIssue() {
 }
 
 # helper of ClassifyIssue()
-function handleTestPhase() {
-  if grep -q "=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
-    if ! grep -q "=$pkg " /etc/portage/package.env/notest 2>/dev/null; then
+function handleFeatureTest() {
+  if ! grep -q "<=$pkg " /etc/portage/package.env/notest 2>/dev/null; then
+    if [[ $phase == "test" ]] && ! grep -q "<=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
+      # try to keep the dependency tree
+      printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >>/etc/portage/package.env/test-fail-continue
+    else
+      # already installed dependencies might no longer be needed and therefore being depcleaned after next @world
       printf "%-50s %s\n" "<=$pkg" "notest" >>/etc/portage/package.env/notest
-      try_again=1
     fi
-  else
-    printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >>/etc/portage/package.env/test-fail-continue
     try_again=1
   fi
 
-  # gtar returns an error if it can't find any directory, therefore feed only existing dirs to it
+  # gtar returns an error if it can't find any directory, therefore feed only existing dirs to it to catch remaining tar errors
   (
     cd "$workdir"
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
@@ -345,9 +346,7 @@ function handleTestPhase() {
 # helper of WorkAtIssue()
 # get the issue and a descriptive title
 function ClassifyIssue() {
-  if [[ $phase == "test" ]]; then
-    handleTestPhase
-  fi
+  handleFeatureTest
 
   if grep -q -m 1 -F ' * Detected file collision(s):' $pkglog_stripped; then
     foundCollisionIssue
