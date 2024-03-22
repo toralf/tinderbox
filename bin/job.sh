@@ -1074,14 +1074,13 @@ while :; do
     Finish 0 "catched STOP" /var/tmp/tb/STOP
   fi
 
-  # if 1st prio backlog is empty then ...
+  # sync repository hourly
+  if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
+    echo "#syncing repo" >$taskfile
+    syncRepo
+  fi
+
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
-    # ... sync repository hourly
-    if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
-      echo "#syncing repo" >$taskfile
-      syncRepo
-    fi
-    # ... update @world (and then later again always 24 hrs after the previous @world finished)
     wh=/var/tmp/tb/@world.history
     if [[ ! -s $wh || $((EPOCHSECONDS - $(stat -c %Z $wh))) -ge 86400 ]]; then
       /usr/bin/pfl &>/dev/null || true
