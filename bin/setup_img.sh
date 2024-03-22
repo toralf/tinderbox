@@ -22,30 +22,34 @@ function dice() {
   [[ $((RANDOM % $2)) -lt $1 ]]
 }
 
+function pickOneProfile() {
+  grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
+    shuf -n 1 |
+    awk '{ print $2 }' |
+    cut -f 4- -d '/' -s
+}
+
 # helper of InitOptions()
 function DiceTheProfile() {
-  local all=$(eselect profile list)
-  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
+  local all
+  all=$(eselect profile list)
 
-  echo "n" >$tmpfile # migrated
+  migrated="n"
   if dice 1 2; then
     if dice 1 2; then
-      echo "y" >$tmpfile
-      grep -F '/23.0' <<<$all | grep -F -e '/split-usr'
-      grep -F '/23.0' <<<$all | grep -F -e '/systemd' | grep -v -F -e '/hardened'
+      migrated="y"
+      profile=$(
+        (
+          grep -F '/23.0' <<<$all | grep -F -e '/split-usr'
+          grep -F '/23.0' <<<$all | grep -F -e '/systemd' | grep -v -F -e '/hardened'
+        ) | pickOneProfile
+      )
     else
-      grep -F '/23.0' <<<$all | grep -v -F -e '/split-usr'
+      profile=$(grep -F '/23.0' <<<$all | grep -v -F -e '/split-usr' | pickOneProfile)
     fi
   else
-    grep -F '/17.1' <<<$all | grep -F -e ' (stable)' -e ' (dev)'
-  fi |
-    grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
-    awk '{ print $2 }' |
-    cut -f 4- -d '/' -s |
-    shuf -n 1 >>$tmpfile # profile
-
-  read -r migrated profile < <(cat $tmpfile | xargs)
-  rm $tmpfile
+    profile=$(grep -F '/17.1' <<<$all | grep -F -e ' (stable)' -e ' (dev)' | pickOneProfile)
+  fi
 }
 
 # helper of main()
