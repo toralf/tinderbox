@@ -346,7 +346,9 @@ function handleFeatureTest() {
 # helper of WorkAtIssue()
 # get the issue and a descriptive title
 function ClassifyIssue() {
-  handleFeatureTest
+  if [[ $name =~ "_test" ]]; then
+    handleFeatureTest
+  fi
 
   if grep -q -m 1 -F ' * Detected file collision(s):' $pkglog_stripped; then
     foundCollisionIssue
