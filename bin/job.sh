@@ -897,22 +897,26 @@ function WorkOnTask() {
   # %<command line>
   elif [[ $task =~ ^% ]]; then
     if ! RunAndCheck "$(cut -c 2- <<<$task)"; then
-      if [[ -n $pkg && $task =~ $pkg || $task =~ "haskell-updater" || $pkg =~ "sys-devel/gcc" ]]; then
-        ReachedEOL "broken: $task" $tasklog
+      if [[ $task =~ "haskell-updater" || $pkg =~ "sys-devel/gcc" ]]; then
+        ReachedEOL "failed: $task" $tasklog
       elif [[ $task =~ "perl-cleaner" ]]; then
         if grep -q 'The following USE changes are necessary to proceed' $tasklog; then
-          ReachedEOL "broken: $task" $tasklog
+          ReachedEOL "failed: $task" $tasklog
         fi
       elif [[ $task =~ " --depclean" ]]; then
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
-          ReachedEOL "broken: $task" $tasklog
+          ReachedEOL "failed: $task" $tasklog
         fi
       else
-        if [[ -n $pkg && ! $task =~ $pkg ]]; then
-          Mail "INFO: will repeat $task for $pkg" $tasklog
-          add2backlog "$task"
+        if [[ -n $pkg ]]; then
+          if [[ $task =~ $pkg ]]; then
+            ReachedEOL "failed: $task" $tasklog
+          else
+            Mail "INFO: will repeat $task for $pkg" $tasklog
+            add2backlog "$task"
+          fi
         else
-          Mail "INFO: failed $task at $pkg" $tasklog
+          ReachedEOL "failed: $task" $tasklog
         fi
       fi
     fi
