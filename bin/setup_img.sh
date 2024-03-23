@@ -34,10 +34,10 @@ function DiceTheProfile() {
   local all
   all=$(eselect profile list)
 
-  migrated="n"
+  mig17to23="n"
   if dice 1 2; then
     if dice 1 2; then
-      migrated="y"
+      mig17to23="y"
       profile=$(
         (
           grep -F '/23.0' <<<$all | grep -F -e '/split-usr'
@@ -112,7 +112,7 @@ function checkBool() {
 # helper of main()
 function CheckOptions() {
   checkBool "abi3264"
-  checkBool "migrated"
+  checkBool "mig17to23"
   checkBool "testfeature"
 
   if grep -q "/$" <<<$profile; then
@@ -134,8 +134,8 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ $migrated == "y" && ! $profile =~ "23.0" ]] || [[ $migrated == "n" && $profile =~ "/split-usr" ]]; then
-    echo " migrated mismatch: >>$migrated<< >>$profile<<"
+  if [[ $mig17to23 == "y" && ! $profile =~ "23.0" ]] || [[ $mig17to23 == "n" && $profile =~ "/split-usr" ]]; then
+    echo " mig17to23 mismatch: >>$mig17to23<< >>$profile<<"
     return 1
   fi
 
@@ -148,7 +148,7 @@ function CheckOptions() {
 # helper of UnpackStage3()
 function CreateImageName() {
   name="$(tr '/\-' '_' <<<$profile)"
-  [[ $migrated == 'y' ]] && name+="_migrated"
+  [[ $mig17to23 == 'y' ]] && name+="_mig17to23"
   [[ $keyword == 'amd64' ]] && name+="_stable"
   [[ $abi3264 == "y" ]] && name+="_abi32+64"
   [[ $testfeature == "y" ]] && name+="_test"
@@ -186,7 +186,7 @@ function getStage3Filename() {
 
   prefix=$(tr '/' '-' <<<$prefix)
 
-  if [[ $migrated == "y" && ! $profile =~ "/split-usr" ]]; then
+  if [[ $mig17to23 == "y" && ! $profile =~ "/split-usr" ]]; then
     prefix+="-mergedusr"
   fi
   if [[ ! $profile =~ "/systemd" ]]; then
@@ -274,7 +274,7 @@ function UnpackStage3() {
     return 1
   fi
 
-  if [[ $profile =~ "23.0" && $migrated == "n" ]]; then
+  if [[ $profile =~ "23.0" && $mig17to23 == "n" ]]; then
     stage3_list="$tbhome/distfiles/round2-stage3-sha512.txt"
     mirrors="https://distfiles.gentoo.org https://gentoo.osuosl.org"
     mirror_path="experimental/x86/23.0_stages"
@@ -287,7 +287,7 @@ function UnpackStage3() {
   getStage3Filename
   downloadStage3File
   echo "$(date)   using $local_stage3"
-  if [[ $profile =~ "23.0" && $migrated == "n" ]]; then
+  if [[ $profile =~ "23.0" && $mig17to23 == "n" ]]; then
     verify23
   else
     verify17
@@ -569,7 +569,7 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
-  if [[ $migrated == "y" ]]; then
+  if [[ $mig17to23 == "y" ]]; then
     cat <<EOF >>$bl.1st
 %emerge --emptytree @world
 %emerge -1 dev-build/libtool
@@ -1002,7 +1002,7 @@ while getopts a:k:p:m:st:u: opt; do
   case $opt in
   a) abi3264="$OPTARG" ;;                                       # "y" or "n"
   k) keyword="$OPTARG" ;;                                       # "amd64"
-  m) migrated="$OPTARG" ;;                                      # "y" or "n"
+  m) mig17to23="$OPTARG" ;;                                     # "y" or "n"
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "17.1/desktop"
   s) start_it="y" ;;
   t) testfeature="$OPTARG" ;;  # "y" or "n"
