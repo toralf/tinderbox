@@ -14,3 +14,9 @@ app-emacs/navi2ch
 
 # https://bugs.gentoo.org/908593
 net-print/foo2zjs
+
+# too much cpu cycles
+<sys-devel/clang-18.1.2                                 # DICE: llvm
+<sys-devel/clang-runtime-18.1.2                         # DICE: llvm
+<sys-devel/llvm-18.1.2                                  # DICE: llvm
+<sys-devel/llvm-common-18.1.2                           # DICE: llvm
