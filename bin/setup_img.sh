@@ -267,7 +267,7 @@ function UnpackStage3() {
   local local_stage3
 
   echo "$(date)   getting mirrors"
-  eval $(mirrorselect --https --output --quiet --servers 4 2>&1 | tr -d '\\\n')
+  eval $(mirrorselect --https --output --quiet --servers 8 2>&1 | tr -d '\\\n')
   #GENTOO_MIRRORS="https://mirror.netcologne.de/gentoo/" # for debug purpose
   if [[ -z $GENTOO_MIRRORS || $GENTOO_MIRRORS =~ "Traceback" ]]; then
     echo "$(date)   failed"
@@ -569,21 +569,15 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
-  # update world as the last step
-  cat <<EOF >>$bl.1st
-@world
-EOF
-
   if [[ $migrated == "y" ]]; then
     cat <<EOF >>$bl.1st
+%emerge --emptytree @world
 %emerge -1 dev-build/libtool
-%emerge -1 sys-libs/glibc
-%emerge --deep=0 -1 sys-devel/gcc
-%emerge --deep=0 -1 sys-devel/binutils
 EOF
   else
     # update GCC first
     cat <<EOF >>$bl.1st
+@world
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
