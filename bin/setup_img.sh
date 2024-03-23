@@ -34,7 +34,7 @@ function DiceTheProfile() {
   local all
   all=$(eselect profile list)
 
-  mig17to23="n"
+  mig17to23="n" # migration from 17.1 to 23.0
   if dice 1 2; then
     if dice 1 2; then
       mig17to23="y"
@@ -48,7 +48,12 @@ function DiceTheProfile() {
       profile=$(grep -F '/23.0' <<<$all | grep -v -F -e '/split-usr' | pickOneProfile)
     fi
   else
-    profile=$(grep -F '/17.1' <<<$all | grep -F -e ' (stable)' -e ' (dev)' | pickOneProfile)
+    profile=$(grep -F '/17.1' <<<$all | pickOneProfile)
+  fi
+
+  spl2mrged='n' # test migration from split-usr to merged-usr for OpenRC (only)
+  if dice 1 2 && [[ $mig17to23 == 'y' && $profile =~ '/split-usr' && ! $profile =~ '/systemd' ]]; then
+    spl2mrged='y'
   fi
 }
 
@@ -113,6 +118,7 @@ function checkBool() {
 function CheckOptions() {
   checkBool "abi3264"
   checkBool "mig17to23"
+  checkBool "spl2mrged"
   checkBool "testfeature"
 
   if grep -q "/$" <<<$profile; then
@@ -148,8 +154,12 @@ function CheckOptions() {
 # helper of UnpackStage3()
 function CreateImageName() {
   name="$(tr '/\-' '_' <<<$profile)"
-  [[ $mig17to23 == 'y' ]] && name+="_mig17to23"
-  [[ $keyword == 'amd64' ]] && name+="_stable"
+  [[ $mig17to23 == "y" ]] && name+="_mig17to23"
+  if [[ $spl2mrged == "y" ]]; then
+    name=$(sed -e "s,_split_usr,," <<<$name)
+    name+="_spl2mrged"
+  fi
+  [[ $keyword == "amd64" ]] && name+="_stable"
   [[ $abi3264 == "y" ]] && name+="_abi32+64"
   [[ $testfeature == "y" ]] && name+="_test"
   name+="-$(date +%Y%m%d-%H%M%S)"
@@ -540,7 +550,6 @@ EOF
   cat <<EOF >./etc/hosts
 127.0.0.1 localhost $host_hostname $host_hostname.localdomain $image_hostname $image_hostname.localdomain
 ::1       localhost $host_hostname $host_hostname.localdomain $image_hostname $image_hostname.localdomain
-
 EOF
 
   # avoid question of vim if run in that image
@@ -558,7 +567,7 @@ EOF
   echo -e "\$include /etc/inputrc\nset enable-bracketed-paste off" >./root/.inputrc
 }
 
-# what                      filled once by        updated by
+# file                      filled once by        updated by
 #
 # /var/tmp/tb/backlog     : setup_img.sh
 # /var/tmp/tb/backlog.1st : setup_img.sh          job.sh, retest.sh
@@ -569,6 +578,23 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
+  cat <<EOF >>$bl.1st
+@world
+EOF
+
+  if [[ $spl2mrged == 'y' ]]; then
+    cat <<EOF >>$bl.1st
+%eselect profile set \$(eselect profile show | tail -n 1 | sed -e 's,/split-usr,,')
+%merge-usr
+%merge-usr --dryrun
+%emerge sys-apps/merge-usr
+EOF
+  fi
+
+  cat <<EOF >>$bl.1st
+@world
+EOF
+
   if [[ $mig17to23 == "y" ]]; then
     cat <<EOF >>$bl.1st
 %emerge --emptytree @world
@@ -577,7 +603,6 @@ EOF
   else
     # update GCC first
     cat <<EOF >>$bl.1st
-@world
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
@@ -903,22 +928,26 @@ function CompileUseFlagFiles() {
 set -euf
 
 echo "# start dryrun"
-
 EOF
 
   # do not waste time to update the current gcc:slot if gcc:slot+1 is visible
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 cat /var/tmp/tb/task
-
 echo "-------"
-
 USE="-mpi -opencl" emerge -uU =\$(portageq best_visible / sys-devel/gcc) --pretend --deep=0
-
-echo "-------"
-
-emerge --newuse -uU @world --pretend
-
 EOF
+
+  if [[ $spl2mrged == 'y' ]]; then
+    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+echo "-------"
+emerge --emptytree @world --pretend
+EOF
+  else
+    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+echo "-------"
+emerge --newuse -uU @world --pretend
+EOF
+  fi
 
   chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
   local drylog=./var/tmp/tb/logs/dryrun.log
@@ -998,11 +1027,12 @@ tbhome=~tinderbox
 reposdir=/var/db/repos
 
 InitOptions
-while getopts a:k:p:m:st:u: opt; do
+while getopts a:k:p:m:M:st:u: opt; do
   case $opt in
   a) abi3264="$OPTARG" ;;                                       # "y" or "n"
   k) keyword="$OPTARG" ;;                                       # "amd64"
   m) mig17to23="$OPTARG" ;;                                     # "y" or "n"
+  M) spl2mrged="$OPTARG" ;;                                     # "y" or "n"
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "17.1/desktop"
   s) start_it="y" ;;
   t) testfeature="$OPTARG" ;;  # "y" or "n"
