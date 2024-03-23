@@ -959,22 +959,15 @@ EOF
     if [[ $useflagsfrom != "null" ]]; then
       cp ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/* ./etc/portage/package.use/
     fi
-    FixPossibleUseFlagIssues 0
-
+    if FixPossibleUseFlagIssues 0; then
+      return 0
+    fi
   else
     local attempt=0
-    while [[ $((++attempt)) -lt 200 ]]; do
+    while [[ $((++attempt)) -le 100 ]]; do
       echo
       date
       echo "==========================================================="
-      if ! ((attempt % 150)); then
-        echo
-        date
-        echo " sync repo"
-        (cd .$reposdir/gentoo && git pull 1>/dev/null)
-        echo
-        date
-      fi
       ThrowFlags $attempt
       local current=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
       touch $current
@@ -984,8 +977,8 @@ EOF
       fi
     done
     echo -e "\n max attempts reached, giving up"
-    return 125
   fi
+  return 125
 }
 
 function Finalize() {
