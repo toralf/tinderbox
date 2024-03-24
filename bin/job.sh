@@ -454,7 +454,7 @@ function add2backlog() {
     if [[ $1 =~ ^@ || $1 =~ ^% ]]; then
       # avoid duplicate the current last line (==next task)
       if [[ "$(tail -n 1 $bl)" != "$1" ]]; then
-        echo "$1" >>$bl
+        echo "$1" | sed -e 's, --emptytree,,g' >>$bl
       fi
     elif ! grep -q "^${1}$" $bl; then # avoid dups in the file
       echo "$1" >>$bl
