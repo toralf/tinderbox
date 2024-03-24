@@ -16,14 +16,14 @@ tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
 # sam_ : bashrc meson hook
 #
-if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile 2>/dev/null; then
+if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile; then
   chmod a+r $tmpfile
   mv $tmpfile ~tinderbox/img/sam.txt
 fi
 
 # xgqt : big package size
 #
-find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + 2>/dev/null |
+find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + |
   perl -wane '
     chomp;
     next if ($#F != 2);
@@ -49,38 +49,38 @@ mv $tmpfile ~tinderbox/img/xgqt.txt
 #
 (
   if [[ ${1-} == "reset" ]]; then
-    find ~tinderbox/img/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" 2>/dev/null |
-      grep -v '/-MERGING-' |
-      xargs -r cat 2>/dev/null
+    find ~tinderbox/img/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2"
   else
-    cat ~tinderbox/img/needed.ELF.2.txt
-    find ~tinderbox/run/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -cmin -65 2>/dev/null |
-      grep -v '/-MERGING-' |
-      xargs -r cat 2>/dev/null
+    echo ~tinderbox/img/needed.ELF.2.txt
+    find ~tinderbox/run/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -cmin -65
   fi
-) | sort -u >$tmpfile
+) |
+  grep -v -F '/-MERGING-' |
+  xargs -r cat |
+  sort -u >$tmpfile
 chmod a+r $tmpfile
 mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
 
 (
   if [[ ${1-} == "reset" ]]; then
-    find ~tinderbox/img/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED" 2>/dev/null |
+    find ~tinderbox/img/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED" |
       grep -v '/-MERGING-' |
-      xargs -r grep -H . 2>/dev/null |
+      xargs -r grep -H . |
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   else
     cat ~tinderbox/img/needed.txt
-    find ~tinderbox/run/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED" -cmin -65 2>/dev/null |
-      grep -v '/-MERGING-' |
-      xargs -r grep -H . 2>/dev/null |
+    find ~tinderbox/run/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED" -cmin -65 |
+      grep -v -F '/-MERGING-' |
+      xargs -r grep -H . |
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   fi
 ) | sort -u >$tmpfile
 chmod a+r $tmpfile
 mv $tmpfile ~tinderbox/img/needed.txt
 
-# sam bashrc.clang hook
+# _sam: bashrc.clang hook
 #
-tar -c -f $tmpfile ~tinderbox/img/*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz 2>/dev/nul
-chmod a+r $tmpfile
-mv $tmpfile ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
+if tar -cf $tmpfile ~tinderbox/img/*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz 2>/dev/null; then
+  chmod a+r $tmpfile
+  mv $tmpfile ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
+fi
