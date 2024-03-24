@@ -225,7 +225,7 @@ function CollectIssueFiles() {
 
     if [[ -d $workdir/../../temp ]]; then
       if ! $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
-        --dereference --warning=none --sparse \
+        --warning=none --sparse \
         --exclude='*/.tmp??????/*' \
         --exclude='*/garbage.*' \
         --exclude='*/go-build[0-9]*/*' \
@@ -238,7 +238,8 @@ function CollectIssueFiles() {
         --exclude='*/testdirsymlink/*' \
         --exclude='*/var-tests/*' \
         ./temp &>/var/tmp/tar.log; then
-        Mail "NOTICE: tar issue with $workdir/../../temp" /var/tmp/tar.log
+        ls -al $workdir/../../temp &>>/var/tmp/tar.log
+        Mail "NOTICE: $tar issue for $workdir/../../temp" /var/tmp/tar.log
       fi
     fi
 
@@ -337,7 +338,8 @@ function handleFeatureTest() {
         --exclude="*/symlinktest/*" \
         --exclude="*/sys/*" \
         $dirs &>/var/tmp/tar.log; then
-        Mail "NOTICE: tar issue with $workdir" /var/tmp/tar.log
+        ls -al $workdir/../../temp &>>/var/tmp/tar.log
+        Mail "NOTICE: $tar issue for $workdir" /var/tmp/tar.log
       fi
     fi
   )
