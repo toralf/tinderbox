@@ -168,9 +168,20 @@ function CreateImageName() {
 function getStage3List() {
   for mirror in $mirrors; do
     echo "$(date)   downloading $(basename $stage3_list) from $mirror"
-    if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$(basename $stage3_list) --output-document=$stage3_list; then
-      echo "$(date)   finished"
-      return 0
+    if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$(basename $stage3_list) --output-document=$stage3_list.new; then
+      if [[ -s $stage3_list.new ]]; then
+        if diff -q $stage3_list.new $stage3_list 1>/dev/null; then
+          echo "$(date)   no diff"
+        else
+          mv $stage3_list.new $stage3_list
+          echo "$(date)   renewed"
+        fi
+        break
+      else
+        echo "$(date)   empty"
+      fi
+    else
+      echo "$(date)   failed"
     fi
   done
 
@@ -228,8 +239,12 @@ function downloadStage3File() {
   for mirror in $mirrors; do
     echo "$(date)   downloading $stage3 from $mirror ..."
     if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$stage3 --directory-prefix=$tbhome/distfiles; then
-      echo "$(date)   finished"
-      return 0
+      if [[ -s $local_stage3 ]]; then
+        echo "$(date)   done"
+        return 0
+      else
+        echo "$(date)   empty"
+      fi
     fi
   done
 
@@ -243,7 +258,7 @@ function verify17() {
     for mirror in $mirrors; do
       echo "$(date)   downloading $stage3.asc from $mirror ..."
       if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$stage3.asc --directory-prefix=$tbhome/distfiles; then
-        echo "$(date)   finished"
+        echo "$(date)   done"
         break
       fi
     done
