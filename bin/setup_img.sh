@@ -169,8 +169,7 @@ function getStage3List() {
         if diff -q $stage3_list.new $stage3_list 1>/dev/null; then
           echo "$(date)   no diff"
         else
-          mv $stage3_list.new $stage3_list
-          echo "$(date)   renewed"
+          echo "$(date)   differs"
         fi
         break
       else
@@ -182,7 +181,10 @@ function getStage3List() {
   done
 
   echo "$(date)   verify stage3 list file ..."
-  if ! gpg --verify $stage3_list &>/dev/null; then
+  if gpg --verify $stage3_list.new &>/dev/null; then
+    echo "$(date)   ok"
+    mv $stage3_list.new $stage3_list
+  else
     echo "$(date)   failed"
     return 1
   fi
@@ -261,7 +263,9 @@ function verify17() {
   fi
 
   echo "$(date)   verify stage3 file ..."
-  if ! gpg --verify $local_stage3.asc &>/dev/null; then
+  if gpg --verify $local_stage3.asc &>/dev/null; then
+    echo "$(date)   ok"
+  else
     echo "$(date)   failed"
     rm $local_stage3{,.asc}
     return 1
@@ -271,7 +275,9 @@ function verify17() {
 function verify23() {
   echo "$(date)   verify stage3 file ..."
   local sum=$(cd $tbhome/distfiles && sha512sum $stage3)
-  if ! grep -q -F "$sum" $stage3_list; then
+  if grep -q -F "$sum" $stage3_list; then
+    echo "$(date)   ok"
+  else
     echo "$(date)   failed"
     rm $local_stage3
     return 1
