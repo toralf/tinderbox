@@ -35,25 +35,21 @@ function DiceTheProfile() {
   all=$(eselect profile list)
 
   mig17to23="n" # migration from 17.1 to 23.0
-  if dice 1 2; then
-    if dice 1 2; then
-      mig17to23="y"
-      profile=$(
-        (
-          grep -F '/23.0' <<<$all | grep -F -e '/split-usr'
-          grep -F '/23.0' <<<$all | grep -F -e '/systemd' | grep -v -F -e '/hardened'
-        ) | pickOneProfile
-      )
-    else
-      profile=$(grep -F '/23.0' <<<$all | grep -v -F -e '/split-usr' | pickOneProfile)
+  spl2mrged='n' # test migration from split-usr to merged-usr
+  if dice 2 3; then
+    profile=$(grep -F '/23.0' <<<$all | pickOneProfile)
+    if [[ $profile =~ '/split-usr' ]] || [[ $profile =~ '/systemd' && ! $profile =~ '/hardened' ]]; then
+      if dice 1 2; then
+        mig17to23="y"
+        if [[ $profile =~ '/split-usr' ]]; then
+          if dice 1 2; then
+            spl2mrged='y'
+          fi
+        fi
+      fi
     fi
   else
     profile=$(grep -F '/17.1' <<<$all | pickOneProfile)
-  fi
-
-  spl2mrged='n' # test migration from split-usr to merged-usr for OpenRC (only)
-  if dice 1 2 && [[ $mig17to23 == 'y' && $profile =~ '/split-usr' && ! $profile =~ '/systemd' ]]; then
-    spl2mrged='y'
   fi
 }
 
