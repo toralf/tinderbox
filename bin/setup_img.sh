@@ -597,20 +597,15 @@ function CreateBacklogs() {
 @world
 EOF
 
-  if [[ $spl2mrged == 'y' ]]; then
-    cat <<EOF >>$bl.1st
-%eselect profile set \$(eselect profile show | tail -n 1 | sed -e 's,/split-usr,,')
+  if [[ $mig17to23 == "y" ]]; then
+    if [[ $spl2mrged == 'y' ]]; then
+      cat <<EOF >>$bl.1st
+%eselect profile set default/linux/amd64/$(sed -e 's,/split-usr,,' <<<$profile)
 %merge-usr
 %merge-usr --dryrun
 %emerge sys-apps/merge-usr
 EOF
-  fi
-
-  cat <<EOF >>$bl.1st
-@world
-EOF
-
-  if [[ $mig17to23 == "y" ]]; then
+    fi
     cat <<EOF >>$bl.1st
 %emerge --emptytree @world
 %emerge -1 dev-build/libtool
