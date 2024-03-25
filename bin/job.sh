@@ -348,6 +348,10 @@ function handleFeatureTest() {
 # helper of WorkAtIssue()
 # get the issue and a descriptive title
 function ClassifyIssue() {
+  if grep -q -f /mnt/tb/data/CATCH_ISSUES-fatal $pkglog_stripped; then
+    ReachedEOL "FATAL issue" $pkglog_stripped
+  fi
+
   if [[ $name =~ "_test" ]]; then
     handleFeatureTest
   fi
@@ -454,7 +458,7 @@ function add2backlog() {
     if [[ $1 =~ ^@ || $1 =~ ^% ]]; then
       # avoid duplicate the current last line (==next task)
       if [[ "$(tail -n 1 $bl)" != "$1" ]]; then
-        echo "$1" | sed -e 's, --emptytree,,g' >>$bl
+        echo "$1" >>$bl
       fi
     elif ! grep -q "^${1}$" $bl; then # avoid dups in the file
       echo "$1" >>$bl
