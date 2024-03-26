@@ -138,7 +138,7 @@ while :; do
     sleep 60
   done < <(ImagesInRunButEOL)
 
-  # reaching this line means then there's nothing more to do (for now)
+  # reaching this line means that there's nothing more to do
   break
 done
 
