@@ -9,9 +9,9 @@ function Exit() {
 
   trap - INT QUIT TERM EXIT
   if [[ $rc -eq 0 ]]; then
-    echo -e "$(date)\n  setup done for $name"
+    echo -e "$(date)  setup done for $name"
   else
-    echo -e "$(date)\n  setup failed for $name with rc=$rc"
+    echo -e "$(date)  setup failed for $name with rc=$rc"
   fi
   echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   exit $rc
@@ -22,8 +22,14 @@ function dice() {
   [[ $((RANDOM % $2)) -lt $1 ]]
 }
 
+# [11:06:37 pm] <@toralf> Would changing the profile and re-emerging @world with --emptytree do it?
+# [11:27:13 pm] <@dilfridge> switching from/to hardened, and switching from multilib to non-multilib, yes
+# [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
+# [11:28:34 pm] <@dilfridge> if you enable hardened, it probably makes sense to "emerge -1 binutils gcc glibc" first and afterwards do emptytree
 function pickOneProfile() {
-  grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
+  grep -F ' (stable)' |
+    grep -v -F -e '/split-usr' -e '23.0/no-multilib/hardened/systemd' |
+    grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
     shuf -n 1 |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s
@@ -34,23 +40,7 @@ function DiceTheProfile() {
   local all
   all=$(eselect profile list)
 
-  mig17to23="n" # migration from 17.1 to 23.0
-  spl2mrged='n' # test migration from split-usr to merged-usr
-  if dice 2 3; then
-    profile=$(grep -F '/23.0' <<<$all | pickOneProfile)
-    if [[ $profile =~ '/split-usr' ]] || [[ $profile =~ '/systemd' && ! $profile =~ '/hardened' ]]; then
-      if dice 1 2; then
-        mig17to23="y"
-        if [[ $profile =~ '/split-usr' ]]; then
-          if dice 1 2; then
-            spl2mrged='y'
-          fi
-        fi
-      fi
-    fi
-  else
-    profile=$(grep -F '/17.1' <<<$all | pickOneProfile)
-  fi
+  profile=$(grep -F '/23.0' <<<$all | pickOneProfile)
 }
 
 # helper of main()
@@ -113,8 +103,6 @@ function checkBool() {
 # helper of main()
 function CheckOptions() {
   checkBool "abi3264"
-  checkBool "mig17to23"
-  checkBool "spl2mrged"
   checkBool "testfeature"
 
   if grep -q "/$" <<<$profile; then
@@ -136,25 +124,15 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ $mig17to23 == "y" && ! $profile =~ "23.0" ]] || [[ $mig17to23 == "n" && $profile =~ "/split-usr" ]]; then
-    echo " mig17to23 mismatch: >>$mig17to23<< >>$profile<<"
-    return 1
-  fi
-
   if [[ -n $useflagsfrom && $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
     echo " useflagsfrom is wrong: >>$useflagsfrom<<"
     return 1
   fi
 }
 
-# helper of UnpackStage3()
+# helper of InitImageFromStage3()
 function CreateImageName() {
   name="$(tr '/\-' '_' <<<$profile)"
-  [[ $mig17to23 == "y" ]] && name+="_mig17to23"
-  if [[ $spl2mrged == "y" ]]; then
-    name=$(sed -e "s,_split_usr,," <<<$name)
-    name+="_spl2mrged"
-  fi
   [[ $keyword == "amd64" ]] && name+="_stable"
   [[ $abi3264 == "y" ]] && name+="_abi32+64"
   [[ $testfeature == "y" ]] && name+="_test"
@@ -169,7 +147,7 @@ function getStage3List() {
         if diff -q $stage3_list.new $stage3_list 1>/dev/null; then
           echo "$(date)   no diff"
         else
-          echo "$(date)   differs"
+          echo "$(date)   differs from old"
         fi
         break
       else
@@ -182,7 +160,6 @@ function getStage3List() {
 
   echo "$(date)   verify stage3 list file ..."
   if gpg --verify $stage3_list.new &>/dev/null; then
-    echo "$(date)   ok"
     mv $stage3_list.new $stage3_list
   else
     echo "$(date)   failed"
@@ -194,7 +171,8 @@ function getStage3Filename() {
   echo "$(date)   get stage3 prefix for profile $profile"
 
   local prefix="stage3-amd64"
-  prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,/split-usr,,' -e 's,-,,g' <<<$profile)
+  prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<<$profile)
+
   prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<<$prefix)
   if [[ $profile =~ "/desktop" ]]; then
     if dice 1 2; then
@@ -204,10 +182,6 @@ function getStage3Filename() {
   fi
 
   prefix=$(tr '/' '-' <<<$prefix)
-
-  if [[ $mig17to23 == "y" && ! $profile =~ "/split-usr" ]]; then
-    prefix+="-mergedusr"
-  fi
   if [[ ! $profile =~ "/systemd" ]]; then
     prefix+="-openrc"
   fi
@@ -250,7 +224,7 @@ function downloadStage3File() {
   return 1
 }
 
-function verify17() {
+function verifyStage3File() {
   if [[ ! -s $local_stage3.asc ]]; then
     rm -f $local_stage3.asc
     for mirror in $mirrors; do
@@ -263,29 +237,15 @@ function verify17() {
   fi
 
   echo "$(date)   verify stage3 file ..."
-  if gpg --verify $local_stage3.asc &>/dev/null; then
-    echo "$(date)   ok"
-  else
+  if ! gpg --verify $local_stage3.asc &>/dev/null; then
     echo "$(date)   failed"
     rm $local_stage3{,.asc}
     return 1
   fi
 }
 
-function verify23() {
-  echo "$(date)   verify stage3 file ..."
-  local sum=$(cd $tbhome/distfiles && sha512sum $stage3)
-  if grep -q -F "$sum" $stage3_list; then
-    echo "$(date)   ok"
-  else
-    echo "$(date)   failed"
-    rm $local_stage3
-    return 1
-  fi
-}
-
 # download, verify and unpack the stage3 file
-function UnpackStage3() {
+function InitImageFromStage3() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
   local stage3_list
@@ -293,32 +253,16 @@ function UnpackStage3() {
   local stage3
   local local_stage3
 
-  echo "$(date)   getting mirrors"
-  eval $(mirrorselect --https --output --quiet --servers 8 2>&1 | tr -d '\\\n')
-  #GENTOO_MIRRORS="https://mirror.netcologne.de/gentoo/" # for debug purpose
-  if [[ -z $GENTOO_MIRRORS || $GENTOO_MIRRORS =~ "Traceback" ]]; then
-    echo "$(date)   failed"
-    return 1
-  fi
+  eval $(grep -A 10 "^GENTOO_MIRRORS=" /etc/portage/make.conf | tr -d '\\\n')
+  stage3_list="$tbhome/distfiles/latest-stage3.txt"
+  mirrors=$GENTOO_MIRRORS
+  mirror_path="releases/amd64/autobuilds"
 
-  if [[ $profile =~ "23.0" && $mig17to23 == "n" ]]; then
-    stage3_list="$tbhome/distfiles/round2-stage3-sha512.txt"
-    mirrors="https://distfiles.gentoo.org https://gentoo.osuosl.org"
-    mirror_path="experimental/x86/23.0_stages"
-  else
-    stage3_list="$tbhome/distfiles/latest-stage3.txt"
-    mirrors=$GENTOO_MIRRORS
-    mirror_path="releases/amd64/autobuilds"
-  fi
   getStage3List
   getStage3Filename
   downloadStage3File
   echo "$(date)   using $local_stage3"
-  if [[ $profile =~ "23.0" && $mig17to23 == "n" ]]; then
-    verify23
-  else
-    verify17
-  fi
+  verifyStage3File
 
   CreateImageName
   echo "$(date)   new image: $name"
@@ -597,27 +541,8 @@ function CreateBacklogs() {
 
   cat <<EOF >>$bl.1st
 @world
-EOF
-
-  if [[ $mig17to23 == "y" ]]; then
-    if [[ $spl2mrged == 'y' ]]; then
-      cat <<EOF >>$bl.1st
-%eselect profile set default/linux/amd64/$(sed -e 's,/split-usr,,' <<<$profile)
-%merge-usr
-%merge-usr --dryrun
-%emerge sys-apps/merge-usr
-EOF
-    fi
-    cat <<EOF >>$bl.1st
-%emerge --emptytree @world
-%emerge -1 dev-build/libtool
-EOF
-  else
-    # update GCC first
-    cat <<EOF >>$bl.1st
 %USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
 EOF
-  fi
 }
 
 function CreateSetupScript() {
@@ -945,21 +870,13 @@ EOF
   # do not waste time to update the current gcc:slot if gcc:slot+1 is visible
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 cat /var/tmp/tb/task
+
 echo "-------"
 USE="-mpi -opencl" emerge -uU =\$(portageq best_visible / sys-devel/gcc) --pretend --deep=0
-EOF
 
-  if [[ $spl2mrged == 'y' ]]; then
-    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-echo "-------"
-emerge --emptytree @world --pretend
-EOF
-  else
-    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 echo "-------"
 emerge --newuse -uU @world --pretend
 EOF
-  fi
 
   chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
   local drylog=./var/tmp/tb/logs/dryrun.log
@@ -976,7 +893,7 @@ EOF
     fi
   else
     local attempt=0
-    while [[ $((++attempt)) -le 100 ]]; do
+    while [[ $((++attempt)) -le 200 ]]; do
       echo
       date
       echo "==========================================================="
@@ -1036,8 +953,6 @@ while getopts a:k:p:m:M:st:u: opt; do
   case $opt in
   a) abi3264="$OPTARG" ;;                                       # "y" or "n"
   k) keyword="$OPTARG" ;;                                       # "amd64"
-  m) mig17to23="$OPTARG" ;;                                     # "y" or "n"
-  M) spl2mrged="$OPTARG" ;;                                     # "y" or "n"
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "17.1/desktop"
   s) start_it="y" ;;
   t) testfeature="$OPTARG" ;;  # "y" or "n"
@@ -1050,7 +965,7 @@ while getopts a:k:p:m:M:st:u: opt; do
 done
 
 CheckOptions
-UnpackStage3
+InitImageFromStage3
 InitRepository
 CompileTinderboxFiles
 CompilePortageFiles
