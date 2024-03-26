@@ -313,7 +313,7 @@ function foundGenericIssue() {
 
 # helper of ClassifyIssue()
 function handleFeatureTest() {
-  if ! grep -q "<=$pkg " /etc/portage/package.env/notest && ! grep -q -e "^$pkgname .*notest" /etc/portage/package.env/80test-y 2>/dev/null; then
+  if ! grep -q "<=$pkg " /etc/portage/package.env/notest 2>/dev/null && ! grep -q -e "^$pkgname .*notest" /etc/portage/package.env/80test-y 2>/dev/null; then
     if [[ $phase == "test" ]] && ! grep -q "<=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
       # try to keep the dependency tree
       printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >>/etc/portage/package.env/test-fail-continue
