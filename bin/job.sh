@@ -614,6 +614,11 @@ function source_profile() {
   set -u
 }
 
+# $1:$2, e.g. 3:5
+function dice() {
+  [[ $((RANDOM % $2)) -lt $1 ]]
+}
+
 function SwitchGCC() {
   local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
   if [[ -z $highest ]]; then
@@ -633,6 +638,11 @@ function SwitchGCC() {
       add2backlog "dev-build/slibtool"
     fi
     add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f 1 -d '.' <<<$current)"
+  fi
+
+  # sam
+  if dice 1 2 && [[ $(gcc -dumpversion) -ge 14 ]]; then
+    sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' /etc/portage/make.conf
   fi
 }
 

@@ -329,7 +329,7 @@ function CompileMakeConf() {
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
 
-# set these explicitely to only tweak e.g. CFLAGS for gcc-14 later
+# set each explicitely to tweak only CFLAGS later e.g. for gcc-14
 CFLAGS="$cflags"
 CXXFLAGS="$cflags"
 FCFLAGS="$cflags"
@@ -692,11 +692,6 @@ function RunSetupScript() {
     tail -n 100 ./var/tmp/tb/setup.sh.log
     echo
     return 1
-  fi
-
-  # sam
-  if dice 1 2 && grep -q 'DICE: gcc-14' ./etc/portage/package.unmask/*; then
-    sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' ./etc/portage/make.conf
   fi
 }
 
