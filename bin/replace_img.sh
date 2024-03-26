@@ -118,13 +118,14 @@ while :; do
     tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp) # intentionally not removed in case of an issue
     # shellcheck disable=SC2024
     if sudo $(dirname $0)/setup_img.sh -s &>$tmpfile; then
-      img=$(grep "^  setup done for .*$" $tmpfile | awk '{ print $4 }')
+      img=$(awk '/ setup done for / { print $10 }' $tmpfile)
       mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
       echo " $img"
     else
       rc=$?
-      echo " failed rc=$rc"
-      cat $tmpfile | mail -s "NOTICE: setup failed  rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+      img=$(awk '/ setup failed for / { print $10 }' $tmpfile)
+      echo " $img failed rc=$rc"
+      cat $tmpfile | mail -s "NOTICE: setup failed $img rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       exit $rc
     fi
     continue
