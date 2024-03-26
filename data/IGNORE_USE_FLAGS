@@ -1,3 +1,12 @@
+#
+# setup issues
+#
+introspection
+rdoc
+vala
+#
+# global
+#
 32
 64
 bindist
@@ -29,7 +38,6 @@ hardened
 headers-only
 homed
 hostname
-hpn
 i386
 initramfs
 installkernel
@@ -63,7 +71,6 @@ pax-kernel
 perftools
 prefix
 prefix-guest
-rdoc
 s6
 sanitize
 savedconfig
@@ -81,6 +88,5 @@ tools
 uclibc
 unwind
 user-session
-vala
 vanilla
 x32
