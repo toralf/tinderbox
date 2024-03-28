@@ -1,8 +1,13 @@
+# check these periodically with
+# grep -v '#' ~/tb/data/IGNORE_USE_FLAGS | while read u; do quse -De $u &>/dev/null || echo $u; done
 #
 # setup issues
 #
 introspection
+mono
 rdoc
+tools
+unwind
 vala
 #
 # global
@@ -22,25 +27,19 @@ debug
 default-compiler-rt
 default-gold
 deprecated
-device-mapper-only
 dist-kernel
-doc
-dot
 dracut
 exec-static-trampoline
-FreeBSD
 fuse
 gcc-symlinks
 ghcbootstrap
 gold
-gtk-doc
 hardened
 headers-only
 homed
 hostname
 i386
 initramfs
-installkernel
 ithreads
 kernel
 kernel-install
@@ -55,7 +54,6 @@ minimal
 mips
 modules
 modules-compress
-mono
 monolithic
 multiarch
 multilib
@@ -66,11 +64,9 @@ objc
 objc++
 objc-gc
 oci8
-o-flag-munging
 pax-kernel
 perftools
 prefix
-prefix-guest
 s6
 sanitize
 savedconfig
@@ -80,13 +76,8 @@ split-usr
 static
 static-libs
 systemd
-systemd-kernel-install
 system-wlroots
 test
 threads
-tools
-uclibc
-unwind
-user-session
 vanilla
 x32

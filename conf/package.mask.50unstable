@@ -5,9 +5,6 @@
 # https://bugs.gentoo.org/794235
 <dev-util/ragel-7.0.4-r3
 
-# mask for now, fails too often
-<dev-lang/ghc-9.0.2-r4
-
 # https://bugs.gentoo.org/909309
 app-emacs/elscreen
 app-emacs/navi2ch
@@ -15,8 +12,8 @@ app-emacs/navi2ch
 # https://bugs.gentoo.org/908593
 net-print/foo2zjs
 
-# too much cpu cycles
-<sys-devel/clang-18.1.2                                 # DICE: llvm
-<sys-devel/clang-runtime-18.1.2                         # DICE: llvm
-<sys-devel/llvm-18.1.2                                  # DICE: llvm
-<sys-devel/llvm-common-18.1.2                           # DICE: llvm
+# do not waste cpu cycles for left-over packages
+<sys-devel/clang-17.0.6                                 # DICE: llvm
+<sys-devel/clang-runtime-17.0.6                         # DICE: llvm
+<sys-devel/llvm-17.0.6                                  # DICE: llvm
+<sys-devel/llvm-common-17.0.6                           # DICE: llvm
