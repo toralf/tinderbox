@@ -69,7 +69,7 @@ echo $$ >"$lockfile"
 trap Finish INT QUIT TERM EXIT
 
 case $(nproc) in
-32) desired_count=12 ;;
+32) desired_count=11 ;;
 96) desired_count=16 ;;
 *) desired_count=$(($(nproc) * 3 / 8)) ;;
 esac
