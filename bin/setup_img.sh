@@ -29,7 +29,7 @@ function dice() {
 function pickOneProfile() {
   grep -F ' (stable)' |
     grep -v -F -e '/split-usr' -e '23.0/no-multilib/hardened/systemd' |
-    grep -v -F -e '/clang' -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
+    grep -v -F -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
     shuf -n 1 |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s
@@ -329,7 +329,7 @@ function CompileMakeConf() {
 LC_MESSAGES=C
 PORTAGE_TMPFS="/dev/shm"
 
-# set each explicitely to tweak only CFLAGS later e.g. for gcc-14
+# set each explicitely to tweak (only) CFLAGS in job.sh e.g. for gcc-14
 CFLAGS="$cflags"
 CXXFLAGS="$cflags"
 FCFLAGS="$cflags"
@@ -350,7 +350,7 @@ ACCEPT_RESTRICT="-fetch"
 NO_COLOR="true"
 
 FEATURES="xattr -news"
-EMERGE_DEFAULT_OPTS="--verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
+EMERGE_DEFAULT_OPTS="--newuse --verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 CLEAN_DELAY=0
 PKGSYSTEM_ENABLE_FSYNC=0
@@ -541,7 +541,8 @@ function CreateBacklogs() {
 
   cat <<EOF >>$bl.1st
 @world
-%USE='-mpi -opencl' emerge --deep=0 -uU =\$(portageq best_visible / sys-devel/gcc)
+%perl-cleaner --all
+%USE='-mpi -opencl' emerge -1 --deep=0 --update --changed-use --newuse =\$(portageq best_visible / sys-devel/gcc)
 EOF
 }
 
@@ -642,11 +643,11 @@ echo "#setup pfl" | tee /var/tmp/tb/task
 USE="-network-cron" emerge -u app-portage/pfl
 
 # sam_
-if [[ $((RANDOM % 32)) -eq 0 ]]; then
+if [[ $((RANDOM % 16)) -eq 0 ]]; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
   emerge -u dev-build/slibtool
-  cat << EOF2 >>/etc/portage/make.conf
+  cat <<EOF2 >>/etc/portage/make.conf
 
 LIBTOOL="rdlibtool"
 MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
@@ -666,7 +667,7 @@ fi
 
 date
 echo "#setup backlog" | tee /var/tmp/tb/task
-# sort is needed if a package is in several repositories
+# "sort -u" is needed if a package is in several repositories
 qsearch --all --nocolor --name-only --quiet | grep -v -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
 
 date
@@ -862,15 +863,12 @@ set -euf
 echo "# start dryrun"
 EOF
 
-  # do not waste time to update the current gcc:slot if gcc:slot+1 is visible
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 cat /var/tmp/tb/task
-
 echo "-------"
-USE="-mpi -opencl" emerge -uU =\$(portageq best_visible / sys-devel/gcc) --pretend --deep=0
-
+USE="-mpi -opencl" emerge -1 --deep=0 --update --changed-use --newuse =\$(portageq best_visible / sys-devel/gcc) --pretend
 echo "-------"
-emerge --newuse -uU @world --pretend
+emerge --update --changed-use --newuse @world --pretend
 EOF
 
   chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
