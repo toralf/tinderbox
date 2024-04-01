@@ -1,0 +1,7 @@
+# package.mask/60gcc
+#
+
+
+# too much cpu cycles for left-over packages
+<sys-devel/clang-17.0.6                                 # DICE: llvm
+<sys-devel/llvm-17.0.6                                  # DICE: llvm
