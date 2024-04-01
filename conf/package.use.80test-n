@@ -1,4 +1,6 @@
 # package.use/80test-n
 #
 
-# if FEATURES=test is NOT set then these USE flags helps to let setup succeed
+# if FEATURES=test is NOT set then these USE flags are NOT wanted
+
+dev-libs/glib                       -gtk-doc

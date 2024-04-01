@@ -3,6 +3,7 @@
 #
 # setup issues
 #
+gtk-doc
 introspection
 mono
 rdoc
