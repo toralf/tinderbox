@@ -50,7 +50,7 @@ function CreateCgroup() {
   echo "16G" >$name/memory.swap.max
 }
 
-function KillCgroup() {
+function RemoveCgroup() {
   local name=$cgdomain/${mnt##*/}
 
   # reap our cgroup dir, the rmdir is racy and might fail, that is ok
@@ -66,7 +66,7 @@ function Exit() {
   if [[ -d $lock_dir ]]; then
     rmdir "$lock_dir"
   fi
-  KillCgroup
+  RemoveCgroup
   exit $rc
 }
 
