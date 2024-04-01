@@ -29,7 +29,7 @@ function dice() {
 function pickOneProfile() {
   grep -F ' (stable)' |
     grep -v -F -e '/split-usr' -e '23.0/no-multilib/hardened/systemd' |
-    grep -v -F -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
+    grep -v -F -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
     shuf -n 1 |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s
@@ -470,7 +470,11 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
-  cpconf $tbhome/tb/conf/package.*.??gcc
+  if [[ $profile =~ "/llvm" ]]; then
+    cpconf $tbhome/tb/conf/package.*.??llvm
+  else
+    cpconf $tbhome/tb/conf/package.*.??gcc
+  fi
 
   # dice topics tagged with "# DICE: <topic> <m> <N>" with an m/N chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
@@ -542,14 +546,23 @@ function CreateBacklogs() {
   cat <<EOF >>$bl.1st
 @world
 %perl-cleaner --all
+EOF
+
+  if [[ $profile =~ "/llvm" ]]; then
+    cat <<EOF >>$bl.1st
+%emerge -1 --deep=0 --update --changed-use --newuse sys-devel/clang sys-devel/llvm
+EOF
+  else
+    cat <<EOF >>$bl.1st
 %USE='-mpi -opencl' emerge -1 --deep=0 --update --changed-use --newuse =\$(portageq best_visible / sys-devel/gcc)
 EOF
+  fi
 }
 
 function CreateSetupScript() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  if dice 1 2; then
+  if dice 1 4; then
     echo "$(date)   use host kernel ..."
     local kv
     kv=$(realpath /usr/src/linux)
@@ -868,7 +881,11 @@ EOF
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 cat /var/tmp/tb/task
 echo "-------"
-USE="-mpi -opencl" emerge -1 --deep=0 --update --changed-use --newuse =\$(portageq best_visible / sys-devel/gcc) --pretend
+if [[ $profile =~ "/llvm" ]]; then
+  emerge -1 --deep=0 --update --changed-use --newuse sys-devel/clang sys-devel/llvm --pretend
+else
+  USE="-mpi -opencl" emerge -1 --deep=0 --update --changed-use --newuse =\$(portageq best_visible / sys-devel/gcc) --pretend
+fi
 echo "-------"
 emerge --update --changed-use --newuse @world --pretend
 EOF
