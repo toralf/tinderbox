@@ -12,8 +12,6 @@ app-emacs/navi2ch
 # https://bugs.gentoo.org/908593
 net-print/foo2zjs
 
-# do not waste cpu cycles for left-over packages
+# too much cpu cycles for left-over packages
 <sys-devel/clang-17.0.6                                 # DICE: llvm
-<sys-devel/clang-runtime-17.0.6                         # DICE: llvm
 <sys-devel/llvm-17.0.6                                  # DICE: llvm
-<sys-devel/llvm-common-17.0.6                           # DICE: llvm

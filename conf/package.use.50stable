@@ -1,0 +1,4 @@
+# package.use/50stable
+#
+
+*/*                                 RUBY_TARGETS:           ruby31

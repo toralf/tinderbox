@@ -334,7 +334,7 @@ __tinderbox_checkEOL() {
 
 case ${EBUILD_PHASE} in
   setup|unpack|prepare|configure|compile)
-    while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 31 ]]; do
+    while [[ $(awk '{ print $4 }' /proc/loadavg | cut -f 1 -d '/') -ge 32 || $(cut -f 1 -d '.' /proc/loadavg) -ge 31 ]]; do
       __tinderbox_checkEOL
       touch /var/tmp/tb/WAIT
       sleep 20

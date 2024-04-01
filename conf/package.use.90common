@@ -2,10 +2,12 @@
 #
 
 
-*/*                                 POSTGRES_TARGETS:       postgres16
+#######################################################################
+#
+# tinderbox scope
+#
 */*                                 QEMU_SOFTMMU_TARGETS:   x86_64
 */*                                 QEMU_USER_TARGETS:      x86_64
-*/*                                 RUBY_TARGETS:           ruby31 ruby32 ruby33
 */*                                 VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi
 
 # 2x faster compile
@@ -66,8 +68,9 @@ sys-devel/bc                        readline -libedit -static
 # tar needs "xz"
 app-arch/libarchive                 bzip2 lzma zstd
 
-# su (alternative would be sys-apps/shadow)
+# su provider
 sys-apps/util-linux                 su suid
+sys-apps/shadow                     -su
 
 # no install
 sys-kernel/gentoo-kernel            -initramfs -kernel-install
@@ -76,7 +79,8 @@ sys-kernel/installkernel            -dracut
 sys-kernel/vanilla-kernel           -initramfs -kernel-install
 
 #######################################################################
-# setup blocker
+#
+# avoid setup blocker
 #
 dev-libs/libpcre                    -libedit            # DICE: setup_pcre 9 10
 dev-libs/libpcre2                   -libedit            # DICE: setup_pcre 9 10
@@ -89,11 +93,7 @@ sys-devel/llvm                      -xar                # DICE: setup_llvm 4 5
 sys-process/procps                  ncurses             # DICE: setup_procps 4 5
 
 #######################################################################
-# gcc14
 #
-media-libs/gstreamer                -caps               # DICE:
-
-#######################################################################
 # too rarely built otherwise
 #
 
