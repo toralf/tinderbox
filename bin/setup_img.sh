@@ -557,6 +557,8 @@ function CreateSetupScript() {
     (
       cd ./usr/src
       ln -s $(basename $kv) linux
+      cd linux
+      make clean
     )
     echo 'sys-kernel/vanilla-sources-9999' >./etc/portage/profile/package.provided
   fi
