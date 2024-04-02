@@ -4,5 +4,6 @@
 
 #######################################################################
 #
-# global settings
+# avoid setup blocker
 #
+sys-devel/llvm                      -xar                # DICE: setup_llvm 4 5

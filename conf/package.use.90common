@@ -6,6 +6,7 @@
 #
 # tinderbox scope
 #
+*/*                                 POSTGRES_TARGETS:       postgres16
 */*                                 QEMU_SOFTMMU_TARGETS:   x86_64
 */*                                 QEMU_USER_TARGETS:      x86_64
 */*                                 VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi
@@ -69,8 +70,8 @@ sys-devel/bc                        readline -libedit -static
 app-arch/libarchive                 bzip2 lzma zstd
 
 # su provider
-sys-apps/util-linux                 su suid
 sys-apps/shadow                     -su
+sys-apps/util-linux                 su suid
 
 # no install
 sys-kernel/gentoo-kernel            -initramfs -kernel-install
@@ -86,15 +87,14 @@ dev-libs/libpcre                    -libedit            # DICE: setup_pcre 9 10
 dev-libs/libpcre2                   -libedit            # DICE: setup_pcre 9 10
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
 sys-apps/shadow                     pam -cracklib       # DICE: setup_pam 9 10
-sys-apps/util-linux                 su pam              # DICE: setup_pam 9 10
-sys-devel/llvm                      -xar                # DICE: setup_llvm 4 5
+sys-apps/util-linux                 pam                 # DICE: setup_pam 9 10
 
-# (unicode)
-sys-process/procps                  ncurses             # DICE: setup_procps 4 5
+# would be better in profiles/base/package.use.force
+sys-process/procps                  ncurses
 
 #######################################################################
 #
-# too rarely built otherwise
+# too rarely meet build dep otherwise
 #
 
 # FF

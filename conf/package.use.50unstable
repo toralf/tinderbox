@@ -2,7 +2,7 @@
 #
 
 
-*/*                                 POSTGRES_TARGETS:       postgres16
+*/*                                 RUBY_TARGETS:           ruby33
 
 # requested by sam_
 sys-devel/gcc                       debug               # DICE: gcc-debug

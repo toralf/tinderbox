@@ -1,22 +1,11 @@
-# use.mask
+# profile/use.mask
 #
-
-
-#######################################################################
 #
 # mask even if set in an ebuild as default
 #
 
 cdinstall
 pax-kernel
-symlink
-valgrind
 
 # ionen: https://bugs.gentoo.org/846941
 crossdev-mingw
-
-
-#######################################################################
-#
-# temp settings
-#

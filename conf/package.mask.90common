@@ -11,6 +11,9 @@ sys-fs/static-dev
 # calls for trouble by sneaking into PATH
 dev-util/plan9port
 
+# Actually replace /etc/resolv.conf with a symlink
+net-dns/resolvconf-symlink
+
 # outdated, br0ken, breaks rebuild, old kernel, needs special kernel config, needs kernel module build w/ same GCC version, clang cannot deal with it, ...
 */s6
 app-admin/ryzen_smu

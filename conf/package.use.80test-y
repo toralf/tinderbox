@@ -14,10 +14,12 @@ dev-libs/openssl-compat             -sctp
 dev-libs/thrift                     libevent ssl
 dev-libs/weston                     lcms xwayland
 dev-qt/qtbase                       icu sql sqlite
+dev-qt/qtmultimedia                 qml
 dev-util/strace                     -unwind
 media-gfx/imagemagick               corefonts truetype
 media-libs/gd                       png
 media-libs/harfbuzz                 icu
+media-libs/leptonica                jpeg
 media-libs/libheif                  go libde265
 media-libs/soxr                     examples
 media-libs/tiff                     jpeg

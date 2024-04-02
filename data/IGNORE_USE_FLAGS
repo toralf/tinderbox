@@ -5,8 +5,9 @@
 #
 introspection
 mono
-rdoc
-tools
+ruby31
+ruby32
+ruby33
 unwind
 vala
 #
@@ -65,7 +66,6 @@ objc++
 objc-gc
 oci8
 pax-kernel
-perftools
 prefix
 s6
 sanitize
@@ -78,6 +78,4 @@ static-libs
 systemd
 system-wlroots
 test
-threads
-vanilla
 x32
