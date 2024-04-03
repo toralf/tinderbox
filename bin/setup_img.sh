@@ -26,21 +26,27 @@ function dice() {
 # [11:27:13 pm] <@dilfridge> switching from/to hardened, and switching from multilib to non-multilib, yes
 # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
 # [11:28:34 pm] <@dilfridge> if you enable hardened, it probably makes sense to "emerge -1 binutils gcc glibc" first and afterwards do emptytree
-function pickOneProfile() {
-  grep -F ' (stable)' |
-    grep -v -F -e '/split-usr' -e '23.0/no-multilib/hardened/systemd' |
-    grep -v -F -e '/musl' -e '/prefix' -e '/selinux' -e '/x32' |
-    shuf -n 1 |
-    awk '{ print $2 }' |
-    cut -f 4- -d '/' -s
-}
 
 # helper of InitOptions()
 function DiceTheProfile() {
-  local all
-  all=$(eselect profile list)
-
-  profile=$(grep -F '/23.0' <<<$all | pickOneProfile)
+  profile=$(
+    eselect profile list |
+      grep -F '/23.0' |
+      grep -v -F -e '23.0/no-multilib/hardened/systemd' -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
+      awk '{ print $2 }' |
+      cut -f 4- -d '/' -s |
+      if dice 3 4; then
+        grep -v -e '/musl'
+      else
+        grep '.'
+      fi |
+      if dice 1 2; then
+        grep -v -e '/llvm'
+      else
+        grep '.'
+      fi |
+      shuf -n 1
+  )
 }
 
 # helper of main()
@@ -66,6 +72,11 @@ function InitOptions() {
   useflagsfrom=""
 
   DiceTheProfile
+
+  # no games, it is not matured enough
+  if [[ $profile =~ "/musl" ]]; then
+    return
+  fi
 
   if dice 1 5; then
     cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
@@ -182,7 +193,7 @@ function getStage3Filename() {
   fi
 
   prefix=$(tr '/' '-' <<<$prefix)
-  if [[ ! $profile =~ "/systemd" ]]; then
+  if [[ ! $profile =~ "/musl" && ! $profile =~ "/systemd" ]]; then
     prefix+="-openrc"
   fi
 
@@ -378,6 +389,10 @@ EOF
     # shellcheck disable=SC2016
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >>./etc/portage/make.conf
   fi
+
+  if [[ $profile =~ "/musl" ]]; then
+    echo 'RUSTFLAGS="-C target-feature=-crt-static"' >>./etc/portage/make.conf
+  fi
 }
 
 # helper of CompilePortageFiles()
@@ -385,7 +400,7 @@ function cpconf() {
   # shellcheck disable=SC2045
   for f in $(ls $* 2>/dev/null); do
     # shellcheck disable=SC2034
-    read -r dummy suffix filename <<<$(tr '.' ' ' <<<$(basename $f))
+    read -r package suffix filename <<<$(tr '.' ' ' <<<$(basename $f))
     # e.g.: package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
     chmod a+r ./etc/portage/package.$suffix/$filename
@@ -454,6 +469,18 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??stable
   fi
 
+  if [[ $profile =~ "/llvm" ]]; then
+    cpconf $tbhome/tb/conf/package.*.??llvm
+    cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
+  else
+    cpconf $tbhome/tb/conf/package.*.??gcc
+    cp $tbhome/tb/conf/bashrc ./etc/portage/
+  fi
+
+  if [[ $profile =~ '/musl' ]]; then
+    cpconf $tbhome/tb/conf/package.*.??musl
+  fi
+
   if [[ $profile =~ '/systemd' ]]; then
     cpconf $tbhome/tb/conf/package.*.??systemd
   else
@@ -462,19 +489,11 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??common
 
-  cp $tbhome/tb/conf/bashrc ./etc/portage/
-
   if [[ $abi3264 == "y" ]]; then
     cpconf $tbhome/tb/conf/package.*.??abi32+64
   fi
 
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
-
-  if [[ $profile =~ "/llvm" ]]; then
-    cpconf $tbhome/tb/conf/package.*.??llvm
-  else
-    cpconf $tbhome/tb/conf/package.*.??gcc
-  fi
 
   # dice topics tagged with "# DICE: <topic> <m> <N>" with an m/N chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
@@ -589,13 +608,15 @@ echo "#setup user" | tee /var/tmp/tb/task
 groupadd -g $(id -g tinderbox) tinderbox
 useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) -G \$(id -g portage) tinderbox
 
-date
-echo "#setup locale" | tee /var/tmp/tb/task
-echo "en_US ISO-8859-1" >>/etc/locale.gen
-if [[ $testfeature == "y" ]]; then
-  echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
+if [[ ! $profile =~ "/musl" ]]; then
+  date
+  echo "#setup locale" | tee /var/tmp/tb/task
+  echo "en_US ISO-8859-1" >>/etc/locale.gen
+  if [[ $testfeature == "y" ]]; then
+    echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
+  fi
+  locale-gen
 fi
-locale-gen
 
 date
 echo "#setup timezone" | tee /var/tmp/tb/task
