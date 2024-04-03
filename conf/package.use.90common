@@ -6,10 +6,11 @@
 #
 # tinderbox scope
 #
-*/*                                 POSTGRES_TARGETS:       postgres16
-*/*                                 QEMU_SOFTMMU_TARGETS:   x86_64
-*/*                                 QEMU_USER_TARGETS:      x86_64
-*/*                                 VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi
+*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres15
+*/*         POSTGRES_TARGETS:       postgres16          # DICE: postgres16
+*/*         QEMU_SOFTMMU_TARGETS:   x86_64
+*/*         QEMU_USER_TARGETS:      x86_64
+*/*         VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi
 
 # 2x faster compile
 */*                                 jumbo-build

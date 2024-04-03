@@ -2,7 +2,8 @@
 #
 
 
-*/*                                 RUBY_TARGETS:           ruby33
+*/*         RUBY_TARGETS:           ruby32              # DICE: ruby32
+*/*         RUBY_TARGETS:           ruby33              # DICE: ruby33
 
 # requested by sam_
 sys-devel/gcc                       debug               # DICE: gcc-debug
