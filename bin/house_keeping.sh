@@ -58,13 +58,13 @@ fi
 
 source $(dirname $0)/lib.sh
 
-# stage3 are relased weekly, but keep those from the week before too
+# stage3 are released weekly, keep those from the last 2 weeks
 latest=~tinderbox/distfiles/latest-stage3.txt
 if gpg --verify $latest &>/dev/null; then
   find ~tinderbox/distfiles/ -maxdepth 1 -name 'stage3-amd64-*.tar.xz' -atime +15 |
     while read -r stage3; do
       if ! grep -q "/$(basename $stage3) " $latest; then
-        rm $stage3{,.asc}
+        rm -f $stage3{,.asc}
       fi
     done
 fi
