@@ -672,7 +672,7 @@ fi
 
 date
 echo "#setup tools" | tee /var/tmp/tb/task
-emerge -u app-arch/xz-utils app-portage/portage-utils www-client/pybugz sys-devel/bc
+emerge -u app-arch/xz-utils app-portage/portage-utils www-client/pybugz
 
 date
 echo "#setup pfl" | tee /var/tmp/tb/task
