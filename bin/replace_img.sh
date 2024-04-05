@@ -120,10 +120,12 @@ while :; do
     if sudo $(dirname $0)/setup_img.sh -s &>$tmpfile; then
       img=$(awk '/ setup done for / { print $10 }' $tmpfile)
       mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
+      date
       echo " $img"
     else
       rc=$?
       img=$(awk '/ setup failed for / { print $10 }' $tmpfile)
+      date
       echo " $img failed rc=$rc"
       cat $tmpfile | mail -s "NOTICE: setup failed $img rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
       exit $rc
