@@ -24,11 +24,8 @@ sys-apps/nix                        -etc_profile
 # https pull/fetch would fail otherwise due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
-# needed for ::gentoo
+# needed for ::gentoo repository
 net-misc/curl                       ssl
-
-# https://bugs.gentoo.org/831346
-sys-kernel/installkernel            -grub
 
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
@@ -42,42 +39,35 @@ dev-lang/python                     ssl
 # required by www-client/pybugz
 dev-lang/python                     -libedit readline
 
-# dracut would require "xattr" for coreutils
-sys-kernel/gentoo-kernel-bin        -initramfs
-
 # needs hours instead seconds
-dev-libs/gf2x                       -custom-tune
+dev-libs/gf2x                       -custom-tune        # DICE: gf2x 9 10
 
 # takes 2 hours insteads seconds
-app-doc/gimp-help                   -nls
+app-doc/gimp-help                   -nls                # DICE: gimphelp 9 10
 
-# failed otherwise in phase "pretend"
+# failed otherwise in ebuild phase "pretend"
 net-misc/openssh                    -sctp
 
 # otherwise: USE=secureboot enabled but SECUREBOOT_SIGN_KEY and/or SECUREBOOT_SIGN_CERT not set.
 */*                                 -secureboot
 
-# no, not at all
-net-misc/openssh-contrib            -hpn
-
 # too much deps would be build already at setup, lowering coverity
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -gui
 
-# needed by tb scripts and the kernel
-sys-devel/bc                        readline -libedit -static
+# default compressor for tar and log files
+app-arch/libarchive                 lzma
 
-# tar needs "xz"
-app-arch/libarchive                 bzip2 lzma zstd
+# su provider, the later overwrites the former
+sys-apps/shadow                     su
+sys-apps/util-linux                 -su -suid
+sys-apps/shadow                     -su                 # DICE: su_provider 9 10
+sys-apps/util-linux                 su suid             # DICE: su_provider 9 10
 
-# su provider
-sys-apps/shadow                     -su
-sys-apps/util-linux                 su suid
-
-# no install
+# no install + https://bugs.gentoo.org/831346
 sys-kernel/gentoo-kernel            -initramfs -kernel-install
 sys-kernel/gentoo-kernel-bin        -initramfs -kernel-install
-sys-kernel/installkernel            -dracut
+sys-kernel/installkernel            -dracut -grub
 sys-kernel/vanilla-kernel           -initramfs -kernel-install
 
 #######################################################################
@@ -89,9 +79,6 @@ dev-libs/libpcre2                   -libedit            # DICE: setup_pcre 9 10
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
 sys-apps/shadow                     pam -cracklib       # DICE: setup_pam 9 10
 sys-apps/util-linux                 pam                 # DICE: setup_pam 9 10
-
-# would be better in profiles/base/package.use.force
-sys-process/procps                  ncurses
 
 #######################################################################
 #

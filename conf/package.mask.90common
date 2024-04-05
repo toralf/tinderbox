@@ -53,9 +53,7 @@ sci-libs/libint:2                                       # DICE: long_compile_tim
 sci-libs/rocBLAS                                        # DICE: long_compile_time_roc 15 16
 sci-libs/rocFFT                                         # DICE: long_compile_time_roc 15 16
 sci-libs/tensorflow                                     # DICE: long_compile_time_tef 15 16
-
-# way too long
-www-client/chromium
+www-client/chromium                                     # DICE: chromium 9 10
 
 # wants older compiler and is special
 dev-util/nvidia-cuda-toolkit
@@ -64,18 +62,17 @@ dev-util/nvidia-cuda-toolkit
 #######################################################################
 # temp
 
-# hangs
-dev-lang/lfe
-
 # https://bugs.gentoo.org/917495
 dev-lisp/sbcl
 dev-scheme/gambit
 
 # https://bugs.gentoo.org/888779
 dev-util/coccinelle
+
 dev-util/trace-cmd
 
 # https://bugs.gentoo.org/921309
 dev-db/mysql-connector-c++
-dev-ruby/grpc
+
+# https://bugs.gentoo.org/789486
 sci-libs/ignition-math
