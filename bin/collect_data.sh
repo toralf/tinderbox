@@ -31,7 +31,7 @@ find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + |
     next unless ($u =~ m/GiB/);
     my $s = $F[0];                 # size (integer)
     my $p = $F[2];                 # package (string)
-    $h{$p}->{$s} = 1 if ($s >= 4);
+    $h{$p}->{$s} = 1 if ($s >= 4.0);
 
     END {
       foreach my $p (sort keys %h) {

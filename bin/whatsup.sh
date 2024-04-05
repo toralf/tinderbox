@@ -46,16 +46,15 @@ function check_history() {
 
 # whatsup.sh -o
 #
-#  compl fail bgo  day backlog .upd .1st wp lcs 11#12 locked
-#   1124    6   0  0.9   17802  186    0  . lc  ~/run/17.1-j5-20230602-204005
-#   7020   56   2  6.7   12988   68    0  . lc  ~/run/17.1_desktop-j5-20230527-234505
-#   4612   36   2  5.0   15954  116    0  . lc  ~/run/17.1_desktop_gnome-j5-20230529-171537
+# compl fail bgo  day backlog .upd .1st lck 11#11 locked  +++  Fri Apr  5 19:37:03 UTC 2024
+#  7188   95   1  6.6   12348   75    - lc  ~/run/23.0_desktop_gnome-20240330-044003
+#   171    1   -  0.2   16968    -    2 lc  ~/run/23.0_desktop_gnome-20240405-154537
 function Overall() {
   local locked
   locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
   local all
   all=$(wc -w <<<$images)
-  echo "compl fail bgo  day backlog .upd .1st state $locked#$all locked  +++  $(date)"
+  echo "compl fail bgo  day backlog .upd .1st lck $locked#$all locked  +++  $(date)"
 
   for i in $images; do
     local days
@@ -65,44 +64,18 @@ function Overall() {
     if [[ $bgo == "0" ]]; then
       bgo="-"
     fi
-    local compl
-    if ! compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null); then
-      compl=0
-    fi
+    local compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log || echo "0")
 
     # count emerge failures based on distinct package name+version+release
     # example of an issue directory name: 20200313-044024-net-analyzer_iptraf-ng-1.1.4-r3
-    local fail=0
-    if [[ -d $i/var/tmp/tb/issues ]]; then
-      fail=$(ls -1 $i/var/tmp/tb/issues | while read -r j; do basename $j; done | cut -f3- -d'-' -s | sort -u | wc -w)
-    fi
-    if [[ $fail == "0" ]]; then
-      fail="-"
-    fi
-
-    local bl=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog || echo 0)
-    local bl1=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.1st || echo 0)
-    if [[ $bl1 == "0" ]]; then
-      bl1="-"
-    fi
-    local blu=$(wc -l 2>/dev/null <$i/var/tmp/tb/backlog.upd || echo 0)
-    if [[ $blu == "0" ]]; then
-      blu="-"
-    fi
+    local fail=$(ls -1 $i/var/tmp/tb/issues | while read -r j; do basename $j; done | cut -f 3- -d'-' -s | sort -u | wc -w || echo "0")
+    local bl=$(wc -l <$i/var/tmp/tb/backlog || echo "0")
+    local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st || echo "0")
+    local blu=$(wc -l <$i/var/tmp/tb/backlog.upd || echo "0")
 
     # "l" image is locked
     # "c" image is under cgroup control
     local flags=""
-
-    # result of last run of @world and @preserved-rebuild respectively:
-    #
-    # upper case: an error occurred
-    # lower case: just a package failed
-    # "." not yet run
-    # " " ok
-    check_history $i/var/tmp/tb/@world.history w
-    check_history $i/var/tmp/tb/@preserved-rebuild.history p
-
     if __is_locked $i; then
       flags+="l"
     else
@@ -121,19 +94,18 @@ function Overall() {
       flags+="E"
     elif [[ -f $i/var/tmp/tb/STOP ]]; then
       flags+="S"
-    elif grep -q "^STOP" $i/var/tmp/tb/backlog* 2>/dev/null; then
+    elif grep -q "^STOP" $i/var/tmp/tb/backlog*; then
       flags+="s"
-    elif grep -q "^INFO" $i/var/tmp/tb/backlog* 2>/dev/null; then
+    elif grep -q "^INFO" $i/var/tmp/tb/backlog*; then
       flags+="i"
     else
       flags+=" "
     fi
 
-    local b
-    b=$(basename $i)
+    local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img' # shorten output
-    printf "%5i %4s %3s %4.1f %7i %4s %4s %5s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" 2>/dev/null
+    printf "%5i %4s %3s %4.1f %7i %4s %4s %3s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" | sed -e 's, 0 , - ,g'
   done
 }
 
@@ -145,8 +117,7 @@ function Tasks() {
   for i in $images; do
     local tsk=$i/var/tmp/tb/task
     if printImageName $i && ! __is_stopped $i && [[ -s $tsk ]]; then
-      local task
-      task=$(cat $tsk)
+      local task=$(cat $tsk)
 
       set +e
       ((delta = EPOCHSECONDS - $(stat -c %Z $tsk)))
