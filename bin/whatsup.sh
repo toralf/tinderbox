@@ -52,18 +52,12 @@ function check_history() {
 function Overall() {
   local locked
   locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
-  local all
-  all=$(wc -w <<<$images)
+  local all=$(wc -w <<<$images)
   echo "compl fail bgo  day backlog .upd .1st lck $locked#$all locked  +++  $(date)"
 
   for i in $images; do
-    local days
-    days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0") # the printf rounds to %.1f
-    local bgo
-    bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
-    if [[ $bgo == "0" ]]; then
-      bgo="-"
-    fi
+    local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0")
+    local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null) || echo "0")
     local compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log || echo "0")
 
     # count emerge failures based on distinct package name+version+release
