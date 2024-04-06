@@ -325,19 +325,18 @@ __tinderbox_meson() {
   ) &>> /var/tmp/sam.txt
 }
 
-# from me: bail out if load is too high
+# tinderbox: If load is too high, then wait. Or bail out if requested.
 __tinderbox_checkEOL() {
   if [[ -f /var/tmp/tb/EOL || -f /var/tmp/tb/STOP ]]; then
     exit 42
   fi
 }
-
 case ${EBUILD_PHASE} in
   setup|unpack|prepare|configure|compile)
-    while [[ $(awk '{ print $4 }' /proc/loadavg | cut -f 1 -d '/') -ge 32 || $(cut -f 1 -d '.' /proc/loadavg) -ge 31 ]]; do
+    while [[ $(awk '{ print $4 }' /proc/loadavg | cut -f 1 -d '/') -ge 32 ]]; do
       __tinderbox_checkEOL
       touch /var/tmp/tb/WAIT
-      sleep 20
+      sleep 10
       rm /var/tmp/tb/WAIT
     done
     __tinderbox_checkEOL
