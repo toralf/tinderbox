@@ -1,7 +1,4 @@
-asciidoctor
 Clang 16 testing:
 emerge killed=15
-ERROR: .* failed (pretend phase):
-ERROR: .* failed (setup phase):
 The present kernel disabled CONFIG_MODULES.
 This compiler lacks GCC plug-in support

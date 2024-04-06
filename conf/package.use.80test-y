@@ -8,6 +8,7 @@ app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
 app-text/doxygen                    doc
 dev-db/mariadb                      extraengine
+dev-libs/glib                       gtk-doc
 dev-libs/libzip                     tools
 dev-libs/openssl                    -sctp
 dev-libs/openssl-compat             -sctp
