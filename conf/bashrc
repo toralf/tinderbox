@@ -1,3 +1,5 @@
+#######################################################################
+
 # from sam_ : meson hook
 post_src_install() {
   (
@@ -5,7 +7,7 @@ post_src_install() {
       echo "${CATEGORY}/${PF}: Found ICE in config.log?!"
     fi
 
-    if [[ -f "${S}"/meson.build ]] && ! grep -q "dev-util/meson" <<< "${BDEPEND}" ; then
+    if [[ -f "${S}"/meson.build ]] && ! grep -q "dev-build/meson" <<< "${BDEPEND}" ; then
       echo "${CATEGORY}/${PF}: meson.build found but ebuild doesn't use meson?"
     fi
 
@@ -38,6 +40,8 @@ post_src_install() {
     fi
   ) &>> /var/tmp/sam.txt
 }
+
+#######################################################################
 
 # tinderbox: If load is too high, then wait. Or bail out if requested.
 __tinderbox_checkEOL() {

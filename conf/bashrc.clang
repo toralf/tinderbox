@@ -291,7 +291,7 @@ __tinderbox_meson() {
       echo "${CATEGORY}/${PF}: Found ICE in config.log?!"
     fi
 
-    if [[ -f "${S}"/meson.build ]] && ! grep -q "dev-util/meson" <<< "${BDEPEND}" ; then
+    if [[ -f "${S}"/meson.build ]] && ! grep -q "dev-build/meson" <<< "${BDEPEND}" ; then
       echo "${CATEGORY}/${PF}: meson.build found but ebuild doesn't use meson?"
     fi
 
@@ -324,6 +324,8 @@ __tinderbox_meson() {
     fi
   ) &>> /var/tmp/sam.txt
 }
+
+#######################################################################
 
 # tinderbox: If load is too high, then wait. Or bail out if requested.
 __tinderbox_checkEOL() {
