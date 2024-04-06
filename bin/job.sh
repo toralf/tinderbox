@@ -815,17 +815,12 @@ function RunAndCheck() {
       Finish 9 "KILLed" $tasklog
     else
       pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
-      if [[ $(wc -w <<<$pkg) -eq 1 ]]; then
-        if GetPkglog; then
-          createIssueDir
-          echo "$pkg - emerge killed=$signal" >$issuedir/title
-          WorkAtIssue
-        fi
-        Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
-      else
-        Mail "NOTICE: killed=$signal  task=$task  too much: pkg=$pkg" $tasklog
-        pkg=""
+      if GetPkglog; then
+        createIssueDir
+        echo "$pkg - emerge killed=$signal" >$issuedir/title
+        WorkAtIssue
       fi
+      Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     fi
 
   elif [[ $rc -eq 124 ]]; then
