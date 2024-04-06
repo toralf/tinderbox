@@ -581,20 +581,6 @@ EOF
 function CreateSetupScript() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  if dice 1 4; then
-    echo "$(date)   use host kernel ..."
-    local kv
-    kv=$(realpath /usr/src/linux)
-    rsync -aq $kv ./usr/src
-    (
-      cd ./usr/src
-      ln -s $(basename $kv) linux
-      cd linux
-      make clean
-    )
-    echo 'sys-kernel/vanilla-sources-9999' >./etc/portage/profile/package.provided
-  fi
-
   cat <<EOF >./var/tmp/tb/setup.sh
 #!/bin/bash
 # set -x
@@ -664,11 +650,9 @@ emerge -u mail-mta/ssmtp
 rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the bind mounted file
 USE="-kerberos" emerge -u mail-client/s-nail
 
-if [[ ! -e /usr/src/linux ]]; then
-  date
-  echo "#setup kernel" | tee /var/tmp/tb/task
-  emerge -u sys-kernel/gentoo-kernel-bin
-fi
+date
+echo "#setup kernel" | tee /var/tmp/tb/task
+emerge -u sys-kernel/gentoo-kernel-bin
 
 date
 echo "#setup tools" | tee /var/tmp/tb/task
