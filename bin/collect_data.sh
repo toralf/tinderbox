@@ -80,7 +80,10 @@ mv $tmpfile ~tinderbox/img/needed.txt
 
 # _sam: bashrc.clang hook
 #
-if tar -C ~tinderbox/img/ -cf $tmpfile ./*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz; then
+if (
+  cd ~tinderbox/img/
+  tar -cf $tmpfile ./*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz
+); then
   chmod a+r $tmpfile
   mv $tmpfile ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
 fi
