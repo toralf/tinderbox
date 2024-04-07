@@ -32,7 +32,7 @@ function DiceTheProfile() {
   profile=$(
     eselect profile list |
       grep -F '/23.0' |
-      grep -v -F -e '23.0/no-multilib/hardened/systemd' -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
+      grep -v -F -e '23.0/no-multilib/hardened' -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
       awk '{ print $2 }' |
       cut -f 4- -d '/' -s |
       if dice 3 4; then
