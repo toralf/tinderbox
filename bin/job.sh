@@ -869,8 +869,9 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     local opts=""
     if [[ $task =~ "@world" ]]; then
-      opts+=" --update --changed-use --newuse"
+      opts+=" --update --changed-use"
       if [[ ! $task =~ " --backtrack=50" ]]; then
+        # it it was needed in the past already then skip attempt to try without it
         if grep -q '@world --backtrack=' $taskfile.history; then
           task+=" --backtrack=50"
         fi
@@ -1003,9 +1004,9 @@ function syncRepo() {
       sort -u >/tmp/syncRepo.upd
 
     if [[ -s /tmp/syncRepo.upd ]]; then
-      # mix repo changes and backlog together
+      # mix repo changes and backlog alltogether
       sort -u /tmp/syncRepo.upd /var/tmp/tb/backlog.upd | shuf >/tmp/backlog.upd
-      # use cp to preserve target file perms
+      # cp preserves file perms
       cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
     fi
   fi
