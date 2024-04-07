@@ -1108,7 +1108,7 @@ while :; do
   echo "$task" | tee -a $taskfile.history >$taskfile
   date >$tasklog
   echo "$task" >>$tasklog
-  task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<<$task | tr -c '[:alnum:]' '_')
+  task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<<$task | tr -c '[:alnum:]' '_' | cut -c -128)
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log # no symlink here to keep its content when $tasklog is removed
   WorkOnTask
   rm $tasklog
