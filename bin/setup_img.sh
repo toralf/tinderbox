@@ -40,7 +40,7 @@ function DiceTheProfile() {
       else
         grep '.'
       fi |
-      if dice 1 2; then
+      if dice 3 4; then
         grep -v -e '/llvm'
       else
         grep '.'
@@ -135,7 +135,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ -n $useflagsfrom && $useflagsfrom != "null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
+  if [[ -n $useflagsfrom && $useflagsfrom != "/dev/null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
     echo " useflagsfrom is wrong: >>$useflagsfrom<<"
     return 1
   fi
@@ -259,15 +259,13 @@ function verifyStage3File() {
 function InitImageFromStage3() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  local stage3_list
-  local mirrors
   local stage3
   local local_stage3
+  local stage3_list="$tbhome/distfiles/latest-stage3.txt"
 
   eval $(grep -A 10 "^GENTOO_MIRRORS=" /etc/portage/make.conf | tr -d '\\\n')
-  stage3_list="$tbhome/distfiles/latest-stage3.txt"
-  mirrors=$GENTOO_MIRRORS
-  mirror_path="releases/amd64/autobuilds"
+  local mirrors=$GENTOO_MIRRORS
+  local mirror_path="releases/amd64/autobuilds"
 
   getStage3List
   getStage3Filename
@@ -276,7 +274,7 @@ function InitImageFromStage3() {
   verifyStage3File
 
   CreateImageName
-  echo "$(date)   new image: $name"
+  echo "$(date)   name: $name"
   mkdir ~tinderbox/img/$name
   cd ~tinderbox/img/$name
   echo "$(date)   unpacking stage3 ..."
@@ -361,7 +359,7 @@ ACCEPT_RESTRICT="-fetch"
 NO_COLOR="true"
 
 FEATURES="xattr -news"
-EMERGE_DEFAULT_OPTS="--newuse --verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
+EMERGE_DEFAULT_OPTS="--newuse --changed-use --verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 CLEAN_DELAY=0
 PKGSYSTEM_ENABLE_FSYNC=0
@@ -384,10 +382,14 @@ EOF
     echo 'ALLOW_TEST="network"' >>./etc/portage/make.conf
   fi
 
-  # rarely b/c it yields to much different error messages for the same issue
+  # activate this rarely b/c it yields to too much different error messages for the same issue
   if dice 1 40; then
     # shellcheck disable=SC2016
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >>./etc/portage/make.conf
+  fi
+
+  if [[ $profile =~ "/llvm" ]]; then
+    echo "PORTAGE_USE_CLANG_HOOK=1" >>./etc/portage/make.conf
   fi
 
   if [[ $profile =~ "/musl" ]]; then
@@ -471,10 +473,17 @@ EOF
 
   if [[ $profile =~ "/llvm" ]]; then
     cpconf $tbhome/tb/conf/package.*.??llvm
-    cp $tbhome/tb/conf/bashrc.clang ./etc/portage/
+    cp $tbhome/tb/conf/bashrc.clang ./etc/portage/bashrc
   else
     cpconf $tbhome/tb/conf/package.*.??gcc
-    cp $tbhome/tb/conf/bashrc ./etc/portage/
+    cp $tbhome/tb/conf/bashrc ./etc/portage
+
+    # sam_ PORTAGE_USE_CLANG_HOOK
+    if [[ ! $profile =~ "/musl" ]]; then
+      if dice 1 6; then
+        cp $tbhome/tb/conf/bashrc.clang ./etc/portage
+      fi
+    fi
   fi
 
   if [[ $profile =~ '/musl' ]]; then
@@ -562,6 +571,13 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
+  # sam_ PORTAGE_USE_CLANG_HOOK
+  if [[ -f ./etc/portage/bashrc.clang ]]; then
+    cat <<EOF >>$bl.1st
+%emerge --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && echo PORTAGE_USE_CLANG_HOOK=1 >>/etc/portage/make.conf && cd /etc/portage/ && ln -sf bashrc.clang bashrc
+EOF
+  fi
+
   cat <<EOF >>$bl.1st
 @world
 %perl-cleaner --all
@@ -569,11 +585,11 @@ EOF
 
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
-%emerge -1 --deep=0 --update --changed-use --newuse sys-devel/clang sys-devel/llvm
+%emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
 EOF
   else
     cat <<EOF >>$bl.1st
-%USE='-mpi -opencl' emerge -1 --deep=0 --update --changed-use --newuse =\$(portageq best_visible / sys-devel/gcc)
+%USE='-mpi -opencl' emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
 }
@@ -887,12 +903,12 @@ EOF
 cat /var/tmp/tb/task
 echo "-------"
 if [[ $profile =~ "/llvm" ]]; then
-  emerge -1 --deep=0 --update --changed-use --newuse sys-devel/clang sys-devel/llvm --pretend
+  emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
 else
-  USE="-mpi -opencl" emerge -1 --deep=0 --update --changed-use --newuse =\$(portageq best_visible / sys-devel/gcc) --pretend
+  USE="-mpi -opencl" emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) --pretend
 fi
 echo "-------"
-emerge --update --changed-use --newuse @world --pretend
+emerge --update @world --pretend
 EOF
 
   chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
@@ -902,7 +918,7 @@ EOF
     echo
     date
     echo " +++  run dryrun once with USE flags from $useflagsfrom  +++"
-    if [[ $useflagsfrom != "null" ]]; then
+    if [[ $useflagsfrom != "/dev/null" ]]; then
       cp ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/* ./etc/portage/package.use/
     fi
     if FixPossibleUseFlagIssues 0; then
@@ -973,7 +989,7 @@ while getopts a:k:p:m:M:st:u: opt; do
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "17.1/desktop"
   s) start_it="y" ;;
   t) testfeature="$OPTARG" ;;  # "y" or "n"
-  u) useflagsfrom="$OPTARG" ;; # "null" or "~/img/17.1_desktop_systemd-20230624-014416"
+  u) useflagsfrom="$OPTARG" ;; # "/dev/null" or e.g. "~/img/17.1_desktop_systemd-20230624-014416"
   *)
     echo "unknown parameter '$opt'"
     exit 1
