@@ -56,16 +56,13 @@ function Overall() {
   echo "compl fail bgo  day backlog .upd .1st lck $locked#$all locked  +++  $(date)"
 
   for i in $images; do
-    local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0")
+    local compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
+    local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w)
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null) || echo "0")
-    local compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log || echo "0")
-
-    # count emerge failures based on distinct package name+version+release
-    # example of an issue directory name: 20200313-044024-net-analyzer_iptraf-ng-1.1.4-r3
-    local fail=$(ls -1 $i/var/tmp/tb/issues | while read -r j; do basename $j; done | cut -f 3- -d'-' -s | sort -u | wc -w || echo "0")
-    local bl=$(wc -l <$i/var/tmp/tb/backlog || echo "0")
-    local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st || echo "0")
-    local blu=$(wc -l <$i/var/tmp/tb/backlog.upd || echo "0")
+    local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0")
+    local bl=$(wc -l <$i/var/tmp/tb/backlog 2>/dev/null || echo "0")
+    local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st 2>/dev/null || echo "0")
+    local blu=$(wc -l <$i/var/tmp/tb/backlog.upd 2>/dev/null || echo "0")
 
     # "l" image is locked
     # "c" image is under cgroup control
@@ -98,8 +95,8 @@ function Overall() {
 
     local b=$(basename $i)
     # shellcheck disable=SC2088
-    [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img' # shorten output
-    printf "%5i %4s %3s %4.1f %7i %4s %4s %3s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" | sed -e 's, 0 , - ,g'
+    [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'
+    printf "%5s %4s %3s %4.1f %7s %4s %4s %3s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" | sed -e 's, 0 , - ,g'
   done
 }
 
