@@ -183,21 +183,19 @@ function getStage3Filename() {
 
   local prefix="stage3-amd64"
   prefix+=$(sed -e 's,^..\..,,' -e 's,/plasma,,' -e 's,/gnome,,' -e 's,-,,g' <<<$profile)
-
-  prefix=$(sed -e 's,nomultilib/hardened,hardened-nomultilib,' <<<$prefix)
   if [[ $profile =~ "/desktop" ]]; then
     if dice 1 2; then
       # start from plain stage3
       prefix=$(sed -e 's,/desktop,,' <<<$prefix)
     fi
   fi
-
   prefix=$(tr '/' '-' <<<$prefix)
   if [[ ! $profile =~ "/musl" && ! $profile =~ "/systemd" ]]; then
     prefix+="-openrc"
   fi
 
   echo "$(date)   get stage3 file name for prefix $prefix"
+
   if [[ $stage3_list =~ "latest" ]]; then
     if ! stage3=$(grep -o "^20.*/$prefix-20.*T.*Z\.tar\.\w*" $stage3_list); then
       echo "$(date)   failed"
