@@ -3,13 +3,10 @@
 #
 # setup issues
 #
-introspection
-mono
 ruby31
 ruby32
 ruby33
 unwind
-vala
 #
 # global
 #
