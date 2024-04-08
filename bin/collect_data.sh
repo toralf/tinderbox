@@ -16,10 +16,9 @@ tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
 # sam_ : bashrc meson hook
 #
-if sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile; then
-  chmod a+r $tmpfile
-  mv $tmpfile ~tinderbox/img/sam.txt
-fi
+sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile
+chmod a+r $tmpfile
+mv $tmpfile ~tinderbox/img/sam.txt
 
 # xgqt : big package size
 #
@@ -80,10 +79,9 @@ mv $tmpfile ~tinderbox/img/needed.txt
 
 # _sam: bashrc.clang hook
 #
-if (
+(
   cd ~tinderbox/img/
   tar -cf $tmpfile ./*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz
-); then
-  chmod a+r $tmpfile
-  mv $tmpfile ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
-fi
+)
+chmod a+r $tmpfile
+mv $tmpfile ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
