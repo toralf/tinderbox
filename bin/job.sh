@@ -638,7 +638,7 @@ function SwitchGCC() {
   fi
 
   # sam
-  if dice 1 2 && [[ $(gcc -dumpversion) -ge 14 ]]; then
+  if [[ ! -f /etc/portage/bashrc.clang && ! $name =~ "llvm" && $(gcc -dumpversion) -ge 14 ]] && dice 1 2; then
     sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' /etc/portage/make.conf
   fi
 }
