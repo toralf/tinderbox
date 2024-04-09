@@ -1034,6 +1034,7 @@ source $(dirname $0)/lib.sh
 
 export -f SwitchGCC syncRepo         # added to backlog by PostEmerge() or by retest.sh respectively
 export -f add2backlog source_profile # used by SwitchGCC()
+export name=$(cat /var/tmp/tb/name)  # the image name used by SwitchGCC()
 
 jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00jobs)
 if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
@@ -1041,7 +1042,6 @@ if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
 else
   keyword="stable"
 fi
-name=$(cat /var/tmp/tb/name)               # the image name
 taskfile=/var/tmp/tb/task                  # the current task
 tasklog=$taskfile.log                      # holds output of it
 tasklog_stripped=/tmp/tasklog_stripped.log # filtered plain text variant
