@@ -1079,6 +1079,10 @@ systemd-tmpfiles --create &>$tasklog || true
 
 trap Finish INT QUIT TERM EXIT
 
+# https://bugs.gentoo.org/928938
+ulimit -Hn 512000
+ulimit -Sn 512000
+
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :; do
   if [[ -f /var/tmp/tb/EOL ]]; then
