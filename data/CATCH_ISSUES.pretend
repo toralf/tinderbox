@@ -1,2 +1,3 @@
+Active compiler does not have required support for OpenMP
 Please switch to a version of sys-devel/gcc built with USE=graphite, or use a different compiler.
  \* ERROR: .* failed (pretend phase):

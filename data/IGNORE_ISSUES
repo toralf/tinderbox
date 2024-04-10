@@ -1,3 +1,4 @@
+Active compiler does not have required support for OpenMP
 Clang 16 testing:
 emerge killed=15
 ERROR: .* failed (setup phase):

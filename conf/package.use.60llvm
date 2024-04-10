@@ -1,16 +1,7 @@
 # package.use/60llvm
 #
 
-
-#######################################################################
-#
-# global settings
-#
-
-app-text/docbook-xsl-ns-stylesheets -ruby               # DICE: llvm
-app-text/docbook-xsl-stylesheets    -ruby               # DICE: llvm
-#dev-libs/libxml2                    -icu                # DICE: llvm
-#sys-libs/ncurses                    -gpm                # DICE: llvm
-
 # https://bugs.gentoo.org/914640
 sys-devel/llvm                      -binutils-plugin
+
+dev-libs/elfutils                   -debuginfod
