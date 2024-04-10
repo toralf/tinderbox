@@ -78,7 +78,7 @@ function InitOptions() {
     return
   fi
 
-  if dice 1 5; then
+  if dice 1 10; then
     cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
   fi
 
@@ -471,14 +471,18 @@ EOF
 
   if [[ $profile =~ "/llvm" ]]; then
     cpconf $tbhome/tb/conf/package.*.??llvm
-    cp $tbhome/tb/conf/bashrc.clang ./etc/portage/bashrc
+    cp $tbhome/tb/conf/bashrc.clang ./etc/portage
+    (
+      cd ./etc/portage
+      ln -s bashrc.clang bashrc
+    )
   else
     cpconf $tbhome/tb/conf/package.*.??gcc
     cp $tbhome/tb/conf/bashrc ./etc/portage
 
-    # sam_ PORTAGE_USE_CLANG_HOOK
     if [[ ! $profile =~ "/musl" ]]; then
-      if dice 1 6; then
+      # sam_ PORTAGE_USE_CLANG_HOOK test clang at non-llvm profiles
+      if dice 1 5; then
         cp $tbhome/tb/conf/bashrc.clang ./etc/portage
       fi
     fi
@@ -502,7 +506,7 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
-  # dice topics tagged with "# DICE: <topic> <m> <N>" with an m/N chance (default: 1/2)
+  # take lines tagged with "# DICE: <topic> <m> <N>" with an m/N chance (default: 1/2)
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
     cut -f 3- -d ' ' |
     sort -u -r |
@@ -677,7 +681,7 @@ echo "#setup pfl" | tee /var/tmp/tb/task
 USE="-network-cron" emerge -u app-portage/pfl
 
 # sam_
-if [[ $((RANDOM % 16)) -eq 0 ]]; then
+if [[ $((RANDOM % 40)) -eq 0 ]]; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
   emerge -u dev-build/slibtool
