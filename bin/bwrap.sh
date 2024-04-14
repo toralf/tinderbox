@@ -39,11 +39,12 @@ function CreateCgroup() {
     echo " jobs is invalid: '$jobs', set to 1" >&2
     jobs=1
   fi
-  # 1 vCPU per -jX
+
+  # 1 vCPU per job
   echo "$((100 * jobs))" >$name/cpu.weight
   echo "$((100000 * jobs))" >$name/cpu.max
 
-  # 2 GiB per job + /var/tmp/portage
+  # 2 GiB per job + a fixed amount for /var/tmp/portage
   echo "$((2 * jobs + 24))G" >$name/memory.max
 
   # swap
@@ -53,8 +54,8 @@ function CreateCgroup() {
 function RemoveCgroup() {
   local name=$cgdomain/${mnt##*/}
 
-  # reap our cgroup dir, the rmdir is racy and might fail, that is ok
-  echo "while [[ -d $name ]]; do if grep -q 'populated 0' $name/cgroup.events 2>/dev/null; then rmdir $name 2>/dev/null; break; fi; sleep 0.3; done" | at now 2>/dev/null
+  # rmdir might fail
+  echo "while [[ -d $name ]]; do grep -q 'populated 0' $name/cgroup.events 2>/dev/null && rmdir $name 2>/dev/null || sleep 0.2; done" | at now 2>/dev/null
 }
 
 # no echo here
