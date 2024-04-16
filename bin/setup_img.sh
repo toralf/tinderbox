@@ -35,7 +35,7 @@ function DiceTheProfile() {
       grep -v -F -e '23.0/no-multilib/hardened' -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
       awk '{ print $2 }' |
       cut -f 4- -d '/' -s |
-      if dice 3 4; then
+      if dice 7 8; then
         grep -v -e '/musl'
       else
         grep '.'
@@ -463,6 +463,20 @@ EOF
   done
   echo "*/*         j$jobs" >>./etc/portage/package.env/00jobs
 
+  cat <<EOF >./etc/portage/env/clang
+CC=clang
+CXX=clang++
+PORTAGE_USE_CLANG_HOOK=1
+EOF
+
+  cat <<EOF >./etc/portage/env/gcc
+CC=gcc
+CXX=g++
+PORTAGE_USE_CLANG_HOOK=0
+EOF
+
+  printf '%-37s%s\n' sys-devel/gcc gcc >./etc/portage/package.env/90gcc
+
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
   else
@@ -482,7 +496,7 @@ EOF
 
     if [[ ! $profile =~ "/musl" ]]; then
       # sam_ PORTAGE_USE_CLANG_HOOK test clang at non-llvm profiles
-      if dice 1 5; then
+      if dice 1 9; then
         cp $tbhome/tb/conf/bashrc.clang ./etc/portage
       fi
     fi
@@ -576,7 +590,7 @@ function CreateBacklogs() {
   # sam_ PORTAGE_USE_CLANG_HOOK
   if [[ -f ./etc/portage/bashrc.clang ]]; then
     cat <<EOF >>$bl.1st
-%emerge --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) && echo CC=clang >>/etc/portage/make.conf && echo CXX=clang++ >>/etc/portage/make.conf && echo PORTAGE_USE_CLANG_HOOK=1 >>/etc/portage/make.conf && cd /etc/portage/ && ln -sf bashrc.clang bashrc
+%emerge --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) && printf '%-37s%s\\n' '*/*' clang >>./etc/portage/package.env/clang && cd /etc/portage/ && ln -sf bashrc.clang bashrc
 EOF
   fi
 
@@ -905,9 +919,9 @@ EOF
 cat /var/tmp/tb/task
 echo "-------"
 if [[ $profile =~ "/llvm" ]]; then
-  emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
+  emerge --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
 else
-  USE="-mpi -opencl" emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) --pretend
+  USE='-mpi -opencl' emerge --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) --pretend
 fi
 echo "-------"
 emerge --update @world --pretend
@@ -928,7 +942,7 @@ EOF
     fi
   else
     local attempt=0
-    while [[ $((++attempt)) -le 200 ]]; do
+    while [[ $((++attempt)) -le 100 ]]; do
       echo
       date
       echo "==========================================================="
