@@ -38,7 +38,7 @@ fi
 
 img=$(basename $1)
 
-echo "user decision at $(date)" >>~tinderbox/img/$img/var/tmp/tb/EOL
+echo "$(basename $0) $(date)" >>~tinderbox/img/$img/var/tmp/tb/EOL
 chmod g+w ~tinderbox/img/$img/var/tmp/tb/EOL
 chgrp tinderbox ~tinderbox/img/$img/var/tmp/tb/EOL
 
