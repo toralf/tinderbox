@@ -1,8 +1,10 @@
 # package.use/80test-y
 #
 
+#######################################################################
+#
 # if FEATURES=test is set then these USE flags are needed
-
+#
 app-accessibility/flite             alsa
 app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
@@ -32,7 +34,6 @@ net-firewall/iptables               conntrack nftables
 net-misc/openssh                    ssl -xmss
 net-dns/bind-tools                  -gssapi
 net-nds/openldap                    berkdb -minimal sasl
-net-libs/rabbitmq                   static-libs
 sys-apps/dbus                       debug
 sys-apps/iproute2                   conntrack nftables
 sys-apps/man-db                     -nls
@@ -46,4 +47,4 @@ x11-libs/gtk+                       X
 x11-libs/pixman                     openmp
 
 # https://bugs.gentoo.org/840529
-sys-devel/binutils                  cet multitarget pgo -plugins
+sys-devel/binutils                  multitarget pgo -plugins

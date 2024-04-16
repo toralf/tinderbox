@@ -1,3 +1,4 @@
 Active compiler does not have required support for OpenMP
 Please switch to a version of sys-devel/gcc built with USE=graphite, or use a different compiler.
  \* ERROR: .* failed (pretend phase):
+gnat-gpl-2021 does not build with clang. It is bootstrapped.

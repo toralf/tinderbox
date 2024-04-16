@@ -2,6 +2,7 @@ Active compiler does not have required support for OpenMP
 Clang 16 testing:
 emerge killed=15
 ERROR: .* failed (setup phase):
+gnat-gpl-2021 does not build with clang. It is bootstrapped.
 Please switch to a version of sys-devel/gcc built with USE=graphite, or use a different compiler.
 The present kernel disabled CONFIG_MODULES.
 This compiler lacks GCC plug-in support

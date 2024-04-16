@@ -12,6 +12,9 @@
 */*         QEMU_USER_TARGETS:      x86_64
 */*         VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi
 
+# not needed
+*/*                                 -firmware           # DICE: firmware
+
 # 2x faster compile
 */*                                 jumbo-build
 
@@ -31,7 +34,7 @@ net-misc/curl                       ssl
 app-portage/portage-utils           -openmp
 
 # D would need to be bootstraped
-sys-devel/gcc                       -ada -d
+sys-devel/gcc                       -d
 
 # required by sys-apps/portage
 dev-lang/python                     ssl
@@ -60,9 +63,9 @@ app-arch/libarchive                 lzma
 
 # su provider, the later overwrites the former
 sys-apps/shadow                     su
-sys-apps/util-linux                 -su -suid
-sys-apps/shadow                     -su                 # DICE: su_provider 9 10
-sys-apps/util-linux                 su suid             # DICE: su_provider 9 10
+sys-apps/shadow                     pam -cracklib -su   # DICE: su_provider 9 10
+sys-apps/util-linux                 -su
+sys-apps/util-linux                 pam su suid         # DICE: su_provider 9 10
 
 # no install + https://bugs.gentoo.org/831346
 sys-kernel/gentoo-kernel            -initramfs -kernel-install
@@ -74,11 +77,21 @@ sys-kernel/vanilla-kernel           -initramfs -kernel-install
 #
 # avoid setup blocker
 #
-dev-libs/libpcre                    -libedit            # DICE: setup_pcre 9 10
-dev-libs/libpcre2                   -libedit            # DICE: setup_pcre 9 10
+app-accessibility/at-spi2-core      -gtk-doc            # DICE: setup_atspi2
+dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
+dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 9 10
+dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 9 10
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
-sys-apps/shadow                     pam -cracklib       # DICE: setup_pam 9 10
-sys-apps/util-linux                 pam                 # DICE: setup_pam 9 10
+dev-qt/qtwidgets                    dbus                # DICE: dbus 9 10
+sys-apps/shadow                     pam -cracklib       # DICE: setup_shadow 9 10
+sys-devel/gcc                       -ada                # DICE: setup_gcc 9 10
+x11-misc/xdg-utils                  dbus                # DICE: dbus 9 10
+
+#######################################################################
+#
+# breaks too often
+#
+dev-lang/ruby                       -rdoc               # DICE: rdoc 9 10
 
 #######################################################################
 #

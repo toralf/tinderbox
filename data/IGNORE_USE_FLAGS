@@ -15,6 +15,7 @@ unwind
 bindist
 bootstrap
 build
+cet
 compile-locales
 compiler-rt
 conntrack
@@ -28,6 +29,7 @@ deprecated
 dist-kernel
 dracut
 exec-static-trampoline
+firmware
 fuse
 gcc-symlinks
 ghcbootstrap
@@ -64,6 +66,7 @@ objc-gc
 oci8
 pax-kernel
 prefix
+profile
 s6
 sanitize
 savedconfig
