@@ -590,7 +590,7 @@ function CreateBacklogs() {
   # sam_ PORTAGE_USE_CLANG_HOOK
   if [[ -f ./etc/portage/bashrc.clang ]]; then
     cat <<EOF >>$bl.1st
-%emerge --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) && printf '%-37s%s\\n' '*/*' clang >>./etc/portage/package.env/clang && cd /etc/portage/ && ln -sf bashrc.clang bashrc
+%emerge --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) && printf '%-37s%s\\n' '*/*' clang >>/etc/portage/package.env/clang && cd /etc/portage/ && ln -sf bashrc.clang bashrc
 EOF
   fi
 
