@@ -675,13 +675,13 @@ function PostEmerge() {
     fi
   done
 
-  if grep -q 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
+  # run this as the very last step
+  if grep -q -F 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
     add2backlog "@preserved-rebuild"
-    # no @world and no deplean here
+    # no @world and no deplean after this
   fi
 
-  # https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-lang/perl/perl-5.38.0-r1.ebuild#n129
-  if grep -q -e ">>> Installing .* dev-lang/perl-[1-9]" $tasklog_stripped -e 'Use: perl-cleaner' $tasklog_stripped; then
+  if grep -q -F 'Use: perl-cleaner --all' $tasklog_stripped; then
     add2backlog '%perl-cleaner --all'
   fi
 
