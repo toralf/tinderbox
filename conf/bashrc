@@ -51,7 +51,7 @@ __tinderbox_checkEOL() {
 }
 case ${EBUILD_PHASE} in
   setup|unpack|prepare|configure|compile)
-    while [[ $(sed -e 's,/.*,,' -e 's,^.* ,,' /proc/loadavg) -ge 32 ]]; do
+    while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 35 || $(sed -e 's,/.*,,' -e 's,^.* ,,' /proc/loadavg) -ge 32 ]]; do
       __tinderbox_checkEOL
       touch /var/tmp/tb/WAIT
       sleep 10
