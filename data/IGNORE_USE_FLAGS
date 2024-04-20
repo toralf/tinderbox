@@ -73,7 +73,6 @@ savedconfig
 secureboot
 selinux
 split-usr
-static
 static-libs
 systemd
 system-wlroots

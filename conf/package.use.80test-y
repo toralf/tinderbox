@@ -10,6 +10,7 @@ app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
 app-text/doxygen                    doc
 dev-db/mariadb                      extraengine
+dev-debug/strace                    -unwind
 dev-libs/glib                       gtk-doc
 dev-libs/libzip                     tools
 dev-libs/openssl                    -sctp
@@ -17,8 +18,8 @@ dev-libs/openssl-compat             -sctp
 dev-libs/thrift                     libevent ssl
 dev-libs/weston                     lcms xwayland
 dev-qt/qtbase                       icu sql sqlite
+dev-qt/qtcore                       icu
 dev-qt/qtmultimedia                 qml
-dev-util/strace                     -unwind
 media-gfx/imagemagick               corefonts truetype
 media-libs/gd                       png
 media-libs/harfbuzz                 icu
