@@ -46,17 +46,18 @@ function check_history() {
 
 # whatsup.sh -o
 #
-# compl fail bgo  day backlog .upd .1st lck 11#11 locked  +++  Fri Apr  5 19:37:03 UTC 2024
-#  7188   95   1  6.6   12348   75    - lc  ~/run/23.0_desktop_gnome-20240330-044003
-#   171    1   -  0.2   16968    -    2 lc  ~/run/23.0_desktop_gnome-20240405-154537
+#  pkgs tasks fail bgo  day backlog .upd .1st lck 12#12 locked  +++  Sat Apr 20 16:55:27 UTC 2024
+#   558     -    6   -  0.8   16941  117    - lc  ~/run/23.0_desktop_gnome-20240419-211504
+#  6280  2739  130   5  7.9   14283  451    - lc  ~/run/23.0_desktop_gnome_systemd-20240412-195623
+#  2753   937   17   -  3.6   16106  379    - lc  ~/run/23.0_desktop_gnome_systemd-20240417-024503
 function Overall() {
-  local locked
-  locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
+  local locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
-  echo "compl fail bgo  day backlog .upd .1st lck $locked#$all locked  +++  $(date)"
+  echo " pkgs tasks fail bgo  day backlog .upd .1st lck $locked#$all locked  +++  $(date)"
 
   for i in $images; do
-    local compl=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
+    local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
+    local tasks=$(grep -c -v -e '@' -e '%' -e '#' $i/var/tmp/tb/task.history 2>/dev/null)
     local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w)
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null) || echo "0")
     local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0")
@@ -96,7 +97,7 @@ function Overall() {
     local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'
-    printf "%5s %4s %3s %4.1f %7s %4s %4s %3s %s/%s\n" $compl $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" | sed -e 's, 0 , - ,g'
+    printf "%5s %5s %4s %3s %4.1f %7s %4s %4s %3s %s/%s\n" $pkgs $tasks $fail $bgo $days $bl $blu $bl1 "$flags" "$d" "$b" | sed -e 's, 0 , - ,g'
   done
 }
 
@@ -197,7 +198,7 @@ function PackagesPerImagePerRunDay() {
         }
 
         my $epoch_time = $F[0];
-        next unless (m/::: completed emerge/);
+        next unless (m/::: pkgseted emerge/);
         my $rundays = int( ($epoch_time - '$start_time') / 86400);
         $packages[$rundays]++;
 
@@ -237,7 +238,7 @@ function Coverage() {
     local emerged=~tinderbox/img/packages.$i.emerged.txt
     local not_emerged=~tinderbox/img/packages.$i.not_emerged.txt
 
-    grep -H '::: completed emerge' ~tinderbox/$i/*/var/log/emerge.log 2>/dev/null |
+    grep -H '::: pkgseted emerge' ~tinderbox/$i/*/var/log/emerge.log 2>/dev/null |
       awk '{ print $8 }' |
       sort -u |
       tee ~tinderbox/img/packages-versions.$i.emerged.txt |
@@ -278,7 +279,7 @@ function CountEmergesPerPackages() {
       my %pet = (); # package => emerges
     }
 
-    next unless (m/::: completed emerge/);
+    next unless (m/::: pkgseted emerge/);
     my $pkg = $F[7];
     $pet{$pkg}++;
 
