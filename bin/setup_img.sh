@@ -28,25 +28,23 @@ function dice() {
 # [11:28:34 pm] <@dilfridge> if you enable hardened, it probably makes sense to "emerge -1 binutils gcc glibc" first and afterwards do emptytree
 
 # helper of InitOptions()
-function DiceTheProfile() {
-  profile=$(
-    eselect profile list |
-      grep -F '/23.0' |
-      grep -v -F -e '23.0/no-multilib/hardened' -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
-      awk '{ print $2 }' |
-      cut -f 4- -d '/' -s |
-      if dice 7 8; then
-        grep -v -e '/musl'
-      else
-        grep '.'
-      fi |
-      if dice 3 4; then
-        grep -v -e '/llvm'
-      else
-        grep '.'
-      fi |
-      shuf -n 1
-  )
+function DiceAProfile() {
+  eselect profile list |
+    grep -F '/23.0' |
+    grep -v -e '23.0/no-multilib/hardened' -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
+    awk '{ print $2 }' |
+    cut -f 4- -d '/' -s |
+    if dice 7 8; then
+      grep -v '/musl'
+    else
+      grep '.'
+    fi |
+    if dice 3 4; then
+      grep -v '/llvm'
+    else
+      grep '.'
+    fi |
+    shuf -n 1
 }
 
 # helper of main()
@@ -71,7 +69,7 @@ function InitOptions() {
   testfeature="n"
   useflagsfrom=""
 
-  DiceTheProfile
+  profile=$(DiceAProfile)
 
   # no games, it is not matured enough
   if [[ $profile =~ "/musl" ]]; then
@@ -707,6 +705,11 @@ MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
 EOF2
 fi
 
+if ls -l /etc/**/._cfg0000_* 2>/dev/null 1>&2; then
+  echo -e "\n ^^ unexpected config file changes\n" >&2
+  exit 1
+fi
+
 date
 echo "#setup profile" | tee /var/tmp/tb/task
 eselect profile set --force default/linux/amd64/$profile
@@ -856,7 +859,7 @@ function FixPossibleUseFlagIssues() {
 
 # helper of ThrowFlags
 function ShuffleUseFlags() {
-  local m=$1      # pick up to m-1 + o
+  local m=$1      # pick up to m-1
   local n=$2      # mask about 1/n of them
   local o=${3:-0} # minimum
 
@@ -886,13 +889,13 @@ function ThrowFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
     grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    ShuffleUseFlags 280 5 70 |
+    ShuffleUseFlags 100 6 30 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23thrown_global_use_flags
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
     grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
-    shuf -n $((RANDOM % 1800 + 400)) |
+    shuf -n $((RANDOM % 2500 + 400)) |
     sort |
     while read -r file; do
       pkg=$(cut -f 6-7 -d '/' -s <<<$file)
@@ -900,7 +903,7 @@ function ThrowFlags() {
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
         cut -f 2 -d '"' -s |
         grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-        ShuffleUseFlags 30 3 |
+        ShuffleUseFlags 20 5 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pkg" "{}"
     done >./etc/portage/package.use/24thrown_package_use_flags
@@ -962,22 +965,19 @@ EOF
 function Finalize() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  if ! wc -l -w ./etc/portage/package.use/2*; then
-    echo -e "\n Notice: no image specific USE flags found"
+  if ! wc -l -w ./etc/portage/package.use/2* 2>/dev/null; then
+    echo -e "\n no image specific USE flags"
   fi
-  truncate -s 0 ./var/tmp/tb/task
+
+  grep -h -m 1 "IMPORTANT: config file .* needs updating." ./var/tmp/tb/logs/dryrun* | sort -u
 
   if [[ $start_it == "y" ]]; then
     cd $tbhome/run
     ln -sf ../img/$name
-    sleep 1 # wait for deletion of currently used cgroup
+    sleep 1 # reap recently used cgroup
     echo
     sudo -u tinderbox $(dirname $0)/start_img.sh $name
     echo
-  fi
-
-  if ls -l ~/img/$name/etc/portage/*/._cfg0000_* 2>/dev/null 1>&2; then
-    echo -e "\n ^^ config file fix needed\n" >&2
   fi
 }
 
