@@ -57,7 +57,7 @@ function Overall() {
 
   for i in $images; do
     local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
-    local tasks=$(grep -c -v -e '@' -e '%' -e '#' $i/var/tmp/tb/task.history 2>/dev/null)
+    local tasks=$(grep -c -v -e '^@' -e '^%' -e '^#' -e '^=' $i/var/tmp/tb/task.history 2>/dev/null)
     local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w)
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null) || echo "0")
     local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0")
@@ -198,7 +198,7 @@ function PackagesPerImagePerRunDay() {
         }
 
         my $epoch_time = $F[0];
-        next unless (m/::: pkgseted emerge/);
+        next unless (m/::: completed emerge/);
         my $rundays = int( ($epoch_time - '$start_time') / 86400);
         $packages[$rundays]++;
 
@@ -238,7 +238,7 @@ function Coverage() {
     local emerged=~tinderbox/img/packages.$i.emerged.txt
     local not_emerged=~tinderbox/img/packages.$i.not_emerged.txt
 
-    grep -H '::: pkgseted emerge' ~tinderbox/$i/*/var/log/emerge.log 2>/dev/null |
+    grep -H '::: completed emerge' ~tinderbox/$i/*/var/log/emerge.log 2>/dev/null |
       awk '{ print $8 }' |
       sort -u |
       tee ~tinderbox/img/packages-versions.$i.emerged.txt |
@@ -279,7 +279,7 @@ function CountEmergesPerPackages() {
       my %pet = (); # package => emerges
     }
 
-    next unless (m/::: pkgseted emerge/);
+    next unless (m/::: completed emerge/);
     my $pkg = $F[7];
     $pet{$pkg}++;
 
