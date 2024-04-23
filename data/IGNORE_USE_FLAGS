@@ -57,6 +57,7 @@ modules-compress
 monolithic
 multiarch
 multilib
+multilib-bootstrap
 musl
 native-symlinks
 nvidia
