@@ -1,5 +1,2 @@
-# if failed keep /var/tmp/portage/* for these package(s)
+# keep /var/tmp/portage/* for packages listed here
 #
-
-# https://bugs.gentoo.org/909060
-# sys-devel/gcc

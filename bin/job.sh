@@ -206,8 +206,8 @@ function CollectIssueFiles() {
 
   if [[ -d $workdir ]]; then
     (
-      f=/tmp/files
       cd "$workdir/.."
+      f=/tmp/files
       find ./ -name "*.log" -print0 \
         -o -name "*.binlog" \
         -o -name "meson-log.txt" \
@@ -224,7 +224,7 @@ function CollectIssueFiles() {
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null || true
 
     if [[ -d $workdir/../../temp ]]; then
-      if ! $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
+      $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
         --warning=none --sparse \
         --exclude='*/.tmp??????/*' \
         --exclude='*/garbage.*' \
@@ -237,10 +237,7 @@ function CollectIssueFiles() {
         --exclude='*/temp/nugets/*' \
         --exclude='*/testdirsymlink/*' \
         --exclude='*/var-tests/*' \
-        ./temp &>/var/tmp/tar.log; then
-        ls -al $workdir/../../temp &>>/var/tmp/tar.log
-        Mail "NOTICE: $tar issue for $workdir/../../temp" /var/tmp/tar.log
-      fi
+        ./temp
     fi
 
     # ICE
@@ -313,23 +310,23 @@ function foundGenericIssue() {
 
 # helper of ClassifyIssue()
 function handleFeatureTest() {
-  if ! grep -q "<=$pkg " /etc/portage/package.env/notest 2>/dev/null && ! grep -q -e "^$pkgname .*notest" /etc/portage/package.env/80test-y 2>/dev/null; then
+  if ! grep -q "<=$pkg " /etc/portage/package.env/notest 2>/dev/null && ! grep -q -e "^$pkgname .*notest" /etc/portage/package.env/80test-y; then
+    try_again=1
     if [[ $phase == "test" ]] && ! grep -q "<=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
       # try to keep the dependency tree
       printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >>/etc/portage/package.env/test-fail-continue
     else
-      # already installed dependencies might no longer be needed and therefore being depcleaned after next @world
+      # no chance, note: already installed dependencies might no longer be needed and therefore are candidates for being depcleaned
       printf "%-50s %s\n" "<=$pkg" "notest" >>/etc/portage/package.env/notest
     fi
-    try_again=1
   fi
 
-  # gtar returns an error if it can't find any directory, therefore feed only existing dirs to it to catch remaining tar errors
+  # gtar returns an error if it can't find any directory, therefore feed dirs to it to easier catch other tar issues
   (
     cd "$workdir"
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
     if [[ -n $dirs ]]; then
-      if ! $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
+      $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
         --dereference --one-file-system --sparse \
         --exclude='*.o' \
         --exclude="*/dev/*" \
@@ -337,10 +334,7 @@ function handleFeatureTest() {
         --exclude="*/run/*" \
         --exclude="*/symlinktest/*" \
         --exclude="*/sys/*" \
-        $dirs &>/var/tmp/tar.log; then
-        ls -al $workdir/../../temp &>>/var/tmp/tar.log
-        Mail "NOTICE: $tar issue for $workdir" /var/tmp/tar.log
-      fi
+        $dirs
     fi
   )
 }
