@@ -605,11 +605,6 @@ function source_profile() {
   set -u
 }
 
-# $1:$2, e.g. 3:5
-function dice() {
-  [[ $((RANDOM % $2)) -lt $1 ]]
-}
-
 function SwitchGCC() {
   local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
   if [[ -z $highest ]]; then
@@ -632,7 +627,7 @@ function SwitchGCC() {
   fi
 
   # sam
-  if [[ ! -f /etc/portage/bashrc.clang && ! $name =~ "llvm" && $(gcc -dumpversion) -ge 14 ]] && dice 1 2; then
+  if [[ ! -f /etc/portage/bashrc.clang && ! $name =~ "llvm" && $(gcc -dumpversion) -ge 14 ]] && [[ $((RANDOM % 2)) -lt 1 ]]; then
     sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' /etc/portage/make.conf
   fi
 }
