@@ -896,27 +896,25 @@ function WorkOnTask() {
   # %<command line>
   elif [[ $task =~ ^% ]]; then
     if ! RunAndCheck "$(cut -c 2- <<<$task)" || grep -q -F '* ERROR: ' $tasklog; then
-      if [[ $task =~ "haskell-updater" || $pkg =~ "sys-devel/gcc" ]]; then
+      if [[ $try_again -eq 1 ]]; then
+        add2backlog "$task"
+      elif [[ $task =~ "haskell-updater" || $pkg =~ "sys-devel/gcc" ]]; then
         ReachedEOL "failed: $task" $tasklog
       elif [[ $task =~ " --depclean" ]]; then
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
           ReachedEOL "failed: $task" $tasklog
         fi
-      else
-        if [[ -n $pkg ]]; then
-          if [[ $try_again -eq 1 ]]; then
-            add2backlog "$task"
-          elif [[ $task =~ $pkg ]]; then
-            ReachedEOL "failed: $task" $tasklog
-          elif grep -q 'The following USE changes are necessary to proceed' $tasklog; then
-            ReachedEOL "failed: USE changes needed $task" $tasklog
-          else
-            Mail "INFO: will repeat $task, failed: $pkg" $tasklog
-            add2backlog "$task"
-          fi
+      elif [[ -n $pkg ]]; then
+        if [[ $task =~ $pkg ]]; then
+          ReachedEOL "failed: $task" $tasklog
+        elif grep -q 'The following USE changes are necessary to proceed' $tasklog; then
+          ReachedEOL "failed: USE changes needed $task" $tasklog
         else
-          ReachedEOL "failed: $task (no pkg)" $tasklog
+          Mail "INFO: will repeat $task, failed: $pkg" $tasklog
+          add2backlog "$task"
         fi
+      else
+        ReachedEOL "failed: $task (no pkg)" $tasklog
       fi
     fi
 
