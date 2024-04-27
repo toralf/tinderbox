@@ -385,11 +385,10 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 48,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -398,10 +397,7 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
+            "lineWidth": 0,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -410,7 +406,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -435,28 +431,13 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "crashed"
+              "options": "waiting"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "running"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
+                  "fixedColor": "orange",
                   "mode": "fixed"
                 }
               }
@@ -480,13 +461,13 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "waiting"
+              "options": "crashed"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "yellow",
+                  "fixedColor": "red",
                   "mode": "fixed"
                 }
               }
@@ -496,6 +477,21 @@
             "matcher": {
               "id": "byName",
               "options": "stopped"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "running"
             },
             "properties": [
               {
@@ -522,8 +518,6 @@
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "sortBy": "Name",
-          "sortDesc": false,
           "width": 80
         },
         "tooltip": {
@@ -531,6 +525,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -1168,7 +1163,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -1362,13 +1358,13 @@
     ]
   },
   "time": {
-    "from": "now-7d",
-    "to": "now"
+    "from": "2024-04-26T17:05:49.402Z",
+    "to": "2024-04-26T17:44:49.811Z"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tinderbox",
   "uid": "tm9JS5B4z",
-  "version": 304,
+  "version": 308,
   "weekStart": ""
 }
