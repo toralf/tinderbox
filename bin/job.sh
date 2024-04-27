@@ -580,7 +580,8 @@ function WorkAtIssue() {
   # still needed ? https://bugs.gentoo.org/592880 is solved, but https://bugs.gentoo.org/835000
   if grep -q -e ' perl module .* required' \
     -e 't locate Locale/gettext.pm in' $pkglog_stripped; then
-    ReachedEOL "perl issue after $task" $pkglog_stripped
+    try_again=1
+    Mail "perl issue for $task in $pkg" $pkglog_stripped
   fi
 
   if grep -q -e "Please, run 'haskell-updater'" $pkglog_stripped; then
