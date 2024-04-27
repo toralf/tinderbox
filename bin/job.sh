@@ -894,7 +894,7 @@ function WorkOnTask() {
 
   # %<command line>
   elif [[ $task =~ ^% ]]; then
-    if ! RunAndCheck "$(cut -c 2- <<<$task)"; then
+    if ! RunAndCheck "$(cut -c 2- <<<$task)" || grep -q -F '* ERROR: ' $tasklog; then
       if [[ $task =~ "haskell-updater" || $pkg =~ "sys-devel/gcc" ]]; then
         ReachedEOL "failed: $task" $tasklog
       elif [[ $task =~ " --depclean" ]]; then
@@ -914,7 +914,7 @@ function WorkOnTask() {
             add2backlog "$task"
           fi
         else
-          ReachedEOL "failed: $task" $tasklog
+          ReachedEOL "failed: $task (no pkg)" $tasklog
         fi
       fi
     fi
