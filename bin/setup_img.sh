@@ -64,14 +64,14 @@ function InitOptions() {
   # variable
   abi3264="n"
   cflags=$cflags_default
-  name="n/a" # set in CreateImageName)
+  name="n/a" # set in CreateImageName()
   start_it="n"
   testfeature="n"
   useflagsfrom=""
 
   profile=$(DiceAProfile)
 
-  # no games, it is not matured enough
+  # musl is not matured enough for a chaos monkey
   if [[ $profile =~ "/musl" ]]; then
     return
   fi
@@ -81,7 +81,7 @@ function InitOptions() {
   fi
 
   if [[ ! $profile =~ "/no-multilib" ]]; then
-    if dice 1 80; then
+    if dice 1 40; then
       # this sets "*/* ABI_X86: 32 64" via package.use.40abi32+64
       abi3264="y"
     fi
@@ -92,7 +92,7 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
-  if dice 1 20; then
+  if dice 1 40; then
     testfeature="y"
   fi
 }
@@ -847,7 +847,7 @@ function FixPossibleUseFlagIssues() {
       fi
     fi
 
-    # if no change in this round was made then give up
+    # if no change in this round could be tested then give up
     if [[ -z $pkg && ! -s $fautocirc && ! -s $fautoflag ]]; then
       break
     fi
@@ -895,7 +895,7 @@ function ThrowFlags() {
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
     grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
-    shuf -n $((RANDOM % 2500 + 400)) |
+    shuf -n $((RANDOM % 1500 + 700)) |
     sort |
     while read -r file; do
       pkg=$(cut -f 6-7 -d '/' -s <<<$file)
