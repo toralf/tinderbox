@@ -452,7 +452,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "purple",
+                  "fixedColor": "green",
                   "mode": "fixed"
                 }
               }
@@ -482,7 +482,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "dark-blue",
+                  "fixedColor": "purple",
                   "mode": "fixed"
                 }
               }
@@ -598,16 +598,8 @@
                 "value": null
               },
               {
-                "color": "#EAB839",
-                "value": 29
-              },
-              {
                 "color": "red",
                 "value": 32
-              },
-              {
-                "color": "#6ED0E0",
-                "value": 35
               }
             ]
           }
@@ -1052,8 +1044,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1163,8 +1154,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1278,7 +1268,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
+  "refresh": "auto",
   "revision": 1,
   "schemaVersion": 39,
   "tags": [],
@@ -1358,13 +1348,13 @@
     ]
   },
   "time": {
-    "from": "2024-04-26T17:05:49.402Z",
-    "to": "2024-04-26T17:44:49.811Z"
+    "from": "now-7d",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tinderbox",
   "uid": "tm9JS5B4z",
-  "version": 308,
+  "version": 310,
   "weekStart": ""
 }
