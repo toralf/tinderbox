@@ -178,7 +178,7 @@ function LastEmergeOperation() {
 # 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
 # 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
-  printf "%57s" ""
+  printf "%50s" ""
   local oldest=$(
     set -o pipefail
     sort -n ~tinderbox/run/*/var/tmp/tb/setup.timestamp | head -n 1
@@ -190,7 +190,7 @@ function PackagesPerImagePerRunDay() {
   echo
 
   for i in $(list_images_by_age "run"); do
-    if printImageName $i 57; then
+    if printImageName $i 50; then
       local start_time
       start_time=$(getStartTime $i)
       perl -F: -wane '
