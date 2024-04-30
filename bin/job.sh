@@ -894,7 +894,7 @@ function WorkOnTask() {
 
   # %<command line>
   elif [[ $task =~ ^% ]]; then
-    if ! RunAndCheck "$(cut -c 2- <<<$task)" || grep -q -F '* ERROR: ' $tasklog; then
+    if ! RunAndCheck "$(cut -c 2- <<<$task)" || grep -i -q -F '* ERROR: ' $tasklog; then
       if [[ $try_again -eq 1 ]]; then
         add2backlog "$task"
       elif [[ $task =~ "haskell-updater" || $pkg =~ "sys-devel/gcc" ]]; then
