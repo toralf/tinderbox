@@ -577,10 +577,12 @@ function WorkAtIssue() {
   CompileIssueComment0
   CompressIssueFiles
 
-  # still needed ? https://bugs.gentoo.org/592880 is solved, but https://bugs.gentoo.org/835000
-  if grep -q -e ' perl module .* required' \
-    -e 't locate Locale/gettext.pm in' $pkglog_stripped; then
-    ReachedEOL "perl issue for $task in $pkg" $pkglog_stripped
+  if grep -q 't locate Locale/gettext.pm in' $pkglog_stripped; then
+    if [[ $task =~ 'perl-cleaner' ]]; then
+      ReachedEOL "INFO: $task is broken, pkg $pkg" $pkglog_stripped
+    fi
+    add2backlog "$task"
+    add2backlog '%perl-cleaner --all'
   fi
 
   if grep -q -e "Please, run 'haskell-updater'" $pkglog_stripped; then

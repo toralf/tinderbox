@@ -594,7 +594,6 @@ EOF
 
   cat <<EOF >>$bl.1st
 @world
-%perl-cleaner --all
 EOF
 
   if [[ $profile =~ "/llvm" ]]; then
