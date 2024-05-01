@@ -63,9 +63,15 @@ app-arch/libarchive                 lzma
 
 # su provider, the later overwrites the former
 sys-apps/shadow                     su
-sys-apps/shadow                     pam -cracklib -su   # DICE: su_provider 9 10
 sys-apps/util-linux                 -su
+sys-apps/shadow                     pam -cracklib -su   # DICE: su_provider 9 10
 sys-apps/util-linux                 pam su suid         # DICE: su_provider 9 10
+
+# kill provider
+sys-apps/util-linux                 -kill
+sys-process/procps                  kill
+sys-apps/util-linux                 kill                # DICE: kill_provider
+sys-process/procps                  -kill               # DICE: kill_provider
 
 # no install + https://bugs.gentoo.org/831346
 sys-kernel/gentoo-kernel            -initramfs -kernel-install
