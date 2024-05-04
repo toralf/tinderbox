@@ -493,8 +493,9 @@ EOF
     cp $tbhome/tb/conf/bashrc ./etc/portage
 
     if [[ ! $profile =~ "/musl" ]]; then
-      # sam_ PORTAGE_USE_CLANG_HOOK test clang at non-llvm profiles
+      # sam_ test clang at non-llvm profiles
       if dice 1 9; then
+        cpconf $tbhome/tb/conf/package.*.??llvm
         cp $tbhome/tb/conf/bashrc.clang ./etc/portage
       fi
     fi
