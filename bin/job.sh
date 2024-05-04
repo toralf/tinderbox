@@ -577,10 +577,9 @@ function WorkAtIssue() {
   CompileIssueComment0
   CompressIssueFiles
 
+  # scheduling "%perl-cleaner --all" before "@world" in setup.sh yields sometimes to blockers so live with this for now
   if grep -q 't locate Locale/gettext.pm in' $pkglog_stripped; then
-    if [[ $task =~ 'perl-cleaner' ]]; then
-      ReachedEOL "INFO: $task is broken, pkg $pkg" $pkglog_stripped
-    fi
+    try_again=1
     add2backlog "$task"
     add2backlog '%perl-cleaner --all'
   fi
@@ -590,10 +589,6 @@ function WorkAtIssue() {
     add2backlog "$task"
     add2backlog "%haskell-updater"
     return
-  fi
-
-  if [[ $try_again -eq 1 ]]; then
-    add2backlog "$task"
   fi
 
   if [[ -s $issuedir/title ]]; then
@@ -794,7 +789,7 @@ function RunAndCheck() {
 
   pkg=""
   unset phase pkgname pkglog
-  try_again=0 # "1" means to retry same task, but possibly with changed USE/ENV/FEATURE/CFLAGS file(s)
+  try_again=0 # "1" means to retry same task and to not mask it if it failed
   filterPlainText <$tasklog >$tasklog_stripped
   PostEmerge
 
