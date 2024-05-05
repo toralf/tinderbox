@@ -5,3 +5,6 @@
 sys-devel/llvm                      -binutils-plugin
 
 dev-libs/elfutils                   -debuginfod
+
+# https://bugs.gentoo.org/914710
+net-firewall/iptables               -nftables
