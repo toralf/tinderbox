@@ -577,21 +577,23 @@ function WorkAtIssue() {
   CompileIssueComment0
   CompressIssueFiles
 
+  local do_report=1
   # scheduling "%perl-cleaner --all" before "@world" in setup.sh yields sometimes to blockers so live with this for now
   if grep -q 't locate Locale/gettext.pm in' $pkglog_stripped; then
+    do_report=0
     try_again=1
     add2backlog "$task"
     add2backlog '%perl-cleaner --all'
   fi
 
   if grep -q -e "Please, run 'haskell-updater'" $pkglog_stripped; then
+    do_report=0
     try_again=1
     add2backlog "$task"
     add2backlog "%haskell-updater"
-    return
   fi
 
-  if [[ -s $issuedir/title ]]; then
+  if [[ $do_report -eq 1 && -s $issuedir/title ]]; then
     SendIssueMailIfNotYetReported
   fi
 }
