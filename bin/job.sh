@@ -896,7 +896,7 @@ function WorkOnTask() {
     if ! RunAndCheck "$(cut -c 2- <<<$task)" || grep -i -q -F '* ERROR: ' $tasklog; then
       if [[ $try_again -eq 1 ]]; then
         add2backlog "$task"
-      elif [[ $task =~ "haskell-updater" || $pkg =~ "sys-devel/gcc" ]]; then
+      elif [[ $pkg =~ "sys-devel/gcc" ]]; then
         ReachedEOL "failed: $task" $tasklog
       elif [[ $task =~ " --depclean" ]]; then
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
