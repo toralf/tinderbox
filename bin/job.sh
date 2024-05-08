@@ -506,7 +506,7 @@ function finishTitle() {
 }
 
 function SendIssueMailIfNotYetReported() {
-  if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
+  if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title && ! grep -q -f /mnt/tb/data/CATCH_ISSUES.pretend $issuedir/title; then
     if ! grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
       # chain "cat" by "echo" b/c "echo" is racy whilst "cat" buffers output till newline
       # shellcheck disable=SC2005
