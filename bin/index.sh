@@ -13,7 +13,7 @@ function listStat() {
     $(dirname $0)/whatsup.sh -c | recode --silent ascii..html
     echo '<h3>packages per image per run day</h3>'
     $(dirname $0)/whatsup.sh -d | recode --silent ascii..html
-    echo '<h3>stats about completed and failed packages, reported bugs at <a href="https://bugs.gentoo.org/">b.g.o</a> and more</h3>'
+    echo '<h3>stats about completed and failed packages, reported bugs at <a href="https://bugs.gentoo.org/">b.g.o</a>, backlogs etc.</h3>'
     $(dirname $0)/whatsup.sh -o | recode --silent ascii..html
     echo '<h3>current task</h3>'
     $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
