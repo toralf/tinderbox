@@ -506,36 +506,38 @@ function finishTitle() {
 }
 
 function SendIssueMailIfNotYetReported() {
-  if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title && ! grep -q -f /mnt/tb/data/CATCH_ISSUES.pretend $issuedir/title; then
-    if ! grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
-      # chain "cat" by "echo" b/c "echo" is racy whilst "cat" buffers output till newline
-      # shellcheck disable=SC2005
-      echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
+  if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES \
+    -f /mnt/tb/data/CATCH_ISSUES.pretend \
+    -f /mnt/tb/data/CATCH_ISSUES.setup $issuedir/title &&
+    ! grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
+    # chain "cat" by "echo" b/c "echo" is racy whereas "cat" buffers output till newline
+    # shellcheck disable=SC2005
+    echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
 
-      cp $issuedir/issue $issuedir/body
-      echo -e "\n\n" >>$issuedir/body
-      chmod a+w $issuedir/body
+    cp $issuedir/issue $issuedir/body
+    echo -e "\n\n" >>$issuedir/body
+    chmod a+w $issuedir/body
 
-      local hints="bug"
-      local force=""
+    local hints="bug"
+    local force=""
 
-      createSearchString
-      if checkBgo &>>$issuedir/body; then
-        if SearchForSameIssue &>>$issuedir/body; then
-          hints+=" same"
+    createSearchString
+    if checkBgo &>>$issuedir/body; then
+      if SearchForSameIssue &>>$issuedir/body; then
+        hints+=" same"
+      elif ! BgoIssue; then
+        if SearchForSimilarIssue &>>$issuedir/body; then
+          hints+=" similar"
+          force="                                -f"
         elif ! BgoIssue; then
-          if SearchForSimilarIssue &>>$issuedir/body; then
-            hints+=" similar"
-            force="                                -f"
-          elif ! BgoIssue; then
-            hints+=" unknown"
-          fi
+          hints+=" unknown"
         fi
       fi
-      if blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER); then
-        hints+=" blocks $blocker_bug_no"
-      fi
-      cat <<EOF >>$issuedir/body
+    fi
+    if blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER); then
+      hints+=" blocks $blocker_bug_no"
+    fi
+    cat <<EOF >>$issuedir/body
 
 
  direct link: http://tinderbox.zwiebeltoralf.de:31560/$name/$issuedir
@@ -547,8 +549,7 @@ function SendIssueMailIfNotYetReported() {
 :
 
 EOF
-      Mail "$hints $(cat $issuedir/title)" $issuedir/body
-    fi
+    Mail "$hints $(cat $issuedir/title)" $issuedir/body
   fi
 }
 
@@ -578,6 +579,11 @@ function WorkAtIssue() {
   CompressIssueFiles
 
   local do_report=1
+
+  if [[ $phase == "pretend" || ! -s $issuedir/title ]]; then
+    do_report=0
+  fi
+
   # scheduling "%perl-cleaner --all" before "@world" in setup.sh yields sometimes to blockers so live with this for now
   if grep -q 't locate Locale/gettext.pm in' $pkglog_stripped; then
     do_report=0
@@ -593,7 +599,7 @@ function WorkAtIssue() {
     add2backlog "%haskell-updater"
   fi
 
-  if [[ $do_report -eq 1 && -s $issuedir/title ]]; then
+  if [[ $do_report -eq 1 ]]; then
     SendIssueMailIfNotYetReported
   fi
 }
