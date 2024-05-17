@@ -624,11 +624,6 @@ function SwitchGCC() {
     fi
     add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f 1 -d '.' <<<$current)"
   fi
-
-  # sam
-  if [[ ! -f /etc/portage/bashrc.clang && ! $name =~ "llvm" && $(gcc -dumpversion) -ge 14 ]] && [[ $((RANDOM % 2)) -lt 1 ]]; then
-    sed -i -e 's,^CFLAGS=",CFLAGS="-fpermissive ,' /etc/portage/make.conf
-  fi
 }
 
 # helper of RunAndCheck()
