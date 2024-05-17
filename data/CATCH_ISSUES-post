@@ -1,3 +1,4 @@
+col: command not found
 cmake failed
  install aborted due to severe warnings shown above
 CMake Error at
@@ -7,7 +8,7 @@ and is not supported in C2x
 without a prototype
 recipe commences before first target.
 :: ERROR:
-: No such file or directory.  Stop.
+: No such file or directory
 mv: cannot stat
  VERIFY FAILED!
 Assertion failed:

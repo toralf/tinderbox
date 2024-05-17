@@ -39,10 +39,10 @@ ld: cannot find
 file cannot create directory:
 Not in scope:
 ld: -r and -pie may not be used together
-.so: error adding symbols:
+: package .* does not exist
+: error adding symbol
 recompile with -fPIE
 : syntax error in
-: error adding symbol
 Parse error .
 object has no attribute
 .*.texinfo:.*: unknown command
@@ -65,13 +65,11 @@ stack smashing detected
 Errors in .* projects
 : undefined reference
 CSC: error .*:
-: error adding symbols:
 Error: No implementations provided for the following modules:
 LoadError
 cannot find symbol
 bad class file:
 Compile failed; see the compiler error
-Failed Patch:
 can't get .* relocation type
 texi2info failed
 is not a function name
@@ -95,7 +93,6 @@ exceeds the 32 bit address space
 Please upgrade your Go installation.
 Please install go.* or later.
 make:.* Stop.
-error adding symbols:
 pdflatex failed
 An exception has occurred in the compiler
 error in .* command
@@ -370,3 +367,4 @@ mv: cannot move
 ar:.*: No such file or directory
 Reason:
 gtkdoc-mktmpl: command not found
+: installation or configuration problem: C compiler cannot create executables.

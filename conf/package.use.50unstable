@@ -6,7 +6,7 @@
 */*         RUBY_TARGETS:           ruby33              # DICE: ruby33
 
 # requested by sam_
-sys-devel/gcc                       debug               # DICE: gcc-debug
+sys-devel/gcc                       debug               # DICE: gcc_debug
 
 # sam_, negril OOM
 sci-libs/vtk                        X,cuda,ffmpeg,imaging,logging,mpi,video_cards_nvidia,python,qt5,-qt6,rendering,sdl,tbb,threads,views,vtkm       # DICE: vtk
