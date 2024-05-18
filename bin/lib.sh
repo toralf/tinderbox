@@ -4,7 +4,7 @@
 function __is_cgrouped() {
   local name=/sys/fs/cgroup/tb/$(basename $1)
 
-  [[ -d $name ]] && ! grep -q 'populated 0' $name/cgroup.events
+  [[ -d $name ]] && ! grep -q 'populated 0' $name/cgroup.events 2>/dev/null
 }
 
 function __is_locked() {
