@@ -39,7 +39,7 @@ is not a member of std
 
 # [Tracker] Breakage with sys-libs/ncurses-6.5 (default-opaque structures)
 930805
-invalid use of incomplete typedef WINDOW| {aka struct _win_st}
+invalid use of incomplete typedef .* {aka struct .*}
 
 # [Tracker] Implicit function declarations in configure
 906027

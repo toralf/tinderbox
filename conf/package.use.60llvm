@@ -8,3 +8,5 @@ dev-libs/elfutils                   -debuginfod
 
 # https://bugs.gentoo.org/914710
 net-firewall/iptables               -nftables
+
+*/*                                 abi_x86_32

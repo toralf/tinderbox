@@ -6,7 +6,7 @@
 
 # sam_
 <sys-devel/gcc-14.1.9999:14                             # DICE: gcc_14 2 3
->=sys-libs/ncurses-6.5                                  # DICE: ncurses 2 3
+>=sys-libs/ncurses-6.5                                  # DICE: ncurses 1 4
 
 # Flow
 # https://github.com/gentoo/gentoo/blob/4ae6b56b7ed82fee604cfb4068440197e92f15a6/profiles/package.mask#L36-L93
