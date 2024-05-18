@@ -484,10 +484,6 @@ EOF
   if [[ $profile =~ "/llvm" ]]; then
     cpconf $tbhome/tb/conf/package.*.??llvm
     cp $tbhome/tb/conf/bashrc.clang ./etc/portage
-    (
-      cd ./etc/portage
-      ln -s bashrc.clang bashrc
-    )
   else
     cpconf $tbhome/tb/conf/package.*.??gcc
     cp $tbhome/tb/conf/bashrc ./etc/portage
