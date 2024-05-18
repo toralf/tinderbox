@@ -928,6 +928,7 @@ EOF
 
   chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
   local drylog=./var/tmp/tb/logs/dryrun.log
+  rm -f ./var/tmp/tb/logs/dryrun{,.*}.log
 
   if [[ -n $useflagsfrom ]]; then
     echo
@@ -994,8 +995,14 @@ tbhome=~tinderbox
 reposdir=/var/db/repos
 
 InitOptions
-while getopts a:k:p:m:M:st:u: opt; do
+while getopts R:a:k:p:m:M:st:u: opt; do
   case $opt in
+  R)
+    cd $tbhome/img/$(basename $OPTARG)
+    name=$(cat ./var/tmp/tb/name)
+    CompileUseFlagFiles
+    Finalize
+    ;;
   a) abi3264="$OPTARG" ;;                                       # "y" or "n"
   k) keyword="$OPTARG" ;;                                       # "amd64"
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "17.1/desktop"
