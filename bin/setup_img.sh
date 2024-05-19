@@ -462,8 +462,6 @@ EOF
   echo "*/*         j$jobs" >>./etc/portage/package.env/00jobs
 
   cat <<EOF >./etc/portage/env/clang
-CC=clang
-CXX=clang++
 PORTAGE_USE_CLANG_HOOK=1
 EOF
 
@@ -481,20 +479,12 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??stable
   fi
 
+  cp $tbhome/tb/conf/bashrc ./etc/portage
   if [[ $profile =~ "/llvm" ]]; then
     cpconf $tbhome/tb/conf/package.*.??llvm
     cp $tbhome/tb/conf/bashrc.clang ./etc/portage
   else
     cpconf $tbhome/tb/conf/package.*.??gcc
-    cp $tbhome/tb/conf/bashrc ./etc/portage
-
-    if [[ ! $profile =~ "/musl" ]]; then
-      # sam_ test clang at non-llvm profiles
-      if dice 1 9; then
-        cpconf $tbhome/tb/conf/package.*.??llvm
-        cp $tbhome/tb/conf/bashrc.clang ./etc/portage
-      fi
-    fi
   fi
 
   if [[ $profile =~ '/musl' ]]; then
@@ -582,19 +572,13 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
-  # sam_ PORTAGE_USE_CLANG_HOOK
-  if [[ -f ./etc/portage/bashrc.clang ]]; then
-    cat <<EOF >>$bl.1st
-%emerge --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) && printf '%-37s%s\\n' '*/*' clang >>/etc/portage/package.env/clang && cd /etc/portage/ && ln -sf bashrc.clang bashrc
-EOF
-  fi
-
   cat <<EOF >>$bl.1st
 @world
 EOF
 
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
+%cd /etc/portage/ && ln -sf bashrc.clang bashrc && printf '%-37s%s\\n' '*/*' clang >>/etc/portage/package.env/clang
 %emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
 EOF
   else
