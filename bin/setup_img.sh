@@ -780,7 +780,8 @@ function FixPossibleUseFlagIssues() {
         exit 1
       fi
     done
-    # kick off a package from the package specific use flag file
+
+    # kick off one package from the package specific use flag file
     local pkg
     pkg=$(
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
@@ -799,18 +800,21 @@ function FixPossibleUseFlagIssues() {
       fi
     fi
 
-    # follow advises of masking/changing USE flags but ignore USE flags having underscores
+    # work on lines like:   - sys-cluster/mpich-3.4.3 (Change USE: -valgrind)
     local fixes=./tmp/fix-use-flags
 
     local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
     grep -m 1 -A 20 "It might be possible to break this cycle" $drylog |
-      grep -F ' (Change USE: ' |
+      grep -F ' (Change USE: -' |
       grep -v -F -e '+' -e 'This change might require ' |
       sed -e "s,^- ,>=," -e "s, (Change USE:,," -e 's,),,' |
-      sort -u |
-      grep -v ".*-.*/.* .*_.*" |
       while read -r p u; do
-        printf "%-36s %s\n" $(qatom -F "%{CATEGORY}/%{PN}" $p) "$u"
+        local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
+        for flag in $(xargs -n 1 <<<$u | sort -u | xargs); do
+          if ! grep -q "$pn  .*$flag" ./etc/portage/package.use/*; then
+            printf "%-36s %s\n" $pn $flag
+          fi
+        done
       done |
       sort -u >$fixes
 
@@ -819,17 +823,22 @@ function FixPossibleUseFlagIssues() {
         break
       fi
       mv $fixes $fautocirc
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve circ dep"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve $(wc -l <$fautocirc) circ dep/s"; then
         return 0
       fi
     fi
 
+    # work on lines starting with "^>="
     local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
     grep -A 300 'The following USE changes are necessary to proceed:' $drylog |
-      grep "^>=" |
-      grep -v -e '>=.* .*_' |
+      grep '^>=.* .*' |
       while read -r p u; do
-        printf "%-36s %s\n" $(qatom -F "%{CATEGORY}/%{PN}" $p) "$u"
+        local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
+        for flag in $(xargs -n 1 <<<$u | sort -u | xargs); do
+          if ! grep -q "$pn  .*$flag" ./etc/portage/package.use/*; then
+            printf "%-36s %s\n" $(qatom -F "%{CATEGORY}/%{PN}" $p) $flag
+          fi
+        done
       done |
       sort -u >$fixes
 
@@ -838,7 +847,7 @@ function FixPossibleUseFlagIssues() {
         break
       fi
       mv $fixes $fautoflag
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve USE changes"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve $(wc -l <$fautoflag) USE change/s"; then
         return 0
       fi
     fi
