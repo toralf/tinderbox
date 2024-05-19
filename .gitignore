@@ -1,8 +1,5 @@
 *.pdf
 .~lock*
 .trunk/
-.prettierignore
-.shellcheckrc
-.markdownlint.yaml
 findings/ALREADY_CAUGHT
 sdata/ssmtp.conf
