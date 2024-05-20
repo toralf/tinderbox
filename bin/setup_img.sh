@@ -509,10 +509,10 @@ EOF
   grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
     cut -f 3- -d ' ' |
     sort -u -r |
+    tr -d '][' |
     while read -r topic m N; do
       if ! dice ${m:-1} ${N:-2}; then
-        # delete topic line everywhere
-        sed -i -e "/# DICE: $topic *$/d" -e "/# DICE: $topic .*/d" ./etc/portage/package.*/*
+        sed -i -e "/# DICE: $topic /d" -e "/# DICE: \[$topic\] /d" ./etc/portage/package.*/*
       fi
     done
 

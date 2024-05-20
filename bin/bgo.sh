@@ -33,13 +33,24 @@ function append() {
 function create() {
   local title
   title=$(cat ./title)
-  if [[ $name =~ "_clang" ]] || grep -q -e "^CC=clang" -e "^CXX=clang++" ../../../../../etc/portage/make.conf; then
-    title=$(sed -e 's, - , - [clang] ,' <<<$title)
+
+  if [[ $name =~ "_llvm" ]]; then
+    title=$(sed -e 's, - , - [llvm] ,' <<<$title)
   fi
-  # sam_
+
   if grep -q '^LIBTOOL="rdlibtool"' ../../../../../etc/portage/make.conf; then
     title=$(sed -e 's, - , - [slibtool] ,' <<<$title)
   fi
+
+  while read -r dice; do
+    title=$(sed -e "s, - , - $dice ," <<<$title)
+  done < <(
+    set +f
+    grep "# DICE.*\[.*\]" ../../../../../etc/portage/package.*/* |
+      grep -Eo '(\[.*\])' |
+      sort -u
+  )
+
   # --assigned-to "unassigned@gentoo.org"
   bugz post \
     --batch \

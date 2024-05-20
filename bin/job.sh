@@ -390,7 +390,30 @@ function CompileIssueComment0() {
 
   This is an $keyword amd64 chroot image at a tinderbox (==build bot)
   name: $name
+EOF
 
+  if grep -q "# DICE.*\[.*\]" /etc/portage/package.unmask/* 2>/dev/null; then
+    (
+      set +f
+      echo -e "\n  UNMASKED:"
+      while read -r dice; do
+        grep -F "$dice" /etc/portage/package.unmask/* |
+          awk '{ print ("   ", $1) }' |
+          sort -u
+        grep -A 1 -F "$dice" /mnt/tb/data/DICE_DESCRIPTIONS |
+          tail -n 1 |
+          sed -e 's,^,      ,'
+      done < <(
+        grep "# DICE.*\[.*\]" ../../../../../etc/portage/package.*/* |
+          grep -Eo '(\[.*\])' |
+          sort -u
+      )
+    ) >>$issuedir/comment0
+  fi
+
+  cat <<EOF >>$issuedir/comment0
+
+  The attached etc.portage.tar.xz has all details.
   -------------------------------------------------------------------
 
 EOF
