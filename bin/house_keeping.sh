@@ -11,7 +11,7 @@ function olderThan() {
   [[ $(((EPOCHSECONDS - start_time) / 86400)) -gt $days ]]
 }
 
-function pruneNeeded() {
+function lowSpace() {
   local maxperc=${1:-75} # max used space of whole FS in % (BTRFS is special!)
 
   local size avail
@@ -79,7 +79,7 @@ while read -r img; do
   fi
 done < <(list_images_by_age "img")
 
-while pruneNeeded && read -r img; do
+while lowSpace && read -r img; do
   if olderThan $img 3; then
     if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
       pruneIt $img "no issue"
@@ -87,7 +87,7 @@ while pruneNeeded && read -r img; do
   fi
 done < <(list_images_by_age "img")
 
-while pruneNeeded && read -r img; do
+while lowSpace && read -r img; do
   if olderThan $img 7; then
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneIt $img "no bug reported"
@@ -95,12 +95,12 @@ while pruneNeeded && read -r img; do
   fi
 done < <(list_images_by_age "img")
 
-while pruneNeeded && read -r img; do
+while lowSpace && read -r img; do
   if olderThan $img 14; then
     pruneIt $img "space needed"
   fi
 done < <(list_images_by_age "img")
 
-if pruneNeeded 89; then
+if lowSpace 89; then
   echo "Warning: fs nearly fullfilled" >&2
 fi
