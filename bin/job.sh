@@ -398,11 +398,11 @@ EOF
       echo -e "\n  UNMASKED:"
       while read -r dice; do
         grep -F "$dice" /etc/portage/package.unmask/* |
-          awk '{ print ("   ", $1) }' |
+          awk '{ print (" ", $1) }' |
           sort -u
         grep -A 1 -F "$dice" /mnt/tb/data/DICE_DESCRIPTIONS |
           tail -n 1 |
-          sed -e 's,^,      ,'
+          sed -e 's,^,    ,'
       done < <(
         grep "# DICE.*\[.*\]" ../../../../../etc/portage/package.*/* |
           grep -Eo '(\[.*\])' |
