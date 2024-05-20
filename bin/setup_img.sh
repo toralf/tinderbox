@@ -778,7 +778,7 @@ function FixPossibleUseFlagIssues() {
       local f=./etc/portage/package.use/24thrown_package_use_flags
       if grep -q "$pkg " $f; then
         sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkg) /d" $f
-        if RunDryrunWrapper "#setup dryrun $attempt-$i # unmet requirements: $pkg"; then
+        if RunDryrunWrapper "#setup dryrun $attempt-$i # unmet req: $pkg"; then
           return 0
         fi
       fi
@@ -807,7 +807,7 @@ function FixPossibleUseFlagIssues() {
         break
       fi
       mv $fixes $fautocirc
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve $(wc -l <$fautocirc) circ dep/s"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # circ dep: $(xargs <$fautocirc)"; then
         return 0
       fi
     fi
@@ -831,7 +831,7 @@ function FixPossibleUseFlagIssues() {
         break
       fi
       mv $fixes $fautoflag
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # try to solve $(wc -l <$fautoflag) USE change/s"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # USE change: $(xargs <$fautoflag)"; then
         return 0
       fi
     fi
