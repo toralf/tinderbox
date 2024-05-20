@@ -23,26 +23,34 @@ function lowSpace() {
   [[ $avail -lt $wanted ]]
 }
 
-function pruneIt() {
-  local img=${1?}
-  local reason=${2?}
+function prepareDeletion() {
+  local img=${1?IMG NOT SET}
 
   if [[ -f $img/var/tmp/tb/KEEP ]]; then
-    echo " $(date) $reason but has to be kept: $img" >&2 # stdout is suppressed in cron job
-    return 0
+    echo " $(date) marked to be kept: $img" >&2 # stdout is suppressed in cron job
+    return 1
   fi
 
   if [[ -e ~tinderbox/run/$(basename $img) ]] || __is_running $img; then
-    return 0
+    return 1
   fi
 
   # https://forums.gentoo.org/viewtopic-p-6072905.html?sid=461188c03d3c4d08de80136a49982d86#6072905
   if [[ -d $img/tmp/.private ]]; then
     chattr -R -a $img/tmp/.private
   fi
+}
+
+function pruneIt() {
+  local img=${1?IMG NOT SET}
+  local reason=${2:-no reason given}
+
+  if ! prepareDeletion $img; then
+    return 0
+  fi
 
   echo " $(date) $reason : $img"
-  rm -r $img
+  rm -r -- $img
   sync
   sleep 20 # btrfs is lazy in reporting free space
 }
@@ -103,4 +111,5 @@ done < <(list_images_by_age "img")
 
 if lowSpace 89; then
   echo "Warning: fs nearly fullfilled" >&2
+  exit 2
 fi
