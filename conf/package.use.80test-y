@@ -20,6 +20,7 @@ dev-libs/weston                     lcms xwayland
 dev-qt/qtbase                       icu sql sqlite
 dev-qt/qtcore                       icu
 dev-qt/qtmultimedia                 qml
+dev-ruby/rrdtool-bindings           graph
 media-gfx/imagemagick               corefonts truetype
 media-libs/gd                       png
 media-libs/harfbuzz                 icu
@@ -30,8 +31,8 @@ media-libs/tiff                     jpeg
 media-sound/pulseaudio              -equalizer
 media-video/ffmpeg                  encode
 net-analyzer/rrdtool                graph -lua rrdcached
-dev-ruby/rrdtool-bindings           graph
 net-firewall/iptables               conntrack nftables
+net-libs/rabbitmq-c                 static-libs
 net-misc/openssh                    ssl -xmss
 net-dns/bind-tools                  -gssapi
 net-nds/openldap                    berkdb -minimal sasl

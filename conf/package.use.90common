@@ -43,10 +43,10 @@ dev-lang/python                     ssl
 dev-lang/python                     -libedit readline
 
 # needs hours instead seconds
-dev-libs/gf2x                       -custom-tune        # DICE: gf2x 9 10
+dev-libs/gf2x                       -custom-tune        # DICE: gf2x 4 5
 
 # takes 2 hours insteads seconds
-app-doc/gimp-help                   -nls                # DICE: gimphelp 9 10
+app-doc/gimp-help                   -nls                # DICE: gimphelp 4 5
 
 # failed otherwise in ebuild phase "pretend"
 net-misc/openssh                    -sctp
@@ -61,15 +61,11 @@ app-text/ansifilter                 -gui
 # default compressor for tar and log files
 app-arch/libarchive                 lzma
 
-# su provider, the later overwrites the former
-sys-apps/shadow                     su
-sys-apps/util-linux                 -su
-sys-apps/shadow                     pam -cracklib -su   # DICE: su_provider 9 10
-sys-apps/util-linux                 pam su suid         # DICE: su_provider 9 10
+# su provider
+sys-apps/shadow                     pam -cracklib -su   # DICE: su_provider 4 5
+sys-apps/util-linux                 pam su suid         # DICE: su_provider 4 5
 
 # kill provider
-sys-apps/util-linux                 -kill
-sys-process/procps                  kill
 sys-apps/util-linux                 kill                # DICE: kill_provider
 sys-process/procps                  -kill               # DICE: kill_provider
 
@@ -83,21 +79,15 @@ sys-kernel/vanilla-kernel           -initramfs -kernel-install
 #
 # avoid setup blocker
 #
-app-accessibility/at-spi2-core      -gtk-doc            # DICE: setup_atspi2
+dev-lang/ruby                       -rdoc               # DICE: setup_ruby 4 5
 dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
-dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 9 10
-dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 9 10
+dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 4 5
+dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 4 5
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
-dev-qt/qtwidgets                    dbus                # DICE: dbus 9 10
-sys-apps/shadow                     pam -cracklib       # DICE: setup_shadow 9 10
-sys-devel/gcc                       -ada                # DICE: setup_gcc 9 10
-x11-misc/xdg-utils                  dbus                # DICE: dbus 9 10
-
-#######################################################################
-#
-# breaks too often
-#
-dev-lang/ruby                       -rdoc               # DICE: rdoc 9 10
+dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 4 5
+sys-apps/shadow                     pam -cracklib       # DICE: setup_shadow 4 5
+sys-devel/gcc                       -ada                # DICE: setup_gcc 4 5
+x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 4 5
 
 #######################################################################
 #
