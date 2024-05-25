@@ -10,7 +10,7 @@ function CreateCgroup() {
   # put all images under 1 sub group
   if [[ ! -d $cgdomain ]]; then
     # this is still racy
-    if mkdir $cgdomain; then
+    if mkdir $cgdomain 2>/dev/null; then
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
       # 28 vCPU for all
