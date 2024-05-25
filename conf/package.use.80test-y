@@ -9,10 +9,14 @@ app-accessibility/flite             alsa
 app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
 app-text/doxygen                    doc
+dev-ada/AdaSAT                      static-libs
 dev-db/mariadb                      extraengine
 dev-debug/strace                    -unwind
+dev-java/ant                        bsf
+dev-java/jaxen                      jdom xom
 dev-libs/glib                       gtk-doc
 dev-libs/libzip                     tools
+dev-libs/mongo-c-driver             static-libs
 dev-libs/openssl                    -sctp
 dev-libs/openssl-compat             -sctp
 dev-libs/thrift                     libevent ssl
@@ -23,6 +27,7 @@ dev-qt/qtmultimedia                 qml
 dev-ruby/rrdtool-bindings           graph
 media-gfx/imagemagick               corefonts truetype
 media-libs/gd                       png
+media-libs/gexiv2                   python
 media-libs/harfbuzz                 icu
 media-libs/leptonica                jpeg
 media-libs/libheif                  go libde265
@@ -33,6 +38,8 @@ media-video/ffmpeg                  encode
 net-analyzer/rrdtool                graph -lua rrdcached
 net-firewall/iptables               conntrack nftables
 net-libs/rabbitmq-c                 static-libs
+net-libs/davix                      tools
+net-libs/ngtcp2                     static-libs
 net-misc/openssh                    ssl -xmss
 net-dns/bind-tools                  -gssapi
 net-nds/openldap                    berkdb -minimal sasl
@@ -47,6 +54,22 @@ sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
 x11-libs/gtk+                       X
 x11-libs/pixman                     openmp
+x11-wm/mutter                       wayland
+
 
 # https://bugs.gentoo.org/840529
 sys-devel/binutils                  multitarget pgo -plugins
+
+
+# these increases coverage
+dev-lang/php                        gdbm -qdbm          # DICE: test-coverage
+dev-qt/qtbase                       icu                 # DICE: test-coverage
+dev-qt/qtmultimedia                 qml                 # DICE: test-coverage
+dev-qt/qtwidgets                    dbus                # DICE: test-coverage
+dev-scheme/racket                   -chez -places       # DICE: test-coverage
+media-libs/sdl-mixer                mod mikmod          # DICE: test-coverage
+media-libs/sdl2-image               jpeg png            # DICE: test-coverage
+media-libs/tiff-compat              jpeg                # DICE: test-coverage
+media-video/ffmpeg                  libv4l v4l          # DICE: test-coverage
+sys-fs/udisks                       -systemd            # DICE: test-coverage
+x11-libs/wxGTK                      jpeg                # DICE: test-coverage
