@@ -45,11 +45,11 @@ function check_history() {
 }
 
 # whatsup.sh -o
-#
-#  pkgs tasks fail bgo  day backlog .upd .1st lck 12#12 locked  +++  Sat Apr 20 16:55:27 UTC 2024
-#   558     -    6   -  0.8   16941  117    - lc  ~/run/23.0_desktop_gnome-20240419-211504
-#  6280  2739  130   5  7.9   14283  451    - lc  ~/run/23.0_desktop_gnome_systemd-20240412-195623
-#  2753   937   17   -  3.6   16106  379    - lc  ~/run/23.0_desktop_gnome_systemd-20240417-024503
+#  pkgs tasks fail bgo  day backlog .upd .1st lck 11#11 locked  +++  Fri May 31 16:12:24 UTC 2024
+#  5697  4738  127   1  7.3   12390   92    4 lc  ~/run/23.0_desktop_gnome_systemd-20240524-073503
+#  5482  2794   93   -  6.2   14208  383    - lc  ~/run/23.0_desktop_plasma-20240525-111503
+#  3389  1978   58   -  4.2   15175  392    - lc  ~/run/23.0_desktop_plasma-20240527-102013
+#    50     5    -   -  0.2   16932   43    3 lc  ~/run/23.0_desktop_systemd-20240531-104002
 function Overall() {
   local locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
@@ -58,7 +58,7 @@ function Overall() {
 
   for i in $images; do
     local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
-    local tasks=$(grep -c -v -e '^@' -e '^%' -e '^#' -e '^=' $i/var/tmp/tb/task.history 2>/dev/null)
+    local tasks=$(grep -c -v -e '^#' -e '^=' $i/var/tmp/tb/task.history 2>/dev/null)
     local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w)
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
     local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0")
