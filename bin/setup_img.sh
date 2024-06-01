@@ -877,7 +877,7 @@ function ThrowFlags() {
 
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
-    grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
+    grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
     ShuffleUseFlags 100 6 30 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23thrown_global_use_flags
@@ -891,7 +891,7 @@ function ThrowFlags() {
       grep 'flag name="' $file |
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
         cut -f 2 -d '"' -s |
-        grep -v -w -f $tbhome/tb/data/IGNORE_USE_FLAGS |
+        grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
         ShuffleUseFlags 20 5 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pkg" "{}"
