@@ -54,7 +54,7 @@ if [[ -s $result.packages ]]; then
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
   while read -r bl; do
     # grep out duplicates
-    grep -v -F -f $bl $result.packages | shuf >$tmpfile
+    grep -v -F -x -f $bl $result.packages | shuf >$tmpfile
     cat $bl >>$tmpfile
     uniq $tmpfile >$bl
   done < <(find ~tinderbox/run/*/var/tmp/tb/ -maxdepth 1 -name "backlog.$suffix")
