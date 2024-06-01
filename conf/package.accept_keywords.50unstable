@@ -5,7 +5,9 @@
 <dev-build/meson-9999                              **   # DICE: [meson-9999] 1 3
 
 # sam_
-<sys-devel/gcc-15.0.9999:15                        **   # DICE: [gcc-15] 1 2
+~dev-libs/icu-75.1                                 **   # DICE: [icu-75.1] 1 2
+~dev-libs/icu-layoutex-75.1                        **   # DICE: [icu-75.1] 1 2
+<sys-devel/gcc-15.0.9999:15                        **   # DICE: [gcc-15] 1 3
 >=sys-libs/ncurses-6.5                             **   # DICE: [ncurses-6.5] 1 4
 
 # Flow

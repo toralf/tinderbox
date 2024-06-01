@@ -48,3 +48,7 @@ Found the following implicit function declarations in configure logs:
 # [Tracker] sys-devel/gcc-15 porting
 932474
 internal compiler error:
+
+# [Tracker] Build failures with dev-libs/icu-75.1
+931089
+auto.* parameter not permitted in this context|parameter declared .*auto
