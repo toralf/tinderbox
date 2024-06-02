@@ -6,14 +6,8 @@
 #
 # tinderbox scope
 #
-*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres15
-*/*         POSTGRES_TARGETS:       postgres16          # DICE: postgres16
 */*         QEMU_SOFTMMU_TARGETS:   x86_64
 */*         QEMU_USER_TARGETS:      x86_64
-*/*         VIDEO_CARDS:            amdgpu dummy fbdev intel radeon radeonsi
-
-# not needed
-*/*                                 -firmware           # DICE: firmware
 
 # 2x faster compile
 */*                                 jumbo-build
@@ -48,13 +42,13 @@ dev-libs/gf2x                       -custom-tune        # DICE: gf2x 4 5
 # takes 2 hours insteads seconds
 app-doc/gimp-help                   -nls                # DICE: gimphelp 4 5
 
-# failed otherwise in ebuild phase "pretend"
-net-misc/openssh                    -sctp
+# rejected
+net-misc/openssh                     -hpn -sctp -X509
 
 # otherwise: USE=secureboot enabled but SECUREBOOT_SIGN_KEY and/or SECUREBOOT_SIGN_CERT not set.
 */*                                 -secureboot
 
-# too much deps would be build already at setup, lowering coverity
+# too much deps would be build at setup, lowering coverity
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -gui
 
@@ -79,6 +73,12 @@ sys-kernel/vanilla-kernel           -initramfs -kernel-install
 #
 # avoid setup blocker
 #
+
+*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres-15
+*/*         POSTGRES_TARGETS:       postgres16          # DICE: postgres-16
+
+*/*         VIDEO_CARDS:            -* dummy fbdev      # DICE: setup_video
+
 dev-lang/ruby                       -rdoc               # DICE: setup_ruby 4 5
 dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
 dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 4 5
@@ -91,7 +91,7 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 4 5
 
 #######################################################################
 #
-# too rarely meet build dep otherwise
+# rarely meet build dep otherwise
 #
 
 # FF
