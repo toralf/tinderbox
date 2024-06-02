@@ -45,7 +45,7 @@ function check_history() {
 }
 
 # whatsup.sh -o
-#  pkgs tasks fail bgo  day backlog .upd .1st lck 11#11 locked  +++  Fri May 31 16:12:24 UTC 2024
+#  pkgs tasks fail bgo  day backlog .upd .1st lcx 11#11 locked  +++  Fri May 31 16:12:24 UTC 2024
 #  5697  4738  127   1  7.3   12390   92    4 lc  ~/run/23.0_desktop_gnome_systemd-20240524-073503
 #  5482  2794   93   -  6.2   14208  383    - lc  ~/run/23.0_desktop_plasma-20240525-111503
 #  3389  1978   58   -  4.2   15175  392    - lc  ~/run/23.0_desktop_plasma-20240527-102013
@@ -54,7 +54,7 @@ function Overall() {
   local locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
 
-  echo " pkgs tasks fail bgo  day backlog .upd .1st lck $locked#$all locked  +++  $(date)"
+  echo " pkgs tasks fail bgo  day backlog .upd .1st lcx $locked#$all locked  +++  $(date)"
 
   for i in $images; do
     local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
