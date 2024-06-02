@@ -87,9 +87,9 @@ function Overall() {
       flags+="E"
     elif [[ -f $i/var/tmp/tb/STOP ]]; then
       flags+="S"
-    elif grep -q "^STOP" $i/var/tmp/tb/backlog*; then
+    elif grep -q "^STOP" $i/var/tmp/tb/backlog{,.1st,.upd} 2>/dev/null; then
       flags+="s"
-    elif grep -q "^INFO" $i/var/tmp/tb/backlog*; then
+    elif grep -q "^INFO" $i/var/tmp/tb/backlog{,.1st,.upd} 2>/dev/null; then
       flags+="i"
     else
       flags+=" "
