@@ -998,6 +998,11 @@ while getopts R:a:k:p:m:M:st:u: opt; do
   R)
     cd $tbhome/img/$(basename $OPTARG)
     name=$(cat ./var/tmp/tb/name)
+    profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
+    cd ./var/db/repos/gentoo
+    git pull -q
+    cd - 1>/dev/null
+    # use current config: -u /dev/null
     CompileUseFlagFiles
     Finalize
     ;;
@@ -1006,7 +1011,7 @@ while getopts R:a:k:p:m:M:st:u: opt; do
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "23.0/desktop"
   s) start_it="y" ;;
   t) testfeature="$OPTARG" ;;  # "y" or "n"
-  u) useflagsfrom="$OPTARG" ;; # "/dev/null" or e.g. "~/img/23.0_desktop_systemd-20230624-014416"
+  u) useflagsfrom="$OPTARG" ;; # "/dev/null" or e.g. "23.0_desktop_systemd-20230624-014416"
   *)
     echo "unknown parameter '$opt'"
     exit 1
