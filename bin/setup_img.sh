@@ -598,6 +598,9 @@ function CreateSetupScript() {
 export LANG=C.utf8
 set -euf
 
+date
+cat /var/tmp/tb/name
+
 # use same user and group id as at the host to avoid confusion
 date
 echo "#setup user" | tee /var/tmp/tb/task
