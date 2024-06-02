@@ -26,11 +26,11 @@ function CreateCgroup() {
   while [[ -d $name ]] && ((i--)); do
     sleep 0.25
   done
+  if [[ -d $name ]]; then
+    return 13
+  fi
   if ! mkdir $name; then
-    # while...done...mkdir is still (rarely) racy
-    if [[ ! -d $name ]]; then
-      return 13
-    fi
+    return 13
   fi
   echo "$$" >$name/cgroup.procs
 
