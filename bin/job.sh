@@ -658,7 +658,7 @@ function SwitchGCC() {
 # helper of RunAndCheck()
 # schedules follow-ups from the current emerge operation
 function PostEmerge() {
-  # immediately needed for a 17.1->23.0 transition
+  # immediately needed for the 17.1->23.0 transition
   env-update >/dev/null 2>>$tasklog
   source_profile
 
@@ -674,7 +674,7 @@ function PostEmerge() {
   rm -f /etc/._cfg????_{hosts,resolv.conf} /etc/conf.d/._cfg????_hostname /etc/portage/._cfg????_make.conf /etc/ssmtp/._cfg????_ssmtp.conf
   etc-update --automode -5 >/dev/null 2>>$tasklog
 
-  # catch the updates in /etc
+  # catch updated /etc
   env-update >/dev/null 2>>$tasklog
   source_profile
 

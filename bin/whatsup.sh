@@ -104,8 +104,8 @@ function Overall() {
 
 # whatsup.sh -t
 #
-# 17.1_desktop-20210102  0:19 m  dev-ros/message_to_tf
-# 17.1_desktop_plasma_s  0:36 m  dev-perl/Module-Install
+# 23.0_desktop-20210102  0:19 m  dev-ros/message_to_tf
+# 23.0_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks() {
   for i in $images; do
     local tsk=$i/var/tmp/tb/task
@@ -141,8 +141,8 @@ function Tasks() {
 
 # whatsup.sh -l
 #
-# 17.1_desktop_plasma_s  0:02 m  >>> AUTOCLEAN: media-sound/toolame:0
-# 17.1_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
+# 23.0_desktop_plasma_s  0:02 m  >>> AUTOCLEAN: media-sound/toolame:0
+# 23.0_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation() {
   for i in $images; do
     if printImageName $i && ! __is_stopped $i && [[ -s $i/var/log/emerge.log ]]; then
@@ -175,8 +175,8 @@ function LastEmergeOperation() {
 
 # whatsup.sh -d
 #                                                        0d   1d   2d   3d   4d   5d   6d   7d
-# 17.1_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
-# 17.1_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
+# 23.0_no_multilib-j3_debug-20210620-175917            1704 1780 1236 1049 1049  727  454  789
+# 23.0_desktop_systemd-j3_debug-20210620-181008        1537 1471 1091  920 1033  917  811  701´
 function PackagesPerImagePerRunDay() {
   printf "%50s" ""
   local oldest=$(

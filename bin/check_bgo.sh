@@ -81,7 +81,7 @@ if [[ $((EPOCHSECONDS - last_sync)) -ge $((2 * 3600)) ]]; then
   sudo /usr/sbin/emaint sync --auto
 fi
 
-name=$(cat $issuedir/../../name)                                           # e.g.: 17.1-20201022-101504
+name=$(cat $issuedir/../../name)                                           # e.g.: 23.0-20201022-101504
 pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # e.g.: net-misc/bird-2.0.7-r1
 pkgname=$(qatom $pkg -F "%{CATEGORY}/%{PN}")                               # e.g.: net-misc/bird
 SetAssigneeAndCc

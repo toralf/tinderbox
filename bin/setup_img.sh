@@ -1001,10 +1001,10 @@ while getopts R:a:k:p:m:M:st:u: opt; do
     ;;
   a) abi3264="$OPTARG" ;;                                       # "y" or "n"
   k) keyword="$OPTARG" ;;                                       # "amd64"
-  p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "17.1/desktop"
+  p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "23.0/desktop"
   s) start_it="y" ;;
   t) testfeature="$OPTARG" ;;  # "y" or "n"
-  u) useflagsfrom="$OPTARG" ;; # "/dev/null" or e.g. "~/img/17.1_desktop_systemd-20230624-014416"
+  u) useflagsfrom="$OPTARG" ;; # "/dev/null" or e.g. "~/img/23.0_desktop_systemd-20230624-014416"
   *)
     echo "unknown parameter '$opt'"
     exit 1
