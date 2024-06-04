@@ -55,6 +55,7 @@ minimal
 mips
 modules
 modules-compress
+modules-sign
 monolithic
 multiarch
 multilib

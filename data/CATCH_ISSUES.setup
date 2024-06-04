@@ -1,3 +1,4 @@
 Could not find Objective-C runtime
 Could not switch to the en_US.UTF-8 locale.
 No suitable POSTGRES_TARGETS enabled
+USE=modules-sign requires additional configuration

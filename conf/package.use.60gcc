@@ -4,6 +4,3 @@
 # https://bugs.gentoo.org/933402
 media-libs/mesa                     -llvm               # DICE: setup_mesa 3 4
 */*            VIDEO_CARDS: -amdgpu -radeon -radeonsi   # DICE: setup_mesa 3 4
-
-#
-sys-devel/llvm                      -xar                # DICE: setup_llvm 4 5
