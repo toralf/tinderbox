@@ -477,7 +477,6 @@ EOF
     cpconf $tbhome/tb/conf/package.*.??stable
   fi
 
-  cp $tbhome/tb/conf/bashrc ./etc/portage
   if [[ $profile =~ "/llvm" ]]; then
     cpconf $tbhome/tb/conf/package.*.??llvm
     cp $tbhome/tb/conf/bashrc.clang ./etc/portage
@@ -960,6 +959,8 @@ EOF
 
 function Finalize() {
   echo "$(date) ${FUNCNAME[0]} ..."
+
+  cp $tbhome/tb/conf/bashrc ./etc/portage
 
   if ! wc -l -w ./etc/portage/package.use/2* 2>/dev/null; then
     echo -e "\n no image specific USE flags"
