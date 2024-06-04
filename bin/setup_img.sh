@@ -388,10 +388,6 @@ EOF
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >>./etc/portage/make.conf
   fi
 
-  if [[ $profile =~ "/llvm" ]]; then
-    echo "PORTAGE_USE_CLANG_HOOK=1" >>./etc/portage/make.conf
-  fi
-
   if [[ $profile =~ "/musl" ]]; then
     echo 'RUSTFLAGS="-C target-feature=-crt-static"' >>./etc/portage/make.conf
   fi
@@ -470,8 +466,6 @@ PORTAGE_USE_CLANG_HOOK=1
 EOF
 
   cat <<EOF >./etc/portage/env/gcc
-CC=gcc
-CXX=g++
 PORTAGE_USE_CLANG_HOOK=0
 EOF
 
