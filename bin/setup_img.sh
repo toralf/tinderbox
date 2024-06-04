@@ -31,7 +31,7 @@ function dice() {
 function DiceAProfile() {
   eselect profile list |
     grep -F '/23.0' |
-    grep -v -e '23.0/no-multilib/hardened' -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
+    grep -v -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
     if dice 7 8; then
@@ -190,6 +190,10 @@ function getStage3Filename() {
   prefix=$(tr '/' '-' <<<$prefix)
   if [[ ! $profile =~ "/musl" && ! $profile =~ "/systemd" ]]; then
     prefix+="-openrc"
+  fi
+
+  if [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
+    prefix=$(sed -e 's,nomultilib-,,' <<<$prefix)
   fi
 
   echo "$(date)   get stage3 file name for prefix $prefix"
@@ -471,7 +475,7 @@ CXX=g++
 PORTAGE_USE_CLANG_HOOK=0
 EOF
 
-  printf '%-37s%s\n' sys-devel/gcc gcc >./etc/portage/package.env/90gcc
+  printf '%-37s%s\n' 'sys-devel/gcc' 'gcc' >./etc/portage/package.env/90gcc
 
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
@@ -572,17 +576,20 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
-  cat <<EOF >>$bl.1st
-@world
-EOF
-
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
-%cd /etc/portage/ && ln -sf bashrc.clang bashrc && printf '%-37s%s\\n' '*/*' clang >>/etc/portage/package.env/clang
+@world
+%cd /etc/portage/ && ln -sf bashrc.clang bashrc && printf \'%-37s%s\\n\' \'*/*\' \'clang\' >/etc/portage/package.env/clang
 %emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
+EOF
+  elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
+    cat <<EOF >>$bl.1st
+%emerge -e @world
+%emerge -1 --deep=0 sys-devel/binutils sys-libs/glibc =\$(portageq best_visible / sys-devel/gcc)
 EOF
   else
     cat <<EOF >>$bl.1st
+@world
 %USE='-mpi -opencl' emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
