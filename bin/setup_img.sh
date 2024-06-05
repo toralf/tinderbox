@@ -648,7 +648,7 @@ emaint sync --auto >/dev/null || true
 
 date
 echo "#setup portage" | tee /var/tmp/tb/task
-emerge -u sys-apps/portage
+emerge -1u sys-apps/portage
 
 date
 echo "#setup ansifilter" | tee /var/tmp/tb/task
