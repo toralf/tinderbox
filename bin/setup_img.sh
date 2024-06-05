@@ -22,11 +22,6 @@ function dice() {
   [[ $((RANDOM % $2)) -lt $1 ]]
 }
 
-# [11:06:37 pm] <@toralf> Would changing the profile and re-emerging @world with --emptytree do it?
-# [11:27:13 pm] <@dilfridge> switching from/to hardened, and switching from multilib to non-multilib, yes
-# [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
-# [11:28:34 pm] <@dilfridge> if you enable hardened, it probably makes sense to "emerge -1 binutils gcc glibc" first and afterwards do emptytree
-
 # helper of InitOptions()
 function DiceAProfile() {
   eselect profile list |
@@ -572,17 +567,20 @@ function CreateBacklogs() {
     cat <<EOF >>$bl.1st
 @world
 %cd /etc/portage/ && ln -sf bashrc.clang bashrc && printf \'%-37s%s\\n\' \'*/*\' \'clang\' >/etc/portage/package.env/clang
-%emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
+%emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
+    # [11:06:37 pm] <@toralf> Would changing the profile and re-emerging @world with --emptytree do it?
+    # [11:27:13 pm] <@dilfridge> switching from/to hardened, and switching from multilib to non-multilib, yes
+    # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
     cat <<EOF >>$bl.1st
 %emerge -e @world
-%emerge -1 --deep=0 sys-devel/binutils sys-libs/glibc =\$(portageq best_visible / sys-devel/gcc)
+%emerge -1 --selective=n --deep=0 sys-devel/binutils sys-libs/glibc =\$(portageq best_visible / sys-devel/gcc)
 EOF
   else
     cat <<EOF >>$bl.1st
 @world
-%USE='-mpi -opencl' emerge -1 --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
+%USE='-mpi -opencl' emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
 }
@@ -915,9 +913,9 @@ EOF
 cat /var/tmp/tb/task
 echo "-------"
 if [[ $profile =~ "/llvm" ]]; then
-  emerge --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
+  emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
 else
-  USE='-mpi -opencl' emerge --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) --pretend
+  USE='-mpi -opencl' emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) --pretend
 fi
 echo "-------"
 emerge --update @world --pretend
