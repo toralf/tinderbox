@@ -336,7 +336,6 @@ function CompileMakeConf() {
 
   cat <<EOF >./etc/portage/make.conf
 LC_MESSAGES=C
-PORTAGE_TMPFS="/dev/shm"
 
 # set each explicitely to tweak (only) CFLAGS in job.sh e.g. for gcc-14
 CFLAGS="$cflags"
