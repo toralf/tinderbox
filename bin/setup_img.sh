@@ -794,7 +794,7 @@ function FixPossibleUseFlagIssues() {
       grep -F ' (Change USE: -' |
       grep -v -F -e '+' -e 'This change might require ' |
       sed -e "s,^- ,>=," -e "s, (Change USE:,," -e 's,),,' |
-      grep -v -e 'python_targets_' -e 'video_cards_' |
+      grep -v -e '_target' -e 'video_cards_' |
       while read -r p u; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $(xargs -n 1 <<<$u | sort -u | xargs); do
@@ -819,7 +819,7 @@ function FixPossibleUseFlagIssues() {
     local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
     grep -A 300 'The following USE changes are necessary to proceed:' $drylog |
       grep '^>=.* .*' |
-      grep -v -e 'python_targets_' -e 'video_cards_' |
+      grep -v -e '_target' -e 'video_cards_' |
       while read -r p u; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $(xargs -n 1 <<<$u | sort -u | xargs); do
