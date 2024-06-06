@@ -49,12 +49,18 @@ __tinderbox_checkEOL() {
     exit 42
   fi
 }
+
+__tinderbox_loadToHigh() {
+  read -r one_min tasks < <(tr './' ' ' </proc/loadavg | cut -f 1,7 -d ' ')
+  [[ $one_min -ge 32 && $tasks -ge 32 ]]
+}
+
 case ${EBUILD_PHASE} in
   setup|unpack|prepare|configure|compile)
-    while [[ $(cut -f 1 -d '.' /proc/loadavg) -ge 32 && $(sed -e 's,/.*,,' -e 's,^.* ,,' /proc/loadavg) -ge 32 ]]; do
+    while __tinderbox_loadToHigh; do
       __tinderbox_checkEOL
       touch /var/tmp/tb/WAIT
-      sleep 10
+      sleep 15
       rm /var/tmp/tb/WAIT
     done
     __tinderbox_checkEOL
