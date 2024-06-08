@@ -6,6 +6,7 @@ boot
 bootstrap
 build
 cet
+clang
 compile-locales
 compiler-rt
 conntrack

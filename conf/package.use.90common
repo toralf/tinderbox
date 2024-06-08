@@ -1,16 +1,12 @@
 # package.use/90common
 #
 
-
 #######################################################################
 #
-# tinderbox scope
+# mandatory
 #
 */*         QEMU_SOFTMMU_TARGETS:   x86_64
 */*         QEMU_USER_TARGETS:      x86_64
-
-# 2x faster compile
-*/*                                 jumbo-build
 
 # used mailer
 mail-mta/ssmtp                      mta ssl -gnutls
@@ -21,7 +17,7 @@ sys-apps/nix                        -etc_profile
 # https pull/fetch would fail otherwise due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
-# needed for ::gentoo repository
+# required for ::gentoo repository
 net-misc/curl                       ssl
 
 # qlop: error while loading shared libraries: libgomp.so.1:
@@ -36,12 +32,6 @@ dev-lang/python                     ssl
 # required by www-client/pybugz
 dev-lang/python                     -libedit readline
 
-# needs hours instead seconds
-dev-libs/gf2x                       -custom-tune        # DICE: gf2x 4 5
-
-# takes 2 hours insteads seconds
-app-doc/gimp-help                   -nls                # DICE: gimphelp 4 5
-
 # rejected
 net-misc/openssh                     -hpn -sctp -X509
 
@@ -55,42 +45,38 @@ app-text/ansifilter                 -gui
 # default compressor for tar and log files
 app-arch/libarchive                 lzma
 
-# su provider
-sys-apps/shadow                     -cracklib pam -su   # DICE: su_provider 4 5
-sys-apps/util-linux                 pam su suid         # DICE: su_provider 4 5
-
-# kill provider
-sys-apps/util-linux                 kill                # DICE: kill_provider
-sys-process/procps                  -kill               # DICE: kill_provider
-
 # no install + https://bugs.gentoo.org/831346
-sys-kernel/gentoo-kernel            -initramfs -kernel-install
 sys-kernel/gentoo-kernel-bin        -initramfs -kernel-install
 sys-kernel/installkernel            -dracut -grub
-sys-kernel/vanilla-kernel           -initramfs -kernel-install
+
+# GNAT is required otherwise
+sys-devel/gcc                       -ada
 
 #######################################################################
 #
-# avoid setup blocker
+# misc
 #
 
-*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres-15
-*/*         POSTGRES_TARGETS:       postgres16          # DICE: postgres-16
+# 2x faster compile
+*/*                                 jumbo-build
 
-*/*         VIDEO_CARDS:            -* dummy fbdev      # DICE: setup_video
+# test alternative su provider
+sys-apps/shadow                     su                  # DICE: su_provider 1 5
+sys-apps/util-linux                 -su                 # DICE: su_provider 1 5
 
-dev-lang/ruby                       -rdoc               # DICE: setup_ruby 4 5
-dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
-dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 4 5
-dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 4 5
-dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
-dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 4 5
-sys-devel/gcc                       -ada                # DICE: setup_gcc 4 5
-x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 4 5
+# test alternative kill provider
+sys-apps/util-linux                 kill                # DICE: kill_provider 1 5
+sys-process/procps                  -kill               # DICE: kill_provider 1 5
+
+# needs hours instead seconds
+dev-libs/gf2x                       -custom-tune        # DICE: gf2x 4 5
+
+# takes 2 hours insteads seconds
+app-doc/gimp-help                   -nls                # DICE: gimphelp 4 5
 
 #######################################################################
 #
-# rarely meet build dep otherwise
+# rarely met build dep otherwise
 #
 
 # FF
@@ -176,3 +162,22 @@ sys-libs/libblockdev                lvm nvme cryptsetup                   # DICE
 virtual/mpi                         threads                               # DICE: libreoffice 1 6
 x11-libs/cairo                      X                                     # DICE: libreoffice 1 6
 x11-libs/gtk+                       X                                     # DICE: libreoffice 1 6
+
+#######################################################################
+#
+# avoid setup blocker
+#
+
+*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres-15
+*/*         POSTGRES_TARGETS:       postgres16          # DICE: postgres-16
+
+*/*         VIDEO_CARDS:            -* dummy fbdev      # DICE: setup_video
+
+dev-lang/ruby                       -rdoc               # DICE: setup_ruby 4 5
+dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
+dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 4 5
+dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 4 5
+dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
+dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 4 5
+sys-apps/shadow                     -cracklib pam       # DICE: shadow 4 5
+x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 4 5
