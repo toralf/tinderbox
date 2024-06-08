@@ -61,7 +61,7 @@ function Overall() {
     local tasks=$(grep -c -v -e '^#' -e '^=' $i/var/tmp/tb/task.history 2>/dev/null)
     local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w)
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
-    local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0")
+    local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
     local bl=$(wc -l <$i/var/tmp/tb/backlog 2>/dev/null)
     local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st 2>/dev/null)
     local blu=$(wc -l <$i/var/tmp/tb/backlog.upd 2>/dev/null)
@@ -98,7 +98,7 @@ function Overall() {
     local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'
-    printf "%5i %5i %4i %3i %4.1f %7i %4i %4i %3s %s/%s\n" ${pkgs:-0} ${tasks:-0} ${fail:-0} $bgo $days ${bl:-0} ${blu:-0} ${bl1:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
+    printf "%5i %5i %4i %3i %4.1f %7i %4i %4i %3s %s/%s\n" ${pkgs:-0} ${tasks:-0} ${fail:-0} $bgo ${days:-0} ${bl:-0} ${blu:-0} ${bl1:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
   done
 }
 
