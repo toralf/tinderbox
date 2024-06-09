@@ -13,20 +13,16 @@ function Exit() {
 
 function SetAssigneeAndCc() {
   local assignee
-  local cc=""
-
-  local m=$(equery meta -m $pkgname | grep '@' | xargs)
-  if [[ -z $m ]]; then
+  local cc
+  read -r assignee cc <<<$(equery meta -m $pkgname | xargs)
+  if [[ -z $assignee ]]; then
     assignee="maintainer-needed@gentoo.org"
-  else
-    assignee=$(cut -f 1 -d ' ' <<<$m)
-    cc+=" $(cut -f 2- -d ' ' -s <<<$m)"
   fi
 
   if grep -q 'file collision with' $issuedir/title; then
     local collision_partner
-    collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     local collision_partner_pkgname
+    collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
     if [[ -n $collision_partner_pkgname ]]; then
       cc+=" $(equery meta -m $collision_partner_pkgname | grep '@' | xargs)"
