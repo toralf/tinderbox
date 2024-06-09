@@ -2,18 +2,13 @@
 #
 
 
-*/*         RUBY_TARGETS:           ruby32              # DICE: ruby32
 */*         RUBY_TARGETS:           ruby33              # DICE: ruby33
 
-# requested by sam_
+# sam_
 sys-devel/gcc                       debug               # DICE: gcc_debug
 
 # sam_, negril OOM
-sci-libs/vtk                        X,cuda,ffmpeg,imaging,logging,mpi,video_cards_nvidia,python,qt5,-qt6,rendering,sdl,tbb,threads,views,vtkm       # DICE: vtk
-sci-libs/cgnslib                    hdf5                                                                                                            # DICE: vtk
-sci-libs/hdf5                       mpi                                                                                                             # DICE: vtk
-sys-cluster/openmpi                 cxx                                                                                                             # DICE: vtk
-
+sci-libs/vtk                        freetype logging openmp qt5 rendering threads views -doc -examples -ffmpeg -gdal -gles2-only -imaging -java -las -mpi -mysql -odbc -opencascade -openvdb -pdal -postgres -python -qt6 -sdl -tbb -test -tk -vtkm -web  # DICE: vtk
 
 #######################################################################
 # open bugs
