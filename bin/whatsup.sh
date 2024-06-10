@@ -321,7 +321,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 source $(dirname $0)/lib.sh
 
 if ! columns=$(tput cols 2>/dev/null); then
-  columns=120
+  columns=160
 fi
 
 while getopts cdlopt opt; do
