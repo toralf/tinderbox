@@ -3,7 +3,7 @@
 # from sam_ : meson hook
 post_src_install() {
   (
-    if grep -E -q 'internal compiler error' "${WORKDIR}"/*/config.log &> /dev/null ; then
+    if grep -q 'internal compiler error' "${WORKDIR}"/*/config.log &> /dev/null ; then
       echo "${CATEGORY}/${PF}: Found ICE in config.log?!"
     fi
 

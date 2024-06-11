@@ -497,7 +497,7 @@ EOF
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
   # take lines tagged with "# DICE: <topic> <m> <N>" with an m/N chance (default: 1/2)
-  grep -hEo '# DICE: .*' ./etc/portage/package.*/* |
+  grep -ho '# DICE: .*' ./etc/portage/package.*/* |
     cut -f 3- -d ' ' |
     sort -u -r |
     tr -d '][' |
