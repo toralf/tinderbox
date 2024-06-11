@@ -179,5 +179,5 @@ dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 4 5
 dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 4 5
 dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 4 5
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
-sys-apps/shadow                     -cracklib pam       # DICE: shadow 4 5
+sys-apps/shadow                     -cracklib           # DICE: shadow 4 5
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 4 5
