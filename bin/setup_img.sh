@@ -575,12 +575,12 @@ EOF
     # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
     cat <<EOF >>$bl.1st
 %emerge -e @world
-%emerge -1 --selective=n --deep=0 sys-devel/binutils sys-libs/glibc =\$(portageq best_visible / sys-devel/gcc)
+%emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 EOF
   else
     cat <<EOF >>$bl.1st
 @world
-%USE='-mpi -opencl' emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
+emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
 }
@@ -918,7 +918,7 @@ echo "-------"
 if [[ $profile =~ "/llvm" ]]; then
   emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
 else
-  USE='-mpi -opencl' emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) --pretend
+  emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) --pretend
 fi
 echo "-------"
 emerge --update @world --pretend
