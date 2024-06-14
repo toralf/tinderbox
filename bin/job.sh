@@ -615,6 +615,7 @@ function WorkAtIssue() {
 
   # scheduling "%perl-cleaner --all" before "@world" in setup.sh yields sometimes to blockers so live with this for now
   if grep -q 't locate Locale/gettext.pm in' $pkglog_stripped; then
+    ReachedEOL 'perl-cleaner reached' $pkglog_stripped
     do_report=0
     try_again=1
     add2backlog "$task"
@@ -895,7 +896,7 @@ function WorkOnTask() {
         cut -f 2- -d ']' |
         awk '{ print $1 }' |
         xargs |
-        grep -q -F "dev-lang/perl x11-libs/pango dev-perl/Locale-gettext"; then
+        grep -q -F "dev-perl/Locale-gettext x11-libs/pango dev-lang/perl"; then
         echo "caught the infamous Perl dep issue" | tee -a /var/tmp/tb/KEEP >>$tasklog
         ReachedEOL "caught Perl issue" $tasklog
         echo -e "\ndry run for Perl succeeded\n" >>$tasklog
@@ -993,7 +994,7 @@ function DetectRepeats() {
   # task-loop
   if [[ ! $name =~ "_test" ]]; then
     read -r count item < <(tail -n 50 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-    if [[ $count -ge 21 ]]; then
+    if [[ $count -ge 21 ]] || [[ $task =~ "perl-cleaner" && $count -ge 5 ]] ; then
       ReachedEOL "task too often ($count) repeated: $count x $item"
     fi
   fi
