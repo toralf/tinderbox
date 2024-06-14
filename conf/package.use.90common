@@ -9,7 +9,7 @@
 */*         QEMU_USER_TARGETS:      x86_64
 
 # used mailer
-mail-mta/ssmtp                      mta ssl -gnutls
+mail-mta/ssmtp                      mta ssl
 
 # /etc/profile.d/nix.sh overwrites /etc/profile
 sys-apps/nix                        -etc_profile
