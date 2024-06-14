@@ -54,7 +54,7 @@ function CreateCgroup() {
 function RemoveCgroup() {
   local name=$cgdomain/${mnt##*/}
 
-  # rmdir might fail
+  # still (but rarely) racy
   echo "while [[ -d $name ]]; do grep -q 'populated 0' $name/cgroup.events 2>/dev/null && rmdir $name 2>/dev/null || sleep 0.2; done" | at now 2>/dev/null
 }
 
@@ -171,8 +171,12 @@ if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   exit 1
 fi
 
+i=10
+while [[ -d $lock_dir ]] && ((i--)); do
+  sleep 0.25
+done
 if [[ -d $lock_dir ]]; then
-  echo " lock dir '$lock_dir' does already exist" >&2
+  echo " lock dir '$lock_dir' exists" >&2
   exit 1
 fi
 trap 'Exit' INT QUIT TERM EXIT
