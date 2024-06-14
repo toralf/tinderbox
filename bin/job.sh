@@ -472,15 +472,11 @@ function add2backlog() {
     sed -i -e "/@preserved-rebuild/d" $bl
     sed -i -e "1 i\@preserved-rebuild" $bl
   elif [[ $1 =~ "emerge -e @world" ]]; then
-    set +u
-    if [[ -n $pkg ]]; then
-      Mail "INFO: will resume with --skipfirst"
+    if [[ -n ${pkg:-} ]]; then
       echo "%emerge --resume --skipfirst" >>$bl
     else
-      Mail "INFO: will resume"
       echo "%emerge --resume" >>$bl
     fi
-    set -u
   else
     if [[ $1 =~ ^@ || $1 =~ ^% ]]; then
       # avoid duplicating of next task
