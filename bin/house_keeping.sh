@@ -79,7 +79,7 @@ if gpg --verify $latest &>/dev/null; then
 fi
 
 # mtime could be much older than even the host
-find ~tinderbox/distfiles/ -maxdepth 1 -type f -atime +90 -delete
+find ~tinderbox/distfiles/ -ignore_readdir_race -maxdepth 1 -type f -atime +90 -delete
 
 while read -r img; do
   if [[ ! -s $img/var/log/emerge.log && $((EPOCHSECONDS - $(stat -c %Z $img))) -gt 3600 ]]; then
