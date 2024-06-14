@@ -887,6 +887,20 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     local opts=""
     if [[ $task =~ "@world" ]]; then
+      echo -e "\ndry run for Perl\n" >>$tasklog
+      # requested by sam_
+      if emerge -p -uvDU @world 2>&1 |
+        tee -a $tasklog |
+        grep -Eo "^\[ebuild .*(dev-lang/perl|x11-libs/pango|dev-perl/Locale-gettext)" |
+        cut -f 2- -d ']' |
+        awk '{ print $1 }' |
+        xargs |
+        grep -q -F "dev-lang/perl x11-libs/pango dev-perl/Locale-gettext"; then
+        echo "caught the infamous Perl dep issue" | tee -a /var/tmp/tb/KEEP >>$tasklog
+        ReachedEOL "caught Perl issue" $tasklog
+        echo -e "\ndry run for Perl succeeded\n" >>$tasklog
+      fi
+
       opts+=" --update --changed-use"
       if [[ ! $task =~ " --backtrack=50" ]]; then
         # it it was needed in the past already then skip attempt to try without it
