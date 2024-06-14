@@ -62,7 +62,7 @@ function InitOptions() {
   name="n/a" # set in CreateImageName()
   start_it="n"
   testfeature="n"
-  useflagsfrom=""
+  useconfigof=""
 
   profile=$(DiceAProfile)
 
@@ -128,8 +128,8 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ -n $useflagsfrom && $useflagsfrom != "/dev/null" && ! -d ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/ ]]; then
-    echo " useflagsfrom is wrong: >>$useflagsfrom<<"
+  if [[ -n $useconfigof && $useconfigof != "/dev/null" && ! -d ~tinderbox/img/$(basename $useconfigof)/etc/portage/ ]]; then
+    echo " useconfigof is wrong: >>$useconfigof<<"
     return 1
   fi
 }
@@ -590,7 +590,7 @@ function CreateSetupScript() {
 
   cat <<EOF >./var/tmp/tb/setup.sh
 #!/bin/bash
-# set -x
+set -x
 
 export LANG=C.utf8
 set -euf
@@ -727,6 +727,9 @@ function RunSetupScript() {
     echo -e "$(date)   FAILED"
     tail -n 100 ./var/tmp/tb/setup.sh.log
     echo
+    return 1
+  fi
+  if grep -h -F ' * IMPORTANT: config file ' ./var/tmp/tb/setup.sh.log | grep -v '/etc/ssmtp/ssmtp.conf'; then
     return 1
   fi
 }
@@ -925,12 +928,14 @@ EOF
   local drylog=./var/tmp/tb/logs/dryrun.log
   rm -f ./var/tmp/tb/logs/dryrun{,.*}.log
 
-  if [[ -n $useflagsfrom ]]; then
+  if [[ -n $useconfigof ]]; then
     echo
     date
-    echo " +++  run dryrun once with USE flags from $useflagsfrom  +++"
-    if [[ $useflagsfrom != "/dev/null" ]]; then
-      cp ~tinderbox/img/$(basename $useflagsfrom)/etc/portage/package.use/* ./etc/portage/package.use/
+    echo " +++  run dryrun once using config of $useconfigof  +++"
+    if [[ $useconfigof != "/dev/null" ]]; then
+      for i in accept_keywords env mask unmask use; do
+        cp ~tinderbox/img/$(basename $useconfigof)/etc/portage/package.$i/* ./etc/portage/package.$i/
+      done
     fi
     if FixPossibleUseFlagIssues 0; then
       return 0
@@ -963,8 +968,6 @@ function Finalize() {
     echo -e "\n no image specific USE flags"
   fi
 
-  grep -h -m 1 "IMPORTANT: config file .* needs updating." ./var/tmp/tb/logs/dryrun* | sort -u
-
   if [[ $start_it == "y" ]]; then
     cd $tbhome/run
     ln -sf ../img/$name
@@ -988,6 +991,10 @@ fi
 trap Exit INT QUIT TERM EXIT
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++$(date)\n $0 start"
 
+exec 42>/tmp/setup-trace.log
+BASH_XTRACEFD="42"
+set -x
+
 tbhome=~tinderbox
 reposdir=/var/db/repos
 
@@ -998,19 +1005,20 @@ while getopts R:a:k:p:m:M:st:u: opt; do
     cd $tbhome/img/$(basename $OPTARG)
     name=$(cat ./var/tmp/tb/name)
     profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
+    useconfigof="/dev/null"
     cd ./var/db/repos/gentoo
     git pull -q
     cd - 1>/dev/null
-    # use current config: -u /dev/null
     CompileUseFlagFiles
     Finalize
+    exit 0
     ;;
   a) abi3264="$OPTARG" ;;                                       # "y" or "n"
   k) keyword="$OPTARG" ;;                                       # "amd64"
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "23.0/desktop"
   s) start_it="y" ;;
-  t) testfeature="$OPTARG" ;;  # "y" or "n"
-  u) useflagsfrom="$OPTARG" ;; # "/dev/null" or e.g. "23.0_desktop_systemd-20230624-014416"
+  t) testfeature="$OPTARG" ;; # "y" or "n"
+  u) useconfigof="$OPTARG" ;; # "/dev/null" or e.g. "23.0_desktop_systemd-20230624-014416"
   *)
     echo "unknown parameter '$opt'"
     exit 1
@@ -1028,5 +1036,9 @@ CompileMiscFiles
 CreateBacklogs
 CreateSetupScript
 RunSetupScript
+set +x
 CompileUseFlagFiles
+set -x
 Finalize
+
+mv /tmp/setup-trace.log $tbhome/img/$name/var/tmp/tb/
