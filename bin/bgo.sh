@@ -206,7 +206,7 @@ if [[ -n $block ]]; then
   bugz modify --add-blocked "$block" $id >bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
 fi
 
-# do this as the very last step to reduce the amount of emails to the package maintainer(s)
+# set this as the very last step to reduce the amount of emails send out
 if [[ $new_bug -eq 1 ]]; then
   assign
 fi
