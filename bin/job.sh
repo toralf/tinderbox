@@ -472,7 +472,7 @@ function add2backlog() {
     sed -i -e "/@preserved-rebuild/d" $bl
     sed -i -e "1 i\@preserved-rebuild" $bl
   elif [[ $1 =~ "emerge -e @world" ]]; then
-    if [[ -n ${pkg:-} ]]; then
+    if [[ -n ${pkg-} ]]; then
       echo "%emerge --resume --skipfirst" >>$bl
     else
       echo "%emerge --resume" >>$bl
@@ -613,16 +613,11 @@ function WorkAtIssue() {
     do_report=0
   fi
 
-  # scheduling "%perl-cleaner --all" before "@world" in setup.sh yields sometimes to blockers so live with this for now
-  if grep -q 't locate Locale/gettext.pm in' $pkglog_stripped; then
+  if grep -q -F 't locate Locale/gettext.pm in' $pkglog_stripped; then
     ReachedEOL 'perl-cleaner reached' $pkglog_stripped
-    do_report=0
-    try_again=1
-    add2backlog "$task"
-    add2backlog '%perl-cleaner --all'
   fi
 
-  if grep -q -e "Please, run 'haskell-updater'" $pkglog_stripped; then
+  if grep -q -F "Please, run 'haskell-updater'" $pkglog_stripped; then
     do_report=0
     try_again=1
     add2backlog "$task"
@@ -899,8 +894,8 @@ function WorkOnTask() {
         grep -q -F "dev-perl/Locale-gettext x11-libs/pango dev-lang/perl"; then
         echo "caught the infamous Perl dep issue" | tee -a /var/tmp/tb/KEEP >>$tasklog
         ReachedEOL "caught Perl issue" $tasklog
-        echo -e "\ndry run for Perl succeeded\n" >>$tasklog
       fi
+      echo -e "\ndry run for Perl succeeded\n" >>$tasklog
 
       opts+=" --update --changed-use"
       if [[ ! $task =~ " --backtrack=50" ]]; then
@@ -988,14 +983,14 @@ function DetectRepeats() {
   # repeated package
   read -r count item < <(qlop --nocolor --merge --verbose | tail -n 500 | awk '{ print $3 }' | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge 5 ]]; then
-    ReachedEOL "package too often ($count) emerged: $count x $item"
+    ReachedEOL "package too often emerged: $count x $item"
   fi
 
   # task-loop
   if [[ ! $name =~ "_test" ]]; then
-    read -r count item < <(tail -n 50 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-    if [[ $count -ge 21 ]] || [[ $task =~ "perl-cleaner" && $count -ge 5 ]] ; then
-      ReachedEOL "task too often ($count) repeated: $count x $item"
+    read -r count item < <(tail -n 30 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
+    if [[ $count -ge 15 ]]; then
+      ReachedEOL "task too often repeated: $count x $item"
     fi
   fi
 }
