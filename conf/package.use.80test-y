@@ -13,6 +13,7 @@ dev-ada/AdaSAT                      static-libs
 dev-db/mariadb                      extraengine
 dev-debug/strace                    -unwind
 dev-java/ant                        bsf
+dev-java/jflex                      ant-task
 dev-java/jaxen                      jdom xom
 dev-libs/glib                       gtk-doc
 dev-libs/libzip                     tools
@@ -29,7 +30,7 @@ media-gfx/imagemagick               corefonts truetype
 media-libs/gd                       png
 media-libs/gexiv2                   python
 media-libs/harfbuzz                 icu
-media-libs/leptonica                jpeg
+media-libs/leptonica                jpeg png
 media-libs/libheif                  go libde265
 media-libs/soxr                     examples
 media-libs/tiff                     jpeg
