@@ -128,8 +128,8 @@ function Tasks() {
         echo -n " "
       fi
 
-      if [[ ${#task} -gt $((columns - 58)) ]]; then
-        echo "$(cut -c1-$((columns - 55)) <<<$task)..."
+      if [[ ${#task} -gt $((columns - 56)) ]]; then
+        echo "$(cut -c1-$((columns - 56)) <<<$task)..."
       else
         echo $task
       fi
