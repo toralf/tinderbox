@@ -614,7 +614,7 @@ function WorkAtIssue() {
   fi
 
   if grep -q -F 't locate Locale/gettext.pm in' $pkglog_stripped; then
-    ReachedEOL 'perl-cleaner reached' $pkglog_stripped
+    ReachedEOL "perl-cleaner Perl dep issue for $pkg" $pkglog_stripped
   fi
 
   if grep -q -F "Please, run 'haskell-updater'" $pkglog_stripped; then
@@ -883,20 +883,6 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     local opts=""
     if [[ $task =~ "@world" ]]; then
-      echo -e "\ndry run for Perl\n" >>$tasklog
-      # requested by sam_
-      if emerge -p -uvDU @world 2>&1 |
-        tee -a $tasklog |
-        grep -Eo "^\[ebuild .*(dev-lang/perl|x11-libs/pango|dev-perl/Locale-gettext)" |
-        cut -f 2- -d ']' |
-        awk '{ print $1 }' |
-        xargs |
-        grep -q -F "dev-perl/Locale-gettext x11-libs/pango dev-lang/perl"; then
-        echo "caught the infamous Perl dep issue" | tee -a /var/tmp/tb/KEEP >>$tasklog
-        ReachedEOL "caught Perl issue" $tasklog
-      fi
-      echo -e "\ndry run for Perl succeeded\n" >>$tasklog
-
       opts+=" --update --changed-use"
       if [[ ! $task =~ " --backtrack=50" ]]; then
         # it it was needed in the past already then skip attempt to try without it
@@ -904,6 +890,22 @@ function WorkOnTask() {
           task+=" --backtrack=50"
         fi
       fi
+      if ! emerge -p -uvDU $task &>>$tasklog; then
+        ReachedEOL "dry run failed: $task" $tasklog
+      fi
+      echo -e "\ncheck for Perl dep issue\n" >>$tasklog
+      for i in net-libs/libmbim x11-libs/pango; do
+        if grep -Eo "^\[ebuild .*(dev-lang/perl|$i|dev-perl/Locale-gettext)" $tasklog |
+          cut -f 2- -d ']' |
+          awk '{ print $1 }' |
+          xargs |
+          grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
+          local msg="Perl dep issue for $i"
+          echo "$msg" | tee -a /var/tmp/tb/KEEP >>$tasklog
+          ReachedEOL "$msg" $tasklog
+        fi
+      done
+      echo -e "\ncheck for Perl dep issue succeeded\n" >>$tasklog
     fi
 
     local histfile=/var/tmp/tb/$(cut -f 1 -d ' ' <<<$task).history
