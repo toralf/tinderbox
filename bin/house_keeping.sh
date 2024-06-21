@@ -27,7 +27,7 @@ function prepareDeletion() {
   local img=${1?IMG NOT SET}
 
   if [[ -f $img/var/tmp/tb/KEEP ]]; then
-    echo " $(date) marked to be kept: $img" >&2 # stdout is suppressed in cron job
+    # echo " $(date) marked to be kept: $img" >&2 # stdout is suppressed in cron job
     return 1
   fi
 
