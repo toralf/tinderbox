@@ -990,8 +990,8 @@ function DetectRepeats() {
 
   # task-loop
   if [[ ! $name =~ "_test" ]]; then
-    read -r count item < <(tail -n 30 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-    if [[ $count -ge 15 ]]; then
+    read -r count item < <(tail -n 50 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
+    if [[ $count -ge 25 ]]; then
       ReachedEOL "task too often repeated: $count x $item"
     fi
   fi
