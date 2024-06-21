@@ -47,7 +47,7 @@ function list_active_images() {
     while read -r i; do
       if [[ -d ~tinderbox/run/$i ]]; then
         echo ~tinderbox/run/"$i"
-      else
+      elif [[ -d ~tinderbox/img/$i ]]; then
         echo ~tinderbox/img/"$i"
       fi
     done
