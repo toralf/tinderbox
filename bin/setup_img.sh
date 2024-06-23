@@ -580,7 +580,7 @@ EOF
   else
     cat <<EOF >>$bl.1st
 @world
-emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
+%emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
 }
