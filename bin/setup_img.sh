@@ -567,7 +567,7 @@ function CreateBacklogs() {
     cat <<EOF >>$bl.1st
 @world
 %cd /etc/portage/ && ln -sf bashrc.clang bashrc && printf \'%-37s%s\\n\' \'*/*\' \'clang\' >/etc/portage/package.env/clang
-%emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
+%emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
     # [11:06:37 pm] <@toralf> Would changing the profile and re-emerging @world with --emptytree do it?
@@ -575,12 +575,12 @@ EOF
     # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
     cat <<EOF >>$bl.1st
 %emerge -e @world
-%emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
+%emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 EOF
   else
     cat <<EOF >>$bl.1st
 @world
-%emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
+%emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
 }
@@ -916,14 +916,14 @@ EOF
 cat /var/tmp/tb/task
 echo "-------"
 if [[ $profile =~ "/llvm" ]]; then
-  emerge --pretend -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
+  emerge --pretend -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
 elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
-  emerge --pretend -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
+  emerge --pretend -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 else
-  emerge --pretend -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
+  emerge --pretend -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc)
 fi
 echo "-------"
-emerge --update @world --pretend
+emerge -u @world --pretend
 EOF
 
   chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
