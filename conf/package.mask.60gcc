@@ -1,6 +1,2 @@
 # package.mask/60gcc
 #
-
-<sys-devel/llvm-16.0.6                                  # DICE: old_llvm_16 1 2
-<sys-devel/llvm-17.0.6                                  # DICE: old_llvm_17 1 3
-<sys-devel/llvm-18.1.6                                  # DICE: old_llvm_18 1 4

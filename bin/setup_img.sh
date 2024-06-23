@@ -916,9 +916,11 @@ EOF
 cat /var/tmp/tb/task
 echo "-------"
 if [[ $profile =~ "/llvm" ]]; then
-  emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
+  emerge --pretend -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
+elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
+  emerge --pretend -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 else
-  emerge -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc) --pretend
+  emerge --pretend -1 --selective=n --deep=0 --update =\$(portageq best_visible / sys-devel/gcc)
 fi
 echo "-------"
 emerge --update @world --pretend
