@@ -456,7 +456,7 @@ function setWorkDir() {
     if [[ ! -d $workdir ]]; then
       workdir=/var/tmp/portage/$pkg/work/$(basename $pkg)
       if [[ ! -d $workdir ]]; then
-        # no work dir, if "fetch" phase failed
+        # there's no work dir e.g. in "fetch" phase
         workdir=""
       fi
     fi
@@ -530,7 +530,7 @@ function finishTitle() {
   else
     sed -i -e "s,^,$pkg - ," $issuedir/title
   fi
-  sed -i -e 's,\s\s*, ,g' $issuedir/title
+  sed -i -E 's,\s+, ,g' $issuedir/title
   truncate -s "<150" $issuedir/title # limit "Summary" length to a reasonable default (b.g.o allows more, see https://github.com/toralf/tinderbox/issues/6)
 }
 
