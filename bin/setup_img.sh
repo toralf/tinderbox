@@ -128,7 +128,7 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ -n $useconfigof && $useconfigof != "/dev/null" && ! -d ~tinderbox/img/$(basename $useconfigof)/etc/portage/ ]]; then
+  if [[ -n $useconfigof && $useconfigof != "me" && ! -d ~tinderbox/img/$(basename $useconfigof)/etc/portage/ ]]; then
     echo " useconfigof is wrong: >>$useconfigof<<"
     return 1
   fi
@@ -934,10 +934,12 @@ EOF
     echo
     date
     echo " +++  run dryrun once using config of $useconfigof  +++"
-    if [[ $useconfigof != "/dev/null" ]]; then
-      for i in accept_keywords env mask unmask use; do
-        cp ~tinderbox/img/$(basename $useconfigof)/etc/portage/package.$i/* ./etc/portage/package.$i/
-      done
+    if [[ $useconfigof != "me" ]]; then
+      if [[ $(basename $useconfigof) != $(basename $name) ]]; then
+        for i in accept_keywords env mask unmask use; do
+          cp ~tinderbox/img/$(basename $useconfigof)/etc/portage/package.$i/* ./etc/portage/package.$i/
+        done
+      fi
     fi
     if FixPossibleUseFlagIssues 0; then
       return 0
@@ -1007,7 +1009,7 @@ while getopts R:a:k:p:m:M:st:u: opt; do
     cd $tbhome/img/$(basename $OPTARG)
     name=$(cat ./var/tmp/tb/name)
     profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
-    useconfigof="/dev/null"
+    useconfigof="me"
     cd ./var/db/repos/gentoo
     git pull -q
     cd - 1>/dev/null
@@ -1020,7 +1022,7 @@ while getopts R:a:k:p:m:M:st:u: opt; do
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "23.0/desktop"
   s) start_it="y" ;;
   t) testfeature="$OPTARG" ;; # "y" or "n"
-  u) useconfigof="$OPTARG" ;; # "/dev/null" or e.g. "23.0_desktop_systemd-20230624-014416"
+  u) useconfigof="$OPTARG" ;; # "me" or e.g. "23.0_desktop_systemd-20230624-014416"
   *)
     echo "unknown parameter '$opt'"
     exit 1
