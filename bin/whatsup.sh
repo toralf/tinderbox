@@ -107,13 +107,13 @@ function Overall() {
 # 23.0_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 23.0_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks() {
+  local line
   for i in $images; do
-    local tsk=$i/var/tmp/tb/task
-    if printImageName $i && ! __is_stopped $i && [[ -s $tsk ]]; then
-      local task=$(cat $tsk)
+    local taskfile=$i/var/tmp/tb/task
+    if printImageName $i && ! __is_stopped $i && [[ -s $taskfile ]]; then
 
       set +e
-      ((delta = EPOCHSECONDS - $(stat -c %Z $tsk)))
+      ((delta = EPOCHSECONDS - $(stat -c %Z $taskfile)))
       ((minutes = delta / 60 % 60))
       if [[ $delta -lt 3600 ]]; then
         ((seconds = delta % 60))
@@ -124,14 +124,16 @@ function Tasks() {
       fi
       set -e
 
-      if [[ ! $task =~ "@" && ! $task =~ "%" && ! $task =~ "#" ]]; then
-        echo -n " "
-      fi
-
-      if [[ ${#task} -gt $((columns - 56)) ]]; then
-        echo "$(cut -c1-$((columns - 56)) <<<$task)..."
+      local task=$(cat $taskfile)
+      if [[ $task =~ "@" || $task =~ "%" || $task =~ "#" ]]; then
+        line="$task"
       else
-        echo $task
+        line=" $task"
+      fi
+      if [[ ${#line} -gt $((columns - 57)) ]]; then
+        echo "$(cut -c 1-$((columns - 54)) <<<$line)..."
+      else
+        echo "$line"
       fi
     else
       echo
