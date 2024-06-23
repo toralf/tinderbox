@@ -167,7 +167,7 @@ function LastEmergeOperation() {
           printf (" ");
         }
         my $line = join (" ", @F[2..$#F]);
-        print substr ($line, 0, '$columns' - 38), "\n";
+        print substr ($line, 0, '$columns' - 42 - 9), "\n";
       '
     else
       echo
