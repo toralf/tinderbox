@@ -779,7 +779,7 @@ function FixPossibleUseFlagIssues() {
     )
     if [[ -n $pkg ]]; then
       local f=./etc/portage/package.use/24thrown_package_use_flags
-      if grep -q "$pkg " $f; then
+      if grep -q "^${pkg} " $f; then
         sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkg) /d" $f
         if RunDryrunWrapper "#setup dryrun $attempt-$i # unmet req: $pkg"; then
           return 0
@@ -799,7 +799,7 @@ function FixPossibleUseFlagIssues() {
       while read -r p u; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $(xargs -n 1 <<<$u | sort -u | xargs); do
-          if ! grep -q "$pn  .*$flag" ./etc/portage/package.use/*; then
+          if ! grep -q "^${pn}  .*$flag" ./etc/portage/package.use/*; then
             printf "%-36s %s\n" $pn $flag
           fi
         done
@@ -824,7 +824,7 @@ function FixPossibleUseFlagIssues() {
       while read -r p u; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $(xargs -n 1 <<<$u | sort -u | xargs); do
-          if ! grep -q "$pn  .*$flag" ./etc/portage/package.use/*; then
+          if ! grep -q "^${pn}  .*$flag" ./etc/portage/package.use/*; then
             printf "%-36s %s\n" $(qatom -F "%{CATEGORY}/%{PN}" $p) $flag
           fi
         done
