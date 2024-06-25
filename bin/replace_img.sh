@@ -5,7 +5,7 @@
 # replace an image with a new one
 
 function Finish() {
-  local rc=${1:-$?}
+  local rc=$?
   local pid=$$
 
   trap - INT QUIT TERM EXIT
@@ -144,4 +144,4 @@ while :; do
   break
 done
 
-Finish 0
+Finish
