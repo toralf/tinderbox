@@ -56,7 +56,9 @@ function Finish() {
   set +e
   subject="finished $rc $(stripQuotesAndMore <<<$subject)"
   Mail "$subject" $attachment
-  if [[ $# -gt 0 ]]; then
+  if [[ $rc -ne 0 || $# -eq 0 ]]; then
+    touch /var/tmp/tb/STOP
+  else
     rm -f /var/tmp/tb/STOP
   fi
   exit $rc
