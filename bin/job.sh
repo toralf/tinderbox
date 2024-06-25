@@ -42,22 +42,24 @@ function ReachedEOL() {
   local all=$(ls -d /var/tmp/tb/issues/* 2>/dev/null | wc -l)
   /usr/bin/pfl &>/dev/null || true
   subject+=", $(grep -c ' ::: completed emerge' /var/log/emerge.log) completed, $new#$all bug(s) new"
-  Finish 0 "EOL $subject" $attachment
+  Finish "EOL $subject" $attachment
 }
 
 # this is the end ...
 function Finish() {
-  local exit_code=${1:-$?}
-  local subject=${2:-"INTERNAL ERROR"}
-  local attachment=${3-}
+  local rc=$?
+  local subject=${1:-"INTERNAL ERROR"}
+  local attachment=${2-}
 
   trap - INT QUIT TERM EXIT
-  set +e
 
-  subject="finished $exit_code $(stripQuotesAndMore <<<$subject)"
+  set +e
+  subject="finished $rc $(stripQuotesAndMore <<<$subject)"
   Mail "$subject" $attachment
-  rm -f /var/tmp/tb/STOP
-  exit $exit_code
+  if [[ $# -gt 0 ]]; then
+    rm -f /var/tmp/tb/STOP
+  fi
+  exit $rc
 }
 
 # helper of getNextTask()
@@ -98,7 +100,7 @@ function getNextTask() {
       continue
 
     elif [[ $task =~ ^STOP ]]; then
-      Finish 0 "$task"
+      Finish "$task"
 
     elif [[ $task =~ ^@ || $task =~ ^% ]]; then
       break
@@ -156,14 +158,15 @@ function CompressIssueFiles() {
 }
 
 function CreateEmergeInfo() {
-  local outfile=$issuedir/files/emerge-history.txt
   local cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, it would sort alphabetically
+
+  local outfile=$issuedir/files/emerge-history.txt
   cat <<EOF >$outfile
 # This file contains the emerge history got with:
 # $cmd
 # at $(date)
 EOF
-  $cmd &>>$outfile
+  $cmd >>$outfile
 
   outfile=$issuedir/files/qlist-info.txt
   cmd="qlist --installed --nocolor --verbose --umap --slots --slots"
@@ -172,7 +175,7 @@ EOF
 # $cmd
 # at $(date)
 EOF
-  $cmd &>>$outfile
+  $cmd >>$outfile
 
   emerge -p --info $pkgname &>$issuedir/emerge-info.txt
 }
@@ -276,7 +279,7 @@ function foundSandboxIssue() {
   fi
   echo "sandbox issue" >$issuedir/title
   if [[ -s $sandb ]]; then
-    head -v -n 20 $sandb &>$issuedir/issue
+    head -v -n 20 $sandb >$issuedir/issue
   else
     echo "cannot found $sandb" >$issuedir/issue
   fi
@@ -826,7 +829,7 @@ function RunAndCheck() {
     local signal=$((rc - 128))
     if [[ $signal -eq 9 ]]; then
       ps faux | xz >/var/tmp/tb/ps-faux-after-being-killed-9.log.xz
-      Finish 9 "KILLed" $tasklog
+      Finish "KILLed" $tasklog
     else
       pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
       if GetPkglog; then
@@ -843,7 +846,13 @@ function RunAndCheck() {
   # an error occurred
   elif [[ $rc -gt 0 ]]; then
     if phase=$(grep -e " * The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
-      Finish 0 "phase $phase died"
+      if [[ -f /var/tmp/tb/EOL ]]; then
+        ReachedEOL "phase $phase died with EOL" $tasklog
+      elif [[ -f /var/tmp/tb/STOP ]]; then
+        Finish "phase $phase died with STOP" $tasklog
+      else
+        ReachedEOL "phase $phase died with rc=$rc" $tasklog
+      fi
 
     elif GetPkgFromTaskLog; then
       GetPkglog
@@ -860,7 +869,7 @@ function RunAndCheck() {
           echo "=$pkg" >>$self
         fi
       fi
-      # put world file into same state as if the (previously successfully installed) deps would have been already emerged in separate previous task/s
+      # put world file into same state as if the (previously successfully installed) deps were been emerged already by a past task
       if grep -q '^>>> Installing ' $tasklog_stripped; then
         emerge --depclean --verbose=n --pretend 2>/dev/null |
           grep "^All selected packages: " |
@@ -1095,7 +1104,7 @@ if [[ $name =~ "_test" ]]; then
   export XRD_LOGLEVEL="Debug"
 fi
 
-# non-empty if Finish() was called by an internal error -or- bashrc catched a STOP during sleep
+# non-empty if Finish() was called by an internal error -or- bashrc caught a STOP during sleep
 if [[ -s $taskfile ]]; then
   add2backlog "$(cat $taskfile)"
 fi
@@ -1114,11 +1123,9 @@ ulimit -Sn 512000
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :; do
   if [[ -f /var/tmp/tb/EOL ]]; then
-    echo "#catched EOL" >$taskfile
-    ReachedEOL "catched EOL" /var/tmp/tb/EOL
+    ReachedEOL "caught EOL" /var/tmp/tb/EOL
   elif [[ -f /var/tmp/tb/STOP ]]; then
-    echo "" >$taskfile
-    Finish 0 "catched STOP" /var/tmp/tb/STOP
+    Finish "caught STOP" /var/tmp/tb/STOP
   fi
 
   # sync repository hourly
