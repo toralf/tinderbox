@@ -558,7 +558,8 @@ function SendIssueMailIfNotYetReported() {
     createSearchString
     if checkBgo &>>$issuedir/body; then
       if SearchForSameIssue &>>$issuedir/body; then
-        hints+=" same"
+        # hints+=" same"
+        return
       elif ! BgoIssue; then
         if SearchForSimilarIssue &>>$issuedir/body; then
           hints+=" similar"
@@ -901,10 +902,10 @@ function WorkOnTask() {
           task+=" --backtrack=50"
         fi
       fi
+      echo -e "\ncheck for Perl dep issue\n" >>$tasklog
       if ! emerge -p -uvDU $task &>>$tasklog; then
         ReachedEOL "dry run failed: $task" $tasklog
       fi
-      echo -e "\ncheck for Perl dep issue\n" >>$tasklog
       for i in net-libs/libmbim x11-libs/pango; do
         if grep -Eo "^\[ebuild .*(dev-lang/perl|$i|dev-perl/Locale-gettext)" $tasklog |
           cut -f 2- -d ']' |
@@ -912,7 +913,6 @@ function WorkOnTask() {
           xargs |
           grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
           local msg="Perl dep issue for $i"
-          echo "$msg" | tee -a /var/tmp/tb/KEEP >>$tasklog
           ReachedEOL "$msg" $tasklog
         fi
       done
