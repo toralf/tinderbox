@@ -130,8 +130,8 @@ function Tasks() {
       else
         line=" $task"
       fi
-      if [[ ${#line} -gt $((columns - 57)) ]]; then
-        echo "$(cut -c 1-$((columns - 54)) <<<$line)..."
+      if [[ ${#line} -gt $((columns - 58)) ]]; then
+        echo "$(cut -c 1-$((columns - 55)) <<<$line)..."
       else
         echo "$line"
       fi
@@ -167,7 +167,7 @@ function LastEmergeOperation() {
           printf (" ");
         }
         my $line = join (" ", @F[2..$#F]);
-        print substr ($line, 0, '$columns' - 42 - 9), "\n";
+        print substr ($line, 0, '$columns' - 42 - 10), "\n";
       '
     else
       echo
