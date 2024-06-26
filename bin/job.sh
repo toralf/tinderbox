@@ -895,13 +895,7 @@ function WorkOnTask() {
   if [[ $task =~ ^@ ]]; then
     local opts=""
     if [[ $task =~ "@world" ]]; then
-      opts+=" --update --changed-use"
-      if [[ ! $task =~ " --backtrack=50" ]]; then
-        # it it was needed in the past already then skip attempt to try without it
-        if grep -q '@world --backtrack=' $taskfile.history; then
-          task+=" --backtrack=50"
-        fi
-      fi
+      opts+=" --update --changed-use --backtrack=50"
       echo -e "\ncheck for Perl dep issue\n" >>$tasklog
       if ! emerge -p -uvDU $task &>>$tasklog; then
         ReachedEOL "dry run failed: $task" $tasklog
@@ -936,11 +930,7 @@ function WorkOnTask() {
         echo "$(date) NOT ok $pkg" >>$histfile
       else
         echo "$(date) NOT ok" >>$histfile
-        if [[ ! $task =~ " --backtrack=" ]] && grep -q -e ' --backtrack=30' -e 'backtracking has terminated early' $tasklog; then
-          add2backlog "$task --backtrack=50"
-        else
-          ReachedEOL "$task is broken" $tasklog
-        fi
+        ReachedEOL "$task is broken" $tasklog
       fi
     fi
 
