@@ -8,19 +8,19 @@ function killPid() {
   local pid=$1
 
   pstree -UlnspuTa $pid | tee ~tinderbox/img/$img/var/tmp/tb/killed_process.log | head -n 20 | cut -c 1-200
-  echo
-  echo -n " stopping $pid "
-  kill -15 $pid
-  i=60
-  while ((i--)) && kill -0 $pid 2>/dev/null; do
-    echo -n '.'
-    sleep 1
-  done
-  echo
-  if kill -0 $pid 2>/dev/null; then
-    echo " notice: get roughly for $pid"
-    kill -9 $pid
+  if kill -0 $pid; then
+    kill -15 $pid
+    i=60
+    while ((i--)) && kill -0 $pid; do
+      echo -n '.'
+      sleep 1
+    done
     echo
+    if kill -0 $pid 2>/dev/null; then
+      echo " notice: become roughly for $pid"
+      kill -9 $pid
+      echo
+    fi
   fi
 }
 
