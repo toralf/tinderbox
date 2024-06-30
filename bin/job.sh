@@ -25,7 +25,7 @@ function Mail() {
   fi |
     strings -w |
     sed -e 's,^>, >,' |
-    if ! timeout --signal=15 --kill-after=1m 5m mail -s "$subject @ $name" ${MAILTO:-tinderbox@zwiebeltoralf.de} &>/var/tmp/mail.log; then
+    if ! mail -S nosendwait -s "$subject @ $name" ${MAILTO:-tinderbox@zwiebeltoralf.de} &>/var/tmp/mail.log; then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
       cat /var/tmp/mail.log >&2
     fi
