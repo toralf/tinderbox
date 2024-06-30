@@ -127,7 +127,7 @@ while :; do
       img=$(awk '/ setup failed for / { print $10 }' $tmpfile)
       date
       echo " $img failed rc=$rc"
-      cat $tmpfile | mail -s "NOTICE: setup failed $img rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de}
+      mail -S nosendwait -s "NOTICE: setup failed $img rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de} <$tmpfile
       exit $rc
     fi
     continue
