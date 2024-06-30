@@ -1,0 +1,1535 @@
+diff --git a/THANKS b/THANKS
+index 8e730e4b..b2ad91cc 100644
+--- a/THANKS
++++ b/THANKS
+@@ -13,6 +13,7 @@ Afan                      snailmail at ottenheimer dot com
+ Jesse Alama               jessealama at fastmail dot fm
+ Claus Assmann             mutt+dev at esmtp dot org
+ Andreas Baumann           mail at andreasbaumann dot cc
++Bob Beck                  beck at obtuse dot com
+ Russell Bell              russellbell at gmail dot com
+ Martynas Bendorius        martynas at martynas dot it
+ Hilko Bengen              bengen at debian dot org
+@@ -69,6 +70,7 @@ Thomas Haigh              UW-Milwaukee and Universität Siegen
+ Alexander Harm            contact at aharm dot de
+ Stuart Henderson          stu at spacehopper dot org
+ Peter Hofmann             snailusers at uninformativ dot de
++John Holder               bsu-sdaodeneu at simulakrum dot com
+ Frantisek Holop           minusf at obiit dot org
+ Peter J. Holzer           hjp-luga2 at hjp dot at
+ Ken Hornstein             kenh at pobox dot com
+@@ -78,11 +80,13 @@ Stephen Isard             3s9xh9m02 at sneakemail dot com
+ Steve Izma                sizma at golden dot net
+ Joan                      aseques at gmail dot com
+ Josef Jurek               josef dot jurek at gmail dot com
++Χάρης Καραχριστιανίδης    hariskar at otenet dot gr
+ Ryan Kavanagh             rak at debian dot org
+ Tarqi Kazan               tarqi at cfs dot or dot gs
+ Ralph Keller              20 dot keller at use dot startmail dot com
+ Matthias Kilian           kili at outback dot escape dot de
+ Yasuhiro KIMURA           yasu at utahime dot org
++klu                       kludev at gmail dot com
+ Vincent Lefevre           vincent at vinc17 dot net
+ Paride Legovini           pl at ninthfloor dot org
+ Leo                       thinkabit dot ukim at gmail dot com
+@@ -133,7 +137,7 @@ Rich Salz                 rsalz at akamai dot com
+ Jörg Schilling            schily at schily dot net
+ Jens Schleusener          Jens dot Schleusener at t-online dot de
+ Georg Schlisio            g dot schlisio at dukun dot de
+-Johannes Schöpfer         johannes@schoepfer.info
++Johannes Schöpfer         johannes at schoepfer dot info
+ Martin Sebor              msebor at redhat dot com
+ Mike Sharov               msharov at users dot sourceforge dot net
+ Slavko                    linux at slavino dot sk
+diff --git a/include/mx/nailfuns.h b/include/mx/nailfuns.h
+index f912944b..4c875607 100644
+--- a/include/mx/nailfuns.h
++++ b/include/mx/nailfuns.h
+@@ -911,7 +911,8 @@ FL boole n_header_match(struct message *mp, struct search_expr const *sep);
+  * Return the (standard) header name, or NULL */
+ FL char const *n_header_is_known(char const *name, uz len);
+ 
+-/* Add a custom header to the given list, in auto-reclaimed or heap memory */
++/* Add a custom header to the given list, in auto-reclaimed or heap memory;
++ * if heap is TRUM1 then only check state; hflp can be NIL, then! */
+ FL boole n_header_add_custom(struct n_header_field **hflp, char const *dat,
+             boole heap);
+ 
+diff --git a/include/mx/names.h b/include/mx/names.h
+index 42cb4e0d..17168f47 100644
+--- a/include/mx/names.h
++++ b/include/mx/names.h
+@@ -170,7 +170,7 @@ EXPORT struct mx_name *mx_alternates_remove(struct mx_name *np,
+       boole keep_single);
+ 
+ /* Likewise, is name an alternate in broadest sense? */
+-EXPORT boole mx_name_is_mine(char const *name);
++EXPORT boole mx_name_is_metoo(char const *name, boole check_reply_to);
+ 
+ #include <su/code-ou.h>
+ #endif /* mx_NAMES_H */
+diff --git a/mk/make-config.sh b/mk/make-config.sh
+index 2d7c619a..b851e0b8 100644
+--- a/mk/make-config.sh
++++ b/mk/make-config.sh
+@@ -2502,6 +2502,7 @@ feat_yes NET &&
+ #include <netinet/in.h>
+ #include <fcntl.h>
+ #include <stdlib.h>
++#include <string.h> /* FD_ZERO() SunOS 5.9, at least */
+ #include <unistd.h>
+ # include <errno.h>
+ int main(void){
+@@ -2751,9 +2752,6 @@ int nonempty;
+ #include <openssl/x509v3.h>
+ #include <openssl/x509.h>
+ #include <openssl/rand.h>
+-#ifdef OPENSSL_NO_TLS1 /* TODO only deduced from OPENSSL_NO_SSL[23]! */
+-# error We need TLSv1.
+-#endif
+ int main(void){
+    SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
+ 
+@@ -2772,10 +2770,6 @@ int main(void){
+ #include <openssl/x509v3.h>
+ #include <openssl/x509.h>
+ #include <openssl/rand.h>
+-#if defined OPENSSL_NO_SSL3 &&\
+-      defined OPENSSL_NO_TLS1 /* TODO only deduced from OPENSSL_NO_SSL[23]! */
+-# error We need one of SSLv3 and TLSv1.
+-#endif
+ int main(void){
+    SSL_CTX *ctx = SSL_CTX_new(SSLv23_client_method());
+ 
+diff --git a/nail.1 b/nail.1
+index 636470a8..0d490fa9 100644
+--- a/nail.1
++++ b/nail.1
+@@ -6707,8 +6707,9 @@ active and
+ d by giving the string used for creation.
+ .Pp
+ The channel name is expected to be a file descriptor number, or,
+-if parsing the numeric fails, an input file name that undergoes
+-.Sx "Filename transformations" .
++if parsing the numeric fails, an input file name that undergoes minimal
++.Sx "Filename transformations"
++(no meta expansion are performed).
+ For example (this example requires a modern shell):
+ .Bd -literal -offset indent
+ $ printf 'echon "hey, "\enread a\enyou\enecho $a' |\e
+diff --git a/src/mx/accmacvar.c b/src/mx/accmacvar.c
+index fb6afc37..bcde1c50 100644
+--- a/src/mx/accmacvar.c
++++ b/src/mx/accmacvar.c
+@@ -985,30 +985,16 @@ a_amv_var_check_vips(enum a_amv_var_vip_mode avvm, enum okeys okey,
+             ok = FAL0;
+          break;
+       case ok_v_customhdr:{
+-         char const *vp;
+-         char *buf;
+-         struct n_header_field *hflp, **hflpp, *hfp;
+-
+-         buf = savestr(*val);
+-         hflp = NIL;
+-         hflpp = &hflp;
++         char const *ccp;
++         char *cp;
+ 
+-         while((vp = su_cs_sep_escable_c(&buf, ',', TRU1)) != NULL){
+-            if(!n_header_add_custom(hflpp, vp, TRU1)){
++         cp = savestr(*val);
++         while((ccp = su_cs_sep_escable_c(&cp, ',', TRU1)) != NIL){
++            if(!n_header_add_custom(NIL, ccp, TRUM1)){
+                emsg = N_("Invalid *customhdr* entry: %s\n");
+-               break;
++               goto jerr;
+             }
+-            hflpp = &(*hflpp)->hf_next;
+          }
+-
+-         hflpp = (emsg == NIL) ? &n_customhdr_list : &hflp;
+-         while((hfp = *hflpp) != NULL){
+-            *hflpp = hfp->hf_next;
+-            n_free(hfp);
+-         }
+-         if(emsg)
+-            goto jerr;
+-         n_customhdr_list = hflp;
+          }break;
+       case ok_v_from:
+       case ok_v_sender:{
+@@ -1130,6 +1116,21 @@ jefrom:
+             "doing this for you");
+          n_PS_ROOT_BLOCK(ok_vset(bind_inter_byte_timeout, *val));
+          break;
++      case ok_v_customhdr:{
++         char const *ccp;
++         struct n_header_field *hflp, **hflpp;
++         char *cp;
++
++         cp = savestr(*val);
++         hflp = NIL;
++         hflpp = &hflp;
++
++         while((ccp = su_cs_sep_escable_c(&cp, ',', TRU1)) != NIL){
++            (void)n_header_add_custom(hflpp, ccp, TRU1);
++            hflpp = &(*hflpp)->hf_next;
++         }
++         n_customhdr_list = hflp;
++         }break;
+       case ok_b_debug:
+          n_poption |= n_PO_D;
+          su_log_set_level(su_LOG_DEBUG);
+diff --git a/src/mx/cmd-head.c b/src/mx/cmd-head.c
+index 62eefa19..f66bd205 100644
+--- a/src/mx/cmd-head.c
++++ b/src/mx/cmd-head.c
+@@ -139,9 +139,9 @@ a_chead__hprf(uz yetprinted, char const *fmt, uz msgno, FILE *f,
+       _NONE       = 0,
+       _ISDOT      = 1<<0,
+       _ISTO       = 1<<1,
+-      _IFMT       = 1<<2,
++      a_IFMT      = 1<<2,
+       _LOOP_MASK  = (1<<4) - 1,
+-      _SFMT       = 1<<4,        /* It is 'S' */
++      a_SFMT      = 1<<4,        /* It is 'S' */
+       /* For the simple byte-based counts in wleft and n we sometimes need
+        * adjustments to compensate for additional bytes of UTF-8 sequences */
+       _PUTCB_UTF8_SHIFT = 5,
+@@ -185,7 +185,7 @@ a_chead__hprf(uz yetprinted, char const *fmt, uz msgno, FILE *f,
+             subjlen -= n;
+          }
+          if (*fp == 'i')
+-            flags |= _IFMT;
++            flags |= a_IFMT;
+ 
+          if (*fp == '\0')
+             break;
+@@ -431,7 +431,7 @@ jmlist: /* v15compat */
+          }
+          break;
+       case 'S':
+-         flags |= _SFMT;
++         flags |= a_SFMT;
+          /*FALLTHRU*/
+       case 's':
+          if (n == 0)
+@@ -442,18 +442,18 @@ jmlist: /* v15compat */
+             subjlen = wleft;
+          if (UCMP(32, ABS(n), >, subjlen))
+             n = (n < 0) ? -subjlen : subjlen;
+-         if (flags & _SFMT)
++         if (flags & a_SFMT)
+             n -= (n < 0) ? -2 : 2;
+          if (n == 0)
+             break;
+          if (subjline == NULL)
+-            subjline = a_chead__subject(mp, (threaded && (flags & _IFMT)),
++            subjline = a_chead__subject(mp, (threaded && (flags & a_IFMT)),
+                   subject_thread_compress, yetprinted);
+          if (subjline == (char*)-1) {
+             n = fprintf(f, "%*s", n, n_empty);
+             wleft = (n >= 0) ? wleft - n : 0;
+          } else {
+-            n = fprintf(f, ((flags & _SFMT) ? "\"%s\"" : "%s"),
++            n = fprintf(f, ((flags & a_SFMT) ? "\"%s\"" : "%s"),
+                   colalign(subjline, ABS(n), n, &wleft));
+             if (n < 0)
+                wleft = 0;
+diff --git a/src/mx/cmd.c b/src/mx/cmd.c
+index f9b7d24b..2c9428e2 100644
+--- a/src/mx/cmd.c
++++ b/src/mx/cmd.c
+@@ -496,7 +496,7 @@ mx_cmd_print_synopsis(struct mx_cmd_desc const *cdp_or_nil, FILE *fp_or_nil){
+ 
+ boole
+ mx_cmd_arg_parse(struct mx_cmd_arg_ctx *cacp){
+-   enum {a_NONE, a_STOPLOOP = 1u<<0, a_GREEDYJOIN = 1u<<1};
++   enum {a_NONE, a_STOPLOOP = 1u<<0, a_GREEDYJOIN = 1u<<1, a_REDID = 1u<<2};
+ 
+    struct mx_cmd_arg ncap, *lcap, *target_argp, **target_argpp, *cap;
+    struct str shin_orig, shin;
+@@ -736,12 +736,16 @@ jredo:
+                   mx_CMD_ARG_DESC_GREEDY_JOIN) &&
+                (ncap.ca_ent_flags[0] & mx_CMD_ARG_DESC_SHEXP)))
+             f |= a_GREEDYJOIN;
++         f |= a_REDID;
+          goto jredo;
+       }
+    }
+ 
+ jloop_break:
+-   if(cad_idx < cadp->cad_no){
++   ASSERT(cad_idx < cadp->cad_no || !(f & a_REDID) ||
++      ((f & a_REDID) && cad_idx + 1 == cadp->cad_no &&
++       (cadp->cad_ent_flags[cad_idx][0] & mx_CMD_ARG_DESC_GREEDY)));
++   if(!(f & a_REDID) && cad_idx < cadp->cad_no){
+       if(!(cadp->cad_ent_flags[cad_idx][0] & mx_CMD_ARG_DESC_OPTION))
+          goto jerr;
+    }else if(!(f & a_STOPLOOP) && shin.l > 0){
+diff --git a/src/mx/colour.c b/src/mx/colour.c
+index d86e1083..175d35fd 100644
+--- a/src/mx/colour.c
++++ b/src/mx/colour.c
+@@ -394,8 +394,10 @@ a_colour_mux(char **argv){
+          cmp->cm_tag = bp;
+          su_mem_copy(bp, ctag, ++tl);
+          /*bp += tl;*/
+-      }else
++      }else if(a_COLOUR_TAG_IS_SPECIAL(ctag))
+          cmp->cm_tag = ctag;
++      else
++         cmp->cm_tag = NIL;
+ 
+       /* Non-buf stuff; default mapping */
+       if(lcmp != NULL){
+diff --git a/src/mx/dig-msg.c b/src/mx/dig-msg.c
+index 3ee61ac6..a37472c3 100644
+--- a/src/mx/dig-msg.c
++++ b/src/mx/dig-msg.c
+@@ -258,7 +258,7 @@ a_dmsg__header(FILE *fp, struct mx_dig_msg_ctx *dmcp,
+             hp->h_subject = savecatsep(hp->h_subject, ' ',
+                   a3p->ca_arg.ca_str.s);
+          else
+-            hp->h_subject = a3p->ca_arg.ca_str.s;
++            hp->h_subject = savestr(a3p->ca_arg.ca_str.s);
+          if(fprintf(fp, "210 %s 1\n", cp) < 0)
+             cp = NIL;
+          goto jleave;
+@@ -890,9 +890,9 @@ jatt_attset:
+          c = *cp;
+ 
+          if(!su_cs_cmp_case(keyw, "filename"))
+-            ap->a_name = (c == '\0') ? ap->a_path_bname : cp;
++            ap->a_name = (c == '\0') ? ap->a_path_bname : savestr(cp);
+          else if(!su_cs_cmp_case(keyw, "content-description"))
+-            ap->a_content_description = (c == '\0') ? NIL : cp;
++            ap->a_content_description = (c == '\0') ? NIL : savestr(cp);
+          else if(!su_cs_cmp_case(keyw, "content-id")){
+             ap->a_content_id = NIL;
+ 
+@@ -909,7 +909,7 @@ jatt_attset:
+                   cp = NIL;
+             }
+          }else if(!su_cs_cmp_case(keyw, "content-type")){
+-            if((ap->a_content_type = (c == '\0') ? NIL : cp) != NIL){
++            if((ap->a_content_type = (c == '\0') ? NIL : (cp = savestr(cp))) != NIL){
+                char *cp2;
+ 
+                for(cp2 = UNCONST(char*,cp); (c = *cp++) != '\0';)
+@@ -921,7 +921,7 @@ jatt_attset:
+                }
+             }
+          }else if(!su_cs_cmp_case(keyw, "content-disposition"))
+-            ap->a_content_disposition = (c == '\0') ? NIL : cp;
++            ap->a_content_disposition = (c == '\0') ? NIL : savestr(cp);
+          else
+             cp = NIL;
+ 
+diff --git a/src/mx/file-dotlock.h b/src/mx/file-dotlock.h
+index 79de6099..86252c20 100644
+--- a/src/mx/file-dotlock.h
++++ b/src/mx/file-dotlock.h
+@@ -156,8 +156,8 @@ a_file_lock_dotlock__create_excl(struct mx_file_dotlock_info *fdip,
+    unlink(lname);
+ 
+    /* If the number of links was two (one for the unique file and one for
+-    * the lock), we've won the race */
+-   if(stb.st_nlink != 2)
++    * the lock), we have won the race; also for one: encfs etc create unique */
++   if(stb.st_nlink > 2)
+       rv = mx_FILE_DOTLOCK_STATE_EXIST;
+ jleave:
+    return rv;
+diff --git a/src/mx/go.c b/src/mx/go.c
+index 004b53f8..2cf2ea93 100644
+--- a/src/mx/go.c
++++ b/src/mx/go.c
+@@ -157,9 +157,9 @@ enum a_go_hist_flags{
+ struct a_go_eval_ctx{
+    struct str gec_line; /* The terminated data to _evaluate() */
+    u32 gec_line_size; /* May be used to store line memory size */
++   boole gec_have_ln_aq; /* fs_linepool_aquire()d */
+    boole gec_ever_seen; /* Has ever been used (main_loop() only) */
+    boole gec_ignerr; /* Implicit `ignerr' prefix */
+-   u8 gec__dummy[1];
+    u8 gec_hist_flags; /* enum a_go_hist_flags */
+    char const *gec_hist_cmd; /* If a_GO_HIST_ADD only, cmd and args */
+    char const *gec_hist_args;
+@@ -469,7 +469,7 @@ jrestart:
+          flags |= a_NOALIAS;
+ 
+       if((alias_name = mx_commandalias_exists(word, &alias_exp)) != NULL){
+-         uz i;
++         uz i, j;
+ 
+          if(s != NULL){
+             s = n_string_push_cp(s, word);
+@@ -478,10 +478,13 @@ jrestart:
+          }
+ 
+          /* And join arguments onto alias expansion */
+-         alias_name = word;
+          i = strlen(alias_exp);
++         j = su_cs_len(word);
+          cp = line.s;
+-         line.s = n_autorec_alloc(i + 1 + line.l +1);
++         alias_name = line.s = n_autorec_alloc(j +1 + i + 1 + line.l +1);
++         su_mem_copy(line.s, word, j);
++         line.s[j++] = '\0';
++         line.s += j;
+          su_mem_copy(line.s, alias_exp, i);
+          if(line.l > 0){
+             line.s[i++] = ' ';
+@@ -494,12 +497,21 @@ jrestart:
+    }
+ 
+    if((cdp = mx_cmd_firstfit(word)) == NIL){
+-      if(!(flags & a_IS_SKIP) || (n_poption & n_PO_D_V))
++      boole isskip;
++
++      gecp->gec_hist_flags = a_GO_HIST_NONE;
++      isskip = ((flags & a_IS_SKIP) != 0);
++
++      /* TODO as long as `define' takes over input and consumes until }
++       * TODO ie we do not have on-line-completed-event or however we do it,
++       * TODO we must ignore "a closing }" here */
++      if(isskip && word[0] == '}' && word[1] == '\0')
++         goto jret0;
++      if(!isskip || (n_poption & n_PO_D_VVV))
+          n_err(_("%s: unknown command%s\n"),
+             prstr(word), ((flags & a_IS_SKIP)
+                ? _(" (ignored due to `if' condition)") : su_empty));
+-      gecp->gec_hist_flags = a_GO_HIST_NONE;
+-      if(flags & a_IS_SKIP)
++      if(isskip)
+          goto jret0;
+       nerrn = su_ERR_NOSYS;
+       goto jleave;
+@@ -1414,6 +1426,12 @@ n_go_main_loop(void){ /* FIXME */
+       interrupts = 0;
+       DVL(su_nyd_reset_level(1);)
+ 
++      /* (Interruption) */
++      if(gec.gec_have_ln_aq){
++         gec.gec_have_ln_aq = FAL0;
++         mx_fs_linepool_release(gec.gec_line.s, gec.gec_line_size);
++      }
++
+       if(gec.gec_ever_seen)
+          /* TODO too expensive, just do the membag (++?) here.
+           * TODO in fact all other conditions would be an error, no? */
+@@ -1505,6 +1523,7 @@ n_go_main_loop(void){ /* FIXME */
+       n_pstate |= n_PS_ERRORS_NEED_PRINT_ONCE;
+ 
+       mx_fs_linepool_aquire(&gec.gec_line.s, &gec.gec_line.l);
++      gec.gec_have_ln_aq = TRU1;
+       gec.gec_line_size = S(u32,gec.gec_line.l);
+       /* C99 */{
+          boole histadd;
+@@ -1524,7 +1543,6 @@ n_go_main_loop(void){ /* FIXME */
+       gec.gec_line.l = S(u32,n);
+ 
+       if(n < 0){
+-         mx_fs_linepool_release(gec.gec_line.s, gec.gec_line_size);
+          if(!(n_pstate & n_PS_ROBOT) &&
+                (n_psonce & n_PSO_INTERACTIVE) && ok_blook(ignoreeof) &&
+                ++eofcnt < 4){
+@@ -1570,14 +1588,15 @@ n_go_main_loop(void){ /* FIXME */
+                : n_GO_INPUT_NONE)));
+       }
+ 
+-      mx_fs_linepool_release(gec.gec_line.s, gec.gec_line_size);
+-
+       if((n_psonce & n_PSO_EXIT_MASK) || !rv)
+          break;
+    }
+ 
+    a_go_cleanup(a_GO_CLEANUP_TEARDOWN | a_GO_CLEANUP_HOLDALLSIGS |
+       (rv ? 0 : a_GO_CLEANUP_ERROR));
++
++   if(gec.gec_have_ln_aq)
++      mx_fs_linepool_release(gec.gec_line.s, gec.gec_line_size);
+    mx_fs_linepool_cleanup(TRU1);
+ 
+    mx_sigs_all_rele();
+diff --git a/src/mx/header.c b/src/mx/header.c
+index 91947107..de9adb5a 100644
+--- a/src/mx/header.c
++++ b/src/mx/header.c
+@@ -2301,7 +2301,8 @@ c_addrcodec(void *vp){
+          s = n_string_push_c(s, c);
+       }
+ 
+-      if((np = n_extract_single(cp = n_string_cp(s), GTO | GFULL)) != NULL)
++      if((np = n_extract_single(cp = n_string_cp(s), GTO | GFULL)) != NIL &&
++            (np->n_flags & mx_NAME_ADDRSPEC_ISADDR))
+          cp = np->n_fullname;
+       else{
+          n_pstate_err_no = su_ERR_INVAL;
+@@ -2342,7 +2343,8 @@ c_addrcodec(void *vp){
+             (mode = 1, su_cs_starts_with_case_n("skinlist", act, alen))){
+          struct mx_name *np;
+ 
+-         if((np = n_extract_single(cp, GTO | GFULL)) != NULL){
++         if((np = n_extract_single(cp, GTO | GFULL)) != NIL &&
++               (np->n_flags & mx_NAME_ADDRSPEC_ISADDR)){
+             s8 mltype;
+ 
+             cp = np->n_name;
+@@ -3082,7 +3084,7 @@ n_header_textual_sender_info(struct message *mp, char **cumulation_or_null,
+ 
+    if((np = lextract(cp, GFULL | GSKIN)) != NULL){
+       if(is_to_or_null != NULL && ok_blook(showto) &&
+-            np->n_flink == NULL && mx_name_is_mine(np->n_name)){
++            np->n_flink == NULL && mx_name_is_metoo(np->n_name, TRU1)){
+          if((cp = hfield1("to", mp)) != NULL &&
+                (np2 = lextract(cp, GFULL | GSKIN)) != NULL){
+             np = np2;
+@@ -3519,20 +3521,33 @@ n_header_add_custom(struct n_header_field **hflp, char const *dat, boole heap){
+    bl = S(u32,su_cs_len(cp));
+    while(bl > 0 && su_cs_is_space(cp[bl - 1]))
+       --bl;
+-   for(i = bl++; i-- != 0;)
++   for(i = bl; i-- != 0;)
+       if(su_cs_is_cntrl(cp[i])){
+          cp = N_("Invalid custom header: contains control characters: %s\n");
+          goto jerr;
+       }
+ 
+-   i = VSTRUCT_SIZEOF(struct n_header_field, hf_dat) + hname.l +1 + bl +1;
+-   *hflp = hfp = heap ? n_alloc(i) : n_autorec_alloc(i);
+-   hfp->hf_next = NULL;
++   if(heap == TRUM1){
++      hfp = R(struct n_header_field*,-1);
++      goto jleave;
++   }
++
++   i = VSTRUCT_SIZEOF(struct n_header_field,hf_dat) + hname.l +1 + bl +1;
++   *hflp = hfp = heap ? su_ALLOC(i) : su_AUTO_ALLOC(i);
++   hfp->hf_next = NIL;
+    hfp->hf_nl = hname.l;
+-   hfp->hf_bl = bl - 1;
+-   su_mem_copy(hfp->hf_dat, hname.s, hname.l);
+-      hfp->hf_dat[hname.l++] = '\0';
+-      su_mem_copy(&hfp->hf_dat[hname.l], cp, bl);
++   hfp->hf_bl = bl;
++   /* C99 */{
++      char *xp;
++
++      xp = hfp->hf_dat;
++      su_mem_copy(xp, hname.s, hname.l);
++      xp[hname.l] = '\0';
++      xp += ++hname.l;
++      if(bl > 0)
++         su_mem_copy(xp, cp, bl);
++      xp[bl] = '\0';
++   }
+ 
+ jleave:
+    NYD_OU;
+diff --git a/src/mx/mailcap.c b/src/mx/mailcap.c
+index d1824bb2..cf992286 100644
+--- a/src/mx/mailcap.c
++++ b/src/mx/mailcap.c
+@@ -995,10 +995,16 @@ a_mailcap_expand_formats(char const *format, struct mimepart const *mpp,
+ 
+          switch(c){
+          case '{':
++            /* C99 */{
++               char const *tmp;
++
++               tmp = su_cs_find_c(cp, '}');
++               ASSERT(tmp != NIL); /* (parser verified) */
++               xp = savestrbuf(cp, P2UZ(tmp - cp));
++               cp = ++tmp;
++            }
++
+             s = n_string_push_c(s, '\'');
+-            xp = su_cs_find_c(cp, '}');
+-            ASSERT(xp != NIL); /* (parser) */
+-            xp = savestrbuf(cp, P2UZ(xp - cp));
+             if((xp = mime_param_get(xp, mpp->m_ct_type)) != NIL){
+                /* XXX Maybe we should simply shell quote that thing? */
+                while((c = *xp++) != '\0'){
+diff --git a/src/mx/message.c b/src/mx/message.c
+index ae648f15..3b59a191 100644
+--- a/src/mx/message.c
++++ b/src/mx/message.c
+@@ -1462,7 +1462,7 @@ FL boole
+ message_match(struct message *mp, struct search_expr const *sep,
+       boole with_headers){
+    char *line;
+-   uz linesize, cnt;
++   uz linesize, cnt, len;
+    FILE *fp;
+    boole rv;
+    NYD_IN;
+@@ -1489,7 +1489,12 @@ message_match(struct message *mp, struct search_expr const *sep,
+       }
+    }
+ 
+-   while(fgetline(&line, &linesize, &cnt, NIL, fp, FAL0) != NIL){
++   while(fgetline(&line, &linesize, &cnt, &len, fp, TRU1) != NIL){
++      while(len > 0 && line[--len] == '\n')
++         line[len] = '\0';
++      if(len == 0)
++         continue;
++
+ #ifdef mx_HAVE_REGEX
+       if(sep->ss_bodyre != NULL){
+          if(regexec(sep->ss_bodyre, line, 0,NULL, 0) == REG_NOMATCH)
+diff --git a/src/mx/mime-type.c b/src/mx/mime-type.c
+index 34b6daf9..3bd00e2a 100644
+--- a/src/mx/mime-type.c
++++ b/src/mx/mime-type.c
+@@ -78,11 +78,12 @@ enum a_mimetype_class{
+    a_MIMETYPE_C_ISTXTCOK = 1u<<3, /* _ISTXT + *mime-allow-text-controls* */
+    a_MIMETYPE_C_HIGHBIT = 1u<<4, /* Not 7bit clean */
+    a_MIMETYPE_C_LONGLINES = 1u<<5, /* MIME_LINELEN_LIMIT exceed. */
+-   a_MIMETYPE_C_CTRLCHAR = 1u<<6, /* Control characters seen */
+-   a_MIMETYPE_C_HASNUL = 1u<<7, /* Contains \0 characters */
+-   a_MIMETYPE_C_NOTERMNL = 1u<<8, /* Lacks a final newline */
+-   a_MIMETYPE_C_FROM_ = 1u<<9, /* ^From_ seen */
+-   a_MIMETYPE_C_FROM_1STLINE = 1u<<10, /* From_ line seen */
++   a_MIMETYPE_C_CRLF = 1u<<6, /* \x0D\x0A sequences */
++   a_MIMETYPE_C_CTRLCHAR = 1u<<7, /* Control characters seen */
++   a_MIMETYPE_C_HASNUL = 1u<<8, /* Contains \0 characters */
++   a_MIMETYPE_C_NOTERMNL = 1u<<9, /* Lacks a final newline */
++   a_MIMETYPE_C_FROM_ = 1u<<10, /* ^From_ seen */
++   a_MIMETYPE_C_FROM_1STLINE = 1u<<11, /* From_ line seen */
+    a_MIMETYPE_C_SUGGEST_DONE = 1u<<16, /* Inspector suggests parse stop */
+    a_MIMETYPE_C__1STLINE = 1u<<17 /* .. */
+ };
+@@ -647,6 +648,8 @@ a_mimetype_classify_round(struct a_mimetype_class_arg *mtcap){
+          mtc &= ~a_MIMETYPE_C__1STLINE;
+          if(curlnlen >= MIME_LINELEN_LIMIT)
+             mtc |= a_MIMETYPE_C_LONGLINES;
++         if(lastc == '\r')
++            mtc |= a_MIMETYPE_C_CRLF;
+          if(c == EOF)
+             break;
+          f_p = f_buf;
+@@ -1315,12 +1318,14 @@ mx_mimetype_classify_file(FILE *fp, char const **content_type,
+       goto jleave;
+    }
+ 
+-   if(mtc & (a_MIMETYPE_C_LONGLINES | a_MIMETYPE_C_CTRLCHAR |
++   if(mtc & (a_MIMETYPE_C_LONGLINES | a_MIMETYPE_C_CRLF |
++         a_MIMETYPE_C_CTRLCHAR |
+          a_MIMETYPE_C_NOTERMNL | a_MIMETYPE_C_FROM_)){
+       if(menc != MIMEE_B64 && menc != MIMEE_QP){
+          /* If the user chooses 8bit, and we do not privacy-sign the message,
+           * then if encoding would be enforced only because of a ^From_, no */
+-         if((mtc & (a_MIMETYPE_C_LONGLINES | a_MIMETYPE_C_CTRLCHAR |
++         if((mtc & (a_MIMETYPE_C_LONGLINES | a_MIMETYPE_C_CRLF |
++                  a_MIMETYPE_C_CTRLCHAR |
+                   a_MIMETYPE_C_NOTERMNL | a_MIMETYPE_C_FROM_)
+                ) != a_MIMETYPE_C_FROM_ || no_mboxo)
+             menc = MIMEE_QP;
+diff --git a/src/mx/mime.c b/src/mx/mime.c
+index 0e3c4c37..4df27d13 100644
+--- a/src/mx/mime.c
++++ b/src/mx/mime.c
+@@ -365,7 +365,8 @@ mime_write_tohdr(struct str *in, FILE *fo, uz *colp,
+       _8BIT       = 1<<(_RND_SHIFT+2),    /* High bit set */
+       _ENCODE     = 1<<(_RND_SHIFT+3),    /* Need encoding */
+       _ENC_B64    = 1<<(_RND_SHIFT+4),    /* - let it be base64 */
+-      _OVERLONG   = 1<<(_RND_SHIFT+5)     /* Temporarily raised limit */
++      _IF_ENC_NO_B64 = 1u<<(_RND_SHIFT+5), /* - NO! MUST NOT be base64 */
++      _OVERLONG = 1u<<(_RND_SHIFT+6)     /* Temporarily raised limit */
+    } flags;
+    char const *cset7, *cset8, *wbot, *upper, *wend, *wcur;
+    u32 cset7_len, cset8_len;
+@@ -443,6 +444,9 @@ mime_write_tohdr(struct str *in, FILE *fo, uz *colp,
+             break;
+          if ((uc)*wend & 0x80)
+             flags |= _8BIT;
++         /* pure RFC 5322 need to parse these plain */
++         else if(*wend == '"' || *wend == '(' || *wend == ')')
++            flags |= _IF_ENC_NO_B64;
+       }
+ 
+       /* Decide whether the range has to become encoded or not */
+@@ -458,7 +462,9 @@ j_beejump:
+          flags |= _ENCODE;
+          /* Use base64 if requested or more than 50% -37.5-% of the bytes of
+           * the string need to be encoded */
+-         if ((flags & _NO_QP) || j >= i >> 1)/*(i >> 2) + (i >> 3))*/
++         if(flags & _IF_ENC_NO_B64)
++            flags &= ~_ENC_B64;
++         else if ((flags & _NO_QP) || j >= i >> 1)/*(i >> 2) + (i >> 3))*/
+             flags |= _ENC_B64;
+       }
+       su_DBG( if (flags & _8BIT) ASSERT(flags & _ENCODE); )
+diff --git a/src/mx/names.c b/src/mx/names.c
+index bb79f776..360f346d 100644
+--- a/src/mx/names.c
++++ b/src/mx/names.c
+@@ -301,15 +301,19 @@ a_nm_alias_expand(uz level, struct mx_name *nlist, char const *name, int ntype,
+       n_err(_("alias: stopping recursion at depth %d\n"), n_ALIAS_MAXEXP);
+       slp_next = NIL;
+       ccp = name;
+-      goto jlinkin;
++      goto jmay_linkin;
+    }
+ 
+    slp_next = slp_base =
+    slp = S(struct n_strlist const*,su_cs_dict_lookup(a_nm_alias_dp, name));
+ 
+    if(slp == NIL){
+-      ccp = name;
+-      goto jlinkin;
++jmay_linkin:
++      if(metoo || !mx_name_is_metoo(name, FAL0)){
++         ccp = name;
++         goto jlinkin;
++      }
++      goto jleave;
+    }
+    do{ /* while(slp != NIL); */
+       slp_next = slp->sl_next;
+@@ -326,9 +330,9 @@ a_nm_alias_expand(uz level, struct mx_name *nlist, char const *name, int ntype,
+          continue;
+       }
+ 
+-      /* Here we should allow to expand to itself if only person in alias */
++      /* XXX Historical: should allow expand to self if only person in alias */
+       if(metoo || slp_base->sl_next == NIL ||
+-            !a_nm_is_same_name(slp->sl_dat, logname, NIL)){
++            !mx_name_is_metoo(slp->sl_dat, FAL0)){
+          /* Use .n_name if .n_fullname is not set */
+          if(*(ccp = &slp->sl_dat[slp->sl_len + 2]) == '\0')
+             ccp = slp->sl_dat;
+@@ -346,6 +350,7 @@ jlinkin:
+       }
+    }while((slp = slp_next) != NIL);
+ 
++jleave:
+    NYD2_OU;
+    return nlist;
+ }
+@@ -1342,7 +1347,7 @@ mx_alternates_remove(struct mx_name *np, boole keep_single){
+ }
+ 
+ boole
+-mx_name_is_mine(char const *name){
++mx_name_is_metoo(char const *name, boole check_reply_to){
+    struct su_cs_dict_view dv;
+    struct mx_name *xp;
+    NYD_IN;
+@@ -1364,22 +1369,22 @@ mx_name_is_mine(char const *name){
+       if(a_nm_is_same_name(xp->n_name, name, NIL))
+          goto jleave;
+ 
+-   /* C99 */{
+-      char const *v15compat;
++   if(check_reply_to){
++         char const *v15compat;
+ 
+-      if((v15compat = ok_vlook(replyto)) != NULL){
+-         n_OBSOLETE(_("please use *reply-to*, not *replyto*"));
+-         for(xp = lextract(v15compat, GEXTRA | GSKIN); xp != NULL;
+-               xp = xp->n_flink)
+-            if(a_nm_is_same_name(xp->n_name, name, NIL))
+-               goto jleave;
+-      }
+-   }
++         if((v15compat = ok_vlook(replyto)) != NULL){
++            n_OBSOLETE(_("please use *reply-to*, not *replyto*"));
++            for(xp = lextract(v15compat, GEXTRA | GSKIN); xp != NULL;
++                  xp = xp->n_flink)
++               if(a_nm_is_same_name(xp->n_name, name, NIL))
++                  goto jleave;
++         }
+ 
+-   for(xp = lextract(ok_vlook(reply_to), GEXTRA | GSKIN); xp != NULL;
+-         xp = xp->n_flink)
+-      if(a_nm_is_same_name(xp->n_name, name, NIL))
+-         goto jleave;
++      for(xp = lextract(ok_vlook(reply_to), GEXTRA | GSKIN); xp != NULL;
++            xp = xp->n_flink)
++         if(a_nm_is_same_name(xp->n_name, name, NIL))
++            goto jleave;
++   }
+ 
+    if((xp = n_extract_single(ok_vlook(sender), GEXTRA)) != NIL &&
+          a_nm_is_same_name(xp->n_name, name, NIL))
+diff --git a/src/mx/quit.c b/src/mx/quit.c
+index 7eb9d7ae..313b387d 100644
+--- a/src/mx/quit.c
++++ b/src/mx/quit.c
+@@ -592,9 +592,20 @@ makembox(void) /* TODO oh my god (also error reporting) */
+       }
+       mx_fs_close(obuf);
+ 
+-      if((c = open(mbox, (O_WRONLY | O_CREAT | mx_O_NOXY_BITS | O_TRUNC), 0666)
+-            ) != -1)
+-         close(c);
++      /* C99 */{
++         char const *xmbox;
++
++         /* Strip possible protocol prefix; this is a backport "hack".
++          * It should all be an object-based "VFS" thing, anyway */
++         xmbox = mbox;
++         if(su_cs_cmp_case_n(xmbox, "mbox://", sizeof("mbox://") -1) == 0)
++            xmbox += sizeof("mbox://") -1;
++
++         if((c = open(xmbox, (O_WRONLY | O_CREAT | mx_O_NOXY_BITS | O_TRUNC),
++               0666)) != -1)
++            close(c);
++      }
++
+       if((obuf = mx_fs_open_any(mbox, "r+", &fs)) == NIL){
+          n_perr(mbox, 0);
+          mx_fs_close(ibuf);
+diff --git a/src/mx/sendout.c b/src/mx/sendout.c
+index 0eb734d8..a931fa1f 100644
+--- a/src/mx/sendout.c
++++ b/src/mx/sendout.c
+@@ -828,7 +828,7 @@ a_sendout_infix(struct header *hp, FILE *fi, boole dosign, boole force)
+          n_iconv_close(iconvd);
+       /* Do not avoid things like utf-8 -> utf-8 to be able to detect encoding
+        * errors XXX also this should be !iconv_is_same_charset(), and THAT.. */
+-      if(/*su_cs_cmp_case(convhdr, tcs) != 0 &&*/
++      if(!force && /*su_cs_cmp_case(convhdr, tcs) != 0 &&*/
+             (iconvd = n_iconv_open(convhdr, tcs)) == (iconv_t)-1 &&
+             (err = su_err_no()) != su_ERR_NONE)
+          goto jiconv_err;
+@@ -2288,7 +2288,7 @@ n_mail1(enum n_mailsend_flags msf, struct header *hp, struct message *quote,
+     * XXX S-nail thus violates POSIX, as has been pointed out correctly by
+     * XXX Martin Neitzel, but logic and usability of POSIX standards is
+     * XXX sometimes disputable: go for user friendliness */
+-   to = n_namelist_vaporise_head(hp, TRU1, ((quote != NULL &&
++   to = n_namelist_vaporise_head(hp, FAL0, ((quote != NULL &&
+             (msf & n_MAILSEND_IS_FWD) == 0) || !ok_blook(posix)),
+          (EACM_NORMAL | EACM_DOMAINCHECK |
+             (mta_isexe ? EACM_NONE : EACM_NONAME | EACM_NONAME_OR_FAIL)),
+diff --git a/src/mx/shexp.c b/src/mx/shexp.c
+index 4af1ae4b..01b4a84d 100644
+--- a/src/mx/shexp.c
++++ b/src/mx/shexp.c
+@@ -1880,8 +1880,11 @@ j_var_look_buf:
+ jleave:
+    ASSERT(!(state & a_COOKIE));
+    if((flags & n_SHEXP_PARSE_DRYRUN) && store != NULL){
+-      store = n_string_push_buf(store, input->s, P2UZ(ib - input->s));
+-      rv |= n_SHEXP_STATE_OUTPUT;
++      i = P2UZ(ib - input->s);
++      if(i > 0){
++         store = n_string_push_buf(store, input->s, i);
++         rv |= n_SHEXP_STATE_OUTPUT;
++      }
+    }
+ 
+    if(state & a_CHOP_ONE)
+diff --git a/src/mx/termios.c b/src/mx/termios.c
+index 1ca2a09a..733974eb 100644
+--- a/src/mx/termios.c
++++ b/src/mx/termios.c
+@@ -207,6 +207,13 @@ a_termios_onsig(int sig){
+       }
+    }
+ 
++   /* If we shall pop this level link context in a list for later freeing in
++    * a more regular context */
++   if(dopop){
++      tiosep->tiose_prev = a_termios_g.tiosg_pend_free;
++      a_termios_g.tiosg_pend_free = tiosep;
++   }
++
+    if(jobsig || (tiosep->tiose_cmd != mx_TERMIOS_CMD_HANDS_OFF &&
+             oact != SIG_DFL && oact != SIG_IGN && oact != SIG_ERR)){
+       myact = safe_signal(sig, oact);
+@@ -245,13 +252,6 @@ a_termios_onsig(int sig){
+ #endif
+    }
+ 
+-   /* If we shall pop this level link context in a list for later freeing in
+-    * a more regular context */
+-   if(dopop){
+-      tiosep->tiose_prev = a_termios_g.tiosg_pend_free;
+-      a_termios_g.tiosg_pend_free = tiosep;
+-   }
+-
+ jleave:
+    return;
+ 
+diff --git a/src/mx/tty-mle.c b/src/mx/tty-mle.c
+index 7a1e665e..444c374e 100644
+--- a/src/mx/tty-mle.c
++++ b/src/mx/tty-mle.c
+@@ -46,10 +46,8 @@
+ #include "mx/termios.h"
+ #include "mx/ui-str.h"
+ 
+-#ifdef mx_HAVE_COLOUR
+-# include "mx/colour.h"
+-#endif
+ #ifdef mx_HAVE_MLE
++# include "mx/colour.h"
+ # include "mx/termcap.h"
+ #endif
+ 
+@@ -1156,11 +1154,10 @@ a_tty_hist_add(char const *s, BITENUM_IS(u32,n_go_input_flags) gif){
+             goto jleave;
+          }
+ 
+-   /* If ring is full, rotate*/
+-   if(LIKELY(a_tty.tg_hist_size <= a_tty.tg_hist_size_max))
++   /* If ring is full, rotate */
++   if(LIKELY(a_tty.tg_hist_size < a_tty.tg_hist_size_max))
+       ++a_tty.tg_hist_size;
+    else{
+-      --a_tty.tg_hist_size;
+       if((thp = a_tty.tg_hist_tail) != NIL){
+          if((a_tty.tg_hist_tail = thp->th_younger) == NIL)
+             a_tty.tg_hist = NIL;
+diff --git a/src/mx/xtls.c b/src/mx/xtls.c
+index 9deb00f2..7e244a56 100644
+--- a/src/mx/xtls.c
++++ b/src/mx/xtls.c
+@@ -108,11 +108,14 @@ su_EMPTY_FILE()
+   /* SSL_CONF_CTX and _OP_NO_SSL_MASK were both introduced with 1.0.2!?! */
+ # ifndef SSL_OP_NO_SSL_MASK
+ #  define SSL_OP_NO_SSL_MASK \
+-   (SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |\
+-   SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2 |\
+-   SSL_OP_NO_TLSv1_3)
++   ( SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | \
++   SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2 | \
++   SSL_OP_NO_TLSv1_3 )
+ # endif
+ 
++CTA(SSL_OP_NO_SSL_MASK != 0,
++   "One of _SSLv[23], _TLSv1, _TLSv1_[123] is needed");
++
+ # ifndef SSL2_VERSION
+ #  define SSL2_VERSION 0
+ # endif
+@@ -159,6 +162,14 @@ su_EMPTY_FILE()
+ #endif
+ 
+ #if mx_HAVE_XTLS >= 0x30000
++   /* OpenSSL 3.0: algorithm providers are dynamic and lazily resolved,
++    * so anything "implicitly fetched" (crypto(7)) may fail later on.
++    * As pre 3.0.0 was only "implicit" it is a complicated backward-incompat-
++    * ible mess (internal lazy fetching is then a single line of code) */
++# define a_XTLS_CRYPTO_FETCH
++# define a_XTLS__NFETCH_INJ(X)
++# define a_XTLS__JFETCH jfetch
++
+ # define a_xtls_SSL_CTX_load_verify_file(CTXP,FILE) \
+    SSL_CTX_load_verify_file(CTXP, FILE)
+ # define a_xtls_SSL_CTX_load_verify_dir(CTXP,DIR) \
+@@ -174,6 +185,10 @@ su_EMPTY_FILE()
+ # define a_xtls_SSL_get_peer_certificate__FREE(CERT)
+ 
+ #else
++# undef a_XTLS_CRYPTO_FETCH
++# define a_XTLS__NFETCH_INJ(X) X
++# define a_XTLS__JFETCH jleave
++
+ # define a_xtls_SSL_CTX_load_verify_file(CTXP,FILE) \
+    SSL_CTX_load_verify_locations(CTXP, FILE, NIL)
+ # define a_xtls_SSL_CTX_load_verify_dir(CTXP,DIR) \
+@@ -295,6 +310,7 @@ static struct a_xtls_protocol const a_xtls_protocols[] = {
+ static struct a_xtls_cipher const a_xtls_ciphers[] = { /*Manual!*/
+ #ifndef OPENSSL_NO_AES
+ # define a_XTLS_SMIME_DEFAULT_CIPHER EVP_aes_128_cbc /* According RFC 5751 */
++# define a_XTLS_SMIME_DEFAULT_CIPHER_S "AES128"
+    {"AES128", &EVP_aes_128_cbc},
+    {"AES256", &EVP_aes_256_cbc},
+    {"AES192", &EVP_aes_192_cbc},
+@@ -302,6 +318,7 @@ static struct a_xtls_cipher const a_xtls_ciphers[] = { /*Manual!*/
+ #ifndef OPENSSL_NO_DES
+ # ifndef a_XTLS_SMIME_DEFAULT_CIPHER
+ #  define a_XTLS_SMIME_DEFAULT_CIPHER EVP_des_ede3_cbc
++#  define a_XTLS_SMIME_DEFAULT_CIPHER_S "DES3"
+ # endif
+    {"DES3", &EVP_des_ede3_cbc},
+    {"DES", &EVP_des_cbc},
+@@ -432,8 +449,8 @@ static boole a_xtls_parse_asn1_time(ASN1_TIME const *atp,
+                char *bdat, uz blen);
+ static int a_xtls_verify_cb(int success, X509_STORE_CTX *store);
+ 
+-static boole a_xtls_digest_find(char const *name, EVP_MD const **mdp,
+-               char const **normalized_name_or_null);
++static boole a_xtls_digest_find(boole fingerprint, char const *name,
++      EVP_MD const **mdp, char const **normalized_name_or_nil, boole *freeit);
+ 
+ /* *smime-ca-flags*, *tls-ca-flags* */
+ static void a_xtls_ca_flags(X509_STORE *store, char const *flags);
+@@ -453,16 +470,17 @@ static boole a_xtls_check_host(struct mx_socket *sop, X509 *peercert,
+ 
+ static int        smime_verify(struct message *m, int n,
+                      a_XTLS_STACKOF(X509) *chain, X509_STORE *store);
+-static EVP_CIPHER const * _smime_cipher(char const *name);
++static EVP_CIPHER const *a_xtls_smime_cipher(char const *name, boole *freeit);
++
+ static int        ssl_password_cb(char *buf, int size, int rwflag,
+                      void *userdata);
+ static FILE *     smime_sign_cert(char const *xname, char const *xname2,
+                      boole dowarn, char const **match, boole fallback_from);
+-static char const * _smime_sign_include_certs(char const *name);
+-static boole     _smime_sign_include_chain_creat(a_XTLS_STACKOF(X509) **chain,
+-                     char const *cfiles, char const *addr);
++static char const *a_xtls_smime_sign_include_certs(char const *name);
++static boole a_xtls_smime_sign_include_chain_creat(a_XTLS_STACKOF(X509) **chain,
++      char const *cfiles, char const *addr);
+ static EVP_MD const *a_xtls_smime_sign_digest(char const *name,
+-                        char const **digname);
++      char const **digname, boole *freeit);
+ #if defined X509_V_FLAG_CRL_CHECK && defined X509_V_FLAG_CRL_CHECK_ALL
+ static enum okay  load_crl1(X509_STORE *store, char const *name);
+ #endif
+@@ -572,9 +590,17 @@ a_xtls_init(void){
+    OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS |
+       OPENSSL_INIT_LOAD_CRYPTO_STRINGS
+ # ifdef mx_HAVE_TLS_ALL_ALGORITHMS
+-         | OPENSSL_INIT_ADD_ALL_CIPHERS | OPENSSL_INIT_ADD_ALL_DIGESTS
++#  ifdef OPENSSL_INIT_ADD_ALL_CIPHERS
++         | OPENSSL_INIT_ADD_ALL_CIPHERS
++#  endif
++#  ifdef OPENSSL_INIT_ADD_ALL_DIGESTS
++         | OPENSSL_INIT_ADD_ALL_DIGESTS
++#  endif
++# endif
++# ifdef OPENSSL_INIT_NO_LOAD_CONFIG
++         | OPENSSL_INIT_NO_LOAD_CONFIG
+ # endif
+-      , NULL);
++      , NIL);
+ #else
+    SSL_load_error_strings();
+    SSL_library_init();
+@@ -740,44 +766,64 @@ jleave:
+ }
+ 
+ static boole
+-a_xtls_digest_find(char const *name,
+-      EVP_MD const **mdp, char const **normalized_name_or_null){
++a_xtls_digest_find(boole fingerprint, char const *name, EVP_MD const **mdp,
++      char const **normalized_name_or_nil, boole *freeit){
+    uz i;
+-   char *nn;
+    NYD2_IN;
+ 
++   *freeit = FAL0;
++
++   if(name == NIL){
++      name = fingerprint ? a_XTLS_FINGERPRINT_DEFAULT_DIGEST_S
++            : a_XTLS_SMIME_DEFAULT_DIGEST_S;
++      a_XTLS__NFETCH_INJ(*mdp = fingerprint
++            ? a_XTLS_FINGERPRINT_DEFAULT_DIGEST()
++            : a_XTLS_SMIME_DEFAULT_DIGEST();)
++      goto a_XTLS__JFETCH;
++   }
++
+    /* C99 */{
+-      char *cp, c;
++      char *cp, *nn, c;
+ 
+       i = su_cs_len(name);
+-      nn = cp = n_lofi_alloc(i +1);
++      nn = cp = su_LOFI_ALLOC(i +1);
+       while((c = *name++) != '\0')
+          *cp++ = su_cs_to_upper(c);
+       *cp = '\0';
+-
+-      if(normalized_name_or_null != NULL)
+-         *normalized_name_or_null = savestrbuf(nn, P2UZ(cp - nn));
++      name = savestrbuf(nn, P2UZ(cp - nn));
++      su_LOFI_FREE(nn);
+    }
+ 
+    for(i = 0; i < NELEM(a_xtls_digests); ++i)
+-      if(!su_cs_cmp(a_xtls_digests[i].xd_name, nn)){
+-         *mdp = (*a_xtls_digests[i].xd_fun)();
+-         goto jleave;
++      if(!su_cs_cmp(a_xtls_digests[i].xd_name, name)){
++         a_XTLS__NFETCH_INJ(*mdp = (*a_xtls_digests[i].xd_fun)();)
++         name = a_xtls_digests[i].xd_name;
++         goto a_XTLS__JFETCH;
+       }
+ 
+    /* Not a built-in algorithm, but we may have dynamic support for more */
+-#ifdef mx_HAVE_TLS_ALL_ALGORITHMS
+-   if((*mdp = EVP_get_digestbyname(nn)) != NULL)
++#if defined mx_HAVE_TLS_ALL_ALGORITHMS && !defined a_XTLS_CRYPTO_FETCH
++   if((*mdp = EVP_get_digestbyname(name)) != NIL)
++      goto jleave;
++#endif
++
++#ifdef a_XTLS_CRYPTO_FETCH
++a_XTLS__JFETCH:
++   if((*mdp = EVP_MD_fetch(NIL, name, NIL)) != NIL){
++      *freeit = TRU1;
+       goto jleave;
++   }
+ #endif
+ 
+-   n_err(_("Invalid message digest: %s\n"), n_shexp_quote_cp(nn, FAL0));
+-   *mdp = NULL;
++   n_err(_("Invalid message digest: %s\n"), n_shexp_quote_cp(name, FAL0));
++   *mdp = NIL;
++
+ jleave:
+-   n_lofi_free(nn);
++   if(normalized_name_or_nil != NIL)
++         *normalized_name_or_nil = name;
+ 
+    NYD2_OU;
+-   return (*mdp != NULL);
++   return (*mdp != NIL);
+ }
+ 
+ static void
+@@ -1516,45 +1562,57 @@ jleave:
+ }
+ 
+ static EVP_CIPHER const *
+-_smime_cipher(char const *name)
+-{
++a_xtls_smime_cipher(char const *name, boole *freeit){
+    EVP_CIPHER const *cipher;
+    char *vn;
+    char const *cp;
+    uz i;
+    NYD_IN;
+ 
+-   vn = n_lofi_alloc(i = su_cs_len(name) + sizeof("smime-cipher-") -1 +1);
+-   snprintf(vn, (int)i, "smime-cipher-%s", name);
++   *freeit = FAL0;
++
++   vn = su_LOFI_ALLOC(i = su_cs_len(name) + sizeof("smime-cipher-") -1 +1);
++   snprintf(vn, S(int,i), "smime-cipher-%s", name);
+    cp = n_var_vlook(vn, FAL0);
+-   n_lofi_free(vn);
++   su_LOFI_FREE(vn);
+ 
+-   if (cp == NULL && (cp = ok_vlook(smime_cipher)) == NULL) {
+-      cipher = a_XTLS_SMIME_DEFAULT_CIPHER();
+-      goto jleave;
++   if(cp == NIL && (cp = ok_vlook(smime_cipher)) == NIL){
++      a_XTLS__NFETCH_INJ(cipher = a_XTLS_SMIME_DEFAULT_CIPHER();)
++      cp = a_XTLS_SMIME_DEFAULT_CIPHER_S;
++      goto a_XTLS__JFETCH;
+    }
+-   cipher = NULL;
++   cipher = NIL;
+ 
+    for(i = 0; i < NELEM(a_xtls_ciphers); ++i)
+       if(!su_cs_cmp_case(a_xtls_ciphers[i].xc_name, cp)){
+-         cipher = (*a_xtls_ciphers[i].xc_fun)();
+-         goto jleave;
++         a_XTLS__NFETCH_INJ(cipher = (*a_xtls_ciphers[i].xc_fun)();)
++         cp = a_xtls_ciphers[i].xc_name;
++         goto a_XTLS__JFETCH;
+       }
+ #ifndef OPENSSL_NO_AES
+-   for (i = 0; i < NELEM(a_xtls_smime_ciphers_obs); ++i) /* TODO obsolete */
+-      if (!su_cs_cmp_case(a_xtls_smime_ciphers_obs[i].xc_name, cp)) {
++   for(i = 0; i < NELEM(a_xtls_smime_ciphers_obs); ++i)/* TODO v15-compat */
++      if(!su_cs_cmp_case(a_xtls_smime_ciphers_obs[i].xc_name, cp)){
+          n_OBSOLETE2(_("*smime-cipher* names with hyphens will vanish"), cp);
+-         cipher = (*a_xtls_smime_ciphers_obs[i].xc_fun)();
+-         goto jleave;
++         a_XTLS__NFETCH_INJ(cipher = (*a_xtls_smime_ciphers_obs[i].xc_fun)();)
++         cp = a_xtls_smime_ciphers_obs[i].xc_name;
++         goto a_XTLS__JFETCH;
+       }
+ #endif
+ 
+    /* Not a built-in algorithm, but we may have dynamic support for more */
+-#ifdef mx_HAVE_TLS_ALL_ALGORITHMS
+-   if((cipher = EVP_get_cipherbyname(cp)) != NULL)
++#if defined mx_HAVE_TLS_ALL_ALGORITHMS && !defined a_XTLS_CRYPTO_FETCH
++   if((cipher = EVP_get_cipherbyname(cp)) != NIL)
+       goto jleave;
+ #endif
+ 
++#ifdef a_XTLS_CRYPTO_FETCH
++a_XTLS__JFETCH:
++   if((cipher = EVP_CIPHER_fetch(NIL, cp, NIL)) != NIL){
++      *freeit = TRU1;
++      goto jleave;
++   }
++#endif
++
+    n_err(_("Invalid S/MIME cipher(s): %s\n"), cp);
+ jleave:
+    NYD_OU;
+@@ -1669,7 +1727,7 @@ jerr:
+ }
+ 
+ static char const *
+-_smime_sign_include_certs(char const *name)
++a_xtls_smime_sign_include_certs(char const *name)
+ {
+    char const *rv;
+    NYD_IN;
+@@ -1697,7 +1755,7 @@ jleave:
+ }
+ 
+ static boole
+-_smime_sign_include_chain_creat(a_XTLS_STACKOF(X509) **chain,
++a_xtls_smime_sign_include_chain_creat(a_XTLS_STACKOF(X509) **chain,
+    char const *cfiles, char const *addr)
+ {
+    X509 *tmp;
+@@ -1739,47 +1797,47 @@ jerr:
+ }
+ 
+ static EVP_MD const *
+-a_xtls_smime_sign_digest(char const *name, char const **digname){
+-   EVP_MD const *digest;
++a_xtls_smime_sign_digest(char const *name, char const **digname,
++      boole *freeit){
++   EVP_MD const *md;
+    char const *cp;
+    NYD2_IN;
+ 
+    /* See comments in smime_sign_cert() for algorithm pitfalls */
+-   if(name != NULL){
++   if(name != NIL){
+       struct mx_name *np;
+ 
+-      for(np = lextract(name, GTO | GSKIN); np != NULL; np = np->n_flink){
++      for(np = lextract(name, GTO | GSKIN); np != NIL; np = np->n_flink){
+          int vs;
+          char *vn;
+ 
+-         vn = n_lofi_alloc(vs = su_cs_len(np->n_name) + 30);
++         vn = su_LOFI_ALLOC(vs = su_cs_len(np->n_name) + 30);
+          snprintf(vn, vs, "smime-sign-digest-%s", np->n_name);
+-         if((cp = n_var_vlook(vn, FAL0)) == NULL){
++         if((cp = n_var_vlook(vn, FAL0)) == NIL){
+             snprintf(vn, vs, "smime-sign-message-digest-%s",np->n_name);/*v15*/
+             cp = n_var_vlook(vn, FAL0);
+          }
+-         n_lofi_free(vn);
+-         if(cp != NULL)
++         su_LOFI_FREE(vn);
++
++         if(cp != NIL)
+             goto jhave_name;
+       }
+    }
+ 
+-   if((cp = ok_vlook(smime_sign_digest)) != NULL ||
+-         (cp = ok_vlook(smime_sign_message_digest)/* v15 */) != NULL)
++   if((cp = ok_vlook(smime_sign_digest)) != NIL)
++      goto jhave_name;
++   cp = ok_vlook(smime_sign_message_digest)/* v15 */;
++
+ jhave_name:
+-      if(a_xtls_digest_find(cp, &digest, digname)){
++   if(a_xtls_digest_find(FAL0, cp, &md, digname, freeit)){
+ #ifndef PKCS7_PARTIAL
+-         n_err(_("WARNING: old OpenSSL version, *smime-sign-digest*=%s "
+-            "ignored!\n"), digname);
++      n_err(_("ALERT: old OpenSSL version, *smime-sign-digest*=%s ignored\n"),
++         *digname);
+ #endif
+-         goto jleave;
+-      }
++   }
+ 
+-   digest = a_XTLS_SMIME_DEFAULT_DIGEST();
+-   *digname = a_XTLS_SMIME_DEFAULT_DIGEST_S;
+-jleave:
+    NYD2_OU;
+-   return digest;
++   return md;
+ }
+ 
+ #if defined X509_V_FLAG_CRL_CHECK && defined X509_V_FLAG_CRL_CHECK_ALL
+@@ -1938,8 +1996,11 @@ n_tls_open(struct mx_url *urlp, struct mx_socket *sop){ /* TODO split */
+    SSL_CTX *ctxp;
+    const EVP_MD *fprnt_mdp;
+    char const *fprnt, *fprnt_namep;
++   boole free_md;
+    NYD_IN;
+ 
++   free_md = FAL0;
++
+    a_xtls_init();
+    n_tls_set_verify_level(urlp); /* TODO should come in via URL! */
+ 
+@@ -1951,14 +2012,12 @@ n_tls_open(struct mx_url *urlp, struct mx_socket *sop){ /* TODO split */
+    fprnt_namep = NULL;
+    fprnt_mdp = NULL;
+ 
+-   if(fprnt != NULL || urlp->url_cproto == CPROTO_CERTINFO ||
++   if(fprnt != NIL || urlp->url_cproto == CPROTO_CERTINFO ||
+          (n_poption & n_PO_D_V)){
+-      if((fprnt_namep = xok_vlook(tls_fingerprint_digest, urlp,
+-            OXM_ALL)) == NULL ||
+-            !a_xtls_digest_find(fprnt_namep, &fprnt_mdp, &fprnt_namep)){
+-         fprnt_mdp = a_XTLS_FINGERPRINT_DEFAULT_DIGEST();
+-         fprnt_namep = a_XTLS_FINGERPRINT_DEFAULT_DIGEST_S;
+-      }
++      fprnt_namep = xok_vlook(tls_fingerprint_digest, urlp, OXM_ALL);
++      if(!a_xtls_digest_find(TRU1, fprnt_namep, &fprnt_mdp, &fprnt_namep,
++            &free_md))
++         goto j_leave;
+    }
+ 
+    if((ctxp = SSL_CTX_new(mx_XTLS_CLIENT_METHOD())) == NULL){
+@@ -2079,7 +2138,7 @@ n_tls_open(struct mx_url *urlp, struct mx_socket *sop){ /* TODO split */
+ 
+             /* For the sake of `tls cert(chain|ificate)', this too */
+ 
+-            /*if((certs = SSL_get_peer_cert_chain(sop->s_tls)) != NIL){*/
++            /*if((certs = SSL_get_peer_cert_chain(sop->s_tls)) != NIL)*/
+             if((certs = a_xtls_SSL_get_verified_chain(sop->s_tls)) != NIL){
+                if((biop = BIO_new(BIO_s_mem())) != NIL){
+                   xcp = NIL;
+@@ -2141,14 +2200,21 @@ jleave:
+    /* We're fully setup: since we don't reuse the SSL_CTX (pooh) keep it local
+     * and free it right now -- it is reference counted by sp->s_tls.. */
+    SSL_CTX_free(ctxp);
++
+ j_leave:
++#ifdef a_XTLS_CRYPTO_FETCH
++   if(free_md)
++      EVP_MD_free(UNCONST(EVP_MD*,fprnt_mdp));
++#endif
++
+    NYD_OU;
+-   return (sop->s_tls != NULL);
++   return (sop->s_tls != NIL);
++
+ jerr2:
+    SSL_free(sop->s_tls);
+-   sop->s_tls = NULL;
++   sop->s_tls = NIL;
+ jerr1:
+-   if(confp != NULL)
++   if(confp != NIL)
+       a_xtls_conf_finish(&confp, TRU1);
+    goto jleave;
+ }
+@@ -2237,53 +2303,59 @@ jleave:
+ }
+ 
+ FL FILE *
+-smime_sign(FILE *ip, char const *addr)
+-{
+-   FILE *rv, *sfp, *fp, *bp, *hp;
+-   X509 *cert = NULL;
+-   a_XTLS_STACKOF(X509) *chain = NIL;
+-   EVP_PKEY *pkey = NULL;
++smime_sign(FILE *ip, char const *addr){
+    BIO *bb, *sb;
+    PKCS7 *pkcs7;
+-   EVP_MD const *md;
+    char const *name;
+-   boole bail = FAL0;
++   a_XTLS_STACKOF(X509) *chain;
++   X509 *cert;
++   EVP_PKEY *pkey;
++   FILE *rv, *sfp, *fp, *bp, *hp;
++   EVP_MD const *md;
++   boole bail, free_md;
+    NYD_IN;
+ 
+    /* TODO smime_sign(): addr should vanish, it is either *from* aka *sender*
+     * TODO or what we parsed as From:/Sender: from a template.  This latter
+     * TODO should set *from* / *sender* in a scope, we should use *sender*:
+     * TODO *sender* should be set to the real *from*! */
+-   ASSERT(addr != NULL);
+-   rv = sfp = fp = bp = hp = NULL;
++   ASSERT(addr != NIL);
++   bail = free_md = FAL0;
++   UNINIT(md, NIL);
++   rv = sfp = fp = bp = hp = NIL;
++   pkey = NIL;
++   cert = NIL;
++   chain = NIL;
+ 
+    a_xtls_init();
+ 
+-   if ((fp = smime_sign_cert(addr, NIL, 1, NIL, FAL0)) == NIL)
++   if((fp = smime_sign_cert(addr, NIL, 1, NIL, FAL0)) == NIL)
+       goto jleave;
+ 
+-   if ((pkey = PEM_read_PrivateKey(fp, NULL, &ssl_password_cb,
+-         savecat(addr, ".smime-cert-key"))) == NULL) {
++   if((pkey = PEM_read_PrivateKey(fp, NIL, &ssl_password_cb,
++         savecat(addr, ".smime-cert-key"))) == NIL){
+       ssl_gen_err(_("Error reading private key from"));
+       goto jleave;
+    }
+ 
+    rewind(fp);
+-   if ((cert = PEM_read_X509(fp, NULL, &ssl_password_cb,
+-         savecat(addr, ".smime-cert-cert"))) == NULL) {
++
++   if((cert = PEM_read_X509(fp, NIL, &ssl_password_cb,
++         savecat(addr, ".smime-cert-cert"))) == NIL){
+       ssl_gen_err(_("Error reading signer certificate from"));
+       goto jleave;
+    }
++
+    mx_fs_close(fp);
+-   fp = NULL;
++   fp = NIL;
+ 
+-   if ((name = _smime_sign_include_certs(addr)) != NULL &&
+-         !_smime_sign_include_chain_creat(&chain, name,
++   if((name = a_xtls_smime_sign_include_certs(addr)) != NIL &&
++         !a_xtls_smime_sign_include_chain_creat(&chain, name,
+             savecat(addr, ".smime-include-certs")))
+       goto jleave;
+ 
+-   name = NULL;
+-   if ((md = a_xtls_smime_sign_digest(addr, &name)) == NULL)
++   name = NIL;
++   if((md = a_xtls_smime_sign_digest(addr, &name, &free_md)) == NIL)
+       goto jleave;
+ 
+    if((sfp = mx_fs_tmp_open("smimesign", (mx_FS_O_RDWR | mx_FS_O_UNLINK |
+@@ -2296,18 +2368,18 @@ smime_sign(FILE *ip, char const *addr)
+    if(!mx_smime_split(ip, &hp, &bp, -1, FAL0))
+       goto jleave;
+ 
+-   sb = NULL;
+-   pkcs7 = NULL;
++   sb = NIL;
++   pkcs7 = NIL;
+ 
+-   if ((bb = BIO_new_fp(bp, BIO_NOCLOSE)) == NULL ||
+-         (sb = BIO_new_fp(sfp, BIO_NOCLOSE)) == NULL) {
++   if((bb = BIO_new_fp(bp, BIO_NOCLOSE)) == NIL ||
++         (sb = BIO_new_fp(sfp, BIO_NOCLOSE)) == NIL){
+       ssl_gen_err(_("Error creating BIO signing objects"));
+       bail = TRU1;
+       goto jerr;
+    }
+ 
+ #ifdef PKCS7_PARTIAL
+-   if((pkcs7 = PKCS7_sign(NULL, NULL, chain, bb,
++   if((pkcs7 = PKCS7_sign(NULL, NIL, chain, bb,
+          (PKCS7_DETACHED | PKCS7_PARTIAL))) == NIL){
+       ssl_gen_err(_("Error creating the PKCS#7 signing object"));
+       bail = TRU1;
+@@ -2332,31 +2404,32 @@ smime_sign(FILE *ip, char const *addr)
+    }
+ #endif /* !PKCS7_PARTIAL */
+ 
+-   if (PEM_write_bio_PKCS7(sb, pkcs7) == 0) {
++   if(PEM_write_bio_PKCS7(sb, pkcs7) == 0){
+       ssl_gen_err(_("Error writing signed S/MIME data"));
+       bail = TRU1;
+       /*goto jerr*/
+    }
++
+ jerr:
+-   if (pkcs7 != NULL)
++   if(pkcs7 != NIL)
+       PKCS7_free(pkcs7);
+-   if (sb != NULL)
++   if(sb != NIL)
+       BIO_free(sb);
+-   if (bb != NULL)
++   if(bb != NIL)
+       BIO_free(bb);
+-   if (!bail) {
++   if(!bail){
+       rewind(bp);
+       fflush_rewind(sfp);
+       rv = smime_sign_assemble(hp, bp, sfp, name);
+-      hp = bp = sfp = NULL;
++      hp = bp = sfp = NIL;
+    }
+ 
+ jleave:
+-   if (chain != NULL)
++   if(chain != NIL)
+       sk_X509_pop_free(chain, X509_free);
+-   if (cert != NULL)
++   if(cert != NIL)
+       X509_free(cert);
+-   if (pkey != NULL)
++   if(pkey != NIL)
+       EVP_PKEY_free(pkey);
+    if(fp != NIL)
+       mx_fs_close(fp);
+@@ -2366,6 +2439,11 @@ jleave:
+       mx_fs_close(bp);
+    if(sfp != NIL)
+       mx_fs_close(sfp);
++#ifdef a_XTLS_CRYPTO_FETCH
++   if(free_md)
++      EVP_MD_free(UNCONST(EVP_MD*,md));
++#endif
++
+    NYD_OU;
+    return rv;
+ }
+@@ -2380,10 +2458,10 @@ smime_encrypt(FILE *ip, char const *xcertfile, char const *to)
+    a_XTLS_STACKOF(X509) *certs;
+    EVP_CIPHER const *cipher;
+    char *certfile;
+-   boole bail;
++   boole bail, free_cipher;
+    NYD_IN;
+ 
+-   bail = FAL0;
++   bail = free_cipher = FAL0;
+    rv = yp = fp = bp = hp = NULL;
+ 
+    if((certfile = fexpand(xcertfile, (FEXP_NOPROTO | FEXP_LOCAL_FILE |
+@@ -2392,7 +2470,7 @@ smime_encrypt(FILE *ip, char const *xcertfile, char const *to)
+ 
+    a_xtls_init();
+ 
+-   if ((cipher = _smime_cipher(to)) == NULL)
++   if((cipher = a_xtls_smime_cipher(to, &free_cipher)) == NIL)
+       goto jleave;
+ 
+    if((fp = mx_fs_open(certfile, "r")) == NIL){
+@@ -2466,6 +2544,11 @@ jleave:
+       mx_fs_close(bp);
+    if(hp != NIL)
+       mx_fs_close(hp);
++#ifdef a_XTLS_CRYPTO_FETCH
++   if(free_cipher)
++      EVP_CIPHER_free(UNCONST(EVP_CIPHER*,cipher));
++#endif
++
+    NYD_OU;
+    return rv;
+ }
+diff --git a/src/su/icodec-dec.c b/src/su/icodec-dec.c
+index 25e9b70c..feed8ecd 100644
+--- a/src/su/icodec-dec.c
++++ b/src/su/icodec-dec.c
+@@ -320,9 +320,10 @@ jeover:
+ j_maxval:
+    if(rv & su_IDEC_MODE_SIGNED_TYPE)
+       res = (rv & su_IDEC_STATE_SEEN_MINUS) ? S(u64,S64_MIN) : S(u64,S64_MAX);
+-   else
++   else{
+       res = U64_MAX;
+-   rv &= ~su_IDEC_STATE_SEEN_MINUS;
++      rv &= ~S(u32,su_IDEC_STATE_SEEN_MINUS);
++   }
+    goto jleave;
+ }
+ 
+diff --git a/src/su/x-assoc-map.h b/src/su/x-assoc-map.h
+index e5370543..103033bf 100644
+--- a/src/su/x-assoc-map.h
++++ b/src/su/x-assoc-map.h
+@@ -557,7 +557,7 @@ a_T_PRISYM(insrep)(struct a_T *self, a_TK const *key, void *value,
+ jleave:
+    if(UNLIKELY(viewp != NIL)){
+       if(LIKELY(rv <= su_ERR_NONE)){
+-         viewp->a_V_F(node) = *la.la_slot;
++         viewp->a_V_F(node) = np;
+          viewp->a_V_F(index) = la.la_slotidx;
+       }else
+          viewp->a_V_F(node) = NIL;
