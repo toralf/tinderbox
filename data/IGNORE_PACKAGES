@@ -16,7 +16,6 @@ virtual/
 #
 # ultra-long compile time https://bugs.gentoo.org/801223
 #
-sci-libs/atlas
 sci-astronomy/psfex
 sci-astronomy/scamp
 sci-astronomy/sextractor

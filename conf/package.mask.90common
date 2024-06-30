@@ -32,6 +32,7 @@ net-fs/openafs
 net-misc/asterisk
 net-misc/r8168
 net-vpn/wireguard-modules
+sci-libs/atlas
 sci-libs/linux-gpib-modules
 sys-apps/modutils
 sys-cluster/lustre
@@ -48,12 +49,11 @@ x11-wm/stumpwm
 media-libs/libva-intel-media-driver
 
 # too long compile time
-sci-libs/atlas                                          # DICE: long_compile_time_sci 15 16
 sci-libs/libint:2                                       # DICE: long_compile_time_sci 15 16
 sci-libs/rocBLAS                                        # DICE: long_compile_time_roc 15 16
 sci-libs/rocFFT                                         # DICE: long_compile_time_roc 15 16
 sci-libs/tensorflow                                     # DICE: long_compile_time_tef 15 16
-www-client/chromium                                     # DICE: chromium 9 10
+www-client/chromium                                     # DICE: chromium 15 16
 
 # wants older compiler and is special
 dev-util/nvidia-cuda-toolkit
@@ -68,8 +68,6 @@ dev-scheme/gambit
 
 # https://bugs.gentoo.org/888779
 dev-util/coccinelle
-
-dev-util/trace-cmd
 
 # https://bugs.gentoo.org/921309
 dev-db/mysql-connector-c++

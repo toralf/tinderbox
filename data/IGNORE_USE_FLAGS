@@ -5,6 +5,7 @@ bindist
 boot
 bootstrap
 build
+cdinstall
 cet
 clang
 compile-locales
