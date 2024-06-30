@@ -54,10 +54,10 @@ function Finish() {
   trap - INT QUIT TERM EXIT
 
   set +e
-  subject="finished $rc $(stripQuotesAndMore <<<$subject)"
+  subject="finished $([[ $rc -ne 0 ]] && echo rc=$rc) $(stripQuotesAndMore <<<$subject)"
   Mail "$subject" $attachment
   if [[ $rc -ne 0 || $# -eq 0 ]]; then
-    touch /var/tmp/tb/STOP
+    echo "$subject" >>/var/tmp/tb/STOP
   else
     rm -f /var/tmp/tb/STOP
   fi
@@ -819,11 +819,11 @@ function RunAndCheck() {
   timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
   local rc=$?
   set -e
-  echo -e "\n--\n$(date)\nrc=$rc" >>$tasklog
 
+  echo -e "\n--\n$(date)\nrc=$rc" >>$tasklog
   pkg=""
   unset phase pkgname pkglog
-  try_again=0 # "1" means to retry same task and to not mask it if it failed
+  try_again=0 # "1" means to retry same task if it failed
   filterPlainText <$tasklog >$tasklog_stripped
   PostEmerge
 
@@ -843,18 +843,19 @@ function RunAndCheck() {
       Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     fi
 
+  # timed out
   elif [[ $rc -eq 124 ]]; then
     ReachedEOL "timeout  task=$task" $tasklog
 
-  # an error occurred
+  # emerge failed
   elif [[ $rc -gt 0 ]]; then
     if phase=$(grep -e " * The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
       if [[ -f /var/tmp/tb/EOL ]]; then
-        ReachedEOL "phase $phase died with EOL" $tasklog
+        ReachedEOL "caught EOL in $phase()" $tasklog
       elif [[ -f /var/tmp/tb/STOP ]]; then
-        Finish "phase $phase died with STOP" $tasklog
+        Finish "caught STOP in $phase()" $tasklog
       else
-        ReachedEOL "phase $phase died with rc=$rc" $tasklog
+        ReachedEOL "$phase() died with rc=$rc" $tasklog
       fi
 
     elif GetPkgFromTaskLog; then
@@ -872,7 +873,10 @@ function RunAndCheck() {
           echo "=$pkg" >>$self
         fi
       fi
-      # put world file into same state as if the (previously successfully installed) deps were been emerged already by a past task
+      # to not get the currently installed deps lost
+      # therefore put world file into the similar state as the one
+      # where deps were already been emerged directly before
+      #
       if grep -q '^>>> Installing ' $tasklog_stripped; then
         emerge --depclean --verbose=n --pretend 2>/dev/null |
           grep "^All selected packages: " |
