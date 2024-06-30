@@ -915,15 +915,25 @@ EOF
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 cat /var/tmp/tb/task
 echo "-------"
-if [[ $profile =~ "/llvm" ]]; then
-  emerge --pretend -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
-elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
-  emerge --pretend -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
-else
-  emerge --pretend -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc)
-fi
+EOF
+  if [[ $profile =~ "/llvm" ]]; then
+    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
+emerge -u @world --backtrack=50 --pretend
+EOF
+  elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
+    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc --pretend
+emerge -e @world --pretend
+EOF
+  else
+    cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) --pretend
+emerge -u @world --backtrack=50 --pretend
+EOF
+  fi
+  cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 echo "-------"
-emerge -u @world --pretend --backtrack=50
 EOF
 
   chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
