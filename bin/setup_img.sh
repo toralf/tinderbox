@@ -574,7 +574,7 @@ EOF
     # [11:27:13 pm] <@dilfridge> switching from/to hardened, and switching from multilib to non-multilib, yes
     # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
     cat <<EOF >>$bl.1st
-%emerge -e @world --backtrack=50
+%emerge -e @world
 %emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 EOF
   else
