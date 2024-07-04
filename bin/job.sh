@@ -955,7 +955,6 @@ function WorkOnTask() {
         elif grep -q 'The following USE changes are necessary to proceed' $tasklog; then
           ReachedEOL "failed: USE changes needed $task" $tasklog
         else
-          Mail "INFO: will repeat $task, failed: $pkg" $tasklog
           add2backlog "$task"
         fi
       else
