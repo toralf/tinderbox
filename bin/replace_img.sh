@@ -68,11 +68,15 @@ fi
 echo $$ >"$lockfile"
 trap Finish INT QUIT TERM EXIT
 
-case $(nproc) in
-32) desired_count=10 ;;
-96) desired_count=16 ;;
-*) desired_count=$(($(nproc) / 3)) ;;
-esac
+if [[ $# -eq 1 ]]; then
+  desired_count=$1
+else
+  case $(nproc) in
+  32) desired_count=10 ;;
+  96) desired_count=16 ;;
+  *) desired_count=$(($(nproc) / 3)) ;;
+  esac
+fi
 
 while :; do
   while read -r oldimg; do
