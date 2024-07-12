@@ -1020,6 +1020,8 @@ while getopts R:a:k:p:m:M:st:u: opt; do
     name=$(cat ./var/tmp/tb/name)
     profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
     useconfigof="me"
+    [[ $name =~ "_test" ]] && testfeature="y"
+    [[ $name =~ "_abi32+64" ]] && abi3264="y"
     cd ./var/db/repos/gentoo
     git pull -q
     cd - 1>/dev/null
