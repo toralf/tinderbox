@@ -34,9 +34,7 @@ function ImagesInRunButEOL() {
 }
 
 function FreeSlotAvailable() {
-  local r=$(ls /run/tb | wc -l)
-  local s=$(pgrep -c -f $(dirname $0)/setup_img.sh)
-  [[ $((r + s)) -lt $desired_count && $(wc -l < <(ImagesInRunShuffled)) -lt $desired_count ]]
+  [[ $(ls /run/tb | wc -l) -lt $desired_count && $(wc -l < <(ImagesInRunShuffled)) -lt $desired_count ]]
 }
 
 #######################################################################
