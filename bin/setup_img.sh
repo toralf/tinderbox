@@ -761,7 +761,9 @@ function FixPossibleUseFlagIssues() {
     return 0
   fi
 
+  # try few (dozen) times to fix the current diced setup
   for i in $(seq -w 1 29); do
+
     for k in EOL STOP; do
       if [[ -f ./var/tmp/tb/$k ]]; then
         echo -e "\n found $k file"
@@ -770,19 +772,19 @@ function FixPossibleUseFlagIssues() {
     done
 
     # kick off one package from the package specific use flag file
-    local pkg
-    pkg=$(
+    local pn=$(
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 }' |
         cut -f 1 -d ':' -s |
         xargs -r qatom -F "%{CATEGORY}/%{PN}" |
         grep -v -F '<unset>/'
     )
-    if [[ -n $pkg ]]; then
+
+    if [[ -n $pn ]]; then
       local f=./etc/portage/package.use/24thrown_package_use_flags
-      if grep -q "^${pkg} " $f; then
-        sed -i -e "/$(sed -e 's,/,\\/,' <<<$pkg) /d" $f
-        if RunDryrunWrapper "#setup dryrun $attempt-$i # unmet req: $pkg"; then
+      if grep -q "^${pn} " $f; then
+        sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $f
+        if RunDryrunWrapper "#setup dryrun $attempt-$i # unmet req: $pn"; then
           return 0
         fi
       fi
@@ -850,11 +852,12 @@ function FixPossibleUseFlagIssues() {
     fi
 
     # if no changes were found (and tested) then give up
-    if [[ -z $pkg && ! -s $f_circ_flag && ! -s $f_circ_test && ! -s $f_nec_flag && ! -s $f_nec_test ]]; then
+    if [[ -z $pn && ! -s $f_circ_flag && ! -s $f_circ_test && ! -s $f_nec_flag && ! -s $f_nec_test ]]; then
       break
     fi
   done
 
+  # keep the notest
   rm -f ./etc/portage/package.use/27-*-*
   return 1
 }
@@ -900,14 +903,14 @@ function ThrowFlags() {
     shuf -n $((RANDOM % 1500 + 700)) |
     sort |
     while read -r file; do
-      pkg=$(cut -f 6-7 -d '/' -s <<<$file)
+      pn=$(cut -f 6-7 -d '/' -s <<<$file)
       grep 'flag name="' $file |
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
         cut -f 2 -d '"' -s |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
         ShuffleUseFlags 20 5 |
         xargs |
-        xargs -I {} -r printf "%-36s %s\n" "$pkg" "{}"
+        xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
     done >./etc/portage/package.use/24thrown_package_use_flags
 }
 
