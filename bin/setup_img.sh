@@ -3,6 +3,7 @@
 # set -x
 
 # setup a new tinderbox image
+# CompileUseFlagFiles() is the central part and takes the most time
 
 function Exit() {
   local rc=${1:-$?}
@@ -87,7 +88,7 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
-  if dice 1 40; then
+  if dice 1 20; then
     testfeature="y"
   fi
 }
@@ -787,62 +788,69 @@ function FixPossibleUseFlagIssues() {
       fi
     fi
 
-    # work on lines like:   - sys-cluster/mpich-3.4.3 (Change USE: -valgrind)
-    local fixes=./tmp/fix-use-flags
+    local f_temp=./tmp/fix-use-flags
 
-    local fautocirc=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
+    # work on lines like:   - sys-cluster/mpich-3.4.3 (Change USE: -valgrind)
+    local f_circ_flag=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
+    local f_circ_test=./etc/portage/package.env/27-$attempt-$i-notest-a-circ-dep
+    rm -f $f_temp
     grep -m 1 -A 20 "It might be possible to break this cycle" $drylog |
       grep -F ' (Change USE: -' |
-      grep -v -F -e '+' -e 'This change might require ' |
-      sed -e "s,^- ,>=," -e "s, (Change USE:,," -e 's,),,' |
-      grep -v -e '_target' -e 'video_cards_' |
-      while read -r p u; do
+      sed -e "s,^- ,," -e "s, (Change USE:,," -e "s,)$,," |
+      grep -v -e 'abi_x86_32' -e '_target' -e 'video_cards_' |
+      while read -r p f; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
-        for flag in $(xargs -n 1 <<<$u | sort -u | xargs); do
-          if ! grep -q "^${pn}  .*$flag" ./etc/portage/package.use/*; then
-            printf "%-36s %s\n" $pn $flag
+        for flag in $f; do
+          if [[ $flag =~ test ]]; then
+            if grep -q "^${pn}  .*notest" ./etc/portage/package.env/*; then
+              printf "%-36s notest\n" $pn >>$f_circ_test
+            fi
+          elif ! grep -q "^${pn}  .*$flag" ./etc/portage/package.use/*; then
+            printf "%-36s %s\n" $pn $flag >>$f_temp
           fi
         done
-      done |
-      sort -u >$fixes
+      done
 
-    if [[ -s $fixes ]]; then
-      if grep -q -F -f $fixes ./etc/portage/package.use/27-$attempt*-*-a-circ-dep 2>/dev/null; then
-        break
+    if [[ -s $f_temp || -s $f_circ_test ]]; then
+      if [[ -s $f_temp ]]; then
+        mv $f_temp $f_circ_flag
       fi
-      mv $fixes $fautocirc
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # circ dep: $(xargs <$fautocirc)"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # circ dep: $(xargs <$f_circ_flag)"; then
         return 0
       fi
     fi
 
-    # work on lines starting with "^>="
-    local fautoflag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
+    # work on lines starting like  >=dev-libs/xmlsec-1.3.4 openssl
+    local f_nec_flag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
+    local f_nec_test=./etc/portage/package.env/27-$attempt-$i-notest-b-necessary-use-flag
+    rm -f $f_temp
     grep -A 300 'The following USE changes are necessary to proceed:' $drylog |
       grep '^>=.* .*' |
-      grep -v -e '_target' -e 'video_cards_' |
-      while read -r p u; do
+      grep -v -e 'abi_x86_32' -e '_target' -e 'video_cards_' |
+      while read -r p f; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
-        for flag in $(xargs -n 1 <<<$u | sort -u | xargs); do
-          if ! grep -q "^${pn}  .*$flag" ./etc/portage/package.use/*; then
-            printf "%-36s %s\n" $(qatom -F "%{CATEGORY}/%{PN}" $p) $flag
+        for flag in $f; do
+          if [[ $flag =~ test ]]; then
+            if grep -q "^${pn}  .*notest" ./etc/portage/package.env/*; then
+              printf "%-36s notest\n" $pn >>$f_nec_test
+            fi
+          elif ! grep -q "^${pn}  .*$flag" ./etc/portage/package.use/*; then
+            printf "%-36s %s\n" $pn $flag >>$f_temp
           fi
         done
-      done |
-      sort -u >$fixes
+      done
 
-    if [[ -s $fixes ]]; then
-      if grep -q -F -f $fixes ./etc/portage/package.use/27-$attempt-*-b-necessary-use-flag 2>/dev/null; then
-        break
+    if [[ -s $f_temp || -s $f_nec_test ]]; then
+      if [[ -s $f_temp ]]; then
+        mv $f_temp $f_nec_flag
       fi
-      mv $fixes $fautoflag
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # USE change: $(xargs <$fautoflag)"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-$i # USE change: $(xargs <$f_nec_flag)"; then
         return 0
       fi
     fi
 
-    # if no change in this round could be tested then give up
-    if [[ -z $pkg && ! -s $fautocirc && ! -s $fautoflag ]]; then
+    # if no changes were found (and tested) then give up
+    if [[ -z $pkg && ! -s $f_circ_flag && ! -s $f_circ_test && ! -s $f_nec_flag && ! -s $f_nec_test ]]; then
       break
     fi
   done
