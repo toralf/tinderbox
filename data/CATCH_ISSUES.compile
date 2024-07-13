@@ -311,7 +311,7 @@ Extension error:
 ! LaTeX. Error:
 error: cannot enable
 Error> .
-  Caused by:
+: failed to run custom build command
 There is a programmable error
 Invalid value for GENTOO_VM:
  \*   gcl is not supported b

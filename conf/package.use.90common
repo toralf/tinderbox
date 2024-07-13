@@ -33,7 +33,7 @@ dev-lang/python                     ssl
 dev-lang/python                     -libedit readline
 
 # rejected
-net-misc/openssh                     -hpn -sctp -X509
+net-misc/openssh                    -hpn -sctp -X509
 
 # otherwise: USE=secureboot enabled but SECUREBOOT_SIGN_KEY and/or SECUREBOOT_SIGN_CERT not set.
 */*                                 -secureboot
@@ -45,7 +45,7 @@ app-text/ansifilter                 -gui
 # default compressor for tar and log files
 app-arch/libarchive                 lzma
 
-# no install + https://bugs.gentoo.org/831346
+# no installation https://bugs.gentoo.org/831346
 sys-kernel/gentoo-kernel-bin        -initramfs -kernel-install
 sys-kernel/installkernel            -dracut -grub
 
@@ -171,13 +171,13 @@ x11-libs/gtk+                       X                                     # DICE
 # avoid setup blocker
 #
 
-*/*         VIDEO_CARDS:            -* dummy fbdev      # DICE: setup_video
+*/*         VIDEO_CARDS:            -* dummy fbdev      # DICE: setup_video 9 10
 
-dev-lang/ruby                       -rdoc               # DICE: setup_ruby 4 5
+dev-lang/ruby                       -rdoc               # DICE: setup_ruby 9 10
 dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
-dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 4 5
-dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 4 5
-dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 4 5
-dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 4 5
-sys-apps/shadow                     pam -cracklib       # DICE: shadow 19 20
-x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 4 5
+dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 9 10
+dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 9 10
+dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 9 10
+dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 9 10
+sys-apps/shadow                     pam -cracklib       # DICE: shadow 9 10
+x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 9 10

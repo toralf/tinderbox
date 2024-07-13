@@ -15,7 +15,6 @@ dev-debug/strace                    -unwind
 dev-java/ant                        bsf
 dev-java/jflex                      ant-task
 dev-java/jaxen                      jdom xom
-dev-libs/glib                       gtk-doc
 dev-libs/libzip                     tools
 dev-libs/mongo-c-driver             static-libs
 dev-libs/openssl                    -sctp
@@ -30,6 +29,7 @@ media-gfx/imagemagick               corefonts truetype
 media-libs/gd                       png
 media-libs/gexiv2                   python
 media-libs/harfbuzz                 icu
+media-libs/libjxl                   png
 media-libs/leptonica                jpeg png
 media-libs/libheif                  go libde265
 media-libs/soxr                     examples
