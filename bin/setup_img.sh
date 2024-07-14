@@ -1031,7 +1031,7 @@ fi
 trap Exit INT QUIT TERM EXIT
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++$(date)\n $0 start"
 
-exec 42>/tmp/setup-trace.log
+exec 42>/tmp/setup-trace.$$.log
 BASH_XTRACEFD="42"
 set -x
 
@@ -1083,4 +1083,4 @@ CompileUseFlagFiles
 set -x
 Finalize
 
-mv /tmp/setup-trace.log $tbhome/img/$name/var/tmp/tb/
+mv /tmp/setup-trace.$$.log $tbhome/img/$name/var/tmp/tb/
