@@ -739,19 +739,31 @@ function RunDryrunWrapper() {
   echo "$1" | tee ./var/tmp/tb/task
 
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog; then
-    if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
+    if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
+      return 1
+    else
+      for i in net-libs/libmbim x11-libs/pango; do
+        if grep -Eo "^\[ebuild .*(dev-lang/perl|$i|dev-perl/Locale-gettext)" $drylog |
+          cut -f 2- -d ']' |
+          awk '{ print $1 }' |
+          xargs |
+          grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
+          echo -e "$(date) Perl dep issue for $i" | tee ~tinderbox/img/$name/var/tmp/tb/KEEP
+          exit 42
+        fi
+      done
+
       echo " OK"
       return 0
-    else
-      return 1
     fi
+
   elif grep -q -m 1 "# start dryrun" $drylog; then
     return 1
-  else
-    echo -e "\n fatal:\n" >&2
-    cat $drylog >&2
-    exit 1
   fi
+
+  echo -e "\n fatal:\n" >&2
+  cat $drylog >&2
+  exit 1
 }
 
 function FixPossibleUseFlagIssues() {
@@ -930,16 +942,19 @@ EOF
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
+echo "-------"
 emerge -u @world --backtrack=50 --pretend
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc --pretend
+echo "-------"
 emerge -e @world --pretend
 EOF
   else
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) --pretend
+echo "-------"
 emerge -u @world --backtrack=50 --pretend
 EOF
   fi
