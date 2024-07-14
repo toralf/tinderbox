@@ -43,7 +43,6 @@ llvm-libunwind
 low-memory
 lto
 make-symlinks
-minimal
 mips
 modules
 modules-compress

@@ -43,7 +43,7 @@ net-libs/davix                      tools
 net-libs/ngtcp2                     static-libs
 net-misc/openssh                    ssl -xmss
 net-dns/bind-tools                  -gssapi
-net-nds/openldap                    berkdb -minimal sasl
+net-nds/openldap                    berkdb debug -minimal sasl
 sys-apps/dbus                       debug
 sys-apps/iproute2                   conntrack nftables
 sys-apps/man-db                     -nls
