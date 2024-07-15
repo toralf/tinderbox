@@ -757,13 +757,13 @@ function RunDryrunWrapper() {
       return 0
     fi
 
-  elif grep -q -m 1 "# start dryrun" $drylog; then
+  elif [[ -s $drylog ]]; then
     return 1
-  fi
 
-  echo -e "\n fatal:\n" >&2
-  cat $drylog >&2
-  exit 1
+  else
+    echo -e "\n sth. fatal happened\n" >&2
+    exit 1
+  fi
 }
 
 function FixPossibleUseFlagIssues() {
