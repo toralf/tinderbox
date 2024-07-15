@@ -15,6 +15,7 @@ function Exit() {
     echo -e "$(date)  setup failed for $name with rc=$rc"
   fi
   echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  mv /tmp/setup-trace.$$.log $tbhome/img/$name/var/tmp/tb/
   exit $rc
 }
 
@@ -936,6 +937,8 @@ echo "# start dryrun"
 EOF
 
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
+#!/bin/bash
+
 cat /var/tmp/tb/task
 echo "-------"
 EOF
@@ -1082,5 +1085,3 @@ set +x
 CompileUseFlagFiles
 set -x
 Finalize
-
-mv /tmp/setup-trace.$$.log $tbhome/img/$name/var/tmp/tb/
