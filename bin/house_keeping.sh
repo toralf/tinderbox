@@ -78,7 +78,7 @@ if gpg --verify $latest &>/dev/null; then
     done
 fi
 
-# mtime could be much older than even the host
+# use atime, b/c mtime could be much older than the host itself
 find ~tinderbox/distfiles/ -ignore_readdir_race -maxdepth 1 -type f -atime +90 -delete
 
 while read -r img; do
@@ -88,7 +88,7 @@ while read -r img; do
 done < <(list_images_by_age "img")
 
 while lowSpace && read -r img; do
-  if olderThan $img 3; then
+  if olderThan $img 1; then
     if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
       pruneIt $img "no issue"
     fi
@@ -104,7 +104,7 @@ while lowSpace && read -r img; do
 done < <(list_images_by_age "img")
 
 while lowSpace && read -r img; do
-  if olderThan $img 14; then
+  if olderThan $img 9; then
     pruneIt $img "space needed"
   fi
 done < <(list_images_by_age "img")
