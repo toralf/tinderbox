@@ -82,7 +82,7 @@ fi
 find ~tinderbox/distfiles/ -ignore_readdir_race -maxdepth 1 -type f -atime +90 -delete
 
 while read -r img; do
-  if [[ ! -s $img/var/log/emerge.log && $((EPOCHSECONDS - $(stat -c %Z $img))) -gt 3600 ]]; then
+  if [[ ! -s $img/var/log/emerge.log && $((EPOCHSECONDS - $(stat -c %Z $img))) -gt $((24 * 3600)) ]]; then
     pruneIt $img "broken setup"
   fi
 done < <(list_images_by_age "img")
