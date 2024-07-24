@@ -302,12 +302,9 @@ EOF
 
   local curr_path=$PWD
   cd .$reposdir
-  if ! git clone -q --depth=1 https://github.com/gentoo-mirror/gentoo.git; then
-    local source
-    source=$(
-      set -o pipefail
-      ls -td ~/img/*/$reposdir/gentoo $reposdir/gentoo/ | head -n 1
-    )
+  if ! git clone -q --depth=1 https://github.com/gentoo-mirror/gentoo.git 2>&1; then
+    local source=$(ls -td ~/img/*/$reposdir/gentoo $reposdir/gentoo/ | head -n 1)
+    [[ -d $source ]]
     cp -ar --reflink=auto $source .
   fi
   cd ./gentoo
