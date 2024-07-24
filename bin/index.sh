@@ -58,7 +58,7 @@ function listImagesWithoutAnyBug() {
   )
   local n=$(wc -w <<<$files)
   {
-    echo "<h2>$n images without any bug (too young or b0rken setup)</h2>"
+    echo "<h2>$n images without any bug (too young, b0rken or manual setup)</h2>"
     echo "<pre>"
     for f in $files; do
       echo "<a href=\"$f\">$f</a>"
