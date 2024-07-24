@@ -10,11 +10,11 @@ Please re-assign to ztrawhcse@ if you cannot reproduced it with regular meson.
 [ncurses-6.5]
 Issues involving opaque types / incomplete typedefs should block bug 930805
 
-[perl-5.40]
-Requested by dilfridge and sam
-
 [icu-75.1]
 Requested by sam
 
 [ncurses-6.5]
 Requested by sam
+
+[glibc-2.40]
+Requested by dilfridge
