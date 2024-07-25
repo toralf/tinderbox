@@ -416,6 +416,11 @@ EOF
     ) >>$issuedir/comment0
   fi
 
+  if grep -q "GNUMAKEFLAGS=.*--shuffle" /etc/portage/make.conf; then
+    local shuffle=$(grep -h -m 1 -Eo "( shuffle=[1-9].*)" $issuedir/*.log | uniq)
+    echo -e "\n  If this looks like a parallel build issue, then block bug #351559 and try MAKEOPTS=\"... $shuffle\"."
+  fi
+
   cat <<EOF >>$issuedir/comment0
 
   The attached etc.portage.tar.xz has all details.
