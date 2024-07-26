@@ -9,6 +9,3 @@
 ~dev-libs/icu-layoutex-75.1                             # DICE: [icu-75.1]
 <sys-devel/gcc-15.0.9999:15                             # DICE: [gcc-15] 2 3
 >=sys-libs/ncurses-6.5                                  # DICE: [ncurses-6.5] 1 4
-
-# dilfridge
-~sys-libs/glibc-2.40.0                                  # DICE: [glibc-2.40]

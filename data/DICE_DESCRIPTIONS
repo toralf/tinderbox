@@ -1,6 +1,3 @@
-[gcc-14]
-Please re-assign to toolchain@ if you get a test failure in C, C++, or Fortran code which makes no sense.
-
 [gcc-15]
 Please re-assign to toolchain@ if you get a test failure in C, C++, or Fortran code which makes no sense.
 
@@ -15,6 +12,3 @@ Requested by sam
 
 [ncurses-6.5]
 Requested by sam
-
-[glibc-2.40]
-Requested by dilfridge
