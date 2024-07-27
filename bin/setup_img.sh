@@ -375,8 +375,8 @@ EOF
     echo 'ALLOW_TEST="network"' >>./etc/portage/make.conf
   fi
 
-  # activate this rarely b/c it yields to too much different error messages for the same issue
-  if dice 1 40; then
+  # it might give much more different error messages for the same issue
+  if dice 1 20; then
     # shellcheck disable=SC2016
     echo 'GNUMAKEFLAGS="$GNUMAKEFLAGS --shuffle"' >>./etc/portage/make.conf
   fi
