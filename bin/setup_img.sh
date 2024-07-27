@@ -840,7 +840,7 @@ function FixPossibleUseFlagIssues() {
       grep '^>=.* .*' |
       grep -v -e 'abi_x86_32' -e '_target' -e 'video_cards_' |
       while read -r p f; do
-        local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
+        pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
           if [[ $flag =~ test ]]; then
             if grep -q "^${pn}  .*notest" ./etc/portage/package.env/*; then
@@ -862,7 +862,7 @@ function FixPossibleUseFlagIssues() {
     fi
 
     # if no changes were found (and tested) then give up
-    if [[ -z $pn && ! -s $f_circ_flag && ! -s $f_circ_test && ! -s $f_nec_flag && ! -s $f_nec_test ]]; then
+    if [[ ! -s $f_circ_flag && ! -s $f_circ_test && ! -s $f_nec_flag && ! -s $f_nec_test ]]; then
       break
     fi
   done
