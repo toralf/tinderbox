@@ -71,5 +71,6 @@ static-libs
 systemd
 system-wlroots
 test
+test-full
 unwind
 x32

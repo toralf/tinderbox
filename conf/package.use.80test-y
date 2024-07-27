@@ -5,6 +5,9 @@
 #
 # if FEATURES=test is set then these USE flags are needed
 #
+
+*/*                                 test-full           # DICE: test-full
+
 app-accessibility/flite             alsa
 app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
