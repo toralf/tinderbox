@@ -41,11 +41,6 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 1 2; then
-      grep '/desktop'
-    else
-      grep '.'
-    fi |
     shuf -n 1
 }
 
