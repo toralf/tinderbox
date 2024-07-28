@@ -874,14 +874,14 @@ function FixPossibleUseFlagIssues() {
 
 # helper of ThrowFlags
 function ShuffleUseFlags() {
-  local m=$1      # pick up to m-1
-  local n=$2      # mask about 1/n of them
-  local o=${3:-0} # minimum
+  local max=$1      # pick up to max-1
+  local mask=$2     # mask about 1/mask of them
+  local min=${3:-0} # pick up at least min
 
-  shuf -n $((RANDOM % m + o)) |
+  shuf -n $((RANDOM % (max - min) + min)) |
     sort |
     while read -r flag; do
-      if dice 1 $n; then
+      if dice 1 $mask; then
         echo -n "-"
       fi
       echo -n "$flag "
