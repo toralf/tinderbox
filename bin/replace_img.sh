@@ -121,15 +121,15 @@ while :; do
     # shellcheck disable=SC2024
     if sudo $(dirname $0)/setup_img.sh -s &>$tmpfile; then
       img=$(awk '/ setup done for / { print $10 }' $tmpfile)
+      attempt=$(grep -B 1 '^ OK' $tmpfile | head -n 1 | cut -f 3 -d ' ')
       mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
       date
-      echo " $img"
+      echo " $img  attempt: $attempt"
     else
       rc=$?
       img=$(awk '/ setup failed for / { print $10 }' $tmpfile)
       date
-      echo " $img failed rc=$rc"
-      mail -S nosendwait -s "NOTICE: setup failed $img rc=$rc" ${MAILTO:-tinderbox@zwiebeltoralf.de} <$tmpfile
+      echo "setup failed  $img  rc: $rc  tmpfile: $tmpfile"
       exit $rc
     fi
     continue
