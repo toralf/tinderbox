@@ -31,13 +31,18 @@ function DiceAProfile() {
     grep -v -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
-    if dice 7 8; then
+    if dice 3 4; then
       grep -v '/musl'
     else
       grep '.'
     fi |
-    if dice 3 4; then
+    if dice 1 2; then
       grep -v '/llvm'
+    else
+      grep '.'
+    fi |
+    if dice 1 2; then
+      grep '/desktop'
     else
       grep '.'
     fi |
@@ -918,7 +923,7 @@ function ThrowFlags() {
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
         cut -f 2 -d '"' -s |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-        ShuffleUseFlags 20 5 |
+        ShuffleUseFlags 10 5 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
     done >./etc/portage/package.use/24thrown_package_use_flags
@@ -982,7 +987,7 @@ EOF
     fi
   else
     local attempt=0
-    while [[ $((++attempt)) -le 100 ]]; do
+    while [[ $((++attempt)) -le 125 ]]; do
       echo
       date
       echo "==========================================================="
