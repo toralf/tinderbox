@@ -417,13 +417,15 @@ EOF
   fi
 
   if grep -q "^GNUMAKEFLAGS.*--shuffle" /etc/portage/make.conf; then
-    echo -e "\n  Block bug #35155 if this looks like a parallel build issue."
-    if [[ -s $pkglog_stripped ]]; then
-      local shuffle=$(grep -h -m 1 -Eo "( shuffle=[1-9].*)" $pkglog_stripped)
-      if [[ -n $shuffle ]]; then
-        echo "  Possible reproducer: MAKEOPTS='... $shuffle'"
+    (
+      echo -e "\n  Block bug #35155 if this looks like a parallel build issue."
+      if [[ -s $pkglog_stripped ]]; then
+        local shuffle=$(grep -h -m 1 -Eo "( shuffle=[1-9].*)" $pkglog_stripped)
+        if [[ -n $shuffle ]]; then
+          echo "  Possible reproducer: MAKEOPTS='... $shuffle'"
+        fi
       fi
-    fi
+    ) >>$issuedir/comment0
   fi
 
   cat <<EOF >>$issuedir/comment0
