@@ -739,21 +739,21 @@ function RunDryrunWrapper() {
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog; then
     if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
       return 1
-    else
-      for i in net-libs/libmbim x11-libs/pango; do
-        if grep -Eo "^\[ebuild .*(dev-lang/perl|$i|dev-perl/Locale-gettext)" $drylog |
-          cut -f 2- -d ']' |
-          awk '{ print $1 }' |
-          xargs |
-          grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
-          echo -e "$(date) Perl dep issue for $i" | tee ~tinderbox/img/$name/var/tmp/tb/KEEP
-          exit 42
-        fi
-      done
-
-      echo " OK"
-      return 0
     fi
+
+    for i in net-libs/libmbim x11-libs/pango; do
+      if grep -Eo "^\[ebuild .*(dev-lang/perl|$i|dev-perl/Locale-gettext)" $drylog |
+        cut -f 2- -d ']' |
+        awk '{ print $1 }' |
+        xargs |
+        grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
+        echo -e "$(date) Perl dep issue for $i" | tee ~tinderbox/img/$name/var/tmp/tb/KEEP
+        exit 42
+      fi
+    done
+
+    echo " OK"
+    return 0
 
   elif [[ -s $drylog ]]; then
     return 1
