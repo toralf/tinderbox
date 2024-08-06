@@ -57,8 +57,6 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-trap 'rm $tmpfile' INT QUIT TERM EXIT
-
 source $(dirname $0)/lib.sh
 
 intervall=${1:-0}
@@ -77,6 +75,8 @@ if [[ -s $lockfile ]]; then
   fi
 fi
 echo $$ >"$lockfile"
+
+trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
 while :; do
   now=$EPOCHSECONDS
