@@ -460,8 +460,8 @@ EOF
     done
 
     echo
-    echo "emerge -qpvO $pkgname"
-    emerge -qpvO $pkgname | head -n 1
+    echo "emerge -qpvO =$pkg"
+    emerge -qpvO =$pkg | head -n 1
   ) >>$issuedir/comment0 2>/dev/null
 }
 
