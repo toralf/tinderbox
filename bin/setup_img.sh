@@ -747,8 +747,12 @@ function RunDryrunWrapper() {
         awk '{ print $1 }' |
         xargs |
         grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
-        echo -e "$(date) Perl dep issue for $i" | tee ~tinderbox/img/$name/var/tmp/tb/KEEP
-        exit 42
+        # check if it has onyl few packages
+        local n=$(grep -Eo "^Total: .* packages" $drylog | awk '{ print $2 }')
+        if [[ $n -lt 201 ]]; then
+          echo -e "$(date) Perl dep issue n=$n for $i" | tee ~tinderbox/img/$name/var/tmp/tb/KEEP
+          exit 42
+        fi
       fi
     done
 
