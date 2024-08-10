@@ -171,12 +171,14 @@ x11-libs/gtk+                       X                                     # DICE
 # avoid setup blocker
 #
 
-*/*         VIDEO_CARDS:            -*                  # DICE: setup_video 1 8
-*/*         VIDEO_CARDS:            amdgpu              # DICE: setup_video_amd
-*/*         VIDEO_CARDS:            dummy               # DICE: setup_video_dummy
-*/*         VIDEO_CARDS:            fbdev               # DICE: setup_video_fbdev
-*/*         VIDEO_CARDS:            intel               # DICE: setup_video_intel
-*/*         VIDEO_CARDS:            radeonsi            # DICE: setup_video_radeonsi
+*/*         VIDEO_CARDS:            -* dummy fbdev      # DICE: setup_video 1 8
+*/*         VIDEO_CARDS:            amdgpu              # DICE: setup_video_amdgpu 1 4
+*/*         VIDEO_CARDS:            intel               # DICE: setup_video_intel 1 4
+*/*         VIDEO_CARDS:            radeon              # DICE: setup_video_radeon 1 8
+*/*         VIDEO_CARDS:            radeonsi            # DICE: setup_video_radeonsi 1 4
+
+*/*         VIDEO_CARDS:   -* dummy fbdev amdgpu        # DICE: setup_video_nollvm 1 8
+media-libs/mesa                     -llvm               # DICE: setup_video_nollvm 1 8
 
 dev-lang/ruby                       -rdoc               # DICE: setup_ruby 9 10
 dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
@@ -184,5 +186,6 @@ dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 9 10
 dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 9 10
 dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 9 10
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 9 10
+net-misc/curl                       -gnutls             # DICE: setup_curl 9 10
 sys-apps/shadow                     pam -cracklib       # DICE: shadow 9 10
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 9 10

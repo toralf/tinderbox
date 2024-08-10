@@ -368,3 +368,4 @@ ar:.*: No such file or directory
 Reason:
 gtkdoc-mktmpl: command not found
 : installation or configuration problem: C compiler cannot create executables.
+ \*   FATAL:
