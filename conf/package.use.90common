@@ -23,7 +23,7 @@ net-misc/curl                       ssl
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
 
-# D would need to be bootstraped
+# D needs to be bootstraped before
 sys-devel/gcc                       -d
 
 # required by sys-apps/portage
