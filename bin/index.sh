@@ -39,7 +39,7 @@ function listFiles() {
     echo "<h2>$n files for gentoo devs</h2>"
     echo "<pre>"
     for f in $files; do
-      echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f | awk '{ print $5 }'))</a>"
+      echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f 2>/dev/null | awk '{ print $5 }'))</a>"
     done
     echo -e "</pre>\n"
   } >>$tmpfile
