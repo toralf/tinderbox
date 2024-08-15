@@ -3,6 +3,4 @@
 
 # if FEATURES=test is NOT set then these USE flags are NOT wanted
 
-*/*                                 -test-full
-
 dev-libs/glib                       -gtk-doc

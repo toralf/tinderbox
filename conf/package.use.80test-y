@@ -6,9 +6,8 @@
 # if FEATURES=test is set then these USE flags are needed
 #
 
-*/*                                 test-full           # DICE: test-full
-
 app-accessibility/flite             alsa
+app-i18n/ibus                       gtk3
 app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
 app-text/doxygen                    doc
@@ -40,6 +39,7 @@ media-libs/tiff                     jpeg
 media-sound/pulseaudio              -equalizer
 media-video/ffmpeg                  encode
 net-analyzer/rrdtool                graph -lua rrdcached
+net-nds/openldap                    cleartext
 net-firewall/iptables               conntrack nftables
 net-libs/rabbitmq-c                 static-libs
 net-libs/davix                      tools
@@ -60,12 +60,14 @@ x11-libs/gtk+                       X
 x11-libs/pixman                     openmp
 x11-wm/mutter                       wayland
 
-
 # https://bugs.gentoo.org/840529
 sys-devel/binutils                  multitarget pgo -plugins
 
 
-# these increases coverage
+#######################################################################
+#
+# increase coverage
+#
 dev-lang/php                        gdbm -qdbm          # DICE: test-coverage
 dev-qt/qtbase                       icu                 # DICE: test-coverage
 dev-qt/qtmultimedia                 qml                 # DICE: test-coverage
@@ -77,3 +79,5 @@ media-libs/tiff-compat              jpeg                # DICE: test-coverage
 media-video/ffmpeg                  libv4l v4l          # DICE: test-coverage
 sys-fs/udisks                       -systemd            # DICE: test-coverage
 x11-libs/wxGTK                      jpeg                # DICE: test-coverage
+
+*/*                                 test-full           # DICE: test-full
