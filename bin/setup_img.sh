@@ -878,14 +878,14 @@ function FixPossibleUseFlagIssues() {
 
 # helper of ThrowFlags
 function ShuffleUseFlags() {
-  local max=$1      # pick up to max-1
-  local mask=$2     # mask about 1/mask of them
-  local min=${3:-0} # pick up at least min
+  local max=$1      # pick up to $max
+  local mask=$2     # mask about $mask of them
+  local min=${3:-0} # pick up at least $min
 
-  shuf -n $((RANDOM % (max - min) + min)) |
+  shuf -n $((RANDOM % (max - min + 1) + min)) |
     sort |
     while read -r flag; do
-      if dice 1 $mask; then
+      if dice $mask $max; then
         echo -n "-"
       fi
       echo -n "$flag "
@@ -922,7 +922,7 @@ function ThrowFlags() {
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
         cut -f 2 -d '"' -s |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-        ShuffleUseFlags 10 5 |
+        ShuffleUseFlags 9 3 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
     done >./etc/portage/package.use/24thrown_package_use_flags
