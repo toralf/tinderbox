@@ -80,4 +80,4 @@ media-video/ffmpeg                  libv4l v4l          # DICE: test-coverage
 sys-fs/udisks                       -systemd            # DICE: test-coverage
 x11-libs/wxGTK                      jpeg                # DICE: test-coverage
 
-*/*                                 test-full           # DICE: test-full
+*/*                                 test-full           # DICE: test-full 1 8
