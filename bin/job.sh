@@ -955,22 +955,24 @@ function WorkOnTask() {
     if ! RunAndCheck "$(cut -c 2- <<<$task)" || grep -i -q -F '* ERROR: ' $tasklog; then
       if [[ $try_again -eq 1 ]]; then
         add2backlog "$task"
-      elif [[ $pkg =~ "sys-devel/gcc" ]]; then
-        ReachedEOL "failed: $task" $tasklog
+      elif grep -q 'The following USE changes are necessary to proceed' $tasklog; then
+        ReachedEOL "failed: USE changes" $tasklog
       elif [[ $task =~ " --depclean" ]]; then
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
-          ReachedEOL "failed: $task" $tasklog
+          ReachedEOL "failed: deps" $tasklog
         fi
       elif [[ -n $pkg ]]; then
-        if [[ $task =~ $pkg ]]; then
-          ReachedEOL "failed: $task" $tasklog
-        elif grep -q 'The following USE changes are necessary to proceed' $tasklog; then
-          ReachedEOL "failed: USE changes needed $task" $tasklog
+        if [[ $pkg =~ "sys-devel/gcc" ]] && [[ ! $name =~ "_llvm" ]]; then
+          ReachedEOL "failed: $pkg" $tasklog
+        elif [[ $pkg =~ "sys-devel/clang" || $pkg =~ "sys-devel/llvm" ]] && [[ $name =~ "_llvm" ]]; then
+          ReachedEOL "failed: $pkg" $tasklog
+        elif [[ $task =~ $pkg ]]; then
+          ReachedEOL "failed: $pkg" $tasklog
         else
           add2backlog "$task"
         fi
       else
-        ReachedEOL "failed: $task (no pkg)" $tasklog
+        ReachedEOL "failed: (no pkg)" $tasklog
       fi
     fi
 
