@@ -11,3 +11,6 @@ app-emacs/navi2ch
 
 # https://bugs.gentoo.org/908593
 net-print/foo2zjs
+
+# https://bugs.gentoo.org/938195
+>=dev-libs/protobuf-27.2                                # DICE: protobuf

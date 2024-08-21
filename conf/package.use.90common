@@ -189,3 +189,6 @@ dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental
 net-misc/curl                       curl_quic_openssl -curl_quic_ngtcp2 -gnutls -mbedtls                        # DICE: setup_curl 7 8
 sys-apps/shadow                     pam -cracklib       # DICE: shadow 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
+
+# sam
+sys-devel/gcc                       -vanilla

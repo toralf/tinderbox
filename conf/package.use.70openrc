@@ -2,3 +2,5 @@
 #
 
 sys-auth/pambase                    -homed
+
+app-accessibility/at-spi2-core      -dbus-broker
