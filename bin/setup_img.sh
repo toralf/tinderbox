@@ -751,6 +751,7 @@ function RunDryrunWrapper() {
           echo -e "$(date) Perl dep issue n=$n for $i" | tee ~tinderbox/img/$name/var/tmp/tb/KEEP
           exit 42
         fi
+        return 1
       fi
     done
 
