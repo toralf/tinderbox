@@ -748,7 +748,7 @@ function RunDryrunWrapper() {
         # for sam: check if this has less packages than the previous candidate
         local n=$(grep -Eo "^Total: .* packages" $drylog | tail -n 1 | awk '{ print $2 }')
         if [[ $n -lt 201 ]]; then
-          echo -e "$(date) Perl dep issue n=$n for $i" | tee ~tinderbox/img/$name/var/tmp/tb/KEEP
+          echo -e "$(date) Perl dep issue for $i n=$n" | tee ~tinderbox/img/$name/var/tmp/tb/KEEP
           exit 42
         fi
         return 1

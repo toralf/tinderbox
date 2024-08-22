@@ -632,7 +632,7 @@ function WorkAtIssue() {
   fi
 
   if grep -q -F 't locate Locale/gettext.pm in' $pkglog_stripped; then
-    ReachedEOL "perl-cleaner Perl dep issue for $pkg" $pkglog_stripped
+    ReachedEOL "perl-cleaner Perl dep issue pkg=$pkg" $pkglog_stripped
   fi
 
   if grep -q -F "Please, run 'haskell-updater'" $pkglog_stripped; then
