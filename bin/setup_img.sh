@@ -462,8 +462,6 @@ EOF
 PORTAGE_USE_CLANG_HOOK=0
 EOF
 
-  printf '%-37s%s\n' 'sys-devel/gcc' 'gcc' >./etc/portage/package.env/90gcc
-
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
   else
@@ -565,7 +563,7 @@ function CreateBacklogs() {
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
 @world
-%cd /etc/portage/ && ln -sf bashrc.clang bashrc && printf \'%-37s%s\\n\' \'*/*\' \'clang\' >/etc/portage/package.use/clang
+%cd /etc/portage/ && ln -sf bashrc.clang bashrc && printf '%-37s%s\n' '*/*' 'clang' >/etc/portage/package.use/clang
 %emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then

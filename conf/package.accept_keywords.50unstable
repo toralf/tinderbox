@@ -5,5 +5,4 @@
 <dev-build/meson-9999                              **   # DICE: [meson-9999] 1 3
 
 # sam_
-<sys-devel/gcc-15.0.9999:15                        **   # DICE: [gcc-15] 3 4
 >=sys-libs/ncurses-6.5                             **   # DICE: [ncurses-6.5] 1 4

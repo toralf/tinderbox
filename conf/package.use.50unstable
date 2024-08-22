@@ -4,9 +4,6 @@
 
 */*         RUBY_TARGETS:           ruby33              # DICE: ruby33
 
-# sam_
-sys-devel/gcc                       debug               # DICE: gcc_debug
-
 # sam_, negril OOM
 sci-libs/vtk                        freetype logging openmp qt5 rendering threads views -doc -examples -ffmpeg -gdal -gles2-only -imaging -java -las -mpi -mysql -odbc -opencascade -openvdb -pdal -postgres -python -qt6 -sdl -tbb -test -tk -vtkm -web  # DICE: vtk
 

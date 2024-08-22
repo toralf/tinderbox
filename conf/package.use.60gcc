@@ -1,2 +1,5 @@
 # package.use/60gcc
 #
+
+# sam_
+sys-devel/gcc                       debug               # DICE: gcc_debug
