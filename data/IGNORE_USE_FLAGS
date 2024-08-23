@@ -59,6 +59,7 @@ objc++
 objc-gc
 oci8
 pax-kernel
+pgo
 prefix
 profile
 s6
