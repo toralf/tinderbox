@@ -301,16 +301,19 @@ sync-git-verify-commit-signature = false
 EOF
 
   local curr_path=$PWD
+
   cd .$reposdir
   if ! git clone -q --depth=1 https://github.com/gentoo-mirror/gentoo.git 2>&1; then
+    # take the most up-to-date source
     local source=$(ls -td ~/img/*/$reposdir/gentoo $reposdir/gentoo/ | head -n 1)
-    [[ -d $source ]]
     cp -ar --reflink=auto $source .
   fi
+
   cd ./gentoo
   git config diff.renamelimit 0
   git config gc.auto 0
   git config pull.ff only
+
   cd $curr_path
 }
 
