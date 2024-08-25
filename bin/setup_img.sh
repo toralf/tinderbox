@@ -32,12 +32,20 @@ function DiceAProfile() {
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
     if dice 3 4; then
+      # weigth MUSL less
       grep -v '/musl'
     else
       grep '.'
     fi |
     if dice 1 2; then
+      # weigth LLVM less
       grep -v '/llvm'
+    else
+      grep '.'
+    fi |
+    if dice 1 2; then
+      # weigth desktop more
+      grep '/desktop'
     else
       grep '.'
     fi |
@@ -190,6 +198,7 @@ function getStage3Filename() {
   fi
 
   if [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
+    # there's no stage3, so start with a 23.0/hardened and switch later
     prefix=$(sed -e 's,nomultilib-,,' <<<$prefix)
   fi
 
