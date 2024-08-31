@@ -49,8 +49,6 @@ tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/op
 
 I missed the point of no return to switch from bash script to Python when I started this project.
 
-Sorry for that.
-
 ## Links
 
 [homepage](https://www.zwiebeltoralf.de/tinderbox.html)
