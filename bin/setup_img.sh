@@ -3,19 +3,20 @@
 # set -x
 
 # setup a new tinderbox image
-# CompileUseFlagFiles() is the central part and takes the most time
+# CompileUseFlagFiles() is the central part
 
 function Exit() {
   local rc=${1:-$?}
 
   trap - INT QUIT TERM EXIT
+  set +e
   if [[ $rc -eq 0 ]]; then
     echo -e "$(date)  setup done for $name"
   else
     echo -e "$(date)  setup failed for $name with rc=$rc"
   fi
   echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  mv /tmp/setup-trace.$$.log $tbhome/img/$name/var/tmp/tb/
+  mv $trace_file $tbhome/img/$name/var/tmp/tb/
   exit $rc
 }
 
@@ -158,27 +159,22 @@ function getStage3List() {
     echo "$(date)   downloading $(basename $stage3_list) from $mirror"
     if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$(basename $stage3_list) --output-document=$stage3_list.new; then
       if [[ -s $stage3_list.new ]]; then
-        if diff -q $stage3_list.new $stage3_list 1>/dev/null; then
-          echo "$(date)   no diff"
+        echo "$(date)   verify stage3 list file ..."
+        if gpg --verify $stage3_list.new &>/dev/null; then
+          mv $stage3_list.new $stage3_list
+          return 0
         else
-          echo "$(date)   differs from old"
+          echo "$(date)   gpg failed"
         fi
-        break
       else
-        echo "$(date)   empty"
+        echo "$(date)   empty stage3 list"
       fi
     else
-      echo "$(date)   failed"
+      echo "$(date)   wget failed"
     fi
   done
 
-  echo "$(date)   verify stage3 list file ..."
-  if gpg --verify $stage3_list.new &>/dev/null; then
-    mv $stage3_list.new $stage3_list
-  else
-    echo "$(date)   failed"
-    return 1
-  fi
+  return 1
 }
 
 function getStage3Filename() {
@@ -1043,12 +1039,13 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-trap Exit INT QUIT TERM EXIT
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++$(date)\n $0 start"
-
-exec 42>/tmp/setup-trace.$$.log
+trace_file=/tmp/$(basename $0).trace.$$.log
+exec 42>$trace_file
 BASH_XTRACEFD="42"
 set -x
+
+trap Exit INT QUIT TERM EXIT
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++$(date)\n $0 start"
 
 tbhome=~tinderbox
 reposdir=/var/db/repos
