@@ -11,7 +11,7 @@ Within each image all Gentoo packages are in a randomized order scheduled to be 
 
 ## Usage
 
-Setup an image with with _setup_img.sh_.
+Setup of images is done by _setup_img.sh_.
 Then watch the status:
 
 ```bash
@@ -21,14 +21,8 @@ whatsup.sh -otl
 
 The file _~tinderbox/tb/findings/ALREADY_CAUGHT_ holds reported findings.
 A new finding is send via email to the user specified by the variable _MAILTO_.
-A finding can be filed using _bgo.sh_.
-Before search the Gentoo bug tracker for duplicates using _check_bgo.sh_.
-
-Login interactively into an image with
-
-```bash
-sudo /opt/tb/bin/bwrap.sh -m <path to img>
-```
+The Gentoo bug tracker can be searched for related bugs using _check_bgo.sh_.
+If not reported a finding can be filed using _bgo.sh_.
 
 ## Installation
 
@@ -53,7 +47,7 @@ tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/op
 
 ## Disclaimer
 
-I missed the point of no return to switch from bash scripting to Python.
+I missed the point of no return to switch from bash script to Python when I started this project.
 
 Sorry for that.
 
