@@ -43,7 +43,7 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 1 2; then
+    if dice 1 3; then
       # weigth desktop more
       grep '/desktop'
     else
@@ -666,8 +666,8 @@ sed -i -e 's,#PORTAGE_LOG_FILTER_FILE_CMD,PORTAGE_LOG_FILTER_FILE_CMD,' /etc/por
 date
 echo "#setup Mail" | tee /var/tmp/tb/task
 emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the bind mounted file
-USE="-kerberos" emerge -u mail-client/s-nail
+rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead
+emerge -u mail-client/mailx
 
 date
 echo "#setup kernel" | tee /var/tmp/tb/task
@@ -997,7 +997,7 @@ EOF
     fi
   else
     local attempt=0
-    while [[ $((++attempt)) -le 125 ]]; do
+    while [[ $((++attempt)) -le 175 ]]; do
       echo
       date
       echo "==========================================================="
