@@ -32,9 +32,6 @@ dev-lang/python                     ssl
 # required by www-client/pybugz
 dev-lang/python                     -libedit readline
 
-# rejected
-net-misc/openssh                    -hpn -sctp -X509
-
 # otherwise: USE=secureboot enabled but SECUREBOOT_SIGN_KEY and/or SECUREBOOT_SIGN_CERT not set.
 */*                                 -secureboot
 
@@ -115,7 +112,7 @@ dev-qt/qtcore                       icu                 # DICE: thunderbird 1 6
 kde-frameworks/kwindowsystem        X                   # DICE: thunderbird 1 6
 media-video/ffmpeg                  zlib                # DICE: thunderbird 1 6
 media-libs/freetype                 png                 # DICE: thunderbird 1 6
-media-libs/gd                       truetype fontconfig # DICE: thunderbird 1 6
+media-libs/gd                       fontconfig truetype # DICE: thunderbird 1 6
 media-libs/libglvnd                 X                   # DICE: thunderbird 1 6
 media-libs/gst-plugins-base         egl                 # DICE: thunderbird 1 6
 media-libs/libpng                   apng                # DICE: thunderbird 1 6
@@ -161,7 +158,7 @@ media-libs/libglvnd                 X                                     # DICE
 media-libs/mesa                     llvm                                  # DICE: libreoffice 1 6
 sys-apps/systemd                    policykit                             # DICE: libreoffice 1 6
 sys-fs/cryptsetup                   -gcrypt -kernel -nettle openssl       # DICE: libreoffice 1 6
-sys-libs/libblockdev                lvm nvme cryptsetup                   # DICE: libreoffice 1 6
+sys-libs/libblockdev                cryptsetup lvm nvme                   # DICE: libreoffice 1 6
 virtual/mpi                         threads                               # DICE: libreoffice 1 6
 x11-libs/cairo                      X                                     # DICE: libreoffice 1 6
 x11-libs/gtk+                       X                                     # DICE: libreoffice 1 6
@@ -171,14 +168,15 @@ x11-libs/gtk+                       X                                     # DICE
 # avoid setup blocker
 #
 
-*/*         VIDEO_CARDS:            -* dummy fbdev      # DICE: setup_video 1 8
-*/*         VIDEO_CARDS:            amdgpu              # DICE: setup_video_amdgpu 1 4
-*/*         VIDEO_CARDS:            intel               # DICE: setup_video_intel 1 4
-*/*         VIDEO_CARDS:            radeon              # DICE: setup_video_radeon 1 8
-*/*         VIDEO_CARDS:            radeonsi            # DICE: setup_video_radeonsi 1 4
-
-*/*         VIDEO_CARDS:   -* dummy fbdev amdgpu        # DICE: setup_video_nollvm 1 8
-media-libs/mesa                     -llvm               # DICE: setup_video_nollvm 1 8
+*/*     VIDEO_CARDS: -amdgpu                   # DICE: setup_video_amdgpu 1 8
+*/*     VIDEO_CARDS: -intel                    # DICE: setup_video_intel 1 8
+*/*     VIDEO_CARDS: -i915                     # DICE: setup_video_i915 1 8
+*/*     VIDEO_CARDS: -radeon                   # DICE: setup_video_radeon 1 8
+*/*     VIDEO_CARDS: -radeonsi                 # DICE: setup_video_radeonsi 1 8
+*/*     VIDEO_CARDS: -nvk                      # DICE: setup_video_nvk 1 8
+*/*     VIDEO_CARDS: -nouveau                  # DICE: setup_video_nouveau 1 8
+*/*     VIDEO_CARDS: -nvidea                   # DICE: setup_video_nvidea 1 8
+*/*     VIDEO_CARDS: -vesa                     # DICE: setup_video_vesa 1 8
 
 dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
 dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
@@ -187,7 +185,7 @@ dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 7 8
 dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 7 8
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 7 8
 net-misc/curl                       curl_quic_openssl -curl_quic_ngtcp2 -gnutls -mbedtls -rustls                # DICE: setup_curl 7 8
-sys-apps/shadow                     pam -cracklib       # DICE: shadow 7 8
+sys-apps/shadow                     pam -cracklib       # DICE: setup_shadow 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 # sam
