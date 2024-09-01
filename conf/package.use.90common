@@ -135,8 +135,8 @@ x11-libs/libxkbcommon               X                   # DICE: thunderbird 1 6
 
 # LO
 app-arch/libarchive                 bzip2
-app-crypt/gpgme                     cxx qt5                               # DICE: libreoffice 1 6
-app-crypt/qca                       qt5                                   # DICE: libreoffice 1 6
+app-crypt/gpgme                     cxx qt6                               # DICE: libreoffice 1 6
+app-crypt/qca                       qt6                                   # DICE: libreoffice 1 6
 app-office/libreoffice              odk                                   # DICE: libreoffice 1 6
 app-text/ghostscript                cups                                  # DICE: libreoffice 1 6
 app-text/poppler                    cairo                                 # DICE: libreoffice 1 6
@@ -190,3 +190,6 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 # sam
 sys-devel/gcc                       -vanilla
+sys-libs/binutils                   -vanilla
+sys-libs/binutils-libs              -vanilla
+sys-libs/glibc                      -vanilla

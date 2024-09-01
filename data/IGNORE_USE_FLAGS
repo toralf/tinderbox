@@ -32,7 +32,6 @@ homed
 hostname
 i386
 initramfs
-ithreads
 kernel
 kernel-install
 kernel_linux
