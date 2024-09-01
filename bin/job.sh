@@ -306,7 +306,7 @@ function foundCflagsIssue() {
 
 # helper of ClassifyIssue()
 function foundGenericIssue() {
-  # the order of the pattern within the file/s rules
+  # the order of the pattern within these files rules
   cat /mnt/tb/data/CATCH_ISSUES-pre /mnt/tb/data/CATCH_ISSUES.${phase:-compile} /mnt/tb/data/CATCH_ISSUES-post |
     split --lines=1 --suffix-length=4 - /tmp/x_
 
@@ -560,39 +560,45 @@ function finishTitle() {
 }
 
 function SendIssueMailIfNotYetReported() {
-  if ! grep -q -f /mnt/tb/data/IGNORE_ISSUES \
-    -f /mnt/tb/data/CATCH_ISSUES.pretend \
-    -f /mnt/tb/data/CATCH_ISSUES.setup $issuedir/title &&
-    ! grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
-    # chain "cat" by "echo" b/c "echo" is racy whereas "cat" buffers output till newline
+  if grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
+    return 0
+  else
+    # chain "cat" by "echo" to have a \n at the end of the output
     # shellcheck disable=SC2005
     echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
+  fi
 
-    cp $issuedir/issue $issuedir/body
-    echo -e "\n\n" >>$issuedir/body
-    chmod a+w $issuedir/body
+  for f in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/CATCH_ISSUES.{pretend,setup}; do
+    if grep -q -f $f $issuedir/issue; then
+      return 0
+    fi
+  done
 
-    local hints="bug"
-    local force=""
+  cp $issuedir/issue $issuedir/body
+  echo -e "\n\n" >>$issuedir/body
+  chmod a+w $issuedir/body
 
-    createSearchString
-    if checkBgo &>>$issuedir/body; then
-      if SearchForSameIssue &>>$issuedir/body; then
-        # hints+=" same"
-        return
+  local hints="bug"
+  local force=""
+
+  createSearchString
+  if checkBgo &>>$issuedir/body; then
+    if SearchForSameIssue &>>$issuedir/body; then
+      # hints+=" same"
+      return
+    elif ! BgoIssue; then
+      if SearchForSimilarIssue &>>$issuedir/body; then
+        hints+=" similar"
+        force="                                -f"
       elif ! BgoIssue; then
-        if SearchForSimilarIssue &>>$issuedir/body; then
-          hints+=" similar"
-          force="                                -f"
-        elif ! BgoIssue; then
-          hints+=" unknown"
-        fi
+        hints+=" unknown"
       fi
     fi
-    if blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER); then
-      hints+=" blocks $blocker_bug_no"
-    fi
-    cat <<EOF >>$issuedir/body
+  fi
+  if blocker_bug_no=$(LookupForABlocker /mnt/tb/data/BLOCKER); then
+    hints+=" blocks $blocker_bug_no"
+  fi
+  cat <<EOF >>$issuedir/body
 
 
  direct link: http://tinderbox.zwiebeltoralf.de:31560/$name/$issuedir
@@ -604,8 +610,8 @@ function SendIssueMailIfNotYetReported() {
 :
 
 EOF
-    Mail "$hints $(cat $issuedir/title)" $issuedir/body
-  fi
+
+  Mail "$hints $(cat $issuedir/title)" $issuedir/body
 }
 
 # analyze the issue
