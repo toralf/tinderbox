@@ -1,1 +1,2 @@
 internal compiler error
+shared library.*could not be opened: Dynamic loading not supported

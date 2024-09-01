@@ -2,4 +2,4 @@ Clang 16 testing:
 emerge killed=15
 The present kernel disabled CONFIG_MODULES.
 This compiler lacks GCC plug-in support
-shared library.*could not be opened: Dynamic loading not supported"
+shared library.*could not be opened: Dynamic loading not supported
