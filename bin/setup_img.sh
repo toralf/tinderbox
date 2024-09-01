@@ -32,13 +32,13 @@ function DiceAProfile() {
     grep -v -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
-    if dice 3 4; then
+    if dice 7 8; then
       # weigth MUSL less
       grep -v '/musl'
     else
       grep '.'
     fi |
-    if dice 1 2; then
+    if dice 3 4; then
       # weigth LLVM less
       grep -v '/llvm'
     else
