@@ -35,6 +35,14 @@ function ReachedEOL() {
   local subject=${1:-"NO SUBJECT"}
   local attachment=${2-}
 
+  if [[ -z $attachment ]]; then
+    if [[ -s /var/tmp/tb/EOL ]]; then
+      attachment="/var/tmp/tb/EOL"
+    elif [[ -s /var/tmp/tb/STOP ]]; then
+      attachment="/var/tmp/tb/STOP"
+    fi
+  fi
+
   echo "$subject" >>/var/tmp/tb/EOL
   chmod a+w /var/tmp/tb/EOL
   truncate -s 0 $taskfile
