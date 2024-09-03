@@ -13,7 +13,7 @@ function listStat() {
     $(dirname $0)/whatsup.sh -c | recode --silent ascii..html
     echo '<h3>packages per image per run day</h3>'
     $(dirname $0)/whatsup.sh -d | recode --silent ascii..html
-    echo '<h3>stats about completed and failed packages, <a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">all reported bugs at b.g.o</a>, backlogs etc.</h3>'
+    echo '<h3>stats about completed and failed packages, reported bugs at b.g.o. (<a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">all</a>), backlogs etc.</h3>'
     $(dirname $0)/whatsup.sh -o | recode --silent ascii..html
     echo '<h3>current task</h3>'
     $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
