@@ -812,20 +812,25 @@ function FixPossibleUseFlagIssues() {
     fi
 
     local f_temp=./tmp/fix-use-flags
+    local msg=""
 
     # work on lines like:   - sys-cluster/mpich-3.4.3 (Change USE: -valgrind)
     local f_circ_flag=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
     local f_circ_test=./etc/portage/package.env/27-$attempt-$i-notest-a-circ-dep
     rm -f $f_temp
     grep -m 1 -A 20 "It might be possible to break this cycle" $drylog |
-      grep -F ' (Change USE: -' |
+      grep '^- .* (Change USE: ' |
       sed -e "s,^- ,," -e "s, (Change USE:,," -e "s,)$,," |
       grep -v -e 'abi_x86_32' -e '_target' -e 'video_cards_' |
       while read -r p f; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
-          if [[ $flag =~ test ]]; then
-            if grep -q "^${pn}  .*notest" ./etc/portage/package.env/*; then
+          # allow only unsetting a flag
+          if [[ $flag != "-*" ]]; then
+            continue
+          fi
+          if [[ $flag == "-test" ]]; then
+            if ! grep -q "^${pn}  .*notest" ./etc/portage/package.env/*; then
               printf "%-36s notest\n" $pn >>$f_circ_test
             fi
           elif ! grep -q "^${pn}  .*$flag" ./etc/portage/package.use/*; then
@@ -837,8 +842,12 @@ function FixPossibleUseFlagIssues() {
     if [[ -s $f_temp || -s $f_circ_test ]]; then
       if [[ -s $f_temp ]]; then
         mv $f_temp $f_circ_flag
+        msg+=" # circ dep: $(xargs <$f_circ_flag)"
       fi
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # circ dep: $(xargs <$f_circ_flag)"; then
+      if [[ -s $f_circ_test ]]; then
+        msg+=" # notest: $(xargs <$f_circ_test)"
+      fi
+      if RunDryrunWrapper "#setup dryrun $attempt-$i $msg"; then
         return 0
       fi
     fi
@@ -864,10 +873,15 @@ function FixPossibleUseFlagIssues() {
       done
 
     if [[ -s $f_temp || -s $f_nec_test ]]; then
+
       if [[ -s $f_temp ]]; then
         mv $f_temp $f_nec_flag
+        msg+=" # necessary: $(xargs <$f_nec_flag)"
       fi
-      if RunDryrunWrapper "#setup dryrun $attempt-$i # USE change: $(xargs <$f_nec_flag)"; then
+      if [[ -s $f_nec_test ]]; then
+        msg+=" # notest: $(xargs <$f_nec_test)"
+      fi
+      if RunDryrunWrapper "#setup dryrun $attempt-$i $msg"; then
         return 0
       fi
     fi
