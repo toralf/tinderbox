@@ -7,25 +7,34 @@
 #
 
 app-accessibility/flite             alsa
+app-crypt/gnupg                     ssl
+app-text/docbook-sgml-utils         jadetex
 app-i18n/ibus                       gtk3
 app-misc/pax-utils                  python
 app-text/docbook-xsl-stylesheets    -ruby
-app-text/doxygen                    doc
+app-text/doxygen                    doc dot
 dev-ada/AdaSAT                      static-libs
 dev-db/mariadb                      extraengine
 dev-debug/strace                    -unwind
 dev-java/ant                        bsf
 dev-java/jflex                      ant-task
 dev-java/jaxen                      jdom xom
+dev-libs/libclc                     spirv
+dev-libs/elfutils                   debuginfod
 dev-libs/libzip                     tools
 dev-libs/mongo-c-driver             static-libs
-dev-libs/openssl                    -sctp
+dev-libs/openssl                    quic -sctp
 dev-libs/openssl-compat             -sctp
 dev-libs/thrift                     libevent ssl
 dev-libs/weston                     lcms xwayland
-dev-qt/qtbase                       icu sql sqlite
+dev-qt/qt5compat                    qml
+dev-qt/qtbase                       icu opengl sql sqlite vulkan X
 dev-qt/qtcore                       icu
+dev-qt/qtdeclarative                opengl widgets
+dev-qt/qtgui                        libinput
 dev-qt/qtmultimedia                 qml
+dev-qt/qttools                      designer linguist qml
+dev-qt/qtwidgets                    dbus
 dev-ruby/rrdtool-bindings           graph
 media-gfx/imagemagick               corefonts truetype
 media-libs/gd                       png
@@ -43,6 +52,7 @@ net-nds/openldap                    cleartext
 net-firewall/iptables               conntrack nftables
 net-libs/rabbitmq-c                 static-libs
 net-libs/davix                      tools
+net-libs/nghttp2                    utils
 net-libs/ngtcp2                     static-libs
 net-misc/openssh                    ssl -xmss
 net-dns/bind-tools                  -gssapi
@@ -56,6 +66,7 @@ sys-libs/ldb                        python
 sys-libs/libblockdev                introspection lvm
 sys-libs/libseccomp                 -python
 x11-base/xorg-server                xvfb
+x11-libs/cairo                      glib
 x11-libs/gtk+                       X
 x11-libs/pixman                     openmp
 x11-wm/mutter                       wayland
@@ -64,14 +75,12 @@ x11-wm/mutter                       wayland
 sys-devel/binutils                  multitarget pgo -plugins
 
 
+
 #######################################################################
 #
 # increase coverage
 #
 dev-lang/php                        gdbm -qdbm          # DICE: test-coverage
-dev-qt/qtbase                       icu                 # DICE: test-coverage
-dev-qt/qtmultimedia                 qml                 # DICE: test-coverage
-dev-qt/qtwidgets                    dbus                # DICE: test-coverage
 dev-scheme/racket                   -chez -places       # DICE: test-coverage
 media-libs/sdl-mixer                mod mikmod          # DICE: test-coverage
 media-libs/sdl2-image               jpeg png            # DICE: test-coverage
@@ -79,5 +88,3 @@ media-libs/tiff-compat              jpeg                # DICE: test-coverage
 media-video/ffmpeg                  libv4l v4l          # DICE: test-coverage
 sys-fs/udisks                       -systemd            # DICE: test-coverage
 x11-libs/wxGTK                      jpeg                # DICE: test-coverage
-
-*/*                                 test-full           # DICE: test-full 1 8

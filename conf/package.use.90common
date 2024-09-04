@@ -169,9 +169,10 @@ x11-libs/gtk+                       X                                     # DICE
 #
 
 */*     VIDEO_CARDS: -amdgpu                   # DICE: setup_video_amdgpu 1 8
+*/*     VIDEO_CARDS: -fbdev                    # DICE: setup_video_fbdev 1 8
 */*     VIDEO_CARDS: -intel                    # DICE: setup_video_intel 1 8
 */*     VIDEO_CARDS: -i915                     # DICE: setup_video_i915 1 8
-*/*     VIDEO_CARDS: -radeon                   # DICE: setup_video_radeon 1 8
+*/*     VIDEO_CARDS: -radeon -radeonsi         # DICE: setup_video_radeon 1 8
 */*     VIDEO_CARDS: -radeonsi                 # DICE: setup_video_radeonsi 1 8
 */*     VIDEO_CARDS: -nvk                      # DICE: setup_video_nvk 1 8
 */*     VIDEO_CARDS: -nouveau                  # DICE: setup_video_nouveau 1 8
