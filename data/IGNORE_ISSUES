@@ -1,5 +1,6 @@
 Clang 16 testing:
 emerge killed=15
+No LLVM slot .* satisfying the package's dependencies found installed
+shared library .* could not be opened: Dynamic loading not supported
 The present kernel disabled CONFIG_MODULES.
 This compiler lacks GCC plug-in support
-shared library .* could not be opened: Dynamic loading not supported

@@ -169,6 +169,8 @@ x11-libs/gtk+                       X                                     # DICE
 #
 
 */*     VIDEO_CARDS: -amdgpu                   # DICE: setup_video_amdgpu 1 8
+*/*     VIDEO_CARDS: -ati                      # DICE: setup_video_ati 1 8
+*/*     VIDEO_CARDS: -dummy                    # DICE: setup_video_dummy 1 8
 */*     VIDEO_CARDS: -fbdev                    # DICE: setup_video_fbdev 1 8
 */*     VIDEO_CARDS: -intel                    # DICE: setup_video_intel 1 8
 */*     VIDEO_CARDS: -i915                     # DICE: setup_video_i915 1 8
