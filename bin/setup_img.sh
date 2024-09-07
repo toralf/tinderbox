@@ -32,20 +32,20 @@ function DiceAProfile() {
     grep -v -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
-    if dice 7 8; then
-      # weigth MUSL less
+    if dice 15 16; then
+      # underweigth MUSL
       grep -v '/musl'
     else
       grep '.'
     fi |
-    if dice 3 4; then
-      # weigth LLVM less
+    if dice 15 16; then
+      # underweigth LLVM
       grep -v '/llvm'
     else
       grep '.'
     fi |
     if dice 1 2; then
-      # weigth desktop more
+      # overweigth Desktop
       grep '/desktop'
     else
       grep '.'
@@ -678,7 +678,7 @@ echo "#setup pfl" | tee /var/tmp/tb/task
 USE="-network-cron" emerge -u app-portage/pfl
 
 # sam_
-if [[ $((RANDOM % 40)) -eq 0 ]]; then
+if [[ $((RANDOM % 80)) -eq 0 ]]; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
   emerge -u dev-build/slibtool
