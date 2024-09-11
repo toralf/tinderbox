@@ -4,6 +4,7 @@
 bindist
 boot
 bootstrap
+bootstrap-prefix
 build
 cdinstall
 cet
@@ -17,6 +18,8 @@ custom-cflags
 debug
 default-compiler-rt
 default-gold
+default-libcxx
+default-lld
 deprecated
 dist-kernel
 dracut

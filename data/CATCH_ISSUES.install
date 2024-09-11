@@ -51,7 +51,6 @@ ld: cannot find
  \*   perl_domodule:
 mv: .* are the same file
 : unexpected EPYTHON=
-internal collisions
 between non-identical files
 which is forbidden
 chmod: cannot access

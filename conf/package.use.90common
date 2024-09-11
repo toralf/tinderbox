@@ -49,6 +49,9 @@ sys-kernel/installkernel            -dracut -grub
 # GNAT is required otherwise
 sys-devel/gcc                       -ada
 
+# other way to setup an image never worked
+sys-apps/shadow                     pam -cracklib
+
 #######################################################################
 #
 # misc
@@ -188,7 +191,6 @@ dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 7 8
 dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 7 8
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 7 8
 net-misc/curl                       curl_quic_openssl -curl_quic_ngtcp2 -gnutls -mbedtls -rustls                # DICE: setup_curl 7 8
-sys-apps/shadow                     pam -cracklib       # DICE: setup_shadow 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 # sam

@@ -3,88 +3,58 @@
 
 #######################################################################
 #
-# if FEATURES=test is set then these USE flags are needed
+# if FEATURES=test is set then these USE flags are mandatory
 #
 
 app-accessibility/flite             alsa
-app-crypt/gnupg                     ssl
-app-text/docbook-sgml-utils         jadetex
-app-i18n/ibus                       gtk3
+app-crypt/gnupg                     tofu
 app-misc/pax-utils                  python
-app-text/docbook-xsl-stylesheets    -ruby
-app-text/doxygen                    doc dot
-dev-ada/AdaSAT                      static-libs
-dev-db/mariadb                      extraengine
-dev-debug/strace                    -unwind
-dev-java/ant                        bsf
-dev-java/jflex                      ant-task
-dev-java/jaxen                      jdom xom
-dev-libs/libclc                     spirv
-dev-libs/elfutils                   debuginfod
-dev-libs/libzip                     tools
-dev-libs/mongo-c-driver             static-libs
-dev-libs/openssl                    quic -sctp
-dev-libs/openssl-compat             -sctp
-dev-libs/thrift                     libevent ssl
+app-text/doxygen                    doc
+dev-libs/thrift                     libevent
 dev-libs/weston                     lcms xwayland
-dev-qt/qt5compat                    qml
-dev-qt/qtbase                       icu opengl sql sqlite vulkan X
-dev-qt/qtcore                       icu
-dev-qt/qtdeclarative                opengl widgets
-dev-qt/qtgui                        libinput
-dev-qt/qtmultimedia                 qml
-dev-qt/qttools                      designer linguist qml
-dev-qt/qtwidgets                    dbus
-dev-ruby/rrdtool-bindings           graph
-media-gfx/imagemagick               corefonts truetype
-media-libs/gd                       png
-media-libs/gexiv2                   python
-media-libs/harfbuzz                 icu
-media-libs/libjxl                   png
-media-libs/leptonica                jpeg png
-media-libs/libheif                  go libde265
-media-libs/soxr                     examples
+media-gfx/imagemagick               corefonts
+media-libs/libheif                  go
 media-libs/tiff                     jpeg
-media-sound/pulseaudio              -equalizer
-media-video/ffmpeg                  encode
-net-analyzer/rrdtool                graph -lua rrdcached
-net-nds/openldap                    cleartext
+media-libs/openexr                  utils
+net-analyzer/rrdtool                graph rrdcached
 net-firewall/iptables               conntrack nftables
-net-libs/rabbitmq-c                 static-libs
-net-libs/davix                      tools
-net-libs/nghttp2                    utils
-net-libs/ngtcp2                     static-libs
-net-misc/openssh                    ssl -xmss
-net-dns/bind-tools                  -gssapi
-net-nds/openldap                    berkdb debug -minimal sasl
-sys-apps/dbus                       debug
-sys-apps/iproute2                   conntrack nftables
-sys-apps/man-db                     -nls
-sys-apps/shadow                     -cracklib
+net-nds/openldap                    cleartext -minimal sasl
 sys-auth/sssd                       sudo
-sys-libs/ldb                        python
 sys-libs/libblockdev                introspection lvm
-sys-libs/libseccomp                 -python
-x11-base/xorg-server                xvfb
-x11-libs/cairo                      glib
-x11-libs/gtk+                       X
-x11-libs/pixman                     openmp
-x11-wm/mutter                       wayland
 
 # https://bugs.gentoo.org/840529
 sys-devel/binutils                  multitarget pgo -plugins
 
+
+#######################################################################
+#
+# circ dep
+#
+app-crypt/mit-krb5                  -openldap           # DICE: test_circ_dep
+app-text/texlive-core               luajittex           # DICE: test_circ_dep
+dev-lang/python                     -bluetooth          # DICE: test_circ_dep
+dev-libs/check                      -subunit            # DICE: test_circ_dep
+dev-libs/cyrus-sasl                 -openldap -ldapdb   # DICE: test_circ_dep
+dev-libs/glib                       -gtk-doc            # DICE: test_circ_dep
+dev-lisp/asdf                       -doc                # DICE: test_circ_dep
+dev-python/Babel                    -doc                # DICE: test_circ_dep
+media-libs/freetype                 -harfbuzz -svg -utils       # DICE: test_circ_dep
+media-libs/harfbuzz                 graphite            # DICE: test_circ_dep
+media-libs/mesa                     -vdpau              # DICE: test_circ_dep
+media-libs/openjpeg                 -doc                # DICE: test_circ_dep
+media-libs/sdl2-image               jpeg png            # DICE: test_circ_dep
+media-libs/soxr                     examples            # DICE: test_circ_dep
+net-libs/nghttp2                    utils               # DICE: test_circ_dep
+sys-apps/dbus                       -X                  # DICE: test_circ_dep
+sys-apps/kmod                       lzma                # DICE: test_circ_dep
+sys-cluster/mpich                   -valgrind           # DICE: test_circ_dep
 
 
 #######################################################################
 #
 # increase coverage
 #
-dev-lang/php                        gdbm -qdbm          # DICE: test-coverage
-dev-scheme/racket                   -chez -places       # DICE: test-coverage
-media-libs/sdl-mixer                mod mikmod          # DICE: test-coverage
-media-libs/sdl2-image               jpeg png            # DICE: test-coverage
-media-libs/tiff-compat              jpeg                # DICE: test-coverage
-media-video/ffmpeg                  libv4l v4l          # DICE: test-coverage
-sys-fs/udisks                       -systemd            # DICE: test-coverage
-x11-libs/wxGTK                      jpeg                # DICE: test-coverage
+net-libs/gnutls                     openssl tools       # DICE: test_coverage
+sys-libs/zlib                       static-libs         # DICE: test_coverage
+x11-libs/cairo                      glib                # DICE: test_coverage
+x11-base/xorg-server                xvfb                # DICE: test_coverage
