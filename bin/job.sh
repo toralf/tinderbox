@@ -14,12 +14,7 @@ function Mail() {
 
   if [[ -f $content ]]; then
     echo
-    if [[ $(wc -l <$content) -gt 100 ]]; then
-      echo -e " \n \n \n \n full content is in ~tinderbox/img/$name/$content\n \n \n"
-      tail -n 100 $content
-    else
-      cat $content
-    fi
+    tail -v -n 100 $content
   else
     echo -e "$content"
   fi |
@@ -284,7 +279,7 @@ function foundCollisionIssue() {
 # helper of ClassifyIssue()
 function foundSandboxIssue() {
   if ! grep -q "=$pkg " /etc/portage/package.env/nosandbox 2>/dev/null; then
-    printf "%-50s %s\n" "<=$pkg" "nosandbox" >>/etc/portage/package.env/nosandbox
+    printf "%-55s %s\n" "<=$pkg" "nosandbox" >>/etc/portage/package.env/nosandbox
     try_again=1
   fi
   echo "sandbox issue" >$issuedir/title
@@ -298,7 +293,7 @@ function foundSandboxIssue() {
 # helper of ClassifyIssue()
 function foundCflagsIssue() {
   if ! grep -q "=$pkg " /etc/portage/package.env/cflags_default 2>/dev/null; then
-    printf "%-50s %s\n" "<=$pkg" "cflags_default" >>/etc/portage/package.env/cflags_default
+    printf "%-55s %s\n" "<=$pkg" "cflags_default" >>/etc/portage/package.env/cflags_default
     try_again=1
   fi
   echo "$1" >$issuedir/title
@@ -327,10 +322,10 @@ function handleFeatureTest() {
     try_again=1
     if [[ $phase == "test" ]] && ! grep -q "<=$pkg " /etc/portage/package.env/test-fail-continue 2>/dev/null; then
       # try to keep the dependency tree
-      printf "%-50s %s\n" "<=$pkg" "test-fail-continue" >>/etc/portage/package.env/test-fail-continue
+      printf "%-55s %s\n" "<=$pkg" "test-fail-continue" >>/etc/portage/package.env/test-fail-continue
     else
       # no chance, note: already installed dependencies might no longer be needed and therefore are candidates for being depcleaned
-      printf "%-50s %s\n" "<=$pkg" "notest" >>/etc/portage/package.env/notest
+      printf "%-55s %s\n" "<=$pkg" "notest" >>/etc/portage/package.env/notest
     fi
   fi
 
@@ -389,7 +384,7 @@ function ClassifyIssue() {
   fi
 
   if [[ ! -s $issuedir/title ]]; then
-    Mail "INFO: no title for $name/$issuedir" $issuedir/issue
+    Mail "INFO: no title for $issuedir" $issuedir/issue
   fi
 }
 
