@@ -943,6 +943,7 @@ function ThrowFlags() {
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
         cut -f 2 -d '"' -s |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
+        grep -v -e '.*_.*_' |
         ShuffleUseFlags 9 3 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
