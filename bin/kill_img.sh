@@ -8,10 +8,10 @@ function killPid() {
   local pid=$1
 
   pstree -UlnspuTa $pid | tee ~tinderbox/img/$img/var/tmp/tb/killed_process.log | head -n 20 | cut -c 1-200
-  if kill -0 $pid; then
+  if kill -0 $pid &>/dev/null; then
     kill -15 $pid
     i=60
-    while ((i--)) && kill -0 $pid; do
+    while ((i--)) && kill -0 $pid &>/dev/null; do
       echo -n '.'
       sleep 1
     done
