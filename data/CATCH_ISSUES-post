@@ -30,7 +30,9 @@ Files matching a file type that is not allowed:
 The environment is too large for exec
  \* ERROR: .* failed:
 ln: failed to create symbolic link .*: File exists
-Segmentation fault
+Segmentation fault \* Package .* has internal collisions
+ \* Package .* has internal collisions
+ \* Package .* NOT merged
 ^Error:
 fatal error:
 : error:.

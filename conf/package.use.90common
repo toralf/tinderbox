@@ -170,19 +170,7 @@ x11-libs/gtk+                       X                                     # DICE
 #
 # avoid setup blocker
 #
-
-*/*     VIDEO_CARDS: -amdgpu                   # DICE: setup_video_amdgpu 1 8
-*/*     VIDEO_CARDS: -ati                      # DICE: setup_video_ati 1 8
-*/*     VIDEO_CARDS: -dummy                    # DICE: setup_video_dummy 1 8
-*/*     VIDEO_CARDS: -fbdev                    # DICE: setup_video_fbdev 1 8
-*/*     VIDEO_CARDS: -intel                    # DICE: setup_video_intel 1 8
-*/*     VIDEO_CARDS: -i915                     # DICE: setup_video_i915 1 8
-*/*     VIDEO_CARDS: -radeon -radeonsi         # DICE: setup_video_radeon 1 8
-*/*     VIDEO_CARDS: -radeonsi                 # DICE: setup_video_radeonsi 1 8
-*/*     VIDEO_CARDS: -nvk                      # DICE: setup_video_nvk 1 8
-*/*     VIDEO_CARDS: -nouveau                  # DICE: setup_video_nouveau 1 8
-*/*     VIDEO_CARDS: -nvidea                   # DICE: setup_video_nvidea 1 8
-*/*     VIDEO_CARDS: -vesa                     # DICE: setup_video_vesa 1 8
+*/* INPUT_DEVICES:  evdev libinput
 
 dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
 dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm

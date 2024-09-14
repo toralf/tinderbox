@@ -23,6 +23,7 @@ default-lld
 deprecated
 dist-kernel
 dracut
+evdev
 exec-static-trampoline
 firmware
 fuse
@@ -39,6 +40,7 @@ kernel
 kernel-install
 kernel_linux
 libcxx
+libinput
 libssp
 livecd
 llvm-libunwind
