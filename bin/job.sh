@@ -894,10 +894,8 @@ function RunAndCheck() {
           echo "=$pkg" >>$self
         fi
       fi
-      # to not get the currently installed deps lost
-      # therefore put world file into the similar state as the one
-      # where deps were already been emerged directly before
-      #
+      # to not lose current installed deps put the world file into the similar state
+      # as the one where deps would been alreadey emerged before
       if grep -q '^>>> Installing ' $tasklog_stripped; then
         emerge --depclean --verbose=n --pretend 2>/dev/null |
           grep "^All selected packages: " |
@@ -1047,8 +1045,8 @@ function syncRepo() {
   fi
 
   if ! grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
-    # retest changed ebuilds with a timeshift of 2 hours to have download mirrors being in sync
-    # ignore stderr here due to "warning: log for 'stable' only goes back to"
+    # retest changed ebuilds with a timeshift of 2 hours to ensure that download mirrors are synced
+    # ignore stderr here expecially b/c of "warning: log for 'stable' only goes back to"
     git diff \
       --diff-filter="ACM" \
       --name-only \
@@ -1059,14 +1057,13 @@ function syncRepo() {
       sort -u >/tmp/syncRepo.upd
 
     if [[ -s /tmp/syncRepo.upd ]]; then
-      # mix repo changes and backlog alltogether
+      # mix repo changes and backlog together
       sort -u /tmp/syncRepo.upd /var/tmp/tb/backlog.upd | shuf >/tmp/backlog.upd
-      # cp preserves file perms
+      # cp preserves file perms of the target
       cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
     fi
   fi
 
-  # this includes that the update of the backlog succeeded
   last_sync=$curr_time
 
   cd - >/dev/null
