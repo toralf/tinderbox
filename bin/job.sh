@@ -906,7 +906,7 @@ function RunAndCheck() {
   fi
 
   if grep -q 'Please run emaint --check world' $tasklog_stripped; then
-    add2backlog "%emaint --check world"
+    emaint --check world 1>/dev/null
   fi
 
   return $rc
@@ -940,7 +940,9 @@ function WorkOnTask() {
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >>$histfile
       if [[ $task =~ "@world" ]]; then
-        add2backlog "%emerge --depclean --verbose=n"
+        if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
+          add2backlog "%emerge --depclean --verbose=n"
+        fi
       fi
     else
       if [[ -n $pkg ]]; then
