@@ -69,6 +69,7 @@ function InitOptions() {
   abi3264="n"
   cflags=$cflags_default
   keyword="~amd64"
+  ldflags=""
   name="n/a"
   start_it="n"
   testfeature="n"
@@ -90,6 +91,7 @@ function InitOptions() {
   if [[ ! $profile =~ "/llvm" ]]; then
     if dice 1 2; then
       cflags+=" -Werror=lto-type-mismatch -Werror=strict-aliasing -Werror=odr -flto"
+      ldflags+=" -flto"
     fi
   fi
 
@@ -352,8 +354,8 @@ CXXFLAGS="$cflags"
 FCFLAGS="$cflags"
 FFLAGS="$cflags"
 
-# simply enables QA check for LDFLAGS being respected by build system.
-LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0"
+# enable QA check for LDFLAGS being respected by build system
+LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0 $ldflags"
 
 ACCEPT_KEYWORDS="$keyword"
 
