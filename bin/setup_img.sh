@@ -426,6 +426,9 @@ function CompilePortageFiles() {
 
   touch ./etc/portage/package.mask/self # will hold failed packages
 
+  # https://bugs.gentoo.org/903921
+  echo 'EXTRA_ECONF="DEFAULT_ARCHIVE=/dev/null/BAD_TAR_INVOCATION"' >./etc/portage/env/bad_tar
+
   # handle broken setup or particular package issue
   echo 'FEATURES="-test"' >./etc/portage/env/notest
 
