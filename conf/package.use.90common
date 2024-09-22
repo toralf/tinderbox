@@ -96,6 +96,7 @@ media-libs/libsdl2                  sound video         # DICE: firefox 1 6
 media-libs/mesa                     llvm                # DICE: firefox 1 6
 media-libs/opus                     custom-modes        # DICE: firefox 1 6
 media-plugins/alsa-plugins          pulseaudio          # DICE: firefox 1 6
+media-sound/lame                    -frontend           # DICE: firefox 1 6
 media-video/ffmpeg                  nvec                # DICE: firefox 1 6
 media-video/pipewire                dbus extra          # DICE: firefox 1 6
 media-video/rav1e                   capi                # DICE: firefox 1 6
