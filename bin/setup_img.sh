@@ -65,12 +65,11 @@ function InitOptions() {
   *) jobs=$(($(nproc) / 8)) ;;
   esac
 
-  keyword="~amd64"
 
-  # variable
   abi3264="n"
   cflags=$cflags_default
-  name="n/a" # set in CreateImageName()
+  keyword="~amd64"
+  name="n/a"
   start_it="n"
   testfeature="n"
   useconfigof=""
@@ -82,8 +81,21 @@ function InitOptions() {
     return
   fi
 
+  # sam_
   if dice 1 10; then
     cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
+  fi
+
+  # sam_
+  if [[ ! $profile =~ "/llvm" ]]; then
+    if dice 1 2; then
+      cflags+=" -Werror=lto-type-mismatch -Werror=strict-aliasing -Werror=odr -flto"
+    fi
+  fi
+
+  # force bug 685160 (colon in CFLAGS)
+  if dice 1 80; then
+    cflags+=" -falign-functions=32:25:16"
   fi
 
   if [[ ! $profile =~ "/no-multilib" ]]; then
@@ -91,11 +103,6 @@ function InitOptions() {
       # this sets "*/* ABI_X86: 32 64" via package.use.40abi32+64
       abi3264="y"
     fi
-  fi
-
-  # force bug 685160 (colon in CFLAGS)
-  if dice 1 80; then
-    cflags+=" -falign-functions=32:25:16"
   fi
 
   if dice 1 20; then
@@ -339,7 +346,7 @@ function CompileMakeConf() {
   cat <<EOF >./etc/portage/make.conf
 LC_MESSAGES=C
 
-# set each explicitely to tweak (only) CFLAGS in job.sh e.g. for gcc-14
+# set these explicitely here (instead CXXFLAGS="\$CFLAGS")
 CFLAGS="$cflags"
 CXXFLAGS="$cflags"
 FCFLAGS="$cflags"

@@ -40,3 +40,7 @@ internal compiler error:|has no member named|uint.* was not declared in this sco
 # [Tracker] Build failures with dev-libs/icu-75.1
 931089
 auto.* parameter not permitted in this context|parameter declared .*auto
+
+# (lto) - [TRACKER] LTO issues
+618550
+flto|=odr|=lto-type|=strict-aliasing
