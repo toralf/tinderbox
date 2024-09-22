@@ -44,3 +44,7 @@ auto.* parameter not permitted in this context|parameter declared .*auto
 # (lto) - [TRACKER] LTO issues
 618550
 flto|=odr|=lto-type|=strict-aliasing
+
+# (which-hunt) - [TRACKER] Remove sys-apps/which from @system
+646588
+which: command not found|which is required|which: No such file or directory
