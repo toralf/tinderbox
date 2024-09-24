@@ -70,27 +70,28 @@ function Finish() {
 # helper of getNextTask()
 function setBacklog() {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
-    backlog=/var/tmp/tb/backlog.1st
+    echo "/var/tmp/tb/backlog.1st"
 
   elif [[ -s /var/tmp/tb/backlog.upd && $((RANDOM % 4)) -eq 0 ]]; then
-    backlog=/var/tmp/tb/backlog.upd
+    echo "/var/tmp/tb/backlog.upd"
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
-    backlog=/var/tmp/tb/backlog
+    echo "/var/tmp/tb/backlog"
 
   elif [[ -s /var/tmp/tb/backlog.upd ]]; then
-    backlog=/var/tmp/tb/backlog.upd
+    echo "/var/tmp/tb/backlog.upd"
 
   else
     ReachedEOL "all work DONE"
   fi
 }
 
+# either set $task to a valid entry or exit
 function getNextTask() {
   while :; do
-    setBacklog
+    local backlog=$(setBacklog)
 
-    # move last line of $backlog into $task
+    # move content of the last line of $backlog into $task
     task=$(tail -n 1 $backlog)
     sed -i -e '$d' $backlog
 
@@ -107,7 +108,7 @@ function getNextTask() {
     elif [[ $task =~ ^STOP ]]; then
       Finish "$task"
 
-    elif [[ $task =~ ^@ || $task =~ ^% ]]; then
+    elif [[ $task =~ ^@ || $task =~ ^% || $task =~ ' ' ]]; then
       break
 
     elif [[ $task =~ ^= ]]; then
@@ -115,11 +116,8 @@ function getNextTask() {
         break
       fi
 
-    elif [[ $task =~ ' ' ]]; then
-      break
-
     else
-      # skip if no package version for $task is visible
+      # skip it if no package version for $task is visible
       if ! best_visible=$(portageq best_visible / $task 2>/dev/null); then
         continue
       fi
@@ -133,7 +131,7 @@ function getNextTask() {
         fi
       fi
 
-      # skip if $task would be downgraded
+      # skip it if $task would be downgraded
       if installed=$(portageq best_version / $task); then
         if [[ -n $installed ]]; then
           if qatom --compare $installed $best_visible | grep -q -e ' == ' -e ' > '; then
