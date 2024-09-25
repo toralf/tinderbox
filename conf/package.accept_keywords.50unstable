@@ -1,5 +1,5 @@
 # package.accept_keywords/50unstable
-# look at DICE_DESCRIPTIONS too
+# look at package.unmask/50unstable and DICE_DESCRIPTIONS too
 
 # ztrawhcs: "we want to test all upstream release candidates"
 <dev-build/meson-9999                              **   # DICE: [meson] 1 3
