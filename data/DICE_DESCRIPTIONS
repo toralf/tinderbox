@@ -1,14 +1,8 @@
-[gcc-15]
-Please re-assign to toolchain@ if you get a test failure in C, C++, or Fortran code which makes no sense.
-
-[meson-9999]
+[meson]
 Please re-assign to ztrawhcse@ if you cannot reproduced it with regular meson.
 
 [ncurses-6.5]
 Issues involving opaque types / incomplete typedefs should block bug 930805
 
-[icu-75.1]
-Requested by sam
-
-[ncurses-6.5]
+[libtool]
 Requested by sam
