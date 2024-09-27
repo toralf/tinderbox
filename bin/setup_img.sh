@@ -956,7 +956,7 @@ function ThrowFlags() {
         cut -f 2 -d '"' -s |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
         grep -v -e '.*_.*_' |
-        ShuffleUseFlags 9 3 |
+        ShuffleUseFlags 9 3 1 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
     done >./etc/portage/package.use/24thrown_package_use_flags
