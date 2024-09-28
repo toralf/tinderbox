@@ -28,7 +28,7 @@ error: .* was not declared
 environment: line .*: cd: .* No such file or directory
 Failed to set XATTR_PAX markings
 Fatal error .
-glib-mkenums: command not found
+: command not found
 AttributeError:
 error: unknown target
 Error: The .* plugin is not installed
