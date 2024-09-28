@@ -941,7 +941,7 @@ function ThrowFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
     grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    ShuffleUseFlags 100 6 30 |
+    ShuffleUseFlags 150 6 30 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23thrown_global_use_flags
 
