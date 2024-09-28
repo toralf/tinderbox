@@ -82,14 +82,16 @@ function setBacklog() {
     echo "/var/tmp/tb/backlog.upd"
 
   else
-    ReachedEOL "all work DONE"
+    return 1
   fi
 }
 
 # either set $task to a valid entry or exit
 function getNextTask() {
   while :; do
-    local backlog=$(setBacklog)
+    if ! backlog=$(setBacklog); then
+      ReachedEOL "all work DONE"
+    fi
 
     # move content of the last line of $backlog into $task
     task=$(tail -n 1 $backlog)
