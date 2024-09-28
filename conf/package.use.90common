@@ -179,7 +179,9 @@ dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 7 8
 dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 7 8
 dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 7 8
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 7 8
-net-misc/curl                       curl_quic_openssl -curl_quic_ngtcp2 -gnutls -mbedtls -rustls                # DICE: setup_curl 7 8
+net-misc/curl               -gnutls -mbedtls openssl -rustls      # DICE: setup_curl 7 8
+net-misc/curl     CURL_QUIC="openssl -ngtcp2"                     # DICE: setup_curl 7 8
+net-misc/curl     CURL_SSL="-gnutls -mbedtls openssl -rustls"     # DICE: setup_curl 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 # sam

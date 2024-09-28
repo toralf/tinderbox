@@ -41,3 +41,7 @@ app-crypt/sbctl
 # patches are not accepted upstream
 #
 net-misc/openssh-contrib
+#
+# [RFC] News item: Haskell destabilization
+#
+dev-haskell/
