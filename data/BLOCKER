@@ -43,7 +43,7 @@ auto.* parameter not permitted in this context|parameter declared .*auto
 
 # (lto) - [TRACKER] LTO issues
 618550
-flto|=odr|=lto-type|strict-aliasing
+flto|lto1:|=lto-type-mismatch|=odr|=strict-aliasing
 
 # (which-hunt) - [TRACKER] Remove sys-apps/which from @system
 646588
