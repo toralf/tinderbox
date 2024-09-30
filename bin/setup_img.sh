@@ -65,7 +65,6 @@ function InitOptions() {
   *) jobs=$(($(nproc) / 8)) ;;
   esac
 
-
   abi3264="n"
   cflags=$cflags_default
   keyword="~amd64"
@@ -1020,7 +1019,7 @@ EOF
     fi
   else
     local attempt=0
-    while [[ $((++attempt)) -le 175 ]]; do
+    while [[ $((++attempt)) -le 125 ]]; do
       echo
       date
       echo "==========================================================="
@@ -1087,9 +1086,6 @@ while getopts R:a:k:p:m:M:st:u: opt; do
     useconfigof="me"
     [[ $name =~ "_test" ]] && testfeature="y"
     [[ $name =~ "_abi32+64" ]] && abi3264="y"
-    cd ./var/db/repos/gentoo
-    git pull -q
-    cd - 1>/dev/null
     CompileUseFlagFiles
     Finalize
     exit 0
