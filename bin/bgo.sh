@@ -51,11 +51,10 @@ function create() {
       sort -u
   )
 
-  # --assigned-to "unassigned@gentoo.org"
   bugz post \
     --batch \
     --default-confirm "n" \
-    --title "$title" \
+    --title "$(cut -c -$__tinderbox_bugz_title_length <<<$title)" \
     --product "Gentoo Linux" \
     --component "Current packages" \
     --version "unspecified" \

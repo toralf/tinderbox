@@ -301,17 +301,15 @@ function foundCflagsIssue() {
 
 # helper of ClassifyIssue()
 function foundGenericIssue() {
-  # the order of the pattern within these files rules
+  # the order of patterns rules
   cat /mnt/tb/data/CATCH_ISSUES-pre /mnt/tb/data/CATCH_ISSUES.${phase:-compile} /mnt/tb/data/CATCH_ISSUES-post |
     split --lines=1 --suffix-length=4 - /tmp/x_
 
   for x in /tmp/x_????; do
-    if grep -a -m 1 -B 6 -A 2 -f $x $pkglog_stripped >/tmp/issue; then
-      mv /tmp/issue $issuedir/issue
+    if grep -a -m 1 -B 6 -A 2 -f $x $pkglog_stripped >$issuedir/issue; then
       grep -m 1 -f $x $issuedir/issue | stripQuotesAndMore >$issuedir/title
       break
     fi
-    rm /tmp/issue
   done
   rm /tmp/x_????
 }
@@ -329,7 +327,7 @@ function handleFeatureTest() {
     fi
   fi
 
-  # gtar returns an error if it can't find any directory, therefore feed dirs to it to easier catch other tar issues
+  # gtar returns an error if it can't find any directory, therefore feed dirs to it to catch only real tar issues
   (
     cd "$workdir"
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
@@ -379,7 +377,7 @@ function ClassifyIssue() {
 
   if [[ $(wc -c <$issuedir/issue) -gt 1024 ]]; then
     echo -e "too long lines were shrinked:\n" >/tmp/issue
-    cut -c-300 <$issuedir/issue >>/tmp/issue
+    cut -c -300 <$issuedir/issue >>/tmp/issue
     mv /tmp/issue $issuedir/issue
   fi
 
@@ -551,7 +549,6 @@ function finishTitle() {
     sed -i -e "s,^,$pkg - ," $issuedir/title
   fi
   sed -i -E 's,\s+, ,g' $issuedir/title
-  truncate -s "<150" $issuedir/title # limit "Summary" length to a reasonable default (b.g.o allows more, see https://github.com/toralf/tinderbox/issues/6)
 }
 
 function SendIssueMailIfNotYetReported() {
@@ -576,7 +573,6 @@ function SendIssueMailIfNotYetReported() {
   local hints="bug"
   local force=""
 
-  createSearchString
   if checkBgo &>>$issuedir/body; then
     if SearchForSameIssue &>>$issuedir/body; then
       # hints+=" same"

@@ -26,7 +26,7 @@ function __is_crashed() {
 function getStartTime() {
   local img=~tinderbox/img/$(basename $1)
 
-  cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img
+  cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img 2>/dev/null
 }
 
 function stripQuotesAndMore() {
@@ -82,25 +82,17 @@ function checkBgo() {
   fi
 }
 
-# transform the title into space separated search items + set few common vars
-function createSearchString() {
-  # no local here
+function prepareResultFile() {
   # shellcheck disable=SC2154
-  bugz_search=$issuedir/bugz_search
-  bugz_result=$issuedir/bugz_result
+  if [[ ! -f $issuedir/bugz_result ]]; then
+    truncate -s 0 $issuedir/bugz_result
+    chmod a+w $issuedir/bugz_result # created by root, writeable by tinderbox
+  fi
+}
 
-  for f in $bugz_search $bugz_result; do
-    if [[ ! -f $f ]]; then
-      truncate -s 0 $f
-      chmod a+w $f
-    fi
-  done
-
+function getSearchString() {
   sed -e 's,^.* - ,,' \
-    -e 's,/\.\.\./, ,' \
-    -e 's,[\(\)], ,g' \
-    -e 's,\s\s*, ,g' \
-    $issuedir/title >$bugz_search
+    -e 's,[\(\)], ,g'
 }
 
 # look for a blocker bug id
@@ -128,14 +120,15 @@ function LookupForABlocker() {
 }
 
 function BgoIssue() {
-  grep -q -e "^Traceback" -e " issue: " $bugz_result
+  grep -q -e "^Traceback" -e " issue: " $issuedir/bugz_result
 }
 
 function GotResults() {
-  [[ -s $bugz_result ]]
+  [[ -s $issuedir/bugz_result ]]
 }
 
 function SearchForSameIssue() {
+  prepareResultFile
   if grep -q 'file collision with' $issuedir/title; then
     collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
@@ -146,7 +139,7 @@ function SearchForSameIssue() {
       sort -n -r |
       head -n 4 |
       filterPlainText |
-      tee $bugz_result
+      tee $issuedir/bugz_result
     if BgoIssue; then
       return 1
     elif GotResults; then
@@ -156,13 +149,13 @@ function SearchForSameIssue() {
   else
     # shellcheck disable=SC2154
     for i in $pkg $pkgname; do
-      $__tinderbox_bugz_search_cmd --show-status -- $i "$(cat $bugz_search)" |
+      $__tinderbox_bugz_search_cmd --show-status -- $i "$(cut -c -$__tinderbox_bugz_title_length $issuedir/title | getSearchString)" |
         stripQuotesAndMore |
         grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
         sort -n -r |
         head -n 4 |
         filterPlainText |
-        tee $bugz_result
+        tee $issuedir/bugz_result
       if BgoIssue; then
         return 1
       elif GotResults; then
@@ -175,14 +168,15 @@ function SearchForSameIssue() {
 }
 
 function SearchForSimilarIssue() {
+  prepareResultFile
   # resolved does not fit "same issue"
   for i in $pkg $pkgname; do
-    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(cat $bugz_search)" |
+    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(getSearchString <$issuedir/title)" |
       stripQuotesAndMore |
       sort -n -r |
       head -n 3 |
       filterPlainText |
-      tee $bugz_result
+      tee $issuedir/bugz_result
     if BgoIssue; then
       return 1
     elif GotResults; then
@@ -190,12 +184,12 @@ function SearchForSimilarIssue() {
       return 0
     fi
 
-    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED -- $i "$(cat $bugz_search)" |
+    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED -- $i "$(getSearchString <$issuedir/title)" |
       stripQuotesAndMore |
       sort -n -r |
       head -n 3 |
       filterPlainText |
-      tee $bugz_result
+      tee $issuedir/bugz_result
     if BgoIssue; then
       return 1
     elif GotResults; then
@@ -214,14 +208,14 @@ function SearchForSimilarIssue() {
     sort -n -r |
     head -n 12 |
     filterPlainText |
-    tee $bugz_result
+    tee $issuedir/bugz_result
   if BgoIssue; then
     return 1
   elif GotResults; then
     return 0
   fi
 
-  if [[ $(wc -l <$bugz_result) -lt 5 ]]; then
+  if [[ $(wc -l <$issuedir/bugz_result) -lt 5 ]]; then
     echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
     $__tinderbox_bugz_search_cmd --status RESOLVED $pkgname |
       stripQuotesAndMore |
@@ -229,7 +223,7 @@ function SearchForSimilarIssue() {
       sort -n -r |
       head -n 5 |
       filterPlainText |
-      tee $bugz_result
+      tee $issuedir/bugz_result
     if BgoIssue; then
       return 1
     elif GotResults; then
@@ -240,5 +234,8 @@ function SearchForSimilarIssue() {
   return 1
 }
 
-# handle b.g.o. hang
+# handle pybugz hang if b.g.o. is down
 __tinderbox_bugz_search_cmd="timeout --signal=15 --kill-after=1m 3m bugz -q --columns 400 search"
+
+# Summary is length limited, but see https://github.com/toralf/tinderbox/issues/6
+__tinderbox_bugz_title_length=170

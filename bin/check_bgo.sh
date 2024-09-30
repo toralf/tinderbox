@@ -96,7 +96,6 @@ echo -e "\n  ${cmd}\n\n"
 if [[ $force == "y" ]]; then
   $cmd
 else
-  createSearchString
   versions=$(
     eshowkw --arch amd64 $pkgname |
       grep -v -e '^  *|' -e '^-' -e '^Keywords' |
