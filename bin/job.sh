@@ -552,16 +552,20 @@ function finishTitle() {
 }
 
 function SendIssueMailIfNotYetReported() {
-  if grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
-    return 0
-  else
-    # chain "cat" by "echo" to have a \n at the end of the output
-    # shellcheck disable=SC2005
-    echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
+  if [[ ! -s $issuedir/title ]]; then
+    ReachedEOL "empty title not expected"
   fi
 
+  if grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
+    return 0
+  fi
+
+  # chain "cat" by "echo" to enforce a \n; this prevents mixed content from 2 tinderbox images within the same line
+  # shellcheck disable=SC2005
+  echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
+
   for f in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/CATCH_ISSUES.{pretend,setup}; do
-    if grep -q -f $f $issuedir/issue; then
+    if grep -q -f $f $issuedir/title; then
       return 0
     fi
   done
@@ -575,14 +579,17 @@ function SendIssueMailIfNotYetReported() {
 
   if checkBgo &>>$issuedir/body; then
     if SearchForSameIssue &>>$issuedir/body; then
-      # hints+=" same"
       return
-    elif ! BgoIssue; then
+    elif BgoIssue; then
+      hints+=" b.g.o issue"
+    else
       if SearchForSimilarIssue &>>$issuedir/body; then
         hints+=" similar"
         force="                                -f"
-      elif ! BgoIssue; then
-        hints+=" unknown"
+      elif BgoIssue; then
+        hints+=" b.g.o issue"
+      else
+        hints+=" no issue yet"
       fi
     fi
   fi
