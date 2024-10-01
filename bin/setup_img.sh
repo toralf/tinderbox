@@ -347,6 +347,9 @@ function CompileMakeConf() {
   cat <<EOF >./etc/portage/make.conf
 LC_MESSAGES=C
 
+# by ztrawhcse
+MAKEOPTS="-O"
+
 # set these explicitely here (instead CXXFLAGS="\$CFLAGS")
 CFLAGS="$cflags"
 CXXFLAGS="$cflags"
