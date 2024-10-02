@@ -67,9 +67,9 @@ function Exit() {
   trap - INT QUIT TERM EXIT
 
   if [[ -d $lock_dir ]]; then
+    RemoveCgroup
     rmdir "$lock_dir"
   fi
-  RemoveCgroup
   exit $rc
 }
 
@@ -132,7 +132,6 @@ fi
 
 entrypoint=""
 mnt=""
-cgdomain=/sys/fs/cgroup/tb
 
 while getopts e:m: opt; do
   case $opt in
@@ -156,7 +155,6 @@ while getopts e:m: opt; do
     ;;
   esac
 done
-lock_dir="/run/tb/${mnt##*/}.lock"
 
 if [[ -z $mnt ]]; then
   echo " mount point is empty" >&2
@@ -173,6 +171,9 @@ if [[ $(stat -c '%u' "$mnt") != "0" ]]; then
   exit 1
 fi
 
+cgdomain=/sys/fs/cgroup/tb
+lock_dir="/run/tb/${mnt##*/}.lock"
+
 i=10
 while [[ -d $lock_dir ]] && ((i--)); do
   sleep 0.25
@@ -181,6 +182,7 @@ if [[ -d $lock_dir ]]; then
   echo " lock dir '$lock_dir' exists" >&2
   exit 1
 fi
+
 trap 'Exit' INT QUIT TERM EXIT
 mkdir -p "$lock_dir"
 
@@ -190,8 +192,10 @@ if [[ -n $entrypoint ]]; then
   cp "$entrypoint" "$mnt/root/entrypoint"
   chmod 744 "$mnt/root/entrypoint"
 
-  rm -f "$mnt/root/lib.sh"
-  cp "$(dirname $0)/lib.sh" "$mnt/root/lib.sh"
-  chmod 644 "$mnt/root/lib.sh"
+  if [[ $entrypoint == $(dirname $0)/job.sh ]]; then
+    rm -f "$mnt/root/lib.sh"
+    cp "$(dirname $0)/lib.sh" "$mnt/root/lib.sh"
+    chmod 644 "$mnt/root/lib.sh"
+  fi
 fi
 Bwrap
