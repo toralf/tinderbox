@@ -89,34 +89,12 @@ function listImagesWithoutReportedBugs() {
   } >>$tmpfile
 }
 
-function listImagesWithReportedBugs() {
-  local files=$(
-    find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
-      xargs -r -n 1 --null basename |
-      sort |
-      while read -r f; do
-        if ls ~tinderbox/img/$f/var/tmp/tb/issues/*/.reported &>/dev/null; then
-          echo $f
-        fi
-      done
-  )
-  local n=$(wc -w <<<$files)
-  {
-    echo "<h2>$n images with reported bugs</h2>"
-    echo "<pre>"
-    for f in $files; do
-      echo "<a href=\"$f\">$f</a>"
-    done
-    echo -e "</pre>\n"
-  } >>$tmpfile
-}
-
 function listBugs() {
-  local files
-  files=$(ls -t -- ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null)
+  local files=$(ls -t -- ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null)
+  local n=$(sed -e 's,/var/tmp/tb/issues.*,,' <<<$files | sort -u | wc -l)
 
   cat <<EOF >>$tmpfile
-<h2>latest $(wc -l <<<$files) reported bugs (<a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">all</a>)</h2>
+<h2>latest $(wc -l <<<$files) reported bugs of $n images (<a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">all</a>)</h2>
 
   <table border="0" align="left" class="list_table" width="100%">
 
@@ -190,7 +168,6 @@ listStat
 listFiles
 listImagesWithoutAnyBug
 listImagesWithoutReportedBugs
-listImagesWithReportedBugs
 listBugs
 cat <<EOF >>$tmpfile
 </body>
