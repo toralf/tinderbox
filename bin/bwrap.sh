@@ -137,8 +137,8 @@ cgdomain=/sys/fs/cgroup/tb
 while getopts e:m: opt; do
   case $opt in
   e)
-    if [[ ! -s $OPTARG ]]; then
-      echo " no valid entrypoint script given: $OPTARG" >&2
+    if [[ ! -s $OPTARG || $OPTARG =~ [[:space:]] || $OPTARG =~ [\\\(\)\`$] ]]; then
+      echo " no valid entrypoint script given" >&2
       exit 1
     fi
     entrypoint=$OPTARG
