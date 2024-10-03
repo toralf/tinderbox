@@ -47,4 +47,4 @@ flto|lto1:|=lto-type-mismatch|=odr|=strict-aliasing
 
 # (which-hunt) - [TRACKER] Remove sys-apps/which from @system
 646588
-which: command not found|which is required|which: No such file or directory
+which: command not found|which is required|which: No such file or directory|No such file or directory: which:
