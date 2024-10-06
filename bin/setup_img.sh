@@ -44,7 +44,7 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 1 3; then
+    if dice 2 3; then
       # overweigth Desktop
       grep '/desktop'
     else
@@ -949,7 +949,7 @@ function ThrowFlags() {
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
     grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
-    shuf -n $((RANDOM % 1500 + 700)) |
+    shuf -n $((RANDOM % 2000 + 500)) |
     sort |
     while read -r file; do
       pn=$(cut -f 6-7 -d '/' -s <<<$file)
