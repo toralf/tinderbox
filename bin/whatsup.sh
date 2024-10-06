@@ -117,10 +117,10 @@ function Tasks() {
       ((minutes = delta / 60 % 60))
       if [[ $delta -lt 3600 ]]; then
         ((seconds = delta % 60))
-        printf "%3i:%02i m " $minutes $seconds
+        printf "%3i:%02i  " $minutes $seconds
       else
         ((hours = delta / 3600))
-        printf "%3i:%02i h " $hours $minutes
+        printf "%3i:%02ih " $hours $minutes
       fi
       set -e
 
@@ -130,8 +130,8 @@ function Tasks() {
       else
         line=" $task"
       fi
-      if [[ ${#line} -gt $((columns - 58)) ]]; then
-        echo "$(cut -c 1-$((columns - 55)) <<<$line)..."
+      if [[ ${#line} -gt $((columns - 59)) ]]; then
+        echo "$(cut -c 1-$((columns - 56)) <<<$line)..."
       else
         echo "$line"
       fi
@@ -156,10 +156,10 @@ function LastEmergeOperation() {
         my $minutes = $delta / 60 % 60;
         if ($delta < 3600) {
           my $seconds = $delta % 60;
-          printf (" %2i:%02i m ", $minutes, $seconds);
+          printf (" %2i:%02i  ", $minutes, $seconds);
         } else  {
           my $hours = $delta / 3600;
-          printf (" %2i:%02i h%s", $hours, $minutes, $delta < 3*3600 ? " " : "!"); # mark too long emerge run times
+          printf (" %2i:%02ih ", $hours, $minutes);
         }
         if (-f "'$i'/var/tmp/tb/WAIT") {
           printf ("W");
@@ -167,7 +167,7 @@ function LastEmergeOperation() {
           printf (" ");
         }
         my $line = join (" ", @F[2..$#F]);
-        print substr ($line, 0, '$columns' - 42 - 10), "\n";
+        print substr ($line, 0, '$columns' - 51), "\n";
       '
     else
       echo
