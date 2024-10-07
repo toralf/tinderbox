@@ -60,9 +60,8 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 source $(dirname $0)/lib.sh
 
 intervall=${1:-0}
+datadir=${2:-/var/lib/node_exporter}
 
-datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
-export datadir=${2:-/var/lib/node_exporter}
 cd $datadir
 
 lockfile="/tmp/tb-$(basename $0).lock"
