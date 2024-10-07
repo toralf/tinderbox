@@ -117,18 +117,17 @@ while :; do
     echo
     date
     echo " call setup"
-    tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp) # intentionally not removed in case of an issue
+    tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp) # will be intentionally not removed in case of an issue
     # shellcheck disable=SC2024
     if sudo $(dirname $0)/setup_img.sh -s &>$tmpfile; then
-      img=$(awk '/ setup done for / { print $10 }' $tmpfile)
-      attempt=$(grep -B 1 '^ OK' $tmpfile | head -n 1 | cut -f 3 -d ' ')
-      mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
       date
-      echo " $img  attempt: $attempt"
+      img=$(grep -m 1 -Eo '  name: .*' $tmpfile | awk '{ print $2 }')
+      grep -A 10 -B 1 '^ OK' $tmpfile
+      mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
     else
       rc=$?
-      img=$(awk '/ setup failed for / { print $10 }' $tmpfile)
       date
+      img=$(grep -m 1 -Eo '  name: .*' $tmpfile | awk '{ print $2 }')
       echo "setup failed  $img  rc: $rc  tmpfile: $tmpfile"
       exit $rc
     fi
