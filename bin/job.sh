@@ -581,15 +581,15 @@ function SendIssueMailIfNotYetReported() {
     if SearchForSameIssue &>>$issuedir/body; then
       return
     elif BgoIssue; then
-      hints+=" b.g.o issue"
+      hints+=" b.g.o outage"
     else
       if SearchForSimilarIssue &>>$issuedir/body; then
         hints+=" similar"
         force="                                -f"
       elif BgoIssue; then
-        hints+=" b.g.o issue"
+        hints+=" b.g.o outage"
       else
-        hints+=" no issue yet"
+        hints+=" new"
       fi
     fi
   fi
@@ -840,6 +840,7 @@ function GetPkgFromTaskLog() {
 # run $1 and act on its results
 function RunAndCheck() {
   set +e
+  # the 48 hours are for -j 4
   timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
   local rc=$?
   set -e
