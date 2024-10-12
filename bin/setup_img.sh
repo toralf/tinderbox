@@ -1046,7 +1046,7 @@ function Finalize() {
 
   cp $tbhome/tb/conf/bashrc ./etc/portage
 
-  if ! wc -l -w ./etc/portage/package.use/2* 2>/dev/null; then
+  if ! wc -l -w --total=never ./etc/portage/package.use/2* 2>/dev/null; then
     echo -e "\n no image specific USE flags"
   fi
 
