@@ -98,7 +98,8 @@ while :; do
   while read -r oldimg; do
     if __is_running $oldimg; then
       hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
-      if [[ $hours -ge 25 ]]; then
+      # job.sh has 48 hours - this here is to double check for hanging images
+      if [[ $hours -ge 50 ]]; then
         echo -e "task runs longer than $hours hours" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
         sudo $(dirname $0)/kill_img.sh $oldimg
       fi
