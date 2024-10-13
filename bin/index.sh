@@ -94,7 +94,7 @@ function listBugs() {
   local n=$(sed -e 's,/var/tmp/tb/issues.*,,' <<<$files | sort -u | wc -l)
 
   cat <<EOF >>$tmpfile
-<h2>$n images with $(wc -l <<<$files) reported bugs (<a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">bugs at b.g.o.</a>)</h2>
+<h2>$n images with $(wc -l <<<$files) reported bugs (<a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">all reported open bugs at b.g.o.</a>)</h2>
 
   <table border="0" align="left" class="list_table" width="100%">
 
@@ -122,20 +122,29 @@ EOF
     if ! uri=$(cat $f 2>/dev/null); then
       continue # race with house keeping
     fi
+
     no=${uri##*/}
     if [[ -z $no ]]; then
       continue
     fi
+
+    # f: /home/tinderbox/img/23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32/.reported
     d=${f%/*}
+
+    # d: /home/tinderbox/img/23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32
     issuedir=$(cut -f 5- -d '/' <<<$d)
+
+    # issuedir: 23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32
     image=${issuedir%%/*}
+
     pkg=${d##*/}
+
     cat <<EOF >>$tmpfile
   <tr>
     <td><a href="$uri">$no</a></td>
     <td>$(recode --silent ascii..html <$d/title)</td>
     <td><a href="./$image/">$image</a></td>
-    <td><a href="$issuedir/">$pkg</a></td>
+    <td><a href="./$issuedir/">$pkg</a></td>
   </tr>
 EOF
   done <<<$files
