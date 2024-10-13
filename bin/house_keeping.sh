@@ -23,15 +23,18 @@ function lowSpace() {
   [[ $avail -lt $wanted ]]
 }
 
-function prepareDeletion() {
+function finalCheck() {
   local img=${1?IMG NOT SET}
 
-  if [[ -f $img/var/tmp/tb/KEEP ]]; then
-    # echo " $(date) marked to be kept: $img" >&2 # stdout is suppressed in cron job
+  if [[ -e ~tinderbox/run/$(basename $img) ]]; then
     return 1
   fi
 
-  if [[ -e ~tinderbox/run/$(basename $img) ]] || __is_running $img; then
+  if [[ -f $img/var/tmp/tb/KEEP ]]; then
+    return 1
+  fi
+
+  if __is_running $img; then
     return 1
   fi
 
@@ -45,14 +48,12 @@ function pruneIt() {
   local img=${1?IMG NOT SET}
   local reason=${2:-no reason given}
 
-  if ! prepareDeletion $img; then
-    return 0
+  if finalCheck $img; then
+    echo " $(date) $reason : $img"
+    rm -r -- $img
+    sync
+    sleep 20 # btrfs is lazy in reporting free space
   fi
-
-  echo " $(date) $reason : $img"
-  rm -r -- $img
-  sync
-  sleep 20 # btrfs is lazy in reporting free space
 }
 
 #######################################################################
