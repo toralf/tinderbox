@@ -421,7 +421,7 @@ EOF
     (
       echo -e "\n  Block bug #351559 if this looks like a parallel build issue."
       if [[ -s $pkglog_stripped ]]; then
-        local shuffle=$(grep -h -m 1 -Eo "( shuffle=[1-9].*)" $pkglog_stripped)
+        shuffle=$(grep -h -m 1 -Eo "( shuffle=[1-9].*)" $pkglog_stripped)
         if [[ -n $shuffle ]]; then
           echo "  Possible reproducer: MAKEOPTS='... $shuffle'"
         fi
