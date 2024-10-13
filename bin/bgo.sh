@@ -117,7 +117,7 @@ function assign() {
   fi
 
   if grep -q 'meson' ./title; then
-    cc+=" eschwartz93@gmail.com"
+    cc+=" eschwartz@gentoo.com"
   fi
 
   local add_cc=""
