@@ -216,15 +216,16 @@ function CollectIssueFiles() {
     (
       cd "$workdir/.."
       f=/tmp/files
-      find ./ -name "*.log" -print0 \
-        -o -name "*.binlog" \
-        -o -name "meson-log.txt" \
-        -o -name "testlog.*" \
+      find ./ \
+        -name '*.log' \
+        -o -name '*.binlog' \
+        -o -name 'meson-log.txt' \
+        -o -name 'testlog.*' \
         -o -wholename '*/elf/*.out' \
         -o -wholename '*/softmmu-build/*' \
-        -o -wholename "./temp/syml*" >$f
+        >$f
       if [[ -s $f ]]; then
-        $tar -cJpf $issuedir/files/logs.tar.xz --null --files-from $f --dereference --warning=none
+        $tar -cJpf $issuedir/files/logs.tar.xz --files-from $f --dereference --warning=none
       fi
       rm $f
     )
@@ -236,11 +237,10 @@ function CollectIssueFiles() {
         --warning=none --sparse \
         --exclude='*/.tmp??????/*' \
         --exclude='*/garbage.*' \
-        --exclude='*/go-build[0-9]*/*' \
+        --exclude='*/go-build/??/*' \
         --exclude='*/go-cache/??/*' \
         --exclude='*/kerneldir/*' \
         --exclude='*/nested_link_to_dir/*' \
-        --exclude='*/syml*' \
         --exclude='*/temp/NuGetScratchportage/*' \
         --exclude='*/temp/nugets/*' \
         --exclude='*/testdirsymlink/*' \
