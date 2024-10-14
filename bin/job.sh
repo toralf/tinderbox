@@ -239,6 +239,7 @@ function CollectIssueFiles() {
         --exclude='*/garbage.*' \
         --exclude='*/go-build/??/*' \
         --exclude='*/go-cache/??/*' \
+        --exclude='*/go-mod/*' \
         --exclude='*/kerneldir/*' \
         --exclude='*/nested_link_to_dir/*' \
         --exclude='*/temp/NuGetScratchportage/*' \
