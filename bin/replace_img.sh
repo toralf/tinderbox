@@ -78,30 +78,24 @@ fi
 
 while :; do
   while read -r oldimg; do
-    if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && __is_stopped $oldimg; then
-      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
-      if [[ $hours -ge 24 ]]; then
-        echo -e "image is not running and last task was $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
+    if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
+      if [[ -f ~tinderbox/img/$oldimg/var/tmp/tb/task.log ]]; then
+        hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task.log)) / 3600))
+      elif [[ -f ~tinderbox/img/$oldimg/var/tmp/tb/task ]]; then
+        hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
+      else
+        hours=$(((EPOCHSECONDS - $(getStartTime $oldimg)) / 3600))
       fi
-    fi
-  done < <(ImagesInRunShuffled)
 
-  while read -r oldimg; do
-    if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]] && __is_crashed $oldimg; then
-      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
       if [[ $hours -ge 24 ]]; then
-        echo -e "image is crashed and last task was $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
-      fi
-    fi
-  done < <(ImagesInRunShuffled)
-
-  while read -r oldimg; do
-    if __is_running $oldimg; then
-      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
-      # job.sh has 48 hours - this here is to double check for hanging images
-      if [[ $hours -ge 50 ]]; then
-        echo -e "task runs longer than $hours hours" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
-        sudo $(dirname $0)/kill_img.sh $oldimg
+        if __is_crashed $oldimg; then
+          echo -e "$(basename $0): image crashed $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
+        elif __is_stopped $oldimg; then
+          echo -e "$(basename $0): image stopped $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
+        elif __is_running $oldimg; then
+          echo -e "$(basename $0): last log $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
+          sudo $(dirname $0)/kill_img.sh $oldimg
+        fi
       fi
     fi
   done < <(ImagesInRunShuffled)
