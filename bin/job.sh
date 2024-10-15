@@ -407,7 +407,7 @@ EOF
         grep -A 1 -F "$dice" /mnt/tb/data/DICE_DESCRIPTIONS |
           tail -n 1 |
           sed -e 's,^,    ,'
-        grep -F "$dice" /etc/portage/package.unmask/* |
+        grep -h -F "$dice" /etc/portage/package.unmask/* |
           awk '{ print (" ", $1) }' |
           sort -u
       done < <(
@@ -441,9 +441,11 @@ EOF
     grep -e "^CC=" -e "^CXX=" -e "^GNUMAKEFLAGS" /etc/portage/make.conf
     echo "gcc-config -l:"
     gcc-config -l
-    echo "clang/llvm (if any):"
-    clang --version
-    llvm-config --prefix --version
+    echo "clang:"
+    clang --version | head -n 1
+    echo "llvm-config:"
+    llvm-config --version
+    echo "python:"
     python -V
     eselect ruby list
     eselect rust list
@@ -451,9 +453,9 @@ EOF
     java-config --list-available-vms --nocolor
     eselect java-vm list
     ghc --version
+    go version
     echo "php cli (if any):"
     eselect php list cli
-    go version
 
     for i in /var/db/repos/*/.git; do
       cd $i/..
