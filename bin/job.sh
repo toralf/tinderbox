@@ -219,9 +219,9 @@ function CollectIssueFiles() {
       find ./ \
         -name '*.log' \
         -o -name '*.binlog' \
+        -o -name '*.out' \
         -o -name 'meson-log.txt' \
         -o -name 'testlog.*' \
-        -o -wholename '*/elf/*.out' \
         -o -wholename '*/softmmu-build/*' \
         >$f
       if [[ -s $f ]]; then
