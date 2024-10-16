@@ -692,7 +692,7 @@ echo "#setup pfl" | tee /var/tmp/tb/task
 USE="-network-cron" emerge -u app-portage/pfl
 
 # sam_
-if [[ $((RANDOM % 80)) -eq 0 ]]; then
+if [[ 1 -eq 0 ]]; then
   date
   echo "#setup slibtool" | tee /var/tmp/tb/task
   emerge -u dev-build/slibtool
