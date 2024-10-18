@@ -306,9 +306,7 @@ function CountEmergesPerPackages() {
         $max = $key if ($max < $key);
       }
 
-      for my $key (sort keys %pet)  {
-        print " ", $key if ($max == $pet{$key});
-      }
+      print " ", join (" ", grep { $max == $pet{$_} } sort keys %pet);
       print "\n\n $seen package (revisions) in $total emerges\n";
     }
   ' $(ls ~tinderbox/run/*/var/log/emerge.log 2>/dev/null)
