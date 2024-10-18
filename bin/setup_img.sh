@@ -515,14 +515,17 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
-  # take lines tagged with "# DICE: <topic> <m> <N>" with an m/N chance (default: 1/2)
+  # take lines tagged with "# DICE: <topic>[ <m> <N>]" with an m/N chance (default: 50%)
   grep -ho '# DICE: .*' ./etc/portage/package.*/* |
     cut -f 3- -d ' ' |
-    sort -u -r |
+    sort -u |
     tr -d '][' |
     while read -r topic m N; do
       if ! dice ${m:-1} ${N:-2}; then
-        sed -i -e "/# DICE: $topic /d" -e "/# DICE: \[$topic\] /d" ./etc/portage/package.*/*
+        sed -i \
+          -e "/# DICE: $topic$/d" -e "/# DICE: $topic /d" \
+          -e "/# DICE: \[$topic\]$/d" -e "/# DICE: \[$topic\] /d" \
+          ./etc/portage/package.*/*
       fi
     done
 
@@ -806,7 +809,7 @@ function FixPossibleUseFlagIssues() {
       fi
     done
 
-    # kick off one package from the package specific use flag file
+    # remove a package from the package specific use flag file
     local pn=$(
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 }' |
