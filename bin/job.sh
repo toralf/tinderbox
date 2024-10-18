@@ -163,22 +163,22 @@ function CompressIssueFiles() {
 }
 
 function CreateEmergeInfo() {
-  local cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, it would sort alphabetically
+  local cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, which would force alphabetical sorting
 
   local outfile=$issuedir/files/emerge-history.txt
   cat <<EOF >$outfile
-# This file contains the emerge history got with:
+# This file contains the emerge history, created at $(date) by:
 # $cmd
-# at $(date)
+#
 EOF
   $cmd >>$outfile
 
   outfile=$issuedir/files/qlist-info.txt
-  cmd="qlist --installed --nocolor --verbose --umap --slots --slots"
+  cmd="qlist --nocolor --verbose --installed --umap --slots --slots" # twice to get subslots too
   cat <<EOF >$outfile
-# This file contains the qlist info got with:
+# This file contains the qlist info, created at $(date) by:
 # $cmd
-# at $(date)
+#
 EOF
   $cmd >>$outfile
 
@@ -408,10 +408,9 @@ EOF
           tail -n 1 |
           sed -e 's,^,    ,'
         grep -h -F "$dice" /etc/portage/package.unmask/* |
-          awk '{ print (" ", $1) }' |
-          sort -u
+          awk '{ print (" ", $1) }'
       done < <(
-        grep "# DICE.*\[.*\]" ../../../../../etc/portage/package.*/* |
+        grep -h "# DICE.*\[.*\]" /etc/portage/package.unmask/* |
           grep -Eo '(\[.*\])' |
           sort -u
       )
@@ -439,23 +438,20 @@ EOF
 
   (
     grep -e "^CC=" -e "^CXX=" -e "^GNUMAKEFLAGS" /etc/portage/make.conf
+    grep -e "^GENTOO_VM=" -e "^JAVACFLAGS=" $tasklog_stripped
     echo "gcc-config -l:"
     gcc-config -l
-    echo "clang:"
     clang --version | head -n 1
-    echo "llvm-config:"
+    echo -n "llvm-config: "
     llvm-config --version
-    echo "python:"
     python -V
+    go version
+    eselect php list cli
     eselect ruby list
     eselect rust list
-    grep -e "^GENTOO_VM=" -e "^JAVACFLAGS=" $tasklog_stripped
     java-config --list-available-vms --nocolor
     eselect java-vm list
     ghc --version
-    go version
-    echo "php cli (if any):"
-    eselect php list cli
 
     for i in /var/db/repos/*/.git; do
       cd $i/..
@@ -463,8 +459,7 @@ EOF
       git show -s HEAD
     done
 
-    echo
-    echo "emerge -qpvO =$pkg"
+    echo -e "\nemerge -qpvO =$pkg"
     emerge -qpvO =$pkg | head -n 1
   ) >>$issuedir/comment0 2>/dev/null
 }
