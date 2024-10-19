@@ -44,7 +44,7 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 2 3; then
+    if dice 1 3; then
       # overweigth Desktop
       grep '/desktop'
     else
@@ -986,19 +986,19 @@ echo "-------"
 EOF
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm) --pretend
+emerge -1 --selective=n --deep=0 --pretend -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
 echo "-------"
 emerge -u @world --backtrack=50 --pretend
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc --pretend
+emerge -1 --selective=n --deep=0 --pretend -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 echo "-------"
 emerge -e @world --pretend
 EOF
   else
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) --pretend
+emerge -1 --selective=n --deep=0 --pretend -u =\$(portageq best_visible / sys-devel/gcc)
 echo "-------"
 emerge -u @world --backtrack=50 --pretend
 EOF
