@@ -29,7 +29,7 @@ function FreeSlotAvailable() {
   local r=$(ls /run/tb | wc -l)
   local s=$(pgrep -fc "/bin/bash /opt/tb/bin/replace")
 
-  [[ $i -lt $desired_count && $((r + s)) -le $desired_count ]]
+  [[ $i -lt $desired_count && $r -lt $desired_count && $((r + s)) -le $desired_count ]]
 }
 
 #######################################################################
