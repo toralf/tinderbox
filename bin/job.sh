@@ -664,7 +664,8 @@ function source_profile() {
 }
 
 function SwitchGCC() {
-  local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
+  local highest
+  highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
   if [[ -z $highest ]]; then
     Mail "${FUNCNAME[0]}: cannot get GCC version"
     return
