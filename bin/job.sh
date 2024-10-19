@@ -712,9 +712,7 @@ function PostEmerge() {
   # quirk for left over processes
   for p in dirmngr gpg-agent; do
     if pgrep -a $p &>>/var/tmp/pkill.log; then
-      if ! pkill -e $p &>>/var/tmp/pkill.log; then
-        Mail "INFO: kill $p failed" /var/tmp/pkill.log
-      fi
+      pkill -e $p &>>/var/tmp/pkill.log
     fi
   done
 
