@@ -14,7 +14,7 @@ sys-firmware/
 sys-kernel/
 virtual/
 #
-# ultra-long compile time https://bugs.gentoo.org/801223
+# ultra-long emerge time and/or no fixes, e.g. https://bugs.gentoo.org/801223
 #
 sci-astronomy/psfex
 sci-astronomy/scamp
@@ -25,7 +25,7 @@ sci-astronomy/sextractor
 dev-qt/qtwebengine
 sci-libs/
 #
-# hangs, e.g.  https://bugs.gentoo.org/909309
+# hangs, e.g. https://bugs.gentoo.org/909309
 #
 app-emacs/
 #
@@ -45,3 +45,8 @@ net-misc/openssh-contrib
 # [RFC] News item: Haskell destabilization
 #
 dev-haskell/
+#
+# deps on outdated llvm
+#
+dev-libs/intel-compute-runtime
+dev-util/intel-graphics-compiler

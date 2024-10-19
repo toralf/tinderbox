@@ -7,6 +7,7 @@
 #
 
 app-accessibility/flite             alsa
+app-arch/p7zip                      rar
 app-crypt/gnupg                     tofu
 app-misc/pax-utils                  python
 app-text/doxygen                    doc
@@ -14,8 +15,8 @@ dev-libs/thrift                     libevent
 dev-libs/weston                     lcms xwayland
 media-gfx/imagemagick               corefonts
 media-libs/libheif                  go
-media-libs/tiff                     jpeg
 media-libs/openexr                  utils
+media-libs/tiff                     jpeg
 net-analyzer/rrdtool                graph rrdcached
 net-firewall/iptables               conntrack nftables
 net-nds/openldap                    cleartext -minimal sasl
@@ -24,7 +25,6 @@ sys-libs/libblockdev                introspection lvm
 
 # https://bugs.gentoo.org/840529
 sys-devel/binutils                  multitarget pgo -plugins
-
 
 #######################################################################
 #
@@ -48,7 +48,6 @@ net-libs/nghttp2                    utils               # DICE: test_circ_dep
 sys-apps/dbus                       -X                  # DICE: test_circ_dep
 sys-apps/kmod                       lzma                # DICE: test_circ_dep
 sys-cluster/mpich                   -valgrind           # DICE: test_circ_dep
-
 
 #######################################################################
 #

@@ -54,6 +54,23 @@ sys-apps/shadow                     pam -cracklib
 
 #######################################################################
 #
+# almost setup blocker
+#
+*/* INPUT_DEVICES:  evdev libinput
+
+dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
+dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
+dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 7 8
+dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 7 8
+dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 7 8
+dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 7 8
+net-misc/curl               -gnutls -mbedtls openssl -rustls      # DICE: setup_curl 7 8
+net-misc/curl     CURL_QUIC="openssl -ngtcp2"                     # DICE: setup_curl 7 8
+net-misc/curl     CURL_SSL="-gnutls -mbedtls openssl -rustls"     # DICE: setup_curl 7 8
+x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
+
+#######################################################################
+#
 # misc
 #
 
@@ -77,10 +94,8 @@ dev-libs/gf2x                       -custom-tune        # DICE: gf2x 4 5
 # takes 2 hours insteads seconds
 app-doc/gimp-help                   -nls                # DICE: gimphelp 4 5
 
-#######################################################################
-#
-# rarely met build dep otherwise
-#
+# video_cards_radeon? ( amd64? ( llvm ) )
+media-libs/mesa                     llvm                # DICE: mesa
 
 # FF
 app-text/poppler                    cairo               # DICE: firefox 1 6
@@ -166,23 +181,6 @@ sys-libs/libblockdev                cryptsetup lvm nvme                   # DICE
 virtual/mpi                         threads                               # DICE: libreoffice 1 6
 x11-libs/cairo                      X                                     # DICE: libreoffice 1 6
 x11-libs/gtk+                       X                                     # DICE: libreoffice 1 6
-
-#######################################################################
-#
-# avoid setup blocker
-#
-*/* INPUT_DEVICES:  evdev libinput
-
-dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
-dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
-dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 7 8
-dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 7 8
-dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 7 8
-dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 7 8
-net-misc/curl               -gnutls -mbedtls openssl -rustls      # DICE: setup_curl 7 8
-net-misc/curl     CURL_QUIC="openssl -ngtcp2"                     # DICE: setup_curl 7 8
-net-misc/curl     CURL_SSL="-gnutls -mbedtls openssl -rustls"     # DICE: setup_curl 7 8
-x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 # sam
 sys-devel/gcc                       -vanilla
