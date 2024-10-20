@@ -550,17 +550,24 @@ function finishTitle() {
 }
 
 function SendIssueMailIfNotYetReported() {
+  local do_report=${1:-1}
+
   if [[ ! -s $issuedir/title ]]; then
-    ReachedEOL "empty title not expected"
+    ReachedEOL "empty title"
   fi
 
   if grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
     return 0
+  else
+    # chain "cat" by "echo" enforces to write out of the buffer
+    # which should avoid writes of 2 or more tinderbox images at the same time into the same line
+    # shellcheck disable=SC2005
+    echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
   fi
 
-  # chain "cat" by "echo" to enforce a \n; this prevents mixed content from 2 tinderbox images within the same line
-  # shellcheck disable=SC2005
-  echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
+  if [[ $do_report -eq 0 ]]; then
+    return 0
+  fi
 
   for f in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/CATCH_ISSUES.{pretend,setup}; do
     if grep -q -f $f $issuedir/title; then
@@ -635,16 +642,11 @@ function WorkAtIssue() {
   CompileIssueComment0
   CompressIssueFiles
 
-  local do_report=1
-
-  if [[ $phase == "pretend" || ! -s $issuedir/title ]]; then
-    do_report=0
-  fi
-
   if grep -q -F 't locate Locale/gettext.pm in' $pkglog_stripped; then
     ReachedEOL "perl-cleaner Perl dep issue pkg=$pkg" $pkglog_stripped
   fi
 
+  local do_report=1
   if grep -q -F "Please, run 'haskell-updater'" $pkglog_stripped; then
     do_report=0
     try_again=1
@@ -652,9 +654,7 @@ function WorkAtIssue() {
     add2backlog "%haskell-updater"
   fi
 
-  if [[ $do_report -eq 1 ]]; then
-    SendIssueMailIfNotYetReported
-  fi
+  SendIssueMailIfNotYetReported $do_report
 }
 
 function source_profile() {
