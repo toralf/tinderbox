@@ -117,10 +117,10 @@ function Tasks() {
       ((minutes = delta / 60 % 60))
       if [[ $delta -lt 3600 ]]; then
         ((seconds = delta % 60))
-        printf "%3i:%02i  " $minutes $seconds
+        printf " %2i:%02i  " $minutes $seconds
       else
         ((hours = delta / 3600))
-        printf "%3i:%02ih " $hours $minutes
+        printf " %2i:%02ih " $hours $minutes
       fi
       set -e
 
@@ -130,8 +130,8 @@ function Tasks() {
       else
         line=" $task"
       fi
-      if [[ ${#line} -gt $((columns - 59)) ]]; then
-        echo "$(cut -c 1-$((columns - 56)) <<<$line)..."
+      if [[ ${#line} -gt $((columns - 51)) ]]; then
+        echo "$(cut -c 1-$((columns - 54)) <<<$line)..."
       else
         echo "$line"
       fi
