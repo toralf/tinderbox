@@ -677,7 +677,7 @@ function SwitchGCC() {
     echo "major version change of gcc: $current -> $highest" | tee -a $taskfile.history
     gcc-config --nocolor $highest
     source_profile
-    add2backlog "dev-build/libtool"
+    add2backlog "%emerge -1 --selective=n --deep=0 -u dev-build/libtool"
     # sam_
     if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
       add2backlog "dev-build/slibtool"
