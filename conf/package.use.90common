@@ -97,6 +97,9 @@ app-doc/gimp-help                   -nls                # DICE: gimphelp 4 5
 # video_cards_radeon? ( amd64? ( llvm ) )
 media-libs/mesa                     llvm                # DICE: mesa
 
+# circular dependencies with media-libs/libsndfile
+media-sound/lame                    -sndfile            # DICE: lame
+
 # FF
 app-text/poppler                    cairo               # DICE: firefox 1 6
 dev-lang/python                     sqlite              # DICE: firefox 1 6
