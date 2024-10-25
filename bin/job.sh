@@ -236,6 +236,7 @@ function CollectIssueFiles() {
       $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
         --warning=none --sparse \
         --exclude='*/.tmp??????/*' \
+        --exclude='*/cc*.ltrans*.o' \
         --exclude='*/garbage.*' \
         --exclude='*/go-build/??/*' \
         --exclude='*/go-cache/??/*' \
@@ -737,7 +738,9 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
-    add2backlog "%emerge -1 /usr/lib*/*.a" # lto incompatibilities
+    if grep -q -F ' -flto' /etc/portage/make.conf; then
+      add2backlog "%emerge -1 /usr/lib*/*.a" # lto incompatibilities
+    fi
     add2backlog "%SwitchGCC"
   fi
 
