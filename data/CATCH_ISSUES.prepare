@@ -25,3 +25,4 @@ convert:
  \* Failed to
  \*   python_fix_shebang:
 is not supported with EAPI
+ \*   ada compiler not available
