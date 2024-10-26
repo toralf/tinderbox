@@ -76,14 +76,14 @@ source $(dirname $0)/lib.sh
 while read -r oldimg; do
   if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
     if [[ -f ~tinderbox/img/$oldimg/var/tmp/tb/task.log ]]; then
-      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task.log)) / 3600))
+      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task.log)) / 3600)) 2>/dev/null
     elif [[ -f ~tinderbox/img/$oldimg/var/tmp/tb/task ]]; then
-      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600))
+      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600)) 2>/dev/null
     else
       hours=$(((EPOCHSECONDS - $(getStartTime $oldimg)) / 3600))
     fi
 
-    if [[ $hours -ge 24 ]]; then
+    if [[ -n $hours && $hours -ge 24 ]]; then
       if __is_crashed $oldimg; then
         echo -e "$(basename $0): image crashed $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
       elif __is_stopped $oldimg; then
