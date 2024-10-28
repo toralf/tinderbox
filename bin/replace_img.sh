@@ -5,13 +5,12 @@
 # replace an image with a new one
 
 function Finish() {
-  local rc=$?
-  local pid=$$
+  local rc=${1:-$?}
 
   trap - INT QUIT TERM EXIT
 
   if [[ $rc -ne 0 ]]; then
-    echo " pid $pid exited with rc=$rc"
+    echo " pid $$ exited with rc=$rc"
   fi
   exit $rc
 }
@@ -133,4 +132,4 @@ else
   rc=0
 fi
 
-exit $rc
+Finish $rc
