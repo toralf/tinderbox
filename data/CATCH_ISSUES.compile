@@ -273,6 +273,7 @@ Cannot build with randomized sbrk.
 UnicodeEncodeError:
 ld: i386 architecture of input file
 final link failed:
+lto1: some warnings being treated as errors
 ld returned .* exit status
 a: malformed archive
   cp: cannot create regular file

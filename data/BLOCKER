@@ -23,7 +23,7 @@ rdlibtool
 
 # (c99-porting, clang-16-porting) - [Tracker] Modern C (C99) porting (default -Werror=implicit-function-declaration,implicit-int,int-conversion; includes but not limited to Clang 16)
 870412
-; ISO C99 and|C compiler cannot create executables|implicit declaration of function|undefined reference to|call to undeclared library function|incompatible pointer type|call to undeclared function|incompatible integer to pointer conversion|incompatible pointer type|type specifier missing, defaults to int|should return a value|incompatible function pointer types|return-mismatch|passing argument .* of|type defaults to int|expected parameter declarator|non-constant-expression cannot be narrowed from|argument to .* must be a constant integer| assignment to .* from|pointer type mismatch in|implicit declaration of function basename
+; ISO C99 and|C compiler cannot create executables|implicit declaration of function|call to undeclared library function|incompatible pointer type|call to undeclared function|incompatible integer to pointer conversion|incompatible pointer type|type specifier missing, defaults to int|should return a value|incompatible function pointer types|return-mismatch|passing argument .* of|type defaults to int|expected parameter declarator|non-constant-expression cannot be narrowed from|argument to .* must be a constant integer| assignment to .* from|pointer type mismatch in|implicit declaration of function basename
 
 # [Tracker] Breakage with sys-libs/ncurses-6.5 (default-opaque structures)
 930805
@@ -33,17 +33,17 @@ invalid use of incomplete typedef .* {aka struct .*}
 906027
 Found the following implicit function declarations in configure logs:
 
+# (lto) - [TRACKER] LTO issues
+618550
+=lto-type-mismatch|=odr|=strict-aliasing|lto1: some warnings being treated as errors
+
 # [Tracker] sys-devel/gcc-15 porting
 932474
-internal compiler error:|has no member named|uint.* was not declared in this scope
+has no member named|uint.* was not declared in this scope
 
 # [Tracker] Build failures with dev-libs/icu-75.1
 931089
 auto.* parameter not permitted in this context|parameter declared .*auto
-
-# (lto) - [TRACKER] LTO issues
-618550
-flto|lto1:|=lto-type-mismatch|=odr|=strict-aliasing
 
 # (which-hunt) - [TRACKER] Remove sys-apps/which from @system
 646588
