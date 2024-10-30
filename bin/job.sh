@@ -217,12 +217,11 @@ function CollectIssueFiles() {
       cd "$workdir/.."
       f=/tmp/files
       find ./ \
-        -name '*.log' \
-        -o -name '*.binlog' \
-        -o -name '*.out' \
-        -o -name 'meson-log.txt' \
+        -name '*.binlog' \
+        -o -name '*.log' \
+        -o -name '*.txt' \
         -o -name 'testlog.*' \
-        -o -wholename '*/softmmu-build/*' \
+        -o -wholename '*/tests/*.out' \
         >$f
       if [[ -s $f ]]; then
         $tar -cJpf $issuedir/files/logs.tar.xz --files-from $f --dereference --warning=none
