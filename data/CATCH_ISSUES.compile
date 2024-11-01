@@ -20,6 +20,7 @@ Can't read
 class file .* not found
 Intel CET not available
 error: redeclaration of
+does not name a type
 error: redefinition of
 has incomplete type
 undefined symbol:
