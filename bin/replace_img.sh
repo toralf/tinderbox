@@ -75,7 +75,7 @@ source $(dirname $0)/lib.sh
 while read -r oldimg; do
   if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
     if [[ -f ~tinderbox/img/$oldimg/var/tmp/tb/task.log ]]; then
-      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task.log)) / 3600)) 2>/dev/null
+      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task.log 2>/dev/null)) / 3600)) 2>/dev/null
     elif [[ -f ~tinderbox/img/$oldimg/var/tmp/tb/task ]]; then
       hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600)) 2>/dev/null
     else
