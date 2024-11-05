@@ -389,7 +389,7 @@ GENTOO_MIRRORS="$GENTOO_MIRRORS"
 
 EOF
 
-  # requested by mgorny in 822354 (this is unrelated to FEATURES="test")
+  # requested by mgorny (this is unrelated to FEATURES="test")
   if dice 1 2; then
     echo 'ALLOW_TEST="network"' >>./etc/portage/make.conf
   fi
@@ -1089,6 +1089,10 @@ while getopts R:a:k:p:m:M:st:u: opt; do
   case $opt in
   R)
     cd $tbhome/img/$(basename $OPTARG)
+    if [[ -f ./var/tmp/tb/EOL || -f ./var/tmp/tb/STOP ]]; then
+      echo " EOL or STOP found" >&2
+      exit 3
+    fi
     name=$(cat ./var/tmp/tb/name)
     profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
     useconfigof="me"
