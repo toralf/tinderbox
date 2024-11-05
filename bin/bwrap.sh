@@ -82,6 +82,7 @@ function Bwrap() {
     --setenv SHELL "/bin/bash"
     --setenv TERM "linux"
     --hostname "$(cat $mnt/etc/conf.d/hostname)"
+    --level-prefix
     --unshare-cgroup
     --unshare-ipc
     --unshare-pid
