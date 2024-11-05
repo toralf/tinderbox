@@ -8,7 +8,6 @@ bootstrap-prefix
 build
 cdinstall
 cet
-clang
 compile-locales
 compiler-rt
 conntrack

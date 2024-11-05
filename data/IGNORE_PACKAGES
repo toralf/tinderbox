@@ -1,7 +1,7 @@
 # a task matching a pattern here will be skipped (except for entries in backlog.1st)
 # this file MUST NOT have empty lines
 #
-# do not emerge these explicitely
+# do not emerge these explicitly
 #
 acct-.*/
 app-alternatives/
@@ -42,9 +42,31 @@ app-crypt/sbctl
 #
 net-misc/openssh-contrib
 #
-# [RFC] News item: Haskell destabilization
+# News item: Haskell destabilization
 #
+app-arch/pack
+app-portage/hackport
+app-text/pandoc
+app-text/pandoc-cli
+app-vim/haskellmode
+app-vim/vim2hs
 dev-haskell/
+dev-lang/ghc
+dev-lang/whitespace
+dev-util/diffoscope
+dev-util/shellcheck
+dev-util/shelltestrunner
+dev-vcs/darcs
+dev-vcs/git-annex
+dev-vcs/git-repair
+net-mail/list-remote-forwards
+net-mail/mailbox-count
+net-misc/email-validator
+net-misc/haeredes
+net-misc/hath
+x11-misc/xmobar
+x11-wm/xmonad
+x11-wm/xmonad-contrib
 #
 # deps on outdated llvm
 #
