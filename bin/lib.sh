@@ -71,12 +71,12 @@ function filterPlainText() {
 }
 
 function checkBgo() {
-  if ! bugz -h &>/dev/null; then
+  if ! $__tinderbox_bugz_timeout_wrapper -h &>/dev/null; then
     echo " issue: pybugz is b0rken" >&2
     return 1
   fi
 
-  if ! bugz -q get 2 &>/dev/null; then
+  if ! $__tinderbox_bugz_timeout_wrapper -q get 2 &>/dev/null; then
     echo " issue: b.g.o cannot be queried" >&2
     return 1
   fi
@@ -234,7 +234,8 @@ function SearchForSimilarIssue() {
 }
 
 # handle pybugz hang if b.g.o. is down
-__tinderbox_bugz_search_cmd="timeout --signal=15 --kill-after=1m 3m bugz -q --columns 400 search"
+__tinderbox_bugz_timeout_wrapper="timeout --signal=15 --kill-after=1m 3m bugz"
+__tinderbox_bugz_search_cmd="$__tinderbox_bugz_timeout_wrapper -q --columns 400 search"
 
-# Summary is length limited, but see https://github.com/toralf/tinderbox/issues/6
+# Summary is length limited, see https://github.com/toralf/tinderbox/issues/6
 __tinderbox_bugz_title_length=170

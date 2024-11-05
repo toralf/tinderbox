@@ -26,8 +26,8 @@ function Exit() {
 
 function append() {
   local comment="appeared recently at the tinderbox image $name"
-  bugz modify --status CONFIRMED --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
-  bugz modify --status CONFIRMED --comment-from ./comment0 $id >bgo.sh.out 2>bgo.sh.err
+  $__tinderbox_bugz_timeout_wrapper modify --status CONFIRMED --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
+  $__tinderbox_bugz_timeout_wrapper modify --status CONFIRMED --comment-from ./comment0 $id >bgo.sh.out 2>bgo.sh.err
 }
 
 function create() {
@@ -51,7 +51,7 @@ function create() {
       sort -u
   )
 
-  bugz post \
+  $__tinderbox_bugz_timeout_wrapper post \
     --batch \
     --default-confirm "n" \
     --title "$(cut -c -$__tinderbox_bugz_title_length <<<$title)" \
@@ -70,7 +70,7 @@ function create() {
   fi
 
   if grep -q ' fails test -' ./title; then
-    bugz modify --set-keywords "TESTFAILURE" $id >bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
+    $__tinderbox_bugz_timeout_wrapper modify --set-keywords "TESTFAILURE" $id >bgo.sh.out 2>bgo.sh.err || Warn "test keyword"
   fi
 }
 
@@ -90,7 +90,7 @@ function attach() {
       local file_path=$(realpath $f | sed -e "s,^.*img/,,")
       local url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
       local comment="The file size of $f is too big ($file_size) for an upload. For few weeks the link $url is valid."
-      bugz modify --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
+      $__tinderbox_bugz_timeout_wrapper modify --comment "$comment" $id >bgo.sh.out 2>bgo.sh.err
     else
       local ct
       case $f in
@@ -100,7 +100,7 @@ function attach() {
       *) ct="text/plain" ;;
       esac
       echo "  $f"
-      bugz attach --content-type "$ct" --description "" $id $f >bgo.sh.out 2>bgo.sh.err || Warn "attach $f"
+      $__tinderbox_bugz_timeout_wrapper attach --content-type "$ct" --description "" $id $f >bgo.sh.out 2>bgo.sh.err || Warn "attach $f"
     fi
   done
 }
@@ -125,7 +125,7 @@ function assign() {
     add_cc=$(sed 's,  *, --add-cc ,g' <<<" $cc") # leading space is needed
   fi
 
-  bugz modify -a $assignee $add_cc $id >bgo.sh.out 2>bgo.sh.err || Warn "to:>$assignee< add_cc:>$add_cc<"
+  $__tinderbox_bugz_timeout_wrapper modify -a $assignee $add_cc $id >bgo.sh.out 2>bgo.sh.err || Warn "to:>$assignee< add_cc:>$add_cc<"
 }
 
 #######################################################################
@@ -202,7 +202,7 @@ if [[ -d ./files ]]; then
 fi
 
 if [[ -n $block ]]; then
-  bugz modify --add-blocked "$block" $id >bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
+  $__tinderbox_bugz_timeout_wrapper modify --add-blocked "$block" $id >bgo.sh.out 2>bgo.sh.err || Warn "blocker $block"
 fi
 
 # set this as the very last step to reduce the amount of emails send out
