@@ -961,6 +961,7 @@ function ThrowFlags() {
       grep 'flag name="' $file |
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
         cut -f 2 -d '"' -s |
+        sort -u |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
         grep -v -e '.*_.*_' |
         ShuffleUseFlags 9 3 1 |
