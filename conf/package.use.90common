@@ -52,6 +52,9 @@ sys-devel/gcc                       -ada
 # other way to setup an image never worked
 sys-apps/shadow                     pam -cracklib
 
+# No space left on device
+dev-lang/rust                       -debug
+
 #######################################################################
 #
 # almost setup blocker
