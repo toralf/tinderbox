@@ -737,9 +737,7 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
-    if grep -q -F ' -flto' /etc/portage/make.conf; then
-      add2backlog "%emerge -1 /usr/lib*/*.a" # lto incompatibilities
-    fi
+    add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a" # needed for lto and/or merged-usr, so unconditionally for now
     add2backlog "%SwitchGCC"
   fi
 
