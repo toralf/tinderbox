@@ -120,7 +120,7 @@ function Tasks() {
         printf " %2i:%02i  " $minutes $seconds
       else
         ((hours = delta / 3600))
-        printf " %2i:%02ih " $hours $minutes
+        printf "%3i:%02ih " $hours $minutes
       fi
       set -e
 
@@ -159,7 +159,7 @@ function LastEmergeOperation() {
           printf (" %2i:%02i  ", $minutes, $seconds);
         } else  {
           my $hours = $delta / 3600;
-          printf (" %2i:%02ih ", $hours, $minutes);
+          printf ("%3i:%02ih ", $hours, $minutes);
         }
         if (-f "'$i'/var/tmp/tb/WAIT") {
           printf ("W");
