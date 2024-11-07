@@ -88,7 +88,7 @@ function InitOptions() {
 
   # sam_
   if [[ ! $profile =~ "/llvm" ]]; then
-    if dice 1 2; then
+    if dice 1 8; then
       ldflags="-Werror=lto-type-mismatch -Werror=strict-aliasing -Werror=odr -flto"
       cflags+=" $ldflags"
     fi
