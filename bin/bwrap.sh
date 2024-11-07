@@ -12,16 +12,16 @@ function CreateCgroup() {
     if mkdir $cgdomain 2>/dev/null; then
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-      # 28 vCPU for all
-      echo "$((28 * 100))" >$cgdomain/cpu.weight
-      echo "$((28 * 100000))" >$cgdomain/cpu.max
-      echo "96G" >$cgdomain/memory.max
-      echo "192G" >$cgdomain/memory.swap.max # e.g. rust needs 15 GiB
+      # reserve 5 of 32 vCPU for 12 images
+      echo "$((27 * 100))" >$cgdomain/cpu.weight
+      echo "$((27 * 100000))" >$cgdomain/cpu.max
+      echo "96G" >$cgdomain/memory.max # 12x 8GiB
+      echo "192G" >$cgdomain/memory.swap.max # 12x 16GiB
     fi
   fi
 
   if [[ -d $name ]]; then
-    # old cgroup entry (e.g. from setup step) is not yet reaped
+    # old cgroup entry (e.g. from setup step) might not yet been reaped
     local i=10
     while [[ -d $name ]] && ((i--)); do
       sleep 0.25
