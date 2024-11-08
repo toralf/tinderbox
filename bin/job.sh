@@ -737,7 +737,9 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
-    add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a" # needed for lto and/or merged-usr, so unconditionally for now
+    if ! grep -q "%emerge -e @world" /var/tmp/tb/backlog.1st; then
+      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a" # needed for lto and/or merged-usr, so unconditionally for now
+    fi
     add2backlog "%SwitchGCC"
   fi
 
