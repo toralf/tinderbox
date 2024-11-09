@@ -1,10 +1,2 @@
 # package.mask/50unstable
 #
-
-
-# https://bugs.gentoo.org/909309
-app-emacs/elscreen
-app-emacs/navi2ch
-
-# https://bugs.gentoo.org/908593
-net-print/foo2zjs
