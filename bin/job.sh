@@ -559,10 +559,8 @@ function SendIssueMailIfNotYetReported() {
   if grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
     return 0
   else
-    # chain "cat" by "echo" enforces to write out of the buffer
-    # which should avoid writes of 2 or more tinderbox images at the same time into the same line
-    # shellcheck disable=SC2005
-    echo "$(cat $issuedir/title)" >>/mnt/tb/findings/ALREADY_CAUGHT
+    # avoid writes of multiple tinderbox images into the same line
+    cat $issuedir/title | tee -a /mnt/tb/findings/ALREADY_CAUGHT 1>/dev/null
   fi
 
   if [[ $do_report -eq 0 ]]; then
