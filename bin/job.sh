@@ -617,6 +617,8 @@ EOF
 
 # analyze the issue
 function WorkAtIssue() {
+  local do_report=${1:-1}
+
   local pkglog_stripped=$issuedir/$(tr '/' ':' <<<$pkg).stripped.log
   filterPlainText <$pkglog >$pkglog_stripped
 
@@ -644,7 +646,6 @@ function WorkAtIssue() {
     ReachedEOL "perl-cleaner Perl dep issue pkg=$pkg" $pkglog_stripped
   fi
 
-  local do_report=1
   if grep -q -F "Please, run 'haskell-updater'" $pkglog_stripped; then
     do_report=0
     try_again=1
@@ -860,12 +861,15 @@ function RunAndCheck() {
       Finish "KILLed" $tasklog
     else
       pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
-      if GetPkglog; then
-        createIssueDir
-        echo "$pkg - emerge killed=$signal" >$issuedir/title
-        WorkAtIssue
+      if [[ $signal -eq 15 ]]; then
+        if GetPkglog; then
+          createIssueDir
+          echo "$pkg - emerge TERMinated" >$issuedir/title
+          WorkAtIssue 0
+        fi
+      else
+        ReachedEOL "signal=$signal  task=$task  pkg=$pkg" $tasklog
       fi
-      Mail "INFO:  killed=$signal  task=$task  pkg=$pkg" $tasklog
     fi
 
   # timed out
