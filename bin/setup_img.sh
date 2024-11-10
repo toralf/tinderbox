@@ -864,7 +864,7 @@ function FixPossibleUseFlagIssues() {
       if [[ -s $f_circ_test ]]; then
         msg+=" # notest: $(xargs <$f_circ_test)"
       fi
-      if RunDryrunWrapper "#setup dryrun $attempt-$i $msg"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-${i}${msg}"; then
         return 0
       fi
     fi
@@ -890,7 +890,6 @@ function FixPossibleUseFlagIssues() {
       done
 
     if [[ -s $f_temp || -s $f_nec_test ]]; then
-
       if [[ -s $f_temp ]]; then
         mv $f_temp $f_nec_flag
         msg+=" # necessary: $(xargs <$f_nec_flag)"
@@ -898,7 +897,7 @@ function FixPossibleUseFlagIssues() {
       if [[ -s $f_nec_test ]]; then
         msg+=" # notest: $(xargs <$f_nec_test)"
       fi
-      if RunDryrunWrapper "#setup dryrun $attempt-$i $msg"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-${i}${msg}"; then
         return 0
       fi
     fi
