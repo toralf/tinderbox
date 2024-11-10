@@ -15,8 +15,8 @@ function CreateCgroup() {
       # reserve 5 of 32 vCPU for 12 images
       echo "$((27 * 100))" >$cgdomain/cpu.weight
       echo "$((27 * 100000))" >$cgdomain/cpu.max
-      echo "96G" >$cgdomain/memory.max # 12x 8GiB
-      echo "192G" >$cgdomain/memory.swap.max # 12x 16GiB
+      echo "96G" >$cgdomain/memory.max       # 12x 8 GiB
+      echo "192G" >$cgdomain/memory.swap.max # 12x 16 GiB
     fi
   fi
 
