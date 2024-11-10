@@ -78,6 +78,3 @@ app-emacs/navi2ch
 
 # https://bugs.gentoo.org/908593
 net-print/foo2zjs
-
-# https://bugs.gentoo.org/794235
-<dev-util/ragel-7.0.4-r3

@@ -55,6 +55,12 @@ sys-apps/shadow                     pam -cracklib
 # No space left on device
 dev-lang/rust                       -debug
 
+# do not test alternative providers
+sys-apps/util-linux                 -kill
+sys-apps/util-linux                 pam su
+sys-apps/shadow                     -su
+sys-process/procps                  kill
+
 #######################################################################
 #
 # almost setup blocker
@@ -82,14 +88,6 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 # 2x faster compile
 */*                                 jumbo-build
-
-# test alternative su provider
-sys-apps/shadow                     su                  # DICE: su_provider 1 5
-sys-apps/util-linux                 -su                 # DICE: su_provider 1 5
-
-# test alternative kill provider
-sys-apps/util-linux                 kill                # DICE: kill_provider 1 5
-sys-process/procps                  -kill               # DICE: kill_provider 1 5
 
 # needs hours instead seconds
 dev-libs/gf2x                       -custom-tune        # DICE: gf2x 4 5

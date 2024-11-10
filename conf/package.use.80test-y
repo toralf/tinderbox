@@ -13,7 +13,7 @@ app-misc/pax-utils                  python
 app-text/doxygen                    doc
 dev-libs/thrift                     libevent
 dev-libs/weston                     lcms xwayland
-media-gfx/imagemagick               corefonts
+media-gfx/imagemagick               corefonts truetype
 media-libs/libheif                  go
 media-libs/openexr                  utils
 media-libs/tiff                     jpeg
