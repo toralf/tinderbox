@@ -28,7 +28,7 @@ function FreeSlotAvailable() {
   local l=$(ls /run/tb | wc -l) # depending when the USE flags are thrown during setup, an image is locked or not
   local r=$(pgrep -fc "/bin/bash /opt/tb/bin/replace")
 
-  [[ $i -lt $desired_count && $l -lt $desired_count && $((l + r)) -le $desired_count ]]
+  [[ $i -lt $desired_count && $l -lt $desired_count && $((i + r)) -le $desired_count ]]
 }
 
 #######################################################################
