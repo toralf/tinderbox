@@ -875,7 +875,7 @@ function RunAndCheck() {
     ReachedEOL "timeout  task=$task" $tasklog
 
   # emerge failed
-  elif [[ $rc -gt 0 ]]; then
+  elif [[ $rc -gt 0 ]] || grep -i -q -F '* ERROR: ' $tasklog_stripped; then
     if phase=$(grep -e " * The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
       if [[ -f /var/tmp/tb/EOL ]]; then
         ReachedEOL "caught EOL in $phase()" $tasklog
@@ -967,7 +967,7 @@ function WorkOnTask() {
 
   # %<command line>
   elif [[ $task =~ ^% ]]; then
-    if ! RunAndCheck "$(cut -c 2- <<<$task)" || grep -i -q -F '* ERROR: ' $tasklog; then
+    if ! RunAndCheck "$(cut -c 2- <<<$task)"; then
       if [[ $try_again -eq 1 ]]; then
         add2backlog "$task"
       elif grep -q 'The following USE changes are necessary to proceed' $tasklog; then
