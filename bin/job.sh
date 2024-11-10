@@ -737,10 +737,10 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
-    # re-emerge needed at least for -flto and for merged-usr profiles, but make it unconditionally from now on
+    # needed at least for -flto and merged-usr
     if ! grep -q "%emerge -e @world" /var/tmp/tb/backlog.1st; then
-      add2backlog "@world" # now the remaining stuff
-      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a || true" # failed sometimes in dep calculation
+      add2backlog "@world"
+      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a || true"
     fi
     add2backlog "%SwitchGCC"
   fi
