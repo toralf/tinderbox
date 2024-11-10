@@ -24,11 +24,11 @@ function ImagesInRun() {
 }
 
 function FreeSlotAvailable() {
-  local i=$(wc -l < <(ImagesInRun))
-  local l=$(ls /run/tb | wc -l) # depending when the USE flags are thrown during setup, an image is locked or not
-  local r=$(pgrep -fc "/bin/bash /opt/tb/bin/replace")
+  local running=$(wc -l < <(ImagesInRun))
+  local replacing=$(pgrep -fc "/bin/bash /opt/tb/bin/replace")
 
-  [[ $i -lt $desired_count && $l -lt $desired_count && $((i + r)) -le $desired_count ]]
+  # if below then schedule 1 more than needed to anticipate the setup failure rate
+  [[ $running -lt $desired_count && $((running + replacing - 1)) -le $desired_count ]]
 }
 
 #######################################################################
