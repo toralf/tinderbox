@@ -46,44 +46,44 @@ function listFiles() {
 }
 
 function listImagesWithoutAnyBug() {
-  local files=$(
-    find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
+  local dirs=$(
+    find ~tinderbox/img/ -maxdepth 1 -type d -name '23*' -print0 |
       xargs -r -n 1 --null basename |
       sort |
-      while read -r f; do
-        if ! ls ~tinderbox/img/$f/var/tmp/tb/issues/* &>/dev/null; then
-          echo $f
+      while read -r d; do
+        if [[ ! -d ~tinderbox/img/$d/var/tmp/tb/issues ]]; then
+          echo $d
         fi
       done
   )
-  local n=$(wc -w <<<$files)
+  local n=$(wc -w <<<$dirs)
   {
-    echo "<h2>$n images without any bug (too young, b0rken or manual setup)</h2>"
+    echo "<h2>$n images with no bug</h2>"
     echo "<pre>"
-    for f in $files; do
-      echo "<a href=\"$f\">$f</a>"
+    for d in $dirs; do
+      echo "<a href=\"$d\">$d</a>"
     done
     echo -e "</pre>\n"
   } >>$tmpfile
 }
 
 function listImagesWithoutReportedBugs() {
-  local files=$(
-    find ~tinderbox/img/ -maxdepth 1 -type d -name '[12]*' -print0 |
+  local dirs=$(
+    find ~tinderbox/img/ -maxdepth 1 -type d -name '23*' -print0 |
       xargs -r -n 1 --null basename |
       sort |
-      while read -r f; do
-        if ls ~tinderbox/img/$f/var/tmp/tb/issues/* &>/dev/null && ! ls ~tinderbox/img/$f/var/tmp/tb/issues/*/.reported &>/dev/null; then
-          echo $f
+      while read -r d; do
+        if [[ -d ~tinderbox/img/$d/var/tmp/tb/issues ]] && ! ls ~tinderbox/img/$d/var/tmp/tb/issues/*/.reported &>/dev/null; then
+          echo $d
         fi
       done
   )
-  local n=$(wc -w <<<$files)
+  local n=$(wc -w <<<$dirs)
   {
-    echo "<h2>$n images without a reported bug (yet)</h2>"
+    echo "<h2>$n images with no reported bug</h2>"
     echo "<pre>"
-    for f in $files; do
-      echo "<a href=\"$f\">$f</a>"
+    for d in $dirs; do
+      echo "<a href=\"$d\">$d</a>"
     done
     echo -e "</pre>\n"
   } >>$tmpfile
@@ -94,7 +94,7 @@ function listBugs() {
   local n=$(sed -e 's,/var/tmp/tb/issues.*,,' <<<$files | sort -u | wc -l)
 
   cat <<EOF >>$tmpfile
-<h2>$n images with $(wc -l <<<$files) reported bugs (<a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">all reported open bugs at b.g.o.</a>)</h2>
+<h2>$n images with $(wc -l <<<$files) reported bugs in total (<a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">all reported, open bugs at b.g.o.</a>)</h2>
 
   <table border="0" align="left" class="list_table" width="100%">
 

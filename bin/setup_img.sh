@@ -334,7 +334,7 @@ EOF
 function CompileTinderboxFiles() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  mkdir -p ./mnt/tb/data ./var/tmp/tb/{,issues,logs} ./var/cache/distfiles
+  mkdir -p ./mnt/tb/data ./var/tmp/tb/{,logs} ./var/cache/distfiles
   echo $EPOCHSECONDS >./var/tmp/tb/setup.timestamp
   echo $name >./var/tmp/tb/name
   chmod a+wx ./var/tmp/tb/
