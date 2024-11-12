@@ -88,7 +88,7 @@ while read -r oldimg; do
       elif __is_stopped $oldimg; then
         echo -e "$(basename $0): image stopped $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
       elif __is_running $oldimg; then
-        echo -e "$(basename $0): last log $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
+        echo -e "$(basename $0): last write was $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
         sudo $(dirname $0)/kill_img.sh $oldimg
       fi
     fi
