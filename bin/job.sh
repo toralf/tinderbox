@@ -333,7 +333,7 @@ function handleFeatureTest() {
     cd "$workdir"
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
     if [[ -n $dirs ]]; then
-      $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
+      if ! timeout --signal=15 --kill-after=1m 5m $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
         --dereference --one-file-system --sparse \
         --exclude='*.o' \
         --exclude="*/dev/*" \
@@ -341,7 +341,10 @@ function handleFeatureTest() {
         --exclude="*/run/*" \
         --exclude="*/symlinktest/*" \
         --exclude="*/sys/*" \
-        $dirs
+        --exclude="*/t/*-sympath/*" \
+        $dirs; then
+        Mail "INFO: tar issue for $issuedir" $pkglog_stripped
+      fi
     fi
   )
 }
