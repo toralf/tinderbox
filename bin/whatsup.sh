@@ -223,8 +223,8 @@ function PackagesPerImagePerRunDay() {
 # whatsup.sh -c
 #
 # 19025 packages available in ::gentoo
-# 12128 emerged packages under ~tinderbox/run in the last  8.6 days (63.7%)
-# 16643 emerged packages under ~tinderbox/img in the last 52.0 days (87.5%)
+# 12128 emerged packages under ~tinderbox/run in the past  8.6 days (63.7%)
+# 16643 emerged packages under ~tinderbox/img in the past 52.0 days (87.5%)
 function Coverage() {
   local tmpfile
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
@@ -262,7 +262,7 @@ function Coverage() {
     if [[ $N -gt 0 ]]; then
       perc=$(echo "scale=2.1; 100.0 * $n / $N" | bc)
     fi
-    printf "%5i emerged packages under ~tinderbox/%s in the last %4.1f days (%4.1f%%)\n" $n $i $days $perc
+    printf "%5i emerged packages under ~tinderbox/%s in the past %4.1f days (%4.1f%%)\n" $n $i $days $perc
   done
 
   rm $tmpfile
