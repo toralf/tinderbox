@@ -1,4 +1,4 @@
-# re-check with      grep -v '#' ~/tb/data/IGNORE_USE_FLAGS | while read u; do quse -De $u &>/dev/null || echo $u; done
+# re-check:      grep -v '#' ~/tb/data/IGNORE_USE_FLAGS | while read u; do quse -De $u &>/dev/null || echo $u; done
 32
 64
 bindist
@@ -76,7 +76,6 @@ split-usr
 static
 static-libs
 systemd
-system-wlroots
 test
 test-full
 tcmalloc
