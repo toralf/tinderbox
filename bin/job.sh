@@ -741,8 +741,8 @@ function PostEmerge() {
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
     # needed at least for -flto and merged-usr
     if ! grep -q "%emerge -e @world" /var/tmp/tb/backlog.1st; then
-      add2backlog "@world"
-      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a || true"
+      add2backlog "@world"                                     # update the remaining stuff
+      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a || true" # this "true" handles possible dep calculation problems, but in case of an emerge issue is it eventually a "try_again=1"
     fi
     add2backlog "%SwitchGCC"
   fi
@@ -983,9 +983,9 @@ function WorkOnTask() {
         fi
       elif [[ -n $pkg ]]; then
         if [[ $pkg =~ "sys-devel/gcc" ]] && [[ ! $name =~ "_llvm" ]]; then
-          ReachedEOL "failed: $pkg" $tasklog
+          ReachedEOL "system compiler failed: $pkg" $tasklog
         elif [[ $pkg =~ "sys-devel/clang" || $pkg =~ "sys-devel/llvm" ]] && [[ $name =~ "_llvm" ]]; then
-          ReachedEOL "failed: $pkg" $tasklog
+          ReachedEOL "system compiler failed: $pkg" $tasklog
         elif [[ $task =~ $pkg ]]; then
           ReachedEOL "failed: $pkg" $tasklog
         else
