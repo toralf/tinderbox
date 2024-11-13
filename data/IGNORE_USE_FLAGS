@@ -80,4 +80,5 @@ test
 test-full
 tcmalloc
 unwind
+vanilla
 x32

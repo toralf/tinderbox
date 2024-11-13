@@ -185,9 +185,3 @@ sys-libs/libblockdev                cryptsetup lvm nvme                   # DICE
 virtual/mpi                         threads                               # DICE: libreoffice 1 6
 x11-libs/cairo                      X                                     # DICE: libreoffice 1 6
 x11-libs/gtk+                       X                                     # DICE: libreoffice 1 6
-
-# sam
-sys-devel/gcc                       -vanilla
-sys-libs/binutils                   -vanilla
-sys-libs/binutils-libs              -vanilla
-sys-libs/glibc                      -vanilla
