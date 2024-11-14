@@ -17,22 +17,67 @@ function Finish() {
 
 function ImagesInRun() {
   (
-    set +f
     cd ~tinderbox/run
     ls -d * 2>/dev/null
   )
+}
+
+function StopNonrespondingImages() {
+  ImagesInRun |
+    while read -r img; do
+      if [[ ! -f ~tinderbox/run/$img/var/tmp/tb/EOL ]]; then
+        if [[ -f ~tinderbox/img/$img/var/tmp/tb/task.log ]]; then
+          hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$img/var/tmp/tb/task.log 2>/dev/null)) / 3600)) 2>/dev/null
+        elif [[ -f ~tinderbox/img/$img/var/tmp/tb/task ]]; then
+          hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$img/var/tmp/tb/task)) / 3600)) 2>/dev/null
+        else
+          hours=$(((EPOCHSECONDS - $(getStartTime $img)) / 3600))
+        fi
+
+        if [[ -n $hours && $hours -ge 24 ]]; then
+          if __is_crashed $img; then
+            echo -e "$(basename $0): image crashed $hours hours ago" >>~tinderbox/img/$img/var/tmp/tb/EOL
+          elif __is_stopped $img; then
+            echo -e "$(basename $0): image stopped $hours hours ago" >>~tinderbox/img/$img/var/tmp/tb/EOL
+          elif __is_running $img; then
+            echo -e "$(basename $0): last write was $hours hours ago" >>~tinderbox/img/$img/var/tmp/tb/EOL
+            sudo $(dirname $0)/kill_img.sh $img
+          fi
+        fi
+      fi
+    done
 }
 
 function FreeSlotAvailable() {
   local running=$(wc -l < <(ImagesInRun))
   local replacing=$(pgrep -fc "/bin/bash /opt/tb/bin/replace")
 
-  # if below then schedule 1 more than needed to anticipate the setup failure rate
+  # anticipate the setup failure rate and schedule 1 more
   [[ $running -lt $desired_count && $((running + replacing - 1)) -le $desired_count ]]
 }
 
+function SetupANewImage() {
+  echo
+  date
+  echo " call setup"
+  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp)
+  set +e
+  # shellcheck disable=SC2024
+  sudo $(dirname $0)/setup_img.sh -s &>$tmpfile
+  local rc=$?
+  set -e
+  date
+  local img=$(grep -m 1 -Eo '  name: .*' $tmpfile | awk '{ print $2 }')
+  if [[ $rc -eq 0 ]]; then
+    grep -A 10 -B 1 '^ OK' $tmpfile
+    mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
+  else
+    echo "setup failed  $img  rc: $rc  tmpfile: $tmpfile"
+  fi
+}
+
 #######################################################################
-set -euf
+set -eu # no -f
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -56,7 +101,7 @@ else
   esac
 fi
 
-# chain the cleanup phase
+# semaphore for the cleanup phase
 lockfile="/tmp/$(basename $0).lock"
 if [[ -s $lockfile ]]; then
   pid=$(cat $lockfile)
@@ -71,65 +116,22 @@ trap Finish INT QUIT TERM EXIT
 
 source $(dirname $0)/lib.sh
 
-# reap non-responding images
-while read -r oldimg; do
-  if [[ ! -f ~tinderbox/run/$oldimg/var/tmp/tb/EOL ]]; then
-    if [[ -f ~tinderbox/img/$oldimg/var/tmp/tb/task.log ]]; then
-      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task.log 2>/dev/null)) / 3600)) 2>/dev/null
-    elif [[ -f ~tinderbox/img/$oldimg/var/tmp/tb/task ]]; then
-      hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$oldimg/var/tmp/tb/task)) / 3600)) 2>/dev/null
-    else
-      hours=$(((EPOCHSECONDS - $(getStartTime $oldimg)) / 3600))
-    fi
+StopNonrespondingImages
 
-    if [[ -n $hours && $hours -ge 24 ]]; then
-      if __is_crashed $oldimg; then
-        echo -e "$(basename $0): image crashed $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
-      elif __is_stopped $oldimg; then
-        echo -e "$(basename $0): image stopped $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
-      elif __is_running $oldimg; then
-        echo -e "$(basename $0): last write was $hours hours ago" >>~tinderbox/img/$oldimg/var/tmp/tb/EOL
-        sudo $(dirname $0)/kill_img.sh $oldimg
-      fi
-    fi
-  fi
-done < <(ImagesInRun)
-
-# free the slot in ~/run
-while read -r oldimg; do
-  if __is_stopped $oldimg; then
-    rm ~tinderbox/run/$oldimg
-    mv ~tinderbox/logs/$oldimg.log ~tinderbox/img/$oldimg/var/tmp/tb
+# free slots
+while read -r img; do
+  if __is_stopped $img; then
+    rm ~tinderbox/run/$img
+    mv ~tinderbox/logs/$img.log ~tinderbox/img/$img/var/tmp/tb
   fi
 done < <(
-  set +f
   cd ~tinderbox/run
   ls */var/tmp/tb/EOL 2>/dev/null | cut -f 1 -d '/' -s
 )
 
-# remove the chain around the cleanup
+# end semaphore
 rm $lockfile
 
 if FreeSlotAvailable; then
-  echo
-  date
-  echo " call setup"
-  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp)
-  set +e
-  # shellcheck disable=SC2024
-  sudo $(dirname $0)/setup_img.sh -s &>>$tmpfile
-  rc=$?
-  set -e
-  date
-  img=$(grep -m 1 -Eo '  name: .*' $tmpfile | awk '{ print $2 }')
-  if [[ $rc -eq 0 ]]; then
-    grep -A 10 -B 1 '^ OK' $tmpfile
-    mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
-  else
-    echo "setup failed  $img  rc: $rc  tmpfile: $tmpfile"
-  fi
-else
-  rc=0
+  SetupANewImage
 fi
-
-Finish $rc
