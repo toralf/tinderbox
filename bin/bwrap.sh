@@ -15,8 +15,7 @@ function CreateCgroup() {
       # reserve 5 of 32 vCPU for 12 images
       echo "$((27 * 100))" >$cgdomain/cpu.weight
       echo "$((27 * 100000))" >$cgdomain/cpu.max
-      echo "96G" >$cgdomain/memory.max       # 12x 8 GiB
-      echo "192G" >$cgdomain/memory.swap.max # 12x 16 GiB
+      echo "96G" >$cgdomain/memory.max
     fi
   fi
 
@@ -46,11 +45,8 @@ function CreateCgroup() {
   echo "$((100 * jobs))" >$name/cpu.weight
   echo "$((100000 * jobs))" >$name/cpu.max
 
-  # 2 GiB per job + a fixed amount for /var/tmp/portage
+  # 2 GiB per job + /var/tmp/portage
   echo "$((2 * jobs + 24))G" >$name/memory.max
-
-  # swap
-  echo "16G" >$name/memory.swap.max
 }
 
 function RemoveCgroup() {
