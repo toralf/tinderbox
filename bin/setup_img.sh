@@ -76,11 +76,6 @@ function InitOptions() {
 
   profile=$(DiceAProfile)
 
-  # musl is not matured enough for a chaos monkey
-  if [[ $profile =~ "/musl" ]]; then
-    return
-  fi
-
   # sam_
   if dice 1 10; then
     cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
@@ -88,7 +83,7 @@ function InitOptions() {
 
   # sam_
   if [[ ! $profile =~ "/llvm" ]]; then
-    if dice 1 8; then
+    if dice 1 4; then
       ldflags="-Werror=lto-type-mismatch -Werror=strict-aliasing -Werror=odr -flto"
       cflags+=" $ldflags"
     fi
