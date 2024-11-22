@@ -16,11 +16,12 @@ function CreateCgroup() {
       echo "$((27 * 100))" >$cgdomain/cpu.weight
       echo "$((27 * 100000))" >$cgdomain/cpu.max
       echo "$((12 * (4 * 2 + 1)))G" >$cgdomain/memory.max # images x jobs x RAM
+      echo "200G" >$cgdomain/memory.swap.max # 256 GiB swap currently
     fi
   fi
 
   if [[ -d $name ]]; then
-    # old cgroup entry (e.g. from setup step) might not yet been reaped
+    # old cgroup entry (e.g. from the preceding setup) might not yet been reaped
     local i=10
     while [[ -d $name ]] && ((i--)); do
       sleep 0.25
