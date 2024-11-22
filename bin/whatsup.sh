@@ -45,23 +45,22 @@ function check_history() {
 }
 
 # whatsup.sh -o
-#  pkgs tasks fail bgo  day backlog .upd .1st lcx 11#11 locked  +++  Fri May 31 16:12:24 UTC 2024
-#  5697  4738  127   1  7.3   12390   92    4 lc  ~/run/23.0_desktop_gnome_systemd-20240524-073503
-#  5482  2794   93   -  6.2   14208  383    - lc  ~/run/23.0_desktop_plasma-20240525-111503
-#  3389  1978   58   -  4.2   15175  392    - lc  ~/run/23.0_desktop_plasma-20240527-102013
-#    50     5    -   -  0.2   16932   43    3 lc  ~/run/23.0_desktop_systemd-20240531-104002
+#  pkgs fail bgo  day tasks backlog .upd .1st lcx 13#13 locked  +++  Fri Nov 22 17:36:25 UTC 2024
+#  4441   76   3  4.8  2435   13922   22    - lc  ~/run/23.0_desktop_gnome-20241117-232002
+#  3771   53   1  3.3  1923   14425    -    - lc  ~/run/23.0_desktop_gnome-20241119-100003
+#  2311   32   3  1.6   759   15666   32    - lc  ~/run/23.0_desktop_gnome-20241121-025502
 function Overall() {
   local locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
 
-  echo " pkgs tasks fail bgo  day backlog .upd .1st lcx $locked#$all locked  +++  $(date)"
+  echo " pkgs fail bgo  day tasks backlog .upd .1st lcx $locked#$all locked  +++  $(date)"
 
   for i in $images; do
     local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
-    local tasks=$(grep -c -v -e '^#' -e '^=' $i/var/tmp/tb/task.history 2>/dev/null)
     local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w)
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
     local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
+    local tasks=$(grep -c -v -e '^#' -e '^=' $i/var/tmp/tb/task.history 2>/dev/null)
     local bl=$(wc -l <$i/var/tmp/tb/backlog 2>/dev/null)
     local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st 2>/dev/null)
     local blu=$(wc -l <$i/var/tmp/tb/backlog.upd 2>/dev/null)
@@ -98,7 +97,7 @@ function Overall() {
     local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'
-    printf "%5i %5i %4i %3i %4.1f %7i %4i %4i %3s %s/%s\n" ${pkgs:-0} ${tasks:-0} ${fail:-0} $bgo ${days:-0} ${bl:-0} ${blu:-0} ${bl1:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
+    printf "%5i %4i %3i %4.1f %5i %7i %4i %4i %3s %s/%s\n" ${pkgs:-0} ${fail:-0} $bgo ${days:-0} ${tasks:-0} ${bl:-0} ${blu:-0} ${bl1:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
   done
 }
 
