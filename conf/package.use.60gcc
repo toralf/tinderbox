@@ -2,4 +2,4 @@
 #
 
 # sam_
-sys-devel/gcc                       debug               # DICE: gcc_debug
+sys-devel/gcc                       debug               # DICE: gcc_debug 1 8

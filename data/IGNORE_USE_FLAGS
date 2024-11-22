@@ -8,6 +8,7 @@ bootstrap-prefix
 build
 cdinstall
 cet
+cgroup-hybrid
 compile-locales
 compiler-rt
 conntrack

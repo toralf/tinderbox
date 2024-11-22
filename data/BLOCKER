@@ -5,9 +5,9 @@
 685160
 ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 
-# [Tracker] Packages which will fail with -std=c2x
+# [Tracker] Packages which will fail with -std=c2x / c23
 880545
- prototype| not supported in C2|C2X|C2x
+ prototype| not supported in C2|C2X|C2x|two or more data types in declaration|; have.*void|initialization of .*void.*from incompatible pointer type|too .* arguments to function|expected identifier before false|incompatible integer to pointer conversion|incompatible pointer type|incompatible function pointer types
 
 # (tar-without-file) - [TRACKER] Packages calling tar without -f
 903921
@@ -20,10 +20,6 @@ stat64|lstat64|off64_t|fstat64|pwrite64|open64|ftruncate64|lseek64|pread64|readd
 # (slibtool) - [tracker] Packages failing to build with dev-build/slibtool
 765709
 rdlibtool
-
-# (c99-porting, clang-16-porting) - [Tracker] Modern C (C99) porting (default -Werror=implicit-function-declaration,implicit-int,int-conversion; includes but not limited to Clang 16)
-870412
-; ISO C99 and|C compiler cannot create executables|implicit declaration of function|call to undeclared library function|incompatible pointer type|call to undeclared function|incompatible integer to pointer conversion|incompatible pointer type|type specifier missing, defaults to int|should return a value|incompatible function pointer types|return-mismatch|passing argument .* of|type defaults to int|expected parameter declarator|non-constant-expression cannot be narrowed from|argument to .* must be a constant integer| assignment to .* from|pointer type mismatch in|implicit declaration of function basename
 
 # [Tracker] Breakage with sys-libs/ncurses-6.5 (default-opaque structures)
 930805
@@ -40,10 +36,6 @@ Found the following implicit function declarations in configure logs:
 # [Tracker] sys-devel/gcc-15 porting
 932474
 has no member named|uint.* was not declared in this scope
-
-# [Tracker] Build failures with dev-libs/icu-75.1
-931089
-auto.* parameter not permitted in this context|parameter declared .*auto
 
 # (which-hunt) - [TRACKER] Remove sys-apps/which from @system
 646588
