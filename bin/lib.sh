@@ -39,7 +39,7 @@ function list_active_images() {
   (
     ls ~tinderbox/run/ | sort
     ls /run/tb/ | sed -e 's,.lock,,' | sort
-    ls -d /sys/fs/cgroup/tb/[12]?.* | sort
+    ls -d /sys/fs/cgroup/tb/23.* | sort
   ) 2>/dev/null |
     xargs -r -n 1 basename |
     # sort -u would mix ~/img and ~/run, uniq would not detect all dups, therefore use awk
