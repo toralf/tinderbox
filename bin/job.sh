@@ -526,10 +526,10 @@ function finishTitle() {
     -e 's,target /.*/,target <snip>/,g' \
     -e 's,(\.text\..*):,(<snip>),g' \
     -e 's,object index [0-9].*,object index <snip>,g' \
-    -e 's,/[^ ]*\(/[^/:]*:\),/...\1,g' \
-    -e 's,ninja: error: /.*/,ninja error: .../,' \
+    -e 's,/[^ ]*/\([^/:]*:\),\1,g' \
+    -e 's,ninja: error: /.*/,ninja error: ,' \
     -e 's,:[0-9]*:[0-9]*: ,: ,' \
-    -e 's, \w*/.*/\(.*\) , .../\1 ,g' \
+    -e 's, \w*/.*/\(.*\) , \1 ,g' \
     -e 's,\*, ,g' \
     -e 's,___*,_,g' \
     -e 's,\s\s*, ,g' \
