@@ -83,8 +83,8 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 # misc
 #
 
-*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres-15
 */*         POSTGRES_TARGETS:       postgres16          # DICE: postgres-16
+*/*         POSTGRES_TARGETS:       postgres17          # DICE: postgres-17
 
 # 2x faster compile
 */*                                 jumbo-build
