@@ -5,15 +5,13 @@
 # print tinderbox statistics
 
 function printImageName() {
-  if [[ -s $1/var/tmp/tb/name ]]; then
-    local chars=${2:-42}
-    printf "%-${chars}s" $(cut -c -${chars} <$1/var/tmp/tb/name)
-  else
-    return 1
-  fi
+  local name=$1/var/tmp/tb/name
+  local chars=${2:-42}
+
+  printf "%-${chars}s" $(cut -c -$chars <$name)
 }
 
-function check_history() {
+function checkHistory() {
   local file=$1
   local flag=$2
 
@@ -45,22 +43,22 @@ function check_history() {
 }
 
 # whatsup.sh -o
-#  pkgs fail bgo  day tasks backlog .upd .1st lcx 13#13 locked  +++  Fri Nov 22 17:36:25 UTC 2024
+#   pkg fail bgo  day  done backlog .upd .1st lcx 13#13 locked  +++  Fri Nov 22 17:36:25 UTC 2024
 #  4441   76   3  4.8  2435   13922   22    - lc  ~/run/23.0_desktop_gnome-20241117-232002
 #  3771   53   1  3.3  1923   14425    -    - lc  ~/run/23.0_desktop_gnome-20241119-100003
 #  2311   32   3  1.6   759   15666   32    - lc  ~/run/23.0_desktop_gnome-20241121-025502
 function Overall() {
-  local locked=$(wc -l < <(ls -d /run/tb/[12]?.*.lock 2>/dev/null))
+  local locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
 
-  echo " pkgs fail bgo  day tasks backlog .upd .1st lcx $locked#$all locked  +++  $(date)"
+  echo "  pkg fail bgo  day  done  todo .upd .1st lcx $locked#$all locked  +++  $(date)"
 
   for i in $images; do
-    local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
-    local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w)
+    local pkg=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
+    local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w) # ignore revisions
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
-    local days=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
-    local tasks=$(grep -c -v -e '^#' -e '^=' $i/var/tmp/tb/task.history 2>/dev/null)
+    local day=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
+    local done=$(grep -c -v -e '^#' -e '^=' $i/var/tmp/tb/task.history 2>/dev/null)
     local bl=$(wc -l <$i/var/tmp/tb/backlog 2>/dev/null)
     local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st 2>/dev/null)
     local blu=$(wc -l <$i/var/tmp/tb/backlog.upd 2>/dev/null)
@@ -97,7 +95,7 @@ function Overall() {
     local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'
-    printf "%5i %4i %3i %4.1f %5i %7i %4i %4i %3s %s/%s\n" ${pkgs:-0} ${fail:-0} $bgo ${days:-0} ${tasks:-0} ${bl:-0} ${blu:-0} ${bl1:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
+    printf "%5i %4i %3i %4.1f %5i %5i %4i %4i %3s %s/%s\n" ${pkg:-0} ${fail:-0} $bgo ${day:-0} ${done:-0} ${bl:-0} ${blu:-0} ${bl1:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
   done
 }
 
