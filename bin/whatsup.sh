@@ -43,15 +43,15 @@ function checkHistory() {
 }
 
 # whatsup.sh -o
-#   pkg fail bgo  day  done backlog .upd .1st lcx 13#13 locked  +++  Fri Nov 22 17:36:25 UTC 2024
-#  4441   76   3  4.8  2435   13922   22    - lc  ~/run/23.0_desktop_gnome-20241117-232002
-#  3771   53   1  3.3  1923   14425    -    - lc  ~/run/23.0_desktop_gnome-20241119-100003
-#  2311   32   3  1.6   759   15666   32    - lc  ~/run/23.0_desktop_gnome-20241121-025502
+#   pkg fail bgo  day  done .1st  todo  .upd lcx 13#13 locked  +++  Sun Nov 24 11:03:54 UTC 2024
+#   112    2   -  0.2     7    - 16340    54 lc  ~/run/23.0_desktop-20241124-052504
+#    27    -   -  0.1     1    1 16340     - lcS ~/run/23.0_desktop-20241124-085003
+#  4034   66   4  3.3  1939    - 14577  1038 lc  ~/run/23.0_desktop_gnome-20241121-025502
 function Overall() {
   local locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
 
-  echo "  pkg fail bgo  day  done  todo .upd .1st lcx $locked#$all locked  +++  $(date)"
+  echo "  pkg fail bgo  day  done .1st  todo  .upd lcx $locked#$all locked  +++  $(date)"
 
   for i in $images; do
     local pkg=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
@@ -95,7 +95,7 @@ function Overall() {
     local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'
-    printf "%5i %4i %3i %4.1f %5i %5i %4i %4i %3s %s/%s\n" ${pkg:-0} ${fail:-0} $bgo ${day:-0} ${done:-0} ${bl:-0} ${blu:-0} ${bl1:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
+    printf "%5i %4i %3i %4.1f %5i %4i %5i %5i %3s %s/%s\n" ${pkg:-0} ${fail:-0} $bgo ${day:-0} ${done:-0} ${bl1:-0} ${bl:-0} ${blu:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
   done
 }
 
