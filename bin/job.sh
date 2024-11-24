@@ -503,37 +503,37 @@ function add2backlog() {
 
 function finishTitle() {
   # strip away hex addresses, line numbers, timestamps, paths etc.
-  sed -i -e 's,0x[0-9a-f]*,<snip>,g' \
-    -e 's,: line [0-9]*:,:line <snip>:,g' \
-    -e 's,[0-9]* Segmentation fault,<snip> Segmentation fault,g' \
-    -e 's,Makefile:[0-9]*,Makefile:<snip>,g' \
-    -e 's,:[0-9]*): ,:<snip>:, g' \
+  sed -i \
+    -e 's,/*.*/\([^/:]*:\),\1,g' \
+    -e 's,\.\.*/*.*/\([^/:]*:\),\1,g' \
+    -e 's, \.*/*.*/\([^/:]*:\), \1,g' \
+    -e 's,:[0-9]*:[0-9]*: ,: ,g' \
+    -e 's,0x[0-9a-f]*,<snip>,g' \
+    -e 's,[0-9]* \(Segmentation fault\), \1,g' \
     -e 's,([0-9]* of [0-9]*),(<snip> of <snip)>,g' \
     -e 's,[0-9]*[\.][0-9]* sec,,g' \
     -e 's,[0-9]*[\.][0-9]* s,,g' \
     -e 's,([0-9]*[\.][0-9]*s),,g' \
-    -e 's, \.\.\.*\., ,g' \
-    -e 's,; did you mean .* \?$,,g' \
-    -e 's,(@INC contains:.*),<@INC snip>,g' \
-    -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
-    -e 's,target /.*/,target <snip>/,g' \
-    -e 's,(\.text\..*):,(<snip>),g' \
-    -e 's,object index [0-9].*,object index <snip>,g' \
-    -e 's,\.*/[^ ]*/\([^/:]*:\),\1,g' \
-    -e 's,ninja: error: /.*/,ninja error: ,' \
-    -e 's,:[0-9]*:[0-9]*: ,: ,' \
-    -e 's, \w*/.*/\(.*\) , \1 ,g' \
     -e 's,\*, ,g' \
     -e 's,___*,_,g' \
-    -e 's,\s\s*, ,g' \
-    -e 's,mmake\..*:.*:,,g' \
-    -e 's,ls[0-9]*:,,g' \
     -e 's,..:..:..\.... \[error\],,g' \
+    -e 's,; did you mean .* \?$,,g' \
+    -e 's,: line [0-9]*:,:line <snip>:,g' \
+    -e 's,(@INC contains:.*),<@INC snip>,g' \
+    -e 's,(\.text\..*):,(<snip>),g' \
     -e 's,config\......./,config.<snip>/,g' \
     -e 's,GMfifo.*,GMfifo<snip>,g' \
-    -e 's,shuffle=[0-9]*,,g' \
+    -e "s,ld: /.*/cc......\.o: ,ld: ,g" \
+    -e 's,ls[0-9]*:,,g' \
     -e 's,Makefile.*.tmp:[0-9]*,Makefile,g' \
+    -e 's,Makefile:[0-9]*,Makefile:<snip>,g' \
+    -e 's,mmake\..*:.*:,,g' \
+    -e 's,ninja: error: /.*/,ninja error: ,' \
+    -e 's,\(object index\) [0-9].*,\1 ,g' \
     -e 's,QA Notice: , ,' \
+    -e 's,shuffle=[0-9]*,,g' \
+    -e 's,target /.*/,target <snip>/,g' \
+    -e 's,\s\s*, ,g' \
     $issuedir/title
 
   # prefix title
