@@ -482,29 +482,22 @@ function setWorkDir() {
   fi
 }
 
-# append arg 1 to the end of the high prio backlog
 function add2backlog() {
   local bl=/var/tmp/tb/backlog.1st
 
   if [[ $1 == '@preserved-rebuild' ]]; then
-    #  it is the very last and lowest prio task
-    sed -i -e "/@preserved-rebuild/d" $bl
-    sed -i -e "1 i\@preserved-rebuild" $bl
-  elif [[ $1 =~ "emerge -e @world" ]]; then
-    if [[ -n ${pkg-} ]]; then
-      echo "%emerge --resume --skipfirst" >>$bl
+    # this has lowest prio
+    sed -i -e "/$1/d" $bl # dups
+    if [[ -s $bl ]]; then
+      sed -i -e "1 i$1" $bl # insert before 1st line == will be the last task
     else
-      echo "%emerge --resume" >>$bl
+      echo "$1" >>$bl # backlog was empty before
     fi
+  elif [[ $1 =~ "emerge -e @world" ]]; then
+    echo "%emerge --resume" >>$bl
   else
-    if [[ $1 =~ ^@ || $1 =~ ^% ]]; then
-      # avoid duplicating of next task
-      if [[ "$(tail -n 1 $bl)" != "$1" ]]; then
-        echo "$1" >>$bl
-      fi
-    elif ! grep -q "^${1}$" $bl; then # avoid dups in the file
-      echo "$1" >>$bl
-    fi
+    sed -i -e "/^$(sed -e 's,/,\\/,' <<<$1)$/d" $bl # dups
+    echo "$1" >>$bl # append it == will be the next task
   fi
 }
 
