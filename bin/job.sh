@@ -509,7 +509,7 @@ function add2backlog() {
 }
 
 function finishTitle() {
-  # strip away hex addresses, line numbers, timestamps, shrink loong path names etc.
+  # strip away hex addresses, line numbers, timestamps, paths etc.
   sed -i -e 's,0x[0-9a-f]*,<snip>,g' \
     -e 's,: line [0-9]*:,:line <snip>:,g' \
     -e 's,[0-9]* Segmentation fault,<snip> Segmentation fault,g' \
@@ -526,7 +526,7 @@ function finishTitle() {
     -e 's,target /.*/,target <snip>/,g' \
     -e 's,(\.text\..*):,(<snip>),g' \
     -e 's,object index [0-9].*,object index <snip>,g' \
-    -e 's,/[^ ]*/\([^/:]*:\),\1,g' \
+    -e 's,\.*/[^ ]*/\([^/:]*:\),\1,g' \
     -e 's,ninja: error: /.*/,ninja error: ,' \
     -e 's,:[0-9]*:[0-9]*: ,: ,' \
     -e 's, \w*/.*/\(.*\) , \1 ,g' \
