@@ -142,7 +142,7 @@ EOF
     cat <<EOF >>$tmpfile
   <tr>
     <td><a href="$uri">$no</a></td>
-    <td>$(recode --silent ascii..html <$d/title)</td>
+    <td>$(cat $d/title | cut -c -$__tinderbox_bugz_title_length | recode --silent ascii..html)</td>
     <td><a href="./$image/">$image</a></td>
     <td><a href="./$issuedir/">$pkg</a></td>
   </tr>
@@ -159,6 +159,8 @@ EOF
 set -eu
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
+
+source $(dirname $0)/lib.sh
 
 echo -e "User-agent: *\nDisallow: /\n" >~tinderbox/img/robots.txt
 
