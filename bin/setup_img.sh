@@ -471,14 +471,6 @@ EOF
   done
   echo "*/*         j$jobs" >>./etc/portage/package.env/00jobs
 
-  cat <<EOF >./etc/portage/env/clang
-PORTAGE_USE_CLANG_HOOK=1
-EOF
-
-  cat <<EOF >./etc/portage/env/gcc
-PORTAGE_USE_CLANG_HOOK=0
-EOF
-
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
   else
@@ -487,7 +479,6 @@ EOF
 
   if [[ $profile =~ "/llvm" ]]; then
     cpconf $tbhome/tb/conf/package.*.??llvm
-    cp $tbhome/tb/conf/bashrc.clang ./etc/portage
   else
     cpconf $tbhome/tb/conf/package.*.??gcc
   fi
@@ -583,7 +574,6 @@ function CreateBacklogs() {
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
 @world
-%cd /etc/portage/ && ln -sf bashrc.clang bashrc && printf '%-37s%s\n' '*/*' 'clang' >/etc/portage/package.use/clang
 %emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
@@ -869,6 +859,9 @@ function FixPossibleUseFlagIssues() {
     local f_nec_test=./etc/portage/package.env/27-$attempt-$i-notest-b-necessary-use-flag
     rm -f $f_temp
     grep -A 300 'The following USE changes are necessary to proceed:' $drylog |
+      while read -r line; do
+        grep . <<<$line || break
+      done |
       grep '^>=.* .*' |
       grep -v -e 'abi_x86_32' -e '_target' -e 'video_cards_' |
       while read -r p f; do
