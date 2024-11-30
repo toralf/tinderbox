@@ -116,8 +116,8 @@ function assign() {
     cc="$(cat ./cc 2>/dev/null || true)"
   fi
 
-  if grep -q 'meson' ./title && ! grep -q "eschwartz@gentoo.com" ./assignee ./cc; then
-    cc+=" eschwartz@gentoo.com"
+  if grep -q 'meson' ./title && ! grep -q "eschwartz@gentoo.org" ./assignee ./cc; then
+    cc+=" eschwartz@gentoo.org"
   fi
 
   local add_cc=""
