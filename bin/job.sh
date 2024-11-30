@@ -1016,14 +1016,14 @@ function DetectRepeats() {
   # repeated package
   read -r count item < <(qlop --nocolor --merge --verbose | tail -n 500 | awk '{ print $3 }' | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge 5 ]]; then
-    ReachedEOL "package too often emerged: $count x $item"
+    ReachedEOL "package emerged too often: $count x $item"
   fi
 
   # task-loop
   if [[ ! $name =~ "_test" ]]; then
     read -r count item < <(tail -n 50 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-    if [[ $count -ge 25 ]]; then
-      ReachedEOL "task too often repeated: $count x $item"
+    if [[ $count -ge 25 || ($count -gt 15 && $item == "@preserved-rebuild") ]]; then
+      ReachedEOL "task repeated too often: $count x $item"
     fi
   fi
 }
