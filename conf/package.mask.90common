@@ -78,3 +78,6 @@ app-emacs/navi2ch
 
 # https://bugs.gentoo.org/908593
 net-print/foo2zjs
+
+# https://bugs.gentoo.org/903693
+x11-plugins/gkrellmss
