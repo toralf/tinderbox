@@ -1,6 +1,7 @@
 #######################################################################
+#
+# sam_: meson hook
 
-# from sam_ : meson hook
 post_src_install() {
   (
     if grep -q 'internal compiler error' "${WORKDIR}"/*/config.log &> /dev/null ; then
@@ -42,8 +43,9 @@ post_src_install() {
 }
 
 #######################################################################
+#
+# tinderbox: If load is too high, then wait or bail out
 
-# tinderbox: If load is too high, then wait. Or bail out if requested.
 __tinderbox_checkEOL() {
   if [[ -f /var/tmp/tb/EOL || -f /var/tmp/tb/STOP ]]; then
     exit 42
@@ -51,8 +53,10 @@ __tinderbox_checkEOL() {
 }
 
 __tinderbox_loadToHigh() {
-  read -r one_min tasks < <(tr './' ' ' </proc/loadavg | cut -f 1,7 -d ' ')
-  [[ $one_min -ge 32 && $tasks -ge 32 ]]
+  declare -a values
+
+  read -r -a values < <(tr './' ' ' </proc/loadavg)
+  [[ ${values[0]} -ge 32 && ${values[6]} -ge 32 ]] # "1-minute mean" and "tasks"
 }
 
 case ${EBUILD_PHASE} in
