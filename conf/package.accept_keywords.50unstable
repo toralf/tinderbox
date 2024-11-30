@@ -2,15 +2,28 @@
 # look at package.unmask/50unstable and DICE_DESCRIPTIONS too
 
 # ztrawhcs: "we want to test all upstream release candidates"
-<dev-build/meson-9999                              **   # DICE: [meson] 1 3
+<dev-build/meson-9999                              **   # DICE: [meson] 1 4
 
 # sam_
->=sys-libs/ncurses-6.5                             **   # DICE: [ncurses-6.5] 1 4
+<dev-build/libtool-9999                            **   # DICE: [libtool] 1 4
 
-# sam_
-<dev-build/libtool-9999                            **   # DICE: [libtool]
 
-# Flow
+# Florian Schmaus <flow@gentoo.org> (2024-11-29)
+>=app-text/dvisvgm-2024                            **   # DICE: [texlive] 1 4
+>=app-text/ps2pkm-1.8_p20240311                    **   # DICE: [texlive] 1 4
+>=app-text/texlive-2024                            **   # DICE: [texlive] 1 4
+>=app-text/texlive-core-2024                       **   # DICE: [texlive] 1 4
+>=dev-libs/kpathsea-6.4.0                          **   # DICE: [texlive] 1 4
+>=dev-libs/ptexenc-1.4.6                           **   # DICE: [texlive] 1 4
+dev-python/latexrestricted                         **   # DICE: [texlive] 1 4
+>=dev-tex/biber-2.20                               **   # DICE: [texlive] 1 4
+>=dev-tex/biblatex-3.20                            **   # DICE: [texlive] 1 4
+>=dev-tex/bibtexu-3.72_p20240311                   **   # DICE: [texlive] 1 4
+>=dev-tex/glossaries-4.55                          **   # DICE: [texlive] 1 4
+dev-tex/latex2pydata                               **   # DICE: [texlive] 1 4
+>=dev-tex/latexmk-4.85                             **   # DICE: [texlive] 1 4
+>=dev-tex/minted-3.4.0                             **   # DICE: [texlive] 1 4
+>=dev-tex/tex4ht-20240311                          **   # DICE: [texlive] 1 4
 >=app-text/texlive-2024                            **   # DICE: [texlive] 1 4
 >=app-text/texlive-core-2024                       **   # DICE: [texlive] 1 4
 >=dev-texlive/texlive-basic-2024                   **   # DICE: [texlive] 1 4
