@@ -497,7 +497,7 @@ function add2backlog() {
     echo "%emerge --resume" >>$bl
   else
     sed -i -e "/^$(sed -e 's,/,\\/,g' <<<$1)$/d" $bl # dups
-    echo "$1" >>$bl # append it == will be the next task
+    echo "$1" >>$bl                                  # append it == will be the next task
   fi
 }
 
