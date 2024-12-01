@@ -72,3 +72,10 @@ x11-wm/xmonad-contrib
 #
 dev-libs/intel-compute-runtime
 dev-util/intel-graphics-compiler
+#
+# up and downgrade https://bugs.gentoo.org/794235
+#
+dev-ruby/parser
+dev-ruby/regexp_parse
+dev-util/colm
+dev-util/ragel
