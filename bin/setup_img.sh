@@ -44,7 +44,7 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 1 3; then
+    if dice 1 8; then
       # overweigth Desktop
       grep '/desktop'
     else
@@ -83,7 +83,7 @@ function InitOptions() {
 
   # sam_
   if [[ ! $profile =~ "/llvm" ]]; then
-    if dice 1 4; then
+    if dice 1 8; then
       ldflags="-Werror=lto-type-mismatch -Werror=strict-aliasing -Werror=odr -flto"
       cflags+=" $ldflags"
     fi
@@ -95,13 +95,13 @@ function InitOptions() {
   fi
 
   if [[ ! $profile =~ "/no-multilib" ]]; then
-    if dice 1 40; then
+    if dice 1 20; then
       # this sets "*/* ABI_X86: 32 64" via package.use.40abi32+64
       abi3264="y"
     fi
   fi
 
-  if dice 1 20; then
+  if dice 1 10; then
     testfeature="y"
   fi
 }
