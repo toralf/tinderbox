@@ -432,6 +432,11 @@ EOF
     ) >>$issuedir/comment0
   fi
 
+  # Pacho
+  if grep -q 'ENV_UNSET="XDG_DATA_DIRS XDG_CONFIG_DIRS' profiles/base/make.default 2>/dev/null; then
+    echo '  please note the ENV_UNSET="XDG_DATA_DIRS XDG_CONFIG_DIRS in profiles/base/make.default' >>$issuedir/comment0
+  fi
+
   cat <<EOF >>$issuedir/comment0
 
   The attached etc.portage.tar.xz has all details.

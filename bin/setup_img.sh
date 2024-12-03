@@ -446,7 +446,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # if persistent build dir is needed
+  # if persistent build dir is wanted
   mkdir ./var/tmp/notmpfs
   echo 'PORTAGE_TMPDIR=/var/tmp/notmpfs' >./etc/portage/env/notmpfs
 
@@ -522,6 +522,11 @@ EOF
     cp $f $target
     chmod a+r $target
   done
+
+  # Pacho
+  if dice 1 2; then
+    sed -i -e 's,^ENV_UNSET=",ENV_UNSET="XDG_DATA_DIRS XDG_CONFIG_DIRS ,' profiles/base/make.default
+  fi
 
   chmod 777 ./etc/portage/package.*/ # e.g. to add "notest" packages
   truncate -s 0 ./var/tmp/tb/task
