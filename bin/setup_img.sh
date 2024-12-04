@@ -398,6 +398,11 @@ EOF
   if [[ $profile =~ "/musl" ]]; then
     echo 'RUSTFLAGS="-C target-feature=-crt-static"' >>./etc/portage/make.conf
   fi
+
+  # Pacho
+  if dice 1 2; then
+    echo 'ENV_UNSET="XDG_DATA_DIRS XDG_CONFIG_DIRS"' >>./etc/portage/make.conf
+  fi
 }
 
 # helper of CompilePortageFiles()
@@ -522,11 +527,6 @@ EOF
     cp $f $target
     chmod a+r $target
   done
-
-  # Pacho
-  if dice 1 2; then
-    sed -i -e 's,^ENV_UNSET=",ENV_UNSET="XDG_DATA_DIRS XDG_CONFIG_DIRS ,' profiles/base/make.default
-  fi
 
   chmod 777 ./etc/portage/package.*/ # e.g. to add "notest" packages
   truncate -s 0 ./var/tmp/tb/task
