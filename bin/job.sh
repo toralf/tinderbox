@@ -1041,13 +1041,11 @@ function syncRepo() {
   local curr_time=$EPOCHSECONDS
 
   if ! emaint sync --auto &>$synclog; then
-    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error:' $synclog; then
+    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error:' -e 'Could not copy database' $synclog; then
       return 0
     else
       if ! emaint merges --fix &>>$synclog; then
-        ReachedEOL "broken repo, cannot be fixed" $synclog
-      elif ! emaint sync --auto &>>$synclog; then
-        ReachedEOL "broken sync of repo" $synclog
+        ReachedEOL "repo sync failure, unable to fix" $synclog
       fi
     fi
   fi
