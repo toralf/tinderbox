@@ -26,7 +26,7 @@ function __is_crashed() {
 function getStartTime() {
   local img=~tinderbox/img/$(basename $1)
 
-  cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img 2>/dev/null
+  cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img
 }
 
 function stripQuotesAndMore() {
