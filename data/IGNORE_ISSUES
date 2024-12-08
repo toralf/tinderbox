@@ -1,9 +1,6 @@
 ada compiler not available
-Clang 16 testing:
 Could not find pg_config for
-emerge killed=15
 No LLVM slot .* satisfying the package's dependencies found installed
 shared library .* could not be opened: Dynamic loading not supported
-The locale en_US.utf8 or en_US.UTF-8 is not available.
 The present kernel disabled CONFIG_MODULES.
 This compiler lacks GCC plug-in support
