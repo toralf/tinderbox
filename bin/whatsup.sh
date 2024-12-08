@@ -43,15 +43,15 @@ function checkHistory() {
 }
 
 # whatsup.sh -o
-#   pkg fail bgo  day  done .1st   todo  .upd lcx 13#13 locked  +++  Sun Nov 24 11:03:54 UTC 2024
-#   112    2   -  0.2     7    -  16340    54 lc  ~/run/23.0_desktop-20241124-052504
-#    27    -   -  0.1     1    1  16340     - lcS ~/run/23.0_desktop-20241124-085003
-#  4034   66   4  3.3  1939    -  14577  1038 lc  ~/run/23.0_desktop_gnome-20241121-025502
+#   pkg fail bgo  day  done .1st .upd   todo lcx 13#13 locked  +++  Sun Dec  8 18:30:02 UTC 2024
+#  6068  318  10  7.7  5817    -    -  10648 lc  ~/run/23.0-20241201-015002
+#  2433   28   1  4.3   673    -  683  15770 lc  ~/run/23.0_desktop-20241204-113502
+#  2183   25   -  2.1   657    -  144  15739 lc  ~/run/23.0_desktop-20241206-162002
 function Overall() {
   local locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
 
-  echo "  pkg fail bgo  day  done .1st   todo  .upd lcx $locked#$all locked  +++  $(date)"
+  echo "  pkg fail bgo  day  done .1st .upd   todo lcx $locked#$all locked  +++  $(date)"
 
   for i in $images; do
     local pkg=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
@@ -59,9 +59,9 @@ function Overall() {
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
     local day=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
     local done=$(grep -c -v -e '^#' -e '^=' -e '^@' -e '^%' $i/var/tmp/tb/task.history 2>/dev/null)
-    local bl=$(wc -l <$i/var/tmp/tb/backlog 2>/dev/null)
     local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st 2>/dev/null)
     local blu=$(wc -l <$i/var/tmp/tb/backlog.upd 2>/dev/null)
+    local bl=$(wc -l <$i/var/tmp/tb/backlog 2>/dev/null)
 
     # "l" image is locked
     # "c" image is under cgroup control
@@ -95,7 +95,7 @@ function Overall() {
     local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'
-    printf "%5i %4i %3i %4.1f %5i %4i  %5i %5i %3s %s/%s\n" ${pkg:-0} ${fail:-0} $bgo ${day:-0} ${done:-0} ${bl1:-0} ${bl:-0} ${blu:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
+    printf "%5i %4i %3i %4.1f %5i %4i %4i  %5i %3s %s/%s\n" ${pkg:-0} ${fail:-0} $bgo ${day:-0} ${done:-0} ${bl1:-0} ${blu:-0} ${bl:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
   done
 }
 
