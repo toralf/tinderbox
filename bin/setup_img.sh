@@ -620,9 +620,7 @@ if [[ ! $profile =~ "/musl" ]]; then
   date
   echo "#setup locale" | tee /var/tmp/tb/task
   echo "en_US ISO-8859-1" >>/etc/locale.gen
-  if [[ $testfeature == "y" ]]; then
-    echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
-  fi
+  echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen # needed by Dotnet SDK and for +test
   locale-gen
 fi
 
