@@ -738,10 +738,9 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
-    # needed at least for -flto and merged-usr
     if ! grep -q "%emerge -e @world" /var/tmp/tb/backlog.1st; then
-      add2backlog "@world"                                     # update the remaining stuff
-      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a || true" # this "true" handles possible dep calculation problems, but in case of an emerge issue is it eventually a "try_again=1"
+      # needed at least for -flto and/or merged-usr to avoid segfaults of lto1
+      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a @world" # sometimes there're dep issues if @world is not included here
     fi
     add2backlog "%SwitchGCC"
   fi
