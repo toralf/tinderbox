@@ -826,12 +826,14 @@ function FixPossibleUseFlagIssues() {
     grep -m 1 -A 20 "It might be possible to break this cycle" $drylog |
       grep '^- .* (Change USE: ' |
       sed -e "s,^- ,," -e "s, (Change USE:,," -e "s,)$,," |
-      grep -v -e 'abi_x86_32' -e '_target' -e 'video_cards_' |
       while read -r p f; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
-          # allow only unsetting a flag
+          # allow only unsetting to avoid circles
           if [[ $flag != "-*" ]]; then
+            continue
+          fi
+          if [[ $flag =~ 'abi_x86_32' || $flag =~ '_target' || $flag =~ 'video_cards_' ]]; then
             continue
           fi
           if [[ $flag == "-test" ]]; then
@@ -866,10 +868,12 @@ function FixPossibleUseFlagIssues() {
         grep . <<<$line || break
       done |
       grep '^>=.* .*' |
-      grep -v -e 'abi_x86_32' -e '_target' -e 'video_cards_' |
       while read -r p f; do
         pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
+          if [[ $flag =~ 'abi_x86_32' || $flag =~ '_target' || $flag =~ 'video_cards_' ]]; then
+            continue
+          fi
           if [[ $flag =~ test ]]; then
             if grep -q "^${pn}  .*notest" ./etc/portage/package.env/*; then
               printf "%-36s notest\n" $pn >>$f_nec_test
