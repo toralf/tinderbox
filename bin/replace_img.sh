@@ -26,15 +26,16 @@ function StopNonrespondingImages() {
   ImagesInRun |
     while read -r img; do
       if [[ ! -f ~tinderbox/run/$img/var/tmp/tb/EOL ]]; then
-        if [[ -f ~tinderbox/img/$img/var/tmp/tb/task.log ]]; then
-          hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$img/var/tmp/tb/task.log 2>/dev/null)) / 3600)) 2>/dev/null
-        elif [[ -f ~tinderbox/img/$img/var/tmp/tb/task ]]; then
-          hours=$(((EPOCHSECONDS - $(stat -c %Z ~tinderbox/img/$img/var/tmp/tb/task)) / 3600)) 2>/dev/null
-        else
-          hours=$(((EPOCHSECONDS - $(getStartTime $img)) / 3600))
+        if ! ts=$(stat -c %Z ~tinderbox/img/$img/var/tmp/tb/task.log 2>/dev/null); then
+          if ! ts=$(stat -c %Z ~tinderbox/img/$img/var/tmp/tb/task 2>/dev/null); then
+            if ! ts=$(getStartTime $img); then
+              Finish 3
+            fi
+          fi
         fi
+        hours=$(((EPOCHSECONDS - ts) / 3600))
 
-        if [[ -n $hours && $hours -ge 24 ]]; then
+        if [[ $hours -ge 24 ]]; then
           if __is_crashed $img; then
             echo -e "$(basename $0): image crashed $hours hours ago" >>~tinderbox/img/$img/var/tmp/tb/EOL
           elif __is_stopped $img; then
@@ -52,7 +53,7 @@ function FreeSlotAvailable() {
   local running=$(wc -l < <(ImagesInRun))
   local replacing=$(pgrep -fc "/bin/bash /opt/tb/bin/replace")
 
-  # anticipate the setup failure rate and schedule 1 more
+  # schedule 1 more than needed to anticipate the setup failure rate
   [[ $running -lt $desired_count && $((running + replacing - 1)) -le $desired_count ]]
 }
 
@@ -88,7 +89,7 @@ fi
 
 if [[ ! -d /run/tb ]]; then
   # just rebooted ?
-  exit 1
+  exit 2
 fi
 
 if [[ $# -eq 1 ]]; then
