@@ -33,19 +33,19 @@ function DiceAProfile() {
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
     if dice 15 16; then
-      # underweigth MUSL
+      # underweight MUSL
       grep -v '/musl'
     else
       grep '.'
     fi |
     if dice 15 16; then
-      # underweigth LLVM
+      # underweight LLVM
       grep -v '/llvm'
     else
       grep '.'
     fi |
-    if dice 1 8; then
-      # overweigth Desktop
+    if dice 1 3; then
+      # overweight Desktop
       grep '/desktop'
     else
       grep '.'
@@ -610,11 +610,11 @@ set -euf
 date
 cat /var/tmp/tb/name
 
-# use same user and group id as at the host to avoid confusion
+# to directly edit files use the same user and group id of tinderbox as defined at the host
 date
 echo "#setup user" | tee /var/tmp/tb/task
 groupadd -g $(id -g tinderbox) tinderbox
-useradd  -g $(id -g tinderbox) -u $(id -u tinderbox) -G \$(id -g portage) tinderbox
+useradd -g $(id -g tinderbox) -u $(id -u tinderbox) -G portage tinderbox
 
 if [[ ! $profile =~ "/musl" ]]; then
   date
