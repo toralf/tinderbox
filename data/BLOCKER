@@ -7,7 +7,7 @@ ebuild uses colon .* as a sed delimiter|error:.*falign-functions=32:25:16
 
 # [Tracker] Packages which will fail with -std=c2x / c23
 880545
- prototype| not supported in C2|C2X|C2x|two or more data types in declaration|; have.*void|initialization of .*void.*from incompatible pointer type|too .* arguments to function|expected identifier before false|incompatible integer to pointer conversion|incompatible pointer type|incompatible function pointer types
+ prototype| not supported in C2|C2X|C2x|bool cannot be defined via typedef|two or more data types in declaration|; have.*void|initialization of .*void.*from incompatible pointer type|too .* arguments to function|expected identifier before false|incompatible integer to pointer conversion|incompatible pointer type|incompatible function pointer types
 
 # (tar-without-file) - [TRACKER] Packages calling tar without -f
 903921

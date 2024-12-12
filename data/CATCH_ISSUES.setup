@@ -4,3 +4,4 @@ No suitable POSTGRES_TARGETS enabled
 USE=modules-sign requires additional configuration
 One of the postgres_targets_postgresSL_OT use flags must be enabled
 Could not find pg_config for
+You need to select at least one compatible Ruby installation target
