@@ -128,12 +128,6 @@ function GotResults() {
 
 function SearchForSameIssue() {
   prepareResultFile
-
-  # if there too less words (e.g. "ebuild failed") than skip it here
-  if [[ $(sed -e 's,^.* - ,,' <$issuedir/title | wc -w) -lt 3 ]]; then
-    return 1
-  fi
-
   if grep -q 'file collision with' $issuedir/title; then
     collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
