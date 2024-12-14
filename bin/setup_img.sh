@@ -697,7 +697,7 @@ fi
 
 if ls -l /etc/**/._cfg0000_* 2>/dev/null 1>&2; then
   echo -e "\n ^^ unexpected config file changes\n" >&2
-  exit 1
+  exit 2
 fi
 
 date
@@ -776,7 +776,7 @@ function RunDryrunWrapper() {
 
   else
     echo -e "\n sth. fatal happened\n" >&2
-    exit 1
+    exit 4
   fi
 }
 
@@ -793,7 +793,7 @@ function FixPossibleUseFlagIssues() {
     for k in EOL STOP; do
       if [[ -f ./var/tmp/tb/$k ]]; then
         echo -e "\n found $k file"
-        exit 1
+        exit 3
       fi
     done
 

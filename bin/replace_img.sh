@@ -74,6 +74,10 @@ function SetupANewImage() {
     mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
   else
     echo "setup failed  $img  rc: $rc  tmpfile: $tmpfile"
+    if [[ $rc -ne 125 ]]; then
+      echo
+      tail -n 10 -v $tmpfile
+    fi
   fi
 }
 
