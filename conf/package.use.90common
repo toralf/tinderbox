@@ -5,8 +5,8 @@
 #
 # mandatory
 #
-*/*         QEMU_SOFTMMU_TARGETS:   x86_64
-*/*         QEMU_USER_TARGETS:      x86_64
+*/*         QEMU_SOFTMMU_TARGETS:   x86_64 aarch64
+*/*         QEMU_USER_TARGETS:      x86_64 aarch64
 
 # used mailer
 mail-mta/ssmtp                      mta ssl
