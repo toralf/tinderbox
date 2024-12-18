@@ -16,7 +16,7 @@ function CreateCgroup() {
       echo "$((27 * 100))" >$cgdomain/cpu.weight
       echo "$((27 * 100000))" >$cgdomain/cpu.max
       echo "$((12 * (4 * 2 + 1)))G" >$cgdomain/memory.max # images x jobs x RAM
-      echo "200G" >$cgdomain/memory.swap.max # 256 GiB swap currently
+      echo "200G" >$cgdomain/memory.swap.max              # 256 GiB swap currently
     fi
   fi
 
