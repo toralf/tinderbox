@@ -217,10 +217,11 @@ function CollectIssueFiles() {
       cd "$workdir/.."
       f=/tmp/files
       find ./ \
-        -name '*.binlog' \
+        -name 'CMake*.*' \
+        -o -name 'testlog.*' \
+        -o -name '*.binlog' \
         -o -name '*.log' \
         -o -name '*.txt' \
-        -o -name 'testlog.*' \
         -o -wholename '*/tests/*.out' \
         >$f
       if [[ -s $f ]]; then
