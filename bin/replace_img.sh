@@ -71,14 +71,14 @@ function SetupANewImage() {
   local img=$(grep -m 1 -Eo '  name: .*' $tmpfile | awk '{ print $2 }')
   if [[ $rc -eq 0 ]]; then
     grep -A 10 -B 1 '^ OK' $tmpfile
-    mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
   else
-    echo "setup failed  $img  rc: $rc  tmpfile: $tmpfile"
+    echo "setup failed  $img  rc: $rc"
     if [[ $rc -ne 125 ]]; then
       echo
-      tail -n 10 -v $tmpfile
+      tail -n 10 $tmpfile
     fi
   fi
+  mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
 }
 
 #######################################################################
