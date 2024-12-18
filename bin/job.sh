@@ -982,7 +982,7 @@ function WorkOnTask() {
       elif [[ -n $pkg ]]; then
         if [[ $pkg =~ "sys-devel/gcc" ]] && [[ ! $name =~ "_llvm" ]]; then
           ReachedEOL "system compiler failed: $pkg" $tasklog
-        elif [[ $pkg =~ "sys-devel/clang" || $pkg =~ "sys-devel/llvm" ]] && [[ $name =~ "_llvm" ]]; then
+        elif [[ $pkg =~ "llvm-core/clang" || $pkg =~ "llvm-core/llvm" ]] && [[ $name =~ "_llvm" ]]; then
           ReachedEOL "system compiler failed: $pkg" $tasklog
         elif [[ $task =~ $pkg ]]; then
           ReachedEOL "failed: $pkg" $tasklog

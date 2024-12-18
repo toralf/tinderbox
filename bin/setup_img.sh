@@ -579,7 +579,7 @@ function CreateBacklogs() {
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
 @world
-%emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
+%emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
     # [11:06:37 pm] <@toralf> Would changing the profile and re-emerging @world with --emptytree do it?
@@ -981,7 +981,7 @@ echo "-------"
 EOF
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-emerge -1 --selective=n --deep=0 --pretend -u =\$(portageq best_visible / sys-devel/clang) =\$(portageq best_visible / sys-devel/llvm)
+emerge -1 --selective=n --deep=0 --pretend -u =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 echo "-------"
 emerge -u @world --backtrack=50 --pretend
 EOF
