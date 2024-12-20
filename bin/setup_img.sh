@@ -38,13 +38,13 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 15 16; then
+    if dice 7 8; then
       # underweight LLVM
       grep -v '/llvm'
     else
       grep '.'
     fi |
-    if dice 1 3; then
+    if dice 2 3; then
       # overweight Desktop
       grep '/desktop'
     else
