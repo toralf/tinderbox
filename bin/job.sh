@@ -344,7 +344,8 @@ function handleFeatureTest() {
         --exclude="*/sys/*" \
         --exclude="*/t/*-sympath/*" \
         $dirs; then
-        Mail "INFO: tar issue for $issuedir" $pkglog_stripped
+        ps faux >$issuedir/ps-faux.txt
+        Mail "INFO: tar issue for $issuedir" $issuedir/ps-faux.txt
       fi
     fi
   )
