@@ -163,7 +163,7 @@ function CompressIssueFiles() {
 }
 
 function CreateEmergeInfo() {
-  local cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, which would force alphabetical sorting
+  local cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, b/c that would force alphabetical sorting
 
   local outfile=$issuedir/files/emerge-history.txt
   cat <<EOF >$outfile
