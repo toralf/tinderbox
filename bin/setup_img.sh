@@ -70,11 +70,10 @@ function InitOptions() {
   keyword="~amd64"
   ldflags=""
   name="n/a"
+  profile=""
   start_it="n"
   testfeature="n"
   useconfigof=""
-
-  profile=$(DiceAProfile)
 
   # sam_
   if dice 1 10; then
@@ -86,11 +85,9 @@ function InitOptions() {
     cflags+=" -falign-functions=32:25:16"
   fi
 
-  if [[ ! $profile =~ "/no-multilib" ]]; then
-    if dice 1 20; then
-      # this sets "*/* ABI_X86: 32 64" via package.use.40abi32+64
-      abi3264="y"
-    fi
+  if dice 1 20; then
+    # this sets "*/* ABI_X86: 32 64" via package.use.40abi32+64
+    abi3264="y"
   fi
 
   if dice 1 10; then
@@ -99,12 +96,20 @@ function InitOptions() {
 }
 
 function SetOptions() {
+  if [[ -z $profile ]]; then
+    profile=$(DiceAProfile)
+  fi
+
   # sam_
   if [[ ! $profile =~ "/llvm" ]]; then
     if dice 1 8; then
       ldflags=" -Werror=lto-type-mismatch -Werror=strict-aliasing -Werror=odr -flto"
       cflags+="$ldflags"
     fi
+  fi
+
+  if [[ $profile =~ "/no-multilib" ]]; then
+    abi3264="n"
   fi
 }
 
