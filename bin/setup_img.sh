@@ -78,15 +78,7 @@ function InitOptions() {
 
   # sam_
   if dice 1 10; then
-    cflags=$(sed -e 's,-O2,-O3,g' <<<$cflags)
-  fi
-
-  # sam_
-  if [[ ! $profile =~ "/llvm" ]]; then
-    if dice 1 8; then
-      ldflags="-Werror=lto-type-mismatch -Werror=strict-aliasing -Werror=odr -flto"
-      cflags+=" $ldflags"
-    fi
+    cflags=$(sed -e 's,-O2,-O3,' <<<$cflags)
   fi
 
   # force bug 685160 (colon in CFLAGS)
@@ -103,6 +95,16 @@ function InitOptions() {
 
   if dice 1 10; then
     testfeature="y"
+  fi
+}
+
+function SetOptions() {
+  # sam_
+  if [[ ! $profile =~ "/llvm" ]]; then
+    if dice 1 8; then
+      ldflags=" -Werror=lto-type-mismatch -Werror=strict-aliasing -Werror=odr -flto"
+      cflags+="$ldflags"
+    fi
   fi
 }
 
@@ -352,7 +354,7 @@ FCFLAGS="$cflags"
 FFLAGS="$cflags"
 
 # enable QA check for LDFLAGS being respected by build system
-LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0 $ldflags"
+LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0$ldflags"
 
 ACCEPT_KEYWORDS="$keyword"
 
@@ -1110,6 +1112,7 @@ while getopts R:a:k:p:m:M:st:u: opt; do
   esac
 done
 
+SetOptions
 CheckOptions
 InitImageFromStage3
 InitRepository
