@@ -81,3 +81,7 @@ net-print/foo2zjs
 
 # https://bugs.gentoo.org/903693
 x11-plugins/gkrellmss
+
+# up/down + (B)locker
+<dev-util/colm-0.14.7-r4
+<dev-util/ragel-7.0.4-r3

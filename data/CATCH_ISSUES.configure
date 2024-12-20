@@ -5,6 +5,7 @@ cannot run C compiled programs
 clang-15: error:
 The futex facility returned an unexpected error code.
 Unknown CMake command
+ModuleNotFoundError:
 C compiler does not support
 C++ compiler cannot create executables
 CMake will not be able to correctly generate this project.
