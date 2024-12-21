@@ -334,19 +334,14 @@ function handleFeatureTest() {
     cd "$workdir"
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
     if [[ -n $dirs ]]; then
-      if ! timeout --signal=15 --kill-after=1m 5m $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
-        --dereference --one-file-system --sparse \
+      $tar --warning=none -cvJpf $issuedir/files/tests.tar.xz \
+        --one-file-system --sparse \
         --exclude='*.o' \
         --exclude="*/dev/*" \
         --exclude="*/proc/*" \
         --exclude="*/run/*" \
-        --exclude="*/symlinktest/*" \
         --exclude="*/sys/*" \
-        --exclude="*/t/*-sympath/*" \
-        $dirs; then
-        ps faux >$issuedir/ps-faux.txt
-        Mail "INFO: tar issue for $issuedir" $issuedir/ps-faux.txt
-      fi
+        $dirs &>$issuedir/tar.log
     fi
   )
 }
