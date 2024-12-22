@@ -923,10 +923,10 @@ function WorkOnTask() {
   if [[ $task == "@world" ]]; then
     local opts=" --update --changed-use"
 
-    if ! emerge -p -vD $task $opts &>>$tasklog; then
+    if ! emerge -p -v $task $opts &>>$tasklog; then
       opts+=" --backtrack=50"
       echo -e "\nopts=$opts\n" >>$tasklog
-      if ! emerge -p -vD $task $opts &>>$tasklog; then
+      if ! emerge -p -v $task $opts &>>$tasklog; then
         ReachedEOL "dry run failed: $task" $tasklog
       fi
     fi
