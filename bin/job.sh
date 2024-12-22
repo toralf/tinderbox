@@ -225,7 +225,7 @@ function CollectIssueFiles() {
         -o -wholename '*/tests/*.out' \
         >$f
       if [[ -s $f ]]; then
-        $tar -cJpf $issuedir/files/logs.tar.xz --files-from $f --dereference --warning=none
+        $tar -cJpf $issuedir/files/logs.tar.xz --files-from $f --dereference --warning=none 2>/dev/null
       fi
       rm $f
     )
@@ -341,7 +341,7 @@ function handleFeatureTest() {
         --exclude="*/proc/*" \
         --exclude="*/run/*" \
         --exclude="*/sys/*" \
-        $dirs &>$issuedir/tar.log
+        $dirs
     fi
   )
 }
