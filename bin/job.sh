@@ -334,7 +334,7 @@ function handleFeatureTest() {
     cd "$workdir"
     dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
     if [[ -n $dirs ]]; then
-      $tar --warning=none -cvJpf $issuedir/files/tests.tar.xz \
+      $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
         --one-file-system --sparse \
         --exclude='*.o' \
         --exclude="*/dev/*" \
