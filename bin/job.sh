@@ -737,7 +737,7 @@ function PostEmerge() {
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
     if ! grep -q "%emerge -e @world" /var/tmp/tb/backlog.1st; then
       # needed at least for -flto and/or merged-usr to avoid segfaults of lto1
-      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a @world --update --changed-use --backtrack=50" # @world needed to avoid dep issues
+      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a @world --update --changed-use" # @world needed to avoid dep issues
     fi
     add2backlog "%SwitchGCC"
   fi
@@ -920,27 +920,28 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 function WorkOnTask() {
-  # @set
-  if [[ $task =~ ^@ ]]; then
-    local opts=""
-    if [[ $task =~ "@world" ]]; then
-      opts+=" --update --changed-use --backtrack=50"
-      echo -e "\ncheck for Perl dep issue\n" >>$tasklog
+  if [[ $task == "@world" ]]; then
+    local opts=" --update --changed-use"
+
+    echo -e "\ncheck for Perl dep issue\n" >>$tasklog
+    if ! emerge -p -vD $task $opts &>>$tasklog; then
+      opts+=" --backtrack=50"
+      echo -e "\nopts=$opts\n" >>$tasklog
       if ! emerge -p -vD $task $opts &>>$tasklog; then
         ReachedEOL "dry run failed: $task" $tasklog
       fi
-      for i in net-libs/libmbim x11-libs/pango; do
-        if grep -Eo "^\[ebuild .*(dev-lang/perl|$i|dev-perl/Locale-gettext)" $tasklog |
-          cut -f 2- -d ']' |
-          awk '{ print $1 }' |
-          xargs |
-          grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
-          local msg="Perl dep issue for $i"
-          ReachedEOL "$msg" $tasklog
-        fi
-      done
-      echo -e "\ncheck for Perl dep issue succeeded\n" >>$tasklog
     fi
+    for i in net-libs/libmbim x11-libs/pango; do
+      if grep -Eo "^\[ebuild .*(dev-lang/perl|$i|dev-perl/Locale-gettext)" $tasklog |
+        cut -f 2- -d ']' |
+        awk '{ print $1 }' |
+        xargs |
+        grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
+        local msg="Perl dep issue for $i"
+        ReachedEOL "$msg" $tasklog
+      fi
+    done
+    echo -e "\ncheck for Perl dep issue succeeded\n" >>$tasklog
 
     local histfile=/var/tmp/tb/$(cut -f 1 -d ' ' <<<$task).history
     if RunAndCheck "emerge $task $opts"; then
@@ -1001,7 +1002,7 @@ function WorkOnTask() {
       fi
     fi
 
-  # a common atom
+  # common emerge update
   else
     if ! RunAndCheck "emerge --update $task"; then
       :
