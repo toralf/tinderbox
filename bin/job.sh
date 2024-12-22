@@ -923,7 +923,6 @@ function WorkOnTask() {
   if [[ $task == "@world" ]]; then
     local opts=" --update --changed-use"
 
-    echo -e "\ncheck for Perl dep issue\n" >>$tasklog
     if ! emerge -p -vD $task $opts &>>$tasklog; then
       opts+=" --backtrack=50"
       echo -e "\nopts=$opts\n" >>$tasklog
@@ -931,6 +930,8 @@ function WorkOnTask() {
         ReachedEOL "dry run failed: $task" $tasklog
       fi
     fi
+
+    echo -e "\ncheck for Perl dep issue\n" >>$tasklog
     for i in net-libs/libmbim x11-libs/pango; do
       if grep -Eo "^\[ebuild .*(dev-lang/perl|$i|dev-perl/Locale-gettext)" $tasklog |
         cut -f 2- -d ']' |
