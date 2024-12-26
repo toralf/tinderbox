@@ -1017,18 +1017,21 @@ function DetectRepeats() {
   local count
   local item
 
-  # repeated package
   read -r count item < <(qlop --nocolor --merge --verbose | tail -n 500 | awk '{ print $3 }' | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge 5 ]]; then
     ReachedEOL "package emerged too often: $count x $item"
   fi
 
-  # task-loop
-  if [[ ! $name =~ "_test" ]]; then
-    read -r count item < <(tail -n 50 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-    if [[ $count -ge 25 || ($count -gt 15 && $item == "@preserved-rebuild") ]]; then
-      ReachedEOL "task repeated too often: $count x $item"
-    fi
+  if [[ $(
+    cd /var/tmp/tb/logs
+    ls | tail -n 6 | xargs grep -l 'Use emerge @preserved-rebuild to rebuild packages' | wc -l
+  ) -ge 3 ]]; then
+    ReachedEOL "preserved-rebuild loop" $tasklog
+  fi
+
+  read -r count item < <(tail -n 50 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
+  if [[ $count -ge 25 ]]; then
+    ReachedEOL "task repeated too often: $count x $item"
   fi
 }
 
