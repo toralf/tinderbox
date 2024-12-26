@@ -19,10 +19,8 @@ function listStat() {
     $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
     echo '<h3>current emerge step</h3>'
     $(dirname $0)/whatsup.sh -l | recode --silent ascii..html
-    echo '<h3>fs</h3>'
-    df -h /mnt/data | recode --silent ascii..html
     echo -e '</pre>\n'
-  } >>$tmpfile
+  }
 }
 
 function listFiles() {
@@ -42,7 +40,7 @@ function listFiles() {
       echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f 2>/dev/null | awk '{ print $5 }'))</a>"
     done
     echo -e "</pre>\n"
-  } >>$tmpfile
+  }
 }
 
 function listImagesWithoutAnyBug() {
@@ -64,7 +62,7 @@ function listImagesWithoutAnyBug() {
       echo "<a href=\"$d\">$d</a>"
     done
     echo -e "</pre>\n"
-  } >>$tmpfile
+  }
 }
 
 function listImagesWithoutReportedBugs() {
@@ -86,14 +84,14 @@ function listImagesWithoutReportedBugs() {
       echo "<a href=\"$d\">$d</a>"
     done
     echo -e "</pre>\n"
-  } >>$tmpfile
+  }
 }
 
 function listBugs() {
   local files=$(ls -t -- ~tinderbox/img/*/var/tmp/tb/issues/*/.reported 2>/dev/null)
   local n=$(sed -e 's,/var/tmp/tb/issues.*,,' <<<$files | sort -u | wc -l)
 
-  cat <<EOF >>$tmpfile
+  cat <<EOF
 <h2>$n images with $(wc -l <<<$files) reported bugs in total (<a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">all reported, open bugs at b.g.o.</a>)</h2>
 
   <table border="0" align="left" class="list_table" width="100%">
@@ -119,27 +117,24 @@ function listBugs() {
 EOF
 
   while read -r f; do
-    if ! uri=$(cat $f 2>/dev/null); then
+    local uri=$(cat $f 2>/dev/null) # b.g.o. link
+    local no=${uri##*/}             # bug number
+    if [[ -z $no ]]; then
       continue # race with house keeping
     fi
 
-    no=${uri##*/}
-    if [[ -z $no ]]; then
-      continue
-    fi
-
     # f: /home/tinderbox/img/23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32/.reported
-    d=${f%/*}
+    local d=${f%/*}
 
     # d: /home/tinderbox/img/23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32
-    issuedir=$(cut -f 5- -d '/' <<<$d)
+    local issuedir=$(cut -f 5- -d '/' <<<$d)
 
     # issuedir: 23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32
-    image=${issuedir%%/*}
+    local image=${issuedir%%/*}
 
-    pkg=${d##*/}
+    local pkg=${d##*/}
 
-    cat <<EOF >>$tmpfile
+    cat <<EOF
   <tr>
     <td><a href="$uri">$no</a></td>
     <td>$(cut -c -$__tinderbox_bugz_title_length <$d/title | recode --silent ascii..html)</td>
@@ -149,7 +144,7 @@ EOF
 EOF
   done <<<$files
 
-  cat <<EOF >>$tmpfile
+  cat <<EOF
   </tbody>
   </table>
 EOF
@@ -162,10 +157,13 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 source $(dirname $0)/lib.sh
 
-echo -e "User-agent: *\nDisallow: /\n" >~tinderbox/img/robots.txt
+if [[ ! -s ~tinderbox/img/robots.txt ]]; then
+  echo -e "User-agent: *\nDisallow: /\n" >~tinderbox/img/robots.txt
+fi
 
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-cat <<EOF >>$tmpfile
+{
+  cat <<EOF
 <html>
 <head>
   <meta http-equiv="refresh" content="300">
@@ -173,17 +171,18 @@ cat <<EOF >>$tmpfile
 
 <body>
 <h1>recent <a href="https://zwiebeltoralf.de/tinderbox.html">tinderbox</a> data</h1>
-
 EOF
-listStat
-listFiles
-listImagesWithoutAnyBug
-listImagesWithoutReportedBugs
-listBugs
-cat <<EOF >>$tmpfile
+  listStat
+  listFiles
+  listImagesWithoutAnyBug
+  listImagesWithoutReportedBugs
+  listBugs
+  cat <<EOF
 </body>
 </html>
 EOF
+} >>$tmpfile
 
+# we're not root, so mv doesn't work
 cp $tmpfile ~tinderbox/img/index.html
 rm $tmpfile
