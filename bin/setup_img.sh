@@ -44,7 +44,7 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 2 3; then
+    if dice 3 4; then
       # overweight Desktop
       grep '/desktop'
     else
@@ -385,6 +385,7 @@ PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="tinderbox@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
+# will be activated during setup
 #PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
 GENTOO_MIRRORS="$GENTOO_MIRRORS"
