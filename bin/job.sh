@@ -663,15 +663,15 @@ function source_profile() {
 
 function SwitchGCC() {
   local highest
-  highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-.*[0-9]$' | tail -n 1)
+  highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-[0-9]+$' | tail -n 1)
   if [[ -z $highest ]]; then
     Mail "${FUNCNAME[0]}: cannot get GCC version"
     return
   fi
 
-  if ! gcc-config --list-profiles --nocolor | grep -q -F "$highest *"; then
-    local current
-    current=$(gcc -dumpversion)
+  if [[ $(gcc-config --get-current-profile --nocolor) != "$highest" ]]; then
+    local v
+    v=$(gcc -dumpversion)
     gcc-config --nocolor $highest
     source_profile
     add2backlog "%emerge -1 --selective=n --deep=0 -u dev-build/libtool"
@@ -679,7 +679,7 @@ function SwitchGCC() {
     if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
       add2backlog "dev-build/slibtool"
     fi
-    add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f 1 -d '.' <<<$current)"
+    add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f 1 -d '.' <<<$v)"
   fi
 }
 
@@ -724,9 +724,10 @@ function PostEmerge() {
   fi
 
   if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped; then
-    local highest=$(eselect ruby list | awk 'END { print $2 }')
+    local highest current
+    highest=$(eselect ruby list | awk 'END { print $2 }')
     if [[ -n $highest ]]; then
-      local current=$(eselect ruby show | sed -n -e '2p' | xargs)
+      current=$(eselect ruby show | sed -n -e '2p' | xargs)
       if [[ $current != "$highest" ]]; then
         add2backlog "%eselect ruby set $highest"
       fi
@@ -736,7 +737,7 @@ function PostEmerge() {
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
     if ! grep -q "%emerge -e @world" /var/tmp/tb/backlog.1st; then
       # needed at least for -flto and/or merged-usr to avoid segfaults of lto1
-      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a @world --update --changed-use" # @world needed to avoid dep issues
+      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a @world --update --changed-use" # adding @world here avoids dep issues
     fi
     add2backlog "%SwitchGCC"
   fi
