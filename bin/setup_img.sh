@@ -90,7 +90,7 @@ function InitOptions() {
     abi3264="y"
   fi
 
-  if dice 1 10; then
+  if dice 1 20; then
     testfeature="y"
   fi
 }
