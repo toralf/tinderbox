@@ -43,7 +43,7 @@ function checkHistory() {
 }
 
 # whatsup.sh -o
-#   pkg fail bgo  day  done .1st .upd   todo lcx 13#13 locked  +++  Sun Dec  8 18:30:02 UTC 2024
+#   pkg fail bgo  day  done .1st .upd   todo lcx      12#12      Sat Dec 28 21:26:33 UTC 2024      35.13 33.27 32.92
 #  6068  318  10  7.7  5817    -    -  10648 lc  ~/run/23.0-20241201-015002
 #  2433   28   1  4.3   673    -  683  15770 lc  ~/run/23.0_desktop-20241204-113502
 #  2183   25   -  2.1   657    -  144  15739 lc  ~/run/23.0_desktop-20241206-162002
@@ -51,17 +51,17 @@ function Overall() {
   local locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
 
-  echo "  pkg fail bgo  day  done .1st .upd   todo lcx $locked#$all locked  +++  $(date)"
+  echo "  pkg fail bgo  day  done .1st .upd   todo lcx      $locked#$all      $(date)      $(cut -f 1-3 -d' ' </proc/loadavg)"
 
   for i in $images; do
-    local pkg=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
+    local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
     local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w) # ignore revisions
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
     local day=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
     local done=$(grep -c -v -e '^#' -e '^=' -e '^@' -e '^%' $i/var/tmp/tb/task.history 2>/dev/null)
-    local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st 2>/dev/null)
-    local blu=$(wc -l <$i/var/tmp/tb/backlog.upd 2>/dev/null)
-    local bl=$(wc -l <$i/var/tmp/tb/backlog 2>/dev/null)
+    local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st)
+    local blu=$(wc -l <$i/var/tmp/tb/backlog.upd)
+    local bl=$(wc -l <$i/var/tmp/tb/backlog)
 
     # "l" image is locked
     # "c" image is under cgroup control
@@ -84,9 +84,9 @@ function Overall() {
       flags+="E"
     elif [[ -f $i/var/tmp/tb/STOP ]]; then
       flags+="S"
-    elif grep -q "^STOP" $i/var/tmp/tb/backlog{,.1st,.upd} 2>/dev/null; then
+    elif grep -q "^STOP" $i/var/tmp/tb/backlog{,.1st,.upd}; then
       flags+="s"
-    elif grep -q "^INFO" $i/var/tmp/tb/backlog{,.1st,.upd} 2>/dev/null; then
+    elif grep -q "^INFO" $i/var/tmp/tb/backlog{,.1st,.upd}; then
       flags+="i"
     else
       flags+=" "
@@ -95,7 +95,7 @@ function Overall() {
     local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'
-    printf "%5i %4i %3i %4.1f %5i %4i %4i  %5i %3s %s/%s\n" ${pkg:-0} ${fail:-0} $bgo ${day:-0} ${done:-0} ${bl1:-0} ${blu:-0} ${bl:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
+    printf "%5i %4i %3i %4.1f %5i %4i %4i  %5i %3s %s/%s\n" ${pkgs:-0} ${fail:-0} $bgo ${day:-0} ${done:-0} ${bl1:-0} ${blu:-0} ${bl:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
   done
 }
 
@@ -104,7 +104,6 @@ function Overall() {
 # 23.0_desktop-20210102  0:19 m  dev-ros/message_to_tf
 # 23.0_desktop_plasma_s  0:36 m  dev-perl/Module-Install
 function Tasks() {
-  local line
   for i in $images; do
     local taskfile=$i/var/tmp/tb/task
     if printImageName $i && ! __is_stopped $i && [[ -s $taskfile ]]; then
@@ -122,6 +121,7 @@ function Tasks() {
       set -e
 
       local task=$(cat $taskfile)
+      local line
       if [[ $task =~ "@" || $task =~ "%" || $task =~ "#" ]]; then
         line="$task"
       else
