@@ -17,7 +17,7 @@ You do not have the SDL/SDL_rotozoom.h headers installed. Exiting.
 Could not run psql test program, checking why...
 PostgreSQL slot must be set to one of:
  \*   PostgreSQL slot is not set to .* or higher.
-.* library not found, but required for .* module.
+ library not found, but required for .* module.
 error: Fortran 77 compiler
 error: fortran compiler does not work
 CMake will exit
@@ -64,7 +64,6 @@ ERROR: unable to find
 .* requires .* install the dependency
 SyntaxError:
 but please install the FUSE libraries and headers to build this module
-: fatal error:.*No such file or directory
 C compiler cannot create executables
 Unable to find Qt
 Package dependency requirement '.* could not be satisfied.
@@ -72,10 +71,10 @@ A required package was not found
 sed:
 The version of your compiler is not supported at this time
 Could not create Makefile due to some reason
-.*: Required feature .* not found
+: Required feature .* not found
  .CONFIG_
 checking version of x86_64-pc-linux-gnu-gcc ... .* - old version, at least .* required!
-  Flow control statements are not properly nested.
+ Flow control statements are not properly nested.
  error: Unable to find
 The following variables are used in this project, but they are set to NOTFOUND.
 configure: error:
@@ -91,7 +90,7 @@ gcc: No such file or directory
 something is badly wrong at
 configure: line .*:
  \*   Unable to build!
-  Looking for .*... not found.
+ Looking for .*... not found.
 Package .* was not found in the .* path.
 imake: Exit code
 : undefined reference to

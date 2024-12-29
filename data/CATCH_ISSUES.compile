@@ -374,3 +374,4 @@ gtkdoc-mktmpl: command not found
 bool cannot be defined via typedef
 two or more data types in declaration specifiers
  invalid reference to
+Stack overflow detected. Aborting.
