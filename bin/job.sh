@@ -920,14 +920,27 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 function WorkOnTask() {
-  if [[ $task == "@world" ]]; then
-    local opts=" --update --changed-use"
+  local opts=""
 
-    if ! emerge -p -v $task $opts &>>$tasklog; then
-      opts+=" --backtrack=50"
-      echo -e "\nopts=$opts\n" >>$tasklog
-      if ! emerge -p -v $task $opts &>>$tasklog; then
-        ReachedEOL "dry run failed: $task" $tasklog
+  # dry-run mainly to check for the infamous perl dep issue
+  if [[ $task =~ "@world" ]]; then
+    if [[ $task == "@world" ]]; then
+      opts="--update --changed-use"
+    fi
+
+    local dryrun_cmd="emerge -p -v $task"
+    if [[ $task =~ ^% ]]; then
+      dryrun_cmd=$(sed -e 's,%emerge,emerge -p -v,' <<<$task)
+    fi
+
+    if ! $dryrun_cmd $opts &>>$tasklog; then
+      if grep -q ' backtrack: 20/20' $tasklog; then
+        opts+=" --backtrack=50"
+        if ! $dryrun_cmd $opts &>>$tasklog; then
+          ReachedEOL "dry-run failed (high backtrack): $task" $tasklog
+        fi
+      else
+        ReachedEOL "dry-run failed: $task" $tasklog
       fi
     fi
 
@@ -943,14 +956,14 @@ function WorkOnTask() {
       fi
     done
     echo -e "\ncheck for Perl dep issue succeeded\n" >>$tasklog
+  fi
 
+  if [[ $task == "@world" ]]; then
     local histfile=/var/tmp/tb/$(cut -f 1 -d ' ' <<<$task).history
     if RunAndCheck "emerge $task $opts"; then
       echo "$(date) ok" >>$histfile
-      if [[ $task =~ "@world" ]]; then
-        if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
-          add2backlog "%emerge --depclean --verbose=n"
-        fi
+      if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
+        add2backlog "%emerge --depclean --verbose=n"
       fi
     else
       if [[ -n $pkg ]]; then
@@ -969,7 +982,7 @@ function WorkOnTask() {
 
   # %<command line>
   elif [[ $task =~ ^% ]]; then
-    if ! RunAndCheck "$(cut -c 2- <<<$task)"; then
+    if ! RunAndCheck "$(cut -c 2- <<<$task) $opts"; then
       if [[ $try_again -eq 1 ]]; then
         add2backlog "$task"
       elif grep -q 'The following USE changes are necessary to proceed' $tasklog; then
