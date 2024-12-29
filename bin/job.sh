@@ -1004,34 +1004,25 @@ function WorkOnTask() {
     fi
 
   # common emerge update
-  else
-    if ! RunAndCheck "emerge --update $task"; then
-      :
-      # do not repeat it, it might be a download (and not a dependency) issue
+  elif ! RunAndCheck "emerge --update $task"; then
+    if [[ $task == "@preserved-rebuild" ]]; then
+      if [[ -n $pkg ]]; then
+        if [[ $try_again -eq 0 ]]; then
+          add2backlog "$task"
+        fi
+      else
+        ReachedEOL "@preserved-rebuild failed" $tasklog
+      fi
     fi
   fi
 }
 
 # EOL if there's a loop
 function DetectRepeats() {
-  local count
-  local item
-
-  read -r count item < <(qlop --nocolor --merge --verbose | tail -n 500 | awk '{ print $3 }' | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 5 ]]; then
-    ReachedEOL "package emerged too often: $count x $item"
-  fi
-
-  if [[ $(
-    cd /var/tmp/tb/logs
-    ls | tail -n 6 | xargs grep -l 'Use emerge @preserved-rebuild to rebuild packages' | wc -l
-  ) -ge 3 ]]; then
-    ReachedEOL "preserved-rebuild loop" $tasklog
-  fi
-
-  read -r count item < <(tail -n 50 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 25 ]]; then
-    ReachedEOL "task repeated too often: $count x $item"
+  local count item
+  read -r count item < <(tail -n 70 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
+  if [[ $count -ge 25 && ! $name =~ "_test" ]] || [[ $count -ge 15 && $item == "@preserved-rebuild" ]]; then
+    ReachedEOL "repeated: $count x $item"
   fi
 }
 
@@ -1146,6 +1137,7 @@ ulimit -Sn 512000
 
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :; do
+  echo "" >$taskfile
   if [[ -f /var/tmp/tb/EOL ]]; then
     ReachedEOL "caught EOL" /var/tmp/tb/EOL
   elif [[ -f /var/tmp/tb/STOP ]]; then
