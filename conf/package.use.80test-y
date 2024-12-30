@@ -53,6 +53,7 @@ sys-cluster/mpich                   -valgrind           # DICE: test_circ_dep
 #
 # increase coverage
 #
+net-nds/openldap                    debug               # DICE: test_coverage
 net-libs/gnutls                     openssl tools       # DICE: test_coverage
 sys-libs/zlib                       static-libs         # DICE: test_coverage
 x11-libs/cairo                      glib                # DICE: test_coverage

@@ -1,9 +1,6 @@
 # package.use/50unstable
 #
 
-
-*/*         RUBY_TARGETS:           ruby33              # DICE: ruby33
-
 # sam_, negril OOM
 sci-libs/vtk                        freetype logging openmp qt6 rendering threads views -doc -examples -ffmpeg -gdal -gles2-only -imaging -java -las -mpi -mysql -odbc -opencascade -openvdb -pdal -postgres -python -sdl -tbb -test -tk -vtkm -web  # DICE: vtk
 
