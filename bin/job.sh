@@ -1034,7 +1034,7 @@ function WorkOnTask() {
 function DetectRepeats() {
   local count item
   read -r count item < <(tail -n 70 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 25 && ! $name =~ "_test" ]] || [[ $count -ge 15 && $item == "@preserved-rebuild" ]]; then
+  if [[ $count -ge 25 && ! $name =~ "_test" ]] || [[ $count -ge 10 && $item == "@preserved-rebuild" ]]; then
     ReachedEOL "repeated: $count x $item"
   fi
 }
