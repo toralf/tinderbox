@@ -14,7 +14,7 @@ sys-apps/nix                        -etc_profile
 # https pull/fetch would fail otherwise due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
-# required for ::gentoo repository
+# required to access ::gentoo repository
 net-misc/curl                       ssl
 
 # qlop: error while loading shared libraries: libgomp.so.1:
@@ -29,10 +29,7 @@ dev-lang/python                     ssl
 # required by www-client/pybugz
 dev-lang/python                     -libedit readline
 
-# otherwise: USE=secureboot enabled but SECUREBOOT_SIGN_KEY and/or SECUREBOOT_SIGN_CERT not set.
-*/*                                 -secureboot
-
-# too much deps would be build at setup, lowering coverity
+# otherwise too much deps would be needed at setup, lowering coverity
 app-portage/pfl                     -network-cron
 app-text/ansifilter                 -gui
 
@@ -46,17 +43,9 @@ sys-kernel/installkernel            -dracut -grub
 # GNAT is required otherwise
 sys-devel/gcc                       -ada
 
-# other way to setup an image never worked
+# otherwise setup always failed
 sys-apps/shadow                     pam -cracklib
-
-# No space left on device
-dev-lang/rust                       -debug
-
-# do not test alternative providers
-sys-apps/util-linux                 -kill
-sys-apps/util-linux                 pam su
-sys-apps/shadow                     -su
-sys-process/procps                  kill
+sys-apps/util-linux                 pam
 
 #######################################################################
 #
@@ -66,12 +55,10 @@ sys-process/procps                  kill
 
 dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
 dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
-dev-libs/libpcre                    -libedit readline   # DICE: setup_pcre 7 8
-dev-libs/libpcre2                   -libedit readline   # DICE: setup_pcre 7 8
+dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
 dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 7 8
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 7 8
-net-misc/curl                -gnutls -mbedtls openssl -rustls     # DICE: setup_curl 7 8
-net-misc/curl     CURL_QUIC="-gnutls -ngtcp2 openssl"             # DICE: setup_curl 7 8
+net-misc/curl                       -gnutls -mbedtls openssl -rustls CURL_QUIC="-gnutls -ngtcp2 openssl"        # DICE: setup_curl 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 #######################################################################
@@ -79,6 +66,7 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 # misc
 #
 
+*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres-15
 */*         POSTGRES_TARGETS:       postgres16          # DICE: postgres-16
 */*         POSTGRES_TARGETS:       postgres17          # DICE: postgres-17
 
