@@ -99,6 +99,7 @@ function Bwrap() {
     --bind ~tinderbox/tb/findings /mnt/tb/findings
     --setenv HOME "/root"
     --setenv USER "root"
+    --ro-bind "$(dirname $0)/../sdata/msmtprc" /etc/msmtprc
     --ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
   )

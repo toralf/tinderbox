@@ -1,0 +1,19 @@
+# msmtprc
+#
+
+defaults
+auth                  on
+tls                   on
+tls_starttls          off
+logfile               /var/log/msmtp.log
+allow_from_override   off
+
+account               hetzner
+host                  www....your-server.de
+port                  465
+from                  tinderbox@...
+user                  tinderbox@...
+password              ...
+
+account default:      hetzner
+

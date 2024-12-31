@@ -8,11 +8,6 @@
 */*         QEMU_SOFTMMU_TARGETS:   x86_64 aarch64
 */*         QEMU_USER_TARGETS:      x86_64 aarch64
 
-# tb MTA
-mail-mta/msmtp                      -mta
-mail-mta/opensmtpd                  -mta
-mail-mta/ssmtp                      mta ssl
-
 # /etc/profile.d/nix.sh overwrites /etc/profile
 sys-apps/nix                        -etc_profile
 

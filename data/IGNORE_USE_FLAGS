@@ -40,6 +40,7 @@ jemalloc
 kernel
 kernel-install
 kernel_linux
+kill
 libcxx
 libinput
 libssp
@@ -53,6 +54,7 @@ modules
 modules-compress
 modules-sign
 monolithic
+mta
 multiarch
 multilib
 multilib-bootstrap
@@ -76,6 +78,7 @@ selinux
 split-usr
 static
 static-libs
+su
 systemd
 test
 test-full

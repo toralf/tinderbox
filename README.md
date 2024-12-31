@@ -37,9 +37,8 @@ Create in its HOME the directories: _./distfiles/_, _./img/_, _./logs/_, _./run/
 Clone this Git repository or unpack a release artefact.
 Move _./conf_, _./data_ and _./patches_ to _~tinderbox/tb/_.
 Move _./bin_ and _./sdata_ to _/opt/tb/_ and set ownership to _root_.
-
-Edit the credentials in _ssmtp.conf.sample_ and strip away the suffix _.sample_ from the file.
-Grant to the user _tinderbox_ these sudo rights:
+Edit the MTA config files in _/opt/tb/sdata/\*.sample_ and strip away the suffix _.sample_.
+Grant sudo rights to the user _tinderbox_:
 
 ```bash
 tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh,/opt/tb/bin/kill_img.sh,/opt/tb/bin/retest.sh,/opt/tb/bin/collect_data.sh,/usr/sbin/emaint
@@ -47,7 +46,8 @@ tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/op
 
 ## Disclaimer
 
-I missed the point of no return to switch from bash script to Python when I started this project.
+I started this project with a simple Bash script.
+I missed the point of no return to switch to Python or somethign else.
 
 ## Links
 

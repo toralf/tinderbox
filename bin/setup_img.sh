@@ -608,6 +608,14 @@ EOF
 function CreateSetupScript() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
+  local mta
+  if dice 1 2; then
+    mta=msmtp
+  else
+    mta=ssmtp
+  fi
+  echo "mail-mta/$mta     ssl" >>/etc/portage/package.use/91mta
+
   cat <<EOF >./var/tmp/tb/setup.sh
 #!/bin/bash
 set -x
@@ -616,7 +624,7 @@ export LANG=C.utf8
 set -euf
 
 date
-cat /var/tmp/tb/name
+echo $name
 
 # to directly edit files use the same user and group id of tinderbox as defined at the host
 date
@@ -671,12 +679,21 @@ echo "#setup ansifilter" | tee /var/tmp/tb/task
 USE="-gui" emerge -u app-text/ansifilter
 sed -i -e 's,#PORTAGE_LOG_FILTER_FILE_CMD,PORTAGE_LOG_FILTER_FILE_CMD,' /etc/portage/make.conf
 
-# emerge MTA before MUA b/c virtual/mta does not default to sSMTP
+echo "#cert setup" | tee /var/tmp/tb/task
+update-ca-certificates
+
+# emerge MTA before MUA to override virtual/mta defaults
 date
-echo "#setup Mail" | tee /var/tmp/tb/task
-emerge -u mail-mta/ssmtp
-rm /etc/ssmtp/._cfg0000_ssmtp.conf    # use the already bind mounted file instead
+echo "#setup $mta" | tee /var/tmp/tb/task
+emerge -u mail-mta/$mta
+rm -f /etc/ssmtp/._cfg0000_ssmtp.conf /etc/._cfg0000_msmtprc
 emerge -u mail-client/mailx
+if ! ($mta --version || $mta -V) 2>/dev/null | mail -s "$mta test @ $name" ${MAILTO:-tinderbox@zwiebeltoralf.de} &>/var/tmp/mail.log; then
+  echo "\$(date) $mta test failed" >&2
+  set +e
+  tail -v /var/tmp/mail.log /var/log/msmtp.log >&2
+  exit 3
+fi
 
 date
 echo "#setup kernel" | tee /var/tmp/tb/task
@@ -703,8 +720,8 @@ MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
 EOF2
 fi
 
-if ls -l /etc/**/._cfg0000_* 2>/dev/null 1>&2; then
-  echo -e "\n ^^ unexpected config file changes\n" >&2
+if find /etc -type f -name "._cfg0000_*" | grep '.'; then
+  echo -e "\n ^^ unexpected changes\n" >&2
   exit 2
 fi
 
@@ -745,9 +762,6 @@ function RunSetupScript() {
     echo -e "$(date)   FAILED"
     tail -n 100 ./var/tmp/tb/setup.sh.log
     echo
-    return 1
-  fi
-  if grep -h -F ' * IMPORTANT: config file ' ./var/tmp/tb/setup.sh.log | grep -v '/etc/ssmtp/ssmtp.conf'; then
     return 1
   fi
 }

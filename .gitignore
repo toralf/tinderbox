@@ -2,4 +2,4 @@
 .~lock*
 .trunk/
 findings/ALREADY_CAUGHT
-sdata/ssmtp.conf
+sdata/*
