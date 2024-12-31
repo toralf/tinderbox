@@ -959,23 +959,16 @@ function WorkOnTask() {
   fi
 
   if [[ $task == "@world" ]]; then
-    local histfile=/var/tmp/tb/$(cut -f 1 -d ' ' <<<$task).history
     if RunAndCheck "emerge $task $opts"; then
-      echo "$(date) ok" >>$histfile
       if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
         add2backlog "%emerge --depclean --verbose=n"
       fi
     else
       if [[ -n $pkg ]]; then
-        if tail -n 1 $histfile 2>/dev/null | grep -q " NOT ok $pkg$"; then
-          ReachedEOL "$task is broken by $pkg" $tasklog
-        fi
         if [[ $try_again -eq 0 ]]; then
           add2backlog "$task"
         fi
-        echo "$(date) NOT ok $pkg" >>$histfile
       else
-        echo "$(date) NOT ok" >>$histfile
         ReachedEOL "$task is broken" $tasklog
       fi
     fi
