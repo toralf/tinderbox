@@ -1157,8 +1157,8 @@ while :; do
   fi
 
   if [[ ! -s /var/tmp/tb/backlog.1st ]]; then
-    wh=/var/tmp/tb/@world.history
-    if [[ ! -s $wh || $((EPOCHSECONDS - $(stat -c %Z $wh))) -ge 86400 ]]; then
+    last_world=$(ls logs/task.*._world.log 2>/dev/null | tail -n 1)
+    if [[ ! -f $last_world || $((EPOCHSECONDS - $(stat -c %Z $last_world))) -ge 86400 ]]; then
       /usr/bin/pfl &>/dev/null || true
       add2backlog "@world"
     fi
