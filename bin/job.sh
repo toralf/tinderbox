@@ -20,7 +20,7 @@ function Mail() {
   fi |
     strings -w |
     sed -e 's,^>, >,' |
-    if ! mail -s "$subject @ $name" ${MAILTO:-tinderbox@zwiebeltoralf.de} &>/var/tmp/mail.log; then
+    if ! mail -s "$subject @ $name" $MAILTO &>/var/tmp/mail.log; then
       echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
       cat /var/tmp/mail.log >&2
     fi

@@ -74,7 +74,7 @@ function Bwrap() {
   local sandbox=(env -i
     /usr/bin/bwrap
     --clearenv
-    --setenv MAILTO "${MAILTO:-tinderbox}"
+    --setenv MAILTO "$(cat $(dirname $0)/../sdata/mailto)"
     --setenv PATH "/usr/sbin:/usr/bin:/sbin:/bin"
     --setenv SHELL "/bin/bash"
     --setenv TERM "linux"
