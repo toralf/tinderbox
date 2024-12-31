@@ -52,16 +52,9 @@ __tinderbox_checkEOL() {
   fi
 }
 
-__tinderbox_loadToHigh() {
-  declare -a values
-
-  read -r -a values < <(tr './' ' ' </proc/loadavg)
-  [[ ${values[0]} -ge 32 && ${values[6]} -ge 32 ]] # "1-minute mean" and "tasks"
-}
-
 case ${EBUILD_PHASE} in
   setup|unpack|prepare|configure|compile)
-    while __tinderbox_loadToHigh; do
+    while [[ $(grep "procs_running" /proc/stat | cut -f 2 -d ' ') -ge 31 ]]; do
       __tinderbox_checkEOL
       touch /var/tmp/tb/WAIT
       sleep 15
