@@ -737,7 +737,7 @@ function PostEmerge() {
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
     if ! grep -q "%emerge -e @world" /var/tmp/tb/backlog.1st; then
       # needed at least for -flto and/or merged-usr to avoid segfaults of lto1
-      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a @world --update --changed-use" # adding @world here avoids dep issues
+      add2backlog "%emerge -1 /lib*/*.a /usr/lib*/*.a @world" # adding @world here avoids dep issues
     fi
     add2backlog "%SwitchGCC"
   fi
@@ -920,27 +920,25 @@ function RunAndCheck() {
 
 # this is the heart of the tinderbox
 function WorkOnTask() {
-  local opts=""
+  local backtrack_opt=""
 
   # dry-run mainly to check for the infamous perl dep issue
   if [[ $task =~ "@world" ]]; then
-    if [[ $task == "@world" ]]; then
-      opts="--update --changed-use"
-    fi
-
     local dryrun_cmd="emerge -p -v $task"
     if [[ $task =~ ^% ]]; then
       dryrun_cmd=$(sed -e 's,%emerge,emerge -p -v,' <<<$task)
     fi
 
-    if ! $dryrun_cmd $opts &>>$tasklog; then
+    if ! $dryrun_cmd $backtrack_opt &>>$tasklog; then
       if grep -q ' backtrack: 20/20' $tasklog; then
-        opts+=" --backtrack=50"
-        if ! $dryrun_cmd $opts &>>$tasklog; then
-          ReachedEOL "dry-run failed (high backtrack): $task" $tasklog
+        backtrack_opt="--backtrack=50"
+        if ! $dryrun_cmd $backtrack_opt &>>$tasklog; then
+          ReachedEOL "dry-run failed ($backtrack_opt)" $tasklog
+        else
+          Mail "INFO: $backtrack_opt needed" $tasklog
         fi
       else
-        ReachedEOL "dry-run failed: $task" $tasklog
+        ReachedEOL "dry-run failed" $tasklog
       fi
     fi
 
@@ -959,7 +957,7 @@ function WorkOnTask() {
   fi
 
   if [[ $task == "@world" ]]; then
-    if RunAndCheck "emerge $task $opts"; then
+    if RunAndCheck "emerge $task $backtrack_opt"; then
       if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
         add2backlog "%emerge --depclean --verbose=n"
       fi
@@ -975,7 +973,7 @@ function WorkOnTask() {
 
   # %<command line>
   elif [[ $task =~ ^% ]]; then
-    if ! RunAndCheck "$(cut -c 2- <<<$task) $opts"; then
+    if ! RunAndCheck "$(cut -c 2- <<<$task) $backtrack_opt"; then
       if [[ $try_again -eq 1 ]]; then
         add2backlog "$task"
       elif grep -q 'The following USE changes are necessary to proceed' $tasklog; then
