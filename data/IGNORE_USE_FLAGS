@@ -85,4 +85,5 @@ test-full
 tcmalloc
 unwind
 vanilla
+wayland
 x32

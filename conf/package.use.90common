@@ -49,10 +49,8 @@ sys-apps/util-linux                 pam
 
 #######################################################################
 #
-# almost setup blocker
+# setup blocker
 #
-*/* INPUT_DEVICES:  evdev libinput
-
 dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
 dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
 dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8

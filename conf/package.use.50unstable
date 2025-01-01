@@ -15,3 +15,6 @@ app-admin/webalizer                 -nls
 
 # https://bugs.gentoo.org/803875
 media-libs/libepoxy                 egl
+
+# net-dialup/linux-atm failed too often and breaks sys-apps/iproute2
+sys-apps/iproute2                   -atm
