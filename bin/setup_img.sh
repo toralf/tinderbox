@@ -1065,6 +1065,7 @@ function Finalize() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
   cp $tbhome/tb/conf/bashrc ./etc/portage
+  sed -i -e "s,^    vcpu=.*,    vcpu=$((2 * $(nproc)))," ./etc/portage/bashrc
 
   if ! wc -l -w --total=never ./etc/portage/package.use/2* 2>/dev/null; then
     echo -e "\n no image specific USE flags"
