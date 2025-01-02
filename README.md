@@ -20,9 +20,9 @@ whatsup.sh -otl
 ```
 
 The file _~tinderbox/tb/findings/ALREADY_CAUGHT_ holds reported findings.
-A new finding is send via email to the user specified by the variable _MAILTO_.
+A new finding is send via email to the user specified in _./sdata/mailto_.
 The Gentoo bug tracker can be searched for related bugs using _check_bgo.sh_.
-If not reported a finding can be filed using _bgo.sh_.
+If not yet reported then the finding could be filed using _bgo.sh_.
 
 ## Installation
 

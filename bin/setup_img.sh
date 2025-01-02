@@ -44,7 +44,7 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 2 3; then
+    if dice 1 3; then
       # overweight Desktop
       grep '/desktop'
     else
@@ -682,13 +682,13 @@ sed -i -e 's,#PORTAGE_LOG_FILTER_FILE_CMD,PORTAGE_LOG_FILTER_FILE_CMD,' /etc/por
 echo "#cert setup" | tee /var/tmp/tb/task
 update-ca-certificates
 
-# emerge MTA before MUA to override virtual/mta defaults
+# emerge MTA, otherwise the MUA would install nullmailer (the default MTA of virtual/mta)
 date
 echo "#setup $mta" | tee /var/tmp/tb/task
 emerge -u mail-mta/$mta
 rm -f /etc/ssmtp/._cfg0000_ssmtp.conf /etc/._cfg0000_msmtprc
 emerge -u mail-client/mailx
-if ! (msmtp --version || ssmtp -V 2>&1) | mail -s "$mta test @ $name" $MAILTO &>/var/tmp/mail.log; then
+if ! (msmtp --version || ssmtp -V 2>&1) | mail -s "$mta test @ $name" $(cat $(dirname $0)/../sdata/mailto) &>/var/tmp/mail.log; then
   echo "\$(date) $mta test failed" >&2
   set +e
   tail -v /var/tmp/mail.log /var/log/msmtp.log >&2
