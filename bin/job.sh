@@ -399,7 +399,7 @@ function CompileIssueComment0() {
   name: $name
 EOF
 
-  if grep -q "# DICE.*\[.*\]" /etc/portage/package.unmask/* 2>/dev/null; then
+  if grep -q -r "# DICE.*\[.*\]" /etc/portage/package.unmask/ 2>/dev/null; then
     (
       set +f
       echo -e "\n  UNMASKED:"
@@ -407,10 +407,10 @@ EOF
         grep -A 1 -F "$dice" /mnt/tb/data/DICE_DESCRIPTIONS |
           tail -n 1 |
           sed -e 's,^,    ,'
-        grep -h -F "$dice" /etc/portage/package.unmask/* |
+        grep -hr -F "$dice" /etc/portage/package.unmask/ |
           awk '{ print (" ", $1) }'
       done < <(
-        grep -h "# DICE.*\[.*\]" /etc/portage/package.unmask/* |
+        grep -hr "# DICE.*\[.*\]" /etc/portage/package.unmask/ |
           grep -Eo '(\[.*\])' |
           sort -u
       )
@@ -825,7 +825,7 @@ function GetPkgFromTaskLog() {
   if [[ -z $pkg ]]; then
     pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f 5 -d ' ' -s | cut -f 1 -d ',' -s)
     if [[ -z $pkg ]]; then
-      pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | sed "s,',,g")
+      pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | tr -d \')
       if [[ -z $pkg ]]; then
         # happened if emerge failed in dependency resolution
         return 1

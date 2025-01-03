@@ -515,7 +515,7 @@ EOF
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
   # take lines tagged with "# DICE: <topic>[ <m> <N>]" with an m/N chance (default: 50%)
-  grep -ho '# DICE: .*' ./etc/portage/package.*/* |
+  grep -hr -o '# DICE: .*' ./etc/portage/package.*/ |
     cut -f 3- -d ' ' |
     sort -u |
     tr -d '][' |
@@ -859,10 +859,10 @@ function FixPossibleUseFlagIssues() {
             continue
           fi
           if [[ $flag == "-test" ]]; then
-            if ! grep -q "^${pn}  .*notest" ./etc/portage/package.env/*; then
+            if ! grep -q -r "^${pn}  .*notest" ./etc/portage/package.env/; then
               printf "%-36s notest\n" $pn >>$f_circ_test
             fi
-          elif ! grep -q "^${pn}  .*$flag" ./etc/portage/package.use/*; then
+          elif ! grep -q -r "^${pn}  .*$flag" ./etc/portage/package.use/; then
             printf "%-36s %s\n" $pn $flag >>$f_temp
           fi
         done
@@ -897,10 +897,10 @@ function FixPossibleUseFlagIssues() {
             continue
           fi
           if [[ $flag =~ test ]]; then
-            if grep -q "^${pn}  .*notest" ./etc/portage/package.env/*; then
+            if grep -q -r "^${pn}  .*notest" ./etc/portage/package.env/; then
               printf "%-36s notest\n" $pn >>$f_nec_test
             fi
-          elif ! grep -q "^${pn}  .*$flag" ./etc/portage/package.use/*; then
+          elif ! grep -q -r "^${pn}  .*$flag" ./etc/portage/package.use/; then
             printf "%-36s %s\n" $pn $flag >>$f_temp
           fi
         done
