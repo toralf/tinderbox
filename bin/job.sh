@@ -1008,14 +1008,21 @@ function WorkOnTask() {
     fi
 
   # common emerge update
-  elif ! RunAndCheck "emerge --update $task"; then
-    if [[ $task == "@preserved-rebuild" ]]; then
-      if [[ -n $pkg ]]; then
-        if [[ $try_again -eq 0 ]]; then
-          add2backlog "$task"
+  else
+    if ! RunAndCheck "emerge --update $task"; then
+      if [[ $task == "@preserved-rebuild" ]]; then
+        if [[ -n $pkg ]]; then
+          if [[ $try_again -eq 0 ]]; then
+            add2backlog "$task"
+          fi
+        else
+          ReachedEOL "$task failed" $tasklog
         fi
-      else
-        ReachedEOL "@preserved-rebuild failed" $tasklog
+      fi
+    fi
+    if [[ $task == "@preserved-rebuild" ]]; then
+      if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
+        ReachedEOL "$task has a dep conflict" $tasklog
       fi
     fi
   fi
