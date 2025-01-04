@@ -53,8 +53,7 @@ function FreeSlotAvailable() {
   local running=$(wc -l < <(ImagesInRun))
   local replacing=$(pgrep -fc "/bin/bash /opt/tb/bin/replace")
 
-  # schedule 1 more than needed to anticipate the setup failure rate
-  [[ $running -lt $desired_count && $((running + replacing - 1)) -le $desired_count ]]
+  [[ $running -lt $desired_count && $((running + replacing)) -le $desired_count ]]
 }
 
 function SetupANewImage() {
