@@ -699,7 +699,7 @@ function PostEmerge() {
     fi
   fi
   # pinned by image setup
-  rm -f /etc/._cfg????_{hosts,resolv.conf} /etc/conf.d/._cfg????_hostname /etc/portage/._cfg????_make.conf /etc/ssmtp/._cfg????_ssmtp.conf
+  rm -f /etc/._cfg????_{hosts,resolv.conf} /etc/._cfg????_msmtprc /etc/conf.d/._cfg????_hostname /etc/portage/._cfg????_make.conf /etc/ssmtp/._cfg????_ssmtp.conf
   etc-update --automode -5 >/dev/null 2>>$tasklog
 
   # catch updated /etc
