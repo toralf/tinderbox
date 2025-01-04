@@ -805,12 +805,10 @@ function RunDryrunWrapper() {
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
-  if RunDryrunWrapper "#setup dryrun $attempt"; then
-    return 0
-  fi
-
-  # try few (dozen) times to fix the current diced setup
-  for i in $(seq -w 1 29); do
+  for fix in $(seq -w 1 29); do
+    if RunDryrunWrapper "#setup dryrun $attempt"; then
+      return 0
+    fi
 
     for k in EOL STOP; do
       if [[ -f ./var/tmp/tb/$k ]]; then
@@ -818,6 +816,9 @@ function FixPossibleUseFlagIssues() {
         exit 3
       fi
     done
+
+    # if RunDryrunWrapper() fails then check its log in the next "fix" round
+    local try_again=0
 
     # remove a package from the package specific use flag file
     local pn=$(
@@ -832,8 +833,10 @@ function FixPossibleUseFlagIssues() {
       local f=./etc/portage/package.use/24thrown_package_use_flags
       if grep -q "^${pn} " $f; then
         sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $f
-        if RunDryrunWrapper "#setup dryrun $attempt-$i # unmet req: $pn"; then
+        if RunDryrunWrapper "#setup dryrun $attempt-$fix # unmet req: $pn"; then
           return 0
+        else
+          try_again=1
         fi
       fi
     fi
@@ -842,21 +845,17 @@ function FixPossibleUseFlagIssues() {
     local msg=""
 
     # work on lines like:   - sys-cluster/mpich-3.4.3 (Change USE: -valgrind)
-    local f_circ_flag=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
-    local f_circ_test=./etc/portage/package.env/27-$attempt-$i-notest-a-circ-dep
+    local f_circ_flag=./etc/portage/package.use/27-$attempt-$fix-a-circ-dep
+    local f_circ_test=./etc/portage/package.env/27-$attempt-$fix-notest-a-circ-dep
     rm -f $f_temp
-    grep -m 1 -A 100 "It might be possible to break this cycle" $drylog |
-      while grep .; do :; done |
+    awk '/It might be possible to break this cycle/,/^$/' $drylog |
       grep '^- .* (Change USE: ' |
       sed -e "s,^- ,," -e "s, (Change USE:,," -e "s,)$,," |
       while read -r p f; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
           # allow only unsetting to avoid circles
-          if [[ $flag != "-*" ]]; then
-            continue
-          fi
-          if [[ $flag =~ 'abi_x86_32' || $flag =~ '_target' || $flag =~ 'video_cards_' ]]; then
+          if [[ $flag != "-*" || $flag =~ 'abi_x86_32' || $flag =~ '_target' || $flag =~ 'video_cards_' ]]; then
             continue
           fi
           if [[ $flag == "-test" ]]; then
@@ -877,17 +876,18 @@ function FixPossibleUseFlagIssues() {
       if [[ -s $f_circ_test ]]; then
         msg+=" # notest: $(xargs <$f_circ_test)"
       fi
-      if RunDryrunWrapper "#setup dryrun $attempt-${i}${msg}"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-${fix}${msg}"; then
         return 0
+      else
+        try_again=1
       fi
     fi
 
     # work on lines starting like  >=dev-libs/xmlsec-1.3.4 openssl
-    local f_nec_flag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
-    local f_nec_test=./etc/portage/package.env/27-$attempt-$i-notest-b-necessary-use-flag
+    local f_nec_flag=./etc/portage/package.use/27-$attempt-$fix-b-necessary-use-flag
+    local f_nec_test=./etc/portage/package.env/27-$attempt-$fix-notest-b-necessary-use-flag
     rm -f $f_temp
-    grep -A 1000 'The following USE changes are necessary to proceed:' $drylog |
-      while grep .; do :; done |
+    awk '/The following USE changes are necessary to proceed:/,/^$/' $drylog |
       grep '^>=.* .*' |
       while read -r p f; do
         pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
@@ -913,13 +913,14 @@ function FixPossibleUseFlagIssues() {
       if [[ -s $f_nec_test ]]; then
         msg+=" # notest: $(xargs <$f_nec_test)"
       fi
-      if RunDryrunWrapper "#setup dryrun $attempt-${i}${msg}"; then
+      if RunDryrunWrapper "#setup dryrun $attempt-${fix}${msg}"; then
         return 0
+      else
+        try_again=1
       fi
     fi
 
-    # if no changes were found (and tested) then give up
-    if [[ ! -s $f_circ_flag && ! -s $f_circ_test && ! -s $f_nec_flag && ! -s $f_nec_test ]]; then
+    if [[ $try_again -eq 0 ]]; then
       break
     fi
   done
