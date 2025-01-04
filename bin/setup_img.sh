@@ -587,7 +587,7 @@ function CreateBacklogs() {
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
 @world
-%emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
+%emerge -1u --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
     # [11:06:37 pm] <@toralf> Would changing the profile and re-emerging @world with --emptytree do it?
@@ -595,12 +595,12 @@ EOF
     # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
     cat <<EOF >>$bl.1st
 %emerge -e @world
-%emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
+%emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 EOF
   else
     cat <<EOF >>$bl.1st
 @world
-%emerge -1 --selective=n --deep=0 -u =\$(portageq best_visible / sys-devel/gcc)
+%emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
 }
@@ -1003,21 +1003,21 @@ echo "-------"
 EOF
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-emerge -1 --selective=n --deep=0 --pretend -u =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
+emerge -1up --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 echo "-------"
-emerge -u @world --backtrack=50 --pretend
+emerge -up @world --backtrack=50
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-emerge -1 --selective=n --deep=0 --pretend -u =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
+emerge -1up --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 echo "-------"
-emerge -e @world --pretend
+emerge -ep @world
 EOF
   else
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-emerge -1 --selective=n --deep=0 --pretend -u =\$(portageq best_visible / sys-devel/gcc)
+emerge -1up --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc)
 echo "-------"
-emerge -u @world --backtrack=50 --pretend
+emerge -up @world --backtrack=50
 EOF
   fi
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
