@@ -845,7 +845,8 @@ function FixPossibleUseFlagIssues() {
     local f_circ_flag=./etc/portage/package.use/27-$attempt-$i-a-circ-dep
     local f_circ_test=./etc/portage/package.env/27-$attempt-$i-notest-a-circ-dep
     rm -f $f_temp
-    grep -m 1 -A 20 "It might be possible to break this cycle" $drylog |
+    grep -m 1 -A 100 "It might be possible to break this cycle" $drylog |
+      while grep .; do :; done |
       grep '^- .* (Change USE: ' |
       sed -e "s,^- ,," -e "s, (Change USE:,," -e "s,)$,," |
       while read -r p f; do
@@ -859,10 +860,10 @@ function FixPossibleUseFlagIssues() {
             continue
           fi
           if [[ $flag == "-test" ]]; then
-            if ! grep -q -r "^${pn}  .*notest" ./etc/portage/package.env/; then
+            if ! grep -q -r "^${pn} .*notest" ./etc/portage/package.env/; then
               printf "%-36s notest\n" $pn >>$f_circ_test
             fi
-          elif ! grep -q -r "^${pn}  .*$flag" ./etc/portage/package.use/; then
+          elif ! grep -q -r "^${pn} .*$flag" ./etc/portage/package.use/; then
             printf "%-36s %s\n" $pn $flag >>$f_temp
           fi
         done
@@ -885,10 +886,8 @@ function FixPossibleUseFlagIssues() {
     local f_nec_flag=./etc/portage/package.use/27-$attempt-$i-b-necessary-use-flag
     local f_nec_test=./etc/portage/package.env/27-$attempt-$i-notest-b-necessary-use-flag
     rm -f $f_temp
-    grep -A 300 'The following USE changes are necessary to proceed:' $drylog |
-      while read -r line; do
-        grep . <<<$line || break
-      done |
+    grep -A 1000 'The following USE changes are necessary to proceed:' $drylog |
+      while grep .; do :; done |
       grep '^>=.* .*' |
       while read -r p f; do
         pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
