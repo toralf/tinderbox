@@ -6,3 +6,6 @@ Issues involving opaque types / incomplete typedefs should block bug 930805
 
 [libtool]
 Requested by sam
+
+[ffmpeg]
+Requested by sam
