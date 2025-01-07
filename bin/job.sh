@@ -247,6 +247,7 @@ function CollectIssueFiles() {
         --exclude='*/temp/nugets/*' \
         --exclude='*/testdirsymlink/*' \
         --exclude='*/var-tests/*' \
+        --exclude='*/zig-cache/*' \
         ./temp
     fi
 
@@ -507,7 +508,9 @@ function finishTitle() {
   # strip away hex addresses, line numbers, timestamps, paths etc.
   sed -i \
     -e 's,ld: /.*/cc......\.o: ,ld: ,g' \
-    -e 's,/[^ ]*/\([^/:]*\),\1,g' \
+    -e 's,/[^ ]*/\([^/:]*\),/.../\1,g' \
+    -e 's,^\.*/*\.\.\./,,' \
+    -e 's, \.\.\./, ,g' \
     -e 's,:[0-9]*:[0-9]*: ,: ,' \
     -e 's,0x[0-9a-f]*,<snip>,g' \
     -e 's,:[0-9]*): ,:<snip>:, g' \
@@ -532,8 +535,6 @@ function finishTitle() {
     -e 's,shuffle=[0-9]*,,g' \
     -e 's,target /.*/,target <snip>/,g' \
     -e 's,(\.text[+\.].*):,(<snip>),g' \
-    -e 's,^\.\.*,,' \
-    -e 's, \.\.\.*\., ,g' \
     -e 's,\*, ,g' \
     -e 's,___*,_,g' \
     -e 's,\s\s*, ,g' \
