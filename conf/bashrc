@@ -54,11 +54,14 @@ __tinderbox_checkEOL() {
 
 case ${EBUILD_PHASE} in
   setup|unpack|prepare|configure|compile)
-    vcpu=32
-    while [[ $(grep "^procs_running" /proc/stat | cut -f 2 -d ' ') -ge $vcpu ]]; do
+    # wait if these limits are reached
+    vcpu=32                # actual value will be set/replaced by nproc output during setup
+    load=$((vcpu * 5 / 4)) # 1-minute-load limit
+
+    while [[ $(grep -m 1 "^procs_running " /proc/stat | cut -f 2 -d ' ') -ge $vcpu || $(cut -f 1 -d '.' /proc/loadavg) -ge $load ]]; do
       __tinderbox_checkEOL
       touch /var/tmp/tb/WAIT
-      sleep 15
+      sleep $((RANDOM % 10 + 10))
       rm -f /var/tmp/tb/WAIT
     done
     __tinderbox_checkEOL
