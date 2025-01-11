@@ -111,12 +111,12 @@ function Tasks() {
       set +e
       ((delta = EPOCHSECONDS - $(stat -c %Z $taskfile)))
       ((minutes = delta / 60 % 60))
+      ((seconds = delta % 60))
       if [[ $delta -lt 3600 ]]; then
-        ((seconds = delta % 60))
-        printf " %2i:%02i  " $minutes $seconds
+        printf "   %2i:%02i " $minutes $seconds
       else
-        ((hours = delta / 3600))
-        printf "%3i:%02i%s " $hours $minutes "h"
+        ((hours = delta / 60 / 60))
+        printf " %1i:%2i:%02i " $hours $minutes $seconds
       fi
       set -e
 
@@ -127,8 +127,8 @@ function Tasks() {
       else
         line=" $task"
       fi
-      if [[ ${#line} -gt $((columns - 51)) ]]; then
-        echo "$(cut -c 1-$((columns - 54)) <<<$line)..."
+      if [[ ${#line} -gt $((columns - 52)) ]]; then
+        echo "$(cut -c 1-$((columns - 55)) <<<$line)..."
       else
         echo "$line"
       fi
@@ -151,20 +151,20 @@ function LastEmergeOperation() {
         chop ($F[0]);
         my $delta = time() - $F[0];
         my $minutes = $delta / 60 % 60;
+        my $seconds = $delta % 60;
         if ($delta < 3600) {
-          my $seconds = $delta % 60;
-          printf (" %2i:%02i  ", $minutes, $seconds);
+          printf ("   %2i:%02i", $minutes, $seconds);
         } else  {
-          my $hours = $delta / 3600;
-          printf ("%3i:%02i%s ", $hours, $minutes, "h");
+          my $hours = $delta / 60 / 60;
+          printf (" %1i:%2i:%02i", $hours, $minutes, $seconds);
         }
         if (-f "'$i'/var/tmp/tb/WAIT") {
-          printf ("W");
+          printf ("W ");
         } else {
-          printf (" ");
+          printf ("  ");
         }
         my $line = join (" ", @F[2..$#F]);
-        print substr ($line, 0, '$columns' - 51), "\n";
+        print substr ($line, 0, '$columns' - 52), "\n";
       '
     else
       echo
