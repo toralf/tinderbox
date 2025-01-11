@@ -3,7 +3,7 @@ exec: clang-16: not found
 ; ISO C99 and
 Bootstrap comparison failure!
   call to undeclared function
-: clang: command not found
+: .*: command not found
 ^ModuleNotFoundError:
 make: unrecognized option
 DISTUTILS_IN_SOURCE_BUILD is not supported in PEP517 mode

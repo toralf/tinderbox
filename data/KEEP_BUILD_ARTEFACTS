@@ -1,5 +1,2 @@
 # keep /var/tmp/portage/* for packages listed here
 #
-
-# /usr/lib/portage/python3.12/isolated-functions.sh: line 265: echo: write error: No space left on device
-dev-lang/rust
