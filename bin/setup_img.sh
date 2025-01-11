@@ -805,7 +805,7 @@ function RunDryrunWrapper() {
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
-  for fix in $(seq -w 1 10); do
+  for fix in $(seq -w 1 8); do
     if RunDryrunWrapper "#setup dryrun $attempt"; then
       return 0
     fi
