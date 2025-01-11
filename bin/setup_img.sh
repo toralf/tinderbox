@@ -614,7 +614,7 @@ function CreateSetupScript() {
   else
     mta=ssmtp
   fi
-  echo "mail-mta/$mta     ssl" >>/etc/portage/package.use/91mta
+  echo "mail-mta/$mta     ssl" >>./etc/portage/package.use/91mta
 
   cat <<EOF >./var/tmp/tb/setup.sh
 #!/bin/bash
