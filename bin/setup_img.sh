@@ -614,7 +614,7 @@ function CreateSetupScript() {
   else
     mta=ssmtp
   fi
-  echo "mail-mta/$mta     ssl" >>./etc/portage/package.use/91mta
+  printf "%-35s %s\n" "mail-mta/$mta" "ssl" >>./etc/portage/package.use/91$mta
 
   cat <<EOF >./var/tmp/tb/setup.sh
 #!/bin/bash
@@ -805,7 +805,7 @@ function RunDryrunWrapper() {
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
-  for fix in $(seq -w 1 29); do
+  for fix in $(seq -w 1 10); do
     if RunDryrunWrapper "#setup dryrun $attempt"; then
       return 0
     fi
