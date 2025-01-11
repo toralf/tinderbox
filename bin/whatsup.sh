@@ -169,7 +169,7 @@ function LastEmergeOperation() {
           }
         }
         if (-f "'$i'/var/tmp/tb/WAIT") {
-          printf ("W ");
+          printf (" w");
         } else {
           printf ("  ");
         }
