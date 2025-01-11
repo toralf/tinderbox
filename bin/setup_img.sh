@@ -1044,12 +1044,12 @@ EOF
     fi
   else
     local attempt=0
-    while [[ $((++attempt)) -le 125 ]]; do
+    while [[ $((++attempt)) -le 75 ]]; do
       echo
       date
       echo "==========================================================="
       ThrowFlags $attempt
-      local current=./var/tmp/tb/logs/dryrun.$(printf "%03i" $attempt).log
+      local current=./var/tmp/tb/logs/dryrun.$(printf "%02i" $attempt).log
       touch $current
       ln -f $current $drylog
       if FixPossibleUseFlagIssues $attempt; then
