@@ -110,13 +110,18 @@ function Tasks() {
 
       set +e
       ((delta = EPOCHSECONDS - $(stat -c %Z $taskfile)))
-      ((minutes = delta / 60 % 60))
       ((seconds = delta % 60))
-      if [[ $delta -lt 3600 ]]; then
-        printf "   %2i:%02i " $minutes $seconds
+
+      if [[ $delta -lt 60 ]]; then
+        printf "      %2i " $seconds
       else
-        ((hours = delta / 60 / 60))
-        printf " %1i:%2i:%02i " $hours $minutes $seconds
+        ((minutes = delta / 60 % 60))
+        if [[ $delta -lt 3600 ]]; then
+          printf "   %2i:%02i " $minutes $seconds
+        else
+          ((hours = delta / 60 / 60))
+          printf " %1i:%02i:%02i " $hours $minutes $seconds
+        fi
       fi
       set -e
 
@@ -150,13 +155,18 @@ function LastEmergeOperation() {
         perl -wane '
         chop ($F[0]);
         my $delta = time() - $F[0];
-        my $minutes = $delta / 60 % 60;
         my $seconds = $delta % 60;
-        if ($delta < 3600) {
-          printf ("   %2i:%02i", $minutes, $seconds);
-        } else  {
-          my $hours = $delta / 60 / 60;
-          printf (" %1i:%2i:%02i", $hours, $minutes, $seconds);
+
+        if ($delta < 60) {
+          printf ("      %2i", $seconds);
+        } else {
+          my $minutes = $delta / 60 % 60;
+          if ($delta < 3600) {
+            printf ("   %2i:%02i", $minutes, $seconds);
+          } else  {
+            my $hours = $delta / 60 / 60;
+            printf (" %1i:%02i:%02i", $hours, $minutes, $seconds);
+          }
         }
         if (-f "'$i'/var/tmp/tb/WAIT") {
           printf ("W ");
