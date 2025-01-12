@@ -51,15 +51,20 @@ function ReachedEOL() {
 # this is the end ...
 function Finish() {
   local rc=$?
-  local subject=${1:-"INTERNAL ERROR"}
-  local attachment=${2-}
-
+  set +e
   trap - INT QUIT TERM EXIT
 
-  set +e
-  subject="finished $([[ $rc -ne 0 ]] && echo rc=$rc) $(stripQuotesAndMore <<<$subject)"
-  Mail "$subject" $attachment
-  if [[ $rc -ne 0 || $# -eq 0 ]]; then
+  if [[ -z ${1-} ]]; then
+    local subject="INTERNAL ERROR"
+  else
+    local subject="finished"
+  fi
+  if [[ $rc -ne 0 ]]; then
+    subject+=" rc=$rc"
+  fi
+  subject+=" $(stripQuotesAndMore <<<${1-})"
+  Mail "$subject" ${2-}
+  if [[ $rc -ne 0 || -z ${1-} ]]; then
     echo "$subject" >>/var/tmp/tb/STOP
   else
     rm -f /var/tmp/tb/STOP
@@ -243,6 +248,7 @@ function CollectIssueFiles() {
         --exclude='*/go-mod/*' \
         --exclude='*/kerneldir/*' \
         --exclude='*/nested_link_to_dir/*' \
+        --exclude='*/rustc-*-src/vendor/*' \
         --exclude='*/temp/NuGetScratchportage/*' \
         --exclude='*/temp/nugets/*' \
         --exclude='*/testdirsymlink/*' \
