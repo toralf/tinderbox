@@ -3,7 +3,6 @@ exec: clang-16: not found
 ; ISO C99 and
 Bootstrap comparison failure!
   call to undeclared function
-: .*: command not found
 ^ModuleNotFoundError:
 make: unrecognized option
 DISTUTILS_IN_SOURCE_BUILD is not supported in PEP517 mode
@@ -375,3 +374,4 @@ bool cannot be defined via typedef
 two or more data types in declaration specifiers
  invalid reference to
 Stack overflow detected. Aborting.
+: .*: command not found

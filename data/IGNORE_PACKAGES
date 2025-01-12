@@ -34,10 +34,6 @@ app-emacs/
 dev-java/openjdk
 dev-java/openjdk-jre-bin
 #
-# kernel signing issues https://bugs.gentoo.org/922618
-#
-app-crypt/sbctl
-#
 # patches are not accepted upstream
 #
 net-misc/openssh-contrib
@@ -79,3 +75,8 @@ dev-ruby/parser
 dev-ruby/regexp_parse
 dev-util/colm
 dev-util/ragel
+#
+# @preserved-rebuild has a dep conflict
+#
+sci-libs/cholmod
+sci-libs/suitesparse
