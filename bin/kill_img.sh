@@ -61,18 +61,18 @@ if pid_bwrap=$(pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <
             echo " kill entrypoint"
             killPid $pid_entrypoint
           else
-            echo " notice: empty entrypoint pid from $pid_bwrap"
+            echo " notice: empty entrypoint pid of $pid_bwrap"
           fi
         else
-          echo " notice: could not get entrypoint pid from $pid_bwrap"
+          echo " notice: could not get entrypoint pid of $pid_bwrap"
         fi
       fi
     else
-      echo " notice: could not get emerge pid from $pid_bwrap"
+      echo " notice: could not get emerge pid of $pid_bwrap"
     fi
   else
-    echo " notice: empty or non-unique bwrap pid"
+    echo " notice: empty/non-unique bwrap pid $pid_bwrap"
   fi
 else
-  echo " info: could not get bwrap pid"
+  echo " info: could not get bwrap pid $pid_bwrap"
 fi
