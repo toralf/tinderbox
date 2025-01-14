@@ -769,6 +769,13 @@ function RunSetupScript() {
 function RunDryrunWrapper() {
   echo "$1" | tee ./var/tmp/tb/task
 
+  for k in EOL STOP; do
+    if [[ -f ./var/tmp/tb/$k ]]; then
+      echo -e "\n found $k file"
+      exit 3
+    fi
+  done
+
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog; then
     if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
       return 1
@@ -805,19 +812,12 @@ function RunDryrunWrapper() {
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
-  for fix in $(seq -w 1 8); do
-    if RunDryrunWrapper "#setup dryrun $attempt"; then
+  for fix in $(seq -w 0 8); do
+
+    if RunDryrunWrapper "#setup dryrun $attempt-$fix"; then
       return 0
     fi
 
-    for k in EOL STOP; do
-      if [[ -f ./var/tmp/tb/$k ]]; then
-        echo -e "\n found $k file"
-        exit 3
-      fi
-    done
-
-    # if RunDryrunWrapper() fails then check its log in the next "fix" round
     local try_again=0
 
     # remove a package from the package specific use flag file
