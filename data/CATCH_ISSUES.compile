@@ -135,7 +135,6 @@ could not be found, but is required.
 The library 'System.Xml.dll' could not be found.
 mktextfm:.*failed to make
 Failed Running autopoint
-/bin/sh: .* No such file or directory
 requires support for 32-bit executables.
 Failed setting classpath from Ant task
 Option .* requires an argument
@@ -175,7 +174,6 @@ RuntimeError: failed to run:
 error: static declaration of
 Not in scope:
 error\[.*\]:
-sh: .* No such file or directory
 /bin/sh: .* Not a directory
  (RuntimeError)
  API requires the .* utility to be installed
@@ -375,3 +373,4 @@ two or more data types in declaration specifiers
  invalid reference to
 Stack overflow detected. Aborting.
 : .*: command not found
+error: passing argument

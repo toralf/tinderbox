@@ -64,7 +64,6 @@ Programs failed: .
 : Assertion failure
 Failed .* tests
 Error: .*:test
-No such file or directory
 : cannot execute binary file
 AssertionError
 make.* No rule to make target
