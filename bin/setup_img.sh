@@ -614,7 +614,7 @@ function CreateSetupScript() {
   else
     mta=ssmtp
   fi
-  printf "%-35s %s\n" "mail-mta/$mta" "ssl" >>./etc/portage/package.use/91$mta
+  printf "%-36s %s\n" "mail-mta/$mta" "ssl" >>./etc/portage/package.use/91$mta
 
   cat <<EOF >./var/tmp/tb/setup.sh
 #!/bin/bash
@@ -626,7 +626,7 @@ set -euf
 date
 echo $name
 
-# to directly edit files use the same user and group id of tinderbox as defined at the host
+# use within the image the same user and group id of tinderbox as defined at the host to be allowed to edit files
 date
 echo "#setup user" | tee /var/tmp/tb/task
 groupadd -g $(id -g tinderbox) tinderbox
@@ -635,8 +635,12 @@ useradd -g $(id -g tinderbox) -u $(id -u tinderbox) -G portage tinderbox
 if [[ ! $profile =~ "/musl" ]]; then
   date
   echo "#setup locale" | tee /var/tmp/tb/task
-  echo "en_US ISO-8859-1" >>/etc/locale.gen
-  echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen # needed by Dotnet SDK and for +test
+  cat <<EOF2 >>/etc/locale.gen
+C.UTF8 UTF-8
+en_US ISO-8859-1
+# needed by Dotnet SDK and for +test
+en_US.UTF-8 UTF-8
+EOF2
   locale-gen
 fi
 
@@ -854,8 +858,11 @@ function FixPossibleUseFlagIssues() {
       while read -r p f; do
         local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
+          if [[ $flag =~ '_' ]]; then
+            continue
+          fi
           # allow only unsetting to avoid circles
-          if [[ $flag != "-*" || $flag =~ 'abi_x86_32' || $flag =~ '_target' || $flag =~ 'video_cards_' ]]; then
+          if [[ $flag != "-*" ]]; then
             continue
           fi
           if [[ $flag == "-test" ]]; then
@@ -892,7 +899,7 @@ function FixPossibleUseFlagIssues() {
       while read -r p f; do
         pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
-          if [[ $flag =~ 'abi_x86_32' || $flag =~ '_target' || $flag =~ 'video_cards_' ]]; then
+          if [[ $flag =~ '_' ]]; then
             continue
           fi
           if [[ $flag =~ test ]]; then
