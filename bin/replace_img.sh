@@ -53,7 +53,7 @@ function FreeSlotAvailable() {
   local running=$(wc -l < <(ImagesInRun))
   local replacing=$(pgrep -fc "/bin/bash /opt/tb/bin/replace")
 
-  [[ $running -lt $desired_count && $((running + replacing)) -le $desired_count ]]
+  [[ $((running + replacing)) -le $desired_count ]]
 }
 
 function SetupANewImage() {
@@ -61,22 +61,19 @@ function SetupANewImage() {
   date
   echo " call setup"
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.$$.tmp)
+
   set +e
   # shellcheck disable=SC2024
   sudo $(dirname $0)/setup_img.sh -s &>$tmpfile
-  local rc=$?
   set -e
+
+  echo
   date
-  local img=$(grep -m 1 -Eo '  name: .*' $tmpfile | awk '{ print $2 }')
-  if [[ $rc -eq 0 ]]; then
-    grep -A 10 -B 1 '^ OK' $tmpfile
-  else
-    echo "setup failed  $img  rc: $rc"
-    if [[ $rc -ne 125 ]]; then
-      echo
-      tail -n 10 $tmpfile
-    fi
+  if ! grep -A 10 -B 1 '^ OK' $tmpfile; then
+    tail -n 7 $tmpfile
   fi
+
+  local img=$(grep -m 1 -Eo '  name: .*' $tmpfile | awk '{ print $2 }')
   mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
 }
 
