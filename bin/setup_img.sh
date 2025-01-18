@@ -825,6 +825,7 @@ function FixPossibleUseFlagIssues() {
     local try_again=0
 
     # remove a package from the package specific use flag file
+    #
     local pn=$(
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 }' |
@@ -849,6 +850,7 @@ function FixPossibleUseFlagIssues() {
     local msg=""
 
     # work on lines like:   - sys-cluster/mpich-3.4.3 (Change USE: -valgrind)
+    #
     local f_circ_flag=./etc/portage/package.use/27-$attempt-$fix-a-circ-dep
     local f_circ_test=./etc/portage/package.env/27-$attempt-$fix-notest-a-circ-dep
     rm -f $f_temp
@@ -891,6 +893,7 @@ function FixPossibleUseFlagIssues() {
     fi
 
     # work on lines starting like  >=dev-libs/xmlsec-1.3.4 openssl
+    #
     local f_nec_flag=./etc/portage/package.use/27-$attempt-$fix-b-necessary-use-flag
     local f_nec_test=./etc/portage/package.env/27-$attempt-$fix-notest-b-necessary-use-flag
     rm -f $f_temp
@@ -932,7 +935,7 @@ function FixPossibleUseFlagIssues() {
     fi
   done
 
-  # keep the notest
+  # only diced USE flags, keep any notest entries in package.env
   rm -f ./etc/portage/package.use/27-*-*
   return 1
 }
