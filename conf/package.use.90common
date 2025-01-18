@@ -47,14 +47,14 @@ sys-apps/util-linux                 pam
 #
 # setup blocker
 #
-dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
-dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
-dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
-dev-qt/qtwidgets                    dbus                # DICE: setup_qtwidgets 7 8
-dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav      # DICE: setup_git 7 8
-media-libs/mesa                     llvm                # DICE: setup_mesa 7 8
-net-misc/curl                       -gnutls -mbedtls openssl -rustls CURL_QUIC="-gnutls -ngtcp2 openssl"        # DICE: setup_curl 7 8
-x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
+dev-lang/ruby                       -rdoc                                                                                 # DICE: setup_ruby 7 8
+dev-libs/gmp                        asm cpudetection                                                                      # DICE: setup_gpm
+dev-libs/libpcre*                   -libedit readline                                                                     # DICE: setup_pcre 7 8
+dev-qt/qtwidgets                    dbus                                                                                  # DICE: setup_qtwidgets 7 8
+dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav                # DICE: setup_git 7 8
+media-libs/mesa                     llvm                                                                                  # DICE: setup_mesa 7 8
+net-misc/curl                       -gnutls -mbedtls -rustls ssl CURL_QUIC="-gnutls -ngtcp2 openssl" CURL_SSL="openssl"   # DICE: setup_curl 7 8
+x11-misc/xdg-utils                  dbus                                                                                  # DICE: setup_xdg 7 8
 
 
 #######################################################################
@@ -82,60 +82,42 @@ media-sound/lame                    -sndfile            # DICE: lame
 app-portage/pfl                     -network-cron       # DICE: pfl 1 9
 app-text/ansifilter                 -gui                # DICE: ansifilter 1 9
 
+# FF+TB
+app-text/poppler                    cairo               # DICE: ff_tb 1 6
+dev-lang/python                     sqlite              # DICE: ff_tb 1 6
+dev-libs/libusb                     udev                # DICE: ff_tb 1 6
+media-video/ffmpeg                  zlib                # DICE: ff_tb 1 6
+media-libs/libpng                   apng                # DICE: ff_tb 1 6
+media-libs/gd                       fontconfig truetype # DICE: ff_tb 1 6
+media-libs/gst-plugins-base         egl                 # DICE: ff_tb 1 6
+media-libs/libglvnd                 X                   # DICE: ff_tb 1 6
+media-libs/libpulse                 glib X              # DICE: ff_tb 1 6
+media-libs/libsdl2                  sound video         # DICE: ff_tb 1 6
+media-libs/libvpx                   postproc            # DICE: ff_tb 1 6
+media-libs/mesa                     llvm                # DICE: ff_tb 1 6
+media-libs/opus                     custom-modes        # DICE: ff_tb 1 6
+media-video/rav1e                   capi                # DICE: ff_tb 1 6
+net-fs/samba                        client              # DICE: ff_tb 1 6
+net-misc/networkmanager             -gnutls nss         # DICE: ff_tb 1 6
+x11-libs/cairo                      X                   # DICE: ff_tb 1 6
+x11-libs/libxkbcommon               X                   # DICE: ff_tb 1 6
+
 # FF
-app-text/poppler                    cairo               # DICE: firefox 1 6
-dev-lang/python                     sqlite              # DICE: firefox 1 6
-dev-libs/libusb                     udev                # DICE: firefox 1 6
-media-libs/gd                       fontconfig truetype # DICE: firefox 1 6
-media-libs/gst-plugins-base         egl                 # DICE: firefox 1 6
-media-libs/libglvnd                 X                   # DICE: firefox 1 6
-media-libs/libpng                   apng                # DICE: firefox 1 6
-media-libs/libvpx                   postproc            # DICE: firefox 1 6
-media-libs/libpulse                 glib X              # DICE: firefox 1 6
-media-libs/libsdl2                  sound video         # DICE: firefox 1 6
-media-libs/mesa                     llvm                # DICE: firefox 1 6
-media-libs/opus                     custom-modes        # DICE: firefox 1 6
-media-plugins/alsa-plugins          pulseaudio          # DICE: firefox 1 6
-media-sound/lame                    -frontend           # DICE: firefox 1 6
-media-video/ffmpeg                  nvec                # DICE: firefox 1 6
-media-video/pipewire                dbus extra          # DICE: firefox 1 6
-media-video/rav1e                   capi                # DICE: firefox 1 6
-net-fs/samba                        client              # DICE: firefox 1 6
-net-misc/networkmanager             -gnutls nss         # DICE: firefox 1 6
-www-client/firefox                  dbus                # DICE: firefox 1 6
-x11-libs/cairo                      X                   # DICE: firefox 1 6
-x11-libs/libxkbcommon               X                   # DICE: firefox 1 6
+media-sound/lame                    -frontend           # DICE: ff_tb 1 6
+media-video/pipewire                dbus extra          # DICE: ff_tb 1 6
+www-client/firefox                  dbus                # DICE: ff_tb 1 6
 
 # TB
-app-text/poppler                    cairo               # DICE: thunderbird 1 6
-dev-lang/python                     sqlite              # DICE: thunderbird 1 6
-dev-lang/rust                       rustfmt             # DICE: thunderbird 1 6
-dev-libs/libusb                     udev                # DICE: thunderbird 1 6
-dev-libs/libxml2                    python              # DICE: thunderbird 1 6
-dev-qt/qtcore                       icu                 # DICE: thunderbird 1 6
-kde-frameworks/kwindowsystem        X                   # DICE: thunderbird 1 6
-media-video/ffmpeg                  zlib                # DICE: thunderbird 1 6
-media-libs/freetype                 png                 # DICE: thunderbird 1 6
-media-libs/gd                       fontconfig truetype # DICE: thunderbird 1 6
-media-libs/libglvnd                 X                   # DICE: thunderbird 1 6
-media-libs/gst-plugins-base         egl                 # DICE: thunderbird 1 6
-media-libs/libpng                   apng                # DICE: thunderbird 1 6
-media-libs/libpulse                 glib X              # DICE: thunderbird 1 6
-media-libs/libvpx                   postproc            # DICE: thunderbird 1 6
-media-libs/mesa                     llvm                # DICE: thunderbird 1 6
-media-libs/openh264                 plugin              # DICE: thunderbird 1 6
-media-libs/opus                     custom-modes        # DICE: thunderbird 1 6
-media-libs/libsdl2                  sound video         # DICE: thunderbird 1 6
-media-plugins/alsa-plugins          pulseaudio          # DICE: thunderbird 1 6
-media-sound/pulseaudio-daemon       alsa                # DICE: thunderbird 1 6
-media-video/ffmpeg                  nvenc               # DICE: thunderbird 1 6
-media-video/rav1e                   capi                # DICE: thunderbird 1 6
-net-fs/samba                        client              # DICE: thunderbird 1 6
-net-misc/networkmanager             -gnutls nss         # DICE: thunderbird 1 6
-sys-libs/tdb                        python              # DICE: thunderbird 1 6
-sys-libs/tevent                     python              # DICE: thunderbird 1 6
-x11-libs/cairo                      X glib              # DICE: thunderbird 1 6
-x11-libs/libxkbcommon               X                   # DICE: thunderbird 1 6
+dev-lang/rust                       rustfmt             # DICE: ff_tb 1 6
+dev-libs/libxml2                    python              # DICE: ff_tb 1 6
+dev-qt/qtcore                       icu                 # DICE: ff_tb 1 6
+kde-frameworks/kwindowsystem        X                   # DICE: ff_tb 1 6
+media-libs/freetype                 png                 # DICE: ff_tb 1 6
+media-libs/openh264                 plugin              # DICE: ff_tb 1 6
+media-video/ffmpeg                  nvenc               # DICE: ff_tb 1 6
+sys-libs/tdb                        python              # DICE: ff_tb 1 6
+sys-libs/tevent                     python              # DICE: ff_tb 1 6
+x11-libs/cairo                      glib                # DICE: ff_tb 1 6
 
 # LO
 app-arch/libarchive                 bzip2
