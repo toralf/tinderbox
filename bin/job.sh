@@ -408,14 +408,11 @@ EOF
 
   if grep -q -r "# DICE.*\[.*\]" /etc/portage/package.unmask/ 2>/dev/null; then
     (
-      set +f
       echo -e "\n  UNMASKED:"
       while read -r dice; do
-        grep -A 1 -F "$dice" /mnt/tb/data/DICE_DESCRIPTIONS |
-          tail -n 1 |
-          sed -e 's,^,    ,'
-        grep -hr -F "$dice" /etc/portage/package.unmask/ |
-          awk '{ print (" ", $1) }'
+        echo -en "\n    "
+        (grep -A 1 -F "$dice" /mnt/tb/data/DICE_DESCRIPTIONS || echo) | tail -n 1
+        grep -hr -F " $dice" /etc/portage/package.unmask/ | awk '{ print (" ", $1) }'
       done < <(
         grep -hr "# DICE.*\[.*\]" /etc/portage/package.unmask/ |
           grep -Eo '(\[.*\])' |
