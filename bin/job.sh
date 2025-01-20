@@ -1024,8 +1024,8 @@ function WorkOnTask() {
       fi
     fi
     if [[ $task == "@preserved-rebuild" ]]; then
-      if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
-        ReachedEOL "$task has a dep conflict" $tasklog
+      if grep -q -F -e 'Nothing to merge; quitting.' -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
+        ReachedEOL "$task unhelpful" $tasklog
       fi
     fi
   fi
