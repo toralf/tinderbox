@@ -76,13 +76,3 @@ mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
 ) | sort -u >$tmpfile
 chmod a+r $tmpfile
 mv $tmpfile ~tinderbox/img/needed.txt
-
-# _sam: bashrc.clang hook
-#
-(
-  set +e
-  cd ~tinderbox/img/ &&
-    tar -cpf $tmpfile ./*/var/tmp/tb/issues/*/files/var.tmp.clang.tar.xz
-)
-chmod a+r $tmpfile
-mv $tmpfile ~tinderbox/img/all-var.tmp.clang.tar.xz.tar
