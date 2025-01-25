@@ -6,7 +6,7 @@
 
 function printImageName() {
   local name=$1/var/tmp/tb/name
-  local chars=${2:-42}
+  local chars=${2:-43}
 
   printf "%-${chars}s" $(cut -c -$chars <$name)
 }
@@ -113,14 +113,14 @@ function Tasks() {
       ((seconds = delta % 60))
 
       if [[ $delta -lt 60 ]]; then
-        printf "      %2i " $seconds
+        printf "       %2i " $seconds
       else
         ((minutes = delta / 60 % 60))
         if [[ $delta -lt 3600 ]]; then
-          printf "   %2i:%02i " $minutes $seconds
+          printf "    %2i:%02i " $minutes $seconds
         else
           ((hours = delta / 60 / 60))
-          printf " %1i:%02i:%02i " $hours $minutes $seconds
+          printf " %2i:%02i:%02i " $hours $minutes $seconds
         fi
       fi
       set -e
@@ -132,8 +132,8 @@ function Tasks() {
       else
         line=" $task"
       fi
-      if [[ ${#line} -gt $((columns - 52)) ]]; then
-        echo "$(cut -c 1-$((columns - 55)) <<<$line)..."
+      if [[ ${#line} -gt $((columns - 53)) ]]; then
+        echo "$(cut -c 1-$((columns - 56)) <<<$line)..."
       else
         echo "$line"
       fi
@@ -158,14 +158,14 @@ function LastEmergeOperation() {
         my $seconds = $delta % 60;
 
         if ($delta < 60) {
-          printf ("      %2i", $seconds);
+          printf ("       %2i", $seconds);
         } else {
           my $minutes = $delta / 60 % 60;
           if ($delta < 3600) {
-            printf ("   %2i:%02i", $minutes, $seconds);
+            printf ("    %2i:%02i", $minutes, $seconds);
           } else  {
             my $hours = $delta / 60 / 60;
-            printf (" %1i:%02i:%02i", $hours, $minutes, $seconds);
+            printf (" %2i:%02i:%02i", $hours, $minutes, $seconds);
           }
         }
         if (-f "'$i'/var/tmp/tb/WAIT") {
