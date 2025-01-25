@@ -58,7 +58,7 @@ case ${EBUILD_PHASE} in
     vcpu=32                # actual value will be set/replaced by nproc output during setup
     load=$((vcpu * 5 / 4)) # 1-minute-load limit
 
-    while [[ $(grep -m 1 "^procs_running " /proc/stat | cut -f 2 -d ' ') -ge $vcpu || $(cut -f 1 -d '.' /proc/loadavg) -ge $load ]]; do
+    while [[ $(grep -m 1 "^procs_running " /proc/stat | cut -f 2 -d ' ') -gt $vcpu || $(cut -f 1 -d '.' /proc/loadavg) -gt $load ]]; do
       __tinderbox_checkEOL
       touch /var/tmp/tb/WAIT
       sleep $((RANDOM % 10 + 10))
