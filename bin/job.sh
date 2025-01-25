@@ -505,6 +505,12 @@ function add2backlog() {
     sed -i -e "/^$(sed -e 's,/,\\/,g' <<<$1)$/d" $bl # dups
     echo "$1" >>$bl                                  # append it == will be the next task
   fi
+
+  # re-schedule it to be the next task
+  if [[ $1 != "%SwitchGCC" ]] && grep -q '%SwitchGCC' $bl; then
+    sed -i -e '/%SwitchGCC/d' $bl
+    echo "%SwitchGCC" >>$bl
+  fi
 }
 
 function finishTitle() {
@@ -1035,7 +1041,7 @@ function WorkOnTask() {
 function DetectRepeats() {
   local count item
   read -r count item < <(tail -n 70 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 25 && ! $name =~ "_test" ]] || [[ $count -ge 10 && $item == "@preserved-rebuild" ]]; then
+  if [[ $count -ge 25 ]] || [[ $count -ge 10 && ! $name =~ "_test" ]]; then
     ReachedEOL "repeated: $count x $item"
   fi
 }
