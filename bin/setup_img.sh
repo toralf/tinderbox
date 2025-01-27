@@ -755,6 +755,7 @@ EOF
 function RunSetupScript() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
+  rm -f ./var/tmp/tb/setup_wrapper.sh
   echo '/var/tmp/tb/setup.sh &>/var/tmp/tb/setup.sh.log' >./var/tmp/tb/setup_wrapper.sh
   chmod u+x ./var/tmp/tb/setup_wrapper.sh
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/setup_wrapper.sh; then
@@ -824,7 +825,7 @@ function FixPossibleUseFlagIssues() {
 
     local try_again=0
 
-    # remove a package from the package specific use flag file
+    # remove a package from the thrown use flags file
     #
     local pn=$(
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
@@ -858,21 +859,16 @@ function FixPossibleUseFlagIssues() {
       grep '^- .* (Change USE: ' |
       sed -e "s,^- ,," -e "s, (Change USE:,," -e "s,)$,," |
       while read -r p f; do
-        local pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
-          if [[ $flag =~ '_' ]]; then
-            continue
-          fi
-          # allow only unsetting to avoid circles
-          if [[ $flag != "-*" ]]; then
-            continue
-          fi
-          if [[ $flag == "-test" ]]; then
-            if ! grep -q -r "^${pn} .*notest" ./etc/portage/package.env/; then
-              printf "%-36s notest\n" $pn >>$f_circ_test
+          if [[ ! $flag =~ '_' ]]; then
+            pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
+            if [[ $flag == "-test" ]]; then
+              if ! grep -q -r "^${pn} .*notest" ./etc/portage/package.env/; then
+                printf "%-36s notest\n" $pn >>$f_circ_test
+              fi
+            elif ! grep -q -r "^${pn} .*$flag" ./etc/portage/package.use/; then
+              printf "%-36s %s\n" $pn $flag >>$f_temp
             fi
-          elif ! grep -q -r "^${pn} .*$flag" ./etc/portage/package.use/; then
-            printf "%-36s %s\n" $pn $flag >>$f_temp
           fi
         done
       done
@@ -892,7 +888,7 @@ function FixPossibleUseFlagIssues() {
       fi
     fi
 
-    # work on lines starting like  >=dev-libs/xmlsec-1.3.4 openssl
+    # work on lines like:   >=dev-libs/xmlsec-1.3.4 openssl
     #
     local f_nec_flag=./etc/portage/package.use/27-$attempt-$fix-b-necessary-use-flag
     local f_nec_test=./etc/portage/package.env/27-$attempt-$fix-notest-b-necessary-use-flag
@@ -906,10 +902,11 @@ function FixPossibleUseFlagIssues() {
             continue
           fi
           if [[ $flag =~ test ]]; then
-            if grep -q -r "^${pn}  .*notest" ./etc/portage/package.env/; then
+            if grep -q -r "^${pn} * notest" ./etc/portage/package.env/; then
               printf "%-36s notest\n" $pn >>$f_nec_test
             fi
-          elif ! grep -q -r "^${pn}  .*$flag" ./etc/portage/package.use/; then
+          # avoid flipping a flag forth and back
+          elif ! grep -q "^${pn} * [\-]*$flag$" ./etc/portage/package.use/27-$attempt-*-* 2>/dev/null; then
             printf "%-36s %s\n" $pn $flag >>$f_temp
           fi
         done
@@ -935,8 +932,8 @@ function FixPossibleUseFlagIssues() {
     fi
   done
 
-  # only diced USE flags, keep any notest entries in package.env
-  rm -f ./etc/portage/package.use/27-*-*
+  # delete only diced USE flags, keep entries in package.env (e.g. notest)
+  rm -f ./etc/portage/package.use/27-$attempt-*-*
   return 1
 }
 
@@ -999,6 +996,7 @@ function ThrowFlags() {
 function CompileUseFlagFiles() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
+  rm -f ./var/tmp/tb/dryrun_wrapper.sh
   cat <<EOF >./var/tmp/tb/dryrun_wrapper.sh
 set -euf
 
@@ -1015,7 +1013,7 @@ EOF
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1up --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 echo "-------"
-emerge -up @world --backtrack=50
+emerge -up @world
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
@@ -1027,7 +1025,7 @@ EOF
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1up --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc)
 echo "-------"
-emerge -up @world --backtrack=50
+emerge -up @world
 EOF
   fi
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
@@ -1075,7 +1073,7 @@ function Finalize() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
   cp $tbhome/tb/conf/bashrc ./etc/portage
-  sed -i -e "s,^    vcpu=.*,    vcpu=$((2 * $(nproc)))," ./etc/portage/bashrc
+  sed -i -e "s,^    vcpu=.*,    vcpu=$(nproc)," ./etc/portage/bashrc
 
   if ! wc -l -w --total=never ./etc/portage/package.use/2* 2>/dev/null; then
     echo -e "\n no image specific USE flags"
