@@ -1036,11 +1036,6 @@ function WorkOnTask() {
         fi
       fi
     fi
-    if [[ $task == "@preserved-rebuild" ]]; then
-      if grep -q -F -e 'Nothing to merge; quitting.' -e 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
-        ReachedEOL "$task unhelpful" $tasklog
-      fi
-    fi
   fi
 }
 
@@ -1048,7 +1043,7 @@ function WorkOnTask() {
 function DetectRepeats() {
   local count item
   read -r count item < <(tail -n 70 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 25 ]] || [[ $count -ge 10 && ! $name =~ "_test" ]]; then
+  if [[ $count -ge 25 ]] || [[ $count -ge 10 && ! $name =~ "_test" ]] || [[ $count -ge 7 && $name =~ "@preserved-rebuild" ]]; then
     ReachedEOL "repeated: $count x $item"
   fi
 }
