@@ -62,9 +62,12 @@ x11-misc/xdg-utils                  dbus                                        
 # misc
 #
 
-*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres-15
-*/*         POSTGRES_TARGETS:       postgres16          # DICE: postgres-16
-*/*         POSTGRES_TARGETS:       postgres17          # DICE: postgres-17
+*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres-15 1 4
+*/*         POSTGRES_TARGETS:       postgres16          # DICE: postgres-16 1 4
+*/*         POSTGRES_TARGETS:       postgres17          # DICE: postgres-17 1 4
+
+*/*         RUBY_TARGETS:           ruby33              # DICE: ruby33
+*/*         RUBY_TARGETS:           ruby34              # DICE: ruby34
 
 # 2x faster compile
 */*                                 jumbo-build

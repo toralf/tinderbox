@@ -8,7 +8,6 @@ The source directory .* doesn.t exist
 cp: cannot stat
 sed: can't read requirements.txt: No such file or directory
 Please disable .* support in your kernel config and recompile your kernel
-: No such file or directory
 possibly undefined macro:
 Could not find gem
 sed: .* unterminated .* command
@@ -26,3 +25,4 @@ convert:
  \*   python_fix_shebang:
 is not supported with EAPI
  \*   ada compiler not available
+: No such file or directory

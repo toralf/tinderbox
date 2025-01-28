@@ -43,4 +43,4 @@ which: command not found|which is required|which: No such file or directory|No s
 
 # (ffmpeg-7.0) - [Tracker] Packages broken with media-video/ffmpeg-7.0
 928905
-AVCodec|AVStream|AVFifoBuffer|AVFilterLink
+AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC
