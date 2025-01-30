@@ -78,14 +78,15 @@ function attach() {
   echo
   for f in $(
     set +f
-    ls ./files/*
+    ls ./files/* | sort
   ); do
     local bytes
     bytes=$(wc --bytes <$f)
     if [[ $bytes -eq 0 ]]; then
       echo "skipped empty file: $f" >&2
-    elif [[ $bytes -gt $((2 ** 20)) ]]; then
-      echo "too fat file for b.g.o. ($((bytes / 2 ** 10)) KB): $f"
+    # Attachments cannot be more than 1000 KB.
+    elif [[ $bytes -gt $((1000 * 1024)) ]]; then
+      echo "too big ($((bytes / 1024)) KB): $f"
       local file_size=$(ls -lh $f | awk '{ print $5 }')
       local file_path=$(realpath $f | sed -e "s,^.*img/,,")
       local url="http://tinderbox.zwiebeltoralf.de:31560/$file_path"
