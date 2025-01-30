@@ -798,7 +798,7 @@ function RunDryrunWrapper() {
       fi
     done
 
-    echo " OK"
+    echo " OK  $attempt-$fix  $name"
     return 0
 
   elif [[ -s $drylog ]]; then

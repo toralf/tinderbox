@@ -69,7 +69,7 @@ function SetupANewImage() {
 
   echo
   date
-  if ! grep -A 30 -B 1 '^ OK' $tmpfile; then
+  if ! grep -A 30 '^ OK' $tmpfile; then
     tail -n 7 $tmpfile
   fi
 
