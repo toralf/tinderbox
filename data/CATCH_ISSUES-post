@@ -1,8 +1,8 @@
 col: command not found
-cmake failed
  install aborted due to severe warnings shown above
 CMake Error at
 CMake Error:
+cmake failed
 prototype is deprecated in all versions of C
 and is not supported in C2x
 without a prototype

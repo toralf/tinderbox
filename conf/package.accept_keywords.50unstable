@@ -1,11 +1,14 @@
 # package.accept_keywords/50unstable
 # look at package.unmask/50unstable and DICE_DESCRIPTIONS too
 
+# dilfridge
+~sys-libs/glibc-2.41                               **   # DICE: [glibc]
+
 # ztrawhcs: "we want to test all upstream release candidates"
 <dev-build/meson-9999                              **   # DICE: [meson] 1 4
 
 # _sam
-<media-video/ffmpeg-9999                           **   # DICE: [ffmpeg] 1 2
+<media-video/ffmpeg-9999                           **   # DICE: [ffmpeg]
 
 # Florian Schmaus <flow@gentoo.org> (2024-11-29)
 >=app-text/dvisvgm-2024                            **   # DICE: [texlive] 1 4
