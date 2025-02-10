@@ -1,11 +1,9 @@
 # ssmtp.conf
 #
 
-root=<user@domain>
-MinUserId=9999
-mailhub=<mail.domain>:465
+mailhub=pop3.<domain>:465
 rewriteDomain=<domain>
-hostname=<host.domain>
+hostname=myhost.<domain>
 UseTLS=YES
 
 AuthUser=<authuser@domain>
