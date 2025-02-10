@@ -1,9 +1,6 @@
 # package.accept_keywords/50unstable
 # look at package.unmask/50unstable and DICE_DESCRIPTIONS too
 
-# dilfridge
-~sys-libs/glibc-2.41                               **   # DICE: [glibc]
-
 # ztrawhcs: "we want to test all upstream release candidates"
 <dev-build/meson-9999                              **   # DICE: [meson] 1 4
 
