@@ -8,20 +8,16 @@
 # That's all.
 
 function Mail() {
-  local content=${2-}
+  local subject=$(stripQuotesAndMore <<<${1:-"NO SUBJECT"} | strings -w | cut -c 1-200 | tr '\n' ' ')
 
-  local subject=$(stripQuotesAndMore <<<$1 | strings -w | cut -c 1-200 | tr '\n' ' ')
-
-  if [[ -f $content ]]; then
+  if [[ -n $2 ]]; then
     echo
-    tail -v -n 100 $content
-  else
-    echo -e "$content"
+    tail -v -n 100 $2
   fi |
     strings -w |
     sed -e 's,^>, >,' |
-    if ! mail -s "$subject @ $name" $MAILTO &>/var/tmp/mail.log; then
-      echo "$(date) mail issue, \$subject=$subject \$content=$content" >&2
+    if ! mail -s "$subject @ $name" ${MAILTO:-tinderbox} &>/var/tmp/mail.log; then
+      echo "$(date) mail issue, \$subject=$subject" >&2
       cat /var/tmp/mail.log >&2
     fi
 }
@@ -54,15 +50,17 @@ function Finish() {
   set +e
   trap - INT QUIT TERM EXIT
 
+  local subject
   if [[ -z ${1-} ]]; then
-    local subject="INTERNAL ERROR"
+    subject="INTERNAL ERROR"
   else
-    local subject="finished"
+    subject="finished"
   fi
   if [[ $rc -ne 0 ]]; then
     subject+=" rc=$rc"
   fi
   subject+=" $(stripQuotesAndMore <<<${1-})"
+
   Mail "$subject" ${2-}
   if [[ $rc -ne 0 || -z ${1-} ]]; then
     echo "$subject" >>/var/tmp/tb/STOP
@@ -681,7 +679,7 @@ function source_profile() {
 function SwitchGCC() {
   local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-[0-9]+$' | tail -n 1)
   if [[ -z $highest ]]; then
-    Mail "${FUNCNAME[0]}: cannot get GCC version"
+    Mail "cannot get GCC version"
     return
   fi
 
@@ -965,8 +963,7 @@ function WorkOnTask() {
         awk '{ print $1 }' |
         xargs |
         grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
-        local msg="Perl dep issue for $i"
-        ReachedEOL "$msg" $tasklog
+        ReachedEOL "Perl dep issue for $i" $tasklog
       fi
     done
     echo -e "\ncheck for Perl dep issue succeeded\n" >>$tasklog
