@@ -225,8 +225,8 @@ function CollectIssueFiles() {
         -o -name '*.binlog' \
         -o -name '*.log' \
         -o -name '*.txt' \
-        -o -wholename '*/tests/*.out' \
-        >$f
+        -o -wholename '*/tests/*.out' |
+        grep -v -e '/docs/' >$f
       if [[ -s $f ]]; then
         $tar -cJpf $issuedir/files/logs.tar.xz --files-from $f --dereference --warning=none 2>/dev/null
       fi
