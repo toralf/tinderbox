@@ -313,7 +313,6 @@ function foundGenericIssue() {
     # the order of patterns rules
 
     cat CATCH_ISSUES-pre
-    [[ $phase == "test" ]] && cat CATCH_ISSUES.compile
     cat CATCH_ISSUES.${phase:-compile}
     cat CATCH_ISSUES-post
   ) |
