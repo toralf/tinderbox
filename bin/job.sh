@@ -1024,23 +1024,27 @@ function WorkOnTask() {
   else
     if ! RunAndCheck "emerge --update $task"; then
       if [[ $task == "@preserved-rebuild" ]]; then
-        if [[ -n $pkg ]]; then
-          if [[ $try_again -eq 0 ]]; then
-            add2backlog "$task"
-          fi
+        if [[ -n $pkg || $try_again -eq 1 ]]; then
+          add2backlog "$task"
         else
           ReachedEOL "$task failed" $tasklog
+        fi
+      fi
+    else
+      if [[ $task == "@preserved-rebuild" ]]; then
+        if grep -q -F '!!! existing preserved libs:' $tasklog; then
+          ReachedEOL "$task still has preserved libs" $tasklog
         fi
       fi
     fi
   fi
 }
 
-# EOL if there's a loop
+# especially @preserved-rebuild repeats are likely
 function DetectRepeats() {
   local count item
   read -r count item < <(tail -n 70 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 25 ]] || [[ $count -ge 10 && ! $name =~ "_test" ]]; then
+  if [[ $count -ge 20 ]] || [[ $count -ge 10 && ! $name =~ "_test" ]]; then
     ReachedEOL "repeated: $count x $item"
   fi
 }
