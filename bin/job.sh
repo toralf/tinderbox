@@ -9,15 +9,16 @@
 
 function Mail() {
   local subject=$(stripQuotesAndMore <<<${1:-"NO SUBJECT"} | strings -w | cut -c 1-200 | tr '\n' ' ')
+  local attachment=${2-}
 
-  if [[ -n $2 ]]; then
+  if [[ -n $attachment ]]; then
     echo
-    tail -v -n 100 $2
+    tail -v -n 100 $attachment
   fi |
     strings -w |
     sed -e 's,^>, >,' |
     if ! mail -s "$subject @ $name" ${MAILTO:-tinderbox} &>/var/tmp/mail.log; then
-      echo "$(date) mail issue, \$subject=$subject" >&2
+      echo "$(date) mail issue, \$subject=$subject \$attachment=$attachment" >&2
       cat /var/tmp/mail.log >&2
     fi
 }
