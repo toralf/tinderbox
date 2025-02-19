@@ -56,7 +56,6 @@ media-libs/mesa                     llvm                                        
 net-misc/curl                       -gnutls -mbedtls -rustls ssl CURL_QUIC="-gnutls -ngtcp2 openssl" CURL_SSL="openssl"   # DICE: setup_curl 7 8
 x11-misc/xdg-utils                  dbus                                                                                  # DICE: setup_xdg 7 8
 
-
 #######################################################################
 #
 # misc
