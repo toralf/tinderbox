@@ -419,12 +419,13 @@ EOF
     (
       echo -e "\n  UNMASKED:"
       while read -r dice; do
-        echo -en "\n    "
-        (grep -A 1 -F "$dice" /mnt/tb/data/DICE_DESCRIPTIONS || echo) | tail -n 1
-        grep -hr -F " $dice" /etc/portage/package.unmask/ | awk '{ print (" ", $1) }'
+        echo -en "\n  "
+        (grep -A 1 "^\[$dice\]" /mnt/tb/data/DICE_DESCRIPTIONS || echo) | xargs
+        grep -hr " \[$dice\]" /etc/portage/package.unmask/ | awk '{ print (" ", $1) }'
       done < <(
         grep -hr "# DICE.*\[.*\]" /etc/portage/package.unmask/ |
           grep -Eo '(\[.*\])' |
+          tr -d '][' |
           sort -u
       )
     ) >>$issuedir/comment0
