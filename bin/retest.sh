@@ -16,9 +16,7 @@ fi
 result=/tmp/$(basename $0) # hold package(s) to be scheduled
 
 # special atoms
-tr -c -d '+-_./%[:alnum:][:blank:]\n' <<<$* |
-  xargs -n 1 |
-  grep -e '^@' -e '^=' -e '^%' |
+grep -e '^%' <<<$* |
   sort -u >$result.special
 if [[ -s $result.special ]]; then
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
@@ -34,13 +32,18 @@ fi
 rm $result.special
 
 # regular packages
-tr -c -d '+-_./[:alnum:][:blank:]\n=@' <<<$* |
+grep -v -e '^%' <<<$* |
   xargs -n 1 |
   sort -u |
-  xargs -r qatom -F "%{CATEGORY}/%{PN}" |
-  grep -v '<unset>' |
-  grep ".*-.*/.*" |
-  sort -u >$result.packages
+  while read -r atom; do
+    if [[ $atom =~ ^@ || $atom =~ ^= ]]; then
+      echo "$atom"
+    else
+      qatom -F "%{CATEGORY}/%{PN}" $atom |
+        grep -v '<unset>' |
+        grep ".*-.*/.*"
+    fi
+  done >$result.packages
 if [[ -s $result.packages ]]; then
   # if there're only few packages then emerge them immediately
   if [[ $(wc -l <$result.packages) -le 3 ]]; then
