@@ -53,3 +53,4 @@ error:.*command not found
 ninja: build stopped:
 Error . shuffle=.*
 : No such file or directory
+cc1 : .* warnings being treated as errors

@@ -50,7 +50,6 @@ sys-apps/util-linux                 pam
 dev-lang/ruby                       -rdoc                                                                                 # DICE: setup_ruby 7 8
 dev-libs/gmp                        asm cpudetection                                                                      # DICE: setup_gpm
 dev-libs/libpcre*                   -libedit readline                                                                     # DICE: setup_pcre 7 8
-dev-qt/qtwidgets                    dbus                                                                                  # DICE: setup_qtwidgets 7 8
 dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav -xinetd        # DICE: setup_git 7 8
 media-libs/mesa                     llvm                                                                                  # DICE: setup_mesa 7 8
 net-misc/curl                       -gnutls -mbedtls -rustls ssl CURL_QUIC="-gnutls -ngtcp2 openssl" CURL_SSL="openssl"   # DICE: setup_curl 7 8

@@ -7,7 +7,6 @@ Bootstrap comparison failure!
 make: unrecognized option
 DISTUTILS_IN_SOURCE_BUILD is not supported in PEP517 mode
 buffer overflow detected
-: all warnings being treated as errors
 The futex facility returned an unexpected error code.
 asciidoctor.*cannot load
 gems.*asciidocter.*LoadError
@@ -282,7 +281,6 @@ gdbm_fetch: Item not found
  \*   .* not found,
 .*: no input file given
 .* not found in the JDK being used for compilation
-cc1: some warnings being treated as errors
 rdlibtool: error
 installed package .* is broken due to missing package
 mkdir: cannot create directory
