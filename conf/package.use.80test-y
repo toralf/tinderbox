@@ -24,9 +24,7 @@ net-firewall/iptables               conntrack nftables
 net-nds/openldap                    cleartext debug -minimal sasl
 sys-auth/sssd                       sudo
 sys-libs/libblockdev                introspection lvm
-
-# https://bugs.gentoo.org/840529
-sys-devel/binutils                  multitarget pgo -plugins
+x11-libs/gtk+                       X
 
 #######################################################################
 #

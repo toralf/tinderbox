@@ -4,8 +4,8 @@
 # ztrawhcs: "we want to test all upstream release candidates"
 <dev-build/meson-9999                              **   # DICE: [meson] 1 4
 
-# _sam
-<media-video/ffmpeg-9999                           **   # DICE: [ffmpeg]
-
 #  WilliamH
 <dev-lang/go-9999                                  **   # DICE: [go-1.24]
+
+# sam_
+=dev-build/cmake-4*                                **   # DICE: [cmake-4]

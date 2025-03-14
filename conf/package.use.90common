@@ -39,7 +39,7 @@ sys-kernel/installkernel            -dracut -grub
 # GNAT is required otherwise
 sys-devel/gcc                       -ada
 
-# otherwise setup always failed
+# setup almost failed otherwise
 sys-apps/shadow                     pam -cracklib
 sys-apps/util-linux                 pam
 
@@ -47,22 +47,18 @@ sys-apps/util-linux                 pam
 #
 # setup blocker
 #
-dev-lang/ruby                       -rdoc                                                                                 # DICE: setup_ruby 7 8
-dev-libs/gmp                        asm cpudetection                                                                      # DICE: setup_gpm
-dev-libs/libpcre*                   -libedit readline                                                                     # DICE: setup_pcre 7 8
-dev-vcs/git                         -cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav -xinetd        # DICE: setup_git 7 8
-media-libs/mesa                     llvm                                                                                  # DICE: setup_mesa 7 8
-net-misc/curl                       -gnutls -mbedtls -rustls ssl CURL_QUIC="-gnutls -ngtcp2 openssl" CURL_SSL="openssl"   # DICE: setup_curl 7 8
-x11-misc/xdg-utils                  dbus                                                                                  # DICE: setup_xdg 7 8
+dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
+dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
+dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
+media-libs/mesa                     llvm                # DICE: setup_mesa 7 8
+net-misc/curl             -gnutls -mbedtls -rustls ssl  # DICE: setup_curl 7 8
+net-misc/curl  CURL_QUIC: -gnutls -ngtcp2 openssl       # DICE: setup_curl 7 8
+x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 #######################################################################
 #
 # misc
 #
-
-*/*         POSTGRES_TARGETS:       postgres15          # DICE: postgres-15 1 4
-*/*         POSTGRES_TARGETS:       postgres16          # DICE: postgres-16 1 4
-*/*         POSTGRES_TARGETS:       postgres17          # DICE: postgres-17 1 4
 
 */*         RUBY_TARGETS:           ruby33              # DICE: ruby33
 */*         RUBY_TARGETS:           ruby34              # DICE: ruby34
@@ -78,10 +74,6 @@ app-doc/gimp-help                   -nls                # DICE: gimphelp 4 5
 
 # circular dependencies with media-libs/libsndfile
 media-sound/lame                    -sndfile            # DICE: lame
-
-# too much deps at setup, lowering coverity
-app-portage/pfl                     -network-cron       # DICE: pfl 1 9
-app-text/ansifilter                 -gui                # DICE: ansifilter 1 9
 
 # FF+TB
 app-text/poppler                    cairo               # DICE: ff_tb 1 6

@@ -43,6 +43,7 @@ error: .
 Please fix the ebuild to use correct FHS/Gentoo policy paths
 ^ERROR
 ^FAILED:
+Error . shuffle=.*
  \*   .* failed
 Unsupported kernel version!
  \* ERROR:
@@ -51,6 +52,5 @@ error:.*command not found
  \*\*\* No rule to make target
  error:.*:.
 ninja: build stopped:
-Error . shuffle=.*
 : No such file or directory
 cc1 : .* warnings being treated as errors

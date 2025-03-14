@@ -85,5 +85,6 @@ test-full
 tcmalloc
 unwind
 vanilla
+vulkan_overlay
 wayland
 x32
