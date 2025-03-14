@@ -33,7 +33,7 @@ rm $result.special
 
 # regular packages
 grep -v -e '^%' <<<$* |
-  xargs -n 1 |
+  xargs -r -n 1 |
   sort -u |
   while read -r atom; do
     if [[ $atom =~ ^@ || $atom =~ ^= ]]; then
