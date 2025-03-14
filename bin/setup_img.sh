@@ -664,7 +664,7 @@ fi
 
 date
 echo "#setup git" | tee /var/tmp/tb/task
-USE="-cgi -mediawiki -mediawiki-experimental -perl -webdav" emerge -u dev-vcs/git
+USE="-cgi -cvs -mediawiki -mediawiki-experimental -perl -subversion -webdav -xinetd -curl_quic_openssl -http2 -http3 -quic ssl" emerge -u dev-vcs/git
 
 date
 echo "#setup sync" | tee /var/tmp/tb/task
@@ -1121,6 +1121,7 @@ while getopts R:a:k:p:m:M:st:u: opt; do
     useconfigof="me"
     [[ $name =~ "_test" ]] && testfeature="y"
     [[ $name =~ "_abi32+64" ]] && abi3264="y"
+    start_it="y"
     CompileUseFlagFiles
     Finalize
     exit 0

@@ -119,11 +119,13 @@ source $(dirname $0)/lib.sh
 
 StopNonrespondingImages
 
-# free slots
+# free the slot(s)
 while read -r img; do
   if __is_stopped $img; then
     rm ~tinderbox/run/$img
-    mv ~tinderbox/logs/$img.log ~tinderbox/img/$img/var/tmp/tb
+    if [[ -f ~tinderbox/logs/$img.log ]]; then
+      mv ~tinderbox/logs/$img.log ~tinderbox/img/$img/var/tmp/tb
+    fi
   fi
 done < <(
   cd ~tinderbox/run
