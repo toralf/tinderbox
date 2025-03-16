@@ -415,15 +415,17 @@ function CompileIssueComment0() {
   name: $name
 EOF
 
-  if grep -q -r "# DICE.*\[.*\]" /etc/portage/package.unmask/ 2>/dev/null; then
+  if grep -q -r "# DICE.*\[.*\]" /etc/portage/package.{accept_keywords,unmask}/; then
     (
-      echo -e "\n  UNMASKED:"
+      echo -e "\n  KEYWORDED/UNMASKED"
       while read -r dice; do
         echo -en "\n  "
         (grep -A 1 "^\[$dice\]" /mnt/tb/data/DICE_DESCRIPTIONS || echo) | xargs
-        grep -hr " \[$dice\]" /etc/portage/package.unmask/ | awk '{ print (" ", $1) }'
+        grep -hr " \[$dice\]" /etc/portage/package.{accept_keywords,unmask}/ |
+          awk '{ print (" ", $1) }' |
+          sort -u
       done < <(
-        grep -hr "# DICE.*\[.*\]" /etc/portage/package.unmask/ |
+        grep -hr "# DICE.*\[.*\]" /etc/portage/package.{accept_keywords,unmask}/ |
           grep -Eo '(\[.*\])' |
           tr -d '][' |
           sort -u

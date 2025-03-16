@@ -772,7 +772,7 @@ function RunDryrunWrapper() {
 
   for k in EOL STOP; do
     if [[ -f ./var/tmp/tb/$k ]]; then
-      echo -e "\n found $k file"
+      tail -v ./var/tmp/tb/$k
       exit 3
     fi
   done

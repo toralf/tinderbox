@@ -46,7 +46,7 @@ function create() {
     title=$(sed -e "s, - , - $dice ," <<<$title)
   done < <(
     set +f
-    grep -hr "# DICE.*\[.*\]" ../../../../../etc/portage/package.*/ |
+    grep -hr "# DICE.*\[.*\]" ../../../../../etc/portage/package.{accept_keywords,unmask}/ |
       grep -Eo '(\[.*\])' |
       sort -u
   )
