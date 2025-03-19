@@ -950,8 +950,8 @@ function WorkOnTask() {
       dryrun_cmd=$(sed -e 's,%emerge,emerge -p -v,' <<<$task)
     fi
 
-    if ! $dryrun_cmd $backtrack_opt &>>$tasklog; then
-      if grep -q ' backtrack: 20/20' $tasklog; then
+    if ! $dryrun_cmd &>>$tasklog; then
+      if grep -q -F '(backtrack: 20/20)' $tasklog; then
         backtrack_opt="--backtrack=50"
         if ! $dryrun_cmd $backtrack_opt &>>$tasklog; then
           ReachedEOL "dry-run failed ($backtrack_opt)" $tasklog
