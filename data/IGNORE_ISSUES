@@ -1,5 +1,6 @@
 ada compiler not available
 asciidoctor.*LoadError
+Currently installed version of OCaml is not yet supported
 No LLVM slot .* satisfying the package's dependencies found installed
 shared library .* could not be opened: Dynamic loading not supported
 The present kernel disabled CONFIG_MODULES.

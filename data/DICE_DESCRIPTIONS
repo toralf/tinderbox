@@ -1,20 +1,8 @@
 [meson]
-Please re-assign to ztrawhcse@ if you cannot reproduced it with regular meson.
-
-[ncurses-6.5]
-Issues involving opaque types / incomplete typedefs should block bug 930805
-
-[libtool]
-Requested by sam
-
-[ffmpeg]
-Requested by sam
-
-[glibc]
-Requested by dilfridge
+Please re-assign to ztrawhcse@ if it works with regular meson.
 
 [gcc-15]
 Requested by sam
 
-[go-1.24]
-Requested by WilliamH - maybe block bug 950018
+[cmake-4]
+Requested by sam

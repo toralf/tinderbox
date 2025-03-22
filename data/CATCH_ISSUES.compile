@@ -360,7 +360,6 @@ Error compiling Cython file:
 Cython.Compiler.Errors.CompileError:
 mv: cannot move
  \*   Failed to run command:
- fatal error:
 ar:.*: No such file or directory
 gtkdoc-mktmpl: command not found
 : installation or configuration problem: C compiler cannot create executables.

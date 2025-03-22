@@ -10,3 +10,4 @@ unpack: .* does not exist
  \*   Unsigned distfiles found
 BAD_TAR_INVOCATION
  .* not supported with EAPI
+Currently installed version of OCaml is not yet supported

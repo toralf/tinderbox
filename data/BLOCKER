@@ -1,4 +1,4 @@
-# tupels of (comment, bug number, pattern) to automate adding to a tracker bug
+# tuples of <comment, tracker bug number, pattern> to automatically add a blocker to the tracker bug
 
 
 # (colon-in-CFLAGS) - (TRACKER) ebuilds using colon (:) as a sed delimiter break on CFLAGS=-falign-functions=32:25:16
@@ -44,3 +44,8 @@ which: command not found|which is required|which: No such file or directory|No s
 # (ffmpeg-7.0) - [Tracker] Packages broken with media-video/ffmpeg-7.0
 928905
 AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC
+
+
+# (cmake-4) - [Tracker] Breakage with dev-build/cmake-4*
+951350
+Configuring incomplete, errors occurred!
