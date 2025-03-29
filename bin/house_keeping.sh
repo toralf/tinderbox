@@ -104,12 +104,16 @@ while lowSpace && read -r img; do
 done < <(list_images_by_age "img")
 
 while lowSpace && read -r img; do
-  if olderThan $img 9; then
-    pruneIt $img "space needed"
+  if olderThan $img 14; then
+    pruneIt $img "retention period reached"
   fi
 done < <(list_images_by_age "img")
 
-if lowSpace 89; then
-  echo "Warning: fs nearly fullfilled" >&2
-  exit 2
+while lowSpace 89 && read -r img; do
+  pruneIt $img "low free space"
+done < <(list_images_by_age "img")
+
+if lowSpace 95; then
+  echo "Warning: fs nearly full" >&2
+  exit 13
 fi
