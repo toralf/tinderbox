@@ -868,7 +868,7 @@ function RunAndCheck() {
   echo -e "\n--\n$(date)\nrc=$rc" >>$tasklog
   pkg=""
   unset phase pkgname pkglog
-  try_again=0 # "1" means to retry same task if it failed
+  try_again=0 # "1" means to retry same task
   filterPlainText <$tasklog >$tasklog_stripped
   PostEmerge
 
@@ -896,14 +896,14 @@ function RunAndCheck() {
     ReachedEOL "timeout  task=$task" $tasklog
 
   # emerge failed
-  elif [[ $rc -gt 0 ]] || grep -i -q -F '* ERROR: ' $tasklog_stripped; then
+  elif [[ $rc -gt 0 ]] || grep -q -F '* ERROR: ' $tasklog_stripped; then
     if phase=$(grep -e " * The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
       if [[ -f /var/tmp/tb/EOL ]]; then
         ReachedEOL "caught EOL in $phase()" $tasklog
       elif [[ -f /var/tmp/tb/STOP ]]; then
         Finish "caught STOP in $phase()" $tasklog
       else
-        ReachedEOL "$phase() died with rc=$rc" $tasklog
+        ReachedEOL "$phase() died, rc=$rc" $tasklog
       fi
 
     elif GetPkgFromTaskLog; then
@@ -1052,10 +1052,12 @@ function DetectRepeats() {
   local count item
   read -r count item < <(tail -n 90 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge 40 ]]; then
-    ReachedEOL "repeated: $count x $item"
+    ls -l /var/tmp/tb/logs | tail -n 30 >/tmp/ls-l.txt
+    ReachedEOL "repeated: $count x $item" /tmp/ls-l.txt
   elif [[ ! $name =~ "_test" ]]; then
     if [[ $count -ge 20 ]] || [[ ! $item =~ ^% && $count -ge 10 ]]; then
-      ReachedEOL "repeated: $count x $item"
+      ls -l /var/tmp/tb/logs | tail -n 30 >/tmp/ls-l.txt
+      ReachedEOL "repeated: $count x $item" /tmp/ls-l.txt
     fi
   fi
 }
