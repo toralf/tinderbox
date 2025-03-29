@@ -13,7 +13,7 @@ function Exit() {
   if [[ $rc -eq 0 ]]; then
     echo -e "$(date)  setup done for $name"
   else
-    echo -e "$(date)  setup failed for $name with rc=$rc"
+    echo -e "$(date)  setup FAILED for $name with rc=$rc"
   fi
   echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   mv $trace_file $tbhome/img/$name/var/tmp/tb/
