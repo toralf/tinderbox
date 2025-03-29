@@ -53,6 +53,7 @@ dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
 media-libs/mesa                     llvm                # DICE: setup_mesa 7 8
 net-misc/curl       -gnutls -mbedtls -rustls ssl        # DICE: setup_curl 7 8
 net-misc/curl       CURL_QUIC: -gnutls -ngtcp2 openssl  # DICE: setup_curl 7 8
+net-misc/curl       CURL_QUIC_OPENSSL: -gnutls          # DICE: setup_curl 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 #######################################################################

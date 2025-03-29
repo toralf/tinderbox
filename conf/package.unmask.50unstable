@@ -1,2 +1,5 @@
 # package.unmask/50unstable
 #
+
+# sam_
+=dev-build/cmake-4*                                     # DICE: [cmake-4] 1 4

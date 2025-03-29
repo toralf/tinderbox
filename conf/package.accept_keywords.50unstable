@@ -3,6 +3,3 @@
 
 # ztrawhcs: "we want to test all upstream release candidates"
 <dev-build/meson-9999                              **   # DICE: [meson] 1 4
-
-# sam_
-=dev-build/cmake-4*                                **   # DICE: [cmake-4]
