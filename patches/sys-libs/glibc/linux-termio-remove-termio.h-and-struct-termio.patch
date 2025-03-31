@@ -1,0 +1,156 @@
+From patchwork Thu Mar 27 20:59:54 2025
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: "H. Peter Anvin" <hpa@zytor.com>
+X-Patchwork-Id: 109395
+Return-Path: <libc-alpha-bounces~patchwork=sourceware.org@sourceware.org>
+X-Original-To: patchwork@sourceware.org
+Delivered-To: patchwork@sourceware.org
+Received: from server2.sourceware.org (localhost [IPv6:::1])
+	by sourceware.org (Postfix) with ESMTP id 361D73857B91
+	for <patchwork@sourceware.org>; Thu, 27 Mar 2025 21:01:28 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 sourceware.org 361D73857B91
+Authentication-Results: sourceware.org;
+	dkim=pass (2048-bit key,
+ unprotected) header.d=zytor.com header.i=@zytor.com header.a=rsa-sha256
+ header.s=2025032001 header.b=dUlrWvOw
+X-Original-To: libc-alpha@sourceware.org
+Delivered-To: libc-alpha@sourceware.org
+Received: from mail.zytor.com (unknown [IPv6:2607:7c80:54:3::138])
+ by sourceware.org (Postfix) with ESMTPS id 33B6C3858D20
+ for <libc-alpha@sourceware.org>; Thu, 27 Mar 2025 21:00:43 +0000 (GMT)
+DMARC-Filter: OpenDMARC Filter v1.4.2 sourceware.org 33B6C3858D20
+Authentication-Results: sourceware.org;
+ dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: sourceware.org; spf=pass smtp.mailfrom=zytor.com
+ARC-Filter: OpenARC Filter v1.0.0 sourceware.org 33B6C3858D20
+Authentication-Results: server2.sourceware.org;
+ arc=none smtp.remote-ip=2607:7c80:54:3::138
+ARC-Seal: i=1; a=rsa-sha256; d=sourceware.org; s=key; t=1743109243; cv=none;
+ b=qIdEHcysHPLHNcbrDcE8EaqnCDNoKDYpii/br6D1yjhSAluU3/O2rJMSatySYgtvczSNzUR1REA4M/egkkfXeq58XL2sOvaHWoWbqmx9qotCzVaQI6UK2EBu16K0Bo/5mOPX1s9gUI55o7nFXQqVtgj73bsClkID6JOmLGtHQQI=
+ARC-Message-Signature: i=1; a=rsa-sha256; d=sourceware.org; s=key;
+ t=1743109243; c=relaxed/simple;
+ bh=e9mGoaQ+fQDpfc7SqY1E3vqj1xKiaCNx568g3O7UmNk=;
+ h=DKIM-Signature:From:To:Subject:Date:Message-ID:MIME-Version;
+ b=HbHt353aCUqBFp7yO6+Y5ljJjkM7Konm8cE5eu3188jA7gQ3e4P5n4aAOsph2vX03dEchTIuOYjvjtgdKGl/Q0TaHlQl9PwvgyoFEAYCTNDuC//cnSi8p+tNLATkimhNzYjWHRL38YJDeDqv+9Eg6nyMmjuFcMVVBFAq9Y7uTcU=
+ARC-Authentication-Results: i=1; server2.sourceware.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 sourceware.org 33B6C3858D20
+Received: from carbon-x1.hos.anvin.org
+ ([IPv6:2601:646:8083:1982:248d:9102:5b8a:6e6c])
+ (authenticated bits=0)
+ by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 52RL0Lgg1637485
+ (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
+ Thu, 27 Mar 2025 14:00:39 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 52RL0Lgg1637485
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+ s=2025032001; t=1743109240;
+ bh=2NmMEkxK+uFHXg/2CnZdlrhWWV17xG5i18yX4sCUII8=;
+ h=From:To:Cc:Subject:Date:From;
+ b=dUlrWvOwlPfyVN+Fz7AIjQ1Ciwbw7SANA1hSWxKp4OkTxdcaBxqs/gUGYAoEQTnuQ
+ LInb6EvlWxaTZUMIiJcd0q4XHJjUxmtfjp8QAtXciRY+QnGqe4vKIRNH8/rORgmaEp
+ VfaJ+tux1wBReDDjETwvgw7VKqg3sRHo32f7fsdxktIV4Ux7PhL3UQa+MmFD7ub6PN
+ wqDcCxbGcJpWHAeAH5OGtxCm6e6y5wImgkzIyFEuGDfPsD46JC5CIfoQS/3hZpagz7
+ gj8xeFMvbaHmkkD83i5HXro4O3Y9XELhWzDfmGGq9QtI44Hf4I2bV/g0vS6RcMCkiV
+ JkT/jTmJP5xdw==
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Florian Weimer <fweimer@redhat.com>
+Cc: libc-alpha@sourceware.org, "H . Peter Anvin" <hpa@zytor.com>
+Subject: [PATCH] linux/termio: remove <termio.h> and struct termio
+Date: Thu, 27 Mar 2025 13:59:54 -0700
+Message-ID: <20250327205954.1090337-1-hpa@zytor.com>
+X-Mailer: git-send-email 2.49.0
+MIME-Version: 1.0
+X-Spam-Status: No, score=-9.0 required=5.0 tests=BAYES_00, DKIM_SIGNED,
+ DKIM_VALID, DKIM_VALID_AU, DKIM_VALID_EF, GIT_PATCH_0, SPF_HELO_PASS,
+ SPF_PASS,
+ TXREP autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+ server2.sourceware.org
+X-BeenThere: libc-alpha@sourceware.org
+X-Mailman-Version: 2.1.30
+Precedence: list
+List-Id: Libc-alpha mailing list <libc-alpha.sourceware.org>
+List-Unsubscribe: <https://sourceware.org/mailman/options/libc-alpha>,
+ <mailto:libc-alpha-request@sourceware.org?subject=unsubscribe>
+List-Archive: <https://sourceware.org/pipermail/libc-alpha/>
+List-Post: <mailto:libc-alpha@sourceware.org>
+List-Help: <mailto:libc-alpha-request@sourceware.org?subject=help>
+List-Subscribe: <https://sourceware.org/mailman/listinfo/libc-alpha>,
+ <mailto:libc-alpha-request@sourceware.org?subject=subscribe>
+Errors-To: libc-alpha-bounces~patchwork=sourceware.org@sourceware.org
+
+The <termio.h> interface is absolutely ancient: it was obsoleted by
+<termios.h> already in the first version of POSIX (1988) and thus
+predates the very first version of Linux. Unfortunately, some constant
+macros are used both by <termio.h> and <termios.h>; particularly
+problematic is the baud rate constants since the termio interface
+*requires* that the baud rate is set via an enumeration as part of
+c_cflag.
+
+In preparation of revamping the termios interface to support the
+arbitrary baud rate capability that the Linux kernel has supported
+since 2008, remove <termio.h> in the hope that no one still uses this
+archaic interface.
+
+Note that there is no actual code in glibc to support termio: it is
+purely an unabstracted ioctl() interface.
+Signed-off-by: even if it's just deleting code. 8-)  I assume you are
+---
+ sysdeps/unix/sysv/linux/Makefile           |  6 ------
+ sysdeps/unix/sysv/linux/bits/ioctl-types.h | 11 -----------
+ sysdeps/unix/sysv/linux/termio.h           |  6 ------
+ 3 files changed, 23 deletions(-)
+ delete mode 100644 sysdeps/unix/sysv/linux/termio.h
+
+diff --git a/sysdeps/unix/sysv/linux/Makefile b/sysdeps/unix/sysv/linux/Makefile
+index dcd87b295e8d..ebcf820403ff 100644
+--- a/sysdeps/unix/sysv/linux/Makefile
++++ b/sysdeps/unix/sysv/linux/Makefile
+@@ -506,12 +506,6 @@ sysdep_headers += \
+   # sysdep_headers
+ endif
+ 
+-ifeq ($(subdir),termios)
+-sysdep_headers += \
+-  termio.h \
+-  # sysdep_headers
+-endif
+-
+ ifeq ($(subdir),posix)
+ sysdep_headers += \
+   bits/initspin.h \
+diff --git a/sysdeps/unix/sysv/linux/bits/ioctl-types.h b/sysdeps/unix/sysv/linux/bits/ioctl-types.h
+index cc2c9d7af4ba..e8e5084f1e11 100644
+--- a/sysdeps/unix/sysv/linux/bits/ioctl-types.h
++++ b/sysdeps/unix/sysv/linux/bits/ioctl-types.h
+@@ -32,17 +32,6 @@ struct winsize
+     unsigned short int ws_ypixel;
+   };
+ 
+-#define NCC 8
+-struct termio
+-  {
+-    unsigned short int c_iflag;		/* input mode flags */
+-    unsigned short int c_oflag;		/* output mode flags */
+-    unsigned short int c_cflag;		/* control mode flags */
+-    unsigned short int c_lflag;		/* local mode flags */
+-    unsigned char c_line;		/* line discipline */
+-    unsigned char c_cc[NCC];		/* control characters */
+-};
+-
+ /* modem lines */
+ #define TIOCM_LE	0x001
+ #define TIOCM_DTR	0x002
+diff --git a/sysdeps/unix/sysv/linux/termio.h b/sysdeps/unix/sysv/linux/termio.h
+deleted file mode 100644
+index 0e610f0c569c..000000000000
+--- a/sysdeps/unix/sysv/linux/termio.h
++++ /dev/null
+@@ -1,6 +0,0 @@
+-/* Compatible <termio.h> for old `struct termio' ioctl interface.
+-   This is obsolete; use the POSIX.1 `struct termios' interface
+-   defined in <termios.h> instead.  */
+-
+-#include <termios.h>
+-#include <sys/ioctl.h>

@@ -2,7 +2,7 @@
 #
 
 # xgqt dotnet-sdk
-*/*                                 llvm-unwind         # DICE: unwind 1 3
+*/*                                 llvm-unwind         # DICE: unwind 1 6
 
 #######################################################################
 # open bugs

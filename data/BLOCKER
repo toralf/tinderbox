@@ -45,7 +45,10 @@ which: command not found|which is required|which: No such file or directory|No s
 928905
 AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC
 
-
 # (cmake-4) - [Tracker] Breakage with dev-build/cmake-4*
 951350
 Configuring incomplete, errors occurred!
+
+# [Tracker] termio.h and struct termio removal in glibc-2.42
+952954
+struct termio|termio|termio.h

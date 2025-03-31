@@ -22,6 +22,7 @@ sci-astronomy/sextractor
 #
 # loong emerge times
 #
+dev-dotnet/dotnet-sdk
 dev-qt/qtwebengine
 sci-libs/
 #
