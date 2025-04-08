@@ -29,22 +29,22 @@ function dice() {
 function DiceAProfile() {
   eselect profile list |
     grep -F '/23.0' |
-    grep -v -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' |
+    grep -v -F -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' -e ' (exp)' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
-    if dice 15 16; then
+    if dice 1 1; then
       # underweight MUSL
       grep -v '/musl'
     else
       grep '.'
     fi |
-    if dice 7 8; then
+    if dice 1 1; then
       # underweight LLVM
       grep -v '/llvm'
     else
       grep '.'
     fi |
-    if dice 1 3; then
+    if dice 2 5; then
       # overweight Desktop
       grep '/desktop'
     else
