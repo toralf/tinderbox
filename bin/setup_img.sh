@@ -102,7 +102,7 @@ function SetOptions() {
 
   # sam_
   if [[ ! $profile =~ "/llvm" ]]; then
-    if dice 1 8; then
+    if dice 1 4; then
       ldflags=" -Werror=lto-type-mismatch -Werror=strict-aliasing -Werror=odr -flto"
       cflags+="$ldflags"
     fi
