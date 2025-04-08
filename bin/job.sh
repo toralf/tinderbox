@@ -445,11 +445,6 @@ EOF
     ) >>$issuedir/comment0
   fi
 
-  # Pacho
-  if grep -F 'ENV_UNSET="XDG_DATA_DIRS XDG_CONFIG_DIRS"' /etc/portage/make.default >>$issuedir/comment0 2>/dev/null; then
-    echo '  ^^ please note' >>$issuedir/comment0
-  fi
-
   cat <<EOF >>$issuedir/comment0
 
   The attached etc.portage.tar.xz has all details.
