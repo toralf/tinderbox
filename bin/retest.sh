@@ -43,7 +43,9 @@ grep -v -e '^%' <<<$* |
         grep -v '<unset>' |
         grep ".*-.*/.*"
     fi
-  done >$result.packages
+  done |
+  sort -u >$result.packages
+
 if [[ -s $result.packages ]]; then
   # if there're only few packages then emerge them immediately
   if [[ $(wc -l <$result.packages) -le 3 ]]; then
