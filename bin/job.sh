@@ -72,7 +72,7 @@ function Finish() {
 }
 
 # helper of getNextTask()
-function setBacklog() {
+function getNextBacklog() {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     echo "/var/tmp/tb/backlog.1st"
 
@@ -93,7 +93,7 @@ function setBacklog() {
 # either set $task to a valid entry or exit
 function getNextTask() {
   while :; do
-    if ! backlog=$(setBacklog); then
+    if ! backlog=$(getNextBacklog); then
       ReachedEOL "all work DONE"
     fi
 
@@ -410,7 +410,6 @@ function CompileIssueComment0() {
   cat <<EOF >>$issuedir/comment0
 
   -------------------------------------------------------------------
-
   This is an $keyword amd64 chroot image at a tinderbox (==build bot)
   name: $name
 EOF
@@ -429,6 +428,16 @@ EOF
           grep -Eo '(\[.*\])' |
           tr -d '][' |
           sort -u
+      )
+    ) >>$issuedir/comment0
+  fi
+
+  if [[ -d /etc/portage/patches/$pkgname/ || -d /etc/portage/patches/$pkg ]]; then
+    (
+      echo -e "\n  used patches:"
+      (
+        cd /etc/portage/patches/
+        ls -l {$pkgname,$pkg}/* | sed -e 's,^,    ,'
       )
     ) >>$issuedir/comment0
   fi
@@ -471,11 +480,11 @@ EOF
 
     for i in /var/db/repos/*/.git; do
       cd $i/..
-      echo -e "\n  HEAD of ::$(basename $PWD)"
+      echo -e "  HEAD of ::$(basename $PWD)"
       git show -s HEAD
     done
 
-    echo -e "\nemerge -qpvO =$pkg"
+    echo -e "\nThe tinderbox task was: $task\n\nemerge -qpvO =$pkg"
     emerge -qpvO =$pkg | head -n 1
   ) >>$issuedir/comment0 2>/dev/null
 }
