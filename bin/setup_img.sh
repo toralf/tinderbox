@@ -91,7 +91,7 @@ function InitOptions() {
   fi
 }
 
-function SetOptions() {
+function SetProfile() {
   if [[ -z $profile ]]; then
     profile=$(DiceAProfile)
   fi
@@ -126,7 +126,7 @@ function CheckOptions() {
   checkBool "abi3264"
   checkBool "testfeature"
 
-  if grep -q "/$" <<<$profile; then
+  if [[ $profile =~ /$ ]]; then
     profile=$(sed -e 's,/$,,' <<<$profile)
   fi
 
@@ -145,9 +145,11 @@ function CheckOptions() {
     return 1
   fi
 
-  if [[ -n $useconfigof && $useconfigof != "me" && ! -d ~tinderbox/img/$(basename $useconfigof)/etc/portage/ ]]; then
-    echo " useconfigof is wrong: >>$useconfigof<<"
-    return 1
+  if [[ -n $useconfigof ]]; then
+    if [[ ! -d ~tinderbox/img/$useconfigof/etc/portage/ ]]; then
+      echo " wrong useconfigof: >>$useconfigof<<"
+      return 1
+    fi
   fi
 }
 
@@ -806,7 +808,7 @@ function FixPossibleUseFlagIssues() {
 
     local try_again=0
 
-    # remove a package from the thrown use flags file
+    # remove a package from the diced use flags file
     #
     local pn=$(
       grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
@@ -817,7 +819,7 @@ function FixPossibleUseFlagIssues() {
     )
 
     if [[ -n $pn ]]; then
-      local f=./etc/portage/package.use/24thrown_package_use_flags
+      local f=./etc/portage/package.use/24diced_package_use_flags
       if grep -q "^${pn} " $f; then
         sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $f
         if RunDryrunWrapper "#setup dryrun $attempt-$fix # unmet req: $pn"; then
@@ -947,14 +949,14 @@ function ThrowFlags() {
     shuf -n $((RANDOM % 20)) |
     sort |
     xargs |
-    xargs -I {} -r echo "*/*  L10N: {}" >./etc/portage/package.use/22thrown_l10n
+    xargs -I {} -r echo "*/*  L10N: {}" >./etc/portage/package.use/22diced_l10n
 
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
     grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
     ShuffleUseFlags 150 25 30 |
     xargs -s 73 |
-    sed -e "s,^,*/*  ," >./etc/portage/package.use/23thrown_global_use_flags
+    sed -e "s,^,*/*  ," >./etc/portage/package.use/23diced_global_use_flags
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
     grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
@@ -971,7 +973,7 @@ function ThrowFlags() {
         ShuffleUseFlags 9 3 1 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
-    done >./etc/portage/package.use/24thrown_package_use_flags
+    done >./etc/portage/package.use/24diced_package_use_flags
 }
 
 function CompileUseFlagFiles() {
@@ -1020,14 +1022,15 @@ EOF
   if [[ -n $useconfigof ]]; then
     echo
     date
-    echo " +++  run dryrun once using config of $useconfigof  +++"
-    if [[ $useconfigof != "me" ]]; then
-      if [[ $(basename $useconfigof) != $(basename $name) ]]; then
-        for i in accept_keywords env mask unmask use; do
-          cp ~tinderbox/img/$(basename $useconfigof)/etc/portage/package.$i/* ./etc/portage/package.$i/
-        done
-      fi
+    if [[ $(realpath ~tinderbox/img/$useconfigof) == $(realpath .) ]]; then
+      echo " +++  run dryrun once using own config  +++"
+    else
+      echo " +++  run dryrun once using config of $useconfigof  +++"
+      for i in accept_keywords env mask unmask use; do
+        cp ~tinderbox/img/$useconfigof/etc/portage/package.$i/* ./etc/portage/package.$i/
+      done
     fi
+
     if FixPossibleUseFlagIssues 0; then
       return 0
     fi
@@ -1062,7 +1065,7 @@ function Finalize() {
   if [[ $start_it == "y" ]]; then
     cd $tbhome/run
     ln -sf ../img/$name
-    sleep 1 # reap recently used cgroup
+    sleep 1 # wait till used cgroup is gone
     echo
     sudo -u tinderbox $(dirname $0)/start_img.sh $name
     echo
@@ -1094,14 +1097,14 @@ InitOptions
 while getopts R:a:k:p:m:M:st:u: opt; do
   case $opt in
   R)
-    cd $tbhome/img/$(basename $OPTARG)
+    useconfigof=$(basename $OPTARG)
+    cd $tbhome/img/$useconfigof
     if [[ -f ./var/tmp/tb/EOL || -f ./var/tmp/tb/STOP ]]; then
       echo " EOL or STOP found" >&2
       exit 3
     fi
     name=$(cat ./var/tmp/tb/name)
     profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
-    useconfigof="me"
     [[ $name =~ "_test" ]] && testfeature="y"
     [[ $name =~ "_abi32+64" ]] && abi3264="y"
     start_it="y"
@@ -1113,8 +1116,8 @@ while getopts R:a:k:p:m:M:st:u: opt; do
   k) keyword="$OPTARG" ;;                                       # "amd64"
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "23.0/desktop"
   s) start_it="y" ;;
-  t) testfeature="$OPTARG" ;; # "y" or "n"
-  u) useconfigof="$OPTARG" ;; # "me" or e.g. "23.0_desktop_systemd-20230624-014416"
+  t) testfeature="$OPTARG" ;;             # "y" or "n"
+  u) useconfigof="$(basename $OPTARG)" ;; # e.g. "23.0_desktop_systemd-20230624-014416"
   *)
     echo "unknown parameter '$opt'"
     exit 1
@@ -1122,7 +1125,7 @@ while getopts R:a:k:p:m:M:st:u: opt; do
   esac
 done
 
-SetOptions
+SetProfile
 CheckOptions
 InitImageFromStage3
 InitRepository
