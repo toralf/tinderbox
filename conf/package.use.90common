@@ -32,6 +32,9 @@ dev-lang/python                     -libedit readline
 # default compressor for tar and log files
 app-arch/libarchive                 lzma
 
+# required by sys-kernel/gentoo-kernel-bin
+sys-apps/kmod                       lzma
+
 # no installation https://bugs.gentoo.org/831346
 sys-kernel/gentoo-kernel-bin        -initramfs -kernel-install
 sys-kernel/installkernel            -dracut -grub
@@ -61,8 +64,8 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 # misc
 #
 
-*/*         RUBY_TARGETS:           ruby33              # DICE: ruby33
-*/*         RUBY_TARGETS:           ruby34              # DICE: ruby34
+*/*         RUBY_TARGETS:           ruby33              # DICE: ruby33 1 4
+*/*         RUBY_TARGETS:           ruby34              # DICE: ruby34 1 4
 
 # 2x faster compile
 */*                                 jumbo-build

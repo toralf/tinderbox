@@ -51,4 +51,4 @@ Configuring incomplete, errors occurred!
 
 # [Tracker] termio.h and struct termio removal in glibc-2.42
 952954
-struct termio|termio|termio.h
+struct termio|termio |termio.h|invalid application of sizeof to incomplete type _sanitizer::termio
