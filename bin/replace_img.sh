@@ -92,15 +92,8 @@ if [[ ! -d /run/tb ]]; then
   exit 2
 fi
 
-if [[ $# -eq 1 ]]; then
-  desired_count=$1
-else
-  case $(nproc) in
-  32) desired_count=11 ;;
-  96) desired_count=16 ;;
-  *) desired_count=$(($(nproc) / 3)) ;;
-  esac
-fi
+# number of parallel images
+desired_count=${1:-11}
 
 # semaphore for the cleanup phase
 lockfile="/tmp/$(basename $0).lock"

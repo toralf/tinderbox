@@ -12,11 +12,11 @@ function CreateCgroup() {
     if mkdir $cgdomain 2>/dev/null; then
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-      # reserve 5 of 32 vCPU for 12 images, calculate with jobs=4
+      # reserve 5 of 32 vCPU for non-tinderboxing work
       echo "$((27 * 100))" >$cgdomain/cpu.weight
       echo "$((27 * 100000))" >$cgdomain/cpu.max
-      echo "$((12 * (4 * 2 + 1)))G" >$cgdomain/memory.max # images x (jobs x RAM + 1) GiB
-      echo "200G" >$cgdomain/memory.swap.max              # 256 GiB swap currently
+      echo "110G" >$cgdomain/memory.max      # images x (jobs x RAM + 1) GiB
+      echo "200G" >$cgdomain/memory.swap.max # 256 GiB swap currently
     fi
   fi
 
@@ -46,8 +46,8 @@ function CreateCgroup() {
   echo "$((100 * jobs))" >$name/cpu.weight
   echo "$((100000 * jobs))" >$name/cpu.max
 
-  # 2 GiB per job + 1 GiB for misc
-  echo "$((2 * jobs + 1))G" >$name/memory.max
+  # 3 GiB per job + 1 GiB for misc
+  echo "$((3 * jobs + 1))G" >$name/memory.max
 }
 
 function RemoveCgroup() {

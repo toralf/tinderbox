@@ -59,11 +59,7 @@ function InitOptions() {
 
   # const
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
-  case $(nproc) in
-  32) jobs="4" ;;
-  96) jobs="8" ;;
-  *) jobs=$(($(nproc) / 8)) ;;
-  esac
+  jobs="4"
 
   abi3264="n"
   cflags=$cflags_default

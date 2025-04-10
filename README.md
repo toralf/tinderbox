@@ -7,7 +7,7 @@
 The goal is to detect build issues/conflicts of Gentoo Linux packages.
 For that about a dozen sandbox'ed Gentoo images are running in parallel.
 Each image is setup from a recent _stage3_ tarball as an arbitrary combination of _~amd64_ + _profile_ + _USE flag_ set.
-Within each image all Gentoo packages are in a randomized order scheduled to be installed.
+Within each image all Gentoo packages are scheduled for installation, in a randomized order for each image.
 
 ## Usage
 
@@ -43,6 +43,8 @@ Grant sudo rights to the user _tinderbox_:
 ```bash
 tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh,/opt/tb/bin/kill_img.sh,/opt/tb/bin/retest.sh,/opt/tb/bin/collect_data.sh,/usr/sbin/emaint
 ```
+
+Adapt the values [desired_count](./bin/replace_img.sh#L96), [cgroup memory](./bin/bwrap.sh#L7) and [jobs](./bin/setup_img.sh#L60) for your machine size.
 
 ## Disclaimer
 
