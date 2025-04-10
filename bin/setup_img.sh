@@ -206,16 +206,9 @@ function getStage3Filename() {
 
   echo "$(date)   get stage3 file name for prefix $prefix"
 
-  if [[ $stage3_list =~ "latest" ]]; then
-    if ! stage3=$(grep -o "^20.*/$prefix-20.*T.*Z\.tar\.\w*" $stage3_list); then
-      echo "$(date)   failed"
-      return 1
-    fi
-  else
-    if ! stage3=$(grep -o "$prefix-20.*T.*Z\.tar\.\w*" $stage3_list); then
-      echo "$(date)   failed"
-      return 1
-    fi
+  if ! stage3=$(grep -o "^20.*/$prefix-20.*T.*Z\.tar\.\w*" $stage3_list); then
+    echo "$(date)   failed"
+    return 1
   fi
 }
 
