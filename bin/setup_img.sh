@@ -819,9 +819,9 @@ function FixPossibleUseFlagIssues() {
     )
 
     if [[ -n $pn ]]; then
-      local f=./etc/portage/package.use/24diced_package_use_flags
-      if grep -q "^${pn} " $f; then
-        sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $f
+      local dpuf=./etc/portage/package.use/24diced_package_use_flags
+      if grep -q "^${pn} " $dpuf; then
+        sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $dpuf
         if RunDryrunWrapper "#setup dryrun $attempt-$fix # unmet req: $pn"; then
           return 0
         else
@@ -842,6 +842,9 @@ function FixPossibleUseFlagIssues() {
       grep '^- .* (Change USE: ' |
       sed -e "s,^- ,," -e "s, (Change USE:,," -e "s,)$,," |
       while read -r p f; do
+        if grep -q -x -e "$(tr -d '+-' <<<$f)" $tbhome/tb/data/IGNORE_USE_FLAGS; then
+          continue
+        fi
         for flag in $f; do
           if [[ ! $flag =~ '_' ]]; then
             pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
@@ -879,6 +882,9 @@ function FixPossibleUseFlagIssues() {
     awk '/The following USE changes are necessary to proceed:/,/^$/' $drylog |
       grep '^>=.* .*' |
       while read -r p f; do
+        if grep -q -x "$(tr -d '+-' <<<$f)" $tbhome/tb/data/IGNORE_USE_FLAGS; then
+          continue
+        fi
         pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
           if [[ $flag =~ '_' ]]; then
