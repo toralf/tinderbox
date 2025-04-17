@@ -1007,11 +1007,7 @@ function WorkOnTask() {
           ReachedEOL "failed: deps" $tasklog
         fi
       elif [[ -n $pkg ]]; then
-        if [[ $pkg =~ "sys-devel/gcc" ]] && [[ ! $name =~ "_llvm" ]]; then
-          ReachedEOL "system compiler failed: $pkg" $tasklog
-        elif [[ $pkg =~ "llvm-core/clang" || $pkg =~ "llvm-core/llvm" ]] && [[ $name =~ "_llvm" ]]; then
-          ReachedEOL "system compiler failed: $pkg" $tasklog
-        elif [[ $task =~ $pkg ]]; then
+        if [[ $task =~ $pkg ]]; then
           ReachedEOL "failed: $pkg" $tasklog
         else
           add2backlog "$task"
@@ -1047,6 +1043,13 @@ function WorkOnTask() {
           ReachedEOL "$task still has preserved libs" $tasklog
         fi
       fi
+    fi
+  fi
+
+  if [[ -n $pkg ]]; then
+    if [[ $pkgname == "sys-devel/gcc" && ! $name =~ "_llvm" ]] ||
+      [[ $pkgname == "llvm-core/clang" || $pkgname == "llvm-core/llvm" ]] && [[ $name =~ "_llvm" ]]; then
+      ReachedEOL "system compiler failed: $pkg" $tasklog
     fi
   fi
 }
