@@ -49,13 +49,6 @@ function StopNonrespondingImages() {
     done
 }
 
-function FreeSlotAvailable() {
-  local running=$(wc -l < <(ImagesInRun))
-  local replacing=$(pgrep -fc "/bin/bash /opt/tb/bin/replace")
-
-  [[ $((running + replacing)) -le $desired_count ]]
-}
-
 function SetupANewImage() {
   echo
   date
@@ -128,6 +121,8 @@ done < <(
 # end semaphore
 rm $lockfile
 
-if FreeSlotAvailable; then
+running=$(wc -l < <(ImagesInRun))
+replacing=$(pgrep -fc "/bin/bash $(realpath $0)")
+if [[ $((running + replacing)) -le $desired_count ]]; then
   SetupANewImage
 fi
