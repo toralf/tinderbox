@@ -105,12 +105,12 @@ done < <(list_images_by_age "img")
 
 while lowSpace && read -r img; do
   if olderThan $img 14; then
-    pruneIt $img "retention period reached"
+    pruneIt $img "free space"
   fi
 done < <(list_images_by_age "img")
 
 while lowSpace 89 && read -r img; do
-  pruneIt $img "low free space"
+  pruneIt $img "free space is low"
 done < <(list_images_by_age "img")
 
 if lowSpace 95; then
