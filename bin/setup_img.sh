@@ -76,11 +76,6 @@ function InitOptions() {
     cflags=$(sed -e 's,-O2,-O3,' <<<$cflags)
   fi
 
-  # force bug 685160 (colon in CFLAGS)
-  if dice 1 80; then
-    cflags+=" -falign-functions=32:25:16"
-  fi
-
   if dice 1 20; then
     # this sets "*/* ABI_X86: 32 64" via package.use.40abi32+64
     abi3264="y"
