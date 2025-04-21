@@ -15,8 +15,7 @@ sys-apps/nix                        -etc_profile
 dev-vcs/git                         curl
 
 # required to access ::gentoo repository
-net-misc/curl                       ssl
-net-misc/curl                       CURL_QUIC_OPENSSL: -gnutls
+net-misc/curl                       ssl -gnutls -mbedtls -ngtcp2 -rustls
 
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
@@ -52,11 +51,8 @@ sys-apps/util-linux                 pam
 # setup blocker
 #
 dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
-dev-libs/gmp                        asm cpudetection    # DICE: setup_gpm
 dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
 media-libs/mesa                     llvm                # DICE: setup_mesa 7 8
-net-misc/curl                 -gnutls -mbedtls -rustls  # DICE: setup_curl 7 8
-net-misc/curl      CURL_QUIC: -gnutls -ngtcp2 openssl   # DICE: setup_curl 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 
 #######################################################################
@@ -64,22 +60,21 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 # misc
 #
 
-#*/*         RUBY_TARGETS:           ruby33              # DICE: ruby33
-#*/*         RUBY_TARGETS:           ruby34              # DICE: ruby34
+*/*         RUBY_TARGETS:           ruby34              # DICE: ruby34
 
 # 2x faster compile
 */*                                 jumbo-build
 
 # needs hours instead seconds
-dev-libs/gf2x                       -custom-tune        # DICE: gf2x 4 5
+dev-libs/gf2x                       -custom-tune        # DICE: gf2x 7 8
 
 # takes 2 hours insteads seconds
-app-doc/gimp-help                   -nls                # DICE: gimphelp 4 5
+app-doc/gimp-help                   -nls                # DICE: gimphelp 7 8
 
 # circular dependencies with media-libs/libsndfile
 media-sound/lame                    -sndfile            # DICE: lame
 
-# FF+TB
+# FF and TB
 app-text/poppler                    cairo               # DICE: ff_tb 1 6
 dev-lang/python                     sqlite              # DICE: ff_tb 1 6
 dev-libs/libusb                     udev                # DICE: ff_tb 1 6
