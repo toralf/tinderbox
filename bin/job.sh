@@ -917,7 +917,9 @@ function RunAndCheck() {
     if [[ $try_again -eq 0 ]]; then
       if [[ -n $pkg ]]; then
         local self=/etc/portage/package.mask/self
-        if [[ ! -s $self ]] || ! grep -q -e "=$pkg$" $self; then
+        if grep -q -e "=$pkg$" $self; then
+          ReachedEOL "$pkg already masked" $tasklog
+        else
           echo "=$pkg" >>$self
         fi
       fi
