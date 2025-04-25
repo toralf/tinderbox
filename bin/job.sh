@@ -830,14 +830,17 @@ function GetPkglog() {
   if [[ -z $pkg ]]; then
     return 1
   fi
-  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
+
+  if [[ -z $pkgname ]]; then
+    pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
+  fi
+
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<<$pkgname).*\.log" $tasklog_stripped)
   if [[ ! -f $pkglog ]]; then
     pkglog=$(ls -1 /var/log/portage/$(tr '/' ':' <<<$pkgname)*.log 2>/dev/null | sort -r | head -n 1)
-  fi
-  if [[ ! -f $pkglog ]]; then
-    Mail "INFO: failed to get pkglog=$pkglog  pkg=$pkg  pkgname=$pkgname  task=$task" $tasklog_stripped
-    return 1
+    if [[ ! -f $pkglog ]]; then
+      ReachedEOL "failed to get pkglog=$pkglog  pkg=$pkg  pkgname=$pkgname  task=$task" $tasklog_stripped
+    fi
   fi
 }
 
@@ -854,6 +857,7 @@ function GetPkgFromTaskLog() {
     fi
   fi
   pkg=$(sed -e 's,:.*,,' <<<$pkg) # strip away the slot
+  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
 }
 
 # helper of WorkOnTask()
@@ -923,8 +927,8 @@ function RunAndCheck() {
           echo "=$pkg" >>$self
         fi
       fi
-      # to not lose current installed deps put the world file into the similar state
-      # as the one where deps would been alreadey emerged before
+      # do not lose current installed deps, therefore turn the world file into the same state
+      # as it would be if dep packages were been emerged before
       if grep -q '^>>> Installing ' $tasklog_stripped; then
         emerge --depclean --verbose=n --pretend 2>/dev/null |
           grep "^All selected packages: " |
@@ -1045,9 +1049,16 @@ function WorkOnTask() {
   fi
 
   if [[ -n $pkg ]]; then
-    if [[ $pkgname == "sys-devel/gcc" && ! $name =~ "_llvm" ]] ||
-      [[ $pkgname == "llvm-core/clang" || $pkgname == "llvm-core/llvm" ]] && [[ $name =~ "_llvm" ]]; then
-      ReachedEOL "system compiler failed: $pkg" $tasklog
+    if [[ $pkgname == "sys-devel/gcc" ]]; then
+      if [[ ! $name =~ "_llvm" ]]; then
+        ReachedEOL "GCC failed: $pkg" $tasklog
+      fi
+    fi
+
+    if [[ $pkgname == "llvm-core/clang" || $pkgname == "llvm-core/llvm" ]]; then
+      if [[ $name =~ "_llvm" ]]; then
+        ReachedEOL "CLANG/LLVM failed: $pkg" $tasklog
+      fi
     fi
   fi
 }
