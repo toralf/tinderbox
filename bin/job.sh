@@ -584,15 +584,20 @@ function SendIssueMailIfNotYetReported() {
     cat $issuedir/title | tee -a /mnt/tb/findings/ALREADY_CAUGHT 1>/dev/null
   fi
 
-  if [[ $do_report -eq 0 ]]; then
-    return 0
-  fi
-
   for f in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/CATCH_ISSUES.{pretend,setup}; do
+    if grep -q '^$' $f; then
+      Mail "WARN: empty line in $f"
+      touch /var/tmp/tb/STOP
+      return 1
+    fi
     if grep -q -f $f $issuedir/title; then
       return 0
     fi
   done
+
+  if [[ $do_report -eq 0 ]]; then
+    return 0
+  fi
 
   cp $issuedir/issue $issuedir/body
   echo -e "\n\n" >>$issuedir/body
