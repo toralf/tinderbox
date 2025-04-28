@@ -551,7 +551,6 @@ function finishTitle() {
     -e 's,mmake\..*:.*:,,g' \
     -e 's,ninja: error: /.*/,ninja error: ,' \
     -e 's,object index [0-9].*,object index <snip>,g' \
-    -e 's,QA Notice: , ,' \
     -e 's,[0-9]* Segmentation fault,<snip> Segmentation fault,g' \
     -e 's,shuffle=[0-9]*,,g' \
     -e 's,target /.*/,target <snip>/,g' \
@@ -816,7 +815,9 @@ function catchMisc() {
   This is an $keyword amd64 chroot image at a tinderbox (==build bot)
   name: $name
 
-  The build log matches a QA pattern or sth. requested by a dev.
+  The build log matches a QA pattern or sth. else requested by a dev:
+  $line
+
   The attached etc.portage.tar.xz has all details.
   -------------------------------------------------------------------
 
