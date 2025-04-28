@@ -91,7 +91,7 @@ function prepareResultFile() {
 }
 
 function getSearchString() {
-  sed -e 's,^.* - ,,' -e 's,[\(\)], ,g'
+  sed -e 's,^.* - ,,' -e 's,[\(\)], ,g' -e 's,QA Notice: ,,'
 }
 
 # look for a blocker bug id
