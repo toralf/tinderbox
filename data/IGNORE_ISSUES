@@ -2,6 +2,14 @@ ada compiler not available
 asciidoctor.*LoadError
 Currently installed version of OCaml is not yet supported
 No LLVM slot .* satisfying the package's dependencies found installed
+QA Notice: .*backend is deprecated. Please see:
+QA Notice: command not found:
+QA Notice: Installing libtool files (.la) without corresponding static libraries
+QA Notice: Package triggers severe warnings which indicate that it
+QA Notice: setuptools warnings detected:
+QA Notice: The following deprecated .egg or .egg-info files were found.
+QA Notice: This package seems to install metainfo files into the
+QA Notice: This package uses a very large number of CRATES. Please provide
 shared library .* could not be opened: Dynamic loading not supported
 The present kernel disabled CONFIG_MODULES.
 This compiler lacks GCC plug-in support

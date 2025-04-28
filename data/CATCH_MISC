@@ -8,10 +8,16 @@ Need at least JDK 9 to compile
 One or more CMake variables were not used by the project
 pkgconf: --modversion requested with multiple packages, output would be ambiguous
 python_.*_all() didn't call
-QA Notice: Unrecognized configure options:
 running automake in configure phase
 SetuptoolsDeprecationWarning: 2to3
 The tmpfiles processor exited with a non-zero exit code
 warning: python_fix_shebang
 WARN: postinst
 Clang 16 testing: Found possible issues in configure
+which: command not found
+which: No such file or directory
+which: command not found
+which is required
+No such file or directory: which
+ \* .*: command not found
+QA Notice:

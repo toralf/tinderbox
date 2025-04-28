@@ -4,3 +4,6 @@ No LLVM slot .* satisfying the package's dependencies found installed
 shared library .* could not be opened: Dynamic loading not supported
 which: command not found
 which: No such file or directory
+which: command not found
+which is required
+No such file or directory: which

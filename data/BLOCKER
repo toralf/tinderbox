@@ -48,3 +48,20 @@ Configuring incomplete, errors occurred!
 # [Tracker] termio.h and struct termio removal in glibc-2.42
 952954
 struct termio|termio |termio.h|invalid application of sizeof to incomplete type _sanitizer::termio
+
+# (ldflags) - [tracker] packages that do not respect LDFLAGS
+331933
+Files built without respecting LDFLAGS have been detected
+
+# (prestripped) - [TRACKER] Packages installing pre-stripped files (for built-from-source programs)
+239866
+QA Notice: Pre-stripped files found:
+
+# [Tracker] Python packages installing extensions without DISTUTILS_EXT=1
+954331
+QA Notice: Python extension modules .* found installed
+
+# (tmpfiles-qa) - [Tracker] Packages not (correctly) using tmpfiles.eclass
+808615
+QA Notice: package is installing tmpfiles without inheriting tmpfiles.eclass
+
