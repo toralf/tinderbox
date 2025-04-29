@@ -55,7 +55,8 @@ function Overall() {
 
   for i in $images; do
     local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
-    local fail=$(ls -1 $i/var/tmp/tb/issues 2>/dev/null | xargs -r -n 1 basename | cut -f 3- -d '-' -s | sort -u | wc -w) # ignore revisions
+    # filter out "misc"
+    local fail=$(grep -h -m 1 -c 'The build log matches a QA pattern' $i/var/tmp/tb/issues/*/comment0 2>/dev/null | grep -c '0')
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
     local day=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
     local done=$(grep -c -v -e '^#' -e '^=' -e '^@' -e '^%' $i/var/tmp/tb/task.history 2>/dev/null)
