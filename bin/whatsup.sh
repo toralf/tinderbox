@@ -22,13 +22,10 @@ function checkHistory() {
   #   = no issues
   # ? = internal error
   if [[ -s $file ]]; then
-    local line
-    line=$(tail -n 1 $file)
+    local line=$(tail -n 1 $file)
     if grep -q " NOT ok " <<<$line; then
       if grep -q " NOT ok $" <<<$line; then
-        local uflag
-        uflag=${flag,,}
-        flags+="$uflag"
+        flags+="${flag,,}" # upper case
       else
         flags+="$flag"
       fi
@@ -51,15 +48,15 @@ function Overall() {
   local locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
 
-  echo "  pkg fail bgo  day  done .1st .upd   todo lcx     $locked#$all     $(date)     $(grep "procs_running" /proc/stat | cut -f 2 -d ' ')  $(cut -f 1-3 -d' ' </proc/loadavg)"
+  echo "  pkg fail bgo  day  done .1st .upd   todo lcx     $locked#$all     $(date)     $(grep "procs_running" /proc/stat | cut -f 2 -d ' ')  $(cut -f 1-3 -d ' ' </proc/loadavg)"
 
   for i in $images; do
     local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
-    # filter out "misc"
+    # do not count "misc" findings
     local fail=$(grep -h -m 1 -c 'The build log matches a QA pattern' $i/var/tmp/tb/issues/*/comment0 2>/dev/null | grep -c '0')
     local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
     local day=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
-    local done=$(grep -c -v -e '^#' -e '^=' -e '^@' -e '^%' $i/var/tmp/tb/task.history 2>/dev/null)
+    local done=$(grep -c -v "^[#=@%]" $i/var/tmp/tb/task.history 2>/dev/null)
     local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st)
     local blu=$(wc -l <$i/var/tmp/tb/backlog.upd)
     local bl=$(wc -l <$i/var/tmp/tb/backlog)
