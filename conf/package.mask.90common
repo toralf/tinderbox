@@ -11,37 +11,31 @@ sys-fs/static-dev
 # calls for trouble by sneaking into PATH
 dev-util/plan9port
 
-# Actually replace /etc/resolv.conf with a symlink
+# replaces /etc/resolv.conf with a symlink
 net-dns/resolvconf-symlink
 
-# outdated, br0ken, breaks rebuild, old kernel, needs special kernel config, needs kernel module build w/ same GCC version, clang cannot deal with it, ...
+# outdated, br0ken, breaks rebuild, old kernel, needs special kernel config, needs kernel module build w/ same GCC version, clang cannot deal with it ...
 */s6
 app-admin/ryzen_smu
 app-benchmarks/stress-ng
 app-emulation/virtualbox-guest-additions
 app-emulation/virtualbox-modules
 app-laptop/tp_smapi
-app-laptop/tuxedo-keyboard
-dev-util/lttng-modules
+dev-util/lttng-module
 media-tv/v4l-dvb-saa716x
-net-analyzer/openvas
 net-firewall/firehol
 net-firewall/ipt_netflow
-net-firewall/sanewall
 net-fs/openafs
 net-misc/asterisk
 net-misc/r8168
 net-vpn/wireguard-modules
 sci-libs/atlas
 sci-libs/linux-gpib-modules
-sys-apps/modutils
-sys-cluster/lustre
 sys-cluster/nullmpi
 sys-fs/encfs
 sys-fs/loop-aes
 sys-fs/vhba
 sys-fs/zfs-kmod
-sys-libs/uclibc-ng
 x11-drivers/nvidia-drivers
 x11-wm/stumpwm
 
@@ -52,7 +46,6 @@ media-libs/libva-intel-media-driver
 sci-libs/libint:2                                       # DICE: long_compile_time_sci 15 16
 sci-libs/rocBLAS                                        # DICE: long_compile_time_roc 15 16
 sci-libs/rocFFT                                         # DICE: long_compile_time_roc 15 16
-sci-libs/tensorflow                                     # DICE: long_compile_time_tef 15 16
 www-client/chromium                                     # DICE: chromium 15 16
 
 # wants older compiler and is special

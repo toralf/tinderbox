@@ -8,9 +8,6 @@
 */*         QEMU_SOFTMMU_TARGETS:   x86_64 aarch64
 */*         QEMU_USER_TARGETS:      x86_64 aarch64
 
-# /etc/profile.d/nix.sh overwrites /etc/profile
-sys-apps/nix                        -etc_profile
-
 # https pull/fetch would fail otherwise due to missing /usr/libexec/git-core/git-remote-https
 dev-vcs/git                         curl
 
@@ -116,10 +113,9 @@ app-arch/libarchive                 bzip2
 app-crypt/gpgme                     cxx qt6                               # DICE: libreoffice 1 6
 app-crypt/qca                       qt6                                   # DICE: libreoffice 1 6
 app-office/libreoffice              odk                                   # DICE: libreoffice 1 6
-app-text/ghostscript                cups                                  # DICE: libreoffice 1 6
+app-text/ghostscript-gpl            cups                                  # DICE: libreoffice 1 6
 app-text/poppler                    cairo                                 # DICE: libreoffice 1 6
 app-text/xmlto                      text                                  # DICE: libreoffice 1 6
-dev-db/firebird                     server                                # DICE: libreoffice 1 6
 dev-db/postgresql                   kerberos                              # DICE: libreoffice 1 6
 dev-libs/boost                      nls zlib                              # DICE: libreoffice 1 6
 dev-libs/libusb                     udev                                  # DICE: libreoffice 1 6

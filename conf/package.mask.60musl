@@ -1,8 +1,5 @@
 # package.mask/60musl
 #
 
-# https://bugs.gentoo.org/864767
-dev-libs/dmalloc
-
 # https://bugs.gentoo.org/898170
 dev-java/rxtx
