@@ -1,5 +1,2 @@
 # package.unmask/60gcc
 #
-
-# sam_
-<sys-devel/gcc-15.0.9999:15                             # DICE: [gcc-15]
