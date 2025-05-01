@@ -322,7 +322,7 @@ ex: no python-exec wrapped
 ghc: panic!
 Recursive variable
 You do not .* the sources for the .* kernel installed.
-ocamlfind: Package .* not found - required by
+ocamlfind: Package .* not found
 redefinition of .* as different kind of symbol
 member reference base .* is not
 assigning field to itself
