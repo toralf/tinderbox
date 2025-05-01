@@ -837,7 +837,7 @@ function GetPkglog() {
     return 1
   fi
 
-  if [[ -z $pkgname ]]; then
+  if [[ -z ${pkgname-} ]]; then
     pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
   fi
 
