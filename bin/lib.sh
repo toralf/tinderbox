@@ -1,10 +1,16 @@
 # shellcheck shell=bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+function __has_cgroup() {
+  local name=/sys/fs/cgroup/tb/$(basename $1)
+
+  [[ -d $name ]]
+}
+
 function __is_cgrouped() {
   local name=/sys/fs/cgroup/tb/$(basename $1)
 
-  [[ -d $name ]] && ! grep -q 'populated 0' $name/cgroup.events 2>/dev/null
+  __has_cgroup $name && ! grep -q 'populated 0' $name/cgroup.events 2>/dev/null
 }
 
 function __is_locked() {

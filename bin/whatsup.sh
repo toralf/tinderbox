@@ -71,6 +71,8 @@ function Overall() {
     fi
     if __is_cgrouped $i; then
       flags+="c"
+    elif __has_cgroup $i; then
+      flags+="C"
     else
       flags+=" "
     fi
