@@ -44,7 +44,7 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 2 5; then
+    if dice 1 2; then
       # overweight Desktop
       grep '/desktop'
     else
