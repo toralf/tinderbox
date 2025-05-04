@@ -8,18 +8,18 @@ function olderThan() {
 
   local start_time
   start_time=$(getStartTime $img)
-  [[ $(((EPOCHSECONDS - start_time) / 86400)) -gt $days ]]
+
+  [[ $(((EPOCHSECONDS - start_time) / 3600)) -gt $((days * 24)) ]]
 }
 
+# BTRFS is special: value of available space in percent is often lower than 100 - "percent value of df"
 function lowSpace() {
-  local maxperc=${1:-75} # max used space of whole FS in % (BTRFS is special!)
+  local maxperc=${1:-75} # max used space in %
 
   local size avail
-  read -r size avail < <(df -m /mnt/data --output=size,avail | tail -n 1)
+  read -r size avail < <(df -m --sync --output=size,avail /mnt/data | tail -n 1)
+  local wanted=$((size * (100 - maxperc) / 100))
 
-  # value of available space in percent is often lower than 100-"percent value of df"
-  local wanted
-  wanted=$((size * (100 - maxperc) / 100)) # size is in MiB
   [[ $avail -lt $wanted ]]
 }
 
@@ -82,13 +82,13 @@ fi
 find ~tinderbox/distfiles/ -ignore_readdir_race -maxdepth 1 -type f -atime +90 -delete
 
 while read -r img; do
-  if [[ ! -s $img/var/log/emerge.log && $((EPOCHSECONDS - $(stat -c %Z $img))) -gt $((24 * 3600)) ]]; then
+  if [[ ! -s $img/var/log/emerge.log ]] && olderThan $img 1; then
     pruneIt $img "broken setup"
   fi
 done < <(list_images_by_age "img")
 
 while lowSpace && read -r img; do
-  if olderThan $img 1; then
+  if olderThan $img 2; then
     if ! ls $img/var/tmp/tb/issues/* &>/dev/null; then
       pruneIt $img "no issue"
     fi
@@ -105,12 +105,12 @@ done < <(list_images_by_age "img")
 
 while lowSpace && read -r img; do
   if olderThan $img 14; then
-    pruneIt $img "free space"
+    pruneIt $img "free space is low"
   fi
 done < <(list_images_by_age "img")
 
 while lowSpace 89 && read -r img; do
-  pruneIt $img "free space is low"
+  pruneIt $img "free space is very low"
 done < <(list_images_by_age "img")
 
 if lowSpace 95; then
