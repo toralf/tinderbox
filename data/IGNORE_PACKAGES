@@ -20,10 +20,10 @@ sci-astronomy/psfex
 sci-astronomy/scamp
 sci-astronomy/sextractor
 #
-# loong emerge times
+# long emerge time
 #
-dev-dotnet/*
 dev-dotnet/dotnet-sdk
+dev-dotnet/
 dev-qt/qtwebengine
 sci-libs/
 #

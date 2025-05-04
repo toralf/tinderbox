@@ -323,6 +323,7 @@ ghc: panic!
 Recursive variable
 You do not .* the sources for the .* kernel installed.
 ocamlfind: Package .* not found
+ocamlfind: No such file or directory
 redefinition of .* as different kind of symbol
 member reference base .* is not
 assigning field to itself

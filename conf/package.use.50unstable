@@ -1,8 +1,10 @@
 # package.use/50unstable
 #
 
+
 # xgqt dotnet-sdk
-*/*                                 llvm-unwind         # DICE: unwind 1 6
+#*/*                                 llvm-unwind         # DICE: dotnet 1 6
+
 
 #######################################################################
 # open bugs
