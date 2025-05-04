@@ -39,6 +39,30 @@ function checkHistory() {
   fi
 }
 
+function printTime() {
+  local delta=$1
+
+  local second
+  local minute
+  local hour
+
+  set +e
+  ((second = delta % 60))
+
+  if [[ $delta -lt 60 ]]; then
+    printf "       %2i " $second
+  else
+    ((minute = delta / 60 % 60))
+    if [[ $delta -lt 3600 ]]; then
+      printf "    %2i:%02i " $minute $second
+    else
+      ((hour = delta / 60 / 60))
+      printf " %2i:%02i:%02i " $hour $minute $second
+    fi
+  fi
+  set -e
+}
+
 # whatsup.sh -o
 #   pkg fail bgo  day  done .1st .upd   todo lcx      12#12      Sat Dec 28 21:26:33 UTC 2024      35.13 33.27 32.92
 #  6068  318  10  7.7  5817    -    -  10648 lc  ~/run/23.0-20241201-015002
@@ -108,23 +132,7 @@ function Tasks() {
     local taskfile=$i/var/tmp/tb/task
     if printImageName $i && ! __is_stopped $i && [[ -s $taskfile ]]; then
 
-      set +e
-      ((delta = EPOCHSECONDS - $(stat -c %Z $taskfile)))
-      ((seconds = delta % 60))
-
-      if [[ $delta -lt 60 ]]; then
-        printf "       %2i " $seconds
-      else
-        ((minutes = delta / 60 % 60))
-        if [[ $delta -lt 3600 ]]; then
-          printf "    %2i:%02i " $minutes $seconds
-        else
-          ((hours = delta / 60 / 60))
-          printf " %2i:%02i:%02i " $hours $minutes $seconds
-        fi
-      fi
-      set -e
-
+      printTime $((EPOCHSECONDS - $(stat -c %Z $taskfile)))
       local task=$(cat $taskfile)
       local line
       if [[ $task =~ "@" || $task =~ "%" || $task =~ "#" ]]; then
@@ -146,32 +154,19 @@ function Tasks() {
 function LastEmergeOperation() {
   for i in $images; do
     if printImageName $i && ! __is_stopped $i && [[ -s $i/var/log/emerge.log ]]; then
-      tail -n 1 $i/var/log/emerge.log |
-        sed -e 's,::.*,,' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,' |
-        perl -wane '
-        chop ($F[0]);
-        my $delta = time() - $F[0];
-        my $seconds = $delta % 60;
+      # shellcheck disable=SC2034
+      read -r time dummy line <<<$(
+        tail -n 1 $i/var/log/emerge.log |
+          sed -e 's,::.*,,' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,'
+      )
 
-        if ($delta < 60) {
-          printf ("       %2i", $seconds);
-        } else {
-          my $minutes = $delta / 60 % 60;
-          if ($delta < 3600) {
-            printf ("    %2i:%02i", $minutes, $seconds);
-          } else  {
-            my $hours = $delta / 60 / 60;
-            printf (" %2i:%02i:%02i", $hours, $minutes, $seconds);
-          }
-        }
-        if (-f "'$i'/var/tmp/tb/WAIT") {
-          printf (" w");
-        } else {
-          printf ("  ");
-        }
-        my $line = join (" ", @F[2..$#F]);
-        print substr ($line, 0, '$columns' - 54), "\n";
-      '
+      printTime $((EPOCHSECONDS - $(tr -d ':' <<<$time)))
+      if [[ -f $i/var/tmp/tb/WAIT ]]; then
+        echo -n " w"
+      else
+        echo -n "  "
+      fi
+      cut -c 1-$((columns - 54)) <<<$line
     else
       echo
     fi
