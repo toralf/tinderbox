@@ -458,20 +458,22 @@ EOF
 EOF
 
   (
+    export NO_COLOR=1
+
     grep -e "^CC=" -e "^CXX=" -e "^GNUMAKEFLAGS" /etc/portage/make.conf
     grep -e "^GENTOO_VM=" -e "^JAVACFLAGS=" $tasklog_stripped
     echo "gcc-config -l:"
-    gcc-config -l
+    gcc-config -l --nocolor
     clang --version | head -n 1
     echo -n "llvm-config: "
     llvm-config --version
     python -V
     go version
-    eselect php list cli
-    eselect ruby list
-    eselect rust list
+    eselect --colour=no php list cli
+    eselect --colour=no ruby list
+    eselect --colour=no rust list
     java-config --list-available-vms --nocolor
-    eselect java-vm list
+    eselect --colour=no java-vm list
     ghc --version
 
     for i in /var/db/repos/*/.git; do
@@ -750,11 +752,11 @@ function PostEmerge() {
 
   if grep -q ">>> Installing .* dev-lang/ruby-[1-9]" $tasklog_stripped; then
     local highest current
-    highest=$(eselect ruby list | awk 'END { print $2 }')
+    highest=$(eselect --colour=no ruby list | awk 'END { print $2 }')
     if [[ -n $highest ]]; then
-      current=$(eselect ruby show | sed -n -e '2p' | xargs)
+      current=$(eselect --colour=no ruby show | sed -n -e '2p' | xargs)
       if [[ $current != "$highest" ]]; then
-        add2backlog "%eselect ruby set $highest"
+        add2backlog "%eselect --colour=no ruby set $highest"
       fi
     fi
   fi
@@ -1160,7 +1162,6 @@ export CARGO_TERM_COLOR="never"
 export CMAKE_COLOR_DIAGNOSTICS="OFF"
 export CMAKE_COLOR_MAKEFILE="OFF"
 export GCC_COLORS=""
-export NO_COLOR="1"
 export OCAML_COLOR="never"
 export PY_FORCE_COLOR="0"
 export PYTEST_ADDOPTS="--color=no"
