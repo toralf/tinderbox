@@ -266,7 +266,6 @@ ar: libdeps specified more than once
 uh-oh! RDoc had a problem:
 Makefile:.* Stop.
 Cannot build with randomized sbrk.
-^\[error\]
 UnicodeEncodeError:
 ld: i386 architecture of input file
 final link failed:
@@ -329,7 +328,7 @@ member reference base .* is not
 assigning field to itself
 use of unknown builtin
 cannot convert between scalar
-returning 'int' from a function
+returning .int. from a function
 address of vector element requested
 : conflicting types for
 fatal: the .* library is required
