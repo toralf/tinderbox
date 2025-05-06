@@ -85,7 +85,7 @@ function attach() {
     if [[ $bytes -eq 0 ]]; then
       echo "skipped empty file: $f" >&2
     # Attachments cannot be more than 1000 KB.
-    elif [[ $bytes -gt $((1000 * 1024)) ]]; then
+    elif ((bytes > 1000 * 1024)); then
       echo "too big ($((bytes / 1024)) KB): $f"
       local file_size=$(ls -lh $f | awk '{ print $5 }')
       local file_path=$(realpath $f | sed -e "s,^.*img/,,")

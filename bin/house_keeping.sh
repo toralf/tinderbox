@@ -9,7 +9,7 @@ function olderThan() {
   local start_time
   start_time=$(getStartTime $img)
 
-  [[ $(((EPOCHSECONDS - start_time) / 3600)) -gt $((days * 24)) ]]
+  (((EPOCHSECONDS - start_time) / 3600 > days * 24))
 }
 
 # BTRFS is special: value of available space in percent is often lower than 100 - "percent value of df"
@@ -20,7 +20,7 @@ function lowSpace() {
   read -r size avail < <(df -m --sync --output=size,avail /mnt/data | tail -n 1)
   local wanted=$((size * (100 - maxperc) / 100))
 
-  [[ $avail -lt $wanted ]]
+  ((avail < wanted))
 }
 
 function finalCheck() {
