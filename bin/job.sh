@@ -458,8 +458,6 @@ EOF
 EOF
 
   (
-    export NO_COLOR=1
-
     grep -e "^CC=" -e "^CXX=" -e "^GNUMAKEFLAGS" /etc/portage/make.conf
     grep -e "^GENTOO_VM=" -e "^JAVACFLAGS=" $tasklog_stripped
     echo "gcc-config -l:"
