@@ -787,7 +787,6 @@ function catchMisc() {
     local stripped=/tmp/$(basename $pkglog).stripped
     filterPlainText <$pkglog >$stripped
 
-    pkg=$(basename $pkglog | cut -f 1-2 -d ':' -s | tr ':' '/')
     phase=""
     pkg=$(basename $pkglog | cut -f 1-2 -d ':' -s | tr ':' '/')
     pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $pkg)
@@ -831,7 +830,7 @@ EOF
         SendIssueMailIfNotYetReported
       done
     rm $stripped
-  done < <(find /var/log/portage/ -type f -name '*.log') # "-newer" not needed, b/c previous logs are compressed
+  done < <(find /var/log/portage/ -type f -name '*.log' | sort -r) # process elog/*.log after common log
 }
 
 function GetPkglog() {
@@ -840,7 +839,7 @@ function GetPkglog() {
   fi
 
   if [[ -z ${pkgname-} ]]; then
-    pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
+    pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $pkg)
   fi
 
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<<$pkgname).*\.log" $tasklog_stripped)
@@ -865,7 +864,7 @@ function GetPkgFromTaskLog() {
     fi
   fi
   pkg=$(sed -e 's,:.*,,' <<<$pkg) # strip away the slot
-  pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
+  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $pkg)
 }
 
 # helper of WorkOnTask()
