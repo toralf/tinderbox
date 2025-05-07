@@ -789,13 +789,15 @@ function catchMisc() {
 
     pkg=$(basename $pkglog | cut -f 1-2 -d ':' -s | tr ':' '/')
     phase=""
-    pkgname=$(qatom --quiet "$pkg" | grep -v -F '(null)' | cut -f 1-2 -d ' ' -s | tr ' ' '/')
+    pkg=$(basename $pkglog | cut -f 1-2 -d ':' -s | tr ':' '/')
+    pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $pkg)
 
-    # grep for "GiB", but take the KiB values; this works b/c size_sum above 4 GiB is of interest (which is greater than 2)
+    # asked by xgqt
+    # grep for "GiB" and take the values of "KiB"
     read -r size_build size_install <<<$(grep -A 1 -e ' Final size of build directory: .* GiB' $stripped | grep -Eo '[0-9\.]+ KiB' | cut -f 1 -d ' ' -s | xargs)
     if [[ -n $size_build && -n $size_install ]]; then
       size_sum=$(awk '{ printf ("%.1f", ($1 + $2) / 1024.0 / 1024.0) }' <<<"$size_build $size_install")
-      echo "$size_sum GiB $pkg" >>/var/tmp/xgqt.txt
+      echo "$size_sum GiB $pkg" >>/var/tmp/big_packages.txt
     fi
 
     # create for each finding an own issue

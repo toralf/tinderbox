@@ -22,7 +22,7 @@ mv $tmpfile ~tinderbox/img/sam.txt
 
 # xgqt : big package size
 #
-find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + |
+find ~tinderbox/img/*/var/tmp/big_packages.txt ! -wholename '*_test*' -exec cat {} + |
   perl -wane '
     chomp;
     next if ($#F != 2);
@@ -42,7 +42,7 @@ find ~tinderbox/img/*/var/tmp/xgqt.txt ! -wholename '*_test*' -exec cat {} + |
       }
     }' >$tmpfile
 chmod a+r $tmpfile
-mv $tmpfile ~tinderbox/img/xgqt.txt
+mv $tmpfile ~tinderbox/img/big_packages.txt
 
 # sam_ + flow
 #
