@@ -858,7 +858,7 @@ function GetPkgFromTaskLog() {
     if [[ -z $pkg ]]; then
       pkg=$(grep -F ' * Fetch failed' $tasklog_stripped | grep -o "'.*'" | tr -d \')
       if [[ -z $pkg ]]; then
-        # happened if emerge failed in dependency resolution
+        # happens if emerge failed in dependency resolution
         return 1
       fi
     fi
