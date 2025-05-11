@@ -65,7 +65,7 @@ function Exit() {
 
   if [[ -d $lock_dir ]]; then
     RemoveCgroup
-    rmdir "$lock_dir"
+    rmdir $lock_dir
   fi
   exit $rc
 }
