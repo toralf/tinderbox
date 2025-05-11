@@ -40,6 +40,7 @@ sys-kernel/installkernel            -dracut -grub
 sys-devel/gcc                       -ada
 
 # setup almost failed otherwise
+net-misc/openssh                    ssl
 sys-apps/shadow                     pam -cracklib
 sys-apps/util-linux                 pam
 
@@ -57,6 +58,7 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 # misc
 #
 
+*/*         RUBY_TARGETS:           ruby33              # DICE: ruby33 1 4
 */*         RUBY_TARGETS:           ruby34              # DICE: ruby34
 
 # 2x faster compile

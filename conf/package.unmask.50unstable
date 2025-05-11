@@ -3,3 +3,6 @@
 
 # sam_
 =dev-build/cmake-4*                                     # DICE: [cmake-4] 1 8
+
+# sam_
+<sys-devel/gcc-16.0.9999:16                             # DICE: [gcc-16] 1 4
