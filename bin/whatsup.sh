@@ -39,8 +39,8 @@ function checkHistory() {
   fi
 }
 
-function printTime() {
-  local delta=$1
+function printTimeDiff() {
+  local delta=$((EPOCHSECONDS - $1))
 
   local second
   local minute
@@ -132,7 +132,7 @@ function Tasks() {
     local taskfile=$i/var/tmp/tb/task
     if printImageName $i && ! __is_stopped $i && [[ -s $taskfile ]]; then
 
-      printTime $((EPOCHSECONDS - $(stat -c %Z $taskfile)))
+      printTimeDiff $(stat -c %Z $taskfile)
       local task=$(cat $taskfile)
       local line
       if [[ $task =~ "@" || $task =~ "%" || $task =~ "#" ]]; then
@@ -160,7 +160,7 @@ function LastEmergeOperation() {
           sed -e 's,::.*,,' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,'
       )
 
-      printTime $((EPOCHSECONDS - $(tr -d ':' <<<$time)))
+      printTimeDiff $(tr -d ':' <<<$time)
       if [[ -f $i/var/tmp/tb/WAIT ]]; then
         echo -n " w"
       else
