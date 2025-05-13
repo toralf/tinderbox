@@ -34,6 +34,7 @@ final link failed: Nonrepresentable section on output
 error:.*has no member named
 error:.*was not declared
 error:.*undeclared
+ld: failed to set dynamic section sizes:
 ld: cannot find
 file cannot create directory:
 Not in scope:
