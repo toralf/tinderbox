@@ -816,8 +816,7 @@ function catchMisc() {
   This is an $keyword amd64 chroot image at a tinderbox (==build bot)
   name: $name
 
-  The build log matches a QA pattern or sth. else requested by a dev:
-  $line
+  The build log matches a QA pattern or sth. else requested by a dev.
 
   The attached etc.portage.tar.xz has all details.
   -------------------------------------------------------------------
