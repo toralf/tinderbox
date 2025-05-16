@@ -801,10 +801,11 @@ function catchMisc() {
 
     # create for each finding an own issue
     grep -f /mnt/tb/data/CATCH_MISC $stripped |
-      while read -r line; do
+    sort -u |
+      while read -r finding; do
         createIssueDir
-        echo "$line" >$issuedir/title
-        grep -m 1 -A 7 -F -e "$line" $stripped >$issuedir/issue
+        echo "$finding" >$issuedir/title
+        grep -m 1 -A 7 -F -e "$finding" $stripped >$issuedir/issue
         cp $pkglog $issuedir/files
         cp $stripped $issuedir
         finishTitle
