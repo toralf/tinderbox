@@ -45,6 +45,7 @@ kill
 libcxx
 libinput
 libssp
+libunwind
 livecd
 llvm-libunwind
 low-memory

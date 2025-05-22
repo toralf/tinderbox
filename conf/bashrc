@@ -1,8 +1,9 @@
 #######################################################################
 #
-# sam_: meson hook
-
+# sam_:
+#
 post_src_install() {
+  # sam_: meson hook
   (
     if grep -q 'internal compiler error' "${WORKDIR}"/*/config.log &> /dev/null ; then
       echo "${CATEGORY}/${PF}: Found ICE in config.log?!"
@@ -39,7 +40,34 @@ post_src_install() {
     if grep -r -q "fuzz" "${S}/meson_options.txt" &> /dev/null && ! grep -q "fuzz" <<< "${EBUILD}" ; then
       echo "${CATEGORY}/${PF}: Missing fuzz option wiring for meson?"
     fi
-  ) &>> /var/tmp/sam.txt
+  ) &>>/var/tmp/sam.txt
+
+  (
+    # from https://gist.githubusercontent.com/thesamesam/8352bbf45b0be2e7d910179b57ac4bc5/raw/a4cbf9dc7112bcd17c0d2db3b26a7a4e792389b1/gistfile1.txt
+
+    # The situation with CMake is a mess because there's no 'meson_options.txt'-equivalent.
+    # We also need to care here for multibuild / multilib, so let's try find
+    # CMakeCache.txt.
+    # TODO: Exclude cases where BUILD_TESTING appears in the ebuild, as
+    # it may be intentionally off?
+    if has cmake ${INHERITED} && [[ ${IUSE} != *test* ]] ; then
+            while read -rd '' ; do
+                    cp "${REPLY}" "${T}/sam-qa-check.tmp"
+                    sed -i -e '/CTEST_COMMAND/d' "${T}/sam-qa-check.tmp"
+                    if grep -q "TEST" "${T}/sam-qa-check.tmp" ; then
+                            eqawarn "Missing CMake test option in ${REPLY}?"
+                            break
+                    fi
+            done < <(find "${WORKDIR}" -iname 'CMakeCache.txt' -type f -print0)
+    fi
+
+    # Detect the "has tests, but ctest isn't wired up" case.
+    if has cmake ${INHERITED} ; then
+            if grep -q "No tests found. Skipping." ${T}/build.log ; then
+                    eqawarn "Missing CMake ctest wiring?"
+            fi
+    fi
+  ) &>>/var/tmp/sam.txt
 }
 
 #######################################################################
