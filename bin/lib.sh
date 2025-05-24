@@ -40,7 +40,7 @@ function stripQuotesAndMore() {
   sed -e 's,['\''‘’"`•],,g'
 }
 
-# list if locked and/or symlinked to ~run and/or have a cgroup
+# list if locked and/or symlinked and/or have a cgroup
 function list_active_images() {
   (
     ls ~tinderbox/run/ | sort
@@ -48,13 +48,15 @@ function list_active_images() {
     ls -d /sys/fs/cgroup/tb/23.* | sort
   ) 2>/dev/null |
     xargs -r -n 1 basename |
-    # sort -u would mix ~/img and ~/run, uniq would not detect all dups, therefore use awk
-    awk '!x[$0]++' |
+    # use awk to remove dups, b/c "sort -u" would mix ~/img and ~/run and uniq w/o sort wouldn't detect all dups
+    awk '!x[$1]++' |
     while read -r i; do
       if [[ -d ~tinderbox/run/$i ]]; then
         echo ~tinderbox/run/"$i"
       elif [[ -d ~tinderbox/img/$i ]]; then
         echo ~tinderbox/img/"$i"
+      else
+        echo " active image is wrong: '$i'" >&2
       fi
     done
 }
@@ -89,7 +91,6 @@ function checkBgo() {
 }
 
 function prepareResultFile() {
-  # shellcheck disable=SC2154
   if [[ ! -f $issuedir/bugz_result ]]; then
     truncate -s 0 $issuedir/bugz_result
     chmod a+w $issuedir/bugz_result # created by root, writeable by tinderbox
@@ -133,11 +134,14 @@ function GotResults() {
 }
 
 function SearchForSameIssue() {
+  local pkg=${1?PKG UNDEFINED}
+  local pkgname=${2?PKGNAME UNDEFINED}
+  local issuedir=${3?ISSUEDIR UNDEFINED}
+
   prepareResultFile
   if grep -q 'file collision with' $issuedir/title; then
     collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
-    # shellcheck disable=SC2154
     $__tinderbox_bugz_search_cmd --show-status -- "file collision $pkgname $collision_partner_pkgname" |
       stripQuotesAndMore |
       grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
@@ -152,9 +156,8 @@ function SearchForSameIssue() {
     fi
 
   else
-    # shellcheck disable=SC2154
     for i in $pkg $pkgname; do
-      $__tinderbox_bugz_search_cmd --show-status -- $i "$(cut -c -$__tinderbox_bugz_title_length $issuedir/title | getSearchString)" |
+      $__tinderbox_bugz_search_cmd --show-status -- $i "$(getSearchString <$issuedir/title | cut -c -$__tinderbox_bugz_title_length)" |
         stripQuotesAndMore |
         grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
         sort -n -r |
@@ -173,6 +176,9 @@ function SearchForSameIssue() {
 }
 
 function SearchForSimilarIssue() {
+  local pkg=${1?PKG UNDEFINED}
+  local pkgname=${2?PKGNAME UNDEFINED}
+
   prepareResultFile
   # resolved does not fit "same issue"
   for i in $pkg $pkgname; do
@@ -201,8 +207,6 @@ function SearchForSimilarIssue() {
       return 0
     fi
   done
-
-  # now search without version/revision
 
   local h='https://bugs.gentoo.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr'
   local g='stabilize|Bump| keyword| bump'
