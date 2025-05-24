@@ -26,6 +26,7 @@ dev-dotnet/dotnet-sdk
 dev-dotnet/
 dev-qt/qtwebengine
 sci-libs/
+net-libs/webkit-gtk
 #
 # hangs, e.g. https://bugs.gentoo.org/909309
 #
