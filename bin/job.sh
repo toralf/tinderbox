@@ -801,7 +801,7 @@ function catchMisc() {
 
     # create for each finding an own issue
     grep -f /mnt/tb/data/CATCH_MISC $stripped |
-    sort -u |
+      sort -u |
       while read -r finding; do
         createIssueDir
         echo "$finding" >$issuedir/title
@@ -1075,12 +1075,10 @@ function DetectRepeats() {
   local count item
   read -r count item < <(tail -n 90 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
   if [[ $count -ge 40 ]]; then
-    ls -l /var/tmp/tb/logs | tail -n 30 >/tmp/ls-l.txt
-    ReachedEOL "repeated: $count x $item" /tmp/ls-l.txt
+    ReachedEOL "repeated: $count x $item"
   elif [[ ! $name =~ "_test" ]]; then
     if [[ $count -ge 20 ]] || [[ ! $item =~ ^% && $count -ge 10 ]]; then
-      ls -l /var/tmp/tb/logs | tail -n 30 >/tmp/ls-l.txt
-      ReachedEOL "repeated: $count x $item" /tmp/ls-l.txt
+      ReachedEOL "repeated: $count x $item"
     fi
   fi
 }
