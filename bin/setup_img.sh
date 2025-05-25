@@ -792,10 +792,23 @@ function RunDryrunWrapper() {
   fi
 }
 
+function UseFlagIsSetForPackage() {
+  grep -q -r \
+    -e "^${pn}  *-*$flag$" \
+    -e "^${pn}  *-*$flag " \
+    -e "^${pn}  *.* -*$flag$" \
+    -e "^${pn}  *.* -*$flag " \
+    ./etc/portage/package.use/
+}
+
+function IgnoreUseFlag() {
+  [[ $flag =~ '_' || $flag == 'test' || $flag == '-test' ]] || grep -q -x $(tr -d '-' <<<$flag) $tbhome/tb/data/IGNORE_USE_FLAGS
+}
+
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
-  for fix in $(seq -w 0 8); do
+  for fix in $(seq -w 0 9); do
 
     if RunDryrunWrapper "#setup dryrun $attempt-$fix"; then
       return 0
@@ -803,60 +816,62 @@ function FixPossibleUseFlagIssues() {
 
     local try_again=0
 
+    ###################################################################
+    #
     # remove a package from the diced use flags file
     #
-    local pn=$(
-      grep -m 1 -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
+    local atoms=$(
+      grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
         awk '/^- / { print $2 }' |
         cut -f 1 -d ':' -s |
-        xargs -r qatom -F "%{CATEGORY}/%{PN}" |
+        xargs -r qatom -CF "%{CATEGORY}/%{PN}" |
         grep -v -F '<unset>/'
     )
-
-    if [[ -n $pn ]]; then
-      local dpuf=./etc/portage/package.use/24diced_package_use_flags
-      if grep -q "^${pn} " $dpuf; then
-        sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $dpuf
-        if RunDryrunWrapper "#setup dryrun $attempt-$fix # unmet req: $pn"; then
-          return 0
-        else
-          try_again=1
+    if [[ -n $atoms ]]; then
+      local dpuf=./etc/portage/package.use/24-diced_package_use_flags
+      for pn in $atoms; do
+        if grep -q "^${pn} " $dpuf; then
+          sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $dpuf
+          if RunDryrunWrapper "#setup dryrun $attempt-$fix # unmet req: $pn"; then
+            return 0
+          else
+            try_again=1
+          fi
         fi
-      fi
+      done
     fi
 
-    local f_temp=./tmp/fix-use-flags
     local msg=""
 
+    ###################################################################
+    #
     # work on lines like:   - sys-cluster/mpich-3.4.3 (Change USE: -valgrind)
     #
-    local f_circ_flag=./etc/portage/package.use/27-$attempt-$fix-a-circ-dep
-    local f_circ_test=./etc/portage/package.env/27-$attempt-$fix-notest-a-circ-dep
-    rm -f $f_temp
+    local f_circ_flag=./etc/portage/package.use/27-$attempt-$fix-circ-dep
+    local f_circ_test=./etc/portage/package.env/27-$attempt-$fix-circ-dep
     awk '/It might be possible to break this cycle/,/^$/' $drylog |
-      grep '^- .* (Change USE: ' |
-      sed -e "s,^- ,," -e "s, (Change USE:,," -e "s,)$,," |
+      grep -v ', this change violates' |
+      grep -F " (Change USE: " |
+      sed -e "s,^ *- ,," -e "s, (Change USE:,," -e "s,),," |
+      tr -d '+' |
       while read -r p f; do
-        if grep -q -x -e "$(tr -d '+-' <<<$f)" $tbhome/tb/data/IGNORE_USE_FLAGS; then
-          continue
-        fi
         for flag in $f; do
-          if [[ ! $flag =~ '_' ]]; then
-            pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
-            if [[ $flag == "-test" ]]; then
-              if ! grep -q -r "^${pn} .*notest" ./etc/portage/package.env/; then
-                printf "%-36s notest\n" $pn >>$f_circ_test
-              fi
-            elif ! grep -q -r "^${pn} .*$flag" ./etc/portage/package.use/; then
-              printf "%-36s %s\n" $pn $flag >>$f_temp
+          if IgnoreUseFlag; then
+            continue
+          fi
+          pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p)
+          if [[ $flag == "-test" ]]; then
+            if ! grep -q -r "^${pn}  *.*notest" ./etc/portage/package.env/; then
+              printf "%-36s notest\n" $pn >>$f_circ_test
             fi
+          elif ! UseFlagIsSetForPackage; then
+            printf "%-36s %s\n" $pn $flag >>$f_circ_flag
           fi
         done
       done
 
-    if [[ -s $f_temp || -s $f_circ_test ]]; then
-      if [[ -s $f_temp ]]; then
-        mv $f_temp $f_circ_flag
+    if [[ -s $f_circ_flag || -s $f_circ_test ]]; then
+      if [[ -s $f_circ_flag ]]; then
         msg+=" # circ dep: $(xargs <$f_circ_flag)"
       fi
       if [[ -s $f_circ_test ]]; then
@@ -869,36 +884,33 @@ function FixPossibleUseFlagIssues() {
       fi
     fi
 
+    ###################################################################
+    #
     # work on lines like:   >=dev-libs/xmlsec-1.3.4 openssl
     #
-    local f_nec_flag=./etc/portage/package.use/27-$attempt-$fix-b-necessary-use-flag
-    local f_nec_test=./etc/portage/package.env/27-$attempt-$fix-notest-b-necessary-use-flag
-    rm -f $f_temp
+    local f_nec_flag=./etc/portage/package.use/27-$attempt-$fix-necessary-use-flag
+    local f_nec_test=./etc/portage/package.env/27-$attempt-$fix-necessary-use-flag
     awk '/The following USE changes are necessary to proceed:/,/^$/' $drylog |
-      grep '^>=.* .*' |
+      grep -e "^>*=.* .*" |
+      tr -d '+' |
       while read -r p f; do
-        if grep -q -x "$(tr -d '+-' <<<$f)" $tbhome/tb/data/IGNORE_USE_FLAGS; then
-          continue
-        fi
-        pn=$(qatom -F "%{CATEGORY}/%{PN}" $p)
+        pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p)
         for flag in $f; do
-          if [[ $flag =~ '_' ]]; then
+          if IgnoreUseFlag; then
             continue
           fi
-          if [[ $flag =~ test ]]; then
-            if grep -q -r "^${pn} * notest" ./etc/portage/package.env/; then
+          if [[ $flag == "-test" ]]; then
+            if ! grep -q -r "^${pn} * notest" ./etc/portage/package.env/; then
               printf "%-36s notest\n" $pn >>$f_nec_test
             fi
-          # avoid flipping a flag forth and back
-          elif ! grep -q "^${pn} * [\-]*$flag$" ./etc/portage/package.use/27-$attempt-*-* 2>/dev/null; then
-            printf "%-36s %s\n" $pn $flag >>$f_temp
+          elif ! UseFlagIsSetForPackage; then
+            printf "%-36s %s\n" $pn $flag >>$f_nec_flag
           fi
         done
       done
 
-    if [[ -s $f_temp || -s $f_nec_test ]]; then
-      if [[ -s $f_temp ]]; then
-        mv $f_temp $f_nec_flag
+    if [[ -s $f_nec_flag || -s $f_nec_test ]]; then
+      if [[ -s $f_nec_flag ]]; then
         msg+=" # necessary: $(xargs <$f_nec_flag)"
       fi
       if [[ -s $f_nec_test ]]; then
@@ -916,8 +928,8 @@ function FixPossibleUseFlagIssues() {
     fi
   done
 
-  # delete only diced USE flags, keep entries in package.env (e.g. notest)
-  rm -f ./etc/portage/package.use/27-$attempt-*-*
+  # reset only USE flags, keep env like "notest"
+  rm -f ./etc/portage/package.use/27-$attempt-*-*-*
   return 1
 }
 
@@ -950,14 +962,14 @@ function ThrowFlags() {
     shuf -n $((RANDOM % 20)) |
     sort |
     xargs |
-    xargs -I {} -r echo "*/*  L10N: {}" >./etc/portage/package.use/22diced_l10n
+    xargs -I {} -r echo "*/*  L10N: {}" >./etc/portage/package.use/22-diced_l10n
 
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
     grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
     ShuffleUseFlags 150 25 30 |
     xargs -s 73 |
-    sed -e "s,^,*/*  ," >./etc/portage/package.use/23diced_global_use_flags
+    sed -e "s,^,*/*  ," >./etc/portage/package.use/23-diced_global_use_flags
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
     grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
@@ -974,7 +986,7 @@ function ThrowFlags() {
         ShuffleUseFlags 9 3 1 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
-    done >./etc/portage/package.use/24diced_package_use_flags
+    done >./etc/portage/package.use/24-diced_package_use_flags
 }
 
 function CompileUseFlagFiles() {
