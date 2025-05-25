@@ -40,22 +40,22 @@ function checkHistory() {
 }
 
 function printTimeDiff() {
-  local delta=$((EPOCHSECONDS - $1))
-
-  local second
-  local minute
-  local hour
+  local ts=${1?TIME NOT GIVEN}
 
   set +e
+  local delta
+  ((delta = EPOCHSECONDS - ts)) # TODO: why is this sometimes -1 ?
+  local second
   ((second = delta % 60))
-
   if [[ $delta -lt 60 ]]; then
     printf "       %2i " $second
   else
+    local minute
     ((minute = delta / 60 % 60))
     if [[ $delta -lt 3600 ]]; then
       printf "    %2i:%02i " $minute $second
     else
+      local hour
       ((hour = delta / 60 / 60))
       printf " %2i:%02i:%02i " $hour $minute $second
     fi
@@ -153,20 +153,19 @@ function Tasks() {
 # 23.0_systemd-20210123  0:44 m  >>> (1 of 2) sci-libs/fcl-0.5.0
 function LastEmergeOperation() {
   for i in $images; do
-    if printImageName $i && ! __is_stopped $i && [[ -s $i/var/log/emerge.log ]]; then
-      # shellcheck disable=SC2034
-      read -r time dummy line <<<$(
-        tail -n 1 $i/var/log/emerge.log |
-          sed -e 's,::.*,,' -e 's,Compiling/,,' -e 's,Merging (,,' -e 's,\*\*\*.*,,'
-      )
-
-      printTimeDiff $(tr -d ':' <<<$time)
-      if [[ -f $i/var/tmp/tb/WAIT ]]; then
-        echo -n " w"
-      else
-        echo -n "  "
+    if printImageName $i && ! __is_stopped $i; then
+      read -r time line < <(tail -n 1 $i/var/log/emerge.log 2>/dev/null)
+      if [[ -z $time ]]; then
+        echo
+        continue
       fi
-      cut -c 1-$((columns - 54)) <<<$line
+      printTimeDiff $(cut -c 1-10 <<<$time)
+      if [[ -f $i/var/tmp/tb/WAIT ]]; then
+        echo -n "w"
+      else
+        echo -n " "
+      fi
+      cut -c 1-$((columns - 54)) < <(sed -e 's,::.*,,' -e 's,=== ,,' -e 's,>>> ,,' -e 's,\*\*\*.*,,' -e 's,AUTOCLEAN.*,,' -e 's,Compiling/,,' -e 's,Merging (,,' <<<$line)
     else
       echo
     fi
@@ -243,7 +242,7 @@ function Coverage() {
       awk '{ print $8 }' |
       sort -u |
       tee ~tinderbox/img/packages-versions.$i.emerged.txt |
-      xargs -r qatom -F "%{CATEGORY}/%{PN}" |
+      xargs -r qatom -CF "%{CATEGORY}/%{PN}" |
       sort -u >$emerged
 
     # emerged + not_emerged != all e.g. due to unmerges
@@ -254,7 +253,7 @@ function Coverage() {
     local oldest=$(sort -n ~tinderbox/$i/*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1)
     local days=0
     if [[ -n $oldest ]]; then
-      days=$(echo "scale=2.1; ($EPOCHSECONDS.0 - $oldest) / 3600 / 24" | bc)
+      days=$(echo "scale=2.1; ($EPOCHSECONDS - $oldest) / 3600 / 24" | bc)
     fi
     local perc=0
     if [[ $N -gt 0 ]]; then
