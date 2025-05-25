@@ -669,7 +669,7 @@ echo "#setup $mta" | tee /var/tmp/tb/task
 emerge -u mail-mta/$mta
 rm -f /etc/ssmtp/._cfg0000_ssmtp.conf /etc/._cfg0000_msmtprc
 emerge -u mail-client/mailx
-if ! (msmtp --version || ssmtp -V 2>&1) | mail -s "$mta test @ $name" $(cat $(dirname $0)/../sdata/mailto) &>/var/tmp/mail.log; then
+if ! (msmtp --version 2>/dev/null || ssmtp -V 2>&1) | mail -s "$mta test @ $name" $(cat $(dirname $0)/../sdata/mailto) &>/var/tmp/mail.log; then
   echo "\$(date) $mta test failed" >&2
   set +e
   tail -v /var/tmp/mail.log /var/log/msmtp.log >&2
