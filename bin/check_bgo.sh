@@ -23,7 +23,7 @@ function SetAssigneeAndCc() {
     local collision_partner
     local collision_partner_pkgname
     collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
-    collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
+    collision_partner_pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $collision_partner)
     if [[ -n $collision_partner_pkgname ]]; then
       cc+=" $(equery meta -m $collision_partner_pkgname | grep '@' | xargs)"
     fi
@@ -79,7 +79,7 @@ fi
 
 name=$(cat $issuedir/../../name)                                           # e.g.: 23.0-20201022-101504
 pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # e.g.: net-misc/bird-2.0.7-r1
-pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $pkg)                               # e.g.: net-misc/bird
+pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $pkg)                              # e.g.: net-misc/bird
 SetAssigneeAndCc
 
 if [[ ! -s $issuedir/title ]]; then

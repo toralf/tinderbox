@@ -39,7 +39,7 @@ grep -v -e '^%' <<<$* |
     if [[ $atom =~ ^@ || $atom =~ ^= ]]; then
       echo "$atom"
     else
-      qatom -F "%{CATEGORY}/%{PN}" $atom |
+      qatom -CF "%{CATEGORY}/%{PN}" $atom |
         grep -v '<unset>' |
         grep ".*-.*/.*"
     fi

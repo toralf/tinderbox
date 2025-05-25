@@ -141,7 +141,7 @@ function SearchForSameIssue() {
   prepareResultFile
   if grep -q 'file collision with' $issuedir/title; then
     collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
-    collision_partner_pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $collision_partner)
+    collision_partner_pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $collision_partner)
     $__tinderbox_bugz_search_cmd --show-status -- "file collision $pkgname $collision_partner_pkgname" |
       stripQuotesAndMore |
       grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |

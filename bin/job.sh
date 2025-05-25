@@ -627,7 +627,7 @@ function SendIssueMailIfNotYetReported() {
   cat <<EOF >>$issuedir/body
 
 
- direct link: http://tinderbox.zwiebeltoralf.de:31560/$name/$issuedir
+ artefacts: http://tinderbox.zwiebeltoralf.de:31560/$name/$issuedir
 
 
  check_bgo.sh ~tinderbox/img/$name/$issuedir $force
@@ -789,7 +789,7 @@ function catchMisc() {
 
     phase=""
     pkg=$(basename $pkglog | cut -f 1-2 -d ':' -s | tr ':' '/')
-    pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $pkg)
+    pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $pkg)
 
     # asked by xgqt
     # grep for "GiB" and take the values of "KiB"
@@ -839,7 +839,7 @@ function GetPkglog() {
   fi
 
   if [[ -z ${pkgname-} ]]; then
-    pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $pkg)
+    pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $pkg)
   fi
 
   pkglog=$(grep -o -m 1 "/var/log/portage/$(tr '/' ':' <<<$pkgname).*\.log" $tasklog_stripped)
@@ -864,7 +864,7 @@ function GetPkgFromTaskLog() {
     fi
   fi
   pkg=$(sed -e 's,:.*,,' <<<$pkg) # strip away the slot
-  pkgname=$(qatom -F "%{CATEGORY}/%{PN}" $pkg)
+  pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $pkg)
 }
 
 # helper of WorkOnTask()
