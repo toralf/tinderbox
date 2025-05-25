@@ -17,7 +17,6 @@ dev-libs/openssl*                   -sctp
 dev-libs/thrift                     libevent
 dev-libs/weston                     lcms xwayland
 dev-libs/xmlrpc-c                   abyss
-llvm-core/llvm                      debug
 media-gfx/imagemagick               corefonts truetype
 media-libs/libheif                  go
 media-libs/openexr                  utils
