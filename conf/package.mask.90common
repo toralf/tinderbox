@@ -39,6 +39,9 @@ sys-fs/zfs-kmod
 x11-drivers/nvidia-drivers
 x11-wm/stumpwm
 
+# wants older compiler and is special
+dev-util/nvidia-cuda-toolkit
+
 # high load values
 media-libs/libva-intel-media-driver
 
@@ -48,9 +51,6 @@ sci-libs/libint:2
 sci-libs/rocBLAS
 sci-libs/rocFFT
 www-client/chromium
-
-# wants older compiler and is special
-dev-util/nvidia-cuda-toolkit
 
 
 #######################################################################
