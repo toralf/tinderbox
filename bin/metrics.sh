@@ -75,6 +75,12 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+# jump out if tinderbox is not running
+if ! pgrep -f $(dirname $0)/bwrap.sh 1>/dev/null; then
+  rm -f $datadir/tinderbox.prom
+  exit 0
+fi
+
 source $(dirname $0)/lib.sh
 
 intervall=${1:-0}
