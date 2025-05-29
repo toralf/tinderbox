@@ -808,13 +808,13 @@ function IgnoreUseFlag() {
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
-  for fix in $(seq -w 0 9); do
-
+  for fix in $(seq -w 1 19); do
     if RunDryrunWrapper "#setup dryrun $attempt-$fix"; then
       return 0
     fi
 
     local try_again=0
+    local msg=""
 
     ###################################################################
     #
@@ -829,58 +829,20 @@ function FixPossibleUseFlagIssues() {
     )
     if [[ -n $atoms ]]; then
       local dpuf=./etc/portage/package.use/24-diced_package_use_flags
+      local removed=0
       for pn in $atoms; do
         if grep -q "^${pn} " $dpuf; then
           sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $dpuf
-          if RunDryrunWrapper "#setup dryrun $attempt-$fix # unmet req: $pn"; then
-            return 0
-          else
-            try_again=1
-          fi
+          ((++removed))
         fi
       done
-    fi
-
-    local msg=""
-
-    ###################################################################
-    #
-    # work on lines like:   - sys-cluster/mpich-3.4.3 (Change USE: -valgrind)
-    #
-    local f_circ_flag=./etc/portage/package.use/27-$attempt-$fix-circ-dep
-    local f_circ_test=./etc/portage/package.env/27-$attempt-$fix-circ-dep
-    awk '/It might be possible to break this cycle/,/^$/' $drylog |
-      grep -v ', this change violates' |
-      grep -F " (Change USE: " |
-      sed -e "s,^ *- ,," -e "s, (Change USE:,," -e "s,),," |
-      tr -d '+' |
-      while read -r p f; do
-        for flag in $f; do
-          if IgnoreUseFlag; then
-            continue
-          fi
-          pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p)
-          if [[ $flag == "-test" ]]; then
-            if ! grep -q -r "^${pn}  *.*notest" ./etc/portage/package.env/; then
-              printf "%-36s notest\n" $pn >>$f_circ_test
-            fi
-          elif ! UseFlagIsSetForPackage; then
-            printf "%-36s %s\n" $pn $flag >>$f_circ_flag
-          fi
-        done
-      done
-
-    if [[ -s $f_circ_flag || -s $f_circ_test ]]; then
-      if [[ -s $f_circ_flag ]]; then
-        msg+=" # circ dep: $(xargs <$f_circ_flag)"
-      fi
-      if [[ -s $f_circ_test ]]; then
-        msg+=" # notest: $(xargs <$f_circ_test)"
-      fi
-      if RunDryrunWrapper "#setup dryrun $attempt-${fix}${msg}"; then
-        return 0
-      else
-        try_again=1
+      if [[ $removed -gt 0 ]]; then
+        msg+=" # ${removed}x unmet req"
+        if RunDryrunWrapper "#setup dryrun $attempt-$fix${msg}"; then
+          return 0
+        else
+          try_again=1
+        fi
       fi
     fi
 
@@ -915,6 +877,47 @@ function FixPossibleUseFlagIssues() {
       fi
       if [[ -s $f_nec_test ]]; then
         msg+=" # notest: $(xargs <$f_nec_test)"
+      fi
+      if RunDryrunWrapper "#setup dryrun $attempt-${fix}${msg}"; then
+        return 0
+      else
+        try_again=1
+      fi
+    fi
+
+    ###################################################################
+    #
+    # work on lines like:   - sys-cluster/mpich-3.4.3 (Change USE: -valgrind)
+    #
+    local f_circ_flag=./etc/portage/package.use/27-$attempt-$fix-circ-dep
+    local f_circ_test=./etc/portage/package.env/27-$attempt-$fix-circ-dep
+    awk '/It might be possible to break this cycle/,/^$/' $drylog |
+      grep -v ', this change violates' |
+      grep -F " (Change USE: " |
+      sed -e "s,^ *- ,," -e "s, (Change USE:,," -e "s,),," |
+      tr -d '+' |
+      while read -r p f; do
+        for flag in $f; do
+          if IgnoreUseFlag; then
+            continue
+          fi
+          pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p)
+          if [[ $flag == "-test" ]]; then
+            if ! grep -q -r "^${pn}  *.*notest" ./etc/portage/package.env/; then
+              printf "%-36s notest\n" $pn >>$f_circ_test
+            fi
+          elif ! UseFlagIsSetForPackage; then
+            printf "%-36s %s\n" $pn $flag >>$f_circ_flag
+          fi
+        done
+      done
+
+    if [[ -s $f_circ_flag || -s $f_circ_test ]]; then
+      if [[ -s $f_circ_flag ]]; then
+        msg+=" # circ dep: $(xargs <$f_circ_flag)"
+      fi
+      if [[ -s $f_circ_test ]]; then
+        msg+=" # notest: $(xargs <$f_circ_test)"
       fi
       if RunDryrunWrapper "#setup dryrun $attempt-${fix}${msg}"; then
         return 0
@@ -1048,13 +1051,12 @@ EOF
       return 0
     fi
   else
-    local attempt=0
-    while [[ $((++attempt)) -le 75 ]]; do
+    for attempt in $(seq -w 1 75); do
       echo
       date
       echo "==========================================================="
       ThrowFlags $attempt
-      local current=./var/tmp/tb/logs/dryrun.$(printf "%02i" $attempt).log
+      local current=./var/tmp/tb/logs/dryrun.$attempt.log
       touch $current
       ln -f $current $drylog
       if FixPossibleUseFlagIssues $attempt; then
