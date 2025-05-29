@@ -357,6 +357,7 @@ function handleFeatureTest() {
         --exclude="*/proc/*" \
         --exclude="*/run/*" \
         --exclude="*/sys/*" \
+        --exclude="*/tests/cluster/data/*" \
         $dirs
     fi
   )
