@@ -672,7 +672,7 @@ function WorkAtIssue() {
     ReachedEOL "perl-cleaner Perl dep issue pkg=$pkg" $pkglog_stripped
   fi
 
-  if grep -q -F "Please, run 'haskell-updater'" $pkglog_stripped; then
+  if grep -q "Please, run 'haskell-updater'" $pkglog_stripped; then
     do_report=0
     try_again=1
     add2backlog "$task"
@@ -745,7 +745,7 @@ function PostEmerge() {
     # no @world and no deplean after this
   fi
 
-  if grep -q -F 'Use: perl-cleaner --all' $tasklog_stripped; then
+  if grep -q 'Use: perl-cleaner --all' $tasklog_stripped; then
     add2backlog '%perl-cleaner --all'
   fi
 
@@ -983,7 +983,7 @@ function WorkOnTask() {
         cut -f 2- -d ']' |
         awk '{ print $1 }' |
         xargs |
-        grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
+        grep -q "dev-perl/Locale-gettext $i dev-lang/perl"; then
         ReachedEOL "Perl dep issue for $i" $tasklog
       fi
     done
