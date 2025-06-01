@@ -58,16 +58,23 @@ function SetupANewImage() {
   set +e
   # shellcheck disable=SC2024
   sudo $(dirname $0)/setup_img.sh -s &>$tmpfile
+  local rc=$?
   set -e
 
   echo
   date
-  if ! grep -A 30 '^ OK' $tmpfile; then
+  if ! grep -A 99 '^ OK' $tmpfile; then
     tail -n 7 $tmpfile
   fi
 
   local img=$(grep -m 1 -Eo '  name: .*' $tmpfile | awk '{ print $2 }')
-  mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
+  if [[ -d ~tinderbox/img/$img/var/tmp/tb/ ]]; then
+    mv $tmpfile ~tinderbox/img/$img/var/tmp/tb/$(basename $0).log
+  else
+    ((rc += 10))
+  fi
+
+  return $rc
 }
 
 #######################################################################
