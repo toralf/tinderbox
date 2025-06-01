@@ -28,7 +28,7 @@ function dice() {
 # helper of InitOptions()
 function DiceAProfile() {
   eselect profile list |
-    grep -F '/23.0' |
+    grep '/23.0' |
     grep -v -F -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' -e ' (exp)' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
@@ -44,7 +44,7 @@ function DiceAProfile() {
     else
       grep '.'
     fi |
-    if dice 1 2; then
+    if dice 3 4; then
       # overweight Desktop
       grep '/desktop'
     else
@@ -808,7 +808,7 @@ function IgnoreUseFlag() {
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
-  for fix in $(seq -w 1 19); do
+  for fix in $(seq -w 1 32); do
     if RunDryrunWrapper "#setup dryrun $attempt-$fix"; then
       return 0
     fi
@@ -825,19 +825,19 @@ function FixPossibleUseFlagIssues() {
         awk '/^- / { print $2 }' |
         cut -f 1 -d ':' -s |
         xargs -r qatom -CF "%{CATEGORY}/%{PN}" |
-        grep -v -F '<unset>/'
+        grep -v '<unset>'
     )
     if [[ -n $atoms ]]; then
       local dpuf=./etc/portage/package.use/24-diced_package_use_flags
-      local removed=0
+      local removed=""
       for pn in $atoms; do
         if grep -q "^${pn} " $dpuf; then
           sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $dpuf
-          ((++removed))
+          removed+=" $pn"
         fi
       done
-      if [[ $removed -gt 0 ]]; then
-        msg+=" # ${removed}x unmet req"
+      if [[ -n $removed ]]; then
+        msg+=" # unmet req${removed}"
         if RunDryrunWrapper "#setup dryrun $attempt-$fix${msg}"; then
           return 0
         else
@@ -854,9 +854,13 @@ function FixPossibleUseFlagIssues() {
     local f_nec_test=./etc/portage/package.env/27-$attempt-$fix-necessary-use-flag
     awk '/The following USE changes are necessary to proceed:/,/^$/' $drylog |
       grep -e "^>*=.* .*" |
-      tr -d '+' |
+      grep -v '(This .*' |
+      sed -e 's, +, ,g' |
       while read -r p f; do
-        pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p)
+        if ! pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p) || grep -q '<unset>' <<<$pn; then
+          echo " wrong pn '$pn' for '$p' '$f'" >&2
+          continue
+        fi
         for flag in $f; do
           if IgnoreUseFlag; then
             continue
@@ -891,17 +895,20 @@ function FixPossibleUseFlagIssues() {
     #
     local f_circ_flag=./etc/portage/package.use/27-$attempt-$fix-circ-dep
     local f_circ_test=./etc/portage/package.env/27-$attempt-$fix-circ-dep
-    awk '/It might be possible to break this cycle/,/^$/' $drylog |
-      grep -v ', this change violates' |
+    awk '/It might be possible to /,/^$/' $drylog |
       grep -F " (Change USE: " |
+      grep -v -F -e ', this change violates' -e '(This' |
       sed -e "s,^ *- ,," -e "s, (Change USE:,," -e "s,),," |
-      tr -d '+' |
+      sed -e 's, +, ,g' |
       while read -r p f; do
         for flag in $f; do
           if IgnoreUseFlag; then
             continue
           fi
-          pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p)
+          if ! pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p) || grep -q '<unset>' <<<$pn; then
+            echo " wrong pn '$pn' for '$p' '$f'" >&2
+            continue
+          fi
           if [[ $flag == "-test" ]]; then
             if ! grep -q -r "^${pn}  *.*notest" ./etc/portage/package.env/; then
               printf "%-36s notest\n" $pn >>$f_circ_test
