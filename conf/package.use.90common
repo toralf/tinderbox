@@ -59,7 +59,7 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 #
 
 */*         RUBY_TARGETS:           ruby33              # DICE: ruby33 1 4
-*/*         RUBY_TARGETS:           ruby34              # DICE: ruby34
+*/*         RUBY_TARGETS:           ruby34              # DICE: ruby34 3 4
 
 # 2x faster compile
 */*                                 jumbo-build

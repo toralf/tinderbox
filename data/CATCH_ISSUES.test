@@ -81,7 +81,6 @@ Resolve library did not return a fully qualified domain name.
 ^not ok [[:digit:]]*
 test in .* failed
 /bin/bash: docker: command not found
-\.\.\.\.\.\.\. no
  \.\. Failed .* subtests
 ==== Testing .* failed
 t/.*.t.* module .* not found:
@@ -122,3 +121,4 @@ make:.* test
 can't load package:
 : cannot find package
  command not found
+test .* ERROR
