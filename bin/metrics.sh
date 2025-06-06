@@ -55,6 +55,9 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+intervall=${1:-0}
+datadir=${2:-/var/lib/node_exporter}
+
 # jump out if tinderbox is not running
 if ! pgrep -f $(dirname $0)/bwrap.sh 1>/dev/null; then
   rm -f $datadir/tinderbox.prom
@@ -62,9 +65,6 @@ if ! pgrep -f $(dirname $0)/bwrap.sh 1>/dev/null; then
 fi
 
 source $(dirname $0)/lib.sh
-
-intervall=${1:-0}
-datadir=${2:-/var/lib/node_exporter}
 
 cd $datadir
 
