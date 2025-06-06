@@ -96,7 +96,7 @@ while lowSpace && read -r img; do
 done < <(list_images_by_age "img")
 
 while lowSpace && read -r img; do
-  if olderThan $img 7; then
+  if olderThan $img 9; then
     if ! ls $img/var/tmp/tb/issues/*/.reported &>/dev/null; then
       pruneIt $img "no bug reported"
     fi
