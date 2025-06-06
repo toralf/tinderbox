@@ -72,7 +72,7 @@ function Overall() {
   local locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
 
-  echo "  pkg fail bgo  day  done .1st .upd   todo lcx     $locked#$all     $(date)     $(grep "procs_running" /proc/stat | cut -f 2 -d ' ')  $(cut -f 1-3 -d ' ' </proc/loadavg)"
+  echo "  pkg fail bgo  day  done .1st .upd   todo lcx    $locked#$all    $(date)    $(grep 'procs_running' /proc/stat | cut -f 2 -d ' ')  $(cut -f 1-3 -d ' ' </proc/loadavg)"
 
   for i in $images; do
     local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
