@@ -969,8 +969,6 @@ function WorkOnTask() {
         backtrack_opt="--backtrack=50"
         if ! $dryrun_cmd $backtrack_opt &>>$tasklog; then
           ReachedEOL "dry-run failed ($backtrack_opt)" $tasklog
-        else
-          Mail "INFO: $backtrack_opt needed" $tasklog
         fi
       else
         ReachedEOL "dry-run failed" $tasklog
