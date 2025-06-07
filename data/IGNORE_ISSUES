@@ -1,5 +1,6 @@
 ada compiler not available
 asciidoctor.*LoadError
+QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 Currently installed version of OCaml is not yet supported
 No LLVM slot .* satisfying the package's dependencies found installed
 QA Notice: .*backend is deprecated. Please see:

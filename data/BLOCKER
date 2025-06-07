@@ -43,7 +43,7 @@ AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC
 
 # (cmake-4) - [Tracker] Breakage with dev-build/cmake-4*
 951350
-Configuring incomplete, errors occurred!
+QA Notice: Compatibility with CMake < 3.5 has been removed from CMake 4|QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
 # [Tracker] termio.h and struct termio removal in glibc-2.42
 952954
@@ -68,3 +68,7 @@ QA Notice: package is installing tmpfiles without inheriting tmpfiles.eclass
 # [Tracker] Build failures with dev-python/cython-3.1.0*
 954128
 Error compiling Cython file:
+
+# (EAPI7Removal) - [TRACKER] EAPI 7 removal
+803521
+QA Notice: EAPI=7 detected; this package is now a prime last-rites target.
