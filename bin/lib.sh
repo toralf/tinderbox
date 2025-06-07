@@ -97,8 +97,8 @@ function prepareResultFile() {
   fi
 }
 
-function getSearchString() {
-  sed -e 's,^.* - ,,' -e 's,[\(\)], ,g' -e 's,QA Notice: ,,'
+function createSearchString() {
+  sed -e 's,^.* - ,,' -e 's,[\(\)], ,g' -e 's,QA Notice: ,,' <$issuedir/title | cut -c -$__tinderbox_bugz_title_length
 }
 
 # look for a blocker bug id
@@ -157,7 +157,7 @@ function SearchForSameIssue() {
 
   else
     for i in $pkg $pkgname; do
-      $__tinderbox_bugz_search_cmd --show-status -- $i "$(getSearchString <$issuedir/title | cut -c -$__tinderbox_bugz_title_length)" |
+      $__tinderbox_bugz_search_cmd --show-status -- $i "$(createSearchString)" |
         stripQuotesAndMore |
         grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
         sort -n -r |
@@ -180,12 +180,12 @@ function SearchForSimilarIssue() {
   local pkgname=${2?PKGNAME UNDEFINED}
 
   prepareResultFile
-  # resolved does not fit "same issue"
+  # resolved does not fit our definition of "opened same issue"
   for i in $pkg $pkgname; do
-    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(getSearchString <$issuedir/title)" |
+    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(createSearchString)" |
       stripQuotesAndMore |
       sort -n -r |
-      head -n 3 |
+      head -n 4 |
       filterPlainText |
       tee $issuedir/bugz_result
     if BgoIssue; then
@@ -195,10 +195,10 @@ function SearchForSimilarIssue() {
       return 0
     fi
 
-    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED -- $i "$(getSearchString <$issuedir/title)" |
+    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED -- $i "$(createSearchString)" |
       stripQuotesAndMore |
       sort -n -r |
-      head -n 3 |
+      head -n 4 |
       filterPlainText |
       tee $issuedir/bugz_result
     if BgoIssue; then
