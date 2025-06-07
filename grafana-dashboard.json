@@ -117,8 +117,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-blue",
-                "value": null
+                "color": "super-light-blue"
               }
             ]
           },
@@ -148,7 +147,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -157,11 +156,27 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(rate(tinderbox_emerge_completed_img{img=~\"$Img\", instance=~\"$Instance\", job=~\"$Job\"}[1h])) * 86400",
+          "expr": "sum(rate(tinderbox_emerge_completed_img_total{job=~\"$Job\", instance=~\"$Instance\", img=~\"$Img\"}[1h])) * 86400",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "legendFormat": "1 h",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum(rate(tinderbox_emerge_completed_img_total{instance=~\"$Instance\", job=~\"$Job\"}[24h])) * 86400",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "1 d",
           "range": true,
           "refId": "B",
           "useBackend": false
@@ -173,11 +188,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(rate(tinderbox_emerge_completed_img{img=~\"$Img\", instance=~\"$Instance\"}[24h])) * 86400",
+          "expr": "sum(rate(tinderbox_emerge_completed_img_total{instance=~\"$Instance\", job=~\"$Job\"}[144h])) * 86400",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
-          "legendFormat": "1 d",
+          "legendFormat": "1 w",
           "range": true,
           "refId": "C",
           "useBackend": false
@@ -239,8 +254,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -274,7 +288,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -392,8 +406,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -502,7 +515,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -511,7 +524,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "tinderbox_images{instance=~\"$Instance\", job=~\"$Job\"}",
+          "expr": "tinderbox_images{job=~\"$Job\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{state}}",
@@ -572,8 +585,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -631,7 +643,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -735,8 +747,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -772,7 +783,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -781,7 +792,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(img) (rate(tinderbox_emerge_completed_img{img=~\"$Img\", instance=~\"$Instance\", job=~\"$Job\"}[1h])) * 3600",
+          "expr": "sum by(img) (rate(tinderbox_emerge_completed_img_total{job=~\"$Job\", instance=~\"$Instance\", img=~\"$Img\"}[1h])) * 3600",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{img}}",
@@ -844,8 +855,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -879,7 +889,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -969,8 +979,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1006,7 +1015,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1069,8 +1078,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1109,7 +1117,7 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1119,7 +1127,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "sort(tinderbox_age_img{img=~\"$Img\", instance=~\"$Instance\", job=~\"$Job\"}) / 86400",
+          "expr": "sort(tinderbox_age_img_total{job=~\"$Job\", instance=~\"$Instance\", img=~\"$Img\"}) / 86400",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -1184,8 +1192,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1261,25 +1268,8 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "node_btrfs_size_bytes{block_group_type=\"data\", mode=\"raid0\", instance=~\"$Instance\", job=~\"$Job\"}",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "max",
-          "range": true,
-          "refId": "B",
-          "useBackend": false
-        },
         {
           "datasource": {
             "type": "prometheus",
@@ -1296,6 +1286,23 @@
           "range": true,
           "refId": "A",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "node_btrfs_size_bytes{block_group_type=\"data\", mode=\"raid0\", instance=~\"$Instance\", job=~\"$Job\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "max",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
         }
       ],
       "title": "data raid0",
@@ -1304,7 +1311,7 @@
   ],
   "preload": false,
   "refresh": "auto",
-  "schemaVersion": 40,
+  "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
@@ -1364,13 +1371,14 @@
           "type": "prometheus",
           "uid": "XbGvg5aVz"
         },
-        "definition": "label_values(tinderbox_age_img,img)",
+        "definition": "label_values(tinderbox_age_img_total,img)",
         "includeAll": true,
         "label": "Img",
         "name": "Img",
         "options": [],
         "query": {
-          "query": "label_values(tinderbox_age_img,img)",
+          "qryType": 1,
+          "query": "label_values(tinderbox_age_img_total,img)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -1388,6 +1396,5 @@
   "timezone": "utc",
   "title": "Tinderbox",
   "uid": "tm9JS5B4z",
-  "version": 336,
-  "weekStart": ""
+  "version": 363
 }
