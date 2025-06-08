@@ -628,9 +628,6 @@ function SendIssueMailIfNotYetReported() {
   cat <<EOF >>$issuedir/body
 
 
- artefacts: http://tinderbox.zwiebeltoralf.de:31560/$name/$issuedir
-
-
  check_bgo.sh ~tinderbox/img/$name/$issuedir $force
 
 
