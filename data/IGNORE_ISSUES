@@ -1,9 +1,10 @@
 ada compiler not available
 asciidoctor.*LoadError
-QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+AttributeError: Config object has no attribute _cleanup. Did you mean: add_cleanup
 Currently installed version of OCaml is not yet supported
 No LLVM slot .* satisfying the package's dependencies found installed
 QA Notice: .*backend is deprecated. Please see:
+QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 QA Notice: command not found:
 QA Notice: Installing libtool files (.la) without corresponding static libraries
 QA Notice: Package triggers severe warnings which indicate that it
