@@ -8,4 +8,4 @@
 <sys-devel/gcc-16.0.9999:16                        **   # DICE: [gcc-16] 1 4
 
 # sam_
-==sys-devel/gettext-0.25                           **   # DICE: [gettext] 1 1
+=sys-devel/gettext-0.25*                           **   # DICE: [gettext] 1 1
