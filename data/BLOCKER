@@ -76,3 +76,11 @@ QA Notice: EAPI=7 detected; this package is now a prime last-rites target.
 # [Tracker] Build failures with sys-devel/gettext-0.25
 957583
 Failed running autoconf
+
+# (parallel-make) - [TRACKER] packages failing to use parallel make
+351559
+QA Notice: missing ninja dependencies in
+
+# [TRACKER] Packages that depend on Gtk's x11/wayland specific ABI without USE dep
+957796
+QA Notice: binaries depend on Gtk.s x11-specific ABI without USE dep

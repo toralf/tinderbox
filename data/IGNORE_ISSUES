@@ -8,6 +8,7 @@ QA Notice: cargo built package contains possibly vendored code
 QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 QA Notice: command not found:
 QA Notice: Installing libtool files (.la) without corresponding static libraries
+QA Notice: missing ninja dependencies in
 QA Notice: Package triggers severe warnings which indicate that it
 QA Notice: setuptools warnings detected:
 QA Notice: The following deprecated .egg or .egg-info files were found.
