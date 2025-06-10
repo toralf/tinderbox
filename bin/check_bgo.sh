@@ -38,7 +38,7 @@ function SetAssigneeAndCc() {
 
   echo "$assignee" >$issuedir/assignee
   chmod a+w $issuedir/assignee
-  xargs -n 1 <<<$cc | sort -u | grep -v -e "^$assignee$" -e 'proxy-maint@gentoo.org' | xargs >$issuedir/cc
+  xargs -n 1 <<<$cc | sort -u | grep -v "^$assignee$" | xargs >$issuedir/cc
   if [[ -s $issuedir/cc ]]; then
     chmod a+w $issuedir/cc
   else
