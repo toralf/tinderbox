@@ -389,7 +389,7 @@ function ClassifyIssue() {
     fi
   fi
 
-  if [[ $(wc -c <$issuedir/issue) -gt 1024 ]]; then
+  if [[ $(wc -c <$issuedir/issue) -gt 512 ]]; then
     echo -e "too long lines were shrinked:\n" >/tmp/issue
     cut -c -300 <$issuedir/issue >>/tmp/issue
     mv /tmp/issue $issuedir/issue

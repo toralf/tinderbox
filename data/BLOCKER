@@ -72,3 +72,7 @@ Error compiling Cython file:
 # (EAPI7Removal) - [TRACKER] EAPI 7 removal
 803521
 QA Notice: EAPI=7 detected; this package is now a prime last-rites target.
+
+# [Tracker] Build failures with sys-devel/gettext-0.25
+957583
+Failed running autoconf

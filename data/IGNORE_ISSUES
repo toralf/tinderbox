@@ -4,6 +4,7 @@ AttributeError: Config object has no attribute _cleanup. Did you mean: add_clean
 Currently installed version of OCaml is not yet supported
 No LLVM slot .* satisfying the package's dependencies found installed
 QA Notice: .*backend is deprecated. Please see:
+QA Notice: cargo built package contains possibly vendored code
 QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 QA Notice: command not found:
 QA Notice: Installing libtool files (.la) without corresponding static libraries

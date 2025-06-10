@@ -1,4 +1,13 @@
-# re-check:      grep -v '#' ~/tb/data/IGNORE_USE_FLAGS | while read u; do quse -De $u &>/dev/null || echo $u; done
+# re-check for obsoletes:      grep -v '#' ~/tb/data/IGNORE_USE_FLAGS | while read u; do quse -De $u &>/dev/null || echo $u; done
+#
+# temp to increase /desktop setup success
+#
+cxx
+ldap
+sasl
+#
+# generic
+#
 32
 64
 bind
@@ -87,7 +96,6 @@ test-full
 tcmalloc
 unwind
 vanilla
-vulkan_overlay
 wayland
 x32
 xinetd
