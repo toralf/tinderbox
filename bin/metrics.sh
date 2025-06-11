@@ -76,20 +76,18 @@ echo $$ >"$lockfile"
 trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
 while :; do
+  now=$EPOCHSECONDS
+
   # clean up old data if tinderbox is not running
   if ! pgrep -f $(dirname $0)/bwrap.sh 1>/dev/null; then
     rm -f $datadir/tinderbox.prom
-    sleep $intervall
-    continue
+  else
+    tmpfile=$(mktemp /tmp/metrics_tinderbox_XXXXXX.tmp)
+    echo "# $0   $(date -R)" >$tmpfile
+    printMetrics >>$tmpfile
+    chmod a+r $tmpfile
+    mv $tmpfile $datadir/tinderbox.prom
   fi
-
-  now=$EPOCHSECONDS
-
-  tmpfile=$(mktemp /tmp/metrics_tinderbox_XXXXXX.tmp)
-  echo "# $0   $(date -R)" >$tmpfile
-  printMetrics >>$tmpfile
-  chmod a+r $tmpfile
-  mv $tmpfile $datadir/tinderbox.prom
 
   if [[ $intervall -eq 0 ]]; then
     break
