@@ -58,12 +58,6 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 intervall=${1:-0}
 datadir=${2:-/var/lib/node_exporter}
 
-# jump out if tinderbox is not running
-if ! pgrep -f $(dirname $0)/bwrap.sh 1>/dev/null; then
-  rm -f $datadir/tinderbox.prom
-  exit 0
-fi
-
 source $(dirname $0)/lib.sh
 
 cd $datadir
@@ -82,6 +76,13 @@ echo $$ >"$lockfile"
 trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
 while :; do
+  # clean up old data if tinderbox is not running
+  if ! pgrep -f $(dirname $0)/bwrap.sh 1>/dev/null; then
+    rm -f $datadir/tinderbox.prom
+    sleep $intervall
+    continue
+  fi
+
   now=$EPOCHSECONDS
 
   tmpfile=$(mktemp /tmp/metrics_tinderbox_XXXXXX.tmp)
