@@ -27,7 +27,7 @@ Found the following implicit function declarations in configure logs:
 
 # (lto) - [TRACKER] LTO issues
 618550
-=lto-type-mismatch|=odr|=strict-aliasing|lto1: some warnings being treated as errors
+=lto-type-mismatch|=odr|=strict-aliasing|lto1: some warnings being treated as errors|unstripped LTO libs
 
 # [Tracker] sys-devel/gcc-15 porting
 932474
