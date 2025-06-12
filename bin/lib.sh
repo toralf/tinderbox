@@ -35,11 +35,6 @@ function getStartTime() {
   cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img
 }
 
-function stripQuotesAndMore() {
-  # shellcheck disable=SC1112
-  sed -e 's,['\''‘’"`•],,g'
-}
-
 # list if locked and/or symlinked and/or have a cgroup
 function list_active_images() {
   (
@@ -66,16 +61,23 @@ function list_images_by_age() {
     sort -k 2 -t '-'
 }
 
-# filter leftover of ansifilter
+function stripQuotesAndMore() {
+  # shellcheck disable=SC1112
+  sed -e 's,['\''‘’"`•],,g'
+}
+
 function filterPlainText() {
-  # UTF-2018+2019 (left+right single quotation mark)
-  sed -e 's,\xE2\x80\x98,,g' -e 's,\xE2\x80\x99,,g' |
-    perl -wne '
-      s,\x00,\n,g;
-      s,\r\n,\n,g;
-      s,\r,\n,g;
-      print;
-  '
+  # non-ascii chars and colour sequences e.g. in media-libs/esdl logs
+  (
+    recode --force --quiet ascii
+    exec cat
+  ) 2>/dev/null |
+    # from recode --force: �
+    sed -e 's,\xEF\xBF\xBD,,g' |
+    # UTF-2018+2019 (left+right single quotation mark)
+    sed -e 's,\xE2\x80\x98,,g' -e 's,\xE2\x80\x99,,g' |
+    # CR/LF
+    sed -e 's,\x00,\n,g' -e 's,\r$,\n,g' -e 's,\r,\n,g'
 }
 
 function checkBgo() {
