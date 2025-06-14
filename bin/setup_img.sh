@@ -564,6 +564,8 @@ function CreateBacklogs() {
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
 @world
+app-portage/eschwartz-dev-scripts
+app-text/recode
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
@@ -572,11 +574,15 @@ EOF
     # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
     cat <<EOF >>$bl.1st
 %emerge -e @world
+app-portage/eschwartz-dev-scripts
+app-text/recode
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 EOF
   else
     cat <<EOF >>$bl.1st
 @world
+app-portage/eschwartz-dev-scripts
+app-text/recode
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
