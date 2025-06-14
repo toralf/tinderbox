@@ -698,10 +698,6 @@ function SwitchGCC() {
     gcc-config --nocolor $highest
     source_profile
     add2backlog "%emerge -1 --selective=n --deep=0 -u dev-build/libtool"
-    # sam_
-    if grep -q '^LIBTOOL="rdlibtool"' /etc/portage/make.conf; then
-      add2backlog "dev-build/slibtool"
-    fi
     add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f 1 -d '.' <<<$v)"
   fi
 }

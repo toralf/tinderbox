@@ -38,10 +38,6 @@ function create() {
     title=$(sed -e 's, - , - [llvm] ,' <<<$title)
   fi
 
-  if grep -q '^LIBTOOL="rdlibtool"' ../../../../../etc/portage/make.conf; then
-    title=$(sed -e 's, - , - [slibtool] ,' <<<$title)
-  fi
-
   while read -r dice; do
     title=$(sed -e "s, - , - $dice ," <<<$title)
   done < <(

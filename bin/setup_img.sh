@@ -694,19 +694,6 @@ date
 echo "#setup pfl" | tee /var/tmp/tb/task
 USE="-network-cron" emerge -u app-portage/pfl
 
-# sam_
-if [[ 1 -eq 0 ]]; then
-  date
-  echo "#setup slibtool" | tee /var/tmp/tb/task
-  emerge -u dev-build/slibtool
-  cat <<EOF2 >>/etc/portage/make.conf
-
-LIBTOOL="rdlibtool"
-MAKEFLAGS="LIBTOOL=\\\${LIBTOOL}"
-
-EOF2
-fi
-
 if find /etc -type f -name "._cfg0000_*" | grep '.'; then
   echo -e "\n ^^ unexpected changes\n" >&2
   exit 2

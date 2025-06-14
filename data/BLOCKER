@@ -13,10 +13,6 @@ BAD_TAR_INVOCATION
 903611
 stat64|lstat64|off64_t|fstat64|pwrite64|open64|ftruncate64|lseek64|pread64|readdir64
 
-# (slibtool) - [tracker] Packages failing to build with dev-build/slibtool
-765709
-rdlibtool
-
 # [Tracker] Breakage with sys-libs/ncurses-6.5 (default-opaque structures)
 930805
 invalid use of incomplete typedef .* {aka struct .*}
