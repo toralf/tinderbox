@@ -609,6 +609,8 @@ set -euf
 date
 echo $name
 
+export NO_COLOR=1
+
 # use within the image the same user and group id of tinderbox as defined at the host to be allowed to edit files
 date
 echo "#setup user" | tee /var/tmp/tb/task
@@ -755,8 +757,6 @@ function RunSetupScript() {
 }
 
 function RunDryrunWrapper() {
-  echo "$1" | tee ./var/tmp/tb/task
-
   for k in EOL STOP; do
     if [[ -f ./var/tmp/tb/$k ]]; then
       tail -v ./var/tmp/tb/$k
@@ -764,46 +764,37 @@ function RunDryrunWrapper() {
     fi
   done
 
+  echo "#setup dryrun $attempt-$fix$1" | tee ./var/tmp/tb/task
+
+  # keep all logs
+  (
+    cd ./var/tmp/tb/logs/
+    current=dryrun.$attempt-$fix.log
+    touch $current
+    ln -sf $current ./dryrun.log
+  )
+
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog; then
     if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
       return 1
+    else
+      echo -e " OK  $attempt-$fix  $name\n"
+      return 0
     fi
-
-    for i in net-libs/libmbim x11-libs/pango; do
-      if grep -Eo "^\[ebuild .*(dev-lang/perl|$i|dev-perl/Locale-gettext)" $drylog |
-        cut -f 2- -d ']' |
-        awk '{ print $1 }' |
-        xargs |
-        grep -q -F "dev-perl/Locale-gettext $i dev-lang/perl"; then
-        # for sam: check if this has less packages than the previous candidate
-        local n=$(grep -Eo "^Total: .* packages" $drylog | tail -n 1 | awk '{ print $2 }')
-        if [[ $n -lt 201 ]]; then
-          echo -e "$(date) Perl dep issue for $i n=$n" | tee ~tinderbox/img/$name/var/tmp/tb/KEEP
-          exit 42
-        fi
-        return 1
-      fi
-    done
-
-    echo -e " OK  $attempt-$fix  $name\n"
-
-    return 0
-
   elif [[ -s $drylog ]]; then
     return 1
-
   else
-    echo -e "\n sth. fatal happened\n" >&2
+    echo -e "\n sth. unexpected happened\n" >&2
     exit 4
   fi
 }
 
 function UseFlagIsSetForPackage() {
   grep -q -r \
-    -e "^${pn}  *-*$flag$" \
-    -e "^${pn}  *-*$flag " \
-    -e "^${pn}  *.* -*$flag$" \
-    -e "^${pn}  *.* -*$flag " \
+    -e "^$pn  *-*$flag$" \
+    -e "^$pn  *-*$flag " \
+    -e "^$pn  *.* -*$flag$" \
+    -e "^$pn  *.* -*$flag " \
     ./etc/portage/package.use/
 }
 
@@ -815,19 +806,19 @@ function FixPossibleUseFlagIssues() {
   local attempt=$1
 
   for fix in $(seq -w 1 32); do
-    if RunDryrunWrapper "#setup dryrun $attempt-$fix"; then
-      return 0
-    fi
-
     local try_again=0
     local msg=""
+
+    if RunDryrunWrapper "$msg"; then
+      return 0
+    fi
 
     ###################################################################
     #
     # remove a package from the diced use flags file
     #
     local atoms=$(
-      grep -A 1 'The ebuild selected to satisfy .* has unmet requirements.' $drylog |
+      awk '/The ebuild selected to satisfy .* has unmet requirements./,/^$/' $drylog |
         awk '/^- / { print $2 }' |
         cut -f 1 -d ':' -s |
         xargs -r qatom -CF "%{CATEGORY}/%{PN}" |
@@ -837,14 +828,14 @@ function FixPossibleUseFlagIssues() {
       local dpuf=./etc/portage/package.use/24-diced_package_use_flags
       local removed=""
       for pn in $atoms; do
-        if grep -q "^${pn} " $dpuf; then
+        if grep -q "^$pn " $dpuf; then
           sed -i -e "/$(sed -e 's,/,\\/,' <<<$pn) /d" $dpuf
           removed+=" $pn"
         fi
       done
       if [[ -n $removed ]]; then
-        msg+=" # unmet req${removed}"
-        if RunDryrunWrapper "#setup dryrun $attempt-$fix${msg}"; then
+        msg+=" # unmet:$removed"
+        if RunDryrunWrapper "$msg"; then
           return 0
         else
           try_again=1
@@ -864,7 +855,7 @@ function FixPossibleUseFlagIssues() {
       sed -e 's, +, ,g' |
       while read -r p f; do
         if ! pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p) || grep -q '<unset>' <<<$pn; then
-          echo " wrong pn '$pn' for '$p' '$f'" >&2
+          echo " wrong pn '$pn' for '$p'" >&2
           continue
         fi
         for flag in $f; do
@@ -872,7 +863,7 @@ function FixPossibleUseFlagIssues() {
             continue
           fi
           if [[ $flag == "-test" ]]; then
-            if ! grep -q -r "^${pn} * notest" ./etc/portage/package.env/; then
+            if ! grep -q -r "^$pn * notest" ./etc/portage/package.env/; then
               printf "%-36s notest\n" $pn >>$f_nec_test
             fi
           elif ! UseFlagIsSetForPackage; then
@@ -888,7 +879,7 @@ function FixPossibleUseFlagIssues() {
       if [[ -s $f_nec_test ]]; then
         msg+=" # notest: $(xargs <$f_nec_test)"
       fi
-      if RunDryrunWrapper "#setup dryrun $attempt-${fix}${msg}"; then
+      if RunDryrunWrapper "$msg"; then
         return 0
       else
         try_again=1
@@ -904,19 +895,18 @@ function FixPossibleUseFlagIssues() {
     awk '/It might be possible to /,/^$/' $drylog |
       grep -F " (Change USE: " |
       grep -v -F -e ', this change violates' -e '(This' |
-      sed -e "s,^ *- ,," -e "s, (Change USE:,," -e "s,),," |
-      sed -e 's, +, ,g' |
+      sed -e "s,^ *- ,," -e "s, (Change USE:,," -e "s,),," -e 's, +, ,g' |
       while read -r p f; do
         for flag in $f; do
           if IgnoreUseFlag; then
             continue
           fi
           if ! pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p) || grep -q '<unset>' <<<$pn; then
-            echo " wrong pn '$pn' for '$p' '$f'" >&2
+            echo " wrong pn '$pn' for '$p'" >&2
             continue
           fi
           if [[ $flag == "-test" ]]; then
-            if ! grep -q -r "^${pn}  *.*notest" ./etc/portage/package.env/; then
+            if ! grep -q -r "^$pn  *.*notest" ./etc/portage/package.env/; then
               printf "%-36s notest\n" $pn >>$f_circ_test
             fi
           elif ! UseFlagIsSetForPackage; then
@@ -932,7 +922,7 @@ function FixPossibleUseFlagIssues() {
       if [[ -s $f_circ_test ]]; then
         msg+=" # notest: $(xargs <$f_circ_test)"
       fi
-      if RunDryrunWrapper "#setup dryrun $attempt-${fix}${msg}"; then
+      if RunDryrunWrapper "$msg"; then
         return 0
       else
         try_again=1
@@ -1008,45 +998,48 @@ function ThrowFlags() {
 function CompileUseFlagFiles() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
+  local line="================================================================="
   rm -f ./var/tmp/tb/dryrun_wrapper.sh
-  cat <<EOF >./var/tmp/tb/dryrun_wrapper.sh
-set -euf
-
-echo "# start dryrun"
-EOF
-
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 #!/bin/bash
 
+set -euf
+
+echo "# start dryrun"
 cat /var/tmp/tb/task
-echo "-------"
+
+export NO_COLOR=1
+
+echo "$line"
 EOF
+
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1up --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
-echo "-------"
+echo "$line"
 emerge -up @world
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1up --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
-echo "-------"
+echo "$line"
 emerge -ep @world
 EOF
   else
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1up --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc)
-echo "-------"
+echo "$line"
 emerge -up @world
 EOF
   fi
+
   cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
-echo "-------"
+echo "$line"
 EOF
 
   chmod u+x ./var/tmp/tb/dryrun_wrapper.sh
+  rm -f ./var/tmp/tb/logs/dryrun{,.*-*}.log
   local drylog=./var/tmp/tb/logs/dryrun.log
-  rm -f ./var/tmp/tb/logs/dryrun{,.*}.log
 
   if [[ -n $useconfigof ]]; then
     echo
@@ -1069,9 +1062,6 @@ EOF
       date
       echo "==========================================================="
       ThrowFlags $attempt
-      local current=./var/tmp/tb/logs/dryrun.$attempt.log
-      touch $current
-      ln -f $current $drylog
       if FixPossibleUseFlagIssues $attempt; then
         return 0
       fi
