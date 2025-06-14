@@ -372,7 +372,7 @@ PORTAGE_ELOG_MAILURI="tinderbox@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
 # will be activated during setup
-#PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
+PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
 
 GENTOO_MIRRORS="$GENTOO_MIRRORS"
 
@@ -561,11 +561,14 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
+  cat <<EOF >>$bl.1st
+app-text/recode
+app-portage/eschwartz-dev-scripts
+EOF
+
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
 @world
-app-portage/eschwartz-dev-scripts
-app-text/recode
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
@@ -574,15 +577,11 @@ EOF
     # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
     cat <<EOF >>$bl.1st
 %emerge -e @world
-app-portage/eschwartz-dev-scripts
-app-text/recode
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 EOF
   else
     cat <<EOF >>$bl.1st
 @world
-app-portage/eschwartz-dev-scripts
-app-text/recode
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
@@ -666,7 +665,6 @@ emerge -1u sys-apps/portage
 date
 echo "#setup ansifilter" | tee /var/tmp/tb/task
 USE="-gui" emerge -u app-text/ansifilter
-sed -i -e 's,#PORTAGE_LOG_FILTER_FILE_CMD,PORTAGE_LOG_FILTER_FILE_CMD,' /etc/portage/make.conf
 
 echo "#cert setup" | tee /var/tmp/tb/task
 update-ca-certificates
