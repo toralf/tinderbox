@@ -29,27 +29,9 @@ function dice() {
 function DiceAProfile() {
   eselect profile list |
     grep '/23.0' |
-    grep -v -F -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' -e ' (exp)' |
+    grep -v -F -e '/llvm' -e '/musl' -e '/prefix' -e '/selinux' -e '/split-usr' -e '/x32' -e ' (exp)' |
     awk '{ print $2 }' |
     cut -f 4- -d '/' -s |
-    if dice 1 1; then
-      # underweight MUSL
-      grep -v '/musl'
-    else
-      grep '.'
-    fi |
-    if dice 1 1; then
-      # underweight LLVM
-      grep -v '/llvm'
-    else
-      grep '.'
-    fi |
-    if dice 4 5; then
-      # overweight Desktop
-      grep '/desktop'
-    else
-      grep '.'
-    fi |
     shuf -n 1
 }
 
@@ -958,13 +940,13 @@ function ThrowFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
     grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    ShuffleUseFlags 150 25 30 |
+    ShuffleUseFlags 100 25 30 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23-diced_global_use_flags
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
     grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
-    shuf -n $((RANDOM % 2000 + 500)) |
+    shuf -n $((RANDOM % 3000 + 500)) |
     sort |
     while read -r file; do
       pn=$(cut -f 6-7 -d '/' -s <<<$file)
@@ -974,7 +956,7 @@ function ThrowFlags() {
         sort -u |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
         grep -v -e '.*_.*_' |
-        ShuffleUseFlags 9 3 1 |
+        ShuffleUseFlags 7 2 1 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
     done >./etc/portage/package.use/24-diced_package_use_flags
