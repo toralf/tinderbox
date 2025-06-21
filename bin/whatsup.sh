@@ -42,9 +42,9 @@ function checkHistory() {
 function printTimeDiff() {
   local ts=${1?TIME NOT GIVEN}
 
-  set +e
+  set +e # "0" is valid compuation result here
   local delta
-  ((delta = EPOCHSECONDS - ts)) # TODO: why is this sometimes -1 ?
+  ((delta = EPOCHSECONDS - ts))
   local second
   ((second = delta % 60))
   if [[ $delta -lt 60 ]]; then
