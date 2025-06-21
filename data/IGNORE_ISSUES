@@ -2,6 +2,7 @@ ada compiler not available
 asciidoctor.*LoadError
 AttributeError: Config object has no attribute _cleanup. Did you mean: add_cleanup
 Currently installed version of OCaml is not yet supported
+Incorrect kernel configuration options
 No LLVM slot .* satisfying the package's dependencies found installed
 QA Notice: .*backend is deprecated. Please see:
 QA Notice: cargo built package contains possibly vendored code

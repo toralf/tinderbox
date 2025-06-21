@@ -79,4 +79,4 @@ QA Notice: missing ninja dependencies in
 
 # [TRACKER] Packages that depend on Gtk's x11/wayland specific ABI without USE dep
 957796
-QA Notice: binaries depend on Gtk.s x11-specific ABI without USE dep
+QA Notice: binaries depend on Gtk.s .*-specific ABI without USE dep
