@@ -1021,10 +1021,10 @@ function WorkOnTask() {
   # pinned version
   elif [[ $task =~ ^= ]]; then
     if ! RunAndCheck "emerge $task"; then
-      if [[ $pkg =~ "^=$task-" ]]; then
-        Mail "INFO: failed: $task" $tasklog
+      if [[ $task =~ =$pkg ]]; then
+        Mail "INFO: task failed: $task" $tasklog
       else
-        Mail "INFO: dependency of $task failed: $pkg" $tasklog
+        Mail "INFO: dep of task '$task' failed: $pkg" $tasklog
       fi
     fi
 
