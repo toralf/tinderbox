@@ -39,7 +39,7 @@ AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC
 
 # (cmake-4) - [Tracker] Breakage with dev-build/cmake-4*
 951350
-QA Notice: Compatibility with CMake < 3.5 has been removed from CMake 4|QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+QA Notice: Compatibility with CMake < 3.5 has been removed from CMake 4|QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5|QA Notice: Package installs CMake module.* incompatible with CMake 4
 
 # [Tracker] termio.h and struct termio removal in glibc-2.42
 952954

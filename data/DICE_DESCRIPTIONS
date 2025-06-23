@@ -1,8 +1,8 @@
 [meson]
 Please re-assign to ztrawhcse@ if it works with regular meson.
 
-[cmake-4]
+[gettext]
 Requested by sam
 
-[gettext]
+[gcc-16]
 Requested by sam
