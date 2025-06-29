@@ -475,6 +475,7 @@ EOF
 
   # take lines tagged with "# DICE: <topic>[ <m> <N>]" with an m/N chance (default: 50%)
   grep -hr -o '# DICE: .*' ./etc/portage/package.*/ |
+    grep -v "^#" |
     cut -f 3- -d ' ' |
     sort -u |
     tr -d '][' |
