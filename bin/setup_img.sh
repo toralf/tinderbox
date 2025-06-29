@@ -22,7 +22,7 @@ function Exit() {
 
 # $1:$2, e.g. 3:5
 function dice() {
-  [[ $((RANDOM % $2)) -lt $1 ]]
+  ((RANDOM % $2 < $1))
 }
 
 # helper of InitOptions()
