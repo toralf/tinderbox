@@ -23,6 +23,7 @@ function killPid() {
     fi
   fi
 
+  sleep 3
   if grep . /sys/fs/cgroup/tb/$img/cgroup.procs 2>/dev/null; then
     echo -e "\n ^^ WARN there're still pids in /sys/fs/cgroup/tb/$img/cgroup.procs\n" >&2
   fi
