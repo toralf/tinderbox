@@ -95,7 +95,6 @@ fi
 # number of parallel images
 desired_count=${1:-11}
 
-# semaphore for the cleanup phase
 lockfile="/tmp/$(basename $0).lock"
 if [[ -s $lockfile ]]; then
   pid=$(cat $lockfile)
@@ -106,8 +105,8 @@ if [[ -s $lockfile ]]; then
   fi
 fi
 echo $$ >"$lockfile"
-trap Finish INT QUIT TERM EXIT
 
+trap Finish INT QUIT TERM EXIT
 source $(dirname $0)/lib.sh
 
 StopNonrespondingImages
