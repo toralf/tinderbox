@@ -751,7 +751,7 @@ function RunDryrunWrapper() {
   elif [[ -s $drylog ]]; then
     return 1
   else
-    echo -e "\n sth. unexpected happened\n" >&2
+    echo -e "\n FATAL issue\n" >&2
     exit 4
   fi
 }
@@ -765,7 +765,7 @@ function UseFlagIsSetForPackage() {
     ./etc/portage/package.use/
 }
 
-function IgnoreUseFlag() {
+function DoNotChangeUseFlag() {
   [[ $flag =~ '_' || $flag == 'test' || $flag == '-test' ]] || grep -q -x $(tr -d '-' <<<$flag) $tbhome/tb/data/IGNORE_USE_FLAGS
 }
 
@@ -826,7 +826,7 @@ function FixPossibleUseFlagIssues() {
           continue
         fi
         for flag in $f; do
-          if IgnoreUseFlag; then
+          if DoNotChangeUseFlag; then
             continue
           fi
           if [[ $flag == "-test" ]]; then
@@ -865,7 +865,7 @@ function FixPossibleUseFlagIssues() {
       sed -e "s,^ *- ,," -e "s, (Change USE:,," -e "s,),," -e 's, +, ,g' |
       while read -r p f; do
         for flag in $f; do
-          if IgnoreUseFlag; then
+          if DoNotChangeUseFlag; then
             continue
           fi
           if ! pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p) || grep -q '<unset>' <<<$pn; then
@@ -914,7 +914,7 @@ function ShuffleUseFlags() {
 
   [[ $max -ge $mask && $max -ge $min ]] || return 1
 
-  shuf -n $((RANDOM % (max - min + 1) + min)) |
+  shuf -n $((RANDOM % (max - min) + min)) |
     sort |
     while read -r flag; do
       if dice $mask $max; then
@@ -940,13 +940,13 @@ function ThrowFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
     grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    ShuffleUseFlags 100 25 30 |
+    ShuffleUseFlags 90 12 0 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23-diced_global_use_flags
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
     grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
-    shuf -n $((RANDOM % 3000 + 500)) |
+    shuf -n $((RANDOM % 3000 + 300)) |
     sort |
     while read -r file; do
       pn=$(cut -f 6-7 -d '/' -s <<<$file)
@@ -956,7 +956,7 @@ function ThrowFlags() {
         sort -u |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
         grep -v -e '.*_.*_' |
-        ShuffleUseFlags 7 2 1 |
+        ShuffleUseFlags 7 1 0 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
     done >./etc/portage/package.use/24-diced_package_use_flags
