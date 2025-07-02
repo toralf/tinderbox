@@ -100,7 +100,7 @@ function listBugs() {
     <tr>
       <th>Bug</th>
       <th>Title</th>
-      <th>Image /</th>
+      <th>Image</th>
       <th>Artifacts</th>
     </tr>
   </thead>
@@ -109,7 +109,7 @@ function listBugs() {
     <tr>
       <th>Bug</th>
       <th>Title</th>
-      <th>Image /</th>
+      <th>Image</th>
       <th>Artifacts</th>
     </tr>
   </tfoot>
