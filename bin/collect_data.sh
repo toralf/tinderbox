@@ -63,7 +63,7 @@ mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
 (
   if [[ ${1-} == "reset" ]]; then
     find ~tinderbox/img/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED" |
-      grep -v '/-MERGING-' |
+      grep -v -F '/-MERGING-' |
       xargs -r grep -H . |
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   else
