@@ -80,3 +80,7 @@ QA Notice: missing ninja dependencies in
 # [TRACKER] Packages that depend on Gtk's x11/wayland specific ABI without USE dep
 957796
 QA Notice: binaries depend on Gtk.s .*-specific ABI without USE dep
+
+# [Tracker] Issues with dev-lang/perl-5.42.0
+959472
+Please specify prototyping behavior for|Unparseable XSUB parameter
