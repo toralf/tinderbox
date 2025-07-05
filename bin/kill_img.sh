@@ -10,6 +10,7 @@ function killPid() {
   pstree -UlnspuTa $pid | tee ~tinderbox/img/$img/var/tmp/tb/killed_process.log | head -n 20 | cut -c 1-200
   if kill -0 $pid &>/dev/null; then
     kill -15 $pid
+    # wait till TERM is propagated to all ppid's
     i=60
     while ((i--)) && kill -0 $pid &>/dev/null; do
       echo -n '.'
@@ -23,10 +24,11 @@ function killPid() {
     fi
   fi
 
-  sleep 3
-  if grep . /sys/fs/cgroup/tb/$img/cgroup.procs 2>/dev/null; then
-    echo -e "\n ^^ WARN there're still pids in /sys/fs/cgroup/tb/$img/cgroup.procs\n" >&2
-  fi
+  # wait till cgroup is reaped
+  while grep -q . /sys/fs/cgroup/tb/$img/cgroup.procs 2>/dev/null; do
+    echo -n '-'
+    sleep 1
+  done
 }
 
 #######################################################################
