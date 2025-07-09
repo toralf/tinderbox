@@ -8,7 +8,7 @@
 <sys-devel/gcc-16.0.9999:16                        **   # DICE: [gcc-16] 1 2
 
 # sam_
-=sys-devel/gettext-0.25*                           **   # DICE: [gettext] 1 4
+#=sys-devel/gettext-0.25*                           **   # DICE: [gettext] 1 4
 
 # gentoo@pogatzki.net
 dev-java/openjdk:25                                **   # DICE: [jdk25] 1 2
