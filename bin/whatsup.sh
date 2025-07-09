@@ -180,7 +180,7 @@ function PackagesPerImagePerRunDay() {
   printf "%50s" ""
   local oldest=$(
     set -o pipefail
-    sort -n ~tinderbox/run/*/var/tmp/tb/setup.timestamp | head -n 1
+    sort -n ~tinderbox/run/*/var/tmp/tb/setup.timestamp 2>/dev/null | head -n 1
   )
   local days=$(((EPOCHSECONDS - ${oldest:-$EPOCHSECONDS}) / 86400))
   for i in $(seq 0 $days); do
