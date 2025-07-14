@@ -41,8 +41,8 @@ function create() {
   while read -r dice; do
     title=$(sed -e "s, - , - $dice ," <<<$title)
   done < <(
-    set +f
-    grep -hr "# DICE.*\[.*\]" ../../../../../etc/portage/package.{accept_keywords,unmask}/ |
+    grep -hr -v "^#" ../../../../../etc/portage/package.{accept_keywords,unmask}/ |
+      grep "# DICE.*\[.*\]" |
       grep -Eo '(\[.*\])' |
       sort -u
   )
