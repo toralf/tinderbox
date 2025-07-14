@@ -51,7 +51,7 @@ mv $tmpfile ~tinderbox/img/big_packages.txt
     find ~tinderbox/img/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2"
   else
     echo ~tinderbox/img/needed.ELF.2.txt
-    find ~tinderbox/run/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -cmin -65
+    find ~tinderbox/run/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -cmin -65 2>/dev/null
   fi
 ) |
   grep -v -F '/-MERGING-' |
