@@ -52,7 +52,7 @@ function pruneIt() {
     echo " $(date) $reason : $img"
     rm -r -- $img
     sync
-    sleep 20 # btrfs is lazy in reporting free space
+    sleep 30 # btrfs is lazy in reporting free space
   fi
 }
 
