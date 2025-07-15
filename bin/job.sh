@@ -201,16 +201,13 @@ function CollectClangFiles() {
 
 # gather together what might be relevant for b.g.o.
 function CollectIssueFiles() {
-  apout=$(grep -m 1 -A 2 'Include in your bugreport the contents of' $tasklog_stripped | grep -F '.out' | cut -f 5 -d ' ' -s)
-  cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred' $tasklog_stripped | grep "CMake.*\.log" | cut -f 2 -d '"' -s)
-  cmerr=$(grep -m 1 'CMake Error: Parse error in cache file' $tasklog_stripped | sed "s/txt./txt/" | cut -f 8 -d ' ' -s)
-  oracl=$(grep -m 1 -A 1 '# An error report file with more information is saved as' $tasklog_stripped | grep -F '.log' | cut -f 2 -d ' ' -s)
-  envir=$(grep -m 1 'The ebuild environment file is located at' $tasklog_stripped | cut -f 2 -d "'" -s)
-  salso=$(grep -m 1 -A 2 ' See also' $tasklog_stripped | grep -F '.log' | awk '{ print $1 }')
-  sandb=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $tasklog_stripped | grep "sandbox.*\.log" | cut -f 2 -d '"' -s)
-  roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach' $tasklog_stripped | grep -F '/LastTest.log' | awk '{ print $2 }')
+  inclContent=$(grep -m 1 -A 2 'Include in your bug report the contents of' $tasklog_stripped | tail -n 1 | awk '{ print $2 }')
+  local cmlog=$(grep -m 1 -A 2 'Configuring incomplete, errors occurred' $tasklog_stripped | grep "CMake.*\.log" | cut -f 2 -d '"' -s)
+  local salso=$(grep -m 1 -A 2 ' See also ' $tasklog_stripped | grep -F '.log' | awk '{ print $1 }')
+  sandboxlog=$(grep -m 1 -A 1 'ACCESS VIOLATION SUMMARY' $tasklog_stripped | grep "sandbox.*\.log" | cut -f 2 -d '"' -s)
+  local roslg=$(grep -m 1 -A 1 'Tests failed. When you file a bug, please attach' $tasklog_stripped | tail -n 1 | awk '{ print $2 }')
 
-  for f in $apout $cmlog $cmerr $oracl $envir $salso $sandb $roslg; do
+  for f in $inclContent $cmlog $salso $sandboxlog $roslg; do
     if [[ -s $f ]]; then
       cp $f $issuedir/files
     fi
@@ -291,10 +288,10 @@ function foundSandboxIssue() {
     try_again=1
   fi
   echo "sandbox issue" >$issuedir/title
-  if [[ -s $sandb ]]; then
-    head -v -n 20 $sandb >$issuedir/issue
+  if [[ -s $sandboxlog ]]; then
+    head -v -n 20 $sandboxlog >$issuedir/issue
   else
-    echo "cannot found $sandb" >$issuedir/issue
+    echo "cannot found $sandboxlog" >$issuedir/issue
   fi
 }
 
@@ -377,7 +374,7 @@ function ClassifyIssue() {
   if grep -q -m 1 -F ' * Detected file collision(s):' $pkglog_stripped; then
     foundCollisionIssue
 
-  elif [[ -n $sandb ]]; then # no "-f" b/c it might not been created
+  elif [[ -n $sandboxlog ]]; then # no "-f" b/c it might not been created
     foundSandboxIssue
 
   else
@@ -404,6 +401,11 @@ function ClassifyIssue() {
 # creates an email containing convenient links and a command line ready for copy+paste
 function CompileIssueComment0() {
   cp $issuedir/issue $issuedir/comment0
+  # xgqt
+  if [[ -s ${inclContent-} ]]; then
+    tail -v -n 10 $inclContent >>$issuedir/comment0
+  fi
+
   cat <<EOF >>$issuedir/comment0
 
   -------------------------------------------------------------------
@@ -873,7 +875,7 @@ function RunAndCheck() {
 
   echo -e "\n--\n$(date)\nrc=$rc" >>$tasklog
   pkg=""
-  unset phase pkgname pkglog
+  unset phase pkgname pkglog inclContent
   try_again=0 # "1" means to retry same task
   filterPlainText <$tasklog >$tasklog_stripped
   PostEmerge
