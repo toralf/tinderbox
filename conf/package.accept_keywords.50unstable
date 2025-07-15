@@ -11,7 +11,7 @@
 #=sys-devel/gettext-0.25*                           **   # DICE: [gettext] 1 4
 
 # gentoo@pogatzki.net
-dev-java/openjdk:25                                **   # DICE: [jdk25] 1 2
-dev-java/openjdk-bin:25                            **   # DICE: [jdk25] 1 2
-virtual/jdk:25                                     **   # DICE: [jdk25] 1 2
-virtual/jre:25                                     **   # DICE: [jdk25] 1 2
+dev-java/openjdk:25                                **   # DICE: [jdk25] 1 4
+dev-java/openjdk-bin:25                            **   # DICE: [jdk25] 1 4
+virtual/jdk:25                                     **   # DICE: [jdk25] 1 4
+virtual/jre:25                                     **   # DICE: [jdk25] 1 4

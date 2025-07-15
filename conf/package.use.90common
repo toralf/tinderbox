@@ -8,17 +8,11 @@
 */*         QEMU_SOFTMMU_TARGETS:   x86_64 aarch64
 */*         QEMU_USER_TARGETS:      x86_64 aarch64
 
-# https pull/fetch would fail otherwise due to missing /usr/libexec/git-core/git-remote-https
-dev-vcs/git                         curl
-
-# required to access ::gentoo repository
-net-misc/curl                       ssl -gnutls -mbedtls -ngtcp2 -rustls
+# default compressor for tar and log files
+app-arch/libarchive                 lzma
 
 # qlop: error while loading shared libraries: libgomp.so.1:
 app-portage/portage-utils           -openmp
-
-# D needs to be bootstraped before
-sys-devel/gcc                       -d
 
 # required by sys-apps/portage
 dev-lang/python                     ssl
@@ -26,49 +20,54 @@ dev-lang/python                     ssl
 # required by www-client/pybugz
 dev-lang/python                     -libedit readline
 
-# default compressor for tar and log files
-app-arch/libarchive                 lzma
+# https pull/fetch would fail otherwise due to missing /usr/libexec/git-core/git-remote-https
+dev-vcs/git                         curl
+
+# required to access ::gentoo repository
+net-misc/curl                       ssl -gnutls -mbedtls -ngtcp2 -rustls
 
 # required by sys-kernel/gentoo-kernel-bin
 sys-apps/kmod                       lzma
+
+# D needs to be bootstraped before
+sys-devel/gcc                       -d
+
+# GNAT is required otherwise
+sys-devel/gcc                       -ada
 
 # no installation https://bugs.gentoo.org/831346
 sys-kernel/gentoo-kernel-bin        -initramfs -kernel-install
 sys-kernel/installkernel            -dracut -grub
 
-# GNAT is required otherwise
-sys-devel/gcc                       -ada
+#######################################################################
+#
+# misc
+
+# setup blocker
+dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
+dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
+media-libs/mesa                     llvm                # DICE: setup_mesa 7 8
+x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
+
+*/*         RUBY_TARGETS:           ruby33              # DICE: ruby33 1 4
+*/*         RUBY_TARGETS:           ruby34              # DICE: ruby34 7 8
 
 # setup almost failed otherwise
 net-misc/openssh                    ssl
 sys-apps/shadow                     pam -cracklib
 sys-apps/util-linux                 pam
 
-#######################################################################
-#
-# setup blocker
-#
-dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
-dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
-media-libs/mesa                     llvm                # DICE: setup_mesa 7 8
-x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
-
-#######################################################################
-#
-# misc
-#
-
-*/*         RUBY_TARGETS:           ruby33              # DICE: ruby33 1 4
-*/*         RUBY_TARGETS:           ruby34              # DICE: ruby34 7 8
-
 # 2x faster compile
 */*                                 jumbo-build
 
-# needs hours instead seconds
-dev-libs/gf2x                       -custom-tune        # DICE: gf2x 7 8
+# too much deps otherwise during setup
+app-portage/pfl                     -network-cron
 
-# takes 2 hours insteads seconds
-app-doc/gimp-help                   -nls                # DICE: gimphelp 7 8
+# needs days instead seconds
+dev-libs/gf2x                       -custom-tune
+
+# needs 2 hours instead few seconds
+app-doc/gimp-help                   -nls
 
 # circular dependencies with media-libs/libsndfile
 media-sound/lame                    -sndfile            # DICE: lame
