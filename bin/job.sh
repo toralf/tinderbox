@@ -1008,7 +1008,7 @@ function WorkOnTask() {
         ReachedEOL "failed: USE changes" $tasklog
       elif [[ $task =~ " --depclean" ]]; then
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
-          ReachedEOL "failed: deps" $tasklog
+          ReachedEOL "--depclean failed" $tasklog
         fi
       elif [[ -n $pkg ]]; then
         if [[ $task =~ $pkg ]]; then
