@@ -411,21 +411,23 @@ function CompileIssueComment0() {
   name: $name
 EOF
 
-  if grep -q -r "# DICE.*\[.*\]" /etc/portage/package.{accept_keywords,unmask}/; then
+  local dices=$(
+    grep -hr -v "^#" /etc/portage/package.{accept_keywords,unmask}/ |
+      grep "# DICE.*\[.*\]" |
+      grep -Eo '(\[.*\])' |
+      sort -u
+  )
+  if [[ -n $dices ]]; then
     (
       echo -e "\n  KEYWORDED/UNMASKED"
       while read -r dice; do
         echo -en "\n  "
-        (grep -A 1 "^\[$dice\]" /mnt/tb/data/DICE_DESCRIPTIONS || echo) | xargs
-        grep -hr " \[$dice\]" /etc/portage/package.{accept_keywords,unmask}/ |
-          awk '{ print (" ", $1) }' |
+        grep -A 1 "^\[$dice\]" /mnt/tb/data/DICE_DESCRIPTIONS | xargs
+        grep -hr -v "^#" /etc/portage/package.{accept_keywords,unmask}/ |
+          grep "# DICE.*\[$dice\]" |
+          awk '{ print ("  ", $1) }' |
           sort -u
-      done < <(
-        grep -hr "# DICE.*\[.*\]" /etc/portage/package.{accept_keywords,unmask}/ |
-          grep -Eo '(\[.*\])' |
-          tr -d '][' |
-          sort -u
-      )
+      done < <(tr -d '][' <<<$dices)
     ) >>$issuedir/comment0
   fi
 
