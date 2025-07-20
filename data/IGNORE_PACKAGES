@@ -43,6 +43,8 @@ net-misc/openssh-contrib
 #
 # News item: Haskell destabilization
 #
+app-admin/haskell-updater
+app-arch/mt-st
 app-arch/pack
 app-portage/hackport
 app-text/pandoc
@@ -63,6 +65,7 @@ net-mail/mailbox-count
 net-misc/email-validator
 net-misc/haeredes
 net-misc/hath
+sci_biology/abyss
 x11-misc/xmobar
 x11-wm/xmonad
 x11-wm/xmonad-contrib
