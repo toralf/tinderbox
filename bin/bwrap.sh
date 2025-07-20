@@ -102,21 +102,24 @@ function Bwrap() {
     --ro-bind "$(dirname $0)/../sdata/msmtprc" /etc/msmtprc
     --ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
+    --info-fd 11
   )
   if [[ -n $entrypoint ]]; then
     sandbox+=(--new-session)
   fi
   sandbox+=(/bin/bash -l)
 
-  if [[ -n $entrypoint ]]; then
-    "${sandbox[@]}" "-c" "/root/entrypoint"
-  else
-    if [[ -n ${SUDO_USER-} ]]; then
-      "${sandbox[@]}" "-c" "su - $SUDO_USER"
+  (
+    if [[ -n $entrypoint ]]; then
+      "${sandbox[@]}" "-c" "/root/entrypoint"
     else
-      "${sandbox[@]}"
+      if [[ -n ${SUDO_USER-} ]]; then
+        "${sandbox[@]}" "-c" "su - $SUDO_USER"
+      else
+        "${sandbox[@]}"
+      fi
     fi
-  fi
+  ) 11>/tmp/$(basename $mnt).json
 }
 
 #############################################################################
