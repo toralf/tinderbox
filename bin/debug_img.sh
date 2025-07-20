@@ -7,11 +7,18 @@ export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 img=$(basename $1)
-pid=$(jq -r '."child-pid"' /tmp/$img.json)
+child=$(jq -r '."child-pid"' /tmp/$img.json)
 
-echo "get gdb trace for $img with pid $pid"
+cd ~tinderbox/img/$img
 
-# these parameters should match the --unshare-... of bwrap.sh
-nsenter -t $pid -F -C -i -p -u \
-  gdb -q -batch -ex "set logging enabled off" -ex "bt full" -ex "detach" -ex "quit" -p 1
+echo " enter:    ps faux; exit"
+nsenter -t $child -F -C -i -p -u -r bash
 
+echo
+echo -n "pid (1): "
+read -r pid
+echo
+
+echo "get gdb trace for $img with child-pid $child for pid $pid"
+nsenter -t $child -F -a -r \
+  gdb -q -batch -ex "set logging enabled off" -ex "bt full" -ex "detach" -ex "quit" -p ${pid:-1}
