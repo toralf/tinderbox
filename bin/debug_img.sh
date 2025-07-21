@@ -11,7 +11,7 @@ child=$(jq -r '."child-pid"' /tmp/$img.json)
 
 cd ~tinderbox/img/$img
 
-nsenter -t $child -F -a -r \
+nsenter -t $child -a -r \
   bash -c 'ps faux; exit'
 
 echo
@@ -22,5 +22,5 @@ read -r input
 echo
 
 echo "get gdb bt for $img with child-pid $child for pid $pid"
-nsenter -t $child -F -a -r \
+nsenter -t $child -a -r \
   gdb -q -batch -ex 'set logging enabled off' -ex 'thread apply all bt' -ex 'detach' -ex 'quit' -p $pid
