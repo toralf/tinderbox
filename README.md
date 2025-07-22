@@ -41,7 +41,7 @@ Edit the MTA config files in _/opt/tb/sdata/\*.sample_ and strip away the suffix
 Grant sudo rights to the user _tinderbox_:
 
 ```bash
-tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/setup_img.sh,/opt/tb/bin/house_keeping.sh,/opt/tb/bin/kill_img.sh,/opt/tb/bin/retest.sh,/opt/tb/bin/collect_data.sh,/usr/sbin/emaint
+tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/collect_data.sh,/opt/tb/bin/debug_img.sh,/opt/tb/bin/house_keeping.sh,/opt/tb/bin/kill_img.sh,/opt/tb/bin/retest.sh,/opt/tb/bin/setup_img.sh,/usr/sbin/emaint
 ```
 
 Adapt the values [desired_count](./bin/replace_img.sh#L96), [cgroup memory](./bin/bwrap.sh#L7) and [jobs](./bin/setup_img.sh#L60) for your machine size.
