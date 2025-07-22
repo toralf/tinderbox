@@ -543,11 +543,6 @@ function CreateBacklogs() {
   local bl=./var/tmp/tb/backlog
   truncate -s 0 $bl{,.1st,.upd}
 
-  cat <<EOF >>$bl.1st
-app-text/recode
-app-portage/eschwartz-dev-scripts
-EOF
-
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
 @world
@@ -644,10 +639,6 @@ date
 echo "#setup portage" | tee /var/tmp/tb/task
 emerge -1u sys-apps/portage
 
-date
-echo "#setup ansifilter" | tee /var/tmp/tb/task
-USE="-gui" emerge -u app-text/ansifilter
-
 echo "#cert setup" | tee /var/tmp/tb/task
 update-ca-certificates
 
@@ -665,16 +656,12 @@ if ! (msmtp --version 2>/dev/null || ssmtp -V 2>&1) | mail -s "$mta test @ $name
 fi
 
 date
+echo "#setup tools" | tee /var/tmp/tb/task
+emerge -u app-arch/xz-utils app-portage/eschwartz-dev-scripts app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode www-client/pybugz
+
+date
 echo "#setup kernel" | tee /var/tmp/tb/task
 emerge -u sys-kernel/gentoo-kernel-bin
-
-date
-echo "#setup tools" | tee /var/tmp/tb/task
-emerge -u app-arch/xz-utils app-portage/portage-utils www-client/pybugz
-
-date
-echo "#setup pfl" | tee /var/tmp/tb/task
-USE="-network-cron" emerge -u app-portage/pfl
 
 if find /etc -type f -name "._cfg0000_*" | grep '.'; then
   echo -e "\n ^^ unexpected changes\n" >&2
