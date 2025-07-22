@@ -54,7 +54,7 @@ function InitOptions() {
   useconfigof=""
 
   # sam_
-  if dice 1 10; then
+  if dice 1 2; then
     cflags=$(sed -e 's,-O2,-O3,' <<<$cflags)
   fi
 
@@ -927,13 +927,13 @@ function ThrowFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
     grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    ShuffleUseFlags 90 12 0 |
+    ShuffleUseFlags 90 12 10 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23-diced_global_use_flags
 
   grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
     grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
-    shuf -n $((RANDOM % 3000 + 300)) |
+    shuf -n $((RANDOM % 3000 + 500)) |
     sort |
     while read -r file; do
       pn=$(cut -f 6-7 -d '/' -s <<<$file)
