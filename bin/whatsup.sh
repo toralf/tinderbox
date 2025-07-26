@@ -5,15 +5,15 @@
 # print tinderbox statistics
 
 function printImageName() {
-  local name=$1/var/tmp/tb/name
+  local img=${1?IMG MISSING}
   local chars=${2:-43}
 
-  printf "%-${chars}s" $(cut -c -$chars <$name)
+  printf "%-${chars}s" $(cut -c -$chars <$img/var/tmp/tb/name)
 }
 
 function checkHistory() {
-  local file=$1
-  local flag=$2
+  local file=${1?FILE MISSING}
+  local flag=${2?FLAG MISSING}
 
   # e.g.:
   # X = @x failed even to start
@@ -230,8 +230,7 @@ function Coverage() {
     ls -d *-*/* virtual/*
   ) | grep -v -F 'metadata.xml' | sort >$tmpfile
 
-  local N
-  N=$(wc -l <$tmpfile)
+  local N=$(wc -l <$tmpfile)
   printf "%5i packages available in ::gentoo\n" $N
 
   for i in run img; do
