@@ -41,8 +41,9 @@ else
     if [[ -n $pid && $pid -gt 0 ]]; then
       echo -e "\n\n  + + + gdb bt for $img with child-pid $child for pid $pid + + +\n\n"
       nsenter -t $child -a -r \
-        gdb -q -batch -ex 'set logging enabled off' -ex 'set pagination off' \
-          -ex 'thread apply all bt' -ex 'detach' -ex 'quit' -p $pid 2>&1 |
+        gdb -q -batch \
+        -ex 'set logging enabled off' -ex 'set pagination off' -ex 'thread apply all bt' -ex 'detach' -ex 'quit' \
+        -p $pid 2>&1 |
         tee -a $out
     fi
   fi
