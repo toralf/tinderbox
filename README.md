@@ -48,8 +48,8 @@ Adapt the values [desired_count](./bin/replace_img.sh#L96), [cgroup memory](./bi
 
 ## Why bash ?!?
 
-I started this project as a short Bash script.
-Later I missed the point of No Return to switch to Python.
+I started this project with a tiny Bash script.
+Much later I missed the Point of no Return to switch to something like Python.
 
 ## Links
 
