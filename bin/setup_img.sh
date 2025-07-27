@@ -1028,10 +1028,11 @@ EOF
 function Finalize() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  sed -e "s,^    vcpu=.*,    vcpu=$(nproc)," $tbhome/tb/conf/bashrc >./etc/portage/bashrc
+  sed -e "s,^    vcpu=.*,    vcpu=$(nproc)," -e "s,^    load=.*,    load=$(($(nproc) * 5 / 4))," \
+    $tbhome/tb/conf/bashrc >./etc/portage/bashrc
 
-  if ! wc -l -w --total=never ./etc/portage/package.use/2* 2>/dev/null; then
-    echo -e "\n no image specific USE flags"
+  if ! grep -q . ./etc/portage/package.use/2[347]* 2>/dev/null; then
+    echo -e "\n NOTICE: no image specific USE flags"
   fi
 
   if [[ $start_it == "y" ]]; then
