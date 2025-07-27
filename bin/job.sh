@@ -678,6 +678,7 @@ function WorkAtIssue() {
     try_again=1
     add2backlog "$task"
     add2backlog "%haskell-updater"
+    Mail "NOTICE: haskell-updater scheduled" $tasklog
   fi
 
   SendIssueMailIfNotYetReported $do_report
@@ -1069,12 +1070,8 @@ function WorkOnTask() {
 function DetectRepeats() {
   local count item
   read -r count item < <(tail -n 90 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 40 ]]; then
+  if [[ $count -ge 30 ]] || [[ ! $name =~ "_test" && $count -ge 10 ]]; then
     ReachedEOL "repeated: $count x $item"
-  elif [[ ! $name =~ "_test" ]]; then
-    if [[ $count -ge 20 ]] || [[ ! $item =~ ^% && $count -ge 10 ]]; then
-      ReachedEOL "repeated: $count x $item"
-    fi
   fi
 }
 
