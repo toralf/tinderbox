@@ -12,11 +12,11 @@ if [[ ! -d $tmpdir ]]; then
   mkdir $tmpdir
 fi
 
-max=${1:-$(($(nproc) * 4 / 3))}
+max=${1:-$(($(nproc) * 5 / 3))}
 while :; do
   load=$(cut -f 1 -d '.' /proc/loadavg)
-  if [[ $load -ge $max ]]; then
-    ps faux &>$tmpdir/ps-faux-$(date +%Y%m%d-%H%M%S)-$load.txt
+  if [[ $load -gt $max ]]; then
+    ps faux &>$tmpdir/ps-faux-$load-$(date +%Y%m%d-%H%M%S).txt
   fi
   sleep 15
 done
