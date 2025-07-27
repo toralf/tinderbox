@@ -181,7 +181,7 @@ EOF
 </body>
 </html>
 EOF
-} >>$tmpfile
+} >$tmpfile
 
 # we're not root, so mv doesn't work
 cp $tmpfile ~tinderbox/img/index.html
