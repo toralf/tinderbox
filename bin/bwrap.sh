@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# https://github.com/containers/bubblewrap
-
 function CreateCgroup() {
   local name=$cgdomain/${mnt##*/}
 
@@ -74,10 +72,12 @@ function Bwrap() {
   local sandbox=(env -i
     /usr/bin/bwrap
     --clearenv
+    --setenv HOME "/root"
     --setenv MAILTO "$(cat $(dirname $0)/../sdata/mailto)"
     --setenv PATH "/usr/sbin:/usr/bin:/sbin:/bin"
     --setenv SHELL "/bin/bash"
     --setenv TERM "linux"
+    --setenv USER "root"
     --hostname "$(cat $mnt/etc/conf.d/hostname)"
     --level-prefix
     --unshare-cgroup
@@ -97,8 +97,6 @@ function Bwrap() {
     --bind ~tinderbox/distfiles /var/cache/distfiles
     --ro-bind ~tinderbox/tb/data /mnt/tb/data
     --bind ~tinderbox/tb/findings /mnt/tb/findings
-    --setenv HOME "/root"
-    --setenv USER "root"
     --ro-bind "$(dirname $0)/../sdata/msmtprc" /etc/msmtprc
     --ro-bind "$(dirname $0)/../sdata/ssmtp.conf" /etc/ssmtp/ssmtp.conf
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
