@@ -88,7 +88,6 @@ function Bwrap() {
     --dev /dev
     --dev-bind /dev/console /dev/console
     --mqueue /dev/mqueue
-    --perms 1777 --tmpfs /dev/pts
     --perms 1777 --tmpfs /dev/shm
     --proc /proc
     --perms 0755 --tmpfs /run
