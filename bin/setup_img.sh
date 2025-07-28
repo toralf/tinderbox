@@ -54,7 +54,7 @@ function InitOptions() {
   useconfigof=""
 
   # sam_
-  if dice 1 2; then
+  if dice 1 4; then
     cflags=$(sed -e 's,-O2,-O3,' <<<$cflags)
   fi
 
