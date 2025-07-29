@@ -63,7 +63,7 @@ function InitOptions() {
     abi3264="y"
   fi
 
-  if dice 1 20; then
+  if dice 1 10; then
     testfeature="y"
   fi
 }
@@ -743,17 +743,22 @@ function RunDryrunWrapper() {
   fi
 }
 
-function UseFlagIsSetForPackage() {
+function ChangeIsForbidden() {
+  local flag=${1?FLAG NOT GIVEN}
+
+  [[ $flag =~ '_' || $flag == 'test' || $flag == '-test' ]] || grep -q -x $(tr -d '-' <<<$flag) $tbhome/tb/data/IGNORE_USE_FLAGS
+}
+
+function IsAlreadySetForPackage() {
+  local flag=${1?FLAG NOT GIVEN}
+  local pn=${2?PACKAGE NAME NOT GIVEN}
+
   grep -q -r \
     -e "^$pn  *-*$flag$" \
     -e "^$pn  *-*$flag " \
     -e "^$pn  *.* -*$flag$" \
     -e "^$pn  *.* -*$flag " \
     ./etc/portage/package.use/
-}
-
-function DoNotChangeUseFlag() {
-  [[ $flag =~ '_' || $flag == 'test' || $flag == '-test' ]] || grep -q -x $(tr -d '-' <<<$flag) $tbhome/tb/data/IGNORE_USE_FLAGS
 }
 
 function FixPossibleUseFlagIssues() {
@@ -808,19 +813,12 @@ function FixPossibleUseFlagIssues() {
       grep -v '(This .*' |
       sed -e 's, +, ,g' |
       while read -r p f; do
-        if ! pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p) || grep -q '<unset>' <<<$pn; then
-          echo " wrong pn '$pn' for '$p'" >&2
-          continue
+        if ! pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p) || [[ $pn =~ '<unset>' ]]; then
+          echo " nec-use wrong pn '$pn' for '$p'" >&2
+          exit 1
         fi
         for flag in $f; do
-          if DoNotChangeUseFlag; then
-            continue
-          fi
-          if [[ $flag == "-test" ]]; then
-            if ! grep -q -r "^$pn * notest" ./etc/portage/package.env/; then
-              printf "%-36s notest\n" $pn >>$f_nec_test
-            fi
-          elif ! UseFlagIsSetForPackage; then
+          if ! ChangeIsForbidden $flag && ! IsAlreadySetForPackage $flag $pn; then
             printf "%-36s %s\n" $pn $flag >>$f_nec_flag
           fi
         done
@@ -851,19 +849,12 @@ function FixPossibleUseFlagIssues() {
       grep -v -F -e ', this change violates' -e '(This' |
       sed -e "s,^ *- ,," -e "s, (Change USE:,," -e "s,),," -e 's, +, ,g' |
       while read -r p f; do
+        if ! pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p) || [[ $pn =~ '<unset>' ]]; then
+          echo " circ-dep wrong pn '$pn' for '$p'" >&2
+          exit 1
+        fi
         for flag in $f; do
-          if DoNotChangeUseFlag; then
-            continue
-          fi
-          if ! pn=$(qatom -CF "%{CATEGORY}/%{PN}" $p) || grep -q '<unset>' <<<$pn; then
-            echo " wrong pn '$pn' for '$p'" >&2
-            continue
-          fi
-          if [[ $flag == "-test" ]]; then
-            if ! grep -q -r "^$pn  *.*notest" ./etc/portage/package.env/; then
-              printf "%-36s notest\n" $pn >>$f_circ_test
-            fi
-          elif ! UseFlagIsSetForPackage; then
+          if ! ChangeIsForbidden $flag && ! IsAlreadySetForPackage $flag $pn; then
             printf "%-36s %s\n" $pn $flag >>$f_circ_flag
           fi
         done
@@ -927,6 +918,7 @@ function ThrowFlags() {
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
     grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
+    grep -v -e '.*_.*_' -e 'python3_' -e 'pypy3_' |
     ShuffleUseFlags 90 12 10 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23-diced_global_use_flags
@@ -1004,32 +996,30 @@ EOF
   local drylog=./var/tmp/tb/logs/dryrun.log
 
   if [[ -n $useconfigof ]]; then
-    echo
-    date
-    if [[ $(realpath ~tinderbox/img/$useconfigof) == $(realpath .) ]]; then
-      echo " +++  run dryrun once using own config  +++"
-    else
-      echo " +++  run dryrun once using config of $useconfigof  +++"
+    if [[ $(realpath ~tinderbox/img/$useconfigof) != $(realpath .) ]]; then
       for i in accept_keywords env mask unmask use; do
         cp ~tinderbox/img/$useconfigof/etc/portage/package.$i/* ./etc/portage/package.$i/
       done
-    fi
-
-    if FixPossibleUseFlagIssues 0; then
-      return 0
-    fi
-  else
-    for attempt in $(seq -w 1 75); do
-      echo
-      date
-      echo "==========================================================="
-      ThrowFlags $attempt
-      if FixPossibleUseFlagIssues $attempt; then
+      if FixPossibleUseFlagIssues 0; then
         return 0
       fi
-    done
-    echo -e "\n max attempts reached, giving up"
+      return 125
+    fi
   fi
+
+  for attempt in $(seq -w 1 99); do
+    echo
+    date
+    echo "==========================================================="
+    if [[ -z $useconfigof ]]; then
+      ThrowFlags $attempt
+    fi
+    if FixPossibleUseFlagIssues $attempt; then
+      return 0
+    fi
+  done
+  echo -e "\n max attempts reached, giving up"
+
   return 125
 }
 
@@ -1084,20 +1074,21 @@ while getopts R:a:k:p:m:M:st:u: opt; do
       exit 3
     fi
     name=$(cat ./var/tmp/tb/name)
-    profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
-    [[ $name =~ "_test" ]] && testfeature="y"
     [[ $name =~ "_abi32+64" ]] && abi3264="y"
+    [[ $name =~ "_test" ]] && testfeature="y"
+    profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
     start_it="y"
+    CompileEnvFiles
     CompileUseFlagFiles
     Finalize
     exit 0
     ;;
-  a) abi3264="$OPTARG" ;;                                       # "y" or "n"
+  a) abi3264="$OPTARG" ;;                                       # "n"
   k) keyword="$OPTARG" ;;                                       # "amd64"
   p) profile=$(sed -e 's,default/linux/amd64/,,' <<<$OPTARG) ;; # "23.0/desktop"
   s) start_it="y" ;;
-  t) testfeature="$OPTARG" ;;             # "y" or "n"
-  u) useconfigof="$(basename $OPTARG)" ;; # e.g. "23.0_desktop_systemd-20230624-014416"
+  t) testfeature="$OPTARG" ;;             # "y"
+  u) useconfigof="$(basename $OPTARG)" ;; # "23.0_desktop_systemd-20230624-014416"
   *)
     echo "unknown parameter '$opt'"
     exit 1
@@ -1116,8 +1107,6 @@ CompileMiscFiles
 CreateBacklogs
 CreateSetupScript
 RunSetupScript
-set +x
 CompileEnvFiles
 CompileUseFlagFiles
-set -x
 Finalize
