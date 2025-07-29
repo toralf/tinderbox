@@ -24,7 +24,7 @@ dev-lang/python                     -libedit readline
 dev-vcs/git                         curl
 
 # required to access ::gentoo repository
-net-misc/curl                       ssl -gnutls -mbedtls -ngtcp2 -rustls
+net-misc/curl                       ssl -gnutls -ngtcp2 -rustls
 
 # required by sys-kernel/gentoo-kernel-bin
 sys-apps/kmod                       lzma
@@ -44,7 +44,6 @@ sys-kernel/installkernel            -dracut -grub
 # misc
 
 # setup blocker
-dev-lang/ruby                       -rdoc               # DICE: setup_ruby 7 8
 dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
 media-libs/mesa                     llvm                # DICE: setup_mesa 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
@@ -71,6 +70,11 @@ app-doc/gimp-help                   -nls
 
 # circular dependencies with media-libs/libsndfile
 media-sound/lame                    -sndfile            # DICE: lame
+
+sys-fs/cryptsetup   -gcrypt -kernel -nettle openssl     # DICE: cryptsetup
+
+# wants "deprecated" otherwise
+net-wireless/bluez                  -extra-tools
 
 # FF and TB
 app-text/poppler                    cairo               # DICE: ff_tb 1 6
@@ -132,7 +136,6 @@ media-libs/libepoxy                 X                                     # DICE
 media-libs/libglvnd                 X                                     # DICE: libreoffice 1 6
 media-libs/mesa                     llvm                                  # DICE: libreoffice 1 6
 sys-apps/systemd                    policykit                             # DICE: libreoffice 1 6
-sys-fs/cryptsetup                   -gcrypt -kernel -nettle openssl       # DICE: libreoffice 1 6
 sys-libs/libblockdev                cryptsetup lvm nvme                   # DICE: libreoffice 1 6
 virtual/mpi                         threads                               # DICE: libreoffice 1 6
 x11-libs/cairo                      X                                     # DICE: libreoffice 1 6

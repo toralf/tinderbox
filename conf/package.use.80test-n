@@ -1,6 +1,9 @@
 # package.use/80test-n
 #
 
-# if FEATURES=test is NOT set then these USE flags are NOT wanted
 
+#######################################################################
+#
+# for FEATURES=test these USE flags are NOT wanted
+#
 dev-libs/glib                       -gtk-doc

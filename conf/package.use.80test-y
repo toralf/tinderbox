@@ -4,60 +4,37 @@
 
 #######################################################################
 #
-# if FEATURES=test is set then these USE flags are mandatory
+# for FEATURES=test these USE flags are mandatory
 #
-
-app-accessibility/flite             alsa
-app-arch/p7zip                      rar
 app-crypt/gnupg                     tofu
 app-misc/jq                         oniguruma
 app-misc/pax-utils                  python
-app-text/doxygen                    doc
-dev-libs/openssl*                   -sctp
-dev-libs/thrift                     libevent
-dev-libs/weston                     desktop lcms xwayland
-dev-libs/xmlrpc-c                   abyss
-media-gfx/imagemagick               corefonts truetype
-media-libs/libheif                  go
-media-libs/openexr                  utils
+dev-db/mariadb                      extra-engine
+dev-libs/libzip                     ssl tools
+dev-libs/simdjson                   tools
+dev-libs/thrift                     libevent ssl
+dev-libs/xmlrpc-c                   abyss curl cxx
+media-gfx/imagemagick               corefonts
+media-libs/gd                       png
+media-libs/qhull                    tools
 media-libs/tiff                     jpeg
-net-analyzer/rrdtool                graph rrdcached
+net-nds/openldap                    -minimal
 net-firewall/iptables               conntrack nftables
-net-libs/rabbitmq-c                 static-libs
-net-nds/openldap                    cleartext debug -minimal sasl
-sys-auth/sssd                       sudo
+net-misc/networkmanager             tools
+net-nds/openldap                    cleartext debug sasl
 sys-libs/libblockdev                introspection lvm
-x11-libs/gtk+                       X
+x11-libs/wxGTK                      tiff
 
 
 #######################################################################
 #
-# circ dep
+# avoid circ dep
 #
-app-crypt/mit-krb5                  -openldap           # DICE: test_circ_dep
-app-text/texlive-core               luajittex           # DICE: test_circ_dep
-dev-lang/python                     -bluetooth          # DICE: test_circ_dep
-dev-libs/check                      -subunit            # DICE: test_circ_dep
-dev-libs/cyrus-sasl                 -openldap -ldapdb   # DICE: test_circ_dep
-dev-libs/glib                       -gtk-doc            # DICE: test_circ_dep
-dev-lisp/asdf                       -doc                # DICE: test_circ_dep
-media-libs/freetype                 -harfbuzz -svg -utils       # DICE: test_circ_dep
-media-libs/harfbuzz                 graphite            # DICE: test_circ_dep
-media-libs/mesa                     -vdpau              # DICE: test_circ_dep
-media-libs/openjpeg                 -doc                # DICE: test_circ_dep
-media-libs/sdl2-image               jpeg png            # DICE: test_circ_dep
-media-libs/soxr                     examples            # DICE: test_circ_dep
-net-libs/nghttp2                    utils               # DICE: test_circ_dep
-sys-apps/dbus                       -X                  # DICE: test_circ_dep
-sys-apps/kmod                       lzma                # DICE: test_circ_dep
-sys-cluster/mpich                   -valgrind           # DICE: test_circ_dep
+sys-libs/libnbd                     -go
+
 
 #######################################################################
 #
-# increase coverage
+# helps almost
 #
-media-video/pipewire                extra               # DICE: test_coverage
-net-libs/gnutls                     openssl tools       # DICE: test_coverage
-sys-libs/zlib                       static-libs         # DICE: test_coverage
-x11-libs/cairo                      glib                # DICE: test_coverage
-x11-base/xorg-server                xvfb                # DICE: test_coverage
+x11-base/xorg-server                xvfb

@@ -1,5 +1,12 @@
 # check for outdated entries:      grep -v '#' ~/tb/data/IGNORE_USE_FLAGS | while read u; do quse -De $u &>/dev/null || echo $u; done
 #
+# setup blocker
+#
+doc
+gtk-doc
+qdoc
+rdoc
+#
 # don't touch these
 #
 32
@@ -52,6 +59,7 @@ llvm-libunwind
 low-memory
 lto
 make-symlinks
+mbedtls
 mips
 modules
 modules-compress
@@ -85,8 +93,10 @@ su
 systemd
 test
 test-full
+test-suite
 tcmalloc
 unwind
 vanilla
 x32
 xinetd
+zfs
