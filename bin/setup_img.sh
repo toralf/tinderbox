@@ -1078,8 +1078,7 @@ InitOptions
 while getopts R:a:k:p:m:M:st:u: opt; do
   case $opt in
   R)
-    useconfigof=$(basename $OPTARG)
-    cd $tbhome/img/$useconfigof
+    cd $tbhome/img/$(basename $OPTARG)
     if [[ -f ./var/tmp/tb/EOL || -f ./var/tmp/tb/STOP ]]; then
       echo " EOL or STOP found" >&2
       exit 3
