@@ -24,7 +24,6 @@ else
   # if $2 is "" or an int then get a gdb bt, a "0" nly dumps the namespace process table
   out=/tmp/$(basename $0).log
   truncate -s 0 $out
-  echo -e "\n\n  + + +  helper:  curl -F'file=@$out' https://0x0.st  + + +\n\n"
 
   nsenter -t $child -a -r \
     bash -c 'COLUMNS=10000 ps faux; exit' 2>&1 |
@@ -39,7 +38,7 @@ else
     echo
 
     if [[ -n $pid && $pid -gt 0 ]]; then
-      echo -e "\n\n  + + + gdb bt for $img with child-pid $child for pid $pid + + +\n\n"
+      echo -e "\n\n  + + + gdb bt for $img with child-pid $child for pid $pid + + +\n\n" | tee -a $out
       nsenter -t $child -a -r \
         gdb -q -batch \
         -ex 'set logging enabled off' -ex 'set pagination off' -ex 'thread apply all bt' -ex 'detach' -ex 'quit' \
@@ -47,4 +46,6 @@ else
         tee -a $out
     fi
   fi
+
+  echo -e "\n\n  + + +  helper:  curl -F'file=@$out' https://0x0.st  + + +\n\n"
 fi
