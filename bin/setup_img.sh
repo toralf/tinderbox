@@ -402,7 +402,7 @@ function CompilePortageFiles() {
   echo 'EXTRA_ECONF="DEFAULT_ARCHIVE=/dev/null/BAD_TAR_INVOCATION"' >./etc/portage/env/bad_tar
 
   # handle broken setup or particular package issue
-  echo 'FEATURES="-test"' >./etc/portage/env/notest
+  echo 'FEATURES="-test -test-full"' >./etc/portage/env/notest
 
   # continue after a (known) test phase failure rather than setting "notest"
   # for that package and therefore risk a changed dependency tree
@@ -942,11 +942,19 @@ function ThrowFlags() {
         cut -f 2 -d '"' -s |
         sort -u |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-        grep -v -e '.*_.*_' |
+        grep -v -e '.*_.*_' -e 'python3_' -e 'pypy3_' |
         ShuffleUseFlags 7 1 0 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
     done >./etc/portage/package.use/24-diced_package_use_flags
+}
+
+function CompileEnvFiles() {
+  if [[ $testfeature == "y" ]]; then
+    shuf -n $((RANDOM % 4000 + 3000)) ./var/tmp/tb/backlog |
+      xargs -r -n 1 printf "%-36s notest\n" |
+      sort >./etc/portage/package.env/27-diced_notest
+  fi
 }
 
 function CompileUseFlagFiles() {
@@ -1110,6 +1118,7 @@ CreateBacklogs
 CreateSetupScript
 RunSetupScript
 set +x
+CompileEnvFiles
 CompileUseFlagFiles
 set -x
 Finalize
