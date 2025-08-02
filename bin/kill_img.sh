@@ -8,7 +8,13 @@ function killPid() {
   local pid=$1
 
   echo
-  pstree -UlnspuTa $pid | tee ~tinderbox/img/$img/var/tmp/tb/killed_process.log | head -n 20 | cut -c 1-200
+  ps faux &>~tinderbox/img/$img/var/tmp/tb/ps-faux.log
+  pstree -UlnspuTa $pid |
+    head -n 20 |
+    cut -c 1-140
+
+  echo "killing $pid" |
+    tee -a ~tinderbox/img/$img/var/tmp/tb/EOL
   if kill -0 $pid &>/dev/null; then
     kill -15 $pid
     # wait till TERM is propagated to all ppid's
