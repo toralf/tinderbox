@@ -33,16 +33,16 @@ function StopNonrespondingImages() {
             fi
           fi
         fi
-        hours=$(((EPOCHSECONDS - ts) / 3600))
 
-        if [[ $hours -ge 24 ]]; then
+        hours=$(((EPOCHSECONDS - ts) / 3600))
+        if [[ $hours -ge 6 ]]; then
           if __is_crashed $img; then
             echo -e "$(basename $0): image crashed $hours hours ago" >>~tinderbox/img/$img/var/tmp/tb/EOL
           elif __is_stopped $img; then
             echo -e "$(basename $0): image stopped $hours hours ago" >>~tinderbox/img/$img/var/tmp/tb/EOL
-          elif __is_running $img; then
-            echo -e "$(basename $0): last write was $hours hours ago" >>~tinderbox/img/$img/var/tmp/tb/EOL
-            sudo $(dirname $0)/kill_img.sh $img
+          elif __is_running $img && [[ $hours -ge 24 ]]; then
+            echo -e "$(basename $0): task hangs since $hours hours" >>~tinderbox/img/$img/var/tmp/tb/EOL
+            sudo $(dirname $0)/kill_img.sh $img >>~tinderbox/img/$img/var/tmp/tb/EOL
           fi
         fi
       fi
