@@ -327,6 +327,12 @@ function foundGenericIssue() {
     fi
   done
   rm /tmp/x_????
+
+  if [[ ! -s $issuedir/title ]]; then
+    grep -m 1 -A 2 "^ \* ERROR:.* failed \(.* phase\):" $pkglog_stripped |
+      tee $issuedir/issue |
+      sed -n -e '2p' >$issuedir/title
+  fi
 }
 
 # helper of ClassifyIssue()
@@ -344,18 +350,22 @@ function handleFeatureTest() {
 
   # gtar returns an error if it can't find any directory, therefore feed dirs to it to catch only real tar issues
   (
-    cd "$workdir"
-    dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
-    if [[ -n $dirs ]]; then
-      $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
-        --one-file-system --sparse \
-        --exclude='*.o' \
-        --exclude="*/dev/*" \
-        --exclude="*/proc/*" \
-        --exclude="*/run/*" \
-        --exclude="*/sys/*" \
-        --exclude="*/tests/cluster/data/*" \
-        $dirs
+    if ! cd "$workdir"; then
+      echo "cannot cd to '$workdir'" >&2
+      exit 1
+    else
+      dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
+      if [[ -n $dirs ]]; then
+        $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
+          --one-file-system --sparse \
+          --exclude='*.o' \
+          --exclude="*/dev/*" \
+          --exclude="*/proc/*" \
+          --exclude="*/run/*" \
+          --exclude="*/sys/*" \
+          --exclude="*/tests/cluster/data/*" \
+          $dirs
+      fi
     fi
   )
 }
@@ -367,22 +377,18 @@ function ClassifyIssue() {
     ReachedEOL "FATAL issue" $pkglog_stripped
   fi
 
-  if [[ $name =~ "_test" ]]; then
-    handleFeatureTest
-  fi
-
-  if grep -q -m 1 -F ' * Detected file collision(s):' $pkglog_stripped; then
-    foundCollisionIssue
-
-  elif [[ -n $sandboxlog ]]; then # no "-f" b/c it might not been created
-    foundSandboxIssue
-
-  else
+  if [[ -z $workdir ]]; then
     foundGenericIssue
-    if [[ ! -s $issuedir/title ]]; then
-      grep -m 1 -A 2 "^ \* ERROR:.* failed \(.* phase\):" $pkglog_stripped |
-        tee $issuedir/issue |
-        sed -n -e '2p' >$issuedir/title
+  else
+    if [[ $name =~ "_test" ]]; then
+      handleFeatureTest
+    fi
+    if grep -q -m 1 -F ' * Detected file collision(s):' $pkglog_stripped; then
+      foundCollisionIssue
+    elif [[ -n $sandboxlog ]]; then # no "-f" b/c it might not been created
+      foundSandboxIssue
+    else
+      foundGenericIssue
     fi
   fi
 
