@@ -560,6 +560,7 @@ function finishTitle() {
     -e 's,shuffle=[0-9]*,,g' \
     -e 's,target /.*/,target <snip>/,g' \
     -e 's,(\.text[+\.].*):,(<snip>),g' \
+    -e 's,pkgcraft\..*-cgu\.[0-9]*:,pkgcraft.(<snip>):,g' \
     -e 's,\*, ,g' \
     -e 's,___*,_,g' \
     -e 's,\s\s*, ,g' \
@@ -729,6 +730,11 @@ function PostEmerge() {
   # catch updated /etc
   env-update >/dev/null 2>>$tasklog
   source_profile
+
+  if [[ ! -f /etc/machine-id && -x /usr/bin/dbus-uuidgen ]]; then
+    /usr/bin/dbus-uuidgen --ensure=/etc/machine-id
+    ln -sf /etc/machine-id /var/lib/dbus/machine-id
+  fi
 
   # quirk for left over processes
   for p in dirmngr gpg-agent; do
@@ -1175,13 +1181,16 @@ fi
 echo "#init" >$taskfile
 
 rm -f $tasklog # remove a possible left over hard link
-systemd-tmpfiles --create &>$tasklog || true
 
 trap Finish INT QUIT TERM EXIT
 
 # https://bugs.gentoo.org/928938
 ulimit -Hn 512000
 ulimit -Sn 512000
+
+if [[ $name =~ "_systemd" ]]; then
+  systemd-tmpfiles --create &>/dev/null # fchownat() of /sys/... failed: Read-only file system
+fi
 
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
 while :; do
