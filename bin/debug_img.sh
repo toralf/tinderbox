@@ -30,7 +30,7 @@ else
     tee -a $out
 
   echo
-  pid=${2:-1}
+  pid=${2:-0}
   if [[ $pid -gt 0 ]]; then
     echo -n "pid ($pid, 0=abort): "
     read -r input
