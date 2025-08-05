@@ -8,7 +8,7 @@ function killPid() {
   local pid=$1
 
   echo
-  ps faux &>~tinderbox/img/$img/var/tmp/tb/ps-faux.log
+  COLUMNS=10000 ps faux &>~tinderbox/img/$img/var/tmp/tb/ps-faux.log
   pstree -UlnspuTa $pid |
     head -n 20 |
     cut -c 1-140

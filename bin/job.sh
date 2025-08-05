@@ -897,7 +897,7 @@ function RunAndCheck() {
   if [[ $rc -gt 128 ]]; then
     local signal=$((rc - 128))
     if [[ $signal -eq 9 ]]; then
-      ps faux | xz >/var/tmp/tb/ps-faux-after-being-killed-9.log.xz
+      COLUMNS=10000 ps faux | xz >/var/tmp/tb/ps-faux-after-being-killed-9.log.xz
       Finish "KILLed" $tasklog
     else
       pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
