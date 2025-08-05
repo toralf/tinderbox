@@ -15,5 +15,4 @@ The tmpfiles processor exited with a non-zero exit code
 warning: python_fix_shebang
 WARN: postinst
 which: command not found
-which is required
 which: No such file or directory

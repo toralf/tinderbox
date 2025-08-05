@@ -1,9 +1,7 @@
 internal compiler error
 make\[.*\]: \*\*\* \[Makefile:.*: .*] Bus error
 No LLVM slot .* satisfying the package's dependencies found installed
+No such file or directory: which
 shared library .* could not be opened: Dynamic loading not supported
 which: command not found
 which: No such file or directory
-which: command not found
-which is required
-No such file or directory: which
