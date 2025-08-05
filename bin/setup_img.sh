@@ -317,7 +317,10 @@ function CompileMakeConf() {
   cat <<EOF >./etc/portage/make.conf
 LC_MESSAGES=C
 
-# by ztrawhcse
+# by ztrawhcse:
+# set MAKEOPTS="-O" in make.conf as a new setting - this will then be safely appended by package.env
+# start off with a base value of -O, and that causes log files to buffer
+# when make executes a rule, it will store command output in a pipe and then log all the output at the same time instead of multiple commands concurrently writing to the same log file and getting ... corrupted.
 MAKEOPTS="-O"
 
 # set these explicitely here (instead CXXFLAGS="\$CFLAGS")
