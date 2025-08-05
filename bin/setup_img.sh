@@ -53,8 +53,13 @@ function InitOptions() {
   testfeature="n"
   useconfigof=""
 
-  # sam_
+  # support debug_img.sh
   if dice 1 4; then
+    cflags=$(sed -e 's,-O2,-g -ggdb -Og,' <<<$cflags)
+  fi
+
+  # sam_
+  if dice 1 8; then
     cflags=$(sed -e 's,-O2,-O3,' <<<$cflags)
   fi
 
@@ -63,7 +68,7 @@ function InitOptions() {
     abi3264="y"
   fi
 
-  if dice 1 10; then
+  if dice 1 20; then
     testfeature="y"
   fi
 }
@@ -343,7 +348,7 @@ ACCEPT_RESTRICT="-fetch"
 
 NO_COLOR="true"
 
-FEATURES="xattr -news"
+FEATURES="-news splitdebug xattr"
 EMERGE_DEFAULT_OPTS="--newuse --changed-use --verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 CLEAN_DELAY=0
@@ -684,7 +689,9 @@ fi
 date
 echo "#setup backlog" | tee /var/tmp/tb/task
 # "sort -u" is needed if a package is in several repositories
+set +x
 qsearch --all --nocolor --name-only --quiet | grep -v -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
+set -x
 
 date
 echo "#setup done" | tee /var/tmp/tb/task
