@@ -165,7 +165,7 @@ function LastEmergeOperation() {
       else
         echo -n " "
       fi
-      cut -c 1-$((columns - 54)) < <(sed -e 's,::.*,,' -e 's,=== ,,' -e 's,>>> ,,' -e 's,\*\*\*.*,,' -e 's,AUTOCLEAN.*,,' -e 's,Compiling/Merging (,,' -e 's,Merging (,,' -e 's,Post-Build Cleaning (,,'  <<<$line)
+      cut -c 1-$((columns - 54)) < <(sed -e 's,::.*,,' -e 's,=== ,,' -e 's,>>> ,,' -e 's,\*\*\*.*,,' -e 's,AUTOCLEAN.*,,' -e 's,Compiling/Merging (,,' -e 's,Merging (,,' -e 's,Post-Build Cleaning (,,' <<<$line)
     else
       echo
     fi
