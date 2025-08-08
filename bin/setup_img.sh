@@ -60,7 +60,8 @@ function InitOptions() {
 
   # sam_
   if dice 1 8; then
-    cflags=$(sed -e 's,-O2,-O3,' <<<$cflags)
+    flavour=$(echo 3 s z | xargs -n 1 | shuf -n 1)
+    cflags=$(sed -e "s,-O2,-O$flavour," <<<$cflags)
   fi
 
   if dice 1 20; then
