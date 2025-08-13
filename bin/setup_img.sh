@@ -667,6 +667,12 @@ date
 echo "#setup tools" | tee /var/tmp/tb/task
 emerge -u app-arch/xz-utils app-portage/eschwartz-dev-scripts app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode www-client/pybugz
 
+if [[ "$cflags" =~ " -g" ]]; then
+  date
+  echo "#setup debug" | tee /var/tmp/tb/task
+  emerge -u dev-util/debugedit
+fi
+
 date
 echo "#setup kernel" | tee /var/tmp/tb/task
 emerge -u sys-kernel/gentoo-kernel-bin
