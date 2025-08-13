@@ -2,9 +2,9 @@
 #
 # setup blocker
 #
-doc
+#doc
 gtk-doc
-qdoc
+#qdoc
 rdoc
 #
 # don't touch these
@@ -91,10 +91,10 @@ static
 static-libs
 su
 systemd
+tcmalloc
 test
 test-full
 test-suite
-tcmalloc
 unwind
 vanilla
 x32
