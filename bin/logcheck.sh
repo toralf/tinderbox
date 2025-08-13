@@ -20,7 +20,7 @@ if [[ $n -gt 0 ]]; then
       mail -s "INFO: tinderbox logs" tinderbox
   fi
 else
-  # remove obsolete file
+  # remove marker file which avoids mail spam
   if [[ -f $f ]]; then
     rm $f
   fi
