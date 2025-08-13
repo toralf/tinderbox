@@ -362,7 +362,7 @@ PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="tinderbox@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
-PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear; exec cat'"
+PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear 2>/dev/null; exec cat'"
 
 GENTOO_MIRRORS="$GENTOO_MIRRORS"
 
