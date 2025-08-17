@@ -1087,7 +1087,7 @@ function DetectRepeats() {
   fi
 
   read -r count item < <(tail -n 90 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ ! $name =~ "_test" && $count -ge 10 ]] || [[ $count -ge 30 ]] ; then
+  if [[ ! $name =~ "_test" && $count -ge 10 ]] || [[ $count -ge 30 ]]; then
     ReachedEOL "repeated: $count x $item"
   fi
 }
