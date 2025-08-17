@@ -2,10 +2,7 @@
 #
 # setup blocker
 #
-#doc
-gtk-doc
-#qdoc
-rdoc
+#
 #
 # don't touch these
 #

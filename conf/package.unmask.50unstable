@@ -6,3 +6,6 @@
 
 # sam_
 #=sys-devel/gettext-0.25*                                # DICE: [gettext] 1 4
+
+# ionen
+<media-video/ffmpeg-9999                                # DICE: [ffmpeg] 1 2
