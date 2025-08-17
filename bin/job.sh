@@ -618,12 +618,12 @@ function SendIssueMailIfNotYetReported() {
   local force=""
 
   if checkBgo &>>$issuedir/body; then
-    if SearchForSameIssue $pkg $pkgname $issuedir &>>$issuedir/body; then
+    if SearchForSameIssue $pkg $pkgname $issuedir 1>>$issuedir/body; then
       return
     elif BgoIssue; then
       hints+=" b.g.o outage"
     else
-      if SearchForSimilarIssue $pkg $pkgname $issuedir &>>$issuedir/body; then
+      if SearchForSimilarIssue $pkg $pkgname $issuedir 1>>$issuedir/body; then
         hints+=" similar"
         force="                                -f"
       elif BgoIssue; then

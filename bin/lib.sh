@@ -128,7 +128,7 @@ function LookupForABlocker() {
 }
 
 function BgoIssue() {
-  grep -q -e "^Traceback" -e " issue: " $issuedir/bugz_result
+  grep -q -e '# Error: ' -e ' Bugzilla error: ' -e "^Traceback" -e ' issue: ' $issuedir/bugz_{err,result}
 }
 
 function GotResults() {
@@ -144,7 +144,7 @@ function SearchForSameIssue() {
   if grep -q 'file collision with' $issuedir/title; then
     collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     collision_partner_pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $collision_partner)
-    $__tinderbox_bugz_search_cmd --show-status -- "file collision $pkgname $collision_partner_pkgname" |
+    $__tinderbox_bugz_search_cmd --show-status -- "file collision $pkgname $collision_partner_pkgname" 2>$issuedir/bugz_err |
       stripQuotesAndMore |
       grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
       sort -n -r |
@@ -159,7 +159,7 @@ function SearchForSameIssue() {
 
   else
     for i in $pkg $pkgname; do
-      $__tinderbox_bugz_search_cmd --show-status -- $i "$(createSearchString)" |
+      $__tinderbox_bugz_search_cmd --show-status -- $i "$(createSearchString)" 2>$issuedir/bugz_err |
         stripQuotesAndMore |
         grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
         sort -n -r |
@@ -184,7 +184,7 @@ function SearchForSimilarIssue() {
   prepareResultFile
   # resolved does not fit our definition of "opened same issue"
   for i in $pkg $pkgname; do
-    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(createSearchString)" |
+    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(createSearchString)" 2>$issuedir/bugz_err |
       stripQuotesAndMore |
       sort -n -r |
       head -n 4 |
@@ -197,7 +197,7 @@ function SearchForSimilarIssue() {
       return 0
     fi
 
-    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED -- $i "$(createSearchString)" |
+    $__tinderbox_bugz_search_cmd --show-status --status RESOLVED -- $i "$(createSearchString)" 2>$issuedir/bugz_err |
       stripQuotesAndMore |
       sort -n -r |
       head -n 4 |
@@ -214,7 +214,7 @@ function SearchForSimilarIssue() {
   local g='stabilize|Bump| keyword| bump'
 
   echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
-  $__tinderbox_bugz_search_cmd --show-status $pkgname |
+  $__tinderbox_bugz_search_cmd --show-status $pkgname 2>$issuedir/bugz_err |
     grep -v -i -E "$g" |
     sort -n -r |
     head -n 12 |
@@ -228,7 +228,7 @@ function SearchForSimilarIssue() {
 
   if [[ $(wc -l <$issuedir/bugz_result) -lt 5 ]]; then
     echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
-    $__tinderbox_bugz_search_cmd --status RESOLVED $pkgname |
+    $__tinderbox_bugz_search_cmd --status RESOLVED $pkgname 2>$issuedir/bugz_err |
       stripQuotesAndMore |
       grep -v -i -E "$g" |
       sort -n -r |
