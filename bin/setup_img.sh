@@ -55,7 +55,7 @@ function InitOptions() {
 
   # support debug_img.sh
   if dice 1 4; then
-    cflags=$(sed -e 's,-O2,-g -ggdb -Og,' <<<$cflags)
+    cflags=$(sed -e 's,-O2,-Og -g -ggdb,' <<<$cflags)
   fi
 
   # sam_
