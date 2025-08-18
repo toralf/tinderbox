@@ -94,8 +94,8 @@ function checkBgo() {
 
 function prepareResultFile() {
   if [[ ! -f $issuedir/bugz_result ]]; then
-    truncate -s 0 $issuedir/bugz_result
-    chmod a+w $issuedir/bugz_result # created by root, writeable by tinderbox
+    truncate -s 0 $issuedir/bugz_{err,result}
+    chmod a+w $issuedir/bugz_{err,result}
   fi
 }
 
