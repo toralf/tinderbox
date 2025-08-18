@@ -83,4 +83,4 @@ Please specify prototyping behavior for|Unparseable XSUB parameter
 
 # (ffmpeg-8.0) - [Tracker] Packages broken with media-video/ffmpeg-8.0
 961435
-error:.*AV|error:.*FF_
+error:.*AV|error:.*FF_|AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC

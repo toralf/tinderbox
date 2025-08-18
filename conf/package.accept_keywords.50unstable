@@ -17,4 +17,4 @@ virtual/jdk:25                                     **   # DICE: [jdk25] 1 4
 virtual/jre:25                                     **   # DICE: [jdk25] 1 4
 
 # ionen
-<media-video/ffmpeg-9999                           **   # DICE: [ffmpeg] 1 2
+<media-video/ffmpeg-9999                           **   # DICE: [ffmpeg] 1 1
