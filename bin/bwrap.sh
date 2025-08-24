@@ -10,7 +10,7 @@ function CreateCgroup() {
     if mkdir $cgdomain 2>/dev/null; then
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-      # reserve 5 of 32 vCPU for non-tinderboxing tasks (e.g. AFL++ for openssl and Tor)
+      # reserve 5 of 32 vCPU for non-tinderboxing tasks (e.g. AFL++ for OpenSSL and Tor)
       echo "$((27 * 100))" >$cgdomain/cpu.weight
       echo "$((27 * 100000))" >$cgdomain/cpu.max
       echo "110G" >$cgdomain/memory.max
@@ -46,6 +46,7 @@ function CreateCgroup() {
 
   # N GiB per job + 1 GiB on top
   echo "$((4 * jobs + 1))G" >$name/memory.max
+  echo "50G" >$name/memory.swap.max
 }
 
 function RemoveCgroup() {
