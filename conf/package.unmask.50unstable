@@ -5,7 +5,7 @@
 <sys-devel/gcc-16.0.9999:16                             # DICE: [gcc-16] 1 2
 
 # sam_
-#=sys-devel/gettext-0.25*                                # DICE: [gettext] 1 4
+#=sys-devel/gettext-0.25*                                # DICE: [gettext25] 1 4
 
 # ionen
-<media-video/ffmpeg-9999                                # DICE: [ffmpeg] 1 1
+<media-video/ffmpeg-9999                                # DICE: [ffmpeg8] 1 4

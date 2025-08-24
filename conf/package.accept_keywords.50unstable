@@ -8,13 +8,13 @@
 <sys-devel/gcc-16.0.9999:16                        **   # DICE: [gcc-16] 1 2
 
 # sam_
-#=sys-devel/gettext-0.25*                           **   # DICE: [gettext] 1 4
+#=sys-devel/gettext-0.25*                           **   # DICE: [gettext25] 1 4
 
 # gentoo@pogatzki.net
-dev-java/openjdk:25                                **   # DICE: [jdk25] 1 4
-dev-java/openjdk-bin:25                            **   # DICE: [jdk25] 1 4
-virtual/jdk:25                                     **   # DICE: [jdk25] 1 4
-virtual/jre:25                                     **   # DICE: [jdk25] 1 4
+dev-java/openjdk:25                                **   # DICE: [jdk25] 1 2
+dev-java/openjdk-bin:25                            **   # DICE: [jdk25] 1 2
+virtual/jdk:25                                     **   # DICE: [jdk25] 1 2
+virtual/jre:25                                     **   # DICE: [jdk25] 1 2
 
 # ionen
-<media-video/ffmpeg-9999                           **   # DICE: [ffmpeg] 1 1
+<media-video/ffmpeg-9999                           **   # DICE: [ffmpeg8] 1 4

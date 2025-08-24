@@ -25,8 +25,8 @@ sci-astronomy/sextractor
 dev-dotnet/
 dev-dotnet/dotnet-sdk
 dev-qt/qtwebengine
-sci-libs/
 net-libs/webkit-gtk
+sci-libs/
 #
 # hangs, e.g. https://bugs.gentoo.org/909309
 #
@@ -34,8 +34,8 @@ app-emacs/
 #
 # trouble, if e.g. headless-awt is set differently for different JDKs
 #
-dev-java/openjdk
-dev-java/openjdk-jre-bin
+#dev-java/openjdk
+#dev-java/openjdk-jre-bin
 #
 # patches are not accepted upstream
 #

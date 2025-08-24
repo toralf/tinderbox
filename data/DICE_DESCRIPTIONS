@@ -1,7 +1,7 @@
 [meson]
 Please re-assign to ztrawhcse@ if it works with regular meson.
 
-[gettext]
+[gettext25]
 Requested by sam
 
 [gcc-16]
@@ -13,5 +13,5 @@ Requested by gentoo@pogatzki.net
 [perl5.42]
 Requested by dilfridge
 
-[ffmpeg]
+[ffmpeg8]
 Requested by ionen
