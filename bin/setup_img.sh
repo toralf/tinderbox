@@ -1034,7 +1034,7 @@ EOF
       return 0
     fi
   done
-  echo -e "\n max attempts reached, giving up"
+  echo -e "\n max attempts reached, GIVING UP"
 
   return 125
 }
