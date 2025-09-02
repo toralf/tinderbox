@@ -46,10 +46,27 @@ tinderbox  ALL=(ALL) NOPASSWD: /opt/tb/bin/bwrap.sh,/opt/tb/bin/collect_data.sh,
 
 Adapt the values [desired_count](./bin/replace_img.sh#L96), [cgroup memory](./bin/bwrap.sh#L7) and [jobs](./bin/setup_img.sh#L60) for your machine size.
 
+Example for a startup file:
+
+```bash
+#!/bin/bash
+# set -x
+
+set -eu
+export LANG=C.utf8
+export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
+
+rm -f ~tinderbox/run/*/var/tmp/tb/{STOP,WAIT}
+/opt/tb/bin/start_img.sh
+/opt/tb/bin/index.sh
+
+nice /opt/fuzz-utils/bwrap.sh /opt/fuzz-utils/simple-http-server.py --address 65.21.94.49 --port 54321 --directory ~tinderbox/img/ &>/tmp/web-tinderbox.log &
+```
+
 ## Why bash ?!?
 
-I started this project with a tiny Bash script.
-Much later I missed the Point of no Return to switch to something like Python.
+I started this project with as a tiny 100+ lines Bash script.
+And then I missed the Point of no Return to switch to some other language.
 
 ## Links
 
