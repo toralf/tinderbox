@@ -591,7 +591,7 @@ function SendIssueMailIfNotYetReported() {
   if grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
     return 0
   else
-    # avoid writes of multiple tinderbox images into the same line
+    # tee avoids concurrent writes of tinderbox images at the same time
     cat $issuedir/title | tee -a /mnt/tb/findings/ALREADY_CAUGHT 1>/dev/null
   fi
 
@@ -920,11 +920,11 @@ function RunAndCheck() {
   elif [[ $rc -gt 0 ]] || grep -q -F '* ERROR: ' $tasklog_stripped; then
     if phase=$(grep -e " The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
       if [[ -f /var/tmp/tb/EOL ]]; then
-        ReachedEOL "caught EOL in $phase()" $tasklog
+        ReachedEOL "caught EOL in $phase" $tasklog
       elif [[ -f /var/tmp/tb/STOP ]]; then
-        Finish "caught STOP in $phase()" $tasklog
+        Finish "caught STOP in $phase" $tasklog
       else
-        ReachedEOL "$phase() died, rc=$rc" $tasklog
+        ReachedEOL "$phase died, rc=$rc" $tasklog
       fi
 
     elif GetPkgFromTaskLog; then
