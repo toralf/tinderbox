@@ -347,8 +347,6 @@ ACCEPT_LICENSE="* -@EULA"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
-NO_COLOR="true"
-
 FEATURES="-news splitdebug xattr"
 EMERGE_DEFAULT_OPTS="--newuse --changed-use --verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
@@ -596,7 +594,7 @@ echo $name
 
 export NO_COLOR=1
 
-# use within the image the same user and group id of tinderbox as defined at the host to be allowed to edit files
+# use same user and group id of user tinderbox like at the host to edit files from a host shell
 date
 echo "#setup user" | tee /var/tmp/tb/task
 groupadd -g $(id -g tinderbox) tinderbox
