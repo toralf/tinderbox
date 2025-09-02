@@ -585,7 +585,7 @@ function SendIssueMailIfNotYetReported() {
   local do_report=${1:-1}
 
   if [[ ! -s $issuedir/title ]]; then
-    ReachedEOL "empty title"
+    ReachedEOL "ERROR: empty title"
   fi
 
   if grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
@@ -918,7 +918,7 @@ function RunAndCheck() {
 
   # emerge failed
   elif [[ $rc -gt 0 ]] || grep -q -F '* ERROR: ' $tasklog_stripped; then
-    if phase=$(grep -e " The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
+    if phase=$(grep -e "The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
       if [[ -f /var/tmp/tb/EOL ]]; then
         ReachedEOL "caught EOL in $phase" $tasklog
       elif [[ -f /var/tmp/tb/STOP ]]; then
