@@ -1082,12 +1082,12 @@ function DetectRepeats() {
   local count item
 
   read -r count item < <(tail -n 7 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ ! $name =~ "_test" && $count -ge 3 && $item == '@preserved-rebuild' ]]; then
+  if [[ $count -ge 3 && $item == '@preserved-rebuild' && ! $name =~ "_test" ]]; then
     ReachedEOL "repeated: $count x $item"
   fi
 
   read -r count item < <(tail -n 90 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ ! $name =~ "_test" && $count -ge 10 ]] || [[ $count -ge 30 ]]; then
+  if [[ $count -ge 10 && $item == '@preserved-rebuild' || $count -ge 30 ]]; then
     ReachedEOL "repeated: $count x $item"
   fi
 }
