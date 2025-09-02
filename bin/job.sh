@@ -317,7 +317,7 @@ function foundGenericIssue() {
     split --lines=1 --suffix-length=4 - /tmp/x_
 
   for x in /tmp/x_????; do
-    if grep -a -m 1 -B 6 -A 2 -f $x $pkglog_stripped >$issuedir/issue; then
+    if grep --color=never -a -m 1 -B 6 -A 2 -f $x $pkglog_stripped >$issuedir/issue; then
       if [[ ! -s $issuedir/issue ]]; then
         # happened e.g. for media-libs/esdl
         ReachedEOL "empty issue" $pkglog_stripped
@@ -815,7 +815,7 @@ function catchMisc() {
       while read -r finding; do
         createIssueDir
         echo "$finding" >$issuedir/title
-        grep -m 1 -A 7 -F -e "$finding" $stripped >$issuedir/issue
+        grep --color=never -m 1 -A 7 -F -e "$finding" $stripped >$issuedir/issue
         cp $pkglog $issuedir/files
         cp $stripped $issuedir
         finishTitle
