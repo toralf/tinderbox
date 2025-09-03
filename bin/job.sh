@@ -469,8 +469,8 @@ EOF
 EOF
 
   (
-    grep -e "^CC=" -e "^CXX=" -e "^GNUMAKEFLAGS" /etc/portage/make.conf
-    grep -e "^GENTOO_VM=" -e "^JAVACFLAGS=" $tasklog_stripped
+    grep --color=never -e "^CC=" -e "^CXX=" -e "^GNUMAKEFLAGS" /etc/portage/make.conf
+    grep --color=never -e "^GENTOO_VM=" -e "^JAVACFLAGS=" $tasklog_stripped
     echo "gcc-config -l:"
     gcc-config -l --nocolor
     clang --version | head -n 1
