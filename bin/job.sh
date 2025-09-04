@@ -597,7 +597,7 @@ function SendIssueMailIfNotYetReported() {
 
   for f in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/CATCH_ISSUES.{pretend,setup}; do
     if grep -q '^$' $f; then
-      Mail "WARN: empty line in $f"
+      Mail "ERROR: empty line in $f"
       touch /var/tmp/tb/STOP
       return 1
     fi
@@ -805,7 +805,7 @@ function catchMisc() {
     # grep for "GiB" and take the values of "KiB"
     read -r size_build size_install <<<$(grep -A 1 -e ' Final size of build directory: .* GiB' $stripped | grep -Eo '[0-9\.]+ KiB' | cut -f 1 -d ' ' -s | xargs)
     if [[ -n $size_build && -n $size_install ]]; then
-      size_sum=$(awk '{ printf ("%.1f", ($1 + $2) / 1024.0 / 1024.0) }' <<<"$size_build $size_install")
+      local size_sum=$(awk '{ printf ("%.1f", ($1 + $2) / 1024.0 / 1024.0) }' <<<"$size_build $size_install")
       echo "$size_sum GiB $pkg" >>/var/tmp/big_packages.txt
     fi
 
@@ -843,7 +843,7 @@ EOF
   done < <(find /var/log/portage/ -type f -name '*.log' | sort -r) # process elog/*.log after common log
 }
 
-function GetPkglog() {
+function SetPkglog() {
   if [[ -z $pkg ]]; then
     return 1
   fi
@@ -861,7 +861,7 @@ function GetPkglog() {
   fi
 }
 
-function GetPkgFromTaskLog() {
+function SetPkgFromTaskLog() {
   pkg=$(grep -m 1 -F ' * Package: ' $tasklog_stripped | awk '{ print $3 }')
   if [[ -z $pkg ]]; then
     pkg=$(grep -m 1 '>>> Failed to emerge .*/.*' $tasklog_stripped | cut -f 5 -d ' ' -s | cut -f 1 -d ',' -s)
@@ -902,7 +902,7 @@ function RunAndCheck() {
     else
       pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
       if [[ $signal -eq 15 ]]; then
-        if GetPkglog; then
+        if SetPkglog; then
           createIssueDir
           echo "$pkg - emerge TERMinated" >$issuedir/title
           WorkAtIssue 0
@@ -927,8 +927,8 @@ function RunAndCheck() {
         ReachedEOL "$phase died, rc=$rc" $tasklog
       fi
 
-    elif GetPkgFromTaskLog; then
-      GetPkglog
+    elif SetPkgFromTaskLog; then
+      SetPkglog
       createIssueDir
       WorkAtIssue
     fi
