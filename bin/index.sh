@@ -10,15 +10,15 @@ function listStat() {
     echo '<h2>few stats</h2>'
     echo '<pre>'
     echo '<h3>coverage</h3>'
-    $(dirname $0)/whatsup.sh -c | recode --silent ascii..html
+    $(dirname $0)/whatsup.sh -c | recode --quiet ascii..html
     echo '<h3>packages per image per run day</h3>'
-    $(dirname $0)/whatsup.sh -d | recode --silent ascii..html
+    $(dirname $0)/whatsup.sh -d | recode --quiet ascii..html
     echo '<h3>completed and failed packages, reported bugs, backlogs, lock status</h3>'
-    $(dirname $0)/whatsup.sh -o | recode --silent ascii..html
+    $(dirname $0)/whatsup.sh -o | recode --quiet ascii..html
     echo '<h3>current task</h3>'
-    $(dirname $0)/whatsup.sh -t | recode --silent ascii..html
+    $(dirname $0)/whatsup.sh -t | recode --quiet ascii..html
     echo '<h3>current emerge step</h3>'
-    $(dirname $0)/whatsup.sh -l | recode --silent ascii..html
+    $(dirname $0)/whatsup.sh -l | recode --quiet ascii..html
     echo -e '</pre>\n'
   }
 }
