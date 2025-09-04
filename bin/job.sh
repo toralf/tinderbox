@@ -809,8 +809,8 @@ function catchMisc() {
       echo "$size_sum GiB $pkg" >>/var/tmp/big_packages.txt
     fi
 
-    # create for each finding an own issue
-    grep -f /mnt/tb/data/CATCH_MISC $stripped |
+    # create for each finding a separate issue
+    grep --color=never -f /mnt/tb/data/CATCH_MISC $stripped |
       sort -u |
       while read -r finding; do
         createIssueDir
