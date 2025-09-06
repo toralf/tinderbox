@@ -600,7 +600,7 @@ function SendIssueMailIfNotYetReported() {
 
   for f in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/CATCH_ISSUES.{pretend,setup}; do
     if grep -q '^$' $f; then
-      Mail "ERROR: empty line in $f"
+      Mail "ERROR: empty line in $f" $f
       touch /var/tmp/tb/STOP
       return 1
     fi
@@ -703,8 +703,7 @@ function source_profile() {
 function SwitchGCC() {
   local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-[0-9]+$' | tail -n 1)
   if [[ -z $highest ]]; then
-    Mail "cannot get GCC version"
-    return
+    ReachedEOL "cannot get GCC version"
   fi
 
   if [[ $(gcc-config --get-current-profile --nocolor) != "$highest" ]]; then
