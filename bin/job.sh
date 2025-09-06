@@ -1081,14 +1081,17 @@ function WorkOnTask() {
 function DetectRepeats() {
   local count item
 
-  read -r count item < <(tail -n 7 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 3 && $item == '@preserved-rebuild' && ! $name =~ "_test" ]]; then
-    ReachedEOL "repeated: $count x $item"
+  if [[ ! $name =~ "_test" ]]; then
+    item='@preserved-rebuild'
+    count=$(tail -n 7 $taskfile.history | grep -c $item || true)
+    if [[ $count -ge 3 ]]; then
+      ReachedEOL "repeated: $count x $item" $tasklog
+    fi
   fi
 
-  read -r count item < <(tail -n 90 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 10 && $item == '@preserved-rebuild' || $count -ge 30 ]]; then
-    ReachedEOL "repeated: $count x $item"
+  read -r count item < <(tail -n 60 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
+  if [[ $count -ge 10 && $item == '@preserved-rebuild' || $count -ge 20 ]]; then
+    ReachedEOL "repeated: $count x $item" $tasklog
   fi
 }
 
