@@ -810,7 +810,7 @@ function catchMisc() {
     fi
 
     # create for each finding a separate issue
-    grep --color=never -f /mnt/tb/data/CATCH_MISC $stripped |
+    grep -f /mnt/tb/data/CATCH_MISC $stripped |
       sort -u |
       while read -r finding; do
         createIssueDir
@@ -1243,6 +1243,7 @@ while :; do
     Mail "NOTICE: error while compressing logs" $tasklog
   fi
 
+  # intentionally keep /var/tmp/notmpfs
   rm -rf /var/tmp/portage/* # "-f" needed if e.g. "pretend" or "fetch" phase failed
 
   echo "#detecting repeats" >$taskfile

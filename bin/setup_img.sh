@@ -329,7 +329,7 @@ LC_MESSAGES=C
 # when make executes a rule, it will store command output in a pipe and then log all the output at the same time instead of multiple commands concurrently writing to the same log file and getting ... corrupted.
 MAKEOPTS="-O"
 
-# set these explicitely here (instead CXXFLAGS="\$CFLAGS")
+# set these explicitely here (instead e.g. CXXFLAGS="\$CFLAGS" and so on ...)
 CFLAGS="$cflags"
 CXXFLAGS="$cflags"
 FCFLAGS="$cflags"
@@ -360,7 +360,7 @@ PORTAGE_ELOG_SYSTEM="save"
 PORTAGE_ELOG_MAILURI="tinderbox@localhost"
 PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
-PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter --ignore-clear 2>/dev/null; exec cat'"
+PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter 2>/dev/null; exec cat'"
 
 GENTOO_MIRRORS="$GENTOO_MIRRORS"
 
