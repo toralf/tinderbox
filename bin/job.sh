@@ -581,9 +581,11 @@ function finishTitle() {
   sed -i -E 's,\s+, ,g' $issuedir/title
 }
 
-function SendIssueMailIfNotYetReported() {
+function ReportIfNotYetDone() {
   local do_report=${1:-1}
 
+  # generic logic to not email at all
+  #
   if [[ ! -s $issuedir/title ]]; then
     ReachedEOL "ERROR: empty title"
   fi
@@ -595,21 +597,16 @@ function SendIssueMailIfNotYetReported() {
     cat $issuedir/title | tee -a /mnt/tb/findings/ALREADY_CAUGHT 1>/dev/null
   fi
 
-  for f in /mnt/tb/data/IGNORE_ISSUES /mnt/tb/data/CATCH_ISSUES.{pretend,setup}; do
-    if grep -q '^$' $f; then
-      Mail "ERROR: empty line in $f" $f
-      touch /var/tmp/tb/STOP
-      return 1
-    fi
-    if grep -q -f $f $issuedir/title; then
-      return 0
-    fi
-  done
+  if grep -q -f /mnt/tb/data/IGNORE_ISSUES $issuedir/title; then
+    return 0
+  fi
 
   if [[ $do_report -eq 0 ]]; then
     return 0
   fi
 
+  # do email if the issue is new or maybe new
+  #
   cp $issuedir/issue $issuedir/body
   echo -e "\n\n" >>$issuedir/body
   chmod a+w $issuedir/body
@@ -619,7 +616,7 @@ function SendIssueMailIfNotYetReported() {
 
   if checkBgo &>>$issuedir/body; then
     if SearchForSameIssue $pkg $pkgname $issuedir 1>>$issuedir/body; then
-      return
+      return 0
     elif BgoIssue; then
       hints+=" b.g.o outage"
     else
@@ -688,7 +685,7 @@ function WorkAtIssue() {
     Mail "NOTICE: haskell-updater scheduled" $tasklog
   fi
 
-  SendIssueMailIfNotYetReported $do_report
+  ReportIfNotYetDone $do_report
 }
 
 function source_profile() {
@@ -836,7 +833,7 @@ EOF
         collectPortageFiles
         CreateEmergeInfo
         CompressIssueFiles
-        SendIssueMailIfNotYetReported
+        ReportIfNotYetDone
       done
     rm $stripped
   done < <(find /var/log/portage/ -type f -name '*.log' | sort -r) # process elog/*.log after common log
