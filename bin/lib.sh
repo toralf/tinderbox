@@ -130,7 +130,7 @@ function BgoIssue() {
 }
 
 function GotResults() {
-  [[ -s $issuedir/bugz_result ]]
+  [[ -s $issuedir/bugz_result && $(stat -c %s $issuedir/bugz_result) -gt 40 ]]
 }
 
 function SearchForSameIssue() {
