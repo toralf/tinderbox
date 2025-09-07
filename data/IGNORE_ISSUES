@@ -1,10 +1,20 @@
+Active compiler does not have required support for OpenMP
 ada compiler not available
 asciidoctor.*LoadError
 AttributeError: Config object has no attribute _cleanup. Did you mean: add_cleanup
+Could not find Objective-C runtime
+Could not find pg_config for
+Could not switch to the en_US.UTF-8 locale.
 Currently installed version of OCaml is not yet supported
 GCC requires sys-devel/gcc with USE=
+GCC requires sys-devel/gcc with USE=objc
+gnat-gpl-2021 does not build with clang. It is bootstrapped.
 Incorrect kernel configuration options
 No LLVM slot .* satisfying the package's dependencies found installed
+No suitable POSTGRES_TARGETS enabled
+No supported Python implementation in PYTHON_SINGLE_TARGET
+One of the postgres_targets_postgresSL_OT use flags must be enabled
+Please switch to a version of sys-devel/gcc built with USE=graphite, or use a different compiler.
 QA Notice: .*backend is deprecated. Please see:
 QA Notice: cargo built package contains possibly vendored code
 QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5
@@ -17,5 +27,8 @@ QA Notice: The following deprecated .egg or .egg-info files were found.
 QA Notice: This package seems to install metainfo files into the
 QA Notice: This package uses a very large number of CRATES. Please provide
 shared library .* could not be opened: Dynamic loading not supported
+The locale en_US.utf8 or en_US.UTF-8 is not available.
 The present kernel disabled CONFIG_MODULES.
 This compiler lacks GCC plug-in support
+USE=modules-sign requires additional configuration
+You need to select at least one compatible Ruby installation target
