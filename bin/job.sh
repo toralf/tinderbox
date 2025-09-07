@@ -15,10 +15,7 @@ function Mail() {
     echo
     tail -v -n 100 $attachment
   fi |
-    (
-      ansifilter 2>/dev/null
-      cat
-    ) |
+    ansifilter |
     sed -e 's,^>, >,' |
     if ! mail -s "$subject @ $name" ${MAILTO:-tinderbox} &>/var/tmp/tb/mail.log; then
       echo "$(date) mail issue, \$subject=$subject \$attachment=$attachment" >&2

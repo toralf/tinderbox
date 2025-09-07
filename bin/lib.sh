@@ -68,15 +68,9 @@ function stripQuotesAndMore() {
 
 function filterPlainText() {
   # non-ascii chars and colour sequences e.g. in media-libs/esdl logs
-  (
-    ansifilter 2>/dev/null
-    exec cat
-  ) |
-    (
-      recode --force --quiet ascii 2>/dev/null
-      exec cat
-    ) |
-    # from recode --force: �
+  ansifilter |
+    recode --force --quiet ascii 2>/dev/null |
+    # TODO: still true ? left even after recode --force: �
     sed -e 's,\xEF\xBF\xBD,,g' |
     # UTF-2018+2019 (left+right single quotation mark)
     sed -e 's,\xE2\x80\x98,,g' -e 's,\xE2\x80\x99,,g' |
