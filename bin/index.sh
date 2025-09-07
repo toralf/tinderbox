@@ -137,7 +137,7 @@ EOF
     cat <<EOF
   <tr>
     <td><a href="$uri">$no</a></td>
-    <td>$(cut -c -$__tinderbox_bugz_title_length <$d/title | recode --silent ascii..html)</td>
+    <td>$(cut -c -$__tinderbox_bugz_title_length <$d/title | recode --quiet ascii..html)</td>
     <td><a href="./$image/">$image</a></td>
     <td><a href="./$issuedir/">$pkg</a></td>
   </tr>
