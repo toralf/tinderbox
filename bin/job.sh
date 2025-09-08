@@ -1232,7 +1232,6 @@ while :; do
   task_timestamp_prefix=task.$(date +%Y%m%d-%H%M%S).$(tr -d '\n' <<<$task | tr -c '[:alnum:]' '_' | cut -c -128)
   ln $tasklog /var/tmp/tb/logs/$task_timestamp_prefix.log
   WorkOnTask
-  rm $tasklog
 
   echo "#catch misc" >$taskfile
   catchMisc
@@ -1247,4 +1246,6 @@ while :; do
 
   echo "#detecting repeats" >$taskfile
   DetectRepeats
+
+  rm $tasklog
 done
