@@ -70,7 +70,7 @@ function filterPlainText() {
   # non-ascii chars and colour sequences e.g. in media-libs/esdl logs
   ansifilter |
     recode --force --quiet ascii 2>/dev/null |
-    # TODO: still true ? left even after recode --force: �
+    # left over: �
     sed -e 's,\xEF\xBF\xBD,,g' |
     # UTF-2018+2019 (left+right single quotation mark)
     sed -e 's,\xE2\x80\x98,,g' -e 's,\xE2\x80\x99,,g' |
@@ -143,11 +143,12 @@ function SearchForSameIssue() {
     collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
     collision_partner_pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $collision_partner)
     $__tinderbox_bugz_search_cmd --show-status -- "file collision $pkgname $collision_partner_pkgname" 2>$issuedir/bugz_err |
-      stripQuotesAndMore |
       grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
+      stripQuotesAndMore |
+      filterPlainText |
+      sed -e '/^$/d' |
       sort -n -r |
       head -n 4 |
-      filterPlainText |
       tee $issuedir/bugz_result
     if BgoIssue; then
       return 1
@@ -158,11 +159,12 @@ function SearchForSameIssue() {
   else
     for i in $pkg $pkgname; do
       $__tinderbox_bugz_search_cmd --show-status -- $i "$(createSearchString)" 2>$issuedir/bugz_err |
-        stripQuotesAndMore |
         grep -e " UNCONFIRMED " -e " CONFIRMED " -e " IN_PROGRESS " |
+        stripQuotesAndMore |
+        filterPlainText |
+        sed -e '/^$/d' |
         sort -n -r |
         head -n 4 |
-        filterPlainText |
         tee $issuedir/bugz_result
       if BgoIssue; then
         return 1
@@ -184,9 +186,10 @@ function SearchForSimilarIssue() {
   for i in $pkg $pkgname; do
     $__tinderbox_bugz_search_cmd --show-status --status RESOLVED --resolution DUPLICATE -- $i "$(createSearchString)" 2>$issuedir/bugz_err |
       stripQuotesAndMore |
+      filterPlainText |
+      sed -e '/^$/d' |
       sort -n -r |
       head -n 4 |
-      filterPlainText |
       tee $issuedir/bugz_result
     if BgoIssue; then
       return 1
@@ -197,9 +200,10 @@ function SearchForSimilarIssue() {
 
     $__tinderbox_bugz_search_cmd --show-status --status RESOLVED -- $i "$(createSearchString)" 2>$issuedir/bugz_err |
       stripQuotesAndMore |
+      filterPlainText |
+      sed -e '/^$/d' |
       sort -n -r |
       head -n 4 |
-      filterPlainText |
       tee $issuedir/bugz_result
     if BgoIssue; then
       return 1
@@ -214,9 +218,11 @@ function SearchForSimilarIssue() {
   echo -e "OPEN:     $h&resolution=---&short_desc=$pkgname\n"
   $__tinderbox_bugz_search_cmd --show-status $pkgname 2>$issuedir/bugz_err |
     grep -v -i -E "$g" |
+    stripQuotesAndMore |
+    filterPlainText |
+    sed -e '/^$/d' |
     sort -n -r |
     head -n 12 |
-    filterPlainText |
     tee $issuedir/bugz_result
   if BgoIssue; then
     return 1
@@ -227,11 +233,12 @@ function SearchForSimilarIssue() {
   if [[ $(wc -l <$issuedir/bugz_result) -lt 5 ]]; then
     echo -e "\nRESOLVED: $h&bug_status=RESOLVED&short_desc=$pkgname\n"
     $__tinderbox_bugz_search_cmd --status RESOLVED $pkgname 2>$issuedir/bugz_err |
-      stripQuotesAndMore |
       grep -v -i -E "$g" |
+      stripQuotesAndMore |
+      filterPlainText |
+      sed -e '/^$/d' |
       sort -n -r |
       head -n 5 |
-      filterPlainText |
       tee $issuedir/bugz_result
     if BgoIssue; then
       return 1
