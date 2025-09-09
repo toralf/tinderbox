@@ -16,7 +16,8 @@ fi
 result=/tmp/$(basename $0) # hold package(s) to be scheduled
 
 # special atoms
-grep -e '^%' <<<$* |
+xargs -n 1 <<<$* |
+grep -e '^%' |
   sort -u >$result.special
 if [[ -s $result.special ]]; then
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
@@ -32,16 +33,19 @@ fi
 rm $result.special
 
 # regular packages
-grep -v -e '^%' <<<$* |
+xargs -n 1 <<<$* |
+grep -v -e '^%' |
   xargs -r -n 1 |
   sort -u |
   while read -r atom; do
     if [[ $atom =~ ^@ || $atom =~ ^= ]]; then
       echo "$atom"
     else
-      qatom -CF "%{CATEGORY}/%{PN}" $atom |
+      if ! qatom -CF "%{CATEGORY}/%{PN}" $atom |
         grep -v '<unset>' |
-        grep ".*-.*/.*" || true
+        grep ".*-.*/.*"; then
+        echo " skipping: '$atom'" >&2
+      fi
     fi
   done |
   sort -u >$result.packages
