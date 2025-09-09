@@ -41,7 +41,7 @@ grep -v -e '^%' <<<$* |
     else
       qatom -CF "%{CATEGORY}/%{PN}" $atom |
         grep -v '<unset>' |
-        grep ".*-.*/.*"
+        grep ".*-.*/.*" || true
     fi
   done |
   sort -u >$result.packages
