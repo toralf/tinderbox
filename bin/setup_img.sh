@@ -184,8 +184,8 @@ function getStage3Filename() {
     prefix+="-openrc"
   fi
 
-  if [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
-    # there's no stage3, so start with a 23.0/hardened and switch later
+  if [[ $profile =~ '/no-multilib/hardened' ]]; then
+    # there's no dedicated stage3, use a 23.0/hardened therefore and switch afterwards
     prefix=$(sed -e 's,nomultilib-,,' <<<$prefix)
   fi
 
@@ -556,7 +556,7 @@ function CreateBacklogs() {
 sys-kernel/gentoo-kernel-bin
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 EOF
-  elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
+  elif [[ $profile =~ '/no-multilib/hardened' ]]; then
     # [11:06:37 pm] <@toralf> Would changing the profile and re-emerging @world with --emptytree do it?
     # [11:27:13 pm] <@dilfridge> switching from/to hardened, and switching from multilib to non-multilib, yes
     # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
@@ -986,7 +986,7 @@ emerge -1up --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) 
 echo "$line"
 emerge -up @world
 EOF
-  elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
+  elif [[ $profile =~ '/no-multilib/hardened' ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1up --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 echo "$line"
