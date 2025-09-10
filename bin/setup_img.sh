@@ -936,8 +936,9 @@ function ThrowFlags() {
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23-diced_global_use_flags
 
-  grep -Hl 'flag name="' .$reposdir/gentoo/*/*/metadata.xml |
+  find .$reposdir/gentoo/ -name metadata.xml |
     grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
+    xargs grep -Hl 'flag name="' |
     shuf -n $((RANDOM % 3000 + 500)) |
     sort |
     while read -r file; do
