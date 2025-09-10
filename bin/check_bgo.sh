@@ -128,6 +128,11 @@ EOF
   fi
   echo
 
+  if ! checkBgo; then
+    echo
+    exit 1
+  fi
+
   if ! SearchForSameIssue $pkg $pkgname $issuedir; then
     if ! BgoIssue; then
       if ! SearchForSimilarIssue $pkg $pkgname $issuedir; then
