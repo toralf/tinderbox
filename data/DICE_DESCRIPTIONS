@@ -15,3 +15,6 @@ Requested by dilfridge
 
 [ffmpeg8]
 Requested by ionen
+
+[gcc-14]
+test every then and when a stable GCC at an unstable image
