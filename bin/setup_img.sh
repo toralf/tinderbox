@@ -553,6 +553,7 @@ function CreateBacklogs() {
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
 @world
+sys-kernel/gentoo-kernel-bin
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 EOF
   elif [[ $profile =~ '23.0/no-multilib/hardened' ]]; then
@@ -561,11 +562,13 @@ EOF
     # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
     cat <<EOF >>$bl.1st
 %emerge -e @world
+sys-kernel/gentoo-kernel-bin
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 EOF
   else
     cat <<EOF >>$bl.1st
 @world
+sys-kernel/gentoo-kernel-bin
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
@@ -670,10 +673,6 @@ if [[ "$cflags" =~ " -g" ]]; then
   echo "#setup debug" | tee /var/tmp/tb/task
   emerge -u dev-util/debugedit
 fi
-
-date
-echo "#setup kernel" | tee /var/tmp/tb/task
-emerge -u sys-kernel/gentoo-kernel-bin
 
 if find /etc -type f -name "._cfg0000_*" | grep '.'; then
   echo -e "\n ^^ unexpected changes\n" >&2
