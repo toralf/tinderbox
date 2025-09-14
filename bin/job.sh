@@ -76,7 +76,7 @@ function getNextBacklog() {
   if [[ -s /var/tmp/tb/backlog.1st ]]; then
     echo "/var/tmp/tb/backlog.1st"
 
-  elif [[ -s /var/tmp/tb/backlog.upd && $((RANDOM % 4)) -eq 0 ]]; then
+  elif [[ -s /var/tmp/tb/backlog.upd ]] && ((RANDOM % 4 < 1)); then
     echo "/var/tmp/tb/backlog.upd"
 
   elif [[ -s /var/tmp/tb/backlog ]]; then
@@ -936,9 +936,8 @@ function RunAndCheck() {
         local self=/etc/portage/package.mask/self
         if grep -q -e "=$pkg$" $self; then
           ReachedEOL "$pkg already masked" $tasklog
-        else
-          echo "=$pkg" >>$self
         fi
+        echo "=$pkg" >>$self
       fi
       # do not lose current installed deps, therefore turn the world file into the same state
       # as it would be if dep packages were been emerged before
@@ -1040,14 +1039,18 @@ function WorkOnTask() {
       fi
     fi
 
-  # common emerge update
+  # common emerge update of an atom or a @set
   else
     if ! RunAndCheck "emerge --update $task"; then
       if [[ $task == "@preserved-rebuild" ]]; then
-        if [[ -n $pkg || $try_again -eq 1 ]]; then
-          add2backlog "$task"
-        else
+        if [[ -z $pkg && $try_again -eq 0 ]]; then
           ReachedEOL "$task failed" $tasklog
+        fi
+        add2backlog "$task"
+
+      elif [[ -n $pkg && ! $task =~ $pkgname ]]; then
+        if ((RANDOM % 2 < 1)); then
+          add2backlog "$task"
         fi
       fi
     else
@@ -1059,6 +1062,7 @@ function WorkOnTask() {
     fi
   fi
 
+  # it is only set if $task failed
   if [[ -n $pkg ]]; then
     if [[ $pkgname == "sys-devel/gcc" ]]; then
       if [[ ! $name =~ "_llvm" ]]; then
