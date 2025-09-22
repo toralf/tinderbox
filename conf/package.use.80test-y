@@ -17,6 +17,7 @@ dev-libs/xmlrpc-c                   abyss curl cxx
 media-gfx/imagemagick               corefonts
 media-libs/gd                       png
 media-libs/qhull                    tools
+media-libs/soxr                     examples
 media-libs/tiff                     jpeg
 net-nds/openldap                    -minimal
 net-firewall/iptables               conntrack nftables

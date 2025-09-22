@@ -8,3 +8,4 @@ One of the postgres_targets_postgresSL_OT use flags must be enabled
 Could not find pg_config for
 You need to select at least one compatible Ruby installation target
 No supported Python implementation in PYTHON_SINGLE_TARGET
+kernel sources are required to build kernel modules

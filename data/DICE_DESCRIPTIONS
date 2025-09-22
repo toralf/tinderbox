@@ -18,3 +18,9 @@ Requested by ionen
 
 [gcc-14]
 test every then and when a stable GCC at an unstable image
+
+[boost-1.89]
+Requested by holgerh
+
+[portage-9999]
+Requested by Portage developer team

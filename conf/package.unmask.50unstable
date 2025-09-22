@@ -9,3 +9,9 @@
 
 # ionen
 <media-video/ffmpeg-9999                                # DICE: [ffmpeg8] 1 4
+
+# holgerh
+=dev-libs/boost-1.89*                                   # DICE: [boost-1.89] 1 2
+
+# flow
+=sys-apps/portage-9999                                  # DICE: [portage-9999] 1 2
