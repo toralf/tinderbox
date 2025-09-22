@@ -1226,6 +1226,7 @@ while :; do
     if [[ ! -f $last_world || $((EPOCHSECONDS - $(stat -c %Z $last_world))) -ge 86400 ]]; then
       /usr/bin/pfl &>/dev/null || true
       add2backlog "@world"
+      add2backlog "%smart-live-rebuild"
     fi
   fi
 

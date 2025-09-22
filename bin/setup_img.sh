@@ -666,7 +666,7 @@ fi
 
 date
 echo "#setup tools" | tee /var/tmp/tb/task
-emerge -u app-arch/xz-utils app-portage/eschwartz-dev-scripts app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode www-client/pybugz
+emerge -u app-arch/xz-utils app-portage/eschwartz-dev-scripts app-portage/smart-live-rebuild app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode www-client/pybugz
 
 if [[ "$cflags" =~ " -g" ]]; then
   date
