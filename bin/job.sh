@@ -11,10 +11,12 @@ function Mail() {
   local subject=$(stripQuotesAndMore <<<${1:-"NO SUBJECT"} | strings -w | cut -c 1-200 | tr '\n' ' ')
   local attachment=${2-}
 
-  if [[ -n $attachment ]]; then
+  (
     echo
-    tail -v -n 100 $attachment
-  fi |
+    if [[ -n $attachment && -f $attachment ]]; then
+      tail -v -n 100 $attachment
+    fi
+  ) |
     ansifilter |
     sed -e 's,^>, >,' |
     if ! mail -s "$subject @ $name" ${MAILTO:-tinderbox} &>/var/tmp/tb/mail.log; then
