@@ -1020,12 +1020,13 @@ function WorkOnTask() {
         fi
       elif [[ -n $pkg ]]; then
         if [[ $task =~ $pkg ]]; then
-          ReachedEOL "failed: $pkg" $tasklog
+          Mail "failed task '$task'due to failed '$pkg'" $tasklog
         else
+          Mail "retry task '$task' due to failed '$pkg'" $tasklog
           add2backlog "$task"
         fi
       else
-        ReachedEOL "failed: (no pkg)" $tasklog
+        Mail "failed task '$task'" $tasklog
       fi
     fi
 
@@ -1226,7 +1227,7 @@ while :; do
     if [[ ! -f $last_world || $((EPOCHSECONDS - $(stat -c %Z $last_world))) -ge 86400 ]]; then
       /usr/bin/pfl &>/dev/null || true
       add2backlog "@world"
-      add2backlog "%smart-live-rebuild"
+      add2backlog "%smart-live-rebuild --no-color --quiet"
     fi
   fi
 
