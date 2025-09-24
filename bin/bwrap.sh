@@ -66,6 +66,7 @@ function Exit() {
     RemoveCgroup
     rmdir $lock_dir
   fi
+  rm -f /tmp/$(basename $mnt).json
   exit $rc
 }
 
