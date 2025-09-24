@@ -11,16 +11,16 @@
 #=sys-devel/gettext-0.25*                           **   # DICE: [gettext25] 1 4
 
 # gentoo@pogatzki.net
-dev-java/openjdk:25                                **   # DICE: [jdk25] 1 2
-dev-java/openjdk-bin:25                            **   # DICE: [jdk25] 1 2
-virtual/jdk:25                                     **   # DICE: [jdk25] 1 2
-virtual/jre:25                                     **   # DICE: [jdk25] 1 2
+dev-java/openjdk:25                                **   # DICE: [jdk25] 1 4
+dev-java/openjdk-bin:25                            **   # DICE: [jdk25] 1 4
+virtual/jdk:25                                     **   # DICE: [jdk25] 1 4
+virtual/jre:25                                     **   # DICE: [jdk25] 1 4
 
 # ionen
 <media-video/ffmpeg-9999                           **   # DICE: [ffmpeg8] 1 4
 
 # holgerh
-=dev-libs/boost-1.89*                              **   # DICE: [boost-1.89] 1 2
+=dev-libs/boost-1.89*                              **   # DICE: [boost-1.89] 1 4
 
 # flow
-=sys-apps/portage-9999                             **   # DICE: [portage-9999] 1 2
+=sys-apps/portage-9999                             **   # DICE: [portage-9999] 1 4

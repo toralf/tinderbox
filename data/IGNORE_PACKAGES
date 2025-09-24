@@ -20,12 +20,15 @@ sci-astronomy/psfex
 sci-astronomy/scamp
 sci-astronomy/sextractor
 #
-# long emerge time
+# too long emerge time
+#
+dev-qt/qtwebengine
+net-libs/webkit-gtk
+#
+# too less resources
 #
 dev-dotnet/
 dev-dotnet/dotnet-sdk
-dev-qt/qtwebengine
-net-libs/webkit-gtk
 sci-libs/
 #
 # hangs, e.g. https://bugs.gentoo.org/909309

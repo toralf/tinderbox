@@ -54,7 +54,7 @@ www-client/chromium
 
 
 #######################################################################
-# temp
+# bugs
 
 # https://bugs.gentoo.org/917495
 dev-lisp/sbcl
