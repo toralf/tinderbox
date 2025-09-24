@@ -8,25 +8,25 @@
 # That's all.
 
 function Mail() {
-  local subject=$(stripQuotesAndMore <<<${1:-"NO SUBJECT"} | strings -w | cut -c 1-200 | tr '\n' ' ')
+  local subject=$(stripQuotesAndMore <<<${1:-"Mail: NO SUBJECT"} | strings -w | cut -c 1-200 | tr '\n' ' ')
   local attachment=${2-}
 
   (
     echo
-    if [[ -n $attachment && -f $attachment ]]; then
+    if [[ -f $attachment ]]; then
       tail -v -n 100 $attachment
     fi
   ) |
     ansifilter |
     sed -e 's,^>, >,' |
     if ! mail -s "$subject @ $name" ${MAILTO:-tinderbox} &>/var/tmp/tb/mail.log; then
-      echo "$(date) mail issue, \$subject=$subject \$attachment=$attachment" >&2
+      echo "$(date) mail issue \$subject=$subject \$attachment=$attachment" >&2
       tail -n 1 /var/tmp/tb/mail.log >&2
     fi
 }
 
 function ReachedEOL() {
-  local subject=${1:-"NO SUBJECT"}
+  local subject=${1:-"ReachedEOL: NO SUBJECT"}
   local attachment=${2-}
 
   if [[ -z $attachment ]]; then
@@ -50,26 +50,19 @@ function ReachedEOL() {
 # this is the end ...
 function Finish() {
   local rc=$?
-  set +e
+  set +eu
   trap - INT QUIT TERM EXIT
 
-  local subject
-  if [[ -z ${1-} ]]; then
-    subject="INTERNAL ERROR"
-  else
-    subject="finished"
-  fi
-  if [[ $rc -ne 0 ]]; then
-    subject+=" rc=$rc"
-  fi
-  subject+=" $(stripQuotesAndMore <<<${1-})"
-
-  Mail "$subject" ${2-}
+  local subject="finished"
   if [[ $rc -ne 0 || -z ${1-} ]]; then
+    subject="INTERNAL ERROR  rc=$rc"
     echo "$subject" >>/var/tmp/tb/STOP
   else
+    subject+=" $(stripQuotesAndMore <<<$1)"
     rm -f /var/tmp/tb/STOP
   fi
+
+  Mail "$subject" ${2-}
   exit $rc
 }
 
@@ -169,9 +162,10 @@ function CompressIssueFiles() {
 }
 
 function CreateEmergeInfo() {
-  local cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, b/c that would force alphabetical sorting
+  local cmd outfile
+  cmd="qlop --nocolor --verbose --merge --unmerge" # no --summary, b/c that would force alphabetical sorting
 
-  local outfile=$issuedir/files/emerge-history.txt
+  outfile=$issuedir/files/emerge-history.txt
   cat <<EOF >$outfile
 # This file contains the emerge history, created at $(date) by:
 # $cmd
@@ -1021,15 +1015,12 @@ function WorkOnTask() {
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
           ReachedEOL "--depclean failed" $tasklog
         fi
-      elif [[ -n $pkg ]]; then
-        if [[ $task =~ $pkg ]]; then
-          Mail "failed task '$task'due to failed '$pkg'" $tasklog
-        else
-          Mail "retry task '$task' due to failed '$pkg'" $tasklog
-          add2backlog "$task"
-        fi
       else
-        Mail "failed task '$task'" $tasklog
+        if [[ -n $pkg && ! $task =~ $pkg ]]; then
+          add2backlog "$task"
+        else
+          Mail "failed task $task ($pkg)" $tasklog
+        fi
       fi
     fi
 
@@ -1039,7 +1030,7 @@ function WorkOnTask() {
       if [[ $task =~ =$pkg ]]; then
         Mail "INFO: task failed: $task" $tasklog
       else
-        Mail "INFO: dep of task '$task' failed: $pkg" $tasklog
+        Mail "INFO: task $task pkg failed: $pkg" $tasklog
       fi
     fi
 
@@ -1230,8 +1221,8 @@ while :; do
     last_world=$(ls /var/tmp/tb/logs/task.*._world.log 2>/dev/null | tail -n 1)
     if [[ ! -f $last_world || $((EPOCHSECONDS - $(stat -c %Z $last_world))) -ge 86400 ]]; then
       /usr/bin/pfl &>/dev/null || true
-      add2backlog "@world"
       add2backlog "%smart-live-rebuild --no-color --quiet"
+      add2backlog "@world"
     fi
   fi
 
