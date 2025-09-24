@@ -17,7 +17,11 @@ function lowSpace() {
   local maxperc=${1:-75} # max used space in %
 
   local size avail
-  read -r size avail < <(df -m --sync --output=size,avail /mnt/data | tail -n 1)
+  if ! read -r size avail < <(df -m --sync --output=size,avail /mnt/data | tail -n 1); then
+    echo " internal error in lowSpace()" >&2
+    exit 1
+  fi
+
   local wanted=$((size * (100 - maxperc) / 100))
 
   ((avail < wanted))
