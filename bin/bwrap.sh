@@ -75,12 +75,12 @@ function Bwrap() {
     /usr/bin/bwrap
     --clearenv
     --setenv HOME "/root"
-    --setenv MAILTO "$(cat $(dirname $0)/../sdata/mailto)"
+    --setenv MAILTO "$(<$(dirname $0)/../sdata/mailto)"
     --setenv PATH "/usr/sbin:/usr/bin:/sbin:/bin"
     --setenv SHELL "/bin/bash"
     --setenv TERM "linux"
     --setenv USER "root"
-    --hostname "$(cat $mnt/etc/conf.d/hostname)"
+    --hostname "$(<$mnt/etc/conf.d/hostname)"
     --level-prefix
     --unshare-cgroup
     --unshare-ipc

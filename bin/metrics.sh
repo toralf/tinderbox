@@ -64,7 +64,7 @@ cd $datadir
 
 lockfile="/tmp/tb-$(basename $0).lock"
 if [[ -s $lockfile ]]; then
-  pid=$(cat $lockfile)
+  pid=$(<$lockfile)
   if kill -0 $pid &>/dev/null; then
     exit 0
   else

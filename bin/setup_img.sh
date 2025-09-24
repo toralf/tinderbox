@@ -657,7 +657,7 @@ echo "#setup $mta" | tee /var/tmp/tb/task
 emerge -u mail-mta/$mta
 rm -f /etc/ssmtp/._cfg0000_ssmtp.conf /etc/._cfg0000_msmtprc
 emerge -u mail-client/mailx
-if ! (msmtp --version 2>/dev/null || ssmtp -V 2>&1) | mail -s "$mta test @ $name" $(cat $(dirname $0)/../sdata/mailto) &>/var/tmp/mail.log; then
+if ! (msmtp --version 2>/dev/null || ssmtp -V 2>&1) | mail -s "$mta test @ $name" $(<$(dirname $0)/../sdata/mailto) &>/var/tmp/mail.log; then
   echo "\$(date) $mta test failed" >&2
   set +e
   tail -v /var/tmp/mail.log /var/log/msmtp.log >&2
@@ -1087,7 +1087,7 @@ while getopts R:a:k:p:m:M:st:u: opt; do
       echo " EOL or STOP found" >&2
       exit 3
     fi
-    name=$(cat ./var/tmp/tb/name)
+    name=$(<./var/tmp/tb/name)
     [[ $name =~ "_abi32+64" ]] && abi3264="y"
     [[ $name =~ "_test" ]] && testfeature="y"
     profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')

@@ -116,30 +116,30 @@ function listBugs() {
   <tbody>
 EOF
 
+  local d image issuedir_path issuedir_name no uri
   while read -r f; do
-    local uri=$(cat $f 2>/dev/null) # b.g.o. link
-    local no=${uri##*/}             # bug number
+    uri=$(<$f)    # b.g.o. link
+    no=${uri##*/} # bug number
     if [[ -z $no ]]; then
       continue # race with house keeping
     fi
 
     # f: /home/tinderbox/img/23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32/.reported
-    local d=${f%/*}
+    d=${f%/*}
 
     # d: /home/tinderbox/img/23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32
-    local issuedir=$(cut -f 5- -d '/' <<<$d)
+    issuedir_path=$(cut -f 5- -d '/' <<<$d)
+    issuedir_name=${d##*/}
 
-    # issuedir: 23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32
-    local image=${issuedir%%/*}
-
-    local pkg=${d##*/}
+    # issuedir_path: 23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32
+    image=${issuedir_path%%/*}
 
     cat <<EOF
   <tr>
     <td><a href="$uri">$no</a></td>
     <td>$(cut -c -$__tinderbox_bugz_title_length <$d/title | recode --quiet ascii..html)</td>
     <td><a href="./$image/">$image</a></td>
-    <td><a href="./$issuedir/">$pkg</a></td>
+    <td><a href="./$issuedir_path/">$issuedir_name</a></td>
   </tr>
 EOF
   done <<<$files

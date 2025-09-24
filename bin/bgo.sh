@@ -32,7 +32,7 @@ function append() {
 
 function create() {
   local title
-  title=$(cat ./title)
+  title=$(<./title)
 
   if [[ $name =~ "_llvm" ]]; then
     title=$(sed -e 's, - , - [llvm] ,' <<<$title)
@@ -103,7 +103,7 @@ function attach() {
 }
 
 function assign() {
-  pkgname=$(cat $issuedir/pkgname)
+  pkgname=$(<$issuedir/pkgname)
 
   read -r assignee cc <<<$(equery meta -m $pkgname | xargs)
   if [[ -z $assignee ]]; then
@@ -185,14 +185,14 @@ trap Exit INT QUIT TERM EXIT
 # cleanup of a previous run
 truncate -s 0 bgo.sh.{out,err}
 chmod a+w bgo.sh.{out,err}
-name=$(cat ../../name)
+name=$(<../../name)
 
 if [[ -n $id ]]; then
   new_bug=0
   append
 else
   if [[ -f .reported ]]; then
-    echo -e "\n already reported: $(cat .reported)\n .reported\n"
+    echo -e "\n already reported: $(<.reported)\n .reported\n"
     exit 0
   fi
 

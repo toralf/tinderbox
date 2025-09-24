@@ -133,7 +133,7 @@ function Tasks() {
     if printImageName $i && ! __is_stopped $i && [[ -s $taskfile ]]; then
 
       printTimeDiff $(stat -c %Z $taskfile)
-      local task=$(cat $taskfile)
+      local task=$(<$taskfile)
       local line
       if [[ $task =~ "@" || $task =~ "%" || $task =~ "#" ]]; then
         line="$task"

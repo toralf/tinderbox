@@ -22,7 +22,7 @@ if [[ -z $issuedir || ! -d $issuedir ]]; then
   exit 1
 fi
 if [[ -f $issuedir/.reported ]]; then
-  echo -e "\n already reported: $(cat $issuedir/.reported)\n $issuedir/.reported\n" >&2
+  echo -e "\n already reported: $(<$issuedir/.reported)\n $issuedir/.reported\n" >&2
   exit 0
 fi
 
@@ -42,7 +42,7 @@ if [[ $((EPOCHSECONDS - last_sync)) -ge $((2 * 3600)) ]]; then
   sudo /usr/sbin/emaint sync --auto
 fi
 
-name=$(cat $issuedir/../../name)                                           # e.g.: 23.0-20201022-101504
+name=$(<$issuedir/../../name)                                              # e.g.: 23.0-20201022-101504
 pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # e.g.: net-misc/bird-2.0.7-r1
 pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $pkg)                              # e.g.: net-misc/bird
 echo "$pkgname" >$issuedir/pkgname
@@ -74,7 +74,7 @@ else
   fi
 
   cat <<EOF
-    title:    $(cat $issuedir/title)
+    title:    $(<$issuedir/title)
     versions: $versions
 EOF
 

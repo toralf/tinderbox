@@ -639,7 +639,7 @@ function ReportIfNotYetDone() {
 
 EOF
 
-  Mail "$hints $(cat $issuedir/title)" $issuedir/body
+  Mail "$hints $(<$issuedir/title)" $issuedir/body
 }
 
 # analyze the issue
@@ -1151,7 +1151,7 @@ source $(dirname $0)/lib.sh
 
 export -f SwitchGCC syncRepo         # added to backlog by PostEmerge() or by retest.sh respectively
 export -f add2backlog source_profile # used by SwitchGCC()
-export name=$(cat /var/tmp/tb/name)  # the image name used by SwitchGCC()
+export name=$(</var/tmp/tb/name)     # the image name used by SwitchGCC()
 
 jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00jobs)
 if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
@@ -1185,7 +1185,7 @@ fi
 
 # non-empty if Finish() was called by an internal error -or- bashrc caught a STOP during sleep
 if [[ -s $taskfile ]]; then
-  add2backlog "$(cat $taskfile)"
+  add2backlog "$(<$taskfile)"
 fi
 
 echo "#init" >$taskfile
