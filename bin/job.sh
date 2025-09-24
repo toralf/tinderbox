@@ -801,10 +801,11 @@ function catchMisc() {
 
     # asked by xgqt
     # grep for "GiB" and take the values of "KiB"
-    read -r size_build size_install <<<$(grep -A 1 -e ' Final size of build directory: .* GiB' $stripped | grep -Eo '[0-9\.]+ KiB' | cut -f 1 -d ' ' -s | xargs)
-    if [[ -n $size_build && -n $size_install ]]; then
-      local size_sum=$(awk '{ printf ("%.1f", ($1 + $2) / 1024.0 / 1024.0) }' <<<"$size_build $size_install")
-      echo "$size_sum GiB $pkg" >>/var/tmp/big_packages.txt
+    if read -r size_build size_install <<<$(grep -A 1 -e ' Final size of build directory: .* GiB' $stripped | grep -Eo '[0-9\.]+ KiB' | cut -f 1 -d ' ' -s | xargs); then
+      if [[ -n $size_build && -n $size_install ]]; then
+        local size_sum=$(awk '{ printf ("%.1f", ($1 + $2) / 1024.0 / 1024.0) }' <<<"$size_build $size_install")
+        echo "$size_sum GiB $pkg" >>/var/tmp/big_packages.txt
+      fi
     fi
 
     # create for each finding a separate issue
@@ -1092,9 +1093,10 @@ function DetectRepeats() {
     fi
   fi
 
-  read -r count item < <(tail -n 60 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1)
-  if [[ $count -ge 10 && $item == '@preserved-rebuild' || $count -ge 20 ]]; then
-    ReachedEOL "repeated: $count x $item" $tasklog
+  if read -r count item < <(tail -n 60 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1); then
+    if [[ $count -ge 10 && $item == '@preserved-rebuild' || $count -ge 20 ]]; then
+      ReachedEOL "repeated: $count x $item" $tasklog
+    fi
   fi
 }
 
