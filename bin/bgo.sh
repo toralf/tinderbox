@@ -103,14 +103,34 @@ function attach() {
 }
 
 function assign() {
-  local assignee
-  local cc
-  assignee="$(cat ./assignee)"
+  pkgname=$(cat $issuedir/pkgname)
+
+  read -r assignee cc <<<$(equery meta -m $pkgname | xargs)
+  if [[ -z $assignee ]]; then
+    assignee="maintainer-needed@gentoo.org"
+  fi
+
+  if grep -q 'file collision with' $issuedir/title; then
+    local collision_partner
+    local collision_partner_pkgname
+    collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
+    collision_partner_pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $collision_partner)
+    if [[ -n $collision_partner_pkgname ]]; then
+      cc+=" $(equery meta -m $collision_partner_pkgname | grep '@' | xargs)"
+    fi
+
+  elif grep -q 'internal compiler error:' $issuedir/title; then
+    cc+=" toolchain@gentoo.org"
+  fi
+
+  if [[ $pkgname =~ "dotnet" ]]; then
+    cc+=" xgqt@gentoo.org"
+  fi
+
+  cc=$(xargs -n 1 <<<$cc | sort -u | grep -v "^$assignee$" | xargs)
   if [[ $name =~ "musl" && $assignee != "maintainer-needed@gentoo.org" ]] && ! grep -q -f ~tinderbox/tb/data/CATCH_MISC ./title; then
     assignee="musl@gentoo.org"
-    cc="$(cat ./assignee ./cc 2>/dev/null | xargs -n 1 | grep -v "musl@gentoo.org" | xargs)"
-  else
-    cc="$(cat ./cc 2>/dev/null || true)"
+    cc=$(grep -v "musl@gentoo.org" <<<$cc | xargs)
   fi
 
   if grep -q 'meson' ./title && ! grep -q "eschwartz@gentoo.org" ./assignee ./cc; then
@@ -176,10 +196,6 @@ else
     exit 0
   fi
 
-  if [[ ! -s ./assignee ]]; then
-    echo " no assignee given, run first check_bgo.sh" >&2
-    exit 2
-  fi
   if [[ ! -s ./title ]]; then
     echo -e "\n no title found\n" >&2
     exit 2

@@ -11,41 +11,6 @@ function Exit() {
   exit $rc
 }
 
-function SetAssigneeAndCc() {
-  local assignee
-  local cc
-  read -r assignee cc <<<$(equery meta -m $pkgname | xargs)
-  if [[ -z $assignee ]]; then
-    assignee="maintainer-needed@gentoo.org"
-  fi
-
-  if grep -q 'file collision with' $issuedir/title; then
-    local collision_partner
-    local collision_partner_pkgname
-    collision_partner=$(sed -e 's,.*file collision with ,,' $issuedir/title)
-    collision_partner_pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $collision_partner)
-    if [[ -n $collision_partner_pkgname ]]; then
-      cc+=" $(equery meta -m $collision_partner_pkgname | grep '@' | xargs)"
-    fi
-
-  elif grep -q 'internal compiler error:' $issuedir/title; then
-    cc+=" toolchain@gentoo.org"
-  fi
-
-  if [[ $pkgname =~ "dotnet" ]]; then
-    cc+=" xgqt@gentoo.org"
-  fi
-
-  echo "$assignee" >$issuedir/assignee
-  chmod a+w $issuedir/assignee
-  xargs -n 1 <<<$cc | sort -u | grep -v "^$assignee$" | xargs >$issuedir/cc
-  if [[ -s $issuedir/cc ]]; then
-    chmod a+w $issuedir/cc
-  else
-    rm -f $issuedir/cc
-  fi
-}
-
 #######################################################################
 set -euf
 export LANG=C.utf8
@@ -80,7 +45,7 @@ fi
 name=$(cat $issuedir/../../name)                                           # e.g.: 23.0-20201022-101504
 pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # e.g.: net-misc/bird-2.0.7-r1
 pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $pkg)                              # e.g.: net-misc/bird
-SetAssigneeAndCc
+echo "$pkgname" >$issuedir/pkgname
 
 if [[ ! -s $issuedir/title ]]; then
   echo -e "\n no title found\n" >&2
@@ -111,7 +76,6 @@ else
   cat <<EOF
     title:    $(cat $issuedir/title)
     versions: $versions
-    devs:     $(cat $issuedir/{assignee,cc} 2>/dev/null | xargs)
 EOF
 
   if [[ $# -eq 1 ]]; then
