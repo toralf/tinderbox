@@ -32,7 +32,13 @@ function __is_crashed() {
 function getStartTime() {
   local img=~tinderbox/img/$(basename $1)
 
-  cat $img/var/tmp/tb/setup.timestamp 2>/dev/null || stat -c %Z $img
+  [[ -d $img ]]
+
+  if ! cat $img/var/tmp/tb/setup.timestamp 2>/dev/null; then
+    if ! stat -c %Z $img/mnt 2>/dev/null; then
+      stat -c %Z $img
+    fi
+  fi
 }
 
 # list if locked and/or symlinked and/or have a cgroup

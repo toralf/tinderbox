@@ -268,6 +268,9 @@ function InitImageFromStage3() {
     echo "$(date)   failed"
     return 1
   fi
+
+  # the directory has yet the timestamp of the stage3
+  touch ~tinderbox/img/$name
 }
 
 # prefer git over rsync
