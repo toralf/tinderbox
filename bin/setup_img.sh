@@ -1095,6 +1095,7 @@ while getopts R:a:k:p:m:M:st:u: opt; do
     [[ $name =~ "_test" ]] && testfeature="y"
     profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
     start_it="y"
+
     CompileEnvFiles
     CompileUseFlagFiles
     Finalize
