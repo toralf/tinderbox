@@ -669,9 +669,12 @@ fi
 
 date
 echo "#setup tools" | tee /var/tmp/tb/task
-emerge -u app-arch/xz-utils app-portage/eschwartz-dev-scripts app-portage/smart-live-rebuild app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode www-client/pybugz
+USE="-doc -gui -network-cron -qmanifest" emerge -u app-arch/xz-utils app-portage/smart-live-rebuild app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode www-client/pybugz
+if [[ $keyword == "~amd64" ]]; then
+  emerge -u app-portage/eschwartz-dev-scripts
+fi
 
-if [[ "$cflags" =~ " -g" ]]; then
+if [[ "$cflags" =~ " -g " ]]; then
   date
   echo "#setup debug" | tee /var/tmp/tb/task
   emerge -u dev-util/debugedit
