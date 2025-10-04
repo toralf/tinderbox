@@ -105,6 +105,8 @@ function attach() {
 function assign() {
   pkgname=$(<$issuedir/pkgname)
 
+  local assignee cc add_cc
+
   read -r assignee cc <<<$(equery meta -m $pkgname | xargs)
   if [[ -z $assignee ]]; then
     assignee="maintainer-needed@gentoo.org"
@@ -133,11 +135,11 @@ function assign() {
     cc=$(grep -v "musl@gentoo.org" <<<$cc | xargs)
   fi
 
-  if grep -q 'meson' ./title && ! grep -q "eschwartz@gentoo.org" ./assignee ./cc; then
+  if grep -q 'meson' ./title && ! grep -q "eschwartz@gentoo.org" <(echo $assignee $cc); then
     cc+=" eschwartz@gentoo.org"
   fi
 
-  local add_cc=""
+  add_cc=
   if [[ -n $cc ]]; then
     add_cc=$(sed 's,  *, --add-cc ,g' <<<" $cc") # leading space is needed
   fi
