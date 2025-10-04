@@ -3,3 +3,4 @@ GCC requires sys-devel/gcc with USE=objc
 gnat-gpl-2021 does not build with clang. It is bootstrapped.
 Please switch to a version of sys-devel/gcc built with USE=graphite, or use a different compiler.
 The locale en_US.utf8 or en_US.UTF-8 is not available.
+CONFIG_.*:.*is not set when it should be

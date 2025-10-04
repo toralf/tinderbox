@@ -33,16 +33,15 @@ ln: failed to create symbolic link .*: File exists
 Segmentation fault \* Package .* has internal collisions
  \* Package .* has internal collisions
  \* Package .* NOT merged
-^Error:
+^Error: .*
 fatal error:
 : error:
 sed:.*expression.*unknown option
 sed.*failed
-^ERROR:
 .:.*: Error:
 error: .
 Please fix the ebuild to use correct FHS/Gentoo policy paths
-^ERROR
+^ERROR .*
 ^FAILED:
 Error . shuffle=.*
  \*   .* failed

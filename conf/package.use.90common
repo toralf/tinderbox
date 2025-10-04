@@ -59,9 +59,6 @@ sys-apps/util-linux                 pam
 # 2x faster compile
 */*                                 jumbo-build
 
-# too much deps otherwise during setup
-app-portage/pfl                     -network-cron
-
 # needs days instead seconds
 dev-libs/gf2x                       -custom-tune
 

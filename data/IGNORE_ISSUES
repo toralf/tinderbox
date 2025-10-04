@@ -2,6 +2,8 @@ Active compiler does not have required support for OpenMP
 ada compiler not available
 asciidoctor.*LoadError
 AttributeError: Config object has no attribute _cleanup. Did you mean: add_cleanup
+CONFIG_.*:.*is not set when it should be
+Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
 Could not find pg_config for
 Could not switch to the en_US.UTF-8 locale.
