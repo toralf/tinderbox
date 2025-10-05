@@ -24,3 +24,6 @@ virtual/jre:25                                     **   # DICE: [jdk25] 1 4
 
 # flow
 =sys-apps/portage-9999                             **   # DICE: [portage-9999] 1 4
+
+# arthurzam
+=dev-lang/nasm-3*                                  **   # DICE: [nasm-3] 1 1
