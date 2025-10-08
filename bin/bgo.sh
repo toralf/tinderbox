@@ -44,7 +44,7 @@ function create() {
     grep -hr -v "^#" ../../../../../etc/portage/package.{accept_keywords,unmask}/ |
       grep "# DICE.*\[.*\]" |
       grep -Eo '(\[.*\])' |
-      sort -u
+      sort -ur
   )
 
   $__tinderbox_bugz_timeout_wrapper post \
