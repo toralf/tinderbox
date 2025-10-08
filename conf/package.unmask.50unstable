@@ -17,4 +17,4 @@
 =sys-apps/portage-9999                                  # DICE: [portage-9999] 1 4
 
 # arthurzam
-=dev-lang/nasm-3*                                       # DICE: [nasm-3] 1 1
+=dev-lang/nasm-3*                                       # DICE: [nasm-3] 1 4

@@ -5,6 +5,8 @@ dosym target omits basename:
 econf called in .* instead of
 inherited illegally
 Need at least JDK 9 to compile
+: No space left on device
+OSError: .* No space left on device
 No such file or directory: which
 One or more CMake variables were not used by the project
 pkgconf: --modversion requested with multiple packages, output would be ambiguous

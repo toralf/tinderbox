@@ -27,3 +27,6 @@ Requested by Portage developer team
 
 [nasm-3]
 Requested by arthurzam
+
+[which]
+which hunt bug 646588

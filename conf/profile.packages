@@ -2,4 +2,4 @@
 #
 
 # _ sam
--*sys-apps/which                                        # DICE: which
+-*sys-apps/which                                        # DICE: [which] 1 4

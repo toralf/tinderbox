@@ -1,5 +1,6 @@
 : No space left on device
 Downgrading glibc is not supported and a sure way to destruction.
  Killed signal terminated program
+OSError: .* No space left on device
 Please switch back to your last valid profile setting
 Your profile is of type split-usr, but your directories
