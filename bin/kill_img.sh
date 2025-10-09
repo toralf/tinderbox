@@ -10,6 +10,7 @@ function killPid() {
   echo
   COLUMNS=10000 ps faux &>~tinderbox/img/$img/var/tmp/tb/ps-faux.log
   pstree -UlnspuTa $pid |
+    tee -a ~tinderbox/img/$img/var/tmp/tb/EOL |
     head -n 20 |
     cut -c 1-140
 
