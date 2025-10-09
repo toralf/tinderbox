@@ -21,7 +21,7 @@ if [[ $# -eq 1 ]]; then
   nsenter -t $child -a -r \
     bash
 else
-  # if $2 is "" or an int then get a gdb bt, a "0" nly dumps the namespace process table
+  # if $2 is "" or a pid then create a gdb bt,  with a "0" just the namespace process table is dumped
   out=/tmp/$(basename $0).log
   truncate -s 0 $out
 
