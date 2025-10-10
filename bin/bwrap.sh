@@ -44,9 +44,9 @@ function CreateCgroup() {
   echo "$((100 * jobs))" >$name/cpu.weight
   echo "$((100000 * jobs))" >$name/cpu.max
 
+  # GiB
   local ram=$((4 * jobs + 1))
   echo "${ram}G" >$name/memory.max
-  # SWAP: 2x RAM
   echo "$((2 * ram))G" >$name/memory.swap.max
 }
 
