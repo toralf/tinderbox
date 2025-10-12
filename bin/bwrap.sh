@@ -44,10 +44,10 @@ function CreateCgroup() {
   echo "$((100 * jobs))" >$name/cpu.weight
   echo "$((100000 * jobs))" >$name/cpu.max
 
-  # GiB
-  local ram=$((4 * jobs + 1))
+  # GiB, 4 GiB is too low and yields to OOM, e.g. for lto / zed
+  local ram=$((8 * jobs + 1))
   echo "${ram}G" >$name/memory.max
-  echo "$((2 * ram))G" >$name/memory.swap.max
+  echo "50G" >$name/memory.swap.max
 }
 
 function RemoveCgroup() {
@@ -96,7 +96,6 @@ function Bwrap() {
     --perms 0755 --tmpfs /run
     --ro-bind /sys /sys
     --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
-    --size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage
     --bind ~tinderbox/distfiles /var/cache/distfiles
     --ro-bind ~tinderbox/tb/data /mnt/tb/data
     --bind ~tinderbox/tb/findings /mnt/tb/findings
@@ -107,6 +106,13 @@ function Bwrap() {
   )
   if [[ -n $entrypoint ]]; then
     sandbox+=(--new-session)
+  fi
+  if [[ ! -f $mnt/var/tmp/tb/NO_TMPFS_FOR_PORTAGE ]]; then
+    if grep -q -F " -g " $mnt/etc/portage/make.conf; then
+      sandbox+=(--size $((2 ** 36)) --perms 1777 --tmpfs /var/tmp/portage)
+    else
+      sandbox+=(--size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage)
+    fi
   fi
   sandbox+=(/bin/bash -l)
 

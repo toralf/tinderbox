@@ -53,15 +53,17 @@ function InitOptions() {
   testfeature="n"
   useconfigof=""
 
-  # support debug_img.sh
+  # play with -O2
   if dice 1 8; then
-    cflags=$(sed -e 's,-O2,-Og -g -ggdb,' <<<$cflags)
-  fi
-
-  # sam_
-  if dice 1 8; then
-    flavour=$(echo 3 s z | xargs -n 1 | shuf -n 1)
-    cflags=$(sed -e "s,-O2,-O$flavour," <<<$cflags)
+    if dice 1 2; then
+      # used by debug_img.sh
+      local debug_flavour=$(echo 1 gdb gdb3 | xargs -n 1 | shuf -n 1)
+      cflags=$(sed -e "s,-O2,-Og -g -g$debug_flavour," <<<$cflags)
+    else
+      # sam_
+      local opt_flavour=$(echo 3 s z | xargs -n 1 | shuf -n 1)
+      cflags=$(sed -e "s,-O2,-O$opt_flavour," <<<$cflags)
+    fi
   fi
 
   if dice 1 20; then
@@ -430,10 +432,6 @@ FCFLAGS="\${CFLAGS}"
 FFLAGS="\${CFLAGS}"
 
 EOF
-
-  # if persistent build dir is wanted
-  mkdir ./var/tmp/notmpfs
-  echo 'PORTAGE_TMPDIR=/var/tmp/notmpfs' >./etc/portage/env/notmpfs
 
   # "j1" is the fallback for packages failing in parallel build
   for j in 1 $jobs; do

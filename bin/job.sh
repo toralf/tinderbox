@@ -252,13 +252,6 @@ function CollectIssueFiles() {
     # ICE
     cp $workdir/../gcc-build-logs.tar.* $issuedir/files 2>/dev/null || true
   fi
-
-  if grep -q "^$pkgname$" /mnt/tb/data/KEEP_BUILD_ARTEFACTS; then
-    find $workdir/.. -ls 2>&1 | xz >$issuedir/files/var-tmp-portage.filelist.txt.xz
-    $tar --warning=none -C /var/tmp/portage/ -cJpf $issuedir/files/var-tmp-portage.tar.xz .
-    Mail "INFO: kept artefacts in $issuedir" $tasklog_stripped
-    echo "kept artefacts in $issuedir" >>/var/tmp/tb/KEEP
-  fi
 }
 
 function collectPortageFiles() {
@@ -1242,7 +1235,6 @@ while :; do
     Mail "NOTICE: error while compressing logs" $tasklog
   fi
 
-  # intentionally keep /var/tmp/notmpfs
   rm -rf /var/tmp/portage/* # "-f" needed if e.g. "pretend" or "fetch" phase failed
 
   echo "#detecting repeats" >$taskfile
