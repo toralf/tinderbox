@@ -54,7 +54,7 @@ function InitOptions() {
   useconfigof=""
 
   # play with -O2
-  if dice 1 8; then
+  if dice 1 4; then
     if dice 1 2; then
       # used by debug_img.sh
       local debug_flavour=$(echo 1 gdb gdb3 | xargs -n 1 | shuf -n 1)
