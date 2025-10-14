@@ -109,9 +109,9 @@ function Bwrap() {
   fi
   if [[ ! -f $mnt/var/tmp/tb/NO_TMPFS_FOR_PORTAGE ]]; then
     if grep -q -F " -g " $mnt/etc/portage/make.conf; then
-      sandbox+=(--size $((2 ** 36)) --perms 1777 --tmpfs /var/tmp/portage)
+      sandbox+=(--size $((64 * 2 ** 30)) --perms 1777 --tmpfs /var/tmp/portage)
     else
-      sandbox+=(--size $((2 ** 35)) --perms 1777 --tmpfs /var/tmp/portage)
+      sandbox+=(--size $((32 * 2 ** 30)) --perms 1777 --tmpfs /var/tmp/portage)
     fi
   fi
   sandbox+=(/bin/bash -l)
