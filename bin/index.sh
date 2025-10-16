@@ -167,6 +167,7 @@ tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 <html>
 <head>
   <meta http-equiv="refresh" content="300">
+  <meta name="color-scheme" content="dark">
 </head>
 
 <body>
