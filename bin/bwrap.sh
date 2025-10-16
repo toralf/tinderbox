@@ -10,7 +10,7 @@ function CreateCgroup() {
     if mkdir $cgdomain 2>/dev/null; then
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-      # reserve 5 of 32 vCPU for non-tinderboxing tasks (e.g. AFL++ for OpenSSL and Tor)
+      # reserve 5 of 32 vCPU for non-tinderboxing tasks
       echo "$((27 * 100))" >$cgdomain/cpu.weight
       echo "$((27 * 100000))" >$cgdomain/cpu.max
       echo "110G" >$cgdomain/memory.max
@@ -34,20 +34,22 @@ function CreateCgroup() {
   fi
   echo "$$" >$name/cgroup.procs
 
+  # 1 vCPU per job
   local jobs=$(sed 's,^.*j,,' $mnt/etc/portage/package.env/00jobs)
   if [[ ! $jobs =~ ^[0-9]+$ ]]; then
     echo " jobs is invalid: '$jobs', set to 1" >&2
     jobs=1
   fi
-
-  # 1 vCPU per job
   echo "$((100 * jobs))" >$name/cpu.weight
   echo "$((100000 * jobs))" >$name/cpu.max
 
-  # GiB, 4 GiB is too low and yields to OOM, e.g. for lto / zed
-  local ram=$((8 * jobs + 1))
-  echo "${ram}G" >$name/memory.max
-  echo "50G" >$name/memory.swap.max
+  # debug info files consume a lot of disk space, being portage on a tmpfs means be add it to the RAM limit
+  if grep -q -F " -g " $mnt/etc/portage/make.conf; then
+    echo "64G" >$name/memory.max
+  else
+    echo "32G" >$name/memory.max
+  fi
+  echo "64G" >$name/memory.swap.max
 }
 
 function RemoveCgroup() {
