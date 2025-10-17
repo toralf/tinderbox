@@ -17,7 +17,7 @@ result=/tmp/$(basename $0) # hold package(s) to be scheduled
 
 # special atoms
 xargs -n 1 <<<$* |
-  grep -e '^%' |
+grep -e '^%' |
   sort -u >$result.special
 if [[ -s $result.special ]]; then
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
@@ -34,7 +34,7 @@ rm $result.special
 
 # regular packages
 xargs -n 1 <<<$* |
-  grep -v -e '^%' |
+grep -v -e '^%' |
   xargs -r -n 1 |
   sort -u |
   while read -r atom; do
