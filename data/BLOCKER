@@ -88,3 +88,11 @@ error:.*AV|error:.*FF_|AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVM
 # [TRACKER] breakage with nasm-3"
 963809
 nasm|asm.*expression syntax error
+
+# [Tracker] Breakage with a future dev-build/cmake version dropping compatibility with cmake_minimum_required version <3.10
+964405
+Compatibility with CMake < 3.10 will be removed in a future release.
+
+# [Tracker] Breakage with a future kde-frameworks/extra-cmake-modules version dropping compatibility with cmake_minimum_required version <3.16
+964407
+Compatibility w/ CMake < 3.16 will be removed in future ECM release.
