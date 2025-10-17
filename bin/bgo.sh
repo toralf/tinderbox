@@ -103,8 +103,6 @@ function attach() {
 }
 
 function assign() {
-  pkgname=$(<$issuedir/pkgname)
-
   local assignee cc add_cc
 
   read -r assignee cc <<<$(equery meta -m $pkgname | xargs)
@@ -183,6 +181,10 @@ if [[ ! -s emerge-info.txt ]]; then
 fi
 
 trap Exit INT QUIT TERM EXIT
+
+name=$(<$issuedir/../../name)                                              # e.g.: 23.0-20201022-101504
+pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # e.g.: net-misc/bird-2.0.7-r1
+pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $pkg)                              # e.g.: net-misc/bird
 
 # cleanup of a previous run
 truncate -s 0 bgo.sh.{out,err}

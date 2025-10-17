@@ -45,7 +45,6 @@ fi
 name=$(<$issuedir/../../name)                                              # e.g.: 23.0-20201022-101504
 pkg=$(basename $(realpath $issuedir) | cut -f 3- -d '-' -s | sed 's,_,/,') # e.g.: net-misc/bird-2.0.7-r1
 pkgname=$(qatom -CF "%{CATEGORY}/%{PN}" $pkg)                              # e.g.: net-misc/bird
-echo "$pkgname" >$issuedir/pkgname
 
 if [[ ! -s $issuedir/title ]]; then
   echo -e "\n no title found\n" >&2
