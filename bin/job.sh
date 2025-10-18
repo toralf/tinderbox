@@ -582,7 +582,7 @@ function ReportIfNotYetDone() {
   if grep -q -F -f $issuedir/title /mnt/tb/findings/ALREADY_CAUGHT; then
     return 0
   else
-    # tee avoids concurrent writes of tinderbox images at the same time
+    # tee avoids concurrent writes to the same file
     cat $issuedir/title | tee -a /mnt/tb/findings/ALREADY_CAUGHT 1>/dev/null
   fi
 
@@ -600,8 +600,8 @@ function ReportIfNotYetDone() {
   echo -e "\n\n" >>$issuedir/body
   chmod a+w $issuedir/body
 
-  local hints="bug"
   local force=""
+  local hints="bug"
 
   if checkBgo &>>$issuedir/body; then
     if SearchForSameIssue $pkg $pkgname $issuedir 1>>$issuedir/body; then
