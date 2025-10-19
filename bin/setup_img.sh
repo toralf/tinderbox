@@ -1013,6 +1013,7 @@ EOF
   rm -f ./var/tmp/tb/logs/dryrun{,.*-*}.log
   local drylog=./var/tmp/tb/logs/dryrun.log
 
+  # rerun with same USE flags at a new system
   if [[ -n $useconfigof ]]; then
     if [[ $(realpath ~tinderbox/img/$useconfigof) != $(realpath .) ]]; then
       for i in accept_keywords env mask unmask use; do
@@ -1025,6 +1026,14 @@ EOF
     fi
   fi
 
+  # try without any thrown flags
+  if dice 1 20; then
+    if FixPossibleUseFlagIssues 0; then
+      return 0
+    fi
+  fi
+
+  # go wild
   for attempt in $(seq -w 1 99); do
     echo
     date
