@@ -1019,11 +1019,14 @@ EOF
       for i in accept_keywords env mask unmask use; do
         cp ~tinderbox/img/$useconfigof/etc/portage/package.$i/* ./etc/portage/package.$i/
       done
-      if FixPossibleUseFlagIssues 0; then
-        return 0
-      fi
-      return 125
+    else
+      echo "cannot use from myself !" >&2
+      return 1
     fi
+    if FixPossibleUseFlagIssues 0; then
+      return 0
+    fi
+    return 125
   fi
 
   # try without any thrown flags
