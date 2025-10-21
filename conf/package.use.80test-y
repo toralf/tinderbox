@@ -10,6 +10,9 @@ app-crypt/gnupg                     tofu
 app-misc/jq                         oniguruma
 app-misc/pax-utils                  python
 dev-db/mariadb                      extra-engine
+dev-java/ant                        bsf
+dev-java/jflex                      ant-task
+dev-java/qdox                       ant-task
 dev-libs/libzip                     ssl tools
 dev-libs/simdjson                   tools
 dev-libs/thrift                     libevent ssl
@@ -19,23 +22,26 @@ media-libs/gd                       png
 media-libs/qhull                    tools
 media-libs/soxr                     examples
 media-libs/tiff                     jpeg
-net-nds/openldap                    -minimal
 net-firewall/iptables               conntrack nftables
 net-misc/networkmanager             tools
-net-nds/openldap                    cleartext debug sasl
+net-nds/openldap                    cleartext debug -minimal sasl
 sys-libs/libblockdev                introspection lvm
 x11-libs/wxGTK                      tiff
 
 
 #######################################################################
 #
-# avoid circ dep
+# circ dep
 #
 sys-libs/libnbd                     -go
 
 
 #######################################################################
 #
-# helps almost
+# helps
 #
+dev-qt/qtmultimedia                 qml
+dev-qt/qttools                      -designer
+media-gfx/imagemagick               truetype
+media-libs/libmetalink              expat -xml
 x11-base/xorg-server                xvfb
