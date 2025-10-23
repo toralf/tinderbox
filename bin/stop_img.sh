@@ -31,5 +31,5 @@ for i in ${@:-$(ls ~tinderbox/run/)}; do
     continue
   fi
 
-  echo " $(date +%T) trigger stop of $mnt" | tee -a $mnt/var/tmp/tb/STOP
+  echo " $(date +%T) stop triggered for $mnt" | tee -a $mnt/var/tmp/tb/STOP
 done
