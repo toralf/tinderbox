@@ -106,9 +106,6 @@ function Bwrap() {
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
     --info-fd 11
   )
-  if [[ -n $entrypoint ]]; then
-    sandbox+=(--new-session)
-  fi
   if [[ ! -f $mnt/var/tmp/tb/NO_TMPFS_FOR_PORTAGE ]]; then
     if grep -q -F " -g " $mnt/etc/portage/make.conf; then
       sandbox+=(--size $((64 * 2 ** 30)) --perms 1777 --tmpfs /var/tmp/portage)
@@ -116,8 +113,12 @@ function Bwrap() {
       sandbox+=(--size $((32 * 2 ** 30)) --perms 1777 --tmpfs /var/tmp/portage)
     fi
   fi
-  sandbox+=(/bin/bash -l)
 
+  if [[ -n $entrypoint ]]; then
+    sandbox+=(--new-session)
+  fi
+
+  sandbox+=(/bin/bash -l)
   (
     if [[ -n $entrypoint ]]; then
       "${sandbox[@]}" "-c" "/root/entrypoint"
