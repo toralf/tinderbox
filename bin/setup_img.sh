@@ -562,8 +562,7 @@ EOF
     # [11:27:13 pm] <@dilfridge> switching from/to hardened, and switching from multilib to non-multilib, yes
     # [11:27:31 pm] <@dilfridge> switching from non-multilib to multilib, NO
     cat <<EOF >>$bl.1st
-%emerge -e @world
-sys-kernel/gentoo-kernel-bin
+%emerge -e @world sys-kernel/gentoo-kernel-bin
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 EOF
   else
