@@ -57,11 +57,11 @@ function InitOptions() {
   if dice 1 6; then
     if dice 1 3; then
       # used by debug_img.sh
-      local debug_flavour=$(echo 1 gdb gdb3 | xargs -n 1 | shuf -n 1)
+      local debug_flavour=$(xargs -n 1 <<<"1 gdb gdb3" | shuf -n 1)
       cflags=$(sed -e "s,-O2,-Og -g -g$debug_flavour," <<<$cflags)
     else
       # sam_
-      local opt_flavour=$(echo 3 s z | xargs -n 1 | shuf -n 1)
+      local opt_flavour=$(xargs -n 1 <<<"3 s z" | shuf -n 1)
       cflags=$(sed -e "s,-O2,-O$opt_flavour," <<<$cflags)
     fi
   fi
