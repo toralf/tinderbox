@@ -8,10 +8,9 @@
 <sys-devel/gcc-16.0.9999:16                        **   # DICE: [gcc-16] 1 3
 
 # gentoo@pogatzki.net
-dev-java/openjdk:25                                **   # DICE: [jdk25] 1 6
-dev-java/openjdk-bin:25                            **   # DICE: [jdk25] 1 6
-virtual/jdk:25                                     **   # DICE: [jdk25] 1 6
-virtual/jre:25                                     **   # DICE: [jdk25] 1 6
+dev-java/openjdk:26                                **   # DICE: [jdk26] 1 6
+dev-java/openjdk-bin:26                            **   # DICE: [jdk26] 1 6
+virtual/jdk:26                                     **   # DICE: [jdk26] 1 6
 
 # holgerh
 =dev-libs/boost-1.89*                              **   # DICE: [boost-1.89] 1 6

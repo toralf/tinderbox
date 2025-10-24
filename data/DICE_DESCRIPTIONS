@@ -1,23 +1,17 @@
 [meson]
 Please re-assign to ztrawhcse@ if it works with regular meson.
 
-[gettext25]
-Requested by sam
-
 [gcc-16]
 Requested by sam
 
 [jdk25]
 Requested by gentoo@pogatzki.net
 
-[perl5.42]
-Requested by dilfridge
+[jdk26]
+Requested by gentoo@pogatzki.net
 
 [ffmpeg8]
 Requested by ionen
-
-[gcc-14]
-test every then and when a stable GCC at an unstable image
 
 [boost-1.89]
 Requested by holgerh
@@ -27,6 +21,3 @@ Requested by Portage developer team
 
 [nasm-3]
 Requested by arthurzam
-
-[which]
-which hunt bug 646588
