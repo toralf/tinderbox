@@ -696,16 +696,16 @@ function SwitchGCC() {
   fi
 
   if [[ $current != "$highest" ]]; then
+    local v
+    v=$(gcc -dumpversion)
+    if [[ -z $v ]]; then
+      ReachedEOL "cannot dump GCC version, current=$current"
+    fi
+
     if ! NO_COLOR=1 gcc-config $highest; then
       ReachedEOL "cannot switch GCC profile from $current to $highest"
     fi
     source_profile
-
-    local v
-    v=$(gcc -dumpversion)
-    if [[ -z $v ]]; then
-      ReachedEOL "cannot dump GCC version, highest=$highest"
-    fi
 
     add2backlog "%emerge -1 --selective=n --deep=0 -u dev-build/libtool"
     if [[ ! $highest =~ -${v}$ ]]; then
