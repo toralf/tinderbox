@@ -1,23 +1,20 @@
 [meson]
 Please re-assign to ztrawhcse@ if it works with regular meson.
 
-[gcc-16]
-Requested by sam
+[ffmpeg8]
+Requested by ionen
 
-[jdk25]
-Requested by gentoo@pogatzki.net
+[gcc-16]
+Requested by sam_
 
 [jdk26]
 Requested by gentoo@pogatzki.net
 
-[ffmpeg8]
-Requested by ionen
-
-[boost-1.89]
-Requested by holgerh
-
-[portage-9999]
-Requested by Portage developer team
+[meson]
+Requested by ztrawhcse
 
 [nasm-3]
 Requested by arthurzam
+
+[portage-9999]
+Requested by Portage developer team
