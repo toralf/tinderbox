@@ -1151,28 +1151,6 @@ function syncRepo() {
 set -eu
 export LANG=C.utf8
 
-if [[ -x "$(command -v gtar)" ]]; then
-  tar=gtar
-else
-  tar=tar # hopefully this handles "--warning=none" too
-fi
-
-source $(dirname $0)/lib.sh
-
-export -f SwitchGCC syncRepo                    # added to backlog by PostEmerge() or by retest.sh
-export -f add2backlog source_profile ReachedEOL # used by functions exported
-export name=$(</var/tmp/tb/name)                # image name, used eventually in an exported function
-
-jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00jobs)
-if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
-  keyword="unstable"
-else
-  keyword="stable"
-fi
-taskfile=/var/tmp/tb/task                  # the current task
-tasklog=$taskfile.log                      # holds output of it
-tasklog_stripped=/tmp/tasklog_stripped.log # filtered plain text variant
-
 export CARGO_TERM_COLOR="never"
 export CMAKE_COLOR_DIAGNOSTICS="OFF"
 export CMAKE_COLOR_MAKEFILE="OFF"
@@ -1187,13 +1165,43 @@ export TERMINFO=/etc/terminfo
 export GIT_PAGER="cat"
 export PAGER="cat"
 
+source $(dirname $0)/lib.sh
+
+# added to backlog by PostEmerge() or by retest.sh
+export -f SwitchGCC syncRepo
+# used by exported functions
+export -f add2backlog source_profile Finish ReachedEOL
+# used by exported functions eventually
+export name=$(</var/tmp/tb/name) # image name
+export taskfile=/var/tmp/tb/task # the current task
+export tasklog=$taskfile.log     # holds the output
+
+jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00jobs)
 export XZ_OPT="-9 -T$jobs"
 
 if [[ $name =~ "_test" ]]; then
   export XRD_LOGLEVEL="Debug"
 fi
 
-# non-empty if Finish() was called by an internal error -or- bashrc caught a STOP during sleep
+if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
+  keyword="unstable"
+else
+  keyword="stable"
+fi
+tasklog_stripped=/tmp/tasklog_stripped.log # plain text. no colour or other escape sequences
+
+if [[ -x "$(command -v gtar)" ]]; then
+  tar=gtar
+else
+  tar=tar # hopefully this handles "--warning=none" too
+fi
+
+#######################################################################
+#
+# go on
+#
+
+# taskfile is non-empty if Finish() was called by an internal error -or- bashrc caught a STOP during sleep
 if [[ -s $taskfile ]]; then
   add2backlog "$(<$taskfile)"
 fi
