@@ -461,7 +461,7 @@ EOF
     grep --color=never -e "^CC=" -e "^CXX=" -e "^GNUMAKEFLAGS" /etc/portage/make.conf
     grep --color=never -e "^GENTOO_VM=" -e "^JAVACFLAGS=" $tasklog_stripped
     echo "gcc-config -l:"
-    gcc-config -l --nocolor
+    NO_COLOR=1 gcc-config -l
     clang --version | head -n 1
     echo -n "llvm-config: "
     llvm-config --version
@@ -684,18 +684,35 @@ function source_profile() {
 }
 
 function SwitchGCC() {
-  local highest=$(gcc-config --list-profiles --nocolor | cut -f 3 -d ' ' -s | grep -E 'x86_64-(pc|gentoo)-linux-(gnu|musl)-[0-9]+$' | tail -n 1)
+  local highest=$(NO_COLOR=1 gcc-config --list-profiles | grep -Eo 'x86_64-(pc|gentoo)-linux-(gnu|musl)-[0-9]+' | tail -n 1)
   if [[ -z $highest ]]; then
-    ReachedEOL "cannot get GCC version"
+    ReachedEOL "cannot get highest possible GCC profile"
   fi
 
-  if [[ $(gcc-config --get-current-profile --nocolor) != "$highest" ]]; then
+  local current
+  current=$(NO_COLOR=1 gcc-config --get-current-profile)
+  if [[ -z $current ]]; then
+    ReachedEOL "cannot get current GCC profile"
+  fi
+
+  if [[ $current != "$highest" ]]; then
+    if ! NO_COLOR=1 gcc-config $highest; then
+      ReachedEOL "cannot switch GCC profile from $current to $highest"
+    fi
+    source_profile
+
     local v
     v=$(gcc -dumpversion)
-    gcc-config --nocolor $highest
-    source_profile
+    if [[ -z $v ]]; then
+      ReachedEOL "cannot dump GCC version, highest=$highest"
+    fi
+
     add2backlog "%emerge -1 --selective=n --deep=0 -u dev-build/libtool"
-    add2backlog "%emerge --unmerge sys-devel/gcc:$(cut -f 1 -d '.' <<<$v)"
+    if [[ ! $highest =~ -${v}$ ]]; then
+      add2backlog "%emerge --unmerge sys-devel/gcc:$v"
+    else
+      ReachedEOL "unexpected GCC version, highest=$highest, v=$v"
+    fi
   fi
 }
 
@@ -1142,9 +1159,9 @@ fi
 
 source $(dirname $0)/lib.sh
 
-export -f SwitchGCC syncRepo         # added to backlog by PostEmerge() or by retest.sh respectively
-export -f add2backlog source_profile # used by SwitchGCC()
-export name=$(</var/tmp/tb/name)     # the image name used by SwitchGCC()
+export -f SwitchGCC syncRepo                    # added to backlog by PostEmerge() or by retest.sh
+export -f add2backlog source_profile ReachedEOL # used by functions exported
+export name=$(</var/tmp/tb/name)                # image name, used eventually in an exported function
 
 jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00jobs)
 if grep -q '^ACCEPT_KEYWORDS=.*~amd64' /etc/portage/make.conf; then
