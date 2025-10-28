@@ -38,7 +38,7 @@ function ReachedEOL() {
   fi
 
   echo "$subject" >>/var/tmp/tb/EOL
-  chmod a+w /var/tmp/tb/EOL
+  chmod g+w /var/tmp/tb/EOL
   truncate -s 0 $taskfile
   local new=$(ls /var/tmp/tb/issues/*/.reported 2>/dev/null | wc -l)
   local all=$(ls -d /var/tmp/tb/issues/* 2>/dev/null | wc -l)
