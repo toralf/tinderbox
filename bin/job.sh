@@ -1235,7 +1235,10 @@ ulimit -Hn 512000
 ulimit -Sn 512000
 
 if [[ $name =~ "_systemd" ]]; then
-  systemd-tmpfiles --create &>/dev/null # fchownat() of /sys/... failed: Read-only file system
+  # avoid: fchownat() of /sys/... failed: Read-only file system
+  if ! systemd-tmpfiles --create &>$tasklog; then
+    ReachedEOL "tmpfiles issue" $tasklog
+  fi
 fi
 
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
