@@ -896,11 +896,10 @@ function SetPkgFromTaskLog() {
 function RunAndCheck() {
   set +e
   if [[ $1 =~ "SwitchGCC" ]]; then
-    # must not be run in a subshell because /etc/profile might be sourced
-    SwitchGCC
+    # has to be run in the current shell because /etc/profile might be sourced
+    SwitchGCC >>$tasklog
   else
-    # use a bash subshell to avoid any environment polution
-    # the 48 hours are calculated for -j 4
+    # avoid any environment polution, the 48 hours are calculated for -j 4
     timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
   fi
   local rc=$?
