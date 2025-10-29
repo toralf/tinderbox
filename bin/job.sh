@@ -1251,7 +1251,7 @@ while :; do
   fi
 
   # sync repository hourly
-  if [[ $((EPOCHSECONDS - last_sync)) -ge 3600 ]]; then
+  if ((EPOCHSECONDS - last_sync > 3600 )); then
     echo "#syncing repo" >$taskfile
     syncRepo
   fi
