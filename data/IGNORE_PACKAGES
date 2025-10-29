@@ -84,3 +84,6 @@ dev-util/ragel
 #
 sci-libs/cholmod
 sci-libs/suitesparse
+#
+# hangs
+net-misc/rabbitmq-server

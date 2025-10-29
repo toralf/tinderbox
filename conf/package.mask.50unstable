@@ -1,5 +1,2 @@
 # package.mask/50unstable
 #
-
-# hangs
-net-misc/rabbitmq-server
