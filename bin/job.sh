@@ -257,7 +257,9 @@ function CollectIssueFiles() {
 function collectPortageFiles() {
   tar -C / -cJpf $issuedir/files/etc.portage.tar.xz --dereference etc/portage
   (
-    cd ./var/db/pkg
+    set -eu
+
+    cd /var/db/pkg
     files=$(ls -- */*/BINPKGMD5 2>/dev/null)
     if [[ -n $files ]]; then
       cat $files >/tmp/md5sum
