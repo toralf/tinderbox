@@ -35,11 +35,6 @@ sci-libs/
 #
 app-emacs/
 #
-# trouble, if e.g. headless-awt is set differently for different JDKs
-#
-#dev-java/openjdk
-#dev-java/openjdk-jre-bin
-#
 # patches are not accepted upstream
 #
 net-misc/openssh-contrib
