@@ -256,6 +256,15 @@ function CollectIssueFiles() {
 
 function collectPortageFiles() {
   tar -C / -cJpf $issuedir/files/etc.portage.tar.xz --dereference etc/portage
+  (
+    cd ./var/db/pkg
+    files=$(ls -- */*/BINPKGMD5 2>/dev/null)
+    if [[ -n $files ]]; then
+      cat $files >/tmp/md5sum
+      ls -l $files >/tmp/files
+      paste /tmp/{md5sum,files} | column -t >$issuedir/files/var.db.pkg.binpkgmd5.txt
+    fi
+  )
 }
 
 # helper of ClassifyIssue()
@@ -785,7 +794,7 @@ function PostEmerge() {
 }
 
 function createIssueDir() {
-  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<<$pkg)
+  export issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<<$pkg)
   mkdir -p $issuedir/files
   chmod 777 $issuedir
 }
@@ -1046,7 +1055,13 @@ function WorkOnTask() {
 
   # common emerge update of an atom or a @set
   else
-    if ! RunAndCheck "emerge --update $task"; then
+    local getbinpkg=""
+    if [[ $task =~ "^.*/.*$" ]]; then
+      if ((RANDOM % 20 < 1)); then
+        getbinpkg="--getbinpkg"
+      fi
+    fi
+    if ! RunAndCheck "emerge --update $getbinpkg $task"; then
       if [[ $task == "@preserved-rebuild" ]]; then
         if [[ -z $pkg && $try_again -eq 0 ]]; then
           ReachedEOL "$task failed" $tasklog
