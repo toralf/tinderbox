@@ -713,7 +713,7 @@ function SwitchGCC() {
       ReachedEOL "cannot dump GCC version, current=$current"
     fi
 
-    if ! NO_COLOR=1 gcc-config $highest; then
+    if ! NO_COLOR=1 gcc-config $highest 2>&1; then
       ReachedEOL "cannot switch GCC profile from $current to $highest"
     fi
     source_profile
@@ -796,7 +796,7 @@ function PostEmerge() {
 }
 
 function createIssueDir() {
-  export issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<<$pkg)
+  issuedir=/var/tmp/tb/issues/$(date +%Y%m%d-%H%M%S)-$(tr '/' '_' <<<$pkg)
   mkdir -p $issuedir/files
   chmod 777 $issuedir
 }
@@ -895,8 +895,14 @@ function SetPkgFromTaskLog() {
 # run $1 and act on its results
 function RunAndCheck() {
   set +e
-  # the 48 hours are for -j 4
-  timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
+  if [[ $1 =~ "SwitchGCC" ]]; then
+    # must not be run in a subshell because /etc/profile might be sourced
+    SwitchGCC
+  else
+    # use a bash subshell to avoid any environment polution
+    # the 48 hours are calculated for -j 4
+    timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
+  fi
   local rc=$?
   set -e
 
@@ -1184,14 +1190,9 @@ export PAGER="cat"
 
 source $(dirname $0)/lib.sh
 
-# added to backlog by PostEmerge() or by retest.sh
-export -f SwitchGCC syncRepo
-# used by exported functions
-export -f add2backlog source_profile Finish ReachedEOL
-# used by exported functions eventually
-export name=$(</var/tmp/tb/name) # image name
-export taskfile=/var/tmp/tb/task # the current task
-export tasklog=$taskfile.log     # holds the output
+name=$(</var/tmp/tb/name) # image name
+taskfile=/var/tmp/tb/task # the current task
+tasklog=$taskfile.log     # holds the output
 
 jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00jobs)
 export XZ_OPT="-9 -T$jobs"
