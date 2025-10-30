@@ -94,7 +94,7 @@ function listBugs() {
   cat <<EOF
 <h2>$n images with $(wc -l <<<$files) reported bugs (see <a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">b.g.o.</a> for all open bugs)</h2>
 
-  <p>Hint: All links contains one or more invalid path elements to block bots.
+  <p>Hint: All URLs may contain one or more invalid path elements to block bots.
   </p>
 
   <table border="0" align="left" class="list_table" width="100%">
