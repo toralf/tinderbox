@@ -260,8 +260,7 @@ function collectPortageFiles() {
     set -eu
 
     cd /var/db/pkg
-    files=$(ls -- */*/BINPKGMD5 2>/dev/null)
-    if [[ -n $files ]]; then
+    if files=$(ls -- */*/BINPKGMD5 2>/dev/null); then
       cat $files >/tmp/md5sum
       ls -l $files >/tmp/files
       paste /tmp/{md5sum,files} | column -t >$issuedir/files/var.db.pkg.binpkgmd5.txt
