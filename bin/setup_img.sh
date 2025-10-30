@@ -352,7 +352,7 @@ ACCEPT_LICENSE="* -@EULA"
 ACCEPT_PROPERTIES="-interactive"
 ACCEPT_RESTRICT="-fetch"
 
-FEATURES="-news splitdebug xattr"
+FEATURES="-news xattr"
 EMERGE_DEFAULT_OPTS="--newuse --changed-use --verbose --verbose-conflicts --nospinner --quiet-build --tree --color=n --ask=n"
 
 CLEAN_DELAY=0
@@ -370,6 +370,10 @@ PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter 2>/dev/null; exec cat'"
 GENTOO_MIRRORS="$GENTOO_MIRRORS"
 
 EOF
+
+  if [[ $cflags =~ " -g " ]]; then
+    sed -i -e 's,FEATURES=",FEATURES="splitdebug ,' ./etc/portage/make.conf
+  fi
 
   # requested by mgorny (this is unrelated to FEATURES="test")
   if dice 1 2; then
