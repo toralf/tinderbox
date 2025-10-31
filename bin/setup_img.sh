@@ -937,8 +937,8 @@ function ThrowFlags() {
 
   grep -v -e '^$' -e '^#' -e 'internal use only' .$reposdir/gentoo/profiles/use.desc |
     cut -f 1 -d ' ' -s |
+    grep -v '_' |
     grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-    grep -v -e '.*_.*_' -e 'python3_' -e 'pypy3_' |
     ShuffleUseFlags 90 12 10 |
     xargs -s 73 |
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23-diced_global_use_flags
@@ -954,8 +954,8 @@ function ThrowFlags() {
         grep -v -i -F -e 'UNSUPPORTED' -e 'UNSTABLE' -e '(requires' |
         cut -f 2 -d '"' -s |
         sort -u |
+        grep -v '_' |
         grep -v -x -f $tbhome/tb/data/IGNORE_USE_FLAGS |
-        grep -v -e '.*_.*_' -e 'python3_' -e 'pypy3_' |
         ShuffleUseFlags 7 1 0 |
         xargs |
         xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
