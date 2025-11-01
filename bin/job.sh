@@ -787,9 +787,9 @@ function PostEmerge() {
     if grep -q ">>> Installing .* dev-java/openjdk-" $tasklog_stripped; then
       if ! eselect --brief --colour=no java-vm show system | grep -q "26"; then
         if eselect --brief --colour=no java-vm list | grep -q "openjdk-26"; then
-          add2backlog "%eselect --colour=no set system openjdk-26"
+          add2backlog "%eselect --colour=no java-vm set system openjdk-26"
         else
-          add2backlog "%eselect --colour=no set system openjdk-bin-26"
+          add2backlog "%eselect --colour=no java-vm set system openjdk-bin-26"
         fi
       fi
     fi
