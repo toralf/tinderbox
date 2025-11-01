@@ -782,6 +782,19 @@ function PostEmerge() {
     fi
   fi
 
+  # https://bugs.gentoo.org/show_bug.cgi?id=965369
+  if grep -F '[jdk26]' etc/portage/package.accept_keywords/*; then
+    if grep -q ">>> Installing .* dev-java/openjdk-" $tasklog_stripped; then
+      if ! eselect --colour=no --brief java-vm show system | grep "26"; then
+        if eselect --brief --colour=no java-vm list | grep "openjdk-26"; then
+          add2backlog "%eselect --colour=no set system openjdk-26"
+        else
+          add2backlog "%eselect --colour=no set system openjdk-bin-26"
+        fi
+      fi
+    fi
+  fi
+
   if grep -q ">>> Installing .* sys-devel/gcc-[1-9]" $tasklog_stripped; then
     if ! grep -q "@world" /var/tmp/tb/backlog.1st; then
       add2backlog "@world"
