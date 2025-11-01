@@ -783,10 +783,10 @@ function PostEmerge() {
   fi
 
   # https://bugs.gentoo.org/show_bug.cgi?id=965369
-  if grep -F '[jdk26]' etc/portage/package.accept_keywords/*; then
+  if grep -q -F '[jdk26]' /etc/portage/package.accept_keywords/*; then
     if grep -q ">>> Installing .* dev-java/openjdk-" $tasklog_stripped; then
-      if ! eselect --colour=no --brief java-vm show system | grep "26"; then
-        if eselect --brief --colour=no java-vm list | grep "openjdk-26"; then
+      if ! eselect --brief --colour=no java-vm show system | grep -q "26"; then
+        if eselect --brief --colour=no java-vm list | grep -q "openjdk-26"; then
           add2backlog "%eselect --colour=no set system openjdk-26"
         else
           add2backlog "%eselect --colour=no set system openjdk-bin-26"
