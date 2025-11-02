@@ -94,7 +94,6 @@ function listBugs() {
   cat <<EOF
 <h2>$n images with $(wc -l <<<$files) reported bugs (see <a href="https://bugs.gentoo.org/buglist.cgi?columnlist=assigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Copendate&email1=toralf%40gentoo.org&emailassigned_to1=1&emailreporter1=1&emailtype1=substring&known_name=all%20my%20bugs&limit=0&list_id=7234723&order=opendate%20DESC%2Cbug_id&query_format=advanced&remtype=asdefault&resolution=---">b.g.o.</a> for all open bugs)</h2>
 
-  <p>Hint: All URLs may contain one or more invalid path elements to block bots.
   </p>
 
   <table border="0" align="left" class="list_table" width="100%">
@@ -103,8 +102,6 @@ function listBugs() {
     <tr>
       <th>Bug</th>
       <th>Title</th>
-      <th>Image</th>
-      <th>Artifacts</th>
     </tr>
   </thead>
 
@@ -112,14 +109,12 @@ function listBugs() {
     <tr>
       <th>Bug</th>
       <th>Title</th>
-      <th>Image</th>
-      <th>Artifacts</th>
     </tr>
   </tfoot>
   <tbody>
 EOF
 
-  local d image issuedir_path issuedir_name no uri
+  local d no uri
   while read -r f; do
     uri=$(<$f)    # b.g.o. link
     no=${uri##*/} # bug number
@@ -130,20 +125,10 @@ EOF
     # f: /home/tinderbox/img/23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32/.reported
     d=${f%/*}
 
-    # d: /home/tinderbox/img/23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32
-    issuedir_path=$(cut -f 5- -d '/' <<<$d)
-    issuedir_name=${d##*/}
-
-    # issuedir_path: 23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32
-    image=${issuedir_path%%/*}
-
-    captcha="$(date +%Y%m%d)"
     cat <<EOF
   <tr>
     <td><a href="$uri">$no</a></td>
     <td>$(cut -c -$__tinderbox_bugz_title_length <$d/title | recode --quiet ascii..html)</td>
-    <td><a href="./$image/$captcha">$image</a></td>
-    <td><a href="./$captcha/$issuedir_path/">$issuedir_name</a></td>
   </tr>
 EOF
   done <<<$files
