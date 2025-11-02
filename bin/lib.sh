@@ -43,11 +43,11 @@ function getStartTime() {
 
 # list if locked and/or symlinked and/or have a cgroup
 function list_active_images() {
-  (
+  {
     ls ~tinderbox/run/ | sort
     ls /run/tb/ | sed -e 's,.lock,,' | sort
     ls -d /sys/fs/cgroup/tb/23.* | sort
-  ) 2>/dev/null |
+  } 2>/dev/null |
     xargs -r -n 1 basename |
     # use awk to remove dups, b/c "sort -u" would mix ~/img and ~/run and uniq w/o sort wouldn't detect all dups
     awk '!x[$1]++' |

@@ -11,12 +11,12 @@ function Mail() {
   local subject=$(stripQuotesAndMore <<<${1:-"Mail: NO SUBJECT"} | strings -w | cut -c 1-200 | tr '\n' ' ')
   local attachment=${2-}
 
-  (
+  {
     echo
     if [[ -f $attachment ]]; then
       tail -v -n 100 $attachment
     fi
-  ) |
+  } |
     ansifilter |
     sed -e 's,^>, >,' |
     if ! mail -s "$subject @ $name" ${MAILTO:-tinderbox} &>/var/tmp/tb/mail.log; then
@@ -425,7 +425,7 @@ EOF
       sort -u
   )
   if [[ -n $dices ]]; then
-    (
+    {
       echo -e "\n  KEYWORDED/UNMASKED"
       while read -r dice; do
         echo -en "\n  "
@@ -435,7 +435,7 @@ EOF
           awk '{ print ("  ", $1) }' |
           sort -u
       done < <(tr -d '][' <<<$dices)
-    ) >>$issuedir/comment0
+    } >>$issuedir/comment0
   fi
 
   if [[ -d /etc/portage/patches/$pkgname/ || -d /etc/portage/patches/$pkg ]]; then
@@ -449,7 +449,7 @@ EOF
   fi
 
   if grep -q "^GNUMAKEFLAGS.*--shuffle" /etc/portage/make.conf; then
-    (
+    {
       echo -e "\n  Block bug #351559 if this looks like a parallel build issue."
       if [[ -s $pkglog_stripped ]]; then
         shuffle=$(grep -h -m 1 -Eo "( shuffle=[1-9].*)" $pkglog_stripped)
@@ -457,7 +457,7 @@ EOF
           echo "  Possible reproducer: MAKEOPTS='... $shuffle'"
         fi
       fi
-    ) >>$issuedir/comment0
+    } >>$issuedir/comment0
   fi
 
   cat <<EOF >>$issuedir/comment0

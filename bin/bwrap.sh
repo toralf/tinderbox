@@ -119,7 +119,7 @@ function Bwrap() {
   fi
 
   sandbox+=(/bin/bash -l)
-  (
+  {
     if [[ -n $entrypoint ]]; then
       "${sandbox[@]}" "-c" "/root/entrypoint"
     else
@@ -129,7 +129,7 @@ function Bwrap() {
         "${sandbox[@]}"
       fi
     fi
-  ) 11>/tmp/$(basename $mnt).json
+  } 11>/tmp/$(basename $mnt).json
 }
 
 #############################################################################
