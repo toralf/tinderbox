@@ -347,26 +347,21 @@ function handleFeatureTest() {
     fi
   fi
 
-  # gtar returns an error if it can't find any directory, therefore feed dirs to it to catch only real tar issues
-  (
-    if ! cd "$workdir"; then
-      echo "cannot cd to '$workdir'" >&2
-      exit 1
-    else
-      dirs="$(ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
-      if [[ -n $dirs ]]; then
-        $tar --warning=none -cJpf $issuedir/files/tests.tar.xz \
-          --one-file-system --sparse \
-          --exclude='*.o' \
-          --exclude="*/dev/*" \
-          --exclude="*/proc/*" \
-          --exclude="*/run/*" \
-          --exclude="*/sys/*" \
-          --exclude="*/tests/cluster/data/*" \
-          $dirs
-      fi
+  # gtar errors out if it cannot find any directory, therefore feed dirs to it to catch only real tar issues
+  local dirs="$(cd $workdir && ls -d ./tests ./regress ./t ./Testing ./testsuite.dir 2>/dev/null)"
+  if [[ -n $dirs ]]; then
+    if ! $tar -C $workdir --warning=none -cJpf $issuedir/files/tests.tar.xz \
+      --one-file-system --sparse \
+      --exclude='*.o' \
+      --exclude="*/dev/*" \
+      --exclude="*/proc/*" \
+      --exclude="*/run/*" \
+      --exclude="*/sys/*" \
+      --exclude="*/tests/cluster/data/*" \
+      $dirs; then
+      echo "$tar -C $workdir return an error" >&2
     fi
-  )
+  fi
 }
 
 # helper of WorkAtIssue()
@@ -1136,46 +1131,44 @@ function DetectRepeats() {
 }
 
 function syncRepo() {
-  cd /var/db/repos/gentoo
-
-  local synclog=/var/tmp/tb/sync.log
   local curr_time=$EPOCHSECONDS
+  (
+    cd /var/db/repos/gentoo
 
-  if ! emaint sync --auto &>$synclog; then
-    if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error:' $synclog; then
-      return 0
-    elif ! emaint merges --fix &>>$synclog; then
-      ReachedEOL "repo sync failure, unable to fix" $synclog
+    synclog=/var/tmp/tb/sync.log
+    if ! emaint sync --auto &>$synclog; then
+      if grep -q -e 'git fetch error' -e ': Failed to connect to ' -e ': SSL connection timeout' -e ': Connection timed out' -e 'The requested URL returned error:' $synclog; then
+        return 0
+      elif ! emaint merges --fix &>>$synclog; then
+        ReachedEOL "repo sync failure, unable to fix" $synclog
+      fi
     fi
-  fi
 
-  if grep -q -F '* An update to portage is available.' $synclog; then
-    add2backlog "sys-apps/portage"
-  fi
-
-  if ! grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
-    # retest changed ebuilds with a timeshift of 2 hours to ensure that download mirrors are synced
-    # ignore stderr here expecially b/c of "warning: log for 'stable' only goes back to"
-    git diff \
-      --diff-filter="ACM" \
-      --name-only \
-      "@{ $((EPOCHSECONDS - last_sync + 2 * 3600)) second ago }..@{ 2 hour ago }" 2>/dev/null |
-      grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |
-      cut -f 1-2 -d '/' -s |
-      grep -v -f /mnt/tb/data/IGNORE_PACKAGES |
-      sort -u >/tmp/syncRepo.upd
-
-    if [[ -s /tmp/syncRepo.upd ]]; then
-      # mix repo changes and backlog together
-      sort -u /tmp/syncRepo.upd /var/tmp/tb/backlog.upd | shuf >/tmp/backlog.upd
-      # cp preserves file perms of the target
-      cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
+    if grep -q -F '* An update to portage is available.' $synclog; then
+      add2backlog "sys-apps/portage"
     fi
-  fi
 
+    if ! grep -B 1 '=== Sync completed for gentoo' $synclog | grep -q 'Already up to date.'; then
+      # retest changed ebuilds with a timeshift of 2 hours to ensure that download mirrors are synced
+      # ignore stderr here expecially b/c of "warning: log for 'stable' only goes back to"
+      git diff \
+        --diff-filter="ACM" \
+        --name-only \
+        "@{ $((EPOCHSECONDS - last_sync + 2 * 3600)) second ago }..@{ 2 hour ago }" 2>/dev/null |
+        grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |
+        cut -f 1-2 -d '/' -s |
+        grep -v -f /mnt/tb/data/IGNORE_PACKAGES |
+        sort -u >/tmp/syncRepo.upd
+
+      if [[ -s /tmp/syncRepo.upd ]]; then
+        # mix repo changes and backlog together
+        sort -u /tmp/syncRepo.upd /var/tmp/tb/backlog.upd | shuf >/tmp/backlog.upd
+        # cp preserves file perms of the target
+        cp /tmp/backlog.upd /var/tmp/tb/backlog.upd
+      fi
+    fi
+  )
   last_sync=$curr_time # global variable
-
-  cd - >/dev/null
 }
 
 #############################################################################
