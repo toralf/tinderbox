@@ -22,7 +22,7 @@ mv $tmpfile ~tinderbox/img/sam.txt
 
 # xgqt : big package size
 #
-find ~tinderbox/img/*/var/tmp/big_packages.txt ! -wholename '*_test*' -exec cat {} + |
+find ~tinderbox/img/*/var/tmp/big_packages.txt -ignore_readdir_race ! -wholename '*_test*' -exec cat {} + |
   perl -wane '
     chomp;
     next if ($#F != 2);
@@ -48,7 +48,7 @@ mv $tmpfile ~tinderbox/img/big_packages.txt
 #
 {
   if [[ ${1-} == "reset" ]]; then
-    find ~tinderbox/img/*/var/db/pkg/ -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2"
+    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2"
   else
     echo ~tinderbox/img/needed.ELF.2.txt
     find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -cmin -65
