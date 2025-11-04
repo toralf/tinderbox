@@ -73,6 +73,9 @@ sys-fs/cryptsetup   -gcrypt -kernel -nettle openssl     # DICE: cryptsetup
 # wants "deprecated" otherwise
 net-wireless/bluez                  -extra-tools
 
+# setup blocker if only tools is activated
+dev-libs/libbytesize                -tools -python      # DICE: libbytesize 1 2
+
 # FF and TB
 app-text/poppler                    cairo               # DICE: ff_tb 1 6
 dev-lang/python                     sqlite              # DICE: ff_tb 1 6

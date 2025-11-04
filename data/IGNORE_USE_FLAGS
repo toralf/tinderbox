@@ -23,6 +23,7 @@ crossdev-mingw
 cuda
 custom-cflags
 debug
+debuginfod
 default-compiler-rt
 default-gold
 default-libcxx
