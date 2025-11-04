@@ -53,7 +53,7 @@ function InitOptions() {
   testfeature="n"
   useconfigof=""
 
-  # play with -O2
+  # play with -O
   if dice 1 6; then
     if dice 1 3; then
       # used by debug_img.sh
@@ -66,7 +66,7 @@ function InitOptions() {
     fi
   fi
 
-  if dice 1 20; then
+  if dice 1 40; then
     # this sets "*/* ABI_X86: 32 64" via package.use.40abi32+64
     abi3264="y"
   fi
@@ -784,7 +784,7 @@ function IsAlreadySetForPackage() {
 function FixPossibleUseFlagIssues() {
   local attempt=$1
 
-  for fix in $(seq -w 1 32); do
+  for fix in $(seq -w 1 49); do
     local try_again=0
     local msg=""
 
@@ -1040,7 +1040,7 @@ EOF
   fi
 
   # go wild
-  for attempt in $(seq -w 1 99); do
+  for attempt in $(seq -w 1 199); do
     echo
     date
     echo "==========================================================="
@@ -1102,15 +1102,12 @@ while getopts R:a:k:p:m:M:st:u: opt; do
   case $opt in
   R)
     cd $tbhome/img/$(basename $OPTARG)
-    if [[ -f ./var/tmp/tb/EOL || -f ./var/tmp/tb/STOP ]]; then
-      echo " EOL or STOP found" >&2
-      exit 3
-    fi
     name=$(<./var/tmp/tb/name)
     [[ $name =~ "_abi32+64" ]] && abi3264="y"
     [[ $name =~ "_test" ]] && testfeature="y"
     profile=$(readlink ./etc/portage/make.profile | sed -e 's,.*amd64/,,')
     start_it="y"
+    rm -f ./var/tmp/tb/{EOL,STOP}
 
     CompileEnvFiles
     CompileUseFlagFiles
