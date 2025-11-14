@@ -861,7 +861,10 @@ EOF
         ReportIfNotYetDone
       done
     rm $stripped
-  done < <(find /var/log/portage/ -type f -name '*.log' | sort -r) # process elog/*.log after common log
+  done < <(
+    find /var/log/portage/ -maxdepth 1 -type f -name '*.log'
+    find /var/log/portage/elog -maxdepth 1 -type f -name '*.log' 2>/dev/null
+  )
 }
 
 function SetPkglog() {
