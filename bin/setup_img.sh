@@ -516,7 +516,7 @@ EOF
     fi
   fi
 
-  chmod 666 ./etc/portage/package.*/ # e.g. to add "notest" packages
+  chmod 777 ./etc/portage/package.*/ # e.g. to add "notest" packages
   truncate -s 0 ./var/tmp/tb/task
 }
 
