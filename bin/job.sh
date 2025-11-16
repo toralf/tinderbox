@@ -421,7 +421,7 @@ EOF
   )
   if [[ -n $dices ]]; then
     {
-      echo -e "\n  KEYWORDED/UNMASKED"
+      echo -en "\n  KEYWORDED/UNMASKED"
       while read -r dice; do
         echo -en "\n  "
         grep -A 1 "^\[$dice\]" /mnt/tb/data/DICE_DESCRIPTIONS | xargs
