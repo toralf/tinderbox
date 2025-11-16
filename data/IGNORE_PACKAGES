@@ -20,8 +20,9 @@ sci-astronomy/psfex
 sci-astronomy/scamp
 sci-astronomy/sextractor
 #
-# too long emerge time
+# long emerge time
 #
+dev-libs/rccl
 dev-qt/qtwebengine
 net-libs/webkit-gtk
 #

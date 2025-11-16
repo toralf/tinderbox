@@ -96,3 +96,7 @@ Compatibility with CMake < 3.10 will be removed in a future release.
 # [Tracker] Breakage with a future kde-frameworks/extra-cmake-modules version dropping compatibility with cmake_minimum_required version <3.16
 964407
 Compatibility w/ CMake < 3.16 will be removed in future ECM release.
+
+# [Tracker] Build failures with dev-python/cython-3.2.0*
+966030
+Error compiling Cython file:
