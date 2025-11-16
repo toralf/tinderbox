@@ -557,8 +557,7 @@ function CreateBacklogs() {
 
   if [[ $profile =~ "/llvm" ]]; then
     cat <<EOF >>$bl.1st
-@world
-sys-kernel/gentoo-kernel-bin
+@world sys-kernel/gentoo-kernel-bin
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 EOF
   elif [[ $profile =~ '/no-multilib/hardened' ]]; then
@@ -571,8 +570,7 @@ EOF
 EOF
   else
     cat <<EOF >>$bl.1st
-@world
-sys-kernel/gentoo-kernel-bin
+@world sys-kernel/gentoo-kernel-bin
 %emerge -1u --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc)
 EOF
   fi
