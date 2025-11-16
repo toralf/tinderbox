@@ -507,7 +507,16 @@ EOF
     chmod a+r $target
   done
 
-  chmod 777 ./etc/portage/package.*/ # e.g. to add "notest" packages
+  if [[ $cflags =~ " -g " ]]; then
+    if ! dice 1 2; then
+      cat <<EOF >.etc/portage/env/sys-devel/gcc
+# https://bugs.gentoo.org/953869'
+EXTRA_ECONF="\${EXTRA_ECONF} --enable-linker-build-id"
+EOF
+    fi
+  fi
+
+  chmod 666 ./etc/portage/package.*/ # e.g. to add "notest" packages
   truncate -s 0 ./var/tmp/tb/task
 }
 
