@@ -509,7 +509,7 @@ EOF
 
   if [[ $cflags =~ " -g " ]]; then
     if ! dice 1 2; then
-      cat <<EOF >.etc/portage/env/sys-devel/gcc
+      cat <<EOF >./etc/portage/env/sys-devel/gcc
 # https://bugs.gentoo.org/953869'
 EXTRA_ECONF="\${EXTRA_ECONF} --enable-linker-build-id"
 EOF
