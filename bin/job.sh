@@ -996,9 +996,11 @@ function WorkOnTask() {
 
   # dry-run mainly to check for the infamous perl dep issue
   if [[ $task =~ "@world" ]]; then
-    local dryrun_cmd="emerge -p -v $task"
+    local dryrun_cmd
     if [[ $task =~ ^% ]]; then
       dryrun_cmd=$(sed -e 's,%emerge,emerge -p -v,' <<<$task)
+    else
+      dryrun_cmd="emerge -p -v $task"
     fi
 
     if ! $dryrun_cmd &>>$tasklog; then
@@ -1025,24 +1027,15 @@ function WorkOnTask() {
     echo -e "\ncheck for Perl dep issue succeeded\n" >>$tasklog
   fi
 
-  if [[ $task == "@world" ]]; then
-    if RunAndCheck "emerge $task $backtrack_opt"; then
-      if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
-        add2backlog "%emerge --depclean --verbose=n"
+  # %<command line>
+  if [[ $task =~ ^% ]]; then
+    if RunAndCheck "$(cut -c 2- <<<$task) $backtrack_opt"; then
+      if [[ $task =~ "@world" ]]; then
+        if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
+          add2backlog "%emerge --depclean --verbose=n"
+        fi
       fi
     else
-      if [[ -n $pkg ]]; then
-        if [[ $try_again -eq 0 ]]; then
-          add2backlog "$task"
-        fi
-      else
-        ReachedEOL "$task is broken" $tasklog
-      fi
-    fi
-
-  # %<command line>
-  elif [[ $task =~ ^% ]]; then
-    if ! RunAndCheck "$(cut -c 2- <<<$task) $backtrack_opt"; then
       if [[ $try_again -eq 1 ]]; then
         add2backlog "$task"
       elif grep -q 'The following USE changes are necessary to proceed' $tasklog; then
@@ -1060,9 +1053,26 @@ function WorkOnTask() {
       fi
     fi
 
+  elif [[ $task =~ "@world" ]]; then
+    if RunAndCheck "emerge $task $backtrack_opt"; then
+      if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
+        add2backlog "%emerge --depclean --verbose=n"
+      fi
+    else
+      if [[ -n $pkg ]]; then
+        if [[ $try_again -eq 0 ]]; then
+          add2backlog "$task"
+        fi
+      else
+        ReachedEOL "$task is broken" $tasklog
+      fi
+    fi
+
   # pinned version
   elif [[ $task =~ ^= ]]; then
-    if ! RunAndCheck "emerge $task"; then
+    if RunAndCheck "emerge $task"; then
+      :
+    else
       if [[ $task =~ =$pkg ]]; then
         Mail "INFO: task failed: $task" $tasklog
       else
@@ -1070,7 +1080,7 @@ function WorkOnTask() {
       fi
     fi
 
-  # common emerge update of an atom or a @set
+  # simple atom or any other @set
   else
     local getbinpkg=""
     if [[ $task =~ "^.*/.*$" ]]; then
@@ -1078,7 +1088,13 @@ function WorkOnTask() {
         getbinpkg="--getbinpkg"
       fi
     fi
-    if ! RunAndCheck "emerge --update $getbinpkg $task"; then
+    if RunAndCheck "emerge --update $getbinpkg $task"; then
+      if [[ $task == "@preserved-rebuild" ]]; then
+        if grep -q -F '!!! existing preserved libs:' $tasklog; then
+          ReachedEOL "$task still has preserved libs" $tasklog
+        fi
+      fi
+    else
       if [[ $task == "@preserved-rebuild" ]]; then
         if [[ -z $pkg && $try_again -eq 0 ]]; then
           ReachedEOL "$task failed" $tasklog
@@ -1088,12 +1104,6 @@ function WorkOnTask() {
       elif [[ -n $pkg && ! $task =~ $pkgname ]]; then
         if ((RANDOM % 2 < 1)); then
           add2backlog "$task"
-        fi
-      fi
-    else
-      if [[ $task == "@preserved-rebuild" ]]; then
-        if grep -q -F '!!! existing preserved libs:' $tasklog; then
-          ReachedEOL "$task still has preserved libs" $tasklog
         fi
       fi
     fi
