@@ -25,64 +25,51 @@ function listFiles() {
   local files=$(
     find ~tinderbox/img/ -maxdepth 1 -type f -print0 |
       xargs -r -n 1 --null basename |
-      sort |
-      while read -r f; do
-        echo $f
-      done
+      sort
   )
   local n=$(wc -w <<<$files)
-  {
-    echo "<h2>$n files for gentoo devs</h2>"
-    echo "<pre>"
-    for f in $files; do
-      echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f 2>/dev/null | awk '{ print $5 }'))</a>"
-    done
-    echo -e "</pre>\n"
-  }
+  echo "<h2>$n files for gentoo devs</h2>"
+  echo "<pre>"
+  for f in $files; do
+    echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f | cut -f 5 -d ' '))</a>"
+  done
+  echo -e "</pre>\n"
 }
 
 function listImagesWithoutAnyBug() {
   local dirs=$(
     find ~tinderbox/img/ -maxdepth 1 -type d -name '23*' -print0 |
       xargs -r -n 1 --null basename |
-      sort |
       while read -r d; do
         if [[ ! -d ~tinderbox/img/$d/var/tmp/tb/issues ]]; then
           echo $d
         fi
-      done
+      done |
+      sort
   )
   local n=$(wc -w <<<$dirs)
-  {
-    echo "<h2>$n images with no bug</h2>"
-    echo "<pre>"
-    for d in $dirs; do
-      echo "<a href=\"$d\">$d</a>"
-    done
-    echo -e "</pre>\n"
-  }
+  echo "<h2>$n images with no bug</h2>"
+  echo "<pre>"
+  xargs -n 1 <<<$dirs
+  echo -e "</pre>\n"
 }
 
 function listImagesWithoutReportedBugs() {
   local dirs=$(
     find ~tinderbox/img/ -maxdepth 1 -type d -name '23*' -print0 |
       xargs -r -n 1 --null basename |
-      sort |
       while read -r d; do
         if [[ -d ~tinderbox/img/$d/var/tmp/tb/issues ]] && ! ls ~tinderbox/img/$d/var/tmp/tb/issues/*/.reported &>/dev/null; then
           echo $d
         fi
-      done
+      done |
+      sort
   )
   local n=$(wc -w <<<$dirs)
-  {
-    echo "<h2>$n images with no reported bug</h2>"
-    echo "<pre>"
-    for d in $dirs; do
-      echo "<a href=\"$d\">$d</a>"
-    done
-    echo -e "</pre>\n"
-  }
+  echo "<h2>$n images with no reported bug</h2>"
+  echo "<pre>"
+  xargs -n 1 <<<$dirs
+  echo -e "</pre>\n"
 }
 
 function listBugs() {
