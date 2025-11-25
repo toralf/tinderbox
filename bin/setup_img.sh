@@ -1099,7 +1099,7 @@ BASH_XTRACEFD="42"
 set -x
 
 trap Exit INT QUIT TERM EXIT
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++$(date)\n $0 start"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n$(date) $0 start\n"
 
 tbhome=~tinderbox
 reposdir=/var/db/repos
