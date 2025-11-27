@@ -88,3 +88,6 @@ sci-libs/suitesparse
 #
 # hangs
 net-misc/rabbitmq-server
+#
+# https://bugs.gentoo.org/958367
+games-engines/odamex

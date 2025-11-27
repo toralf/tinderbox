@@ -22,7 +22,6 @@ error: Fortran 77 compiler
 error: fortran compiler does not work
 CMake will exit
 You need build codec to run the tests
-Could not find a package configuration file provided by
 Project .rostime. tried to find library .-lpthread.
 Cannot execute 32-bit applications
 Unable to find clang libraries
@@ -79,7 +78,6 @@ checking version of x86_64-pc-linux-gnu-gcc ... .* - old version, at least .* re
 The following variables are used in this project, but they are set to NOTFOUND.
 configure: error:
 ModuleNotFoundError:
- Could not find a configuration file for package
 Configuring incomplete
 cmake: symbol lookup error:
  \*   Failed to find configuration
@@ -100,3 +98,6 @@ Cannot find the GNU C library
 missing separator.  Stop.
 setup: Failed parsing
 ERROR: Feature .* was enabled
+CMake Error at
+CMake Error:
+Could not find a configuration file for package

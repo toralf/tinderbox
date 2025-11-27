@@ -1,5 +1,2 @@
 # package.mask/50stable
 #
-
-# toralf
-<sys-devel/gcc-15.2.0:15                           **   # DICE: [gcc-14] 1 8
