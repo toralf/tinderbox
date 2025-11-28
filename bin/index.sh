@@ -31,7 +31,9 @@ function listFiles() {
   echo "<h2>$n files for gentoo devs</h2>"
   echo "<pre>"
   for f in $files; do
-    echo "<a href=\"$f\">$f ($(ls -lh ~tinderbox/img/$f | cut -f 5 -d ' '))</a>"
+    if size=$(ls -lh ~tinderbox/img/$f 2>/dev/null); then
+      echo "<a href=\"$f\">$f ($(cut -f 5 -d ' ' <<<$size))</a>"
+    fi
   done
   echo -e "</pre>\n"
 }
