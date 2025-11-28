@@ -6,3 +6,5 @@
 =dev-libs/boost-1.89*                                   # DICE: [boost-1.89] 1 6
 
 =sys-apps/portage-9999                                  # DICE: [portage-9999] 1 6
+
+=dev-python/sphinx-9.0*                                 # DICE: [sphinx-9] 1 2
