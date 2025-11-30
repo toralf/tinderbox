@@ -64,7 +64,7 @@ function printTimeDiff() {
 }
 
 # whatsup.sh -o
-#   pkg fail bgo  day  done .1st .upd   todo lcx      12#12      Sat Dec 28 21:26:33 UTC 2024      35.13 33.27 32.92
+#   pkg fail new  day  done .1st .upd   todo lcx      12#12      Sat Dec 28 21:26:33 UTC 2024      35.13 33.27 32.92
 #  6068  318  10  7.7  5817    -    -  10648 lc  ~/run/23.0-20241201-015002
 #  2433   28   1  4.3   673    -  683  15770 lc  ~/run/23.0_desktop-20241204-113502
 #  2183   25   -  2.1   657    -  144  15739 lc  ~/run/23.0_desktop-20241206-162002
@@ -72,13 +72,13 @@ function Overall() {
   local locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
   local all=$(wc -w <<<$images)
 
-  echo "  pkg fail bgo  day  done .1st .upd   todo lcx    $locked#$all    $(date)    $(grep 'procs_running' /proc/stat | cut -f 2 -d ' ')  $(cut -f 1-3 -d ' ' </proc/loadavg)"
+  echo "  pkg fail new  day  done .1st .upd   todo lcx    $locked#$all    $(date)    $(grep 'procs_running' /proc/stat | cut -f 2 -d ' ')  $(cut -f 1-3 -d ' ' </proc/loadavg)"
 
   for i in $images; do
     local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
     # do not count "misc" findings
     local fail=$(grep -h -m 1 -c 'The build log matches a QA pattern' $i/var/tmp/tb/issues/*/comment0 2>/dev/null | grep -c '0')
-    local bgo=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
+    local new=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
     local day=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
     local done=$(grep -c -v "^[#=@%]" $i/var/tmp/tb/task.history 2>/dev/null)
     local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st)
@@ -119,7 +119,7 @@ function Overall() {
     local b=$(basename $i)
     # shellcheck disable=SC2088
     [[ -e ~tinderbox/run/$b ]] && d='~/run' || d='~/img'
-    printf "%5i %4i %3i %4.1f %5i %4i %4i  %5i %3s %s/%s\n" ${pkgs:-0} ${fail:-0} $bgo ${day:-0} ${done:-0} ${bl1:-0} ${blu:-0} ${bl:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
+    printf "%5i %4i %3i %4.1f %5i %4i %4i  %5i %3s %s/%s\n" ${pkgs:-0} ${fail:-0} $new ${day:-0} ${done:-0} ${bl1:-0} ${blu:-0} ${bl:-0} "$flags" $d $b | sed -e 's, 0 , - ,g'
   done
 }
 
