@@ -508,12 +508,12 @@ EOF
   done
 
   if [[ $cflags =~ " -g " ]]; then
-    if ! dice 1 2; then
+    if ! dice 1 1; then
       cat <<EOF >./etc/portage/env/build-id
-# https://bugs.gentoo.org/953869'
+# https://bugs.gentoo.org/953869
 EXTRA_ECONF="\${EXTRA_ECONF} --enable-linker-build-id"
 EOF
-      printf "%-36s %s\n" "sys-devel/gcc" "build-id" >>./etc/portage/package.env/91build-id
+      printf "%-35s %s\n" "sys-devel/gcc" "build-id" >>./etc/portage/package.env/91build-id
     fi
   fi
 
@@ -595,7 +595,7 @@ function CreateSetupScript() {
   else
     mta=ssmtp
   fi
-  printf "%-36s %s\n" "mail-mta/$mta" "ssl" >>./etc/portage/package.use/91$mta
+  printf "%-35s %s\n" "mail-mta/$mta" "ssl" >>./etc/portage/package.use/91$mta
 
   cat <<EOF >./var/tmp/tb/setup.sh
 #!/bin/bash
@@ -847,7 +847,7 @@ function FixPossibleUseFlagIssues() {
         fi
         for flag in $f; do
           if ! ChangeIsForbidden $flag && ! IsAlreadySetForPackage $flag $pn; then
-            printf "%-36s %s\n" $pn $flag >>$f_nec_flag
+            printf "%-35s %s\n" $pn $flag >>$f_nec_flag
           fi
         done
       done
@@ -883,7 +883,7 @@ function FixPossibleUseFlagIssues() {
         fi
         for flag in $f; do
           if ! ChangeIsForbidden $flag && ! IsAlreadySetForPackage $flag $pn; then
-            printf "%-36s %s\n" $pn $flag >>$f_circ_flag
+            printf "%-35s %s\n" $pn $flag >>$f_circ_flag
           fi
         done
       done
@@ -966,7 +966,7 @@ function ThrowFlags() {
         grep -v -e '.*_.*_' -e 'python3_' -e 'pypy3_' |
         ShuffleUseFlags 7 1 0 |
         xargs |
-        xargs -I {} -r printf "%-36s %s\n" "$pn" "{}"
+        xargs -I {} -r printf "%-35s %s\n" "$pn" "{}"
     done >./etc/portage/package.use/24-diced_package_use_flags
 }
 
