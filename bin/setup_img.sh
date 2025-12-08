@@ -247,13 +247,9 @@ function verifyStage3File() {
 function InitImageFromStage3() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
-  local stage3
-  local local_stage3
-  local stage3_list="$tbhome/distfiles/latest-stage3.txt"
-
-  eval $(grep -A 10 "^GENTOO_MIRRORS=" /etc/portage/make.conf | tr -d '\\\n')
-  local mirrors=$GENTOO_MIRRORS
-  local mirror_path="releases/amd64/autobuilds"
+  stage3_list="$tbhome/distfiles/latest-stage3.txt"
+  mirrors=$(source /etc/portage/make.conf; echo ${GENTOO_MIRRORS:-http://distfiles.gentoo.org})
+  mirror_path="releases/amd64/autobuilds"
 
   getStage3List
   getStage3Filename
@@ -367,9 +363,23 @@ PORTAGE_ELOG_MAILFROM="$name <tinderbox@localhost>"
 
 PORTAGE_LOG_FILTER_FILE_CMD="bash -c 'ansifilter 2>/dev/null; exec cat'"
 
-GENTOO_MIRRORS="$GENTOO_MIRRORS"
+GENTOO_MIRRORS="$mirrors"
 
 EOF
+
+  if [[ -c /dev/steve ]]; then
+    cat <<EOF >>./etc/portage/make.conf
+MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
+NINJAOPTS=""
+
+EOF
+
+    cat <<EOF >>./etc/sandbox.d/90steve
+SANDBOX_WRITE="/dev/steve"
+
+EOF
+
+  fi
 
   if [[ $cflags =~ " -g " ]]; then
     sed -i -e 's,FEATURES=",FEATURES="splitdebug ,' ./etc/portage/make.conf

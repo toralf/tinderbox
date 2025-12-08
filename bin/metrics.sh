@@ -25,17 +25,12 @@ function printMetrics() {
   local o=0
   local r=0
   local s=0
-  local w=0
   while read -r img; do
     if [[ $img =~ "/run" ]]; then
       if __is_crashed $img; then
         ((++c))
       elif __is_running $img; then
-        if [[ -f $img/var/tmp/tb/WAIT ]]; then
-          ((++w))
-        else
-          ((++r))
-        fi
+        ((++r))
       else
         ((++s))
       fi
@@ -47,7 +42,6 @@ function printMetrics() {
   echo "$var{state=\"other\"} $o"
   echo "$var{state=\"running\"} $r"
   echo "$var{state=\"stopped\"} $s"
-  echo "$var{state=\"waiting\"} $w"
 }
 
 #######################################################################

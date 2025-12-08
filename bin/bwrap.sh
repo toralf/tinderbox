@@ -4,15 +4,17 @@
 
 function CreateCgroup() {
   local name=$cgdomain/${mnt##*/}
+  local cpu
 
-  # put all images under 1 sub group
+  # put all tinderbox images under 1 sub group
   if [[ ! -d $cgdomain ]]; then
     if mkdir $cgdomain 2>/dev/null; then
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-      # reserve 5 of 32 vCPU for non-tinderboxing tasks
-      echo "$((27 * 100))" >$cgdomain/cpu.weight
-      echo "$((27 * 100000))" >$cgdomain/cpu.max
+      # reserve 5 vCPU for non-tinderboxing tasks
+      cpu=$(($(nproc) - 5))
+      echo "$((cpu * 100))" >$cgdomain/cpu.weight
+      echo "$((cpu * 100000))" >$cgdomain/cpu.max
       echo "110G" >$cgdomain/memory.max
       echo "200G" >$cgdomain/memory.swap.max
     fi
@@ -34,21 +36,19 @@ function CreateCgroup() {
   fi
   echo "$$" >$name/cgroup.procs
 
-  # 1 vCPU per job
-  local jobs=$(sed 's,^.*j,,' $mnt/etc/portage/package.env/00jobs)
-  if [[ ! $jobs =~ ^[0-9]+$ ]]; then
-    echo " jobs is invalid: '$jobs', set to 1" >&2
-    jobs=1
-  fi
-  echo "$((100 * jobs))" >$name/cpu.weight
-  echo "$((100000 * jobs))" >$name/cpu.max
-
-  # debug info files consume a lot of disk space, being portage on a tmpfs means be add it to the RAM limit
-  if grep -q -F " -g " $mnt/etc/portage/make.conf; then
-    echo "64G" >$name/memory.max
+  # vCPU and mem per image
+  if [[ -c /dev/steve ]] && grep -q '^MAKEFLAGS=".*--jobserver-auth=fifo:/dev/steve.*"' $mnt/etc/portage/make.conf; then
+    cpu=12
   else
-    echo "32G" >$name/memory.max
+    cpu=$(sed 's,^.*j,,' $mnt/etc/portage/package.env/00jobs)
+    if [[ ! $cpu =~ ^[0-9]+$ ]]; then
+      echo " cpu is invalid: '$cpu'" >&2
+      return 14
+    fi
   fi
+  echo "$((cpu * 100))" >$name/cpu.weight
+  echo "$((cpu * 100000))" >$name/cpu.max
+  echo "64G" >$name/memory.max
   echo "64G" >$name/memory.swap.max
 }
 
@@ -106,14 +106,12 @@ function Bwrap() {
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
     --info-fd 11
   )
-  if [[ ! -f $mnt/var/tmp/tb/NO_TMPFS_FOR_PORTAGE ]]; then
-    if grep -q -F " -g " $mnt/etc/portage/make.conf; then
-      sandbox+=(--size $((64 * 2 ** 30)) --perms 1777 --tmpfs /var/tmp/portage)
-    else
-      sandbox+=(--size $((32 * 2 ** 30)) --perms 1777 --tmpfs /var/tmp/portage)
-    fi
+  if [[ -c /dev/steve ]]; then
+    sandbox+=(--dev-bind /dev/steve /dev/steve)
   fi
-
+  if ! grep -q -F " -g " $mnt/etc/portage/make.conf; then
+    sandbox+=(--size $((32 * 2 ** 30)) --perms 1777 --tmpfs /var/tmp/portage)
+  fi
   if [[ -n $entrypoint ]]; then
     sandbox+=(--new-session)
   fi
