@@ -72,26 +72,12 @@ post_src_install() {
 
 #######################################################################
 #
-# tinderbox: If load is too high, then wait or bail out
-
-__tinderbox_checkSTOP() {
-  if [[ -f /var/tmp/tb/EOL || -f /var/tmp/tb/STOP ]]; then
-    exit 42
-  fi
-}
+# tinderbox, bail out in front of phase ...
 
 case ${EBUILD_PHASE} in
   setup|unpack|prepare|configure|compile)
-    # wait if these limits are reached
-    vcpu= # actual value will be set/replaced by nproc output during setup
-    load= # 1-minute-load limit
-
-    while [[ $(grep "^procs_running " /proc/stat | cut -f 2 -d ' ') -gt $vcpu || $(cut -f 1 -d '.' /proc/loadavg) -gt $load ]]; do
-      __tinderbox_checkSTOP
-      touch /var/tmp/tb/WAIT
-      sleep $((RANDOM % 10 + 10))
-      rm /var/tmp/tb/WAIT
-    done
-    __tinderbox_checkSTOP
+    if [[ -f /var/tmp/tb/EOL || -f /var/tmp/tb/STOP ]]; then
+      exit 42
+    fi
   ;;
 esac

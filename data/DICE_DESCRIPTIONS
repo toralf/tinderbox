@@ -1,6 +1,3 @@
-[meson]
-Please re-assign to ztrawhcse@ if it works with regular meson.
-
 [ffmpeg8]
 Requested by ionen
 
@@ -18,6 +15,3 @@ Requested by arthurzam
 
 [portage-9999]
 Requested by Portage developer team
-
-#sphinx-9
-#Requested by ztrawhcse
