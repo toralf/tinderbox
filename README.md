@@ -56,7 +56,7 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-rm -f ~tinderbox/run/*/var/tmp/tb/{STOP,WAIT}
+rm -f ~tinderbox/run/*/var/tmp/tb/STOP
 /opt/tb/bin/start_img.sh
 /opt/tb/bin/index.sh
 
