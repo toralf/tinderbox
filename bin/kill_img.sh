@@ -11,10 +11,10 @@ function killPid() {
   COLUMNS=10000 ps faux &>~tinderbox/img/$img/var/tmp/tb/ps-faux.log
   pstree -UlnspuTa $pid |
     tee -a ~tinderbox/img/$img/var/tmp/tb/EOL |
-    head -n 20 |
+    head -n 40 |
     cut -c 1-140
 
-  echo "killing $pid" |
+  echo "$(basename $0): killing $pid" |
     tee -a ~tinderbox/img/$img/var/tmp/tb/EOL
   if kill -0 $pid &>/dev/null; then
     kill -15 $pid

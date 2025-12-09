@@ -970,7 +970,9 @@ function RunAndCheck() {
         if grep -q -e "=$pkg$" $self; then
           ReachedEOL "$pkg already masked" $tasklog
         fi
-        echo "=$pkg" >>$self
+        if ! grep -q '^kill_img.sh: ' /var/tmp/tb/EOL; then
+          echo "=$pkg" >>$self
+        fi
       fi
       # do not lose current installed deps, therefore turn the world file into the same state
       # as it would be if dep packages were been emerged before
