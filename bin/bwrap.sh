@@ -92,6 +92,7 @@ function Bwrap() {
     --bind "$mnt" /
     --dev /dev
     --dev-bind /dev/console /dev/console
+    --dev-bind /dev/steve /dev/steve
     --mqueue /dev/mqueue
     --perms 1777 --tmpfs /dev/shm
     --proc /proc
@@ -106,9 +107,6 @@ function Bwrap() {
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
     --info-fd 11
   )
-  if [[ -c /dev/steve ]]; then
-    sandbox+=(--dev-bind /dev/steve /dev/steve)
-  fi
   if ! grep -q -F " -g " $mnt/etc/portage/make.conf; then
     sandbox+=(--size $((32 * 2 ** 30)) --perms 1777 --tmpfs /var/tmp/portage)
   fi
