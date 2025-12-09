@@ -41,7 +41,7 @@ function InitOptions() {
 
   # const
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
-  jobs="4"
+  jobs="4" # superseeded by https://gitweb.gentoo.org/proj/steve.git/log/
 
   abi3264="n"
   cflags=$cflags_default
@@ -248,7 +248,10 @@ function InitImageFromStage3() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
   stage3_list="$tbhome/distfiles/latest-stage3.txt"
-  mirrors=$(source /etc/portage/make.conf; echo ${GENTOO_MIRRORS:-http://distfiles.gentoo.org})
+  mirrors=$(
+    source /etc/portage/make.conf
+    echo ${GENTOO_MIRRORS:-http://distfiles.gentoo.org}
+  )
   mirror_path="releases/amd64/autobuilds"
 
   getStage3List
@@ -461,8 +464,13 @@ RUST_TEST_TASKS=$j
 
 EOF
 
+    cat <<EOF >>./etc/portage/env/j1
+MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
+NINJAOPTS=""
+
+EOF
   done
-  echo "*/*         j$jobs" >>./etc/portage/package.env/00jobs
+  printf "%-35s %s" '*/*' "j$jobs" >>./etc/portage/package.env/00jobs
 
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
@@ -983,7 +991,7 @@ function ThrowFlags() {
 function CompileEnvFiles() {
   if [[ $testfeature == "y" ]]; then
     shuf -n $((RANDOM % 4000 + 3000)) ./var/tmp/tb/backlog |
-      xargs -r -n 1 printf "%-36s notest\n" |
+      xargs -r -n 1 printf "%-35s notest\n" |
       sort >./etc/portage/package.env/27-diced_notest
   fi
 }
