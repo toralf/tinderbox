@@ -445,21 +445,26 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # "j1" is the fallback for packages failing in parallel build
-  cat <<EOF >./etc/portage/env/j1
-MAKEOPTS="\$MAKEOPTS -j1"
+  # "j1" is the fallback for packages failing with parallel build
+  for j in 1 4; do
+    cat <<EOF >./etc/portage/env/j$j
+MAKEOPTS="\$MAKEOPTS -j$j"
 
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
-OMP_NUM_THREADS=1
+OMP_NUM_THREADS=$j
 
-RUST_TEST_THREADS=1
-RUST_TEST_TASKS=1
+RUST_TEST_THREADS=$j
+RUST_TEST_TASKS=$j
 
+EOF
+  done
+  cat <<EOF >>./etc/portage/env/j4
 MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
 NINJAOPTS=""
 
 EOF
+  printf "%-35s %s" '*/*' "j4" >>./etc/portage/package.env/00jobs
 
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
