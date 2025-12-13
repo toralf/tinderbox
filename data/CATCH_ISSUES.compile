@@ -95,6 +95,7 @@ Please install go.* or later.
 make:.* Stop.
 pdflatex failed
 An exception has occurred in the compiler
+Exception occurred:
 error in .* command
 Can.t locate .* in @INC
 error: expected expression before
