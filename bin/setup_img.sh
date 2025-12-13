@@ -41,7 +41,6 @@ function InitOptions() {
 
   # const
   cflags_default="-O2 -pipe -march=native -fno-diagnostics-color"
-  jobs="4" # superseeded by https://gitweb.gentoo.org/proj/steve.git/log/
 
   abi3264="n"
   cflags=$cflags_default
@@ -64,6 +63,11 @@ function InitOptions() {
       local opt_flavour=$(xargs -n 1 <<<"3 s z" | shuf -n 1)
       cflags=$(sed -e "s,-O2,-O$opt_flavour," <<<$cflags)
     fi
+  fi
+
+  # /me
+  if dice 1 6; then
+    cflags+=" -ftrivial-auto-var-init=zero"
   fi
 
   if dice 1 40; then
@@ -342,6 +346,9 @@ FFLAGS="$cflags"
 # enable QA check for LDFLAGS being respected by build system
 LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0$ldflags"
 
+MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
+NINJAOPTS=""
+
 ACCEPT_KEYWORDS="$keyword"
 
 # just tinderbox'ing, no re-distribution nor any kind of "use"
@@ -370,20 +377,6 @@ GENTOO_MIRRORS="$mirrors"
 
 EOF
 
-  if [[ -c /dev/steve ]]; then
-    cat <<EOF >>./etc/portage/make.conf
-MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
-NINJAOPTS=""
-
-EOF
-
-    cat <<EOF >>./etc/sandbox.d/90steve
-SANDBOX_WRITE="/dev/steve"
-
-EOF
-
-  fi
-
   if [[ $cflags =~ " -g " ]]; then
     sed -i -e 's,FEATURES=",FEATURES="splitdebug ,' ./etc/portage/make.conf
   fi
@@ -402,6 +395,8 @@ EOF
   if [[ $profile =~ "/musl" ]]; then
     echo 'RUSTFLAGS="-C target-feature=-crt-static"' >>./etc/portage/make.conf
   fi
+
+  echo 'SANDBOX_WRITE="/dev/steve"' >./etc/sandbox.d/90steve
 }
 
 # helper of CompilePortageFiles()
@@ -451,26 +446,20 @@ FFLAGS="\${CFLAGS}"
 EOF
 
   # "j1" is the fallback for packages failing in parallel build
-  for j in 1 $jobs; do
-    cat <<EOF >./etc/portage/env/j$j
-MAKEOPTS="\$MAKEOPTS -j$j"
+  cat <<EOF >./etc/portage/env/j1
+MAKEOPTS="\$MAKEOPTS -j1"
 
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
-OMP_NUM_THREADS=$j
+OMP_NUM_THREADS=1
 
-RUST_TEST_THREADS=$j
-RUST_TEST_TASKS=$j
+RUST_TEST_THREADS=1
+RUST_TEST_TASKS=1
 
-EOF
-
-    cat <<EOF >>./etc/portage/env/j1
 MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
 NINJAOPTS=""
 
 EOF
-  done
-  printf "%-35s %s" '*/*' "j$jobs" >>./etc/portage/package.env/00jobs
 
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable

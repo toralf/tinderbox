@@ -52,7 +52,7 @@ function listImagesWithoutAnyBug() {
   local n=$(wc -w <<<$dirs)
   echo "<h2>$n images with no bug</h2>"
   echo "<pre>"
-  xargs -n 1 <<<$dirs
+  xargs -r -n 1 <<<$dirs
   echo -e "</pre>\n"
 }
 
@@ -70,7 +70,7 @@ function listImagesWithoutReportedBugs() {
   local n=$(wc -w <<<$dirs)
   echo "<h2>$n images with no reported bug</h2>"
   echo "<pre>"
-  xargs -n 1 <<<$dirs
+  xargs -r -n 1 <<<$dirs
   echo -e "</pre>\n"
 }
 

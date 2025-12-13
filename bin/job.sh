@@ -970,7 +970,7 @@ function RunAndCheck() {
         if grep -q -e "=$pkg$" $self; then
           ReachedEOL "$pkg already masked" $tasklog
         fi
-        if ! grep -q '^kill_img.sh: ' /var/tmp/tb/EOL; then
+        if ! grep -q '^kill_img.sh: ' /var/tmp/tb/EOL 2>/dev/null; then
           echo "=$pkg" >>$self
         fi
       fi
@@ -1213,8 +1213,7 @@ name=$(</var/tmp/tb/name) # image name
 taskfile=/var/tmp/tb/task # the current task
 tasklog=$taskfile.log     # holds the output
 
-jobs=$(sed 's,^.*j,,' /etc/portage/package.env/00jobs)
-export XZ_OPT="-9 -T$jobs"
+export XZ_OPT="-9 -T1"
 
 if [[ $name =~ "_test" ]]; then
   export XRD_LOGLEVEL="Debug"

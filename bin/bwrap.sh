@@ -11,8 +11,8 @@ function CreateCgroup() {
     if mkdir $cgdomain 2>/dev/null; then
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-      # reserve 5 vCPU for non-tinderboxing tasks
-      cpu=$(($(nproc) - 5))
+      # reserve n vCPU for non-tinderboxing tasks
+      cpu=$(($(nproc) - 4))
       echo "$((cpu * 100))" >$cgdomain/cpu.weight
       echo "$((cpu * 100000))" >$cgdomain/cpu.max
       echo "110G" >$cgdomain/memory.max
@@ -37,15 +37,7 @@ function CreateCgroup() {
   echo "$$" >$name/cgroup.procs
 
   # vCPU and mem per image
-  if [[ -c /dev/steve ]] && grep -q '^MAKEFLAGS=".*--jobserver-auth=fifo:/dev/steve.*"' $mnt/etc/portage/make.conf; then
-    cpu=12
-  else
-    cpu=$(sed 's,^.*j,,' $mnt/etc/portage/package.env/00jobs)
-    if [[ ! $cpu =~ ^[0-9]+$ ]]; then
-      echo " cpu is invalid: '$cpu'" >&2
-      return 14
-    fi
-  fi
+  cpu=$((1 + ($(nproc) - 1)/2))
   echo "$((cpu * 100))" >$name/cpu.weight
   echo "$((cpu * 100000))" >$name/cpu.max
   echo "64G" >$name/memory.max
