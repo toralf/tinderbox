@@ -96,7 +96,7 @@ if [[ ! -d /run/tb ]]; then
 fi
 
 # number of parallel images
-desired_count=${1:-11}
+desired_count=${1:-$((1 + $(nproc) / 3))}
 
 lockfile="/tmp/$(basename $0).lock"
 if [[ -s $lockfile ]]; then
