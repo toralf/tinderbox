@@ -445,6 +445,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
+  # replace_img.sh defaults to nproc/3 images, so set make default +1 higher
   # "j1" is the fallback for packages failing with parallel build
   for j in 1 4; do
     cat <<EOF >./etc/portage/env/j$j
