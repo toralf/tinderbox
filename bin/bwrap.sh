@@ -37,7 +37,7 @@ function CreateCgroup() {
   echo "$$" >$name/cgroup.procs
 
   # vCPU and mem per image
-  cpu=$((1 + ($(nproc) - 1)/2))
+  cpu=$((1 + ($(nproc) - 1) / 2))
   echo "$((cpu * 100))" >$name/cpu.weight
   echo "$((cpu * 100000))" >$name/cpu.max
   echo "64G" >$name/memory.max
