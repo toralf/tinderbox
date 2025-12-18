@@ -465,7 +465,7 @@ MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
 NINJAOPTS=""
 
 EOF
-  printf "%-35s %s" '*/*' "j4" >>./etc/portage/package.env/00jobs
+  printf "%-35s %s\n" '*/*' "j4" >>./etc/portage/package.env/00jobs
 
   if [[ $keyword == '~amd64' ]]; then
     cpconf $tbhome/tb/conf/package.*.??unstable
