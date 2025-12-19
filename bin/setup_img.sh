@@ -634,6 +634,7 @@ if [[ ! $profile =~ "/musl" ]]; then
 en_US ISO-8859-1
 # needed by Dotnet SDK and for +test
 en_US.UTF-8 UTF-8
+
 EOF2
   locale-gen
 fi
@@ -1012,19 +1013,19 @@ EOF
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1up --selective=n --deep=0 =\$(portageq best_visible / llvm-core/clang) =\$(portageq best_visible / llvm-core/llvm)
 echo "$line"
-emerge -up @world
+emerge -up @world sys-kernel/gentoo-kernel-bin
 EOF
   elif [[ $profile =~ '/no-multilib/hardened' ]]; then
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1up --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc) sys-devel/binutils sys-libs/glibc
 echo "$line"
-emerge -ep @world
+emerge -ep @world sys-kernel/gentoo-kernel-bin
 EOF
   else
     cat <<EOF >>./var/tmp/tb/dryrun_wrapper.sh
 emerge -1up --selective=n --deep=0 =\$(portageq best_visible / sys-devel/gcc)
 echo "$line"
-emerge -up @world
+emerge -up @world sys-kernel/gentoo-kernel-bin
 EOF
   fi
 
