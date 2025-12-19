@@ -346,9 +346,6 @@ FFLAGS="$cflags"
 # enable QA check for LDFLAGS being respected by build system
 LDFLAGS="\$LDFLAGS -Wl,--defsym=__gentoo_check_ldflags__=0$ldflags"
 
-MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
-NINJAOPTS=""
-
 ACCEPT_KEYWORDS="$keyword"
 
 # just tinderbox'ing, no re-distribution nor any kind of "use"
@@ -460,6 +457,8 @@ RUST_TEST_TASKS=$j
 
 EOF
   done
+
+  cp ./etc/portage/env/j4 ./etc/portage/env/j4-no-jobserver
   cat <<EOF >>./etc/portage/env/j4
 MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
 NINJAOPTS=""
@@ -691,7 +690,7 @@ fi
 
 date
 echo "#setup tools" | tee /var/tmp/tb/task
-USE="-doc -gui -network-cron -qmanifest" emerge -u app-arch/xz-utils app-portage/smart-live-rebuild app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode www-client/pybugz
+USE="-doc -gui -network-cron -qmanifest" emerge -u app-arch/xz-utils app-portage/smart-live-rebuild app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode dev-build/steve www-client/pybugz
 if [[ $keyword == "~amd64" ]]; then
   emerge -u app-portage/eschwartz-dev-scripts
 fi
