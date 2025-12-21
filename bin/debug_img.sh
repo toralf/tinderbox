@@ -18,14 +18,14 @@ cd ~tinderbox/img/$img
 
 if [[ $# -eq 1 ]]; then
   # interactive shell
-  nsenter -t $child -a -r \
+  LC_ALL=$LANG nsenter -t $child -a -r \
     bash
 else
   # if $2 is "" or a pid then create a gdb bt,  with a "0" just the namespace process table is dumped
   out=/tmp/$(basename $0).log
   truncate -s 0 $out
 
-  nsenter -t $child -a -r \
+  LC_ALL=$LANG nsenter -t $child -a -r \
     bash -c 'COLUMNS=10000 ps faux; exit' 2>&1 |
     tee -a $out
 
@@ -39,7 +39,7 @@ else
 
     if [[ -n $pid && $pid -gt 0 ]]; then
       echo -e "\n\n  + + + gdb bt for $img with child-pid $child for pid $pid + + +\n\n" | tee -a $out
-      nsenter -t $child -a -r \
+      LC_ALL=$LANG nsenter -t $child -a -r \
         gdb -q -batch \
         -ex 'set logging enabled off' -ex 'set pagination off' -ex 'thread apply all bt' -ex 'detach' -ex 'quit' \
         -p $pid 2>&1 |
