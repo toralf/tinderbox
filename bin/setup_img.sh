@@ -626,6 +626,8 @@ date
 echo "#setup user" | tee /var/tmp/tb/task
 groupadd -g $(id -g tinderbox) tinderbox
 useradd -g $(id -g tinderbox) -u $(id -u tinderbox) -G portage tinderbox
+emerge -u acct-group/jobserver acct-user/steve
+usermod -a -G jobserver portage
 
 if [[ ! $profile =~ "/musl" ]]; then
   date
@@ -691,7 +693,7 @@ fi
 
 date
 echo "#setup tools" | tee /var/tmp/tb/task
-USE="-doc -gui -network-cron -qmanifest" emerge -u app-arch/xz-utils app-portage/smart-live-rebuild app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode dev-build/steve www-client/pybugz
+USE="-doc -gui -network-cron -qmanifest" emerge -u app-arch/xz-utils app-portage/smart-live-rebuild app-portage/pfl app-portage/portage-utils app-text/ansifilter app-text/recode www-client/pybugz
 if [[ $keyword == "~amd64" ]]; then
   emerge -u app-portage/eschwartz-dev-scripts
 fi
