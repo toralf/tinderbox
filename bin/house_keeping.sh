@@ -99,10 +99,15 @@ fi
 # use atime, b/c mtime could be much older than the host itself
 find ~tinderbox/distfiles/ -ignore_readdir_race -maxdepth 1 -type f -atime +90 -delete
 
-while read -r img; do
-  if [[ ! -s $img/var/log/emerge.log || $(wc -l <$img/var/log/emerge.log) -lt 300 ]] && olderThan $img 6; then
+while lowSpace && read -r img; do
+  if [[ ! -s $img/var/log/emerge.log ]] && olderThan $img 2; then
     pruneIt $img "broken setup"
   fi
+
+  if [[ -f $img/var/tmp/tb/replace_img.sh.log ]] && ((EPOCHSECONDS - $(stat -c %Z $img/var/tmp/tb/replace_img.sh.log) < 2 * 3600)); then
+    pruneIt $img "stalled setup"
+  fi
+
 done < <(list_images_by_age "img")
 
 while lowSpace && read -r img; do
