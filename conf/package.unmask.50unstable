@@ -11,4 +11,4 @@
 
 =sys-apps/portage-9999                                  # DICE: [portage-9999] 1 6
 
-#=dev-python/sphinx-9.0*                                 # DICE: [sphinx-9] 1 6
+=dev-python/sphinx-9.1*                                 # DICE: [sphinx-9] 1 1
