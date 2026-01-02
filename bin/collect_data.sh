@@ -48,13 +48,12 @@ mv $tmpfile ~tinderbox/img/big_packages.txt
 #
 {
   if [[ ${1-} == "reset" ]]; then
-    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2"
+    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -a ! -name '*-MERGING-*'
   else
     echo ~tinderbox/img/needed.ELF.2.txt
-    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -cmin -65
+    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -cmin -65 -a ! -name '*-MERGING-*'
   fi
 } |
-  grep -v -F '/-MERGING-' |
   xargs -r cat |
   sort -u >$tmpfile
 chmod a+r $tmpfile
@@ -62,14 +61,12 @@ mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
 
 {
   if [[ ${1-} == "reset" ]]; then
-    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED" |
-      grep -v -F '/-MERGING-' |
+    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED"  -a ! -name '*-MERGING-*' -a ! -name '*-MERGING-*'|
       xargs -r grep -H . |
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   else
     cat ~tinderbox/img/needed.txt
-    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED" -cmin -65 |
-      grep -v -F '/-MERGING-' |
+    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED" -cmin -65  -a ! -name '*-MERGING-*' |
       xargs -r grep -H . |
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   fi
