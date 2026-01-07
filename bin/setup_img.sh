@@ -985,14 +985,6 @@ function ThrowFlags() {
     done >./etc/portage/package.use/24-diced_package_use_flags
 }
 
-function CompileEnvFiles() {
-  if [[ $testfeature == "y" ]]; then
-    shuf -n $((RANDOM % 4000 + 3000)) ./var/tmp/tb/backlog |
-      xargs -r -n 1 printf "%-35s notest\n" |
-      sort >./etc/portage/package.env/27-diced_notest
-  fi
-}
-
 function CompileUseFlagFiles() {
   echo "$(date) ${FUNCNAME[0]} ..."
 
@@ -1132,7 +1124,6 @@ while getopts R:a:k:p:m:M:st:u: opt; do
     start_it="y"
     rm -f ./var/tmp/tb/{EOL,STOP}
 
-    CompileEnvFiles
     CompileUseFlagFiles
     Finalize
     exit 0
@@ -1161,6 +1152,5 @@ CompileMiscFiles
 CreateBacklogs
 CreateSetupScript
 RunSetupScript
-CompileEnvFiles
 CompileUseFlagFiles
 Finalize
