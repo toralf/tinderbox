@@ -1,2 +1,4 @@
 # package.mask/50unstable
 #
+
+=app-portage/portage-utils-0.99
