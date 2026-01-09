@@ -423,7 +423,7 @@ function CompilePortageFiles() {
   echo 'EXTRA_ECONF="DEFAULT_ARCHIVE=/dev/null/BAD_TAR_INVOCATION"' >./etc/portage/env/bad_tar
 
   # handle broken setup or particular package issue
-  echo 'FEATURES="-test -test-full"' >./etc/portage/env/notest
+  echo 'FEATURES="-test -test-full -test-rust -test-suite"' >./etc/portage/env/notest
 
   # continue after a (known) test phase failure rather than setting "notest"
   # for that package and therefore risk a changed dependency tree
