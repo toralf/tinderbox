@@ -10,7 +10,6 @@
 64
 bindist
 boot
-bootstrap
 bootstrap-prefix
 build
 cdinstall
@@ -30,6 +29,7 @@ default-libcxx
 default-lld
 deprecated
 dist-kernel
+doc
 dracut
 evdev
 exec-static-trampoline
@@ -38,6 +38,7 @@ fuse
 gcc-symlinks
 ghcbootstrap
 gold
+gtk-doc
 hardened
 headers-only
 homed
@@ -92,8 +93,10 @@ systemd
 tcmalloc
 test
 test-full
+test-rust
 test-suite
 unwind
+valgrind
 vanilla
 x32
 xinetd

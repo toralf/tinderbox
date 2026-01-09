@@ -33,13 +33,14 @@ x11-libs/wxGTK                      tiff
 #
 # circ dep
 #
+dev-libs/elfutils                   -stacktrace
 sys-libs/libnbd                     -go
-
 
 #######################################################################
 #
 # helps
 #
+
 dev-qt/qtmultimedia                 qml
 dev-qt/qttools                      -designer
 media-gfx/imagemagick               truetype
