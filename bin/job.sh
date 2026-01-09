@@ -905,7 +905,7 @@ function SetPkgFromTaskLog() {
 # run $1 and act on its results
 function RunAndCheck() {
   set +e
-  if [[ $1 == "SwitchGCC" ]]; then
+  if [[ $1 =~ "SwitchGCC" ]]; then
     # has to be run in the current shell because /etc/profile might be sourced
     SwitchGCC >>$tasklog
   else
