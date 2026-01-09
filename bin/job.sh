@@ -905,12 +905,11 @@ function SetPkgFromTaskLog() {
 # run $1 and act on its results
 function RunAndCheck() {
   set +e
-  if [[ $1 =~ "SwitchGCC" ]]; then
+  if [[ $1 == "SwitchGCC" ]]; then
     # has to be run in the current shell because /etc/profile might be sourced
     SwitchGCC >>$tasklog
   else
-    # avoid any environment polution, the 48 hours are calculated for -j 4
-    timeout --signal=15 --kill-after=5m 48h bash -c "$1" &>>$tasklog
+    bash -c "$1" &>>$tasklog
   fi
   local rc=$?
   set -e
