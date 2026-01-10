@@ -905,6 +905,7 @@ function SetPkgFromTaskLog() {
 # run $1 and act on its results
 function RunAndCheck() {
   set +e
+  # might have a trailing space
   if [[ $1 =~ "SwitchGCC" ]]; then
     # has to be run in the current shell because /etc/profile might be sourced
     SwitchGCC >>$tasklog
