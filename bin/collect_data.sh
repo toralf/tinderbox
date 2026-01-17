@@ -61,13 +61,13 @@ mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
 
 {
   if [[ ${1-} == "reset" ]]; then
-    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED" -a ! -wholename '*-MERGING-*' -a ! -wholename '*-MERGING-*' |
-      xargs -r grep -H . |
+    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED" -a ! -wholename '*-MERGING-*' -a ! -wholename '*-MERGING-*' -print0 |
+      xargs -0 -r grep -H . |
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   else
     cat ~tinderbox/img/needed.txt
-    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED" -cmin -65 -a ! -wholename '*-MERGING-*' |
-      xargs -r grep -H . |
+    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED" -cmin -65 -a ! -wholename '*-MERGING-*' -print0 |
+      xargs -0 -r grep -H . |
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   fi
 } | sort -u >$tmpfile
