@@ -188,7 +188,7 @@ function PackagesPerImagePerRunDay() {
     if printImageName $i 50; then
       local start_time
       start_time=$(getStartTime $i)
-      perl -F: -wane '
+      LC_ALL=$LANG perl -F: -wane '
         BEGIN {
           @packages = (); # emerges per runday
         }
@@ -269,7 +269,7 @@ function Coverage() {
 function CountEmergesPerPackages() {
   echo "package (revisions) x emerges in ~/run"
 
-  perl -wane '
+  LC_ALL=$LANG perl -wane '
     BEGIN {
       my %pet = (); # package => emerges
     }

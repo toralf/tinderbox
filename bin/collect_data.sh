@@ -23,7 +23,7 @@ mv $tmpfile ~tinderbox/img/sam.txt
 # xgqt : big package size
 #
 find ~tinderbox/img/*/var/tmp/big_packages.txt -ignore_readdir_race ! -wholename '*_test*' -exec cat {} + |
-  perl -wane '
+  LC_ALL=$LANG perl -wane '
     chomp;
     next if ($#F != 2);
     my $u = $F[1];                 # unit (string)
