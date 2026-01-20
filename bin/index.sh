@@ -103,11 +103,13 @@ EOF
 
   local d no uri
   while read -r f; do
-    uri=$(<$f)    # b.g.o. link
-    no=${uri##*/} # bug number
-    if [[ -z $no ]]; then
-      continue # race with house keeping
+    # contains the b.g.o. link, racy wrt house keeping
+    if ! uri=$(<$f); then
+      continue
     fi
+
+    # bug number
+    no=${uri##*/}
 
     # f: /home/tinderbox/img/23.0_llvm-20241010-060009/var/tmp/tb/issues/20241013-122040-dev-db_myodbc-8.0.32/.reported
     d=${f%/*}
