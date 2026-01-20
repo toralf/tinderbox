@@ -91,3 +91,6 @@ net-misc/rabbitmq-server
 #
 # https://bugs.gentoo.org/958367
 games-engines/odamex
+#
+# dep conflict
+sci-libs/cholmod

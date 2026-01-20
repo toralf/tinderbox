@@ -33,6 +33,7 @@ x11-libs/wxGTK                      tiff
 #
 # circ dep
 #
+dev-libs/check                      -subunit
 dev-libs/elfutils                   -stacktrace
 sys-libs/libnbd                     -go
 
