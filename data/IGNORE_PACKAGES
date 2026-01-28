@@ -81,10 +81,11 @@ dev-ruby/regexp_parse
 dev-util/colm
 dev-util/ragel
 #
-# @preserved-rebuild has a dep conflict
+# @preserved-rebuild has too often a dep conflict
 #
 sci-libs/cholmod
 sci-libs/suitesparse
+sci-mathematics/octave
 #
 # hangs
 net-misc/rabbitmq-server
@@ -92,5 +93,3 @@ net-misc/rabbitmq-server
 # https://bugs.gentoo.org/958367
 games-engines/odamex
 #
-# dep conflict
-sci-libs/cholmod
