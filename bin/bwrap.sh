@@ -36,8 +36,8 @@ function CreateCgroup() {
   fi
   echo "$$" >$name/cgroup.procs
 
-  # vCPU and memory per image, see replace_img.sh for "desired_count" and setup_img.sh for "-j"
-  cpu=$((1 + $(nproc) / 3))
+  # vCPU and memory per image, the cpu value should match dev-build/steve
+  cpu=10
   echo "$((cpu * 100))" >$name/cpu.weight
   echo "$((cpu * 100000))" >$name/cpu.max
   echo "64G" >$name/memory.max
