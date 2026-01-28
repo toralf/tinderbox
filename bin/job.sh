@@ -1137,16 +1137,15 @@ function DetectRepeats() {
 
   if [[ ! $name =~ "_test" ]]; then
     item='@preserved-rebuild'
-    count=$(tail -n 7 $taskfile.history | grep -c $item || true)
-    if [[ $count -ge 3 ]]; then
-      if grep -q "WARNING:" $tasklog; then
+    if count=$(tail -n 7 $taskfile.history | grep -c "$item"); then
+      if ((count >= 3)) && grep -q "WARNING:" $tasklog; then
         ReachedEOL "repeated: $count x $item" $tasklog
       fi
     fi
   fi
 
   if read -r count item < <(tail -n 60 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1); then
-    if [[ $count -ge 10 && $item == '@preserved-rebuild' || $count -ge 20 ]]; then
+    if [[ $count -ge 7 && $item == '@preserved-rebuild' || $count -ge 20 ]]; then
       ReachedEOL "repeated: $count x $item" $tasklog
     fi
   fi
