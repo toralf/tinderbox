@@ -961,6 +961,10 @@ function RunAndCheck() {
       createIssueDir
       WorkAtIssue
     fi
+
+    if grep -q 'Error:' $tasklog_stripped && grep -q 'required by @system' $tasklog_stripped; then
+      add2backlog "@world"
+    fi
   fi
 
   if [[ $rc -gt 0 ]]; then
