@@ -1,4 +1,4 @@
-  # package.use/80test-y
+# package.use/80test-y
 #
 
 
@@ -37,11 +37,11 @@ dev-libs/check                      -subunit
 dev-libs/elfutils                   -stacktrace
 sys-libs/libnbd                     -go
 
+
 #######################################################################
 #
 # helps
 #
-
 dev-qt/qtmultimedia                 qml
 dev-qt/qttools                      -designer
 media-gfx/imagemagick               truetype

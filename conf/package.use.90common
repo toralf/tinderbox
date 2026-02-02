@@ -43,7 +43,12 @@ sys-kernel/installkernel            -dracut -grub
 #
 # misc
 
+# grep -hr -A 12 ' Error: circular dependencies:' ~/run/*/var/tmp/tb/logs/ | grep -F 'Change USE:' | sort | uniq -c | sort -bn
+#
+dev-lang/vala                       -valadoc
+
 # setup blocker
+#
 dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
 media-libs/mesa                     llvm                # DICE: setup_mesa 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
@@ -51,31 +56,39 @@ x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
 */*         RUBY_TARGETS:           ruby40              # DICE: ruby40
 
 # setup almost failed otherwise
+#
 net-misc/openssh                    ssl
 sys-apps/shadow                     pam -cracklib
 sys-apps/util-linux                 pam
 
 # 2x faster compile
+#
 */*                                 jumbo-build
 
 # needs days instead seconds
+#
 dev-libs/gf2x                       -custom-tune
 
 # needs 2 hours instead few seconds
+#
 app-doc/gimp-help                   -nls
 
 # circular dependencies with media-libs/libsndfile
+#
 media-sound/lame                    -sndfile            # DICE: lame
 
 sys-fs/cryptsetup   -gcrypt -kernel -nettle openssl     # DICE: cryptsetup
 
 # wants "deprecated" otherwise
+#
 net-wireless/bluez                  -extra-tools
 
 # setup blocker if only tools is activated
+#
 dev-libs/libbytesize                -tools -python      # DICE: libbytesize 1 2
 
 # FF and TB
+#
 app-text/poppler                    cairo               # DICE: ff_tb 1 6
 dev-lang/python                     sqlite              # DICE: ff_tb 1 6
 dev-libs/libusb                     udev                # DICE: ff_tb 1 6
@@ -96,11 +109,13 @@ x11-libs/cairo                      X                   # DICE: ff_tb 1 6
 x11-libs/libxkbcommon               X                   # DICE: ff_tb 1 6
 
 # FF
+#
 media-sound/lame                    -frontend           # DICE: ff_tb 1 6
 media-video/pipewire                dbus extra          # DICE: ff_tb 1 6
 www-client/firefox                  dbus                # DICE: ff_tb 1 6
 
 # TB
+#
 dev-lang/rust                       rustfmt             # DICE: ff_tb 1 6
 dev-libs/libxml2                    python              # DICE: ff_tb 1 6
 dev-qt/qtcore                       icu                 # DICE: ff_tb 1 6
@@ -113,6 +128,7 @@ sys-libs/tevent                     python              # DICE: ff_tb 1 6
 x11-libs/cairo                      glib                # DICE: ff_tb 1 6
 
 # LO
+#
 app-arch/libarchive                 bzip2
 app-crypt/gpgme                     cxx qt6                               # DICE: libreoffice 1 6
 app-crypt/qca                       qt6                                   # DICE: libreoffice 1 6
@@ -141,4 +157,5 @@ x11-libs/cairo                      X                                     # DICE
 x11-libs/gtk+                       X                                     # DICE: libreoffice 1 6
 
 # hack around of an ebuild bug
+
 www-apps/gitea                      acct

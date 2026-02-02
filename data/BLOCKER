@@ -79,4 +79,4 @@ Error compiling Cython file:
 
 # [TRACKER] sys-libs/glibc-2.43 related issues
 969212
-Werror=discarded-qualifiers|brackets|assignment of read-only location
+Werror=discarded-qualifiers|brackets|assignment of read-only location|expected identifier before|expected identifier .* before

@@ -95,6 +95,7 @@ test
 test-full
 test-rust
 test-suite
+unsupported
 unwind
 valgrind
 vanilla
