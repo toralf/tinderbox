@@ -16,7 +16,8 @@ tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
 # sam_ : bashrc meson hook
 #
-sort -u ~tinderbox/img/*/var/tmp/sam.txt >$tmpfile
+sort -u ~tinderbox/img/*/var/tmp/sam.txt |
+  ansifilter >$tmpfile
 chmod a+r $tmpfile
 mv $tmpfile ~tinderbox/img/sam.txt
 
@@ -48,10 +49,10 @@ mv $tmpfile ~tinderbox/img/big_packages.txt
 #
 {
   if [[ ${1-} == "reset" ]]; then
-    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -a ! -wholename '*-MERGING-*'
+    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 3 -name "NEEDED.ELF.2" -a ! -wholename '*/-MERGING-*'
   else
     echo ~tinderbox/img/needed.ELF.2.txt
-    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED.ELF.2" -cmin -65 -a ! -wholename '*-MERGING-*'
+    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 3 -name "NEEDED.ELF.2" -cmin -65 -a ! -wholename '*/-MERGING-*'
   fi
 } |
   xargs -r cat |
@@ -61,12 +62,12 @@ mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
 
 {
   if [[ ${1-} == "reset" ]]; then
-    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED" -a ! -wholename '*-MERGING-*' -a ! -wholename '*-MERGING-*' -print0 |
+    find ~tinderbox/img/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 3 -name "NEEDED" -a ! -wholename '*/-MERGING-*' -print0 |
       xargs -0 -r grep -H . 2>/dev/null |
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   else
     cat ~tinderbox/img/needed.txt
-    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 4 -name "NEEDED" -cmin -65 -a ! -wholename '*-MERGING-*' -print0 |
+    find ~tinderbox/run/*/var/db/pkg/ -ignore_readdir_race -mindepth 3 -maxdepth 3 -name "NEEDED" -cmin -65 -a ! -wholename '*/-MERGING-*' -print0 |
       xargs -0 -r grep -H . 2>/dev/null |
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   fi
