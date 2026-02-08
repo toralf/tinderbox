@@ -29,12 +29,6 @@ net-misc/curl                       ssl -gnutls -ngtcp2 -rustls
 # required by sys-kernel/gentoo-kernel-bin
 sys-apps/kmod                       lzma
 
-# D needs to be bootstraped before
-sys-devel/gcc                       -d
-
-# GNAT is required otherwise
-sys-devel/gcc                       -ada
-
 # no installation https://bugs.gentoo.org/831346
 sys-kernel/gentoo-kernel-bin        -initramfs -kernel-install
 sys-kernel/installkernel            -dracut -grub

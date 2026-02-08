@@ -1,5 +1,4 @@
 Active compiler does not have required support for OpenMP
-ada compiler not available
 asciidoctor.*LoadError
 AttributeError: Config object has no attribute _cleanup. Did you mean: add_cleanup
 CONFIG_.*:.*is not set when it should be

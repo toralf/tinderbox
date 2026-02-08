@@ -33,6 +33,7 @@ doc
 dracut
 evdev
 exec-static-trampoline
+external-hsm
 firmware
 fuse
 gcc-symlinks
