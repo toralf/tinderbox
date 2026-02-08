@@ -1006,7 +1006,7 @@ function WorkOnTask() {
     if [[ $task =~ ^% ]]; then
       dryrun_cmd=$(sed -e 's,%emerge,emerge -p -v,' <<<$task)
     else
-      dryrun_cmd="emerge -p -v $task"
+      dryrun_cmd="emerge -up -v $task"
     fi
 
     if ! $dryrun_cmd &>>$tasklog; then
@@ -1065,7 +1065,7 @@ function WorkOnTask() {
     fi
 
   elif [[ $task =~ "@world" ]]; then
-    if RunAndCheck "emerge $task $backtrack_opt"; then
+    if RunAndCheck "emerge -u $task $backtrack_opt"; then
       if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
         add2backlog "%emerge --depclean --verbose=n"
       fi
@@ -1099,7 +1099,7 @@ function WorkOnTask() {
         getbinpkg="--getbinpkg"
       fi
     fi
-    if RunAndCheck "emerge --update $getbinpkg $task"; then
+    if RunAndCheck "emerge -u $getbinpkg $task"; then
       if [[ $task == "@preserved-rebuild" ]]; then
         if grep -q -F '!!! existing preserved libs:' $tasklog; then
           ReachedEOL "$task still has preserved libs" $tasklog
