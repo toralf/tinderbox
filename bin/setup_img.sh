@@ -630,14 +630,23 @@ emerge -u acct-group/jobserver acct-user/steve
 usermod -a -G jobserver portage
 
 if [[ ! $profile =~ "/musl" ]]; then
+  if ((RANDOM % 2 < 1)); then
+    cat <<EOF2 >>/etc/locale.gen
+en_US ISO-8859-1
+# needed by Dotnet SDK
+en_US UTF-8
+EOF2
+  fi
+
+  if [[ $testfeature == "y" ]]; then
+    cat <<EOF2 >>/etc/locale.gen
+# needed for +test
+en_US UTF-8
+EOF2
+  fi
+
   date
   echo "#setup locale" | tee /var/tmp/tb/task
-  cat <<EOF2 >>/etc/locale.gen
-en_US ISO-8859-1
-# needed by Dotnet SDK and for +test
-en_US.UTF-8 UTF-8
-
-EOF2
   locale-gen
 fi
 
