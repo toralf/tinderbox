@@ -636,18 +636,18 @@ en_US ISO-8859-1
 # needed by Dotnet SDK
 en_US UTF-8
 EOF2
-  fi
 
-  if [[ $testfeature == "y" ]]; then
-    cat <<EOF2 >>/etc/locale.gen
+    if [[ $testfeature == "y" ]]; then
+      cat <<EOF2 >>/etc/locale.gen
 # needed for +test
 en_US UTF-8
 EOF2
-  fi
+    fi
 
-  date
-  echo "#setup locale" | tee /var/tmp/tb/task
-  locale-gen
+    date
+    echo "#setup locale" | tee /var/tmp/tb/task
+    locale-gen
+  fi
 fi
 
 date
