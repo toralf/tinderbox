@@ -712,7 +712,7 @@ function SwitchGCC() {
     fi
     source_profile
 
-    add2backlog "%emerge -1 --selective=n --deep=0 -u dev-build/libtool"
+    add2backlog "%emerge -1u --selective=n --deep=0 dev-build/libtool"
     if [[ ! $highest =~ -${v}$ ]]; then
       add2backlog "%emerge --unmerge sys-devel/gcc:$v"
     else
@@ -798,7 +798,7 @@ function PostEmerge() {
   fi
 
   if grep -q ' An update to portage is available.' $tasklog_stripped; then
-    add2backlog "%emerge --oneshot sys-apps/portage"
+    add2backlog "%emerge -1u sys-apps/portage"
   fi
 }
 
@@ -1004,9 +1004,9 @@ function WorkOnTask() {
   if [[ $task =~ "@world" ]]; then
     local dryrun_cmd
     if [[ $task =~ ^% ]]; then
-      dryrun_cmd=$(sed -e 's,%emerge,emerge -p -v,' <<<$task)
+      dryrun_cmd=$(sed -e 's,%emerge ,emerge -pv ,' <<<$task)
     else
-      dryrun_cmd="emerge -up -v $task"
+      dryrun_cmd="emerge -pvu $task"
     fi
 
     if ! $dryrun_cmd &>>$tasklog; then
