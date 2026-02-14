@@ -631,18 +631,11 @@ usermod -a -G jobserver portage
 
 if [[ ! $profile =~ "/musl" ]]; then
   if ((RANDOM % 2 < 1)); then
-    cat <<EOF2 >>/etc/locale.gen
-en_US ISO-8859-1
-# needed by Dotnet SDK
-en_US UTF-8
-EOF2
-
-    if [[ $testfeature == "y" ]]; then
-      cat <<EOF2 >>/etc/locale.gen
-# needed for +test
-en_US UTF-8
-EOF2
-    fi
+    for l in "en_US ISO-8859-1" "en_US UTF-8" "en_GB ISO-8859-1" "en_GB UTF-8" "de_DE ISO-8859-1" "de_DE UTF-8" "de_DE@euro ISO-8859-15"; do
+      if ((RANDOM % 10 < 1)); then
+        echo "\$l" >>/etc/locale.gen
+      fi
+    done
 
     date
     echo "#setup locale" | tee /var/tmp/tb/task
