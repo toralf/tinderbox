@@ -1305,8 +1305,8 @@ while :; do
   catchMisc
 
   echo "#compressing logs" >$taskfile
-  if ! find /var/log/portage -name '*.log' -exec xz {} + &>>$tasklog; then
-    Mail "NOTICE: error while compressing logs" $tasklog
+  if ! find /var/log/portage -name '*.log' -exec xz -f {} + &>>$tasklog; then
+    ReachedEOL "error while compressing logs" $tasklog
   fi
 
   rm -rf /var/tmp/portage/* # "-f" needed if e.g. "pretend" or "fetch" phase failed
