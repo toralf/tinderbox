@@ -18,7 +18,7 @@ function Finish() {
 function ImagesInRun() {
   (
     cd ~tinderbox/run
-    ls -d * 2>/dev/null
+    ls -d */ 2>/dev/null
   )
 }
 
@@ -29,7 +29,7 @@ function StopNonrespondingImages() {
         if ! ts=$(stat -c %Z ~tinderbox/img/$img/var/tmp/tb/task.log 2>/dev/null); then
           if ! ts=$(stat -c %Z ~tinderbox/img/$img/var/tmp/tb/task 2>/dev/null); then
             if ! ts=$(getStartTime $img); then
-              Finish 3
+              continue
             fi
           fi
         fi
