@@ -12,6 +12,7 @@ GCC requires sys-devel/gcc with USE=objc
 gnat-gpl-2021 does not build with clang. It is bootstrapped.
 Incorrect kernel configuration options
 kernel sources are required to build kernel modules
+Linux 6.18 is the latest supported version
 No LLVM slot .* satisfying the package's dependencies found installed
 No suitable POSTGRES_TARGETS enabled
 No supported Python implementation in PYTHON_SINGLE_TARGET

@@ -93,3 +93,5 @@ net-misc/rabbitmq-server
 # https://bugs.gentoo.org/958367
 games-engines/odamex
 #
+# hangs https://bugs.gentoo.org/961720
+sys-fs/bcachefs-tools
