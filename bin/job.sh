@@ -1050,17 +1050,8 @@ function WorkOnTask() {
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
           ReachedEOL "--depclean failed" $tasklog
         fi
-      else
-        if [[ -n $pkg ]]; then
-          if [[ $task =~ $pkg ]]; then
-            Mail "failed task $task for pkg $pkg" $tasklog
-          else
-            Mail "resume task $task, $pkg failed" $tasklog
-            add2backlog "$task"
-          fi
-        else
-          Mail "failed task $task" $tasklog
-        fi
+      elif [[ -n $pkg && ! $task =~ $pkg ]]; then
+        add2backlog "$task"
       fi
     fi
 
