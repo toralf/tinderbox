@@ -1,6 +1,7 @@
 Active compiler does not have required support for OpenMP
 asciidoctor.*LoadError
 AttributeError: Config object has no attribute _cleanup. Did you mean: add_cleanup
+Cannot use LANG=C.UTF-8 as it cannot be C or POSIX
 CONFIG_.*:.*is not set when it should be
 Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
@@ -14,6 +15,7 @@ Incorrect kernel configuration options
 kernel sources are required to build kernel modules
 Linux 6.18 is the latest supported version
 No LLVM slot .* satisfying the package's dependencies found installed
+No space left on device
 No suitable POSTGRES_TARGETS enabled
 No supported Python implementation in PYTHON_SINGLE_TARGET
 One of the postgres_targets_postgresSL_OT use flags must be enabled

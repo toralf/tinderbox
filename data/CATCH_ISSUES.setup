@@ -1,3 +1,4 @@
+Cannot use LANG=C.UTF-8 as it cannot be C or POSIX
 Could not find a usable .config in the kernel source directory.
 Could not find Objective-C runtime
 Could not switch to the en_US.UTF-8 locale.

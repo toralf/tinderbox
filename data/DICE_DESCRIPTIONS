@@ -1,6 +1,3 @@
-[ffmpeg8]
-Requested by ionen
-
 [gcc-16]
 Requested by sam_
 
@@ -9,9 +6,6 @@ Requested by gentoo@pogatzki.net
 
 [meson]
 Requested by ztrawhcse
-
-[nasm-3]
-Requested by arthurzam
 
 [portage-9999]
 Requested by Portage developer team
