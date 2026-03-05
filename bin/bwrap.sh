@@ -11,7 +11,7 @@ function CreateCgroup() {
     if mkdir $cgdomain 2>/dev/null; then
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-      # reserve n vCPU for non-tinderboxing tasks
+      # reserve few vCPU for non-tinderboxing tasks
       cpu=$(($(nproc) - 4))
       echo "$((cpu * 100))" >$cgdomain/cpu.weight
       echo "$((cpu * 100000))" >$cgdomain/cpu.max
@@ -36,8 +36,8 @@ function CreateCgroup() {
   fi
   echo "$$" >$name/cgroup.procs
 
-  # vCPU and memory per image, the cpu value should match dev-build/steve
-  cpu=10
+  # vCPU and memory per image, the cpu value should match --per-process-limit of dev-build/steve
+  cpu=$(($(nproc) / 2))
   echo "$((cpu * 100))" >$name/cpu.weight
   echo "$((cpu * 100000))" >$name/cpu.max
   echo "64G" >$name/memory.max
