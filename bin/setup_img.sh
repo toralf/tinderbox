@@ -448,6 +448,8 @@ EOF
     cat <<EOF >./etc/portage/env/j$j
 MAKEOPTS="\$MAKEOPTS -j$j"
 
+GOMAXPROCS=$j
+
 OMP_DYNAMIC=FALSE
 OMP_NESTED=FALSE
 OMP_NUM_THREADS=$j
