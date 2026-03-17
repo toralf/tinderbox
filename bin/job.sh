@@ -1202,8 +1202,8 @@ export OCAML_COLOR="never"
 export PY_FORCE_COLOR="0"
 export PYTEST_ADDOPTS="--color=no"
 
-export TERM=linux
-export TERMINFO=/etc/terminfo
+export TERM="linux"
+export TERMINFO="/etc/terminfo"
 
 export GIT_PAGER="cat"
 export PAGER="cat"
