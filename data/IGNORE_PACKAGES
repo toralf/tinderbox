@@ -3,16 +3,16 @@
 #
 # do not emerge these explicitly
 #
-acct-.*/
-app-alternatives/
-app-eselect/
-dev-embedded/
-java-virtuals/
-perl-core/
-sec-policy/
-sys-firmware/
-sys-kernel/
-virtual/
+acct-.*/*
+app-alternatives/*
+app-eselect/*
+dev-embedded/*
+java-virtuals/*
+perl-core/*
+sec-policy/*
+sys-firmware/*
+sys-kernel/*
+virtual/*
 #
 # ultra-long emerge time and/or no fixes, e.g. https://bugs.gentoo.org/801223
 #
@@ -26,15 +26,15 @@ dev-libs/rccl
 dev-qt/qtwebengine
 net-libs/webkit-gtk
 #
-# too less resources
+# too less dev resources
 #
-dev-dotnet/
+dev-dotnet/*
 dev-dotnet/dotnet-sdk
-sci-libs/
+sci-*/*
 #
 # hangs, e.g. https://bugs.gentoo.org/909309
 #
-app-emacs/
+app-emacs/*
 #
 # patches are not accepted upstream
 #
@@ -50,7 +50,7 @@ app-text/pandoc
 app-text/pandoc-cli
 app-vim/haskellmode
 app-vim/vim2hs
-dev-haskell/
+dev-haskell/*
 dev-lang/ghc
 dev-lang/whitespace
 dev-util/diffoscope
@@ -80,12 +80,6 @@ dev-ruby/parser
 dev-ruby/regexp_parse
 dev-util/colm
 dev-util/ragel
-#
-# @preserved-rebuild has too often a dep conflict
-#
-sci-libs/cholmod
-sci-libs/suitesparse
-sci-mathematics/octave
 #
 # hangs
 net-misc/rabbitmq-server

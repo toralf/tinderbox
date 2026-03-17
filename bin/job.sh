@@ -127,7 +127,7 @@ function getNextTask() {
       fi
 
       if [[ $backlog != /var/tmp/tb/backlog.1st ]]; then
-        if grep -q -f /mnt/tb/data/IGNORE_PACKAGES <<<$best_visible; then
+        if grep -q -E -f /mnt/tb/data/IGNORE_PACKAGES <<<$best_visible; then
           continue
         fi
       fi
@@ -1173,7 +1173,7 @@ function syncRepo() {
         "@{ $((EPOCHSECONDS - last_sync + 2 * 3600)) second ago }..@{ 2 hour ago }" 2>/dev/null |
         grep -F -e '/files/' -e '.ebuild' -e 'Manifest' |
         cut -f 1-2 -d '/' -s |
-        grep -v -f /mnt/tb/data/IGNORE_PACKAGES |
+        grep -v -E -f /mnt/tb/data/IGNORE_PACKAGES |
         sort -u >/tmp/syncRepo.upd
 
       if [[ -s /tmp/syncRepo.upd ]]; then

@@ -725,7 +725,7 @@ date
 echo "#setup backlog" | tee /var/tmp/tb/task
 # "sort -u" is needed if a package is in several repositories
 set +x
-qsearch --all --nocolor --name-only --quiet | grep -v -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
+qsearch --all --nocolor --name-only --quiet | grep -v -E -f /mnt/tb/data/IGNORE_PACKAGES | sort -u | shuf >/var/tmp/tb/backlog
 set -x
 
 date
@@ -969,7 +969,7 @@ function ThrowFlags() {
     sed -e "s,^,*/*  ," >./etc/portage/package.use/23-diced_global_use_flags
 
   find .$reposdir/gentoo/ -name metadata.xml |
-    grep -v -f $tbhome/tb/data/IGNORE_PACKAGES |
+    grep -v -E -f $tbhome/tb/data/IGNORE_PACKAGES |
     xargs grep -Hl 'flag name="' |
     shuf -n $((RANDOM % 3000 + 500)) |
     sort |
