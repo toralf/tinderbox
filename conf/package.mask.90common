@@ -15,7 +15,7 @@ dev-util/plan9port
 net-dns/resolvconf-symlink
 
 # outdated, br0ken, breaks rebuild, old kernel, needs special kernel config, needs kernel module build w/ same GCC version, clang cannot deal with it ...
-*/s6
+*/s6*
 app-admin/ryzen_smu
 app-benchmarks/stress-ng
 app-emulation/virtualbox-guest-additions
@@ -48,8 +48,7 @@ media-libs/libva-intel-media-driver
 # too long compile time
 dev-dotnet/dotnet-sdk
 sci-libs/libint:2
-sci-libs/rocBLAS
-sci-libs/rocFFT
+sci-libs/roc*
 www-client/chromium
 
 
@@ -62,9 +61,6 @@ dev-scheme/gambit
 
 # https://bugs.gentoo.org/888779
 dev-util/coccinelle
-
-# https://bugs.gentoo.org/789486
-sci-libs/ignition-math
 
 # https://bugs.gentoo.org/909309
 app-emacs/elscreen
