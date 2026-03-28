@@ -1,4 +1,5 @@
 # package.mask/50unstable
 #
 
-=app-portage/portage-utils-0.99
+# hangs: https://bugs.gentoo.org/971634
+games-action/astromenace

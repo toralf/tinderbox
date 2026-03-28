@@ -29,7 +29,6 @@ net-libs/webkit-gtk
 # too less dev resources
 #
 dev-dotnet/*
-dev-dotnet/dotnet-sdk
 sci-*/*
 #
 # hangs, e.g. https://bugs.gentoo.org/909309

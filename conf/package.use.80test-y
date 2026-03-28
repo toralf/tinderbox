@@ -19,12 +19,14 @@ dev-libs/thrift                     libevent ssl
 dev-libs/xmlrpc-c                   abyss curl cxx
 media-gfx/imagemagick               corefonts
 media-libs/gd                       png
+media-libs/libjxl                   png
 media-libs/qhull                    tools
 media-libs/soxr                     examples
 media-libs/tiff                     jpeg
 net-firewall/iptables               conntrack nftables
 net-misc/networkmanager             tools
 net-nds/openldap                    cleartext debug -minimal sasl
+sys-fs/lvm2                         lvm
 sys-libs/libblockdev                introspection lvm
 x11-libs/wxGTK                      tiff
 
