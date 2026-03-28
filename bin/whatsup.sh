@@ -69,22 +69,27 @@ function printTimeDiff() {
 #  2433   28   1  4.3   673    -  683  15770 lc  ~/run/23.0_desktop-20241204-113502
 #  2183   25   -  2.1   657    -  144  15739 lc  ~/run/23.0_desktop-20241206-162002
 function Overall() {
-  local locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
-  local all=$(wc -w <<<$images)
+  local locked all pkgs fail new day done bl1 blu bl
+
+  locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
+  all=$(wc -w <<<$images)
 
   echo "  pkg fail new  day  done .1st .upd   todo lcx    $locked#$all    $(date)    $(grep 'procs_running' /proc/stat | cut -f 2 -d ' ')  $(cut -f 1-3 -d ' ' </proc/loadavg)"
 
   for i in $images; do
-    local pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log 2>/dev/null)
-    # do not count "misc" findings
-    local fail=$(grep -h -m 1 -c 'The build log matches a QA pattern' $i/var/tmp/tb/issues/*/comment0 2>/dev/null | grep -c '0')
-    local new=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported 2>/dev/null))
-    local day=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0" 2>/dev/null)
-    local done=$(grep -c -v "^[#=@%]" $i/var/tmp/tb/task.history 2>/dev/null)
-    local bl1=$(wc -l <$i/var/tmp/tb/backlog.1st)
-    local blu=$(wc -l <$i/var/tmp/tb/backlog.upd)
-    local bl=$(wc -l <$i/var/tmp/tb/backlog)
-
+    if ! {
+      pkgs=$(grep -c ' ::: completed emerge' $i/var/log/emerge.log)
+      # do not count "misc" findings
+      fail=$(grep -h -m 1 -c 'The build log matches a QA pattern' $i/var/tmp/tb/issues/*/comment0 | grep -c '0')
+      new=$(wc -l < <(ls $i/var/tmp/tb/issues/*/.reported))
+      day=$(bc <<<"scale=2; ($EPOCHSECONDS - $(getStartTime $i)) / 86400.0")
+      done=$(grep -c -v "^[#=@%]" $i/var/tmp/tb/task.history)
+      bl1=$(wc -l <$i/var/tmp/tb/backlog.1st)
+      blu=$(wc -l <$i/var/tmp/tb/backlog.upd)
+      bl=$(wc -l <$i/var/tmp/tb/backlog)
+    } 2>/dev/null; then
+      continue
+    fi
     # "l" image is locked
     # "c" image is under cgroup control
     local flags=""
