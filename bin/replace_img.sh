@@ -41,10 +41,12 @@ function StopNonrespondingImages() {
           elif __is_stopped $img; then
             echo -e "$(basename $0): image stopped $hours hours ago" | tee -a ~tinderbox/img/$img/var/tmp/tb/EOL
           # qtwebengine needs up to 9 hrs, abi32+64 doubles the time
-          elif __is_running $img && [[ $hours -ge 24 ]]; then
-            echo -e "$(basename $0): task emerges since $hours hours" | tee -a ~tinderbox/img/$img/var/tmp/tb/EOL
-            ls -l ~tinderbox/img/$img/var/tmp/tb/task* | tee -a ~tinderbox/img/$img/var/tmp/tb/EOL
-            sudo /opt/tb/bin/debug_img.sh $img 0 | tee -a ~tinderbox/img/$img/var/tmp/tb/EOL
+          elif __is_running $img && [[ -s ~tinderbox/img/$img/var/tmp/tb/task.log && $hours -ge 24 ]]; then
+            {
+              echo -e "$(basename $0): task.log older $hours hours"
+              stat ~tinderbox/img/$img/var/tmp/tb/task*
+              sudo /opt/tb/bin/debug_img.sh $img 0
+            } | tee -a ~tinderbox/img/$img/var/tmp/tb/EOL
             sudo $(dirname $0)/kill_img.sh $img
           fi
         fi
