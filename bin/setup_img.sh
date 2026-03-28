@@ -461,6 +461,8 @@ EOF
   done
 
   cp ./etc/portage/env/j4 ./etc/portage/env/j4-no-jobserver
+
+  # enrich the j4 by using steve
   cat <<EOF >>./etc/portage/env/j4
 MAKEFLAGS="--jobserver-auth=fifo:/dev/steve"
 NINJAOPTS=""
@@ -777,7 +779,13 @@ function RunDryrunWrapper() {
 
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog; then
     if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
-      return 1
+      # shellcheck disable=SC2071
+      if [[ $attempt < "200" ]]; then
+        return 1
+      else
+        echo -e " OK (ignoring warning)  $attempt-$fix  $name\n"
+        return 0
+      fi
     else
       echo -e " OK  $attempt-$fix  $name\n"
       return 0
