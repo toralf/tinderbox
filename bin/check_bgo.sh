@@ -81,11 +81,11 @@ EOF
     keyword=$(grep "^ACCEPT_KEYWORDS=" ~tinderbox/img/$name/etc/portage/make.conf)
     if best=$(eval "$keyword ACCEPT_LICENSE=\"*\" portageq best_visible / $pkgname"); then
       if [[ $pkg != "$best" ]]; then
-        echo -e "\n    is  NOT  latest\n"
+        echo -e "\n    is  not  latest\n"
         exit 0
       fi
     else
-      echo -e "\n    is  not  KNOWN\n"
+      echo -e "\n    is  not  known\n"
       exit 0
     fi
   fi
