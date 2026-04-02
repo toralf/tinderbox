@@ -1,7 +1,6 @@
 Active compiler does not have required support for OpenMP
 asciidoctor.*LoadError
 AttributeError: Config object has no attribute _cleanup. Did you mean: add_cleanup
-Automake maintainer mode detected
 Cannot use LANG=C.UTF-8 as it cannot be C or POSIX
 CONFIG_.*:.*is not set when it should be
 Could not find a usable .config in the kernel source directory.

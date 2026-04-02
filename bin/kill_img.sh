@@ -35,11 +35,16 @@ function killPid() {
 
   # wait till cgroup is reaped
   echo -n "cgroup "
-  while grep -q . /sys/fs/cgroup/tb/$img/cgroup.procs 2>/dev/null; do
+  i=60
+  while ((i--)) && grep -q . /sys/fs/cgroup/tb/$img/cgroup.procs 2>/dev/null; do
     echo -n '.'
     sleep 1
   done
   echo
+
+  if grep -q . /sys/fs/cgroup/tb/$img/cgroup.proc 2>/dev/null; then
+    return 1
+  fi
 }
 
 #######################################################################
