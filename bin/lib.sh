@@ -44,7 +44,10 @@ function getStartTime() {
 # list if locked and/or symlinked and/or have a cgroup
 function list_active_images() {
   {
-    (cd ~tinderbox/run/; ls -d 23.*) | sort
+    (
+      cd ~tinderbox/run/ || exit
+      ls -d 23.*
+    ) | sort
     ls /run/tb/ | sed -e 's,.lock,,' | sort
     ls -d /sys/fs/cgroup/tb/23.* | sort
   } 2>/dev/null |
