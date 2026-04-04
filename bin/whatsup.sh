@@ -69,6 +69,7 @@ function printTimeDiff() {
 #  2433   28   1  4.3   673    -  683  15770 lc  ~/run/23.0_desktop-20241204-113502
 #  2183   25   -  2.1   657    -  144  15739 lc  ~/run/23.0_desktop-20241206-162002
 function Overall() {
+  # shellcheck disable=SC1010
   local locked all pkgs fail new day done bl1 blu bl
 
   locked=$(wc -l < <(ls -d /run/tb/23.*.lock 2>/dev/null))
@@ -270,7 +271,7 @@ function Coverage() {
 # package (revisions) x emerges in ~/run
 #  2477x1 3163x2 3176x3 2548x4 1577x5 1059x6 718x7 454x8 353x9 448x10 437x11 126x12 86x13 21x14 9x15 12x16 25x17 17x18 2x19 1x26 dev-vcs/git-2.35.1
 #
-#  16709 package (revisions) in 67930 emerges
+#  16709 package (revisions) by 67930 emerges in ~/run
 function CountEmergesPerPackages() {
   echo "package (revisions) x emerges in ~/run"
 
@@ -304,7 +305,7 @@ function CountEmergesPerPackages() {
       }
 
       print " ", join (" ", grep { $max == $pet{$_} } sort keys %pet);
-      print "\n\n $seen package (revisions) in $total emerges\n";
+      print "\n\n $seen package (revisions) by $total emerges in ~/run\n";
     }
   ' $(ls ~tinderbox/run/*/var/log/emerge.log 2>/dev/null)
 }
