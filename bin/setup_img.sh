@@ -442,7 +442,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # replace_img.sh defaults to nproc/3 images, so set make default +1 higher
+  # -j4 was a safe value for a long time, keep it as fallback, if steve is anavailable
   # "j1" is the fallback for packages failing with parallel build
   for j in 1 4; do
     cat <<EOF >./etc/portage/env/j$j
@@ -779,11 +779,12 @@ function RunDryrunWrapper() {
 
   if nice -n 3 $(dirname $0)/bwrap.sh -m $name -e ~tinderbox/img/$name/var/tmp/tb/dryrun_wrapper.sh &>$drylog; then
     if grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $drylog; then
+      # attempt has leading zeros
       # shellcheck disable=SC2071
-      if [[ $attempt < "200" ]]; then
+      if [[ $attempt < "060" ]]; then
         return 1
       else
-        echo -e " OK (ignoring warning)  $attempt-$fix  $name\n"
+        echo -e " OK (with warning)  $attempt-$fix  $name\n"
         return 0
       fi
     else
