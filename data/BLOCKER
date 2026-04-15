@@ -84,3 +84,7 @@ Werror=discarded-qualifiers|brackets|assignment of read-only location|expected i
 # [Tracker] Issues with dev-build/autoconf-2.73
 971433
 Automake .maintainer mode. detected:
+
+# (lto) - [TRACKER] LTO issues
+618550
+unstripped LTO libs|Wlto-type-mismatch
