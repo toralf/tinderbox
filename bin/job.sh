@@ -1037,9 +1037,7 @@ function WorkOnTask() {
   if [[ $task =~ ^% ]]; then
     if RunAndCheck "$(cut -c 2- <<<$task) $backtrack_opt"; then
       if [[ $task =~ "@world" ]]; then
-        if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
-          add2backlog "%emerge --depclean --verbose=n"
-        fi
+        add2backlog "%emerge --depclean --verbose=n"
       fi
     else
       if [[ $try_again -eq 1 ]]; then
@@ -1057,9 +1055,7 @@ function WorkOnTask() {
 
   elif [[ $task =~ "@world" ]]; then
     if RunAndCheck "emerge -u $task $backtrack_opt"; then
-      if ! grep -q 'WARNING: One or more updates/rebuilds have been skipped due to a dependency conflict:' $tasklog; then
-        add2backlog "%emerge --depclean --verbose=n"
-      fi
+      add2backlog "%emerge --depclean --verbose=n"
     else
       if [[ -n $pkg ]]; then
         if [[ $try_again -eq 0 ]]; then
