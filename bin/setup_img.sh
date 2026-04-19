@@ -254,7 +254,7 @@ function InitImageFromStage3() {
   stage3_list="$tbhome/distfiles/latest-stage3.txt"
   mirrors=$(
     source /etc/portage/make.conf
-    echo ${GENTOO_MIRRORS:-http://distfiles.gentoo.org}
+    echo ${GENTOO_MIRRORS:-https://distfiles.gentoo.org}
   )
   mirror_path="releases/amd64/autobuilds"
 
