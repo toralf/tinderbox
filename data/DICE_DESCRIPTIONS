@@ -10,14 +10,5 @@ Requested by ztrawhcse
 [portage-9999]
 Requested by Portage developer team
 
-[sphinx-9]
-Requested by ztrawhcse
-
-[boost-1.90]
-Requested by asturm
-
-[glibc-2.43]
-Requested by dilfridge
-
 [openssl-4]
 Requested by kangie
