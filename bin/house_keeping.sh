@@ -14,7 +14,7 @@ function olderThan() {
 
 # BTRFS is special: value of available space in percent is often lower than 100 - "percent value of df"
 function lowSpace() {
-  local maxperc=${1:-75} # max used space in %
+  local maxperc=${1:-80} # max used space in %
 
   local size avail
   if ! read -r size avail < <(df -m --sync --output=size,avail /mnt/data | tail -n 1); then
