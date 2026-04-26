@@ -55,7 +55,7 @@ cmd="$(dirname $0)/bgo.sh -d $issuedir"
 if blocker_bug_no=$(LookupForABlocker ~tinderbox/tb/data/BLOCKER); then
   cmd+=" -b $blocker_bug_no"
 fi
-echo -e "\n  ${cmd}\n\n"
+echo -e "  ${cmd}\n\n"
 
 if [[ $force == "y" ]]; then
   $cmd
