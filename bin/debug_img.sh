@@ -34,17 +34,17 @@ else
   if [[ $pid -gt 0 ]]; then
     echo -n "pid ($pid, 0=abort): "
     read -r input
-    [[ -n $input ]] && pid=$input
+    if [[ -n $input ]]; then
+      pid=$input
+    fi
     echo
 
-    if [[ -n $pid && $pid -gt 0 ]]; then
-      echo -e "\n\n  + + + gdb bt for $img with child-pid $child for pid $pid + + +\n\n" | tee -a $out
-      LC_ALL=$LANG nsenter -t $child -a -r \
-        gdb -q -batch \
-        -ex 'set logging enabled off' -ex 'set pagination off' -ex 'thread apply all bt' -ex 'detach' -ex 'quit' \
-        -p $pid 2>&1 |
-        tee -a $out
-    fi
+    echo -e "\n\n  + + + gdb bt for $img with child-pid $child for pid $pid + + +\n\n" | tee -a $out
+    LC_ALL=$LANG nsenter -t $child -a -r \
+      gdb -q -batch \
+      -ex 'set logging enabled off' -ex 'set pagination off' -ex 'thread apply all bt' -ex 'detach' -ex 'quit' \
+      -p $pid 2>&1 |
+      tee -a $out
   fi
 
   echo -e "\n\n  + + +  helper:  curl -F'file=@$out' https://0x0.st  + + +\n\n"
