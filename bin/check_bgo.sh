@@ -100,7 +100,7 @@ EOF
     if ! BgoIssue; then
       if ! SearchForSimilarIssue $pkg $pkgname $issuedir; then
         if ! BgoIssue; then
-          echo -e "\n  nothing found for that pkg\n"
+          echo -e "  nothing found for that pkg\n"
           $cmd
         fi
       fi
