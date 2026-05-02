@@ -442,7 +442,7 @@ FFLAGS="\${CFLAGS}"
 
 EOF
 
-  # -j4 was a safe value for a long time, keep it as fallback, if steve is anavailable
+  # -j4 was a safe value for a long time, keep it as fallback, if steve is unavailable
   # "j1" is the fallback for packages failing with parallel build
   for j in 1 4; do
     cat <<EOF >./etc/portage/env/j$j
