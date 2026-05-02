@@ -47,5 +47,5 @@ else
       tee -a $out
   fi
 
-  echo -e "\n\n  + + +  helper:  curl -F'file=@$out' https://0x0.st  + + +\n\n"
+  echo -e "\n\n  + + +  helper:  curl -F'file=@$out' https://paste.gentoo.zip  + + +\n\n"
 fi
