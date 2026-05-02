@@ -1249,11 +1249,10 @@ trap Finish INT QUIT TERM EXIT
 ulimit -Hn 512000
 ulimit -Sn 512000
 
-if [[ $name =~ "_systemd" ]]; then
-  # avoid: fchownat() of /sys/... failed: Read-only file system
-  if ! systemd-tmpfiles --create &>$tasklog; then
-    ReachedEOL "tmpfiles issue" $tasklog
-  fi
+# https://bugs.gentoo.org/show_bug.cgi?id=962835
+# avoid: fchownat() of /sys/... failed: Read-only file system
+if ! systemd-tmpfiles --create &>$tasklog; then
+  ReachedEOL "tmpfiles issue" $tasklog
 fi
 
 last_sync=$(stat -c %Z /var/db/repos/gentoo/.git/FETCH_HEAD)
