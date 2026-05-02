@@ -1,3 +1,4 @@
+BAD_TAR_INVOCATION
 patch .* failed with
 Cannot find \$EPATCH_SOURCE!
 you need to fix the relative paths in patch

@@ -88,3 +88,7 @@ Automake .maintainer mode. detected:
 # (lto) - [TRACKER] LTO issues
 618550
 unstripped LTO libs|Wlto-type-mismatch
+
+# [Tracker] Breakage with =dev-libs/openssl-4*
+972902
+undefined reference to ENGINE_load_builtin_engines|undefined symbol: TLSv1_method|invalid use of incomplete typedef ASN1_OCTET_STRING|Unknown/unsupported OpenSSL version
