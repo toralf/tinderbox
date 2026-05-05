@@ -1,3 +1,4 @@
+Update BDEPEND to have .*dev-lang/go
 .automake. called by src_prepare
 Automake "maintainer mode" detected:
 cmake-utils_src_prepare has not been run

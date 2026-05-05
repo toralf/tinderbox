@@ -24,6 +24,7 @@ QA Notice: .*backend is deprecated. Please see:
 QA Notice: cargo built package contains possibly vendored code
 QA Notice: CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 QA Notice: command not found:
+QA Notice: found go.mod file which specifies go
 QA Notice: Installing libtool files (.la) without corresponding static libraries
 QA Notice: missing ninja dependencies in
 QA Notice: Package triggers severe warnings which indicate that it
