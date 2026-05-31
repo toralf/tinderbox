@@ -96,3 +96,7 @@ undefined reference to ENGINE_load_builtin_engines|undefined symbol: TLSv1_metho
 # [TRACKER] Go packages with wrong minimal go toolchain BDEPEND
 973632
 Update BDEPEND to have .*dev-lang/go
+
+# (gcc-17) - [Tracker] sys-devel/gcc-17 porting
+973278
+internal compiler error:
