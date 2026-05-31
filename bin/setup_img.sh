@@ -152,6 +152,8 @@ function CreateImageName() {
 }
 
 function getStage3List() {
+  local mirror
+
   for mirror in $mirrors; do
     echo "$(date)   downloading $(basename $stage3_list) from $mirror"
     if wget --connect-timeout=10 --quiet $mirror/$mirror_path/$(basename $stage3_list) --output-document=$stage3_list.new; then
@@ -204,8 +206,9 @@ function getStage3Filename() {
 }
 
 function downloadStage3File() {
-  local_stage3=$tbhome/distfiles/$(basename $stage3)
+  local mirror
 
+  local_stage3=$tbhome/distfiles/$(basename $stage3)
   if [[ -s $local_stage3 ]]; then
     return 0
   fi
@@ -228,6 +231,8 @@ function downloadStage3File() {
 }
 
 function verifyStage3File() {
+  local mirror
+
   if [[ ! -s $local_stage3.asc ]]; then
     rm -f $local_stage3.asc
     for mirror in $mirrors; do
@@ -410,6 +415,8 @@ function cpconf() {
 
 # create portage related directories + files
 function CompilePortageFiles() {
+  local d f j
+
   echo "$(date) ${FUNCNAME[0]} ..."
 
   cp -r $tbhome/tb/patches ./etc/portage
@@ -760,6 +767,8 @@ function RunSetupScript() {
 }
 
 function RunDryrunWrapper() {
+  local k
+
   for k in EOL STOP; do
     if [[ -f ./var/tmp/tb/$k ]]; then
       tail -v ./var/tmp/tb/$k
@@ -800,14 +809,17 @@ function RunDryrunWrapper() {
 }
 
 function ChangeIsForbidden() {
-  local flag=${1?FLAG NOT GIVEN}
+  local flag
 
+  flag=$1
   [[ $flag =~ '_' || $flag == 'test' || $flag == '-test' ]] || grep -q -x $(tr -d '-' <<<$flag) $tbhome/tb/data/IGNORE_USE_FLAGS
 }
 
 function IsAlreadySetForPackage() {
-  local flag=${1?FLAG NOT GIVEN}
-  local pn=${2?PACKAGE NAME NOT GIVEN}
+  local flag pn
+
+  flag=$1
+  pn=$2
 
   grep -q -r \
     -e "^$pn  *-*$flag$" \
@@ -818,6 +830,8 @@ function IsAlreadySetForPackage() {
 }
 
 function FixPossibleUseFlagIssues() {
+  local fix
+
   local attempt=$1
 
   for fix in $(seq -w 1 49); do
