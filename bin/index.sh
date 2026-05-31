@@ -104,7 +104,7 @@ EOF
   local d no uri
   while read -r f; do
     # contains the b.g.o. link, racy due to parallel house keeping
-    if ! uri=$(<$f) 2>/dev/null; then
+    if ! uri=$(cat $f 2>/dev/null); then
       continue
     fi
 
