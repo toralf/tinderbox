@@ -29,18 +29,19 @@ if grep '%' <<<$* >$result.command; then
 
 # regular packages
 else
-  xargs -r -n 1 <<<$* |
-    while read -r atom; do
-      if [[ $atom =~ ^@ || $atom =~ ^= ]]; then
-        echo "$atom"
-      else
-        if ! qatom -CF "%{CATEGORY}/%{PN}" $atom |
-          grep -v '<unset>' |
-          grep ".*-.*/.*"; then
-          echo " skipping: '$atom'" >&2
-        fi
+  while read -r atom; do
+    if [[ $atom =~ ^@ || $atom =~ ^= ]]; then
+      echo "$atom"
+    else
+      if ! qatom -CF "%{CATEGORY}/%{PN}" $atom |
+        grep -F -v '<unset>' |
+        grep ".*-.*/.*"; then
+        echo " skipping: '$atom'" >&2
       fi
-    done >$result.packages
+    fi
+  done < <(
+    xargs -r -n 1 <<<$*
+  ) >$result.packages
 
   if [[ -s $result.packages ]]; then
     # if there're only few packages then emerge them immediately
@@ -51,7 +52,7 @@ else
     fi
     echo -n " adding $(wc -l <$result.packages) package/s to $suffix ..." >&2
 
-    # shuffle new packages, put them after the existing entries
+    # add new packages in a shuffled order to the existing ones
     tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX)
     while read -r bl; do
       # grep out duplicates
