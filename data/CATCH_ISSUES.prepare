@@ -26,3 +26,4 @@ convert:
  \*   python_fix_shebang:
 is not supported with EAPI
 : No such file or directory
+use flag is enabled, but hasn't been emerged
