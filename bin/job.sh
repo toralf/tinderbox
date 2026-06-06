@@ -814,12 +814,14 @@ function createIssueDir() {
 }
 
 function catchMisc() {
+  local stripped
+
   while read -r pkglog; do
     if [[ $(wc -l <$pkglog) -le 6 ]]; then
       continue
     fi
 
-    local stripped=/tmp/$(basename $pkglog).stripped
+    stripped=/tmp/$(basename $pkglog).stripped
     filterPlainText <$pkglog >$stripped
 
     phase=""
