@@ -12,9 +12,8 @@ function olderThan() {
   (((EPOCHSECONDS - start_time) / 3600 > hours))
 }
 
-# BTRFS is special: value of available space in percent is often lower than 100 - "percent value of df"
 function lowSpace() {
-  local maxperc=${1:-80} # max used space in %
+  local maxperc=${1:-85} # max used space in %
 
   local size avail
   if ! read -r size avail < <(df -m --sync --output=size,avail /mnt/data | tail -n 1); then
@@ -132,7 +131,7 @@ while lowSpace && read -r img; do
   fi
 done < <(list_images_by_age "img")
 
-while lowSpace 89 && read -r img; do
+while lowSpace 90 && read -r img; do
   pruneIt $img "free space is very low"
 done < <(list_images_by_age "img")
 
