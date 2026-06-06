@@ -691,7 +691,8 @@ emaint sync --auto >/dev/null || true
 
 date
 echo "#setup portage" | tee /var/tmp/tb/task
-emerge -1u sys-apps/portage
+# belt and braces
+emerge -1u sys-apps/portage || emerge -1u sys-apps/portage
 
 echo "#cert setup" | tee /var/tmp/tb/task
 update-ca-certificates
