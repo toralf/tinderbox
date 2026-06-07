@@ -13,13 +13,13 @@
 <dev-libs/openssl-4.0.9999:0/4                     **   # DICE: [openssl-4] 1 4
 
 =dev-libs/boost-1.91.0*                            **   # DICE: [boost-1.91] 1 4
-
+d13-x86-lts
 #######################################################################
 #
 # no unmask needed
 
 <dev-build/meson-9999                              **   # DICE: [meson] 1 4
 
-dev-java/openjdk:26                                **   # DICE: [jdk26] 1 4
-dev-java/openjdk-bin:26                            **   # DICE: [jdk26] 1 4
-virtual/jdk:26                                     **   # DICE: [jdk26] 1 4
+dev-java/openjdk:27                                **   # DICE: [jdk26] 1 4
+dev-java/openjdk-bin:27                            **   # DICE: [jdk26] 1 4
+virtual/jdk:27                                     **   # DICE: [jdk26] 1 4
