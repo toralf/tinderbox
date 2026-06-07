@@ -26,7 +26,7 @@ function lowSpace() {
   ((avail < wanted))
 }
 
-function finalCheck() {
+function canBePruned() {
   local img=${1?IMG NOT SET}
 
   if [[ -e ~tinderbox/run/$(basename $img) ]]; then
@@ -51,11 +51,11 @@ function pruneIt() {
   local img=${1?IMG NOT SET}
   local reason=${2:-no reason given}
 
-  if finalCheck $img; then
+  if canBePruned $img; then
     echo " $(date) $reason : $img"
     rm -r -- $img
     sync
-    sleep 30 # btrfs is lazy in reporting free space
+    sleep 30 # btrfs is lazy reporting free space
   fi
 }
 
@@ -106,7 +106,6 @@ while lowSpace && read -r img; do
   if [[ -f $img/var/tmp/tb/replace_img.sh.log ]] && ((EPOCHSECONDS - $(stat -c %Z $img/var/tmp/tb/replace_img.sh.log) < 2 * 3600)); then
     pruneIt $img "stalled setup"
   fi
-
 done < <(list_images_by_age "img")
 
 while lowSpace && read -r img; do
