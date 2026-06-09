@@ -13,7 +13,7 @@
 <dev-libs/openssl-4.0.9999:0/4                     **   # DICE: [openssl-4] 1 4
 
 =dev-libs/boost-1.91.0*                            **   # DICE: [boost-1.91] 1 4
-d13-x86-lts
+
 #######################################################################
 #
 # no unmask needed
