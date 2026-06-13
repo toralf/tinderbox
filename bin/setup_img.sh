@@ -1064,7 +1064,7 @@ EOF
   rm -f ./var/tmp/tb/logs/dryrun{,.*-*}.log
   local drylog=./var/tmp/tb/logs/dryrun.log
 
-  # rerun with same USE flags at a new system
+  # take USE flags from another system
   if [[ -n $useconfigof ]]; then
     if [[ $(realpath ~tinderbox/img/$useconfigof) != $(realpath .) ]]; then
       for i in accept_keywords env mask unmask use; do
@@ -1087,7 +1087,8 @@ EOF
     fi
   fi
 
-  # go wild
+  # random use flags
+  now=$EPOCHSECONDS
   for attempt in $(seq -w 1 199); do
     echo
     date
@@ -1097,6 +1098,10 @@ EOF
     fi
     if FixPossibleUseFlagIssues $attempt; then
       return 0
+    fi
+    if ((EPOCHSECONDS - now > 3600)); then
+      now=$EPOCHSECONDS
+      emaint sync --auto >/dev/null || true
     fi
   done
   echo -e "\n max attempts reached, GIVING UP"
