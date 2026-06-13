@@ -34,6 +34,7 @@ QA Notice: The following deprecated .egg or .egg-info files were found.
 QA Notice: This package seems to install metainfo files into the
 QA Notice: This package uses a very large number of CRATES. Please provide
 shared library .* could not be opened: Dynamic loading not supported
+Symbolic link /.../99-environment.conf points to /.../environment which does not exist.
 The locale en_US.utf8 or en_US.UTF-8 is not available.
 The present kernel disabled CONFIG_MODULES.
 This compiler lacks GCC plug-in support
