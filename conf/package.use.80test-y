@@ -13,6 +13,7 @@ dev-db/mariadb                      extra-engine
 dev-java/ant                        bsf
 dev-java/jflex                      ant-task
 dev-java/qdox                       ant-task
+dev-libs/apache-arrow               zstd
 dev-libs/libzip                     ssl tools
 dev-libs/simdjson                   tools
 dev-libs/thrift                     libevent ssl
@@ -26,6 +27,7 @@ media-libs/tiff                     jpeg
 net-firewall/iptables               conntrack nftables
 net-misc/networkmanager             tools
 net-nds/openldap                    cleartext debug -minimal sasl
+sys-auth/sssd                       openid
 sys-fs/lvm2                         lvm
 sys-libs/libblockdev                introspection lvm
 x11-libs/wxGTK                      tiff

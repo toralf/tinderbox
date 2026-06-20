@@ -1,11 +1,5 @@
 # check for outdated entries:      grep -v '#' ~/tb/data/IGNORE_USE_FLAGS | while read u; do quse -De $u &>/dev/null || echo $u; done
 #
-# setup blocker
-#
-#
-#
-# don't touch these
-#
 32
 64
 bindist
@@ -101,6 +95,7 @@ unsupported
 unwind
 valgrind
 vanilla
+verify-provenance
 x32
 xinetd
 zfs

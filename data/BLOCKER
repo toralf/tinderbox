@@ -99,4 +99,4 @@ Update BDEPEND to have .*dev-lang/go
 
 # (gcc-17) - [Tracker] sys-devel/gcc-17 porting
 973278
-internal compiler error:|string in namespace std does not name a type
+internal compiler error:|string in namespace std does not name a type|dereferencing type-punned pointer will break strict-aliasing rules
