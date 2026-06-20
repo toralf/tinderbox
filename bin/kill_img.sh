@@ -75,12 +75,25 @@ if [[ -z $pid_bwrap ]]; then
   exit 1
 fi
 
+if pid_setup=$(
+  set -o pipefail
+  pstree -pa $pid_bwrap | grep 'setup.sh,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
+); then
+  echo " detected setup.sh $pid_setup"
+fi
+
 if ! pid_emerge=$(
   set -o pipefail
   pstree -pa $pid_bwrap | grep 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
 ); then
-  echo " err: could not get emerge pid of $pid_bwrap" 2>&1
-  exit 1
+  if [[ -n $pid_setup ]]; then
+    echo " kill setup.sh $pid_setup"
+    killPid $pid_setup
+    exit $?
+  else
+    echo " err: could not get emerge pid of $pid_bwrap" 2>&1
+    exit 1
+  fi
 fi
 
 if [[ -n $pid_emerge ]]; then
