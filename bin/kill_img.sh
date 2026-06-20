@@ -65,55 +65,29 @@ echo "$(basename $0) $(date)" >>~tinderbox/img/$img/var/tmp/tb/EOL
 chmod g+w ~tinderbox/img/$img/var/tmp/tb/EOL
 chgrp tinderbox ~tinderbox/img/$img/var/tmp/tb/EOL
 
-if ! pid_bwrap=$(pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <<<$img)" | sort -nr | head -n 1); then
-  echo " err: could not get bwrap pid $pid_bwrap" 2>&1
-  exit 1
-fi
-
-if [[ -z $pid_bwrap ]]; then
-  echo " err: empty bwrap pid $pid_bwrap" 2>&1
-  exit 1
-fi
-
-if pid_setup=$(
+if ! pid_bwrap=$(
   set -o pipefail
-  pstree -pa $pid_bwrap | grep 'setup.sh,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
+  pgrep -f -u 0 -U 0 -G 0 " $(dirname $0)/bwrap.sh .*$(tr '+' '.' <<<$img)" | sort -nr | head -n 1
 ); then
-  echo " detected setup.sh $pid_setup"
+  echo " err: could not get bwrap.sh pid of $img" 2>&1
+  exit 1
 fi
 
-if ! pid_emerge=$(
+if pid_emerge=$(
   set -o pipefail
   pstree -pa $pid_bwrap | grep 'emerge,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
 ); then
-  if [[ -n $pid_setup ]]; then
-    echo " kill setup.sh $pid_setup"
-    killPid $pid_setup
-    exit $?
-  else
-    echo " err: could not get emerge pid of $pid_bwrap" 2>&1
-    exit 1
-  fi
-fi
-
-if [[ -n $pid_emerge ]]; then
   echo " kill emerge $pid_emerge"
   killPid $pid_emerge
+
+elif pid_setup=$(
+  set -o pipefail
+  pstree -pa $pid_bwrap | grep 'setup.sh,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
+); then
+  echo " kill setup.sh $pid_setup"
+  killPid $pid_setup
+
 else
-  echo " notice: empty emerge pid from $pid_bwrap"
-  if ! pid_entrypoint=$(
-    set -o pipefail
-    pstree -pa $pid_bwrap | grep 'entrypoint,' | grep -m 1 -Eo ',([[:digit:]]+) ' | tr -d ','
-  ); then
-    echo " err: could not get entrypoint pid of $pid_bwrap" 2>&1
-    exit 1
-  fi
-
-  if [[ -z $pid_entrypoint ]]; then
-    echo " err: empty entrypoint pid of $pid_bwrap" 2>&1
-    exit 1
-  fi
-
-  echo " kill entrypoint $pid_entrypoint"
-  killPid $pid_entrypoint
+  echo " kill bwrap.sh $pid_bwrap"
+  killPid $pid_bwrap
 fi
