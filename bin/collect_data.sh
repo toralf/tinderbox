@@ -55,6 +55,7 @@ mv $tmpfile ~tinderbox/img/big_packages.txt
     find ~tinderbox/run/*/var/db/pkg/ -mindepth 3 -maxdepth 3 -ignore_readdir_race -path '*-MERGING-*' -prune -o -name "NEEDED.ELF.2" -cmin -65
   fi
 } 2>/dev/null |
+  grep -v "\-MERGING-" |
   xargs -r cat |
   sort -u >$tmpfile
 chmod a+r $tmpfile
@@ -72,6 +73,7 @@ mv $tmpfile ~tinderbox/img/needed.ELF.2.txt
       sed -e 's,^/home/tinderbox/.*/.*/var/db/pkg/,,' -e 's,/NEEDED:, ,'
   fi
 } 2>/dev/null |
+  grep -v "\-MERGING-" |
   sort -u >$tmpfile
 chmod a+r $tmpfile
 mv $tmpfile ~tinderbox/img/needed.txt
