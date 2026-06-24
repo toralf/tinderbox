@@ -5,12 +5,12 @@
 #
 # look at package.accept_keywords/50unstable too
 
-<dev-cpp/eigen-5.0.9999:3                               # DICE: [eigen-5.0] 1 4
+<dev-cpp/eigen-5.0.9999:3                               # DICE: [eigen-5.0] 1 2
 
-=dev-libs/boost-1.91.0*                                 # DICE: [boost-1.91] 1 4
+=dev-libs/boost-1.91.0*                                 # DICE: [boost-1.91] 1 2
 
-<dev-libs/openssl-4.0.9999:0/4                          # DICE: [openssl-4] 1 4
+<dev-libs/openssl-4.0.9999:0/4                          # DICE: [openssl-4] 1 6
 
 =sys-apps/portage-9999                                  # DICE: [portage-9999] 1 4
 
-<sys-devel/gcc-17.0.9999:17                             # DICE: [gcc-17] 1 4
+<sys-devel/gcc-17.0.9999:17                             # DICE: [gcc-17] 1 3
