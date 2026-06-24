@@ -929,7 +929,7 @@ function RunAndCheck() {
   filterPlainText <$tasklog >$tasklog_stripped
   PostEmerge
 
-  # exited on kill signal
+  # killed from outside
   if [[ $rc -gt 128 ]]; then
     local signal=$((rc - 128))
     if [[ $signal -eq 9 ]]; then
@@ -947,10 +947,6 @@ function RunAndCheck() {
         ReachedEOL "signal=$signal  task=$task  pkg=$pkg" $tasklog
       fi
     fi
-
-  # timed out
-  elif [[ $rc -eq 124 ]]; then
-    ReachedEOL "timeout  task=$task" $tasklog
 
   # emerge failed
   elif [[ $rc -gt 0 ]] || grep -q -F '* ERROR: ' $tasklog_stripped; then
