@@ -929,48 +929,46 @@ function RunAndCheck() {
   filterPlainText <$tasklog >$tasklog_stripped
   PostEmerge
 
-  # killed from outside
-  if [[ $rc -gt 128 ]]; then
-    local signal=$((rc - 128))
-    if [[ $signal -eq 9 ]]; then
-      COLUMNS=10000 ps faux | xz >/var/tmp/tb/ps-faux-after-being-killed-9.log.xz
-      Finish "KILLed" $tasklog
-    else
-      pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
-      if [[ $signal -eq 15 ]]; then
-        if SetPkglog; then
-          createIssueDir
-          echo "$pkg - emerge TERMinated" >$issuedir/title
-          WorkAtIssue 0
+  # emerge failed somwhow
+  if [[ $rc -gt 0 ]] || grep -q -F '* ERROR: ' $tasklog_stripped; then
+
+    if [[ $rc -gt 128 ]]; then
+      local signal=$((rc - 128))
+      if [[ $signal -eq 9 ]]; then
+        COLUMNS=10000 ps faux | xz >/var/tmp/tb/ps-faux-after-being-killed-9.log.xz
+        Finish "KILLed" $tasklog
+      else
+        pkg=$(ls -d /var/tmp/portage/*/*/work 2>/dev/null | sed -e 's,/var/tmp/portage/,,' -e 's,/work,,' -e 's,:.*,,')
+        if [[ $signal -eq 15 ]]; then
+          if SetPkglog; then
+            createIssueDir
+            echo "$pkg - emerge TERMinated" >$issuedir/title
+            WorkAtIssue 0
+          fi
+        else
+          ReachedEOL "signal=$signal  task=$task  pkg=$pkg" $tasklog
         fi
-      else
-        ReachedEOL "signal=$signal  task=$task  pkg=$pkg" $tasklog
       fi
-    fi
+    else
+      if phase=$(grep -e "The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
+        if [[ -f /var/tmp/tb/EOL ]]; then
+          ReachedEOL "caught EOL in $phase" $tasklog
+        elif [[ -f /var/tmp/tb/STOP ]]; then
+          Finish "caught STOP in $phase" $tasklog
+        else
+          ReachedEOL "$phase died, rc=$rc" $tasklog
+        fi
 
-  # emerge failed
-  elif [[ $rc -gt 0 ]] || grep -q -F '* ERROR: ' $tasklog_stripped; then
-    if phase=$(grep -e "The ebuild phase '.*' has exited unexpectedly." $tasklog_stripped | grep -Eo "'.*'"); then
-      if [[ -f /var/tmp/tb/EOL ]]; then
-        ReachedEOL "caught EOL in $phase" $tasklog
-      elif [[ -f /var/tmp/tb/STOP ]]; then
-        Finish "caught STOP in $phase" $tasklog
-      else
-        ReachedEOL "$phase died, rc=$rc" $tasklog
+      elif SetPkgFromTaskLog; then
+        SetPkglog
+        createIssueDir
+        WorkAtIssue
       fi
-
-    elif SetPkgFromTaskLog; then
-      SetPkglog
-      createIssueDir
-      WorkAtIssue
-    fi
 
     if grep -q 'Error:' $tasklog_stripped && grep -q 'required by @system' $tasklog_stripped; then
       add2backlog "@world"
     fi
-  fi
 
-  if [[ $rc -gt 0 ]]; then
     if [[ $try_again -eq 0 ]]; then
       if [[ -n $pkg ]]; then
         local self=/etc/portage/package.mask/self
