@@ -54,6 +54,7 @@ llvm-libunwind
 low-memory
 lto
 make-symlinks
+man
 mbedtls
 mips
 modules
