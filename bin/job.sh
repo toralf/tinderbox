@@ -1088,7 +1088,7 @@ function WorkOnTask() {
   else
     local getbinpkg=""
     if [[ $task =~ "^.*/.*$" ]]; then
-      if ((RANDOM % 42 < 1)); then
+      if ((RANDOM % 24 < 1)); then
         getbinpkg="--getbinpkg"
       fi
     fi
