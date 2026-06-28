@@ -1048,7 +1048,11 @@ function WorkOnTask() {
         ReachedEOL "failed: USE changes" $tasklog
       elif [[ $task =~ " --depclean" ]]; then
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
-          ReachedEOL "--depclean failed" $tasklog
+          if grep -q 'llvm-runtimes/clang-runtime' $tasklog; then
+            Mail "NOTICE: --depclean failed - ignored" $tasklog
+          else
+            ReachedEOL "--depclean failed" $tasklog
+          fi
         fi
       elif [[ -n $pkg && ! $task =~ $pkg ]]; then
         add2backlog "$task"
