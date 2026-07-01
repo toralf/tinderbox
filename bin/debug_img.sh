@@ -21,8 +21,10 @@ if [[ $# -eq 1 ]]; then
   LC_ALL=$LANG nsenter -t $child -a -r \
     bash
 else
-  # if $2 is "" or a pid then create a gdb bt,  with a "0" just the namespace process table is dumped
-  out=/tmp/$(basename $0).log
+  pid=${2:-0}
+
+  # if $2 is a pid then create a bt with gdb, with a "" or "0" dump the namespace process table only
+  out=/tmp/$(basename $0)-pid-${pid}.log
   truncate -s 0 $out
 
   LC_ALL=$LANG nsenter -t $child -a -r \
@@ -30,7 +32,6 @@ else
     tee -a $out
 
   echo
-  pid=${2:-0}
   if [[ $pid -gt 0 ]]; then
     echo -n "pid ($pid, 0=abort): "
     read -r input
