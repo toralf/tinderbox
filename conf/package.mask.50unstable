@@ -6,5 +6,7 @@ games-action/astromenace
 
 <dev-libs/openssl-4.0.0:0/4                             # DICE: [openssl-4] 1 6
 
-# setup issues for now
+# too often setup or runtime issues
+#
+dev-db/mysql-connector-c
 dev-python/sphinx
