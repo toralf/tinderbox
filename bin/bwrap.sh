@@ -90,7 +90,7 @@ function Bwrap() {
     --proc /proc
     --perms 0755 --tmpfs /run
     --ro-bind /sys /sys
-    --size $((2 ** 30)) --perms 1777 --tmpfs /tmp
+    --size $((8 * 2 ** 30)) --perms 1777 --tmpfs /tmp
     --bind ~tinderbox/distfiles /var/cache/distfiles
     --ro-bind ~tinderbox/tb/data /mnt/tb/data
     --bind ~tinderbox/tb/findings /mnt/tb/findings
@@ -99,6 +99,7 @@ function Bwrap() {
     --ro-bind ~tinderbox/.bugzrc /root/.bugzrc
     --info-fd 11
   )
+  # for -g work on disk and hope (maybe b/c of copy-on-write ?) to not run into -ENOSPC
   if ! grep -q -F " -g " $mnt/etc/portage/make.conf; then
     sandbox+=(--size $((32 * 2 ** 30)) --perms 1777 --tmpfs /var/tmp/portage)
   fi
