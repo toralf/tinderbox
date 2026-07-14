@@ -110,12 +110,12 @@ function Bwrap() {
   sandbox+=(/bin/bash -l)
   {
     if [[ -n $entrypoint ]]; then
-      "${sandbox[@]}" "-c" "/root/entrypoint"
+      ${sandbox[@]} -c /root/entrypoint
     else
       if [[ -n ${SUDO_USER-} ]]; then
-        "${sandbox[@]}" "-c" "su - $SUDO_USER"
+        ${sandbox[@]} -c su - $SUDO_USER
       else
-        "${sandbox[@]}"
+        ${sandbox[@]}
       fi
     fi
   } 11>/tmp/$(basename $mnt).json
