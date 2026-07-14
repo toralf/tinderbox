@@ -5,15 +5,15 @@
 # print tinderbox statistics
 
 function printImageName() {
-  local img=${1?IMG MISSING}
+  local img=${1:?IMG MISSING}
   local chars=${2:-43}
 
   printf "%-${chars}s" $(cut -c -$chars <$img/var/tmp/tb/name)
 }
 
 function checkHistory() {
-  local file=${1?FILE MISSING}
-  local flag=${2?FLAG MISSING}
+  local file=${1:?FILE MISSING}
+  local flag=${2:?FLAG MISSING}
 
   # e.g.:
   # X = @x failed even to start
@@ -40,7 +40,7 @@ function checkHistory() {
 }
 
 function printTimeDiff() {
-  local ts=${1?TIME NOT GIVEN}
+  local ts=${1:?TIME NOT GIVEN}
 
   set +e # "0" is valid compuation result here
   local delta

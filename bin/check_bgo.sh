@@ -16,7 +16,7 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-issuedir=${1?missing issue dir}
+issuedir=${1:?missing issue dir}
 if [[ -z $issuedir || ! -d $issuedir ]]; then
   echo " wrong issuedir '$issuedir'" >&2
   exit 1

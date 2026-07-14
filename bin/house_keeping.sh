@@ -3,8 +3,8 @@
 # set -x
 
 function olderThan() {
-  local img=${1?IMG NOT SET}
-  local hours=${2?HOURS NOT SET}
+  local img=${1:?IMG NOT SET}
+  local hours=${2:?HOURS NOT SET}
 
   local start_time
   start_time=$(getStartTime $img)
@@ -27,7 +27,7 @@ function lowSpace() {
 }
 
 function canBePruned() {
-  local img=${1?IMG NOT SET}
+  local img=${1:?IMG NOT SET}
 
   if [[ -e ~tinderbox/run/$(basename $img) ]]; then
     return 1
@@ -48,7 +48,7 @@ function canBePruned() {
 }
 
 function pruneIt() {
-  local img=${1?IMG NOT SET}
+  local img=${1:?IMG NOT SET}
   local reason=${2:-no reason given}
 
   if canBePruned $img; then

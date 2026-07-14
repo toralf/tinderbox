@@ -117,7 +117,7 @@ function createSearchString() {
 #   <bug id>
 #   <pattern/s>
 function LookupForABlocker() {
-  local pattern_file=${1?}
+  local pattern_file=${1:?}
 
   while read -r line; do
     if [[ $line =~ ^[0-9]+$ ]]; then
@@ -143,8 +143,8 @@ function GotResults() {
 }
 
 function SearchForSameIssue() {
-  local pkg=${1?PKG UNDEFINED}
-  local pkgname=${2?PKGNAME UNDEFINED}
+  local pkg=${1:?PKG UNDEFINED}
+  local pkgname=${2:?PKGNAME UNDEFINED}
   local issuedir=${3?ISSUEDIR UNDEFINED}
 
   prepareResultFile
@@ -187,8 +187,8 @@ function SearchForSameIssue() {
 }
 
 function SearchForSimilarIssue() {
-  local pkg=${1?PKG UNDEFINED}
-  local pkgname=${2?PKGNAME UNDEFINED}
+  local pkg=${1:?PKG UNDEFINED}
+  local pkgname=${2:?PKGNAME UNDEFINED}
 
   prepareResultFile
   # resolved does not fit our definition of "opened same issue"
