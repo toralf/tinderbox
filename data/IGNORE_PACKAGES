@@ -88,3 +88,11 @@ games-engines/odamex
 #
 # hangs https://bugs.gentoo.org/961720
 sys-fs/bcachefs-tools
+#
+# slot conflicts
+dev-lang/ocaml
+dev-ml/ocaml-gettext
+dev-python/docutils
+#
+# openssl-4.x
+net-misc/rsync
