@@ -12,7 +12,7 @@ function CreateCgroup() {
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
       # reserve few vCPU for non-tinderboxing tasks
-      cpu=$(($(nproc) - 4))
+      cpu=$(($(nproc) - 5))
       echo "$((cpu * 100))" >$cgdomain/cpu.weight
       echo "$((cpu * 100000))" >$cgdomain/cpu.max
       echo "110G" >$cgdomain/memory.max
