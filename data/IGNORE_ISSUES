@@ -40,4 +40,5 @@ The present kernel disabled CONFIG_MODULES.
 This compiler lacks GCC plug-in support
 use flag is enabled, but hasn't been emerge
 USE=modules-sign requires additional configuration
+version GLIBCXX_3.4.36
 You need to select at least one compatible Ruby installation target

@@ -1,13 +1,16 @@
-[gcc-16]
-Requested by sam_
-
 [gcc-17]
 Requested by sam_
 
 [jdk26]
 Requested by gentoo@pogatzki.net
 
+[jdk27]
+Requested by gentoo@pogatzki.net
+
 [meson]
+Requested by ztrawhcse
+
+[meson-9999]
 Requested by ztrawhcse
 
 [portage-9999]
@@ -21,6 +24,3 @@ Requested by holgerh
 
 [eigen-5.0]
 Requested by negril
-
-[perl-5.44]
-Requested by dilfridge/dionysos
