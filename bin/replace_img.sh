@@ -97,8 +97,8 @@ if [[ ! -d /run/tb ]]; then
   exit 2
 fi
 
-# number of parallel images
-desired_count=${1:-$(($(nproc) / 3))}
+# number of parallel images, e.g. 9 for a 32 vCPU machine
+desired_count=${1:-$((1 + $(nproc) / 4))}
 
 lockfile="/tmp/$(basename $0).lock"
 if [[ -s $lockfile ]]; then
