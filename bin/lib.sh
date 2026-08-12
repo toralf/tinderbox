@@ -111,7 +111,7 @@ function createSearchString() {
 }
 
 # look for a blocker bug id
-# the BLOCKER file contains tupels like:
+# the BLOCKER file contains tuples like:
 #
 #   # comment
 #   <bug id>
