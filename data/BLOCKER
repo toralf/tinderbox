@@ -57,10 +57,6 @@ QA Notice: binaries depend on Gtk.s .*-specific ABI without USE dep
 959472
 Please specify prototyping behavior for|Unparseable XSUB parameter
 
-# (ffmpeg-8.0) - [Tracker] Packages broken with media-video/ffmpeg-8.0
-961435
-error:.*AV|error:.*FF_|AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC
-
 # [TRACKER] breakage with nasm-3"
 963809
 nasm|asm.*expression syntax error
@@ -100,3 +96,7 @@ Update BDEPEND to have .*dev-lang/go
 # (gcc-17) - [Tracker] sys-devel/gcc-17 porting
 973278
 internal compiler error:|string in namespace std does not name a type|dereferencing type-punned pointer will break strict-aliasing rules
+
+# [Tracker] Packages broken with media-video/ffmpeg-9.0
+961435
+error:.*AV|error:.*FF_|AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC

@@ -13,4 +13,6 @@
 
 =sys-apps/portage-9999                                  # DICE: [portage-9999] 1 4
 
-<sys-devel/gcc-17.0.9999:17                             # DICE: [gcc-17] 1 3
+#<sys-devel/gcc-17.0.9999:17                             # DICE: [gcc-17] 1 3
+
+=media-video/ffmpeg-9*                                  # DICE: [ffmpeg-9] 1 4
