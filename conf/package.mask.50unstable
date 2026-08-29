@@ -6,6 +6,10 @@ games-action/astromenace
 
 <dev-libs/openssl-4.0.0:0/4                             # DICE: [openssl-4] 1 6
 
+# setup speedup
+<llvm-core/clang-22.1.8:22                              # DICE: [] 1 5
+<llvm-core/llvm-22.1.8:22                               # DICE: [] 1 5
+
 # too often setup or runtime issues
 #
 dev-db/mysql-connector-c
