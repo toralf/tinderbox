@@ -512,18 +512,15 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
-  # take lines tagged with "# DICE: <topic>[ <m> <N>]" with an m/N chance (default: 50%)
+  # take (== not delete) lines ending with "# DICE: <topic>[ <m> <N>]" with an m/N chance (default: 50%)
   grep -hrv "^#" ./etc/portage/package.* |
     grep -o '# DICE: .*' |
     cut -f 3- -d ' ' |
     sort -u |
-    tr -d '][' |
     while read -r topic m N; do
       if ! dice ${m:-1} ${N:-2}; then
-        sed -i \
-          -e "/# DICE: $topic$/d" -e "/# DICE: $topic /d" \
-          -e "/# DICE: \[$topic\]$/d" -e "/# DICE: \[$topic\] /d" \
-          ./etc/portage/package.*/*
+        topic=$(tr -d '][' <<<$topic)
+        sed -i -e "/# DICE: \[$topic\]/d" ./etc/portage/package.*/*
       fi
     done
 

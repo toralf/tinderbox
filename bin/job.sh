@@ -413,10 +413,12 @@ function CompileIssueComment0() {
   name: $name
 EOF
 
+  # ignore empty []
   local dices=$(
     grep -hr -v "^#" /etc/portage/package.{accept_keywords,unmask}/ |
       grep "# DICE.*\[.*\]" |
       grep -Eo '(\[.*\])' |
+      grep . |
       sort -u
   )
   if [[ -n $dices ]]; then
@@ -1113,7 +1115,6 @@ function WorkOnTask() {
     fi
   fi
 
-  # it is only set if $task failed
   if [[ -n $pkg ]]; then
     if [[ $pkgname == "sys-devel/gcc" ]]; then
       if [[ ! $name =~ "_llvm" ]]; then
