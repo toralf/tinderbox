@@ -411,7 +411,7 @@ function cpconf() {
   # shellcheck disable=SC2045
   for f in $(ls $* 2>/dev/null); do
     # shellcheck disable=SC2034
-    read -r package suffix filename <<<$(tr '.' ' ' <<<$(basename $f))
+    IFS='.' read -r package suffix filename <<<$(basename $f)
     # e.g.: package.unmask.??common   ->   package.unmask/??common
     cp $f ./etc/portage/package.$suffix/$filename
     chmod a+r ./etc/portage/package.$suffix/$filename
