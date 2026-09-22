@@ -80,8 +80,5 @@ x11-plugins/gkrellmss
 <dev-util/colm-0.14.7-r4
 <dev-util/ragel-7.0.4-r3
 
-# xgqt
->=dev-dotnet/dotnet-sdk-bin-9.0.105
-
 # flipping, <@chutzpah> i would suggest try masking the old version and see what breaks
 <=dev-python/flit-core-3.12.0

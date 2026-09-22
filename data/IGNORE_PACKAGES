@@ -22,9 +22,11 @@ sci-astronomy/sextractor
 #
 # long emerge time
 #
+dev-db/mongodb
 dev-libs/rccl
 dev-qt/qtwebengine
 net-libs/webkit-gtk
+net-wireless/unifi
 #
 # too less dev resources
 #
@@ -81,18 +83,22 @@ dev-util/colm
 dev-util/ragel
 #
 # hangs
+#
 net-misc/rabbitmq-server
 #
 # https://bugs.gentoo.org/958367
 games-engines/odamex
 #
 # hangs https://bugs.gentoo.org/961720
+#
 sys-fs/bcachefs-tools
 #
 # slot conflicts
+#
 dev-lang/ocaml
 dev-ml/ocaml-gettext
 dev-python/docutils
 #
-# openssl-4.x
-net-misc/rsync
+# too often setup or runtime issues
+#
+dev-python/sphinx

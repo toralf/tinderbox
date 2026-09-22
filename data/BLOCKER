@@ -98,5 +98,5 @@ Update BDEPEND to have .*dev-lang/go
 internal compiler error:|string in namespace std does not name a type|dereferencing type-punned pointer will break strict-aliasing rules
 
 # [Tracker] Packages broken with media-video/ffmpeg-9.0
-961435
+978068
 error:.*AV|error:.*FF_|AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC
