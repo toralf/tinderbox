@@ -17,6 +17,8 @@
 
 =media-video/ffmpeg-9*                             **   # DICE: [ffmpeg-9] 1 4
 
+=dev-lang/swig-5.4*                                **   # DICE: [swig-5.4] 1 4
+
 #######################################################################
 #
 # no unmask needed

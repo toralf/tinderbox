@@ -100,3 +100,7 @@ internal compiler error:|string in namespace std does not name a type|dereferenc
 # [Tracker] Packages broken with media-video/ffmpeg-9.0
 978068
 error:.*AV|error:.*FF_|AVCodec|AVStream|AVFifoBuffer|AVFilterLink|AV_PIX_FMT_XVMC
+
+# (swig-4.5) - [Tracker] Breakage with dev-lang/swig-4.5*
+983043
+error: expected expression before .%. token|error: implicit declaration of function .PyInt_AsLong.; did you mean .PyLong_AsLong|error: implicit declaration of function .PyInt_Check.; did you mean .PySet_Check|error: implicit declaration of function .PyInt_FromLong.; did you mean .PyLong_FromLong|error: implicit declaration of function .PyString_Check.; did you mean .PyMapping_Check|error: .PyString_FromString. was not declared in this scope; did you mean .PyLong_FromString|error: .SWIG_Python_str_FromChar. was not declared in this scope
