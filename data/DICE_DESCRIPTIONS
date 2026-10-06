@@ -19,7 +19,7 @@ Requested by Portage developer team
 [openssl-4]
 Requested by kangie
 
-[boost-1.91]
+[boost-1.92]
 Requested by holgerh
 
 [eigen-5.0]
@@ -28,5 +28,8 @@ Requested by negril
 [ffmpeg-9]
 Requested by ionen
 
-[swig-5.4]
+[swig-4.5]
 Requested by parona
+
+[texlive-2026]
+Requested by flow
