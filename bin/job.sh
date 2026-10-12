@@ -230,7 +230,7 @@ function CollectIssueFiles() {
     cp ${workdir}/*/CMakeCache.txt $issuedir/files/ 2>/dev/null || true
 
     if [[ -d $workdir/../../temp ]]; then
-      $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
+      if ! $tar -C $workdir/../.. -cJpf $issuedir/files/temp.tar.xz \
         --warning=none --sparse \
         --exclude='*/.tmp??????/*' \
         --exclude='*/cc*.ltrans*.o' \
@@ -247,6 +247,9 @@ function CollectIssueFiles() {
         --exclude='*/var-tests/*' \
         --exclude='*/zig-cache/*' \
         ./temp
+      then
+        echo "something odd in $workdir/../.." >&2
+      fi
     fi
 
     # ICE
