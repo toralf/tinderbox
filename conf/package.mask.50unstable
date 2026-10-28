@@ -4,7 +4,7 @@
 # hangs: https://bugs.gentoo.org/971634
 games-action/astromenace
 
-<dev-libs/openssl-4.0.2:0/4                             # DICE: [openssl-4] 1 3
+<dev-libs/openssl-4.0.2:0/4                             # DICE: [openssl-4] 3 4
 
 # setup speedup
 <llvm-core/clang-22.1.8:22                              # DICE: [] 1 3
