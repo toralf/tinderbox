@@ -15,8 +15,8 @@ function CreateCgroup() {
       cpu=$(($(nproc) - 5))
       echo "$((cpu * 100))" >$cgdomain/cpu.weight
       echo "$((cpu * 100000))" >$cgdomain/cpu.max
-      echo "110G" >$cgdomain/memory.max
-      echo "200G" >$cgdomain/memory.swap.max
+      echo "90G" >$cgdomain/memory.max
+      echo "150G" >$cgdomain/memory.swap.max
     fi
   fi
 
