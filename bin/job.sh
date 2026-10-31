@@ -768,7 +768,11 @@ function PostEmerge() {
 
   # run this as the very last step
   if grep -q 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
-    add2backlog "@preserved-rebuild"
+    if ! grep -q 'openssl-4' /etc/portage/package.unmask/*; then
+      if (($(tail -n 7 $taskfile.history | grep -c '@preserved-rebuild') < 3)); then
+        add2backlog "@preserved-rebuild"
+      fi
+    fi
     # no @world and no deplean after this
   fi
 
@@ -1137,16 +1141,13 @@ function DetectRepeats() {
   local count item
 
   if [[ ! $name =~ "_test" ]]; then
-    item='@preserved-rebuild'
-    if count=$(tail -n 7 $taskfile.history | grep -c "$item"); then
-      if ((count >= 3)) && grep -q "WARNING:" $tasklog; then
-        ReachedEOL "repeated: $count x $item" $tasklog
-      fi
+    if (($(tail -n 7 $taskfile.history | grep -c '@preserved-rebuild') >= 3)) && grep -q "WARNING:" $tasklog; then
+      ReachedEOL "@preserved-rebuild warned too often: $count" $tasklog
     fi
   fi
 
   if read -r count item < <(tail -n 60 $taskfile.history | sort | uniq -c | sort -bnr | head -n 1); then
-    if [[ $count -ge 7 && $item == '@preserved-rebuild' || $count -ge 20 ]]; then
+    if [[ $count -ge 20 ]]; then
       ReachedEOL "repeated: $count x $item" $tasklog
     fi
   fi
