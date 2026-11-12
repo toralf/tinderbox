@@ -38,7 +38,12 @@ sys-kernel/installkernel            -dracut -grub
 #
 # misc
 
+
 # grep -hr -A 12 ' Error: circular dependencies:' ~/run/*/var/tmp/tb/logs/ | grep -F 'Change USE:' | sort | uniq -c | sort -bn
+
+# loong build time
+*/*                                 -webengine
+
 #
 dev-lang/vala                       -valadoc
 
@@ -47,8 +52,6 @@ dev-lang/vala                       -valadoc
 dev-libs/libpcre*                   -libedit readline   # DICE: setup_pcre 7 8
 media-libs/mesa                     llvm                # DICE: setup_mesa 7 8
 x11-misc/xdg-utils                  dbus                # DICE: setup_xdg 7 8
-
-*/*         RUBY_TARGETS:           ruby40              # DICE: ruby40
 
 # setup almost failed otherwise
 #

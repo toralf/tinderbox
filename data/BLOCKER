@@ -71,7 +71,7 @@ unstripped LTO libs|Wlto-type-mismatch
 
 # [Tracker] Breakage with =dev-libs/openssl-4*
 972902
-undefined reference to ENGINE_load_builtin_engines|undefined symbol: TLSv1_method|typedef ASN1_|Unknown/unsupported OpenSSL version|compatible with OpenSSL|const X509_name|SSLv3_method|function TLSv1_|type ASN1_|TLSv1_2_method was not declared
+undefined reference to ENGINE_load_builtin_engines|undefined symbol: TLSv1_method|typedef ASN1_|Unknown/unsupported OpenSSL version|compatible with OpenSSL|const X509_name|SSLv3_method|function TLSv1_|type ASN1_|TLSv1_2_method was not declared|SSLv3_
 
 # [TRACKER] Go packages with wrong minimal go toolchain BDEPEND
 973632

@@ -4,17 +4,17 @@
 # hangs: https://bugs.gentoo.org/971634
 games-action/astromenace
 
-<dev-libs/openssl-4.0.2:0/4                             # DICE: [openssl-4] 3 4
-
 # setup speedup
-<llvm-core/clang-22.1.8:22                              # DICE: [] 1 3
-<llvm-core/llvm-22.1.8:22                               # DICE: [] 1 3
-<llvm-core/clang-21.1.8:21                              # DICE: [] 1 3
-<llvm-core/llvm-21.1.8:21                               # DICE: [] 1 3
-<llvm-core/clang-20.1.8:20                              # DICE: [] 1 3
-<llvm-core/llvm-20.1.8:20                               # DICE: [] 1 3
+<llvm-core/clang-23.1.5                                 # DICE: llvm23
+<llvm-core/llvm-23.1.5                                  # DICE: llvm23
+<llvm-core/clang-22.1.8                                 # DICE: llvm22
+<llvm-core/llvm-22.1.8                                  # DICE: llvm22
+<llvm-core/clang-21.1.8                                 # DICE: llvm21
+<llvm-core/llvm-21.1.8                                  # DICE: llvm21
+<llvm-core/clang-20.1.8                                 # DICE: llvm20
+<llvm-core/llvm-20.1.8                                  # DICE: llvm20
 
 # too often setup or runtime issues
 #
 dev-db/mysql-connector-c
-dev-python/sphinx                                       # DICE: []
+dev-python/sphinx                                       # DICE: sphinx
