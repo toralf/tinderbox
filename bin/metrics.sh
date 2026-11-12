@@ -8,7 +8,7 @@ function printMetrics() {
   var="tinderbox_emerge_completed_img_total"
   echo -e "# HELP $var Total number of completed emerges per image in ~/run\n# TYPE $var counter"
   while read -r img; do
-    if c=$(grep -cF '::: completed emerge' ~tinderbox/run/$img/var/log/emerge.log) 2>/dev/null; then
+    if c=$(grep -cF '::: completed emerge' ~tinderbox/run/$img/var/log/emerge.log 2>/dev/null); then
       echo "$var{img=\"$img\"} $c"
     fi
   done < <(find ~tinderbox/run/ -type l -print0 | xargs -r -n 1 --null basename)
@@ -16,8 +16,8 @@ function printMetrics() {
   var="tinderbox_age_img_total"
   echo -e "# HELP $var Age of an image in ~/run\n# TYPE $var counter"
   while read -r img; do
-    if c=$((EPOCHSECONDS - $(getStartTime $img))) 2>/dev/null; then
-      echo "$var{img=\"$img\"} $c"
+    if s=$(getStartTime $img 2>/dev/null); then
+      echo "$var{img=\"$img\"} $((EPOCHSECONDS - s))"
     fi
   done < <(find ~tinderbox/run/ -type l -print0 | xargs -r -n 1 --null basename)
 
@@ -39,7 +39,7 @@ function printMetrics() {
     else
       ((++o))
     fi
-  done < <(list_active_images)
+  done < <(list_active_images 2>/dev/null)
   echo "$var{state=\"crashed\"} $c"
   echo "$var{state=\"other\"} $o"
   echo "$var{state=\"running\"} $r"
