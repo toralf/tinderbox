@@ -248,7 +248,7 @@ function SearchForSimilarIssue() {
       sed -e '/^$/d' |
       sort -n -r |
       head -n 5 |
-      tee $issuedir/bugz_result
+      tee -a $issuedir/bugz_result
     if BgoIssue; then
       return 1
     elif GotResults; then
