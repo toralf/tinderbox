@@ -512,7 +512,7 @@ EOF
 
   cpconf $tbhome/tb/conf/package.*.??test-$testfeature
 
-  # take (== not delete) lines ending with "# DICE: <topic>[ <m> <N>]" with an m/N chance (default: 50%)
+  # take (== not delete) lines ending with "# DICE: <topic> <m> <N>" with an m/N chance (default: 50%)
   grep -hrv "^#" ./etc/portage/package.* |
     grep -o '# DICE: .*' |
     cut -f 3- -d ' ' |
