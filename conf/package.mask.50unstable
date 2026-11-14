@@ -5,8 +5,6 @@
 games-action/astromenace
 
 # setup speedup
-<llvm-core/clang-23.1.5                                 # DICE: llvm23
-<llvm-core/llvm-23.1.5                                  # DICE: llvm23
 <llvm-core/clang-22.1.8                                 # DICE: llvm22
 <llvm-core/llvm-22.1.8                                  # DICE: llvm22
 <llvm-core/clang-21.1.8                                 # DICE: llvm21
