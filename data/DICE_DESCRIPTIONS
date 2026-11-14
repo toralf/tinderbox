@@ -1,3 +1,15 @@
+[boost-1.92]
+Requested by holgerh
+
+[cmake-4.4]
+Requested by sam_
+
+[eigen-5.0]
+Requested by negril
+
+[ffmpeg-9]
+Requested by ionen
+
 [gcc-17]
 Requested by sam_
 
@@ -13,20 +25,11 @@ Requested by ztrawhcse
 [meson-9999]
 Requested by ztrawhcse
 
-[portage-9999]
-Requested by Portage developer team
-
 [openssl-4]
 Requested by kangie
 
-[boost-1.92]
-Requested by holgerh
-
-[eigen-5.0]
-Requested by negril
-
-[ffmpeg-9]
-Requested by ionen
+[portage-9999]
+Requested by Portage developer team
 
 [swig-4.5]
 Requested by parona
