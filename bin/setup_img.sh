@@ -520,7 +520,7 @@ EOF
     while read -r topic m N; do
       if ! dice ${m:-1} ${N:-2}; then
         topic=$(tr -d '][' <<<$topic)
-        sed -i -e "/# DICE: \[$topic\]/d" ./etc/portage/package.*/*
+        sed -i -e "/# DICE: \[*$topic\]* /d"  -e "/# DICE: \[*$topic\]*$/d" ./etc/portage/package.*/*
       fi
     done
 
