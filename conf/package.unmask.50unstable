@@ -7,7 +7,7 @@
 
 =dev-libs/boost-1.92.0*                                 # DICE: [boost-1.92] 1 2
 
-<dev-build/cmake-4.4.9*                                 # DICE: [cmake-4.4] 1 2
+<dev-build/cmake-9999                                   # DICE: [cmake-4.4] 1 2
 
 <dev-cpp/eigen-5.0.9999:3                               # DICE: [eigen-5.0] 1 3
 
