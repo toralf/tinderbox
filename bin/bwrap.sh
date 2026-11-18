@@ -6,15 +6,15 @@ function CreateCgroup() {
   local name=$cgdomain/${mnt##*/}
   local cpu
 
-  # put all tinderbox images under 1 sub group
+  # reserve few vCPU for non-tinderboxing tasks
+  cpu=$(($(nproc) - 5))
+
+  # put all tinderbox image cgroups under 1 cgroup
   if [[ ! -d $cgdomain ]]; then
     if mkdir $cgdomain 2>/dev/null; then
       echo "+cpu +cpuset +memory" >$cgdomain/cgroup.subtree_control
 
-      # reserve few vCPU for non-tinderboxing tasks
-      cpu=$(($(nproc) - 5))
-      echo "$((cpu * 100))" >$cgdomain/cpu.weight
-      echo "$((cpu * 100000))" >$cgdomain/cpu.max
+      echo "$((cpu * 100000)) 100000" >$cgdomain/cpu.max
       echo "90G" >$cgdomain/memory.max
       echo "150G" >$cgdomain/memory.swap.max
     fi
@@ -31,15 +31,14 @@ function CreateCgroup() {
     fi
   fi
 
+  # tinderbox image specific cgroup
   if ! mkdir $name; then
     return 13
   fi
   echo "$$" >$name/cgroup.procs
 
-  # vCPU and memory per image, the cpu value should match --per-process-limit of dev-build/steve
-  cpu=$(($(nproc) / 2))
-  echo "$((cpu * 100))" >$name/cpu.weight
-  echo "$((cpu * 100000))" >$name/cpu.max
+  # vCPU and memory per image, the cpu value should match "--per-process-limit" of dev-build/steve
+  echo "$((cpu * 100000)) 100000" >$name/cpu.max
   echo "64G" >$name/memory.max
   echo "64G" >$name/memory.swap.max
 }
