@@ -524,7 +524,7 @@ EOF
       fi
     done
 
-  echo "*/*  $(cpuid2cpuflags)" >./etc/portage/package.use/99cpuflags
+  echo "$(cpuid2cpuflags)" >./etc/portage/package.use/99cpuflags
 
   for f in "$tbhome"/tb/conf/profile.*; do
     local target=./etc/portage/profile/$(basename $f | sed -e 's,profile.,,')
