@@ -7,12 +7,7 @@ games-action/astromenace
 # setup speedup
 <llvm-core/clang-22.1.8                                 # DICE: llvm22
 <llvm-core/llvm-22.1.8                                  # DICE: llvm22
-<llvm-core/clang-21.1.8                                 # DICE: llvm21
-<llvm-core/llvm-21.1.8                                  # DICE: llvm21
-<llvm-core/clang-20.1.8                                 # DICE: llvm20
-<llvm-core/llvm-20.1.8                                  # DICE: llvm20
 
 # too often setup or runtime issues
 #
 dev-db/mysql-connector-c
-dev-python/sphinx                                       # DICE: sphinx
