@@ -766,7 +766,7 @@ function PostEmerge() {
 
   # run this as the very last step
   if grep -q 'Use emerge @preserved-rebuild to rebuild packages using these libraries' $tasklog_stripped; then
-    if ! grep -q 'openssl-4' /etc/portage/package.unmask/*; then
+    if ! grep -q 'openssl-4' $tasklog_stripped; then
       if (($(tail -n 7 $taskfile.history | grep -c '@preserved-rebuild') < 3)); then
         add2backlog "@preserved-rebuild"
       fi
@@ -936,9 +936,9 @@ function RunAndCheck() {
   filterPlainText <$tasklog >$tasklog_stripped
   PostEmerge
 
-  # emerge failed somwhow
+  # emerge failed
   if [[ $rc -gt 0 ]] || grep -q -F '* ERROR: ' $tasklog_stripped; then
-
+    # extern
     if [[ $rc -gt 128 ]]; then
       local signal=$((rc - 128))
       if [[ $signal -eq 9 ]]; then
@@ -1055,10 +1055,10 @@ function WorkOnTask() {
         ReachedEOL "failed: USE changes" $tasklog
       elif [[ $task =~ " --depclean" ]]; then
         if grep -q 'Dependencies could not be completely resolved due to' $tasklog; then
-          if grep -q 'llvm-runtimes/clang-runtime' $tasklog; then
-            Mail "NOTICE: --depclean failed - ignored" $tasklog
-          else
-            ReachedEOL "--depclean failed" $tasklog
+          if ! grep -q 'llvm-runtimes/clang-runtime' $tasklog; then
+            if ! grep -q 'openssl-4' $tasklog; then
+              ReachedEOL "--depclean failed" $tasklog
+            fi
           fi
         fi
       elif [[ -n $pkg && ! $task =~ $pkg ]]; then
@@ -1102,13 +1102,17 @@ function WorkOnTask() {
     if RunAndCheck "emerge -u $getbinpkg $task"; then
       if [[ $task == "@preserved-rebuild" ]]; then
         if grep -q -F '!!! existing preserved libs:' $tasklog; then
-          ReachedEOL "$task still has preserved libs" $tasklog
+          if ! grep -q 'openssl-4' $tasklog; then
+            ReachedEOL "$task still has preserved libs" $tasklog
+          fi
         fi
       fi
     else
       if [[ $task == "@preserved-rebuild" ]]; then
         if [[ -z $pkg && $try_again -eq 0 ]]; then
-          ReachedEOL "$task failed" $tasklog
+          if ! grep -q 'openssl-4' $tasklog; then
+            ReachedEOL "$task failed" $tasklog
+          fi
         fi
         add2backlog "$task"
 
@@ -1140,7 +1144,9 @@ function DetectRepeats() {
 
   if [[ ! $name =~ "_test" ]]; then
     if (($(tail -n 7 $taskfile.history | grep -c '@preserved-rebuild') >= 3)) && grep -q "WARNING:" $tasklog; then
-      ReachedEOL "@preserved-rebuild warned too often: $count" $tasklog
+      #if ! grep -q 'openssl-4' $tasklog; then
+        ReachedEOL "@preserved-rebuild warned too often" $tasklog
+      #fi
     fi
   fi
 
