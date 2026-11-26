@@ -416,12 +416,10 @@ function CompileIssueComment0() {
   name: $name
 EOF
 
-  # ignore empty []
   local dices=$(
     grep -hr -v "^#" /etc/portage/package.{accept_keywords,unmask}/ |
       grep "# DICE.*\[.*\]" |
       grep -Eo '(\[.*\])' |
-      grep . |
       sort -u
   )
   if [[ -n $dices ]]; then
